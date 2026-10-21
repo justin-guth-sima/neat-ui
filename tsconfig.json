@@ -28,6 +28,9 @@
       "path": "./projects/neat-ui/tsconfig.lib.json"
     },
     {
+      "path": "./projects/neat-ui/tsconfig.spec.json"
+    },
+    {
       "path": "./projects/showcase/tsconfig.app.json"
     },
     {

@@ -3,6 +3,12 @@
   "version": "0.0.0",
   "description": "SiMa.ai-branded Angular UI kit for Neat applications",
   "private": true,
+  "exports": {
+    "./styles/neat-ui.css": {
+      "style": "./styles/neat-ui.css",
+      "default": "./styles/neat-ui.css"
+    }
+  },
   "peerDependencies": {
     "@angular/cdk": "~22.1.0",
     "@angular/common": "~22.2.0",

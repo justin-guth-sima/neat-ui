@@ -24,6 +24,9 @@
           },
           "defaultConfiguration": "production"
         },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
@@ -51,7 +54,10 @@
                 "input": "projects/showcase/public"
               }
             ],
-            "styles": ["projects/showcase/src/styles.css"]
+            "styles": [
+              "projects/neat-ui/src/styles/neat-ui.css",
+              "projects/showcase/src/styles.css"
+            ]
           },
           "configurations": {
             "production": {

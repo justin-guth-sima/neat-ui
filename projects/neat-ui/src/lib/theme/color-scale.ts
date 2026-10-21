@@ -1,0 +1,125 @@
+import {
+  hexToOklab,
+  hexToOklch,
+  isInSrgbGamut,
+  normalizeHex,
+  Oklch,
+  oklabToHex,
+  oklchToHex,
+} from './color';
+import { SIMA_PALETTE } from './palette';
+
+export type ColorStep = 0 | 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950;
+export type ColorScale = Record<Exclude<ColorStep, 0>, string>;
+export type SurfaceScale = Record<ColorStep, string>;
+
+type LighterStep = 50 | 100 | 200 | 300 | 400;
+type DarkerStep = 600 | 700 | 800 | 900 | 950;
+type InterpolatedSurfaceStep = 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
+
+/** OKLCH lightness that lighter steps move towards. */
+const LIGHTEST_L = 0.985;
+/** OKLCH lightness that darker steps move towards. */
+const DARKEST_L = 0.13;
+/** How far each lighter step moves from the base towards LIGHTEST_L. */
+const LIGHTER_FRACTIONS: Record<LighterStep, number> = {
+  50: 0.92,
+  100: 0.8,
+  200: 0.62,
+  300: 0.42,
+  400: 0.2,
+};
+/** How far each darker step moves from the base towards DARKEST_L. */
+const DARKER_FRACTIONS: Record<DarkerStep, number> = {
+  600: 0.15,
+  700: 0.32,
+  800: 0.5,
+  900: 0.66,
+  950: 0.8,
+};
+/** Chroma shrinks by this share of the step's fraction, so the ends of the ramp are calmer. */
+const CHROMA_FALLOFF = 0.6;
+/** Bisection rounds when pulling chroma back into sRGB; far below one 8-bit step. */
+const GAMUT_SEARCH_ROUNDS = 24;
+/** Position of each interpolated surface step between the alternate background and the text. */
+const SURFACE_FRACTIONS: Record<InterpolatedSurfaceStep, number> = {
+  200: 0.1,
+  300: 0.22,
+  400: 0.36,
+  500: 0.5,
+  600: 0.62,
+  700: 0.73,
+  800: 0.83,
+  900: 0.92,
+};
+
+/** Reduces chroma, keeping lightness and hue, until the colour fits in sRGB. */
+function fitToSrgb(color: Oklch): Oklch {
+  if (isInSrgbGamut(color)) return color;
+  let inside = 0;
+  let outside = color.c;
+  for (let round = 0; round < GAMUT_SEARCH_ROUNDS; round++) {
+    const c = (inside + outside) / 2;
+    if (isInSrgbGamut({ ...color, c })) inside = c;
+    else outside = c;
+  }
+  return { ...color, c: inside };
+}
+
+function shade(base: Oklch, targetL: number, fraction: number): string {
+  return oklchToHex(
+    fitToSrgb({
+      l: base.l + (targetL - base.l) * fraction,
+      c: base.c * (1 - CHROMA_FALLOFF * fraction),
+      h: base.h,
+    }),
+  );
+}
+
+/** Builds a 50-950 ramp in OKLCH around `base`, which becomes step 500 unchanged. */
+export function buildColorScale(base: string): ColorScale {
+  const oklch = hexToOklch(base);
+  const lighter = (step: LighterStep) => shade(oklch, LIGHTEST_L, LIGHTER_FRACTIONS[step]);
+  const darker = (step: DarkerStep) => shade(oklch, DARKEST_L, DARKER_FRACTIONS[step]);
+  return {
+    50: lighter(50),
+    100: lighter(100),
+    200: lighter(200),
+    300: lighter(300),
+    400: lighter(400),
+    500: normalizeHex(base),
+    600: darker(600),
+    700: darker(700),
+    800: darker(800),
+    900: darker(900),
+    950: darker(950),
+  };
+}
+
+/**
+ * Builds the neutral surface ramp: white, the two palette backgrounds and the palette text as
+ * anchors, with 200-900 interpolated in OKLab between the alternate background and the text.
+ */
+export function buildSurfaceScale(): SurfaceScale {
+  const from = hexToOklab(SIMA_PALETTE.backgroundAlt);
+  const to = hexToOklab(SIMA_PALETTE.text);
+  const between = (step: InterpolatedSurfaceStep) => {
+    const t = SURFACE_FRACTIONS[step];
+    const mix = (channel: 0 | 1 | 2) => from[channel] + (to[channel] - from[channel]) * t;
+    return oklabToHex([mix(0), mix(1), mix(2)]);
+  };
+  return {
+    0: SIMA_PALETTE.white,
+    50: SIMA_PALETTE.background,
+    100: SIMA_PALETTE.backgroundAlt,
+    200: between(200),
+    300: between(300),
+    400: between(400),
+    500: between(500),
+    600: between(600),
+    700: between(700),
+    800: between(800),
+    900: between(900),
+    950: SIMA_PALETTE.text,
+  };
+}
