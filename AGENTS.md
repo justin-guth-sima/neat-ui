@@ -38,6 +38,7 @@ No hex, `rgb()`, `rgba()`, `hsl()` or `hsla()` anywhere else, in CSS, TypeScript
 Why: the palette is fixed and lives in the theme so both themes stay coherent. Stylelint enforces
 this for stylesheets (`npm run lint`). Escape hatch: if you need a colour that is not a token, add a
 token in the theme directory through a kit change; never inline the value.
+The only exception: official brand-asset SVGs (the SiMa.ai logo) keep their own `fill` attributes.
 
 **Pages fill the shell's content area and own at most one scroll context.**
 Why: nested scroll containers and hard-coded heights break on other screen sizes and in kiosk mode,

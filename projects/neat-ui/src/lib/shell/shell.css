@@ -31,7 +31,8 @@
   box-sizing: border-box;
   padding: 0.5rem;
   overflow: hidden;
-  border-inline-end: 1px solid var(--p-content-border-color);
+  /* A divider drawn inside the padding, not a border, so items keep the full 2.5rem width. */
+  box-shadow: inset -1px 0 0 var(--p-content-border-color);
 }
 
 .rail[data-expanded='false'] {
