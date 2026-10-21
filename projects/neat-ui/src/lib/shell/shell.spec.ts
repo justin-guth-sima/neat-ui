@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, RouterOutlet, Routes } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { KIOSK_POINTER_IDLE_MS, KioskService } from '../kiosk/kiosk.service';
 import { ThemeService } from '../theme/theme.service';
 import { NeatNavItem } from './nav-item';
 import { NeatShell } from './shell';
@@ -56,6 +57,9 @@ describe('NeatShell', () => {
     shell().querySelector(`button[aria-label="${name}"]`) as HTMLButtonElement;
   const railToggle = (): HTMLButtonElement => button('Show labels');
   const themeToggle = (): HTMLButtonElement => button('Dark mode');
+  const kioskButton = (): HTMLButtonElement => button('Kiosk mode');
+  const exitControl = (): HTMLButtonElement => button('Exit kiosk mode');
+  const main = (): HTMLElement => shell().querySelector('main') as HTMLElement;
   const labelOf = (anchor: HTMLAnchorElement): HTMLElement =>
     anchor.querySelector('.label') as HTMLElement;
   const tooltip = (): HTMLElement | null => document.querySelector('.p-tooltip');
@@ -74,6 +78,7 @@ describe('NeatShell', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
     tooltip()?.remove();
     document.documentElement.classList.remove('neat-dark');
@@ -189,6 +194,114 @@ describe('NeatShell', () => {
 
     expect(theme.scheme()).toBe('light');
     expect(themeToggle().getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('hides rail and top bar while kiosk is active', async () => {
+    await start();
+    const kiosk = TestBed.inject(KioskService);
+
+    await kiosk.enter();
+    await settle();
+
+    expect(shell().querySelector('nav')).toBeNull();
+    expect(shell().querySelector('header')).toBeNull();
+    expect(main().textContent).toContain('page content');
+    // The content area takes the whole viewport.
+    expect(getComputedStyle(shell()).gridTemplateAreas).toBe('"content"');
+
+    await kiosk.exit();
+    await settle();
+
+    expect(nav().getAttribute('aria-label')).toBe('Main');
+    expect(topbar().textContent).toContain('Neat Insight');
+    expect(getComputedStyle(shell()).gridTemplateAreas).toBe('"rail topbar" "rail content"');
+  });
+
+  it('shows the exit control on pointer movement and hides it when the pointer is idle', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    await start();
+    expect(exitControl()).toBeNull();
+
+    await TestBed.inject(KioskService).enter();
+    await settle();
+    const control = exitControl();
+    const shown = () => getComputedStyle(control).opacity === '1';
+    expect(shown()).toBe(true);
+
+    await vi.advanceTimersByTimeAsync(KIOSK_POINTER_IDLE_MS);
+    await settle();
+    expect(shown()).toBe(false);
+    // Faded out, it ignores pointers (a tap wakes it first) but stays in the accessibility tree.
+    expect(getComputedStyle(control).pointerEvents).toBe('none');
+    expect(control.closest('[aria-hidden="true"]')).toBeNull();
+
+    document.dispatchEvent(new Event('pointermove'));
+    await settle();
+    expect(shown()).toBe(true);
+
+    await vi.advanceTimersByTimeAsync(KIOSK_POINTER_IDLE_MS);
+    await settle();
+    expect(shown()).toBe(false);
+
+    document.dispatchEvent(new Event('touchstart'));
+    await settle();
+    expect(shown()).toBe(true);
+  });
+
+  it('keeps the exit control visible while it has keyboard focus', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    await start();
+    await TestBed.inject(KioskService).enter();
+    await settle();
+    const control = exitControl();
+
+    control.focus();
+    await vi.advanceTimersByTimeAsync(KIOSK_POINTER_IDLE_MS);
+    await settle();
+
+    expect(TestBed.inject(KioskService).pointerIdle()).toBe(true);
+    expect(getComputedStyle(control).opacity).toBe('1');
+    // It comes first in the tab order, ahead of the page.
+    expect(control.compareDocumentPosition(main()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    control.blur();
+    await settle();
+
+    expect(getComputedStyle(control).opacity).toBe('0');
+  });
+
+  it('makes the exit control a tap-friendly circle of at least 44px', async () => {
+    await start();
+    await TestBed.inject(KioskService).enter();
+    await settle();
+
+    const style = getComputedStyle(exitControl());
+    // Aura sizes a large round icon-only button by this token; the control scopes it to 3rem.
+    expect(style.width).toBe('var(--p-button-lg-icon-only-width)');
+    expect(style.height).toBe('var(--p-button-lg-icon-only-width)');
+    expect(style.getPropertyValue('--p-button-lg-icon-only-width').trim()).toBe('3rem');
+  });
+
+  it('exit control and top-bar kiosk button both work', async () => {
+    await start();
+    const kiosk = TestBed.inject(KioskService);
+    expect(topbar().contains(kioskButton())).toBe(true);
+    expect(kioskButton().getAttribute('aria-pressed')).toBe('false');
+    expect(kioskButton().querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+
+    kioskButton().click();
+    await settle();
+
+    expect(kiosk.active()).toBe(true);
+    expect(shell().querySelector('header')).toBeNull();
+    expect(exitControl().querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+
+    exitControl().click();
+    await settle();
+
+    expect(kiosk.active()).toBe(false);
+    expect(exitControl()).toBeNull();
+    expect(kioskButton().getAttribute('aria-pressed')).toBe('false');
   });
 
   it('projects [neatTopbarEnd] content into the top bar', async () => {

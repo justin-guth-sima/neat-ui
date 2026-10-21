@@ -19,3 +19,4 @@ export type { NeatIconName } from './lib/icon/icon-registry';
 export type { NeatNavItem } from './lib/shell/nav-item';
 export { NeatShell } from './lib/shell/shell';
 export { NeatPage } from './lib/page/page';
+export { KIOSK_POINTER_IDLE_MS, KioskService } from './lib/kiosk/kiosk.service';

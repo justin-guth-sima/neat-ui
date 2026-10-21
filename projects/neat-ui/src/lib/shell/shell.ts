@@ -9,6 +9,8 @@ import {
 import { ButtonDirective } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
 import { NeatIcon } from '../icon/icon';
+import { NeatKioskExit } from '../kiosk/kiosk-exit';
+import { KioskService } from '../kiosk/kiosk.service';
 import { safeStorage } from '../storage';
 import { ThemeService } from '../theme/theme.service';
 import { NeatLogo } from './logo';
@@ -32,11 +34,24 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
  *
  * Content projection: the default slot is the content area (usually a `<router-outlet />`);
  * elements marked `neatTopbarEnd` go to the right side of the top bar.
+ *
+ * Kiosk mode (`KioskService`, entered from the top bar or with `?kiosk`) drops the rail and the
+ * top bar, gives the content area the whole viewport and floats an exit control over its top
+ * right corner while the pointer moves.
  */
 @Component({
   selector: 'neat-shell',
-  imports: [ButtonDirective, NeatIcon, NeatLogo, RouterLink, RouterLinkActive, Tooltip],
+  imports: [
+    ButtonDirective,
+    NeatIcon,
+    NeatKioskExit,
+    NeatLogo,
+    RouterLink,
+    RouterLinkActive,
+    Tooltip,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[attr.data-kiosk]': 'kiosk.active()' },
   templateUrl: './shell.html',
   styleUrl: './shell.css',
 })
@@ -45,6 +60,7 @@ export class NeatShell {
   readonly navItems = input.required<NeatNavItem[]>();
 
   protected readonly theme = inject(ThemeService);
+  protected readonly kiosk = inject(KioskService);
   private readonly router = inject(Router);
 
   protected readonly activeMatch = ACTIVE_MATCH;
