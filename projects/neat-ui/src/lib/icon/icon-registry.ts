@@ -1,7 +1,9 @@
 import {
   LucideActivity,
+  LucideBlocks,
   LucideCable,
   LucideCpu,
+  LucideFileText,
   LucideFolderOpen,
   LucideIcon,
   LucideInfo,
@@ -9,9 +11,11 @@ import {
   LucideMaximize,
   LucideMinimize,
   LucideMoon,
+  LucidePalette,
   LucidePanelLeftClose,
   LucidePanelLeftOpen,
   LucideRadioTower,
+  LucideShapes,
   LucideSun,
 } from '@lucide/angular';
 
@@ -34,6 +38,13 @@ export const NEAT_ICONS = {
   'kiosk-exit': LucideMinimize,
   'rail-expand': LucidePanelLeftOpen,
   'rail-collapse': LucidePanelLeftClose,
+  palette: LucidePalette,
+  shapes: LucideShapes,
+  blocks: LucideBlocks,
+  document: LucideFileText,
 } satisfies Record<string, LucideIcon>;
 
 export type NeatIconName = keyof typeof NEAT_ICONS;
+
+/** Every name in the registry, in registry order, for galleries and pickers. */
+export const NEAT_ICON_NAMES: readonly NeatIconName[] = Object.keys(NEAT_ICONS) as NeatIconName[];

@@ -1,17 +1,49 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { App } from './app';
+import { appConfig } from './app.config';
+
+const PAGES = [
+  { path: '/theme', link: 'Theme', heading: 'Palette' },
+  { path: '/icons', link: 'Icons', heading: 'Icons' },
+  { path: '/components', link: 'Components', heading: 'Button' },
+  { path: '/page', link: 'Page', heading: 'Page' },
+];
 
 describe('App', () => {
+  let fixture: ComponentFixture<App>;
+  let router: Router;
+
+  const root = (): HTMLElement => fixture.nativeElement;
+  const content = (): HTMLElement => root().querySelector('neat-shell main.content') as HTMLElement;
+
+  async function navigate(path: string): Promise<void> {
+    await router.navigateByUrl(path);
+    await fixture.whenStable();
+  }
+
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [App],
-    }).compileComponents();
+    TestBed.configureTestingModule({ providers: appConfig.providers });
+    router = TestBed.inject(Router);
+    fixture = TestBed.createComponent(App);
+    await navigate('/');
   });
 
-  it('should render the showcase heading', async () => {
-    const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('neat-ui showcase');
+  it('lists the four pages in the shell navigation', () => {
+    const labels = Array.from(root().querySelectorAll('nav a'), (a) => a.textContent?.trim());
+    expect(labels).toEqual(['Theme', 'Icons', 'Components', 'Page']);
+  });
+
+  it('redirects the root to the theme page', () => {
+    expect(router.url).toBe('/theme');
+  });
+
+  it.each(PAGES)('renders $path as a page inside the shell', async ({ path, link, heading }) => {
+    await navigate(path);
+
+    expect(content().querySelector('neat-page')).not.toBeNull();
+    expect(content().querySelector('h2')?.textContent).toContain(heading);
+    expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe(link);
+    expect(root().querySelector('header h1')?.textContent?.trim()).toBe(link);
   });
 });

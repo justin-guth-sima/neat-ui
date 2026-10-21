@@ -1,0 +1,60 @@
+/* Layout shared by the showcase pages; colours come only from the kit's theme variables. */
+app-root {
+  display: block;
+  height: 100%;
+}
+
+.showcase-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  box-sizing: border-box;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 1.5rem;
+}
+
+.showcase-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.showcase-section > h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.showcase-section > h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.showcase-section p {
+  margin: 0;
+  max-width: 46rem;
+}
+
+.showcase-muted {
+  color: var(--p-text-muted-color);
+}
+
+.showcase-code {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+}
+
+.showcase-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+}
+
+.showcase-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
