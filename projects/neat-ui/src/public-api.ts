@@ -16,3 +16,6 @@ export type { NeatColorScheme } from './lib/theme/theme.service';
 export { ThemeService } from './lib/theme/theme.service';
 export { NeatIcon } from './lib/icon/icon';
 export type { NeatIconName } from './lib/icon/icon-registry';
+export type { NeatNavItem } from './lib/shell/nav-item';
+export { NeatShell } from './lib/shell/shell';
+export { NeatPage } from './lib/page/page';

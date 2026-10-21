@@ -1,5 +1,5 @@
 import { DOCUMENT, inject, Injectable, Signal, signal } from '@angular/core';
-import { safeStorage } from './storage';
+import { safeStorage } from '../storage';
 
 export type NeatColorScheme = 'light' | 'dark';
 

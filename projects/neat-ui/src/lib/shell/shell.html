@@ -1,0 +1,74 @@
+<div class="rail" [attr.data-expanded]="railExpanded()">
+  <nav aria-label="Main">
+    <ul class="rail-list">
+      @for (item of navItems(); track item.path) {
+        <li>
+          <a
+            class="rail-item"
+            [routerLink]="item.path"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="activeMatch"
+            ariaCurrentWhenActive="page"
+            [pTooltip]="item.label"
+            tooltipPosition="right"
+            tooltipEvent="both"
+            [tooltipDisabled]="railExpanded()"
+          >
+            <neat-icon [name]="item.icon" />
+            <span class="label" [class.visually-hidden]="!railExpanded()">{{ item.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <button
+    type="button"
+    class="rail-item rail-toggle"
+    aria-label="Show labels"
+    [attr.aria-pressed]="railExpanded()"
+    pTooltip="Show labels"
+    tooltipPosition="right"
+    tooltipEvent="both"
+    [tooltipDisabled]="railExpanded()"
+    (click)="toggleRail()"
+  >
+    <neat-icon [name]="railExpanded() ? 'rail-collapse' : 'rail-expand'" />
+  </button>
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <neat-logo />
+    <span class="app-name">{{ appName() }}</span>
+  </div>
+  @if (pageTitle(); as title) {
+    <h1 class="page-title">{{ title }}</h1>
+  }
+  <div class="topbar-end">
+    <ng-content select="[neatTopbarEnd]" />
+  </div>
+  <div class="topbar-actions">
+    <button
+      pButton
+      type="button"
+      variant="text"
+      severity="secondary"
+      size="large"
+      rounded
+      iconOnly
+      aria-label="Dark mode"
+      [attr.aria-pressed]="theme.scheme() === 'dark'"
+      pTooltip="Dark mode"
+      tooltipPosition="bottom"
+      tooltipEvent="both"
+      (click)="theme.toggle()"
+    >
+      <neat-icon [name]="theme.scheme() === 'dark' ? 'sun' : 'moon'" />
+    </button>
+  </div>
+</header>
+
+<main class="content">
+  <ng-content />
+</main>
