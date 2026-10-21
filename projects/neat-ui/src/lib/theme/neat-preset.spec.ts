@@ -51,6 +51,11 @@ const primaryContrastColor = (s: Scheme) => resolve('primary.contrast.color', s)
 const textColor = (s: Scheme) => resolve('text.color', s);
 const mutedTextColor = (s: Scheme) => resolve('text.muted.color', s);
 const contentBackground = (s: Scheme) => resolve('content.background', s);
+/** Every background text sits on: the content background plus the palette background in light, the raised surface in dark. */
+const textBackgrounds = (s: Scheme) =>
+  s === 'light'
+    ? [contentBackground(s), resolve('surface.50', s)]
+    : [contentBackground(s), resolve('surface.800', s)];
 
 describe('NeatPreset', () => {
   for (const scheme of ['light', 'dark'] as const) {
@@ -68,6 +73,18 @@ describe('NeatPreset', () => {
         expect(
           contrastRatio(mutedTextColor(scheme), contentBackground(scheme)),
         ).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('meets 4.5:1 for text and muted text on every background text sits on', () => {
+        for (const background of textBackgrounds(scheme)) {
+          expect(contrastRatio(textColor(scheme), background), background).toBeGreaterThanOrEqual(
+            4.5,
+          );
+          expect(
+            contrastRatio(mutedTextColor(scheme), background),
+            background,
+          ).toBeGreaterThanOrEqual(4.5);
+        }
       });
 
       it('uses the SiMa surface scale', () => {

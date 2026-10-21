@@ -1,4 +1,4 @@
-import { relativeLuminance } from './color';
+import { hexToOklch, relativeLuminance } from './color';
 import { buildColorScale, buildSurfaceScale } from './color-scale';
 import { NEAT_DANGER_BASE, NEAT_PRIMARY_BASE, NEAT_WARN_BASE, SIMA_PALETTE } from './palette';
 
@@ -10,10 +10,16 @@ const NEUTRALS: readonly string[] = [
   SIMA_PALETTE.backgroundAlt,
   SIMA_PALETTE.white,
 ];
-const HEX = /^#[0-9A-F]{6}$/;
+/** Hue drift allowed per step: 8-bit rounding only, not the 19-32° that plain channel clamping causes. */
+const MAX_HUE_DRIFT = 5;
 
 function pairwise<T>(items: readonly T[]): [T, T][] {
   return items.slice(1).map((item, i) => [items[i], item]);
+}
+
+function hueDistance(a: number, b: number): number {
+  const d = Math.abs(a - b) % 360;
+  return d > 180 ? 360 - d : d;
 }
 
 const isChromatic = (color: string): boolean => !NEUTRALS.includes(color);
@@ -46,10 +52,32 @@ describe('buildColorScale', () => {
     }
   });
 
-  it('yields only sRGB colours as #RRGGBB', () => {
+  it('keeps the base hue on steps 50 to 900 when pulling colours into sRGB', () => {
     for (const base of chromaticBases) {
-      for (const step of STEPS) expect(buildColorScale(base)[step]).toMatch(HEX);
+      const hue = hexToOklch(base).h;
+      const s = buildColorScale(base);
+      for (const step of STEPS.filter((step) => step !== 950)) {
+        expect(hueDistance(hexToOklch(s[step]).h, hue), `${base} ${step}`).toBeLessThanOrEqual(
+          MAX_HUE_DRIFT,
+        );
+      }
     }
+  });
+
+  it('builds the expected orange scale', () => {
+    expect(buildColorScale(SIMA_PALETTE.orange)).toEqual({
+      50: '#FFECE4',
+      100: '#FFDAC8',
+      200: '#FFBD9C',
+      300: '#F4A076',
+      400: '#E28250',
+      500: '#D26728',
+      600: '#B3541B',
+      700: '#91400B',
+      800: '#6D2C00',
+      900: '#4E1D00',
+      950: '#341100',
+    });
   });
 
   it('starts from the SiMa orange as primary', () => {
@@ -77,8 +105,20 @@ describe('buildSurfaceScale', () => {
     }
   });
 
-  it('yields only #RRGGBB colours', () => {
-    const surf = buildSurfaceScale();
-    for (const step of SURFACE_STEPS) expect(surf[step]).toMatch(HEX);
+  it('builds the expected surface scale', () => {
+    expect(buildSurfaceScale()).toEqual({
+      0: '#FFFFFF',
+      50: '#F3F4F5',
+      100: '#E8E9EB',
+      200: '#CDD0D2',
+      300: '#ADB3B4',
+      400: '#8A9292',
+      500: '#687272',
+      600: '#4C5858',
+      700: '#344141',
+      800: '#1F2E2D',
+      900: '#0D1D1C',
+      950: '#010F0E',
+    });
   });
 });

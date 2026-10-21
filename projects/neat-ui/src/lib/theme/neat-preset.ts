@@ -15,9 +15,15 @@ const info = buildColorScale(SIMA_PALETTE.blue);
 const warn = buildColorScale(NEAT_WARN_BASE);
 const danger = buildColorScale(NEAT_DANGER_BASE);
 
-/** Content background step per scheme; the text and primary choices below are checked against it. */
+/** Content background step per scheme. */
 const LIGHT_BACKGROUND = 0;
 const DARK_BACKGROUND = 900;
+/**
+ * Every surface text sits on, per scheme; text steps must reach MIN_CONTRAST on all of them.
+ * Light adds the palette background (50) used by the shell and pages; dark adds the raised surface (800).
+ */
+const LIGHT_TEXT_BACKGROUNDS = [LIGHT_BACKGROUND, 50] as const;
+const DARK_TEXT_BACKGROUNDS = [DARK_BACKGROUND, 800] as const;
 /** Body text: the palette text in light, white in dark. */
 const LIGHT_TEXT = 950;
 const DARK_TEXT = 0;
@@ -29,15 +35,19 @@ const PRIMARY_LIGHTWARD = [400, 300, 200, 100, 50] as const;
 const SURFACE_DARKWARD = [500, 600, 700, 800, 900, 950] as const;
 const SURFACE_LIGHTWARD = [400, 300, 200, 100, 50, 0] as const;
 
-/** Index into a walk of steps: the first step that reaches MIN_CONTRAST against `background`. */
+/** Index into a walk of steps: the first step that reaches MIN_CONTRAST on every one of `backgrounds`. */
 function firstReadable<S extends number>(
   scale: Record<S, string>,
   walk: readonly S[],
-  background: string,
+  backgrounds: readonly string[],
 ): number {
-  const index = walk.findIndex((step) => contrastRatio(scale[step], background) >= MIN_CONTRAST);
+  const index = walk.findIndex((step) =>
+    backgrounds.every((background) => contrastRatio(scale[step], background) >= MIN_CONTRAST),
+  );
   if (index < 0) {
-    throw new Error(`No step of [${walk.join(', ')}] reaches ${MIN_CONTRAST}:1 on ${background}`);
+    throw new Error(
+      `No step of [${walk.join(', ')}] reaches ${MIN_CONTRAST}:1 on all of ${backgrounds.join(', ')}`,
+    );
   }
   return index;
 }
@@ -47,10 +57,18 @@ function along<S extends number>(walk: readonly S[], index: number, offset: numb
   return walk[Math.min(index + offset, walk.length - 1)];
 }
 
-const lightPrimary = firstReadable(primary, PRIMARY_DARKWARD, surface[0]);
-const darkPrimary = firstReadable(primary, PRIMARY_LIGHTWARD, surface[950]);
-const lightMuted = firstReadable(surface, SURFACE_DARKWARD, surface[LIGHT_BACKGROUND]);
-const darkMuted = firstReadable(surface, SURFACE_LIGHTWARD, surface[DARK_BACKGROUND]);
+const lightPrimary = firstReadable(primary, PRIMARY_DARKWARD, [surface[0]]);
+const darkPrimary = firstReadable(primary, PRIMARY_LIGHTWARD, [surface[950]]);
+const lightMuted = firstReadable(
+  surface,
+  SURFACE_DARKWARD,
+  LIGHT_TEXT_BACKGROUNDS.map((step) => surface[step]),
+);
+const darkMuted = firstReadable(
+  surface,
+  SURFACE_LIGHTWARD,
+  DARK_TEXT_BACKGROUNDS.map((step) => surface[step]),
+);
 
 const lightDark = (light: string, dark: string) => `light-dark(${light}, ${dark})`;
 const primaryStep = (walk: readonly number[], index: number, offset: number) =>
