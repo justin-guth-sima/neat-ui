@@ -19,7 +19,7 @@ npm start       # showcase dev server
 npm test        # unit tests (Vitest)
 npm run lint    # ESLint + Stylelint
 npm run build   # library, into dist/neat-ui
-npm run pack    # build, then write dist/sima-neat-ui-<version>.tgz
+npm run pack    # build, then write dist/neat-ui/sima-neat-ui-<version>.tgz
 ```
 
 ## Consume
@@ -27,5 +27,5 @@ npm run pack    # build, then write dist/sima-neat-ui-<version>.tgz
 Apps install the packed tarball:
 
 ```bash
-npm install ../neat-ui/dist/sima-neat-ui-<version>.tgz
+npm install ../neat-ui/dist/neat-ui/sima-neat-ui-<version>.tgz
 ```

@@ -61,14 +61,14 @@ internal building blocks that are not exported need no page.
 
 Node 24 is required (`.node-version`; Angular 22 supports `^22.22.3 || ^24.15.0`, we pin 24).
 
-| Command                  | What it does                                                                  |
-| ------------------------ | ----------------------------------------------------------------------------- |
-| `npm start`              | Showcase dev server                                                           |
-| `npm test`               | Unit tests for all projects (`npm test -- --watch=false` runs once and exits) |
-| `npm run lint`           | ESLint (angular-eslint) and Stylelint                                         |
-| `npm run build`          | Build the library into `dist/neat-ui`                                         |
-| `npm run build:showcase` | Build the showcase app                                                        |
-| `npm run pack`           | Build, then write `dist/sima-neat-ui-<version>.tgz` for apps to install       |
+| Command                  | What it does                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| `npm start`              | Showcase dev server                                                             |
+| `npm test`               | Unit tests for all projects (`npm test -- --watch=false` runs once and exits)   |
+| `npm run lint`           | ESLint (angular-eslint) and Stylelint                                           |
+| `npm run build`          | Build the library into `dist/neat-ui`                                           |
+| `npm run build:showcase` | Build the showcase app                                                          |
+| `npm run pack`           | Build, then write `dist/neat-ui/sima-neat-ui-<version>.tgz` for apps to install |
 
 Run lint, tests and both builds before opening a PR; CI runs the same.
 

@@ -13,7 +13,7 @@
     "build:showcase": "ng build showcase",
     "test": "ng test",
     "lint": "ng lint && stylelint \"projects/**/*.{css,scss}\" --allow-empty-input",
-    "pack": "npm run build && npm pack ./dist/neat-ui --pack-destination ./dist"
+    "pack": "npm run build && npm pack ./dist/neat-ui --pack-destination ./dist/neat-ui"
   },
   "dependencies": {
     "@angular/cdk": "~22.1.0",
