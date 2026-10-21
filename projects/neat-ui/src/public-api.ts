@@ -14,3 +14,5 @@ export {
 export { provideNeatUi } from './lib/theme/provide-neat-ui';
 export type { NeatColorScheme } from './lib/theme/theme.service';
 export { ThemeService } from './lib/theme/theme.service';
+export { NeatIcon } from './lib/icon/icon';
+export type { NeatIconName } from './lib/icon/icon-registry';
