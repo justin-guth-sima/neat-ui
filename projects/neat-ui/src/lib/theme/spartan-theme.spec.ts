@@ -1,6 +1,8 @@
 import generated from './tokens.generated.css' with { loader: 'text' };
 import { composite, contrastRatio } from './color';
-import { buildSurfaceScale } from './color-scale';
+import { buildColorScale, buildSurfaceScale } from './color-scale';
+import { along, CONTRAST_RULES, MIN_FILL_CONTRAST } from './contrast-rules';
+import { NEAT_PRIMARY_BASE } from './palette';
 import { buildSpartanThemeCss } from './spartan-theme';
 import { NEAT_DARK_CLASS } from './theme.service';
 
@@ -41,8 +43,6 @@ const TINTS = {
 const HOVER_FILLS = { 'primary-hover': 'primary-foreground' } as const;
 /** Surfaces a hover or selection fill (`--accent`) sits on. */
 const FILL_SURFACES = ['background', 'card', 'popover'];
-/** The least contrast at which a fill still reads as a change of the surface under it. */
-const MIN_FILL_CONTRAST = 1.15;
 
 interface TextPair {
   label: string;
@@ -126,9 +126,18 @@ describe('buildSpartanThemeCss', () => {
     }
   });
 
-  it('steps the primary hover one place further from the background: light #91400b, dark #f4a076', () => {
-    expect(schemes.light.get('--primary-hover')).toBe('#91400b');
-    expect(schemes.dark.get('--primary-hover')).toBe('#f4a076');
+  it('steps the primary hover one place further from the background than the primary', () => {
+    // Stated as a relation, so it holds for any NEAT_PRIMARY_BASE the theme checkpoint picks.
+    const scale = buildColorScale(NEAT_PRIMARY_BASE);
+    for (const scheme of ['light', 'dark'] as const) {
+      const walk = CONTRAST_RULES[scheme].colorWalk;
+      const primary = schemes[scheme].get('--primary');
+      const index = walk.findIndex((step) => scale[step].toLowerCase() === primary);
+      expect(index, `${scheme}: --primary is a step of the walk`).toBeGreaterThanOrEqual(0);
+      expect(schemes[scheme].get('--primary-hover'), scheme).toBe(
+        scale[along(walk, index, 1)].toLowerCase(),
+      );
+    }
   });
 
   it('keeps the hover and selection fill (--accent) visible on every surface it sits on', () => {

@@ -57,4 +57,23 @@
   body {
     @apply bg-background text-foreground font-sans;
   }
+
+  /*
+   * Tailwind's preflight leaves headings at body size and weight, for every app that loads the kit
+   * stylesheet; these give them a modest scale. Components that style a heading set their own.
+   */
+  h1 {
+    @apply text-2xl font-medium;
+  }
+
+  h2 {
+    @apply text-xl font-medium;
+  }
+
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-base font-medium;
+  }
 }

@@ -4,7 +4,6 @@ import {
   computed,
   ElementRef,
   inject,
-  signal,
   viewChild,
 } from '@angular/core';
 import { NeatButton } from '../button/button';
@@ -14,8 +13,9 @@ import { KioskService } from './kiosk.service';
 /**
  * The floating "Exit kiosk mode" control the shell shows in kiosk mode: a 48px circle, above the
  * 44px minimum touch target. It fades out while the pointer rests and back in on pointer or touch
- * input. Faded, it stays in the tab order and the accessibility tree, and keyboard focus keeps it
- * visible, so it is reachable without a pointer. Internal to the shell: not part of the public API.
+ * input. Faded, it stays in the tab order and the accessibility tree, and focus the browser shows
+ * (`:focus-visible`, keyboard use) keeps it visible, so it is reachable without a pointer. Internal
+ * to the shell: not part of the public API.
  */
 @Component({
   selector: 'neat-kiosk-exit',
@@ -23,7 +23,6 @@ import { KioskService } from './kiosk.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button
-      #control
       neatButton
       type="button"
       class="shadow-md"
@@ -33,20 +32,18 @@ import { KioskService } from './kiosk.service';
       iconOnly
       aria-label="Exit kiosk mode"
       [attr.data-shown]="shown()"
-      (focus)="keyboardFocus.set(control.matches(':focus-visible'))"
-      (blur)="keyboardFocus.set(false)"
       (click)="kiosk.exit()"
     >
       <neat-icon name="kiosk-exit" />
     </button>
   `,
   styles: `
-    button[data-shown='true'] {
-      opacity: 1;
-    }
-
-    /* Faded out but still focusable; a tap on it only wakes it, the next one activates it. */
-    button[data-shown='false'] {
+    /*
+     * Faded out but still focusable; a tap on it only wakes it, the next one activates it. The
+     * browser decides :focus-visible live, so focus that a click gave the control (entering kiosk
+     * mode by click) lets it fade, and a key press afterwards brings it back before Enter acts.
+     */
+    button[data-shown='false']:not(:focus-visible) {
       opacity: 0;
       pointer-events: none;
     }
@@ -56,21 +53,22 @@ import { KioskService } from './kiosk.service';
         transition: opacity var(--neat-transition-duration);
       }
     }
+
+    /* Helm's transition-all would otherwise still animate the fade. */
+    @media (prefers-reduced-motion: reduce) {
+      button {
+        transition: none;
+      }
+    }
   `,
 })
 export class NeatKioskExit {
   protected readonly kiosk = inject(KioskService);
-  private readonly control = viewChild.required<ElementRef<HTMLButtonElement>>('control');
+  private readonly control = viewChild.required(NeatButton, { read: ElementRef });
 
-  /**
-   * Focus the browser shows (`:focus-visible`: keyboard focus, or scripted focus after keyboard
-   * use) keeps the control visible. Focus after a pointer click does not, so the control the shell
-   * focuses on entering kiosk mode by click still fades on a booth display.
-   */
-  protected readonly keyboardFocus = signal(false);
-  protected readonly shown = computed(() => !this.kiosk.pointerIdle() || this.keyboardFocus());
+  protected readonly shown = computed(() => !this.kiosk.pointerIdle());
 
   focus(): void {
-    this.control().nativeElement.focus();
+    (this.control().nativeElement as HTMLElement).focus();
   }
 }

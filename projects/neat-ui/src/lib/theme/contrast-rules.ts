@@ -5,6 +5,12 @@ import type { NeatColorScheme } from './theme.service';
 /** WCAG 2.x AA for normal text. */
 const MIN_CONTRAST = 4.5;
 
+/**
+ * The least contrast at which a fill (a hover or selection fill such as `--accent`) still reads as
+ * a change of the surface under it. Not a WCAG figure: the kit's own floor for state fills.
+ */
+export const MIN_FILL_CONTRAST = 1.15;
+
 type ScaleStep = keyof ColorScale;
 
 /** Where a colour scheme puts text, and in which order it searches scales for a readable step. */

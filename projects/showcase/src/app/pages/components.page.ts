@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   NeatButton,
   type NeatButtonSize,
@@ -16,7 +17,7 @@ const TOOLTIP_POSITIONS: NeatTooltipPosition[] = ['top', 'right', 'bottom', 'lef
 
 @Component({
   selector: 'app-components-page',
-  imports: [NeatButton, NeatIcon, NeatPage, NeatTooltip],
+  imports: [NeatButton, NeatIcon, NeatPage, NeatTooltip, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-page>
@@ -75,7 +76,8 @@ const TOOLTIP_POSITIONS: NeatTooltipPosition[] = ['top', 'right', 'bottom', 'lef
                 With icon
               </button>
               <button neatButton type="button" [variant]="variant" disabled>Disabled</button>
-              <a neatButton [variant]="variant" href="#">Link</a>
+              <!-- Links back to this page, so trying it navigates nowhere. -->
+              <a neatButton [variant]="variant" routerLink="/components">Link</a>
             </div>
           }
         </section>

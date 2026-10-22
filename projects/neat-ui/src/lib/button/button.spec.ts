@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { composite, contrastRatio, hexToOklch, oklchToHex } from '../theme/color';
+import { MIN_FILL_CONTRAST } from '../theme/contrast-rules';
 import { spartanThemeTokens } from '../theme/spartan-theme';
 import type { NeatColorScheme } from '../theme/theme.service';
 import { NeatButton, type NeatButtonSize, type NeatButtonVariant } from './button';
@@ -98,6 +99,44 @@ interface ButtonState {
 const NON_COLOR_VALUES = { bg: ['clip-padding'], text: ['xs', 'sm', 'balance'] };
 const COLOR_MIX = /^\[color-mix\(in_oklch,var\(--([\w-]+)\),var\(--([\w-]+)\)_(\d+)%\)\]$/;
 const TOKEN_COLOR = /^([a-z-]+?)(?:\/(\d+))?$/;
+/** The variant chains the cascade below models. */
+const MODELLED_VARIANTS = ['', 'dark', 'hover', 'dark:hover'];
+/** Variants for states the contrast test does not cover (open menus, focus, pressing, data states). */
+const UNMODELLED_VARIANT = /^(aria-|focus-visible$|active$|data-|in-data-|has-|not-|\[)/;
+
+/** A class as its variants and utility, split at the colons outside brackets. */
+function variantsOf(name: string): { variants: string[]; utility: string } {
+  const parts: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < name.length; i++) {
+    if (name[i] === '[') depth++;
+    else if (name[i] === ']') depth--;
+    else if (name[i] === ':' && depth === 0) {
+      parts.push(name.slice(start, i));
+      start = i + 1;
+    }
+  }
+  return { variants: parts, utility: name.slice(start) };
+}
+
+/**
+ * Fails on a `bg-` or `text-` class whose variants the cascade below does not know, such as
+ * `hover:dark:` or `group-hover:`, so a helm update cannot slip a colour past the contrast test.
+ */
+function assertModelledVariants(classes: string[]): void {
+  for (const name of classes) {
+    const { variants, utility } = variantsOf(name);
+    if (!/^(bg|text)-/.test(utility)) continue;
+    const states = variants.filter((variant) => !UNMODELLED_VARIANT.test(variant));
+    const unmodelled = states.length < variants.length;
+    const stateChain = states.join(':');
+    const known = states.every((variant) => variant === 'dark' || variant === 'hover');
+    if (!known || (!unmodelled && !MODELLED_VARIANTS.includes(stateChain))) {
+      throw new Error(`Unknown variants on "${name}": teach the contrast test about them`);
+    }
+  }
+}
 
 /**
  * The value of the `bg-` or `text-` utility that wins in a state, by Tailwind's cascade for the
@@ -109,6 +148,7 @@ function winningValue(
   property: 'bg' | 'text',
   { scheme, hover }: ButtonState,
 ): string | undefined {
+  assertModelledVariants(classes);
   const dark = scheme === 'dark';
   const prefixes = [dark && hover && 'dark:hover:', hover && 'hover:', dark && 'dark:', ''].filter(
     (prefix): prefix is string => prefix !== false,
@@ -174,6 +214,22 @@ function colorsOf(classes: string[], state: ButtonState, surface: Surface) {
         : resolveColor(text, tokens, under),
   };
 }
+
+describe('the contrast test itself', () => {
+  it.each(['hover:dark:bg-accent', 'group-hover:bg-accent', 'dark:dark:text-foreground'])(
+    'refuses a colour class with variants it does not model: %s',
+    (name) => {
+      expect(() => winningValue([name], 'bg', { scheme: 'dark', hover: true })).toThrow(
+        /Unknown variants/,
+      );
+    },
+  );
+
+  it('ignores colour classes for states it does not cover', () => {
+    const classes = ['bg-primary', 'aria-expanded:bg-muted', 'dark:focus-visible:bg-ring'];
+    expect(winningValue(classes, 'bg', { scheme: 'dark', hover: true })).toBe('primary');
+  });
+});
 
 describe('NeatButton', () => {
   beforeEach(() => {
@@ -310,7 +366,7 @@ describe('NeatButton', () => {
   );
 
   it.each<NeatButtonVariant>(['outlined', 'text'])(
-    '%s: the hover fill differs from background and from card by a contrast ratio of at least 1.15',
+    `%s: the hover fill differs from background and from card by a contrast ratio of at least ${MIN_FILL_CONTRAST}`,
     async (variant) => {
       const classes = await classesOf(variant);
 
@@ -319,7 +375,9 @@ describe('NeatButton', () => {
         for (const surface of SURFACES) {
           const { fill } = colorsOf(classes, { scheme, hover: true }, surface);
           const label = `${variant}, ${scheme}, hover on --${surface}: ${fill} vs ${tokens[surface]}`;
-          expect(contrastRatio(fill, tokens[surface]), label).toBeGreaterThanOrEqual(1.15);
+          expect(contrastRatio(fill, tokens[surface]), label).toBeGreaterThanOrEqual(
+            MIN_FILL_CONTRAST,
+          );
         }
       }
     },

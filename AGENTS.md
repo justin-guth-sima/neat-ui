@@ -43,7 +43,9 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   contains exactly the utilities the kit's sources use; utility classes in app templates are not
   part of the kit's API.
 - **Tooltips never open on touch** (brain's design: a tap would also trigger the control). A tooltip
-  repeats the control's accessible name; never put information only in a tooltip.
+  repeats the control's accessible name; never put information only in a tooltip. `neatTooltip`
+  takes a string only: its type shows brain's `TemplateRef` too (the host-directive alias keeps the
+  primitive's input type), but templates are not part of the kit's API.
 
 ## Rules
 

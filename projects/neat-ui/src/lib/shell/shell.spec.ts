@@ -347,6 +347,14 @@ describe('NeatShell', () => {
 
     // Entered with a pointer: the control fades as usual, so a booth display does not keep it up.
     expect(getComputedStyle(exitControl()).opacity).toBe('0');
+
+    expect(exitControl().matches(':focus-visible')).toBe(false);
+
+    // A key press makes the focus visible, which un-fades the control (its CSS keys on
+    // :focus-visible) before Enter can act on it. jsdom keeps the computed style cached until the
+    // DOM changes, so the rendered opacity after a key press is measured in the browser check.
+    exitControl().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    expect(exitControl().matches(':focus-visible')).toBe(true);
   });
 
   it('does not take focus when kiosk mode comes from ?kiosk at start', async () => {
