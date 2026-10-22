@@ -36,10 +36,21 @@ describe('NeatPageToolbar', () => {
     const fixture = TestBed.createComponent(TwoToolbars);
     await fixture.whenStable();
 
+    // Angular's ErrorHandler logs the error as well as rejecting; the log is part of what an app
+    // developer sees, so it is asserted here rather than left in the test output.
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     fixture.componentInstance.second.set(true);
 
-    // Two pages cannot share the top bar; a second toolbar is a mistake in the app.
-    await expect(fixture.whenStable()).rejects.toThrow(/one page toolbar at a time/);
+    try {
+      // Two pages cannot share the top bar; a second toolbar is a mistake in the app.
+      await expect(fixture.whenStable()).rejects.toThrow(/one page toolbar at a time/);
+      expect(error).toHaveBeenCalledWith(
+        'ERROR',
+        expect.objectContaining({ message: expect.stringMatching(/one page toolbar at a time/) }),
+      );
+    } finally {
+      error.mockRestore();
+    }
   });
 
   it('takes its content out of the shell as soon as the page is destroyed', async () => {
