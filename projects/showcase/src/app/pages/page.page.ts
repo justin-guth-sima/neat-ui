@@ -15,6 +15,11 @@ import { NeatPage } from '@sima/neat-ui';
             below it. This page is longer than any screen on purpose: the shell, the top bar and the
             rail stay put while only this body scrolls.
           </p>
+          <p>
+            It also insets its content by the kit's page spacing, so pages line up across apps;
+            <code>padding="none"</code> lets full-bleed content such as a video grid reach the
+            edges.
+          </p>
         </section>
         @for (section of sections; track section) {
           <section class="showcase-section">

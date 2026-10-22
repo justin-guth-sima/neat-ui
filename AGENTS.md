@@ -64,8 +64,14 @@ workaround in the meantime.
 **Style only through theme tokens and component inputs.**
 Why: tokens are what make light/dark and later rebranding work. Overrides (deep selectors,
 `!important`, hard-coded sizes or colours) silently break in one theme or after a Spartan update.
-Escape hatch: if a look cannot be reached through tokens and inputs, that is a kit gap. Treat it as
-a proposal under the previous rule, not as a reason to override.
+The tokens are the theme's colours (Spartan's variables such as `--primary`, `--muted-foreground`,
+`--border`), `--radius`, and a short layout set from Tailwind's scale, defined once in the kit
+stylesheet: `--neat-space-2`, `--neat-space-3`, `--neat-space-4`, `--neat-space-6` (0.5, 0.75, 1
+and 1.5rem, for gaps and insets) and `--neat-text-xs`, `--neat-text-sm` (0.75 and 0.875rem). Page
+insets come from `neat-page` (`padding="page"` by default, `padding="none"` for full-bleed content
+such as a video grid), never from a page's own stylesheet. Escape hatch: if a look cannot be
+reached through tokens and inputs, that is a kit gap. Treat it as a proposal under the previous
+rule, not as a reason to override.
 
 **No colour literals outside `projects/neat-ui/src/lib/theme/`.**
 No hex, `rgb()`, `rgba()`, `hsl()` or `hsla()` anywhere else, in CSS, TypeScript or templates.

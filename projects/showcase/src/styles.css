@@ -1,4 +1,8 @@
-/* Layout shared by the showcase pages; colours come only from the kit's theme variables. */
+/*
+ * Layout shared by the showcase pages, through the kit's tokens as an app would: colours from the
+ * theme, spacing and small type from the --neat-space-* and --neat-text-* set. Widths stay literal:
+ * they are measures of this gallery, not spacing. neat-page supplies the page inset.
+ */
 app-root {
   display: block;
   height: 100%;
@@ -7,17 +11,15 @@ app-root {
 .showcase-page {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
-  box-sizing: border-box;
+  gap: var(--neat-space-6);
   max-width: 72rem;
   margin-inline: auto;
-  padding: 1.5rem;
 }
 
 .showcase-section {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--neat-space-4);
 }
 
 .showcase-section p {
@@ -31,12 +33,12 @@ app-root {
 
 .showcase-code {
   font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-  font-size: 0.8125rem;
+  font-size: var(--neat-text-sm);
 }
 
 .showcase-grid {
   display: grid;
-  gap: 1rem;
+  gap: var(--neat-space-4);
   grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
 }
 
@@ -44,5 +46,5 @@ app-root {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--neat-space-3);
 }

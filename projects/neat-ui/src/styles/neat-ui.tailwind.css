@@ -38,6 +38,17 @@
   /* For the kit's own component styles (the shell, the kiosk exit control). */
   --neat-transition-duration: 150ms;
   --neat-focus-ring-width: 2px;
+  /*
+   * The layout vocabulary for app and kit stylesheets: spacing (gaps, insets) and small type
+   * sizes, taken from Tailwind's scale so they match the kit's components. A short set on purpose;
+   * a layout these cannot express is a kit change.
+   */
+  --neat-space-2: --spacing(2);
+  --neat-space-3: --spacing(3);
+  --neat-space-4: --spacing(4);
+  --neat-space-6: --spacing(6);
+  --neat-text-xs: --theme(--text-xs inline);
+  --neat-text-sm: --theme(--text-sm inline);
 }
 
 @layer base {

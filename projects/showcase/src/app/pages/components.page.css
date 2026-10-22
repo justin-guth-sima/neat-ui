@@ -1,5 +1,5 @@
 .card {
-  padding: 1rem;
+  padding: var(--neat-space-4);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--card);
@@ -9,6 +9,6 @@
 .icon-sample {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--neat-space-2);
   min-width: 9rem;
 }
