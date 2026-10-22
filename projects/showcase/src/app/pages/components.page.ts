@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   NeatButton,
@@ -6,6 +6,8 @@ import {
   type NeatButtonVariant,
   NeatIcon,
   NeatPage,
+  NeatTileGrid,
+  type NeatTileLayout,
   NeatTooltip,
   type NeatTooltipPosition,
 } from '@sima/neat-ui';
@@ -14,10 +16,12 @@ const VARIANTS: NeatButtonVariant[] = ['primary', 'secondary', 'outlined', 'text
 const SIZES: NeatButtonSize[] = ['small', 'medium', 'large', 'touch'];
 const ICON_SIZES = [16, 20, 24] as const;
 const TOOLTIP_POSITIONS: NeatTooltipPosition[] = ['top', 'right', 'bottom', 'left'];
+const TILE_COUNT = 48;
+const PLACEHOLDER_TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);
 
 @Component({
   selector: 'app-components-page',
-  imports: [NeatButton, NeatIcon, NeatPage, NeatTooltip, RouterLink],
+  imports: [NeatButton, NeatIcon, NeatPage, NeatTileGrid, NeatTooltip, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-page>
@@ -139,6 +143,41 @@ const TOOLTIP_POSITIONS: NeatTooltipPosition[] = ['top', 'right', 'bottom', 'lef
             }
           </div>
         </section>
+
+        <section class="showcase-section">
+          <h2>Tile grid</h2>
+          <p class="showcase-muted">
+            <code>neat-tile-grid</code> packs tiles of a chosen width into its own box with no
+            overflow and no scrolling, centring what is left over. The count per page follows from
+            the width (<code>layout</code>), so the page slices its items to <code>perPage</code>.
+            The box below is fixed in height; resize the window to repack.
+          </p>
+          <!-- Task 5 of plan 2a replaces this native range input with neat-slider. -->
+          <label class="slider-field">
+            <span>Tile width</span>
+            <input
+              type="range"
+              min="120"
+              max="480"
+              step="10"
+              [value]="tileWidth()"
+              (input)="setTileWidth($event)"
+            />
+            <span class="showcase-code showcase-muted">{{ tileWidth() }} px</span>
+          </label>
+          <p class="showcase-code showcase-muted" aria-live="polite">{{ layoutSummary() }}</p>
+          <div class="tile-demo">
+            <neat-tile-grid
+              [tileWidth]="tileWidth()"
+              [count]="visibleTiles().length"
+              (layout)="layout.set($event)"
+            >
+              @for (tile of visibleTiles(); track tile) {
+                <div class="demo-tile">{{ tile }}</div>
+              }
+            </neat-tile-grid>
+          </div>
+        </section>
       </div>
     </neat-page>
   `,
@@ -149,4 +188,20 @@ export class ComponentsPage {
   protected readonly sizes = SIZES;
   protected readonly iconSizes = ICON_SIZES;
   protected readonly tooltipPositions = TOOLTIP_POSITIONS;
+
+  protected readonly tileWidth = signal(240);
+  protected readonly layout = signal<NeatTileLayout | null>(null);
+  protected readonly visibleTiles = computed(() =>
+    PLACEHOLDER_TILES.slice(0, this.layout()?.perPage ?? TILE_COUNT),
+  );
+  protected setTileWidth(event: Event): void {
+    this.tileWidth.set(Number((event.target as HTMLInputElement).value));
+  }
+
+  protected readonly layoutSummary = computed(() => {
+    const layout = this.layout();
+    return layout
+      ? `${layout.columns} × ${layout.rows} = ${layout.perPage} per page of ${TILE_COUNT}`
+      : 'Measuring';
+  });
 }

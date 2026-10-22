@@ -1,0 +1,34 @@
+/* Fills the parent and is the box that gets measured; whatever does not fit is cut, never scrolled. */
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/*
+ * Fixed tracks at the packed size, centred in both directions so leftover space splits evenly
+ * around the block. The grid sets the --grid-* properties from the packing; the gap falls back to
+ * the kit's token until it has set its own, which is how the token's pixel value is read.
+ */
+.grid {
+  display: grid;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-content: center;
+  grid-template-columns: repeat(var(--grid-columns, 1), var(--grid-tile-width, auto));
+  grid-auto-rows: var(--grid-tile-height, auto);
+  gap: var(--grid-gap, var(--neat-space-2));
+}
+
+/* Until the first measurement there is no packing, so nothing is shown at a wrong size. */
+.grid[data-ready='false'] {
+  visibility: hidden;
+}
+
+.grid[data-ready='true'] {
+  visibility: visible;
+}

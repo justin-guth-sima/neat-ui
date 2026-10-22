@@ -12,3 +12,33 @@
   gap: var(--neat-space-2);
   min-width: 9rem;
 }
+
+/* Until neat-slider arrives (plan 2a, task 5): a native range input, themed through tokens only. */
+.slider-field {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-3);
+}
+
+.slider-field input {
+  width: 16rem;
+  accent-color: var(--primary);
+}
+
+/* The grid fills its parent, so the demo gives it a box of a fixed height to fill. */
+.tile-demo {
+  height: 24rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+
+.demo-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-sm);
+}
