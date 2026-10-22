@@ -52,9 +52,14 @@
 }
 
 @layer base {
-  /* Spartan's defaults: borders and focus outlines take the theme's colours. */
+  /*
+   * Borders and focus outlines take the theme's colours. Outlines use the full ring colour, not
+   * Spartan's `outline-ring/50`: a focus indicator needs 3:1 (WCAG 1.4.11), which the theme holds
+   * --ring to and the 50% mix misses (about 1.85:1 on white). Elements without a focus style of
+   * their own show it, such as a neat-page body the browser makes focusable because it scrolls.
+   */
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
   }
 
   /* The shell and pages own scrolling; the document itself never scrolls. */
