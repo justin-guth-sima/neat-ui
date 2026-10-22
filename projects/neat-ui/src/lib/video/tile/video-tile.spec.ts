@@ -259,9 +259,13 @@ describe('NeatVideoTile', () => {
     // The fixture is torn down while the fakes it was built with still stand.
     TestBed.resetTestingModule();
     frames.uninstall();
-    vi.useRealTimers();
-    vi.unstubAllGlobals();
+    // The rest is undone in reverse order of setup. A stub of a global the fake clock replaced
+    // (requestAnimationFrame in the fallback spec) remembers the clock's fake as the original, so
+    // un-stubbing after useRealTimers() would put back a fake whose clock is gone: later spec files
+    // in the same (non-isolated) worker would get a requestAnimationFrame that never fires.
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
   });
 
   it('starts empty, plays on the first presented frame, and goes stopped 1800 ms after the last one', () => {

@@ -10,6 +10,16 @@ const PAGES = [
   { path: '/page', link: 'Page', heading: 'Page' },
 ];
 
+/**
+ * The components page sizes its slider, tile grid and video tile through ResizeObserver, which
+ * jsdom lacks; these specs check routing and page content, not sizes.
+ */
+class NoopResizeObserver {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+}
+
 describe('App', () => {
   let fixture: ComponentFixture<App>;
   let router: Router;
@@ -23,11 +33,14 @@ describe('App', () => {
   }
 
   beforeEach(async () => {
+    vi.stubGlobal('ResizeObserver', NoopResizeObserver);
     TestBed.configureTestingModule({ providers: appConfig.providers });
     router = TestBed.inject(Router);
     fixture = TestBed.createComponent(App);
     await navigate('/');
   });
+
+  afterEach(() => vi.unstubAllGlobals());
 
   it('lists the four pages in the shell navigation', () => {
     const labels = Array.from(root().querySelectorAll('nav a'), (a) => a.textContent?.trim());
