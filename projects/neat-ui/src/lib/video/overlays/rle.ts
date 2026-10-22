@@ -6,13 +6,20 @@
  */
 export const MAX_RLE_MASK_PIXELS = 2048 * 2048;
 
-/** Creates the offscreen 2D context RLE masks are decoded and tinted on. */
-export type MaskContextFactory = () => OffscreenCanvasRenderingContext2D;
+/** Where RLE masks are decoded and tinted: an offscreen 2D context and the ImageData it takes. */
+export interface MaskSurfaceFactory {
+  createContext(): OffscreenCanvasRenderingContext2D;
+  /** Wraps the decode buffer for `putImageData` without copying it. */
+  wrapPixels(pixels: Uint8ClampedArray<ArrayBuffer>, width: number, height: number): ImageData;
+}
 
-export const offscreenMaskContext: MaskContextFactory = () => {
-  const context = new OffscreenCanvas(1, 1).getContext('2d');
-  if (!context) throw new Error('OffscreenCanvas has no 2d context');
-  return context;
+const offscreenMaskSurface: MaskSurfaceFactory = {
+  createContext() {
+    const context = new OffscreenCanvas(1, 1).getContext('2d');
+    if (!context) throw new Error('OffscreenCanvas has no 2d context');
+    return context;
+  },
+  wrapPixels: (pixels, width, height) => new ImageData(pixels, width, height),
 };
 
 /**
@@ -45,35 +52,38 @@ export function decodeRleMaskAlpha(
 }
 
 /**
- * One reusable surface for a channel's RLE masks. A segment is decoded, tinted and drawn before
- * the next one is touched, so one canvas and one pixel buffer serve every segment. The context is
- * created on the first mask, so a channel without RLE masks never allocates one.
+ * One reusable surface for RLE masks. A segment is decoded, tinted and drawn before the next one is
+ * touched, and drawing is synchronous, so one canvas and one pixel buffer serve every segment of
+ * every tile. The context is created on the first mask, so a page without RLE masks never
+ * allocates one.
  */
 export class RleMaskCanvas {
   private context: OffscreenCanvasRenderingContext2D | null = null;
-  private image: ImageData | null = null;
+  /** Grows to the largest mask seen and is never shrunk; a view of it is handed out per mask. */
+  private pixels = new Uint8ClampedArray(0);
 
-  constructor(private readonly createContext: MaskContextFactory) {}
+  constructor(private readonly surface: MaskSurfaceFactory) {}
 
   /**
    * Decodes `counts` into a `width`×`height` mask tinted with `color` and returns the canvas that
    * holds it, ready to be drawn. The caller checks the size against MAX_RLE_MASK_PIXELS.
    */
   paint(counts: readonly unknown[], width: number, height: number, color: string): OffscreenCanvas {
-    this.context ??= this.createContext();
+    this.context ??= this.surface.createContext();
     const context = this.context;
     // Resizing a canvas clears it, so an unchanged size skips the assignment.
     if (context.canvas.width !== width) context.canvas.width = width;
     if (context.canvas.height !== height) context.canvas.height = height;
 
-    // The buffer is reused while the size holds; the decoder expects it zeroed.
-    let image = this.image;
-    if (image?.width === width && image.height === height) image.data.fill(0);
-    else image = this.image = context.createImageData(width, height);
-    decodeRleMaskAlpha(image.data, counts, width, height);
+    // The decoder expects a zeroed buffer: a new one is, a reused one is cleared.
+    const length = width * height * 4;
+    if (this.pixels.length < length) this.pixels = new Uint8ClampedArray(length);
+    else this.pixels.fill(0, 0, length);
+    const pixels = this.pixels.subarray(0, length);
+    decodeRleMaskAlpha(pixels, counts, width, height);
 
     // putImageData replaces every pixel, so the previous mask's tint does not show through.
-    context.putImageData(image, 0, 0);
+    context.putImageData(this.surface.wrapPixels(pixels, width, height), 0, 0);
     context.save();
     context.globalCompositeOperation = 'source-in';
     context.fillStyle = color;
@@ -81,4 +91,12 @@ export class RleMaskCanvas {
     context.restore();
     return context.canvas;
   }
+}
+
+let pageMaskCanvas: RleMaskCanvas | null = null;
+
+/** The page's one mask surface, shared by every tile; see RleMaskCanvas. */
+export function sharedMaskCanvas(): RleMaskCanvas {
+  pageMaskCanvas ??= new RleMaskCanvas(offscreenMaskSurface);
+  return pageMaskCanvas;
 }

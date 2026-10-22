@@ -39,17 +39,17 @@ export interface ColorAllocator {
 /**
  * The page's overlay colour memory. Class colours are shared by every tile created with the same
  * instance, so one class has one colour on every tile; track and pose colours stay per tile.
- * Provided in root for the page; a test or a second, independent page creates its own.
+ * Provided in root for the page; a test or a second, independent page creates its own. Apps only
+ * pass it to `createOverlayState`; it has no members of its own.
  */
 @Injectable({ providedIn: 'root' })
-export class NeatOverlayColors {
-  private readonly classColors = createColorMap();
+export class NeatOverlayColors {}
 
-  /** A tile's allocator. `createOverlayState` calls this; apps do not need to. */
-  createAllocator(): ColorAllocator {
-    return createColorAllocator(this.classColors);
-  }
-}
+/**
+ * Each instance's class colours, kept here so the service exposes nothing to apps. A WeakMap, so a
+ * discarded instance takes its colours with it.
+ */
+const classColorsOf = new WeakMap<NeatOverlayColors, ColorMap>();
 
 function identityKey(identity: unknown): string | null {
   if (identity === null || identity === undefined) return null;
@@ -154,7 +154,9 @@ function sharedSlot(map: ColorMap): number {
 }
 
 /**
- * One map per (channel, namespace), or the shared map for classes.
+ * A tile's allocator: its track and pose colours are its own, its class colours are `colors`'.
+ * Internal; `createOverlayState` calls it. One map per (channel, namespace), or the shared map for
+ * classes.
  *
  * A new identity takes the lowest free slot. When every slot is held, it takes the slot whose
  * holders have all been absent for longer than RELEASE_AFTER_MS, the one absent longest first. An
@@ -163,7 +165,10 @@ function sharedSlot(map: ColorMap): number {
  * inserted first. Each map is independent; timestamps in one map do not affect another. Every
  * tile draws with the page's clock, so `lastSeen` values from different tiles compare correctly.
  */
-function createColorAllocator(classColors: ColorMap): ColorAllocator {
+export function createColorAllocator(colors: NeatOverlayColors): ColorAllocator {
+  // The first allocator of an instance creates its class map.
+  const classColors = classColorsOf.get(colors) ?? createColorMap();
+  classColorsOf.set(colors, classColors);
   const maps = new Map<string, ColorMap>();
 
   function mapFor(channelIndex: number, namespace: ColorNamespace): ColorMap {

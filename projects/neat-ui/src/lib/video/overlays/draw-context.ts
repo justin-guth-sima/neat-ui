@@ -36,7 +36,10 @@ export interface DrawContext {
   /** Track id to trail, kept across frames. */
   readonly trackHistory: Map<string, TrackTrail>;
   readonly masks: RleMaskCanvas;
-  /** Logs `message` the first time `key` comes up on this channel. */
+  /**
+   * Logs `message` the first time `key` comes up on this channel. A strategy's warnings are
+   * remembered apart from drawFrame's own, so its producer-chosen keys cannot silence those.
+   */
   readonly warnOnce: (key: string, message: string) => void;
 }
 

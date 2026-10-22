@@ -47,7 +47,6 @@ describe('object detection overlay', () => {
     expect(colors2).toStrictEqual(colors1);
     colors1.forEach((color) => expect(OVERLAY_PALETTE).toContain(color));
     expect(colors1).not.toContain(NEAT_OVERLAY_STYLE_FALLBACK_COLOR);
-    expect(colors1).not.toContain('lime');
   });
 
   it('draws the box and label of one object in the same color', () => {

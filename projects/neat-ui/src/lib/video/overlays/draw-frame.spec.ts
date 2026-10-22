@@ -104,18 +104,90 @@ describe('drawFrame', () => {
       },
     });
     // The first object sets a dashed line; the second throws.
-    const failing: NeatMetadataMessage = {
+    const failingDetection: NeatMetadataMessage = {
       type: 'object-detection',
       data: { objects: [{ label: 'car', confidence: 1, bbox: [10, 20, 30, 40] }, null] },
     };
+    // The joint sets a faded alpha and draws its dot; printing its name then throws. No JSON
+    // payload can do this, but it is the one throw a pose reaches after setting the alpha.
+    const failingPose: NeatMetadataMessage = {
+      type: 'pose-estimation',
+      data: {
+        poses: [
+          {
+            keypoints: [
+              {
+                name: {
+                  toString() {
+                    throw new Error('unprintable name');
+                  },
+                },
+                x: 20,
+                y: 20,
+                confidence: 0.5,
+              },
+            ],
+          },
+        ],
+      },
+    };
+    const poseLabels = overlaySettings({
+      types: {
+        'object-detection': settings.types['object-detection'],
+        'pose-estimation': { showKeypointLabels: true },
+      },
+    });
     const ctx = new RecordingContext();
     for (let i = 0; i < 3; i += 1) {
-      expect(() => drawMessages(state, settings, [failing], { ctx })).not.toThrow();
+      expect(() =>
+        drawMessages(state, poseLabels, [failingDetection, failingPose], { ctx }),
+      ).not.toThrow();
     }
-    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledTimes(2);
     expect(ctx.ops('strokeRect')[0].lineDash).toStrictEqual([6, 4]);
+    expect(ctx.ops('fill')[0].globalAlpha, 'the joint was drawn faded').toBeLessThan(1);
     expect(ctx.lineDash).toStrictEqual([]);
     expect(ctx.globalAlpha).toBe(1);
+  });
+
+  it('skips auxiliary panel messages silently while the other types still draw', () => {
+    const state = overlayState();
+    const auxiliary: NeatMetadataMessage = {
+      type: 'auxiliary-visualization',
+      data: { id: 'pose-3d', renderer: 'blazepose-3d', payload: {} },
+    };
+    for (let frame = 0; frame < 3; frame += 1) {
+      const ctx = drawMessages(state, overlaySettings(), [auxiliary, detection], {
+        now: frame * 33,
+      });
+      expect(ctx.calls.map((call) => call.op)).toStrictEqual([
+        'clearRect',
+        'strokeRect',
+        'fillText',
+      ]);
+    }
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it('keeps a memory per warning kind, so many dropped segments cannot silence a failure', () => {
+    const state = overlayState();
+    // Each RLE segment without a bbox is dropped with its own warning, keyed by its id.
+    const segments = Array.from({ length: 100 }, (_, id) => ({
+      id,
+      mask_format: 'rle',
+      mask: { size: [2, 2], counts: [4] },
+    }));
+    drawMessages(state, overlaySettings(), [
+      { type: 'segmentation', data: { segments } },
+      { type: 'object-detection', data: { objects: [null] } },
+      { type: 'heatmap' },
+    ]);
+    const messages: string[] = warn.mock.calls.map((call: unknown[]) => String(call[0]));
+    expect(messages.filter((message) => message.startsWith('segmentation:'))).toHaveLength(64);
+    expect(messages.some((message) => message.includes('failed to draw object-detection'))).toBe(
+      true,
+    );
+    expect(messages.some((message) => message.includes('"heatmap"'))).toBe(true);
   });
 
   it('unknown types cannot invoke inherited properties as drawing strategies', () => {
@@ -223,9 +295,8 @@ describe('drawFrame', () => {
     expect(ctx.ops('strokeRect')).toHaveLength(2);
   });
 
-  it('draws labels in the kit font, read once per overlay state', () => {
+  it('draws labels in the kit font, keeping it once read', () => {
     const canvas = document.createElement('canvas');
-    canvas.style.setProperty('--font-sans', 'Inter, sans-serif');
     document.body.append(canvas);
     try {
       const state = overlayState();
@@ -246,19 +317,23 @@ describe('drawFrame', () => {
         return ctx.ops('fillText').map((call) => call.font);
       };
 
-      expect(draw()).toStrictEqual(['14px Inter, sans-serif', '16px Inter, sans-serif']);
+      expect(draw(), 'no token yet: the generic family').toStrictEqual([
+        '14px sans-serif',
+        '16px sans-serif',
+      ]);
+      canvas.style.setProperty('--font-sans', 'Inter, sans-serif');
+      expect(draw(), 'a failed read is retried').toStrictEqual([
+        '14px Inter, sans-serif',
+        '16px Inter, sans-serif',
+      ]);
       canvas.style.setProperty('--font-sans', 'Changed');
-      expect(draw(), 'the token is not read again on later frames').toStrictEqual([
+      expect(draw(), 'a successful read is not repeated on later frames').toStrictEqual([
         '14px Inter, sans-serif',
         '16px Inter, sans-serif',
       ]);
     } finally {
       canvas.remove();
     }
-    // A context without a canvas element in the document falls back to the generic family.
-    expect(
-      drawMessages(overlayState(), overlaySettings(), [detection]).ops('fillText')[0].font,
-    ).toBe('14px sans-serif');
   });
 
   it('draws with the NeatOverlayColors it was given', () => {

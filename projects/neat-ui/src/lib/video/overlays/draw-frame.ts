@@ -1,10 +1,11 @@
 import type { NeatMetadataMessage } from '../sync/metadata-message';
 import type { ColorAllocator, NeatOverlayColors } from './colors';
+import { createColorAllocator } from './colors';
 import type { DrawContext, DrawStrategy, OverlayFonts, TrackTrail } from './draw-context';
 import { letterbox } from './letterbox';
 import type { NeatOverlaySettings } from './overlay-settings';
-import type { MaskContextFactory } from './rle';
-import { offscreenMaskContext, RleMaskCanvas } from './rle';
+import type { MaskSurfaceFactory } from './rle';
+import { RleMaskCanvas, sharedMaskCanvas } from './rle';
 import { mapRoi } from './roi';
 import { drawClassification } from './strategies/classification';
 import { drawObjectDetection } from './strategies/object-detection';
@@ -44,10 +45,20 @@ interface OverlayState {
   readonly colors: ColorAllocator;
   readonly trackHistory: Map<string, TrackTrail>;
   readonly masks: RleMaskCanvas;
-  /** Warning keys already logged; kept across resets so a restarting stream does not repeat them. */
-  readonly warned: Set<string>;
+  /**
+   * Warning keys already logged, per kind; kept across resets so a restarting stream does not
+   * repeat them.
+   */
+  readonly warned: Record<WarningKind, Set<string>>;
+  /** Null until the kit font has been read. */
   fonts: OverlayFonts | null;
 }
+
+/**
+ * Unknown types, failed strategies, and a strategy's own warnings (dropped segments). Each kind
+ * has its own memory, so producer-chosen segment ids cannot silence a failing strategy.
+ */
+type WarningKind = 'unknown' | 'failed' | 'strategy';
 
 /** The only place the opaque handle is opened. */
 function stateOf(state: NeatOverlayState): OverlayState {
@@ -63,30 +74,55 @@ const STRATEGIES: ReadonlyMap<string, DrawStrategy> = new Map([
 ]);
 
 /**
- * Bounds the warning memory. Keys include producer-chosen types and segment ids; the memory stops
- * growing instead of flushing, since flushing would let a key warn a second time.
+ * Messages of this type feed the auxiliary panel (plan 2b), not the overlay; they are skipped
+ * without a warning, which would otherwise fire on every stream that sends them.
+ */
+const AUXILIARY_METADATA_TYPE = 'auxiliary-visualization';
+
+/**
+ * Bounds each kind's warning memory. Keys include producer-chosen types and segment ids; the
+ * memory stops growing instead of flushing, since flushing would let a key warn a second time.
  */
 const WARNING_MEMORY_LIMIT = 64;
 
-/** Used when the canvas is not an element in the document, so the kit font cannot be read. */
-const FALLBACK_FONT_FAMILY = 'sans-serif';
+/** Used while the kit font cannot be read: the canvas is not in the document, or has no token. */
+const FALLBACK_FONTS: OverlayFonts = fontsOf('sans-serif');
+
+function fontsOf(family: string): OverlayFonts {
+  return { label: `14px ${family}`, large: `16px ${family}` };
+}
 
 /**
  * A channel's overlay state. Class colours come from `colors`, shared with every tile created
- * with the same instance. `createMaskContext` makes the surface RLE masks are decoded on; the
- * default is an OffscreenCanvas, created on the first RLE mask.
+ * with the same instance; RLE masks are decoded on the page's one offscreen surface.
  */
-export function createOverlayState(
+export function createOverlayState(channel: number, colors: NeatOverlayColors): NeatOverlayState {
+  return newOverlayState(channel, colors, sharedMaskCanvas());
+}
+
+/**
+ * Internal, for specs: a state whose RLE masks are decoded on a surface of its own, made by
+ * `surface`, instead of the page's OffscreenCanvas.
+ */
+export function createOverlayStateWithMasks(
   channel: number,
   colors: NeatOverlayColors,
-  createMaskContext: MaskContextFactory = offscreenMaskContext,
+  surface: MaskSurfaceFactory,
+): NeatOverlayState {
+  return newOverlayState(channel, colors, new RleMaskCanvas(surface));
+}
+
+function newOverlayState(
+  channel: number,
+  colors: NeatOverlayColors,
+  masks: RleMaskCanvas,
 ): NeatOverlayState {
   const state: OverlayState = {
     channel,
-    colors: colors.createAllocator(),
+    colors: createColorAllocator(colors),
     trackHistory: new Map(),
-    masks: new RleMaskCanvas(createMaskContext),
-    warned: new Set(),
+    masks,
+    warned: { unknown: new Set(), failed: new Set(), strategy: new Set() },
     fonts: null,
   };
   return state as unknown as NeatOverlayState;
@@ -99,24 +135,32 @@ export function resetOverlayState(handle: NeatOverlayState): void {
   state.colors.clear();
 }
 
-function warnOnce(state: OverlayState, key: string, message: string, ...details: unknown[]): void {
-  if (state.warned.has(key) || state.warned.size >= WARNING_MEMORY_LIMIT) return;
-  state.warned.add(key);
+function warnOnce(
+  state: OverlayState,
+  kind: WarningKind,
+  key: string,
+  message: string,
+  ...details: unknown[]
+): void {
+  const warned = state.warned[kind];
+  if (warned.has(key) || warned.size >= WARNING_MEMORY_LIMIT) return;
+  warned.add(key);
   console.warn(message, ...details);
 }
 
 /**
- * The kit font, read once per state: reading a computed style forces a style recalculation,
- * which a frame path must not pay for. The canvas is in the document by the first drawn frame.
+ * The kit font. Reading a computed style forces a style recalculation, which a frame path must not
+ * pay for, so a value once read is kept for the state's life. A failed read (the canvas not yet in
+ * the document, or no token) is not kept, so it is retried on the next frame.
  */
 function fontsFor(state: OverlayState, canvas: CanvasRenderingContext2D['canvas']): OverlayFonts {
-  if (!state.fonts) {
-    const family =
-      (canvas instanceof HTMLCanvasElement
-        ? getComputedStyle(canvas).getPropertyValue('--font-sans').trim()
-        : '') || FALLBACK_FONT_FAMILY;
-    state.fonts = { label: `14px ${family}`, large: `16px ${family}` };
-  }
+  if (state.fonts) return state.fonts;
+  const family =
+    canvas instanceof HTMLCanvasElement
+      ? getComputedStyle(canvas).getPropertyValue('--font-sans').trim()
+      : '';
+  if (!family) return FALLBACK_FONTS;
+  state.fonts = fontsOf(family);
   return state.fonts;
 }
 
@@ -124,7 +168,7 @@ function fontsFor(state: OverlayState, canvas: CanvasRenderingContext2D['canvas'
  * Clears the overlay and draws `items` over a video shown with `object-fit: contain`. The context
  * is scaled by `view.dpr`, so every line width, font size and offset is in CSS pixels. A message
  * of an unknown type, or one whose strategy throws, is skipped with one warning per channel and
- * type; the frame's other messages still draw.
+ * type; the frame's other messages still draw. Auxiliary-panel messages are skipped silently.
  */
 export function drawFrame(
   ctx: CanvasRenderingContext2D,
@@ -153,16 +197,18 @@ export function drawFrame(
     now,
     trackHistory: state.trackHistory,
     masks: state.masks,
-    warnOnce: (key, message) => warnOnce(state, key, message),
+    warnOnce: (key, message) => warnOnce(state, 'strategy', key, message),
   };
 
   for (const { message, held } of items) {
     const { type } = message;
+    if (type === AUXILIARY_METADATA_TYPE) continue;
     const draw = STRATEGIES.get(type);
     if (!draw) {
       warnOnce(
         state,
-        `unknown:${type}`,
+        'unknown',
+        type,
         `metadata: channel ${state.channel} has no overlay for type "${type}"`,
       );
       continue;
@@ -174,7 +220,8 @@ export function drawFrame(
     } catch (error) {
       warnOnce(
         state,
-        `failed:${type}`,
+        'failed',
+        type,
         `metadata: channel ${state.channel} failed to draw ${type}`,
         error,
       );

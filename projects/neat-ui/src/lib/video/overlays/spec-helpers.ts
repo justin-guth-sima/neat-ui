@@ -5,8 +5,9 @@
 import type { NeatMetadataMessage } from '../sync/metadata-message';
 import { NeatOverlayColors } from './colors';
 import type { NeatOverlayItem, NeatOverlayState, NeatOverlayView } from './draw-frame';
-import { createOverlayState, drawFrame } from './draw-frame';
+import { createOverlayStateWithMasks, drawFrame } from './draw-frame';
 import type { NeatOverlaySettings, NeatRoiPolygon } from './overlay-settings';
+import type { MaskSurfaceFactory } from './rle';
 import { NEAT_OVERLAY_DEFAULTS } from './overlay-settings';
 
 /** The drawing state a real 2D context saves and restores, as recorded with every call. */
@@ -140,19 +141,26 @@ export class RecordingContext {
   }
 }
 
-/** The offscreen context RLE masks are decoded on, recording each mask it is given. */
-export class RecordingMaskContext {
+/**
+ * A mask surface whose offscreen context records each mask it is given. Its `ImageData` is a plain
+ * object, so no browser canvas or global `ImageData` is needed.
+ */
+export class RecordingMaskContext implements MaskSurfaceFactory {
   readonly canvas = { width: 0, height: 0 };
   readonly masks: { width: number; height: number; data: Uint8ClampedArray }[] = [];
   fillStyle = '';
   globalCompositeOperation = 'source-over';
 
-  get context(): OffscreenCanvasRenderingContext2D {
+  /** How many contexts the surface was asked for. */
+  contextsCreated = 0;
+
+  createContext(): OffscreenCanvasRenderingContext2D {
+    this.contextsCreated += 1;
     return this as unknown as OffscreenCanvasRenderingContext2D;
   }
 
-  createImageData(width: number, height: number): ImageData {
-    return { width, height, data: new Uint8ClampedArray(width * height * 4) } as ImageData;
+  wrapPixels(pixels: Uint8ClampedArray<ArrayBuffer>, width: number, height: number): ImageData {
+    return { width, height, data: pixels } as ImageData;
   }
 
   putImageData(image: ImageData): void {
@@ -225,7 +233,7 @@ export function overlayState(
   colors = new NeatOverlayColors(),
   mask = new RecordingMaskContext(),
 ): NeatOverlayState {
-  return createOverlayState(channel, colors, () => mask.context);
+  return createOverlayStateWithMasks(channel, colors, mask);
 }
 
 export interface DrawOptions {

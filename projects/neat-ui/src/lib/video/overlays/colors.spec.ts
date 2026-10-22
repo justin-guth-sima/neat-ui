@@ -1,12 +1,12 @@
 import { OVERLAY_NEUTRAL_COLOR, OVERLAY_PALETTE } from '../../theme/overlay-palette';
 import { SIMA_PALETTE } from '../../theme/palette';
-import { NeatOverlayColors, RELEASE_AFTER_MS, resolveColor } from './colors';
+import { createColorAllocator, NeatOverlayColors, RELEASE_AFTER_MS, resolveColor } from './colors';
 
 const PALETTE = OVERLAY_PALETTE;
 
 describe('colour allocator', () => {
   it('keeps the same color for the same identity and differs across identities', () => {
-    const allocator = new NeatOverlayColors().createAllocator();
+    const allocator = createColorAllocator(new NeatOverlayColors());
     const first = allocator.colorFor(0, 'track', '7', 1);
     const second = allocator.colorFor(0, 'track', '8', 2);
     expect(first).not.toBe(second);
@@ -18,7 +18,7 @@ describe('colour allocator', () => {
   });
 
   it('keeps maps separate per namespace, and track and pose maps per channel', () => {
-    const allocator = new NeatOverlayColors().createAllocator();
+    const allocator = createColorAllocator(new NeatOverlayColors());
     expect(allocator.colorFor(0, 'track', '1', 1)).toBe(PALETTE[0]);
     expect(allocator.colorFor(1, 'track', 'x', 1)).toBe(PALETTE[0]);
     expect(allocator.colorFor(0, 'pose', 'y', 1)).toBe(PALETTE[0]);
@@ -30,8 +30,8 @@ describe('colour allocator', () => {
   it('gives a class the same color on every channel, whichever tile sees it first', () => {
     // Each viewer tile owns its allocator; classes must still agree across tiles.
     const colors = new NeatOverlayColors();
-    const tile0 = colors.createAllocator();
-    const tile3 = colors.createAllocator();
+    const tile0 = createColorAllocator(colors);
+    const tile3 = createColorAllocator(colors);
     const light = tile0.colorFor(0, 'class', 'traffic light', 1);
     tile0.colorFor(0, 'class', 'car', 1);
     const bicycle = tile3.colorFor(3, 'class', 'bicycle', 2);
@@ -45,8 +45,8 @@ describe('colour allocator', () => {
 
   it('keeps a class seen on another channel live there', () => {
     const colors = new NeatOverlayColors();
-    const tile0 = colors.createAllocator();
-    const tile1 = colors.createAllocator();
+    const tile0 = createColorAllocator(colors);
+    const tile1 = createColorAllocator(colors);
     const size = PALETTE.length;
     const seen: string[] = [];
     for (let i = 0; i < size; i += 1) seen.push(tile0.colorFor(0, 'class', `c${i}`, 0));
@@ -61,7 +61,7 @@ describe('colour allocator', () => {
   });
 
   it("hands a stale identity's slot to a newcomer, the one absent longest first", () => {
-    const allocator = new NeatOverlayColors().createAllocator();
+    const allocator = createColorAllocator(new NeatOverlayColors());
     const size = PALETTE.length;
     const seen: string[] = [];
     for (let i = 0; i < size; i += 1) {
@@ -85,7 +85,7 @@ describe('colour allocator', () => {
   });
 
   it('never takes a slot from a live identity; the newcomer shares one instead', () => {
-    const allocator = new NeatOverlayColors().createAllocator();
+    const allocator = createColorAllocator(new NeatOverlayColors());
     const size = PALETTE.length;
     const seen: string[] = [];
     for (let i = 0; i < size; i += 1) seen.push(allocator.colorFor(0, 'track', `t${i}`, i));
@@ -106,7 +106,7 @@ describe('colour allocator', () => {
   });
 
   it('does not recolor a full frame when one identity is swapped for another', () => {
-    const allocator = new NeatOverlayColors().createAllocator();
+    const allocator = createColorAllocator(new NeatOverlayColors());
     const size = PALETTE.length;
     const seen: string[] = [];
     for (let i = 0; i < size; i += 1) seen.push(allocator.colorFor(0, 'track', `c${i}`, 0));
@@ -126,7 +126,7 @@ describe('colour allocator', () => {
   });
 
   it('drops stale identities that share a slot, so the map stays bounded', () => {
-    const allocator = new NeatOverlayColors().createAllocator();
+    const allocator = createColorAllocator(new NeatOverlayColors());
     const size = PALETTE.length;
     for (let i = 0; i < size; i += 1) allocator.colorFor(0, 'track', `t${i}`, 0);
     for (let i = 0; i < 10; i += 1) allocator.colorFor(0, 'track', `s${i}`, 1);
@@ -140,7 +140,7 @@ describe('colour allocator', () => {
   });
 
   it('separates two stale identities that shared a slot when they return', () => {
-    const allocator = new NeatOverlayColors().createAllocator();
+    const allocator = createColorAllocator(new NeatOverlayColors());
     const size = PALETTE.length;
     for (let i = 0; i < size; i += 1) allocator.colorFor(0, 'track', `t${i}`, 0);
     const shared = allocator.colorFor(0, 'track', 's', 1);
@@ -155,7 +155,7 @@ describe('colour allocator', () => {
   });
 
   it('reallocates a stale identity returning to a slot a live identity holds', () => {
-    const allocator = new NeatOverlayColors().createAllocator();
+    const allocator = createColorAllocator(new NeatOverlayColors());
     const size = PALETTE.length;
     for (let i = 0; i < size; i += 1) allocator.colorFor(0, 'track', `t${i}`, 0);
     allocator.colorFor(0, 'track', 's', 1);
@@ -173,7 +173,7 @@ describe('colour allocator', () => {
   });
 
   it('records lastSeen independently per channel and namespace', () => {
-    const allocator = new NeatOverlayColors().createAllocator();
+    const allocator = createColorAllocator(new NeatOverlayColors());
     allocator.colorFor(1, 'class', 'far-future', 10 * RELEASE_AFTER_MS);
     const size = PALETTE.length;
     for (let i = 0; i < size; i += 1) allocator.colorFor(0, 'track', `t${i}`, i);
@@ -187,7 +187,7 @@ describe('colour allocator', () => {
   });
 
   it('shares the slots inserted first when every identity is live', () => {
-    const allocator = new NeatOverlayColors().createAllocator();
+    const allocator = createColorAllocator(new NeatOverlayColors());
     const size = PALETTE.length;
     const seen: string[] = [];
     for (let i = 0; i < size + 5; i += 1) {
@@ -203,8 +203,8 @@ describe('colour allocator', () => {
 
   it('clear drops its track and pose state but keeps the shared class colors', () => {
     const colors = new NeatOverlayColors();
-    const allocator = colors.createAllocator();
-    const other = colors.createAllocator();
+    const allocator = createColorAllocator(colors);
+    const other = createColorAllocator(colors);
     allocator.colorFor(0, 'track', 'a', 1);
     allocator.colorFor(0, 'track', 'b', 2);
     allocator.colorFor(0, 'class', 'person', 2);
@@ -220,7 +220,7 @@ describe('colour allocator', () => {
   });
 
   it('resolveColor prefers overrides, then neutral for a missing identity, then the allocator', () => {
-    const allocator = new NeatOverlayColors().createAllocator();
+    const allocator = createColorAllocator(new NeatOverlayColors());
     const personColor = SIMA_PALETTE.orange;
     const defaultColor = SIMA_PALETTE.blue;
     const base = { allocator, channelIndex: 0, namespace: 'class', now: 1 } as const;
@@ -246,8 +246,8 @@ describe('colour allocator', () => {
   });
 
   it('two NeatOverlayColors instances do not share class colours', () => {
-    const page = new NeatOverlayColors().createAllocator();
-    const otherPage = new NeatOverlayColors().createAllocator();
+    const page = createColorAllocator(new NeatOverlayColors());
+    const otherPage = createColorAllocator(new NeatOverlayColors());
     expect(page.colorFor(0, 'class', 'car', 1)).toBe(PALETTE[0]);
     expect(page.colorFor(0, 'class', 'person', 1)).toBe(PALETTE[1]);
     expect(otherPage.colorFor(0, 'class', 'person', 1), 'person is new to the other page').toBe(
