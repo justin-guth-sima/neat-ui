@@ -6,8 +6,10 @@ import type { NeatColorScheme } from './theme.service';
 const MIN_CONTRAST = 4.5;
 
 /**
- * The least contrast at which a fill (a hover or selection fill such as `--accent`) still reads as
- * a change of the surface under it. Not a WCAG figure: the kit's own floor for state fills.
+ * The minimum contrast a hover or selection fill must have against the surface under it (the
+ * content background and cards), so the state stays visible; not a WCAG figure. Nothing applies it
+ * at runtime: the theme spec enforces it on `--accent` (the dark accent step was chosen to meet
+ * it) and the button spec on the outlined and text hovers.
  */
 export const MIN_FILL_CONTRAST = 1.15;
 

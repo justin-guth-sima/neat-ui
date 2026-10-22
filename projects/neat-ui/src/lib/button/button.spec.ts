@@ -101,8 +101,17 @@ const COLOR_MIX = /^\[color-mix\(in_oklch,var\(--([\w-]+)\),var\(--([\w-]+)\)_(\
 const TOKEN_COLOR = /^([a-z-]+?)(?:\/(\d+))?$/;
 /** The variant chains the cascade below models. */
 const MODELLED_VARIANTS = ['', 'dark', 'hover', 'dark:hover'];
-/** Variants for states the contrast test does not cover (open menus, focus, pressing, data states). */
-const UNMODELLED_VARIANT = /^(aria-|focus-visible$|active$|data-|in-data-|has-|not-|\[)/;
+/**
+ * States the contrast test does not cover, each one helm's button uses today: an open menu
+ * (`aria-expanded`), keyboard focus and pressing. A colour class carrying one is skipped.
+ */
+const UNCOVERED_STATES = ['aria-expanded', 'focus-visible', 'active'];
+/**
+ * Variants that only scope a class to a child or an attribute, such as helm's
+ * `[&_neat-icon:not([class*='text-'])]:text-[length:…]`. Skipped too, unless they mention dark or
+ * hover (`not-dark:`, `[.neat-dark_&]:`), which would change the cascade the test models.
+ */
+const SCOPING_VARIANT = /^(\[|not-|has-)/;
 
 /** A class as its variants and utility, split at the colons outside brackets. */
 function variantsOf(name: string): { variants: string[]; utility: string } {
@@ -122,18 +131,31 @@ function variantsOf(name: string): { variants: string[]; utility: string } {
 
 /**
  * Fails on a `bg-` or `text-` class whose variants the cascade below does not know, such as
- * `hover:dark:` or `group-hover:`, so a helm update cannot slip a colour past the contrast test.
+ * `hover:dark:`, `group-hover:` or `not-dark:`, so a helm update cannot slip a colour past the
+ * contrast test.
  */
 function assertModelledVariants(classes: string[]): void {
   for (const name of classes) {
     const { variants, utility } = variantsOf(name);
     if (!/^(bg|text)-/.test(utility)) continue;
-    const states = variants.filter((variant) => !UNMODELLED_VARIANT.test(variant));
-    const unmodelled = states.length < variants.length;
-    const stateChain = states.join(':');
-    const known = states.every((variant) => variant === 'dark' || variant === 'hover');
-    if (!known || (!unmodelled && !MODELLED_VARIANTS.includes(stateChain))) {
+    const fail = () => {
       throw new Error(`Unknown variants on "${name}": teach the contrast test about them`);
+    };
+    let uncovered = false;
+    const chain: string[] = [];
+    for (const variant of variants) {
+      if (variant === 'dark' || variant === 'hover') {
+        chain.push(variant);
+      } else if (UNCOVERED_STATES.includes(variant)) {
+        uncovered = true;
+      } else if (SCOPING_VARIANT.test(variant) && !/dark|hover/.test(variant)) {
+        uncovered = true;
+      } else {
+        fail();
+      }
+    }
+    if (!uncovered && !MODELLED_VARIANTS.includes(chain.join(':'))) {
+      fail();
     }
   }
 }
@@ -216,17 +238,28 @@ function colorsOf(classes: string[], state: ButtonState, surface: Surface) {
 }
 
 describe('the contrast test itself', () => {
-  it.each(['hover:dark:bg-accent', 'group-hover:bg-accent', 'dark:dark:text-foreground'])(
-    'refuses a colour class with variants it does not model: %s',
-    (name) => {
-      expect(() => winningValue([name], 'bg', { scheme: 'dark', hover: true })).toThrow(
-        /Unknown variants/,
-      );
-    },
-  );
+  it.each([
+    'hover:dark:bg-accent',
+    'dark:dark:text-foreground',
+    'group-hover:bg-accent',
+    'not-dark:bg-accent',
+    'has-[:hover]:bg-accent',
+    '[.neat-dark_&]:bg-accent',
+    '[&:hover]:text-foreground',
+    'data-[state=open]:bg-accent',
+  ])('refuses a colour class with variants it does not model: %s', (name) => {
+    expect(() => winningValue([name], 'bg', { scheme: 'dark', hover: true })).toThrow(
+      /Unknown variants/,
+    );
+  });
 
   it('ignores colour classes for states it does not cover', () => {
-    const classes = ['bg-primary', 'aria-expanded:bg-muted', 'dark:focus-visible:bg-ring'];
+    const classes = [
+      'bg-primary',
+      'aria-expanded:bg-muted',
+      'dark:focus-visible:bg-ring',
+      "[&_neat-icon:not([class*='text-'])]:text-[length:--spacing(4)]",
+    ];
     expect(winningValue(classes, 'bg', { scheme: 'dark', hover: true })).toBe('primary');
   });
 });

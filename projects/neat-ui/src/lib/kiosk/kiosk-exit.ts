@@ -64,11 +64,13 @@ import { KioskService } from './kiosk.service';
 })
 export class NeatKioskExit {
   protected readonly kiosk = inject(KioskService);
-  private readonly control = viewChild.required(NeatButton, { read: ElementRef });
+  private readonly control = viewChild.required<NeatButton, ElementRef<HTMLElement>>(NeatButton, {
+    read: ElementRef,
+  });
 
   protected readonly shown = computed(() => !this.kiosk.pointerIdle());
 
   focus(): void {
-    (this.control().nativeElement as HTMLElement).focus();
+    this.control().nativeElement.focus();
   }
 }
