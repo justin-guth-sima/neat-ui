@@ -174,7 +174,10 @@ nav {
 
 .topbar-end {
   display: flex;
-  flex: 1 0 auto;
+  /* Shrinks below its content's width, so wide end content (a status pill) truncates inside the
+     top bar instead of pushing out of it. */
+  flex: 1 1 auto;
+  min-width: 0;
   align-items: center;
   justify-content: flex-end;
   gap: 0.5rem;

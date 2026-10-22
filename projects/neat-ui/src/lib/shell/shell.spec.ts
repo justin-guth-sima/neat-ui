@@ -395,6 +395,16 @@ describe('NeatShell', () => {
     expect(topbar().querySelector('.board-status')?.textContent).toBe('Board connected');
   });
 
+  it('lets wide [neatTopbarEnd] content shrink instead of pushing out of the top bar', async () => {
+    await start();
+    const end = getComputedStyle(topbar().querySelector('.topbar-end') as HTMLElement);
+
+    // jsdom lays nothing out: the flex item's ability to shrink below its content is asserted by
+    // style, and the app's e2e suite checks that nothing spills out of the top bar.
+    expect(end.flexShrink).toBe('1');
+    expect(end.minWidth).toBe('0px');
+  });
+
   it('projects the routed page into the main content area', async () => {
     await start();
 
