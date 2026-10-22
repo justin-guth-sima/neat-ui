@@ -27,14 +27,17 @@ const VOCABULARY = {
       [max]="480"
       [step]="10"
       [disabled]="disabled()"
+      [describedBy]="note()"
       [(value)]="width"
       (valueChange)="changes.push($event)"
     />
+    <p id="width-note">Overridden on 2 channels</p>
   `,
 })
 class SliderHost {
   readonly width = signal(240);
   readonly disabled = signal(false);
+  readonly note = signal<string | undefined>(undefined);
   readonly changes: number[] = [];
 }
 
@@ -144,6 +147,7 @@ describe('NeatSlider', () => {
 
     expect(thumb.tabIndex).toBe(-1);
     expect(root.getAttribute('aria-disabled')).toBe('true');
+    expect(thumb.getAttribute('aria-disabled')).toBe('true');
     expect(root.hasAttribute('data-disabled')).toBe(true);
 
     key(thumb, 'ArrowRight');
@@ -151,6 +155,33 @@ describe('NeatSlider', () => {
     await fixture.whenStable();
     expect(host.width()).toBe(240);
     expect(host.changes).toEqual([]);
+  });
+
+  it('mirrors disabled on the thumb only while disabled, since that is what assistive technology focuses', async () => {
+    const { fixture, host, thumb } = await render();
+    expect(thumb.hasAttribute('aria-disabled')).toBe(false);
+
+    host.disabled.set(true);
+    await fixture.whenStable();
+    expect(thumb.getAttribute('aria-disabled')).toBe('true');
+
+    host.disabled.set(false);
+    await fixture.whenStable();
+    expect(thumb.hasAttribute('aria-disabled')).toBe(false);
+  });
+
+  it('describedBy puts aria-describedby on the thumb, not on the root, and leaves it off when unset', async () => {
+    const { fixture, host, root, thumb } = await render();
+    expect(thumb.hasAttribute('aria-describedby')).toBe(false);
+
+    host.note.set('width-note');
+    await fixture.whenStable();
+    expect(thumb.getAttribute('aria-describedby')).toBe('width-note');
+    expect(root.hasAttribute('aria-describedby')).toBe(false);
+
+    host.note.set(undefined);
+    await fixture.whenStable();
+    expect(thumb.hasAttribute('aria-describedby')).toBe(false);
   });
 
   it('draws the slider with helm’s classes', async () => {

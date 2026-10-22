@@ -21,6 +21,7 @@ import {
   LucideShapes,
   LucideSquare,
   LucideSun,
+  LucideX,
 } from '@lucide/angular';
 
 /**
@@ -48,6 +49,7 @@ export const NEAT_ICONS = {
   document: LucideFileText,
   previous: LucideChevronLeft,
   next: LucideChevronRight,
+  close: LucideX,
   'aspect-wide': LucideRectangleHorizontal,
   'aspect-square': LucideSquare,
 } satisfies Record<string, LucideIcon>;

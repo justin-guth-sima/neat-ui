@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NeatIcon } from './icon';
-import { NeatIconName } from './icon-registry';
+import { NEAT_ICON_NAMES, NeatIconName } from './icon-registry';
 
 describe('NeatIcon', () => {
   let fixture: ComponentFixture<NeatIcon>;
@@ -52,6 +52,23 @@ describe('NeatIcon', () => {
     };
 
     expect(await drawing('sun')).not.toBe(await drawing('moon'));
+  });
+
+  it('draws the close icon as a cross, not as another registered glyph', async () => {
+    const cross = await (async () => {
+      fixture.componentRef.setInput('name', 'close');
+      await fixture.whenStable();
+      return svg().innerHTML;
+    })();
+
+    expect(cross).not.toBe('');
+    // Lucide's X is two crossing strokes.
+    expect(svg().querySelectorAll('path, line')).toHaveLength(2);
+    for (const other of NEAT_ICON_NAMES.filter((name) => name !== 'close')) {
+      fixture.componentRef.setInput('name', other);
+      await fixture.whenStable();
+      expect(svg().innerHTML, other).not.toBe(cross);
+    }
   });
 
   it('rejects names outside the registry at compile time', () => {

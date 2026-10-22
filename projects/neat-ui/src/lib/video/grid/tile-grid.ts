@@ -15,8 +15,14 @@ import {
 } from '@angular/core';
 import { NeatTileArea, NeatTileAspect, NeatTilePack, packTiles } from './pack';
 
-/** What the grid reports: the packing, plus the content box it was packed into. */
+/**
+ * What the grid reports: the packing, the gap it used between tiles and the content box it was
+ * packed into. A page that sizes tiles itself (to fit a count, say) needs the gap the grid used,
+ * which may be the kit's token rather than a number the page chose.
+ */
 export interface NeatTileLayout extends NeatTilePack {
+  /** Space between tiles in CSS pixels. */
+  readonly gap: number;
   readonly areaWidth: number;
   readonly areaHeight: number;
 }
@@ -108,6 +114,7 @@ export class NeatTileGrid {
       if (area === null || !(area.width > 0 && area.height > 0) || gap === null) return null;
       return {
         ...packTiles(area, this.tileWidth(), this.aspect(), gap),
+        gap,
         areaWidth: area.width,
         areaHeight: area.height,
       };

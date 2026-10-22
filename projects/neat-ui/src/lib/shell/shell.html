@@ -71,7 +71,7 @@
         rounded
         iconOnly
         aria-label="Dark mode"
-        [attr.aria-pressed]="theme.scheme() === 'dark'"
+        [pressed]="theme.scheme() === 'dark'"
         neatTooltip="Dark mode"
         neatTooltipPosition="bottom"
         (click)="theme.toggle()"

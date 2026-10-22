@@ -33,6 +33,8 @@ import {
 import { TestPatternSource } from './test-pattern-source';
 
 const VARIANTS: NeatButtonVariant[] = ['primary', 'secondary', 'outlined', 'text', 'danger'];
+/** The surfaces a button sits on, as the contrast tests have it: the page and a card. */
+const SURFACES = ['page', 'card'] as const;
 const SIZES: NeatButtonSize[] = ['small', 'medium', 'large', 'touch'];
 const ICON_SIZES = [16, 20, 24] as const;
 const TOOLTIP_POSITIONS: NeatTooltipPosition[] = ['top', 'right', 'bottom', 'left'];
@@ -130,6 +132,42 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
         </section>
 
         <section class="showcase-section">
+          <h2>Pressed buttons</h2>
+          <p class="showcase-muted">
+            <code>[pressed]</code> on a toggle: it sets <code>aria-pressed</code> and inverts the
+            fill, so the state does not rest on colour alone. Click each one. Leave the input unset
+            on a button that is not a toggle. Primary is a solid fill already, so its pressed look
+            is the least distinct: toggles belong on the other variants. The last button uses the
+            <code>close</code> icon.
+          </p>
+          @for (surface of surfaces; track surface) {
+            <div class="showcase-row" [class.card]="surface === 'card'">
+              @for (variant of variants; track variant) {
+                <button
+                  neatButton
+                  type="button"
+                  [variant]="variant"
+                  [pressed]="pressedVariants().has(variant)"
+                  (click)="togglePressed(variant)"
+                >
+                  {{ variant }}
+                </button>
+              }
+              <button
+                neatButton
+                type="button"
+                variant="outlined"
+                iconOnly
+                aria-label="Close"
+                neatTooltip="Close"
+              >
+                <neat-icon name="close" />
+              </button>
+            </div>
+          }
+        </section>
+
+        <section class="showcase-section">
           <h2>Buttons on a card</h2>
           <p class="showcase-muted">
             On the card surface, which differs from the page background in dark mode. Hover each
@@ -198,6 +236,20 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
             <span>Opacity</span>
             <neat-slider label="Opacity" [min]="0" [max]="100" [step]="5" [(value)]="opacity" />
             <span class="showcase-code showcase-muted">{{ opacity() }} %</span>
+          </div>
+          <div class="slider-field">
+            <span>Described</span>
+            <neat-slider
+              label="Gain"
+              describedBy="gain-note"
+              [min]="0"
+              [max]="100"
+              [step]="5"
+              [(value)]="gain"
+            />
+            <span id="gain-note" class="showcase-muted">
+              <code>describedBy</code> names this note, announced after the value.
+            </span>
           </div>
           <div class="slider-field">
             <span>Disabled</span>
@@ -398,6 +450,7 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
 })
 export class ComponentsPage {
   protected readonly variants = VARIANTS;
+  protected readonly surfaces = SURFACES;
   protected readonly sizes = SIZES;
   protected readonly iconSizes = ICON_SIZES;
   protected readonly tooltipPositions = TOOLTIP_POSITIONS;
@@ -407,6 +460,10 @@ export class ComponentsPage {
   protected readonly bars = signal(true);
   protected readonly hideEmpty = signal(false);
   protected readonly opacity = signal(60);
+  protected readonly gain = signal(30);
+  protected readonly pressedVariants = signal<ReadonlySet<NeatButtonVariant>>(
+    new Set(['secondary', 'outlined']),
+  );
   protected readonly shape = signal<NeatTileAspect>('16:9');
   protected readonly overlay = signal('boxes');
   protected readonly tab = signal('metadata');
@@ -419,7 +476,7 @@ export class ComponentsPage {
   protected readonly layoutSummary = computed(() => {
     const layout = this.layout();
     return layout
-      ? `${layout.columns} × ${layout.rows} = ${layout.perPage} per page of ${TILE_COUNT}`
+      ? `${layout.columns} × ${layout.rows} = ${layout.perPage} per page of ${TILE_COUNT}, gap ${layout.gap} px`
       : 'Measuring';
   });
 
@@ -428,6 +485,14 @@ export class ComponentsPage {
   protected readonly tileSelected = signal(false);
   protected readonly tileState = signal<NeatTileState>('empty');
   protected readonly tileSummary = computed(() => `First tile: ${this.tileState()}`);
+
+  protected togglePressed(variant: NeatButtonVariant): void {
+    this.pressedVariants.update((pressed) => {
+      const next = new Set(pressed);
+      if (!next.delete(variant)) next.add(variant);
+      return next;
+    });
+  }
 
   constructor() {
     const document = inject(DOCUMENT);

@@ -43,6 +43,7 @@ const HELM_VARIANT_MARKERS: Record<NeatButtonVariant, string[]> = {
       [iconOnly]="iconOnly()"
       [rounded]="rounded()"
       [disabled]="disabled()"
+      [pressed]="pressed()"
       (click)="clicks = clicks + 1"
     >
       Label
@@ -55,6 +56,7 @@ class ButtonHost {
   readonly iconOnly = signal(false);
   readonly rounded = signal(false);
   readonly disabled = signal(false);
+  readonly pressed = signal<boolean | undefined>(undefined);
   readonly bound = signal(true);
   clicks = 0;
 }
@@ -82,8 +84,11 @@ async function renderButton(setup: (host: ButtonHost) => void = () => undefined)
   return { fixture, host: fixture.componentInstance, button };
 }
 
-async function classesOf(variant: NeatButtonVariant): Promise<string[]> {
-  const { button } = await renderButton((host) => host.variant.set(variant));
+async function classesOf(variant: NeatButtonVariant, pressed?: boolean): Promise<string[]> {
+  const { button } = await renderButton((host) => {
+    host.variant.set(variant);
+    host.pressed.set(pressed);
+  });
   return [...button.classList];
 }
 
@@ -471,6 +476,86 @@ describe('NeatButton', () => {
           expect(contrastRatio(ring, tokens[surface]), label).toBeGreaterThanOrEqual(
             MIN_NON_TEXT_CONTRAST,
           );
+        }
+      }
+    },
+  );
+
+  it('pressed sets aria-pressed from the input and leaves the attribute off when undefined', async () => {
+    const { fixture, host, button } = await renderButton();
+    expect(button.hasAttribute('aria-pressed')).toBe(false);
+
+    host.pressed.set(true);
+    await settle(fixture);
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+
+    host.pressed.set(false);
+    await settle(fixture);
+    expect(button.getAttribute('aria-pressed')).toBe('false');
+
+    host.pressed.set(undefined);
+    await settle(fixture);
+    expect(button.hasAttribute('aria-pressed')).toBe(false);
+  });
+
+  it.each(VARIANTS)(
+    '%s: a button that is not pressed looks the same as one without the input',
+    async (variant) => {
+      expect(await classesOf(variant, false)).toEqual(await classesOf(variant));
+    },
+  );
+
+  /**
+   * The primary variant is a solid fill already, so no fill is 3:1 from it and from the surface at
+   * once. In dark its fill (#E28250) has a relative luminance of 0.33; a fill 3:1 from it must be
+   * darker than 0.076 (or lighter than 1.08, which does not exist), while one 3:1 from the dark
+   * background (0.010) must be lighter than 0.13, and from the card (0.024) than 0.17. A toggle
+   * belongs on one of the other variants; primary still shows the pressed look and is held to the
+   * surface and text rules below.
+   */
+  const SEPARABLE_FROM_REST = VARIANTS.filter((variant) => variant !== 'primary');
+
+  it.each(VARIANTS)(
+    `%s: pressed text reaches 4.5:1 and the fill ${MIN_NON_TEXT_CONTRAST}:1 against the surface, at rest and on hover, in both schemes`,
+    async (variant) => {
+      const pressed = await classesOf(variant, true);
+
+      for (const scheme of SCHEMES) {
+        for (const surface of SURFACES) {
+          const under = spartanThemeTokens(scheme)[surface];
+          for (const hover of [false, true]) {
+            const { fill, text } = colorsOf(pressed, { scheme, hover }, surface);
+            const label = `${variant}, ${scheme}, pressed ${hover ? 'hover' : 'rest'}, over ${surface}`;
+            expect(
+              contrastRatio(text, fill),
+              `${label}: text ${text} on ${fill}`,
+            ).toBeGreaterThanOrEqual(4.5);
+            expect(
+              contrastRatio(fill, under),
+              `${label}: fill ${fill} vs surface ${under}`,
+            ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+          }
+        }
+      }
+    },
+  );
+
+  it.each(SEPARABLE_FROM_REST)(
+    `%s: the pressed fill is ${MIN_NON_TEXT_CONTRAST}:1 from the resting fill, in both schemes, at rest and on hover`,
+    async (variant) => {
+      const rest = await classesOf(variant);
+      const pressed = await classesOf(variant, true);
+
+      for (const scheme of SCHEMES) {
+        for (const surface of SURFACES) {
+          const resting = colorsOf(rest, { scheme, hover: false }, surface).fill;
+          for (const hover of [false, true]) {
+            const { fill } = colorsOf(pressed, { scheme, hover }, surface);
+            expect(
+              contrastRatio(fill, resting),
+              `${variant}, ${scheme}, pressed ${hover ? 'hover' : 'rest'}, over ${surface}: ${fill} vs rest ${resting}`,
+            ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+          }
         }
       }
     },

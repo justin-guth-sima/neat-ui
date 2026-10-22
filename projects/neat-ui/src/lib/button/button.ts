@@ -74,6 +74,21 @@ const SIZES: Record<
 };
 
 /**
+ * The pressed look, the same for every variant: the page's inverse (`foreground` fill, `background`
+ * text). Each variant's rest and hover fills are too close to the surface, or to each other, to
+ * carry a state at the 3:1 that WCAG 1.4.11 asks (`accent` is 1.1:1 on white), and the primary
+ * variant's rest fill is already solid. The inverse reaches 3:1 against every variant's rest and
+ * hover fill and against the surface in both schemes, with the text above 4.5:1 on it, and the
+ * spec checks all of that from the emitted tokens.
+ *
+ * It sets the colour in all four chains the variants use (rest, hover, dark, dark hover) so that
+ * the merge replaces whatever the variant's classes set there. Hover does not change a pressed
+ * button: a lighter or darker fill would fall back towards the rest look.
+ */
+const PRESSED =
+  'bg-foreground text-background hover:bg-foreground hover:text-background dark:bg-foreground dark:text-background dark:hover:bg-foreground dark:hover:text-background';
+
+/**
  * A button or link styled as a kit button. Content is the label and/or a `neat-icon`; an
  * icon-only button needs an `aria-label` (and usually a `neatTooltip` with the same text).
  *
@@ -81,11 +96,18 @@ const SIZES: Record<
  * every host directive of a public directive becomes public API, and helm stays internal.
  * The classes go through Angular's `[class]` binding, not helm's `classes()`, which rewrites
  * `className` and can drop a `[class.x]` binding that changes in the same render.
+ *
+ * A toggle button binds `pressed`: it sets `aria-pressed` and the pressed look. Leave it undefined
+ * on a button that is not a toggle, since `aria-pressed="false"` would announce one.
  */
 @Directive({
   selector: 'button[neatButton], a[neatButton]',
   hostDirectives: [{ directive: BrnButton, inputs: ['disabled'] }],
-  host: { 'data-slot': 'button', '[class]': 'classes()' },
+  host: {
+    'data-slot': 'button',
+    '[class]': 'classes()',
+    '[attr.aria-pressed]': 'pressed()',
+  },
 })
 export class NeatButton {
   readonly variant = input<NeatButtonVariant>('primary');
@@ -94,6 +116,8 @@ export class NeatButton {
   readonly iconOnly = input(false, { transform: booleanAttribute });
   /** Fully rounded ends: a pill, or a circle when `iconOnly`. */
   readonly rounded = input(false, { transform: booleanAttribute });
+  /** A toggle's state: `aria-pressed` and the pressed look. Undefined for a button that is not a toggle. */
+  readonly pressed = input<boolean | undefined>(undefined);
 
   protected readonly classes = computed(() => {
     const variant = VARIANTS[this.variant()];
@@ -108,6 +132,7 @@ export class NeatButton {
       variant.focus,
       iconOnly ? size.extraIconOnly : size.extra,
       this.rounded() && 'rounded-full',
+      this.pressed() && PRESSED,
     );
   });
 }

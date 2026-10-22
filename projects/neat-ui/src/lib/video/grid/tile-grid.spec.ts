@@ -110,6 +110,7 @@ describe('NeatTileGrid', () => {
         perPage: 30,
         tileWidth: 300,
         tileHeight: 168.75,
+        gap: 8,
         areaWidth: 1920,
         areaHeight: 1000,
       },
@@ -119,6 +120,7 @@ describe('NeatTileGrid', () => {
         perPage: 16,
         tileWidth: 300,
         tileHeight: 168.75,
+        gap: 8,
         areaWidth: 1280,
         areaHeight: 720,
       },
@@ -247,6 +249,39 @@ describe('NeatTileGrid', () => {
       expect(variable('--grid-gap')).toBe('12px');
       // 1920 + 12 over 312 is 6.1 columns; 1000 + 12 over 180.75 is 5.6 rows.
       expect(host().layouts[0]).toMatchObject({ columns: 6, rows: 5 });
+    });
+
+    it('reports the gap it used: the fallback, the resolved token or the explicit input', async () => {
+      await create();
+      await resize(1920, 1000);
+      expect(host().layouts.at(-1)?.gap).toBe(8);
+
+      host().gap.set(0);
+      await fixture.whenStable();
+      expect(host().layouts.at(-1)?.gap).toBe(0);
+    });
+
+    it('reports the resolved --neat-space-2 token as the gap', async () => {
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+        columnGap: '12px',
+      } as CSSStyleDeclaration);
+      await create();
+      await resize(1920, 1000);
+
+      expect(host().layouts[0].gap).toBe(12);
+    });
+
+    it('emits a new layout when only the gap changes, even if the packing does not', async () => {
+      await create();
+      await resize(1920, 1000);
+
+      host().gap.set(10);
+      await fixture.whenStable();
+
+      expect(host().layouts.map((layout) => [layout.columns, layout.rows, layout.gap])).toEqual([
+        [6, 5, 8],
+        [6, 5, 10],
+      ]);
     });
 
     it('is resolved once, when the grid initialises', async () => {

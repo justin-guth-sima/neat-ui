@@ -55,6 +55,17 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
 - **Apps need no Tailwind.** The kit ships its compiled stylesheet (`styles/neat-ui.css`), which
   contains exactly the utilities the kit's sources use; utility classes in app templates are not
   part of the kit's API.
+- **A toggle button binds `pressed`, never `aria-pressed`.** `NeatButton` owns the attribute (a
+  host binding that is absent while `pressed` is undefined) and gives the pressed look with it, so
+  an `[attr.aria-pressed]` on a `neatButton` is overwritten. The look is the inverse of the page
+  (`foreground` fill, `background` text) and is 3:1 from the surface in both themes and from the
+  resting fill of every variant but `primary`, whose solid fill leaves no room: put toggles on the
+  others. A name that stays the same while the state changes is a toggle's; a button whose label
+  changes with the state is not one, so leave `pressed` unset.
+- **`NeatSlider` takes `describedBy`, an element id, for notes about the slider; it lands on the
+  thumb, with `aria-disabled` mirrored there.** Why: brain puts `aria-disabled` on the root and
+  assistive technology moves focus to the thumb, so a description or a disabled state on the root
+  is never announced.
 - **Tooltips never open on touch** (brain's design: a tap would also trigger the control). A tooltip
   repeats the control's accessible name; never put information only in a tooltip. `neatTooltip`
   takes a string only: its type shows brain's `TemplateRef` too (the host-directive alias keeps the
