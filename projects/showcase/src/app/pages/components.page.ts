@@ -201,7 +201,7 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
           </div>
           <div class="slider-field">
             <span>Disabled</span>
-            <neat-slider label="Disabled" [min]="0" [max]="100" [value]="40" disabled />
+            <neat-slider label="Disabled" [min]="0" [max]="100" [step]="5" [value]="40" disabled />
           </div>
         </section>
 
@@ -277,6 +277,7 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
             <neat-slider
               class="card-slider"
               label="Opacity"
+              [min]="0"
               [max]="100"
               [step]="5"
               [(value)]="opacity"

@@ -74,9 +74,9 @@ export class NeatSwitch {
   readonly checked = model(false);
   readonly disabled = input(false, { transform: booleanAttribute });
 
-  protected readonly hostClasses = HOST_CLASSES;
-  protected readonly trackClasses = SWITCH_HELM_CLASSES.track;
-  protected readonly thumbClasses = SWITCH_HELM_CLASSES.thumb;
+  protected readonly hostClasses: string = HOST_CLASSES;
+  protected readonly trackClasses: string = SWITCH_HELM_CLASSES.track;
+  protected readonly thumbClasses: string = SWITCH_HELM_CLASSES.thumb;
   protected readonly state = computed(() => (this.checked() ? 'checked' : 'unchecked'));
 
   protected toggle(): void {

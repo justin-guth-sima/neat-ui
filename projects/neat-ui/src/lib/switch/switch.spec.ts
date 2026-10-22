@@ -89,7 +89,8 @@ describe('NeatSwitch', () => {
 
   it('keyboard: sits in the tab order as a native button, so Space and Enter toggle it', async () => {
     // A native button turns Space and Enter into a click; jsdom does not synthesise that click,
-    // so the test checks the parts the browser relies on and then fires the click it would.
+    // so the test checks the parts the browser relies on and then fires the click it would. The
+    // keys themselves are checked in a real browser (the task's browser pass).
     const { fixture, host, button } = await render();
 
     button.focus();
@@ -97,7 +98,6 @@ describe('NeatSwitch', () => {
     expect(button.tabIndex).toBe(0);
     expect(button.getAttribute('tabindex')).toBeNull();
 
-    button.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
     button.click();
     await fixture.whenStable();
     expect(host.checked()).toBe(true);

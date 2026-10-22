@@ -28,17 +28,17 @@ export const SLIDER_HELM_CLASSES = {
 /**
  * Where the kit departs from helm's slider; each override exists because slider.spec failed
  * without it.
- * - Track: `bg-muted` is 1.10:1 on white and is the card colour itself in dark, so on a card the
- *   empty part of the track vanishes. `--border` stays visible on every surface. (The empty track
- *   cannot also reach 3:1 against the filled range; the thumb and the filled range carry the
- *   value, each at 3:1 or more against what surrounds them.)
+ * - Track: `bg-muted` is 1.10:1 on white and is the card colour itself in dark, so the extent of
+ *   the slider vanishes. `--input`, the theme's form-control boundary, is held to 3:1 on every
+ *   surface. The filled range is told from it by hue; the thumb marks the value at 3:1 against
+ *   both.
  * - Thumb fill: white is 2.8:1 against the dark scheme's filled range, so the thumb does not stand
  *   out where the range ends. The page background is white in light and reaches 5:1 or more on
- *   the range in both schemes.
+ *   the range and on the track in both schemes.
  * - Focus ring: helm's `ring-ring/50` is about 1.85:1 on white; the kit draws full `--ring` on
  *   focus, which the theme holds to 3:1. Helm's hover ring keeps its softer colour.
  */
-const TRACK_CLASSES = hlm(SLIDER_HELM_CLASSES.track, 'bg-border');
+const TRACK_CLASSES = hlm(SLIDER_HELM_CLASSES.track, 'bg-input');
 const THUMB_CLASSES = hlm(SLIDER_HELM_CLASSES.thumb, 'bg-background focus-visible:ring-ring');
 
 /**
@@ -61,8 +61,8 @@ const THUMB_CLASSES = hlm(SLIDER_HELM_CLASSES.thumb, 'bg-background focus-visibl
   hostDirectives: [
     {
       directive: BrnSlider,
-      // `label` feeds brain's `aria-label`, which brain puts on the thumb. The kit's own required
-      // `label` below has the same public name, so a missing label is a compile error.
+      // These feed brain (`label` is its `aria-label`, which brain puts on the thumb). The kit's
+      // own required inputs below share their public names, so leaving one out is a compile error.
       inputs: ['min', 'max', 'step', 'disabled', 'aria-label: label'],
     },
   ],
@@ -78,14 +78,17 @@ const THUMB_CLASSES = hlm(SLIDER_HELM_CLASSES.thumb, 'bg-background focus-visibl
 })
 export class NeatSlider {
   readonly value = model(0);
+  readonly min = input.required<number>();
+  readonly max = input.required<number>();
+  readonly step = input.required<number>();
   /** The accessible name, announced with the value. */
   readonly label = input.required<string>();
 
-  protected readonly rootClasses = SLIDER_HELM_CLASSES.root;
-  protected readonly frameClasses = SLIDER_HELM_CLASSES.frame;
-  protected readonly trackClasses = TRACK_CLASSES;
-  protected readonly rangeClasses = SLIDER_HELM_CLASSES.range;
-  protected readonly thumbClasses = THUMB_CLASSES;
+  protected readonly rootClasses: string = SLIDER_HELM_CLASSES.root;
+  protected readonly frameClasses: string = SLIDER_HELM_CLASSES.frame;
+  protected readonly trackClasses: string = TRACK_CLASSES;
+  protected readonly rangeClasses: string = SLIDER_HELM_CLASSES.range;
+  protected readonly thumbClasses: string = THUMB_CLASSES;
 
   constructor() {
     const slider = inject(BrnSlider);

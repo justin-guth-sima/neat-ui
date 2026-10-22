@@ -3,13 +3,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  Directive,
   ElementRef,
   input,
   model,
   viewChildren,
 } from '@angular/core';
-import { BrnToggleGroup, BrnToggleGroupItem } from '@spartan-ng/brain/toggle-group';
 import { NeatIcon } from '../icon/icon';
 import type { NeatIconName } from '../icon/icon-registry';
 import { toggleVariants } from '../ui/toggle/src';
@@ -64,58 +62,45 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
 };
 
 /**
- * A segment as a radio: brain's toggle-group item toggles it and marks it `data-state`, while
- * `aria-pressed`, which a radio does not take, is removed (a directive's own host bindings apply
- * after its host directives').
- */
-@Directive({
-  selector: 'button[neatSegmentedItem]',
-  hostDirectives: [{ directive: BrnToggleGroupItem, inputs: ['value'] }],
-  host: { role: 'radio', '[attr.aria-pressed]': 'null' },
-})
-class NeatSegmentedItem {}
-
-/**
  * A row of mutually exclusive choices, such as a tile shape: `<neat-segmented label="Tile shape"
  * [options]="shapes" [(value)]="shape" />`. It is a radio group named by `label`: one tab stop
- * (the checked option), arrow keys move the choice and wrap, Home and End jump to the ends, and a
- * click on the checked option keeps it checked.
+ * (the checked option, else the first), arrow keys move the choice and wrap, Home and End jump to
+ * the ends, and a click on the checked option keeps it checked.
  *
- * Brain's toggle group holds the choice; it sits inside the template rather than on the host
- * because a host directive's inputs cannot be fixed, and the group must not allow deselecting.
- * Brain's group is a `group` of pressed buttons with no arrow keys, so the radio roles, the roving
- * tab stop and the keys are the kit's.
+ * Built on helm's toggle-group look but not on brain's toggle group: brain makes its items pressed
+ * toggle buttons (`aria-pressed`, rewritten on every change) with no arrow keys, while a choice of
+ * one is a radio group. The roles, the roving tab stop, the keys and `data-state` are the kit's.
  */
 @Component({
   selector: 'neat-segmented',
-  imports: [BrnToggleGroup, NeatSegmentedItem, NeatIcon],
+  imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'inline-flex' },
   template: `
     <div
-      brnToggleGroup
-      [nullable]="false"
-      [value]="value()"
-      [disabled]="disabled()"
-      (valueChange)="choose($event)"
-      [attr.role]="'radiogroup'"
+      role="radiogroup"
       [attr.aria-label]="label()"
+      [attr.aria-disabled]="disabled() || null"
       data-variant="outline"
       data-spacing="0"
       data-orientation="horizontal"
       [class]="groupClasses"
-      (keydown)="move($event)"
     >
       @for (option of options(); track option.value; let index = $index) {
         <button
-          neatSegmentedItem
-          [value]="option.value"
+          #segment
+          type="button"
+          role="radio"
           [attr.aria-checked]="option.value === value()"
+          [attr.data-state]="option.value === value() ? 'on' : 'off'"
           [tabIndex]="index === tabStop() ? 0 : -1"
+          [disabled]="disabled()"
           data-variant="outline"
           data-size="default"
           data-spacing="0"
           [class]="itemClasses"
+          (click)="value.set(option.value)"
+          (keydown)="move($event, index)"
         >
           @if (option.icon) {
             <neat-icon [name]="option.icon" [size]="16" />
@@ -133,8 +118,8 @@ export class NeatSegmented<T> {
   readonly label = input.required<string>();
   readonly disabled = input(false, { transform: booleanAttribute });
 
-  protected readonly groupClasses = SEGMENTED_HELM_CLASSES.group;
-  protected readonly itemClasses = ITEM_CLASSES;
+  protected readonly groupClasses: string = SEGMENTED_HELM_CLASSES.group;
+  protected readonly itemClasses: string = ITEM_CLASSES;
   /** The option keyboard focus enters on: the checked one, else the first. */
   protected readonly tabStop = computed(() =>
     Math.max(
@@ -143,25 +128,16 @@ export class NeatSegmented<T> {
     ),
   );
 
-  private readonly buttons = viewChildren(NeatSegmentedItem, { read: ElementRef });
+  private readonly segments = viewChildren<ElementRef<HTMLButtonElement>>('segment');
 
-  /**
-   * Brain's group reports a list in multiple mode and null or undefined without a choice; in
-   * single mode with deselection off, as here, a change is always one of the options' values.
-   */
-  protected choose(value: T | T[] | null | undefined): void {
-    this.value.set(value as T);
-  }
-
-  protected move(event: KeyboardEvent): void {
+  /** Moves the choice from the segment at `current` (the one with focus) as the key says. */
+  protected move(event: KeyboardEvent, current: number): void {
     const next = MOVES[event.key];
-    const options = this.options();
-    if (!next || this.disabled() || !options.length) return;
+    if (!next || this.disabled()) return;
     event.preventDefault();
-    const buttons = this.buttons().map((button) => button.nativeElement as HTMLElement);
-    const current = buttons.indexOf(event.target as HTMLElement);
-    const index = next(current < 0 ? this.tabStop() : current, options.length);
+    const options = this.options();
+    const index = next(current, options.length);
     this.value.set(options[index].value);
-    buttons[index]?.focus();
+    this.segments()[index]?.nativeElement.focus();
   }
 }

@@ -85,6 +85,30 @@ describe('NeatSegmented', () => {
     }
   });
 
+  it('never takes a pressed state, after a click or an arrow key either', async () => {
+    const { fixture, radios } = await render();
+    const pressed = () => radios.map((radio) => radio.getAttribute('aria-pressed'));
+
+    radios[1].click();
+    await fixture.whenStable();
+    expect(pressed()).toEqual([null, null, null]);
+    expect(checked(radios)).toEqual(['false', 'true', 'false']);
+
+    key(radios[1], 'ArrowRight');
+    await fixture.whenStable();
+    expect(pressed()).toEqual([null, null, null]);
+    expect(checked(radios)).toEqual(['false', 'false', 'true']);
+  });
+
+  it('marks the checked segment with data-state for its styles', async () => {
+    const { fixture, host, radios } = await render();
+    expect(radios.map((radio) => radio.dataset['state'])).toEqual(['on', 'off', 'off']);
+
+    host.shape.set('tall');
+    await fixture.whenStable();
+    expect(radios.map((radio) => radio.dataset['state'])).toEqual(['off', 'off', 'on']);
+  });
+
   it('shows an option’s icon before its label, hidden from assistive technology', async () => {
     const { radios } = await render();
 

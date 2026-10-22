@@ -73,6 +73,41 @@ class TabsHost {
   readonly log = inject(PanelLog);
 }
 
+/** Two tab sets with the same tab values on one page, as the showcase and an app can have. */
+@Component({
+  imports: [NeatTabs, NeatTab],
+  template: `
+    @for (set of sets; track set) {
+      <neat-tabs [label]="set" [(value)]="open[set]">
+        <neat-tab label="Metadata" value="metadata"
+          ><ng-template>{{ set }} metadata</ng-template></neat-tab
+        >
+        <neat-tab label="General" value="general"
+          ><ng-template>{{ set }} general</ng-template></neat-tab
+        >
+      </neat-tabs>
+    }
+  `,
+})
+class TwoTabsHost {
+  readonly sets = ['first', 'second'];
+  readonly open: Record<string, string> = { first: 'metadata', second: 'general' };
+}
+
+@Component({
+  imports: [NeatTabs, NeatTab],
+  template: `
+    <neat-tabs label="Settings" [value]="value">
+      <neat-tab label="ROI" value="roi" disabled><ng-template>roi</ng-template></neat-tab>
+      <neat-tab label="Metadata" value="metadata"><ng-template>metadata</ng-template></neat-tab>
+      <neat-tab label="General" value="general"><ng-template>general</ng-template></neat-tab>
+    </neat-tabs>
+  `,
+})
+class FallbackTabsHost {
+  value: string | undefined = 'unknown';
+}
+
 async function render(setup: (host: TabsHost) => void = () => undefined) {
   const fixture = TestBed.createComponent(TabsHost);
   setup(fixture.componentInstance);
@@ -171,6 +206,52 @@ describe('NeatTabs', () => {
     await fixture.whenStable();
     expect(host.tab()).toBe('metadata');
   });
+
+  it('keeps ids unique across tab sets with the same values, each wired to its own panel', async () => {
+    const fixture = TestBed.createComponent(TwoTabsHost);
+    await fixture.whenStable();
+    const sets: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('neat-tabs'));
+    const ids = Array.from(
+      fixture.nativeElement.querySelectorAll('[id]') as NodeListOf<HTMLElement>,
+      (element) => element.id,
+    );
+    expect(new Set(ids).size).toBe(ids.length);
+
+    for (const set of sets) {
+      const tabs = Array.from(set.querySelectorAll<HTMLElement>('[role="tab"]'));
+      const panel = set.querySelector<HTMLElement>('[role="tabpanel"]')!;
+      const open = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true')!;
+      expect(open.getAttribute('aria-controls')).toBe(panel.id);
+      expect(panel.getAttribute('aria-labelledby')).toBe(open.id);
+    }
+    expect(sets.map((set) => set.querySelector('[role="tabpanel"]')?.textContent?.trim())).toEqual([
+      'first metadata',
+      'second general',
+    ]);
+
+    sets[0].querySelectorAll<HTMLButtonElement>('[role="tab"]')[1].click();
+    await fixture.whenStable();
+    expect(fixture.componentInstance.open).toEqual({ first: 'general', second: 'general' });
+    expect(sets.map((set) => set.querySelector('[role="tabpanel"]')?.textContent?.trim())).toEqual([
+      'first general',
+      'second general',
+    ]);
+  });
+
+  it.each([['unknown'], [undefined]])(
+    'opens the first enabled tab when value is %s, keeping the list reachable',
+    async (value) => {
+      const fixture = TestBed.createComponent(FallbackTabsHost);
+      fixture.componentInstance.value = value;
+      await fixture.whenStable();
+      const root: HTMLElement = fixture.nativeElement;
+      const tabs = Array.from(root.querySelectorAll<HTMLElement>('[role="tab"]'));
+
+      expect(selected(tabs)).toEqual(['false', 'true', 'false']);
+      expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1]);
+      expect(root.querySelector('[role="tabpanel"]')?.textContent?.trim()).toBe('metadata');
+    },
+  );
 
   it('draws the tabs with helm’s line variant classes', async () => {
     const { root, list, tabs, panels } = await render();

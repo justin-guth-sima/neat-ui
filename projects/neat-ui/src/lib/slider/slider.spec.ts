@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import helmSlider from '../ui/slider/src/lib/hlm-slider.ts?source' with { loader: 'text' };
 import { contrastRatio } from '../theme/color';
-import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../theme/contrast-rules';
+import { MIN_NON_TEXT_CONTRAST } from '../theme/contrast-rules';
 import { spartanThemeTokens } from '../theme/spartan-theme';
 import { stateColor } from '../theme/state-colors';
 import type { NeatColorScheme } from '../theme/theme.service';
@@ -193,26 +193,25 @@ describe('NeatSlider', () => {
         }
       });
 
-      it(`${scheme}: the thumb stands out at ${MIN_NON_TEXT_CONTRAST}:1 at the end of the filled range and on the empty track`, async () => {
+      it(`${scheme}: the thumb stands out at ${MIN_NON_TEXT_CONTRAST}:1 against the filled range and the empty track`, async () => {
         const { range, thumb, track } = await render();
         for (const surface of SURFACES) {
           const under = tokens[surface];
-          const fill = stateColor([...range.classList], 'bg', q(on()), under);
-          const rail = stateColor([...track.classList], 'bg', q(on()), under);
-          const knob = stateColor([...thumb.classList], 'bg', q(on()), fill);
-          const outline = stateColor([...thumb.classList], 'border', q(on()), rail);
-          expect(
-            contrastRatio(knob, fill),
-            `${scheme}, thumb ${knob} on range ${fill}`,
-          ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
-          expect(
-            contrastRatio(outline, rail),
-            `${scheme}, thumb outline ${outline} on track ${rail}, over --${surface}`,
-          ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+          for (const [part, element] of [
+            ['range', range],
+            ['track', track],
+          ] as const) {
+            const fill = stateColor([...element.classList], 'bg', q(on()), under);
+            const knob = stateColor([...thumb.classList], 'bg', q(on()), fill);
+            expect(
+              contrastRatio(knob, fill),
+              `${scheme}, thumb ${knob} on ${part} ${fill}, over --${surface}`,
+            ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+          }
         }
       });
 
-      it(`${scheme}: the empty track stays visible (${MIN_FILL_CONTRAST}:1) against background and card`, async () => {
+      it(`${scheme}: the track reaches ${MIN_NON_TEXT_CONTRAST}:1 against background and card, so it shows the extent`, async () => {
         const { track } = await render();
         for (const surface of SURFACES) {
           const under = tokens[surface];
@@ -220,7 +219,7 @@ describe('NeatSlider', () => {
           expect(
             contrastRatio(rail, under),
             `${scheme}, track ${rail} on --${surface}`,
-          ).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
+          ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
         }
       });
 
