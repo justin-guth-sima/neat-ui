@@ -31,15 +31,24 @@ module.exports = defineConfig([
   },
   {
     // Vendored Spartan helm (npm run helm:add): internal, never exported, and kept as generated so
-    // updates stay mechanical. Its hlm selectors, `class` input aliases and type aliases are
-    // upstream style; every other rule still applies. The glob is relative to the workspace root,
-    // where `ng lint` runs.
+    // updates stay mechanical. Its hlm selectors, `class` input aliases, type aliases and
+    // `ReadonlyArray` are upstream style. The paginated tab list handles keys on the container of
+    // its tabs, which take the focus (interactive-supports-focus cannot see that). Every other
+    // rule still applies. The glob is relative to the workspace root, where `ng lint` runs.
     files: ['projects/neat-ui/src/lib/ui/**/*.ts'],
     rules: {
       '@angular-eslint/directive-selector': 'off',
       '@angular-eslint/component-selector': 'off',
       '@angular-eslint/no-input-rename': 'off',
       '@typescript-eslint/consistent-type-definitions': 'off',
+      '@typescript-eslint/array-type': 'off',
+    },
+  },
+  {
+    // Helm's inline templates, which the template processor lints as virtual .html files.
+    files: ['projects/neat-ui/src/lib/ui/**/*.html'],
+    rules: {
+      '@angular-eslint/template/interactive-supports-focus': 'off',
     },
   },
 ]);

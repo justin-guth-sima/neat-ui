@@ -2,6 +2,8 @@ import {
   LucideActivity,
   LucideBlocks,
   LucideCable,
+  LucideChevronLeft,
+  LucideChevronRight,
   LucideCpu,
   LucideFileText,
   LucideFolderOpen,
@@ -15,7 +17,9 @@ import {
   LucidePanelLeftClose,
   LucidePanelLeftOpen,
   LucideRadioTower,
+  LucideRectangleHorizontal,
   LucideShapes,
+  LucideSquare,
   LucideSun,
 } from '@lucide/angular';
 
@@ -42,6 +46,10 @@ export const NEAT_ICONS = {
   shapes: LucideShapes,
   blocks: LucideBlocks,
   document: LucideFileText,
+  previous: LucideChevronLeft,
+  next: LucideChevronRight,
+  'aspect-wide': LucideRectangleHorizontal,
+  'aspect-square': LucideSquare,
 } satisfies Record<string, LucideIcon>;
 
 export type NeatIconName = keyof typeof NEAT_ICONS;

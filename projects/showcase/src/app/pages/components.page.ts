@@ -14,7 +14,15 @@ import {
   type NeatButtonSize,
   type NeatButtonVariant,
   NeatIcon,
+  NeatInput,
   NeatPage,
+  NeatSegmented,
+  type NeatSegmentedOption,
+  NeatSlider,
+  NeatSwitch,
+  NeatTab,
+  NeatTabs,
+  type NeatTileAspect,
   NeatTileGrid,
   type NeatTileLayout,
   type NeatTileState,
@@ -30,10 +38,33 @@ const ICON_SIZES = [16, 20, 24] as const;
 const TOOLTIP_POSITIONS: NeatTooltipPosition[] = ['top', 'right', 'bottom', 'left'];
 const TILE_COUNT = 48;
 const PLACEHOLDER_TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);
+const SHAPES: NeatSegmentedOption<NeatTileAspect>[] = [
+  { value: '16:9', label: '16:9', icon: 'aspect-wide' },
+  { value: '1:1', label: '1:1', icon: 'aspect-square' },
+];
+const OVERLAYS: NeatSegmentedOption<string>[] = [
+  { value: 'off', label: 'Off' },
+  { value: 'boxes', label: 'Boxes' },
+  { value: 'masks', label: 'Masks' },
+];
 
 @Component({
   selector: 'app-components-page',
-  imports: [NeatButton, NeatIcon, NeatPage, NeatTileGrid, NeatTooltip, NeatVideoTile, RouterLink],
+  imports: [
+    NeatButton,
+    NeatIcon,
+    NeatInput,
+    NeatPage,
+    NeatSegmented,
+    NeatSlider,
+    NeatSwitch,
+    NeatTab,
+    NeatTabs,
+    NeatTileGrid,
+    NeatTooltip,
+    NeatVideoTile,
+    RouterLink,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-page>
@@ -133,6 +164,141 @@ const PLACEHOLDER_TILES = Array.from({ length: TILE_COUNT }, (_, index) => index
         </section>
 
         <section class="showcase-section">
+          <h2>Switch</h2>
+          <p class="showcase-muted">
+            <code>neatSwitch</code> on a <code>button</code>: on or off, applied at once. The
+            content is the label and the accessible name; without content, give it an
+            <code>aria-label</code>. Space and Enter toggle it.
+          </p>
+          <div class="showcase-row">
+            <button neatSwitch [(checked)]="bars">Bars</button>
+            <button neatSwitch [(checked)]="hideEmpty">Hide empty</button>
+            <button
+              neatSwitch
+              aria-label="Bars, without a visible label"
+              [(checked)]="bars"
+            ></button>
+            <button neatSwitch disabled>Disabled</button>
+            <button neatSwitch disabled [checked]="true">Disabled, on</button>
+          </div>
+          <p class="showcase-code showcase-muted">
+            Bars {{ bars() ? 'on' : 'off' }}, hide empty {{ hideEmpty() ? 'on' : 'off' }}
+          </p>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Slider</h2>
+          <p class="showcase-muted">
+            <code>neat-slider</code>: one number in a range, its <code>label</code> the accessible
+            name. The value changes on every step of a drag, so what it drives previews live (the
+            tile grid below repacks as you drag). Arrows step, Page Up and Down step by ten, Home
+            and End jump to the ends.
+          </p>
+          <div class="slider-field">
+            <span>Opacity</span>
+            <neat-slider label="Opacity" [min]="0" [max]="100" [step]="5" [(value)]="opacity" />
+            <span class="showcase-code showcase-muted">{{ opacity() }} %</span>
+          </div>
+          <div class="slider-field">
+            <span>Disabled</span>
+            <neat-slider label="Disabled" [min]="0" [max]="100" [value]="40" disabled />
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Segmented</h2>
+          <p class="showcase-muted">
+            <code>neat-segmented</code>: one of a few choices, side by side, each with a label and
+            an optional icon. A radio group named by <code>label</code>: one tab stop, and the arrow
+            keys move the choice.
+          </p>
+          <div class="showcase-row">
+            <neat-segmented label="Tile shape" [options]="shapes" [(value)]="shape" />
+            <neat-segmented label="Overlays" [options]="overlays" [(value)]="overlay" />
+            <neat-segmented label="Tile shape, disabled" [options]="shapes" value="1:1" disabled />
+          </div>
+          <p class="showcase-code showcase-muted">Shape {{ shape() }}, overlays {{ overlay() }}</p>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Tabs</h2>
+          <p class="showcase-muted">
+            <code>neat-tabs</code> with <code>neat-tab</code> children; the open tab is underlined.
+            Each panel is an <code>ng-template</code>, created only while its tab is open. Arrow
+            keys move between tabs and open them; disabled tabs are skipped.
+          </p>
+          <neat-tabs label="Channel settings" [(value)]="tab">
+            <neat-tab label="Metadata" value="metadata">
+              <ng-template>
+                <p class="showcase-muted">Overlay types, confidence thresholds and tracking.</p>
+              </ng-template>
+            </neat-tab>
+            <neat-tab label="General" value="general">
+              <ng-template>
+                <p class="showcase-muted">Video sync buffer, metadata retention and line width.</p>
+              </ng-template>
+            </neat-tab>
+            <neat-tab label="ROI" value="roi" disabled>
+              <ng-template><p class="showcase-muted">Regions of interest.</p></ng-template>
+            </neat-tab>
+          </neat-tabs>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Input</h2>
+          <p class="showcase-muted">
+            <code>neatInput</code> on an <code>input</code>: text or number, in two sizes. Native
+            attributes such as <code>type</code>, <code>inputmode</code> and <code>min</code> keep
+            their meaning. Name it with a label or an <code>aria-label</code>.
+          </p>
+          <div class="showcase-row input-row">
+            <label class="input-field">
+              <span>Stream name</span>
+              <input neatInput placeholder="Front door" />
+            </label>
+            <label class="input-field">
+              <span>Go to page</span>
+              <input neatInput size="small" type="number" inputmode="numeric" min="1" value="1" />
+            </label>
+            <label class="input-field">
+              <span>Disabled</span>
+              <input neatInput disabled value="Read only" />
+            </label>
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Controls on a card</h2>
+          <p class="showcase-muted">
+            On the card surface, which differs from the page background in dark mode.
+          </p>
+          <div class="card showcase-row">
+            <button neatSwitch [(checked)]="bars">Bars</button>
+            <neat-slider
+              class="card-slider"
+              label="Opacity"
+              [max]="100"
+              [step]="5"
+              [(value)]="opacity"
+            />
+            <neat-segmented label="Tile shape" [options]="shapes" [(value)]="shape" />
+            <div class="card-field">
+              <input neatInput size="small" aria-label="Jump to channel" placeholder="Channel" />
+            </div>
+          </div>
+          <div class="card">
+            <neat-tabs label="Channel settings, on a card" [(value)]="tab">
+              <neat-tab label="Metadata" value="metadata">
+                <ng-template><p class="showcase-muted">Metadata settings.</p></ng-template>
+              </neat-tab>
+              <neat-tab label="General" value="general">
+                <ng-template><p class="showcase-muted">General settings.</p></ng-template>
+              </neat-tab>
+            </neat-tabs>
+          </div>
+        </section>
+
+        <section class="showcase-section">
           <h2>Icon</h2>
           <p class="showcase-muted">
             At 16, 20 and 24 px. Without a label an icon is decorative and hidden from assistive
@@ -164,19 +330,17 @@ const PLACEHOLDER_TILES = Array.from({ length: TILE_COUNT }, (_, index) => index
             the width (<code>layout</code>), so the page slices its items to <code>perPage</code>.
             The box below is fixed in height; resize the window to repack.
           </p>
-          <!-- Task 5 of plan 2a replaces this native range input with neat-slider. -->
-          <label class="slider-field">
+          <div class="slider-field">
             <span>Tile width</span>
-            <input
-              type="range"
-              min="120"
-              max="480"
-              step="10"
-              [value]="tileWidth()"
-              (input)="setTileWidth($event)"
+            <neat-slider
+              label="Tile width"
+              [min]="120"
+              [max]="480"
+              [step]="10"
+              [(value)]="tileWidth"
             />
             <span class="showcase-code showcase-muted">{{ tileWidth() }} px</span>
-          </label>
+          </div>
           <p class="showcase-code showcase-muted" aria-live="polite">{{ layoutSummary() }}</p>
           <div class="tile-demo">
             <neat-tile-grid
@@ -200,28 +364,12 @@ const PLACEHOLDER_TILES = Array.from({ length: TILE_COUNT }, (_, index) => index
             stopped after 1.8 s without a frame. The second has no stream, so it is empty. With bars
             off a tile is only video and overlay.
           </p>
-          <!-- Task 5 of plan 2a replaces these native checkboxes with neat-switch. -->
           <div class="showcase-row">
-            <label class="check-field">
-              <input
-                type="checkbox"
-                [checked]="tileBars()"
-                (change)="tileBars.set(checked($event))"
-              />
-              Bars
-            </label>
-            <label class="check-field">
-              <input
-                type="checkbox"
-                [checked]="tileSelected()"
-                (change)="tileSelected.set(checked($event))"
-              />
-              Selected
-            </label>
-            <label class="check-field">
-              <input type="checkbox" (change)="testPattern.setPaused(checked($event))" />
+            <button neatSwitch [(checked)]="tileBars">Bars</button>
+            <button neatSwitch [(checked)]="tileSelected">Selected</button>
+            <button neatSwitch (checkedChange)="testPattern.setPaused($event)">
               Pause the source
-            </label>
+            </button>
           </div>
           <p class="showcase-code showcase-muted" aria-live="polite">{{ tileSummary() }}</p>
           <div class="video-demo">
@@ -252,6 +400,15 @@ export class ComponentsPage {
   protected readonly sizes = SIZES;
   protected readonly iconSizes = ICON_SIZES;
   protected readonly tooltipPositions = TOOLTIP_POSITIONS;
+  protected readonly shapes = SHAPES;
+  protected readonly overlays = OVERLAYS;
+
+  protected readonly bars = signal(true);
+  protected readonly hideEmpty = signal(false);
+  protected readonly opacity = signal(60);
+  protected readonly shape = signal<NeatTileAspect>('16:9');
+  protected readonly overlay = signal('boxes');
+  protected readonly tab = signal('metadata');
 
   protected readonly tileWidth = signal(240);
   protected readonly layout = signal<NeatTileLayout | null>(null);
@@ -275,13 +432,5 @@ export class ComponentsPage {
     const document = inject(DOCUMENT);
     afterNextRender(() => this.testPattern.start(document));
     inject(DestroyRef).onDestroy(() => this.testPattern.stop());
-  }
-
-  protected checked(event: Event): boolean {
-    return (event.target as HTMLInputElement).checked;
-  }
-
-  protected setTileWidth(event: Event): void {
-    this.tileWidth.set(Number((event.target as HTMLInputElement).value));
   }
 }

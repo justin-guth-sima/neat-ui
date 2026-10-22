@@ -36,7 +36,11 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   a helm directive behind a public host directive: Angular cannot re-expose inputs of a host
   directive's own host directives (NG2017) and requires every host directive of a public directive
   to be exported (NG3001). Bind the classes with Angular's `[class]` host binding, not helm's
-  `classes()`, which rewrites `className` and can drop an app's `[class.x]` binding.
+  `classes()`, which rewrites `className` and can drop an app's `[class.x]` binding. Where helm
+  keeps its classes inline rather than as constants, the wrapper copies them verbatim into a
+  table labelled with the helm file, and its spec reads that file as text
+  (`import src from '…/hlm-x.ts?source' with { loader: 'text' }`) and checks each copied string is
+  still there, so a helm update that changes them fails until the wrapper is reviewed.
 - **Customise in this order: theme tokens, then wrapper inputs and classes, never helm.** Tokens
   come from `lib/theme/*.ts`; `npm run theme:emit` regenerates `tokens.generated.css`, and the theme
   spec checks the contrast of every text pair it emits. A wrapper overrides a helm class only where

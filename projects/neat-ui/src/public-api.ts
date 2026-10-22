@@ -24,6 +24,13 @@ export type { NeatButtonSize, NeatButtonVariant } from './lib/button/button';
 export { NeatButton } from './lib/button/button';
 export type { NeatTooltipPosition } from './lib/tooltip/tooltip';
 export { NeatTooltip } from './lib/tooltip/tooltip';
+export { NeatSwitch } from './lib/switch/switch';
+export { NeatSlider } from './lib/slider/slider';
+export type { NeatSegmentedOption } from './lib/segmented/segmented';
+export { NeatSegmented } from './lib/segmented/segmented';
+export { NeatTab, NeatTabs } from './lib/tabs/tabs';
+export type { NeatInputSize } from './lib/input/input';
+export { NeatInput } from './lib/input/input';
 export type { NeatMetadataMessage } from './lib/video/sync/metadata-message';
 export { parseMetadataMessage } from './lib/video/sync/metadata-message';
 export type {
