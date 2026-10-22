@@ -79,7 +79,7 @@ describe('lateNoticeDetails', () => {
       recentLatenessP90Ms: 195,
     };
 
-    expect(lateNoticeDetails(snapshot, 350, true, 350)).toEqual({
+    expect(lateNoticeDetails(snapshot, 350, true, 350)).toStrictEqual({
       latenessMs: 153,
       latePercent: 92,
       bufferMs: 350,
@@ -90,21 +90,21 @@ describe('lateNoticeDetails', () => {
   });
 
   it('raises the global value when the followed value is below the suggestion', () => {
-    expect(lateNoticeDetails(measured, 350, true, 500).globalAction).toEqual({
+    expect(lateNoticeDetails(measured, 350, true, 500).globalAction).toStrictEqual({
       kind: 'raise',
       valueMs: 600,
     });
   });
 
   it('follows the global value when it is above the suggestion', () => {
-    expect(lateNoticeDetails(measured, 350, true, 1000).globalAction).toEqual({
+    expect(lateNoticeDetails(measured, 350, true, 1000).globalAction).toStrictEqual({
       kind: 'follow',
       valueMs: 1000,
     });
   });
 
   it('follows the global value when it equals the suggestion', () => {
-    expect(lateNoticeDetails(measured, 350, true, 600).globalAction).toEqual({
+    expect(lateNoticeDetails(measured, 350, true, 600).globalAction).toStrictEqual({
       kind: 'follow',
       valueMs: 600,
     });
@@ -118,9 +118,9 @@ describe('lateNoticeDetails', () => {
   it('offers the raise when the followed value is missing', () => {
     const raise = { kind: 'raise', valueMs: 600 };
 
-    expect(lateNoticeDetails(measured, 350, true).globalAction).toEqual(raise);
-    expect(lateNoticeDetails(measured, 350, true, null).globalAction).toEqual(raise);
-    expect(lateNoticeDetails(measured, 350, true, Number.NaN).globalAction).toEqual(raise);
+    expect(lateNoticeDetails(measured, 350, true).globalAction).toStrictEqual(raise);
+    expect(lateNoticeDetails(measured, 350, true, null).globalAction).toStrictEqual(raise);
+    expect(lateNoticeDetails(measured, 350, true, Number.NaN).globalAction).toStrictEqual(raise);
   });
 
   it('names the maximum as the blocker', () => {
@@ -140,7 +140,7 @@ describe('lateNoticeDetails', () => {
   });
 
   it('survives a window without lateness samples', () => {
-    expect(lateNoticeDetails(unmeasured, 350, true, 350)).toEqual({
+    expect(lateNoticeDetails(unmeasured, 350, true, 350)).toStrictEqual({
       latenessMs: null,
       latePercent: 100,
       bufferMs: 350,

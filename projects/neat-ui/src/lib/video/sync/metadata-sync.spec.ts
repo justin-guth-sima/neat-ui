@@ -33,9 +33,9 @@ describe('metadata queue', () => {
 
     enqueueMetadata(queue, detection, 10);
 
-    expect(takeMetadataForFrame(queue, 4321, 0, 20)).toEqual([]);
-    expect(takeMetadataForFrame(queue, 1234, 0, 20)[0]?.data).toEqual(detection);
-    expect(takeMetadataForFrame(queue, 1234, 0, 20)).toEqual([]);
+    expect(takeMetadataForFrame(queue, 4321, 0, 20)).toStrictEqual([]);
+    expect(takeMetadataForFrame(queue, 1234, 0, 20)[0]?.data).toStrictEqual(detection);
+    expect(takeMetadataForFrame(queue, 1234, 0, 20)).toStrictEqual([]);
   });
 
   it('falls back to the next video frame for metadata without a source timestamp', () => {
@@ -44,7 +44,7 @@ describe('metadata queue', () => {
 
     enqueueMetadata(queue, classification, 10);
 
-    expect(takeMetadataForFrame(queue, 1234, 20, 0)[0]?.data).toEqual(classification);
+    expect(takeMetadataForFrame(queue, 1234, 20, 0)[0]?.data).toStrictEqual(classification);
   });
 
   it('falls back when the decoded frame has no RTP timestamp', () => {
@@ -53,7 +53,7 @@ describe('metadata queue', () => {
 
     enqueueMetadata(queue, detection, 10);
 
-    expect(takeMetadataForFrame(queue, null, 0, 20)[0]?.data).toEqual(detection);
+    expect(takeMetadataForFrame(queue, null, 0, 20)[0]?.data).toStrictEqual(detection);
     expect(metadataQueueSnapshot(queue).timestampedPending).toBe(0);
   });
 
@@ -63,7 +63,7 @@ describe('metadata queue', () => {
     enqueueMetadata(queue, message({ data: 'untimestamped' }), 20);
 
     expect(takeMetadataForFrame(queue, null, 0, 30)[0]?.data.data).toBe('untimestamped');
-    expect(metadataQueueSnapshot(queue)).toEqual({
+    expect(metadataQueueSnapshot(queue)).toStrictEqual({
       timestampMatches: 0,
       arrivalFallbacks: 1,
       frameMisses: 0,
@@ -87,7 +87,7 @@ describe('metadata queue', () => {
       enqueueMetadata(queue, message({ rtp: timestamp }), timestamp);
     }
 
-    expect(takeMetadataForFrame(queue, 0, 0, 300)).toEqual([]);
+    expect(takeMetadataForFrame(queue, 0, 0, 300)).toStrictEqual([]);
     expect(takeMetadataForFrame(queue, 1, 0, 300)[0]?.data._insight?.rtp_timestamp).toBe(1);
   });
 
@@ -100,9 +100,12 @@ describe('metadata queue', () => {
       enqueueMetadata(queue, tracking, 20);
       enqueueMetadata(queue, detection, 21);
 
-      expect(messages(takeMetadataForFrame(queue, null, 0, 30))).toEqual([tracking, detection]);
-      expect(queue.timestampedEntries).toBe(0);
-      expect(takeMetadataForFrame(queue, null, 0, 31)).toEqual([]);
+      expect(messages(takeMetadataForFrame(queue, null, 0, 30))).toStrictEqual([
+        tracking,
+        detection,
+      ]);
+      expect(metadataQueueSnapshot(queue).timestampedPending).toBe(0);
+      expect(takeMetadataForFrame(queue, null, 0, 31)).toStrictEqual([]);
     });
 
     it('uses arrival time when a frame receives another metadata type', () => {
@@ -113,7 +116,7 @@ describe('metadata queue', () => {
       enqueueMetadata(queue, message({ type: 'classification', rtp: 2 }), 20);
       enqueueMetadata(queue, tracking, 30);
 
-      expect(messages(takeMetadataForFrame(queue, null, 0, 40))).toEqual([pose, tracking]);
+      expect(messages(takeMetadataForFrame(queue, null, 0, 40))).toStrictEqual([pose, tracking]);
     });
 
     it('never combines timestamped and untimestamped metadata', () => {
@@ -125,9 +128,9 @@ describe('metadata queue', () => {
         enqueueMetadata(queue, untimestamped, arrivalTime);
 
         const expected = arrivalTime >= 20 ? untimestamped : timestamped;
-        expect(messages(takeMetadataForFrame(queue, null, 0, 40))).toEqual([expected]);
-        expect(queue.timestampedEntries).toBe(0);
-        expect(queue.arrival.length).toBe(0);
+        expect(messages(takeMetadataForFrame(queue, null, 0, 40))).toStrictEqual([expected]);
+        expect(metadataQueueSnapshot(queue).timestampedPending).toBe(0);
+        expect(metadataQueueSnapshot(queue).arrivalPending).toBe(0);
       }
     });
 
@@ -138,7 +141,9 @@ describe('metadata queue', () => {
         const latest = message({ type: 'tracking' });
         enqueueMetadata(queue, latest, 20);
 
-        expect(messages(takeMetadataForFrame(queue, frameTimestamp, 0, 30))).toEqual([latest]);
+        expect(messages(takeMetadataForFrame(queue, frameTimestamp, 0, 30))).toStrictEqual([
+          latest,
+        ]);
       }
     });
 
@@ -149,9 +154,9 @@ describe('metadata queue', () => {
       const tracking = message({ type: 'tracking', rtp: 1 });
       enqueueMetadata(queue, tracking, 40);
 
-      expect(messages(takeMetadataForFrame(queue, null, 50, 60))).toEqual([tracking]);
-      expect(queue.stats.expired).toBe(1);
-      expect(queue.timestampedEntries).toBe(0);
+      expect(messages(takeMetadataForFrame(queue, null, 50, 60))).toStrictEqual([tracking]);
+      expect(metadataQueueSnapshot(queue).expired).toBe(1);
+      expect(metadataQueueSnapshot(queue).timestampedPending).toBe(0);
     });
   });
 
@@ -162,9 +167,9 @@ describe('metadata queue', () => {
     enqueueMetadata(queue, message({ type: 'tracking', rtp: 2 }), 20);
     enqueueMetadata(queue, message({ type: 'classification' }), 30);
 
-    expect(messages(takeMetadataForFrame(queue, 1, 0, 40))).toEqual([exact]);
-    expect(queue.timestampedEntries).toBe(1);
-    expect(queue.arrival.length).toBe(1);
+    expect(messages(takeMetadataForFrame(queue, 1, 0, 40))).toStrictEqual([exact]);
+    expect(metadataQueueSnapshot(queue).timestampedPending).toBe(1);
+    expect(metadataQueueSnapshot(queue).arrivalPending).toBe(1);
   });
 
   describe('retention', () => {
@@ -172,7 +177,7 @@ describe('metadata queue', () => {
       const queue = createMetadataQueue();
       enqueueMetadata(queue, message({ rtp: 1234 }), 10);
 
-      expect(takeMetadataForFrame(queue, 1234, 5000, 5011)).toEqual([]);
+      expect(takeMetadataForFrame(queue, 1234, 5000, 5011)).toStrictEqual([]);
     });
 
     it('keeps metadata until match or capacity eviction with zero retention', () => {
@@ -190,7 +195,7 @@ describe('metadata queue', () => {
       enqueueMetadata(queue, message({ data: 'expired', rtp: 2 }), 10);
       enqueueMetadata(queue, message({ data: 'new', rtp: 1 }), 20);
 
-      expect(takeMetadataForFrame(queue, 2, 15, 30)).toEqual([]);
+      expect(takeMetadataForFrame(queue, 2, 15, 30)).toStrictEqual([]);
       expect(takeMetadataForFrame(queue, 1, 15, 30)[0]?.data.data).toBe('new');
     });
 
@@ -203,7 +208,7 @@ describe('metadata queue', () => {
       takeMetadataForFrame(queue, 8, 50, 60);
       expect(metadataQueueSnapshot(queue).timestampedPending).toBe(1);
       const items = takeMetadataForFrame(queue, 7, 50, 60);
-      expect(types(items)).toEqual(['tracking']);
+      expect(types(items)).toStrictEqual(['tracking']);
       expect(metadataQueueSnapshot(queue).expired).toBe(1);
       expect(metadataQueueSnapshot(queue).timestampedPending).toBe(0);
     });
@@ -217,7 +222,7 @@ describe('metadata queue', () => {
       enqueueMetadata(queue, message({ type: 'tracking', rtp: 1 }), 40);
 
       const items = takeMetadataForFrame(queue, 1, 50, 55);
-      expect(types(items)).toEqual(['tracking']);
+      expect(types(items)).toStrictEqual(['tracking']);
       expect(metadataQueueSnapshot(queue).expired).toBe(1);
       expect(metadataQueueSnapshot(queue).timestampedPending).toBe(1);
     });
@@ -292,7 +297,7 @@ describe('metadata queue', () => {
       enqueueMetadata(queue, message({ type: 'tracking', data: { tracks: [] }, rtp: 4242 }), 11);
 
       const items = takeMetadataForFrame(queue, 4242, 0, 12);
-      expect(types(items).sort()).toEqual(['pose-estimation', 'tracking']);
+      expect(types(items).sort()).toStrictEqual(['pose-estimation', 'tracking']);
     });
 
     it('preserves the draw order of the retained arrivals when a type is replaced', () => {
@@ -303,8 +308,8 @@ describe('metadata queue', () => {
       const replacement = message({ type: 'object-detection', data: 'updated', rtp: 1 });
       enqueueMetadata(queue, replacement, 30);
 
-      expect(queue.timestampedEntries).toBe(2);
-      expect(messages(takeMetadataForFrame(queue, 1, 0, 40))).toEqual([pose, replacement]);
+      expect(metadataQueueSnapshot(queue).timestampedPending).toBe(2);
+      expect(messages(takeMetadataForFrame(queue, 1, 0, 40))).toStrictEqual([pose, replacement]);
     });
 
     it('cannot exceed queue capacity with distinct types on one unmatched frame', () => {
@@ -318,7 +323,7 @@ describe('metadata queue', () => {
       enqueueMetadata(queue, message({ type: 'overflow', rtp: 7 }), 300);
       expect(metadataQueueSnapshot(queue).evicted).toBe(301);
       expect(metadataQueueSnapshot(queue).timestampedPending).toBe(0);
-      expect(takeMetadataForFrame(queue, 7, 0, 301)).toEqual([]);
+      expect(takeMetadataForFrame(queue, 7, 0, 301)).toStrictEqual([]);
     });
 
     it('counts capacity per type across frames and replaces duplicates', () => {
@@ -335,7 +340,7 @@ describe('metadata queue', () => {
       enqueueMetadata(queue, message({ type: 'tracking', rtp: 150 }), 151);
       expect(metadataQueueSnapshot(queue).evicted).toBe(2);
       expect(metadataQueueSnapshot(queue).timestampedPending).toBe(299);
-      expect(takeMetadataForFrame(queue, 0, 0, 152)).toEqual([]);
+      expect(takeMetadataForFrame(queue, 0, 0, 152)).toStrictEqual([]);
       expect(takeMetadataForFrame(queue, 1, 0, 152).length).toBe(2);
     });
 
@@ -370,7 +375,7 @@ describe('metadata queue', () => {
       enqueueMetadata(queue, depth, 11);
       enqueueMetadata(queue, replacement, 12);
 
-      expect(queue.timestampedEntries).toBe(2);
+      expect(metadataQueueSnapshot(queue).timestampedPending).toBe(2);
       const taken = messages(takeMetadataForFrame(queue, 5, 0, 20));
       expect(taken).toHaveLength(2);
       expect(taken[0]).toBe(depth);
@@ -381,10 +386,10 @@ describe('metadata queue', () => {
       const queue = createMetadataQueue();
       const unusable = [undefined, '  ', 3, 'x'.repeat(129), 'y'.repeat(129)];
       unusable.forEach((id, index) => enqueueMetadata(queue, auxiliary(id, 5), 10 + index));
-      expect(queue.timestampedEntries).toBe(1);
+      expect(metadataQueueSnapshot(queue).timestampedPending).toBe(1);
 
       enqueueMetadata(queue, auxiliary('x'.repeat(128), 5), 20);
-      expect(queue.timestampedEntries).toBe(2);
+      expect(metadataQueueSnapshot(queue).timestampedPending).toBe(2);
     });
 
     it('trims the id before keying', () => {
@@ -392,7 +397,7 @@ describe('metadata queue', () => {
       enqueueMetadata(queue, auxiliary('pose-3d', 5), 10);
       enqueueMetadata(queue, auxiliary(' pose-3d ', 5), 11);
 
-      expect(queue.timestampedEntries).toBe(1);
+      expect(metadataQueueSnapshot(queue).timestampedPending).toBe(1);
     });
   });
 });
@@ -409,11 +414,16 @@ describe('overlay hold', () => {
     const pose = item('pose-estimation', { poses: [] });
     const noObjects = item('object-detection', { objects: [] });
 
-    expect(holdOverlays(held, [detection], 0)).toEqual([detection]);
-    expect(holdOverlays(held, [pose], 100)).toEqual([pose, { ...detection, held: true }]);
-    expect(holdOverlays(held, [noObjects], 150)).toEqual([noObjects, { ...pose, held: true }]);
-    expect(holdOverlays(held, [], 150 + OVERLAY_HOLD_MS)).toEqual([{ ...noObjects, held: true }]);
-    expect(holdOverlays(held, [], 151 + OVERLAY_HOLD_MS)).toEqual([]);
+    expect(holdOverlays(held, [detection], 0)).toStrictEqual([detection]);
+    expect(holdOverlays(held, [pose], 100)).toStrictEqual([pose, { ...detection, held: true }]);
+    expect(holdOverlays(held, [noObjects], 150)).toStrictEqual([
+      noObjects,
+      { ...pose, held: true },
+    ]);
+    expect(holdOverlays(held, [], 150 + OVERLAY_HOLD_MS)).toStrictEqual([
+      { ...noObjects, held: true },
+    ]);
+    expect(holdOverlays(held, [], 151 + OVERLAY_HOLD_MS)).toStrictEqual([]);
   });
 
   it('holds the auxiliary views of different ids separately', () => {
@@ -422,7 +432,10 @@ describe('overlay hold', () => {
 
     holdOverlays(held, [view('a'), view('b')], 0);
 
-    expect(holdOverlays(held, [view('a')], 50)).toEqual([view('a'), { ...view('b'), held: true }]);
+    expect(holdOverlays(held, [view('a')], 50)).toStrictEqual([
+      view('a'),
+      { ...view('b'), held: true },
+    ]);
   });
 });
 

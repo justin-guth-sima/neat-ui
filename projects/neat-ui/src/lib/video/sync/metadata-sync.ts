@@ -51,10 +51,20 @@ interface LatenessOutcome {
 }
 
 /**
- * The per-stream queue. Create it with `createMetadataQueue` and change it only through this
- * module's functions; the fields are visible so tests can assert on the stores.
+ * The per-stream queue. Create it with `createMetadataQueue` and pass it to this module's
+ * functions; `metadataQueueSnapshot` reports what it holds. Its contents are not accessible.
  */
 export interface NeatMetadataQueue {
+  readonly __neatMetadataQueue: never;
+}
+
+/** The only place the opaque handle is opened. */
+function stateOf(queue: NeatMetadataQueue): MetadataQueueState {
+  return queue as unknown as MetadataQueueState;
+}
+
+/** What a `NeatMetadataQueue` holds. Internal: callers see the queue only through its functions. */
+interface MetadataQueueState {
   /** RTP timestamp -> one item per metadata type, in arrival order. */
   timestamped: Map<number, Map<string, NeatMetadataItem>>;
   timestampedEntries: number;
@@ -82,7 +92,7 @@ function metadataTypeOf(message: NeatMetadataMessage): string {
 }
 
 export function createMetadataQueue(): NeatMetadataQueue {
-  return {
+  const state: MetadataQueueState = {
     timestamped: new Map(),
     timestampedEntries: 0,
     arrival: [],
@@ -100,13 +110,15 @@ export function createMetadataQueue(): NeatMetadataQueue {
       late: 0,
     },
   };
+  return state as unknown as NeatMetadataQueue;
 }
 
 export function enqueueMetadata(
-  queue: NeatMetadataQueue,
+  handle: NeatMetadataQueue,
   message: NeatMetadataMessage,
   receivedAt: number,
 ): void {
+  const queue = stateOf(handle);
   // The message comes off the wire, so the timestamp is checked at run time whatever its type says.
   const key = message._insight?.rtp_timestamp;
   const item: NeatMetadataItem = { receivedAt, data: message };
@@ -161,11 +173,12 @@ export function enqueueMetadata(
  * timestamp, or null when the browser does not report one. A retention of 0 never expires.
  */
 export function takeMetadataForFrame(
-  queue: NeatMetadataQueue,
+  handle: NeatMetadataQueue,
   rtpTimestamp: number | null,
   metadataRetentionMs: number,
   now: number,
 ): NeatMetadataItem[] {
+  const queue = stateOf(handle);
   pruneMetadataQueue(queue, metadataRetentionMs, now);
   const hasFrameTimestamp =
     rtpTimestamp !== null && Number.isInteger(rtpTimestamp) && rtpTimestamp >= 0;
@@ -247,7 +260,8 @@ export function holdOverlays(
   return [...overlays, ...repeats];
 }
 
-export function metadataQueueSnapshot(queue: NeatMetadataQueue): NeatMetadataSnapshot {
+export function metadataQueueSnapshot(handle: NeatMetadataQueue): NeatMetadataSnapshot {
+  const queue = stateOf(handle);
   const lateOutcomes = queue.outcomes.filter((outcome) => outcome.late);
   const lateness = lateOutcomes
     .map((outcome) => outcome.latenessMs)
@@ -267,19 +281,19 @@ export function metadataQueueSnapshot(queue: NeatMetadataQueue): NeatMetadataSna
   };
 }
 
-export function resetLatenessWindow(queue: NeatMetadataQueue): void {
-  queue.outcomes.length = 0;
+export function resetLatenessWindow(handle: NeatMetadataQueue): void {
+  stateOf(handle).outcomes.length = 0;
 }
 
 // The subtraction is reduced to a signed 32-bit value, so it stays correct
 // across the RTP timestamp wrap.
-function isLate(queue: NeatMetadataQueue, key: number): boolean {
+function isLate(queue: MetadataQueueState, key: number): boolean {
   return queue.lastPresented !== null && ((key - queue.lastPresented) | 0) <= 0;
 }
 
 // The window is aged here and nowhere else: a hidden tab presents no frames
 // while messages keep arriving, and must not dilute or expire the window.
-function recordPresentedFrame(queue: NeatMetadataQueue, key: number, now: number): void {
+function recordPresentedFrame(queue: MetadataQueueState, key: number, now: number): void {
   queue.presented.delete(key);
   queue.presented.set(key, now);
   queue.lastPresented = key;
@@ -297,7 +311,7 @@ function recordPresentedFrame(queue: NeatMetadataQueue, key: number, now: number
   if (expired > 0) queue.outcomes.splice(0, expired);
 }
 
-function recordOutcome(queue: NeatMetadataQueue, outcome: LatenessOutcome): void {
+function recordOutcome(queue: MetadataQueueState, outcome: LatenessOutcome): void {
   queue.outcomes.push(outcome);
   if (queue.outcomes.length > LATENESS_MEMORY_LIMIT) {
     queue.outcomes.splice(0, queue.outcomes.length - LATENESS_MEMORY_LIMIT);
@@ -310,7 +324,7 @@ function nearestRank(sorted: number[], fraction: number): number | null {
 }
 
 function pruneMetadataQueue(
-  queue: NeatMetadataQueue,
+  queue: MetadataQueueState,
   metadataRetentionMs: number,
   now: number,
 ): void {

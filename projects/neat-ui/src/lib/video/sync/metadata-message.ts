@@ -6,7 +6,7 @@ export interface NeatMetadataMessage {
   type: string;
   timestamp?: number;
   frame_id?: unknown;
-  data: unknown;
+  data?: unknown;
   _insight?: { rtp_timestamp?: number };
 }
 

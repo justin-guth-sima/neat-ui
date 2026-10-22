@@ -14,7 +14,7 @@ describe('parseMetadataMessage', () => {
       JSON.stringify({ type: 'object-detection', data, _insight: { rtp_timestamp: 90_000 } }),
     );
 
-    expect(message).toEqual({
+    expect(message).toStrictEqual({
       type: 'object-detection',
       data,
       _insight: { rtp_timestamp: 90_000 },
@@ -22,6 +22,6 @@ describe('parseMetadataMessage', () => {
   });
 
   it('accepts a message without data', () => {
-    expect(parseMetadataMessage('{"type": "heartbeat"}')).toEqual({ type: 'heartbeat' });
+    expect(parseMetadataMessage('{"type": "heartbeat"}')).toStrictEqual({ type: 'heartbeat' });
   });
 });
