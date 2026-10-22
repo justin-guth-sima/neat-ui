@@ -320,23 +320,72 @@ describe('NeatVideoTile', () => {
     ).toStrictEqual([OVERLAY_PALETTE[0]]);
   });
 
-  it('stays playing while the tab is hidden, where the browser presents no frames', () => {
-    const hidden = vi.spyOn(Document.prototype, 'hidden', 'get').mockReturnValue(false);
-    create();
-    startStream();
-    source.send(tracking(1, ['a']));
-    present(1);
-    render();
+  describe('in a hidden tab, where the browser presents no frames', () => {
+    let hidden: ReturnType<typeof vi.spyOn>;
 
-    hidden.mockReturnValue(true);
-    context.calls.length = 0;
-    advance(5 * NEAT_STREAM_STALE_MS);
-    expect(tileState()).toBe('playing');
-    expect(context.ops('clearRect'), 'nothing is cleared while hidden').toHaveLength(0);
+    /**
+     * Plays a frame at t, hides the tab, and advances to t + 5 × 1800 ms: the stale check runs at
+     * every multiple of 1800 ms after the frame, so the next one is due 1800 ms later.
+     */
+    function playThenHide(): void {
+      hidden = vi.spyOn(Document.prototype, 'hidden', 'get').mockReturnValue(false);
+      create();
+      startStream();
+      source.send(tracking(1, ['a']));
+      present(1);
+      render();
+      hidden.mockReturnValue(true);
+      context.calls.length = 0;
+      advance(5 * NEAT_STREAM_STALE_MS);
+    }
 
-    hidden.mockReturnValue(false);
-    advance(NEAT_STREAM_STALE_MS);
-    expect(tileState(), 'visible again, a stream without frames stops').toBe('stopped');
+    it('stays playing and keeps its overlays while hidden', () => {
+      playThenHide();
+
+      expect(tileState()).toBe('playing');
+      expect(context.ops('clearRect'), 'nothing is cleared while hidden').toHaveLength(0);
+      expect(host().states).toStrictEqual(['playing']);
+    });
+
+    it('stays playing when the tab returns and frames resume, even if a check runs before the first', () => {
+      playThenHide();
+      // Visible 1 ms before the next check, which then runs before any frame is presented.
+      advance(NEAT_STREAM_STALE_MS - 1);
+      hidden.mockReturnValue(false);
+      advance(1);
+      expect(tileState()).toBe('playing');
+
+      for (let frame = 2; frame <= 20; frame += 1) {
+        advance(250);
+        present(frame);
+      }
+      render();
+
+      expect(tileState()).toBe('playing');
+      expect(host().states, 'no state change at all').toStrictEqual(['playing']);
+    });
+
+    it('stops a stream that presents nothing one full period after the first check that sees the tab visible', () => {
+      playThenHide();
+      hidden.mockReturnValue(false);
+
+      advance(NEAT_STREAM_STALE_MS);
+      expect(tileState(), 'the first visible check only re-arms').toBe('playing');
+      advance(NEAT_STREAM_STALE_MS - 1);
+      expect(tileState()).toBe('playing');
+      advance(1);
+
+      expect(tileState()).toBe('stopped');
+      expect(host().states).toStrictEqual(['playing', 'stopped']);
+    });
+
+    it('leaves no timer behind when destroyed while hidden', () => {
+      playThenHide();
+
+      fixture.destroy();
+
+      expect(vi.getTimerCount()).toBe(0);
+    });
   });
 
   it('clears overlays, tracks and colours on a callback while the video holds no current frame', () => {

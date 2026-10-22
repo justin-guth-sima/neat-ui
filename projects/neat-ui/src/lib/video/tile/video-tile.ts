@@ -166,6 +166,8 @@ export class NeatVideoTile {
   /** When the current stream last presented a frame; null until its first. */
   private lastFrameAt: number | null = null;
   private staleTimer: ReturnType<typeof setTimeout> | null = null;
+  /** The last stale check found the tab hidden, so the frame time it would judge is from before. */
+  private staleCheckSawHidden = false;
   private messagesThisSecond = 0;
   private warnedUnreadable = false;
   private warnedPlayback = false;
@@ -236,6 +238,7 @@ export class NeatVideoTile {
     this.context ??= this.canvasElement().nativeElement.getContext('2d');
     this.queue = createMetadataQueue();
     this.lastFrameAt = null;
+    this.staleCheckSawHidden = false;
     this.messagesThisSecond = 0;
     video.srcObject = stream;
     this.startPlayback(video);
@@ -339,15 +342,18 @@ export class NeatVideoTile {
   /**
    * One timer at a time, re-armed for the remainder instead of on every frame, so a stream that
    * plays costs one timeout per stale period. A hidden tab presents no frames, so the check waits
-   * there instead of stopping a stream that is still running; once visible, frames resume or the
-   * next check stops it.
+   * there instead of stopping a stream that is still running. The first check after the tab
+   * returns waits a full period too: the last frame time is from before the tab was hidden, and a
+   * check right after the return, before the first new frame, would stop a live stream. A dead one
+   * stops a period later.
    */
   private checkStale(): void {
     this.staleTimer = null;
     // Armed by a presented frame and cleared with its stream, so a frame time is always known.
     if (this.lastFrameAt === null) return;
     const idle = performance.now() - this.lastFrameAt;
-    if (this.document.hidden) {
+    if (this.document.hidden || this.staleCheckSawHidden) {
+      this.staleCheckSawHidden = this.document.hidden;
       this.staleTimer = setTimeout(() => this.checkStale(), NEAT_STREAM_STALE_MS);
       return;
     }
