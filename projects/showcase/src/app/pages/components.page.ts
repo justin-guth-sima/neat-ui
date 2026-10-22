@@ -194,14 +194,14 @@ export class ComponentsPage {
   protected readonly visibleTiles = computed(() =>
     PLACEHOLDER_TILES.slice(0, this.layout()?.perPage ?? TILE_COUNT),
   );
-  protected setTileWidth(event: Event): void {
-    this.tileWidth.set(Number((event.target as HTMLInputElement).value));
-  }
-
   protected readonly layoutSummary = computed(() => {
     const layout = this.layout();
     return layout
       ? `${layout.columns} × ${layout.rows} = ${layout.perPage} per page of ${TILE_COUNT}`
       : 'Measuring';
   });
+
+  protected setTileWidth(event: Event): void {
+    this.tileWidth.set(Number((event.target as HTMLInputElement).value));
+  }
 }

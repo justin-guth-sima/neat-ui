@@ -206,6 +206,27 @@ describe('NeatTileGrid', () => {
     expect(grid().dataset['ready']).toBe('true');
   });
 
+  it('treats a box with no area as not measured: no emit, nothing shown', async () => {
+    await create();
+
+    await resize(0, 0);
+    await resize(1920, 0);
+    await resize(0, 1000);
+
+    expect(host().layouts).toEqual([]);
+    expect(grid().dataset['ready']).toBe('false');
+  });
+
+  it('keeps the last layout when its box collapses, instead of reporting an empty one', async () => {
+    await create();
+    await resize(1920, 1000);
+
+    await resize(0, 0);
+
+    expect(host().layouts).toHaveLength(1);
+    expect(host().layouts[0]).toMatchObject({ areaWidth: 1920, areaHeight: 1000 });
+  });
+
   describe('gap', () => {
     it('falls back to 8 px when the spacing token cannot be resolved (jsdom, no kit stylesheet)', async () => {
       await create();
@@ -289,6 +310,15 @@ describe('NeatTileGrid', () => {
     fixture.destroy();
 
     expect(observer().disconnected).toBe(true);
+  });
+
+  it('centres the block of tiles in both directions', async () => {
+    await create();
+    const style = getComputedStyle(grid());
+
+    expect(style.display).toBe('grid');
+    expect(style.justifyContent).toBe('center');
+    expect(style.alignContent).toBe('center');
   });
 
   describe('host', () => {

@@ -1,4 +1,10 @@
-import { fitAllTileWidth, NeatTileAspect, packTiles } from './pack';
+import {
+  fitAllTileWidth,
+  NEAT_MIN_TILE_WIDTH,
+  NeatTileArea,
+  NeatTileAspect,
+  packTiles,
+} from './pack';
 
 describe('packTiles', () => {
   it('packs 16:9 tiles: 1920×1000 area, width 300, gap 8 → 6 columns × 5 rows', () => {
@@ -56,6 +62,62 @@ describe('packTiles', () => {
     expect(pack.tileHeight).toBe(225);
   });
 
+  it('raises a tile narrower than the minimum to the minimum', () => {
+    expect(NEAT_MIN_TILE_WIDTH).toBe(64);
+    for (const requested of [63, 10, 1, 0, -5, Number.NaN, -Infinity]) {
+      const pack = packTiles({ width: 1920, height: 1000 }, requested, '16:9', 8);
+      expect(pack.tileWidth, `requested ${requested}`).toBe(64);
+      expect(pack.tileHeight).toBe(36);
+    }
+    expect(packTiles({ width: 1920, height: 1000 }, 64, '16:9', 8).tileWidth).toBe(64);
+  });
+
+  it('lets the shrink rule win over the minimum when the area is smaller', () => {
+    expect(packTiles({ width: 50, height: 500 }, 10, '16:9', 8)).toMatchObject({
+      tileWidth: 50,
+      tileHeight: 28.125,
+    });
+    expect(packTiles({ width: 500, height: 18 }, 10, '16:9', 8)).toMatchObject({ tileWidth: 32 });
+  });
+
+  it('treats a non-finite or non-positive area as empty, never as NaN', () => {
+    const bad = [Number.NaN, Infinity, -Infinity, -10, 0];
+    for (const width of bad) {
+      for (const height of bad) {
+        const pack = packTiles({ width, height }, 300, '16:9', 8);
+        expect(pack, `${width}×${height}`).toEqual({
+          columns: 1,
+          rows: 1,
+          perPage: 1,
+          tileWidth: 1,
+          tileHeight: 9 / 16,
+        });
+      }
+    }
+  });
+
+  it('packs one bad dimension as empty and keeps the other', () => {
+    const pack = packTiles({ width: Number.NaN, height: 1000 }, 300, '1:1', 8);
+    expect(pack).toMatchObject({ columns: 1, tileWidth: 1 });
+  });
+
+  it('treats a non-finite or negative gap as 0', () => {
+    const reference = packTiles({ width: 1800, height: 1000 }, 300, '16:9', 0);
+    expect(reference.columns).toBe(6);
+    for (const gap of [Number.NaN, Infinity, -Infinity, -8]) {
+      expect(packTiles({ width: 1800, height: 1000 }, 300, '16:9', gap), `gap ${gap}`).toEqual(
+        reference,
+      );
+    }
+  });
+
+  it('shrinks an infinitely wide request to the area', () => {
+    expect(packTiles({ width: 400, height: 900 }, Infinity, '16:9', 8)).toMatchObject({
+      tileWidth: 400,
+      columns: 1,
+    });
+  });
+
   it('keeps one tile in an empty area instead of dividing by zero', () => {
     const pack = packTiles({ width: 0, height: 0 }, 300, '16:9', 8);
     expect(pack.columns).toBe(1);
@@ -94,27 +156,102 @@ describe('fitAllTileWidth', () => {
     expect(fitAllTileWidth(area, 0, '16:9', 8)).toBe(fitAllTileWidth(area, 1, '16:9', 8));
   });
 
-  it('never returns a width whose packTiles perPage is below count', () => {
+  it('never returns a width below the minimum, so very many channels page instead', () => {
+    expect(fitAllTileWidth({ width: 400, height: 300 }, 500, '16:9', 8)).toBe(64);
+    expect(fitAllTileWidth({ width: 400, height: 300 }, 1e9, '16:9', 8)).toBe(64);
+    // Even an area smaller than the minimum returns it; packTiles then shrinks the tile to the area.
+    expect(fitAllTileWidth({ width: 40, height: 30 }, 1, '16:9', 8)).toBe(64);
+  });
+
+  it('treats a count that is not a finite number as one tile, and rounds a fraction down', () => {
+    const one = fitAllTileWidth(area, 1, '16:9', 8);
+    for (const count of [Infinity, -Infinity, Number.NaN, -3, 0, 0.5]) {
+      expect(fitAllTileWidth(area, count, '16:9', 8), `count ${count}`).toBe(one);
+    }
+    expect(fitAllTileWidth(area, 48.9, '16:9', 8)).toBe(fitAllTileWidth(area, 48, '16:9', 8));
+  });
+
+  it('treats a non-finite or non-positive area as empty, never as NaN', () => {
+    for (const bad of [Number.NaN, Infinity, -Infinity, -10, 0]) {
+      expect(fitAllTileWidth({ width: bad, height: bad }, 12, '16:9', 8), `${bad}`).toBe(64);
+      expect(fitAllTileWidth({ width: 1600, height: bad }, 12, '16:9', 8), `${bad}`).toBe(64);
+    }
+  });
+
+  it('treats a non-finite or negative gap as 0', () => {
+    const reference = fitAllTileWidth(area, 12, '16:9', 0);
+    for (const gap of [Number.NaN, Infinity, -Infinity, -8]) {
+      expect(fitAllTileWidth(area, 12, '16:9', gap), `gap ${gap}`).toBe(reference);
+    }
+  });
+
+  describe('over a sweep of areas, gaps and counts', () => {
     const aspects: NeatTileAspect[] = ['16:9', '1:1'];
-    for (const aspect of aspects) {
-      for (const gap of [0, 3, 8, 16]) {
-        for (const width of [320, 641, 1000, 1366, 1600, 1920, 2560]) {
-          for (const height of [180, 333, 480, 720, 900, 1080, 1440]) {
-            for (let count = 1; count <= 64; count++) {
-              const tileWidth = fitAllTileWidth({ width, height }, count, aspect, gap);
-              const { perPage } = packTiles({ width, height }, tileWidth, aspect, gap);
-              // A tile of 1 px is the floor; an area too small for it cannot hold the count.
-              if (tileWidth > 1) {
-                expect(
-                  perPage,
-                  `${count} ${aspect} in ${width}×${height}, gap ${gap}`,
-                ).toBeGreaterThanOrEqual(count);
+    // Whole and fractional values: content boxes are fractional on zoomed or scaled screens.
+    const gaps = [0, 0.5, 3, 8, 16, 2.75];
+    const widths = [320, 641, 1000, 1366.5, 1600, 1919.25, 2560];
+    const heights = [180, 333.3, 480, 720, 899.5, 1080, 1440.75];
+
+    /** Every case in the sweep for which `violates` holds, described for the failure message. */
+    function violations(
+      violates: (case_: {
+        size: NeatTileArea;
+        aspect: NeatTileAspect;
+        gap: number;
+        count: number;
+        tileWidth: number;
+      }) => boolean,
+    ): string[] {
+      const found: string[] = [];
+      for (const aspect of aspects) {
+        for (const gap of gaps) {
+          for (const width of widths) {
+            for (const height of heights) {
+              const size = { width, height };
+              for (let count = 1; count <= 64; count++) {
+                const tileWidth = fitAllTileWidth(size, count, aspect, gap);
+                if (violates({ size, aspect, gap, count, tileWidth })) {
+                  found.push(`${count} ${aspect} in ${width}×${height}, gap ${gap}: ${tileWidth}`);
+                }
               }
             }
           }
         }
       }
+      return found;
     }
+
+    it('never returns a width whose packTiles perPage is below count (above the minimum)', () => {
+      expect(
+        violations(
+          ({ size, aspect, gap, count, tileWidth }) =>
+            tileWidth > NEAT_MIN_TILE_WIDTH &&
+            packTiles(size, tileWidth, aspect, gap).perPage < count,
+        ),
+      ).toEqual([]);
+    });
+
+    it('returns the widest whole-pixel width: one pixel more no longer fits (above the minimum)', () => {
+      expect(
+        violations(({ size, aspect, gap, count, tileWidth }) => {
+          const wider = packTiles(size, tileWidth + 1, aspect, gap);
+          // packTiles shrinks a tile that does not fit even once; that is not "fitting".
+          return (
+            tileWidth > NEAT_MIN_TILE_WIDTH &&
+            wider.tileWidth === tileWidth + 1 &&
+            wider.perPage >= count
+          );
+        }),
+      ).toEqual([]);
+    });
+
+    it('never returns less than the minimum or a fraction', () => {
+      expect(
+        violations(
+          ({ tileWidth }) => tileWidth < NEAT_MIN_TILE_WIDTH || !Number.isInteger(tileWidth),
+        ),
+      ).toEqual([]);
+    });
   });
 
   it('returns whole pixels', () => {

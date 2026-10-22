@@ -33,15 +33,8 @@ function sameArea(a: NeatTileArea, b: NeatTileArea): boolean {
 
 function sameLayout(a: NeatTileLayout | null, b: NeatTileLayout | null): boolean {
   if (a === null || b === null) return a === b;
-  return (
-    a.columns === b.columns &&
-    a.rows === b.rows &&
-    a.perPage === b.perPage &&
-    a.tileWidth === b.tileWidth &&
-    a.tileHeight === b.tileHeight &&
-    a.areaWidth === b.areaWidth &&
-    a.areaHeight === b.areaHeight
-  );
+  // Over the layout's own fields, so one added to it later is compared without touching this.
+  return (Object.keys(a) as (keyof NeatTileLayout)[]).every((field) => a[field] === b[field]);
 }
 
 /**
@@ -110,7 +103,9 @@ export class NeatTileGrid {
     () => {
       const area = this.area();
       const gap = this.gapPx();
-      if (area === null || gap === null) return null;
+      // A box with no area (a collapsed or hidden parent) is not a measurement: reporting it would
+      // make the page slice down to one tile and back.
+      if (area === null || !(area.width > 0 && area.height > 0) || gap === null) return null;
       return {
         ...packTiles(area, this.tileWidth(), this.aspect(), gap),
         areaWidth: area.width,

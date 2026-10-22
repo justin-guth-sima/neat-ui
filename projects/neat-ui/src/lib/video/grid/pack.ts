@@ -16,17 +16,40 @@ export interface NeatTilePack {
   readonly tileHeight: number;
 }
 
+/**
+ * The narrowest tile the kit lays out, in CSS pixels. Below this a tile is a postage stamp, so with
+ * very many items in a small area the page pages instead of shrinking tiles further. Only an area
+ * smaller than this makes a tile narrower (it then shrinks to the area).
+ */
+export const NEAT_MIN_TILE_WIDTH = 64;
+
 /** Height as a fraction of width. */
 const HEIGHT_PER_WIDTH: Record<NeatTileAspect, number> = { '16:9': 9 / 16, '1:1': 1 };
+
+/**
+ * Garbage in must not become garbage out: NaN or Infinity from a broken measurement or input would
+ * otherwise reach the layout, where a NaN never equals itself and so would emit on every change.
+ * A dimension that is not a positive finite number is 0, a gap that is not a finite number of at
+ * least 0 is 0.
+ */
+function sanitizeArea(area: NeatTileArea): NeatTileArea {
+  const dimension = (value: number) => (Number.isFinite(value) && value > 0 ? value : 0);
+  return { width: dimension(area.width), height: dimension(area.height) };
+}
+
+function sanitizeGap(gap: number): number {
+  return Number.isFinite(gap) && gap > 0 ? gap : 0;
+}
 
 /**
  * How many tiles of `tileWidth` fit into `area` with `gap` between them (and none around the
  * outside), in columns and rows. The gap counts only between tiles, which is why the area is
  * widened by one gap before dividing: `n` tiles take `n * tile + (n - 1) * gap`.
  *
- * If even one tile does not fit, it shrinks to the area while keeping its aspect, to whole CSS
- * pixels so it never rounds past the edge. A tile is at least 1 px, so an empty area (before the
- * first measurement) still yields one tile.
+ * `tileWidth` is raised to `NEAT_MIN_TILE_WIDTH` (a NaN, zero or negative one too). If even one
+ * tile does not fit, it shrinks to the area while keeping its aspect, to whole CSS pixels so it
+ * never rounds past the edge; that rule wins over the minimum. A tile is at least 1 px, so an
+ * empty area (before the first measurement) still yields one tile.
  */
 export function packTiles(
   area: NeatTileArea,
@@ -35,12 +58,18 @@ export function packTiles(
   gap: number,
 ): NeatTilePack {
   const ratio = HEIGHT_PER_WIDTH[aspect];
-  const fitting = Math.min(tileWidth, area.width, area.height / ratio);
-  const width = Math.max(1, fitting < tileWidth ? Math.floor(fitting) : tileWidth);
+  const { width: areaWidth, height: areaHeight } = sanitizeArea(area);
+  const spacing = sanitizeGap(gap);
+
+  const requested = Number.isNaN(tileWidth)
+    ? NEAT_MIN_TILE_WIDTH
+    : Math.max(NEAT_MIN_TILE_WIDTH, tileWidth);
+  const fitting = Math.min(requested, areaWidth, areaHeight / ratio);
+  const width = Math.max(1, fitting < requested ? Math.floor(fitting) : requested);
   const height = width * ratio;
 
-  const columns = Math.max(1, Math.floor((area.width + gap) / (width + gap)));
-  const rows = Math.max(1, Math.floor((area.height + gap) / (height + gap)));
+  const columns = Math.max(1, Math.floor((areaWidth + spacing) / (width + spacing)));
+  const rows = Math.max(1, Math.floor((areaHeight + spacing) / (height + spacing)));
   return { columns, rows, perPage: columns * rows, tileWidth: width, tileHeight: height };
 }
 
@@ -51,7 +80,9 @@ export function packTiles(
  * wins. Whole pixels, rounded down, so a floating-point edge can never make `packTiles` drop a
  * row that this function counted on.
  *
- * Returns 1 when the area is too small for `count` tiles even at that size.
+ * Never below `NEAT_MIN_TILE_WIDTH`: when `count` tiles would need narrower ones, the result is
+ * the minimum and the caller pages. A count that is not a finite number of at least 1 is one tile;
+ * a fractional count is rounded down.
  */
 export function fitAllTileWidth(
   area: NeatTileArea,
@@ -60,13 +91,20 @@ export function fitAllTileWidth(
   gap: number,
 ): number {
   const ratio = HEIGHT_PER_WIDTH[aspect];
-  const tiles = Math.max(1, count);
+  const { width: areaWidth, height: areaHeight } = sanitizeArea(area);
+  const spacing = sanitizeGap(gap);
+  const tiles = Number.isFinite(count) ? Math.max(1, Math.floor(count)) : 1;
 
-  let widest = 1;
-  for (let columns = 1; columns <= tiles; columns++) {
+  // More columns than this would make the tile narrower than the minimum anyway, which bounds the
+  // search however large the count is.
+  const widestRow = Math.floor((areaWidth + spacing) / (NEAT_MIN_TILE_WIDTH + spacing));
+  const maxColumns = Math.min(tiles, Math.max(1, widestRow));
+
+  let widest = NEAT_MIN_TILE_WIDTH;
+  for (let columns = 1; columns <= maxColumns; columns++) {
     const rows = Math.ceil(tiles / columns);
-    const byWidth = (area.width - (columns - 1) * gap) / columns;
-    const byHeight = (area.height - (rows - 1) * gap) / rows / ratio;
+    const byWidth = (areaWidth - (columns - 1) * spacing) / columns;
+    const byHeight = (areaHeight - (rows - 1) * spacing) / rows / ratio;
     widest = Math.max(widest, Math.floor(Math.min(byWidth, byHeight)));
   }
   return widest;
