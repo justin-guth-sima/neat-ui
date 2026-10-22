@@ -24,8 +24,17 @@ class FakeSource implements NeatTileSource {
   }
 }
 
-/** jsdom plays no media; a stand-in object is enough for the tile to hand to the video element. */
-const STREAM = { id: 'stream' } as unknown as MediaStream;
+/**
+ * jsdom plays no media; a stand-in with one video track is enough for the tile to hand to the video
+ * element. The track is a plain EventTarget, so a test can dispatch `unmute` on it.
+ */
+function fakeStream(id: string): MediaStream {
+  const track = new EventTarget();
+  return { id, getVideoTracks: () => [track] } as unknown as MediaStream;
+}
+
+const STREAM = fakeStream('a');
+const STREAM_B = fakeStream('b');
 
 type FrameCallback = (now: number, metadata: Partial<VideoFrameCallbackMetadata>) => void;
 
@@ -62,11 +71,12 @@ class FakeVideoFrames {
     delete prototype['cancelVideoFrameCallback'];
   }
 
-  present(rtpTimestamp: number | null): void {
+  /** Presents a frame, timed `ageMs` before now. */
+  present(rtpTimestamp: number | null, ageMs = 0): void {
     const pending = [...this.callbacks.values()];
     this.callbacks.clear();
     const metadata = rtpTimestamp === null ? {} : { rtpTimestamp };
-    for (const callback of pending) callback(performance.now(), metadata);
+    for (const callback of pending) callback(performance.now() - ageMs, metadata);
   }
 }
 
@@ -74,6 +84,7 @@ class FakeVideoFrames {
 class FakeResizeObserver {
   static instances: FakeResizeObserver[] = [];
   readonly observed: Element[] = [];
+  disconnected = false;
 
   constructor(private readonly callback: ResizeObserverCallback) {
     FakeResizeObserver.instances.push(this);
@@ -85,6 +96,7 @@ class FakeResizeObserver {
 
   disconnect(): void {
     this.observed.length = 0;
+    this.disconnected = true;
   }
 
   resize(width: number, height: number): void {
@@ -99,6 +111,7 @@ class FakeResizeObserver {
     <neat-video-tile
       [source]="source()"
       [settings]="settings()"
+      [retentionMs]="retentionMs()"
       [channel]="3"
       label="3"
       [status]="status()"
@@ -114,6 +127,7 @@ class FakeResizeObserver {
 class Host {
   readonly source = signal<NeatTileSource | null>(null);
   readonly settings = signal<NeatOverlaySettings>(NEAT_OVERLAY_DEFAULTS);
+  readonly retentionMs = signal(0);
   readonly status = signal<string | null>('H.264 · 640×480 · 30.0 fps');
   readonly bars = signal(true);
   readonly selected = signal(false);
@@ -158,6 +172,8 @@ describe('NeatVideoTile', () => {
   let source: FakeSource;
   let frames: FakeVideoFrames;
   let context: RecordingContext;
+  let readyState: ReturnType<typeof vi.spyOn>;
+  let play: ReturnType<typeof vi.spyOn>;
 
   const host = () => fixture.componentInstance;
   const tileElement = (): HTMLElement => fixture.nativeElement.querySelector('neat-video-tile');
@@ -184,9 +200,14 @@ describe('NeatVideoTile', () => {
   }
 
   /** Presents a frame and forgets what earlier frames drew. */
-  function present(rtpTimestamp: number | null): void {
+  function present(rtpTimestamp: number | null, ageMs = 0): void {
     context.calls.length = 0;
-    frames.present(rtpTimestamp);
+    frames.present(rtpTimestamp, ageMs);
+  }
+
+  /** Lets settled promises (the video's play()) run their handlers. */
+  async function flushPromises(): Promise<void> {
+    for (let turn = 0; turn < 5; turn += 1) await Promise.resolve();
   }
 
   function create(): void {
@@ -220,10 +241,10 @@ describe('NeatVideoTile', () => {
     vi.stubGlobal('ResizeObserver', FakeResizeObserver);
     frames = new FakeVideoFrames();
     frames.install();
-    vi.spyOn(HTMLMediaElement.prototype, 'readyState', 'get').mockReturnValue(
-      HTMLMediaElement.HAVE_ENOUGH_DATA,
-    );
-    vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
+    readyState = vi
+      .spyOn(HTMLMediaElement.prototype, 'readyState', 'get')
+      .mockReturnValue(HTMLMediaElement.HAVE_ENOUGH_DATA);
+    play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
     vi.spyOn(HTMLVideoElement.prototype, 'videoWidth', 'get').mockReturnValue(640);
     vi.spyOn(HTMLVideoElement.prototype, 'videoHeight', 'get').mockReturnValue(480);
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(function (
@@ -297,6 +318,91 @@ describe('NeatVideoTile', () => {
       context.ops('strokeRect').map((call) => call.strokeStyle),
       'track b takes the first colour again',
     ).toStrictEqual([OVERLAY_PALETTE[0]]);
+  });
+
+  it('stays playing while the tab is hidden, where the browser presents no frames', () => {
+    const hidden = vi.spyOn(Document.prototype, 'hidden', 'get').mockReturnValue(false);
+    create();
+    startStream();
+    source.send(tracking(1, ['a']));
+    present(1);
+    render();
+
+    hidden.mockReturnValue(true);
+    context.calls.length = 0;
+    advance(5 * NEAT_STREAM_STALE_MS);
+    expect(tileState()).toBe('playing');
+    expect(context.ops('clearRect'), 'nothing is cleared while hidden').toHaveLength(0);
+
+    hidden.mockReturnValue(false);
+    advance(NEAT_STREAM_STALE_MS);
+    expect(tileState(), 'visible again, a stream without frames stops').toBe('stopped');
+  });
+
+  it('clears overlays, tracks and colours on a callback while the video holds no current frame', () => {
+    create();
+    startStream();
+    source.send(tracking(1, ['a', 'b']));
+    present(1);
+    source.send(tracking(2, ['a', 'b']));
+    present(2);
+    expect(context.ops('stroke'), 'both tracks have a trail').toHaveLength(2);
+
+    readyState.mockReturnValue(HTMLMediaElement.HAVE_METADATA);
+    present(3);
+    render();
+    const [clear] = context.ops('clearRect');
+    expect(clear.args).toStrictEqual([0, 0, 640, 480]);
+    expect(tileState(), 'the state follows presented frames only').toBe('playing');
+
+    readyState.mockReturnValue(HTMLMediaElement.HAVE_ENOUGH_DATA);
+    source.send(tracking(4, ['b']));
+    present(4);
+    expect(context.ops('stroke'), 'the trails were forgotten').toHaveLength(0);
+    expect(context.ops('strokeRect').map((call) => call.strokeStyle)).toStrictEqual([
+      OVERLAY_PALETTE[0],
+    ]);
+  });
+
+  it('forgets the old stream’s pending metadata, held overlays and tracks when the stream is swapped', () => {
+    create();
+    startStream();
+    source.send(tracking(1, ['a', 'b']));
+    present(1);
+    source.send(tracking(2, ['a', 'b']));
+    source.send(detection(2, [10, 10, 20, 20]));
+    present(2);
+    source.send(detection(99, [300, 300, 20, 20]));
+
+    source.stream.set(STREAM_B);
+    render();
+    expect(video().srcObject).toBe(STREAM_B);
+    expect(tile().snapshot().timestampedPending, 'A’s pending metadata is gone').toBe(0);
+
+    present(3);
+    expect(strokeRects(), 'nothing of A is held').toStrictEqual([]);
+    present(99);
+    expect(strokeRects(), 'A’s message for frame 99 never draws on B').toStrictEqual([]);
+
+    source.send(tracking(100, ['b']));
+    present(100);
+    expect(context.ops('stroke'), 'A’s trails were forgotten').toHaveLength(0);
+    expect(context.ops('strokeRect').map((call) => call.strokeStyle)).toStrictEqual([
+      OVERLAY_PALETTE[0],
+    ]);
+  });
+
+  it('expires metadata older than the retentionMs input before matching it', () => {
+    create();
+    host().retentionMs.set(100);
+    startStream();
+    source.send(detection(5, [10, 10, 20, 20]));
+
+    advance(150);
+    present(5);
+
+    expect(strokeRects()).toStrictEqual([]);
+    expect(tile().snapshot().expired).toBe(1);
   });
 
   it('draws the metadata matched to the presented frame’s rtpTimestamp and holds a missing type for 200 ms', () => {
@@ -387,7 +493,9 @@ describe('NeatVideoTile', () => {
     expect(bar()?.querySelector('.label')?.textContent).toBe('3');
     expect(bar()?.querySelector('.status')?.textContent).toBe('H.264 · 640×480 · 30.0 fps');
     expect(bar()?.querySelector('[neatTileChip]')?.textContent).toBe('Metadata late');
-    expect(tileElement().querySelector('.no-video')?.textContent).toBe('No video');
+    expect(tileElement().querySelector('.no-video')?.textContent?.trim()).toBe(
+      'No active video received',
+    );
 
     host().bars.set(false);
     render();
@@ -458,9 +566,59 @@ describe('NeatVideoTile', () => {
     expect(source.listeners.size).toBe(0);
     expect(frames.callbacks.size).toBe(0);
     expect(vi.getTimerCount(), 'no stale check or stats timer is left').toBe(0);
+    expect(FakeResizeObserver.instances[0].disconnected).toBe(true);
   });
 
-  it('emits frame stats once per second with the queue counters and the message rate', () => {
+  it('plays again when the video track unmutes, until the stream is gone', () => {
+    create();
+    startStream();
+    expect(play).toHaveBeenCalledTimes(1);
+    const [track] = STREAM.getVideoTracks();
+
+    track.dispatchEvent(new Event('unmute'));
+    expect(play).toHaveBeenCalledTimes(2);
+
+    source.stream.set(null);
+    render();
+    track.dispatchEvent(new Event('unmute'));
+    expect(play).toHaveBeenCalledTimes(2);
+  });
+
+  it('warns once when the video refuses to play, but not when a newer stream interrupted it', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    play.mockRejectedValue(new DOMException('The play() request was interrupted', 'AbortError'));
+    create();
+    startStream();
+    await flushPromises();
+    expect(warn).not.toHaveBeenCalled();
+
+    play.mockRejectedValue(new DOMException('play() is not allowed', 'NotAllowedError'));
+    source.stream.set(STREAM_B);
+    render();
+    STREAM_B.getVideoTracks()[0].dispatchEvent(new Event('unmute'));
+    await flushPromises();
+
+    expect(warn).toHaveBeenCalledOnce();
+    expect(String(warn.mock.calls[0][0])).toContain('channel 3');
+    expect(String(warn.mock.calls[0][0])).toContain('NotAllowedError');
+  });
+
+  it('resetLatenessWindow forgets the late outcomes measured so far', () => {
+    create();
+    startStream();
+    present(1000);
+    for (let late = 0; late < 10; late += 1) source.send(detection(900 + late, [10, 10, 20, 20]));
+    expect(tile().snapshot().recentLateShare).toBe(1);
+
+    tile().resetLatenessWindow();
+
+    expect(tile().snapshot().recentLateShare).toBeNull();
+    expect(tile().snapshot().late, 'the cumulative counter stays').toBe(10);
+  });
+
+  it('emits frame stats once per second with the queue counters, the message rate and the video', () => {
+    vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(false);
+    vi.spyOn(HTMLMediaElement.prototype, 'currentTime', 'get').mockReturnValue(12.48);
     create();
     advance(3000);
     expect(host().stats, 'nothing to report without a stream').toStrictEqual([]);
@@ -469,7 +627,8 @@ describe('NeatVideoTile', () => {
     source.send(detection(1, [10, 10, 20, 20]));
     source.send(detection(null, [10, 10, 20, 20]));
     present(1);
-    present(2);
+    // Frame times are fractional; the age is reported in whole milliseconds.
+    present(2, 0.4);
     advance(999);
     expect(host().stats).toStrictEqual([]);
 
@@ -488,12 +647,29 @@ describe('NeatVideoTile', () => {
         recentLatenessMedianMs: null,
         recentLatenessMaxMs: null,
         metadataMessagesPerSecond: 2,
+        video: {
+          readyState: HTMLMediaElement.HAVE_ENOUGH_DATA,
+          paused: false,
+          currentTime: 12.48,
+          videoWidth: 640,
+          videoHeight: 480,
+          lastFrameAgeMs: 1000,
+          active: true,
+        },
       },
     ]);
 
     advance(1000);
     expect(host().stats).toHaveLength(2);
     expect(host().stats[1].metadataMessagesPerSecond).toBe(0);
+    expect(host().stats[1].video.lastFrameAgeMs).toBe(2000);
+
+    source.stream.set(STREAM_B);
+    render();
+    advance(1000);
+    const [latest] = host().stats.slice(-1);
+    expect(latest.video.lastFrameAgeMs, 'no frame of the new stream yet').toBeNull();
+    expect(latest.video.active).toBe(false);
   });
 
   it('sizes the canvas backing store from its box at devicePixelRatio, capped at 2', () => {

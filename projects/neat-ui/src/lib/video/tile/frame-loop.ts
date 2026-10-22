@@ -14,18 +14,20 @@ export interface PresentedFrame {
  * frame-exact metadata matching needs. Browsers without it get an animation-frame loop that
  * reports a frame whenever the decoded-frame count has advanced, with no RTP timestamp, so
  * metadata falls back to arrival matching. A callback while the video holds no current frame
- * (`readyState` below HAVE_CURRENT_DATA) is not a presented frame.
+ * (`readyState` below HAVE_CURRENT_DATA) is not a presented frame: it goes to `onNoCurrentFrame`
+ * instead, so the caller can clear what it drew over the last one.
  *
- * The next callback is requested before `onFrame` runs, so a frame whose handler throws does not
+ * The next callback is requested before the handler runs, so a frame whose handler throws does not
  * end the loop.
  */
 export function startFrameLoop(
   video: HTMLVideoElement,
   onFrame: (frame: PresentedFrame) => void,
+  onNoCurrentFrame: () => void,
 ): () => void {
   return typeof video.requestVideoFrameCallback === 'function'
-    ? videoFrameLoop(video, onFrame)
-    : animationFrameLoop(video, onFrame);
+    ? videoFrameLoop(video, onFrame, onNoCurrentFrame)
+    : animationFrameLoop(video, onFrame, onNoCurrentFrame);
 }
 
 function hasCurrentFrame(video: HTMLVideoElement): boolean {
@@ -35,6 +37,7 @@ function hasCurrentFrame(video: HTMLVideoElement): boolean {
 function videoFrameLoop(
   video: HTMLVideoElement,
   onFrame: (frame: PresentedFrame) => void,
+  onNoCurrentFrame: () => void,
 ): () => void {
   let stopped = false;
   let pending = 0;
@@ -42,8 +45,8 @@ function videoFrameLoop(
     pending = video.requestVideoFrameCallback((now, metadata) => {
       if (stopped) return;
       request();
-      if (!hasCurrentFrame(video)) return;
-      onFrame({ now, rtpTimestamp: metadata.rtpTimestamp ?? null });
+      if (hasCurrentFrame(video)) onFrame({ now, rtpTimestamp: metadata.rtpTimestamp ?? null });
+      else onNoCurrentFrame();
     });
   };
   request();
@@ -56,6 +59,7 @@ function videoFrameLoop(
 function animationFrameLoop(
   video: HTMLVideoElement,
   onFrame: (frame: PresentedFrame) => void,
+  onNoCurrentFrame: () => void,
 ): () => void {
   let stopped = false;
   let pending = 0;
@@ -64,9 +68,13 @@ function animationFrameLoop(
     pending = requestAnimationFrame((now) => {
       if (stopped) return;
       request();
+      if (!hasCurrentFrame(video)) {
+        onNoCurrentFrame();
+        return;
+      }
       // Every browser without requestVideoFrameCallback has getVideoPlaybackQuality.
       const total = video.getVideoPlaybackQuality().totalVideoFrames;
-      if (total === decoded || !hasCurrentFrame(video)) return;
+      if (total === decoded) return;
       decoded = total;
       onFrame({ now, rtpTimestamp: null });
     });

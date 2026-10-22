@@ -67,6 +67,9 @@ class FakeAnimationFrames {
   }
 }
 
+/** For loops whose callbacks without a current frame the test does not look at. */
+const ignore = (): void => undefined;
+
 describe('startFrameLoop', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -76,7 +79,7 @@ describe('startFrameLoop', () => {
     it('reports each presented frame with its RTP timestamp, or null when it has none', () => {
       const video = new FakeVideo(true);
       const frames: PresentedFrame[] = [];
-      startFrameLoop(video.element, (frame) => frames.push(frame));
+      startFrameLoop(video.element, (frame) => frames.push(frame), ignore);
 
       video.present(100, { rtpTimestamp: 90_000 });
       video.present(133, {});
@@ -89,10 +92,15 @@ describe('startFrameLoop', () => {
       ]);
     });
 
-    it('ignores a callback while the video holds no current frame', () => {
+    it('reports a callback while the video holds no current frame apart from presented frames', () => {
       const video = new FakeVideo(true);
       const frames: PresentedFrame[] = [];
-      startFrameLoop(video.element, (frame) => frames.push(frame));
+      let withoutFrame = 0;
+      startFrameLoop(
+        video.element,
+        (frame) => frames.push(frame),
+        () => (withoutFrame += 1),
+      );
 
       video.readyState = HTMLMediaElement.HAVE_METADATA;
       video.present(100, { rtpTimestamp: 1 });
@@ -100,15 +108,20 @@ describe('startFrameLoop', () => {
       video.present(133, { rtpTimestamp: 2 });
 
       expect(frames.map((frame) => frame.rtpTimestamp)).toStrictEqual([2]);
+      expect(withoutFrame).toBe(1);
     });
 
     it('keeps running when a frame handler throws', () => {
       const video = new FakeVideo(true);
       let calls = 0;
-      startFrameLoop(video.element, () => {
-        calls += 1;
-        throw new Error('draw failed');
-      });
+      startFrameLoop(
+        video.element,
+        () => {
+          calls += 1;
+          throw new Error('draw failed');
+        },
+        ignore,
+      );
 
       expect(() => video.present(100)).toThrow('draw failed');
       expect(() => video.present(133)).toThrow('draw failed');
@@ -119,7 +132,7 @@ describe('startFrameLoop', () => {
     it('cancels its pending callback when stopped and reports nothing afterwards', () => {
       const video = new FakeVideo(true);
       const frames: PresentedFrame[] = [];
-      const stop = startFrameLoop(video.element, (frame) => frames.push(frame));
+      const stop = startFrameLoop(video.element, (frame) => frames.push(frame), ignore);
       video.present(100);
       const [pending] = video.callbacks.keys();
 
@@ -133,10 +146,14 @@ describe('startFrameLoop', () => {
     it('stops cleanly from inside its own frame handler', () => {
       const video = new FakeVideo(true);
       let calls = 0;
-      const stop = startFrameLoop(video.element, () => {
-        calls += 1;
-        stop();
-      });
+      const stop = startFrameLoop(
+        video.element,
+        () => {
+          calls += 1;
+          stop();
+        },
+        ignore,
+      );
 
       video.present(100);
       video.present(133);
@@ -157,7 +174,7 @@ describe('startFrameLoop', () => {
     it('reports a frame on each animation frame after the decoded-frame count advanced', () => {
       const video = new FakeVideo(false);
       const frames: PresentedFrame[] = [];
-      startFrameLoop(video.element, (frame) => frames.push(frame));
+      startFrameLoop(video.element, (frame) => frames.push(frame), ignore);
 
       video.totalVideoFrames = 1;
       animationFrames.run(16);
@@ -171,22 +188,29 @@ describe('startFrameLoop', () => {
       ]);
     });
 
-    it('ignores decoded frames while the video holds no current frame', () => {
+    it('reports each animation frame while the video holds no current frame, and no decoded frame', () => {
       const video = new FakeVideo(false);
       const frames: PresentedFrame[] = [];
-      startFrameLoop(video.element, (frame) => frames.push(frame));
+      let withoutFrame = 0;
+      startFrameLoop(
+        video.element,
+        (frame) => frames.push(frame),
+        () => (withoutFrame += 1),
+      );
 
       video.readyState = HTMLMediaElement.HAVE_METADATA;
       video.totalVideoFrames = 1;
       animationFrames.run(16);
+      animationFrames.run(32);
 
       expect(frames).toStrictEqual([]);
+      expect(withoutFrame).toBe(2);
     });
 
     it('cancels its pending animation frame when stopped', () => {
       const video = new FakeVideo(false);
       const frames: PresentedFrame[] = [];
-      const stop = startFrameLoop(video.element, (frame) => frames.push(frame));
+      const stop = startFrameLoop(video.element, (frame) => frames.push(frame), ignore);
       const [pending] = animationFrames.callbacks.keys();
 
       stop();

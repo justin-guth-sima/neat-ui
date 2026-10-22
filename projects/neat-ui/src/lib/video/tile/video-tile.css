@@ -29,30 +29,28 @@
   pointer-events: none;
 }
 
-/* Empty: no frame of this stream yet, so only the surface shows. */
-:host([data-state='empty']) .video,
-:host([data-state='empty']) .overlay {
-  visibility: hidden;
+/*
+ * Empty: no frame of this stream yet, so an opaque layer of the surface covers the video and the
+ * overlay. The video stays rendered underneath, so every browser keeps delivering its frames.
+ */
+:host([data-state='empty'])::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--muted);
 }
 
 /*
- * Stopped: the last frame stays, frosted and dimmed under the scrim, with its overlays hidden. The
- * frame is scaled up a little so the blur's transparent edge falls outside the tile.
+ * Stopped: the last frame stays, frosted and dimmed, with its overlays hidden. The frame is scaled
+ * up a little so the blur's transparent edge falls outside the tile.
  */
 :host([data-state='stopped']) .video {
-  filter: blur(9px) saturate(0.6);
+  filter: blur(9px) saturate(0.6) brightness(0.75);
   transform: scale(1.07);
 }
 
 :host([data-state='stopped']) .overlay {
   visibility: hidden;
-}
-
-:host([data-state='stopped'])::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--neat-video-scrim);
 }
 
 .no-video {
@@ -63,14 +61,16 @@
   align-items: center;
   justify-content: center;
   margin: 0;
+  padding: var(--neat-space-2);
+  text-align: center;
   font-size: var(--neat-text-sm);
 }
 
-:host([data-state='empty']) .no-video {
-  color: var(--muted-foreground);
-}
-
-:host([data-state='stopped']) .no-video {
+/* On the scrim, so it reads over the frosted frame as well as on the surface. */
+.no-video-text {
+  padding: var(--neat-space-2) var(--neat-space-3);
+  border-radius: var(--radius);
+  background: var(--neat-video-scrim);
   color: var(--neat-video-scrim-foreground);
 }
 

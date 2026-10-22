@@ -4,6 +4,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  DOCUMENT,
   effect,
   ElementRef,
   inject,
@@ -31,6 +32,7 @@ import {
   enqueueMetadata,
   holdOverlays,
   metadataQueueSnapshot,
+  resetLatenessWindow as resetQueueLatenessWindow,
   takeMetadataForFrame,
 } from '../sync/metadata-sync';
 import type { PresentedFrame } from './frame-loop';
@@ -51,8 +53,10 @@ const MAX_CANVAS_DPR = 2;
 export type NeatTileState = 'empty' | 'playing' | 'stopped';
 
 /**
- * The tile's frame-sync counters, as the app reports them (the `synchronization` group of vf's
- * browser egress report). Counters are cumulative for the current stream.
+ * The tile's frame-sync counters and video state, as the app reports them (the `synchronization`
+ * and `video` groups of vf's browser egress report). Counters are cumulative for the current
+ * stream. Every count and pixel size is a whole number: vf parses them as integers and drops a
+ * report with a fraction in one.
  */
 export interface NeatFrameStats extends NeatMetadataQueueStats {
   timestampedPending: number;
@@ -61,6 +65,20 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
   recentLatenessMaxMs: number | null;
   /** Valid metadata messages received in the last second. */
   metadataMessagesPerSecond: number;
+  /** The video element when the stats were taken. */
+  video: {
+    /** `HTMLMediaElement.readyState`, 0 to 4. */
+    readyState: number;
+    paused: boolean;
+    /** Seconds, fractional. */
+    currentTime: number;
+    videoWidth: number;
+    videoHeight: number;
+    /** Whole milliseconds since the stream's last presented frame; null before its first. */
+    lastFrameAgeMs: number | null;
+    /** Whether the tile is `playing`. */
+    active: boolean;
+  };
 }
 
 /**
@@ -87,7 +105,7 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
     <canvas #canvas class="overlay" aria-hidden="true"></canvas>
     @if (bars()) {
       @if (state() !== 'playing') {
-        <p class="no-video">No video</p>
+        <p class="no-video"><span class="no-video-text">No active video received</span></p>
       }
       <div class="bar">
         <span class="label">{{ label() }}</span>
@@ -123,6 +141,7 @@ export class NeatVideoTile {
   private readonly canvasElement = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
   private readonly colors = inject(NeatOverlayColors);
   private readonly zone = inject(NgZone);
+  private readonly document = inject(DOCUMENT);
 
   // What the frame loop reads. Plain fields, written when the inputs change, never signals.
   private frameSettings: NeatOverlaySettings = NEAT_OVERLAY_DEFAULTS;
@@ -144,10 +163,12 @@ export class NeatVideoTile {
   private playing: { source: NeatTileSource; stream: MediaStream; stop: () => void } | null = null;
   private queue: NeatMetadataQueue = createMetadataQueue();
   private readonly held: NeatHeldOverlays = new Map();
-  private lastFrameAt = 0;
+  /** When the current stream last presented a frame; null until its first. */
+  private lastFrameAt: number | null = null;
   private staleTimer: ReturnType<typeof setTimeout> | null = null;
   private messagesThisSecond = 0;
   private warnedUnreadable = false;
+  private warnedPlayback = false;
   private destroyed = false;
 
   constructor() {
@@ -197,6 +218,14 @@ export class NeatVideoTile {
     return metadataQueueSnapshot(this.queue);
   }
 
+  /**
+   * Forgets the lateness measured so far, as after the app changes the video sync buffer: what was
+   * measured belongs to the old buffer. The cumulative counters stay.
+   */
+  resetLatenessWindow(): void {
+    resetQueueLatenessWindow(this.queue);
+  }
+
   private play(source: NeatTileSource | null, stream: MediaStream | null): void {
     if (this.playing?.source === source && this.playing.stream === stream) return;
     this.stop();
@@ -206,14 +235,22 @@ export class NeatVideoTile {
     // Taken on the first stream, so a tile that never plays holds no canvas context.
     this.context ??= this.canvasElement().nativeElement.getContext('2d');
     this.queue = createMetadataQueue();
+    this.lastFrameAt = null;
     this.messagesThisSecond = 0;
     video.srcObject = stream;
-    // Muted autoplay is allowed everywhere; a rejection means the stream was replaced first.
-    video.play().catch(() => undefined);
+    this.startPlayback(video);
+    // A track that was muted (no media flowing) may leave the element paused; play on unmute.
+    const replay = () => this.startPlayback(video);
+    const tracks = stream.getVideoTracks();
+    for (const track of tracks) track.addEventListener('unmute', replay);
     const unsubscribe = source.onMetadata((text, receivedAt) => this.receive(text, receivedAt));
     const stopTimers = this.zone.runOutsideAngular(() => {
-      const stopFrames = startFrameLoop(video, (frame) => this.present(frame, video));
-      const statsTimer = setInterval(() => this.reportFrameStats(), FRAME_STATS_INTERVAL_MS);
+      const stopFrames = startFrameLoop(
+        video,
+        (frame) => this.present(frame, video),
+        () => this.clearOverlays(),
+      );
+      const statsTimer = setInterval(() => this.reportFrameStats(video), FRAME_STATS_INTERVAL_MS);
       return () => {
         stopFrames();
         clearInterval(statsTimer);
@@ -225,9 +262,25 @@ export class NeatVideoTile {
       stop: () => {
         stopTimers();
         unsubscribe();
+        for (const track of tracks) track.removeEventListener('unmute', replay);
         video.srcObject = null;
       },
     };
+  }
+
+  /**
+   * Muted autoplay is allowed everywhere, so a rejection is either an AbortError (a newer stream or
+   * a pause interrupted it, which is expected) or a real refusal that would leave the tile empty for
+   * good, such as NotAllowedError or NotSupportedError. Those are logged, once per tile.
+   */
+  private startPlayback(video: HTMLVideoElement): void {
+    video.play().catch((error: unknown) => {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      if (this.warnedPlayback) return;
+      this.warnedPlayback = true;
+      const reason = error instanceof DOMException ? `${error.name}: ${error.message}` : error;
+      console.warn(`video: channel ${this.channel()} cannot play its stream (${reason})`);
+    });
   }
 
   private stop(): void {
@@ -285,15 +338,23 @@ export class NeatVideoTile {
 
   /**
    * One timer at a time, re-armed for the remainder instead of on every frame, so a stream that
-   * plays costs one timeout per stale period.
+   * plays costs one timeout per stale period. A hidden tab presents no frames, so the check waits
+   * there instead of stopping a stream that is still running; once visible, frames resume or the
+   * next check stops it.
    */
   private checkStale(): void {
+    this.staleTimer = null;
+    // Armed by a presented frame and cleared with its stream, so a frame time is always known.
+    if (this.lastFrameAt === null) return;
     const idle = performance.now() - this.lastFrameAt;
+    if (this.document.hidden) {
+      this.staleTimer = setTimeout(() => this.checkStale(), NEAT_STREAM_STALE_MS);
+      return;
+    }
     if (idle < NEAT_STREAM_STALE_MS) {
       this.staleTimer = setTimeout(() => this.checkStale(), NEAT_STREAM_STALE_MS - idle);
       return;
     }
-    this.staleTimer = null;
     this.clearOverlays();
     this.setState('stopped');
   }
@@ -316,8 +377,9 @@ export class NeatVideoTile {
     if (!this.destroyed) this.stateChange.emit(next);
   }
 
-  private reportFrameStats(): void {
+  private reportFrameStats(video: HTMLVideoElement): void {
     const snapshot = metadataQueueSnapshot(this.queue);
+    const lastFrameAt = this.lastFrameAt;
     this.frameStats.emit({
       timestampMatches: snapshot.timestampMatches,
       arrivalFallbacks: snapshot.arrivalFallbacks,
@@ -331,6 +393,15 @@ export class NeatVideoTile {
       recentLatenessMedianMs: snapshot.recentLatenessMedianMs,
       recentLatenessMaxMs: snapshot.recentLatenessMaxMs,
       metadataMessagesPerSecond: this.messagesThisSecond,
+      video: {
+        readyState: video.readyState,
+        paused: video.paused,
+        currentTime: video.currentTime,
+        videoWidth: video.videoWidth,
+        videoHeight: video.videoHeight,
+        lastFrameAgeMs: lastFrameAt === null ? null : Math.round(performance.now() - lastFrameAt),
+        active: this.currentState === 'playing',
+      },
     });
     this.messagesThisSecond = 0;
   }
