@@ -1,13 +1,13 @@
 import { buildColorScale, buildSurfaceScale, type ColorScale, type ColorStep } from './color-scale';
 import { composite } from './color';
-import { along, CONTRAST_RULES, firstReadable } from './contrast-rules';
+import { along, CONTRAST_RULES, firstReadable, MIN_NON_TEXT_CONTRAST } from './contrast-rules';
 import { NEAT_DANGER_BASE, NEAT_PRIMARY_BASE, NEAT_WARN_BASE, SIMA_PALETTE } from './palette';
 import type { NeatColorScheme } from './theme.service';
 
 /** Spartan's corner radius; its preset derives the sm to 4xl radii from it. */
 const RADIUS = '0.5rem';
 
-/** Surface steps for the roles that carry no text rule of their own, per scheme. */
+/** Surface steps for the roles that carry no contrast rule of their own, per scheme. */
 interface SurfaceRoles {
   /** Cards and popovers: the content background in light, the raised surface in dark. */
   readonly raised: ColorStep;
@@ -19,18 +19,14 @@ interface SurfaceRoles {
    * surfaces (cards, popovers), so in dark it is a step above the raised surface.
    */
   readonly accent: ColorStep;
+  /** Dividers and card outlines: decoration, so no contrast rule (form controls use `--input`). */
   readonly border: ColorStep;
-  /** Form-control borders. */
-  readonly input: ColorStep;
 }
 
 const SURFACE_ROLES: Record<NeatColorScheme, SurfaceRoles> = {
-  light: { raised: 0, muted: 50, secondary: 100, accent: 100, border: 200, input: 300 },
-  dark: { raised: 800, muted: 800, secondary: 800, accent: 700, border: 700, input: 600 },
+  light: { raised: 0, muted: 50, secondary: 100, accent: 100, border: 200 },
+  dark: { raised: 800, muted: 800, secondary: 800, accent: 700, border: 700 },
 };
-
-/** Focus rings in the primary hue at full strength: the base in light, a step lighter in dark. */
-const RING_STEP: Record<NeatColorScheme, keyof ColorScale> = { light: 500, dark: 400 };
 /** Spartan's chart palette: a single-hue ramp on the primary scale, like Spartan's own themes. */
 const CHART_STEPS = [300, 400, 500, 600, 700] as const;
 
@@ -71,6 +67,15 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     scale[rules.colorWalk[firstReadable(scale, rules.colorWalk, withOwnTint)]];
   const mutedText =
     surface[rules.surfaceWalk[firstReadable(surface, rules.surfaceWalk, textBackgrounds)]];
+  /**
+   * Form-control boundaries (`--input`) and focus rings (`--ring`) identify a control and its
+   * state, so they take the non-text minimum wherever text sits: the first grey step, and the first
+   * primary step, of the scheme's walks that reach it.
+   */
+  const nonText = <S extends number>(scale: Record<S, string>, walk: readonly S[]) =>
+    scale[walk[firstReadable(scale, walk, textBackgrounds, MIN_NON_TEXT_CONTRAST)]];
+  const input = nonText(surface, rules.surfaceWalk);
+  const ring = nonText(scales.primary, rules.colorWalk);
 
   const primaryIndex = firstReadable(scales.primary, rules.colorWalk, asTextAndFill);
   const primary = scales.primary[rules.colorWalk[primaryIndex]];
@@ -80,7 +85,6 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
   const raised = surface[roles.raised];
   const accent = surface[roles.accent];
   const border = surface[roles.border];
-  const ring = scales.primary[RING_STEP[scheme]];
 
   return {
     background,
@@ -109,7 +113,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     info: status(scales.info),
     'info-foreground': onColor,
     border,
-    input: surface[roles.input],
+    input,
     ring,
     ...Object.fromEntries(CHART_STEPS.map((step, i) => [`chart-${i + 1}`, scales.primary[step]])),
     // The sidebar is the shell's rail: it sits on the content background.

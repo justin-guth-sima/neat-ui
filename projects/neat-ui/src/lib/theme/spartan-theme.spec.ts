@@ -1,7 +1,7 @@
 import generated from './tokens.generated.css' with { loader: 'text' };
 import { composite, contrastRatio } from './color';
 import { buildColorScale, buildSurfaceScale } from './color-scale';
-import { along, CONTRAST_RULES, MIN_FILL_CONTRAST } from './contrast-rules';
+import { along, CONTRAST_RULES, MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from './contrast-rules';
 import { NEAT_PRIMARY_BASE } from './palette';
 import { buildSpartanThemeCss } from './spartan-theme';
 import { NEAT_DARK_CLASS } from './theme.service';
@@ -43,6 +43,11 @@ const TINTS = {
 const HOVER_FILLS = { 'primary-hover': 'primary-foreground' } as const;
 /** Surfaces a hover or selection fill (`--accent`) sits on. */
 const FILL_SURFACES = ['background', 'card', 'popover'];
+/**
+ * Non-text colours that identify a control or its state (WCAG 1.4.11): form-control boundaries
+ * and focus indicators. They sit wherever text does, so they are measured on the text surfaces.
+ */
+const NON_TEXT = ['input', 'ring', 'sidebar-ring'];
 
 interface TextPair {
   label: string;
@@ -148,6 +153,20 @@ describe('buildSpartanThemeCss', () => {
         expect(ratio, `${scheme}: --accent on --${surface}`).toBeGreaterThanOrEqual(
           MIN_FILL_CONTRAST,
         );
+      }
+    }
+  });
+
+  it(`form-control boundaries and focus rings reach ${MIN_NON_TEXT_CONTRAST}:1 on every surface text sits on`, () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      for (const name of NON_TEXT) {
+        for (const surface of TEXT_SURFACES) {
+          const ratio = contrastRatio(tokens.get(`--${name}`)!, tokens.get(`--${surface}`)!);
+          expect(ratio, `${scheme}: --${name} on --${surface}`).toBeGreaterThanOrEqual(
+            MIN_NON_TEXT_CONTRAST,
+          );
+        }
       }
     }
   });

@@ -6,6 +6,13 @@ import type { NeatColorScheme } from './theme.service';
 const MIN_CONTRAST = 4.5;
 
 /**
+ * WCAG 2.x AA for non-text contrast (1.4.11): what a user needs to see to identify a control or
+ * its state, such as a form control's boundary or a focus indicator, against the colours next to
+ * it.
+ */
+export const MIN_NON_TEXT_CONTRAST = 3;
+
+/**
  * The minimum contrast a hover or selection fill must have against the surface under it (the
  * content background and cards), so the state stays visible; not a WCAG figure. Nothing applies it
  * at runtime: the theme spec enforces it on `--accent` (the dark accent step was chosen to meet
@@ -23,7 +30,11 @@ export interface SchemeContrastRules {
   readonly text: ColorStep;
   /** Surface step of text on a filled colour (a primary button, for example). */
   readonly onColor: ColorStep;
-  /** Every surface step text sits on; text steps must reach MIN_CONTRAST on all of them. */
+  /**
+   * Every surface step text sits on; text steps must reach MIN_CONTRAST on all of them.
+   * Form-control boundaries and focus indicators sit wherever text does and must reach
+   * MIN_NON_TEXT_CONTRAST on all of them.
+   */
   readonly textBackgrounds: readonly ColorStep[];
   /**
    * The tint a status colour puts behind its own text: badges, alerts and soft buttons are a
@@ -38,10 +49,10 @@ export interface SchemeContrastRules {
 }
 
 /**
- * The contrast rules every theme layer derives its text colours from. Light text sits on white and
- * on the palette background (50) used by the shell and pages; dark text on the content background
- * (900) and the raised surface (800). Filled colours carry white text in light and the palette text
- * in dark.
+ * The contrast rules every theme layer derives its text colours, form-control boundaries and focus
+ * rings from. Light text sits on white and on the palette background (50) used by the shell and
+ * pages; dark text on the content background (900) and the raised surface (800). Filled colours
+ * carry white text in light and the palette text in dark.
  */
 export const CONTRAST_RULES: Record<NeatColorScheme, SchemeContrastRules> = {
   light: {
@@ -68,22 +79,23 @@ export const CONTRAST_RULES: Record<NeatColorScheme, SchemeContrastRules> = {
 export type Backgrounds = readonly string[] | ((color: string) => readonly string[]);
 
 /**
- * Index into a walk of steps: the first step that reaches MIN_CONTRAST on every one of
- * `backgrounds`.
+ * Index into a walk of steps: the first step that reaches `minimum` (text contrast unless stated)
+ * on every one of `backgrounds`.
  */
 export function firstReadable<S extends number>(
   scale: Record<S, string>,
   walk: readonly S[],
   backgrounds: Backgrounds,
+  minimum = MIN_CONTRAST,
 ): number {
   const backgroundsOf = typeof backgrounds === 'function' ? backgrounds : () => backgrounds;
   const index = walk.findIndex((step) =>
     backgroundsOf(scale[step]).every(
-      (background) => contrastRatio(scale[step], background) >= MIN_CONTRAST,
+      (background) => contrastRatio(scale[step], background) >= minimum,
     ),
   );
   if (index < 0) {
-    throw new Error(`No step of [${walk.join(', ')}] reaches ${MIN_CONTRAST}:1 on its backgrounds`);
+    throw new Error(`No step of [${walk.join(', ')}] reaches ${minimum}:1 on its backgrounds`);
   }
   return index;
 }
