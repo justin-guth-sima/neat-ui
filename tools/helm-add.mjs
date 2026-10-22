@@ -4,20 +4,24 @@
 //  2. Runs its `ui` generator (configured by components.json) into projects/neat-ui/src/lib/ui.
 //  3. Restores package.json, package-lock.json and tsconfig.json. The generator adds alias paths
 //     (adoption makes the imports relative instead) and dependencies, which the kit declares
-//     deliberately, in both package.json files, after checking their licence. A dependency the kit
-//     does not declare yet fails the run.
+//     deliberately, after checking their licence. A dependency the workspace does not declare yet
+//     fails the run.
 //  4. Runs `npm install`, which puts node_modules back to the lockfile and prunes the CLI (also
 //     after the generator's own `npm install`, which it runs when it adds dependencies).
-//  5. Adopts the generated code (tools/adopt-helm.mjs).
+//  5. Adopts the generated code (tools/adopt-helm.mjs) and checks that the library ships every
+//     package helm imports: as a peer, or as a dependency listed in allowedNonPeerDependencies.
+//     ng-packagr does not flag undeclared externals, so a gap would only surface in an app.
 // On failure the new helm folders are removed again, so nothing unadopted is left behind.
 // To update a component, delete its folder and add it again, then review the diff.
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { posix } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { adoptHelmTree, HELM_ROOT } from './adopt-helm.mjs';
+import { adoptHelmTree, HELM_ROOT, helmImportedPackages } from './adopt-helm.mjs';
 
 const RESTORED = ['package.json', 'package-lock.json', 'tsconfig.json'];
+const LIBRARY_PACKAGE = 'projects/neat-ui/package.json';
+const LIBRARY_NG_PACKAGE = 'projects/neat-ui/ng-package.json';
 /** The generator's icon packages; adoption replaces them with neat-icon. */
 const DROPPED_DEPENDENCY = /^@ng-icons\//;
 
@@ -44,6 +48,20 @@ if (!/^\d+\.\d+\.\d+$/.test(brainVersion ?? '')) {
 const snapshot = new Map(RESTORED.map((file) => [file, readFileSync(file, 'utf8')]));
 const foldersBefore = new Set(helmFolders());
 const addedFolders = () => helmFolders().filter((folder) => !foldersBefore.has(folder));
+
+const DECLARE_HINT =
+  'Check the licence, add it to package.json and to projects/neat-ui/package.json (peer, or ' +
+  'dependency plus allowedNonPeerDependencies in ng-package.json), then run this again.';
+
+/** Packages helm imports that the published library would not bring along. */
+function unshippedImports() {
+  const library = readJson(LIBRARY_PACKAGE);
+  const allowed = new Set(readJson(LIBRARY_NG_PACKAGE).allowedNonPeerDependencies);
+  const ships = (dependency) =>
+    dependency in (library.peerDependencies ?? {}) ||
+    (dependency in (library.dependencies ?? {}) && allowed.has(dependency));
+  return helmImportedPackages().filter((dependency) => !ships(dependency));
+}
 
 /** Generates the component; returns dependencies it needs that the kit does not declare. */
 function generate() {
@@ -74,16 +92,24 @@ try {
   }
   if (undeclared.length) {
     const list = undeclared.map(([dependency, range]) => `${dependency}@${range}`).join(', ');
-    throw new Error(
-      `"${name}" needs ${list}. Check the licence, add it to package.json, ` +
-        'projects/neat-ui/package.json and allowedNonPeerDependencies, then run this again.',
-    );
+    throw new Error(`"${name}" needs ${list}. ${DECLARE_HINT}`);
   }
   await adoptHelmTree();
+  const unshipped = unshippedImports();
+  if (unshipped.length) {
+    throw new Error(
+      `Helm imports ${unshipped.join(', ')}, which the library does not ship. ${DECLARE_HINT}`,
+    );
+  }
 } catch (error) {
   for (const folder of addedFolders()) rmSync(posix.join(HELM_ROOT, folder), { recursive: true });
-  // The generator may also have rewritten folders that already existed; adopt them again.
-  if (helmFolders().length) await adoptHelmTree();
+  // The generator may also have rewritten folders that already existed; adopt them again. If that
+  // fails too, report it but keep the original error, which says what went wrong first.
+  try {
+    if (helmFolders().length) await adoptHelmTree();
+  } catch (cleanupError) {
+    console.error(`Re-adopting the existing helm folders failed as well: ${cleanupError.message}`);
+  }
   throw error;
 }
 console.log(`Adopted ${addedFolders().join(', ')} into ${HELM_ROOT}. Review the diff, lint, test.`);

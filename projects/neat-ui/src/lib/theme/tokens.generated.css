@@ -17,7 +17,7 @@
   --muted-foreground: #4c5858;
   --accent: #e8e9eb;
   --accent-foreground: #010f0e;
-  --destructive: #c8372d;
+  --destructive: #ab2a22;
   --destructive-foreground: #ffffff;
   --success: #0a692f;
   --success-foreground: #ffffff;
@@ -59,13 +59,13 @@
   --muted-foreground: #adb3b4;
   --accent: #1f2e2d;
   --accent-foreground: #ffffff;
-  --destructive: #f48577;
+  --destructive: #ffaca0;
   --destructive-foreground: #010f0e;
-  --success: #56b16c;
+  --success: #7dc88d;
   --success-foreground: #010f0e;
-  --warning: #c9914c;
+  --warning: #ddac73;
   --warning-foreground: #010f0e;
-  --info: #75acea;
+  --info: #93c2f8;
   --info-foreground: #010f0e;
   --border: #344141;
   --input: #4c5858;

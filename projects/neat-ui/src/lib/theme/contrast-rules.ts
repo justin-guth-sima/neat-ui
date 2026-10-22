@@ -17,6 +17,12 @@ export interface SchemeContrastRules {
   readonly onColor: ColorStep;
   /** Every surface step text sits on; text steps must reach MIN_CONTRAST on all of them. */
   readonly textBackgrounds: readonly ColorStep[];
+  /**
+   * The tint a status colour puts behind its own text: badges, alerts and soft buttons are a
+   * design-system pattern (helm's destructive button is `text-destructive` on `bg-destructive/10`,
+   * `dark:bg-destructive/20`). The colour at `alpha`, composited over each of the `over` surfaces.
+   */
+  readonly tint: { readonly alpha: number; readonly over: readonly ColorStep[] };
   /** Colour-scale steps from the base away from the background, in search order. */
   readonly colorWalk: readonly ScaleStep[];
   /** Surface steps from mid grey away from the background, in search order. */
@@ -35,6 +41,7 @@ export const CONTRAST_RULES: Record<NeatColorScheme, SchemeContrastRules> = {
     text: 950,
     onColor: 0,
     textBackgrounds: [0, 50],
+    tint: { alpha: 0.1, over: [0] },
     colorWalk: [500, 600, 700, 800, 900, 950],
     surfaceWalk: [500, 600, 700, 800, 900, 950],
   },
@@ -43,24 +50,32 @@ export const CONTRAST_RULES: Record<NeatColorScheme, SchemeContrastRules> = {
     text: 0,
     onColor: 950,
     textBackgrounds: [900, 800],
+    tint: { alpha: 0.2, over: [900, 800] },
     colorWalk: [400, 300, 200, 100, 50],
     surfaceWalk: [400, 300, 200, 100, 50, 0],
   },
 };
 
-/** Index into a walk of steps: the first step that reaches MIN_CONTRAST on every one of `backgrounds`. */
+/** Backgrounds a colour must be readable on; a function when they depend on the colour (its tint). */
+export type Backgrounds = readonly string[] | ((color: string) => readonly string[]);
+
+/**
+ * Index into a walk of steps: the first step that reaches MIN_CONTRAST on every one of
+ * `backgrounds`.
+ */
 export function firstReadable<S extends number>(
   scale: Record<S, string>,
   walk: readonly S[],
-  backgrounds: readonly string[],
+  backgrounds: Backgrounds,
 ): number {
+  const backgroundsOf = typeof backgrounds === 'function' ? backgrounds : () => backgrounds;
   const index = walk.findIndex((step) =>
-    backgrounds.every((background) => contrastRatio(scale[step], background) >= MIN_CONTRAST),
+    backgroundsOf(scale[step]).every(
+      (background) => contrastRatio(scale[step], background) >= MIN_CONTRAST,
+    ),
   );
   if (index < 0) {
-    throw new Error(
-      `No step of [${walk.join(', ')}] reaches ${MIN_CONTRAST}:1 on all of ${backgrounds.join(', ')}`,
-    );
+    throw new Error(`No step of [${walk.join(', ')}] reaches ${MIN_CONTRAST}:1 on its backgrounds`);
   }
   return index;
 }

@@ -109,6 +109,17 @@ export function isInSrgbGamut(color: Oklch): boolean {
   );
 }
 
+/**
+ * `foreground` at `alpha` (0 to 1) over an opaque `background`, blended per channel in
+ * gamma-encoded sRGB as browsers composite a translucent fill such as Tailwind's `bg-x/10`.
+ */
+export function composite(foreground: string, alpha: number, background: string): string {
+  const top = parseHex(foreground);
+  const bottom = parseHex(background);
+  const mix = (channel: 0 | 1 | 2) => top[channel] * alpha + bottom[channel] * (1 - alpha);
+  return formatHex([mix(0), mix(1), mix(2)]);
+}
+
 /** WCAG 2.x relative luminance of `#RRGGBB`. */
 export function relativeLuminance(hex: string): number {
   const [r, g, b] = hexToLinear(hex);

@@ -1,4 +1,11 @@
-import { contrastRatio, hexToOklch, isInSrgbGamut, oklchToHex, relativeLuminance } from './color';
+import {
+  composite,
+  contrastRatio,
+  hexToOklch,
+  isInSrgbGamut,
+  oklchToHex,
+  relativeLuminance,
+} from './color';
 import { SIMA_PALETTE } from './palette';
 
 describe('contrastRatio', () => {
@@ -23,6 +30,18 @@ describe('contrastRatio', () => {
   it('rejects anything but #RRGGBB', () => {
     expect(() => contrastRatio('#FFF', '#000000')).toThrow(/#RRGGBB/);
     expect(() => contrastRatio('{primary.500}', '#000000')).toThrow(/#RRGGBB/);
+  });
+});
+
+describe('composite', () => {
+  it('blends per channel in gamma-encoded sRGB, as browsers composite', () => {
+    expect(composite('#FFFFFF', 0.5, '#000000')).toBe('#808080');
+    expect(composite('#C8372D', 0.1, '#FFFFFF')).toBe('#FAEBEA');
+  });
+
+  it('returns the background at alpha 0 and the colour at alpha 1', () => {
+    expect(composite('#D26728', 0, '#0D1D1C')).toBe('#0D1D1C');
+    expect(composite('#d26728', 1, '#0D1D1C')).toBe('#D26728');
   });
 });
 

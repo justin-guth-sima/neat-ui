@@ -1,5 +1,6 @@
 import { buildColorScale, buildSurfaceScale, type ColorScale, type ColorStep } from './color-scale';
-import { CONTRAST_RULES, firstReadable } from './contrast-rules';
+import { composite } from './color';
+import { type Backgrounds, CONTRAST_RULES, firstReadable } from './contrast-rules';
 import { NEAT_DANGER_BASE, NEAT_PRIMARY_BASE, NEAT_WARN_BASE, SIMA_PALETTE } from './palette';
 import type { NeatColorScheme } from './theme.service';
 
@@ -49,16 +50,23 @@ function schemeTokens(scheme: NeatColorScheme): SpartanTokens {
   const onColor = surface[rules.onColor];
   const text = surface[rules.text];
 
+  const firstStep = (scale: ColorScale, backgrounds: Backgrounds) =>
+    scale[rules.colorWalk[firstReadable(scale, rules.colorWalk, backgrounds)]];
   /**
-   * A colour that is both text on the page (`text-destructive`) and a fill under `onColor`
-   * (`bg-destructive text-destructive-foreground`): the first step readable in both roles.
+   * A colour that is both text on the page (`text-primary`) and a fill under `onColor`
+   * (`bg-primary text-primary-foreground`): the first step readable in both roles.
    */
-  const readable = (scale: ColorScale) =>
-    scale[rules.colorWalk[firstReadable(scale, rules.colorWalk, [onColor, ...textBackgrounds])]];
+  const asTextAndFill = [onColor, ...textBackgrounds];
+  /** Status colours are also text on a tint of themselves (see `tint` in the contrast rules). */
+  const withOwnTint = (color: string) => [
+    ...asTextAndFill,
+    ...rules.tint.over.map((step) => composite(color, rules.tint.alpha, surface[step])),
+  ];
+  const status = (scale: ColorScale) => firstStep(scale, withOwnTint);
   const mutedText =
     surface[rules.surfaceWalk[firstReadable(surface, rules.surfaceWalk, textBackgrounds)]];
 
-  const primary = readable(scales.primary);
+  const primary = firstStep(scales.primary, asTextAndFill);
   const background = surface[rules.background];
   const raised = surface[roles.raised];
   const accent = surface[roles.accent];
@@ -81,13 +89,13 @@ function schemeTokens(scheme: NeatColorScheme): SpartanTokens {
     accent,
     'accent-foreground': text,
     // Spartan has no -foreground for destructive and no success, warning or info: kit extensions.
-    destructive: readable(scales.destructive),
+    destructive: status(scales.destructive),
     'destructive-foreground': onColor,
-    success: readable(scales.success),
+    success: status(scales.success),
     'success-foreground': onColor,
-    warning: readable(scales.warning),
+    warning: status(scales.warning),
     'warning-foreground': onColor,
-    info: readable(scales.info),
+    info: status(scales.info),
     'info-foreground': onColor,
     border,
     input: surface[roles.input],

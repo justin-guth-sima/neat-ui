@@ -1,5 +1,5 @@
 import generated from './tokens.generated.css' with { loader: 'text' };
-import { contrastRatio } from './color';
+import { composite, contrastRatio } from './color';
 import { buildSurfaceScale } from './color-scale';
 import { buildSpartanThemeCss } from './spartan-theme';
 import { NEAT_DARK_CLASS } from './theme.service';
@@ -28,16 +28,53 @@ const schemes = { light: rules.get(':root')!, dark: rules.get(DARK_SELECTOR)! };
 const COLORED_TEXT = ['muted-foreground', 'primary', 'destructive', 'success', 'warning', 'info'];
 /** The surfaces text sits on. */
 const TEXT_SURFACES = ['background', 'card', 'popover', 'muted'];
+/**
+ * Status colours are also text on a tint of themselves (badges, alerts, soft buttons such as helm's
+ * destructive button: `bg-destructive/10`, `dark:bg-destructive/20`), composited over these surfaces.
+ */
+const STATUS_TEXT = ['destructive', 'success', 'warning', 'info'];
+const TINTS = {
+  light: { alpha: 0.1, over: ['background'] },
+  dark: { alpha: 0.2, over: ['background', 'card'] },
+} as const;
 
-/** Every text/background pair a scheme emits: each `--x-foreground` on `--x`, plus coloured text on every surface. */
-function textPairs(tokens: Declarations): [foreground: string, background: string][] {
+interface TextPair {
+  label: string;
+  foreground: string;
+  background: string;
+}
+
+/**
+ * Every text/background pair a scheme emits: each `--x-foreground` on `--x`, coloured text on
+ * every surface, and status text on its own tint.
+ */
+function textPairs(scheme: keyof typeof schemes): TextPair[] {
+  const tokens = schemes[scheme];
+  const pair = (foreground: string, background: string): TextPair => ({
+    label: `${scheme}: --${foreground} on --${background}`,
+    foreground: tokens.get(`--${foreground}`)!,
+    background: tokens.get(`--${background}`)!,
+  });
+  const fillOf = (name: string) => name.replace(/-foreground$/, '');
   const ownFills = [...tokens.keys()]
-    .filter((name) => name.endsWith('-foreground') && tokens.has(name.replace(/-foreground$/, '')))
-    .map((name): [string, string] => [name, name.replace(/-foreground$/, '')]);
+    .map((name) => name.replace(/^--/, ''))
+    .filter((name) => name.endsWith('-foreground') && tokens.has(`--${fillOf(name)}`))
+    .map((name) => pair(name, fillOf(name)));
   const onSurfaces = COLORED_TEXT.flatMap((text) =>
-    TEXT_SURFACES.map((surface): [string, string] => [`--${text}`, `--${surface}`]),
+    TEXT_SURFACES.map((surface) => pair(text, surface)),
   );
-  return [['--foreground', '--background'], ...ownFills, ...onSurfaces];
+  const { alpha, over } = TINTS[scheme];
+  const onTints = STATUS_TEXT.flatMap((text) =>
+    over.map((surface) => {
+      const color = tokens.get(`--${text}`)!;
+      return {
+        label: `${scheme}: --${text} on --${text}/${alpha * 100} over --${surface}`,
+        foreground: color,
+        background: composite(color, alpha, tokens.get(`--${surface}`)!),
+      };
+    }),
+  );
+  return [pair('foreground', 'background'), ...ownFills, ...onSurfaces, ...onTints];
 }
 
 describe('buildSpartanThemeCss', () => {
@@ -59,15 +96,18 @@ describe('buildSpartanThemeCss', () => {
   });
 
   it('every foreground/background pair it emits reaches 4.5:1 in both schemes', () => {
-    for (const [scheme, tokens] of Object.entries(schemes)) {
-      const pairs = textPairs(tokens);
-      // The kit extensions take part, so a missing one cannot pass silently.
-      for (const fill of ['--primary', '--destructive', '--success', '--warning', '--info']) {
-        expect(pairs).toContainEqual([`${fill}-foreground`, fill]);
+    for (const scheme of ['light', 'dark'] as const) {
+      const pairs = textPairs(scheme);
+      const labels = pairs.map((pair) => pair.label);
+      // The kit extensions and the tints take part, so a missing one cannot pass silently.
+      for (const fill of ['primary', 'destructive', 'success', 'warning', 'info']) {
+        expect(labels).toContain(`${scheme}: --${fill}-foreground on --${fill}`);
       }
-      for (const [foreground, background] of pairs) {
-        const ratio = contrastRatio(tokens.get(foreground)!, tokens.get(background)!);
-        expect(ratio, `${scheme}: ${foreground} on ${background}`).toBeGreaterThanOrEqual(4.5);
+      expect(labels.filter((label) => label.includes('/'))).toHaveLength(
+        STATUS_TEXT.length * TINTS[scheme].over.length,
+      );
+      for (const { label, foreground, background } of pairs) {
+        expect(contrastRatio(foreground, background), label).toBeGreaterThanOrEqual(4.5);
       }
     }
   });

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { adoptSource, glyphsFromRegistry } from './adopt-helm.mjs';
+import { adoptSource, glyphsFromRegistry, importedPackages } from './adopt-helm.mjs';
 
 const REGISTRY = `
 export const NEAT_ICONS = {
@@ -79,12 +80,60 @@ export class HlmThing {}
   assert.match(adopted, /<neat-icon name="info" \[size\]="16" \/>/);
 });
 
+test('reads every glyph of the real icon registry', () => {
+  const registry = readFileSync(
+    new URL('../projects/neat-ui/src/lib/icon/icon-registry.ts', import.meta.url),
+    'utf8',
+  );
+  const real = glyphsFromRegistry(registry);
+  // Every Lucide glyph the registry imports is drawn by exactly one name.
+  const [, imported] = /import \{([^}]*)\} from '@lucide\/angular'/.exec(registry);
+  const expected = imported
+    .split(',')
+    .map((name) => name.trim())
+    .filter((name) => name && name !== 'LucideIcon')
+    .map((name) => `lucide${name.slice('Lucide'.length)}`);
+  assert.deepEqual([...real.keys()].sort(), expected.sort());
+  assert.ok([...real.values()].every((name) => typeof name === 'string'));
+  assert.equal(real.get('lucideInfo'), 'info');
+  assert.equal(real.get('lucideMinimize'), 'kiosk-exit');
+});
+
+test('fails on an ng-icon glyph several neat-icon names draw', () => {
+  const ambiguous = glyphsFromRegistry(`${REGISTRY}\n  help: LucideInfo,\n`);
+  assert.equal(ambiguous.get('lucideInfo'), null);
+  assert.throws(
+    () => adoptSource(THING_FILE, ICON_COMPONENT, ambiguous),
+    /lucideInfo is ambiguous/,
+  );
+});
+
 test('fails on an ng-icon glyph with no neat-icon mapping', () => {
   const source = ICON_COMPONENT.replaceAll('lucideMinimize', 'lucideCheck');
   assert.throws(
     () => adoptSource(THING_FILE, source, glyphs),
     /hlm-thing\.ts.*lucideCheck.*NEAT_ICONS/,
   );
+});
+
+test('leaves providers arrays without provideIcons as they are', () => {
+  const source = `import { Component } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideInfo } from '@ng-icons/lucide';
+
+@Component({
+	selector: 'hlm-thing',
+	imports: [NgIcon],
+	providers: [],
+	viewProviders: [provideIcons({ lucideInfo })],
+	template: \`<ng-icon name="lucideInfo" />\`,
+})
+export class HlmThing {}
+`;
+  const adopted = adoptSource(THING_FILE, source, glyphs);
+
+  assert.match(adopted, /\tproviders: \[\],\n/);
+  assert.doesNotMatch(adopted, /viewProviders/);
 });
 
 test('fails on ng-icon usage it cannot rewrite', () => {
@@ -109,4 +158,29 @@ test('retargets [&_ng-icon and *:[ng-icon selectors to neat-icon', () => {
 test('is idempotent: adopting adopted source changes nothing', () => {
   const once = adoptSource(THING_FILE, ICON_COMPONENT, glyphs);
   assert.equal(adoptSource(THING_FILE, once, glyphs), once);
+});
+
+test('lists the packages a helm file imports, not its relative imports', () => {
+  const source = `import type { BooleanInput } from '@angular/cdk/coercion';
+import {
+	Directive,
+	input,
+} from '@angular/core';
+import { BrnButton } from '@spartan-ng/brain/button';
+import { cva, type VariantProps } from 'class-variance-authority';
+import type { ClassValue } from 'clsx';
+import { classes } from '../../../utils/src';
+export * from './lib/hlm-button';
+/**
+ * @example
+ * import { provideSpartanHlm } from '@spartan-ng/helm/utils';
+ */
+`;
+  assert.deepEqual(importedPackages(source), [
+    '@angular/cdk',
+    '@angular/core',
+    '@spartan-ng/brain',
+    'class-variance-authority',
+    'clsx',
+  ]);
 });

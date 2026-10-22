@@ -20,6 +20,7 @@ const HELM_IMPORT = /from (['"])@neat-ui\/helm\/([a-z-]+)\1/g;
 const NG_ICONS_IMPORT = /^import \{([^}]*)\} from '@ng-icons\/(core|lucide)';\n/gm;
 const ICON_PROVIDERS = /^([ \t]*)(providers|viewProviders): \[([^\]]*)\],\n/gm;
 const PROVIDE_ICONS = /provideIcons\(\{[^}]*\}\)/;
+const IMPORT_STATEMENT = /^[ \t]*(?:import|export)\b[^;]*?\bfrom\s+['"]([^'"]+)['"]/gm;
 const RESIDUE = /@neat-ui\/helm|@ng-icons|\bNgIcon\b|provideIcons|\bng-icon\b|\blucide[A-Z]\w*/;
 
 /**
@@ -50,7 +51,8 @@ function relativizeHelmImports(file, source) {
 
 /** Removes `provideIcons(...)` from providers arrays, and an array it leaves empty. */
 function dropIconProviders(source) {
-  return source.replace(ICON_PROVIDERS, (_, indent, key, list) => {
+  return source.replace(ICON_PROVIDERS, (property, indent, key, list) => {
+    if (!PROVIDE_ICONS.test(list)) return property;
     const rest = list
       .replace(new RegExp(`${PROVIDE_ICONS.source},\\s*`), '')
       .replace(new RegExp(`,?\\s*${PROVIDE_ICONS.source}`), '');
@@ -102,12 +104,33 @@ export function adoptSource(file, source, glyphs) {
   return adopted;
 }
 
+/** The packages a source file imports from (`@scope/name` or `name`), sorted, without duplicates. */
+export function importedPackages(source) {
+  const packages = new Set();
+  // Statements only: anchored at a line start, so JSDoc examples (` * import … from`) do not count.
+  for (const [, specifier] of source.matchAll(IMPORT_STATEMENT)) {
+    if (specifier.startsWith('.')) continue;
+    const parts = specifier.split('/');
+    packages.add(parts.slice(0, specifier.startsWith('@') ? 2 : 1).join('/'));
+  }
+  return [...packages].sort();
+}
+
 function* typeScriptFiles(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = posix.join(dir, entry.name);
     if (entry.isDirectory()) yield* typeScriptFiles(path);
     else if (entry.name.endsWith('.ts')) yield path;
   }
+}
+
+/** Every package the helm folder imports from, sorted. Run from the repository root. */
+export function helmImportedPackages() {
+  const packages = new Set();
+  for (const file of typeScriptFiles(HELM_ROOT)) {
+    for (const name of importedPackages(readFileSync(file, 'utf8'))) packages.add(name);
+  }
+  return [...packages].sort();
 }
 
 /** Adopts and formats every helm file in place. Run from the repository root. */
