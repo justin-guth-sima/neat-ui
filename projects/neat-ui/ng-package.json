@@ -1,14 +1,21 @@
 {
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
   "dest": "../../dist/neat-ui",
-  "allowedNonPeerDependencies": ["@fontsource/roboto", "@lucide/angular"],
+  "allowedNonPeerDependencies": [
+    "@fontsource/roboto",
+    "@lucide/angular",
+    "@spartan-ng/brain",
+    "class-variance-authority",
+    "clsx",
+    "tailwind-merge"
+  ],
   "lib": {
     "entryFile": "src/public-api.ts"
   },
   "assets": [
     {
       "input": "src/styles",
-      "glob": "**/*.css",
+      "glob": "neat-ui.css",
       "output": "styles"
     }
   ]

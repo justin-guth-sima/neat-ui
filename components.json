@@ -1,0 +1,5 @@
+{
+  "componentsPath": "projects/neat-ui/src/lib/ui",
+  "importAlias": "@neat-ui/helm",
+  "style": "vega"
+}

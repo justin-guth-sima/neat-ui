@@ -1,25 +1,10 @@
 /*
- * Global styles for apps built on @sima/neat-ui. Colours come only from PrimeNG's theme
- * variables (provided by provideNeatUi()), so this file follows the light/dark switch.
+ * Global stylesheet for apps built on @sima/neat-ui: the brand font and the kit's compiled styles
+ * (theme tokens, Spartan's base and the utilities the kit's components use). The font imports stay
+ * out of the Tailwind compile so they remain package imports the app's build resolves; Tailwind
+ * would inline them without rebasing their url()s.
  */
 @import '@fontsource/roboto/400.css';
 @import '@fontsource/roboto/500.css';
 @import '@fontsource/roboto/700.css';
-
-:root {
-  --neat-font-family: Roboto, system-ui, sans-serif;
-}
-
-/* The shell and pages own scrolling; the document itself never scrolls. */
-html,
-body {
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-}
-
-body {
-  font-family: var(--neat-font-family);
-  background: var(--p-content-background);
-  color: var(--p-text-color);
-}
+@import './neat-ui.tailwind.css';

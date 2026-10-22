@@ -1,12 +1,9 @@
 import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import type { Preset } from '@primeuix/themes/types';
-import { contrastRatio } from './color';
 import { buildColorScale, buildSurfaceScale } from './color-scale';
+import { along, CONTRAST_RULES, firstReadable } from './contrast-rules';
 import { NEAT_DANGER_BASE, NEAT_PRIMARY_BASE, NEAT_WARN_BASE, SIMA_PALETTE } from './palette';
-
-/** WCAG 2.x AA for normal text. */
-const MIN_CONTRAST = 4.5;
 
 const primary = buildColorScale(NEAT_PRIMARY_BASE);
 const surface = buildSurfaceScale();
@@ -15,62 +12,23 @@ const info = buildColorScale(SIMA_PALETTE.blue);
 const warn = buildColorScale(NEAT_WARN_BASE);
 const danger = buildColorScale(NEAT_DANGER_BASE);
 
-/** Content background step per scheme. */
-const LIGHT_BACKGROUND = 0;
-const DARK_BACKGROUND = 900;
-/**
- * Every surface text sits on, per scheme; text steps must reach MIN_CONTRAST on all of them.
- * Light adds the palette background (50) used by the shell and pages; dark adds the raised surface (800).
- */
-const LIGHT_TEXT_BACKGROUNDS = [LIGHT_BACKGROUND, 50] as const;
-const DARK_TEXT_BACKGROUNDS = [DARK_BACKGROUND, 800] as const;
-/** Body text: the palette text in light, white in dark. */
-const LIGHT_TEXT = 950;
-const DARK_TEXT = 0;
+const { light, dark } = CONTRAST_RULES;
 
-/** Primary steps from 500 towards dark, and from 400 towards light. */
-const PRIMARY_DARKWARD = [500, 600, 700, 800, 900, 950] as const;
-const PRIMARY_LIGHTWARD = [400, 300, 200, 100, 50] as const;
-/** Surface steps from mid grey towards the palette text, and towards white. */
-const SURFACE_DARKWARD = [500, 600, 700, 800, 900, 950] as const;
-const SURFACE_LIGHTWARD = [400, 300, 200, 100, 50, 0] as const;
-
-/** Index into a walk of steps: the first step that reaches MIN_CONTRAST on every one of `backgrounds`. */
-function firstReadable<S extends number>(
-  scale: Record<S, string>,
-  walk: readonly S[],
-  backgrounds: readonly string[],
-): number {
-  const index = walk.findIndex((step) =>
-    backgrounds.every((background) => contrastRatio(scale[step], background) >= MIN_CONTRAST),
-  );
-  if (index < 0) {
-    throw new Error(
-      `No step of [${walk.join(', ')}] reaches ${MIN_CONTRAST}:1 on all of ${backgrounds.join(', ')}`,
-    );
-  }
-  return index;
-}
-
-/** The step `offset` places further along a walk, stopping at its end. */
-function along<S extends number>(walk: readonly S[], index: number, offset: number): S {
-  return walk[Math.min(index + offset, walk.length - 1)];
-}
-
-const lightPrimary = firstReadable(primary, PRIMARY_DARKWARD, [surface[0]]);
-const darkPrimary = firstReadable(primary, PRIMARY_LIGHTWARD, [surface[950]]);
+const lightPrimary = firstReadable(primary, light.colorWalk, [surface[light.onColor]]);
+const darkPrimary = firstReadable(primary, dark.colorWalk, [surface[dark.onColor]]);
 const lightMuted = firstReadable(
   surface,
-  SURFACE_DARKWARD,
-  LIGHT_TEXT_BACKGROUNDS.map((step) => surface[step]),
+  light.surfaceWalk,
+  light.textBackgrounds.map((step) => surface[step]),
 );
 const darkMuted = firstReadable(
   surface,
-  SURFACE_LIGHTWARD,
-  DARK_TEXT_BACKGROUNDS.map((step) => surface[step]),
+  dark.surfaceWalk,
+  dark.textBackgrounds.map((step) => surface[step]),
 );
 
-const lightDark = (light: string, dark: string) => `light-dark(${light}, ${dark})`;
+const lightDark = (lightValue: string, darkValue: string) =>
+  `light-dark(${lightValue}, ${darkValue})`;
 const primaryStep = (walk: readonly number[], index: number, offset: number) =>
   `{primary.${along(walk, index, offset)}}`;
 const surfaceStep = (step: number) => `{surface.${step}}`;
@@ -95,33 +53,33 @@ export const NeatPreset: Preset = definePreset(Aura, {
     primary: {
       ...primary,
       color: lightDark(
-        primaryStep(PRIMARY_DARKWARD, lightPrimary, 0),
-        primaryStep(PRIMARY_LIGHTWARD, darkPrimary, 0),
+        primaryStep(light.colorWalk, lightPrimary, 0),
+        primaryStep(dark.colorWalk, darkPrimary, 0),
       ),
-      contrastColor: lightDark(surfaceStep(0), surfaceStep(950)),
+      contrastColor: lightDark(surfaceStep(light.onColor), surfaceStep(dark.onColor)),
       hoverColor: lightDark(
-        primaryStep(PRIMARY_DARKWARD, lightPrimary, 1),
-        primaryStep(PRIMARY_LIGHTWARD, darkPrimary, 1),
+        primaryStep(light.colorWalk, lightPrimary, 1),
+        primaryStep(dark.colorWalk, darkPrimary, 1),
       ),
       activeColor: lightDark(
-        primaryStep(PRIMARY_DARKWARD, lightPrimary, 2),
-        primaryStep(PRIMARY_LIGHTWARD, darkPrimary, 2),
+        primaryStep(light.colorWalk, lightPrimary, 2),
+        primaryStep(dark.colorWalk, darkPrimary, 2),
       ),
     },
     surface,
     content: {
-      background: lightDark(surfaceStep(LIGHT_BACKGROUND), surfaceStep(DARK_BACKGROUND)),
+      background: lightDark(surfaceStep(light.background), surfaceStep(dark.background)),
     },
     text: {
-      color: lightDark(surfaceStep(LIGHT_TEXT), surfaceStep(DARK_TEXT)),
-      hoverColor: lightDark(surfaceStep(LIGHT_TEXT), surfaceStep(DARK_TEXT)),
+      color: lightDark(surfaceStep(light.text), surfaceStep(dark.text)),
+      hoverColor: lightDark(surfaceStep(light.text), surfaceStep(dark.text)),
       mutedColor: lightDark(
-        surfaceStep(along(SURFACE_DARKWARD, lightMuted, 0)),
-        surfaceStep(along(SURFACE_LIGHTWARD, darkMuted, 0)),
+        surfaceStep(along(light.surfaceWalk, lightMuted, 0)),
+        surfaceStep(along(dark.surfaceWalk, darkMuted, 0)),
       ),
       hoverMutedColor: lightDark(
-        surfaceStep(along(SURFACE_DARKWARD, lightMuted, 1)),
-        surfaceStep(along(SURFACE_LIGHTWARD, darkMuted, 1)),
+        surfaceStep(along(light.surfaceWalk, lightMuted, 1)),
+        surfaceStep(along(dark.surfaceWalk, darkMuted, 1)),
       ),
     },
   },

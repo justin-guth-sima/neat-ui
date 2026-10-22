@@ -1,0 +1,56 @@
+/*
+ * Tailwind source of the kit's stylesheet: Spartan's preset, the generated theme tokens and the
+ * kit's base rules. `npm run build:styles` compiles it into dist/neat-ui/styles/, next to
+ * neat-ui.css, which imports it; the showcase compiles it directly through PostCSS. Only the kit's
+ * own sources are scanned, so apps get exactly the utilities the kit uses and need no Tailwind of
+ * their own. Tailwind finds classes by reading the sources, so class strings must be literals.
+ */
+@import 'tailwindcss' source(none);
+@source '../lib';
+@source not '../lib/**/*.spec.ts';
+
+/* Spartan's variants and colour mapping (with the CDK overlay styles), and its animations. */
+@import '@spartan-ng/brain/hlm-tailwind-preset.css';
+@import 'tw-animate-css';
+@import '../lib/theme/tokens.generated.css';
+
+/*
+ * Dark mode follows ThemeService's class on <html>, never the OS preference. It comes after the
+ * preset so it replaces the preset's `.dark` variant.
+ */
+@custom-variant dark (&:where(.neat-dark, .neat-dark *));
+
+/* Kit extensions to Spartan's vocabulary, and the brand font. */
+@theme inline {
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --font-sans: var(--neat-font-family);
+}
+
+:root {
+  --neat-font-family: Roboto, system-ui, sans-serif;
+}
+
+@layer base {
+  /* Spartan's defaults: borders and focus outlines take the theme's colours. */
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  /* The shell and pages own scrolling; the document itself never scrolls. */
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}

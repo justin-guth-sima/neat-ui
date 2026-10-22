@@ -29,4 +29,17 @@ module.exports = defineConfig([
     files: ['**/*.html'],
     rules: {},
   },
+  {
+    // Vendored Spartan helm (npm run helm:add): internal, never exported, and kept as generated so
+    // updates stay mechanical. Its hlm selectors, `class` input aliases and type aliases are
+    // upstream style; every other rule still applies. The glob is relative to the workspace root,
+    // where `ng lint` runs.
+    files: ['projects/neat-ui/src/lib/ui/**/*.ts'],
+    rules: {
+      '@angular-eslint/directive-selector': 'off',
+      '@angular-eslint/component-selector': 'off',
+      '@angular-eslint/no-input-rename': 'off',
+      '@typescript-eslint/consistent-type-definitions': 'off',
+    },
+  },
 ]);
