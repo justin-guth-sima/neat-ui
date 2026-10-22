@@ -31,3 +31,28 @@ Apps install the packed tarball:
 ```bash
 npm install ../neat-ui/dist/neat-ui/sima-neat-ui-<version>.tgz
 ```
+
+## Release
+
+A release is a version bump, a packed tarball and a GitHub release that carries it. Consumers never
+build the kit; they vendor the released tarball.
+
+1. Bump `version` in `projects/neat-ui/package.json` (the root `package.json` stays at `0.0.0`; it
+   is the workspace, not the package).
+2. Run `npm test -- --watch=false && npm run lint`, then `npm run pack`. It builds the library and
+   its stylesheet, runs `check:dist` and writes `dist/neat-ui/sima-neat-ui-<version>.tgz`. Inspect
+   it with `tar -tzf`: it holds the FESM bundle, the types, `styles/neat-ui.css` and
+   `styles/neat-ui.tailwind.css`.
+3. Commit the bump as `Release neat-ui <version>` and tag it `v<version>`.
+4. Push with the tag: `git push --follow-tags`.
+5. Create the GitHub release with the tarball attached:
+
+   ```bash
+   gh release create v<version> dist/neat-ui/sima-neat-ui-<version>.tgz \
+     --title "neat-ui <version>" --notes "<what changed>"
+   ```
+
+6. Vendor the tarball into each consumer, as `insight-next`'s `AGENTS.md` describes: copy it into
+   the app's `frontend/vendor/`, run `npm install ./vendor/sima-neat-ui-<version>.tgz` there, remove
+   the previous tarball and commit the new one with the lockfile. Consumers commit a vendored
+   tarball, never a path into a local kit checkout.
