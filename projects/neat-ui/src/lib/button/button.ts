@@ -11,9 +11,16 @@ type SpartanVariant = NonNullable<ButtonVariants['variant']>;
 type SpartanSize = NonNullable<ButtonVariants['size']>;
 
 /**
- * The kit's variants in Spartan's vocabulary, with the hover states the kit sets instead of helm's.
- * Helm's hovers break the theme's guarantees, so each override below exists because button.spec
- * failed without it:
+ * The kit's variants in Spartan's vocabulary, with the hover and focus states the kit sets instead
+ * of helm's. Helm's own states break the theme's guarantees, so each override below exists
+ * because button.spec failed without it.
+ *
+ * Focus: helm's 3px ring is the ring colour at 50% (`ring-ring/50`), and danger's is the red at
+ * 20% (40% in dark); composited over the page or a card neither reaches the 3:1 a focus indicator
+ * needs (WCAG 1.4.11). The kit draws the ring at full strength: `--ring` is held to 3:1 on every
+ * surface by the theme, and danger keeps its red, which the theme holds to text contrast.
+ *
+ * Hover:
  * - primary: `bg-primary/80` lightens the fill under white text to 3.5:1. The theme's
  *   `--primary-hover` is the next scale step away from the background, so text gains contrast.
  * - outlined, text: `bg-muted` is 1.10:1 against white in light, and in dark ghost's `bg-muted/50`
@@ -26,14 +33,26 @@ type SpartanSize = NonNullable<ButtonVariants['size']>;
  *
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading them.
  */
-const VARIANTS: Record<NeatButtonVariant, { spartan: SpartanVariant; hover: string }> = {
-  primary: { spartan: 'default', hover: 'hover:bg-primary-hover' },
-  secondary: { spartan: 'secondary', hover: '' },
-  outlined: { spartan: 'outline', hover: 'hover:bg-accent' },
-  text: { spartan: 'ghost', hover: 'hover:bg-accent dark:hover:bg-accent' },
+const VARIANTS: Record<
+  NeatButtonVariant,
+  { spartan: SpartanVariant; hover: string; focus: string }
+> = {
+  primary: {
+    spartan: 'default',
+    hover: 'hover:bg-primary-hover',
+    focus: 'focus-visible:ring-ring',
+  },
+  secondary: { spartan: 'secondary', hover: '', focus: 'focus-visible:ring-ring' },
+  outlined: { spartan: 'outline', hover: 'hover:bg-accent', focus: 'focus-visible:ring-ring' },
+  text: {
+    spartan: 'ghost',
+    hover: 'hover:bg-accent dark:hover:bg-accent',
+    focus: 'focus-visible:ring-ring',
+  },
   danger: {
     spartan: 'destructive',
     hover: 'hover:bg-destructive hover:text-destructive-foreground dark:hover:bg-destructive',
+    focus: 'focus-visible:ring-destructive dark:focus-visible:ring-destructive',
   },
 };
 
@@ -86,6 +105,7 @@ export class NeatButton {
         size: iconOnly ? size.spartanIconOnly : size.spartan,
       }),
       variant.hover,
+      variant.focus,
       iconOnly ? size.extraIconOnly : size.extra,
       this.rounded() && 'rounded-full',
     );

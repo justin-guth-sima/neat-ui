@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { composite, contrastRatio, hexToOklch, oklchToHex } from '../theme/color';
-import { MIN_FILL_CONTRAST } from '../theme/contrast-rules';
+import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../theme/contrast-rules';
 import { spartanThemeTokens } from '../theme/spartan-theme';
 import type { NeatColorScheme } from '../theme/theme.service';
 import { NeatButton, type NeatButtonSize, type NeatButtonVariant } from './button';
@@ -237,6 +237,44 @@ function colorsOf(classes: string[], state: ButtonState, surface: Surface) {
   };
 }
 
+// Focus ring: helm draws it on keyboard focus as a box-shadow ring (`focus-visible:ring-3`) around
+// the button's border, so the ring is the part of the indicator next to the surface.
+
+/** The width utility that draws the ring; its colour comes from a `ring-<colour>` utility. */
+const FOCUS_RING_WIDTH = 'focus-visible:ring-3';
+/** The variant chains the focus-ring lookup models. */
+const MODELLED_RING_VARIANTS = ['focus-visible', 'dark:focus-visible'];
+/** Rings for a failed form validation, not for focus; skipped. */
+const INVALID_STATE = 'data-[matches-spartan-invalid=true]';
+
+/**
+ * The `ring-` colour value a focused button shows, by the same cascade as `winningValue`:
+ * `dark:focus-visible:` comes after `focus-visible:`. Fails on a `ring-` colour with variants it
+ * does not model, so a helm update cannot slip a ring colour past the test.
+ */
+function focusRingValue(classes: string[], scheme: NeatColorScheme): string {
+  for (const name of classes) {
+    const { variants, utility } = variantsOf(name);
+    const value = /^ring-(.+)$/.exec(utility)?.[1];
+    if (value === undefined || /^\d+$/.test(value) || variants.includes(INVALID_STATE)) continue;
+    if (!MODELLED_RING_VARIANTS.includes(variants.join(':'))) {
+      throw new Error(`Unknown variants on "${name}": teach the focus-ring test about them`);
+    }
+  }
+  const prefixes =
+    scheme === 'dark' ? ['dark:focus-visible:', 'focus-visible:'] : ['focus-visible:'];
+  for (const prefix of prefixes) {
+    const values = classes
+      .filter((name) => name.startsWith(`${prefix}ring-`))
+      .map((name) => name.slice(prefix.length + 'ring-'.length))
+      .filter((value) => !/^\d+$/.test(value));
+    if (values.length) {
+      return values[values.length - 1];
+    }
+  }
+  throw new Error('No focus ring colour');
+}
+
 describe('the contrast test itself', () => {
   it.each([
     'hover:dark:bg-accent',
@@ -251,6 +289,26 @@ describe('the contrast test itself', () => {
     expect(() => winningValue([name], 'bg', { scheme: 'dark', hover: true })).toThrow(
       /Unknown variants/,
     );
+  });
+
+  it.each(['ring-ring', 'hover:ring-ring', 'focus:ring-ring', 'focus-visible:dark:ring-ring'])(
+    'refuses a ring colour with variants it does not model: %s',
+    (name) => {
+      expect(() => focusRingValue([name, 'focus-visible:ring-ring'], 'dark')).toThrow(
+        /Unknown variants/,
+      );
+    },
+  );
+
+  it('finds the focused ring colour, the dark one in dark, and skips widths and invalid rings', () => {
+    const classes = [
+      'focus-visible:ring-3',
+      'focus-visible:ring-ring/50',
+      'dark:focus-visible:ring-destructive',
+      `${INVALID_STATE}:ring-destructive/20`,
+    ];
+    expect(focusRingValue(classes, 'light')).toBe('ring/50');
+    expect(focusRingValue(classes, 'dark')).toBe('destructive');
   });
 
   it('ignores colour classes for states it does not cover', () => {
@@ -393,6 +451,26 @@ describe('NeatButton', () => {
             const label = `${variant}, ${scheme}, ${hover ? 'hover' : 'rest'}, over ${surface}: ${text} on ${fill}`;
             expect(contrastRatio(text, fill), label).toBeGreaterThanOrEqual(4.5);
           }
+        }
+      }
+    },
+  );
+
+  it.each(VARIANTS)(
+    `%s: the focus ring reaches ${MIN_NON_TEXT_CONTRAST}:1 against background and card, in both schemes`,
+    async (variant) => {
+      const classes = await classesOf(variant);
+      expect(classes).toContain(FOCUS_RING_WIDTH);
+
+      for (const scheme of SCHEMES) {
+        const tokens = spartanThemeTokens(scheme);
+        const value = focusRingValue(classes, scheme);
+        for (const surface of SURFACES) {
+          const ring = resolveColor(value, tokens, tokens[surface]);
+          const label = `${variant}, ${scheme}, ring-${value} on --${surface}: ${ring} vs ${tokens[surface]}`;
+          expect(contrastRatio(ring, tokens[surface]), label).toBeGreaterThanOrEqual(
+            MIN_NON_TEXT_CONTRAST,
+          );
         }
       }
     },
