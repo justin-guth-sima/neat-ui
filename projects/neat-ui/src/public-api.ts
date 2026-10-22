@@ -55,3 +55,18 @@ export {
   nextWarningActive,
   suggestedBufferMs,
 } from './lib/video/sync/metadata-lateness';
+export { NEAT_OVERLAY_STYLE_FALLBACK_COLOR } from './lib/theme/overlay-palette';
+export type {
+  NeatOverlayClassStyle,
+  NeatOverlayLineStyle,
+  NeatOverlaySettings,
+  NeatRoiPolygon,
+} from './lib/video/overlays/overlay-settings';
+export { NEAT_OVERLAY_DEFAULTS } from './lib/video/overlays/overlay-settings';
+export { NeatOverlayColors } from './lib/video/overlays/colors';
+export type {
+  NeatOverlayItem,
+  NeatOverlayState,
+  NeatOverlayView,
+} from './lib/video/overlays/draw-frame';
+export { createOverlayState, drawFrame, resetOverlayState } from './lib/video/overlays/draw-frame';
