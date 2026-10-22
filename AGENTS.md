@@ -26,7 +26,11 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   diff, not a three-way merge. It enters only through `npm run helm:add -- <name>` (generate, then
   `tools/adopt-helm.mjs`). To update, bump `@spartan-ng/brain` (exact version; `helm:add` runs the
   Spartan CLI of the same version), delete `lib/ui/<name>`, re-add it and review the diff.
-  `npm run check:dist` fails a build that still imports the helm alias.
+  `npm run check:dist` fails a build that still imports the helm alias. A helm component that
+  binds a dynamic icon name (`<ng-icon [name]="…">`, as `spinner` and `code-block` do) fails
+  adoption on purpose, since the tool maps only static names: when the first one is needed, extend
+  `tools/adopt-helm.mjs` to map the glyphs the binding can take (with a test in
+  `tools/adopt-helm.test.mjs`), so it still enters as a regeneration; never patch it by hand.
 - **A `neat-*` wrapper is the brain primitive as host directive plus helm's style constants as
   data**, with one table mapping kit vocabulary to Spartan's (see `lib/button/button.ts`). Never put
   a helm directive behind a public host directive: Angular cannot re-expose inputs of a host

@@ -42,7 +42,8 @@ build the kit; they vendor the released tarball.
 2. Run `npm test -- --watch=false && npm run lint`, then `npm run pack`. It builds the library and
    its stylesheet, runs `check:dist` and writes `dist/neat-ui/sima-neat-ui-<version>.tgz`. Inspect
    it with `tar -tzf`: it holds the FESM bundle, the types, `styles/neat-ui.css` and
-   `styles/neat-ui.tailwind.css`.
+   `styles/neat-ui.tailwind.css`. Every build empties `dist/neat-ui`, tarball included, so the
+   GitHub release (step 5) is the tarball's durable home, not the checkout.
 3. Commit the bump as `Release neat-ui <version>` and tag it `v<version>`.
 4. Push with the tag: `git push --follow-tags`.
 5. Create the GitHub release with the tarball attached:
