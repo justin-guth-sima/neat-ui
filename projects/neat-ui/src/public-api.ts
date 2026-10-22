@@ -24,3 +24,34 @@ export type { NeatButtonSize, NeatButtonVariant } from './lib/button/button';
 export { NeatButton } from './lib/button/button';
 export type { NeatTooltipPosition } from './lib/tooltip/tooltip';
 export { NeatTooltip } from './lib/tooltip/tooltip';
+export type { NeatMetadataMessage } from './lib/video/sync/metadata-message';
+export { parseMetadataMessage } from './lib/video/sync/metadata-message';
+export type {
+  NeatDrawableMetadataItem,
+  NeatHeldOverlays,
+  NeatMetadataItem,
+  NeatMetadataQueue,
+  NeatMetadataQueueStats,
+  NeatMetadataSnapshot,
+} from './lib/video/sync/metadata-sync';
+export {
+  createMetadataQueue,
+  enqueueMetadata,
+  holdOverlays,
+  metadataQueueSnapshot,
+  OVERLAY_HOLD_MS,
+  resetLatenessWindow,
+  takeMetadataForFrame,
+} from './lib/video/sync/metadata-sync';
+export type {
+  NeatGlobalBufferAction,
+  NeatLateNoticeBlocker,
+  NeatLateNoticeDetails,
+  NeatLatenessSnapshot,
+} from './lib/video/sync/metadata-lateness';
+export {
+  bufferSettleMs,
+  lateNoticeDetails,
+  nextWarningActive,
+  suggestedBufferMs,
+} from './lib/video/sync/metadata-lateness';
