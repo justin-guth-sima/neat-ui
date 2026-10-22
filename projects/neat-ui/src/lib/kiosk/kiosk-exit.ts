@@ -4,6 +4,7 @@ import {
   computed,
   ElementRef,
   inject,
+  output,
   viewChild,
 } from '@angular/core';
 import { NeatButton } from '../button/button';
@@ -32,7 +33,7 @@ import { KioskService } from './kiosk.service';
       iconOnly
       aria-label="Exit kiosk mode"
       [attr.data-shown]="shown()"
-      (click)="kiosk.exit()"
+      (click)="exit()"
     >
       <neat-icon name="kiosk-exit" />
     </button>
@@ -46,8 +47,15 @@ export class NeatKioskExit {
   });
 
   protected readonly shown = computed(() => !this.kiosk.pointerIdle());
+  /** Kiosk mode was left with this control; the shell then decides where focus goes. */
+  readonly exited = output<void>();
 
   focus(): void {
     this.control().nativeElement.focus();
+  }
+
+  protected exit(): void {
+    void this.kiosk.exit();
+    this.exited.emit();
   }
 }

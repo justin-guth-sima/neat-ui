@@ -332,6 +332,34 @@ describe('NeatShell', () => {
     expect(document.activeElement).toBe(exitControl());
   });
 
+  it('leaving kiosk mode with the exit control returns focus to the top-bar kiosk button', async () => {
+    await start();
+    kioskButton().click();
+    await settle();
+    await tick();
+    expect(document.activeElement).toBe(exitControl());
+
+    exitControl().click();
+    await settle();
+    await tick();
+
+    // The exit control that had focus is gone; focus goes back where kiosk mode was entered.
+    expect(document.activeElement).toBe(kioskButton());
+  });
+
+  it('does not move focus when kiosk mode ends without the exit control', async () => {
+    history.replaceState(null, '', '/media?kiosk');
+    await start('/media?kiosk');
+    await tick();
+
+    await TestBed.inject(KioskService).exit();
+    await settle();
+    await tick();
+
+    expect(kioskButton()).not.toBeNull();
+    expect(document.activeElement).toBe(document.body);
+  });
+
   it('lets a focused exit control fade when focus did not come from the keyboard', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
     await start();
@@ -371,7 +399,8 @@ describe('NeatShell', () => {
     await start();
     const kiosk = TestBed.inject(KioskService);
     expect(topbar().contains(kioskButton())).toBe(true);
-    expect(kioskButton().getAttribute('aria-pressed')).toBe('false');
+    // A plain action: the button is gone while kiosk is on, so it has no pressed state to report.
+    expect(kioskButton().hasAttribute('aria-pressed')).toBe(false);
     expect(kioskButton().querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
 
     kioskButton().click();
@@ -386,7 +415,7 @@ describe('NeatShell', () => {
 
     expect(kiosk.active()).toBe(false);
     expect(exitControl()).toBeNull();
-    expect(kioskButton().getAttribute('aria-pressed')).toBe('false');
+    expect(kioskButton().hasAttribute('aria-pressed')).toBe(false);
   });
 
   it('projects [neatTopbarEnd] content into the top bar', async () => {

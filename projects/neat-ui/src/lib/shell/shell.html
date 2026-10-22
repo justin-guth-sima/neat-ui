@@ -1,6 +1,6 @@
 @if (kiosk.active()) {
   <!-- First in the tab order, so it is reachable from the keyboard. -->
-  <neat-kiosk-exit />
+  <neat-kiosk-exit (exited)="focusKioskButtonAfterExit()" />
 } @else {
   <div class="rail" [attr.data-expanded]="railExpanded()">
     <nav aria-label="Main">
@@ -67,6 +67,7 @@
         <neat-icon [name]="theme.scheme() === 'dark' ? 'sun' : 'moon'" />
       </button>
       <button
+        #kioskButton
         neatButton
         type="button"
         variant="text"
@@ -74,7 +75,6 @@
         rounded
         iconOnly
         aria-label="Kiosk mode"
-        [attr.aria-pressed]="kiosk.active()"
         neatTooltip="Kiosk mode"
         neatTooltipPosition="bottom"
         (click)="kiosk.toggle()"

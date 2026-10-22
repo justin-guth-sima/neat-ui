@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   effect,
+  ElementRef,
   inject,
   Injector,
   input,
@@ -73,10 +74,12 @@ export class NeatShell {
   protected readonly theme = inject(ThemeService);
   protected readonly kiosk = inject(KioskService);
   private readonly router = inject(Router);
+  private readonly injector = inject(Injector);
 
   protected readonly activeMatch = ACTIVE_MATCH;
   protected readonly railExpanded = signal(safeStorage.get(RAIL_EXPANDED_KEY) === 'true');
   private readonly kioskExit = viewChild(NeatKioskExit);
+  private readonly kioskButton = viewChild<ElementRef<HTMLElement>>('kioskButton');
 
   /** Label of the nav item the current route belongs to; the first match wins. */
   protected readonly pageTitle = computed(() => {
@@ -94,15 +97,24 @@ export class NeatShell {
     // Entering kiosk mode removes the top-bar button that had focus, which drops focus to <body>,
     // and the next Tab would skip the exit control; hand focus to the exit control instead. Not
     // when kiosk mode comes from ?kiosk at start: nothing had focus to lose then.
-    const injector = inject(Injector);
     let wasActive = this.kiosk.active();
     effect(() => {
       const active = this.kiosk.active();
       if (active && !wasActive) {
-        afterNextRender(() => this.kioskExit()?.focus(), { injector });
+        afterNextRender(() => this.kioskExit()?.focus(), { injector: this.injector });
       }
       wasActive = active;
     });
+  }
+
+  /**
+   * The mirror of entering: leaving kiosk mode with the exit control removes it, which drops focus
+   * to <body>; hand focus to the top-bar kiosk button that comes back, where kiosk mode was entered.
+   * Not when kiosk mode ends otherwise (Esc leaving fullscreen, for example), when focus may be on
+   * the page and must stay there.
+   */
+  protected focusKioskButtonAfterExit(): void {
+    afterNextRender(() => this.kioskButton()?.nativeElement.focus(), { injector: this.injector });
   }
 
   protected toggleRail(): void {
