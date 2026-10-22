@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   ElementRef,
   inject,
   output,
@@ -13,10 +12,8 @@ import { KioskService } from './kiosk.service';
 
 /**
  * The floating "Exit kiosk mode" control the shell shows in kiosk mode: a 48px circle, above the
- * 44px minimum touch target. It fades out while the pointer rests and back in on pointer or touch
- * input. Faded, it stays in the tab order and the accessibility tree, and focus the browser shows
- * (`:focus-visible`, keyboard use) keeps it visible, so it is reachable without a pointer. Internal
- * to the shell: not part of the public API.
+ * 44px minimum touch target. The shell fades it, together with the page toolbar beside it, while
+ * the pointer rests (see shell.css). Internal to the shell: not part of the public API.
  */
 @Component({
   selector: 'neat-kiosk-exit',
@@ -32,13 +29,11 @@ import { KioskService } from './kiosk.service';
       rounded
       iconOnly
       aria-label="Exit kiosk mode"
-      [attr.data-shown]="shown()"
       (click)="exit()"
     >
       <neat-icon name="kiosk-exit" />
     </button>
   `,
-  styleUrl: './kiosk-exit.css',
 })
 export class NeatKioskExit {
   protected readonly kiosk = inject(KioskService);
@@ -46,7 +41,6 @@ export class NeatKioskExit {
     read: ElementRef,
   });
 
-  protected readonly shown = computed(() => !this.kiosk.pointerIdle());
   /** Kiosk mode was left with this control; the shell then decides where focus goes. */
   readonly exited = output<void>();
 

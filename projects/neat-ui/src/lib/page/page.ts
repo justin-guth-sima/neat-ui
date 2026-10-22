@@ -13,7 +13,9 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
  * Elements marked `neatPageAside` form the page's side panel (an inspector, say), shown on the
  * right while `aside="open"`. The panel is `--neat-aside-width` wide and scrolls on its own; the
  * body narrows beside it rather than being covered, keeping its own scroll setting. The aside is
- * the one supported second scroll context of a page. Closed, its content is not in the page.
+ * the one supported second scroll context of a page. Closed, the panel and its content are out
+ * of the DOM, but projected content is still instantiated (content projection always creates
+ * it): gate expensive content with an `@if` of your own.
  */
 @Component({
   selector: 'neat-page',

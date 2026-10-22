@@ -91,6 +91,29 @@ describe('NeatShell', () => {
   const toolbarDemo = (): HTMLElement | null => shell().querySelector('.toolbar-demo');
   const toolbarRegion = (): HTMLElement | null => shell().querySelector('.page-toolbar');
   const kioskToolbar = (): HTMLElement | null => shell().querySelector('.kiosk-toolbar');
+  const kioskChrome = (): HTMLElement => shell().querySelector('.kiosk-chrome') as HTMLElement;
+  /** The opacity the element is drawn with: its own times every ancestor's. */
+  const renderedOpacity = (element: Element): number => {
+    let opacity = 1;
+    for (let node: Element | null = element; node; node = node.parentElement) {
+      opacity *= Number(getComputedStyle(node).opacity || 1);
+    }
+    return opacity;
+  };
+  /**
+   * The element's `pointer-events`, inheritance included: jsdom does not inherit it, so the nearest
+   * value other than `auto` on the element or an ancestor stands in (nothing in the shell sets
+   * `auto` to undo an ancestor's `none`).
+   */
+  const pointerEvents = (element: Element): string => {
+    for (let node: Element | null = element; node; node = node.parentElement) {
+      const value = getComputedStyle(node).pointerEvents;
+      if (value && value !== 'auto') {
+        return value;
+      }
+    }
+    return 'auto';
+  };
   const labelOf = (anchor: HTMLAnchorElement): HTMLElement =>
     anchor.querySelector('.label') as HTMLElement;
   const tooltip = (): HTMLElement | null => document.querySelector('[role="tooltip"]');
@@ -276,14 +299,16 @@ describe('NeatShell', () => {
     await TestBed.inject(KioskService).enter();
     await settle();
     const control = exitControl();
-    const shown = () => getComputedStyle(control).opacity === '1';
+    const shown = () => renderedOpacity(control) === 1;
     expect(shown()).toBe(true);
 
     await vi.advanceTimersByTimeAsync(KIOSK_POINTER_IDLE_MS);
     await settle();
     expect(shown()).toBe(false);
-    // Faded out, it ignores pointers (a tap wakes it first) but stays in the accessibility tree.
-    expect(getComputedStyle(control).pointerEvents).toBe('none');
+    expect(renderedOpacity(control)).toBe(0);
+    // Faded out, it ignores pointers (a tap reaches the page and wakes it) but stays in the
+    // accessibility tree.
+    expect(pointerEvents(control)).toBe('none');
     expect(control.closest('[aria-hidden="true"]')).toBeNull();
 
     document.dispatchEvent(new Event('pointermove'));
@@ -314,14 +339,14 @@ describe('NeatShell', () => {
     await settle();
 
     expect(TestBed.inject(KioskService).pointerIdle()).toBe(true);
-    expect(getComputedStyle(control).opacity).toBe('1');
+    expect(renderedOpacity(control)).toBe(1);
     // It comes first in the tab order, ahead of the page.
     expect(control.compareDocumentPosition(main()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     control.blur();
     await settle();
 
-    expect(getComputedStyle(control).opacity).toBe('0');
+    expect(renderedOpacity(control)).toBe(0);
   });
 
   it('makes the exit control a tap-friendly circle of at least 44px', async () => {
@@ -405,11 +430,11 @@ describe('NeatShell', () => {
     await settle();
 
     // Entered with a pointer: the control fades as usual, so a booth display does not keep it up.
-    expect(getComputedStyle(exitControl()).opacity).toBe('0');
+    expect(renderedOpacity(exitControl())).toBe(0);
 
     expect(exitControl().matches(':focus-visible')).toBe(false);
 
-    // A key press makes the focus visible, which un-fades the control (its CSS keys on
+    // A key press makes the focus visible, which un-fades the control (the shell's CSS keys on
     // :focus-visible) before Enter can act on it. jsdom keeps the computed style cached until the
     // DOM changes, so the rendered opacity after a key press is measured in the browser check.
     exitControl().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
@@ -490,6 +515,9 @@ describe('NeatShell', () => {
     const region = toolbarRegion() as HTMLElement;
     expect(topbar().contains(region)).toBe(true);
     expect(region.contains(toolbarDemo())).toBe(true);
+    // A named group, not role="toolbar", whose arrow-key roving would fight sliders inside it.
+    expect(region.getAttribute('role')).toBe('group');
+    expect(region.getAttribute('aria-label')).toBe('Page tools');
     expect(main().querySelector('.toolbar-demo')).toBeNull();
     expect(main().querySelector('.viewer-body')).not.toBeNull();
     // Between the page title and the end slot.
@@ -548,51 +576,89 @@ describe('NeatShell', () => {
     const bar = kioskToolbar() as HTMLElement;
     expect(bar.contains(toolbarDemo())).toBe(true);
     expect(main().contains(bar)).toBe(false);
+    expect(bar.getAttribute('role')).toBe('group');
+    expect(bar.getAttribute('aria-label')).toBe('Page tools');
     // The exit control stays first in the tab order, ahead of the toolbar.
     expect(
       exitControl().compareDocumentPosition(bar) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
-    const shown = () => getComputedStyle(bar).opacity === '1';
+    const shown = () => renderedOpacity(bar) === 1;
     expect(shown()).toBe(true);
 
     await vi.advanceTimersByTimeAsync(KIOSK_POINTER_IDLE_MS);
     await settle();
     expect(shown()).toBe(false);
-    expect(getComputedStyle(bar).pointerEvents).toBe('none');
+    expect(renderedOpacity(bar)).toBe(0);
+    expect(pointerEvents(bar)).toBe('none');
     expect(bar.closest('[aria-hidden="true"]')).toBeNull();
 
     document.dispatchEvent(new Event('pointermove'));
     await settle();
     expect(shown()).toBe(true);
-    expect(getComputedStyle(bar).pointerEvents).toBe('auto');
-
-    // Leaving kiosk mode puts the same content back into the top bar.
-    await TestBed.inject(KioskService).exit();
-    await settle();
-    expect(kioskToolbar()).toBeNull();
-    expect((toolbarRegion() as HTMLElement).contains(toolbarDemo())).toBe(true);
+    expect(pointerEvents(bar)).toBe('auto');
   });
 
-  it('keeps the floating toolbar visible while one of its controls has keyboard focus', async () => {
+  it('keeps the floating row inside the content area, so a wide toolbar scrolls', async () => {
+    await start('/viewer/grid');
+    await TestBed.inject(KioskService).enter();
+    await settle();
+
+    // jsdom lays nothing out: the cap is asserted by style and measured in the browser check. A
+    // grid item aligned to the end is as wide as its content unless capped; 2rem is its margins.
+    // jsdom computes rem at 16px.
+    expect(getComputedStyle(kioskChrome()).maxWidth).toBe('calc(100% - 32px)');
+    expect(getComputedStyle(kioskChrome()).margin).toBe('16px');
+    const bar = getComputedStyle(kioskToolbar() as HTMLElement);
+    expect(bar.minWidth).toBe('0px');
+    expect(bar.overflow).toBe('auto hidden');
+  });
+
+  it('re-creates the toolbar on entering and leaving kiosk mode, with the state the page holds', async () => {
+    await start('/viewer/grid');
+
+    await TestBed.inject(KioskService).enter();
+    await settle();
+    (kioskToolbar()?.querySelector('button') as HTMLButtonElement).click();
+    await settle();
+    expect(kioskToolbar()?.querySelector('.page-number')?.textContent).toBe('Page 2');
+
+    await TestBed.inject(KioskService).exit();
+    await settle();
+
+    // A new view of the page's template in the top bar; what it shows comes from the page.
+    expect(kioskToolbar()).toBeNull();
+    expect(toolbarRegion()?.querySelector('.page-number')?.textContent).toBe('Page 2');
+  });
+
+  it('keeps the exit control and the toolbar visible together while either has keyboard focus', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
     await start('/viewer/grid');
     await TestBed.inject(KioskService).enter();
     await settle();
     const bar = kioskToolbar() as HTMLElement;
-    const control = bar.querySelector('button') as HTMLButtonElement;
+    const tool = bar.querySelector('button') as HTMLButtonElement;
+    const exit = exitControl();
+    exit.blur();
 
     document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
-    control.focus();
+    tool.focus();
     await vi.advanceTimersByTimeAsync(KIOSK_POINTER_IDLE_MS);
     await settle();
 
     expect(TestBed.inject(KioskService).pointerIdle()).toBe(true);
-    expect(getComputedStyle(bar).opacity).toBe('1');
+    expect(renderedOpacity(bar)).toBe(1);
+    expect(renderedOpacity(exit)).toBe(1);
 
-    control.blur();
+    tool.blur();
     await settle();
+    expect(renderedOpacity(bar)).toBe(0);
+    expect(renderedOpacity(exit)).toBe(0);
 
-    expect(getComputedStyle(bar).opacity).toBe('0');
+    // Still keyboard use (the Tab above), so this focus is visible too.
+    exit.focus();
+    await settle();
+    expect(renderedOpacity(exit)).toBe(1);
+    expect(renderedOpacity(bar)).toBe(1);
   });
 
   it('shows no floating toolbar in kiosk for a page without a toolbar', async () => {

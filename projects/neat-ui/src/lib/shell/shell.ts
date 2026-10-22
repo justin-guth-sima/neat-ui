@@ -32,6 +32,13 @@ import { PageToolbarSlot } from './page-toolbar';
 
 const RAIL_EXPANDED_KEY = 'neat-ui:rail-expanded';
 
+/**
+ * The accessible name of the page toolbar's region, in the top bar and in kiosk mode alike. A
+ * group, not a toolbar: `role="toolbar"` promises arrow-key navigation between its controls, which
+ * would fight the arrow keys of sliders and segmented controls inside it.
+ */
+const PAGE_TOOLBAR_LABEL = 'Page tools';
+
 /** A nav item is active on its own path and every route nested under it, whatever the query. */
 const ACTIVE_MATCH: IsActiveMatchOptions = {
   paths: 'subset',
@@ -52,7 +59,8 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
  *
  * Kiosk mode (`KioskService`, entered from the top bar or with `?kiosk`) drops the rail and the
  * top bar, gives the content area the whole viewport and floats an exit control over its top
- * right corner while the pointer moves; the page toolbar floats beside it on the same terms.
+ * right corner while the pointer moves; the page toolbar floats beside it on the same terms. Its
+ * view is re-created on entering and leaving kiosk mode, so the page keeps the toolbar's state.
  */
 @Component({
   selector: 'neat-shell',
@@ -78,6 +86,7 @@ export class NeatShell {
   protected readonly theme = inject(ThemeService);
   protected readonly kiosk = inject(KioskService);
   protected readonly pageToolbar = inject(PageToolbarSlot).portal;
+  protected readonly toolbarLabel = PAGE_TOOLBAR_LABEL;
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
 

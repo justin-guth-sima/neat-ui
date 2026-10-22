@@ -113,13 +113,17 @@ builds its own bar or panel duplicates both and breaks in one of them.
 
 - `<div *neatPageToolbar>…</div>` anywhere in a page's template renders that content in the top
   bar, between the page title and the end slot, while the page exists. In kiosk mode it floats
-  beside the exit control and fades with it. The content stays the page's (bindings, injection).
+  beside the exit control and fades with it. The content stays the page's (bindings, injection),
+  but its view is re-created on entering and leaving kiosk mode, so keep its state (values, open
+  menus) in the page, never in components inside the toolbar.
   The region gives up width first and scrolls sideways rather than push the end slot out, so keep
   a toolbar narrow enough to fit at the screen sizes the app supports. One toolbar at a time; a
   second throws in dev mode.
 - Elements marked `neatPageAside` inside `neat-page` form a right-hand panel shown while
   `aside="open"`: `--neat-aside-width` wide, inset and scrolling on its own, with the body
-  narrowing beside it and keeping its own `scroll` setting. Closed, the panel is not rendered.
+  narrowing beside it and keeping its own `scroll` setting. Closed, the panel is removed from the
+  DOM, but projected content is still instantiated: gate expensive content (an inspector with a
+  live preview) with an `@if` of your own.
 
 **Raw browser APIs used for performance stay isolated, outside change detection, with tests.**
 Why: canvas, requestAnimationFrame, observers and similar code is fast because it bypasses Angular;

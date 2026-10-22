@@ -1,9 +1,9 @@
 @if (kiosk.active()) {
-  <div class="kiosk-chrome">
+  <div class="kiosk-chrome" [attr.data-shown]="!kiosk.pointerIdle()">
     <!-- First in the tab order, so it is reachable from the keyboard; drawn last (right). -->
     <neat-kiosk-exit (exited)="focusKioskButtonAfterExit()" />
     @if (pageToolbar(); as toolbar) {
-      <div class="kiosk-toolbar shadow-md" [attr.data-shown]="!kiosk.pointerIdle()">
+      <div class="kiosk-toolbar shadow-md" role="group" [attr.aria-label]="toolbarLabel">
         <ng-template [cdkPortalOutlet]="toolbar" />
       </div>
     }
@@ -55,7 +55,7 @@
       <h1 class="page-title">{{ title }}</h1>
     }
     @if (pageToolbar(); as toolbar) {
-      <div class="page-toolbar">
+      <div class="page-toolbar" role="group" [attr.aria-label]="toolbarLabel">
         <ng-template [cdkPortalOutlet]="toolbar" />
       </div>
     }
