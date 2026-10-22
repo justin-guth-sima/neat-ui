@@ -37,6 +37,12 @@ const TINTS = {
   light: { alpha: 0.1, over: ['background'] },
   dark: { alpha: 0.2, over: ['background', 'card'] },
 } as const;
+/** Hover fills (kit extensions) keep the resting fill's text colour. */
+const HOVER_FILLS = { 'primary-hover': 'primary-foreground' } as const;
+/** Surfaces a hover or selection fill (`--accent`) sits on. */
+const FILL_SURFACES = ['background', 'card', 'popover'];
+/** The least contrast at which a fill still reads as a change of the surface under it. */
+const MIN_FILL_CONTRAST = 1.15;
 
 interface TextPair {
   label: string;
@@ -74,7 +80,14 @@ function textPairs(scheme: keyof typeof schemes): TextPair[] {
       };
     }),
   );
-  return [pair('foreground', 'background'), ...ownFills, ...onSurfaces, ...onTints];
+  const onHoverFills = Object.entries(HOVER_FILLS).map(([fill, text]) => pair(text, fill));
+  return [
+    pair('foreground', 'background'),
+    ...ownFills,
+    ...onHoverFills,
+    ...onSurfaces,
+    ...onTints,
+  ];
 }
 
 describe('buildSpartanThemeCss', () => {
@@ -103,11 +116,29 @@ describe('buildSpartanThemeCss', () => {
       for (const fill of ['primary', 'destructive', 'success', 'warning', 'info']) {
         expect(labels).toContain(`${scheme}: --${fill}-foreground on --${fill}`);
       }
+      expect(labels).toContain(`${scheme}: --primary-foreground on --primary-hover`);
       expect(labels.filter((label) => label.includes('/'))).toHaveLength(
         STATUS_TEXT.length * TINTS[scheme].over.length,
       );
       for (const { label, foreground, background } of pairs) {
         expect(contrastRatio(foreground, background), label).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+
+  it('steps the primary hover one place further from the background: light #91400b, dark #f4a076', () => {
+    expect(schemes.light.get('--primary-hover')).toBe('#91400b');
+    expect(schemes.dark.get('--primary-hover')).toBe('#f4a076');
+  });
+
+  it('keeps the hover and selection fill (--accent) visible on every surface it sits on', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      for (const surface of FILL_SURFACES) {
+        const ratio = contrastRatio(tokens.get('--accent')!, tokens.get(`--${surface}`)!);
+        expect(ratio, `${scheme}: --accent on --${surface}`).toBeGreaterThanOrEqual(
+          MIN_FILL_CONTRAST,
+        );
       }
     }
   });

@@ -4,10 +4,7 @@ import { safeStorage } from '../storage';
 export type NeatColorScheme = 'light' | 'dark';
 
 const STORAGE_KEY = 'neat-ui:color-scheme';
-/**
- * Must match `darkModeSelector` in `provideNeatUi()` and the `dark` variant in
- * neat-ui.tailwind.css.
- */
+/** The dark theme's selector: tokens.generated.css and the `dark` variant in neat-ui.tailwind.css. */
 export const NEAT_DARK_CLASS = 'neat-dark';
 
 /**

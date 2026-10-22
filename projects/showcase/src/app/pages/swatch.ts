@@ -16,8 +16,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
     .chip {
       height: 3.5rem;
-      border: 1px solid var(--p-content-border-color);
-      border-radius: var(--p-content-border-radius);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
     }
 
     .name {

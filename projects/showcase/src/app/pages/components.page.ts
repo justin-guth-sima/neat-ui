@@ -1,26 +1,22 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { Button, NeatIcon, NeatPage, Tooltip } from '@sima/neat-ui';
+import {
+  NeatButton,
+  type NeatButtonSize,
+  type NeatButtonVariant,
+  NeatIcon,
+  NeatPage,
+  NeatTooltip,
+  type NeatTooltipPosition,
+} from '@sima/neat-ui';
 
-const SEVERITIES = [
-  'primary',
-  'secondary',
-  'success',
-  'info',
-  'warn',
-  'danger',
-  'contrast',
-] as const;
-const VARIANTS = [
-  { label: 'Filled', value: undefined },
-  { label: 'Outlined', value: 'outlined' },
-  { label: 'Text', value: 'text' },
-] as const;
+const VARIANTS: NeatButtonVariant[] = ['primary', 'secondary', 'outlined', 'text', 'danger'];
+const SIZES: NeatButtonSize[] = ['small', 'medium', 'large', 'touch'];
 const ICON_SIZES = [16, 20, 24] as const;
-const TOOLTIP_POSITIONS = ['top', 'right', 'bottom', 'left'] as const;
+const TOOLTIP_POSITIONS: NeatTooltipPosition[] = ['top', 'right', 'bottom', 'left'];
 
 @Component({
   selector: 'app-components-page',
-  imports: [Button, NeatIcon, NeatPage, Tooltip],
+  imports: [NeatButton, NeatIcon, NeatPage, NeatTooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-page>
@@ -28,15 +24,41 @@ const TOOLTIP_POSITIONS = ['top', 'right', 'bottom', 'left'] as const;
         <section class="showcase-section">
           <h2>Button</h2>
           <p class="showcase-muted">
-            Seven severities in three variants. Primary is the app's accent; secondary is the
-            neutral choice.
+            <code>neatButton</code> on a <code>button</code> or <code>a</code>: five variants in
+            four sizes, then icon-only and rounded. Primary is the app's accent; secondary is the
+            neutral choice; touch is a 48 px target for kiosk and touch screens.
           </p>
-          @for (variant of variants; track variant.label) {
-            <h3>{{ variant.label }}</h3>
+          @for (variant of variants; track variant) {
+            <h3>{{ variant }}</h3>
             <div class="showcase-row">
-              @for (severity of severities; track severity) {
-                <p-button [label]="severity" [severity]="severity" [variant]="variant.value" />
+              @for (size of sizes; track size) {
+                <button neatButton type="button" [variant]="variant" [size]="size">
+                  {{ size }}
+                </button>
               }
+              @for (size of sizes; track size) {
+                <button
+                  neatButton
+                  type="button"
+                  [variant]="variant"
+                  [size]="size"
+                  iconOnly
+                  [attr.aria-label]="'Stream, ' + size"
+                >
+                  <neat-icon name="streaming" />
+                </button>
+              }
+              <button neatButton type="button" [variant]="variant" rounded>rounded</button>
+              <button
+                neatButton
+                type="button"
+                [variant]="variant"
+                rounded
+                iconOnly
+                aria-label="Stream, rounded"
+              >
+                <neat-icon name="streaming" />
+              </button>
             </div>
           }
         </section>
@@ -44,34 +66,50 @@ const TOOLTIP_POSITIONS = ['top', 'right', 'bottom', 'left'] as const;
         <section class="showcase-section">
           <h2>Button states</h2>
           <p class="showcase-muted">
-            With a <code>neat-icon</code>, disabled and loading, per variant.
+            With a <code>neat-icon</code> before the label, disabled, and as a link, per variant.
           </p>
-          @for (variant of variants; track variant.label) {
-            <h3>{{ variant.label }}</h3>
+          @for (variant of variants; track variant) {
             <div class="showcase-row">
-              <p-button label="With icon" [variant]="variant.value">
-                <neat-icon name="streaming" />
-              </p-button>
-              <p-button label="Disabled" [variant]="variant.value" [disabled]="true" />
-              <p-button label="Loading" [variant]="variant.value" [loading]="true" />
+              <button neatButton type="button" [variant]="variant">
+                <neat-icon name="streaming" [size]="16" />
+                With icon
+              </button>
+              <button neatButton type="button" [variant]="variant" disabled>Disabled</button>
+              <a neatButton [variant]="variant" href="#">Link</a>
             </div>
           }
         </section>
 
         <section class="showcase-section">
+          <h2>Buttons on a card</h2>
+          <p class="showcase-muted">
+            On the card surface, which differs from the page background in dark mode. Hover each
+            one: the fill must stay visible.
+          </p>
+          <div class="card showcase-row">
+            @for (variant of variants; track variant) {
+              <button neatButton type="button" [variant]="variant">{{ variant }}</button>
+            }
+          </div>
+        </section>
+
+        <section class="showcase-section">
           <h2>Tooltip</h2>
           <p class="showcase-muted">
-            On hover and on keyboard focus. The tooltip sits on a button, in all four positions.
+            <code>neatTooltip</code>: on mouse hover and on keyboard focus, never on touch, so it
+            repeats the control's accessible name rather than adding to it. In all four positions.
           </p>
           <div class="showcase-row">
             @for (position of tooltipPositions; track position) {
-              <p-button
-                [label]="position"
-                severity="secondary"
-                [pTooltip]="'Tooltip on the ' + position"
-                [tooltipPosition]="position"
-                tooltipEvent="both"
-              />
+              <button
+                neatButton
+                type="button"
+                variant="outlined"
+                [neatTooltip]="'Tooltip on the ' + position"
+                [neatTooltipPosition]="position"
+              >
+                {{ position }}
+              </button>
             }
           </div>
         </section>
@@ -103,6 +141,14 @@ const TOOLTIP_POSITIONS = ['top', 'right', 'bottom', 'left'] as const;
     </neat-page>
   `,
   styles: `
+    .card {
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      color: var(--card-foreground);
+    }
+
     .icon-sample {
       display: flex;
       align-items: center;
@@ -112,8 +158,8 @@ const TOOLTIP_POSITIONS = ['top', 'right', 'bottom', 'left'] as const;
   `,
 })
 export class ComponentsPage {
-  protected readonly severities = SEVERITIES;
   protected readonly variants = VARIANTS;
+  protected readonly sizes = SIZES;
   protected readonly iconSizes = ICON_SIZES;
   protected readonly tooltipPositions = TOOLTIP_POSITIONS;
 }

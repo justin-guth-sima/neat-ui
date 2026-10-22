@@ -4,7 +4,6 @@
 export type { ColorScale, ColorStep, SurfaceScale } from './lib/theme/color-scale';
 export { buildColorScale, buildSurfaceScale } from './lib/theme/color-scale';
 export { contrastRatio } from './lib/theme/color';
-export { NeatPreset } from './lib/theme/neat-preset';
 export {
   NEAT_DANGER_BASE,
   NEAT_PRIMARY_BASE,
@@ -21,11 +20,7 @@ export type { NeatNavItem } from './lib/shell/nav-item';
 export { NeatShell } from './lib/shell/shell';
 export { NeatPage } from './lib/page/page';
 export { KIOSK_POINTER_IDLE_MS, KioskService } from './lib/kiosk/kiosk.service';
-
-/*
- * Approved PrimeNG components, re-exported as they are so apps never import `primeng/*`
- * themselves. A component joins this list only after it has been reviewed in both themes in the
- * showcase.
- */
-export { Button } from 'primeng/button';
-export { Tooltip } from 'primeng/tooltip';
+export type { NeatButtonSize, NeatButtonVariant } from './lib/button/button';
+export { NeatButton } from './lib/button/button';
+export type { NeatTooltipPosition } from './lib/tooltip/tooltip';
+export { NeatTooltip } from './lib/tooltip/tooltip';

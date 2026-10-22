@@ -62,7 +62,17 @@ describe('NeatShell', () => {
   const main = (): HTMLElement => shell().querySelector('main') as HTMLElement;
   const labelOf = (anchor: HTMLAnchorElement): HTMLElement =>
     anchor.querySelector('.label') as HTMLElement;
-  const tooltip = (): HTMLElement | null => document.querySelector('.p-tooltip');
+  const tooltip = (): HTMLElement | null => document.querySelector('[role="tooltip"]');
+  /**
+   * A mouse entering `element`. jsdom lays nothing out, so the viewport gets a size and the element
+   * a place in its middle, where a tooltip fits on its preferred side and does not flip.
+   */
+  const hover = (element: HTMLElement): void => {
+    vi.spyOn(document.documentElement, 'clientWidth', 'get').mockReturnValue(1024);
+    vi.spyOn(document.documentElement, 'clientHeight', 'get').mockReturnValue(768);
+    element.getBoundingClientRect = () => new DOMRect(492, 364, 40, 40);
+    element.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+  };
 
   const start = async (url = '/media'): Promise<void> => {
     harness = await RouterTestingHarness.create(url);
@@ -70,6 +80,12 @@ describe('NeatShell', () => {
 
   const settle = async (): Promise<void> => {
     await harness.fixture.whenStable();
+  };
+
+  /** Lets timers due now run (tooltips open on a zero delay), then change detection. */
+  const tick = async (): Promise<void> => {
+    await new Promise((resolve) => setTimeout(resolve));
+    await settle();
   };
 
   beforeEach(() => {
@@ -80,7 +96,8 @@ describe('NeatShell', () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
-    tooltip()?.remove();
+    document.querySelectorAll('.cdk-overlay-container').forEach((container) => container.remove());
+    history.replaceState(null, '', '/');
     document.documentElement.classList.remove('neat-dark');
   });
 
@@ -93,9 +110,11 @@ describe('NeatShell', () => {
     // The icon is decorative, so the visible (or visually hidden) label is the whole name.
     expect(link('Viewer').querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
 
-    link('Viewer').dispatchEvent(new MouseEvent('mouseenter'));
+    hover(link('Viewer'));
+    await tick();
 
     expect(tooltip()?.textContent?.trim()).toBe('Viewer');
+    expect(tooltip()?.getAttribute('data-side')).toBe('right');
   });
 
   it('marks the active route (aria-current="page") and shows its label as the page title', async () => {
@@ -140,7 +159,8 @@ describe('NeatShell', () => {
     expect(localStorage.getItem(RAIL_KEY)).toBe('true');
 
     // Labels are visible now, so the links show no tooltip.
-    link('Media').dispatchEvent(new MouseEvent('mouseenter'));
+    hover(link('Media'));
+    await tick();
     expect(tooltip()).toBeNull();
 
     railToggle().click();
@@ -254,7 +274,10 @@ describe('NeatShell', () => {
     await TestBed.inject(KioskService).enter();
     await settle();
     const control = exitControl();
+    control.blur();
 
+    // Focus as Tab gives it, which :focus-visible tells apart from pointer or scripted focus.
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
     control.focus();
     await vi.advanceTimersByTimeAsync(KIOSK_POINTER_IDLE_MS);
     await settle();
@@ -274,12 +297,66 @@ describe('NeatShell', () => {
     await start();
     await TestBed.inject(KioskService).enter();
     await settle();
+    await tick();
 
-    const style = getComputedStyle(exitControl());
-    // Aura sizes a large round icon-only button by this token; the control scopes it to 3rem.
-    expect(style.width).toBe('var(--p-button-lg-icon-only-width)');
-    expect(style.height).toBe('var(--p-button-lg-icon-only-width)');
-    expect(style.getPropertyValue('--p-button-lg-icon-only-width').trim()).toBe('3rem');
+    // jsdom has no kit stylesheet: the 48px touch size is asserted by class here, and measured in
+    // the browser check.
+    expect(exitControl().classList).toContain('size-12');
+    expect(exitControl().classList).toContain('rounded-full');
+  });
+
+  it('gives the top-bar buttons 40px round icon-only targets with tooltips below them', async () => {
+    await start();
+    await tick();
+
+    for (const control of [themeToggle(), kioskButton()]) {
+      expect(control.classList).toContain('size-10');
+      expect(control.classList).toContain('rounded-full');
+    }
+
+    hover(themeToggle());
+    await tick();
+    expect(tooltip()?.textContent?.trim()).toBe('Dark mode');
+    expect(tooltip()?.getAttribute('data-side')).toBe('bottom');
+  });
+
+  it('entering kiosk mode focuses the exit control', async () => {
+    await start();
+    kioskButton().focus();
+
+    kioskButton().click();
+    await settle();
+    await tick();
+
+    // The top-bar button that had focus is gone; without this the next Tab would skip the control.
+    expect(document.activeElement).toBe(exitControl());
+  });
+
+  it('lets a focused exit control fade when focus did not come from the keyboard', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    await start();
+
+    kioskButton().click();
+    await settle();
+    await vi.advanceTimersByTimeAsync(0);
+    await settle();
+    expect(document.activeElement).toBe(exitControl());
+
+    await vi.advanceTimersByTimeAsync(KIOSK_POINTER_IDLE_MS);
+    await settle();
+
+    // Entered with a pointer: the control fades as usual, so a booth display does not keep it up.
+    expect(getComputedStyle(exitControl()).opacity).toBe('0');
+  });
+
+  it('does not take focus when kiosk mode comes from ?kiosk at start', async () => {
+    history.replaceState(null, '', '/media?kiosk');
+    await start('/media?kiosk');
+    await tick();
+
+    expect(exitControl()).not.toBeNull();
+    // Nothing had focus to lose; a focused control would stay visible on a booth display.
+    expect(document.activeElement).toBe(document.body);
   });
 
   it('exit control and top-bar kiosk button both work', async () => {

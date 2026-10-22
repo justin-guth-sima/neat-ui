@@ -1,4 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  Injector,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import {
   containsTree,
   IsActiveMatchOptions,
@@ -6,13 +17,13 @@ import {
   RouterLink,
   RouterLinkActive,
 } from '@angular/router';
-import { ButtonDirective } from 'primeng/button';
-import { Tooltip } from 'primeng/tooltip';
+import { NeatButton } from '../button/button';
 import { NeatIcon } from '../icon/icon';
 import { NeatKioskExit } from '../kiosk/kiosk-exit';
 import { KioskService } from '../kiosk/kiosk.service';
 import { safeStorage } from '../storage';
 import { ThemeService } from '../theme/theme.service';
+import { NeatTooltip } from '../tooltip/tooltip';
 import { NeatLogo } from './logo';
 import { NeatNavItem } from './nav-item';
 
@@ -42,13 +53,13 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
 @Component({
   selector: 'neat-shell',
   imports: [
-    ButtonDirective,
+    NeatButton,
     NeatIcon,
     NeatKioskExit,
     NeatLogo,
+    NeatTooltip,
     RouterLink,
     RouterLinkActive,
-    Tooltip,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '[attr.data-kiosk]': 'kiosk.active()' },
@@ -65,6 +76,7 @@ export class NeatShell {
 
   protected readonly activeMatch = ACTIVE_MATCH;
   protected readonly railExpanded = signal(safeStorage.get(RAIL_EXPANDED_KEY) === 'true');
+  private readonly kioskExit = viewChild(NeatKioskExit);
 
   /** Label of the nav item the current route belongs to; the first match wins. */
   protected readonly pageTitle = computed(() => {
@@ -77,6 +89,21 @@ export class NeatShell {
     );
     return active?.label ?? '';
   });
+
+  constructor() {
+    // Entering kiosk mode removes the top-bar button that had focus, which drops focus to <body>,
+    // and the next Tab would skip the exit control; hand focus to the exit control instead. Not
+    // when kiosk mode comes from ?kiosk at start: nothing had focus to lose then.
+    const injector = inject(Injector);
+    let wasActive = this.kiosk.active();
+    effect(() => {
+      const active = this.kiosk.active();
+      if (active && !wasActive) {
+        afterNextRender(() => this.kioskExit()?.focus(), { injector });
+      }
+      wasActive = active;
+    });
+  }
 
   protected toggleRail(): void {
     const expanded = !this.railExpanded();

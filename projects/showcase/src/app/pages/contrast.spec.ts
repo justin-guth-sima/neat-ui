@@ -1,4 +1,4 @@
-import { computedToHex, describeRatio } from './contrast';
+import { describeContrast, describeRatio } from './contrast';
 
 describe('describeRatio', () => {
   it('shows two decimals and AA from 4.5:1', () => {
@@ -8,14 +8,13 @@ describe('describeRatio', () => {
   });
 });
 
-describe('computedToHex', () => {
-  it('converts a computed sRGB colour to upper-case #RRGGBB', () => {
-    expect(computedToHex('rgb(1, 15, 14)')).toBe('#010F0E');
-    expect(computedToHex('rgba(210, 103, 40, 1)')).toBe('#D26728');
+describe('describeContrast', () => {
+  it('measures two #rrggbb values in either case', () => {
+    expect(describeContrast('#ffffff', '#B3541B')).toBe('5.00:1 AA');
   });
 
-  it('returns undefined for anything else', () => {
-    expect(computedToHex('')).toBeUndefined();
-    expect(computedToHex('light-dark(var(--a), var(--b))')).toBeUndefined();
+  it('is empty when a value is not #rrggbb, as without the kit stylesheet', () => {
+    expect(describeContrast('', '#ffffff')).toBe('');
+    expect(describeContrast('#ffffff', 'var(--x)')).toBe('');
   });
 });

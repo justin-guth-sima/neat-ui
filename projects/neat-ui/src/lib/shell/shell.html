@@ -13,10 +13,9 @@
               routerLinkActive="active"
               [routerLinkActiveOptions]="activeMatch"
               ariaCurrentWhenActive="page"
-              [pTooltip]="item.label"
-              tooltipPosition="right"
-              tooltipEvent="both"
-              [tooltipDisabled]="railExpanded()"
+              [neatTooltip]="item.label"
+              neatTooltipPosition="right"
+              [neatTooltipDisabled]="railExpanded()"
             >
               <neat-icon [name]="item.icon" />
               <span class="label" [class.visually-hidden]="!railExpanded()">{{ item.label }}</span>
@@ -31,10 +30,9 @@
       class="rail-item rail-toggle"
       aria-label="Show labels"
       [attr.aria-pressed]="railExpanded()"
-      pTooltip="Show labels"
-      tooltipPosition="right"
-      tooltipEvent="both"
-      [tooltipDisabled]="railExpanded()"
+      neatTooltip="Show labels"
+      neatTooltipPosition="right"
+      [neatTooltipDisabled]="railExpanded()"
       (click)="toggleRail()"
     >
       <neat-icon [name]="railExpanded() ? 'rail-collapse' : 'rail-expand'" />
@@ -54,35 +52,31 @@
     </div>
     <div class="topbar-actions">
       <button
-        pButton
+        neatButton
         type="button"
         variant="text"
-        severity="secondary"
         size="large"
         rounded
         iconOnly
         aria-label="Dark mode"
         [attr.aria-pressed]="theme.scheme() === 'dark'"
-        pTooltip="Dark mode"
-        tooltipPosition="bottom"
-        tooltipEvent="both"
+        neatTooltip="Dark mode"
+        neatTooltipPosition="bottom"
         (click)="theme.toggle()"
       >
         <neat-icon [name]="theme.scheme() === 'dark' ? 'sun' : 'moon'" />
       </button>
       <button
-        pButton
+        neatButton
         type="button"
         variant="text"
-        severity="secondary"
         size="large"
         rounded
         iconOnly
         aria-label="Kiosk mode"
         [attr.aria-pressed]="kiosk.active()"
-        pTooltip="Kiosk mode"
-        tooltipPosition="bottom"
-        tooltipEvent="both"
+        neatTooltip="Kiosk mode"
+        neatTooltipPosition="bottom"
         (click)="kiosk.toggle()"
       >
         <neat-icon name="kiosk-enter" />

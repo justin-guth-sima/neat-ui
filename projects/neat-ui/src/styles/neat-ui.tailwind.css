@@ -22,6 +22,7 @@
 
 /* Kit extensions to Spartan's vocabulary, and the brand font. */
 @theme inline {
+  --color-primary-hover: var(--primary-hover);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
@@ -34,6 +35,9 @@
 
 :root {
   --neat-font-family: Roboto, system-ui, sans-serif;
+  /* For the kit's own component styles (the shell, the kiosk exit control). */
+  --neat-transition-duration: 150ms;
+  --neat-focus-ring-width: 2px;
 }
 
 @layer base {

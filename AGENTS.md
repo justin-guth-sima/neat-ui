@@ -13,6 +13,38 @@ look happens in one place. Every rule here protects that.
 - `projects/neat-ui`: the library (`@sima/neat-ui`). Public API is `projects/neat-ui/src/public-api.ts`.
 - `projects/showcase`: the component gallery.
 
+## How the kit is built on Spartan
+
+The components come from Spartan UI: `@spartan-ng/brain` (headless primitives, an npm dependency)
+and helm (Spartan's styled layer, generated into the repo). Apps see neither.
+
+- **Public API is `neat-*` only**: components, directives and kit types. Why: no library API
+  reaching apps is what keeps a later library swap a kit-only change. Never export brain or helm
+  symbols, or re-export a third-party component.
+- **Vendored helm lives in `projects/neat-ui/src/lib/ui/`: internal, never exported, never
+  hand-edited.** Why: it stays exactly as generated, so an update is a regeneration and a reviewed
+  diff, not a three-way merge. It enters only through `npm run helm:add -- <name>` (generate, then
+  `tools/adopt-helm.mjs`). To update, bump `@spartan-ng/brain` (exact version; `helm:add` runs the
+  Spartan CLI of the same version), delete `lib/ui/<name>`, re-add it and review the diff.
+  `npm run check:dist` fails a build that still imports the helm alias.
+- **A `neat-*` wrapper is the brain primitive as host directive plus helm's style constants as
+  data**, with one table mapping kit vocabulary to Spartan's (see `lib/button/button.ts`). Never put
+  a helm directive behind a public host directive: Angular cannot re-expose inputs of a host
+  directive's own host directives (NG2017) and requires every host directive of a public directive
+  to be exported (NG3001). Bind the classes with Angular's `[class]` host binding, not helm's
+  `classes()`, which rewrites `className` and can drop an app's `[class.x]` binding.
+- **Customise in this order: theme tokens, then wrapper inputs and classes, never helm.** Tokens
+  come from `lib/theme/*.ts`; `npm run theme:emit` regenerates `tokens.generated.css`, and the theme
+  spec checks the contrast of every text pair it emits. A wrapper overrides a helm class only where
+  its spec shows a failure (the button's hover states are the example), with the reason in a comment.
+- **Class strings are literals**, never built at runtime. Why: Tailwind finds the classes the kit
+  stylesheet needs by reading the kit's sources; a computed class name is silently missing.
+- **Apps need no Tailwind.** The kit ships its compiled stylesheet (`styles/neat-ui.css`), which
+  contains exactly the utilities the kit's sources use; utility classes in app templates are not
+  part of the kit's API.
+- **Tooltips never open on touch** (brain's design: a tap would also trigger the control). A tooltip
+  repeats the control's accessible name; never put information only in a tooltip.
+
 ## Rules
 
 **Reuse what the kit offers.**
@@ -29,7 +61,7 @@ workaround in the meantime.
 
 **Style only through theme tokens and component inputs.**
 Why: tokens are what make light/dark and later rebranding work. Overrides (deep selectors,
-`!important`, hard-coded sizes or colours) silently break in one theme or after a PrimeNG upgrade.
+`!important`, hard-coded sizes or colours) silently break in one theme or after a Spartan update.
 Escape hatch: if a look cannot be reached through tokens and inputs, that is a kit gap. Treat it as
 a proposal under the previous rule, not as a reason to override.
 
@@ -67,7 +99,11 @@ Node 24 is required (`.node-version`; Angular 22 supports `^22.22.3 || ^24.15.0`
 | `npm start`              | Showcase dev server                                                             |
 | `npm test`               | Unit tests for all projects (`npm test -- --watch=false` runs once and exits)   |
 | `npm run lint`           | ESLint (angular-eslint) and Stylelint                                           |
-| `npm run build`          | Build the library into `dist/neat-ui`                                           |
+| `npm run build`          | Build the library and its compiled stylesheet into `dist/neat-ui`               |
+| `npm run check:dist`     | Check the built package (no helm alias imports, stylesheet present)             |
+| `npm run test:tools`     | Tests for the repo tools (`tools/*.test.mjs`)                                   |
+| `npm run theme:emit`     | Regenerate `lib/theme/tokens.generated.css` from the theme sources              |
+| `npm run helm:add`       | Add a Spartan helm component to `lib/ui/` (`-- <name>`), the only way in        |
 | `npm run build:showcase` | Build the showcase app                                                          |
 | `npm run pack`           | Build, then write `dist/neat-ui/sima-neat-ui-<version>.tgz` for apps to install |
 

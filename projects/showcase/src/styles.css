@@ -1,4 +1,7 @@
-/* Layout shared by the showcase pages; colours come only from the kit's theme variables. */
+/*
+ * Layout shared by the showcase pages; colours come only from the kit's theme variables. Headings
+ * get their sizes here because the kit stylesheet's base layer (Tailwind's preflight) resets them.
+ */
 app-root {
   display: block;
   height: 100%;
@@ -20,16 +23,18 @@ app-root {
   gap: 1rem;
 }
 
-.showcase-section > h2 {
+.showcase-page h2 {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 500;
+  line-height: 1.75rem;
 }
 
-.showcase-section > h3 {
+.showcase-page h3 {
   margin: 0;
   font-size: 1rem;
   font-weight: 500;
+  line-height: 1.5rem;
 }
 
 .showcase-section p {
@@ -38,7 +43,7 @@ app-root {
 }
 
 .showcase-muted {
-  color: var(--p-text-muted-color);
+  color: var(--muted-foreground);
 }
 
 .showcase-code {

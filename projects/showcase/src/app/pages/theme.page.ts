@@ -1,17 +1,14 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import {
   buildColorScale,
   buildSurfaceScale,
-  contrastRatio,
-  NEAT_DANGER_BASE,
   NEAT_PRIMARY_BASE,
-  NEAT_WARN_BASE,
   NeatPage,
   SIMA_PALETTE,
 } from '@sima/neat-ui';
-import { describeRatio } from './contrast';
-import { ContrastPanel } from './contrast-panel';
+import { describeContrast } from './contrast';
 import { Swatch } from './swatch';
+import { injectThemeVariables } from './theme-variables';
 
 interface Chip {
   name: string;
@@ -21,12 +18,76 @@ interface Chip {
 const toChips = (colors: Record<string, string>): Chip[] =>
   Object.entries(colors).map(([name, hex]) => ({ name, hex }));
 
-const SEVERITY_BASES: Record<string, string> = {
-  success: SIMA_PALETTE.green,
-  info: SIMA_PALETTE.blue,
-  warn: NEAT_WARN_BASE,
-  danger: NEAT_DANGER_BASE,
-};
+/** Spartan's colour variables, as its components use them. */
+const SPARTAN_VARIABLES = [
+  'background',
+  'foreground',
+  'card',
+  'card-foreground',
+  'popover',
+  'popover-foreground',
+  'primary',
+  'primary-foreground',
+  'secondary',
+  'secondary-foreground',
+  'muted',
+  'muted-foreground',
+  'accent',
+  'accent-foreground',
+  'destructive',
+  'border',
+  'input',
+  'ring',
+  'chart-1',
+  'chart-2',
+  'chart-3',
+  'chart-4',
+  'chart-5',
+  'sidebar',
+  'sidebar-foreground',
+  'sidebar-primary',
+  'sidebar-primary-foreground',
+  'sidebar-accent',
+  'sidebar-accent-foreground',
+  'sidebar-border',
+  'sidebar-ring',
+];
+
+/** Variables the kit adds to Spartan's vocabulary. */
+const KIT_VARIABLES = [
+  'primary-hover',
+  'destructive-foreground',
+  'success',
+  'success-foreground',
+  'warning',
+  'warning-foreground',
+  'info',
+  'info-foreground',
+];
+
+/** The text pairs the kit's components draw, as [text, background]. */
+const TEXT_PAIRS: [string, string][] = [
+  ['foreground', 'background'],
+  ['foreground', 'muted'],
+  ['card-foreground', 'card'],
+  ['popover-foreground', 'popover'],
+  ['muted-foreground', 'background'],
+  ['muted-foreground', 'muted'],
+  ['muted-foreground', 'card'],
+  ['primary', 'background'],
+  ['primary-foreground', 'primary'],
+  ['primary-foreground', 'primary-hover'],
+  ['secondary-foreground', 'secondary'],
+  ['accent-foreground', 'accent'],
+  ['destructive', 'background'],
+  ['destructive-foreground', 'destructive'],
+  ['success', 'background'],
+  ['success-foreground', 'success'],
+  ['warning', 'background'],
+  ['warning-foreground', 'warning'],
+  ['info', 'background'],
+  ['info-foreground', 'info'],
+];
 
 const WEIGHTS = [400, 500, 700] as const;
 const SIZES = [
@@ -39,7 +100,7 @@ const SIZES = [
 
 @Component({
   selector: 'app-theme-page',
-  imports: [ContrastPanel, NeatPage, Swatch],
+  imports: [NeatPage, Swatch],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-page>
@@ -80,17 +141,21 @@ const SIZES = [
         </section>
 
         <section class="showcase-section">
-          <h2>Severity colours</h2>
-          <p class="showcase-muted">Step 500 of each functional scale, with white text on it.</p>
-          <div class="showcase-grid severities">
-            @for (severity of severities; track severity.name) {
-              <div class="severity">
-                <div class="tile" [style.background]="severity.hex" [style.color]="white">
-                  {{ severity.name }}
-                </div>
-                <div class="showcase-code showcase-muted">{{ severity.hex }}</div>
-                <div class="showcase-code">{{ severity.contrast }}</div>
-              </div>
+          <h2>Theme variables</h2>
+          <p class="showcase-muted">
+            The CSS variables the kit stylesheet sets, read from this page in the current colour
+            scheme. Switch the scheme in the top bar to see the other one.
+          </p>
+          <h3>Spartan</h3>
+          <div class="showcase-grid">
+            @for (chip of spartanChips(); track chip.name) {
+              <app-swatch [name]="chip.name" [hex]="chip.hex" />
+            }
+          </div>
+          <h3>Kit extensions</h3>
+          <div class="showcase-grid">
+            @for (chip of kitChips(); track chip.name) {
+              <app-swatch [name]="chip.name" [hex]="chip.hex" />
             }
           </div>
         </section>
@@ -98,13 +163,34 @@ const SIZES = [
         <section class="showcase-section">
           <h2>Contrast</h2>
           <p class="showcase-muted">
-            WCAG 2.x ratios for the pairs text actually sits on, in both colour schemes. AA for
-            normal text is 4.5:1.
+            WCAG 2.x ratios of the text pairs the components draw, in the current colour scheme. AA
+            for normal text is 4.5:1.
           </p>
-          <div class="schemes">
-            <app-contrast-panel scheme="light" />
-            <app-contrast-panel scheme="dark" />
-          </div>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Text on background</th>
+                <th scope="col">Sample</th>
+                <th scope="col">Contrast</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (pair of pairs(); track pair.label) {
+                <tr>
+                  <th scope="row" class="showcase-code">{{ pair.label }}</th>
+                  <td>
+                    <span
+                      class="sample"
+                      [style.color]="'var(--' + pair.foreground + ')'"
+                      [style.background]="'var(--' + pair.background + ')'"
+                      >Neat Insight</span
+                    >
+                  </td>
+                  <td class="showcase-code">{{ pair.contrast }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </section>
 
         <section class="showcase-section">
@@ -127,23 +213,29 @@ const SIZES = [
     </neat-page>
   `,
   styles: `
-    .severities {
-      grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    table {
+      width: 100%;
+      max-width: 46rem;
+      border-collapse: collapse;
     }
 
-    .tile {
-      display: flex;
-      align-items: center;
-      height: 4rem;
-      padding: 0 0.75rem;
-      border-radius: var(--p-content-border-radius);
-      font-weight: 500;
+    th,
+    td {
+      padding: 0.375rem 0.75rem 0.375rem 0;
+      text-align: left;
+      font-weight: 400;
+      font-size: 0.875rem;
     }
 
-    .schemes {
-      display: grid;
-      gap: 1rem;
-      grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+    thead th {
+      color: var(--muted-foreground);
+    }
+
+    .sample {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
     }
 
     .type-rows {
@@ -165,11 +257,21 @@ export class ThemePage {
   protected readonly primaryBase = NEAT_PRIMARY_BASE;
   protected readonly primary = toChips(buildColorScale(NEAT_PRIMARY_BASE));
   protected readonly surface = toChips(buildSurfaceScale());
-  protected readonly white = SIMA_PALETTE.white;
-  protected readonly severities = Object.entries(SEVERITY_BASES).map(([name, base]) => {
-    const hex = buildColorScale(base)[500];
-    return { name, hex, contrast: describeRatio(contrastRatio(hex, SIMA_PALETTE.white)) };
-  });
   protected readonly weights = WEIGHTS;
   protected readonly sizes = SIZES;
+
+  private readonly variables = injectThemeVariables([...SPARTAN_VARIABLES, ...KIT_VARIABLES]);
+  private readonly chipsOf = (names: string[]) =>
+    computed(() => names.map((name) => ({ name: `--${name}`, hex: this.variables()[name] })));
+  protected readonly spartanChips = this.chipsOf(SPARTAN_VARIABLES);
+  protected readonly kitChips = this.chipsOf(KIT_VARIABLES);
+  protected readonly pairs = computed(() => {
+    const values = this.variables();
+    return TEXT_PAIRS.map(([foreground, background]) => ({
+      label: `--${foreground} on --${background}`,
+      foreground,
+      background,
+      contrast: describeContrast(values[foreground], values[background]),
+    }));
+  });
 }

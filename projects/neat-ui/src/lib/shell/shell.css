@@ -1,8 +1,8 @@
 /*
  * Layout A: the rail spans the full height on the left; the top bar and the content area share
- * the column to its right. Chrome text sits only on the content background (surface 0 in light,
- * 900 in dark) or the navigation item background (surface 100 / 800), where body text keeps at
- * least 4.5:1; muted text appears only on the content background.
+ * the column to its right. Colours are the theme's Spartan variables: the rail is Spartan's
+ * sidebar. Chrome text sits only where the theme guarantees 4.5:1: body and muted text on the
+ * background, and accent-foreground on the hover and selection fill (accent).
  */
 :host {
   --neat-rail-width: 3.5rem;
@@ -12,8 +12,8 @@
   display: grid;
   height: 100dvh;
   overflow: hidden;
-  background: var(--p-content-background);
-  color: var(--p-text-color);
+  background: var(--background);
+  color: var(--foreground);
 }
 
 :host([data-kiosk='false']) {
@@ -42,7 +42,9 @@
   padding: 0.5rem;
   overflow: hidden;
   /* A divider drawn inside the padding, not a border, so items keep the full 2.5rem width. */
-  box-shadow: inset -1px 0 0 var(--p-content-border-color);
+  background: var(--sidebar);
+  color: var(--sidebar-foreground);
+  box-shadow: inset -1px 0 0 var(--sidebar-border);
 }
 
 .rail[data-expanded='false'] {
@@ -55,7 +57,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .rail {
-    transition: width var(--p-transition-duration);
+    transition: width var(--neat-transition-duration);
   }
 }
 
@@ -84,28 +86,27 @@ nav {
   min-height: 2.5rem;
   padding: 0 0.625rem;
   border: 0;
-  border-radius: var(--p-navigation-item-border-radius);
+  border-radius: var(--radius);
   background: transparent;
-  color: var(--p-text-muted-color);
+  color: var(--muted-foreground);
   font: inherit;
   text-decoration: none;
   cursor: pointer;
 }
 
-.rail-item:hover {
-  background: var(--p-navigation-item-focus-background);
-  color: var(--p-navigation-item-focus-color);
+.rail-item:hover,
+.rail-item.active {
+  background: var(--sidebar-accent);
+  color: var(--sidebar-accent-foreground);
 }
 
 .rail-item.active {
-  background: var(--p-navigation-item-active-background);
-  color: var(--p-navigation-item-active-color);
   font-weight: 500;
 }
 
 .rail-item:focus-visible {
-  outline: var(--p-focus-ring-width) var(--p-focus-ring-style) var(--p-focus-ring-color);
-  outline-offset: calc(-1 * var(--p-focus-ring-width));
+  outline: var(--neat-focus-ring-width) solid var(--sidebar-ring);
+  outline-offset: calc(-1 * var(--neat-focus-ring-width));
 }
 
 .rail-item neat-icon {
@@ -141,7 +142,7 @@ nav {
   gap: 1rem;
   min-width: 0;
   padding-inline: 1rem 0.5rem;
-  border-block-end: 1px solid var(--p-content-border-color);
+  border-block-end: 1px solid var(--border);
 }
 
 .brand {
@@ -161,7 +162,7 @@ nav {
   min-width: 0;
   margin: 0;
   padding-inline-start: 1rem;
-  border-inline-start: 1px solid var(--p-content-border-color);
+  border-inline-start: 1px solid var(--border);
   overflow: hidden;
   font-size: 1rem;
   font-weight: 500;
