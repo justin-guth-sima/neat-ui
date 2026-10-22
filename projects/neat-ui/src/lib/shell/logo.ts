@@ -69,16 +69,7 @@ import { ThemeService } from '../theme/theme.service';
       </svg>
     }
   `,
-  styles: `
-    :host {
-      display: inline-flex;
-    }
-
-    svg {
-      height: 1.75rem;
-      width: auto;
-    }
-  `,
+  styleUrl: './logo.css',
 })
 export class NeatLogo {
   protected readonly theme = inject(ThemeService);

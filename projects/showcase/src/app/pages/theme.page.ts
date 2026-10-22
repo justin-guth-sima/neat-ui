@@ -212,45 +212,7 @@ const SIZES = [
       </div>
     </neat-page>
   `,
-  styles: `
-    table {
-      width: 100%;
-      max-width: 46rem;
-      border-collapse: collapse;
-    }
-
-    th,
-    td {
-      padding: 0.375rem 0.75rem 0.375rem 0;
-      text-align: left;
-      font-weight: 400;
-      font-size: 0.875rem;
-    }
-
-    thead th {
-      color: var(--muted-foreground);
-    }
-
-    .sample {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-    }
-
-    .type-rows {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .type-row {
-      display: grid;
-      align-items: baseline;
-      gap: 1rem;
-      grid-template-columns: 7rem minmax(0, 1fr);
-    }
-  `,
+  styleUrl: './theme.page.css',
 })
 export class ThemePage {
   protected readonly palette = toChips(SIMA_PALETTE);

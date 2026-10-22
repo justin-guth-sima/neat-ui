@@ -26,17 +26,7 @@ import { NEAT_ICON_NAMES, NeatIcon, NeatPage } from '@sima/neat-ui';
       </div>
     </neat-page>
   `,
-  styles: `
-    .icon-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 1rem 0.5rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-    }
-  `,
+  styleUrl: './icons.page.css',
 })
 export class IconsPage {
   protected readonly names = NEAT_ICON_NAMES;

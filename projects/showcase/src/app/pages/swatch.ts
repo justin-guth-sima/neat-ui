@@ -9,22 +9,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
     <div class="name">{{ name() }}</div>
     <div class="hex showcase-code showcase-muted">{{ hex() }}</div>
   `,
-  styles: `
-    :host {
-      display: block;
-    }
-
-    .chip {
-      height: 3.5rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-    }
-
-    .name {
-      margin-top: 0.375rem;
-      font-size: 0.875rem;
-    }
-  `,
+  styleUrl: './swatch.css',
 })
 export class Swatch {
   readonly name = input.required<string>();

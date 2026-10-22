@@ -142,22 +142,7 @@ const TOOLTIP_POSITIONS: NeatTooltipPosition[] = ['top', 'right', 'bottom', 'lef
       </div>
     </neat-page>
   `,
-  styles: `
-    .card {
-      padding: 1rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--card);
-      color: var(--card-foreground);
-    }
-
-    .icon-sample {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      min-width: 9rem;
-    }
-  `,
+  styleUrl: './components.page.css',
 })
 export class ComponentsPage {
   protected readonly variants = VARIANTS;

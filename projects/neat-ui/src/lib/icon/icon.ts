@@ -20,11 +20,7 @@ import { NEAT_ICONS, NeatIconName } from './icon-registry';
       [attr.aria-label]="label() ?? null"
     ></svg>
   `,
-  styles: `
-    :host {
-      display: inline-flex;
-    }
-  `,
+  styleUrl: './icon.css',
 })
 export class NeatIcon {
   readonly name = input.required<NeatIconName>();

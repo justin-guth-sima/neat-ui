@@ -74,6 +74,12 @@ this for stylesheets (`npm run lint`). Escape hatch: if you need a colour that i
 token in the theme directory through a kit change; never inline the value.
 The only exception: official brand-asset SVGs (the SiMa.ai logo) keep their own `fill` attributes.
 
+**Component styles live in a `.css` file next to the component, referenced with `styleUrl`.**
+Why: Stylelint reads only stylesheets, so a style written inline in the decorator (`styles:`)
+escapes the colour-literal rules above without anyone noticing. ESLint rejects inline styles
+(`component-max-inline-declarations`); templates may stay inline. Escape hatch: none; a component
+that needs no styles simply has no stylesheet.
+
 **Pages fill the shell's content area and own at most one scroll context.**
 Why: nested scroll containers and hard-coded heights break on other screen sizes and in kiosk mode,
 where the shell's size is not yours to know. Do not measure or hard-code the shell's size. Escape
