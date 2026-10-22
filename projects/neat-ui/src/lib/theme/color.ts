@@ -120,6 +120,18 @@ export function composite(foreground: string, alpha: number, background: string)
   return formatHex([mix(0), mix(1), mix(2)]);
 }
 
+/**
+ * `color` with an alpha channel, as `#RRGGBBAA`, for a translucent token such as a scrim. The alpha
+ * is rounded to the nearest of the 256 values the hex byte can hold.
+ */
+export function withAlpha(color: string, alpha: number): string {
+  if (!(alpha >= 0 && alpha <= 1)) throw new Error(`Expected an alpha from 0 to 1, got ${alpha}`);
+  const byte = Math.round(alpha * 255)
+    .toString(16)
+    .padStart(2, '0');
+  return `${normalizeHex(color)}${byte}`.toUpperCase();
+}
+
 /** WCAG 2.x relative luminance of `#RRGGBB`. */
 export function relativeLuminance(hex: string): number {
   const [r, g, b] = hexToLinear(hex);

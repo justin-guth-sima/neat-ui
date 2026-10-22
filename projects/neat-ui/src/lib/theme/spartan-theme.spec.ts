@@ -48,6 +48,11 @@ const FILL_SURFACES = ['background', 'card', 'popover'];
  * and focus indicators. They sit wherever text does, so they are measured on the text surfaces.
  */
 const NON_TEXT = ['input', 'ring', 'sidebar-ring'];
+/**
+ * Translucent fills drawn over video rather than the theme's surfaces. Their text is measured over
+ * the video extremes in a test of its own, not on the fill alone.
+ */
+const OVER_VIDEO = ['neat-video-scrim'];
 
 interface TextPair {
   label: string;
@@ -70,6 +75,7 @@ function textPairs(scheme: keyof typeof schemes): TextPair[] {
   const ownFills = [...tokens.keys()]
     .map((name) => name.replace(/^--/, ''))
     .filter((name) => name.endsWith('-foreground') && tokens.has(`--${fillOf(name)}`))
+    .filter((name) => !OVER_VIDEO.includes(fillOf(name)))
     .map((name) => pair(name, fillOf(name)));
   const onSurfaces = COLORED_TEXT.flatMap((text) =>
     TEXT_SURFACES.map((surface) => pair(text, surface)),
@@ -167,6 +173,24 @@ describe('buildSpartanThemeCss', () => {
             MIN_NON_TEXT_CONTRAST,
           );
         }
+      }
+    }
+  });
+
+  it('keeps text on the video scrim readable over any video, from black to white', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      const scrim = tokens.get('--neat-video-scrim')!;
+      const text = tokens.get('--neat-video-scrim-foreground')!;
+      expect(scrim, `${scheme}: the scrim is #rrggbbaa`).toMatch(/^#[0-9a-f]{8}$/);
+      const color = scrim.slice(0, 7);
+      const alpha = parseInt(scrim.slice(7), 16) / 255;
+      expect(alpha, `${scheme}: the scrim lets the video show through`).toBeLessThan(1);
+      // The scrim's text is light, so white video is the worst case; black is checked as well so
+      // a dark text colour could not pass.
+      for (const video of ['#000000', '#ffffff']) {
+        const ratio = contrastRatio(text, composite(color, alpha, video));
+        expect(ratio, `${scheme}: scrim text over ${video}`).toBeGreaterThanOrEqual(4.5);
       }
     }
   });

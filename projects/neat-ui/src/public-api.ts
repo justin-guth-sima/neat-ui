@@ -74,3 +74,6 @@ export type { NeatTileArea, NeatTileAspect, NeatTilePack } from './lib/video/gri
 export { fitAllTileWidth, NEAT_MIN_TILE_WIDTH, packTiles } from './lib/video/grid/pack';
 export type { NeatTileLayout } from './lib/video/grid/tile-grid';
 export { NeatTileGrid } from './lib/video/grid/tile-grid';
+export type { NeatTileSource } from './lib/video/tile/tile-source';
+export type { NeatFrameStats, NeatTileState } from './lib/video/tile/video-tile';
+export { NEAT_STREAM_STALE_MS, NeatVideoTile } from './lib/video/tile/video-tile';

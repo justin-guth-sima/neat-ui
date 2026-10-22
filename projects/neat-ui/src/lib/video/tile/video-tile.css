@@ -1,0 +1,117 @@
+/*
+ * Fills the box it is given (a grid cell) and never draws outside it. Its own stacking context
+ * keeps the layers below from mixing with the page's.
+ */
+:host {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--radius);
+  background: var(--muted);
+}
+
+.video,
+.overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.video {
+  object-fit: contain;
+}
+
+.overlay {
+  pointer-events: none;
+}
+
+/* Empty: no frame of this stream yet, so only the surface shows. */
+:host([data-state='empty']) .video,
+:host([data-state='empty']) .overlay {
+  visibility: hidden;
+}
+
+/*
+ * Stopped: the last frame stays, frosted and dimmed under the scrim, with its overlays hidden. The
+ * frame is scaled up a little so the blur's transparent edge falls outside the tile.
+ */
+:host([data-state='stopped']) .video {
+  filter: blur(9px) saturate(0.6);
+  transform: scale(1.07);
+}
+
+:host([data-state='stopped']) .overlay {
+  visibility: hidden;
+}
+
+:host([data-state='stopped'])::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--neat-video-scrim);
+}
+
+.no-video {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-size: var(--neat-text-sm);
+}
+
+:host([data-state='empty']) .no-video {
+  color: var(--muted-foreground);
+}
+
+:host([data-state='stopped']) .no-video {
+  color: var(--neat-video-scrim-foreground);
+}
+
+/* Along the bottom, on the scrim so its text reads over any video. */
+.bar {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+  padding: var(--neat-space-2) var(--neat-space-3);
+  background: var(--neat-video-scrim);
+  color: var(--neat-video-scrim-foreground);
+  font-size: var(--neat-text-xs);
+}
+
+.label {
+  flex: none;
+  font-weight: 500;
+}
+
+.status {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * Selected: a ring in the full ring colour (3:1 against the surfaces, WCAG 1.4.11), drawn inside
+ * the tile and above the video and bar, so a grid that clips its cells never cuts it.
+ */
+:host([data-selected])::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 var(--neat-focus-ring-width) var(--ring);
+  pointer-events: none;
+}

@@ -42,6 +42,8 @@
   --sidebar-accent-foreground: #010f0e;
   --sidebar-border: #cdd0d2;
   --sidebar-ring: #d26728;
+  --neat-video-scrim: #010f0e99;
+  --neat-video-scrim-foreground: #ffffff;
 }
 
 :root.neat-dark {
@@ -85,4 +87,6 @@
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #344141;
   --sidebar-ring: #e28250;
+  --neat-video-scrim: #010f0e99;
+  --neat-video-scrim-foreground: #ffffff;
 }

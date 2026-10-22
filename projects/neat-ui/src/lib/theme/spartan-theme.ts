@@ -1,5 +1,5 @@
 import { buildColorScale, buildSurfaceScale, type ColorScale, type ColorStep } from './color-scale';
-import { composite } from './color';
+import { composite, withAlpha } from './color';
 import { along, CONTRAST_RULES, firstReadable, MIN_NON_TEXT_CONTRAST } from './contrast-rules';
 import { NEAT_DANGER_BASE, NEAT_PRIMARY_BASE, NEAT_WARN_BASE, SIMA_PALETTE } from './palette';
 import type { NeatColorScheme } from './theme.service';
@@ -27,6 +27,11 @@ const SURFACE_ROLES: Record<NeatColorScheme, SurfaceRoles> = {
   light: { raised: 0, muted: 50, secondary: 100, accent: 100, border: 200 },
   dark: { raised: 800, muted: 800, secondary: 800, accent: 700, border: 700 },
 };
+/**
+ * How much of the video a video tile's scrim (its bars, a stopped frame) covers. Its text must
+ * reach 4.5:1 over white video, the worst case for light text, which needs at least 0.57.
+ */
+const VIDEO_SCRIM_ALPHA = 0.6;
 /** Spartan's chart palette: a single-hue ramp on the primary scale, like Spartan's own themes. */
 const CHART_STEPS = [300, 400, 500, 600, 700] as const;
 
@@ -39,7 +44,7 @@ const scales = {
   info: buildColorScale(SIMA_PALETTE.blue),
 };
 
-/** CSS custom property name (without `--`) to `#RRGGBB`, for one scheme. */
+/** CSS custom property name (without `--`) to `#RRGGBB` (`#RRGGBBAA` if translucent), for one scheme. */
 type SpartanTokens = Record<string, string>;
 
 /**
@@ -125,6 +130,10 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     'sidebar-accent-foreground': text,
     'sidebar-border': border,
     'sidebar-ring': ring,
+    // Video tiles: a scrim over the video for bar text and stopped frames. Video looks the same in
+    // both schemes, so the scrim is the palette text colour with light text in both.
+    'neat-video-scrim': withAlpha(surface[950], VIDEO_SCRIM_ALPHA),
+    'neat-video-scrim-foreground': surface[0],
   };
 }
 

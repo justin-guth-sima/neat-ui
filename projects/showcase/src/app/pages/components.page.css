@@ -42,3 +42,32 @@
   color: var(--muted-foreground);
   font-size: var(--neat-text-sm);
 }
+
+/* Until neat-switch arrives (plan 2a, task 5): native checkboxes, themed through tokens only. */
+.check-field {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+}
+
+.check-field input {
+  accent-color: var(--primary);
+}
+
+/* Each tile fills its cell, so the demo gives the cells a size. */
+.video-demo {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 24rem));
+  gap: var(--neat-space-4);
+}
+
+.video-demo-cell {
+  aspect-ratio: 16 / 9;
+}
+
+.demo-chip {
+  padding: 0 var(--neat-space-2);
+  border-radius: var(--radius);
+  background: var(--info);
+  color: var(--info-foreground);
+}

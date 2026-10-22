@@ -5,6 +5,7 @@ import {
   isInSrgbGamut,
   oklchToHex,
   relativeLuminance,
+  withAlpha,
 } from './color';
 import { SIMA_PALETTE } from './palette';
 
@@ -42,6 +43,20 @@ describe('composite', () => {
   it('returns the background at alpha 0 and the colour at alpha 1', () => {
     expect(composite('#D26728', 0, '#0D1D1C')).toBe('#0D1D1C');
     expect(composite('#d26728', 1, '#0D1D1C')).toBe('#D26728');
+  });
+});
+
+describe('withAlpha', () => {
+  it('appends the alpha as a hex byte, giving #RRGGBBAA', () => {
+    expect(withAlpha('#010F0E', 0.6)).toBe('#010F0E99');
+    expect(withAlpha('#ffffff', 0)).toBe('#FFFFFF00');
+    expect(withAlpha('#FFFFFF', 1)).toBe('#FFFFFFFF');
+  });
+
+  it('rejects an alpha outside 0 to 1 and anything but #RRGGBB', () => {
+    expect(() => withAlpha('#FFFFFF', 1.5)).toThrow(/alpha/);
+    expect(() => withAlpha('#FFFFFF', -0.1)).toThrow(/alpha/);
+    expect(() => withAlpha('#FFF', 0.5)).toThrow(/#RRGGBB/);
   });
 });
 

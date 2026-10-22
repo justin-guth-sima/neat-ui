@@ -63,6 +63,8 @@ const KIT_VARIABLES = [
   'warning-foreground',
   'info',
   'info-foreground',
+  'neat-video-scrim',
+  'neat-video-scrim-foreground',
 ];
 
 /** The text pairs the kit's components draw, as [text, background]. */
