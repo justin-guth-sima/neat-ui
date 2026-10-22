@@ -506,14 +506,16 @@ describe('NeatButton', () => {
   );
 
   /**
-   * The primary variant is a solid fill already, so no fill is 3:1 from it and from the surface at
-   * once. In dark its fill (#E28250) has a relative luminance of 0.33; a fill 3:1 from it must be
-   * darker than 0.076 (or lighter than 1.08, which does not exist), while one 3:1 from the dark
-   * background (0.010) must be lighter than 0.13, and from the card (0.024) than 0.17. A toggle
-   * belongs on one of the other variants; primary still shows the pressed look and is held to the
-   * surface and text rules below.
+   * Primary is a solid fill already, so in dark no fill is 3:1 from it and from the surface at
+   * once. Its fill (#E28250) has a relative luminance of 0.33; a fill 3:1 from it must be darker
+   * than 0.076 (or lighter than 1.08, which does not exist), while one 3:1 from the dark
+   * background (0.010) must be lighter than 0.13, and from the card (0.024) than 0.17. So dark
+   * primary is exempt from the rule against the resting fill (the pressed fill reaches 2.78:1);
+   * light primary keeps it (3.9:1). A toggle belongs on one of the other variants; primary still
+   * shows the pressed look and is held to the surface and text rules below.
    */
-  const SEPARABLE_FROM_REST = VARIANTS.filter((variant) => variant !== 'primary');
+  const SCHEMES_SEPARABLE_FROM_REST = (variant: NeatButtonVariant): NeatColorScheme[] =>
+    variant === 'primary' ? ['light'] : SCHEMES;
 
   it.each(VARIANTS)(
     `%s: pressed text reaches 4.5:1 and the fill ${MIN_NON_TEXT_CONTRAST}:1 against the surface, at rest and on hover, in both schemes`,
@@ -540,13 +542,13 @@ describe('NeatButton', () => {
     },
   );
 
-  it.each(SEPARABLE_FROM_REST)(
-    `%s: the pressed fill is ${MIN_NON_TEXT_CONTRAST}:1 from the resting fill, in both schemes, at rest and on hover`,
+  it.each(VARIANTS)(
+    `%s: the pressed fill is ${MIN_NON_TEXT_CONTRAST}:1 from the resting fill, in both schemes (primary: light only), at rest and on hover`,
     async (variant) => {
       const rest = await classesOf(variant);
       const pressed = await classesOf(variant, true);
 
-      for (const scheme of SCHEMES) {
+      for (const scheme of SCHEMES_SEPARABLE_FROM_REST(variant)) {
         for (const surface of SURFACES) {
           const resting = colorsOf(rest, { scheme, hover: false }, surface).fill;
           for (const hover of [false, true]) {

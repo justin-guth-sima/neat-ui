@@ -75,11 +75,15 @@ const SIZES: Record<
 
 /**
  * The pressed look, the same for every variant: the page's inverse (`foreground` fill, `background`
- * text). Each variant's rest and hover fills are too close to the surface, or to each other, to
- * carry a state at the 3:1 that WCAG 1.4.11 asks (`accent` is 1.1:1 on white), and the primary
- * variant's rest fill is already solid. The inverse reaches 3:1 against every variant's rest and
- * hover fill and against the surface in both schemes, with the text above 4.5:1 on it, and the
- * spec checks all of that from the emitted tokens.
+ * text). The variants' rest fills are too close to the surface to carry a state at the 3:1 that
+ * WCAG 1.4.11 asks (`accent` is 1.1:1 on white), and the primary variant's is solid already. The
+ * spec checks, from the emitted tokens, in both schemes and over background and card:
+ * - the text is at least 4.5:1 on the fill;
+ * - the fill is at least 3:1 against the surface;
+ * - the fill is at least 3:1 against the variant's resting fill, except primary in dark (2.78:1;
+ *   in light it reaches 3.9:1), where no fill is 3:1 from both its solid fill and the surface.
+ * Hover fills are not compared: the pressed fill against a hovered primary or danger is lower
+ * (2.07:1 for primary in dark, 2.87:1 for danger in light).
  *
  * It sets the colour in all four chains the variants use (rest, hover, dark, dark hover) so that
  * the merge replaces whatever the variant's classes set there. Hover does not change a pressed
@@ -116,7 +120,12 @@ export class NeatButton {
   readonly iconOnly = input(false, { transform: booleanAttribute });
   /** Fully rounded ends: a pill, or a circle when `iconOnly`. */
   readonly rounded = input(false, { transform: booleanAttribute });
-  /** A toggle's state: `aria-pressed` and the pressed look. Undefined for a button that is not a toggle. */
+  /**
+   * A toggle's state: `aria-pressed` and the pressed look. Undefined for a button that is not a
+   * toggle. Only for `button[neatButton]`: `aria-pressed` is not valid on a link. The primary
+   * variant is a solid fill already, so its pressed look is the least distinct (2.78:1 against
+   * its resting fill in dark); put toggles on the other variants.
+   */
   readonly pressed = input<boolean | undefined>(undefined);
 
   protected readonly classes = computed(() => {

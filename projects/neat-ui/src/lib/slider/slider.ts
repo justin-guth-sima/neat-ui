@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, model } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  type Signal,
+} from '@angular/core';
 import {
   BrnSlider,
   BrnSliderRange,
@@ -81,7 +90,7 @@ const THUMB_CLASSES = hlm(SLIDER_HELM_CLASSES.thumb, 'bg-background focus-visibl
         brnSliderThumb
         [class]="thumbClasses"
         [attr.aria-describedby]="describedBy() ?? null"
-        [attr.aria-disabled]="slider.mutableDisabled() ? 'true' : null"
+        [attr.aria-disabled]="disabledAttr()"
       ></span>
     </div>
   `,
@@ -102,10 +111,12 @@ export class NeatSlider {
   protected readonly rangeClasses: string = SLIDER_HELM_CLASSES.range;
   protected readonly thumbClasses: string = THUMB_CLASSES;
 
-  protected readonly slider = inject(BrnSlider);
+  /** Brain's disabled state (also set by forms), as the attribute the thumb mirrors. */
+  protected readonly disabledAttr: Signal<'true' | null>;
 
   constructor() {
-    const slider = this.slider;
+    const slider = inject(BrnSlider);
+    this.disabledAttr = computed(() => (slider.mutableDisabled() ? 'true' : null));
     effect(() => slider.value.set([this.value()]));
     // Brain's output lives on this same host, so the subscription ends with it.
     slider.valueChange.subscribe(([value]) => this.value.set(value));
