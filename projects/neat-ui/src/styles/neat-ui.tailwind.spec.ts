@@ -17,4 +17,9 @@ describe('the kit stylesheet', () => {
 
     expect(outlines).toEqual(['outline-ring']);
   });
+
+  it('defines the page aside width token next to the spacing tokens', () => {
+    // neat-page's aside takes this width; apps read the same token to lay out beside it.
+    expect(stylesheet).toMatch(/--neat-aside-width:\s*22rem;/);
+  });
 });

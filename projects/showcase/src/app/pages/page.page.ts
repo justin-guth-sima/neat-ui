@@ -1,12 +1,14 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { NeatPage } from '@sima/neat-ui';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { NeatPage, NeatPageToolbar, NeatSwitch } from '@sima/neat-ui';
 
 @Component({
   selector: 'app-page-page',
-  imports: [NeatPage],
+  imports: [NeatPage, NeatPageToolbar, NeatSwitch],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <neat-page>
+    <button neatSwitch *neatPageToolbar [(checked)]="asideOpen">Side panel</button>
+
+    <neat-page [aside]="asideOpen() ? 'open' : 'closed'">
       <div class="showcase-page">
         <section class="showcase-section">
           <h2>Page</h2>
@@ -20,6 +22,12 @@ import { NeatPage } from '@sima/neat-ui';
             <code>padding="none"</code> lets full-bleed content such as a video grid reach the
             edges.
           </p>
+          <p>
+            The page's own controls go to the top bar with <code>*neatPageToolbar</code>, as the
+            "Side panel" switch there does; in kiosk mode they float beside the exit control while
+            the pointer moves. Its side panel goes into <code>[neatPageAside]</code> and shows while
+            <code>aside="open"</code>: the body narrows beside it, and each scrolls on its own.
+          </p>
         </section>
         @for (section of sections; track section) {
           <section class="showcase-section">
@@ -31,15 +39,28 @@ import { NeatPage } from '@sima/neat-ui';
               the whole viewport.
             </p>
             <p class="showcase-muted">
-              A page that needs more than one independently scrolling region is a kit change, not a
-              workaround: raise it so the layout becomes a supported component.
+              A page that needs more than one independently scrolling region beyond its side panel
+              is a kit change, not a workaround: raise it so the layout becomes a supported
+              component.
             </p>
           </section>
         }
       </div>
+
+      <section neatPageAside class="showcase-section">
+        <h3>Side panel</h3>
+        @for (item of asideItems; track item) {
+          <p class="showcase-muted">
+            Inspector content {{ item }}. The panel is <code>--neat-aside-width</code> wide and
+            scrolls independently of the page body.
+          </p>
+        }
+      </section>
     </neat-page>
   `,
 })
 export class PagePage {
+  protected readonly asideOpen = signal(true);
   protected readonly sections = Array.from({ length: 20 }, (_, index) => index + 1);
+  protected readonly asideItems = Array.from({ length: 30 }, (_, index) => index + 1);
 }

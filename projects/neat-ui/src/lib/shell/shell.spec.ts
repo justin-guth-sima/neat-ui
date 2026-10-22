@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, RouterOutlet, Routes } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { KIOSK_POINTER_IDLE_MS, KioskService } from '../kiosk/kiosk.service';
 import { ThemeService } from '../theme/theme.service';
 import { NeatNavItem } from './nav-item';
+import { NeatPageToolbar } from './page-toolbar';
 import { NeatShell } from './shell';
 
 const RAIL_KEY = 'neat-ui:rail-expanded';
@@ -17,6 +18,31 @@ const NAV_ITEMS: NeatNavItem[] = [
 
 @Component({ template: 'page content' })
 class StubPage {}
+
+/** A page with a toolbar whose controls act on the page's own state. */
+@Component({
+  imports: [NeatPageToolbar],
+  template: `
+    <div class="toolbar-demo" *neatPageToolbar>
+      <button type="button" (click)="next()">Next page</button>
+      <span class="page-number">Page {{ page() }}</span>
+    </div>
+    <p class="viewer-body">page content</p>
+  `,
+})
+class ToolbarPage {
+  readonly page = signal(1);
+
+  protected next(): void {
+    this.page.update((page) => page + 1);
+  }
+}
+
+@Component({
+  imports: [NeatPageToolbar],
+  template: `<span class="other-toolbar" *neatPageToolbar>Other tools</span>`,
+})
+class OtherToolbarPage {}
 
 @Component({
   imports: [NeatShell, RouterOutlet],
@@ -40,6 +66,8 @@ const routes: Routes = [
       { path: 'streaming', component: StubPage },
       { path: 'streaming/:slot', component: StubPage },
       { path: 'viewer', component: StubPage },
+      { path: 'viewer/grid', component: ToolbarPage },
+      { path: 'media/library', component: OtherToolbarPage },
     ],
   },
 ];
@@ -60,6 +88,9 @@ describe('NeatShell', () => {
   const kioskButton = (): HTMLButtonElement => button('Kiosk mode');
   const exitControl = (): HTMLButtonElement => button('Exit kiosk mode');
   const main = (): HTMLElement => shell().querySelector('main') as HTMLElement;
+  const toolbarDemo = (): HTMLElement | null => shell().querySelector('.toolbar-demo');
+  const toolbarRegion = (): HTMLElement | null => shell().querySelector('.page-toolbar');
+  const kioskToolbar = (): HTMLElement | null => shell().querySelector('.kiosk-toolbar');
   const labelOf = (anchor: HTMLAnchorElement): HTMLElement =>
     anchor.querySelector('.label') as HTMLElement;
   const tooltip = (): HTMLElement | null => document.querySelector('[role="tooltip"]');
@@ -452,5 +483,124 @@ describe('NeatShell', () => {
     expect(main.minHeight).toBe('0px');
     expect(main.minWidth).toBe('0px');
     expect(main.overflow).toBe('hidden');
+  });
+  it('renders *neatPageToolbar content in the shell top bar and removes it when the page is destroyed', async () => {
+    await start('/viewer/grid');
+
+    const region = toolbarRegion() as HTMLElement;
+    expect(topbar().contains(region)).toBe(true);
+    expect(region.contains(toolbarDemo())).toBe(true);
+    expect(main().querySelector('.toolbar-demo')).toBeNull();
+    expect(main().querySelector('.viewer-body')).not.toBeNull();
+    // Between the page title and the end slot.
+    const title = topbar().querySelector('h1') as HTMLElement;
+    const end = topbar().querySelector('.topbar-end') as HTMLElement;
+    expect(title.compareDocumentPosition(region) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(region.compareDocumentPosition(end) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    // The content stays the page's: its bindings read and change the page's state.
+    (region.querySelector('button') as HTMLButtonElement).click();
+    await settle();
+    expect(region.querySelector('.page-number')?.textContent).toBe('Page 2');
+
+    await harness.navigateByUrl('/media');
+
+    expect(toolbarDemo()).toBeNull();
+    expect(toolbarRegion()).toBeNull();
+  });
+
+  it('hands the top bar to the toolbar of the page navigated to', async () => {
+    await start('/viewer/grid');
+
+    await harness.navigateByUrl('/media/library');
+
+    expect(toolbarDemo()).toBeNull();
+    expect(toolbarRegion()?.querySelector('.other-toolbar')?.textContent).toBe('Other tools');
+  });
+
+  it('shows no toolbar region for a page without a toolbar', async () => {
+    await start('/media');
+
+    expect(toolbarRegion()).toBeNull();
+  });
+
+  it('lets a wide toolbar shrink and scroll instead of pushing the end slot out', async () => {
+    await start('/viewer/grid');
+    const region = getComputedStyle(toolbarRegion() as HTMLElement);
+
+    // jsdom lays nothing out: the region's ability to give up its width first is asserted by
+    // style, and the app's e2e suite checks that the top bar's items stay inside it.
+    expect(region.minWidth).toBe('0px');
+    expect(Number(region.flexShrink)).toBeGreaterThan(1);
+    expect(region.flexGrow).toBe('0');
+    // jsdom does not expand the `overflow` shorthand into its two axes.
+    expect(region.overflow).toBe('auto hidden');
+  });
+
+  it('in kiosk the toolbar shows in the floating bar only while the pointer is active', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    await start('/viewer/grid');
+
+    await TestBed.inject(KioskService).enter();
+    await settle();
+
+    expect(shell().querySelector('header')).toBeNull();
+    const bar = kioskToolbar() as HTMLElement;
+    expect(bar.contains(toolbarDemo())).toBe(true);
+    expect(main().contains(bar)).toBe(false);
+    // The exit control stays first in the tab order, ahead of the toolbar.
+    expect(
+      exitControl().compareDocumentPosition(bar) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    const shown = () => getComputedStyle(bar).opacity === '1';
+    expect(shown()).toBe(true);
+
+    await vi.advanceTimersByTimeAsync(KIOSK_POINTER_IDLE_MS);
+    await settle();
+    expect(shown()).toBe(false);
+    expect(getComputedStyle(bar).pointerEvents).toBe('none');
+    expect(bar.closest('[aria-hidden="true"]')).toBeNull();
+
+    document.dispatchEvent(new Event('pointermove'));
+    await settle();
+    expect(shown()).toBe(true);
+    expect(getComputedStyle(bar).pointerEvents).toBe('auto');
+
+    // Leaving kiosk mode puts the same content back into the top bar.
+    await TestBed.inject(KioskService).exit();
+    await settle();
+    expect(kioskToolbar()).toBeNull();
+    expect((toolbarRegion() as HTMLElement).contains(toolbarDemo())).toBe(true);
+  });
+
+  it('keeps the floating toolbar visible while one of its controls has keyboard focus', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    await start('/viewer/grid');
+    await TestBed.inject(KioskService).enter();
+    await settle();
+    const bar = kioskToolbar() as HTMLElement;
+    const control = bar.querySelector('button') as HTMLButtonElement;
+
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+    control.focus();
+    await vi.advanceTimersByTimeAsync(KIOSK_POINTER_IDLE_MS);
+    await settle();
+
+    expect(TestBed.inject(KioskService).pointerIdle()).toBe(true);
+    expect(getComputedStyle(bar).opacity).toBe('1');
+
+    control.blur();
+    await settle();
+
+    expect(getComputedStyle(bar).opacity).toBe('0');
+  });
+
+  it('shows no floating toolbar in kiosk for a page without a toolbar', async () => {
+    await start('/media');
+    await TestBed.inject(KioskService).enter();
+    await settle();
+
+    expect(exitControl()).not.toBeNull();
+    expect(kioskToolbar()).toBeNull();
   });
 });

@@ -11,6 +11,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { CdkPortalOutlet } from '@angular/cdk/portal';
 import {
   containsTree,
   IsActiveMatchOptions,
@@ -27,6 +28,7 @@ import { ThemeService } from '../theme/theme.service';
 import { NeatTooltip } from '../tooltip/tooltip';
 import { NeatLogo } from './logo';
 import { NeatNavItem } from './nav-item';
+import { PageToolbarSlot } from './page-toolbar';
 
 const RAIL_EXPANDED_KEY = 'neat-ui:rail-expanded';
 
@@ -45,15 +47,17 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
  * scrolls itself, so pages own their scrolling (see `neat-page`).
  *
  * Content projection: the default slot is the content area (usually a `<router-outlet />`);
- * elements marked `neatTopbarEnd` go to the right side of the top bar.
+ * elements marked `neatTopbarEnd` go to the right side of the top bar. The active page's own
+ * controls (`*neatPageToolbar`) appear between the page title and that end slot.
  *
  * Kiosk mode (`KioskService`, entered from the top bar or with `?kiosk`) drops the rail and the
  * top bar, gives the content area the whole viewport and floats an exit control over its top
- * right corner while the pointer moves.
+ * right corner while the pointer moves; the page toolbar floats beside it on the same terms.
  */
 @Component({
   selector: 'neat-shell',
   imports: [
+    CdkPortalOutlet,
     NeatButton,
     NeatIcon,
     NeatKioskExit,
@@ -73,6 +77,7 @@ export class NeatShell {
 
   protected readonly theme = inject(ThemeService);
   protected readonly kiosk = inject(KioskService);
+  protected readonly pageToolbar = inject(PageToolbarSlot).portal;
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
 

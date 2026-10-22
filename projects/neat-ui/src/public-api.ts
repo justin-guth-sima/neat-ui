@@ -18,6 +18,7 @@ export type { NeatIconName } from './lib/icon/icon-registry';
 export { NEAT_ICON_NAMES } from './lib/icon/icon-registry';
 export type { NeatNavItem } from './lib/shell/nav-item';
 export { NeatShell } from './lib/shell/shell';
+export { NeatPageToolbar } from './lib/shell/page-toolbar';
 export { NeatPage } from './lib/page/page';
 export { KIOSK_POINTER_IDLE_MS, KioskService } from './lib/kiosk/kiosk.service';
 export type { NeatButtonSize, NeatButtonVariant } from './lib/button/button';

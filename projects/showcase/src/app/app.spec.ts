@@ -46,4 +46,20 @@ describe('App', () => {
     expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe(link);
     expect(root().querySelector('header h1')?.textContent?.trim()).toBe(link);
   });
+
+  it('demonstrates the page toolbar and side panel on the page demo', async () => {
+    await navigate('/page');
+    const toggle = root().querySelector('header button[role="switch"]') as HTMLButtonElement;
+    const aside = (): HTMLElement | null => content().querySelector('neat-page aside');
+
+    expect(toggle.textContent?.trim()).toBe('Side panel');
+    expect(toggle.getAttribute('aria-checked')).toBe('true');
+    expect(aside()?.querySelector('h3')?.textContent).toBe('Side panel');
+
+    toggle.click();
+    await fixture.whenStable();
+
+    expect(toggle.getAttribute('aria-checked')).toBe('false');
+    expect(aside()).toBeNull();
+  });
 });

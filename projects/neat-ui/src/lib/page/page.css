@@ -1,10 +1,15 @@
+/* The body and, while open, the aside side by side; the page itself never scrolls. */
 :host {
-  display: block;
+  display: flex;
   height: 100%;
   overflow: hidden;
 }
 
+/* Takes the width the aside leaves and may shrink below its content's, so content never pushes
+   the aside out of the page. */
 .body {
+  flex: 1 1 0;
+  min-width: 0;
   box-sizing: border-box;
   height: 100%;
 }
@@ -24,4 +29,16 @@
 
 .body[data-padding='none'] {
   padding: 0;
+}
+
+/* A fixed-width panel with its own scroll context and inset, divided from the body by the theme's
+   border colour. Narrower than a page, so a smaller inset than the page's. */
+aside {
+  flex: none;
+  box-sizing: border-box;
+  width: var(--neat-aside-width);
+  height: 100%;
+  padding: var(--neat-space-4);
+  overflow: auto;
+  border-inline-start: 1px solid var(--border);
 }

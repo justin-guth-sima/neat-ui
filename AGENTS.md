@@ -41,6 +41,11 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   table labelled with the helm file, and its spec reads that file as text
   (`import src from '…/hlm-x.ts?source' with { loader: 'text' }`) and checks each copied string is
   still there, so a helm update that changes them fails until the wrapper is reviewed.
+  Two wrappers own their behaviour instead of hosting a brain primitive, each for a stated reason:
+  - `NeatSwitch` is a native `button` with `role="switch"`: brain's switch is a component that
+    renders its own button, so it cannot be a host directive.
+  - `NeatSegmented` owns its radios (roles, roving tabindex, arrow keys): brain's toggle item
+    re-writes `aria-pressed` on every change, which contradicts the radio roles.
 - **Customise in this order: theme tokens, then wrapper inputs and classes, never helm.** Tokens
   come from `lib/theme/*.ts`; `npm run theme:emit` regenerates `tokens.generated.css`, and the theme
   spec checks the contrast of every text pair it emits. A wrapper overrides a helm class only where
@@ -75,7 +80,8 @@ Why: tokens are what make light/dark and later rebranding work. Overrides (deep 
 The tokens are the theme's colours (Spartan's variables such as `--primary`, `--muted-foreground`,
 `--border`), `--radius`, and a short layout set from Tailwind's scale, defined once in the kit
 stylesheet: `--neat-space-2`, `--neat-space-3`, `--neat-space-4`, `--neat-space-6` (0.5, 0.75, 1
-and 1.5rem, for gaps and insets) and `--neat-text-xs`, `--neat-text-sm` (0.75 and 0.875rem). Page
+and 1.5rem, for gaps and insets), `--neat-text-xs`, `--neat-text-sm` (0.75 and 0.875rem) and
+`--neat-aside-width` (22rem, the width of a page's side panel). Page
 insets come from `neat-page` (`padding="page"` by default, `padding="none"` for full-bleed content
 such as a video grid), never from a page's own stylesheet. Escape hatch: if a look cannot be
 reached through tokens and inputs, that is a kit gap. Treat it as a proposal under the previous
@@ -96,9 +102,24 @@ that needs no styles simply has no stylesheet.
 
 **Pages fill the shell's content area and own at most one scroll context.**
 Why: nested scroll containers and hard-coded heights break on other screen sizes and in kiosk mode,
-where the shell's size is not yours to know. Do not measure or hard-code the shell's size. Escape
-hatch: if a page needs more than one independently scrolling region (for example a log pane beside a
-form), raise it as a kit change so the layout is a supported component, not an ad hoc one.
+where the shell's size is not yours to know. Do not measure or hard-code the shell's size. The one
+supported second scroll context is the page's side panel (below). Escape hatch: if a page needs
+another independently scrolling region (for example a log pane beside a form), raise it as a kit
+change so the layout is a supported component, not an ad hoc one.
+
+**A page's toolbar goes through `*neatPageToolbar`, its side panel through `[neatPageAside]`.**
+Why: the shell owns the top bar and kiosk mode, and `neat-page` owns the page's layout; a page that
+builds its own bar or panel duplicates both and breaks in one of them.
+
+- `<div *neatPageToolbar>…</div>` anywhere in a page's template renders that content in the top
+  bar, between the page title and the end slot, while the page exists. In kiosk mode it floats
+  beside the exit control and fades with it. The content stays the page's (bindings, injection).
+  The region gives up width first and scrolls sideways rather than push the end slot out, so keep
+  a toolbar narrow enough to fit at the screen sizes the app supports. One toolbar at a time; a
+  second throws in dev mode.
+- Elements marked `neatPageAside` inside `neat-page` form a right-hand panel shown while
+  `aside="open"`: `--neat-aside-width` wide, inset and scrolling on its own, with the body
+  narrowing beside it and keeping its own `scroll` setting. Closed, the panel is not rendered.
 
 **Raw browser APIs used for performance stay isolated, outside change detection, with tests.**
 Why: canvas, requestAnimationFrame, observers and similar code is fast because it bypasses Angular;

@@ -94,4 +94,46 @@ describe('ThemeService', () => {
     expect(theme.scheme()).toBe('dark');
     expect(html.classList.contains('neat-dark')).toBe(true);
   });
+
+  it('setScheme(dark, {persist: false}) applies dark without writing storage; a later toggle persists as before', () => {
+    localStorage.setItem(STORAGE_KEY, 'light');
+    const theme = TestBed.inject(ThemeService);
+
+    theme.setScheme('dark', { persist: false });
+
+    expect(theme.scheme()).toBe('dark');
+    expect(html.classList.contains('neat-dark')).toBe(true);
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('light');
+
+    theme.toggle();
+
+    expect(theme.scheme()).toBe('light');
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('light');
+
+    theme.toggle();
+
+    expect(theme.scheme()).toBe('dark');
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('dark');
+  });
+
+  it('leaves the stored scheme for the next page load when not persisting', () => {
+    const theme = TestBed.inject(ThemeService);
+
+    theme.setScheme('dark', { persist: false });
+    TestBed.resetTestingModule();
+
+    // A new page load starts from storage again, which the call left untouched.
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+    expect(TestBed.inject(ThemeService).scheme()).toBe('light');
+  });
+
+  it('persists by default and with persist: true', () => {
+    const theme = TestBed.inject(ThemeService);
+
+    theme.setScheme('dark', { persist: true });
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('dark');
+
+    theme.setScheme('light', {});
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('light');
+  });
 });

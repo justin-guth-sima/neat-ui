@@ -24,10 +24,17 @@ export class ThemeService {
     this.apply(this.current());
   }
 
-  setScheme(scheme: NeatColorScheme): void {
+  /**
+   * Applies `scheme` and, unless `persist` is false, stores it for later page loads. Without
+   * storing, the scheme holds for this page load only, as a URL parameter that themes a shared
+   * link needs: the user's stored choice stays, and a later toggle stores as usual.
+   */
+  setScheme(scheme: NeatColorScheme, { persist = true }: { persist?: boolean } = {}): void {
     this.current.set(scheme);
     this.apply(scheme);
-    safeStorage.set(STORAGE_KEY, scheme);
+    if (persist) {
+      safeStorage.set(STORAGE_KEY, scheme);
+    }
   }
 
   toggle(): void {
