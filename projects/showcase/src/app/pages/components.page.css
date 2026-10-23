@@ -138,3 +138,37 @@
   padding-inline-start: var(--neat-space-4);
   font-size: var(--neat-text-sm);
 }
+
+/* A select fills its container's width, so the demos size the container. */
+.select-row neat-select,
+.card-select {
+  width: 14rem;
+}
+
+/* Bars fill their container's width too: a column the width of the demos' sliders. */
+.progress-demo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  width: 20rem;
+  font-size: var(--neat-text-sm);
+}
+
+.progress-slider {
+  width: 16rem;
+  margin-bottom: var(--neat-space-3);
+}
+
+/* A drop zone fills its container's width. */
+.drop-demo {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 18rem));
+  gap: var(--neat-space-4);
+}
+
+.card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+  max-width: 20rem;
+}

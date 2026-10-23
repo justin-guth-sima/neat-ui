@@ -28,11 +28,14 @@ import {
   NeatDialogBody,
   type NeatDialogRef,
 } from '@sima/neat-ui/dialog';
+import { NeatDropZone } from '@sima/neat-ui/drop-zone';
 import { NeatInput } from '@sima/neat-ui/input';
 import { NeatLine, NeatLineEnd, NeatLineList } from '@sima/neat-ui/line-list';
 import { NeatNumberField } from '@sima/neat-ui/number-field';
 import { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } from '@sima/neat-ui/popover';
+import { NeatProgress } from '@sima/neat-ui/progress';
 import { NeatSegmented, type NeatSegmentedOption } from '@sima/neat-ui/segmented';
+import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
 import { NeatSlider } from '@sima/neat-ui/slider';
 import { NeatSwitch } from '@sima/neat-ui/switch';
 import { NeatTab, NeatTabs } from '@sima/neat-ui/tabs';
@@ -70,6 +73,13 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
   { value: 'boxes', label: 'Boxes' },
   { value: 'masks', label: 'Masks' },
 ];
+const SOURCE_OPTIONS: NeatSelectOption<string>[] = [
+  { value: 'camera', label: 'Front camera' },
+  { value: 'clip', label: 'Warehouse clip' },
+  { value: 'rtsp', label: 'RTSP stream' },
+  { value: 'usb', label: 'USB camera (unavailable)', disabled: true },
+  { value: 'file', label: 'Loading dock recording' },
+];
 const INITIAL_REGIONS = ['Inclusion 1', 'Exclusion 1', 'Exclusion 2'];
 const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
   { value: 'off', label: 'Off' },
@@ -83,6 +93,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatButton,
     NeatDialogActions,
     NeatDialogBody,
+    NeatDropZone,
     NeatIcon,
     NeatInlineButton,
     NeatInput,
@@ -95,7 +106,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatPopover,
     NeatPopoverContent,
     NeatPopoverTrigger,
+    NeatProgress,
     NeatSegmented,
+    NeatSelect,
     NeatSlider,
     NeatSwitch,
     NeatTab,
@@ -710,6 +723,112 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
         </section>
 
         <section class="showcase-section">
+          <h2>Select</h2>
+          <p class="showcase-muted">
+            <code>neat-select</code>: a choice of one value from a list, no free text. Its
+            <code>label</code> is the accessible name of the select and its list;
+            <code>showLabel</code> also shows it above the select. The arrow keys, Home and End move
+            through the options (a disabled one is skipped), typing a few letters jumps to a label,
+            Enter or Space picks and Escape closes the list without picking. It fills its
+            container's width. Inside a dialog its list shows above the dialog, and Escape closes
+            the list only; the next Escape closes the dialog.
+          </p>
+          <div class="showcase-row select-row">
+            <neat-select
+              label="Source"
+              placeholder="Pick a source"
+              showLabel
+              [options]="sourceOptions"
+              [(value)]="source"
+            />
+            <neat-select
+              label="Source, label hidden"
+              placeholder="Pick a source"
+              [options]="sourceOptions"
+              [(value)]="source"
+            />
+            <neat-select label="Disabled" disabled [options]="sourceOptions" [value]="'rtsp'" />
+            <button neatButton type="button" variant="outlined" (click)="openAssign(assignDialog)">
+              Assign a source…
+            </button>
+          </div>
+          <p class="showcase-code showcase-muted" aria-live="polite">
+            Selected: {{ source() ?? 'none' }}; {{ assignResult() }}
+          </p>
+
+          <ng-template #assignDialog let-dialog>
+            <neat-dialog-body>
+              <neat-select
+                label="Source for channel 3"
+                showLabel
+                placeholder="Pick a source"
+                [options]="sourceOptions"
+                [(value)]="dialogSource"
+              />
+            </neat-dialog-body>
+            <neat-dialog-actions>
+              <button neatButton type="button" variant="outlined" (click)="dialog.close()">
+                Cancel
+              </button>
+              <button neatButton type="button" (click)="dialog.close(dialogSource())">
+                Assign
+              </button>
+            </neat-dialog-actions>
+          </ng-template>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Progress</h2>
+          <p class="showcase-muted">
+            <code>neat-progress</code>: a bar for work with a known share done (<code>value</code>,
+            0 to 100) or without one (<code>null</code>: the bar moves on its own, and without
+            motion it is a still bar at half strength). <code>label</code> is the accessible name; a
+            screen reader reads the value when it reaches the bar but is not told of every change.
+            The toasts' progress bar is this one.
+          </p>
+          <div class="progress-demo">
+            <span>Known, from the slider</span>
+            <neat-progress label="Upload" [value]="progress()" />
+            <neat-slider
+              class="progress-slider"
+              label="Progress value"
+              [min]="0"
+              [max]="100"
+              [step]="5"
+              [(value)]="progress"
+            />
+            <span>Complete</span>
+            <neat-progress label="Import" [value]="100" />
+            <span>Unknown</span>
+            <neat-progress label="Preparing" [value]="null" />
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Drop zone</h2>
+          <p class="showcase-muted">
+            <code>neat-drop-zone</code>: drop files on it, or click it (or press Enter or Space on
+            it) for the system's file chooser. <code>files</code> emits what was dropped or chosen;
+            <code>accept</code> filters both, and <code>multiple</code> allows several. Files being
+            dragged over it light it up. Disabled, it ignores clicks and drops.
+          </p>
+          <div class="drop-demo">
+            <neat-drop-zone
+              label="Drop one video here, or click to choose"
+              accept="video/*,.mkv"
+              (files)="dropped.set(describeFiles($event))"
+            />
+            <neat-drop-zone
+              label="Drop any files here, or click to choose"
+              multiple
+              (files)="dropped.set(describeFiles($event))"
+            />
+            <neat-drop-zone label="Uploads are paused" disabled />
+          </div>
+          <p class="showcase-code showcase-muted" aria-live="polite">{{ dropped() }}</p>
+        </section>
+
+        <section class="showcase-section">
           <h2>Controls on a card</h2>
           <p class="showcase-muted">
             On the card surface, which differs from the page background in dark mode.
@@ -728,6 +847,18 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <div class="card-field">
               <input neatInput size="small" aria-label="Jump to channel" placeholder="Channel" />
             </div>
+            <neat-select
+              class="card-select"
+              label="Source, on a card"
+              placeholder="Pick a source"
+              [options]="sourceOptions"
+              [(value)]="source"
+            />
+          </div>
+          <div class="card card-stack">
+            <neat-progress label="Upload, on a card" [value]="progress()" />
+            <neat-progress label="Preparing, on a card" [value]="null" />
+            <neat-drop-zone label="Drop files here, on a card" multiple />
           </div>
           <div class="card">
             <neat-tabs label="Channel settings, on a card" [(value)]="tab">
@@ -904,6 +1035,12 @@ export class ComponentsPage {
   protected readonly pageCommits = signal(0);
   protected readonly drawChannel = signal(2);
   protected readonly acceptPage = (n: number) => n >= 1 && n <= this.pageCount;
+  protected readonly sourceOptions = SOURCE_OPTIONS;
+  protected readonly source = signal<string | null>(null);
+  protected readonly dialogSource = signal<string | null>(null);
+  protected readonly assignResult = signal('dialog not opened yet');
+  protected readonly progress = signal(40);
+  protected readonly dropped = signal('Nothing dropped yet');
   protected readonly confirmAnswer = signal('Not asked yet');
   private readonly confirm = inject(NeatConfirm);
   private readonly dialogs = inject(NeatDialog);
@@ -970,6 +1107,20 @@ export class ComponentsPage {
   protected async openRename(content: TemplateRef<unknown>): Promise<void> {
     const name = await this.dialogs.open<string>(content, { title: 'Rename source' }).closed;
     this.dialogResult.set(name === undefined ? 'Rename: dismissed' : `Rename: saved "${name}"`);
+  }
+
+  protected async openAssign(content: TemplateRef<unknown>): Promise<void> {
+    const source = await this.dialogs.open<string | null>(content, { title: 'Assign a source' })
+      .closed;
+    this.assignResult.set(
+      source === undefined ? 'dialog dismissed' : `dialog assigned ${source ?? 'nothing'}`,
+    );
+  }
+
+  protected describeFiles(files: File[]): string {
+    return `Received ${files.length} ${files.length === 1 ? 'file' : 'files'}: ${files
+      .map((file) => file.name)
+      .join(', ')}`;
   }
 
   protected async openLong(content: TemplateRef<unknown>): Promise<void> {

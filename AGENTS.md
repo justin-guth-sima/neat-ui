@@ -16,7 +16,9 @@ look happens in one place. Every rule here protects that.
     `NeatShell`, `NeatPageToolbar`, `NeatPage`, `KioskService`, `NeatButton`, `NeatInlineButton`,
     `NeatTooltip` and `NeatNote`. Public API is `projects/neat-ui/src/public-api.ts`.
   - one secondary entry point per other component, `@sima/neat-ui/<name>`: `switch`, `slider`,
-    `segmented`, `tabs`, `popover`, `confirm`, `input`, `number-field`, `line-list`, `dialog`
+    `segmented`, `tabs`, `popover`, `confirm`, `input`, `number-field`, `line-list`, `select`
+    (`NeatSelect`, a labelled listbox combobox), `progress` (`NeatProgress`, which the toasts'
+    bar is), `drop-zone` (`NeatDropZone`, files by drop or by the system's chooser), `dialog`
     (`NeatDialog`, the general modal dialog, with `neat-dialog-body` and `neat-dialog-actions`) and
     `toast` (`NeatToasts` and `neat-toast-host`), each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
@@ -107,6 +109,13 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   the kit's toasts do (a column of at most three, fixed lifetimes, progress that updates). The
   toast host lands in every app's main bundle, so the kit's own, a small component on the CDK
   overlay, is the cheaper fit.
+  `NeatSelect` and `NeatProgress` use brain's directives in their own template instead of as host
+  directives, each for a stated reason: brain's select finds its options by content query, which
+  only sees what is written inside its element in the template that uses it (options rendered by
+  a wrapper's own template are not content of the wrapper's host element), and brain's progress throws for a
+  value outside its range, so the kit's own input, held to the range, feeds it. `NeatSelect` also
+  handles Escape itself before the CDK's overlay dispatcher can: an open list closes and the key
+  stops there, so a dialog around the select keeps open.
   Three wrappers own their behaviour instead of hosting a brain primitive, each for a stated reason:
   - `NeatSwitch` is a native `button` with `role="switch"`: brain's switch is a component that
     renders its own button, so it cannot be a host directive.

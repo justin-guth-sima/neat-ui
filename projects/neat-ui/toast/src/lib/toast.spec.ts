@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { contrastRatio, type NeatColorScheme } from '@sima/neat-ui';
 import { NeatDialog } from '@sima/neat-ui/dialog';
-import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
+import { MIN_FILL_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
 import { NeatToastHost } from './toast-host';
@@ -162,32 +162,32 @@ describe('NeatToasts and the toast host', () => {
   it('a progress toast shows its title, detail and percent, and an unknown percent is indeterminate', () => {
     const progress = toasts.progress('Uploading 3 files');
     render();
-    const track = () => items()[0].querySelector<HTMLElement>('[data-slot="toast-track"]')!;
-    const fill = () => items()[0].querySelector<HTMLElement>('[data-slot="toast-fill"]')!;
+    const bar = () => items()[0].querySelector<HTMLElement>('neat-progress [role="progressbar"]')!;
+    const fill = () => items()[0].querySelector<HTMLElement>('[data-slot="progress-indicator"]')!;
 
     expect(items()[0].dataset['kind']).toBe('progress');
     expect(items()[0].textContent).toContain('Uploading 3 files');
-    expect(track().dataset['indeterminate']).toBe('');
-    expect(fill().dataset['indeterminate']).toBe('');
-    expect(fill().style.width).toBe('');
+    expect(bar().getAttribute('aria-label')).toBe('Uploading 3 files');
+    expect(bar().hasAttribute('aria-valuenow')).toBe(false);
+    expect(fill().classList).toContain('animate-indeterminate');
 
     progress.update('clip.mp4 · file 1 of 3', 41.6);
     render();
     expect(items()[0].textContent).toContain('clip.mp4 · file 1 of 3');
     expect(items()[0].textContent).toContain('42%');
-    expect(track().hasAttribute('data-indeterminate')).toBe(false);
-    expect(fill().style.width).toBe('42%');
+    expect(bar().getAttribute('aria-valuenow')).toBe('42');
+    expect(fill().classList).not.toContain('animate-indeterminate');
 
     // Back to unknown, and out-of-range values are held to the bar.
     progress.update('Preparing', null);
     render();
-    expect(fill().dataset['indeterminate']).toBe('');
+    expect(bar().hasAttribute('aria-valuenow')).toBe(false);
     progress.update('Over', 140);
     render();
-    expect(fill().style.width).toBe('100%');
+    expect(bar().getAttribute('aria-valuenow')).toBe('100');
     progress.update('Under', -5);
     render();
-    expect(fill().style.width).toBe('0%');
+    expect(bar().getAttribute('aria-valuenow')).toBe('0');
   });
 
   it('a settled progress toast ignores later calls, and a result comes up as the newest toast', () => {
@@ -446,17 +446,8 @@ describe('NeatToasts and the toast host', () => {
             `${scheme}: ${kind} outline ${outline}`,
           ).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
         }
-
-        // The bar's fill against its track: what tells done from to do.
-        const bar = items().find((item) => item.dataset['kind'] === 'progress')!;
-        const track = [...bar.querySelector('[data-slot="toast-track"]')!.classList];
-        const fill = [...bar.querySelector('[data-slot="toast-fill"]')!.classList];
-        const trackColor = stateColor(track, 'bg', q, tokens['popover']);
-        const fillColor = stateColor(fill, 'bg', q, trackColor);
-        expect(
-          contrastRatio(fillColor, trackColor),
-          `${scheme}: bar fill ${fillColor} on ${trackColor}`,
-        ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+        // The progress bar is `neat-progress`; progress.spec holds its fill and track to 3:1 on
+        // the popover surface a toast sits on.
       });
     }
   });

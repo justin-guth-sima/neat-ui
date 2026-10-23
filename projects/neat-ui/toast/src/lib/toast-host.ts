@@ -13,6 +13,7 @@ import {
   viewChild,
   ViewContainerRef,
 } from '@angular/core';
+import { NeatProgress } from '@sima/neat-ui/progress';
 import { ToastStore, visibleToasts, type ToastEntry } from './toast-store';
 
 /** The gap between the stack and the screen's corner. */
@@ -72,6 +73,7 @@ const TOAST_CLASSES: Record<ToastEntry['kind'], string> = {
  */
 @Component({
   selector: 'neat-toast-host',
+  imports: [NeatProgress],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './toast-host.css',
   template: `
@@ -111,18 +113,7 @@ const TOAST_CLASSES: Record<ToastEntry['kind'], string> = {
                   <span>{{ toast.percent }}%</span>
                 }
               </div>
-              <div
-                data-slot="toast-track"
-                class="bg-muted mt-2 h-1.5 overflow-hidden rounded-full"
-                [attr.data-indeterminate]="toast.percent === null ? '' : null"
-              >
-                <div
-                  data-slot="toast-fill"
-                  class="fill bg-primary h-full rounded-full"
-                  [attr.data-indeterminate]="toast.percent === null ? '' : null"
-                  [style.width.%]="toast.percent"
-                ></div>
-              </div>
+              <neat-progress class="mt-2" [label]="toast.title" [value]="toast.percent" />
             } @else {
               <p class="m-0">{{ toast.message }}</p>
             }
