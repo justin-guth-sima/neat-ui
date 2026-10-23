@@ -30,6 +30,46 @@ module.exports = defineConfig([
     rules: {},
   },
   {
+    // The entry points depend one way (AGENTS.md): video reaches the primary only through the
+    // package name, never by a relative path, which ng-packagr would resolve into a copy of the
+    // primary inside the video bundle. The pattern is matched against the import text, not a
+    // resolved path, so it targets the one shape such a path has: climbing out to a `src` folder
+    // (video code never needs to climb out of `video/src` and back into a `src` folder).
+    files: ['projects/neat-ui/video/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              regex: '^(\\.\\./)+src/',
+              message:
+                "Import the primary entry point as '@sima/neat-ui', not by a relative path across the boundary.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // The other half: the primary never imports video code, by relative path or by package name
+    // (the latter is a cycle ng-packagr rejects, but only after the build has started).
+    files: ['projects/neat-ui/src/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              regex: '^(\\.\\./)+video/|^@sima/neat-ui/video(/|$)',
+              message: 'The primary entry point must not import from @sima/neat-ui/video.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // Vendored Spartan helm (npm run helm:add): internal, never exported, and kept as generated so
     // updates stay mechanical. Its hlm selectors, `class` input aliases, type aliases and
     // `ReadonlyArray` are upstream style. The paginated tab list handles keys on the container of

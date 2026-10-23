@@ -48,7 +48,7 @@ const MAX_CANVAS_DPR = 2;
 
 /**
  * `empty` until the stream presents its first frame, `playing` while frames arrive, `stopped`
- * once none has arrived for `NEAT_STREAM_STALE_MS`; it plays again when frames return.
+ * once none has arrived for the stale timeout (about 1.8 s); it plays again when frames return.
  */
 export type NeatTileState = 'empty' | 'playing' | 'stopped';
 

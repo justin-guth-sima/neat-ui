@@ -1,6 +1,6 @@
+import { SIMA_PALETTE } from '@sima/neat-ui';
 import type { NeatMetadataMessage } from '../sync/metadata-message';
 import { OVERLAY_PALETTE } from '../theme/overlay-palette';
-import { SIMA_PALETTE } from '@sima/neat-ui';
 import { NeatOverlayColors } from './colors';
 import { drawFrame } from './draw-frame';
 import {

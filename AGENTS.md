@@ -23,8 +23,11 @@ look happens in one place. Every rule here protects that.
 the package name (`from '@sima/neat-ui'`), never by a relative path across the boundary; the
 primary never imports from `video`. Why: ng-packagr builds the primary first and gives the
 secondary the built package, so a relative path would copy the primary into the video bundle, and
-an import the other way is a cycle. `npm run check:dist` fails a build whose primary bundle
-contains `neat-video-tile`. A new export goes into the entry point that owns its code, and only
+an import the other way is a cycle. Two tools guard the two halves: ESLint (`no-restricted-imports`
+in `projects/neat-ui/eslint.config.js`, run by `npm run lint`) fails a relative import from video
+code out to a `src` folder, and any import of video code (relative or `@sima/neat-ui/video`) in the
+primary; `npm run check:dist` fails a build whose primary bundle contains `neat-video-tile`, which
+catches video code that reached the primary some other way. A new export goes into the entry point that owns its code, and only
 what an app or the showcase needs is exported: a helper that only the kit's own code uses stays
 internal.
 
