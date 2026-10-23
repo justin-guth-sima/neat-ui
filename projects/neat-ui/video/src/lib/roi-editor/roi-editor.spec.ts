@@ -53,14 +53,37 @@ describe('NeatRoiEditor', () => {
   }
 
   /** Dispatches a mouse event at tile coordinates; the box offsets are the caller's business. */
-  async function mouse(type: string, x: number, y: number, button = 0): Promise<void> {
+  async function mouse(type: string, x: number, y: number, button = 0, detail = 1): Promise<void> {
     surface().dispatchEvent(
-      new MouseEvent(type, { clientX: x, clientY: y, button, bubbles: true, cancelable: true }),
+      new MouseEvent(type, {
+        clientX: x,
+        clientY: y,
+        button,
+        detail,
+        bubbles: true,
+        cancelable: true,
+      }),
     );
     await fixture.whenStable();
   }
 
-  const click = (x: number, y: number, button = 0) => mouse('click', x, y, button);
+  /** A click; `detail` is the browser's click count, 2 for the second click of a double-click. */
+  const click = (x: number, y: number, button = 0, detail = 1) =>
+    mouse('click', x, y, button, detail);
+
+  /**
+   * What a browser delivers for a double-click: click (detail 1), click (detail 2), dblclick. The
+   * second click may land `drift` px right of the first, as it does when the hand moves.
+   */
+  async function doubleClick(x: number, y: number, drift = 0): Promise<void> {
+    await click(x, y);
+    await click(x + drift, y, 0, 2);
+    await mouse('dblclick', x + drift, y, 0, 2);
+  }
+
+  /** `doubleClick` at fractions of the box. */
+  const doubleClickAt = (box: NeatVideoBox, x: number, y: number, drift = 0) =>
+    doubleClick(box.x + x * box.width, box.y + y * box.height, drift);
 
   /** Clicks at fractions of the current box. */
   async function clickAt(box: NeatVideoBox, x: number, y: number): Promise<void> {
@@ -135,6 +158,31 @@ describe('NeatRoiEditor', () => {
     expect(polygons().map((polygon) => polygon.getAttribute('stroke-width'))).toEqual(['2', '2']);
   });
 
+  it('skips regions with fewer than three points, as the canvas drawing does', async () => {
+    await create();
+    host().regions.set([
+      {
+        type: 'inclusion',
+        points: [
+          { x: 0, y: 0 },
+          { x: 1, y: 1 },
+        ],
+      },
+      EXISTING,
+    ]);
+    await fixture.whenStable();
+
+    expect(polygons().map((polygon) => polygon.getAttribute('points'))).toEqual([
+      '0,0 200,0 200,100',
+    ]);
+  });
+
+  it('hides its drawing from assistive technology', async () => {
+    await create();
+
+    expect(surface().getAttribute('aria-hidden')).toBe('true');
+  });
+
   it('three clicks and a click on the first point emit one inclusion polygon with normalized points', async () => {
     await create();
     host().regions.set([EXISTING]);
@@ -184,14 +232,11 @@ describe('NeatRoiEditor', () => {
     expect(host().emitted).toEqual([]);
   });
 
-  it('a double-click closes a polygon of three or more points without a duplicate last point', async () => {
+  it('a double-click closes a polygon of three or more points; its second click adds no point', async () => {
     await create();
     await clickAt(BOX, 0.1, 0.1);
     await clickAt(BOX, 0.9, 0.1);
-    // The browser delivers click, click, dblclick; the second click lands on the same spot.
-    await clickAt(BOX, 0.9, 0.9);
-    await clickAt(BOX, 0.9, 0.9);
-    await mouse('dblclick', BOX.x + 0.9 * BOX.width, BOX.y + 0.9 * BOX.height);
+    await doubleClickAt(BOX, 0.9, 0.9);
 
     expect(host().emitted).toHaveLength(1);
     expect(host().emitted[0][0].points).toEqual([
@@ -199,25 +244,49 @@ describe('NeatRoiEditor', () => {
       { x: 0.9, y: 0.1 },
       { x: 0.9, y: 0.9 },
     ]);
+    expect(draft()).toBeNull();
   });
 
-  it('a double-click only drops a last point within 1 px of the one before', async () => {
-    await create();
-    await drawOpenTriangle();
-
-    await mouse('dblclick', BOX.x + 0.9 * BOX.width, BOX.y + 0.9 * BOX.height);
-
-    expect(host().emitted[0][0].points, 'the third point is a real one').toHaveLength(3);
-  });
-
-  it('a double-click on fewer than three points does not close', async () => {
+  it('a second click that drifted a few px adds no point either', async () => {
     await create();
     await clickAt(BOX, 0.1, 0.1);
     await clickAt(BOX, 0.9, 0.1);
-    await clickAt(BOX, 0.9, 0.1);
-    await mouse('dblclick', BOX.x + 0.9 * BOX.width, BOX.y + 0.1 * BOX.height);
+    await doubleClickAt(BOX, 0.9, 0.9, 4);
+
+    expect(host().emitted[0][0].points).toEqual([
+      { x: 0.1, y: 0.1 },
+      { x: 0.9, y: 0.1 },
+      { x: 0.9, y: 0.9 },
+    ]);
+  });
+
+  it('a double-click whose first click closes the polygon emits one region and starts no new one', async () => {
+    await create();
+    await drawOpenTriangle();
+
+    // 3 px from the first point: the first click closes, the second must not open a polygon.
+    await doubleClick(BOX.x + 0.1 * BOX.width + 3, BOX.y + 0.1 * BOX.height);
+
+    expect(host().emitted).toHaveLength(1);
+    expect(host().emitted[0][0].points).toHaveLength(3);
+    expect(draft()).toBeNull();
+    expect(editor().hasAttribute('tabindex'), 'no polygon is open').toBe(false);
+
+    // A later single click starts a fresh polygon with one point.
+    await clickAt(BOX, 0.5, 0.5);
+
+    expect(draft()?.getAttribute('points')).toBe('100,50 100,50');
+    expect(editor().getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('a double-click on fewer than three points does not close and adds no point', async () => {
+    await create();
+    await clickAt(BOX, 0.1, 0.1);
+    await doubleClickAt(BOX, 0.9, 0.1, 4);
 
     expect(host().emitted).toEqual([]);
+    // Two points and the pointer, which the ignored second click did not move.
+    expect(draft()?.getAttribute('points')).toBe('20,10 180,10 180,10');
 
     // The polygon is still open with its two points: one more corner and a close complete it.
     await clickAt(BOX, 0.9, 0.9);
@@ -531,7 +600,7 @@ describe('NeatRoiEditor', () => {
     });
   });
 
-  it('works inside a real tile, whose element injector provides the video box', async () => {
+  it("sits in a real tile's overlay layer, whose element injector provides the video box", async () => {
     @Component({
       imports: [NeatVideoTile, NeatRoiEditor],
       template: `
@@ -545,6 +614,7 @@ describe('NeatRoiEditor', () => {
     const inTile = TestBed.createComponent(InTile);
     await inTile.whenStable();
 
-    expect(inTile.nativeElement.querySelector('neat-roi-editor')).not.toBeNull();
+    const roiEditor = inTile.nativeElement.querySelector('neat-roi-editor') as HTMLElement;
+    expect(roiEditor.parentElement?.classList.contains('overlay-slot')).toBe(true);
   });
 });

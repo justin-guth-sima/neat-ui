@@ -85,8 +85,8 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatTabs,
     NeatTileGrid,
     NeatTooltip,
-    NeatVideoTile,
     NeatRoiEditor,
+    NeatVideoTile,
     RouterLink,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -600,7 +600,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             it (three points at least), Escape to cancel. It is placed in the tile with
             <code>neatTileOverlay</code> and follows the image, not the letterbox, so the points
             stay on the picture when the tile resizes. It owns no regions: the page keeps them and
-            takes each closed polygon from <code>regionsChange</code>.
+            takes each closed polygon from <code>regionsChange</code>. The tile plays the same test
+            pattern as the one above, so pausing that source also stops this one, and the editor,
+            which needs the image, goes with it.
           </p>
           <div class="showcase-row">
             <neat-segmented label="Drawing mode" [options]="roiModes" [(value)]="roiMode" />

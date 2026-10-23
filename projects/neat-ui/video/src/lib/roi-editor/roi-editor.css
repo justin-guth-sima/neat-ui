@@ -10,9 +10,13 @@
   outline: none;
 }
 
-/* On the video box; its size and place are set from the tile's measure. */
+/*
+ * On the video box; its size and place are set from the tile's measure. Visible overflow, so the
+ * outline of a region that reaches the image's edge (clamped points do) is not cut in half.
+ */
 .surface {
   position: absolute;
+  overflow: visible;
 }
 
 .surface[data-mode='off'] {

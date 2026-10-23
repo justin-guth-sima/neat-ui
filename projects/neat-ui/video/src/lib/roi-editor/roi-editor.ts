@@ -25,8 +25,6 @@ type RoiPoint = NeatRoiPolygon['points'][number];
 
 /** A click this close to the first point closes the polygon (CSS pixels, on the screen). */
 const CLOSE_DISTANCE_PX = 10;
-/** The second click of a double-click lands within a pixel of the first; a real point does not. */
-const DUPLICATE_DISTANCE_PX = 1;
 const MIN_POLYGON_POINTS = 3;
 
 function clamp01(value: number): number {
@@ -56,8 +54,10 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
  * and it stays there when the tile resizes. Without a video box it draws nothing and takes no input.
  *
  * With a `mode` of `inclusion` or `exclusion`, each click adds a point. A click within 10 px of
- * the first point closes the polygon once it has three; so does a double-click. `regionsChange`
- * emits then, with the polygon appended to `regions`; the editor never changes `regions` itself.
+ * the first point closes the polygon once it has three; so does a double-click. The second click
+ * of a double-click (`detail` 2 or more) is ignored, so a double-click is its first click plus a
+ * close. `regionsChange` emits when a polygon closes, with it appended to `regions`; the editor
+ * never changes `regions` itself.
  * Escape cancels the open polygon, and so does a new `mode` or `regions` from outside, or the
  * image going away. Drawing is pointer-only: the polygon is open on the host, which takes focus
  * on the first point so Escape reaches it. An app offers the keyboard its own way to remove
@@ -86,6 +86,7 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
     @if (tileBox(); as box) {
       <svg
         class="surface"
+        aria-hidden="true"
         [attr.data-mode]="mode()"
         [style.left.px]="box.x"
         [style.top.px]="box.y"
@@ -150,11 +151,14 @@ export class NeatRoiEditor {
   protected readonly placed = computed(() => {
     const box = this.tileBox();
     if (box === null) return [];
-    return this.regions().map((region) => ({
-      points: polylinePoints(region.points, box),
-      fill: OVERLAY_ROI_COLORS[region.type].fill,
-      stroke: OVERLAY_ROI_COLORS[region.type].stroke,
-    }));
+    // Fewer than three points is no area; the canvas drawing skips those too.
+    return this.regions()
+      .filter((region) => region.points.length >= MIN_POLYGON_POINTS)
+      .map((region) => ({
+        points: polylinePoints(region.points, box),
+        fill: OVERLAY_ROI_COLORS[region.type].fill,
+        stroke: OVERLAY_ROI_COLORS[region.type].stroke,
+      }));
   });
 
   protected readonly draft = computed(() => {
@@ -188,8 +192,12 @@ export class NeatRoiEditor {
 
   protected onClick(event: MouseEvent): void {
     const mode = this.mode();
+    // The second click of a double-click: the first already placed its point or closed the
+    // polygon, and `dblclick` follows to close. Counting it would stack a point on the first, or
+    // open a polygon right after one closed.
+    if (mode === 'off' || event.button !== 0 || event.detail >= 2) return;
     const located = this.locate(event);
-    if (mode === 'off' || event.button !== 0 || located === null) return;
+    if (located === null) return;
     const { point, box } = located;
     const points = this.open();
 
@@ -212,24 +220,10 @@ export class NeatRoiEditor {
 
   protected onDoubleClick(event: MouseEvent): void {
     const mode = this.mode();
-    const located = this.locate(event);
-    if (mode === 'off' || event.button !== 0 || located === null) return;
-    // Both clicks of the double-click have already added a point, the second on top of the first.
-    let points = this.open();
-    const last = points.at(-1);
-    const previous = points.at(-2);
-    if (
-      last !== undefined &&
-      previous !== undefined &&
-      distancePx(last, previous, located.box) <= DUPLICATE_DISTANCE_PX
-    ) {
-      points = points.slice(0, -1);
-    }
-    if (points.length >= MIN_POLYGON_POINTS) {
-      this.close(mode, points);
-    } else {
-      this.open.set(points);
-    }
+    if (mode === 'off' || event.button !== 0) return;
+    // The clicks of the pair have placed their points (the second was ignored); close what is open.
+    const points = this.open();
+    if (points.length >= MIN_POLYGON_POINTS) this.close(mode, points);
   }
 
   protected cancelOnEscape(event: Event): void {
