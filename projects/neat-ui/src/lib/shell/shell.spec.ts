@@ -552,6 +552,28 @@ describe('NeatShell', () => {
     expect(toolbarRegion()).toBeNull();
   });
 
+  it('puts the toolbar at the right end of the top bar, the free space before it', async () => {
+    await start('/viewer/grid');
+    const region = getComputedStyle(toolbarRegion() as HTMLElement);
+    const end = getComputedStyle(topbar().querySelector('.topbar-end') as HTMLElement);
+
+    // jsdom lays nothing out: the layout is asserted through the flex properties that produce it,
+    // and the visual check of the showcase's Page demo covers the result. The toolbar's auto start
+    // margin takes the free space, which only works while nothing after it grows into that space:
+    // the end slot stops growing and sits right after the toolbar.
+    expect(region.marginInlineStart).toBe('auto');
+    expect(end.flexGrow).toBe('0');
+  });
+
+  it('keeps the end slot taking the remaining width, right-aligned, without a toolbar', async () => {
+    await start('/media');
+    const end = getComputedStyle(topbar().querySelector('.topbar-end') as HTMLElement);
+
+    // Style assertions again, for the same reason as above.
+    expect(end.flexGrow).toBe('1');
+    expect(end.justifyContent).toBe('flex-end');
+  });
+
   it('lets a wide toolbar shrink and scroll instead of pushing the end slot out', async () => {
     await start('/viewer/grid');
     const region = getComputedStyle(toolbarRegion() as HTMLElement);

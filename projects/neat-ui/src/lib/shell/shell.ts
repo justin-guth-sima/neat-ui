@@ -55,7 +55,7 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
  *
  * Content projection: the default slot is the content area (usually a `<router-outlet />`);
  * elements marked `neatTopbarEnd` go to the right side of the top bar. The active page's own
- * controls (`*neatPageToolbar`) appear between the page title and that end slot.
+ * controls (`*neatPageToolbar`) sit at the right of the top bar, just before that end slot.
  *
  * Kiosk mode (`KioskService`, entered from the top bar or with `?kiosk`) drops the rail and the
  * top bar, gives the content area the whole viewport and floats an exit control over its top

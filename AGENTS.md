@@ -126,7 +126,7 @@ Why: the shell owns the top bar and kiosk mode, and `neat-page` owns the page's 
 builds its own bar or panel duplicates both and breaks in one of them.
 
 - `<div *neatPageToolbar>…</div>` anywhere in a page's template renders that content in the top
-  bar, between the page title and the end slot, while the page exists. In kiosk mode it floats
+  bar, at its right end just before the end slot, while the page exists. In kiosk mode it floats
   beside the exit control and fades with it. The content stays the page's (bindings, injection),
   but its view is re-created on entering and leaving kiosk mode, so keep its state (values, open
   menus) in the page, never in components inside the toolbar.
