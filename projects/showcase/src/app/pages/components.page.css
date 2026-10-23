@@ -105,3 +105,11 @@
   background: var(--info);
   color: var(--info-foreground);
 }
+
+/* A swatch and its type's name, as a legend for the ROI editor's colours. */
+.roi-key {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+  font-size: var(--neat-text-sm);
+}

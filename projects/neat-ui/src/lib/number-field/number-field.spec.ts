@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { NeatNumberField } from './number-field';
 
 @Component({
@@ -191,5 +192,17 @@ describe('NeatNumberField', () => {
     blur(input);
 
     expect(host.commits).toEqual([]);
+  });
+
+  it('NeatNumberField.focus() focuses and selects the input', async () => {
+    const { fixture, input } = await render();
+    const field = fixture.debugElement.query(By.directive(NeatNumberField))
+      .componentInstance as NeatNumberField;
+
+    field.focus();
+
+    expect(document.activeElement).toBe(input);
+    // All of it, so the number the user types replaces the one shown.
+    expect([input.selectionStart, input.selectionEnd]).toEqual([0, input.value.length]);
   });
 });

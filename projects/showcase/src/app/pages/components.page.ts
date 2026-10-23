@@ -38,6 +38,7 @@ import {
   NeatRoiEditor,
   type NeatRoiDrawMode,
   type NeatRoiPolygon,
+  NeatRoiSwatch,
   NeatTileGrid,
   type NeatTileLayout,
   type NeatTileState,
@@ -95,6 +96,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatTileGrid,
     NeatTooltip,
     NeatRoiEditor,
+    NeatRoiSwatch,
     NeatVideoTile,
     RouterLink,
   ],
@@ -537,10 +539,12 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             before it and naming it. Enter or leaving the field commits a whole number that
             <code>accept</code> takes, even the one already shown; anything else puts the shown
             value back. Content marked <code>neatNumberFieldSuffix</code> follows the input. This
-            page field accepts 1 to {{ pageCount }}.
+            page field accepts 1 to {{ pageCount }}. <code>focus()</code> focuses the input with its
+            number selected, for a shortcut that jumps to the field.
           </p>
           <div class="showcase-row">
             <neat-number-field
+              #pageField
               label="Page"
               [value]="page()"
               [accept]="acceptPage"
@@ -553,6 +557,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
               [value]="drawChannel()"
               (commit)="drawChannel.set($event)"
             />
+            <button neatButton type="button" variant="outlined" (click)="pageField.focus()">
+              Focus the page field
+            </button>
           </div>
           <p class="showcase-code showcase-muted">
             Page {{ page() }}, commits so far {{ pageCommits() }}; channel {{ drawChannel() }}
@@ -692,15 +699,19 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             it (three points at least), Escape to cancel. It is placed in the tile with
             <code>neatTileOverlay</code> and follows the image, not the letterbox, so the points
             stay on the picture when the tile resizes. It owns no regions: the page keeps them and
-            takes each closed polygon from <code>regionsChange</code>. The tile plays the same test
-            pattern as the one above, so pausing that source also stops this one, and the editor,
-            which needs the image, goes with it.
+            takes each closed polygon from <code>regionsChange</code>. In every mode, Off included,
+            hovering a region highlights it (<code>highlighted</code>, two-way, for the app's list)
+            and a right-click on one offers Delete. The tile plays the same test pattern as the one
+            above: pause that source and the tile stops, and the editor keeps working on the tile's
+            full box. <code>neat-roi-swatch</code> is the dot a region list puts before each name.
           </p>
           <div class="showcase-row">
             <neat-segmented label="Drawing mode" [options]="roiModes" [(value)]="roiMode" />
             <button neatButton type="button" variant="outlined" (click)="roiRegions.set([])">
               Clear regions
             </button>
+            <span class="roi-key"><neat-roi-swatch type="inclusion" />Inclusion</span>
+            <span class="roi-key"><neat-roi-swatch type="exclusion" />Exclusion</span>
           </div>
           <p class="showcase-code showcase-muted" aria-live="polite">{{ roiSummary() }}</p>
           <div class="video-demo">
@@ -710,6 +721,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
                   neatTileOverlay
                   [regions]="roiRegions()"
                   [mode]="roiMode()"
+                  [(highlighted)]="roiHighlighted"
                   (regionsChange)="roiRegions.set($event)"
                 />
               </neat-video-tile>
@@ -773,11 +785,18 @@ export class ComponentsPage {
   protected readonly roiModes = ROI_MODES;
   protected readonly roiMode = signal<NeatRoiDrawMode>('inclusion');
   protected readonly roiRegions = signal<readonly NeatRoiPolygon[]>([]);
+  protected readonly roiHighlighted = signal<number | null>(null);
   protected readonly roiSummary = computed(() => {
     const regions = this.roiRegions();
-    const count = (type: NeatRoiPolygon['type']) =>
-      regions.filter((region) => region.type === type).length;
-    return `Regions: ${regions.length} (${count('inclusion')} inclusion, ${count('exclusion')} exclusion)`;
+    const count = (type: NeatRoiPolygon['type'], end = regions.length) =>
+      regions.slice(0, end).filter((region) => region.type === type).length;
+    const index = this.roiHighlighted();
+    // Numbered per type, as the editor's Delete names it.
+    const highlighted =
+      index === null || regions[index] === undefined
+        ? 'none'
+        : `${regions[index].type} ${count(regions[index].type, index + 1)}`;
+    return `Regions: ${regions.length} (${count('inclusion')} inclusion, ${count('exclusion')} exclusion) · highlighted: ${highlighted}`;
   });
 
   protected async askResetAll(): Promise<void> {

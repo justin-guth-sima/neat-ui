@@ -4,15 +4,21 @@ import {
   Component,
   computed,
   DestroyRef,
+  DOCUMENT,
+  effect,
   ElementRef,
   inject,
   Injector,
   input,
   linkedSignal,
+  model,
+  NgZone,
   output,
   Renderer2,
   signal,
+  viewChild,
 } from '@angular/core';
+import { NeatButton } from '@sima/neat-ui';
 import type { NeatRoiPolygon } from '../overlays/overlay-settings';
 import { OVERLAY_ROI_COLORS } from '../theme/overlay-palette';
 import type { NeatVideoBox } from '../tile/video-tile';
@@ -22,13 +28,41 @@ import { NeatVideoTile } from '../tile/video-tile';
 export type NeatRoiDrawMode = 'off' | 'inclusion' | 'exclusion';
 
 type RoiPoint = NeatRoiPolygon['points'][number];
+type RoiType = NeatRoiPolygon['type'];
+
+/** The editor's own size, in CSS pixels. */
+interface Size {
+  readonly width: number;
+  readonly height: number;
+}
+
+/** The Delete bubble: the region it is for and where it opened, in CSS pixels from the corner. */
+interface RoiMenu {
+  readonly index: number;
+  readonly x: number;
+  readonly y: number;
+}
 
 /** A click this close to the first point closes the polygon (CSS pixels, on the screen). */
 const CLOSE_DISTANCE_PX = 10;
 const MIN_POLYGON_POINTS = 3;
+const STROKE_WIDTH = 2;
+const HIGHLIGHT_STROKE_WIDTH = 3;
+/** How a region is named, numbered per type in list order as an app's region list does. */
+const TYPE_NAMES: Record<RoiType, string> = { inclusion: 'Inclusion', exclusion: 'Exclusion' };
 
 function clamp01(value: number): number {
   return Math.min(1, Math.max(0, value));
+}
+
+/** `start` moved back as far as needed for `length` to end by `limit`, but never below 0. */
+function fitInto(start: number, length: number, limit: number): number {
+  return Math.max(0, Math.min(start, limit - length));
+}
+
+function sameSize(a: Size | null, b: Size | null): boolean {
+  if (a === null || b === null) return a === b;
+  return a.width === b.width && a.height === b.height;
 }
 
 /** The distance between two normalized points as the user sees it, so a wide image is not skewed. */
@@ -46,29 +80,48 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
  *
  * ```html
  * <neat-video-tile>
- *   <neat-roi-editor neatTileOverlay [regions]="regions" [mode]="mode" (regionsChange)="…" />
+ *   <neat-roi-editor
+ *     neatTileOverlay
+ *     [regions]="regions"
+ *     [mode]="mode"
+ *     [(highlighted)]="highlighted"
+ *     (regionsChange)="…"
+ *   />
  * </neat-video-tile>
  * ```
  *
- * It sits on the tile's video box, so a point is a position on the image, not on the letterbox,
- * and it stays there when the tile resizes. Without a video box it draws nothing and takes no input.
+ * While the tile plays, it sits on the tile's video box, so a point is a position on the image,
+ * not on the letterbox, and it stays there when the tile resizes. Without video (none yet, or
+ * stopped) it uses the tile's full box instead, so regions can be seen and drawn before a stream
+ * plays; points are normalized to whichever box was used, which is exact for a stream of the
+ * tile's shape. Until it knows either box it draws nothing and takes no input.
  *
  * With a `mode` of `inclusion` or `exclusion`, each click adds a point. A click within 10 px of
  * the first point closes the polygon once it has three; so does a double-click. The second click
  * of a double-click (`detail` 2 or more) is ignored, so a double-click is its first click plus a
  * close. `regionsChange` emits when a polygon closes, with it appended to `regions`; the editor
  * never changes `regions` itself.
- * Escape cancels the open polygon, and so does a new `mode` or `regions` from outside, or the
- * image going away. Drawing is pointer-only: the polygon is open on the host, which takes focus
- * on the first point so Escape reaches it. An app offers the keyboard its own way to remove
- * regions.
+ * Escape cancels the open polygon, and so does a new `mode` or `regions` from outside, or the box
+ * it is drawn on changing between the image and the tile. Drawing is pointer-only: the polygon is
+ * open on the host, which takes focus on the first point so Escape reaches it.
+ *
+ * In every mode, `off` included, the regions themselves take the pointer:
+ * - Hovering one sets `highlighted` to its index in `regions` (where regions overlap, the one
+ *   drawn last, on top), and leaving it sets null. An app binds the same index to its region list,
+ *   so either side can highlight; a highlighted region has a stronger fill and outline.
+ * - A right-click on one opens a small bubble there with a Delete button, which emits
+ *   `regionsChange` without that region. The button takes focus; Escape, a press outside the
+ *   bubble, focus leaving it or new `regions` close it. It is a shortcut for the pointer: an app
+ *   still offers the keyboard its own way to remove regions, such as its list.
+ * Elsewhere the editor leaves mode `off` to what is under it.
  *
  * The open polygon lives in component signals: it changes per click, and the polyline follows the
  * pointer only while a polygon is open, so a pointer that moves over an idle editor costs no
- * change detection.
+ * change detection beyond entering and leaving a region.
  */
 @Component({
   selector: 'neat-roi-editor',
+  imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     // Focus is only there so Escape arrives, so the host is out of the Tab order and only while a
@@ -83,7 +136,7 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
     '(keydown.escape)': 'cancelOnEscape($event)',
   },
   template: `
-    @if (tileBox(); as box) {
+    @if (box(); as box) {
       <svg
         class="surface"
         aria-hidden="true"
@@ -93,12 +146,16 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
         [style.width.px]="box.width"
         [style.height.px]="box.height"
       >
-        @for (region of placed(); track $index) {
+        @for (region of placed(); track region.index) {
           <polygon
+            class="region"
             [attr.points]="region.points"
             [attr.fill]="region.fill"
             [attr.stroke]="region.stroke"
-            stroke-width="2"
+            [attr.stroke-width]="region.strokeWidth"
+            (pointerenter)="highlighted.set(region.index)"
+            (pointerleave)="highlighted.set(null)"
+            (contextmenu)="openMenu($event, region.index)"
           />
         }
         @if (draft(); as open) {
@@ -112,6 +169,22 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
           <circle [attr.cx]="open.startX" [attr.cy]="open.startY" r="4" [attr.fill]="open.stroke" />
         }
       </svg>
+      @if (menuLabel(); as label) {
+        <div #menu class="menu">
+          <button
+            neatButton
+            variant="text"
+            size="small"
+            type="button"
+            [attr.aria-label]="label"
+            (click)="deleteFromMenu()"
+            (keydown.escape)="closeMenuOnEscape($event)"
+            (focusout)="closeMenuOnFocusOut($event)"
+          >
+            Delete
+          </button>
+        </div>
+      }
     }
   `,
   styleUrl: './roi-editor.css',
@@ -119,50 +192,96 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
 export class NeatRoiEditor {
   /** The polygons to draw. Open polygons are not part of it until `regionsChange` brings them. */
   readonly regions = input.required<readonly NeatRoiPolygon[]>();
-  /** What a click does; `off` leaves the tile to what is under the editor. */
+  /** What a click does; `off` leaves the tile to what is under the editor, but for the regions. */
   readonly mode = input<NeatRoiDrawMode>('off');
-  /** The polygon a click just closed, appended to `regions` in a new array. */
+  /** A closed polygon appended to `regions`, or `regions` without a deleted one, in a new array. */
   readonly regionsChange = output<readonly NeatRoiPolygon[]>();
+  /** The index in `regions` of the region to highlight, as the pointer or the app set it. */
+  readonly highlighted = model<number | null>(null);
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
-  protected readonly tileBox = inject(NeatVideoTile).videoBox;
-
-  /** Whether there is an image to draw on; the open polygon does not survive losing it. */
-  private readonly hasBox = computed(() => this.tileBox() !== null);
+  private readonly renderer = inject(Renderer2);
+  private readonly document = inject(DOCUMENT);
+  private readonly videoBox = inject(NeatVideoTile).videoBox;
+  private readonly menuElement = viewChild<ElementRef<HTMLElement>>('menu');
 
   /**
-   * The open polygon's points, normalized to the image. A box that only changes size leaves it
+   * The editor's own size, which is the tile's: its host fills the tile's overlay layer. Measured
+   * here rather than asked of the tile because it is exactly the area whose clicks `locate` maps,
+   * and the tile keeps its own measure in a plain field for its frame loop, not in a signal.
+   */
+  private readonly size = signal<Size | null>(null, { equal: sameSize });
+
+  /** Which box the editor draws on: the image while the tile plays, else the whole tile. */
+  private readonly boxSource = computed<'video' | 'tile' | null>(() => {
+    if (this.videoBox() !== null) return 'video';
+    return this.size() === null ? null : 'tile';
+  });
+
+  protected readonly box = computed<NeatVideoBox | null>(() => {
+    const video = this.videoBox();
+    if (video !== null) return video;
+    const size = this.size();
+    return size === null ? null : { x: 0, y: 0, width: size.width, height: size.height };
+  });
+
+  /**
+   * The open polygon's points, normalized to the box. A box that only changes size leaves it
    * alone (that is why it is normalized); anything that changes what a click would mean, or what
    * the polygon is drawn among, starts over.
    */
   private readonly open = linkedSignal<
-    { mode: NeatRoiDrawMode; regions: readonly NeatRoiPolygon[]; hasBox: boolean },
+    { mode: NeatRoiDrawMode; regions: readonly NeatRoiPolygon[]; boxSource: string | null },
     readonly RoiPoint[]
   >({
-    source: () => ({ mode: this.mode(), regions: this.regions(), hasBox: this.hasBox() }),
+    source: () => ({ mode: this.mode(), regions: this.regions(), boxSource: this.boxSource() }),
     computation: () => [],
   });
   /** The last place the pointer was, normalized; the open polyline runs to it. */
   private readonly pointer = signal<RoiPoint | null>(null);
 
+  /**
+   * The open Delete bubble. New regions close it, since its index may name another region by
+   * then, and so does a change of box, which moves the region it was opened on.
+   */
+  private readonly menu = linkedSignal<
+    { regions: readonly NeatRoiPolygon[]; boxSource: string | null },
+    RoiMenu | null
+  >({
+    source: () => ({ regions: this.regions(), boxSource: this.boxSource() }),
+    computation: () => null,
+  });
+  /** What had focus when the bubble opened, given focus back when Escape or Delete closes it. */
+  private focusBeforeMenu: HTMLElement | null = null;
+
   protected readonly drawing = computed(() => this.open().length > 0);
 
   protected readonly placed = computed(() => {
-    const box = this.tileBox();
+    const box = this.box();
     if (box === null) return [];
-    // Fewer than three points is no area; the canvas drawing skips those too.
-    return this.regions()
-      .filter((region) => region.points.length >= MIN_POLYGON_POINTS)
-      .map((region) => ({
-        points: polylinePoints(region.points, box),
-        fill: OVERLAY_ROI_COLORS[region.type].fill,
-        stroke: OVERLAY_ROI_COLORS[region.type].stroke,
-      }));
+    const highlighted = this.highlighted();
+    return (
+      this.regions()
+        .map((region, index) => ({ region, index }))
+        // Fewer than three points is no area; the canvas drawing skips those too.
+        .filter(({ region }) => region.points.length >= MIN_POLYGON_POINTS)
+        .map(({ region, index }) => {
+          const colors = OVERLAY_ROI_COLORS[region.type];
+          const active = index === highlighted;
+          return {
+            index,
+            points: polylinePoints(region.points, box),
+            fill: active ? colors.fillActive : colors.fill,
+            stroke: colors.stroke,
+            strokeWidth: active ? HIGHLIGHT_STROKE_WIDTH : STROKE_WIDTH,
+          };
+        })
+    );
   });
 
   protected readonly draft = computed(() => {
-    const box = this.tileBox();
+    const box = this.box();
     const mode = this.mode();
     const points = this.open();
     if (box === null || mode === 'off' || points.length === 0) return null;
@@ -175,19 +294,59 @@ export class NeatRoiEditor {
     };
   });
 
+  /** The Delete button's name: the region as an app's list numbers it, "Delete Inclusion 2". */
+  protected readonly menuLabel = computed(() => {
+    const menu = this.menu();
+    if (menu === null) return null;
+    const regions = this.regions();
+    const type = regions[menu.index].type;
+    const number = regions.slice(0, menu.index + 1).filter((region) => region.type === type).length;
+    return `Delete ${TYPE_NAMES[type]} ${number}`;
+  });
+
   constructor() {
+    const host = this.host.nativeElement;
+    const destroyRef = inject(DestroyRef);
+
     // Not a template listener: those schedule change detection on every event, and a pointer
     // passing over an idle editor must not.
-    const stopListening = inject(Renderer2).listen(
-      this.host.nativeElement,
-      'pointermove',
-      (event: MouseEvent) => {
-        if (this.open().length === 0) return;
-        const located = this.locate(event);
-        if (located !== null) this.pointer.set(located.point);
-      },
-    );
-    inject(DestroyRef).onDestroy(stopListening);
+    const stopListening = this.renderer.listen(host, 'pointermove', (event: MouseEvent) => {
+      if (this.open().length === 0) return;
+      const located = this.locate(event);
+      if (located !== null) this.pointer.set(located.point);
+    });
+    destroyRef.onDestroy(stopListening);
+
+    // Outside Angular, as the tile's own observer: it writes the size signal, only on a resize.
+    const zone = inject(NgZone);
+    afterNextRender(() => {
+      const observer = zone.runOutsideAngular(
+        () =>
+          new ResizeObserver((entries) => {
+            const { width, height } = entries[entries.length - 1].contentRect;
+            this.size.set(width > 0 && height > 0 ? { width, height } : null);
+          }),
+      );
+      observer.observe(host);
+      destroyRef.onDestroy(() => observer.disconnect());
+    });
+
+    // A press anywhere but on the bubble closes it; listened for only while it is open. Capture,
+    // so content that stops the press on its way up still closes it.
+    effect((onCleanup) => {
+      if (this.menu() === null) return;
+      onCleanup(
+        this.renderer.listen(
+          this.document,
+          'pointerdown',
+          (event: Event) => {
+            // Focus goes where the press puts it.
+            if (!this.inMenu(event.target)) this.closeMenu(false);
+          },
+          { capture: true },
+        ),
+      );
+    });
   }
 
   protected onClick(event: MouseEvent): void {
@@ -196,6 +355,8 @@ export class NeatRoiEditor {
     // polygon, and `dblclick` follows to close. Counting it would stack a point on the first, or
     // open a polygon right after one closed.
     if (mode === 'off' || event.button !== 0 || event.detail >= 2) return;
+    // A click on the bubble is for its button, not a point on the image under it.
+    if (this.inMenu(event.target)) return;
     const located = this.locate(event);
     if (located === null) return;
     const { point, box } = located;
@@ -220,7 +381,7 @@ export class NeatRoiEditor {
 
   protected onDoubleClick(event: MouseEvent): void {
     const mode = this.mode();
-    if (mode === 'off' || event.button !== 0) return;
+    if (mode === 'off' || event.button !== 0 || this.inMenu(event.target)) return;
     // The clicks of the pair have placed their points (the second was ignored); close what is open.
     const points = this.open();
     if (points.length >= MIN_POLYGON_POINTS) this.close(mode, points);
@@ -233,18 +394,77 @@ export class NeatRoiEditor {
     this.open.set([]);
   }
 
+  /** Opens the Delete bubble for the region at `index` at the pointer, instead of the browser's. */
+  protected openMenu(event: MouseEvent, index: number): void {
+    event.preventDefault();
+    const origin = this.host.nativeElement.getBoundingClientRect();
+    const active = this.document.activeElement;
+    this.focusBeforeMenu = active instanceof HTMLElement ? active : null;
+    const menu: RoiMenu = { index, x: event.clientX - origin.left, y: event.clientY - origin.top };
+    this.menu.set(menu);
+    // Placed by hand once it has rendered: keeping it inside the tile needs its own size. Not a
+    // style binding, so a later render does not put it back at the pointer.
+    afterNextRender(() => this.placeMenu(menu), { injector: this.injector });
+  }
+
+  protected deleteFromMenu(): void {
+    const menu = this.menu();
+    if (menu === null) return;
+    // The region goes, and with it the element the pointer was on, which then sends no leave.
+    if (this.highlighted() === menu.index) this.highlighted.set(null);
+    this.closeMenu(true);
+    this.regionsChange.emit(this.regions().filter((_, index) => index !== menu.index));
+  }
+
+  protected closeMenuOnEscape(event: Event): void {
+    // The bubble's Escape: not the open polygon's, and not whatever is around the editor.
+    event.stopPropagation();
+    this.closeMenu(true);
+  }
+
+  protected closeMenuOnFocusOut(event: FocusEvent): void {
+    // No related target is the window losing focus, not the user leaving the bubble.
+    if (event.relatedTarget === null || this.inMenu(event.relatedTarget)) return;
+    this.closeMenu(false);
+  }
+
+  /** Closes the bubble; `restoreFocus` when focus was in it and would otherwise fall to the page. */
+  private closeMenu(restoreFocus: boolean): void {
+    this.menu.set(null);
+    const previous = this.focusBeforeMenu;
+    this.focusBeforeMenu = null;
+    if (restoreFocus && previous?.isConnected) previous.focus({ preventScroll: true });
+  }
+
+  /** Moves the bubble in from the tile's edges as far as its size needs, and focuses Delete. */
+  private placeMenu(menu: RoiMenu): void {
+    const element = this.menuElement()?.nativeElement;
+    if (element === undefined || this.menu() !== menu) return;
+    const size = this.size();
+    const x = size === null ? menu.x : fitInto(menu.x, element.offsetWidth, size.width);
+    const y = size === null ? menu.y : fitInto(menu.y, element.offsetHeight, size.height);
+    this.renderer.setStyle(element, 'left', `${x}px`);
+    this.renderer.setStyle(element, 'top', `${y}px`);
+    element.querySelector('button')?.focus({ preventScroll: true });
+  }
+
+  private inMenu(target: EventTarget | null): boolean {
+    const element = this.menuElement()?.nativeElement;
+    return element !== undefined && target instanceof Node && element.contains(target);
+  }
+
   private close(mode: 'inclusion' | 'exclusion', points: readonly RoiPoint[]): void {
     this.open.set([]);
     this.regionsChange.emit([...this.regions(), { type: mode, points }]);
   }
 
   /**
-   * Where the pointer is on the image, 0..1 on each axis and clamped, with the box it was
-   * measured against; null without a box to measure. The host fills the tile's overlay layer, so
-   * its corner is the tile's.
+   * Where the pointer is on the box, 0..1 on each axis and clamped, with the box it was measured
+   * against; null without a box to measure. The host fills the tile's overlay layer, so its corner
+   * is the tile's.
    */
   private locate(event: MouseEvent): { point: RoiPoint; box: NeatVideoBox } | null {
-    const box = this.tileBox();
+    const box = this.box();
     if (box === null || box.width <= 0 || box.height <= 0) return null;
     const origin = this.host.nativeElement.getBoundingClientRect();
     return {

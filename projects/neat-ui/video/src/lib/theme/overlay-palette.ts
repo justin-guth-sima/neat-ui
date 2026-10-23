@@ -29,10 +29,14 @@ export const OVERLAY_NEUTRAL_COLOR = '#f8fafc';
 /** The dark plate behind track and pose labels, so the label reads in its identity colour. */
 export const OVERLAY_LABEL_PLATE_COLOR = 'rgba(15, 23, 42, 0.82)';
 
-/** ROI polygons: a faint fill so the video stays visible, and a full-strength outline. */
+/**
+ * ROI polygons: a faint fill so the video stays visible, and a full-strength outline. A highlighted
+ * polygon (the one under the pointer, or the app's pick) takes `fillActive`, the same hue three
+ * times as strong: it stands out from its neighbours at a glance and the video still shows through.
+ */
 export const OVERLAY_ROI_COLORS = {
-  inclusion: { fill: 'rgba(0,255,0,0.1)', stroke: 'green' },
-  exclusion: { fill: 'rgba(255,0,0,0.1)', stroke: 'red' },
+  inclusion: { fill: 'rgba(0,255,0,0.1)', fillActive: 'rgba(0,255,0,0.3)', stroke: 'green' },
+  exclusion: { fill: 'rgba(255,0,0,0.1)', fillActive: 'rgba(255,0,0,0.3)', stroke: 'red' },
 } as const;
 
 /** The colour a class style row resolves to when its stored colour is missing or not a string. */

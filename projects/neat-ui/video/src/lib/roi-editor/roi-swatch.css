@@ -1,0 +1,11 @@
+/*
+ * Sized in em, so it follows the text of the line it sits in; it keeps that size in a flex row
+ * however long the name next to it is.
+ */
+:host {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 0.625em;
+  height: 0.625em;
+  border-radius: 50%;
+}

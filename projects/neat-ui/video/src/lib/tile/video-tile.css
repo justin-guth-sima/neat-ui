@@ -29,13 +29,16 @@
 }
 
 /*
- * The app's overlay content (a region editor, say) covers the tile. It follows the canvas in the
- * DOM, so it paints above it, and precedes the bar and the no-video note (z-index 1), so those
- * stay on top. It sets no pointer-events: what is projected decides what it catches.
+ * The app's overlay content (a region editor, say) covers the tile. It stays usable without video,
+ * so it is lifted (z-index 1) above what covers the image then: the empty state's surface, which
+ * stays in the base layer. The bar and the no-video note share its level and follow it in the DOM,
+ * so they stay on top. An empty layer paints nothing, so a tile without overlay content looks the
+ * same. It sets no pointer-events: what is projected decides what it catches.
  */
 .overlay-slot {
   position: absolute;
   inset: 0;
+  z-index: 1;
 }
 
 /*
@@ -62,10 +65,15 @@
   visibility: hidden;
 }
 
+/*
+ * A note to read, not to press: it covers the tile, so it lets pointer input through to the
+ * overlay content under it (and, as before, on to the tile).
+ */
 .no-video {
   position: absolute;
   inset: 0;
   z-index: 1;
+  pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: center;

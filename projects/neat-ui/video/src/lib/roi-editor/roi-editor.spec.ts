@@ -9,6 +9,8 @@ import { NeatRoiEditor } from './roi-editor';
 
 /** A 200×100 image with a 50 px and 30 px margin inside its tile. */
 const BOX: NeatVideoBox = { x: 50, y: 30, width: 200, height: 100 };
+/** The tile around BOX, which the editor covers: its own measured size. */
+const TILE = { width: 300, height: 160 };
 
 const EXISTING: NeatRoiPolygon = {
   type: 'exclusion',
@@ -19,6 +21,40 @@ const EXISTING: NeatRoiPolygon = {
   ],
 };
 
+const INCLUSION: NeatRoiPolygon = {
+  type: 'inclusion',
+  points: [
+    { x: 0.25, y: 0.5 },
+    { x: 0.5, y: 0 },
+    { x: 0.75, y: 0.5 },
+  ],
+};
+
+/** A ResizeObserver that reports only when a test says so. */
+class FakeResizeObserver {
+  static instances: FakeResizeObserver[] = [];
+  readonly observed: Element[] = [];
+  disconnected = false;
+
+  constructor(private readonly callback: ResizeObserverCallback) {
+    FakeResizeObserver.instances.push(this);
+  }
+
+  observe(target: Element): void {
+    this.observed.push(target);
+  }
+
+  disconnect(): void {
+    this.observed.length = 0;
+    this.disconnected = true;
+  }
+
+  resize(width: number, height: number): void {
+    const entry = { target: this.observed[0], contentRect: { width, height } };
+    this.callback([entry as unknown as ResizeObserverEntry], this as unknown as ResizeObserver);
+  }
+}
+
 /**
  * Stands in for the tile the editor sits in: the editor reads only `videoBox`, and the test sets
  * it. The host element sits at the origin in jsdom, so client coordinates are tile coordinates.
@@ -27,11 +63,17 @@ const EXISTING: NeatRoiPolygon = {
   imports: [NeatRoiEditor],
   providers: [{ provide: NeatVideoTile, useFactory: () => ({ videoBox: inject(Host).box }) }],
   template: `
-    <neat-roi-editor [regions]="regions()" [mode]="mode()" (regionsChange)="emitted.push($event)" />
+    <neat-roi-editor
+      [regions]="regions()"
+      [mode]="mode()"
+      [(highlighted)]="highlighted"
+      (regionsChange)="emitted.push($event)"
+    />
   `,
 })
 class Host {
   readonly box = signal<NeatVideoBox | null>(null);
+  readonly highlighted = signal<number | null>(null);
   readonly regions = signal<readonly NeatRoiPolygon[]>([]);
   readonly mode = signal<NeatRoiDrawMode>('inclusion');
   readonly emitted: (readonly NeatRoiPolygon[])[] = [];
@@ -46,10 +88,29 @@ describe('NeatRoiEditor', () => {
   const draft = (): SVGPolylineElement | null => editor().querySelector('polyline');
   const polygons = (): SVGPolygonElement[] => Array.from(editor().querySelectorAll('polygon'));
 
-  async function create(box: NeatVideoBox | null = BOX): Promise<void> {
+  /** The observer that measures the editor's own host, which covers the tile. */
+  const hostObserver = (): FakeResizeObserver => {
+    const observer = FakeResizeObserver.instances.find((instance) =>
+      instance.observed.includes(editor()),
+    );
+    if (observer === undefined) throw new Error('the editor does not measure its host');
+    return observer;
+  };
+
+  async function resizeTile(width: number, height: number): Promise<void> {
+    hostObserver().resize(width, height);
+    await fixture.whenStable();
+  }
+
+  /** With `size` null, the editor's measure of itself has not arrived. */
+  async function create(
+    box: NeatVideoBox | null = BOX,
+    size: { width: number; height: number } | null = TILE,
+  ): Promise<void> {
     fixture = TestBed.createComponent(Host);
     host().box.set(box);
     await fixture.whenStable();
+    if (size !== null) await resizeTile(size.width, size.height);
   }
 
   /** Dispatches a mouse event at tile coordinates; the box offsets are the caller's business. */
@@ -104,12 +165,18 @@ describe('NeatRoiEditor', () => {
     await clickAt(BOX, 0.9, 0.9);
   }
 
-  afterEach(() => {
-    vi.restoreAllMocks();
+  beforeEach(() => {
+    FakeResizeObserver.instances = [];
+    vi.stubGlobal('ResizeObserver', FakeResizeObserver);
   });
 
-  it('renders nothing while the tile has no video box', async () => {
-    await create(null);
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it('renders nothing while it has neither a video box nor a size of its own', async () => {
+    await create(null, null);
 
     expect(surface()).toBeNull();
 
@@ -570,6 +637,379 @@ describe('NeatRoiEditor', () => {
     await press('Escape');
 
     for (const spy of calls) expect(spy).not.toHaveBeenCalled();
+  });
+
+  describe('without a video box', () => {
+    /** The tile's full box, which the editor covers; the tile is 16:9. */
+    const FULL: NeatVideoBox = { x: 0, y: 0, width: 320, height: 180 };
+
+    it("without a video box the editor draws regions on the tile's full box and takes clicks there", async () => {
+      await create(null, FULL);
+      host().regions.set([INCLUSION]);
+      await fixture.whenStable();
+
+      expect(surface().style.left).toBe('0px');
+      expect(surface().style.top).toBe('0px');
+      expect(surface().style.width).toBe('320px');
+      expect(surface().style.height).toBe('180px');
+      expect(polygons().map((polygon) => polygon.getAttribute('points'))).toEqual([
+        '80,90 160,0 240,90',
+      ]);
+
+      await clickAt(FULL, 0.1, 0.1);
+      await clickAt(FULL, 0.9, 0.1);
+      await clickAt(FULL, 0.9, 0.9);
+      await clickAt(FULL, 0.1, 0.1);
+
+      expect(host().emitted).toEqual([
+        [
+          INCLUSION,
+          {
+            type: 'inclusion',
+            points: [
+              { x: 0.1, y: 0.1 },
+              { x: 0.9, y: 0.1 },
+              { x: 0.9, y: 0.9 },
+            ],
+          },
+        ],
+      ]);
+    });
+
+    it('follows its own size as the tile resizes', async () => {
+      await create(null, FULL);
+      host().regions.set([INCLUSION]);
+      await fixture.whenStable();
+
+      await resizeTile(640, 360);
+
+      expect(surface().style.width).toBe('640px');
+      expect(polygons()[0].getAttribute('points')).toBe('160,180 320,0 480,180');
+    });
+
+    it('moves to the image once the tile has a video box, and back when it goes', async () => {
+      await create(null, FULL);
+
+      host().box.set(BOX);
+      await fixture.whenStable();
+
+      expect(surface().style.left).toBe('50px');
+      expect(surface().style.width).toBe('200px');
+
+      host().box.set(null);
+      await fixture.whenStable();
+
+      expect(surface().style.left).toBe('0px');
+      expect(surface().style.width).toBe('320px');
+    });
+
+    it('cancels the open polygon when the box it was drawn on changes to the image or back', async () => {
+      await create(null, FULL);
+      await clickAt(FULL, 0.1, 0.1);
+
+      host().box.set(BOX);
+      await fixture.whenStable();
+
+      expect(draft(), 'points on the tile box mean something else on the image').toBeNull();
+
+      await clickAt(BOX, 0.1, 0.1);
+      host().box.set(null);
+      await fixture.whenStable();
+
+      expect(draft(), 'and the other way round').toBeNull();
+    });
+
+    it('disconnects its observer when destroyed', async () => {
+      await create(null, FULL);
+      const observer = hostObserver();
+
+      fixture.destroy();
+
+      expect(observer.disconnected).toBe(true);
+    });
+  });
+
+  describe('highlight', () => {
+    /** Overlaps INCLUSION, and comes after it in the list, so it is drawn above it. */
+    const OVER: NeatRoiPolygon = {
+      type: 'exclusion',
+      points: [
+        { x: 0.4, y: 0 },
+        { x: 1, y: 0 },
+        { x: 1, y: 1 },
+      ],
+    };
+
+    const pointer = async (type: 'pointerenter' | 'pointerleave', target: Element) => {
+      target.dispatchEvent(new PointerEvent(type, { bubbles: false }));
+      await fixture.whenStable();
+    };
+
+    it('hovering a region sets highlighted to its index, the topmost of overlapping ones; leaving clears it', async () => {
+      await create();
+      host().regions.set([INCLUSION, OVER]);
+      await fixture.whenStable();
+
+      // The list's order is the drawing order, so where the two overlap the browser hits the later.
+      const [under, over] = polygons();
+      expect(
+        under.compareDocumentPosition(over) & Node.DOCUMENT_POSITION_FOLLOWING,
+        'the later region is drawn above the earlier',
+      ).not.toBe(0);
+
+      await pointer('pointerenter', over);
+      expect(host().highlighted()).toBe(1);
+
+      // On to the part of the lower region that the upper one does not cover.
+      await pointer('pointerleave', over);
+      await pointer('pointerenter', under);
+      expect(host().highlighted()).toBe(0);
+
+      await pointer('pointerleave', under);
+      expect(host().highlighted()).toBeNull();
+    });
+
+    it('a highlighted region gets the stronger fill and a 3px stroke', async () => {
+      await create();
+      host().regions.set([INCLUSION, OVER]);
+      host().highlighted.set(1);
+      await fixture.whenStable();
+
+      expect(polygons().map((polygon) => polygon.getAttribute('fill'))).toEqual([
+        OVERLAY_ROI_COLORS.inclusion.fill,
+        OVERLAY_ROI_COLORS.exclusion.fillActive,
+      ]);
+      expect(polygons().map((polygon) => polygon.getAttribute('stroke-width'))).toEqual(['2', '3']);
+
+      host().highlighted.set(0);
+      await fixture.whenStable();
+
+      expect(polygons().map((polygon) => polygon.getAttribute('fill'))).toEqual([
+        OVERLAY_ROI_COLORS.inclusion.fillActive,
+        OVERLAY_ROI_COLORS.exclusion.fill,
+      ]);
+    });
+
+    it('highlights by the index into regions, counting regions it does not draw', async () => {
+      await create();
+      host().regions.set([{ type: 'inclusion', points: [{ x: 0, y: 0 }] }, INCLUSION]);
+      host().highlighted.set(1);
+      await fixture.whenStable();
+
+      expect(polygons()).toHaveLength(1);
+      expect(polygons()[0].getAttribute('stroke-width')).toBe('3');
+
+      await pointer('pointerleave', polygons()[0]);
+      await pointer('pointerenter', polygons()[0]);
+      expect(host().highlighted()).toBe(1);
+    });
+
+    it('regions take hover and right-click in mode off while the surface ignores other pointer input', async () => {
+      await create();
+      host().mode.set('off');
+      host().regions.set([INCLUSION]);
+      await fixture.whenStable();
+
+      expect(getComputedStyle(surface()).pointerEvents).toBe('none');
+      expect(getComputedStyle(polygons()[0]).pointerEvents).toBe('auto');
+
+      await pointer('pointerenter', polygons()[0]);
+      expect(host().highlighted()).toBe(0);
+
+      const menu = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+      polygons()[0].dispatchEvent(menu);
+      await fixture.whenStable();
+      expect(menu.defaultPrevented).toBe(true);
+      expect(editor().querySelector('button')).not.toBeNull();
+
+      // A left click on the region still draws nothing.
+      polygons()[0].dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }),
+      );
+      await fixture.whenStable();
+      expect(draft()).toBeNull();
+    });
+  });
+
+  describe('right-click Delete', () => {
+    /** Regions numbered per type: Inclusion 1, Exclusion 1, Inclusion 2. */
+    const LIST: readonly NeatRoiPolygon[] = [INCLUSION, EXISTING, INCLUSION];
+
+    const deleteButton = (): HTMLButtonElement | null => editor().querySelector('button');
+    const bubble = (): HTMLElement | null => deleteButton()?.parentElement ?? null;
+
+    async function rightClick(target: Element, x: number, y: number): Promise<MouseEvent> {
+      target.dispatchEvent(
+        new MouseEvent('pointerdown', { clientX: x, clientY: y, button: 2, bubbles: true }),
+      );
+      const event = new MouseEvent('contextmenu', {
+        clientX: x,
+        clientY: y,
+        button: 2,
+        bubbles: true,
+        cancelable: true,
+      });
+      target.dispatchEvent(event);
+      await fixture.whenStable();
+      return event;
+    }
+
+    async function createWithList(): Promise<void> {
+      await create();
+      host().regions.set(LIST);
+      await fixture.whenStable();
+    }
+
+    it('right-click on a region opens a Delete bubble; Delete emits regions without it; Escape and an outside click close it', async () => {
+      await createWithList();
+
+      const event = await rightClick(polygons()[2], 120, 70);
+
+      expect(event.defaultPrevented, 'no browser menu').toBe(true);
+      expect(deleteButton()?.textContent?.trim()).toBe('Delete');
+      expect(deleteButton()?.getAttribute('aria-label')).toBe('Delete Inclusion 2');
+      expect(deleteButton()?.type).toBe('button');
+      expect(document.activeElement, 'focus goes to Delete').toBe(deleteButton());
+
+      deleteButton()?.click();
+      await fixture.whenStable();
+
+      expect(host().emitted).toEqual([[INCLUSION, EXISTING]]);
+      expect(host().regions(), 'the editor never changes regions itself').toBe(LIST);
+      expect(deleteButton(), 'the bubble closes').toBeNull();
+
+      // Escape closes it, and goes no further: it does not close what is around the editor.
+      await rightClick(polygons()[1], 120, 70);
+      expect(deleteButton()?.getAttribute('aria-label')).toBe('Delete Exclusion 1');
+      const outside = vi.fn();
+      fixture.nativeElement.addEventListener('keydown', outside);
+      const escape = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+      deleteButton()?.dispatchEvent(escape);
+      await fixture.whenStable();
+
+      expect(deleteButton()).toBeNull();
+      expect(outside).not.toHaveBeenCalled();
+
+      // A press outside the bubble closes it; one inside does not.
+      await rightClick(polygons()[0], 120, 70);
+      expect(deleteButton()?.getAttribute('aria-label')).toBe('Delete Inclusion 1');
+      deleteButton()?.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+      await fixture.whenStable();
+      expect(deleteButton(), 'a press on the bubble keeps it').not.toBeNull();
+      document.body.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+      await fixture.whenStable();
+      expect(deleteButton()).toBeNull();
+      expect(host().emitted, 'only the Delete emitted').toHaveLength(1);
+    });
+
+    it('opens at the pointer, kept inside the tile', async () => {
+      await createWithList();
+      vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(80);
+      vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(40);
+
+      await rightClick(polygons()[0], 120, 70);
+
+      expect(bubble()?.style.left).toBe('120px');
+      expect(bubble()?.style.top).toBe('70px');
+
+      document.body.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+      await fixture.whenStable();
+      // Near the tile's bottom-right corner (300×160): the bubble moves in by its own size.
+      await rightClick(polygons()[0], 290, 150);
+
+      expect(bubble()?.style.left).toBe('220px');
+      expect(bubble()?.style.top).toBe('120px');
+    });
+
+    it('a new right-click on another region moves the bubble to it', async () => {
+      await createWithList();
+      await rightClick(polygons()[0], 120, 70);
+      await rightClick(polygons()[1], 60, 40);
+
+      expect(editor().querySelectorAll('button')).toHaveLength(1);
+      expect(deleteButton()?.getAttribute('aria-label')).toBe('Delete Exclusion 1');
+      expect(bubble()?.style.left).toBe('60px');
+    });
+
+    it('closes when the regions change from outside', async () => {
+      await createWithList();
+      await rightClick(polygons()[0], 120, 70);
+
+      host().regions.set([EXISTING]);
+      await fixture.whenStable();
+
+      expect(deleteButton()).toBeNull();
+    });
+
+    it('closes when focus moves out of it, but not when the window loses focus', async () => {
+      await createWithList();
+      await rightClick(polygons()[0], 120, 70);
+
+      deleteButton()?.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+      await fixture.whenStable();
+      expect(deleteButton(), 'no relatedTarget: the window lost focus').not.toBeNull();
+
+      const elsewhere = document.createElement('button');
+      document.body.append(elsewhere);
+      deleteButton()?.dispatchEvent(
+        new FocusEvent('focusout', { bubbles: true, relatedTarget: elsewhere }),
+      );
+      await fixture.whenStable();
+      elsewhere.remove();
+
+      expect(deleteButton()).toBeNull();
+    });
+
+    it('gives focus back to what had it when Escape or Delete closes the bubble', async () => {
+      await createWithList();
+      // Mid-polygon the editor's host has focus, so Escape can cancel the polygon.
+      await clickAt(BOX, 0.5, 0.5);
+      expect(document.activeElement).toBe(editor());
+
+      await rightClick(polygons()[0], 120, 70);
+      expect(document.activeElement).toBe(deleteButton());
+
+      deleteButton()?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      await fixture.whenStable();
+
+      expect(document.activeElement).toBe(editor());
+      expect(draft(), 'Escape on the bubble leaves the open polygon alone').not.toBeNull();
+    });
+
+    it('clears the highlight of the region it deletes', async () => {
+      await createWithList();
+      host().highlighted.set(2);
+      await rightClick(polygons()[2], 120, 70);
+
+      deleteButton()?.click();
+      await fixture.whenStable();
+
+      expect(host().highlighted()).toBeNull();
+    });
+
+    it('a click on the bubble draws no point', async () => {
+      await createWithList();
+      await rightClick(polygons()[0], 120, 70);
+
+      bubble()?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1, button: 0 }),
+      );
+      await fixture.whenStable();
+
+      expect(draft()).toBeNull();
+    });
+
+    it('left-clicks on a region in a drawing mode still place points', async () => {
+      await createWithList();
+
+      polygons()[0].dispatchEvent(
+        new MouseEvent('click', { clientX: 150, clientY: 80, bubbles: true, detail: 1 }),
+      );
+      await fixture.whenStable();
+
+      expect(draft()?.getAttribute('points')).toBe('100,50 100,50');
+      expect(deleteButton()).toBeNull();
+    });
   });
 
   describe('change detection', () => {

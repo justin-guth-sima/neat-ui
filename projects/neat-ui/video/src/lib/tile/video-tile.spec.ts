@@ -591,6 +591,45 @@ describe('NeatVideoTile', () => {
     ).not.toBe('none');
   });
 
+  describe('without video, for overlay content that stays usable', () => {
+    /** The rules the tile's stylesheet has for `selector`; jsdom has no pseudo-element styles. */
+    const rulesFor = (test: (selector: string) => boolean): CSSStyleRule[] =>
+      Array.from(document.styleSheets)
+        .flatMap((sheet) => Array.from(sheet.cssRules))
+        .filter((rule): rule is CSSStyleRule => rule instanceof CSSStyleRule)
+        .filter((rule) => test(rule.selectorText));
+
+    it('stacks the overlay layer above the empty surface, below the note, bar and ring', () => {
+      create();
+      const layer = (tileElement().querySelector('.projected-overlay') as HTMLElement)
+        .parentElement as HTMLElement;
+      const z = (element: Element) => Number(getComputedStyle(element).zIndex);
+
+      const surface = rulesFor(
+        (s) => s.includes('data-state') && s.includes('empty') && s.includes('::after'),
+      );
+      expect(surface, 'the empty surface rule').toHaveLength(1);
+      expect(['', 'auto'], 'the surface stays in the base layer').toContain(
+        surface[0].style.zIndex,
+      );
+      expect(z(layer)).toBe(1);
+      // Same level as the layer and later in the document, so they paint above it.
+      const note = tileElement().querySelector('.no-video') as Element;
+      const bar = tileElement().querySelector('.bar') as Element;
+      expect([z(note), z(bar)]).toEqual([1, 1]);
+      expect(layer.compareDocumentPosition(note) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
+      const ring = rulesFor((s) => s.includes('data-selected') && s.includes('::before'));
+      expect(Number(ring[0].style.zIndex)).toBeGreaterThan(1);
+    });
+
+    it('lets pointer input through the no-video note to the overlay content under it', () => {
+      create();
+      const note = tileElement().querySelector('.no-video') as Element;
+
+      expect(getComputedStyle(note).pointerEvents).toBe('none');
+    });
+  });
+
   describe('videoBox', () => {
     const resizeTile = (width: number, height: number) =>
       FakeResizeObserver.instances[0].resize(width, height);

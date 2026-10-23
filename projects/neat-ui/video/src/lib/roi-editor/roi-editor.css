@@ -1,7 +1,8 @@
 /*
- * Fills the tile's overlay layer and leaves it to what is under it: only the surface takes
- * pointer events, and only while a mode is on. The host takes focus so Escape reaches it, which is
- * not something to ring: the dashed polyline already shows the editor is mid-polygon.
+ * Fills the tile's overlay layer and leaves it to what is under it: only the surface (while a mode
+ * is on), the regions and the Delete bubble take pointer events. The host takes focus so Escape
+ * reaches it, which is not something to ring: the dashed polyline already shows the editor is
+ * mid-polygon.
  */
 :host {
   position: absolute;
@@ -11,8 +12,9 @@
 }
 
 /*
- * On the video box; its size and place are set from the tile's measure. Visible overflow, so the
- * outline of a region that reaches the image's edge (clamped points do) is not cut in half.
+ * On the box it draws on (the image, or the whole tile without video); its size and place are set
+ * from the measure. Visible overflow, so the outline of a region that reaches the box's edge
+ * (clamped points do) is not cut in half.
  */
 .surface {
   position: absolute;
@@ -27,4 +29,24 @@
 .surface[data-mode='exclusion'] {
   pointer-events: auto;
   cursor: crosshair;
+}
+
+/* Hover and right-click reach the regions in every mode, `off` included. */
+.region {
+  pointer-events: auto;
+}
+
+/*
+ * The Delete bubble, a small popover-coloured card at the pointer; its place is set when it opens.
+ * Its outline is the border colour mixed into the text colour, so the card stands out from the
+ * video under it as well as from the kit's surfaces.
+ */
+.menu {
+  position: absolute;
+  padding: calc(var(--neat-space-2) / 2);
+  border: 1px solid color-mix(in oklch, var(--border), var(--foreground) 20%);
+  border-radius: var(--radius);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  pointer-events: auto;
 }

@@ -1,4 +1,4 @@
-import { OVERLAY_NEUTRAL_COLOR, OVERLAY_PALETTE } from './overlay-palette';
+import { OVERLAY_NEUTRAL_COLOR, OVERLAY_PALETTE, OVERLAY_ROI_COLORS } from './overlay-palette';
 
 // A simple RGB Euclidean distance on the 0-255 scale. Used as a cheap proxy for perceptual
 // separation between palette colors so nearby slots don't look alike on screen.
@@ -37,6 +37,22 @@ describe('overlay palette', () => {
           `PALETTE[${i}]=${OVERLAY_PALETTE[i]} and PALETTE[${j}]=${OVERLAY_PALETTE[j]} are only ${distance.toFixed(1)} apart`,
         ).toBeGreaterThanOrEqual(minDistance);
       }
+    }
+  });
+
+  it('gives each ROI type a highlight fill of its own hue, stronger than its resting fill', () => {
+    const rgba = (color: string) => {
+      const match = /^rgba\((\d+),(\d+),(\d+),([\d.]+)\)$/.exec(color);
+      if (match === null) throw new Error(`${color} is not rgba(r,g,b,a)`);
+      return { rgb: match.slice(1, 4).join(','), alpha: Number(match[4]) };
+    };
+    for (const type of ['inclusion', 'exclusion'] as const) {
+      const fill = rgba(OVERLAY_ROI_COLORS[type].fill);
+      const active = rgba(OVERLAY_ROI_COLORS[type].fillActive);
+      expect(active.rgb, type).toBe(fill.rgb);
+      // Enough to tell apart at a glance, still see-through so the video under it stays visible.
+      expect(active.alpha, type).toBeGreaterThanOrEqual(fill.alpha * 2);
+      expect(active.alpha, type).toBeLessThanOrEqual(0.4);
     }
   });
 });

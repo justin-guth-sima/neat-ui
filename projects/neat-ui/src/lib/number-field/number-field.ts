@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, effect, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  ElementRef,
+  input,
+  output,
+  viewChild,
+} from '@angular/core';
 import { NeatInput } from '../input/input';
 
 /**
@@ -53,12 +61,24 @@ export class NeatNumberField {
   /** Whether the user typed since the field last showed `value` or committed. */
   protected edited = false;
 
+  private readonly field = viewChild.required<ElementRef<HTMLInputElement>>('field');
+
   constructor() {
     // A new value replaces what was typed, which the binding writes into the field.
     effect(() => {
       this.value();
       this.edited = false;
     });
+  }
+
+  /**
+   * Focuses the input with its number selected, so what the user types replaces it: for a
+   * shortcut that jumps to the field, such as "g" for the page.
+   */
+  focus(): void {
+    const field = this.field().nativeElement;
+    field.focus();
+    field.select();
   }
 
   /**
