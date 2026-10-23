@@ -1,5 +1,7 @@
 /*
- * Public API surface of @sima/neat-ui. Every export added here is a promise to consumers.
+ * Public API surface of @sima/neat-ui: the shell and what every page needs. Every other component
+ * has its own entry point (@sima/neat-ui/<name>), so an app's main bundle carries only what its
+ * shell uses. Every export added here is a promise to consumers.
  */
 export type { ColorScale, ColorStep, SurfaceScale } from './lib/theme/color-scale';
 export { buildColorScale, buildSurfaceScale } from './lib/theme/color-scale';
@@ -27,16 +29,14 @@ export { NeatInlineButton } from './lib/button/inline-button';
 export { NeatNote } from './lib/note/note';
 export type { NeatTooltipPosition } from './lib/tooltip/tooltip';
 export { NeatTooltip } from './lib/tooltip/tooltip';
-export { NeatSwitch } from './lib/switch/switch';
-export { NeatSlider } from './lib/slider/slider';
-export type { NeatSegmentedOption } from './lib/segmented/segmented';
-export { NeatSegmented } from './lib/segmented/segmented';
-export { NeatLine, NeatLineEnd, NeatLineList } from './lib/line-list/line-list';
-export { NeatTab, NeatTabs } from './lib/tabs/tabs';
-export type { NeatPopoverAlign } from './lib/popover/popover';
-export { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } from './lib/popover/popover';
-export type { NeatConfirmOptions } from './lib/confirm/confirm';
-export { NeatConfirm } from './lib/confirm/confirm';
-export type { NeatInputSize } from './lib/input/input';
-export { NeatInput } from './lib/input/input';
-export { NeatNumberField } from './lib/number-field/number-field';
+
+/*
+ * Not for apps. The `ɵ` exports are what the kit's secondary entry points share with this one:
+ * ng-packagr gives each entry the built primary and nothing else, so the vendored helm code in
+ * `lib/ui/` (never exported otherwise) and the shell's toolbar token reach them only through here.
+ * Angular marks its own private API the same way; these may change or go in any release.
+ */
+export { IN_PAGE_TOOLBAR as ɵIN_PAGE_TOOLBAR } from './lib/shell/page-toolbar';
+export { listVariants as ɵlistVariants } from './lib/ui/tabs/src';
+export { toggleVariants as ɵtoggleVariants } from './lib/ui/toggle/src';
+export { hlm as ɵhlm } from './lib/ui/utils/src';

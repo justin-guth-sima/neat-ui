@@ -2,12 +2,17 @@
  * Tailwind source of the kit's stylesheet: Spartan's preset, the generated theme tokens and the
  * kit's base rules. `npm run build:styles` compiles it into dist/neat-ui/styles/, next to
  * neat-ui.css, which imports it; the showcase compiles it directly through PostCSS. Only the kit's
- * own sources are scanned, so apps get exactly the utilities the kit uses and need no Tailwind of
- * their own. Tailwind finds classes by reading the sources, so class strings must be literals.
+ * own sources (the primary's and every entry point's) are scanned, so apps get exactly the
+ * utilities the kit uses and need no Tailwind of their own. Tailwind finds classes by reading the
+ * sources, so class strings must be literals.
  */
 @import 'tailwindcss' source(none);
 @source '../lib';
+/* The secondary entry points sit beside src/ (projects/neat-ui/<name>/src), outside '../lib'. */
+@source '../../*/src/**/*.{ts,html}';
+/* After every positive source: an exclusion does not apply to a source declared below it. */
 @source not '../lib/**/*.spec.ts';
+@source not '../../*/src/**/*.spec.ts';
 
 /* Spartan's variants and colour mapping (with the CDK overlay styles), and its animations. */
 @import '@spartan-ng/brain/hlm-tailwind-preset.css';

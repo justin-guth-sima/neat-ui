@@ -1,6 +1,17 @@
 // @ts-check
 const { defineConfig } = require('eslint/config');
+const { existsSync, readdirSync } = require('node:fs');
+const { join } = require('node:path');
 const rootConfig = require('../../eslint.config.js');
+
+// The secondary entry points: the folders beside `src` that hold an ng-package.json. Read from the
+// disk so that a new entry is covered by the direction rules below the moment it exists.
+const ENTRIES = readdirSync(__dirname, { withFileTypes: true })
+  .filter(
+    (entry) => entry.isDirectory() && existsSync(join(__dirname, entry.name, 'ng-package.json')),
+  )
+  .map((entry) => entry.name);
+const SECONDARY_GLOBS = ENTRIES.map((name) => `projects/neat-ui/${name}/**/*.ts`);
 
 module.exports = defineConfig([
   ...rootConfig,
@@ -30,21 +41,24 @@ module.exports = defineConfig([
     rules: {},
   },
   {
-    // The entry points depend one way (AGENTS.md): video reaches the primary only through the
-    // package name, never by a relative path, which ng-packagr would resolve into a copy of the
-    // primary inside the video bundle. The pattern is matched against the import text, not a
-    // resolved path, so it targets the one shape such a path has: climbing out to a `src` folder
-    // (video code never needs to climb out of `video/src` and back into a `src` folder).
-    files: ['projects/neat-ui/video/**/*.ts'],
+    // The entry points depend one way (AGENTS.md): a secondary entry reaches the primary and the
+    // other entries only through the package name, never by a relative path, which ng-packagr would
+    // resolve into a copy of that code inside the entry's bundle. The pattern is matched against
+    // the import text, not a resolved path, so it targets the shapes such a path has: climbing out
+    // to the primary's `src` folder, or to another entry's `<name>/src` (an entry's code never
+    // needs to climb out of its own `src` and back into one). Specs are not packaged, and need the
+    // primary's internals (theme helpers, vendored helm source), so they are exempt.
+    files: SECONDARY_GLOBS,
+    ignores: ['**/*.spec.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
         {
           patterns: [
             {
-              regex: '^(\\.\\./)+src/',
+              regex: `^(\\.\\./)+(src/|(${ENTRIES.join('|')})/src/)`,
               message:
-                "Import the primary entry point as '@sima/neat-ui', not by a relative path across the boundary.",
+                "Import the primary and other entry points by package name ('@sima/neat-ui', '@sima/neat-ui/<name>'), not by a relative path across the boundary.",
             },
           ],
         },
@@ -52,17 +66,18 @@ module.exports = defineConfig([
     },
   },
   {
-    // The other half: the primary never imports video code, by relative path or by package name
-    // (the latter is a cycle ng-packagr rejects, but only after the build has started).
+    // The other half: the primary never imports a secondary entry, by relative path or by package
+    // name (the latter is a cycle ng-packagr rejects, but only after the build has started).
     files: ['projects/neat-ui/src/**/*.ts'],
+    ignores: ['**/*.spec.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
         {
           patterns: [
             {
-              regex: '^(\\.\\./)+video/|^@sima/neat-ui/video(/|$)',
-              message: 'The primary entry point must not import from @sima/neat-ui/video.',
+              regex: `^(\\.\\./)+(${ENTRIES.join('|')})/src/|^@sima/neat-ui/`,
+              message: 'The primary entry point must not import from a @sima/neat-ui/<name> entry.',
             },
           ],
         },

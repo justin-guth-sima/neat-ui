@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { NeatPage, NeatPageToolbar, NeatSwitch } from '@sima/neat-ui';
+import { NeatPage, NeatPageToolbar } from '@sima/neat-ui';
+import { NeatSwitch } from '@sima/neat-ui/switch';
 
 @Component({
   selector: 'app-page-page',

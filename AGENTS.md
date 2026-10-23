@@ -10,27 +10,49 @@ hatch says what to do instead of working around the rule.
 demo apps later). Its value is that every app looks and behaves the same and that a change to the
 look happens in one place. Every rule here protects that.
 
-- `projects/neat-ui`: the library, with two entry points, each with its own public API file:
-  - `@sima/neat-ui`: everything but video. Public API is `projects/neat-ui/src/public-api.ts`.
-  - `@sima/neat-ui/video`: the video tile, the tile grid and what they need (overlay drawing,
-    metadata sync, the overlay palette), and the region-of-interest editor with its swatch and
-    `neatRoiNames`, which sit in the tile's overlay layer. Public API is `projects/neat-ui/video/src/public-api.ts`;
-    its code lives in `projects/neat-ui/video/src/lib/`. Why a separate entry point: a page that
-    shows no video must not load the canvas, frame-loop and overlay code, and an app's lazy routes
-    can only keep it out of the main bundle if it is a different import.
+- `projects/neat-ui`: the library, with one primary and several secondary entry points, each with
+  its own public API file:
+  - `@sima/neat-ui` (the primary): what the shell and every page need: theme, `NeatIcon`,
+    `NeatShell`, `NeatPageToolbar`, `NeatPage`, `KioskService`, `NeatButton`, `NeatInlineButton`,
+    `NeatTooltip` and `NeatNote`. Public API is `projects/neat-ui/src/public-api.ts`.
+  - one secondary entry point per other component, `@sima/neat-ui/<name>`: `switch`, `slider`,
+    `segmented`, `tabs`, `popover`, `confirm`, `input`, `number-field` and `line-list`, each
+    exporting that component and its types; and `video`: the video tile, the tile grid and what
+    they need (overlay drawing, metadata sync, the overlay palette), and the region-of-interest
+    editor with its swatch and `neatRoiNames`, which sit in the tile's overlay layer. Public API is
+    `projects/neat-ui/<name>/src/public-api.ts`; its code lives in `projects/neat-ui/<name>/src/lib/`.
+    Why one entry per component: an app's main bundle carries only the entries its shell imports,
+    and a lazy route can keep a component (video's canvas, frame-loop and overlay code most of all)
+    out of the main bundle only if it is a different import.
+  - To add an entry point: create `projects/neat-ui/<name>/` with `ng-package.json` and
+    `src/public-api.ts` as the existing ones have, add its path to `tsconfig.json`, add its name
+    and a selector of its own to `SECONDARY_ENTRIES` in `tools/check-dist.mjs`, and list it in
+    `check-dist.test.mjs` and `src/public-api.spec.ts`. The lint direction rules and the
+    stylesheet's `@source` glob find a new entry by themselves.
 - `projects/showcase`: the component gallery.
 
-**The entry points depend one way.** `@sima/neat-ui/video` may import the primary only through
-the package name (`from '@sima/neat-ui'`), never by a relative path across the boundary; the
-primary never imports from `video`. Why: ng-packagr builds the primary first and gives the
-secondary the built package, so a relative path would copy the primary into the video bundle, and
-an import the other way is a cycle. Two tools guard the two halves: ESLint (`no-restricted-imports`
-in `projects/neat-ui/eslint.config.js`, run by `npm run lint`) fails a relative import from video
-code out to a `src` folder, and any import of video code (relative or `@sima/neat-ui/video`) in the
-primary; `npm run check:dist` fails a build whose primary bundle contains `neat-video-tile`, which
-catches video code that reached the primary some other way. A new export goes into the entry point that owns its code, and only
-what an app or the showcase needs is exported: a helper that only the kit's own code uses stays
-internal.
+**The entry points depend one way.** A secondary entry may import the primary and other secondary
+entries only through the package name (`from '@sima/neat-ui'`, `from '@sima/neat-ui/input'`),
+never by a relative path across the boundary; the primary never imports from a secondary entry.
+Why: ng-packagr builds the primary first and gives each secondary the built package, so a relative
+path would copy the primary into the entry's bundle, and an import the other way is a cycle. Two
+tools guard the two halves: ESLint (`no-restricted-imports` in `projects/neat-ui/eslint.config.js`,
+run by `npm run lint`) fails a relative import from entry code out to a `src` folder or another
+entry, and any import of an entry (relative or `@sima/neat-ui/<name>`) in the primary; `npm run
+check:dist` fails a build that lacks an entry's FESM, or whose primary bundle contains a
+secondary entry's selector (`neat-video-tile`, `neat-segmented`, ...), which catches entry code
+that reached the primary some other way. Specs are not packaged and are exempt from the ESLint
+rule: they import the primary's theme helpers and the vendored helm source by relative path.
+A new export goes into the entry point that owns its code, and only what an app or the showcase
+needs is exported: a helper that only the kit's own code uses stays internal.
+
+**What entries share goes through the primary under a `ɵ` prefix.** The vendored helm code
+(`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,
+yet the secondary entries need them, and an entry sees the primary only through its public API. So
+the primary exports `ɵhlm`, `ɵtoggleVariants`, `ɵlistVariants` and `ɵIN_PAGE_TOOLBAR`: Angular's
+convention for private API. They are not for apps, may change in any release, and no app file may
+import a `ɵ` name. A shared internal that a second entry needs is exported the same way, never by
+a relative path. `lib/ui/` itself stays where `helm:add` writes it.
 
 ## How the kit is built on Spartan
 
@@ -181,7 +203,7 @@ Node 24 is required (`.node-version`; Angular 22 supports `^22.22.3 || ^24.15.0`
 | `npm test`               | Unit tests for all projects (`npm test -- --watch=false` runs once and exits)   |
 | `npm run lint`           | ESLint (angular-eslint) and Stylelint                                           |
 | `npm run build`          | Build the library and its compiled stylesheet into `dist/neat-ui`               |
-| `npm run check:dist`     | Check the built package (both entry points, no helm alias imports, stylesheet)  |
+| `npm run check:dist`     | Check the built package (every entry point, no helm alias imports, stylesheet)  |
 | `npm run test:tools`     | Tests for the repo tools (`tools/*.test.mjs`)                                   |
 | `npm run theme:emit`     | Regenerate `lib/theme/tokens.generated.css` from the theme sources              |
 | `npm run helm:add`       | Add a Spartan helm component to `lib/ui/` (`-- <name>`), the only way in        |

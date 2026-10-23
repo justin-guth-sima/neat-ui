@@ -8,6 +8,15 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "@sima/neat-ui/confirm": ["./projects/neat-ui/confirm/src/public-api.ts"],
+      "@sima/neat-ui/input": ["./projects/neat-ui/input/src/public-api.ts"],
+      "@sima/neat-ui/line-list": ["./projects/neat-ui/line-list/src/public-api.ts"],
+      "@sima/neat-ui/number-field": ["./projects/neat-ui/number-field/src/public-api.ts"],
+      "@sima/neat-ui/popover": ["./projects/neat-ui/popover/src/public-api.ts"],
+      "@sima/neat-ui/segmented": ["./projects/neat-ui/segmented/src/public-api.ts"],
+      "@sima/neat-ui/slider": ["./projects/neat-ui/slider/src/public-api.ts"],
+      "@sima/neat-ui/switch": ["./projects/neat-ui/switch/src/public-api.ts"],
+      "@sima/neat-ui/tabs": ["./projects/neat-ui/tabs/src/public-api.ts"],
       "@sima/neat-ui/video": ["./projects/neat-ui/video/src/public-api.ts"],
       "@sima/neat-ui": ["./projects/neat-ui/src/public-api.ts"]
     },

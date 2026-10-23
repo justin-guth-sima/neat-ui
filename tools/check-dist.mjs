@@ -1,17 +1,32 @@
 // `npm run check:dist`: fails when dist/neat-ui would ship a broken package. ng-packagr builds
 // green even when vendored helm code still imports through the `@neat-ui/helm` alias (it treats
 // the alias as an external package, which no app can resolve), and `ng build neat-ui` alone leaves
-// out the compiled stylesheet that styles/neat-ui.css imports. It also cannot tell that the video
-// code leaked back into the primary entry point, which would put it in every page's bundle again.
-// Run after `npm run build`.
+// out the compiled stylesheet that styles/neat-ui.css imports. It also cannot tell that the code of
+// a secondary entry point (video, switch, ...) leaked back into the primary, which would put it in
+// every page's bundle again. Run after `npm run build`.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const DIST = fileURLToPath(new URL('../dist/neat-ui', import.meta.url));
 const ALIAS = '@neat-ui/helm';
-/** The video tile's selector: present in the primary entry point only if video code leaked into it. */
-const VIDEO_MARKER = 'neat-video-tile';
+/**
+ * The kit's secondary entry points (@sima/neat-ui/<name>), each with a selector of its own. The
+ * selector appears in the primary FESM only if that entry's code leaked into it. A new entry point
+ * is added here; the test lists them, so one missing from this table fails it.
+ */
+export const SECONDARY_ENTRIES = {
+  confirm: 'neat-confirm-dialog',
+  input: 'neatInput',
+  'line-list': 'neatLineList',
+  'number-field': 'neat-number-field',
+  popover: 'neat-popover',
+  segmented: 'neat-segmented',
+  slider: 'neat-slider',
+  switch: 'neatSwitch',
+  tabs: 'neat-tabs',
+  video: 'neat-video-tile',
+};
 /** Packed tarballs are compressed; their contents are the files checked here. */
 const SKIPPED = /\.tgz$/;
 
@@ -33,17 +48,26 @@ export function findProblems(dist) {
     problems.push(`${compiledStylesheet} is missing; build with \`npm run build\`, not ng build`);
   }
 
-  const primary = join(dist, 'fesm2022', 'sima-neat-ui.mjs');
-  const video = join(dist, 'fesm2022', 'sima-neat-ui-video.mjs');
+  const fesm = (name) => join(dist, 'fesm2022', `sima-neat-ui${name ? `-${name}` : ''}.mjs`);
+  const primary = fesm('');
   if (!existsSync(primary)) {
     problems.push(`${primary} is missing`);
-  } else if (readFileSync(primary, 'utf8').includes(VIDEO_MARKER)) {
-    problems.push(
-      `${primary} contains the video tile; video code belongs in @sima/neat-ui/video only`,
-    );
+  } else {
+    const source = readFileSync(primary, 'utf8');
+    for (const [name, marker] of Object.entries(SECONDARY_ENTRIES)) {
+      if (source.includes(marker)) {
+        problems.push(
+          `${primary} contains "${marker}"; that code belongs in @sima/neat-ui/${name} only`,
+        );
+      }
+    }
   }
-  if (!existsSync(video)) {
-    problems.push(`${video} is missing; the @sima/neat-ui/video entry point was not built`);
+  for (const name of Object.keys(SECONDARY_ENTRIES)) {
+    if (!existsSync(fesm(name))) {
+      problems.push(
+        `${fesm(name)} is missing; the @sima/neat-ui/${name} entry point was not built`,
+      );
+    }
   }
 
   for (const file of files(dist)) {
@@ -59,6 +83,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(1);
   }
   console.log(
-    'dist/neat-ui: both entry points built, no video code in the primary, no helm alias imports, compiled stylesheet present.',
+    'dist/neat-ui: every entry point built, no secondary entry code in the primary, no helm alias imports, compiled stylesheet present.',
   );
 }

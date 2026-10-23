@@ -3,10 +3,10 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, test } from 'node:test';
-import { findProblems } from './check-dist.mjs';
+import { findProblems, SECONDARY_ENTRIES } from './check-dist.mjs';
 
 const PRIMARY = 'fesm2022/sima-neat-ui.mjs';
-const VIDEO = 'fesm2022/sima-neat-ui-video.mjs';
+const SEGMENTED = 'fesm2022/sima-neat-ui-segmented.mjs';
 const STYLESHEET = 'styles/neat-ui.tailwind.css';
 
 const roots = [];
@@ -25,17 +25,52 @@ function distWith(files) {
   return root;
 }
 
+/** A secondary entry's FESM, which carries the selector the primary must not. */
+const entryFesm = (name) => `fesm2022/sima-neat-ui-${name}.mjs`;
+
 const SHIPPABLE = {
   [PRIMARY]: 'export class NeatButton {}\n',
-  [VIDEO]: 'export class NeatVideoTile { selector = "neat-video-tile"; }\n',
+  ...Object.fromEntries(
+    Object.entries(SECONDARY_ENTRIES).map(([name, marker]) => [
+      entryFesm(name),
+      `export class Entry { selector = "${marker}"; }\n`,
+    ]),
+  ),
   [STYLESHEET]: '.flex{display:flex}\n',
 };
 
-test('check-dist fails when dist/neat-ui/fesm2022/sima-neat-ui-video.mjs is missing', () => {
-  const { [VIDEO]: _video, ...withoutVideo } = SHIPPABLE;
-  const problems = findProblems(distWith(withoutVideo));
+test('check-dist lists every kit entry point that is not the primary', () => {
+  assert.deepEqual(Object.keys(SECONDARY_ENTRIES).sort(), [
+    'confirm',
+    'input',
+    'line-list',
+    'number-field',
+    'popover',
+    'segmented',
+    'slider',
+    'switch',
+    'tabs',
+    'video',
+  ]);
+});
+
+test('check-dist fails when a listed secondary entry FESM is missing', () => {
+  for (const name of Object.keys(SECONDARY_ENTRIES)) {
+    const { [entryFesm(name)]: _entry, ...withoutEntry } = SHIPPABLE;
+    const problems = findProblems(distWith(withoutEntry));
+    assert.equal(problems.length, 1, name);
+    assert.match(problems[0], new RegExp(`sima-neat-ui-${name}\\.mjs is missing`), name);
+    assert.match(problems[0], new RegExp(`@sima/neat-ui/${name} entry point`), name);
+  }
+});
+
+test('check-dist fails when the primary FESM contains a moved selector such as "neat-segmented"', () => {
+  const problems = findProblems(
+    distWith({ ...SHIPPABLE, [PRIMARY]: 'selector: "neat-segmented"\n' }),
+  );
   assert.equal(problems.length, 1);
-  assert.match(problems[0], /sima-neat-ui-video\.mjs is missing/);
+  assert.match(problems[0], /sima-neat-ui\.mjs contains "neat-segmented"/);
+  assert.match(problems[0], /@sima\/neat-ui\/segmented/);
 });
 
 test('check-dist fails when the primary FESM contains the string "neat-video-tile"', () => {
@@ -43,7 +78,7 @@ test('check-dist fails when the primary FESM contains the string "neat-video-til
     distWith({ ...SHIPPABLE, [PRIMARY]: 'selector: "neat-video-tile"\n' }),
   );
   assert.equal(problems.length, 1);
-  assert.match(problems[0], /sima-neat-ui\.mjs contains the video tile/);
+  assert.match(problems[0], /sima-neat-ui\.mjs contains "neat-video-tile"/);
 });
 
 test('check-dist fails when the primary FESM is missing', () => {
@@ -62,10 +97,10 @@ test('check-dist fails when the compiled stylesheet is missing', () => {
 
 test('check-dist fails when any file references the helm alias', () => {
   const problems = findProblems(
-    distWith({ ...SHIPPABLE, [VIDEO]: 'import "@neat-ui/helm/button";\n' }),
+    distWith({ ...SHIPPABLE, [SEGMENTED]: 'import "@neat-ui/helm/button";\n' }),
   );
   assert.equal(problems.length, 1);
-  assert.match(problems[0], /sima-neat-ui-video\.mjs references @neat-ui\/helm/);
+  assert.match(problems[0], /sima-neat-ui-segmented\.mjs references @neat-ui\/helm/);
 });
 
 test('check-dist fails when the dist directory does not exist', () => {
@@ -74,6 +109,6 @@ test('check-dist fails when the dist directory does not exist', () => {
   assert.match(problems[0], /does not exist/);
 });
 
-test('check-dist passes for a tree with both FESMs, the stylesheet, and no @neat-ui/helm reference', () => {
+test('check-dist passes for a tree with every entry point FESM, the stylesheet, and no @neat-ui/helm reference', () => {
   assert.deepEqual(findProblems(distWith(SHIPPABLE)), []);
 });

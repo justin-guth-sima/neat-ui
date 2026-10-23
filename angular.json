@@ -27,8 +27,8 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            // Globs are relative to the source root, which the video entry point sits beside.
-            "include": ["**/*.spec.ts", "../video/src/**/*.spec.ts"]
+            // Globs are relative to the source root, which the secondary entry points sit beside.
+            "include": ["**/*.spec.ts", "../*/src/**/*.spec.ts"]
           }
         },
         "lint": {
@@ -67,8 +67,8 @@
             "production": {
               "budgets": [
                 {
-                  // The @sima/neat-ui barrel puts all kit code in the showcase's main bundle, lazy
-                  // pages or not, so this grows with every kit component.
+                  // The primary @sima/neat-ui entry (the shell and what every page needs) is in the
+                  // showcase's main bundle; the other entries load with the lazy pages that use them.
                   "type": "initial",
                   "maximumWarning": "700kB",
                   "maximumError": "1MB"

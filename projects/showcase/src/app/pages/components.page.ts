@@ -13,28 +13,22 @@ import {
   NeatButton,
   type NeatButtonSize,
   type NeatButtonVariant,
-  NeatConfirm,
   NeatIcon,
   NeatInlineButton,
-  NeatInput,
-  NeatLine,
-  NeatLineEnd,
-  NeatLineList,
   NeatNote,
-  NeatNumberField,
   NeatPage,
-  NeatPopover,
-  NeatPopoverContent,
-  NeatPopoverTrigger,
-  NeatSegmented,
-  type NeatSegmentedOption,
-  NeatSlider,
-  NeatSwitch,
-  NeatTab,
-  NeatTabs,
   NeatTooltip,
   type NeatTooltipPosition,
 } from '@sima/neat-ui';
+import { NeatConfirm } from '@sima/neat-ui/confirm';
+import { NeatInput } from '@sima/neat-ui/input';
+import { NeatLine, NeatLineEnd, NeatLineList } from '@sima/neat-ui/line-list';
+import { NeatNumberField } from '@sima/neat-ui/number-field';
+import { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } from '@sima/neat-ui/popover';
+import { NeatSegmented, type NeatSegmentedOption } from '@sima/neat-ui/segmented';
+import { NeatSlider } from '@sima/neat-ui/slider';
+import { NeatSwitch } from '@sima/neat-ui/switch';
+import { NeatTab, NeatTabs } from '@sima/neat-ui/tabs';
 import {
   NeatRoiEditor,
   type NeatRoiDrawMode,
