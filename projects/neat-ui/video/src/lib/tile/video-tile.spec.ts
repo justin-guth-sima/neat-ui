@@ -121,6 +121,7 @@ class FakeResizeObserver {
       (frameStats)="stats.push($event)"
     >
       <span neatTileChip class="chip">Metadata late</span>
+      <div neatTileOverlay class="projected-overlay"></div>
     </neat-video-tile>
   `,
 })
@@ -173,6 +174,8 @@ describe('NeatVideoTile', () => {
   let frames: FakeVideoFrames;
   let context: RecordingContext;
   let readyState: ReturnType<typeof vi.spyOn>;
+  let videoWidth: ReturnType<typeof vi.spyOn>;
+  let videoHeight: ReturnType<typeof vi.spyOn>;
   let play: ReturnType<typeof vi.spyOn>;
 
   const host = () => fixture.componentInstance;
@@ -245,8 +248,8 @@ describe('NeatVideoTile', () => {
       .spyOn(HTMLMediaElement.prototype, 'readyState', 'get')
       .mockReturnValue(HTMLMediaElement.HAVE_ENOUGH_DATA);
     play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
-    vi.spyOn(HTMLVideoElement.prototype, 'videoWidth', 'get').mockReturnValue(640);
-    vi.spyOn(HTMLVideoElement.prototype, 'videoHeight', 'get').mockReturnValue(480);
+    videoWidth = vi.spyOn(HTMLVideoElement.prototype, 'videoWidth', 'get').mockReturnValue(640);
+    videoHeight = vi.spyOn(HTMLVideoElement.prototype, 'videoHeight', 'get').mockReturnValue(480);
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(function (
       this: HTMLCanvasElement,
     ) {
@@ -553,11 +556,137 @@ describe('NeatVideoTile', () => {
     host().bars.set(false);
     render();
 
-    expect(Array.from(tileElement().children, (child) => child.tagName)).toStrictEqual([
-      'VIDEO',
-      'CANVAS',
-    ]);
+    expect(
+      Array.from(tileElement().children, (child) => child.tagName),
+      'only the video, the overlay canvas and the overlay layer',
+    ).toStrictEqual(['VIDEO', 'CANVAS', 'DIV']);
     expect(tileElement().querySelector('[neatTileChip]')).toBeNull();
+    expect(
+      tileElement().querySelector('.projected-overlay'),
+      'the overlay slot does not depend on the bars',
+    ).not.toBeNull();
+  });
+
+  it('projects [neatTileOverlay] content into a layer after the canvas and before the bar', () => {
+    create();
+    const overlay = tileElement().querySelector('.projected-overlay') as HTMLElement;
+    const layer = overlay.parentElement as HTMLElement;
+
+    expect(layer.parentElement).toBe(tileElement());
+    expect(layer.previousElementSibling).toBe(canvas());
+    expect(
+      layer.compareDocumentPosition(tileElement().querySelector('.bar') as Element) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      'the bar follows the layer, so it paints above it',
+    ).not.toBe(0);
+    expect(layer.children, 'the layer holds only the projected content').toHaveLength(1);
+    // The canvas is the control: the styles are applied here, and the layer must not copy its rule.
+    expect(getComputedStyle(canvas()).pointerEvents).toBe('none');
+    expect(
+      getComputedStyle(layer).pointerEvents,
+      'the layer leaves pointer events to its content',
+    ).not.toBe('none');
+  });
+
+  describe('videoBox', () => {
+    const resizeTile = (width: number, height: number) =>
+      FakeResizeObserver.instances[0].resize(width, height);
+    /** The video reports a new size, as a browser does with a `resize` event. */
+    function setVideoSize(width: number, height: number, event = 'resize'): void {
+      videoWidth.mockReturnValue(width);
+      videoHeight.mockReturnValue(height);
+      video().dispatchEvent(new Event(event));
+    }
+
+    it('is null before the video reports its size', () => {
+      videoWidth.mockReturnValue(0);
+      videoHeight.mockReturnValue(0);
+      create();
+      startStream();
+      resizeTile(400, 300);
+
+      expect(tile().videoBox()).toBeNull();
+
+      setVideoSize(1280, 720, 'loadedmetadata');
+      expect(tile().videoBox()).not.toBeNull();
+    });
+
+    it('a 1280×720 video in a 400×300 tile has videoBox {x: 0, y: 37.5, width: 400, height: 225}', () => {
+      create();
+      startStream();
+      setVideoSize(1280, 720, 'loadedmetadata');
+      resizeTile(400, 300);
+
+      expect(tile().videoBox()).toStrictEqual({ x: 0, y: 37.5, width: 400, height: 225 });
+    });
+
+    it('a 640×480 video in a 400×150 tile has videoBox {x: 100, y: 0, width: 200, height: 150}', () => {
+      create();
+      startStream();
+      resizeTile(400, 150);
+
+      expect(tile().videoBox()).toStrictEqual({ x: 100, y: 0, width: 200, height: 150 });
+    });
+
+    it('videoBox follows a tile resize and a video resolution change, and goes null when the source is removed', () => {
+      create();
+      startStream();
+      resizeTile(400, 300);
+      expect(tile().videoBox()).toStrictEqual({ x: 0, y: 0, width: 400, height: 300 });
+
+      resizeTile(400, 150);
+      expect(tile().videoBox()).toStrictEqual({ x: 100, y: 0, width: 200, height: 150 });
+
+      setVideoSize(1280, 720);
+      const widened = tile().videoBox();
+      expect(widened?.x).toBeCloseTo(66.667, 3);
+      expect(widened?.y).toBe(0);
+      expect(widened?.width).toBeCloseTo(266.667, 3);
+      expect(widened?.height).toBe(150);
+
+      source.stream.set(null);
+      render();
+      expect(tile().videoBox()).toBeNull();
+
+      resizeTile(400, 300);
+      expect(tile().videoBox(), 'a tile resize does not bring a removed source back').toBeNull();
+    });
+
+    it('videoBox does not notify when the tile resizes to the same box', () => {
+      create();
+      startStream();
+      resizeTile(400, 300);
+      const before = tile().videoBox();
+
+      resizeTile(400, 300);
+      expect(tile().videoBox()).toBe(before);
+
+      // The video repeating its size is no change either.
+      setVideoSize(640, 480);
+      expect(tile().videoBox()).toBe(before);
+    });
+
+    it('has no box in a tile without size, whose editor surface would be empty', () => {
+      create();
+      startStream();
+      resizeTile(0, 0);
+
+      expect(tile().videoBox()).toBeNull();
+    });
+
+    it('is not computed per frame', () => {
+      create();
+      startStream();
+      resizeTile(400, 300);
+      const before = tile().videoBox();
+
+      // The loop reads the video's size every frame; a size change without an event stays unseen.
+      videoWidth.mockReturnValue(1280);
+      videoHeight.mockReturnValue(720);
+      present(1);
+
+      expect(tile().videoBox()).toBe(before);
+    });
   });
 
   it('reflects its state and selection on its host for styling', () => {

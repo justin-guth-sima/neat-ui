@@ -11,6 +11,7 @@ import {
   input,
   NgZone,
   output,
+  type Signal,
   signal,
   untracked,
   viewChild,
@@ -20,6 +21,7 @@ import type { NeatOverlayState, NeatOverlayView } from '../overlays/draw-frame';
 import { createOverlayState, drawFrame, resetOverlayState } from '../overlays/draw-frame';
 import type { NeatOverlaySettings } from '../overlays/overlay-settings';
 import { NEAT_OVERLAY_DEFAULTS } from '../overlays/overlay-settings';
+import { letterbox } from '../overlays/letterbox';
 import { parseMetadataMessage } from '../sync/metadata-message';
 import type {
   NeatHeldOverlays,
@@ -51,6 +53,22 @@ const MAX_CANVAS_DPR = 2;
  * once none has arrived for the stale timeout (about 1.8 s); it plays again when frames return.
  */
 export type NeatTileState = 'empty' | 'playing' | 'stopped';
+
+/**
+ * Where the shown image sits inside the tile, in CSS pixels from the tile's top-left corner: the
+ * video without the bars `object-fit: contain` leaves around it.
+ */
+export interface NeatVideoBox {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+function sameVideoBox(a: NeatVideoBox | null, b: NeatVideoBox | null): boolean {
+  if (a === null || b === null) return a === b;
+  return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
+}
 
 /**
  * The tile's frame-sync counters and video state, as the app reports them (the `synchronization`
@@ -92,6 +110,10 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
  *
  * With `bars` on, a bar along the bottom shows `label`, `status` and the chips projected with
  * `neatTileChip`, and a tile without video says so. With `bars` off it is only video and overlay.
+ *
+ * Content projected with `neatTileOverlay` fills a layer over the tile, above the overlay canvas
+ * and below the bar; `videoBox` says where the image is inside it. The layer takes pointer events
+ * only where its content does.
  */
 @Component({
   selector: 'neat-video-tile',
@@ -103,6 +125,7 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
   template: `
     <video #video class="video" autoplay playsinline [muted]="true"></video>
     <canvas #canvas class="overlay" aria-hidden="true"></canvas>
+    <div class="overlay-slot"><ng-content select="[neatTileOverlay]" /></div>
     @if (bars()) {
       @if (state() !== 'playing') {
         <p class="no-video"><span class="no-video-text">No active video received</span></p>
@@ -136,6 +159,15 @@ export class NeatVideoTile {
   readonly frameStats = output<NeatFrameStats>();
 
   protected readonly state = signal<NeatTileState>('empty');
+
+  private readonly box = signal<NeatVideoBox | null>(null, { equal: sameVideoBox });
+  /**
+   * Where the shown image sits in the tile; null while no stream plays, until the video reports
+   * its size, and while the tile has none. Unlike the frame loop's fields it is a signal, for
+   * overlays that follow the image: it is written only when the tile or the video changes size,
+   * never per frame, and an unchanged box does not notify.
+   */
+  readonly videoBox: Signal<NeatVideoBox | null> = this.box.asReadonly();
 
   private readonly videoElement = viewChild.required<ElementRef<HTMLVideoElement>>('video');
   private readonly canvasElement = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
@@ -195,10 +227,24 @@ export class NeatVideoTile {
             this.view.cssWidth = width;
             this.view.cssHeight = height;
             this.sizeCanvas(currentDpr());
+            this.updateVideoBox();
           }),
       );
       observer.observe(host);
       destroyRef.onDestroy(() => observer.disconnect());
+
+      // The video's size is known after its metadata loads and changes with the stream's
+      // resolution; the element's own events are the only times it is read besides the frames.
+      const video = this.videoElement().nativeElement;
+      const onVideoSize = () => this.updateVideoBox();
+      this.zone.runOutsideAngular(() => {
+        video.addEventListener('loadedmetadata', onVideoSize);
+        video.addEventListener('resize', onVideoSize);
+      });
+      destroyRef.onDestroy(() => {
+        video.removeEventListener('loadedmetadata', onVideoSize);
+        video.removeEventListener('resize', onVideoSize);
+      });
     });
 
     // Runs after render, so the video element exists when the first stream arrives.
@@ -293,6 +339,7 @@ export class NeatVideoTile {
     if (this.staleTimer !== null) clearTimeout(this.staleTimer);
     this.staleTimer = null;
     this.clearOverlays();
+    this.box.set(null);
     this.setState('empty');
   }
 
@@ -410,6 +457,28 @@ export class NeatVideoTile {
       },
     });
     this.messagesThisSecond = 0;
+  }
+
+  /** Called when the tile or the video changes size, never per frame. */
+  private updateVideoBox(): void {
+    const { videoWidth, videoHeight } = this.videoElement().nativeElement;
+    const { cssWidth, cssHeight } = this.view;
+    if (this.playing === null || !videoWidth || !videoHeight || !cssWidth || !cssHeight) {
+      this.box.set(null);
+      return;
+    }
+    const { scaleX, scaleY, offsetX, offsetY } = letterbox(
+      videoWidth,
+      videoHeight,
+      cssWidth,
+      cssHeight,
+    );
+    this.box.set({
+      x: offsetX,
+      y: offsetY,
+      width: scaleX * videoWidth,
+      height: scaleY * videoHeight,
+    });
   }
 
   private sizeCanvas(dpr: number): void {

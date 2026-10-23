@@ -29,6 +29,16 @@
 }
 
 /*
+ * The app's overlay content (a region editor, say) covers the tile. It follows the canvas in the
+ * DOM, so it paints above it, and precedes the bar and the no-video note (z-index 1), so those
+ * stay on top. It sets no pointer-events: what is projected decides what it catches.
+ */
+.overlay-slot {
+  position: absolute;
+  inset: 0;
+}
+
+/*
  * Empty: no frame of this stream yet, so an opaque layer of the surface covers the video and the
  * overlay. The video stays rendered underneath, so every browser keeps delivering its frames.
  */
