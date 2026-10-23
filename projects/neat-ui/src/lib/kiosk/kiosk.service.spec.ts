@@ -193,6 +193,44 @@ describe('KioskService', () => {
     }
   });
 
+  it('holdToolbar: pointerIdle stays false while held and counts down again from the last release', () => {
+    vi.useFakeTimers();
+    const kiosk = startAt('/');
+    vi.advanceTimersByTime(KIOSK_POINTER_IDLE_MS);
+    expect(kiosk.pointerIdle()).toBe(true);
+
+    // A hold wakes an idle pointer and keeps it awake, whatever the input does meanwhile.
+    const release = kiosk.holdToolbar();
+    expect(kiosk.pointerIdle()).toBe(false);
+    vi.advanceTimersByTime(KIOSK_POINTER_IDLE_MS * 4);
+    document.dispatchEvent(new Event('pointermove'));
+    vi.advanceTimersByTime(KIOSK_POINTER_IDLE_MS * 4);
+    expect(kiosk.pointerIdle()).toBe(false);
+
+    // Released, the pointer has to rest a full period again before it counts as idle.
+    release();
+    vi.advanceTimersByTime(KIOSK_POINTER_IDLE_MS - 1);
+    expect(kiosk.pointerIdle()).toBe(false);
+    vi.advanceTimersByTime(1);
+    expect(kiosk.pointerIdle()).toBe(true);
+  });
+
+  it('holdToolbar: two holds need two releases; a release called twice counts once', () => {
+    vi.useFakeTimers();
+    const kiosk = startAt('/');
+    const first = kiosk.holdToolbar();
+    const second = kiosk.holdToolbar();
+
+    first();
+    first();
+    vi.advanceTimersByTime(KIOSK_POINTER_IDLE_MS * 2);
+    expect(kiosk.pointerIdle()).toBe(false);
+
+    second();
+    vi.advanceTimersByTime(KIOSK_POINTER_IDLE_MS);
+    expect(kiosk.pointerIdle()).toBe(true);
+  });
+
   it('listens passively and removes its listeners and timer on destroy', () => {
     vi.useFakeTimers();
     const added = vi.spyOn(document, 'addEventListener');

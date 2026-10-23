@@ -16,6 +16,9 @@ import {
   NeatIcon,
   NeatInput,
   NeatPage,
+  NeatPopover,
+  NeatPopoverContent,
+  NeatPopoverTrigger,
   NeatSegmented,
   type NeatSegmentedOption,
   NeatSlider,
@@ -59,6 +62,9 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
     NeatIcon,
     NeatInput,
     NeatPage,
+    NeatPopover,
+    NeatPopoverContent,
+    NeatPopoverTrigger,
     NeatSegmented,
     NeatSlider,
     NeatSwitch,
@@ -299,6 +305,75 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
         </section>
 
         <section class="showcase-section">
+          <h2>Popover</h2>
+          <p class="showcase-muted">
+            <code>neat-popover</code>: a panel of controls below a
+            <code>neatPopoverTrigger</code> button, open while they are used. A non-modal dialog
+            named by <code>label</code>; focus moves into it, and Escape, a click outside or the
+            trigger close it and give focus back to the trigger. <code>align</code> lines it up with
+            the trigger's start, centre or end. The content is an <code>ng-template</code>, so its
+            values live in the page.
+          </p>
+          <div class="showcase-row">
+            <neat-popover label="View options" [(open)]="viewOptionsOpen">
+              <button
+                neatButton
+                neatPopoverTrigger
+                type="button"
+                variant="text"
+                iconOnly
+                aria-label="View options"
+                neatTooltip="View options"
+              >
+                <neat-icon name="more" />
+              </button>
+              <ng-template neatPopoverContent>
+                <div class="popover-fields">
+                  <button neatSwitch [(checked)]="bars">Bars</button>
+                  <button neatSwitch [(checked)]="hideEmpty">Hide empty slots</button>
+                </div>
+              </ng-template>
+            </neat-popover>
+            <neat-popover label="Go to channel" align="end" [(open)]="channelOpen">
+              <button
+                neatButton
+                neatPopoverTrigger
+                type="button"
+                variant="text"
+                iconOnly
+                aria-label="Go to channel"
+                neatTooltip="Go to channel"
+              >
+                <neat-icon name="search" />
+              </button>
+              <ng-template neatPopoverContent>
+                <label class="popover-fields">
+                  <span>Channel</span>
+                  <input
+                    #channelField
+                    neatInput
+                    size="small"
+                    type="number"
+                    inputmode="numeric"
+                    min="0"
+                    max="15"
+                    placeholder="0–15"
+                    [value]="channel()"
+                    (input)="channel.set(channelField.value)"
+                  />
+                  <span class="showcase-muted">Aligned to the trigger's end edge.</span>
+                </label>
+              </ng-template>
+            </neat-popover>
+          </div>
+          <p class="showcase-code showcase-muted">
+            View options {{ viewOptionsOpen() ? 'open' : 'closed' }}, go to channel
+            {{ channelOpen() ? 'open' : 'closed' }}; bars {{ bars() ? 'on' : 'off' }}, channel
+            {{ channel() || 'none' }}
+          </p>
+        </section>
+
+        <section class="showcase-section">
           <h2>Input</h2>
           <p class="showcase-muted">
             <code>neatInput</code> on an <code>input</code>: text or number, in two sizes. Native
@@ -469,6 +544,9 @@ export class ComponentsPage {
   protected readonly shape = signal<Shape>('16:9');
   protected readonly overlay = signal('boxes');
   protected readonly tab = signal('metadata');
+  protected readonly viewOptionsOpen = signal(false);
+  protected readonly channelOpen = signal(false);
+  protected readonly channel = signal('');
 
   protected readonly tileWidth = signal(240);
   protected readonly layout = signal<NeatTileLayout | null>(null);

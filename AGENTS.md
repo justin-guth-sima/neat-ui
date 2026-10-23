@@ -41,11 +41,14 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   table labelled with the helm file, and its spec reads that file as text
   (`import src from '…/hlm-x.ts?source' with { loader: 'text' }`) and checks each copied string is
   still there, so a helm update that changes them fails until the wrapper is reviewed.
-  Two wrappers own their behaviour instead of hosting a brain primitive, each for a stated reason:
+  Three wrappers own their behaviour instead of hosting a brain primitive, each for a stated reason:
   - `NeatSwitch` is a native `button` with `role="switch"`: brain's switch is a component that
     renders its own button, so it cannot be a host directive.
   - `NeatSegmented` owns its radios (roles, roving tabindex, arrow keys): brain's toggle item
     re-writes `aria-pressed` on every change, which contradicts the radio roles.
+  - `NeatPopoverTrigger` owns its ARIA and its click (`NeatPopover` itself hosts brain's popover):
+    brain's trigger names the panel in `aria-controls` while it is closed, when no element has
+    that id.
 - **Customise in this order: theme tokens, then wrapper inputs and classes, never helm.** Tokens
   come from `lib/theme/*.ts`; `npm run theme:emit` regenerates `tokens.generated.css`, and the theme
   spec checks the contrast of every text pair it emits. A wrapper overrides a helm class only where

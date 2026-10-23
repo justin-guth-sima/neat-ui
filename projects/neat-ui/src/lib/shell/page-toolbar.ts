@@ -3,6 +3,8 @@ import {
   Directive,
   inject,
   Injectable,
+  InjectionToken,
+  Injector,
   isDevMode,
   Signal,
   signal,
@@ -10,6 +12,15 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { TemplatePortal } from '@angular/cdk/portal';
+
+/**
+ * True for content rendered inside the page toolbar, in the top bar or the kiosk bar alike.
+ * Internal to the kit: a popover reads it to hold the kiosk bar open while it is open.
+ */
+export const IN_PAGE_TOOLBAR = new InjectionToken<boolean>('neat-ui: in the page toolbar', {
+  providedIn: 'root',
+  factory: () => false,
+});
 
 /**
  * Where the active page's toolbar is handed to the shell. Internal to the kit: pages use
@@ -58,7 +69,18 @@ export class PageToolbarSlot {
 export class NeatPageToolbar {
   constructor() {
     const slot = inject(PageToolbarSlot);
-    const portal = new TemplatePortal(inject(TemplateRef), inject(ViewContainerRef));
+    // The shell renders the content with this injector wherever it puts it, so what is inside can
+    // tell it is in the toolbar without looking at the DOM.
+    const injector = Injector.create({
+      providers: [{ provide: IN_PAGE_TOOLBAR, useValue: true }],
+      parent: inject(Injector),
+    });
+    const portal = new TemplatePortal(
+      inject(TemplateRef),
+      inject(ViewContainerRef),
+      undefined,
+      injector,
+    );
     slot.register(portal);
     inject(DestroyRef).onDestroy(() => slot.unregister(portal));
   }

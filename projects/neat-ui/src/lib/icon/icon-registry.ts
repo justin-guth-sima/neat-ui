@@ -5,12 +5,14 @@ import {
   LucideChevronLeft,
   LucideChevronRight,
   LucideCpu,
+  LucideEllipsis,
   LucideFileText,
   LucideFolderOpen,
   LucideIcon,
   LucideInfo,
   LucideLayoutGrid,
   LucideMaximize,
+  LucideMaximize2,
   LucideMinimize,
   LucideMoon,
   LucidePalette,
@@ -18,6 +20,7 @@ import {
   LucidePanelLeftOpen,
   LucideRadioTower,
   LucideRectangleHorizontal,
+  LucideSearch,
   LucideShapes,
   LucideSquare,
   LucideSun,
@@ -52,6 +55,9 @@ export const NEAT_ICONS = {
   close: LucideX,
   'aspect-wide': LucideRectangleHorizontal,
   'aspect-square': LucideSquare,
+  search: LucideSearch,
+  more: LucideEllipsis,
+  'fit-all': LucideMaximize2,
 } satisfies Record<string, LucideIcon>;
 
 export type NeatIconName = keyof typeof NEAT_ICONS;

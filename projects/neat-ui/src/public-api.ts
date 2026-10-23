@@ -30,6 +30,8 @@ export { NeatSlider } from './lib/slider/slider';
 export type { NeatSegmentedOption } from './lib/segmented/segmented';
 export { NeatSegmented } from './lib/segmented/segmented';
 export { NeatTab, NeatTabs } from './lib/tabs/tabs';
+export type { NeatPopoverAlign } from './lib/popover/popover';
+export { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } from './lib/popover/popover';
 export type { NeatInputSize } from './lib/input/input';
 export { NeatInput } from './lib/input/input';
 export type { NeatMetadataMessage } from './lib/video/sync/metadata-message';

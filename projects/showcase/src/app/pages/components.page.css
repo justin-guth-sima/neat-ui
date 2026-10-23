@@ -43,6 +43,14 @@
   width: 10rem;
 }
 
+/* A popover's content is the page's to lay out: here a column of fields. */
+.popover-fields {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--neat-space-3);
+}
+
 /* The grid fills its parent, so the demo gives it a box of a fixed height to fill. */
 .tile-demo {
   height: 24rem;

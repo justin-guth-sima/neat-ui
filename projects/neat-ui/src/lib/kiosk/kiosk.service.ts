@@ -23,6 +23,9 @@ function kioskRequested(search: string): boolean {
  * fullscreen without a user gesture; booth machines use the browser's own kiosk flag instead.
  * If fullscreen was obtained by `enter()`, leaving it (Esc) leaves kiosk mode too.
  *
+ * A component whose UI lives outside the floating chrome but belongs to it (a popover opened from
+ * the page toolbar) holds the toolbar with `holdToolbar()`, so the chrome does not fade under it.
+ *
  * The document listeners are plain DOM listeners outside change detection; signals change only
  * when the state does, so pointer movement does not cause renders.
  */
@@ -35,10 +38,15 @@ export class KioskService {
 
   /** Whether the current fullscreen is the one `enter()` asked for. */
   private ownsFullscreen = false;
+  /** Unreleased `holdToolbar()` calls; the pointer never counts as idle while there are any. */
+  private holds = 0;
   private idleTimer: ReturnType<typeof setTimeout> | undefined;
 
   readonly active: Signal<boolean> = this.isActive.asReadonly();
-  /** True once the pointer has rested for `KIOSK_POINTER_IDLE_MS`; false again on pointer or touch input. */
+  /**
+   * True once the pointer has rested for `KIOSK_POINTER_IDLE_MS`; false again on pointer or touch
+   * input, and false throughout a `holdToolbar()`.
+   */
   readonly pointerIdle: Signal<boolean> = this.isPointerIdle.asReadonly();
 
   constructor() {
@@ -98,6 +106,26 @@ export class KioskService {
     return this.isActive() ? this.exit() : this.enter();
   }
 
+  /**
+   * Keeps `pointerIdle` false, so the kiosk chrome stays shown, until the returned function is
+   * called. Holds stack: the pointer can go idle again only once every hold is released, and then
+   * only after resting a full `KIOSK_POINTER_IDLE_MS`. Releasing twice counts once.
+   */
+  holdToolbar(): () => void {
+    this.holds++;
+    this.isPointerIdle.set(false);
+    this.restartIdleTimer();
+    let released = false;
+    return () => {
+      if (released) {
+        return;
+      }
+      released = true;
+      this.holds--;
+      this.restartIdleTimer();
+    };
+  }
+
   private onFullscreenChange(): void {
     if (this.ownsFullscreen && !this.document.fullscreenElement) {
       this.ownsFullscreen = false;
@@ -112,8 +140,11 @@ export class KioskService {
     this.restartIdleTimer();
   }
 
+  /** Starts the countdown to idle over; while the toolbar is held there is nothing to count. */
   private restartIdleTimer(): void {
     clearTimeout(this.idleTimer);
-    this.idleTimer = setTimeout(() => this.isPointerIdle.set(true), KIOSK_POINTER_IDLE_MS);
+    if (this.holds === 0) {
+      this.idleTimer = setTimeout(() => this.isPointerIdle.set(true), KIOSK_POINTER_IDLE_MS);
+    }
   }
 }
