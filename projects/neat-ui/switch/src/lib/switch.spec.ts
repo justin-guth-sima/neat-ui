@@ -1,16 +1,15 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { contrastRatio, type NeatColorScheme } from '@sima/neat-ui';
 import helmSwitch from '../../../src/lib/ui/switch/src/lib/hlm-switch.ts?source' with {
   loader: 'text',
 };
 import helmThumb from '../../../src/lib/ui/switch/src/lib/hlm-switch-thumb.ts?source' with {
   loader: 'text',
 };
-import { contrastRatio } from '../../../src/lib/theme/color';
 import { MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor, stateValue } from '../../../src/lib/theme/state-colors';
-import type { NeatColorScheme } from '../../../src/lib/theme/theme.service';
 import { NeatSwitch, SWITCH_HELM_CLASSES } from './switch';
 
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];

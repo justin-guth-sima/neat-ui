@@ -1,5 +1,6 @@
 import { Component, inject, Injectable, input, OnDestroy, OnInit, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { contrastRatio, type NeatColorScheme } from '@sima/neat-ui';
 import helmTabs from '../../../src/lib/ui/tabs/src/lib/hlm-tabs.ts?source' with { loader: 'text' };
 import helmContent from '../../../src/lib/ui/tabs/src/lib/hlm-tabs-content.ts?source' with {
   loader: 'text',
@@ -7,11 +8,9 @@ import helmContent from '../../../src/lib/ui/tabs/src/lib/hlm-tabs-content.ts?so
 import helmTrigger from '../../../src/lib/ui/tabs/src/lib/hlm-tabs-trigger.ts?source' with {
   loader: 'text',
 };
-import { contrastRatio } from '../../../src/lib/theme/color';
 import { MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
-import type { NeatColorScheme } from '../../../src/lib/theme/theme.service';
 import { NeatTab, NeatTabs, TABS_HELM_CLASSES } from './tabs';
 
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];

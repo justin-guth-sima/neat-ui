@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterEach, test } from 'node:test';
 import { findProblems, SECONDARY_ENTRIES } from './check-dist.mjs';
 
@@ -25,33 +26,30 @@ function distWith(files) {
   return root;
 }
 
-/** A secondary entry's FESM, which carries the selector the primary must not. */
+/** A secondary entry's FESM, which carries the selectors the primary must not. */
 const entryFesm = (name) => `fesm2022/sima-neat-ui-${name}.mjs`;
 
 const SHIPPABLE = {
   [PRIMARY]: 'export class NeatButton {}\n',
   ...Object.fromEntries(
-    Object.entries(SECONDARY_ENTRIES).map(([name, marker]) => [
+    Object.entries(SECONDARY_ENTRIES).map(([name, selectors]) => [
       entryFesm(name),
-      `export class Entry { selector = "${marker}"; }\n`,
+      selectors.map((selector) => `selector: "${selector}"\n`).join(''),
     ]),
   ),
   [STYLESHEET]: '.flex{display:flex}\n',
 };
 
+/** The folders beside the primary's `src` that hold an ng-package.json: the kit's secondary entries. */
+const LIBRARY = fileURLToPath(new URL('../projects/neat-ui', import.meta.url));
+const entryFolders = readdirSync(LIBRARY, { withFileTypes: true })
+  .filter(
+    (entry) => entry.isDirectory() && existsSync(join(LIBRARY, entry.name, 'ng-package.json')),
+  )
+  .map((entry) => entry.name);
+
 test('check-dist lists every kit entry point that is not the primary', () => {
-  assert.deepEqual(Object.keys(SECONDARY_ENTRIES).sort(), [
-    'confirm',
-    'input',
-    'line-list',
-    'number-field',
-    'popover',
-    'segmented',
-    'slider',
-    'switch',
-    'tabs',
-    'video',
-  ]);
+  assert.deepEqual(Object.keys(SECONDARY_ENTRIES).sort(), entryFolders.sort());
 });
 
 test('check-dist fails when a listed secondary entry FESM is missing', () => {
@@ -71,6 +69,12 @@ test('check-dist fails when the primary FESM contains a moved selector such as "
   assert.equal(problems.length, 1);
   assert.match(problems[0], /sima-neat-ui\.mjs contains "neat-segmented"/);
   assert.match(problems[0], /@sima\/neat-ui\/segmented/);
+});
+
+test('check-dist fails when the primary FESM contains any selector of an entry, not only its first', () => {
+  const problems = findProblems(distWith({ ...SHIPPABLE, [PRIMARY]: 'selector: "neat-tab"\n' }));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /contains "neat-tab"; that code belongs in @sima\/neat-ui\/tabs/);
 });
 
 test('check-dist fails when the primary FESM contains the string "neat-video-tile"', () => {

@@ -1,13 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { contrastRatio, type NeatColorScheme } from '@sima/neat-ui';
 import helmInput from '../../../src/lib/ui/input/src/lib/hlm-input.ts?source' with {
   loader: 'text',
 };
-import { contrastRatio } from '../../../src/lib/theme/color';
 import { MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
-import type { NeatColorScheme } from '../../../src/lib/theme/theme.service';
 import { INPUT_HELM_CLASSES, NeatInput, type NeatInputSize } from './input';
 
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];

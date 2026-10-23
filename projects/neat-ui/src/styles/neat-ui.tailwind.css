@@ -13,6 +13,13 @@
 /* After every positive source: an exclusion does not apply to a source declared below it. */
 @source not '../lib/**/*.spec.ts';
 @source not '../../*/src/**/*.spec.ts';
+/*
+ * Video has no utility classes (its styles are component CSS), and scanning its TypeScript emits
+ * utilities by accident: the words `paused` and `resize` become global `.paused` and `.resize`
+ * classes, and the `'--font-sans'` string the overlay reads from the canvas makes Tailwind define
+ * that variable, which switches the overlay's fonts from its fallbacks to the kit font.
+ */
+@source not '../../video/**';
 
 /* Spartan's variants and colour mapping (with the CDK overlay styles), and its animations. */
 @import '@spartan-ng/brain/hlm-tailwind-preset.css';

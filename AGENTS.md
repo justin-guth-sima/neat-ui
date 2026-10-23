@@ -25,10 +25,12 @@ look happens in one place. Every rule here protects that.
     and a lazy route can keep a component (video's canvas, frame-loop and overlay code most of all)
     out of the main bundle only if it is a different import.
   - To add an entry point: create `projects/neat-ui/<name>/` with `ng-package.json` and
-    `src/public-api.ts` as the existing ones have, add its path to `tsconfig.json`, add its name
-    and a selector of its own to `SECONDARY_ENTRIES` in `tools/check-dist.mjs`, and list it in
-    `check-dist.test.mjs` and `src/public-api.spec.ts`. The lint direction rules and the
-    stylesheet's `@source` glob find a new entry by themselves.
+    `src/public-api.ts` as the existing ones have, add its path to `tsconfig.json`, and add its
+    selectors to `SECONDARY_ENTRIES` in `tools/check-dist.mjs` and its public API to the list in
+    `src/public-api.spec.ts`. `npm run test:tools` fails until the table matches the entry folders;
+    the lint direction rules and the stylesheet's `@source` glob find a new entry by themselves. The
+    stylesheet's scan skips `video`, which styles itself with component CSS only: a Tailwind utility
+    in video code needs that exclusion lifted in `neat-ui.tailwind.css`, with the reason there.
 - `projects/showcase`: the component gallery.
 
 **The entry points depend one way.** A secondary entry may import the primary and other secondary
@@ -40,9 +42,12 @@ tools guard the two halves: ESLint (`no-restricted-imports` in `projects/neat-ui
 run by `npm run lint`) fails a relative import from entry code out to a `src` folder or another
 entry, and any import of an entry (relative or `@sima/neat-ui/<name>`) in the primary; `npm run
 check:dist` fails a build that lacks an entry's FESM, or whose primary bundle contains a
-secondary entry's selector (`neat-video-tile`, `neat-segmented`, ...), which catches entry code
-that reached the primary some other way. Specs are not packaged and are exempt from the ESLint
-rule: they import the primary's theme helpers and the vendored helm source by relative path.
+selector of a secondary entry (`neat-video-tile`, `neat-segmented`, ...), which catches entry code
+that reached the primary some other way. Specs are not packaged but stay under the rule, except for
+two folders they cannot do without and may import by relative path: `src/lib/theme/` (the helpers
+the primary does not export) and `src/lib/ui/` (the vendored helm source their drift checks read
+as text). The primary's `public-api.spec.ts`, which compares it with every entry, is the one file
+that imports entries by relative path.
 A new export goes into the entry point that owns its code, and only what an app or the showcase
 needs is exported: a helper that only the kit's own code uses stays internal.
 

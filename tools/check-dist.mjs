@@ -11,21 +11,22 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const DIST = fileURLToPath(new URL('../dist/neat-ui', import.meta.url));
 const ALIAS = '@neat-ui/helm';
 /**
- * The kit's secondary entry points (@sima/neat-ui/<name>), each with a selector of its own. The
- * selector appears in the primary FESM only if that entry's code leaked into it. A new entry point
- * is added here; the test lists them, so one missing from this table fails it.
+ * The kit's secondary entry points (@sima/neat-ui/<name>) and every selector each declares. A
+ * selector appears in the primary FESM only if that entry's code leaked into it, and listing all of
+ * an entry's selectors catches a partial leak too. A new entry point is added here; the test
+ * compares this table with the entry folders on disk, so one missing from it fails the test.
  */
 export const SECONDARY_ENTRIES = {
-  confirm: 'neat-confirm-dialog',
-  input: 'neatInput',
-  'line-list': 'neatLineList',
-  'number-field': 'neat-number-field',
-  popover: 'neat-popover',
-  segmented: 'neat-segmented',
-  slider: 'neat-slider',
-  switch: 'neatSwitch',
-  tabs: 'neat-tabs',
-  video: 'neat-video-tile',
+  confirm: ['neat-confirm-dialog'],
+  input: ['input[neatInput]'],
+  'line-list': ['ul[neatLineList]', 'li[neatLine]', '[neatLineEnd]'],
+  'number-field': ['neat-number-field'],
+  popover: ['neat-popover', 'ng-template[neatPopoverContent]', 'button[neatPopoverTrigger]'],
+  segmented: ['neat-segmented'],
+  slider: ['neat-slider'],
+  switch: ['button[neatSwitch]'],
+  tabs: ['neat-tabs', 'neat-tab'],
+  video: ['neat-video-tile', 'neat-tile-grid', 'neat-roi-editor', 'neat-roi-swatch'],
 };
 /** Packed tarballs are compressed; their contents are the files checked here. */
 const SKIPPED = /\.tgz$/;
@@ -54,10 +55,10 @@ export function findProblems(dist) {
     problems.push(`${primary} is missing`);
   } else {
     const source = readFileSync(primary, 'utf8');
-    for (const [name, marker] of Object.entries(SECONDARY_ENTRIES)) {
-      if (source.includes(marker)) {
+    for (const [name, selectors] of Object.entries(SECONDARY_ENTRIES)) {
+      for (const selector of selectors.filter((candidate) => source.includes(candidate))) {
         problems.push(
-          `${primary} contains "${marker}"; that code belongs in @sima/neat-ui/${name} only`,
+          `${primary} contains "${selector}"; that code belongs in @sima/neat-ui/${name} only`,
         );
       }
     }

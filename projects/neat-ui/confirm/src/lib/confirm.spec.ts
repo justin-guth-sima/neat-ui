@@ -18,12 +18,10 @@ import helmOverlay from '../../../src/lib/ui/alert-dialog/src/lib/hlm-alert-dial
 import helmTitle from '../../../src/lib/ui/alert-dialog/src/lib/hlm-alert-dialog-title.ts?source' with {
   loader: 'text',
 };
-import { NeatButton } from '@sima/neat-ui';
-import { contrastRatio } from '../../../src/lib/theme/color';
+import { NeatButton, contrastRatio, type NeatColorScheme } from '@sima/neat-ui';
 import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor, stateValue } from '../../../src/lib/theme/state-colors';
-import type { NeatColorScheme } from '../../../src/lib/theme/theme.service';
 import { CONFIRM_HELM_CLASSES, NeatConfirm, type NeatConfirmOptions } from './confirm';
 
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];

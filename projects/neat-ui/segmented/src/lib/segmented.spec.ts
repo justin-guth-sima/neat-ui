@@ -1,17 +1,16 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { contrastRatio, type NeatColorScheme } from '@sima/neat-ui';
 import helmGroup from '../../../src/lib/ui/toggle-group/src/lib/hlm-toggle-group.ts?source' with {
   loader: 'text',
 };
 import helmItem from '../../../src/lib/ui/toggle-group/src/lib/hlm-toggle-group-item.ts?source' with {
   loader: 'text',
 };
-import { contrastRatio } from '../../../src/lib/theme/color';
 import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
-import type { NeatColorScheme } from '../../../src/lib/theme/theme.service';
 import { NeatSegmented, type NeatSegmentedOption, SEGMENTED_HELM_CLASSES } from './segmented';
 
 type Shape = 'wide' | 'square' | 'tall';

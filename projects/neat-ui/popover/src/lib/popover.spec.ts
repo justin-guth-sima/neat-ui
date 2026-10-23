@@ -6,13 +6,18 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import helmContent from '../../../src/lib/ui/popover/src/lib/hlm-popover-content.ts?source' with {
   loader: 'text',
 };
-import { KIOSK_POINTER_IDLE_MS, KioskService, NeatPageToolbar, NeatShell } from '@sima/neat-ui';
+import {
+  KIOSK_POINTER_IDLE_MS,
+  KioskService,
+  NeatPageToolbar,
+  NeatShell,
+  contrastRatio,
+  type NeatColorScheme,
+} from '@sima/neat-ui';
 import { NeatConfirm } from '@sima/neat-ui/confirm';
-import { contrastRatio } from '../../../src/lib/theme/color';
 import { MIN_FILL_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor, stateValue } from '../../../src/lib/theme/state-colors';
-import type { NeatColorScheme } from '../../../src/lib/theme/theme.service';
 import {
   NeatPopover,
   type NeatPopoverAlign,

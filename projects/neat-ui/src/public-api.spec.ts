@@ -1,5 +1,7 @@
-// Specs are not packaged, so unlike the entries' own code they may reach across the boundary by a
-// relative path: they need every entry's public API in one place.
+// Specs are not packaged, but the rest of the direction rule holds for them (AGENTS.md). This one
+// reaches across by relative path because it compares the primary with every entry. The list of
+// entries is written out: a spec is bundled statically, so it cannot import by a name found on disk
+// (`check-dist.test.mjs` compares the entry folders with its own table).
 import * as confirm from '../confirm/src/public-api';
 import * as input from '../input/src/public-api';
 import * as lineList from '../line-list/src/public-api';

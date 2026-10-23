@@ -12,6 +12,11 @@ const ENTRIES = readdirSync(__dirname, { withFileTypes: true })
   )
   .map((entry) => entry.name);
 const SECONDARY_GLOBS = ENTRIES.map((name) => `projects/neat-ui/${name}/**/*.ts`);
+const SECONDARY_SPEC_GLOBS = ENTRIES.map((name) => `projects/neat-ui/${name}/**/*.spec.ts`);
+/** An import climbing out of an entry to the primary's `src` or another entry's `<name>/src`. */
+const leavesEntry = (except = '') => `^(\\.\\./)+${except}(src/|(${ENTRIES.join('|')})/src/)`;
+const BY_PACKAGE_NAME =
+  "Import the primary and other entry points by package name ('@sima/neat-ui', '@sima/neat-ui/<name>'), not by a relative path across the boundary.";
 
 module.exports = defineConfig([
   ...rootConfig,
@@ -46,19 +51,33 @@ module.exports = defineConfig([
     // resolve into a copy of that code inside the entry's bundle. The pattern is matched against
     // the import text, not a resolved path, so it targets the shapes such a path has: climbing out
     // to the primary's `src` folder, or to another entry's `<name>/src` (an entry's code never
-    // needs to climb out of its own `src` and back into one). Specs are not packaged, and need the
-    // primary's internals (theme helpers, vendored helm source), so they are exempt.
+    // needs to climb out of its own `src` and back into one).
     files: SECONDARY_GLOBS,
     ignores: ['**/*.spec.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
         {
+          patterns: [{ regex: leavesEntry(), message: BY_PACKAGE_NAME }],
+        },
+      ],
+    },
+  },
+  {
+    // Specs are not packaged, so the build cannot copy anything through them, but the rule stands
+    // for them except where a spec has no other way: the primary's theme helpers that are not
+    // exported (`spartanThemeTokens`, `stateColor`, the contrast rules) and the vendored helm
+    // source its drift checks read as text (`?source`). Those two folders may be imported by
+    // relative path; everything else goes through the package name.
+    files: SECONDARY_SPEC_GLOBS,
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
           patterns: [
             {
-              regex: `^(\\.\\./)+(src/|(${ENTRIES.join('|')})/src/)`,
-              message:
-                "Import the primary and other entry points by package name ('@sima/neat-ui', '@sima/neat-ui/<name>'), not by a relative path across the boundary.",
+              regex: leavesEntry('(?!src/lib/(theme|ui)/)'),
+              message: `${BY_PACKAGE_NAME} Only src/lib/theme/ and src/lib/ui/ may be imported by a relative path, from a spec.`,
             },
           ],
         },
@@ -67,9 +86,10 @@ module.exports = defineConfig([
   },
   {
     // The other half: the primary never imports a secondary entry, by relative path or by package
-    // name (the latter is a cycle ng-packagr rejects, but only after the build has started).
+    // name (the latter is a cycle ng-packagr rejects, but only after the build has started). Its
+    // public-api.spec is the one file that must: it compares the primary with every entry.
     files: ['projects/neat-ui/src/**/*.ts'],
-    ignores: ['**/*.spec.ts'],
+    ignores: ['**/public-api.spec.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
