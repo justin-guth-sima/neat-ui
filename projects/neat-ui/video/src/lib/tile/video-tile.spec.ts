@@ -583,12 +583,12 @@ describe('NeatVideoTile', () => {
       'the bar follows the layer, so it paints above it',
     ).not.toBe(0);
     expect(layer.children, 'the layer holds only the projected content').toHaveLength(1);
-    // The canvas is the control: the styles are applied here, and the layer must not copy its rule.
+    // Both layers over the video leave its hits alone: the canvas draws only, the layer's content opts in.
     expect(getComputedStyle(canvas()).pointerEvents).toBe('none');
     expect(
       getComputedStyle(layer).pointerEvents,
-      'the layer leaves pointer events to its content',
-    ).not.toBe('none');
+      'the empty layer lets pointer input reach the video under it; its content opts back in',
+    ).toBe('none');
   });
 
   describe('without video, for overlay content that stays usable', () => {

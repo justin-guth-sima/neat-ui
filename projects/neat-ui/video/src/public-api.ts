@@ -1,5 +1,6 @@
 /*
- * Public API surface of @sima/neat-ui/video: the video tile, the tile grid and what they need. A
+ * Public API surface of @sima/neat-ui/video: the video tile, the tile grid and what they need, and
+ * the region-of-interest editor, its swatch and `neatRoiNames`, which sit in the tile. A
  * secondary entry point, so a page that shows no video does not load it. It imports the primary
  * entry point (`@sima/neat-ui`); the primary never imports it. Every export added here is a
  * promise to consumers.

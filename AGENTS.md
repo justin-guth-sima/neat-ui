@@ -13,7 +13,8 @@ look happens in one place. Every rule here protects that.
 - `projects/neat-ui`: the library, with two entry points, each with its own public API file:
   - `@sima/neat-ui`: everything but video. Public API is `projects/neat-ui/src/public-api.ts`.
   - `@sima/neat-ui/video`: the video tile, the tile grid and what they need (overlay drawing,
-    metadata sync, the overlay palette). Public API is `projects/neat-ui/video/src/public-api.ts`;
+    metadata sync, the overlay palette), and the region-of-interest editor with its swatch and
+    `neatRoiNames`, which sit in the tile's overlay layer. Public API is `projects/neat-ui/video/src/public-api.ts`;
     its code lives in `projects/neat-ui/video/src/lib/`. Why a separate entry point: a page that
     shows no video must not load the canvas, frame-loop and overlay code, and an app's lazy routes
     can only keep it out of the main bundle if it is a different import.

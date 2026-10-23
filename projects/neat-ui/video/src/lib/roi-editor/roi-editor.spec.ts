@@ -1111,4 +1111,93 @@ describe('NeatRoiEditor', () => {
     const roiEditor = inTile.nativeElement.querySelector('neat-roi-editor') as HTMLElement;
     expect(roiEditor.parentElement?.classList.contains('overlay-slot')).toBe(true);
   });
+
+  describe('in a real tile, whose overlay layer passes pointer input through', () => {
+    @Component({
+      imports: [NeatVideoTile, NeatRoiEditor],
+      template: `
+        <neat-video-tile>
+          <neat-roi-editor
+            neatTileOverlay
+            mode="inclusion"
+            [regions]="regions()"
+            [(highlighted)]="highlighted"
+            (regionsChange)="emitted.push($event)"
+          />
+        </neat-video-tile>
+      `,
+    })
+    class InTile {
+      readonly regions = signal<readonly NeatRoiPolygon[]>([INCLUSION]);
+      readonly highlighted = signal<number | null>(null);
+      readonly emitted: (readonly NeatRoiPolygon[])[] = [];
+    }
+
+    let tile: ComponentFixture<InTile>;
+
+    beforeEach(async () => {
+      tile = TestBed.createComponent(InTile);
+      await tile.whenStable();
+      // No video here, so the editor draws on the tile; its own measure of it arrives.
+      const observer = FakeResizeObserver.instances.find((instance) =>
+        instance.observed.includes(tile.nativeElement.querySelector('neat-roi-editor')),
+      );
+      observer?.resize(TILE.width, TILE.height);
+      await tile.whenStable();
+    });
+
+    const root = (): HTMLElement => tile.nativeElement;
+    const slot = (): HTMLElement => root().querySelector('.overlay-slot') as HTMLElement;
+    const inTileSurface = (): SVGSVGElement => root().querySelector('svg') as SVGSVGElement;
+    const inTilePolygon = (): SVGPolygonElement =>
+      root().querySelector('polygon') as SVGPolygonElement;
+
+    it('has no pointer-events of its own, so the empty layer does not catch hits meant for the video', () => {
+      expect(getComputedStyle(slot()).pointerEvents).toBe('none');
+      expect(
+        getComputedStyle(root().querySelector('neat-roi-editor') as Element).pointerEvents,
+      ).toBe('none');
+    });
+
+    it('still takes pointer input where it draws: the surface, the regions and the bubble', async () => {
+      expect(getComputedStyle(inTileSurface()).pointerEvents).toBe('auto');
+      expect(getComputedStyle(inTilePolygon()).pointerEvents).toBe('auto');
+
+      inTilePolygon().dispatchEvent(
+        new MouseEvent('contextmenu', { bubbles: true, cancelable: true }),
+      );
+      await tile.whenStable();
+      const bubble = root().querySelector('button') as HTMLButtonElement;
+      expect(getComputedStyle(bubble.parentElement as Element).pointerEvents).toBe('auto');
+    });
+
+    it('receives the click, the hover and the right-click through the layer', async () => {
+      inTilePolygon().dispatchEvent(new PointerEvent('pointerenter', { bubbles: false }));
+      await tile.whenStable();
+      expect(tile.componentInstance.highlighted()).toBe(0);
+
+      const menu = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+      inTilePolygon().dispatchEvent(menu);
+      await tile.whenStable();
+      expect(menu.defaultPrevented).toBe(true);
+      expect(root().querySelector('button')).not.toBeNull();
+
+      (root().querySelector('button') as HTMLButtonElement).click();
+      await tile.whenStable();
+      expect(tile.componentInstance.emitted).toEqual([[]]);
+
+      // A click on the surface adds the first point of a polygon.
+      inTileSurface().dispatchEvent(
+        new MouseEvent('click', {
+          clientX: TILE.width / 2,
+          clientY: TILE.height / 2,
+          bubbles: true,
+          cancelable: true,
+          detail: 1,
+        }),
+      );
+      await tile.whenStable();
+      expect(root().querySelector('polyline')).not.toBeNull();
+    });
+  });
 });

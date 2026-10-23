@@ -13,17 +13,20 @@
   min-width: 9rem;
 }
 
-/* Inline buttons take their line's size and colour: a muted note, then the kit's list lines. */
+/* Inline buttons take their line's size and colour: a note, then the kit's list lines. */
+.note-demo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  width: 18rem;
+}
+
 .inline-demo {
   display: flex;
   flex-direction: column;
   gap: var(--neat-space-2);
   width: 18rem;
   font-size: var(--neat-text-xs);
-}
-
-.inline-note {
-  color: var(--muted-foreground);
 }
 
 /* The list sets its own size; this one sizes the "No regions." line that replaces it. */

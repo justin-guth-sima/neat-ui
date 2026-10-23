@@ -33,12 +33,14 @@
  * so it is lifted (z-index 1) above what covers the image then: the empty state's surface, which
  * stays in the base layer. The bar and the no-video note share its level and follow it in the DOM,
  * so they stay on top. An empty layer paints nothing, so a tile without overlay content looks the
- * same. It sets no pointer-events: what is projected decides what it catches.
+ * same. It catches no pointer input itself, so the video under it keeps its hits (its context menu,
+ * say); projected content that wants input sets `pointer-events: auto` on the parts that take it.
  */
 .overlay-slot {
   position: absolute;
   inset: 0;
   z-index: 1;
+  pointer-events: none;
 }
 
 /*

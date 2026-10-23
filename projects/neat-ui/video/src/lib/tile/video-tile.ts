@@ -114,7 +114,8 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
  * Content projected with `neatTileOverlay` fills a layer over the tile, above the overlay canvas
  * and below the bar; `videoBox` says where the image is inside it. Without video the layer stays
  * above what covers the image and below the no-video note, which lets pointer input through. The
- * layer takes pointer events only where its content does.
+ * layer itself catches no pointer input, so the video under it keeps its hits; its content takes
+ * them only where it sets `pointer-events: auto`.
  */
 @Component({
   selector: 'neat-video-tile',

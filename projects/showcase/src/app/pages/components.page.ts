@@ -20,6 +20,7 @@ import {
   NeatLine,
   NeatLineEnd,
   NeatLineList,
+  NeatNote,
   NeatNumberField,
   NeatPage,
   NeatPopover,
@@ -84,6 +85,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatLine,
     NeatLineEnd,
     NeatLineList,
+    NeatNote,
     NeatNumberField,
     NeatPage,
     NeatPopover,
@@ -166,6 +168,25 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
         </section>
 
         <section class="showcase-section">
+          <h2>Note</h2>
+          <p class="showcase-muted">
+            <code>neatNote</code> on a <code>p</code> or any element: a short note under a control
+            or a heading, with no margin, in the muted text colour and the small text size. A
+            <code>neatInlineButton</code> inside takes the note's size and colour.
+          </p>
+          <div class="card note-demo">
+            <label class="showcase-row">
+              Delay
+              <input neatInput type="text" value="600" aria-describedby="note-delay" />
+            </label>
+            <p neatNote id="note-delay">
+              Applies to every channel that has no value of its own.
+              <button neatInlineButton type="button">Show channels</button>
+            </p>
+          </div>
+        </section>
+
+        <section class="showcase-section">
           <h2>Inline button</h2>
           <p class="showcase-muted">
             <code>neatInlineButton</code> on a <code>button</code> or <code>a</code>: a text action
@@ -174,7 +195,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             actions here do nothing; the third is disabled, and the link leads back to this page.
           </p>
           <div class="card inline-demo">
-            <p class="inline-note">
+            <p neatNote>
               Overridden on 2 channels ·
               <button neatInlineButton type="button">Show</button>
             </p>
