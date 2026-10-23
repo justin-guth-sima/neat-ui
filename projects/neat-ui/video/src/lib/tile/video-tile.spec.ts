@@ -4,8 +4,11 @@ import { OVERLAY_PALETTE } from '../theme/overlay-palette';
 import type { NeatMetadataMessage } from '../sync/metadata-message';
 import type { NeatOverlaySettings } from '../overlays/overlay-settings';
 import { NEAT_OVERLAY_DEFAULTS } from '../overlays/overlay-settings';
+import { letterbox } from '../overlays/letterbox';
+import { mapRoi } from '../overlays/roi';
 import { overlaySettings, RecordingContext } from '../overlays/spec-helpers';
 import type { NeatTileSource } from './tile-source';
+import type { NeatVideoBox } from './video-tile';
 import { NEAT_STREAM_STALE_MS, NeatFrameStats, NeatTileState, NeatVideoTile } from './video-tile';
 
 /** A source whose stream and metadata the test controls. */
@@ -591,6 +594,11 @@ describe('NeatVideoTile', () => {
   describe('videoBox', () => {
     const resizeTile = (width: number, height: number) =>
       FakeResizeObserver.instances[0].resize(width, height);
+    /** A stream whose first frame is presented: the tile is `playing`. */
+    function startPlaying(): void {
+      startStream();
+      present(1);
+    }
     /** The video reports a new size, as a browser does with a `resize` event. */
     function setVideoSize(width: number, height: number, event = 'resize'): void {
       videoWidth.mockReturnValue(width);
@@ -598,11 +606,44 @@ describe('NeatVideoTile', () => {
       video().dispatchEvent(new Event(event));
     }
 
+    it('is null before the first frame, even with the stream and its metadata loaded', () => {
+      create();
+      startStream();
+      setVideoSize(1280, 720, 'loadedmetadata');
+      resizeTile(400, 300);
+
+      expect(tileState()).toBe('empty');
+      expect(tile().videoBox(), 'the empty surface covers the video').toBeNull();
+
+      present(1);
+      expect(tile().videoBox()).not.toBeNull();
+    });
+
+    it('is null while the tile is stopped, and comes back when frames return', () => {
+      create();
+      startPlaying();
+      resizeTile(400, 300);
+      const playingBox = tile().videoBox();
+      expect(playingBox).toStrictEqual({ x: 0, y: 0, width: 400, height: 300 });
+
+      advance(NEAT_STREAM_STALE_MS);
+      expect(tileState()).toBe('stopped');
+      expect(tile().videoBox(), 'the frozen frame is scaled up and covered').toBeNull();
+
+      resizeTile(400, 150);
+      expect(tile().videoBox(), 'a resize does not bring it back').toBeNull();
+
+      present(2);
+      render();
+      expect(tileState()).toBe('playing');
+      expect(tile().videoBox()).toStrictEqual({ x: 100, y: 0, width: 200, height: 150 });
+    });
+
     it('is null before the video reports its size', () => {
       videoWidth.mockReturnValue(0);
       videoHeight.mockReturnValue(0);
       create();
-      startStream();
+      startPlaying();
       resizeTile(400, 300);
 
       expect(tile().videoBox()).toBeNull();
@@ -613,7 +654,7 @@ describe('NeatVideoTile', () => {
 
     it('a 1280×720 video in a 400×300 tile has videoBox {x: 0, y: 37.5, width: 400, height: 225}', () => {
       create();
-      startStream();
+      startPlaying();
       setVideoSize(1280, 720, 'loadedmetadata');
       resizeTile(400, 300);
 
@@ -622,7 +663,7 @@ describe('NeatVideoTile', () => {
 
     it('a 640×480 video in a 400×150 tile has videoBox {x: 100, y: 0, width: 200, height: 150}', () => {
       create();
-      startStream();
+      startPlaying();
       resizeTile(400, 150);
 
       expect(tile().videoBox()).toStrictEqual({ x: 100, y: 0, width: 200, height: 150 });
@@ -630,7 +671,7 @@ describe('NeatVideoTile', () => {
 
     it('videoBox follows a tile resize and a video resolution change, and goes null when the source is removed', () => {
       create();
-      startStream();
+      startPlaying();
       resizeTile(400, 300);
       expect(tile().videoBox()).toStrictEqual({ x: 0, y: 0, width: 400, height: 300 });
 
@@ -654,7 +695,7 @@ describe('NeatVideoTile', () => {
 
     it('videoBox does not notify when the tile resizes to the same box', () => {
       create();
-      startStream();
+      startPlaying();
       resizeTile(400, 300);
       const before = tile().videoBox();
 
@@ -668,15 +709,42 @@ describe('NeatVideoTile', () => {
 
     it('has no box in a tile without size, whose editor surface would be empty', () => {
       create();
-      startStream();
+      startPlaying();
       resizeTile(0, 0);
 
       expect(tile().videoBox()).toBeNull();
     });
 
+    it('agrees with the canvas mapping: the unit square maps onto the box', () => {
+      create();
+      startPlaying();
+      setVideoSize(1280, 720, 'loadedmetadata');
+      resizeTile(400, 300);
+      const box = tile().videoBox() as NeatVideoBox;
+      const corners = mapRoi(
+        [
+          {
+            type: 'inclusion',
+            points: [
+              { x: 0, y: 0 },
+              { x: 1, y: 1 },
+            ],
+          },
+        ],
+        1280,
+        720,
+        letterbox(1280, 720, 400, 300),
+      ).polygons[0].points;
+
+      expect(corners[0][0]).toBeCloseTo(box.x, 9);
+      expect(corners[0][1]).toBeCloseTo(box.y, 9);
+      expect(corners[1][0]).toBeCloseTo(box.x + box.width, 9);
+      expect(corners[1][1]).toBeCloseTo(box.y + box.height, 9);
+    });
+
     it('is not computed per frame', () => {
       create();
-      startStream();
+      startPlaying();
       resizeTile(400, 300);
       const before = tile().videoBox();
 

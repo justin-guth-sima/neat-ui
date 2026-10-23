@@ -162,10 +162,12 @@ export class NeatVideoTile {
 
   private readonly box = signal<NeatVideoBox | null>(null, { equal: sameVideoBox });
   /**
-   * Where the shown image sits in the tile; null while no stream plays, until the video reports
-   * its size, and while the tile has none. Unlike the frame loop's fields it is a signal, for
-   * overlays that follow the image: it is written only when the tile or the video changes size,
-   * never per frame, and an unchanged box does not notify.
+   * Where the shown image sits in the tile. Non-null only while the tile is `playing` and the
+   * video and the tile have a size: before the first frame the surface covers the video, and once
+   * the stream is `stopped` the frozen frame is blurred and scaled up, so no box describes it.
+   * Unlike the frame loop's fields it is a signal, for overlays that follow the image: it is
+   * written only when the tile's state or the tile's or the video's size changes, never per frame,
+   * and an unchanged box does not notify.
    */
   readonly videoBox: Signal<NeatVideoBox | null> = this.box.asReadonly();
 
@@ -339,7 +341,6 @@ export class NeatVideoTile {
     if (this.staleTimer !== null) clearTimeout(this.staleTimer);
     this.staleTimer = null;
     this.clearOverlays();
-    this.box.set(null);
     this.setState('empty');
   }
 
@@ -427,6 +428,7 @@ export class NeatVideoTile {
     if (this.currentState === next) return;
     this.currentState = next;
     this.state.set(next);
+    this.updateVideoBox();
     if (!this.destroyed) this.stateChange.emit(next);
   }
 
@@ -459,11 +461,15 @@ export class NeatVideoTile {
     this.messagesThisSecond = 0;
   }
 
-  /** Called when the tile or the video changes size, never per frame. */
+  /** Called when the tile or the video changes size or the tile's state changes, never per frame. */
   private updateVideoBox(): void {
+    if (this.currentState !== 'playing') {
+      this.box.set(null);
+      return;
+    }
     const { videoWidth, videoHeight } = this.videoElement().nativeElement;
     const { cssWidth, cssHeight } = this.view;
-    if (this.playing === null || !videoWidth || !videoHeight || !cssWidth || !cssHeight) {
+    if (!videoWidth || !videoHeight || !cssWidth || !cssHeight) {
       this.box.set(null);
       return;
     }
