@@ -15,6 +15,7 @@ import {
   type NeatButtonVariant,
   NeatConfirm,
   NeatIcon,
+  NeatInlineButton,
   NeatInput,
   NeatPage,
   NeatPopover,
@@ -61,6 +62,7 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
   imports: [
     NeatButton,
     NeatIcon,
+    NeatInlineButton,
     NeatInput,
     NeatPage,
     NeatPopover,
@@ -138,6 +140,38 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
               <a neatButton [variant]="variant" routerLink="/components">Link</a>
             </div>
           }
+        </section>
+
+        <section class="showcase-section">
+          <h2>Inline button</h2>
+          <p class="showcase-muted">
+            <code>neatInlineButton</code> on a <code>button</code> or <code>a</code>: a text action
+            set into a line, as tall as its text, in the line's size and colour, underlined on
+            hover. For dense lists where a <code>neatButton</code> would set the line height. The
+            actions here do nothing; the third is disabled, and the link leads back to this page.
+          </p>
+          <div class="card inline-demo">
+            <p class="inline-note">
+              Overridden on 2 channels ·
+              <button neatInlineButton type="button">Show</button>
+            </p>
+            <ul class="inline-lines">
+              <li>
+                Channel 3 <span class="showcase-muted">900 ms</span>
+                <button neatInlineButton type="button" class="inline-end">Use global</button>
+              </li>
+              <li>
+                Channel 7 <span class="showcase-muted">600 ms</span>
+                <button neatInlineButton type="button" class="inline-end">Use global</button>
+              </li>
+              <li>
+                <button neatInlineButton type="button" disabled>Reset on 2 channels…</button>
+              </li>
+              <li>
+                <a neatInlineButton routerLink="/components">All components</a>
+              </li>
+            </ul>
+          </div>
         </section>
 
         <section class="showcase-section">

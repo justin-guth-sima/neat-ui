@@ -13,6 +13,37 @@
   min-width: 9rem;
 }
 
+/* Inline buttons take their line's size and colour: a muted note, then small list lines. */
+.inline-demo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  width: 18rem;
+  font-size: var(--neat-text-xs);
+}
+
+.inline-note {
+  color: var(--muted-foreground);
+}
+
+.inline-lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Lines 1.5rem high keep the actions' targets apart. */
+.inline-lines li {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+  min-block-size: 1.5rem;
+}
+
+.inline-end {
+  margin-inline-start: auto;
+}
+
 /* A slider fills its container's width, so the demos give it one. */
 .slider-field {
   display: flex;
