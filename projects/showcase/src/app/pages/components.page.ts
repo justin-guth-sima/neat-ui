@@ -592,7 +592,7 @@ export class ComponentsPage {
   protected async askResetAll(): Promise<void> {
     const reset = await this.confirm.ask({
       title: 'Reset all channels to global?',
-      message: '4 settings on 3 channels go back to the global values. This can’t be undone.',
+      message: "4 settings on 3 channels go back to the global values. This can't be undone.",
       confirmLabel: 'Reset',
       tone: 'danger',
     });

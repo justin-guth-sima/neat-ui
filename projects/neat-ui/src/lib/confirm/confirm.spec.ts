@@ -33,7 +33,7 @@ const SURFACES = ['background', 'card'] as const;
 /** The bulk reset the viewer's inspector asks about. */
 const RESET_ALL: NeatConfirmOptions = {
   title: 'Reset all channels to global?',
-  message: '4 settings on 3 channels go back to the global values. This can’t be undone.',
+  message: "4 settings on 3 channels go back to the global values. This can't be undone.",
   confirmLabel: 'Reset',
   tone: 'danger',
 };
@@ -257,7 +257,7 @@ describe('NeatConfirm', () => {
     const second = track(
       TestBed.inject(NeatConfirm).ask({
         title: 'Reset Confidence on 2 channels?',
-        message: 'They go back to the global value (50 %). This can’t be undone.',
+        message: "They go back to the global value (50 %). This can't be undone.",
         confirmLabel: 'Reset',
         tone: 'danger',
       }),
@@ -277,6 +277,25 @@ describe('NeatConfirm', () => {
     await settle();
     expect(second).toEqual({ settled: true, value: true });
     expect(dialog()).toBeNull();
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('an ask while a pressed Reset is still closing keeps that answer true', async () => {
+    const { opener, settle, ask } = await render();
+    const first = await ask();
+
+    // Reset starts the exit animation; the next ask comes before it ends.
+    button('Reset')!.click();
+    const second = track(TestBed.inject(NeatConfirm).ask(RESET_ALL));
+    await Promise.resolve();
+    expect(first).toEqual({ settled: true, value: true });
+
+    await settle();
+    expect(dialogs()).toHaveLength(1);
+    expect(document.activeElement).toBe(button('Cancel'));
+    escape();
+    await settle();
+    expect(second).toEqual({ settled: true, value: false });
     expect(document.activeElement).toBe(opener);
   });
 

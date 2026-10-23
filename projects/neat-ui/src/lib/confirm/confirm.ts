@@ -79,6 +79,14 @@ const DIALOG_OPTIONS = {
 
 interface ConfirmContext {
   readonly options: Required<NeatConfirmOptions>;
+  /** Records the pressed button's answer and closes the dialog with it. */
+  readonly answer: (confirmed: boolean) => void;
+}
+
+/** An asked question: its dialog, and the answer once a button was pressed. */
+interface Question {
+  readonly dialogRef: BrnDialogRef<boolean>;
+  answer?: boolean;
 }
 
 /**
@@ -107,7 +115,7 @@ interface ConfirmContext {
         type="button"
         variant="outlined"
         data-neat-confirm-cancel
-        (click)="dialogRef.close(false)"
+        (click)="context.answer(false)"
       >
         {{ options.cancelLabel }}
       </button>
@@ -115,7 +123,7 @@ interface ConfirmContext {
         neatButton
         type="button"
         [variant]="options.tone === 'danger' ? 'danger' : 'primary'"
-        (click)="dialogRef.close(true)"
+        (click)="context.answer(true)"
       >
         {{ options.confirmLabel }}
       </button>
@@ -124,7 +132,8 @@ interface ConfirmContext {
 })
 class NeatConfirmDialog {
   protected readonly dialogRef = inject<BrnDialogRef<boolean>>(BrnDialogRef);
-  protected readonly options = injectBrnDialogContext<ConfirmContext>().options;
+  protected readonly context = injectBrnDialogContext<ConfirmContext>();
+  protected readonly options = this.context.options;
   protected readonly classes = CONFIRM_HELM_CLASSES;
   protected readonly contentClasses: string = CONTENT_CLASSES;
 }
@@ -147,23 +156,29 @@ class NeatConfirmDialog {
  * the danger `neatButton`, otherwise the primary one.
  *
  * One question at a time: an `ask` while a dialog is open resolves that one `false` and closes it
- * at once, then shows the new one, which gives focus back where the first came from.
+ * at once, then shows the new one, which gives focus back where the first came from. A dialog
+ * still closing after a button press keeps that answer.
  */
 @Injectable({ providedIn: 'root' })
 export class NeatConfirm {
   private readonly dialogs = inject(BrnDialogService);
-  private current: BrnDialogRef<boolean> | undefined;
+  private current: Question | undefined;
 
   ask(options: NeatConfirmOptions): Promise<boolean> {
     // Closed without its exit animation, so that focus is back on the opener before the next
-    // dialog notes where focus was.
-    this.current?.forceClose(false);
+    // dialog notes where focus was. A button pressed during the animation (brain's `forceClose`
+    // replaces the result of a closing dialog too) keeps its answer; an open dialog is cancelled.
+    this.current?.dialogRef.forceClose(this.current.answer ?? false);
 
     const context: ConfirmContext = {
       options: {
         ...options,
         cancelLabel: options.cancelLabel ?? 'Cancel',
         tone: options.tone ?? 'default',
+      },
+      answer: (confirmed) => {
+        question.answer = confirmed;
+        dialogRef.close(confirmed);
       },
     };
     const dialogRef = this.dialogs.open<ConfirmContext, boolean>(
@@ -172,10 +187,11 @@ export class NeatConfirm {
       context,
       DIALOG_OPTIONS,
     );
-    this.current = dialogRef;
+    const question: Question = { dialogRef };
+    this.current = question;
     return new Promise((resolve) => {
       dialogRef.closed$.subscribe((result) => {
-        if (this.current === dialogRef) this.current = undefined;
+        if (this.current === question) this.current = undefined;
         // Escape closes without a result.
         resolve(result === true);
       });

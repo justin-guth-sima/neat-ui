@@ -63,8 +63,11 @@
             "production": {
               "budgets": [
                 {
+                  // The @sima/neat-ui barrel puts all kit code in the showcase's main bundle, lazy
+                  // pages or not, so this grows with every kit component. Kit secondary entry
+                  // points (planned for plan 2b) are the real fix.
                   "type": "initial",
-                  "maximumWarning": "700kB",
+                  "maximumWarning": "750kB",
                   "maximumError": "1MB"
                 },
                 {
