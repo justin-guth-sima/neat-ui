@@ -22,8 +22,8 @@
   --destructive-foreground: #ffffff;
   --success: #0a692f;
   --success-foreground: #ffffff;
-  --warning: #7d4e00;
-  --warning-foreground: #ffffff;
+  --warning: #e9a23b;
+  --warning-foreground: #010f0e;
   --info: #346498;
   --info-foreground: #ffffff;
   --border: #cdd0d2;
@@ -67,7 +67,7 @@
   --destructive-foreground: #010f0e;
   --success: #7dc88d;
   --success-foreground: #010f0e;
-  --warning: #ddac73;
+  --warning: #e9a23b;
   --warning-foreground: #010f0e;
   --info: #93c2f8;
   --info-foreground: #010f0e;

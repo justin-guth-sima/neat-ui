@@ -26,15 +26,18 @@ const rules = parseRules(buildSpartanThemeCss(NEAT_DARK_CLASS));
 const DARK_SELECTOR = `:root.${NEAT_DARK_CLASS}`;
 const schemes = { light: rules.get(':root')!, dark: rules.get(DARK_SELECTOR)! };
 
-/** Coloured text that sits directly on the page's surfaces rather than on its own fill. */
-const COLORED_TEXT = ['muted-foreground', 'primary', 'destructive', 'success', 'warning', 'info'];
+/**
+ * Coloured text that sits directly on the page's surfaces rather than on its own fill. Warning is
+ * not here: it is a fill-only colour (amber with dark text), so it need not be readable as text.
+ */
+const COLORED_TEXT = ['muted-foreground', 'primary', 'destructive', 'success', 'info'];
 /** The surfaces text sits on. */
 const TEXT_SURFACES = ['background', 'card', 'popover', 'muted'];
 /**
  * Status colours are also text on a tint of themselves (badges, alerts, soft buttons such as helm's
  * destructive button: `bg-destructive/10`, `dark:bg-destructive/20`), composited over these surfaces.
  */
-const STATUS_TEXT = ['destructive', 'success', 'warning', 'info'];
+const STATUS_TEXT = ['destructive', 'success', 'info'];
 const TINTS = {
   light: { alpha: 0.1, over: ['background'] },
   dark: { alpha: 0.2, over: ['background', 'card'] },
@@ -134,6 +137,18 @@ describe('buildSpartanThemeCss', () => {
       for (const { label, foreground, background } of pairs) {
         expect(contrastRatio(foreground, background), label).toBeGreaterThanOrEqual(4.5);
       }
+    }
+  });
+
+  it('warning is #e9a23b with #010f0e text in both schemes, at least 4.5:1', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      expect(tokens.get('--warning'), scheme).toBe('#e9a23b');
+      expect(tokens.get('--warning-foreground'), scheme).toBe('#010f0e');
+      expect(
+        contrastRatio(tokens.get('--warning-foreground')!, tokens.get('--warning')!),
+        scheme,
+      ).toBeGreaterThanOrEqual(4.5);
     }
   });
 

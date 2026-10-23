@@ -63,7 +63,10 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
    * (`bg-primary text-primary-foreground`): the first step readable in both roles.
    */
   const asTextAndFill = [onColor, ...textBackgrounds];
-  /** Status colours are also text on a tint of themselves (see `tint` in the contrast rules). */
+  /**
+   * Status colours other than warning are also text on a tint of themselves (see `tint` in the
+   * contrast rules).
+   */
   const withOwnTint = (color: string) => [
     ...asTextAndFill,
     ...rules.tint.over.map((step) => composite(color, rules.tint.alpha, surface[step])),
@@ -113,8 +116,12 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     'destructive-foreground': onColor,
     success: status(scales.success),
     'success-foreground': onColor,
-    warning: status(scales.warning),
-    'warning-foreground': onColor,
+    // Warning is a fill only, in both schemes: the scale's base with the palette text colour on it
+    // (9:1). Derived like the others, as text on the page, it darkened to brown under white text.
+    // It is not readable as text on the page or on its own tint; add a text variant when
+    // something needs warning-coloured text.
+    warning: scales.warning[500],
+    'warning-foreground': surface[950],
     info: status(scales.info),
     'info-foreground': onColor,
     border,

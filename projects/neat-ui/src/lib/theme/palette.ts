@@ -17,4 +17,5 @@ export const NEAT_PRIMARY_BASE: string = SIMA_PALETTE.orange;
 
 /** Functional colours outside the palette, which has no red or amber but errors and warnings need them. */
 export const NEAT_DANGER_BASE = '#C8372D';
-export const NEAT_WARN_BASE = '#B7791F';
+/** Used unchanged as the warning fill (step 500 of its scale), with palette text colour on it. */
+export const NEAT_WARN_BASE = '#E9A23B';

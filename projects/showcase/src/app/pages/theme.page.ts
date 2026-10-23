@@ -85,7 +85,6 @@ const TEXT_PAIRS: [string, string][] = [
   ['destructive-foreground', 'destructive'],
   ['success', 'background'],
   ['success-foreground', 'success'],
-  ['warning', 'background'],
   ['warning-foreground', 'warning'],
   ['info', 'background'],
   ['info-foreground', 'info'],
