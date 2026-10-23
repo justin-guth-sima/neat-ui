@@ -1,0 +1,26 @@
+/*
+ * Fills the tile's overlay layer and leaves it to what is under it: only the surface takes
+ * pointer events, and only while a mode is on. The host takes focus so Escape reaches it, which is
+ * not something to ring: the dashed polyline already shows the editor is mid-polygon.
+ */
+:host {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  outline: none;
+}
+
+/* On the video box; its size and place are set from the tile's measure. */
+.surface {
+  position: absolute;
+}
+
+.surface[data-mode='off'] {
+  pointer-events: none;
+}
+
+.surface[data-mode='inclusion'],
+.surface[data-mode='exclusion'] {
+  pointer-events: auto;
+  cursor: crosshair;
+}

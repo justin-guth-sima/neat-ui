@@ -31,6 +31,9 @@ import {
   type NeatTooltipPosition,
 } from '@sima/neat-ui';
 import {
+  NeatRoiEditor,
+  type NeatRoiDrawMode,
+  type NeatRoiPolygon,
   NeatTileGrid,
   type NeatTileLayout,
   type NeatTileState,
@@ -58,6 +61,11 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
   { value: 'boxes', label: 'Boxes' },
   { value: 'masks', label: 'Masks' },
 ];
+const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
+  { value: 'off', label: 'Off' },
+  { value: 'inclusion', label: 'Inclusion' },
+  { value: 'exclusion', label: 'Exclusion' },
+];
 
 @Component({
   selector: 'app-components-page',
@@ -78,6 +86,7 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
     NeatTileGrid,
     NeatTooltip,
     NeatVideoTile,
+    NeatRoiEditor,
     RouterLink,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -582,6 +591,37 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
             </div>
           </div>
         </section>
+
+        <section class="showcase-section">
+          <h2>ROI editor</h2>
+          <p class="showcase-muted">
+            <code>neat-roi-editor</code> draws regions of interest on a tile's image and adds
+            polygons by clicks: one per point, a click on the first point or a double-click to close
+            it (three points at least), Escape to cancel. It is placed in the tile with
+            <code>neatTileOverlay</code> and follows the image, not the letterbox, so the points
+            stay on the picture when the tile resizes. It owns no regions: the page keeps them and
+            takes each closed polygon from <code>regionsChange</code>.
+          </p>
+          <div class="showcase-row">
+            <neat-segmented label="Drawing mode" [options]="roiModes" [(value)]="roiMode" />
+            <button neatButton type="button" variant="outlined" (click)="roiRegions.set([])">
+              Clear regions
+            </button>
+          </div>
+          <p class="showcase-code showcase-muted" aria-live="polite">{{ roiSummary() }}</p>
+          <div class="video-demo">
+            <div class="video-demo-cell">
+              <neat-video-tile [source]="testPattern" [bars]="false">
+                <neat-roi-editor
+                  neatTileOverlay
+                  [regions]="roiRegions()"
+                  [mode]="roiMode()"
+                  (regionsChange)="roiRegions.set($event)"
+                />
+              </neat-video-tile>
+            </div>
+          </div>
+        </section>
       </div>
     </neat-page>
   `,
@@ -629,6 +669,16 @@ export class ComponentsPage {
   protected readonly tileSelected = signal(false);
   protected readonly tileState = signal<NeatTileState>('empty');
   protected readonly tileSummary = computed(() => `First tile: ${this.tileState()}`);
+
+  protected readonly roiModes = ROI_MODES;
+  protected readonly roiMode = signal<NeatRoiDrawMode>('inclusion');
+  protected readonly roiRegions = signal<readonly NeatRoiPolygon[]>([]);
+  protected readonly roiSummary = computed(() => {
+    const regions = this.roiRegions();
+    const count = (type: NeatRoiPolygon['type']) =>
+      regions.filter((region) => region.type === type).length;
+    return `Regions: ${regions.length} (${count('inclusion')} inclusion, ${count('exclusion')} exclusion)`;
+  });
 
   protected async askResetAll(): Promise<void> {
     const reset = await this.confirm.ask({
