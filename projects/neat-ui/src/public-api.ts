@@ -78,7 +78,7 @@ export type {
   NeatOverlayView,
 } from './lib/video/overlays/draw-frame';
 export { createOverlayState, drawFrame, resetOverlayState } from './lib/video/overlays/draw-frame';
-export type { NeatTileArea, NeatTileAspect, NeatTilePack } from './lib/video/grid/pack';
+export type { NeatTileArea, NeatTilePack } from './lib/video/grid/pack';
 export { fitAllTileWidth, NEAT_MIN_TILE_WIDTH, packTiles } from './lib/video/grid/pack';
 export type { NeatTileLayout } from './lib/video/grid/tile-grid';
 export { NeatTileGrid } from './lib/video/grid/tile-grid';

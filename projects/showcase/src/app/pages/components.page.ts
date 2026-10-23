@@ -22,7 +22,6 @@ import {
   NeatSwitch,
   NeatTab,
   NeatTabs,
-  type NeatTileAspect,
   NeatTileGrid,
   type NeatTileLayout,
   type NeatTileState,
@@ -40,7 +39,10 @@ const ICON_SIZES = [16, 20, 24] as const;
 const TOOLTIP_POSITIONS: NeatTooltipPosition[] = ['top', 'right', 'bottom', 'left'];
 const TILE_COUNT = 48;
 const PLACEHOLDER_TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);
-const SHAPES: NeatSegmentedOption<NeatTileAspect>[] = [
+/** A demo choice for the segmented control; the kit's tiles are always 16:9. */
+type Shape = '16:9' | '1:1';
+
+const SHAPES: NeatSegmentedOption<Shape>[] = [
   { value: '16:9', label: '16:9', icon: 'aspect-wide' },
   { value: '1:1', label: '1:1', icon: 'aspect-square' },
 ];
@@ -464,7 +466,7 @@ export class ComponentsPage {
   protected readonly pressedVariants = signal<ReadonlySet<NeatButtonVariant>>(
     new Set(['secondary', 'outlined']),
   );
-  protected readonly shape = signal<NeatTileAspect>('16:9');
+  protected readonly shape = signal<Shape>('16:9');
   protected readonly overlay = signal('boxes');
   protected readonly tab = signal('metadata');
 

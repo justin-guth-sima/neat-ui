@@ -13,7 +13,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { NeatTileArea, NeatTileAspect, NeatTilePack, packTiles } from './pack';
+import { NeatTileArea, NeatTilePack, packTiles } from './pack';
 
 /**
  * What the grid reports: the packing, the gap it used between tiles and the content box it was
@@ -44,7 +44,7 @@ function sameLayout(a: NeatTileLayout | null, b: NeatTileLayout | null): boolean
 }
 
 /**
- * Lays its items out as tiles of a fixed size in a centred grid, as many as fit into its own box
+ * Lays its items out as 16:9 tiles of a fixed width in a centred grid, as many as fit into its own box
  * without scrolling or overflowing. The tile width comes from the page (a slider, say); the grid
  * works out the columns, rows and tiles per page and reports them through `layout`, so the page
  * can slice its items to `perPage`. The grid never pages itself.
@@ -80,7 +80,6 @@ function sameLayout(a: NeatTileLayout | null, b: NeatTileLayout | null): boolean
 export class NeatTileGrid {
   /** Tile width in CSS pixels; a tile wider than the area shrinks to it. */
   readonly tileWidth = input.required<number>();
-  readonly aspect = input<NeatTileAspect>('16:9');
   /** Space between tiles in CSS pixels; the kit's `--neat-space-2` when unset. */
   readonly gap = input<number>();
   /** The number of projected items. */
@@ -113,7 +112,7 @@ export class NeatTileGrid {
       // make the page slice down to one tile and back.
       if (area === null || !(area.width > 0 && area.height > 0) || gap === null) return null;
       return {
-        ...packTiles(area, this.tileWidth(), this.aspect(), gap),
+        ...packTiles(area, this.tileWidth(), gap),
         gap,
         areaWidth: area.width,
         areaHeight: area.height,

@@ -1,6 +1,5 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NeatTileAspect } from './pack';
 import { NeatTileGrid, NeatTileLayout } from './tile-grid';
 
 /** A ResizeObserver that reports only when a test says so, with the box that test chooses. */
@@ -33,7 +32,6 @@ class FakeResizeObserver {
   template: `
     <neat-tile-grid
       [tileWidth]="tileWidth()"
-      [aspect]="aspect()"
       [gap]="gap()"
       [count]="count()"
       (layout)="layouts.push($event)"
@@ -45,7 +43,6 @@ class FakeResizeObserver {
 })
 class Host {
   readonly tileWidth = signal(300);
-  readonly aspect = signal<NeatTileAspect>('16:9');
   readonly gap = signal<number | undefined>(undefined);
   readonly count = signal(30);
   readonly layouts: NeatTileLayout[] = [];
@@ -140,16 +137,6 @@ describe('NeatTileGrid', () => {
         [600, 3, 2],
       ],
     );
-  });
-
-  it('emits a new layout when the aspect changes', async () => {
-    await create();
-    await resize(1920, 1000);
-
-    host().aspect.set('1:1');
-    await fixture.whenStable();
-
-    expect(host().layouts.at(-1)).toMatchObject({ tileHeight: 300, rows: 3 });
   });
 
   it('emits again only when a value changed, not for an identical resize', async () => {

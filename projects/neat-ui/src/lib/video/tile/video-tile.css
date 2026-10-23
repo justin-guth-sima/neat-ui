@@ -9,7 +9,6 @@
   height: 100%;
   overflow: hidden;
   isolation: isolate;
-  border-radius: var(--radius);
   background: var(--muted);
 }
 
@@ -111,7 +110,6 @@
   position: absolute;
   inset: 0;
   z-index: 2;
-  border-radius: inherit;
   box-shadow: inset 0 0 0 var(--neat-focus-ring-width) var(--ring);
   pointer-events: none;
 }

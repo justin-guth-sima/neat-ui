@@ -571,6 +571,28 @@ describe('NeatVideoTile', () => {
     expect(tileState()).toBe('empty');
   });
 
+  it('neat-video-tile computes border-radius 0px on the host and its selection ring', () => {
+    create();
+
+    // jsdom resolves no initial values, so a square corner computes to '' here and '0px' in a
+    // browser; anything else (`var(--radius)`, a length, `inherit`) is a rounded one.
+    const square = ['', '0px'];
+    expect(square).toContain(getComputedStyle(tileElement()).borderRadius);
+
+    // jsdom has no styles for pseudo-elements, so the ring's own rule is read from the stylesheet.
+    // It takes its radius from the host or sets one; it must do neither.
+    const ringRules = Array.from(document.styleSheets)
+      .flatMap((sheet) => Array.from(sheet.cssRules))
+      .filter(
+        (rule): rule is CSSStyleRule =>
+          rule instanceof CSSStyleRule &&
+          rule.selectorText.includes('data-selected') &&
+          rule.selectorText.includes('::before'),
+      );
+    expect(ringRules, 'the selection ring rule').toHaveLength(1);
+    expect(ringRules[0].style.borderRadius).toBe('');
+  });
+
   it('runs its frame loop outside Angular: 100 frames trigger no change detection on the host', async () => {
     create();
     startStream();

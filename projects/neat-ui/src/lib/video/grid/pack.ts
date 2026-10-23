@@ -1,6 +1,3 @@
-/** The shape of a tile: 16:9 for video, 1:1 for square thumbnails. */
-export type NeatTileAspect = '16:9' | '1:1';
-
 export interface NeatTileArea {
   readonly width: number;
   readonly height: number;
@@ -23,8 +20,8 @@ export interface NeatTilePack {
  */
 export const NEAT_MIN_TILE_WIDTH = 64;
 
-/** Height as a fraction of width. */
-const HEIGHT_PER_WIDTH: Record<NeatTileAspect, number> = { '16:9': 9 / 16, '1:1': 1 };
+/** Tiles are 16:9: the height as a fraction of the width. */
+const HEIGHT_PER_WIDTH = 9 / 16;
 
 /**
  * Garbage in must not become garbage out: NaN or Infinity from a broken measurement or input would
@@ -47,26 +44,20 @@ function sanitizeGap(gap: number): number {
  * widened by one gap before dividing: `n` tiles take `n * tile + (n - 1) * gap`.
  *
  * `tileWidth` is raised to `NEAT_MIN_TILE_WIDTH` (a NaN, zero or negative one too). If even one
- * tile does not fit, it shrinks to the area while keeping its aspect, to whole CSS pixels so it
+ * tile does not fit, it shrinks to the area while keeping 16:9, to whole CSS pixels so it
  * never rounds past the edge; that rule wins over the minimum. A tile is at least 1 px, so an
  * empty area (before the first measurement) still yields one tile.
  */
-export function packTiles(
-  area: NeatTileArea,
-  tileWidth: number,
-  aspect: NeatTileAspect,
-  gap: number,
-): NeatTilePack {
-  const ratio = HEIGHT_PER_WIDTH[aspect];
+export function packTiles(area: NeatTileArea, tileWidth: number, gap: number): NeatTilePack {
   const { width: areaWidth, height: areaHeight } = sanitizeArea(area);
   const spacing = sanitizeGap(gap);
 
   const requested = Number.isNaN(tileWidth)
     ? NEAT_MIN_TILE_WIDTH
     : Math.max(NEAT_MIN_TILE_WIDTH, tileWidth);
-  const fitting = Math.min(requested, areaWidth, areaHeight / ratio);
+  const fitting = Math.min(requested, areaWidth, areaHeight / HEIGHT_PER_WIDTH);
   const width = Math.max(1, fitting < requested ? Math.floor(fitting) : requested);
-  const height = width * ratio;
+  const height = width * HEIGHT_PER_WIDTH;
 
   const columns = Math.max(1, Math.floor((areaWidth + spacing) / (width + spacing)));
   const rows = Math.max(1, Math.floor((areaHeight + spacing) / (height + spacing)));
@@ -84,13 +75,7 @@ export function packTiles(
  * the minimum and the caller pages. A count that is not a finite number of at least 1 is one tile;
  * a fractional count is rounded down.
  */
-export function fitAllTileWidth(
-  area: NeatTileArea,
-  count: number,
-  aspect: NeatTileAspect,
-  gap: number,
-): number {
-  const ratio = HEIGHT_PER_WIDTH[aspect];
+export function fitAllTileWidth(area: NeatTileArea, count: number, gap: number): number {
   const { width: areaWidth, height: areaHeight } = sanitizeArea(area);
   const spacing = sanitizeGap(gap);
   const tiles = Number.isFinite(count) ? Math.max(1, Math.floor(count)) : 1;
@@ -104,7 +89,7 @@ export function fitAllTileWidth(
   for (let columns = 1; columns <= maxColumns; columns++) {
     const rows = Math.ceil(tiles / columns);
     const byWidth = (areaWidth - (columns - 1) * spacing) / columns;
-    const byHeight = (areaHeight - (rows - 1) * spacing) / rows / ratio;
+    const byHeight = (areaHeight - (rows - 1) * spacing) / rows / HEIGHT_PER_WIDTH;
     widest = Math.max(widest, Math.floor(Math.min(byWidth, byHeight)));
   }
   return widest;
