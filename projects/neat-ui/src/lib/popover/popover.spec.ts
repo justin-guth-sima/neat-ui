@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter, RouterOutlet } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import helmContent from '../ui/popover/src/lib/hlm-popover-content.ts?source' with {
@@ -151,7 +152,6 @@ describe('NeatPopover', () => {
     await settle();
     expect(panel()).not.toBeNull();
 
-    // A click on the trigger is not outside: it toggles the panel closed, not closed and reopened.
     clickOn(root.querySelector('.outside-text')!);
     await settle();
     expect(host.open()).toBe(false);
@@ -329,10 +329,16 @@ describe('NeatPopover', () => {
       button('View options').click();
       await settle();
 
-      // Leaving kiosk mode re-creates the toolbar, destroying the open popover.
-      await kiosk.exit();
+      // The page tears the toolbar's view down while kiosk mode stays on: the destroyed popover's
+      // hold must go with it, or the bar would stay shown forever.
+      harness.fixture.debugElement
+        .query(By.directive(ToolbarPopoverPage))
+        .componentInstance.toolbarReady.set(false);
       await settle();
+      expect(button('View options')).toBeUndefined();
       await vi.advanceTimersByTimeAsync(KIOSK_POINTER_IDLE_MS);
+      await settle();
+      expect(kiosk.active()).toBe(true);
       expect(kiosk.pointerIdle()).toBe(true);
     });
   });

@@ -348,22 +348,27 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
                 <neat-icon name="search" />
               </button>
               <ng-template neatPopoverContent>
-                <label class="popover-fields">
-                  <span>Channel</span>
-                  <input
-                    #channelField
-                    neatInput
-                    size="small"
-                    type="number"
-                    inputmode="numeric"
-                    min="0"
-                    max="15"
-                    placeholder="0–15"
-                    [value]="channel()"
-                    (input)="channel.set(channelField.value)"
-                  />
-                  <span class="showcase-muted">Aligned to the trigger's end edge.</span>
-                </label>
+                <div class="popover-fields">
+                  <label class="popover-fields">
+                    <span>Channel</span>
+                    <input
+                      #channelField
+                      neatInput
+                      size="small"
+                      type="number"
+                      inputmode="numeric"
+                      min="0"
+                      max="15"
+                      placeholder="0–15"
+                      aria-describedby="channel-hint"
+                      [value]="channel()"
+                      (input)="channel.set(channelField.value)"
+                    />
+                  </label>
+                  <span id="channel-hint" class="showcase-muted">
+                    Aligned to the trigger's end edge.
+                  </span>
+                </div>
               </ng-template>
             </neat-popover>
           </div>
