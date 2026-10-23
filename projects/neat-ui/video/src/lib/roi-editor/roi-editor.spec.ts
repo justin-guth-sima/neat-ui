@@ -941,6 +941,60 @@ describe('NeatRoiEditor', () => {
       expect(deleteButton()).toBeNull();
     });
 
+    it('closes when the box it was opened on changes', async () => {
+      await createWithList();
+      await rightClick(polygons()[0], 120, 70);
+
+      // The tile stops: the editor moves from the image to the whole tile, and the region with it.
+      host().box.set(null);
+      await fixture.whenStable();
+
+      expect(deleteButton()).toBeNull();
+    });
+
+    it('leaves the browser menu to a right-click off a region', async () => {
+      await createWithList();
+
+      // Below the triangles, on the surface a drawing mode makes take the pointer.
+      const event = await rightClick(surface(), BOX.x + 10, BOX.y + 95);
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(deleteButton()).toBeNull();
+    });
+
+    it('a press on the bubble outside its button keeps focus on Delete and the bubble open', async () => {
+      await createWithList();
+      await rightClick(polygons()[0], 120, 70);
+
+      bubble()?.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, cancelable: true }));
+      const press = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+      bubble()?.dispatchEvent(press);
+      await fixture.whenStable();
+
+      // Without it the browser would move focus to the page, and the next Escape would miss.
+      expect(press.defaultPrevented, 'the press does not take focus').toBe(true);
+      expect(document.activeElement).toBe(deleteButton());
+      expect(deleteButton()).not.toBeNull();
+    });
+
+    it('opens nothing for a region that is gone before the editor rendered again', async () => {
+      await createWithList();
+      const errors = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      const stale = polygons()[2];
+
+      // The list shrinks, and a right-click reaches the old element before the next render.
+      host().regions.set([INCLUSION]);
+      stale.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+      await fixture.whenStable();
+
+      expect(deleteButton()).toBeNull();
+      expect(errors).not.toHaveBeenCalled();
+
+      // The editor still works for the regions it has.
+      await rightClick(polygons()[0], 120, 70);
+      expect(deleteButton()?.getAttribute('aria-label')).toBe('Delete Inclusion 1');
+    });
+
     it('closes when focus moves out of it, but not when the window loses focus', async () => {
       await createWithList();
       await rightClick(polygons()[0], 120, 70);

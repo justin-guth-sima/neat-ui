@@ -21,6 +21,7 @@ import {
 import { NeatButton } from '@sima/neat-ui';
 import type { NeatRoiPolygon } from '../overlays/overlay-settings';
 import { OVERLAY_ROI_COLORS } from '../theme/overlay-palette';
+import { neatRoiNames } from './roi-names';
 import type { NeatVideoBox } from '../tile/video-tile';
 import { NeatVideoTile } from '../tile/video-tile';
 
@@ -28,7 +29,9 @@ import { NeatVideoTile } from '../tile/video-tile';
 export type NeatRoiDrawMode = 'off' | 'inclusion' | 'exclusion';
 
 type RoiPoint = NeatRoiPolygon['points'][number];
-type RoiType = NeatRoiPolygon['type'];
+
+/** Which box the editor draws on: the image while the tile plays, else the whole tile. */
+type BoxSource = 'video' | 'tile' | null;
 
 /** The editor's own size, in CSS pixels. */
 interface Size {
@@ -48,8 +51,6 @@ const CLOSE_DISTANCE_PX = 10;
 const MIN_POLYGON_POINTS = 3;
 const STROKE_WIDTH = 2;
 const HIGHLIGHT_STROKE_WIDTH = 3;
-/** How a region is named, numbered per type in list order as an app's region list does. */
-const TYPE_NAMES: Record<RoiType, string> = { inclusion: 'Inclusion', exclusion: 'Exclusion' };
 
 function clamp01(value: number): number {
   return Math.min(1, Math.max(0, value));
@@ -94,7 +95,9 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
  * not on the letterbox, and it stays there when the tile resizes. Without video (none yet, or
  * stopped) it uses the tile's full box instead, so regions can be seen and drawn before a stream
  * plays; points are normalized to whichever box was used, which is exact for a stream of the
- * tile's shape. Until it knows either box it draws nothing and takes no input.
+ * tile's shape. Until it knows either box it draws nothing and takes no input. The full box is
+ * meant for a tile with `bars` off: with bars on, the no-video note and the bar paint above the
+ * editor and cover what lies under them.
  *
  * With a `mode` of `inclusion` or `exclusion`, each click adds a point. A click within 10 px of
  * the first point closes the polygon once it has three; so does a double-click. The second click
@@ -170,7 +173,10 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
         }
       </svg>
       @if (menuLabel(); as label) {
-        <div #menu class="menu">
+        <!-- A press on the card around the button must not take focus from it: focus would fall
+             to the page, and Escape would no longer reach the bubble. Focus moves on mousedown,
+             which browsers also send after a touch. -->
+        <div #menu class="menu" (mousedown)="$event.preventDefault()">
           <button
             neatButton
             variant="text"
@@ -213,8 +219,7 @@ export class NeatRoiEditor {
    */
   private readonly size = signal<Size | null>(null, { equal: sameSize });
 
-  /** Which box the editor draws on: the image while the tile plays, else the whole tile. */
-  private readonly boxSource = computed<'video' | 'tile' | null>(() => {
+  private readonly boxSource = computed<BoxSource>(() => {
     if (this.videoBox() !== null) return 'video';
     return this.size() === null ? null : 'tile';
   });
@@ -232,7 +237,7 @@ export class NeatRoiEditor {
    * the polygon is drawn among, starts over.
    */
   private readonly open = linkedSignal<
-    { mode: NeatRoiDrawMode; regions: readonly NeatRoiPolygon[]; boxSource: string | null },
+    { mode: NeatRoiDrawMode; regions: readonly NeatRoiPolygon[]; boxSource: BoxSource },
     readonly RoiPoint[]
   >({
     source: () => ({ mode: this.mode(), regions: this.regions(), boxSource: this.boxSource() }),
@@ -246,7 +251,7 @@ export class NeatRoiEditor {
    * then, and so does a change of box, which moves the region it was opened on.
    */
   private readonly menu = linkedSignal<
-    { regions: readonly NeatRoiPolygon[]; boxSource: string | null },
+    { regions: readonly NeatRoiPolygon[]; boxSource: BoxSource },
     RoiMenu | null
   >({
     source: () => ({ regions: this.regions(), boxSource: this.boxSource() }),
@@ -294,14 +299,15 @@ export class NeatRoiEditor {
     };
   });
 
-  /** The Delete button's name: the region as an app's list numbers it, "Delete Inclusion 2". */
+  /**
+   * The Delete button's name, the region named as an app's list names it: "Delete Inclusion 2".
+   * None for an index past the list, which `openMenu` already refuses.
+   */
   protected readonly menuLabel = computed(() => {
     const menu = this.menu();
     if (menu === null) return null;
-    const regions = this.regions();
-    const type = regions[menu.index].type;
-    const number = regions.slice(0, menu.index + 1).filter((region) => region.type === type).length;
-    return `Delete ${TYPE_NAMES[type]} ${number}`;
+    const name = neatRoiNames(this.regions())[menu.index];
+    return name === undefined ? null : `Delete ${name}`;
   });
 
   constructor() {
@@ -397,6 +403,9 @@ export class NeatRoiEditor {
   /** Opens the Delete bubble for the region at `index` at the pointer, instead of the browser's. */
   protected openMenu(event: MouseEvent, index: number): void {
     event.preventDefault();
+    // The index is from the last render: a right-click that arrives after `regions` shrank and
+    // before the next render names a region that is gone.
+    if (index >= this.regions().length) return;
     const origin = this.host.nativeElement.getBoundingClientRect();
     const active = this.document.activeElement;
     this.focusBeforeMenu = active instanceof HTMLElement ? active : null;

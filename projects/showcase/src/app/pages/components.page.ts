@@ -38,6 +38,7 @@ import {
   NeatRoiEditor,
   type NeatRoiDrawMode,
   type NeatRoiPolygon,
+  neatRoiNames,
   NeatRoiSwatch,
   NeatTileGrid,
   type NeatTileLayout,
@@ -788,14 +789,11 @@ export class ComponentsPage {
   protected readonly roiHighlighted = signal<number | null>(null);
   protected readonly roiSummary = computed(() => {
     const regions = this.roiRegions();
-    const count = (type: NeatRoiPolygon['type'], end = regions.length) =>
-      regions.slice(0, end).filter((region) => region.type === type).length;
+    const count = (type: NeatRoiPolygon['type']) =>
+      regions.filter((region) => region.type === type).length;
     const index = this.roiHighlighted();
-    // Numbered per type, as the editor's Delete names it.
-    const highlighted =
-      index === null || regions[index] === undefined
-        ? 'none'
-        : `${regions[index].type} ${count(regions[index].type, index + 1)}`;
+    // Named as the editor's Delete and an app's region list name it.
+    const highlighted = (index === null ? undefined : neatRoiNames(regions)[index]) ?? 'none';
     return `Regions: ${regions.length} (${count('inclusion')} inclusion, ${count('exclusion')} exclusion) · highlighted: ${highlighted}`;
   });
 
