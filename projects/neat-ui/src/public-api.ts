@@ -32,6 +32,8 @@ export { NeatSegmented } from './lib/segmented/segmented';
 export { NeatTab, NeatTabs } from './lib/tabs/tabs';
 export type { NeatPopoverAlign } from './lib/popover/popover';
 export { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } from './lib/popover/popover';
+export type { NeatConfirmOptions } from './lib/confirm/confirm';
+export { NeatConfirm } from './lib/confirm/confirm';
 export type { NeatInputSize } from './lib/input/input';
 export { NeatInput } from './lib/input/input';
 export type { NeatMetadataMessage } from './lib/video/sync/metadata-message';

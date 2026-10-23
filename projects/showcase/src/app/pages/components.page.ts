@@ -13,6 +13,7 @@ import {
   NeatButton,
   type NeatButtonSize,
   type NeatButtonVariant,
+  NeatConfirm,
   NeatIcon,
   NeatInput,
   NeatPage,
@@ -374,6 +375,26 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
         </section>
 
         <section class="showcase-section">
+          <h2>Confirm</h2>
+          <p class="showcase-muted">
+            <code>NeatConfirm.ask(options)</code> asks before an action and resolves
+            <code>true</code> for the confirm button, <code>false</code> for cancel or Escape. A
+            modal alert dialog: focus starts on cancel and stays inside, a click on the backdrop
+            does nothing, and focus goes back to the button that asked. <code>tone: 'danger'</code>
+            is for actions that destroy or cannot be undone.
+          </p>
+          <div class="showcase-row">
+            <button neatButton type="button" variant="outlined" (click)="askResetAll()">
+              Reset all channels to global…
+            </button>
+            <button neatButton type="button" variant="outlined" (click)="askApplyToAll()">
+              Apply to all channels…
+            </button>
+          </div>
+          <p class="showcase-code showcase-muted" aria-live="polite">{{ confirmAnswer() }}</p>
+        </section>
+
+        <section class="showcase-section">
           <h2>Input</h2>
           <p class="showcase-muted">
             <code>neatInput</code> on an <code>input</code>: text or number, in two sizes. Native
@@ -547,6 +568,8 @@ export class ComponentsPage {
   protected readonly viewOptionsOpen = signal(false);
   protected readonly channelOpen = signal(false);
   protected readonly channel = signal('');
+  protected readonly confirmAnswer = signal('Not asked yet');
+  private readonly confirm = inject(NeatConfirm);
 
   protected readonly tileWidth = signal(240);
   protected readonly layout = signal<NeatTileLayout | null>(null);
@@ -565,6 +588,26 @@ export class ComponentsPage {
   protected readonly tileSelected = signal(false);
   protected readonly tileState = signal<NeatTileState>('empty');
   protected readonly tileSummary = computed(() => `First tile: ${this.tileState()}`);
+
+  protected async askResetAll(): Promise<void> {
+    const reset = await this.confirm.ask({
+      title: 'Reset all channels to global?',
+      message: '4 settings on 3 channels go back to the global values. This can’t be undone.',
+      confirmLabel: 'Reset',
+      tone: 'danger',
+    });
+    this.confirmAnswer.set(`Reset all: ${reset ? 'confirmed' : 'cancelled'}`);
+  }
+
+  protected async askApplyToAll(): Promise<void> {
+    const apply = await this.confirm.ask({
+      title: 'Apply to all channels?',
+      message: 'Every channel takes the global overlay settings.',
+      confirmLabel: 'Apply',
+      cancelLabel: 'Not now',
+    });
+    this.confirmAnswer.set(`Apply to all: ${apply ? 'confirmed' : 'cancelled'}`);
+  }
 
   protected togglePressed(variant: NeatButtonVariant): void {
     this.pressedVariants.update((pressed) => {
