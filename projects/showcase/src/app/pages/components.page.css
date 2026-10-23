@@ -26,6 +26,7 @@
   color: var(--muted-foreground);
 }
 
+/* The list sets its own size; this one sizes the "No regions." line that replaces it. */
 .list-demo {
   width: 18rem;
   font-size: var(--neat-text-xs);

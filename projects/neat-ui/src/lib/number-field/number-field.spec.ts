@@ -50,6 +50,8 @@ describe('NeatNumberField', () => {
     const { input } = await render();
 
     expect(input.getAttribute('aria-label')).toBe('Page');
+    // Wrapped by its label, so a click on the label text focuses the field.
+    expect(input.labels?.length).toBe(1);
     expect(input.value).toBe('3');
   });
 
