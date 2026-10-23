@@ -11,7 +11,8 @@ import {
   TemplateRef,
   untracked,
 } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
+import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
+import { InteractivityChecker } from '@angular/cdk/a11y';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import {
   BrnPopover,
@@ -92,11 +93,16 @@ export class NeatPopoverTrigger {
  * The content template is created on opening and destroyed on closing, so keep its state (a typed
  * value, a checked switch) in the page. On opening, focus moves to the panel's first focusable
  * element. Escape, a click outside, the trigger, or `open` set to false close it; focus then goes
- * back to the trigger, unless the closing click put it somewhere else. Focus moving to another
- * element on the page (Tab out of the panel or off the trigger) closes it too, and focus stays
- * where it went. Focus moving to an overlay opened from the panel, such as a `NeatConfirm`, does
- * not. Setting `open` to true opens it as the trigger does, which is how a keyboard shortcut
- * opens it.
+ * back to the trigger, unless the closing click put it somewhere else. Setting `open` to true
+ * opens it as the trigger does, which is how a keyboard shortcut opens it.
+ *
+ * The panel is rendered at the end of the document, so the browser's Tab order does not pass
+ * through it from the trigger. The kit carries it across by hand: Tab from the panel's last
+ * control closes it and focuses the first tabbable element after the trigger, and Shift+Tab from
+ * its first control closes it and focuses the trigger. Focus arriving anywhere else outside the
+ * trigger and the panel (a click on another control, Tab from the trigger, a second popover
+ * opening) closes it too, and focus stays where it went. Focus arriving in an overlay opened from
+ * the panel, such as a `NeatConfirm`, does not close it.
  *
  * In the page toolbar, an open popover keeps the kiosk bar shown (`KioskService.holdToolbar`):
  * the panel lies outside the bar, so a pointer resting on it would otherwise fade the bar out.
@@ -115,7 +121,7 @@ export class NeatPopoverTrigger {
   ],
   hostDirectives: [{ directive: BrnPopover, inputs: ['align'] }],
   // The trigger takes part in the surrounding layout (a toolbar's row) as if it stood there alone.
-  host: { class: 'contents', '(focusout)': 'closeWhenFocusLeaves($event)' },
+  host: { class: 'contents' },
   template: `
     <ng-content />
     <ng-template brnPopoverContent>
@@ -125,7 +131,7 @@ export class NeatPopoverTrigger {
         [attr.aria-label]="label()"
         [attr.data-state]="brain.stateComputed()"
         [class]="panelClasses"
-        (focusout)="closeWhenFocusLeaves($event)"
+        (keydown)="carryTabOrder($event)"
       >
         <ng-container [ngTemplateOutlet]="content().template" />
       </div>
@@ -144,6 +150,8 @@ export class NeatPopover {
   protected readonly content = contentChild.required(NeatPopoverContent);
   private readonly trigger = contentChild.required(NeatPopoverTrigger);
   private readonly overlayContainer = inject(OverlayContainer);
+  private readonly interactivity = inject(InteractivityChecker);
+  private readonly document = inject(DOCUMENT);
 
   constructor() {
     // Brain closes the panel on Escape and outside clicks; the model follows. Brain's output lives
@@ -153,6 +161,23 @@ export class NeatPopover {
     effect(() => {
       const open = this.open();
       untracked(() => (open ? this.show() : this.brain.close()));
+    });
+
+    // A safety net for every way focus can arrive outside the popover. It listens for where focus
+    // lands, not where it left: Tab from the panel's last control can leave the document, and
+    // focus then comes back on the page's first element with no `focusout` naming it. A `focusout`
+    // with no target (another window took focus) is not a move, so it is deliberately not heard.
+    effect((onCleanup) => {
+      if (!this.open()) {
+        return;
+      }
+      const closeOnOutsideFocus = (event: FocusEvent) => {
+        if (event.target instanceof Node && !this.holdsFocus(event.target)) {
+          this.open.set(false);
+        }
+      };
+      this.document.addEventListener('focusin', closeOnOutsideFocus);
+      onCleanup(() => this.document.removeEventListener('focusin', closeOnOutsideFocus));
     });
 
     const kiosk = inject(KioskService);
@@ -171,31 +196,82 @@ export class NeatPopover {
   }
 
   /**
-   * Closes the panel when focus moves from the trigger or the panel (their `focusout`s both land
-   * here) to an element that belongs to neither. Focus stays where it went.
-   *
-   * Only a `focusout` that names the element receiving focus counts. Without one (`relatedTarget`
-   * is null) focus went to the page or the window lost it: an outside click is brain's to handle,
-   * and switching windows must not close the panel.
-   *
-   * The trigger and the panel hold focus, and so does any overlay: CDK renders them all in one
-   * container, apart from the panel's own DOM, so an element's ancestry cannot tell an overlay
-   * opened from the panel (a `NeatConfirm`) from any other. None of them takes focus on its own
-   * while the panel is open, and the trigger of another popover is outside the container, so the
-   * container is the narrowest test that keeps the dialogs a panel's controls open.
+   * Carries the Tab order across the panel, which the browser cannot: the panel is rendered in
+   * CDK's overlay container at the end of the document, not next to the trigger. Tab from the
+   * panel's last tabbable control would leave the document, and Shift+Tab from its first would
+   * land on the last control of the page. So both close the panel and move focus where it would
+   * go if the panel sat after the trigger: the first tabbable after the trigger, or the trigger
+   * itself. With nothing tabbable after the trigger, the browser's own Tab is left to run.
    */
-  protected closeWhenFocusLeaves(event: FocusEvent): void {
-    const next = event.relatedTarget;
-    if (!this.open() || !(next instanceof Node)) {
+  protected carryTabOrder(event: KeyboardEvent): void {
+    if (event.key !== 'Tab' || event.altKey || event.ctrlKey || event.metaKey) {
       return;
     }
-    if (
-      this.trigger().element.contains(next) ||
-      this.overlayContainer.getContainerElement().contains(next)
-    ) {
-      return;
+    const tabbables = this.tabbablesIn(event.currentTarget as HTMLElement);
+    if (event.shiftKey && event.target === tabbables[0]) {
+      event.preventDefault();
+      this.open.set(false);
+      this.trigger().element.focus();
+    } else if (!event.shiftKey && event.target === tabbables.at(-1)) {
+      const next = this.tabbableAfterTrigger();
+      if (next) {
+        event.preventDefault();
+        next.focus();
+      }
+      this.open.set(false);
     }
-    this.open.set(false);
+  }
+
+  /**
+   * Whether focus on `node` leaves the popover as it is: the trigger, and CDK's overlay container.
+   * The container holds the panel and every other overlay, apart from the panel's own DOM, so an
+   * element's ancestry cannot tell an overlay opened from the panel (a `NeatConfirm`) from any
+   * other. None takes focus on its own while the panel is open, and another popover's trigger lies
+   * outside the container, so the container is the narrowest test that keeps the dialogs a panel's
+   * controls open.
+   */
+  private holdsFocus(node: Node): boolean {
+    return (
+      this.trigger().element.contains(node) ||
+      this.overlayContainer.getContainerElement().contains(node)
+    );
+  }
+
+  /**
+   * The tabbable elements under `root` in document order, as CDK's focus trap judges them
+   * (`InteractivityChecker`): it knows tabindex, disabled and hidden elements, which a selector
+   * list would get wrong. The overlay container's subtree is left out when `root` holds it.
+   */
+  private tabbablesIn(root: Node): HTMLElement[] {
+    const container = this.overlayContainer.getContainerElement();
+    const walker = this.tabbableWalker(root, container);
+    const found: HTMLElement[] = [];
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      found.push(node as HTMLElement);
+    }
+    return found;
+  }
+
+  /** The first tabbable element after the trigger in the page, outside the overlay container. */
+  private tabbableAfterTrigger(): HTMLElement | null {
+    const walker = this.tabbableWalker(
+      this.document.body,
+      this.overlayContainer.getContainerElement(),
+    );
+    walker.currentNode = this.trigger().element;
+    return walker.nextNode() as HTMLElement | null;
+  }
+
+  /** A walker over `root`'s tabbable elements that does not enter `excluded`. */
+  private tabbableWalker(root: Node, excluded: Element): TreeWalker {
+    return this.document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, (node) => {
+      if (node === excluded) {
+        return NodeFilter.FILTER_REJECT;
+      }
+      return this.interactivity.isTabbable(node as HTMLElement)
+        ? NodeFilter.FILTER_ACCEPT
+        : NodeFilter.FILTER_SKIP;
+    });
   }
 
   private show(): void {

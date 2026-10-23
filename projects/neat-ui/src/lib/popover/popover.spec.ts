@@ -41,6 +41,7 @@ const SURFACES = ['background', 'card'] as const;
         <button type="button" class="reset" (click)="confirm.ask(resetQuestion)">Reset</button>
       </ng-template>
     </neat-popover>
+    <button type="button" class="after">Next</button>
   `,
 })
 class PopoverHost {
@@ -52,6 +53,25 @@ class PopoverHost {
   };
   readonly open = signal(false);
   readonly align = signal<NeatPopoverAlign>('center');
+}
+
+/** Two popovers side by side, as a toolbar has. */
+@Component({
+  imports: [NeatPopover, NeatPopoverTrigger, NeatPopoverContent],
+  template: `
+    <neat-popover label="First" [(open)]="firstOpen">
+      <button type="button" neatPopoverTrigger>First</button>
+      <ng-template neatPopoverContent><button type="button">Inside first</button></ng-template>
+    </neat-popover>
+    <neat-popover label="Second" [(open)]="secondOpen">
+      <button type="button" neatPopoverTrigger>Second</button>
+      <ng-template neatPopoverContent><button type="button">Inside second</button></ng-template>
+    </neat-popover>
+  `,
+})
+class TwoPopoversHost {
+  readonly firstOpen = signal(false);
+  readonly secondOpen = signal(false);
 }
 
 /**
@@ -261,17 +281,107 @@ describe('NeatPopover', () => {
     expect(box.style.alignItems).toBe('flex-end');
   });
 
-  describe('focus leaving it', () => {
+  describe('focus order and focus leaving it', () => {
+    // CDK judges an element tabbable only if it has a layout box, which jsdom never gives.
+    beforeEach(() => vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(1));
+
     /** A focus move as the browser reports it: `focusout` on the old element, naming the new one. */
     const focusOut = (from: HTMLElement, to: HTMLElement | null) =>
       from.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: to }));
 
-    it('Tab from the last control in an open panel to an outside button closes it, and focus stays on that button', async () => {
-      const { host, root, trigger, settle } = await render();
-      const outside = root.querySelector<HTMLButtonElement>('.outside')!;
-      trigger.click();
+    /** A Tab (or Shift+Tab) keypress on `target`; the event shows whether the kit took it over. */
+    const tab = (target: HTMLElement, shiftKey = false) => {
+      const event = new KeyboardEvent('keydown', {
+        key: 'Tab',
+        shiftKey,
+        bubbles: true,
+        cancelable: true,
+      });
+      target.dispatchEvent(event);
+      return event;
+    };
+
+    /** Opens the panel; returns its controls and an element another overlay would hold. */
+    async function open() {
+      const rendered = await render();
+      rendered.trigger.click();
+      await rendered.settle();
+      const controls = {
+        first: panel()!.querySelector<HTMLButtonElement>('.first')!,
+        last: panel()!.querySelector<HTMLButtonElement>('.reset')!,
+        middle: panel()!.querySelector<HTMLButtonElement>('button:nth-of-type(2)')!,
+      };
+      const otherOverlay = document.createElement('button');
+      document.querySelector('.cdk-overlay-container')!.append(otherOverlay);
+      return {
+        ...rendered,
+        controls,
+        otherOverlay,
+        after: rendered.root.querySelector<HTMLButtonElement>('.after')!,
+        outside: rendered.root.querySelector<HTMLButtonElement>('.outside')!,
+      };
+    }
+
+    it('Tab on the last control closes it and focuses the first tabbable after the trigger', async () => {
+      const { host, controls, after, settle } = await open();
+      controls.last.focus();
+
+      // The page has tabbable elements before the trigger (`.outside`) and one in another
+      // overlay: only the one after the trigger in the page is next.
+      const event = tab(controls.last);
       await settle();
-      panel()!.querySelector<HTMLButtonElement>('.reset')!.focus();
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(host.open()).toBe(false);
+      expect(panel()).toBeNull();
+      expect(document.activeElement).toBe(after);
+    });
+
+    it('Tab on the last control with nothing tabbable after the trigger closes it and leaves the key to the browser', async () => {
+      const { host, controls, after, otherOverlay, settle } = await open();
+      after.remove();
+      controls.last.focus();
+
+      const event = tab(controls.last);
+      await settle();
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(host.open()).toBe(false);
+      expect(document.activeElement).not.toBe(otherOverlay);
+    });
+
+    it('Shift+Tab on the first control closes it and focuses the trigger', async () => {
+      const { host, controls, trigger, settle } = await open();
+      expect(document.activeElement).toBe(controls.first);
+
+      const event = tab(controls.first, true);
+      await settle();
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(host.open()).toBe(false);
+      expect(panel()).toBeNull();
+      expect(document.activeElement).toBe(trigger);
+    });
+
+    it('Tab and Shift+Tab on a control in the middle, and other keys on the edges, are left alone', async () => {
+      const { host, controls, settle } = await open();
+
+      expect(tab(controls.middle).defaultPrevented).toBe(false);
+      expect(tab(controls.middle, true).defaultPrevented).toBe(false);
+      expect(tab(controls.first).defaultPrevented).toBe(false);
+      expect(tab(controls.last, true).defaultPrevented).toBe(false);
+      controls.last.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }),
+      );
+      await settle();
+
+      expect(host.open()).toBe(true);
+      expect(panel()).not.toBeNull();
+    });
+
+    it('focus moving from the last control to an outside button closes it, and focus stays on that button', async () => {
+      const { host, controls, outside, settle } = await open();
+      controls.last.focus();
 
       outside.focus();
       await settle();
@@ -281,46 +391,60 @@ describe('NeatPopover', () => {
       expect(document.activeElement).toBe(outside);
     });
 
-    it('Tab from the trigger to an outside button closes it', async () => {
-      const { host, root, trigger, settle } = await render();
-      trigger.click();
-      await settle();
+    it('focus moving from the trigger to an outside button closes it', async () => {
+      const { host, trigger, outside, settle } = await open();
       trigger.focus();
       await settle();
       expect(host.open()).toBe(true);
 
-      root.querySelector<HTMLButtonElement>('.outside')!.focus();
+      outside.focus();
       await settle();
 
       expect(host.open()).toBe(false);
     });
 
-    it('moving focus between the trigger and the panel keeps it open', async () => {
-      const { host, trigger, settle } = await render();
-      trigger.click();
+    it('focus arriving outside with no focusout naming it (Tab back in from the browser) closes it', async () => {
+      const { host, controls, outside, settle } = await open();
+      controls.last.focus();
+
+      // Focus left the document by Tab, so no focusout named the element it comes back on.
+      outside.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
       await settle();
-      const first = panel()!.querySelector<HTMLButtonElement>('.first')!;
-      expect(document.activeElement).toBe(first);
+
+      expect(host.open()).toBe(false);
+      expect(panel()).toBeNull();
+    });
+
+    it('focus moving between the trigger and the panel keeps it open', async () => {
+      const { host, controls, trigger, settle } = await open();
+      expect(document.activeElement).toBe(controls.first);
 
       trigger.focus();
       await settle();
       expect(host.open()).toBe(true);
       expect(panel()).not.toBeNull();
 
-      first.focus();
+      controls.first.focus();
       await settle();
       expect(host.open()).toBe(true);
-      expect(document.activeElement).toBe(first);
+      expect(document.activeElement).toBe(controls.first);
+    });
+
+    it('focus moving into another overlay keeps it open', async () => {
+      const { host, otherOverlay, settle } = await open();
+
+      otherOverlay.focus();
+      await settle();
+
+      expect(host.open()).toBe(true);
+      expect(panel()).not.toBeNull();
     });
 
     it('focus moving into a dialog opened from inside the panel keeps it open', async () => {
-      const { host, settle } = await render();
-      (document.querySelector('[neatPopoverTrigger]') as HTMLButtonElement).click();
-      await settle();
-      const reset = panel()!.querySelector<HTMLButtonElement>('.reset')!;
+      const { host, controls, settle } = await open();
 
-      reset.focus();
-      reset.click();
+      controls.last.focus();
+      controls.last.click();
       await settle();
 
       const alert = document.querySelector<HTMLElement>('[role="alertdialog"]')!;
@@ -333,15 +457,13 @@ describe('NeatPopover', () => {
       alert.querySelector<HTMLButtonElement>('button')!.click();
       await settle();
       expect(host.open()).toBe(true);
-      expect(document.activeElement).toBe(reset);
+      expect(document.activeElement).toBe(controls.last);
     });
 
-    it('a focusout that names no element (the page, a click on empty space, another window) does not close it', async () => {
-      const { host, trigger, settle } = await render();
-      trigger.click();
-      await settle();
+    it('a focusout that names no element (another window took focus) does not close it', async () => {
+      const { host, controls, trigger, settle } = await open();
 
-      focusOut(panel()!.querySelector<HTMLButtonElement>('.first')!, null);
+      focusOut(controls.first, null);
       focusOut(trigger, null);
       await settle();
 
@@ -349,19 +471,41 @@ describe('NeatPopover', () => {
       expect(panel()).not.toBeNull();
     });
 
-    it('a focusout after it closed does nothing', async () => {
-      const { host, root, trigger, settle } = await render();
-      trigger.click();
-      await settle();
+    it('focus arriving outside after it closed does nothing', async () => {
+      const { host, outside, trigger, settle } = await open();
       escape();
       await settle();
       expect(document.activeElement).toBe(trigger);
 
-      focusOut(trigger, root.querySelector<HTMLButtonElement>('.outside')!);
+      outside.focus();
       await settle();
 
       expect(host.open()).toBe(false);
-      expect(document.activeElement).toBe(trigger);
+      expect(document.activeElement).toBe(outside);
+    });
+
+    it('a second popover opened from a shortcut while the first is open closes the first', async () => {
+      const fixture = TestBed.createComponent(TwoPopoversHost);
+      await fixture.whenStable();
+      const host = fixture.componentInstance;
+      const settle = async () => {
+        for (let i = 0; i < 3; i++) {
+          await new Promise((resolve) => setTimeout(resolve));
+          await fixture.whenStable();
+        }
+      };
+      fixture.nativeElement.querySelector('[neatPopoverTrigger]').click();
+      await settle();
+      expect(host.firstOpen()).toBe(true);
+
+      host.secondOpen.set(true);
+      await settle();
+
+      expect(host.firstOpen()).toBe(false);
+      expect(host.secondOpen()).toBe(true);
+      const dialogs = document.querySelectorAll('[role="dialog"]');
+      expect(dialogs).toHaveLength(1);
+      expect(dialogs[0].getAttribute('aria-label')).toBe('Second');
     });
   });
 
@@ -430,6 +574,21 @@ describe('NeatPopover', () => {
       button('Details').click();
       await settle();
       expect(panel()).not.toBeNull();
+
+      await vi.advanceTimersByTimeAsync(KIOSK_POINTER_IDLE_MS);
+      await settle();
+      expect(kiosk.pointerIdle()).toBe(true);
+    });
+
+    it('a toolbar popover closed by focus moving elsewhere releases its hold', async () => {
+      const { kiosk, settle, button } = await startKiosk();
+      button('View options').click();
+      await settle();
+      expect(panel()).not.toBeNull();
+
+      button('Details').focus();
+      await settle();
+      expect(panel()).toBeNull();
 
       await vi.advanceTimersByTimeAsync(KIOSK_POINTER_IDLE_MS);
       await settle();
