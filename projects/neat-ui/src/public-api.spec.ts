@@ -5,6 +5,7 @@
 import * as confirm from '../confirm/src/public-api';
 import * as dialog from '../dialog/src/public-api';
 import * as dropZone from '../drop-zone/src/public-api';
+import * as fileBrowser from '../file-browser/src/public-api';
 import * as input from '../input/src/public-api';
 import * as lineList from '../line-list/src/public-api';
 import * as numberField from '../number-field/src/public-api';
@@ -12,6 +13,7 @@ import * as popover from '../popover/src/public-api';
 import * as progress from '../progress/src/public-api';
 import * as segmented from '../segmented/src/public-api';
 import * as select from '../select/src/public-api';
+import * as selectList from '../select-list/src/public-api';
 import * as slider from '../slider/src/public-api';
 import * as switchEntry from '../switch/src/public-api';
 import * as tabs from '../tabs/src/public-api';
@@ -23,6 +25,7 @@ const ENTRIES = {
   confirm,
   dialog,
   dropZone,
+  fileBrowser,
   input,
   lineList,
   numberField,
@@ -30,6 +33,7 @@ const ENTRIES = {
   progress,
   segmented,
   select,
+  selectList,
   slider,
   switchEntry,
   tabs,

@@ -29,6 +29,7 @@ import {
   type NeatDialogRef,
 } from '@sima/neat-ui/dialog';
 import { NeatDropZone } from '@sima/neat-ui/drop-zone';
+import { NeatFileBrowser } from '@sima/neat-ui/file-browser';
 import { NeatInput } from '@sima/neat-ui/input';
 import { NeatLine, NeatLineEnd, NeatLineList } from '@sima/neat-ui/line-list';
 import { NeatNumberField } from '@sima/neat-ui/number-field';
@@ -36,6 +37,7 @@ import { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } from '@sima/neat-
 import { NeatProgress } from '@sima/neat-ui/progress';
 import { NeatSegmented, type NeatSegmentedOption } from '@sima/neat-ui/segmented';
 import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
+import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
 import { NeatSlider } from '@sima/neat-ui/slider';
 import { NeatSwitch } from '@sima/neat-ui/switch';
 import { NeatTab, NeatTabs } from '@sima/neat-ui/tabs';
@@ -51,6 +53,7 @@ import {
   type NeatTileState,
   NeatVideoTile,
 } from '@sima/neat-ui/video';
+import { DEMO_TREE, demoSize } from './demo-tree';
 import { TestPatternSource } from './test-pattern-source';
 
 const VARIANTS: NeatButtonVariant[] = ['primary', 'secondary', 'outlined', 'text', 'danger'];
@@ -61,6 +64,17 @@ const ICON_SIZES = [16, 20, 24] as const;
 const TOOLTIP_POSITIONS: NeatTooltipPosition[] = ['top', 'right', 'bottom', 'left'];
 const TILE_COUNT = 48;
 const PLACEHOLDER_TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);
+/** A channel of the select list's demo. */
+interface DemoChannel {
+  readonly id: number;
+  readonly name: string;
+  readonly state: 'Idle' | 'Live';
+}
+const DEMO_CHANNELS: readonly DemoChannel[] = Array.from({ length: 24 }, (_, index) => ({
+  id: index + 1,
+  name: `Channel ${index + 1}`,
+  state: index % 5 === 1 ? 'Live' : 'Idle',
+}));
 /** A demo choice for the segmented control; the kit's tiles are always 16:9. */
 type Shape = '16:9' | '1:1';
 
@@ -93,7 +107,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatButton,
     NeatDialogActions,
     NeatDialogBody,
+    NeatColumn,
     NeatDropZone,
+    NeatFileBrowser,
     NeatIcon,
     NeatInlineButton,
     NeatInput,
@@ -109,6 +125,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatProgress,
     NeatSegmented,
     NeatSelect,
+    NeatSelectList,
     NeatSlider,
     NeatSwitch,
     NeatTab,
@@ -838,6 +855,119 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
         </section>
 
         <section class="showcase-section">
+          <h2>Select list</h2>
+          <p class="showcase-muted">
+            <code>neat-select-list</code>: rows in columns that the app lays out with
+            <code>neatColumn</code> templates, one selected. It fills its container and scrolls its
+            rows under a header that stays put. Focus the list with Tab: Up and Down move the
+            selection, Home and End jump to the ends, Enter and a click tell <code>activated</code>.
+            A button in a row keeps its own keys and clicks (Tab reaches it after the list). With no
+            items it says why.
+          </p>
+          <div class="showcase-row list-row">
+            <div class="list-box">
+              <neat-select-list
+                label="Channels"
+                [items]="listChannels()"
+                [trackBy]="channelId"
+                [(selected)]="listChannel"
+                (activated)="listLog.set('Activated ' + $event.name)"
+              >
+                <ng-template neatColumn="name" header="Channel" let-channel>{{
+                  channel.name
+                }}</ng-template>
+                <ng-template neatColumn="state" header="State" width="6rem" let-channel>{{
+                  channel.state
+                }}</ng-template>
+                <ng-template neatColumn="action" width="4rem" let-channel>
+                  <button neatInlineButton type="button" (click)="toggleChannel(channel)">
+                    {{ channel.state === 'Live' ? 'Stop' : 'Start' }}
+                  </button>
+                </ng-template>
+              </neat-select-list>
+            </div>
+            <div class="list-box card">
+              <neat-select-list
+                label="Channels on a card"
+                [items]="listChannels()"
+                [trackBy]="channelId"
+                [(selected)]="listChannel"
+              >
+                <ng-template neatColumn="name" header="Channel" let-channel>{{
+                  channel.name
+                }}</ng-template>
+                <ng-template neatColumn="state" header="State" width="6rem" let-channel>{{
+                  channel.state
+                }}</ng-template>
+              </neat-select-list>
+            </div>
+            <div class="list-box list-box-short">
+              <neat-select-list
+                label="Cameras"
+                emptyLabel="No cameras enabled yet."
+                [items]="noChannels"
+                [trackBy]="channelId"
+              >
+                <ng-template neatColumn="name" let-channel>{{ channel.name }}</ng-template>
+              </neat-select-list>
+            </div>
+          </div>
+          <p class="showcase-code showcase-muted" aria-live="polite">
+            Selected: {{ listChannel()?.name ?? 'none' }}; {{ listLog() }}
+          </p>
+        </section>
+
+        <section class="showcase-section">
+          <h2>File browser</h2>
+          <p class="showcase-muted">
+            <code>neat-file-browser</code>: a tree of folders and files, with a breadcrumb, a count,
+            and a filter over the current folder and below that shows paths relative to it and
+            empties when you navigate. Folders list first, by name ignoring case, each with the
+            number of usable files in it. Click a folder or press Enter on it to open it; click a
+            crumb or press Backspace in the list to go up. The arrow keys move the selection, which
+            is a file (they leave it as it is while passing a folder). Greyed files can still be
+            selected. The second browser is in <code>manage</code> mode: a checkbox per file that
+            Space toggles from the keyboard (the boxes are not tab stops), and extra columns. The
+            <code>archive</code> folder has a thousand files.
+          </p>
+          <div class="showcase-row list-row">
+            <div class="browser-box">
+              <neat-file-browser
+                rootLabel="Media Root"
+                filterPlaceholder="Filter files…"
+                [root]="demoTree"
+                [(folder)]="pickFolder"
+                [(selected)]="pickSelected"
+              />
+            </div>
+            <div class="browser-box card">
+              <neat-file-browser
+                rootLabel="Media Root"
+                mode="manage"
+                filterPlaceholder="Filter files…"
+                [root]="demoTree"
+                [countLabel]="videoCount"
+                [labels]="manageLabels"
+                [(folder)]="manageFolder"
+                [(selected)]="manageSelected"
+                [(checked)]="manageChecked"
+              >
+                <ng-template neatColumn="type" header="Type" width="4rem" let-file>{{
+                  fileType(file.name)
+                }}</ng-template>
+                <ng-template neatColumn="size" header="Size" width="5.5rem" let-file>{{
+                  fileSize(file.path)
+                }}</ng-template>
+              </neat-file-browser>
+            </div>
+          </div>
+          <p class="showcase-code showcase-muted" aria-live="polite">
+            Picked: {{ pickSelected() ?? 'none' }} (in /{{ pickFolder() }}); managing: selected
+            {{ manageSelected() ?? 'none' }}, {{ manageChecked().length }} checked
+          </p>
+        </section>
+
+        <section class="showcase-section">
           <h2>Controls on a card</h2>
           <p class="showcase-muted">
             On the card surface, which differs from the page background in dark mode.
@@ -1050,6 +1180,24 @@ export class ComponentsPage {
   protected readonly assignResult = signal('dialog not opened yet');
   protected readonly progress = signal(40);
   protected readonly dropLog = signal<readonly string[]>([]);
+  protected readonly listChannels = signal<readonly DemoChannel[]>(DEMO_CHANNELS);
+  protected readonly noChannels: readonly DemoChannel[] = [];
+  protected readonly listChannel = signal<DemoChannel | null>(null);
+  protected readonly listLog = signal('nothing activated yet');
+  protected readonly channelId = (channel: DemoChannel) => channel.id;
+  protected readonly demoTree = DEMO_TREE;
+  protected readonly pickFolder = signal('');
+  protected readonly pickSelected = signal<string | null>(null);
+  protected readonly manageFolder = signal('clips');
+  protected readonly manageSelected = signal<string | null>(null);
+  protected readonly manageChecked = signal<readonly string[]>([]);
+  protected readonly manageLabels = {
+    selectFile: (path: string) => `Select ${path} for deletion`,
+  };
+  protected readonly videoCount = (_folder: string, count: number) =>
+    `${count} ${count === 1 ? 'video' : 'videos'}`;
+  protected readonly fileType = (name: string) => name.split('.').pop()!.toUpperCase();
+  protected readonly fileSize = demoSize;
   protected readonly confirmAnswer = signal('Not asked yet');
   private readonly confirm = inject(NeatConfirm);
   private readonly dialogs = inject(NeatDialog);
@@ -1092,6 +1240,16 @@ export class ComponentsPage {
     const highlighted = (index === null ? undefined : neatRoiNames(regions)[index]) ?? 'none';
     return `Regions: ${regions.length} (${count('inclusion')} inclusion, ${count('exclusion')} exclusion) · highlighted: ${highlighted}`;
   });
+
+  /** A new object per change, as a poll's answer would be: the rows are kept, their cells update. */
+  protected toggleChannel(channel: DemoChannel): void {
+    const state = channel.state === 'Live' ? 'Idle' : 'Live';
+    this.listChannels.update((channels) =>
+      channels.map((candidate) =>
+        candidate.id === channel.id ? { ...candidate, state } : candidate,
+      ),
+    );
+  }
 
   protected async askResetAll(): Promise<void> {
     const reset = await this.confirm.ask({

@@ -20,7 +20,10 @@ look happens in one place. Every rule here protects that.
     (`NeatSelect`, a labelled listbox combobox), `progress` (`NeatProgress`, which the toasts'
     bar is), `drop-zone` (`NeatDropZone`, files by drop or by the system's chooser), `dialog`
     (`NeatDialog`, the general modal dialog, with `neat-dialog-body` and `neat-dialog-actions`) and
-    `toast` (`NeatToasts` and `neat-toast-host`), each exporting that component and its types; and
+    `toast` (`NeatToasts` and `neat-toast-host`), `select-list` (`NeatSelectList`, a listbox of rows
+    in columns, with the `neatColumn` templates that lay them out) and `file-browser`
+    (`NeatFileBrowser`, a tree's breadcrumb, count, filter and rows, built on `select-list` and
+    `input`; `NeatFileNode` is its tree), each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
     sit in the tile's overlay layer. Public API is `projects/neat-ui/<name>/src/public-api.ts`; its
@@ -121,6 +124,18 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
 
   `NeatDropZone` hosts no brain primitive because brain has none for files: it is a native `button`
   plus a hidden file input, with its own drag handling, over the kit's tokens.
+
+  `NeatSelectList` and `NeatFileBrowser` own their behaviour too. Brain has no listbox on its own
+  (its select's list lives in a popover, and `command` is a palette), so the list owns its roles
+  and keys as `NeatSegmented` does: a `listbox` that holds the focus and names the selected row in
+  `aria-activedescendant`, with selection following focus. The file browser reuses the list for its
+  rows, since a folder row is a row that Enter or a click also opens (`activated`); what differs
+  is the browser's, not the list's: an arrow key onto a folder highlights it without changing
+  `selected` (which is a file's path), and Space and Backspace, which the list has no use for, are
+  handled on the list's host. The file browser's checkbox is a native input drawn from the theme's
+  tokens, not brain's checkbox: a thousand-file folder would be a thousand brain components. The
+  browser says nothing of its own that an app cannot replace (`labels`), and its tree helpers are
+  #170's media tree helpers (`file-tree.ts`, not exported).
 
   Three wrappers own their behaviour instead of hosting a brain primitive, each for a stated reason:
   - `NeatSwitch` is a native `button` with `role="switch"`: brain's switch is a component that

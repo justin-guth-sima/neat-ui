@@ -9,7 +9,9 @@ import {
   LucideChevronUp,
   LucideCpu,
   LucideEllipsis,
+  LucideFile,
   LucideFileText,
+  LucideFolder,
   LucideFolderOpen,
   LucideIcon,
   LucideInfo,
@@ -66,6 +68,8 @@ export const NEAT_ICONS = {
   more: LucideEllipsis,
   'fit-all': LucideMaximize2,
   upload: LucideUpload,
+  folder: LucideFolder,
+  file: LucideFile,
 } satisfies Record<string, LucideIcon>;
 
 export type NeatIconName = keyof typeof NEAT_ICONS;

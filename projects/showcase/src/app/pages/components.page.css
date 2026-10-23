@@ -172,3 +172,27 @@
   gap: var(--neat-space-3);
   max-width: 20rem;
 }
+
+/* A list fills its container, so the demos give it a size. */
+.list-row {
+  align-items: flex-start;
+}
+
+.list-box {
+  width: 22rem;
+  height: 16rem;
+}
+
+.list-box-short {
+  height: 6rem;
+}
+
+.browser-box {
+  width: 34rem;
+  height: 24rem;
+}
+
+.list-box.card,
+.browser-box.card {
+  box-sizing: border-box;
+}
