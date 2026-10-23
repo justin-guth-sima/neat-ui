@@ -207,10 +207,9 @@ describe('NeatSelect', () => {
   it('opens on ArrowDown into a listbox named by label, with one option per entry and the first enabled one active', async () => {
     const { trigger, settle } = await render();
 
-    const opened = press(trigger, 'ArrowDown');
+    press(trigger, 'ArrowDown');
     await settle();
 
-    expect(opened.defaultPrevented || trigger.getAttribute('aria-expanded') === 'true').toBe(true);
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
     expect(trigger.getAttribute('aria-controls')).toBe(listbox()!.id);
     expect(listbox()!.getAttribute('aria-label')).toBe('Source');
@@ -232,8 +231,9 @@ describe('NeatSelect', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
   });
 
-  it('keyboard: arrows move and wrap, skipping the disabled option; Home and End jump; Enter picks and closes', async () => {
+  it('keyboard: arrows move and wrap, skipping the disabled option; Home, End and the page keys jump; Enter picks and closes', async () => {
     const { host, trigger, settle, key } = await render();
+    trigger.focus();
     press(trigger, 'ArrowDown');
     await settle();
 
@@ -249,6 +249,10 @@ describe('NeatSelect', () => {
     expect(activeOption()).toBe('Front camera');
     await key('End');
     expect(activeOption()).toBe('USB camera');
+    await key('PageUp');
+    expect(activeOption()).toBe('Front camera');
+    await key('PageDown');
+    expect(activeOption()).toBe('USB camera');
 
     const enter = press(trigger, 'Enter');
     await settle();
@@ -258,9 +262,7 @@ describe('NeatSelect', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
     expect(trigger.textContent?.trim()).toBe('USB camera');
     expect(listbox()).toBeNull();
-    expect(document.activeElement === trigger || document.activeElement === document.body).toBe(
-      true,
-    );
+    expect(document.activeElement).toBe(trigger);
   });
 
   it('Space picks the active option while the list is open', async () => {
@@ -399,6 +401,18 @@ describe('NeatSelect', () => {
     host.disabled.set(false);
     await fixture.whenStable();
     expect(trigger.disabled).toBe(false);
+  });
+
+  it('a value that is not among the options shows the placeholder in the muted colour, not as a choice', async () => {
+    const { fixture, host, trigger } = await render((host) => host.source.set('gone'));
+    const value = trigger.querySelector('[data-slot="select-value"]')!;
+
+    expect(value.textContent?.trim()).toBe('Pick a source');
+    expect(value.classList).toContain('text-muted-foreground');
+
+    host.source.set('usb');
+    await fixture.whenStable();
+    expect(value.classList).not.toContain('text-muted-foreground');
   });
 
   it('an empty string is a value like any other, not "nothing picked"', async () => {

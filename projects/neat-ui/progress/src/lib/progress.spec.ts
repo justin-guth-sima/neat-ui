@@ -7,7 +7,7 @@ import helmProgress from '../../../src/lib/ui/progress/src/lib/hlm-progress.ts?s
 import helmIndicator from '../../../src/lib/ui/progress/src/lib/hlm-progress-indicator.ts?source' with {
   loader: 'text',
 };
-import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
+import { MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
 import { NeatProgress, PROGRESS_HELM_CLASSES } from './progress';
@@ -137,18 +137,27 @@ describe('NeatProgress', () => {
         }
       });
 
-      it(`${scheme}: with reduced motion the unknown state is a still bar that stays ${MIN_FILL_CONTRAST}:1 or more from the track`, async () => {
+      it(`${scheme}: with reduced motion the unknown state is still stripes of full-strength --primary on the track, which reach ${MIN_NON_TEXT_CONTRAST}:1 against the track and the surface`, async () => {
         const { track, fill } = await render(null);
         const classes = [...fill.classList];
         expect(classes).toContain('motion-reduce:animate-none');
+        // The fill is transparent between stripes of `--primary`; a gradient is no colour a
+        // utility's value resolves to, so the stripes' colour is read from the class itself.
+        expect(classes).toContain('motion-reduce:bg-transparent');
+        const stripes = classes.find((name) => name.startsWith('motion-reduce:bg-[repeating'))!;
+        expect(stripes).toContain('(135deg,var(--primary)_0_6px,transparent_6px_12px)');
+        expect(stripes).not.toMatch(/#|rgb|hsl/);
         for (const surface of SURFACES) {
           const under = tokens[surface];
           const rail = stateColor([...track.classList], 'bg', q(on()), under);
-          const bar = stateColor(classes, 'bg', q(on('motion-reduce')), rail);
           expect(
-            contrastRatio(bar, rail),
-            `${scheme}, still fill ${bar} on track ${rail}`,
-          ).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
+            contrastRatio(tokens['primary'], rail),
+            `${scheme}, stripes ${tokens['primary']} on track ${rail}`,
+          ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+          expect(
+            contrastRatio(tokens['primary'], under),
+            `${scheme}, stripes on --${surface}`,
+          ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
         }
       });
     }

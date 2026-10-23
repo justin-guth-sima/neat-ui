@@ -782,7 +782,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <p class="showcase-muted">
             <code>neat-progress</code>: a bar for work with a known share done (<code>value</code>,
             0 to 100) or without one (<code>null</code>: the bar moves on its own, and without
-            motion it is a still bar at half strength). <code>label</code> is the accessible name; a
+            motion it is a still bar of stripes). <code>label</code> is the accessible name; a
             screen reader reads the value when it reaches the bar but is not told of every change.
             The toasts' progress bar is this one.
           </p>
@@ -809,23 +809,32 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <p class="showcase-muted">
             <code>neat-drop-zone</code>: drop files on it, or click it (or press Enter or Space on
             it) for the system's file chooser. <code>files</code> emits what was dropped or chosen;
-            <code>accept</code> filters both, and <code>multiple</code> allows several. Files being
-            dragged over it light it up. Disabled, it ignores clicks and drops.
+            <code>accept</code> filters what is dropped, <code>multiple</code> allows several, and
+            <code>rejected</code> lists what was not taken (the first zone takes one video, so drop
+            a text file on it to see it). Files being dragged over it light it up. Disabled, it
+            ignores clicks and drops.
           </p>
           <div class="drop-demo">
             <neat-drop-zone
               label="Drop one video here, or click to choose"
               accept="video/*,.mkv"
-              (files)="dropped.set(describeFiles($event))"
+              (rejected)="logDrop('Not accepted', $event)"
+              (files)="logDrop('Received', $event)"
             />
             <neat-drop-zone
               label="Drop any files here, or click to choose"
               multiple
-              (files)="dropped.set(describeFiles($event))"
+              (files)="logDrop('Received', $event)"
             />
             <neat-drop-zone label="Uploads are paused" disabled />
           </div>
-          <p class="showcase-code showcase-muted" aria-live="polite">{{ dropped() }}</p>
+          <p class="showcase-code showcase-muted" aria-live="polite">
+            @for (line of dropLog(); track $index) {
+              {{ line }}<br />
+            } @empty {
+              Nothing dropped yet
+            }
+          </p>
         </section>
 
         <section class="showcase-section">
@@ -1040,7 +1049,7 @@ export class ComponentsPage {
   protected readonly dialogSource = signal<string | null>(null);
   protected readonly assignResult = signal('dialog not opened yet');
   protected readonly progress = signal(40);
-  protected readonly dropped = signal('Nothing dropped yet');
+  protected readonly dropLog = signal<readonly string[]>([]);
   protected readonly confirmAnswer = signal('Not asked yet');
   private readonly confirm = inject(NeatConfirm);
   private readonly dialogs = inject(NeatDialog);
@@ -1117,10 +1126,10 @@ export class ComponentsPage {
     );
   }
 
-  protected describeFiles(files: File[]): string {
-    return `Received ${files.length} ${files.length === 1 ? 'file' : 'files'}: ${files
-      .map((file) => file.name)
-      .join(', ')}`;
+  /** Newest first, as a log: a drop can report what it took and what it did not. */
+  protected logDrop(what: 'Received' | 'Not accepted', files: File[]): void {
+    const names = files.map((file) => file.name).join(', ');
+    this.dropLog.update((log) => [`${what}: ${names}`, ...log].slice(0, 4));
   }
 
   protected async openLong(content: TemplateRef<unknown>): Promise<void> {

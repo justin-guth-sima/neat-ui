@@ -55,10 +55,12 @@ function isAccepted(file: File, accept: string | undefined): boolean {
  * `label` is the visible text and the accessible name. The zone is a native button: Tab focuses
  * it, Enter and Space (like a click) open the chooser. `files` emits the files that were dropped
  * or chosen, as one array per drop or choice. `multiple` allows several; without it, only the
- * first file of a drop is taken. `accept` is the native attribute's list (`video/*,.mkv`); it
- * filters the chooser and also what is dropped, which the browser leaves unfiltered, and files it
- * does not allow are left out without a message, so say what is accepted in `label`. Nothing is
- * emitted when no file is left. While `disabled` it does not react to clicks, drags or drops.
+ * first file is taken. `accept` is the native attribute's list (`video/*,.mkv`); the chooser
+ * applies it itself, and the zone applies it to what is dropped, which the browser leaves
+ * unfiltered. `rejected` emits the dropped files that were not taken (not allowed by `accept`,
+ * or beyond the first without `multiple`), before `files` and even when `files` has nothing to
+ * emit, so the app can say what it did not take. While `disabled` it does not react to clicks,
+ * drags or drops.
  *
  * Files dragged over the zone light it up (`--primary` outline on an `--accent` tint). Only drags
  * that carry files do; text or a link dragged over it is ignored and the browser treats it as
@@ -111,8 +113,14 @@ export class NeatDropZone {
   /** The kinds of file to take, as the native `accept` attribute has it. */
   readonly accept = input<string>();
   readonly disabled = input(false, { transform: booleanAttribute });
-  /** The files that were dropped or chosen, once per drop or choice. */
+  /** The files that were dropped or chosen and taken, once per drop or choice. */
   readonly files = output<File[]>();
+  /**
+   * The dropped files that were left out, once per drop that left any out and before `files`:
+   * those `accept` does not allow, and the ones after the first when `multiple` is off. An app
+   * says why nothing (or not everything) was taken from this. Emitted even when `files` is not.
+   */
+  readonly rejected = output<File[]>();
 
   protected readonly zoneClasses: string = ZONE_CLASSES;
   protected readonly dragActive = signal(false);
@@ -146,18 +154,22 @@ export class NeatDropZone {
     this.dragActive.set(false);
     if (this.disabled() || !carriesFiles(event)) return;
     event.preventDefault();
-    this.emit(Array.from((event as DragEvent).dataTransfer!.files));
+    this.emit(Array.from((event as DragEvent).dataTransfer!.files), true);
   }
 
   protected chosen(chooser: HTMLInputElement): void {
     const files = Array.from(chooser.files ?? []);
     chooser.value = '';
-    if (!this.disabled()) this.emit(files);
+    // The chooser has applied `accept` itself, with the system's idea of a file's type, which a
+    // file's `type` in the browser can lack (an empty string for an extension with no MIME type).
+    if (!this.disabled()) this.emit(files, false);
   }
 
-  private emit(files: File[]): void {
-    const taken = files.filter((file) => isAccepted(file, this.accept()));
-    const kept = this.multiple() ? taken : taken.slice(0, 1);
+  private emit(files: File[], filter: boolean): void {
+    const allowed = filter ? files.filter((file) => isAccepted(file, this.accept())) : files;
+    const kept = this.multiple() ? allowed : allowed.slice(0, 1);
+    const rejected = files.filter((file) => !kept.includes(file));
+    if (rejected.length > 0) this.rejected.emit(rejected);
     if (kept.length > 0) this.files.emit(kept);
   }
 }

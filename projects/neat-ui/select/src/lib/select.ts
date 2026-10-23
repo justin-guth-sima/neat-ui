@@ -82,7 +82,8 @@ let nextSelectId = 0;
  * `label` is the accessible name of the select and of its list; `showLabel` also shows it above
  * the select, and a click on it opens the list. `options` are `{ value, label, disabled? }`; the
  * selected value is `value`, `null` while there is none, and the trigger shows the selected
- * option's label or, without one, `placeholder`. The select fills its container's width, and its
+ * option's label or, without one, `placeholder`; a value that is not among the options (a deleted
+ * file, options that load later) shows the placeholder as well, in its muted colour. The select fills its container's width, and its
  * list is as wide as the select.
  *
  * It follows the WAI-ARIA select-only combobox. On the trigger, Down, Up, Enter and Space open the
@@ -146,7 +147,11 @@ let nextSelectId = 0;
         [class]="triggerClasses"
         [attr.aria-label]="label()"
       >
-        <span data-slot="select-value">{{ selectedLabel() ?? placeholder() }}</span>
+        <span
+          data-slot="select-value"
+          [class.text-muted-foreground]="selectedLabel() === undefined"
+          >{{ selectedLabel() ?? placeholder() }}</span
+        >
         <neat-icon name="expand" [size]="16" [class]="triggerIconClasses" />
       </button>
       <ng-template brnPopoverContent>

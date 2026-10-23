@@ -30,7 +30,8 @@ const notes = new File(['z'], 'notes.txt', { type: 'text/plain' });
       [multiple]="multiple()"
       [accept]="accept()"
       [disabled]="disabled()"
-      (files)="received.push($event)"
+      (files)="received.push($event); order.push('files')"
+      (rejected)="turnedAway.push($event); order.push('rejected')"
     />
   `,
 })
@@ -39,6 +40,9 @@ class DropZoneHost {
   readonly accept = signal<string | undefined>(undefined);
   readonly disabled = signal(false);
   readonly received: File[][] = [];
+  readonly turnedAway: File[][] = [];
+  /** Which output fired, in order. */
+  readonly order: string[] = [];
 }
 
 /** jsdom has no DataTransfer or DragEvent data, so a drag event carries the part the zone reads. */
@@ -130,12 +134,13 @@ describe('NeatDropZone', () => {
       expect(over.dataTransfer.dropEffect).toBe('copy');
     });
 
-    it('takes only the first file unless multiple', async () => {
+    it('takes only the first file unless multiple, and reports the others as rejected', async () => {
       const { host, zone } = await render();
 
       zone.dispatchEvent(drag('drop', [clip, second]));
 
       expect(host.received).toEqual([[clip]]);
+      expect(host.turnedAway).toEqual([[second]]);
     });
 
     it('keeps only the files accept allows: by extension, case-insensitively, by MIME type and by type family', async () => {
@@ -147,10 +152,35 @@ describe('NeatDropZone', () => {
 
       zone.dispatchEvent(drag('drop', [notes, clip, second, png]));
       expect(host.received).toEqual([[clip, second, png]]);
+      expect(host.turnedAway).toEqual([[notes]]);
+    });
 
-      host.received.length = 0;
+    it('a drop with nothing acceptable emits rejected with every file and no files', async () => {
+      const { host, zone } = await render((host) => {
+        host.multiple.set(true);
+        host.accept.set('video/*');
+      });
+
       zone.dispatchEvent(drag('drop', [notes]));
+
       expect(host.received).toEqual([]);
+      expect(host.turnedAway).toEqual([[notes]]);
+    });
+
+    it('emits rejected before files, and not at all when every file was taken', async () => {
+      const { host, zone } = await render((host) => {
+        host.multiple.set(true);
+        host.accept.set('video/*');
+      });
+
+      zone.dispatchEvent(drag('drop', [notes, clip]));
+      expect(host.order).toEqual(['rejected', 'files']);
+
+      host.order.length = 0;
+      host.turnedAway.length = 0;
+      zone.dispatchEvent(drag('drop', [clip, second]));
+      expect(host.order).toEqual(['files']);
+      expect(host.turnedAway).toEqual([]);
     });
 
     it('a type family in accept matches every subtype', async () => {
@@ -164,13 +194,15 @@ describe('NeatDropZone', () => {
       expect(host.received).toEqual([[clip, second]]);
     });
 
-    it('applies accept to the chooser’s files too, which some systems let the user widen', async () => {
-      const { host, chooser } = await render((host) => host.accept.set('video/*'));
-      Object.defineProperty(chooser, 'files', { value: [notes], configurable: true });
+    it('trusts the chooser’s own accept: a chosen file the browser gives no type is taken', async () => {
+      const { host, chooser } = await render((host) => host.accept.set('video/*,.mkv'));
+      const untyped = new File(['t'], 'recording.ts', { type: '' });
+      Object.defineProperty(chooser, 'files', { value: [untyped], configurable: true });
 
       chooser.dispatchEvent(new Event('change'));
 
-      expect(host.received).toEqual([]);
+      expect(host.received).toEqual([[untyped]]);
+      expect(host.turnedAway).toEqual([]);
     });
 
     it('shows the drag state while files are over it, through children entering and leaving, and ends it on leave and on drop', async () => {
@@ -209,6 +241,7 @@ describe('NeatDropZone', () => {
       expect(zone.hasAttribute('data-drag-active')).toBe(false);
       expect(over.defaultPrevented).toBe(false);
       expect(host.received).toEqual([]);
+      expect(host.turnedAway).toEqual([]);
     });
   });
 
@@ -234,6 +267,7 @@ describe('NeatDropZone', () => {
       expect(zone.hasAttribute('data-drag-active')).toBe(false);
       expect(over.defaultPrevented).toBe(false);
       expect(host.received).toEqual([]);
+      expect(host.turnedAway).toEqual([]);
     });
 
     it('works again once enabled', async () => {

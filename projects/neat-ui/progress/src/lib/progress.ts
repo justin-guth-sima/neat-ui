@@ -25,10 +25,13 @@ const TRACK_CLASSES = hlm(PROGRESS_HELM_CLASSES.track, 'ring-1 ring-input');
 /**
  * Helm moves the fill with `animate-indeterminate` (a keyframes animation of the preset) while the
  * value is unknown. With reduced motion the segment would sit still and look like a bar stuck at
- * some value, so it is replaced by a full-width bar at half strength: pending, not partway.
+ * some value, so the fill becomes diagonal stripes of full-strength `--primary` over the track:
+ * neither empty, partway nor complete, and the same colour pair the determinate fill is held to
+ * at 3:1 against the track and the surface.
  */
-const INDETERMINATE_CLASSES =
-  'animate-indeterminate motion-reduce:animate-none motion-reduce:bg-primary/50';
+const STRIPE_CLASSES =
+  'motion-reduce:bg-transparent motion-reduce:bg-[repeating-linear-gradient(135deg,var(--primary)_0_6px,transparent_6px_12px)]';
+const INDETERMINATE_CLASSES = `animate-indeterminate motion-reduce:animate-none ${STRIPE_CLASSES}`;
 
 /**
  * A horizontal progress bar: `<neat-progress label="Uploading clip.mp4" [value]="percent" />`.
@@ -81,6 +84,10 @@ export class NeatProgress {
   protected readonly indicatorClasses = computed(() =>
     hlm(PROGRESS_HELM_CLASSES.indicator, this.shown() === null ? INDETERMINATE_CLASSES : ''),
   );
-  /** The fill is as wide as the track and pushed out of it by the part that is not done. */
+  /**
+   * The fill is as wide as the track and pushed out of it by the part that is not done. This and
+   * the unknown state's class switch re-implement helm's `HlmProgressIndicator`; the drift spec
+   * covers helm's class strings only, so a change to its logic needs a look at this by hand.
+   */
   protected readonly transform = computed(() => `translateX(-${100 - (this.shown() ?? 100)}%)`);
 }

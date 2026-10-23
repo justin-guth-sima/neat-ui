@@ -110,12 +110,18 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   toast host lands in every app's main bundle, so the kit's own, a small component on the CDK
   overlay, is the cheaper fit.
   `NeatSelect` and `NeatProgress` use brain's directives in their own template instead of as host
-  directives, each for a stated reason: brain's select finds its options by content query, which
-  only sees what is written inside its element in the template that uses it (options rendered by
-  a wrapper's own template are not content of the wrapper's host element), and brain's progress throws for a
-  value outside its range, so the kit's own input, held to the range, feeds it. `NeatSelect` also
-  handles Escape itself before the CDK's overlay dispatcher can: an open list closes and the key
-  stops there, so a dialog around the select keeps open.
+  directives, each for a stated reason:
+  - Brain's select finds its options by content query, which only sees what is written inside its
+    element in the template that uses it; options rendered by a wrapper's own template are not
+    content of the wrapper's host element. `NeatSelect` also handles Escape itself before the CDK's
+    overlay dispatcher can: an open list closes and the key stops there, so a dialog around the
+    select stays open.
+  - Brain's progress throws for a value outside its range, so the kit's own input, held to the
+    range, feeds it.
+
+  `NeatDropZone` hosts no brain primitive because brain has none for files: it is a native `button`
+  plus a hidden file input, with its own drag handling, over the kit's tokens.
+
   Three wrappers own their behaviour instead of hosting a brain primitive, each for a stated reason:
   - `NeatSwitch` is a native `button` with `role="switch"`: brain's switch is a component that
     renders its own button, so it cannot be a host directive.
@@ -124,6 +130,7 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   - `NeatPopoverTrigger` owns its ARIA and its click (`NeatPopover` itself hosts brain's popover):
     brain's trigger names the panel in `aria-controls` while it is closed, when no element has
     that id.
+
 - **Customise in this order: theme tokens, then wrapper inputs and classes, never helm.** Tokens
   come from `lib/theme/*.ts`; `npm run theme:emit` regenerates `tokens.generated.css`, and the theme
   spec checks the contrast of every text pair it emits. A wrapper overrides a helm class only where
