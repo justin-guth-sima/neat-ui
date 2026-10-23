@@ -12,20 +12,27 @@ class Host {
   readonly type = signal<NeatRoiPolygon['type']>('inclusion');
 }
 
+/** A colour as the DOM reports it back from a style (hex comes back as `rgb(…)`). */
+function asStyled(color: string): string {
+  const probe = document.createElement('span');
+  probe.style.backgroundColor = color;
+  return probe.style.backgroundColor;
+}
+
 describe('NeatRoiSwatch', () => {
   it("neat-roi-swatch draws the type's stroke colour and is hidden from assistive technology", async () => {
     const fixture = TestBed.createComponent(Host);
     await fixture.whenStable();
     const swatch: HTMLElement = fixture.nativeElement.querySelector('neat-roi-swatch');
 
-    expect(swatch.style.backgroundColor).toBe(OVERLAY_ROI_COLORS.inclusion.stroke);
+    expect(swatch.style.backgroundColor).toBe(asStyled(OVERLAY_ROI_COLORS.inclusion.stroke));
     expect(swatch.getAttribute('aria-hidden')).toBe('true');
     expect(swatch.textContent).toBe('');
 
     fixture.componentInstance.type.set('exclusion');
     await fixture.whenStable();
 
-    expect(swatch.style.backgroundColor).toBe(OVERLAY_ROI_COLORS.exclusion.stroke);
+    expect(swatch.style.backgroundColor).toBe(asStyled(OVERLAY_ROI_COLORS.exclusion.stroke));
   });
 
   it('is a round dot that keeps its size in a flex row', async () => {
