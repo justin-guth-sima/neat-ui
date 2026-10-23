@@ -48,6 +48,7 @@ const TREE: readonly NeatFileNode[] = [
       [(folder)]="folder"
       [(selected)]="selected"
       [(checked)]="checked"
+      [(filter)]="filter"
     >
       @if (withColumn()) {
         <ng-template neatColumn="type" header="Type" width="4rem" let-file>{{
@@ -65,6 +66,7 @@ class BrowserHost {
   readonly folder = signal('');
   readonly selected = signal<string | null>(null);
   readonly checked = signal<readonly string[]>([]);
+  readonly filter = signal('');
 }
 
 @Component({
@@ -156,6 +158,31 @@ describe('NeatFileBrowser', () => {
 
       expect(options()[1].textContent).toContain('Folder');
       expect(options()[4].textContent).not.toContain('Folder');
+    });
+
+    it('says what a folder’s count means: to a screen reader after the name, and as a tooltip', async () => {
+      const { row } = await render();
+      const folder = row('30FPS');
+
+      expect(folder.textContent).toContain('3 files in 30FPS and its subfolders');
+      expect(folder.querySelector('.tabular-nums')!.getAttribute('title')).toBe(
+        '3 files in 30FPS and its subfolders',
+      );
+      expect(folder.querySelector('.tabular-nums')!.getAttribute('aria-hidden')).toBe('true');
+      expect(row('empty').textContent).toContain('0 files in empty and its subfolders');
+    });
+
+    it('describes the list to a screen reader in manage mode only: how to check a file', async () => {
+      const { listbox, element, host, fixture } = await render();
+      expect(listbox().hasAttribute('aria-describedby')).toBe(false);
+
+      host.mode.set('manage');
+      await fixture.whenStable();
+
+      const id = listbox().getAttribute('aria-describedby')!;
+      expect(element.querySelector(`#${id}`)!.textContent).toBe(
+        'Press Space to check or uncheck the file.',
+      );
     });
 
     it('is a listbox named by labels.files', async () => {
@@ -403,6 +430,154 @@ describe('NeatFileBrowser', () => {
     });
   });
 
+  describe('the focus and the scroll position on navigation', () => {
+    /** The browser attached to the document, so that focus is real. */
+    async function attached(setup: (host: BrowserHost) => void = () => undefined) {
+      const view = await render(setup);
+      document.body.append(view.fixture.nativeElement);
+      return view;
+    }
+    const scrollerOf = (element: HTMLElement) =>
+      element.querySelector<HTMLElement>('neat-select-list .overflow-y-auto')!;
+
+    afterEach(() => {
+      document.body.replaceChildren();
+    });
+
+    it('moves the focus to the list when a breadcrumb is pressed, which turns it into text', async () => {
+      const { element, listbox, settle, host } = await attached((host) =>
+        host.folder.set('30FPS/indoor'),
+      );
+      const crumb = element.querySelectorAll<HTMLElement>('nav button')[1];
+      crumb.focus();
+      expect(document.activeElement).toBe(crumb);
+
+      crumb.click();
+      await settle();
+
+      expect(host.folder()).toBe('30FPS');
+      expect(element.contains(crumb)).toBe(false);
+      expect(document.activeElement).toBe(listbox());
+    });
+
+    it('does the same for the root crumb, and for a click on a folder row', async () => {
+      const { element, listbox, settle, click } = await attached((host) =>
+        host.folder.set('30FPS'),
+      );
+      const crumb = element.querySelector<HTMLElement>('nav button')!;
+      crumb.focus();
+      crumb.click();
+      await settle();
+      expect(document.activeElement).toBe(listbox());
+
+      await click('30FPS');
+      expect(document.activeElement).toBe(listbox());
+    });
+
+    it('highlights the folder just left after going up by a breadcrumb or Backspace', async () => {
+      const { element, row, press, settle } = await attached((host) =>
+        host.folder.set('30FPS/indoor/cam-a'),
+      );
+
+      element.querySelectorAll<HTMLElement>('nav button')[1].click();
+      await settle();
+      expect(row('indoor').getAttribute('aria-selected')).toBe('true');
+
+      await press('Backspace');
+      expect(row('30FPS').getAttribute('aria-selected')).toBe('true');
+    });
+
+    it('does not highlight anything on opening a folder', async () => {
+      const { click, options } = await attached();
+
+      await click('30FPS');
+
+      expect(options().some((o) => o.getAttribute('aria-selected') === 'true')).toBe(false);
+    });
+
+    it('scrolls the list into view on the folder just left', async () => {
+      const { element, settle } = await attached((host) => host.folder.set('30FPS/indoor'));
+      const scrolled: Element[] = [];
+      Element.prototype.scrollIntoView = vi.fn(function (this: Element) {
+        scrolled.push(this);
+      });
+
+      element.querySelector<HTMLElement>('nav button')!.click();
+      await settle();
+
+      expect(scrolled.map((o) => o.querySelector('.truncate')?.textContent)).toContain('30FPS');
+    });
+
+    it('opens a folder at the top, not at the previous listing’s offset', async () => {
+      const { element, click, settle } = await attached();
+      const scroller = scrollerOf(element);
+      scroller.scrollTop = 180;
+
+      await click('30FPS');
+      await settle();
+
+      expect(scroller.scrollTop).toBe(0);
+    });
+
+    it('returns to the top when the filter changes, too', async () => {
+      const { element, type } = await attached();
+      const scroller = scrollerOf(element);
+      scroller.scrollTop = 180;
+
+      await type('mp4');
+
+      expect(scroller.scrollTop).toBe(0);
+    });
+
+    it('keeps the offset when only the selection changes', async () => {
+      const { element, press, settle } = await attached();
+      const scroller = scrollerOf(element);
+      scroller.scrollTop = 180;
+
+      await press('ArrowDown');
+      await settle();
+
+      expect(scroller.scrollTop).toBe(180);
+    });
+  });
+
+  describe('the filter as a model', () => {
+    it('is what the field shows, and what an app sets', async () => {
+      const { host, fixture, names, filter } = await render((host) => host.folder.set('30FPS'));
+
+      host.filter.set('lobby');
+      await fixture.whenStable();
+
+      expect(filter().value).toBe('lobby');
+      expect(names()).toEqual(['indoor/lobby.mp4']);
+    });
+
+    it('follows typing, so an app can tell whether a filter is active', async () => {
+      const { host, type } = await render();
+      expect(host.filter()).toBe('');
+
+      await type('mp4');
+      expect(host.filter()).toBe('mp4');
+    });
+
+    it('is emptied, in the model too, when the folder changes', async () => {
+      const { host, type, settle, filter } = await render();
+      await type('indoor');
+
+      host.folder.set('30FPS');
+      await settle();
+
+      expect(host.filter()).toBe('');
+      expect(filter().value).toBe('');
+    });
+
+    it('keeps a filter the app gave before any navigation', async () => {
+      const { names } = await render((host) => host.filter.set('video'));
+
+      expect(names()).toEqual(['video.mp4']);
+    });
+  });
+
   describe('selecting', () => {
     it('selects a file with a click in pick mode, and has no checkboxes', async () => {
       const { click, host, row, element } = await render();
@@ -569,12 +744,14 @@ describe('NeatFileBrowser', () => {
       expect(host.folder()).toBe('');
     });
 
-    it('leaves Space alone in pick mode', async () => {
+    it('checks nothing on Space in pick mode', async () => {
       const { press, host } = await render();
       await press('End');
 
-      expect((await press(' ')).defaultPrevented).toBe(false);
+      await press(' ');
+
       expect(host.checked()).toEqual([]);
+      expect(host.selected()).toBe('video.mp4');
     });
 
     it('gives each box a name from labels.selectFile, and says a checked file is checked', async () => {

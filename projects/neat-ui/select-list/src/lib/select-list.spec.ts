@@ -332,6 +332,19 @@ describe('NeatSelectList', () => {
       expect(host.activated).toEqual([]);
     });
 
+    it('keeps Space from scrolling the area, and does nothing else with it', async () => {
+      const { host, fixture, listbox } = await render();
+      host.selected.set(SLOTS[1]);
+      await fixture.whenStable();
+
+      expect(press(listbox(), ' ').defaultPrevented).toBe(true);
+      expect(host.selected()).toBe(SLOTS[1]);
+      expect(host.activated).toEqual([]);
+
+      const button = fixture.nativeElement.querySelector('button') as HTMLElement;
+      expect(press(button, ' ').defaultPrevented).toBe(false);
+    });
+
     it('ignores arrow keys with a modifier, which belong to the browser and the system', async () => {
       const { host, listbox } = await render();
 
@@ -361,6 +374,82 @@ describe('NeatSelectList', () => {
 
       expect(document.activeElement).toBe(listbox());
       fixture.nativeElement.remove();
+    });
+  });
+
+  describe('scrolling back', () => {
+    const listOf = (fixture: { debugElement: { children: { componentInstance: unknown }[] } }) =>
+      fixture.debugElement.children[0].componentInstance as NeatSelectList<Slot>;
+
+    it('resetScroll returns the scrolling area to the top', async () => {
+      const { fixture, list } = await render();
+      const scroller = list.querySelector<HTMLElement>('.overflow-y-auto')!;
+      scroller.scrollTop = 120;
+      expect(scroller.scrollTop).toBe(120);
+
+      listOf(fixture).resetScroll();
+
+      expect(scroller.scrollTop).toBe(0);
+    });
+
+    it('resetScroll then brings the selected row into view, wherever it is', async () => {
+      const { fixture, host, options } = await render();
+      host.selected.set(SLOTS[3]);
+      await fixture.whenStable();
+      scrolled.length = 0;
+
+      listOf(fixture).resetScroll();
+
+      expect(scrolled).toEqual([options()[3]]);
+    });
+
+    it('resetScroll leaves nothing to reveal when no row is selected', async () => {
+      const { fixture } = await render();
+      scrolled.length = 0;
+
+      listOf(fixture).resetScroll();
+
+      expect(scrolled).toEqual([]);
+    });
+  });
+
+  describe('description', () => {
+    it('hint describes the listbox, with the empty message, and is not shown', async () => {
+      @Component({
+        imports: [NeatSelectList, NeatColumn],
+        template: `
+          <neat-select-list
+            label="Files"
+            hint="Press Space to check."
+            emptyLabel="None."
+            [items]="[]"
+            [trackBy]="id"
+          >
+            <ng-template neatColumn="n" let-n>{{ n }}</ng-template>
+          </neat-select-list>
+        `,
+      })
+      class HintHost {
+        readonly id = (n: number) => n;
+      }
+      const fixture = TestBed.createComponent(HintHost);
+      await fixture.whenStable();
+      const el: HTMLElement = fixture.nativeElement;
+      const ids = el
+        .querySelector('[role="listbox"]')!
+        .getAttribute('aria-describedby')!
+        .split(' ');
+
+      expect(ids.map((id) => el.querySelector(`#${id}`)!.textContent!.trim())).toEqual([
+        'None.',
+        'Press Space to check.',
+      ]);
+      expect(el.querySelector(`#${ids[1]}`)!.classList).toContain('sr-only');
+    });
+
+    it('has no description by default', async () => {
+      const { listbox } = await render();
+      expect(listbox().hasAttribute('aria-describedby')).toBe(false);
     });
   });
 

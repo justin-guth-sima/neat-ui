@@ -118,6 +118,8 @@ let nextListId = 0;
  * rows read as the text of their cells in order, as a listbox's options do (a listbox cannot
  * name its columns).
  *
+ * `hint` is read as the listbox's description, for keys the app adds on top of these.
+ *
  * Typing a letter to jump to a row, Page Up and Page Down, a selection of several rows and a
  * disabled row are not offered; none is needed yet.
  */
@@ -139,7 +141,10 @@ let nextListId = 0;
         </div>
       </div>
     }
-    <div [class]="scrollerClasses">
+    <div #scroller [class]="scrollerClasses">
+      @if (hint()) {
+        <span class="sr-only" [id]="hintId">{{ hint() }}</span>
+      }
       <div
         #listbox
         role="listbox"
@@ -147,7 +152,7 @@ let nextListId = 0;
         class="outline-none"
         [attr.aria-label]="label()"
         [attr.aria-activedescendant]="activeId()"
-        [attr.aria-describedby]="isEmpty() ? emptyId : null"
+        [attr.aria-describedby]="describedBy()"
         (keydown)="onKeydown($event)"
         (click)="onClick($event)"
       >
@@ -191,6 +196,11 @@ export class NeatSelectList<T> {
   readonly selected = model<T | null>(null);
   /** What to say, in place of rows, while there are no items. */
   readonly emptyLabel = input('');
+  /**
+   * Text for assistive technology that says what the keys do beyond the listbox's own, such as
+   * "Press Space to check a file"; it describes the listbox, and is not shown.
+   */
+  readonly hint = input('');
   /** The item of the row that was clicked or that had Enter pressed on it. */
   readonly activated = output<T>();
 
@@ -201,9 +211,11 @@ export class NeatSelectList<T> {
 
   private readonly id = ++nextListId;
   protected readonly emptyId = `neat-select-list-${this.id}-empty`;
+  protected readonly hintId = `neat-select-list-${this.id}-hint`;
 
   protected readonly columns = contentChildren(NeatColumn, { descendants: true });
   private readonly listbox = viewChild.required<ElementRef<HTMLElement>>('listbox');
+  private readonly scroller = viewChild.required<ElementRef<HTMLElement>>('scroller');
 
   protected readonly hasHeader = computed(() => this.columns().some((column) => column.header()));
   protected readonly gridColumns = computed(() =>
@@ -227,6 +239,12 @@ export class NeatSelectList<T> {
   });
 
   protected readonly isEmpty = computed(() => this.rows().length === 0 && !!this.emptyLabel());
+  protected readonly describedBy = computed(
+    () =>
+      [this.isEmpty() ? this.emptyId : '', this.hint() ? this.hintId : '']
+        .filter(Boolean)
+        .join(' ') || null,
+  );
 
   protected readonly selectedKey = computed(() => {
     const selected = this.selected();
@@ -242,18 +260,31 @@ export class NeatSelectList<T> {
   private revealed: unknown = NONE;
 
   constructor() {
-    afterRenderEffect(() => {
-      const index = this.selectedIndex();
-      if (index < 0) {
-        this.revealed = NONE;
-        return;
-      }
-      const key = this.rows()[index].key;
-      if (key === this.revealed) return;
-      this.revealed = key;
-      // The rows are the listbox's only children. jsdom has no scrollIntoView.
-      this.listbox().nativeElement.children[index]?.scrollIntoView?.({ block: 'nearest' });
-    });
+    afterRenderEffect(() => this.revealSelected());
+  }
+
+  /** Scrolls the selected row into view unless that row was the last one scrolled to. */
+  private revealSelected(): void {
+    const index = this.selectedIndex();
+    if (index < 0) {
+      this.revealed = NONE;
+      return;
+    }
+    const key = this.rows()[index].key;
+    if (key === this.revealed) return;
+    this.revealed = key;
+    // The rows are the listbox's only children. jsdom has no scrollIntoView.
+    this.listbox().nativeElement.children[index]?.scrollIntoView?.({ block: 'nearest' });
+  }
+
+  /**
+   * Scrolls back to the top, as a different set of rows (another folder) needs, or to the selected
+   * row when there is one in the list. Call it once the new rows are rendered.
+   */
+  resetScroll(): void {
+    this.scroller().nativeElement.scrollTop = 0;
+    this.revealed = NONE;
+    this.revealSelected();
   }
 
   /** Puts the keyboard focus on the list, where the arrow keys work. */
@@ -265,6 +296,8 @@ export class NeatSelectList<T> {
     // A key pressed on a control in a cell bubbles up to here; it is the control's.
     if (event.target !== event.currentTarget) return;
     if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) return;
+    // Space has no job in a list that selects with the arrow keys, but it would scroll the area.
+    if (event.key === ' ') event.preventDefault();
     const rows = this.rows();
     if (rows.length === 0) return;
     if (event.key === 'Enter') {

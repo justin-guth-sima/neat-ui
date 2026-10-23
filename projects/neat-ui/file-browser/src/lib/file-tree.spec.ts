@@ -2,6 +2,7 @@ import {
   allFilePaths,
   breadcrumbs,
   childrenAt,
+  childTowards,
   enabledFilePaths,
   listFolder,
   nearestExistingFolder,
@@ -11,11 +12,13 @@ import {
   searchFolder,
 } from './file-tree';
 
-// These are #170's mediaTree tests (Inv-SM §5) with the kit's tree: a file the app cannot use is
-// `disabled` where #170 said it was not `streamable`, a folder's count is computed here rather than
-// sent by the server, and folder names carry no leading slash. The expectations are #170's.
-// What #170 tested about hiding those files (`streamableOnly`, `hidden`) is gone with the feature:
-// the kit greys a disabled file and the app leaves out what it must not offer.
+// These are the tree tests of the media browser the kit's was extracted from, with the kit's tree:
+// a file the app cannot use is `disabled` where the original said it was not `streamable`, a
+// folder's count is computed here rather than sent by the server, and folder names carry no leading
+// slash. The expectations are the original's. Its `streamableOnly` and `hidden` (which hid those
+// files and counted them) live on as the listing's `disabled` flags: the kit never hides, so an
+// app that must not offer a file leaves it out of the tree and counts what it left out itself
+// (the tests below read the flags the way that app would).
 const file = (path: string, enabled = true): NeatFileNode => ({
   name: path.split('/').pop()!,
   path,
@@ -78,6 +81,22 @@ describe('listFolder', () => {
     expect(listFolder(tree, 'nope')).toEqual({ folders: [], files: [] });
   });
 
+  it('flags the files that cannot be used, so an app can offer only the others and count the rest', () => {
+    const enabled = (files: readonly NeatFileNode[]) => files.filter((f) => !f.disabled);
+    const hidden = (files: readonly NeatFileNode[]) => files.length - enabled(files).length;
+
+    const root = listFolder(tree, '');
+    expect(enabled(root.files).map((f) => f.path)).toEqual(['video.mp4']);
+    expect(hidden(root.files)).toBe(1);
+
+    const indoor = listFolder(tree, '30FPS/indoor');
+    expect(enabled(indoor.files).map((f) => f.name)).toEqual(['lobby.mp4']);
+    expect(hidden(indoor.files)).toBe(1);
+
+    expect(enabled([])).toEqual([]);
+    expect(hidden(listFolder(tree, 'nope').files)).toBe(0);
+  });
+
   it('sorts folders and files by name, ignoring case, whatever order the tree has', () => {
     const shuffled = [
       file('b.mp4'),
@@ -95,7 +114,7 @@ describe('listFolder', () => {
 
 describe('playableCount', () => {
   it('counts the usable files in a folder and all its subfolders, like a folder badge', () => {
-    // Owner review (O6): the line under the breadcrumb and the folder badges count the same thing.
+    // The line under the breadcrumb and the folder badges count the same thing.
     expect(playableCount(tree, '')).toBe(5);
     expect(playableCount(tree, '30FPS')).toBe(3);
     expect(playableCount(tree, '30FPS/indoor')).toBe(2);
@@ -117,6 +136,22 @@ describe('breadcrumbs', () => {
     ]);
     expect(breadcrumbs('30FPS/indoor', 'Library').at(-1)!.name).toBe('indoor');
     expect(breadcrumbs('30FPS', 'Library')[0].name).toBe('Library');
+  });
+});
+
+describe('childTowards', () => {
+  it('names the folder just below an ancestor on the way to a descendant', () => {
+    expect(childTowards('30FPS/indoor/cam-a', '')).toBe('30FPS');
+    expect(childTowards('30FPS/indoor/cam-a', '30FPS')).toBe('30FPS/indoor');
+    expect(childTowards('30FPS/indoor/cam-a', '30FPS/indoor')).toBe('30FPS/indoor/cam-a');
+  });
+
+  it('is null for the same folder, a folder that is not below, and a name that merely starts alike', () => {
+    expect(childTowards('30FPS', '30FPS')).toBeNull();
+    expect(childTowards('30FPS', '30FPS/indoor')).toBeNull();
+    expect(childTowards('120FPS', '30FPS')).toBeNull();
+    expect(childTowards('30FPS-old/x', '30FPS')).toBeNull();
+    expect(childTowards('', '')).toBeNull();
   });
 });
 

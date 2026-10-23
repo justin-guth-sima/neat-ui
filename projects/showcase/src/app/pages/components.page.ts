@@ -951,6 +951,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
                 [(folder)]="manageFolder"
                 [(selected)]="manageSelected"
                 [(checked)]="manageChecked"
+                [(filter)]="manageFilter"
               >
                 <ng-template neatColumn="type" header="Type" width="4rem" let-file>{{
                   fileType(file.name)
@@ -963,7 +964,8 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           </div>
           <p class="showcase-code showcase-muted" aria-live="polite">
             Picked: {{ pickSelected() ?? 'none' }} (in /{{ pickFolder() }}); managing: selected
-            {{ manageSelected() ?? 'none' }}, {{ manageChecked().length }} checked
+            {{ manageSelected() ?? 'none' }}, {{ manageChecked().length }} checked, filter
+            {{ manageFilter() ? '“' + manageFilter() + '”' : 'empty' }}
           </p>
         </section>
 
@@ -1191,6 +1193,7 @@ export class ComponentsPage {
   protected readonly manageFolder = signal('clips');
   protected readonly manageSelected = signal<string | null>(null);
   protected readonly manageChecked = signal<readonly string[]>([]);
+  protected readonly manageFilter = signal('');
   protected readonly manageLabels = {
     selectFile: (path: string) => `Select ${path} for deletion`,
   };

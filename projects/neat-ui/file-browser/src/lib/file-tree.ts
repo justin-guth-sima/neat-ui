@@ -1,7 +1,8 @@
 /*
  * The pure helpers behind the file browser: they read a tree of `NeatFileNode`s and know nothing
- * of the UI. They are #170's media tree helpers (issue #113) in the kit's vocabulary. A folder is
- * named by its path, relative and with `/` between the segments; '' is the root.
+ * of the UI. They are the helpers of the media browser the kit's was extracted from, in the kit's
+ * vocabulary. A folder is named by its path, relative and with `/` between the segments; '' is the
+ * root.
  */
 
 /** One entry of the tree a `neat-file-browser` shows: a folder with its children, or a file. */
@@ -39,8 +40,12 @@ export interface FileMatch {
 
 export const ROOT = '';
 
-/** Names and paths sort without regard to case, as a person looks for them. */
-const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
+/**
+ * Names and paths sort without regard to case, as a person looks for them. The locale is fixed so
+ * that the order does not depend on the browser's: punctuation, digits and accents sort the same
+ * everywhere (and not as a server's `lower()` would).
+ */
+const collator = new Intl.Collator('en', { sensitivity: 'base' });
 
 const byName = (a: NeatFileNode, b: NeatFileNode): number => collator.compare(a.name, b.name);
 
@@ -112,7 +117,8 @@ export function breadcrumbs(
 
 /**
  * Every file anywhere below `folderPath`, enabled or not, whose path relative to that folder
- * contains `query` without regard to case, by relative path. `relative` is what the list shows;
+ * contains `query` without regard to case, sorted by relative path (the tree's own order, which
+ * the listing sorts too, would put a subfolder's files among the folder's). `relative` is what the list shows;
  * the node's `path` is the one to act on.
  */
 export function searchFolder(
@@ -144,6 +150,17 @@ export function nearestExistingFolder(tree: readonly NeatFileNode[], folderPath:
   let candidate = folderPath || ROOT;
   while (candidate && !folderExists(tree, candidate)) candidate = parentPath(candidate);
   return candidate;
+}
+
+/**
+ * The folder just below `ancestor` on the way to `descendant`, or null when `descendant` is not
+ * below `ancestor`: where the user came from when going up.
+ */
+export function childTowards(descendant: string, ancestor: string): string | null {
+  if (descendant === ancestor) return null;
+  const prefix = ancestor ? `${ancestor}/` : '';
+  if (!descendant.startsWith(prefix)) return null;
+  return `${prefix}${descendant.slice(prefix.length).split('/')[0]}`;
 }
 
 /** Every enabled file's path in tree order. */

@@ -135,7 +135,16 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   handled on the list's host. The file browser's checkbox is a native input drawn from the theme's
   tokens, not brain's checkbox: a thousand-file folder would be a thousand brain components. The
   browser says nothing of its own that an app cannot replace (`labels`), and its tree helpers are
-  #170's media tree helpers (`file-tree.ts`, not exported).
+  the helpers of the media browser it was extracted from (`file-tree.ts`, not exported). `filter`
+  is a model so that an app can show a note about its folder (how many files it left out) only
+  while no filter is active; the kit never hides a file itself.
+
+  A listbox's options have presentational children, so a checkbox or a button in a row is not
+  strictly valid ARIA. The compromise is deliberate and holds only as long as the row's controls
+  are pointer conveniences: the file checkbox is not a tab stop, its state is spoken as text
+  ("Checked") and Space does its job from the keyboard (described by `labels.checkHint`). A cell
+  button that is a tab stop needs an `aria-label` naming its row; if every row's controls must be
+  keyboard-reachable on their own, the list should become a grid.
 
   Three wrappers own their behaviour instead of hosting a brain primitive, each for a stated reason:
   - `NeatSwitch` is a native `button` with `role="switch"`: brain's switch is a component that

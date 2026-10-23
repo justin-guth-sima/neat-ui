@@ -1,9 +1,11 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
+  afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
   computed,
   contentChildren,
+  Directive,
   effect,
   input,
   linkedSignal,
@@ -17,6 +19,7 @@ import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
 import {
   allFilePaths,
   breadcrumbs,
+  childTowards,
   listFolder,
   type NeatFileNode,
   nearestExistingFolder,
@@ -47,6 +50,10 @@ export interface NeatFileBrowserLabels {
   readonly folder: string;
   /** Read before the name of a checked file. */
   readonly checked: string;
+  /** What a folder's count means, read after the folder's name and shown as its tooltip. */
+  readonly folderCount: (folder: string, count: number) => string;
+  /** Describes the list in `manage` mode: how to check a file from the keyboard. */
+  readonly checkHint: string;
   /** The accessible name of a file's checkbox. */
   readonly selectFile: (path: string) => string;
   /** The count while a filter is active: its matches, below the named folder. */
@@ -65,6 +72,9 @@ const DEFAULT_LABELS: NeatFileBrowserLabels = {
   noMatches: 'No files match the filter.',
   folder: 'Folder',
   checked: 'Checked',
+  folderCount: (folder, count) =>
+    `${plural(count, 'file', 'files')} in ${folder} and its subfolders`,
+  checkHint: 'Press Space to check or uncheck the file.',
   selectFile: (path) => `Select ${path}`,
   matches: (folder, count) => `${plural(count, 'match', 'matches')} in ${folder}`,
 };
@@ -78,6 +88,8 @@ interface BrowserRow {
   readonly label: string;
   /** A folder's enabled files, in it and below; null for a file. */
   readonly count: number | null;
+  /** What a folder's count means, in words. */
+  readonly countLabel: string;
   /** The checkbox's accessible name, for a file in `manage` mode. */
   readonly checkLabel: string;
   /** What the app's column templates get for a file. */
@@ -92,6 +104,22 @@ interface BrowserRow {
  */
 const CHECKBOX_CLASSES =
   'size-4 cursor-pointer appearance-none rounded-sm border border-input bg-transparent outline-none checked:border-primary checked:bg-primary focus-visible:ring-3 focus-visible:ring-ring';
+
+/**
+ * Types the `let-row` of the browser's own column templates as a `BrowserRow`, so that a mistyped
+ * property fails the template check. It adds nothing at run time.
+ */
+@Directive({ selector: 'ng-template[neatFileRow]' })
+class FileRowContext {
+  // The parameter is the guard's subject: Angular reads the type predicate, nothing calls it.
+  static ngTemplateContextGuard(
+    _directive: FileRowContext,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    context: unknown,
+  ): context is { $implicit: BrowserRow } {
+    return true;
+  }
+}
 
 const rowPath = (row: BrowserRow): string => row.node.path;
 
@@ -111,10 +139,13 @@ const rowPath = (row: BrowserRow): string => row.node.path;
  *
  * - **Filter.** Typing lists every file below the current folder whose path, relative to it,
  *   contains the text, ignoring case; the rows show those relative paths, and the count says how
- *   many matched. Navigating, by any means, empties the filter.
+ *   many matched. Navigating, by any means, empties the filter. `filter` is a model, so the app can
+ *   read it (a note under the list about what the folder leaves out should show only while it is
+ *   empty) and set it.
  * - **Navigating.** A click, or Enter on the row the keyboard is on, opens a folder; a click on a
  *   breadcrumb, or Backspace in the list, goes up. When the folder is gone from `root` (after a
- *   reload), `folder` becomes its nearest ancestor that exists. Pass `root` once it is loaded: an
+ *   reload), `folder` becomes its nearest ancestor that exists. The list takes the focus after any
+ *   navigation, and going up highlights the folder just left; every listing starts at the top. Pass `root` once it is loaded: an
  *   empty tree has no folders, so the browser goes back to the root.
  * - **Selecting.** `selected` is a file's path. Moving the list's selection with the arrow keys
  *   onto a file selects it, as a click does; onto a folder leaves `selected` as it is (the
@@ -122,8 +153,9 @@ const rowPath = (row: BrowserRow): string => row.node.path;
  *   selected file in another folder stays selected. The list's keys are `neat-select-list`'s.
  * - **`manage` mode** adds a checkbox to each file, for the paths in `checked`. A click on the box
  *   toggles it and nothing else. From the keyboard, Space toggles the file the list is on; the
- *   boxes are not tab stops, so the arrow keys keep moving the selection. Paths that are no
- *   longer in `root` leave `checked`.
+ *   boxes are not tab stops, so the arrow keys keep moving the selection (`labels.checkHint`
+ *   tells a screen reader). Paths that are no longer in `root` leave `checked`; `selected` is not
+ *   pruned, since an app may select a file before the tree that holds it has loaded.
  * - **Disabled and tagged nodes** are greyed (`disabled`) and carry their `tag` after the name;
  *   they can still be selected, opened and checked.
  * - **Columns.** `neatColumn` templates (from `@sima/neat-ui/select-list`) add columns after the
@@ -141,7 +173,15 @@ const rowPath = (row: BrowserRow): string => row.node.path;
  */
 @Component({
   selector: 'neat-file-browser',
-  imports: [NeatIcon, NeatInlineButton, NeatInput, NeatSelectList, NeatColumn, NgTemplateOutlet],
+  imports: [
+    FileRowContext,
+    NeatIcon,
+    NeatInlineButton,
+    NeatInput,
+    NeatSelectList,
+    NeatColumn,
+    NgTemplateOutlet,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex h-full min-h-0 flex-col gap-(--neat-space-2)' },
   template: `
@@ -184,11 +224,17 @@ const rowPath = (row: BrowserRow): string => row.node.path;
       [trackBy]="rowPath"
       [selected]="highlighted()"
       [emptyLabel]="query() ? text().noMatches : text().empty"
+      [hint]="mode() === 'manage' ? text().checkHint : ''"
       (selectedChange)="moveCursor($event)"
       (activated)="open($event)"
       (keydown)="onKeydown($event)"
     >
-      <ng-template neatColumn="name" [header]="columns().length ? text().name : ''" let-row>
+      <ng-template
+        neatColumn="name"
+        neatFileRow
+        [header]="columns().length ? text().name : ''"
+        let-row
+      >
         <span
           data-slot="file-name"
           class="flex min-w-0 items-center gap-(--neat-space-2)"
@@ -235,7 +281,13 @@ const rowPath = (row: BrowserRow): string => row.node.path;
             >
           }
           @if (row.count !== null) {
-            <span class="ms-auto shrink-0 text-muted-foreground tabular-nums">{{ row.count }}</span>
+            <span
+              aria-hidden="true"
+              class="ms-auto shrink-0 text-muted-foreground tabular-nums"
+              [attr.title]="row.countLabel"
+              >{{ row.count }}</span
+            >
+            <span class="sr-only">{{ row.countLabel }}</span>
           }
         </span>
       </ng-template>
@@ -244,6 +296,7 @@ const rowPath = (row: BrowserRow): string => row.node.path;
           [neatColumn]="column.key()"
           [header]="column.header()"
           [width]="column.width()"
+          neatFileRow
           let-row
         >
           @if (row.node.type === 'file') {
@@ -273,6 +326,12 @@ export class NeatFileBrowser {
   /** Words the count under the breadcrumb: the current folder's name, and its enabled files. */
   readonly countLabel = input<(folder: string, count: number) => string>(defaultCountLabel);
   readonly labels = input<Partial<NeatFileBrowserLabels>>({});
+  /**
+   * The filter field's text. Two-way, so an app can tell whether a filter is active (a note about
+   * the current folder, such as how many files it left out, belongs to the unfiltered listing) or
+   * clear it. It is emptied whenever the folder changes; matching ignores surrounding spaces.
+   */
+  readonly filter = model('');
 
   protected readonly rowPath = rowPath;
   protected readonly checkboxClasses = CHECKBOX_CLASSES;
@@ -286,8 +345,6 @@ export class NeatFileBrowser {
   protected readonly crumbs = computed(() => breadcrumbs(this.current(), this.rootLabel()));
   private readonly folderName = computed(() => this.crumbs().at(-1)?.name ?? this.rootLabel());
 
-  /** The filter text; empty again whenever the folder changes. */
-  protected readonly filter = linkedSignal({ source: this.current, computation: () => '' });
   protected readonly query = computed(() => this.filter().trim());
 
   protected readonly columns = contentChildren(NeatColumn);
@@ -308,6 +365,7 @@ export class NeatFileBrowser {
       node,
       label,
       count: null,
+      countLabel: '',
       checkLabel: manage ? text.selectFile(node.path) : '',
       context: { $implicit: node },
     });
@@ -318,6 +376,7 @@ export class NeatFileBrowser {
         node,
         label: name,
         count,
+        countLabel: text.folderCount(name, count),
         checkLabel: '',
         context: { $implicit: node },
       })),
@@ -357,6 +416,21 @@ export class NeatFileBrowser {
   protected readonly checkedSet = computed(() => new Set(this.checked()));
 
   constructor() {
+    // The filter belongs to the folder it was typed in; the first run keeps what the app gave.
+    let shown: string | undefined;
+    effect(() => {
+      const current = this.current();
+      if (shown !== undefined && current !== shown) this.filter.set('');
+      shown = current;
+    });
+    // Another folder, or another filter, is another set of rows: they start at the top (or at the
+    // selected row, when it is among them), not at the previous listing's offset. `resetScroll`
+    // reads the list's signals, which this effect must not depend on.
+    afterRenderEffect(() => {
+      this.current();
+      this.query();
+      untracked(() => this.list().resetScroll());
+    });
     effect(() => {
       const current = this.current();
       if (untracked(this.folder) !== current) this.folder.set(current);
@@ -373,8 +447,16 @@ export class NeatFileBrowser {
     this.filter.set((event.target as HTMLInputElement).value);
   }
 
+  /**
+   * Opens a folder. The list takes the focus: a pressed breadcrumb is gone from the page once its
+   * folder is the current one (the last crumb is text), and the focus must not fall to the body.
+   * Going up lands the highlight on the folder just left, as file managers do.
+   */
   protected navigate(path: string): void {
+    const from = this.current();
     this.folder.set(path);
+    this.cursorFolder.set(childTowards(from, path));
+    this.list().focus();
   }
 
   /** The list's selection moved, by key or click: a file is selected, a folder is highlighted. */
