@@ -46,7 +46,7 @@
     </button>
   </div>
 
-  <header class="topbar">
+  <header class="topbar" [attr.data-toolbar]="pageToolbar() ? 'true' : 'false'">
     <div class="brand">
       <neat-logo />
       <span class="app-name">{{ appName() }}</span>

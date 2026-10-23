@@ -173,13 +173,13 @@ nav {
 }
 
 /*
- * The active page's toolbar (`*neatPageToolbar`). It sits at the right end of the top bar, ahead
- * of the end slot: its auto start margin takes the free space, so the gap lies between the page
- * title and the toolbar (the end slot stops growing next to a toolbar, see below). It gives up
- * width before the page title and the end slot do (the high shrink factor) and scrolls sideways
- * instead of pushing them out of the top bar. Spanning the bar's height leaves room for a thin
- * scrollbar; the inline padding keeps the focus rings of its first and last controls inside the
- * scroll container, which clips.
+ * The active page's toolbar (`*neatPageToolbar`). The free space of the top bar goes to one auto
+ * margin: the toolbar's, which puts it at the right end ahead of the end slot with the gap between
+ * the page title and the toolbar; or, on a page without a toolbar (`data-toolbar='false'` on the
+ * top bar), the end slot's, see below. It gives up width before the page title and the end slot do
+ * (the high shrink factor) and scrolls sideways instead of pushing them out of the top bar.
+ * Spanning the bar's height leaves room for a thin scrollbar; the inline padding keeps the focus
+ * rings of its first and last controls inside the scroll container, which clips.
  */
 .page-toolbar {
   display: flex;
@@ -198,16 +198,15 @@ nav {
   display: flex;
   /* Shrinks below its content's width, so wide end content (a status pill) truncates inside the
      top bar instead of pushing out of it. */
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-width: 0;
   align-items: center;
-  justify-content: flex-end;
   gap: 0.5rem;
 }
 
-/* After a toolbar the free space belongs to the toolbar's auto margin: the end slot would share it. */
-.page-toolbar + .topbar-end {
-  flex-grow: 0;
+/* Without a toolbar the end slot is the one to sit at the right edge. */
+.topbar[data-toolbar='false'] .topbar-end {
+  margin-inline-start: auto;
 }
 
 .topbar-actions {

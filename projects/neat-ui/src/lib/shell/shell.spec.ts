@@ -557,21 +557,31 @@ describe('NeatShell', () => {
     const region = getComputedStyle(toolbarRegion() as HTMLElement);
     const end = getComputedStyle(topbar().querySelector('.topbar-end') as HTMLElement);
 
-    // jsdom lays nothing out: the layout is asserted through the flex properties that produce it,
-    // and the visual check of the showcase's Page demo covers the result. The toolbar's auto start
-    // margin takes the free space, which only works while nothing after it grows into that space:
-    // the end slot stops growing and sits right after the toolbar.
+    // jsdom lays nothing out: the layout is asserted through the properties that produce it, and
+    // the visual check of the showcase's Page demo covers the result. The toolbar's auto start
+    // margin takes the free space; nothing grows and no other auto margin competes for it, so the
+    // end slot, with its content (the board status here), sits right after the toolbar.
+    expect(topbar().getAttribute('data-toolbar')).toBe('true');
     expect(region.marginInlineStart).toBe('auto');
+    expect(end.marginInlineStart).not.toBe('auto');
     expect(end.flexGrow).toBe('0');
+    const status = topbar().querySelector('.topbar-end .board-status') as HTMLElement;
+    expect(status.textContent).toBe('Board connected');
+    expect(
+      (toolbarRegion() as HTMLElement).compareDocumentPosition(status) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
-  it('keeps the end slot taking the remaining width, right-aligned, without a toolbar', async () => {
+  it('puts the end slot at the right edge of the top bar without a toolbar', async () => {
     await start('/media');
     const end = getComputedStyle(topbar().querySelector('.topbar-end') as HTMLElement);
 
-    // Style assertions again, for the same reason as above.
-    expect(end.flexGrow).toBe('1');
-    expect(end.justifyContent).toBe('flex-end');
+    // Style assertions again, for the same reason as above: the end slot's auto start margin takes
+    // the free space, as the toolbar's does with a toolbar.
+    expect(topbar().getAttribute('data-toolbar')).toBe('false');
+    expect(end.marginInlineStart).toBe('auto');
+    expect(end.flexGrow).toBe('0');
   });
 
   it('lets a wide toolbar shrink and scroll instead of pushing the end slot out', async () => {
