@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter, RouterOutlet } from '@angular/router';
@@ -6,6 +6,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import helmContent from '../ui/popover/src/lib/hlm-popover-content.ts?source' with {
   loader: 'text',
 };
+import { NeatConfirm } from '../confirm/confirm';
 import { KIOSK_POINTER_IDLE_MS, KioskService } from '../kiosk/kiosk.service';
 import { NeatPageToolbar } from '../shell/page-toolbar';
 import { NeatShell } from '../shell/shell';
@@ -37,11 +38,18 @@ const SURFACES = ['background', 'card'] as const;
         <p>How the tiles look.</p>
         <button type="button" class="first">Bars</button>
         <button type="button">Hide empty slots</button>
+        <button type="button" class="reset" (click)="confirm.ask(resetQuestion)">Reset</button>
       </ng-template>
     </neat-popover>
   `,
 })
 class PopoverHost {
+  protected readonly confirm = inject(NeatConfirm);
+  protected readonly resetQuestion = {
+    title: 'Reset the view?',
+    message: 'Every option goes back.',
+    confirmLabel: 'Reset',
+  };
   readonly open = signal(false);
   readonly align = signal<NeatPopoverAlign>('center');
 }
@@ -251,6 +259,110 @@ describe('NeatPopover', () => {
     // The trigger's end edge is at 472 + 80 = 552, so 1024 - 552 = 472 from the viewport's right.
     expect(box.style.right).toBe('472px');
     expect(box.style.alignItems).toBe('flex-end');
+  });
+
+  describe('focus leaving it', () => {
+    /** A focus move as the browser reports it: `focusout` on the old element, naming the new one. */
+    const focusOut = (from: HTMLElement, to: HTMLElement | null) =>
+      from.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: to }));
+
+    it('Tab from the last control in an open panel to an outside button closes it, and focus stays on that button', async () => {
+      const { host, root, trigger, settle } = await render();
+      const outside = root.querySelector<HTMLButtonElement>('.outside')!;
+      trigger.click();
+      await settle();
+      panel()!.querySelector<HTMLButtonElement>('.reset')!.focus();
+
+      outside.focus();
+      await settle();
+
+      expect(host.open()).toBe(false);
+      expect(panel()).toBeNull();
+      expect(document.activeElement).toBe(outside);
+    });
+
+    it('Tab from the trigger to an outside button closes it', async () => {
+      const { host, root, trigger, settle } = await render();
+      trigger.click();
+      await settle();
+      trigger.focus();
+      await settle();
+      expect(host.open()).toBe(true);
+
+      root.querySelector<HTMLButtonElement>('.outside')!.focus();
+      await settle();
+
+      expect(host.open()).toBe(false);
+    });
+
+    it('moving focus between the trigger and the panel keeps it open', async () => {
+      const { host, trigger, settle } = await render();
+      trigger.click();
+      await settle();
+      const first = panel()!.querySelector<HTMLButtonElement>('.first')!;
+      expect(document.activeElement).toBe(first);
+
+      trigger.focus();
+      await settle();
+      expect(host.open()).toBe(true);
+      expect(panel()).not.toBeNull();
+
+      first.focus();
+      await settle();
+      expect(host.open()).toBe(true);
+      expect(document.activeElement).toBe(first);
+    });
+
+    it('focus moving into a dialog opened from inside the panel keeps it open', async () => {
+      const { host, settle } = await render();
+      (document.querySelector('[neatPopoverTrigger]') as HTMLButtonElement).click();
+      await settle();
+      const reset = panel()!.querySelector<HTMLButtonElement>('.reset')!;
+
+      reset.focus();
+      reset.click();
+      await settle();
+
+      const alert = document.querySelector<HTMLElement>('[role="alertdialog"]')!;
+      expect(alert).not.toBeNull();
+      expect(alert.contains(document.activeElement)).toBe(true);
+      expect(host.open()).toBe(true);
+      expect(panel()).not.toBeNull();
+
+      // Answering gives focus back to the control that asked, still inside the open panel.
+      alert.querySelector<HTMLButtonElement>('button')!.click();
+      await settle();
+      expect(host.open()).toBe(true);
+      expect(document.activeElement).toBe(reset);
+    });
+
+    it('a focusout that names no element (the page, a click on empty space, another window) does not close it', async () => {
+      const { host, trigger, settle } = await render();
+      trigger.click();
+      await settle();
+
+      focusOut(panel()!.querySelector<HTMLButtonElement>('.first')!, null);
+      focusOut(trigger, null);
+      await settle();
+
+      expect(host.open()).toBe(true);
+      expect(panel()).not.toBeNull();
+    });
+
+    it('a focusout after it closed does nothing', async () => {
+      const { host, root, trigger, settle } = await render();
+      trigger.click();
+      await settle();
+      escape();
+      await settle();
+      expect(document.activeElement).toBe(trigger);
+
+      focusOut(trigger, root.querySelector<HTMLButtonElement>('.outside')!);
+      await settle();
+
+      expect(host.open()).toBe(false);
+      expect(document.activeElement).toBe(trigger);
+    });
   });
 
   describe('in kiosk mode', () => {

@@ -356,9 +356,10 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <code>neat-popover</code>: a panel of controls below a
             <code>neatPopoverTrigger</code> button, open while they are used. A non-modal dialog
             named by <code>label</code>; focus moves into it, and Escape, a click outside or the
-            trigger close it and give focus back to the trigger. <code>align</code> lines it up with
-            the trigger's start, centre or end. The content is an <code>ng-template</code>, so its
-            values live in the page.
+            trigger close it and give focus back to the trigger; Tab out of it closes it and focus
+            goes on to the next element. <code>align</code> lines it up with the trigger's start,
+            centre or end. The content is an <code>ng-template</code>, so its values live in the
+            page.
           </p>
           <div class="showcase-row">
             <neat-popover label="View options" [(open)]="viewOptionsOpen">

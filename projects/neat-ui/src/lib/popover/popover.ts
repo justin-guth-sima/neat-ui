@@ -12,6 +12,7 @@ import {
   untracked,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
+import { OverlayContainer } from '@angular/cdk/overlay';
 import {
   BrnPopover,
   BrnPopoverContent,
@@ -91,8 +92,11 @@ export class NeatPopoverTrigger {
  * The content template is created on opening and destroyed on closing, so keep its state (a typed
  * value, a checked switch) in the page. On opening, focus moves to the panel's first focusable
  * element. Escape, a click outside, the trigger, or `open` set to false close it; focus then goes
- * back to the trigger, unless the closing click put it somewhere else. Setting `open` to true
- * opens it as the trigger does, which is how a keyboard shortcut opens it.
+ * back to the trigger, unless the closing click put it somewhere else. Focus moving to another
+ * element on the page (Tab out of the panel or off the trigger) closes it too, and focus stays
+ * where it went. Focus moving to an overlay opened from the panel, such as a `NeatConfirm`, does
+ * not. Setting `open` to true opens it as the trigger does, which is how a keyboard shortcut
+ * opens it.
  *
  * In the page toolbar, an open popover keeps the kiosk bar shown (`KioskService.holdToolbar`):
  * the panel lies outside the bar, so a pointer resting on it would otherwise fade the bar out.
@@ -111,7 +115,7 @@ export class NeatPopoverTrigger {
   ],
   hostDirectives: [{ directive: BrnPopover, inputs: ['align'] }],
   // The trigger takes part in the surrounding layout (a toolbar's row) as if it stood there alone.
-  host: { class: 'contents' },
+  host: { class: 'contents', '(focusout)': 'closeWhenFocusLeaves($event)' },
   template: `
     <ng-content />
     <ng-template brnPopoverContent>
@@ -121,6 +125,7 @@ export class NeatPopoverTrigger {
         [attr.aria-label]="label()"
         [attr.data-state]="brain.stateComputed()"
         [class]="panelClasses"
+        (focusout)="closeWhenFocusLeaves($event)"
       >
         <ng-container [ngTemplateOutlet]="content().template" />
       </div>
@@ -138,6 +143,7 @@ export class NeatPopover {
   protected readonly brain = inject(BrnPopover);
   protected readonly content = contentChild.required(NeatPopoverContent);
   private readonly trigger = contentChild.required(NeatPopoverTrigger);
+  private readonly overlayContainer = inject(OverlayContainer);
 
   constructor() {
     // Brain closes the panel on Escape and outside clicks; the model follows. Brain's output lives
@@ -162,6 +168,34 @@ export class NeatPopover {
   /** Opens or closes the panel, as the trigger does. */
   toggle(): void {
     this.open.update((open) => !open);
+  }
+
+  /**
+   * Closes the panel when focus moves from the trigger or the panel (their `focusout`s both land
+   * here) to an element that belongs to neither. Focus stays where it went.
+   *
+   * Only a `focusout` that names the element receiving focus counts. Without one (`relatedTarget`
+   * is null) focus went to the page or the window lost it: an outside click is brain's to handle,
+   * and switching windows must not close the panel.
+   *
+   * The trigger and the panel hold focus, and so does any overlay: CDK renders them all in one
+   * container, apart from the panel's own DOM, so an element's ancestry cannot tell an overlay
+   * opened from the panel (a `NeatConfirm`) from any other. None of them takes focus on its own
+   * while the panel is open, and the trigger of another popover is outside the container, so the
+   * container is the narrowest test that keeps the dialogs a panel's controls open.
+   */
+  protected closeWhenFocusLeaves(event: FocusEvent): void {
+    const next = event.relatedTarget;
+    if (!this.open() || !(next instanceof Node)) {
+      return;
+    }
+    if (
+      this.trigger().element.contains(next) ||
+      this.overlayContainer.getContainerElement().contains(next)
+    ) {
+      return;
+    }
+    this.open.set(false);
   }
 
   private show(): void {
