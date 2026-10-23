@@ -3,6 +3,7 @@
 // entries is written out: a spec is bundled statically, so it cannot import by a name found on disk
 // (`check-dist.test.mjs` compares the entry folders with its own table).
 import * as confirm from '../confirm/src/public-api';
+import * as dialog from '../dialog/src/public-api';
 import * as input from '../input/src/public-api';
 import * as lineList from '../line-list/src/public-api';
 import * as numberField from '../number-field/src/public-api';
@@ -11,11 +12,13 @@ import * as segmented from '../segmented/src/public-api';
 import * as slider from '../slider/src/public-api';
 import * as switchEntry from '../switch/src/public-api';
 import * as tabs from '../tabs/src/public-api';
+import * as toast from '../toast/src/public-api';
 import * as video from '../video/src/public-api';
 import * as primary from './public-api';
 
 const ENTRIES = {
   confirm,
+  dialog,
   input,
   lineList,
   numberField,
@@ -24,6 +27,7 @@ const ENTRIES = {
   slider,
   switchEntry,
   tabs,
+  toast,
   video,
 };
 

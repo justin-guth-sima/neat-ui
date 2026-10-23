@@ -1,14 +1,16 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NeatNavItem, NeatShell } from '@sima/neat-ui';
+import { NeatToastHost } from '@sima/neat-ui/toast';
 
 @Component({
-  imports: [NeatShell, RouterOutlet],
+  imports: [NeatShell, NeatToastHost, RouterOutlet],
   selector: 'app-root',
   template: `
     <neat-shell appName="neat-ui showcase" [navItems]="navItems">
       <router-outlet />
     </neat-shell>
+    <neat-toast-host />
   `,
 })
 export class App {

@@ -16,11 +16,13 @@ look happens in one place. Every rule here protects that.
     `NeatShell`, `NeatPageToolbar`, `NeatPage`, `KioskService`, `NeatButton`, `NeatInlineButton`,
     `NeatTooltip` and `NeatNote`. Public API is `projects/neat-ui/src/public-api.ts`.
   - one secondary entry point per other component, `@sima/neat-ui/<name>`: `switch`, `slider`,
-    `segmented`, `tabs`, `popover`, `confirm`, `input`, `number-field` and `line-list`, each
-    exporting that component and its types; and `video`: the video tile, the tile grid and what
-    they need (overlay drawing, metadata sync, the overlay palette), and the region-of-interest
-    editor with its swatch and `neatRoiNames`, which sit in the tile's overlay layer. Public API is
-    `projects/neat-ui/<name>/src/public-api.ts`; its code lives in `projects/neat-ui/<name>/src/lib/`.
+    `segmented`, `tabs`, `popover`, `confirm`, `input`, `number-field`, `line-list`, `dialog`
+    (`NeatDialog`, the general modal dialog, with `neat-dialog-body` and `neat-dialog-actions`) and
+    `toast` (`NeatToasts` and `neat-toast-host`), each exporting that component and its types; and
+    `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
+    overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
+    sit in the tile's overlay layer. Public API is `projects/neat-ui/<name>/src/public-api.ts`; its
+    code lives in `projects/neat-ui/<name>/src/lib/`.
     Why one entry per component: an app's main bundle carries only the entries its shell imports,
     and a lazy route can keep a component (video's canvas, frame-loop and overlay code most of all)
     out of the main bundle only if it is a different import.
@@ -32,6 +34,13 @@ look happens in one place. Every rule here protects that.
     stylesheet's scan skips `video`, which styles itself with component CSS only: a Tailwind utility
     in video code needs that exclusion lifted in `neat-ui.tailwind.css`, with the reason there.
 - `projects/showcase`: the component gallery.
+
+**The toast host is rendered by the app, once, beside the shell.** `<neat-toast-host />` goes next
+to `<neat-shell>` in the app's root template (as the showcase's `app.ts` does); `NeatToasts` shows
+nothing without it. Why not in the shell: the shell is the primary entry, which cannot import a
+secondary one, and an app that shows no toasts should not carry them. The host renders its stack
+in the CDK overlay layer, not where it stands, so a modal dialog's `aria-hidden` on the page does
+not silence it and it can sit above a dialog (each new toast brings it to the front).
 
 **The entry points depend one way.** A secondary entry may import the primary and other secondary
 entries only through the package name (`from '@sima/neat-ui'`, `from '@sima/neat-ui/input'`),
@@ -87,6 +96,15 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   table labelled with the helm file, and its spec reads that file as text
   (`import src from '…/hlm-x.ts?source' with { loader: 'text' }`) and checks each copied string is
   still there, so a helm update that changes them fails until the wrapper is reviewed.
+  `NeatDialog` follows the same pattern as `NeatConfirm` (brain's dialog service, helm's dialog
+  classes copied into a table behind a drift spec). Brain reads "may this close" once, when the
+  dialog opens, so `NeatDialog` opens it with closing switched off and closes it on Escape and the
+  backdrop itself while `NeatDialogRef.dismissible()`, which `setDismissible` changes at any time.
+  The toast is not helm's `sonner`: that is Spartan's stacked, swiped, hover-expanded toaster
+  (about 100 kB of brain source, no third-party library), and none of its model is needed by what
+  the kit's toasts do (a column of at most three, fixed lifetimes, progress that updates). The
+  toast host lands in every app's main bundle, so the kit's own, a small component on the CDK
+  overlay, is the cheaper fit.
   Three wrappers own their behaviour instead of hosting a brain primitive, each for a stated reason:
   - `NeatSwitch` is a native `button` with `role="switch"`: brain's switch is a component that
     renders its own button, so it cannot be a host directive.

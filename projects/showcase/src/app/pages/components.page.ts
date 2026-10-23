@@ -7,6 +7,7 @@ import {
   DOCUMENT,
   inject,
   signal,
+  TemplateRef,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -21,6 +22,12 @@ import {
   type NeatTooltipPosition,
 } from '@sima/neat-ui';
 import { NeatConfirm } from '@sima/neat-ui/confirm';
+import {
+  NeatDialog,
+  NeatDialogActions,
+  NeatDialogBody,
+  type NeatDialogRef,
+} from '@sima/neat-ui/dialog';
 import { NeatInput } from '@sima/neat-ui/input';
 import { NeatLine, NeatLineEnd, NeatLineList } from '@sima/neat-ui/line-list';
 import { NeatNumberField } from '@sima/neat-ui/number-field';
@@ -29,6 +36,7 @@ import { NeatSegmented, type NeatSegmentedOption } from '@sima/neat-ui/segmented
 import { NeatSlider } from '@sima/neat-ui/slider';
 import { NeatSwitch } from '@sima/neat-ui/switch';
 import { NeatTab, NeatTabs } from '@sima/neat-ui/tabs';
+import { NeatToasts } from '@sima/neat-ui/toast';
 import {
   NeatRoiEditor,
   type NeatRoiDrawMode,
@@ -73,6 +81,8 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
   selector: 'app-components-page',
   imports: [
     NeatButton,
+    NeatDialogActions,
+    NeatDialogBody,
     NeatIcon,
     NeatInlineButton,
     NeatInput,
@@ -526,6 +536,120 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
         </section>
 
         <section class="showcase-section">
+          <h2>Dialog</h2>
+          <p class="showcase-muted">
+            <code>NeatDialog.open(content, options)</code> opens a modal dialog around your own
+            content, a template or a component, named by <code>title</code>. Build the content from
+            <code>neat-dialog-body</code> (the part that scrolls) and
+            <code>neat-dialog-actions</code>. Focus stays inside, Escape and the backdrop close it
+            while it is dismissible, and focus goes back to the button that opened it. The
+            <code>NeatDialogRef</code> closes it with a result and, while the dialog is busy,
+            <code>setDismissible(false)</code> blocks Escape, the backdrop and the close button. For
+            a yes/no question use Confirm.
+          </p>
+          <div class="showcase-row">
+            <button neatButton type="button" variant="outlined" (click)="openRename(renameDialog)">
+              Rename source…
+            </button>
+            <button neatButton type="button" variant="outlined" (click)="openLong(longDialog)">
+              Large dialog with long content…
+            </button>
+          </div>
+          <p class="showcase-code showcase-muted" aria-live="polite">{{ dialogResult() }}</p>
+
+          <ng-template #renameDialog let-dialog>
+            <neat-dialog-body>
+              <div class="dialog-form">
+                <label class="dialog-field">
+                  <span>Name</span>
+                  <input neatInput #name value="Front door" [disabled]="saving()" />
+                </label>
+                <button
+                  neatSwitch
+                  [checked]="dialog.dismissible()"
+                  (checkedChange)="dialog.setDismissible($event)"
+                >
+                  Escape and the backdrop close this dialog
+                </button>
+              </div>
+            </neat-dialog-body>
+            <neat-dialog-actions>
+              <button
+                neatButton
+                type="button"
+                variant="outlined"
+                [disabled]="saving()"
+                (click)="dialog.close()"
+              >
+                Cancel
+              </button>
+              <button
+                neatButton
+                type="button"
+                [disabled]="saving()"
+                (click)="save(dialog, name.value)"
+              >
+                {{ saving() ? 'Saving…' : 'Save' }}
+              </button>
+            </neat-dialog-actions>
+          </ng-template>
+
+          <ng-template #longDialog let-dialog>
+            <neat-dialog-body>
+              <ul class="dialog-list">
+                @for (line of longContent; track line) {
+                  <li>{{ line }}</li>
+                }
+              </ul>
+            </neat-dialog-body>
+            <neat-dialog-actions>
+              <button neatButton type="button" (click)="dialog.close()">Done</button>
+            </neat-dialog-actions>
+          </ng-template>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Toast</h2>
+          <p class="showcase-muted">
+            <code>NeatToasts</code> shows short messages without taking the user's attention:
+            <code>error</code> clears after 4.6 s, <code>status</code> after 3.2 s, and
+            <code>progress</code> stays until <code>done</code> or <code>fail</code>, so work that
+            outlives its page keeps reporting. The app renders one
+            <code>neat-toast-host</code> beside the shell; it shows the newest three in the
+            bottom-right corner, above dialogs, and announces them politely.
+          </p>
+          <div class="showcase-row">
+            <button
+              neatButton
+              type="button"
+              variant="outlined"
+              (click)="
+                toasts.error('Could not start src3: the stream is held by another publisher.')
+              "
+            >
+              Error
+            </button>
+            <button
+              neatButton
+              type="button"
+              variant="outlined"
+              (click)="toasts.status('Stopped 2 sources.')"
+            >
+              Status
+            </button>
+            <button neatButton type="button" variant="outlined" (click)="runProgress('done')">
+              Progress, succeeding
+            </button>
+            <button neatButton type="button" variant="outlined" (click)="runProgress('fail')">
+              Progress, failing
+            </button>
+            <button neatButton type="button" variant="outlined" (click)="runProgress('unknown')">
+              Progress, unknown length
+            </button>
+          </div>
+        </section>
+
+        <section class="showcase-section">
           <h2>Input</h2>
           <p class="showcase-muted">
             <code>neatInput</code> on an <code>input</code>: text or number, in two sizes. Native
@@ -779,6 +903,14 @@ export class ComponentsPage {
   protected readonly acceptPage = (n: number) => n >= 1 && n <= this.pageCount;
   protected readonly confirmAnswer = signal('Not asked yet');
   private readonly confirm = inject(NeatConfirm);
+  private readonly dialogs = inject(NeatDialog);
+  protected readonly toasts = inject(NeatToasts);
+  protected readonly dialogResult = signal('Not opened yet');
+  protected readonly saving = signal(false);
+  protected readonly longContent = Array.from(
+    { length: 40 },
+    (_, index) => `Source src${index + 1}: assigned, waiting to start`,
+  );
 
   protected readonly tileWidth = signal(240);
   protected readonly layout = signal<NeatTileLayout | null>(null);
@@ -830,6 +962,47 @@ export class ComponentsPage {
       cancelLabel: 'Not now',
     });
     this.confirmAnswer.set(`Apply to all: ${apply ? 'confirmed' : 'cancelled'}`);
+  }
+
+  protected async openRename(content: TemplateRef<unknown>): Promise<void> {
+    const name = await this.dialogs.open<string>(content, { title: 'Rename source' }).closed;
+    this.dialogResult.set(name === undefined ? 'Rename: dismissed' : `Rename: saved "${name}"`);
+  }
+
+  protected async openLong(content: TemplateRef<unknown>): Promise<void> {
+    await this.dialogs.open(content, { title: 'Sources', size: 'large' }).closed;
+    this.dialogResult.set('Sources: closed');
+  }
+
+  /** Saving takes a moment, during which the dialog may not be dismissed. */
+  protected save(dialog: NeatDialogRef<string>, name: string): void {
+    this.saving.set(true);
+    dialog.setDismissible(false);
+    setTimeout(() => {
+      this.saving.set(false);
+      dialog.close(name);
+    }, 1500);
+  }
+
+  /**
+   * Simulates work: it reports for a few seconds and then settles. It runs on its own, as an
+   * upload does, so leaving the page does not stop the toast from reporting the outcome.
+   */
+  protected runProgress(outcome: 'done' | 'fail' | 'unknown'): void {
+    const toast = this.toasts.progress('Uploading 3 files');
+    const known = outcome !== 'unknown';
+    let percent = 0;
+    const timer = setInterval(() => {
+      percent += 8;
+      if (percent < 100) {
+        const file = Math.min(3, Math.floor(percent / 34) + 1);
+        toast.update(`clip-${file}.mp4 · file ${file} of 3`, known ? percent : null);
+        return;
+      }
+      clearInterval(timer);
+      if (outcome === 'fail') toast.fail('Upload failed: no space left on the device.');
+      else toast.done('Uploaded 3 files.');
+    }, 250);
   }
 
   protected deleteRegion(region: string): void {

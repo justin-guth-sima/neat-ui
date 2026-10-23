@@ -18,6 +18,7 @@ const ALIAS = '@neat-ui/helm';
  */
 export const SECONDARY_ENTRIES = {
   confirm: ['neat-confirm-dialog'],
+  dialog: ['neat-dialog-panel', 'neat-dialog-body', 'neat-dialog-actions'],
   input: ['input[neatInput]'],
   'line-list': ['ul[neatLineList]', 'li[neatLine]', '[neatLineEnd]'],
   'number-field': ['neat-number-field'],
@@ -26,6 +27,7 @@ export const SECONDARY_ENTRIES = {
   slider: ['neat-slider'],
   switch: ['button[neatSwitch]'],
   tabs: ['neat-tabs', 'neat-tab'],
+  toast: ['neat-toast-host'],
   video: ['neat-video-tile', 'neat-tile-grid', 'neat-roi-editor', 'neat-roi-swatch'],
 };
 /** Packed tarballs are compressed; their contents are the files checked here. */

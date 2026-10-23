@@ -1,0 +1,31 @@
+/* The host renders nothing where it stands: its toasts live in an overlay (see the component). */
+:host {
+  display: none;
+}
+
+/*
+ * A progress bar whose end is unknown: a segment sliding along the track. Without motion
+ * (prefers-reduced-motion) the segment fills the track at reduced strength, which still reads as
+ * "working" without moving.
+ */
+.fill[data-indeterminate] {
+  width: 40%;
+  animation: toast-indeterminate 1.4s ease-in-out infinite;
+}
+
+@keyframes toast-indeterminate {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill[data-indeterminate] {
+    width: 100%;
+    opacity: 0.5;
+    animation: none;
+  }
+}
