@@ -78,7 +78,8 @@ export interface DialogContext {
 /**
  * The dialog's frame, rendered by `NeatDialog` inside the CDK dialog container, which carries the
  * role, the modal state and the focus trap: the title, the content the app gave, and the close
- * button while the dialog is dismissible.
+ * button, which stays (marked `aria-disabled`) while the dialog is not dismissible, so that focus
+ * on it is not lost when the dialog turns busy.
  *
  * Closing from outside is the kit's rather than brain's: brain reads "may this close" once, when
  * the dialog opens, and `setDismissible` changes it later. The dialog opens with brain's closing
@@ -98,20 +99,19 @@ export interface DialogContext {
       <h2 brnDialogTitle [class]="classes.title">{{ context.title }}</h2>
     </div>
     <ng-container [cdkPortalOutlet]="content" (attached)="laidOutWithThePanel($event)" />
-    @if (ref.dismissible()) {
-      <button
-        neatButton
-        type="button"
-        variant="text"
-        size="small"
-        iconOnly
-        aria-label="Close"
-        [class]="classes.closeButton"
-        (click)="ref.close()"
-      >
-        <neat-icon name="close" [size]="16" />
-      </button>
-    }
+    <button
+      neatButton
+      type="button"
+      variant="text"
+      size="small"
+      iconOnly
+      aria-label="Close"
+      [attr.aria-disabled]="ref.dismissible() ? null : 'true'"
+      [class]="closeButtonClasses"
+      (click)="dismiss()"
+    >
+      <neat-icon name="close" [size]="16" />
+    </button>
   `,
 })
 export class NeatDialogPanel {
@@ -120,6 +120,12 @@ export class NeatDialogPanel {
   protected readonly ref = this.context.ref;
   protected readonly classes = DIALOG_HELM_CLASSES;
   protected readonly panelClasses: string = hlm(PANEL_CLASSES, SIZE_CLASSES[this.context.size]);
+  /**
+   * Helm's corner position; while the dialog is not dismissible the button is dimmed, not removed
+   * or `disabled`: a button that has focus loses it when it goes, and the trap only works from
+   * inside the dialog, so the next Tab would leave for the page behind.
+   */
+  protected readonly closeButtonClasses = `${DIALOG_HELM_CLASSES.closeButton} aria-disabled:opacity-50 aria-disabled:cursor-not-allowed`;
   protected readonly content: ComponentPortal<unknown> | TemplatePortal<unknown>;
 
   constructor() {
@@ -145,12 +151,17 @@ export class NeatDialogPanel {
         takeUntilDestroyed(),
       )
       .subscribe((event) => {
+        // The topmost dialog is the only one that gets the key (the CDK's dispatcher), and a modal
+        // absorbs it whether or not it closes: page shortcuts on Escape (a panel, a drawing
+        // mode) must not fire behind a dialog, busy or not. The CDK listens on `body`, so this
+        // stops it on the way up to `document` and `window`.
+        event.stopPropagation();
         if (this.dismiss()) event.preventDefault();
       });
   }
 
   /** Closes the dialog if it may be closed from outside; returns whether it did. */
-  private dismiss(): boolean {
+  protected dismiss(): boolean {
     if (!this.ref.dismissible()) return false;
     this.ref.close();
     return true;
@@ -159,11 +170,13 @@ export class NeatDialogPanel {
   /**
    * A component's own element is the panel's flex item otherwise, and its body and actions would
    * sit inside it, out of the panel's flex column: no gap between them and no scrolling body.
-   * `contents` takes the element out of the layout so that they are the panel's items.
+   * `display: contents` takes the element out of the layout so that they are the panel's items.
+   * It is set inline, where the content's own `:host { display: block }` (unlayered component CSS,
+   * which beats any Tailwind utility) cannot undo it.
    */
   protected laidOutWithThePanel(attached: CdkPortalOutletAttachedRef): void {
     if (attached instanceof ComponentRef) {
-      (attached.location.nativeElement as HTMLElement).classList.add('contents');
+      (attached.location.nativeElement as HTMLElement).style.display = 'contents';
     }
   }
 }

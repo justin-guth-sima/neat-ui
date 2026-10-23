@@ -13,7 +13,7 @@ import {
   viewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { MAX_VISIBLE_TOASTS, ToastStore, type ToastEntry } from './toast-store';
+import { ToastStore, visibleToasts, type ToastEntry } from './toast-store';
 
 /** The gap between the stack and the screen's corner. */
 const SCREEN_INSET = '1rem';
@@ -43,34 +43,67 @@ const TOAST_CLASSES: Record<ToastEntry['kind'], string> = {
  * Not inside the shell: the shell is the kit's primary entry point, which cannot import this one,
  * and an app that shows no toasts should not carry them.
  *
- * The toasts stack in the bottom-right corner, the newest last, at most three at a time (the
- * newest three; an older one is hidden while newer ones push it out and shows again if it is
- * still there when they clear). The stack is a polite live region that exists from the start, so
- * screen readers announce each toast as it appears; a progress toast's changing detail and percent
- * are not live, so a long upload is not read out every second. The progress bar still reports its
- * value to anyone who goes to it.
+ * The toasts stack in the bottom-right corner, the newest last, at most three at a time. When
+ * more exist, the oldest error and status toasts are hidden first and the oldest progress toasts
+ * last (work in progress is what the user is waiting for); a hidden toast shows again if it is
+ * still there when the others clear.
  *
- * The stack is rendered in the CDK overlay layer rather than where the host stands, for two
+ * What the user sees and what a screen reader announces are two layers. The visible stack is
+ * `aria-hidden`. A second overlay, never re-shown and never hidden, holds a visually hidden
+ * `aria-live="polite"` region with one entry per toast: the message ("Error: " in front of an
+ * error), or a progress toast's title. An entry is added when its toast is, so each toast is
+ * announced once, as it appears. A progress toast's changing detail and percent are in a nested
+ * `aria-live="off"` part: a screen reader finds the current value when it reads the region, but a
+ * long upload is not read out every second. The two layers are separate because bringing the
+ * stack to the front (below) hides and shows it, which takes a live region out of the
+ * accessibility tree and back with its content already in it, and that is not announced.
+ *
+ * Both layers are rendered in the CDK overlay layer rather than where the host stands, for two
  * reasons: a modal dialog hides everything outside that layer from assistive technology, which
- * would silence a toast raised by the dialog's own action, and it must show above the dialog (as
- * #170's toasts showed above its modals). Overlays stack in the order they were last brought to
- * the front, so each new toast brings the stack to the front again: an error raised by a dialog's
- * own action shows above the dialog, though the host is older. A toast that was on screen before
- * a dialog opened stays under the dialog until it clears or a newer toast arrives.
+ * would silence a toast raised by the dialog's own action, and the stack must show above the
+ * dialog (as #170's toasts showed above its modals). Overlays stack in the order they were last
+ * brought to the front, so each new toast brings the stack to the front again: an error raised by
+ * a dialog's own action shows above the dialog, though the host is older. A toast that was on
+ * screen before a dialog opened stays under the dialog until it clears or a newer toast arrives.
+ *
+ * The stack takes no pointer events: it has nothing to click, and a progress toast that stays for
+ * as long as an upload runs must not sit on a dialog's buttons. Clicks pass through to whatever is
+ * under a toast; the cost is that toast text cannot be selected.
  */
 @Component({
   selector: 'neat-toast-host',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './toast-host.css',
   template: `
+    <ng-template #announcer>
+      <div aria-live="polite" class="sr-only" data-slot="toast-announcer">
+        @for (toast of announced(); track toast.id) {
+          <div data-slot="toast-announcement">
+            @if (toast.kind === 'progress') {
+              {{ toast.title }}
+              <span aria-live="off">
+                {{ toast.detail }}
+                @if (toast.percent !== null) {
+                  {{ toast.percent }}%
+                }
+              </span>
+            } @else {
+              @if (toast.kind === 'error') {
+                Error:
+              }
+              {{ toast.message }}
+            }
+          </div>
+        }
+      </div>
+    </ng-template>
     <ng-template #stack>
-      <div aria-live="polite" class="flex w-[min(22.5rem,calc(100vw-2rem))] flex-col gap-2">
+      <div aria-hidden="true" class="flex w-[min(22.5rem,calc(100vw-2rem))] flex-col gap-2">
         @for (toast of visible(); track toast.id) {
           <div data-slot="toast" [attr.data-kind]="toast.kind" [class]="classes[toast.kind]">
             @if (toast.kind === 'progress') {
               <p class="m-0 font-medium">{{ toast.title }}</p>
               <div
-                aria-live="off"
                 class="text-muted-foreground mt-1 flex justify-between gap-3 text-(length:--neat-text-xs)"
               >
                 <span class="truncate" [attr.title]="toast.detail">{{ toast.detail }}</span>
@@ -79,12 +112,8 @@ const TOAST_CLASSES: Record<ToastEntry['kind'], string> = {
                 }
               </div>
               <div
-                role="progressbar"
+                data-slot="toast-track"
                 class="bg-muted mt-2 h-1.5 overflow-hidden rounded-full"
-                [attr.aria-label]="toast.title"
-                aria-valuemin="0"
-                aria-valuemax="100"
-                [attr.aria-valuenow]="toast.percent"
                 [attr.data-indeterminate]="toast.percent === null ? '' : null"
               >
                 <div
@@ -95,12 +124,7 @@ const TOAST_CLASSES: Record<ToastEntry['kind'], string> = {
                 ></div>
               </div>
             } @else {
-              <p class="m-0">
-                @if (toast.kind === 'error') {
-                  <span class="sr-only">Error: </span>
-                }
-                {{ toast.message }}
-              </p>
+              <p class="m-0">{{ toast.message }}</p>
             }
           </div>
         }
@@ -110,11 +134,14 @@ const TOAST_CLASSES: Record<ToastEntry['kind'], string> = {
 })
 export class NeatToastHost {
   private readonly store = inject(ToastStore);
+  private readonly announcer = viewChild.required<TemplateRef<unknown>>('announcer');
   private readonly stack = viewChild.required<TemplateRef<unknown>>('stack');
-  private overlayRef: OverlayRef | undefined;
-  private newestShown: number | undefined;
+  private stackOverlay: OverlayRef | undefined;
+  private newestShown = 0;
   protected readonly classes = TOAST_CLASSES;
-  protected readonly visible = computed(() => this.store.entries().slice(-MAX_VISIBLE_TOASTS));
+  /** Every toast there is: an entry is announced when it appears, whether it is on screen or not. */
+  protected readonly announced = this.store.entries;
+  protected readonly visible = computed(() => visibleToasts(this.store.entries()));
 
   constructor() {
     const overlay = inject(Overlay);
@@ -122,19 +149,32 @@ export class NeatToastHost {
     const destroyRef = inject(DestroyRef);
 
     afterNextRender(() => {
-      const overlayRef = overlay.create({
+      const announcement = overlay.create({ positionStrategy: overlay.position().global() });
+      announcement.attach(new TemplatePortal(this.announcer(), viewContainer));
+      const stack = overlay.create({
         positionStrategy: overlay.position().global().bottom(SCREEN_INSET).right(SCREEN_INSET),
       });
-      overlayRef.attach(new TemplatePortal(this.stack(), viewContainer));
-      this.overlayRef = overlayRef;
-      destroyRef.onDestroy(() => overlayRef.dispose());
+      stack.attach(new TemplatePortal(this.stack(), viewContainer));
+      for (const layer of [announcement, stack]) {
+        // CDK's own rule gives a pane `pointer-events: auto`, which a class cannot outweigh.
+        layer.overlayElement.style.pointerEvents = 'none';
+      }
+      this.stackOverlay = stack;
+      destroyRef.onDestroy(() => {
+        announcement.dispose();
+        stack.dispose();
+      });
     });
 
     effect(() => {
-      const newest = this.visible().at(-1)?.id;
+      // Ids only grow, so a toast was added when the newest id is larger than any seen. A toast
+      // that clears makes the newest id smaller, and the stack stays where it is.
+      const newest = this.store.entries().at(-1)?.id ?? 0;
       untracked(() => {
-        if (newest !== undefined && newest !== this.newestShown) this.bringToFront();
-        this.newestShown = newest;
+        if (newest > this.newestShown) {
+          this.newestShown = newest;
+          this.bringToFront();
+        }
       });
     });
   }
@@ -146,7 +186,7 @@ export class NeatToastHost {
    * container, and a later sibling is above an earlier one.
    */
   private bringToFront(): void {
-    const host = this.overlayRef?.hostElement;
+    const host = this.stackOverlay?.hostElement;
     if (!host) return;
     if (host.hasAttribute('popover')) {
       host.hidePopover();

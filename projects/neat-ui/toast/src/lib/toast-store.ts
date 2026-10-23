@@ -19,6 +19,28 @@ export type ToastEntry =
       readonly percent: number | null;
     };
 
+/**
+ * The toasts the host shows: at most `MAX_VISIBLE_TOASTS`, oldest first. When there are more,
+ * error and status toasts are hidden before progress toasts (oldest first in each group): work in
+ * progress is what the user is waiting for, and it has no timer to clear it. The newest toast is
+ * never hidden: a message that has just arrived is the news.
+ */
+export function visibleToasts(entries: readonly ToastEntry[]): readonly ToastEntry[] {
+  let excess = entries.length - MAX_VISIBLE_TOASTS;
+  if (excess <= 0) return entries;
+  const hidden = new Set<number>();
+  const newest = entries.at(-1);
+  for (const transient of [true, false]) {
+    for (const entry of entries) {
+      if (excess > 0 && entry !== newest && (entry.kind !== 'progress') === transient) {
+        hidden.add(entry.id);
+        excess--;
+      }
+    }
+  }
+  return entries.filter((entry) => !hidden.has(entry.id));
+}
+
 /** A percent as the bar shows it: whole, within 0 to 100; `null` stays unknown. */
 function wholePercent(percent: number | null): number | null {
   if (percent === null || !Number.isFinite(percent)) return null;

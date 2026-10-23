@@ -31,11 +31,21 @@ describe('NeatToasts and the toast host', () => {
     await vi.advanceTimersByTimeAsync(ms);
     render();
   };
-  const region = () =>
-    document.querySelector<HTMLElement>('.cdk-overlay-container [aria-live="polite"]');
+  const text = (element: Element) => element.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+  /** What a screen reader announces: the visually hidden live region. */
+  const announcer = () =>
+    document.querySelector<HTMLElement>('.cdk-overlay-container [data-slot="toast-announcer"]');
+  const announcements = () =>
+    Array.from(announcer()?.querySelectorAll('[data-slot="toast-announcement"]') ?? []).map(text);
+  /** What the user sees: the stack. */
+  const stack = () =>
+    document.querySelector<HTMLElement>('.cdk-overlay-container [data-slot="toast"]')
+      ?.parentElement ?? null;
   const items = () =>
-    Array.from(region()?.querySelectorAll<HTMLElement>('[data-slot="toast"]') ?? []);
-  const messages = () => items().map((item) => item.textContent?.replace(/\s+/g, ' ').trim());
+    Array.from(
+      document.querySelectorAll<HTMLElement>('.cdk-overlay-container [data-slot="toast"]'),
+    );
+  const messages = () => items().map(text);
 
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
@@ -90,20 +100,15 @@ describe('NeatToasts and the toast host', () => {
 
     expect(items()).toHaveLength(1);
     expect(items()[0].dataset['kind']).toBe('error');
-    expect(messages()).toEqual(['Error: Upload failed: disk full.']);
+    expect(messages()).toEqual(['Upload failed: disk full.']);
+    expect(announcements()).toContain('Error: Upload failed: disk full.');
     await advance(ERROR_TOAST_MS - 1);
     expect(items()).toHaveLength(1);
     await advance(1);
     expect(items()).toHaveLength(0);
   });
 
-  it('the host announces politely from the start and keeps at most 3 toasts, newest last', async () => {
-    // The live region exists before the first toast: assistive technology announces additions to
-    // a region it already knows, not one that appears with its content.
-    expect(region()).not.toBeNull();
-    expect(region()!.getAttribute('aria-live')).toBe('polite');
-    expect(items()).toHaveLength(0);
-
+  it('keeps at most 3 toasts, newest last, and hides error and status toasts before progress ones', async () => {
     expect(MAX_VISIBLE_TOASTS).toBe(3);
     toasts.status('one');
     toasts.status('two');
@@ -115,64 +120,77 @@ describe('NeatToasts and the toast host', () => {
     render();
     expect(messages()).toEqual(['two', 'three', 'four']);
 
-    // The oldest cleared on its own clock, hidden or not; a toast kept hidden by newer ones
-    // comes back while it lives.
-    await advance(1);
+    // Work in progress is what the user waits for: it is the last to be hidden.
+    await advance(ERROR_TOAST_MS);
     const progress = toasts.progress('Importing');
     toasts.error('a');
     toasts.error('b');
     toasts.error('c');
     render();
-    expect(messages().join('|')).not.toContain('Importing');
+    expect(messages()).toEqual([expect.stringContaining('Importing'), 'b', 'c']);
+
+    // A hidden toast keeps its own clock and is back while it lives.
     await advance(ERROR_TOAST_MS);
     expect(messages()).toEqual([expect.stringContaining('Importing')]);
     progress.done('Imported.');
   });
 
+  it('with more than 3 progress toasts the oldest is the one that is hidden', () => {
+    const first = toasts.progress('First');
+    toasts.progress('Second');
+    toasts.progress('Third');
+    toasts.progress('Fourth');
+    render();
+
+    expect(messages().map((message) => message.split(' ')[0])).toEqual([
+      'Second',
+      'Third',
+      'Fourth',
+    ]);
+    // Its result is the news, so it shows; a running toast makes room, and is back when the
+    // result clears.
+    first.done('First done.');
+    render();
+    expect(messages().map((message) => message.split(' ')[0])).toEqual([
+      'Third',
+      'Fourth',
+      'First',
+    ]);
+    expect(messages().at(-1)).toBe('First done.');
+  });
+
   it('a progress toast shows its title, detail and percent, and an unknown percent is indeterminate', () => {
     const progress = toasts.progress('Uploading 3 files');
     render();
-    const bar = () => items()[0].querySelector<HTMLElement>('[role="progressbar"]')!;
+    const track = () => items()[0].querySelector<HTMLElement>('[data-slot="toast-track"]')!;
+    const fill = () => items()[0].querySelector<HTMLElement>('[data-slot="toast-fill"]')!;
 
     expect(items()[0].dataset['kind']).toBe('progress');
     expect(items()[0].textContent).toContain('Uploading 3 files');
-    expect(bar().getAttribute('aria-label')).toBe('Uploading 3 files');
-    expect(bar().hasAttribute('aria-valuenow')).toBe(false);
-    expect(bar().dataset['indeterminate']).toBe('');
+    expect(track().dataset['indeterminate']).toBe('');
+    expect(fill().dataset['indeterminate']).toBe('');
+    expect(fill().style.width).toBe('');
 
     progress.update('clip.mp4 · file 1 of 3', 41.6);
     render();
     expect(items()[0].textContent).toContain('clip.mp4 · file 1 of 3');
     expect(items()[0].textContent).toContain('42%');
-    expect(bar().getAttribute('aria-valuenow')).toBe('42');
-    expect(bar().getAttribute('aria-valuemin')).toBe('0');
-    expect(bar().getAttribute('aria-valuemax')).toBe('100');
-    expect(bar().hasAttribute('data-indeterminate')).toBe(false);
-    expect(bar().querySelector<HTMLElement>('[data-slot="toast-fill"]')!.style.width).toBe('42%');
+    expect(track().hasAttribute('data-indeterminate')).toBe(false);
+    expect(fill().style.width).toBe('42%');
 
     // Back to unknown, and out-of-range values are held to the bar.
     progress.update('Preparing', null);
     render();
-    expect(bar().hasAttribute('aria-valuenow')).toBe(false);
+    expect(fill().dataset['indeterminate']).toBe('');
     progress.update('Over', 140);
     render();
-    expect(bar().getAttribute('aria-valuenow')).toBe('100');
+    expect(fill().style.width).toBe('100%');
     progress.update('Under', -5);
     render();
-    expect(bar().getAttribute('aria-valuenow')).toBe('0');
+    expect(fill().style.width).toBe('0%');
   });
 
-  it('a progress toast’s changing text is not read out on every update', () => {
-    const progress = toasts.progress('Uploading');
-    progress.update('clip.mp4', 10);
-    render();
-
-    const changing = items()[0].querySelector('[aria-live="off"]')!;
-    expect(changing.textContent).toContain('clip.mp4');
-    expect(changing.textContent).toContain('10%');
-  });
-
-  it('a settled progress toast ignores later calls, and a result comes up as the newest toast', async () => {
+  it('a settled progress toast ignores later calls, and a result comes up as the newest toast', () => {
     const first = toasts.progress('First');
     const second = toasts.progress('Second');
     toasts.status('Between');
@@ -191,7 +209,122 @@ describe('NeatToasts and the toast host', () => {
 
     second.fail('Second failed.');
     render();
-    expect(messages()).toEqual(['Between', 'First done.', 'Error: Second failed.']);
+    expect(messages()).toEqual(['Between', 'First done.', 'Second failed.']);
+  });
+
+  describe('what a screen reader announces', () => {
+    /** Entries added to the live region, as an assistive technology would be told of them. */
+    function watchAdditions(region: Element) {
+      const added: string[] = [];
+      const observer = new MutationObserver((records) => {
+        for (const record of records) {
+          record.addedNodes.forEach((node) => {
+            if (node instanceof Element && node.matches('[data-slot="toast-announcement"]')) {
+              added.push(text(node));
+            }
+          });
+        }
+      });
+      observer.observe(region, { childList: true, subtree: true });
+      return { added, stop: () => observer.disconnect() };
+    }
+
+    it('is one polite, visually hidden live region that exists before the first toast; the stack is hidden from assistive technology', () => {
+      const region = announcer()!;
+      expect(region).not.toBeNull();
+      expect(region.getAttribute('aria-live')).toBe('polite');
+      expect(region.classList).toContain('sr-only');
+      expect(announcements()).toEqual([]);
+
+      toasts.status('Stopped 2 sources.');
+      render();
+      expect(stack()!.getAttribute('aria-hidden')).toBe('true');
+      expect(stack()!.closest('[aria-live]')).toBeNull();
+      expect(region.closest('[aria-hidden="true"]')).toBeNull();
+    });
+
+    it('gets each toast’s text exactly once: a new toast, a progress update, bringing the stack forward and a toast clearing add nothing else', async () => {
+      const region = announcer()!;
+      const watch = watchAdditions(region);
+
+      toasts.error('Upload failed.');
+      render();
+      toasts.status('Stopped 2 sources.');
+      const progress = toasts.progress('Importing');
+      render();
+      progress.update('clip.mp4', 10);
+      render();
+      progress.update('clip.mp4', 60);
+      render();
+      await advance(STATUS_TOAST_MS);
+      progress.done('Imported.');
+      render();
+      // The observer delivers its records in a microtask.
+      await Promise.resolve();
+      watch.stop();
+
+      expect(watch.added.map((entry) => entry.replace(/ +\d+%| clip\.mp4/g, '').trim())).toEqual([
+        'Error: Upload failed.',
+        'Stopped 2 sources.',
+        'Importing',
+        'Imported.',
+      ]);
+      expect(announcer()).toBe(region);
+    });
+
+    it('is the same node, connected and never hidden, across new toasts and the stack being brought forward', async () => {
+      const shown: Element[] = [];
+      const hidden: Element[] = [];
+      HTMLElement.prototype.showPopover = function (this: HTMLElement) {
+        shown.push(this);
+      };
+      HTMLElement.prototype.hidePopover = function (this: HTMLElement) {
+        hidden.push(this);
+      };
+      try {
+        fixture.destroy();
+        fixture = TestBed.createComponent(ToastApp);
+        toasts = fixture.componentInstance.toasts;
+        render();
+        const region = announcer()!;
+        const announcerHost = region.closest('[popover]')!;
+
+        toasts.status('one');
+        render();
+        toasts.error('two');
+        render();
+
+        expect(announcer()).toBe(region);
+        expect(region.isConnected).toBe(true);
+        expect(hidden).not.toContain(announcerHost);
+        expect(hidden.length).toBeGreaterThan(0);
+        // It was shown once, when it was created.
+        expect(shown.filter((host) => host === announcerHost)).toHaveLength(1);
+      } finally {
+        delete (HTMLElement.prototype as Partial<HTMLElement>).showPopover;
+        delete (HTMLElement.prototype as Partial<HTMLElement>).hidePopover;
+      }
+    });
+
+    it('describes a progress toast by its title, with the changing detail in a part that is not live', () => {
+      const progress = toasts.progress('Uploading');
+      progress.update('clip.mp4', 10);
+      render();
+
+      const entry = announcer()!.querySelector('[data-slot="toast-announcement"]')!;
+      expect(entry.firstChild?.textContent?.trim()).toBe('Uploading');
+      const changing = entry.querySelector('[aria-live="off"]')!;
+      expect(text(changing)).toBe('clip.mp4 10%');
+    });
+  });
+
+  it('takes no pointer events, so a toast never sits on a dialog’s buttons', () => {
+    toasts.status('Stopped 2 sources.');
+    render();
+
+    const paneOf = (element: Element) => element.closest<HTMLElement>('.cdk-overlay-pane')!;
+    expect(paneOf(stack()!).style.pointerEvents).toBe('none');
+    expect(paneOf(announcer()!).style.pointerEvents).toBe('none');
   });
 
   it('shows a toast above a modal dialog, outside what the dialog hides from assistive technology', async () => {
@@ -204,11 +337,11 @@ describe('NeatToasts and the toast host', () => {
     toasts.error('Could not assign src3.');
     render();
 
-    // The page is hidden while the dialog is open; the toast is not.
+    // The page is hidden while the dialog is open; the announcements are not.
     expect(fixture.nativeElement.closest('[aria-hidden="true"]')).not.toBeNull();
-    expect(items()).toHaveLength(1);
-    expect(items()[0].closest('[aria-hidden="true"]')).toBeNull();
-    // Overlays stack in DOM order here (no popover API in jsdom): the toast's comes after the
+    expect(announcements()).toEqual(['Error: Could not assign src3.']);
+    expect(announcer()!.closest('[aria-hidden="true"]')).toBeNull();
+    // Overlays stack in DOM order here (no popover API in jsdom): the stack's comes after the
     // dialog's, though it was created first.
     const layers = () => Array.from(document.querySelector('.cdk-overlay-container')!.children);
     const layer = (element: Element) => layers().find((candidate) => candidate.contains(element))!;
@@ -217,7 +350,7 @@ describe('NeatToasts and the toast host', () => {
     ref.close();
   });
 
-  it('brings the stack to the top of the top layer with each new toast where the browser has popovers', async () => {
+  it('brings the stack to the top of the top layer when a toast is added, and only then, where the browser has popovers', async () => {
     // With the popover API the CDK shows each overlay as a popover; the top layer orders them by
     // when they were shown. jsdom has none, so the calls are recorded.
     const shown: Element[] = [];
@@ -233,9 +366,11 @@ describe('NeatToasts and the toast host', () => {
       fixture = TestBed.createComponent(ToastApp);
       toasts = fixture.componentInstance.toasts;
       render();
-      const stackHost = region()!.closest('[popover]')!;
+      toasts.status('first');
+      render();
+      const stackHost = stack()!.closest('[popover]')!;
       expect(stackHost).not.toBeNull();
-      expect(shown).toEqual([stackHost]);
+      expect(shown.at(-1)).toBe(stackHost);
 
       TestBed.inject(NeatDialog).open(DialogBody, { title: 'Assign source' });
       render();
@@ -248,13 +383,22 @@ describe('NeatToasts and the toast host', () => {
       expect(hidden.at(-1)).toBe(stackHost);
       expect(shown.at(-1)).toBe(stackHost);
 
-      // A change to a toast that is already shown does not reshuffle the layers.
-      const count = shown.length;
+      // A toast that is updated does not reshuffle the layers; neither does one that clears,
+      // which would replay every remaining toast's entry animation.
       const progress = toasts.progress('Importing');
       render();
-      expect(shown.length).toBe(count + 1);
+      const count = shown.length;
       progress.update('clip.mp4', 40);
       render();
+      expect(shown.length).toBe(count);
+      toasts.status('Stopped 2 sources.');
+      render();
+      expect(shown.length).toBe(count + 1);
+      await advance(STATUS_TOAST_MS);
+      expect(items().map((item) => item.dataset['kind'])).toEqual(['error', 'progress']);
+      expect(shown.length).toBe(count + 1);
+      await advance(ERROR_TOAST_MS);
+      expect(items()).toHaveLength(1);
       expect(shown.length).toBe(count + 1);
     } finally {
       delete (HTMLElement.prototype as Partial<HTMLElement>).showPopover;
@@ -262,13 +406,15 @@ describe('NeatToasts and the toast host', () => {
     }
   });
 
-  it('removes its stack from the overlay layer when the host is destroyed', () => {
+  it('removes its layers from the overlay layer when the host is destroyed', () => {
     toasts.status('Stopped 2 sources.');
     render();
-    expect(region()).not.toBeNull();
+    expect(announcer()).not.toBeNull();
+    expect(stack()).not.toBeNull();
 
     fixture.destroy();
-    expect(region()).toBeNull();
+    expect(announcer()).toBeNull();
+    expect(stack()).toBeNull();
   });
 
   describe('contrast, from the emitted theme tokens', () => {
@@ -303,7 +449,7 @@ describe('NeatToasts and the toast host', () => {
 
         // The bar's fill against its track: what tells done from to do.
         const bar = items().find((item) => item.dataset['kind'] === 'progress')!;
-        const track = [...bar.querySelector('[role="progressbar"]')!.classList];
+        const track = [...bar.querySelector('[data-slot="toast-track"]')!.classList];
         const fill = [...bar.querySelector('[data-slot="toast-fill"]')!.classList];
         const trackColor = stateColor(track, 'bg', q, tokens['popover']);
         const fillColor = stateColor(fill, 'bg', q, trackColor);

@@ -1,4 +1,4 @@
-import { Component, inject, TemplateRef, viewChild } from '@angular/core';
+import { Component, inject, TemplateRef, type Type, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import helmContent from '../../../src/lib/ui/dialog/src/lib/hlm-dialog-content.ts?source' with {
   loader: 'text',
@@ -64,6 +64,15 @@ class RenameForm {
   protected readonly dialog = inject<NeatDialogRef<string>>(NeatDialogRef);
 }
 
+/** Content that styles its own host, as components commonly do. */
+@Component({
+  selector: 'neat-block-host-form',
+  imports: [NeatDialogBody],
+  styleUrl: './block-host-form.spec.css',
+  template: `<neat-dialog-body>Body</neat-dialog-body>`,
+})
+class BlockHostForm {}
+
 /** A page with an opener and two ways to give a dialog its content: a template or a component. */
 @Component({
   imports: [NeatButton, NeatDialogActions, NeatDialogBody],
@@ -122,7 +131,7 @@ describe('NeatDialog', () => {
     const host = fixture.componentInstance;
     /** Opens as an app does: from a click on the opener, which has focus. */
     const open = async <R = string>(
-      content: TemplateRef<unknown> | typeof RenameForm = host.form(),
+      content: TemplateRef<unknown> | Type<unknown> = host.form(),
       options: NeatDialogOptions = RENAME,
     ) => {
       opener.focus();
@@ -243,16 +252,17 @@ describe('NeatDialog', () => {
     expect(clicked).toEqual({ settled: true, value: undefined });
     expect(dialog()).toBeNull();
 
-    // Busy: neither closes it, and the close button is gone with them.
+    // Busy: neither closes it, and the close button is dimmed and does nothing.
     const busy = await open();
     const stayed = track(busy.closed);
-    expect(button('Close')).toBeDefined();
+    expect(button('Close')!.hasAttribute('aria-disabled')).toBe(false);
     busy.setDismissible(false);
     await settle();
     expect(busy.dismissible()).toBe(false);
-    expect(button('Close')).toBeUndefined();
+    expect(button('Close')!.getAttribute('aria-disabled')).toBe('true');
     escape();
     clickBackdrop();
+    button('Close')!.click();
     await settle();
     expect(dialog()).not.toBeNull();
     expect(stayed.settled).toBe(false);
@@ -260,7 +270,7 @@ describe('NeatDialog', () => {
     // The dialog's own buttons and close() still work, and so does Escape once it is free again.
     busy.setDismissible(true);
     await settle();
-    expect(button('Close')).toBeDefined();
+    expect(button('Close')!.hasAttribute('aria-disabled')).toBe(false);
     escape();
     await settle();
     expect(stayed).toEqual({ settled: true, value: undefined });
@@ -275,10 +285,70 @@ describe('NeatDialog', () => {
     clickBackdrop();
     await settle();
     expect(dialog()).not.toBeNull();
-    expect(button('Close')).toBeUndefined();
+    expect(button('Close')!.getAttribute('aria-disabled')).toBe('true');
 
     ref.close('done');
     await settle();
+    expect(dialog()).toBeNull();
+  });
+
+  it('a handled Escape stops at the dialog: document and window listeners never see it, busy or not', async () => {
+    const { settle, open } = await render();
+    const seen = vi.fn();
+    document.addEventListener('keydown', seen);
+    window.addEventListener('keydown', seen);
+    try {
+      const ref = await open();
+      escape();
+      await settle();
+      expect(dialog()).toBeNull();
+      expect(seen).not.toHaveBeenCalled();
+
+      const busy = await open(undefined, { ...RENAME, dismissible: false });
+      escape();
+      await settle();
+      expect(dialog()).not.toBeNull();
+      expect(seen).not.toHaveBeenCalled();
+
+      // Other keys are the page's own.
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'a', bubbles: true }),
+      );
+      expect(seen).toHaveBeenCalledTimes(2);
+      busy.close();
+      void ref;
+    } finally {
+      document.removeEventListener('keydown', seen);
+      window.removeEventListener('keydown', seen);
+    }
+  });
+
+  it('keeps focus in the dialog when it turns busy while the close button has it', async () => {
+    const { settle, open } = await render();
+    vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(80);
+    const ref = await open();
+    const close = button('Close')!;
+    close.focus();
+
+    ref.setDismissible(false);
+    await settle();
+
+    expect(close.isConnected).toBe(true);
+    expect(document.activeElement).toBe(close);
+    // Tab still cycles inside the dialog.
+    tab();
+    expect(dialog()!.contains(document.activeElement)).toBe(true);
+  });
+
+  it('navigation closes a dialog even when it is not dismissible, as a dismissal', async () => {
+    const { settle, open } = await render();
+    const ref = await open(undefined, { ...RENAME, dismissible: false });
+    const closed = track(ref.closed);
+
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    await settle();
+
+    expect(closed).toEqual({ settled: true, value: undefined });
     expect(dialog()).toBeNull();
   });
 
@@ -314,6 +384,8 @@ describe('NeatDialog', () => {
     const ref = await open();
     const closed = track(ref.closed);
 
+    const name = dialog()!.querySelector<HTMLInputElement>('.name')!;
+    name.focus();
     const asked = track(
       TestBed.inject(NeatConfirm).ask({
         title: 'Discard?',
@@ -327,6 +399,8 @@ describe('NeatDialog', () => {
     expect(asked).toEqual({ settled: true, value: false });
     expect(closed.settled).toBe(false);
     expect(dialog()).not.toBeNull();
+    // The confirm gives focus back to where it was in the dialog, so the dialog's trap resumes.
+    expect(document.activeElement).toBe(name);
   });
 
   it('size picks the panel width: medium by default, small and large on request', async () => {
@@ -362,14 +436,22 @@ describe('NeatDialog', () => {
     const { open } = await render();
     await open<string>(RenameForm);
 
-    const host = document.querySelector('neat-rename-form')!;
-    expect(host.classList).toContain('contents');
+    const host = document.querySelector<HTMLElement>('neat-rename-form')!;
+    expect(host.style.display).toBe('contents');
     const body = document.querySelector('neat-dialog-body')!;
     expect([...body.classList]).toEqual(expect.arrayContaining(['min-h-0', 'overflow-y-auto']));
     expect(body.parentElement).toBe(host);
     expect(document.querySelector('neat-dialog-actions')!.className).toBe(
       DIALOG_HELM_CLASSES.footer,
     );
+  });
+
+  it('a component’s own `:host { display: block }` does not undo its layout as part of the panel', async () => {
+    const { open } = await render();
+    await open<string>(BlockHostForm);
+
+    const host = document.querySelector<HTMLElement>('neat-block-host-form')!;
+    expect(getComputedStyle(host).display).toBe('contents');
   });
 
   it('helm drift: the copied class strings still appear in the vendored helm dialog', () => {

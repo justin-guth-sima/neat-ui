@@ -1,0 +1,4 @@
+/* A content component that styles its own host, as components commonly do (dialog.spec). */
+:host {
+  display: block;
+}

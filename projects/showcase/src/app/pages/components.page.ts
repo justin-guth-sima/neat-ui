@@ -562,10 +562,11 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
               <div class="dialog-form">
                 <label class="dialog-field">
                   <span>Name</span>
-                  <input neatInput #name value="Front door" [disabled]="saving()" />
+                  <input neatInput #name value="Front door" [readOnly]="saving()" />
                 </label>
                 <button
                   neatSwitch
+                  [disabled]="saving()"
                   [checked]="dialog.dismissible()"
                   (checkedChange)="dialog.setDismissible($event)"
                 >
@@ -578,16 +579,16 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
                 neatButton
                 type="button"
                 variant="outlined"
-                [disabled]="saving()"
-                (click)="dialog.close()"
+                [attr.aria-disabled]="saving() || null"
+                (click)="saving() || dialog.close()"
               >
                 Cancel
               </button>
               <button
                 neatButton
                 type="button"
-                [disabled]="saving()"
-                (click)="save(dialog, name.value)"
+                [attr.aria-disabled]="saving() || null"
+                (click)="saving() || save(dialog, name.value)"
               >
                 {{ saving() ? 'Saving…' : 'Save' }}
               </button>
@@ -616,7 +617,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <code>progress</code> stays until <code>done</code> or <code>fail</code>, so work that
             outlives its page keeps reporting. The app renders one
             <code>neat-toast-host</code> beside the shell; it shows the newest three in the
-            bottom-right corner, above dialogs, and announces them politely.
+            bottom-right corner and announces them politely. A new toast comes to the front, above
+            an open dialog; one that was already showing when a dialog opened stays under it. Clicks
+            pass through toasts.
           </p>
           <div class="showcase-row">
             <button
@@ -974,7 +977,11 @@ export class ComponentsPage {
     this.dialogResult.set('Sources: closed');
   }
 
-  /** Saving takes a moment, during which the dialog may not be dismissed. */
+  /**
+   * Saving takes a moment, during which the dialog may not be dismissed. The buttons are marked
+   * `aria-disabled` rather than `disabled`: the button that was pressed has focus, and a disabled
+   * control loses it, which would leave the keyboard outside the dialog.
+   */
   protected save(dialog: NeatDialogRef<string>, name: string): void {
     this.saving.set(true);
     dialog.setDismissible(false);

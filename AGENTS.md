@@ -38,9 +38,11 @@ look happens in one place. Every rule here protects that.
 **The toast host is rendered by the app, once, beside the shell.** `<neat-toast-host />` goes next
 to `<neat-shell>` in the app's root template (as the showcase's `app.ts` does); `NeatToasts` shows
 nothing without it. Why not in the shell: the shell is the primary entry, which cannot import a
-secondary one, and an app that shows no toasts should not carry them. The host renders its stack
-in the CDK overlay layer, not where it stands, so a modal dialog's `aria-hidden` on the page does
-not silence it and it can sit above a dialog (each new toast brings it to the front).
+secondary one, and an app that shows no toasts should not carry them. The host renders in the CDK
+overlay layer, not where it stands, so a modal dialog's `aria-hidden` on the page does not silence
+it and it can sit above a dialog (each new toast brings the stack to the front). Two layers: the
+visible stack (`aria-hidden`, takes no pointer events) and a never-re-shown, visually hidden
+`aria-live` region that announces each toast once.
 
 **The entry points depend one way.** A secondary entry may import the primary and other secondary
 entries only through the package name (`from '@sima/neat-ui'`, `from '@sima/neat-ui/input'`),
