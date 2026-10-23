@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import helmGroup from '../ui/toggle-group/src/lib/hlm-toggle-group.ts?source' with {
   loader: 'text',
 };
@@ -181,6 +182,21 @@ describe('NeatSegmented', () => {
     expect(host.shape()).toBe('square');
     expect(checked(radios)).toEqual(['false', 'true', 'false']);
     expect(host.changes).toEqual(['square']);
+  });
+
+  it('focus() focuses the selected segment, the control\u2019s tab stop', async () => {
+    const { fixture, host, radios } = await render();
+    const segmented: NeatSegmented<Shape> = fixture.debugElement.query(
+      By.directive(NeatSegmented),
+    ).componentInstance;
+
+    segmented.focus();
+    expect(document.activeElement).toBe(radios[0]);
+
+    host.shape.set('tall');
+    await fixture.whenStable();
+    segmented.focus();
+    expect(document.activeElement).toBe(radios[2]);
   });
 
   it('disabled disables every radio and ignores clicks and arrows', async () => {

@@ -17,6 +17,10 @@ import {
   NeatIcon,
   NeatInlineButton,
   NeatInput,
+  NeatLine,
+  NeatLineEnd,
+  NeatLineList,
+  NeatNumberField,
   NeatPage,
   NeatPopover,
   NeatPopoverContent,
@@ -61,6 +65,7 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
   { value: 'boxes', label: 'Boxes' },
   { value: 'masks', label: 'Masks' },
 ];
+const INITIAL_REGIONS = ['Inclusion 1', 'Exclusion 1', 'Exclusion 2'];
 const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
   { value: 'off', label: 'Off' },
   { value: 'inclusion', label: 'Inclusion' },
@@ -74,6 +79,10 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatIcon,
     NeatInlineButton,
     NeatInput,
+    NeatLine,
+    NeatLineEnd,
+    NeatLineList,
+    NeatNumberField,
     NeatPage,
     NeatPopover,
     NeatPopoverContent,
@@ -166,22 +175,66 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
               Overridden on 2 channels ·
               <button neatInlineButton type="button">Show</button>
             </p>
-            <ul class="inline-lines">
-              <li>
+            <ul neatLineList>
+              <li neatLine>
                 Channel 3 <span class="showcase-muted">900 ms</span>
-                <button neatInlineButton type="button" class="inline-end">Use global</button>
+                <button neatInlineButton neatLineEnd type="button">Use global</button>
               </li>
-              <li>
+              <li neatLine>
                 Channel 7 <span class="showcase-muted">600 ms</span>
-                <button neatInlineButton type="button" class="inline-end">Use global</button>
+                <button neatInlineButton neatLineEnd type="button">Use global</button>
               </li>
-              <li>
+              <li neatLine>
                 <button neatInlineButton type="button" disabled>Reset on 2 channels…</button>
               </li>
-              <li>
+              <li neatLine>
                 <a neatInlineButton routerLink="/components">All components</a>
               </li>
             </ul>
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Line list</h2>
+          <p class="showcase-muted">
+            <code>neatLineList</code> on a <code>ul</code> or <code>ol</code>, with
+            <code>neatLine</code> on its <code>li</code>s: small lines under a thin rule, at least
+            1.5rem high. <code>neatLineEnd</code> pushes an element, usually a
+            <code>neatInlineButton</code>, to the end of its line. Delete a region to see the list
+            shrink.
+          </p>
+          <div class="card list-demo">
+            @if (regions().length === 0) {
+              <p class="showcase-muted">No regions.</p>
+            } @else {
+              <ul neatLineList>
+                @for (region of regions(); track region) {
+                  <li neatLine>
+                    <span>{{ region }}</span>
+                    <button
+                      neatInlineButton
+                      neatLineEnd
+                      type="button"
+                      [attr.aria-label]="'Delete ' + region"
+                      (click)="deleteRegion(region)"
+                    >
+                      Delete
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+          <div class="showcase-row">
+            <button
+              neatButton
+              type="button"
+              variant="outlined"
+              size="small"
+              (click)="resetRegions()"
+            >
+              Restore regions
+            </button>
           </div>
         </section>
 
@@ -319,9 +372,18 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             keys move the choice.
           </p>
           <div class="showcase-row">
-            <neat-segmented label="Tile shape" [options]="shapes" [(value)]="shape" />
+            <neat-segmented #shapeControl label="Tile shape" [options]="shapes" [(value)]="shape" />
             <neat-segmented label="Overlays" [options]="overlays" [(value)]="overlay" />
             <neat-segmented label="Tile shape, disabled" [options]="shapes" value="1:1" disabled />
+            <button
+              neatButton
+              type="button"
+              variant="outlined"
+              size="small"
+              (click)="shapeControl.focus()"
+            >
+              Focus the tile shape
+            </button>
           </div>
           <p class="showcase-code showcase-muted">Shape {{ shape() }}, overlays {{ overlay() }}</p>
         </section>
@@ -466,6 +528,35 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
               <input neatInput disabled value="Read only" />
             </label>
           </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Number field</h2>
+          <p class="showcase-muted">
+            <code>neat-number-field</code>: a small field for jumping to one whole number, its label
+            before it and naming it. Enter or leaving the field commits a whole number that
+            <code>accept</code> takes, even the one already shown; anything else puts the shown
+            value back. Content marked <code>neatNumberFieldSuffix</code> follows the input. This
+            page field accepts 1 to {{ pageCount }}.
+          </p>
+          <div class="showcase-row">
+            <neat-number-field
+              label="Page"
+              [value]="page()"
+              [accept]="acceptPage"
+              (commit)="commitPage($event)"
+            >
+              <span neatNumberFieldSuffix>of {{ pageCount }}</span>
+            </neat-number-field>
+            <neat-number-field
+              label="Draw on channel"
+              [value]="drawChannel()"
+              (commit)="drawChannel.set($event)"
+            />
+          </div>
+          <p class="showcase-code showcase-muted">
+            Page {{ page() }}, commits so far {{ pageCommits() }}; channel {{ drawChannel() }}
+          </p>
         </section>
 
         <section class="showcase-section">
@@ -652,6 +743,12 @@ export class ComponentsPage {
   protected readonly viewOptionsOpen = signal(false);
   protected readonly channelOpen = signal(false);
   protected readonly channel = signal('');
+  protected readonly regions = signal(INITIAL_REGIONS);
+  protected readonly pageCount = 9;
+  protected readonly page = signal(3);
+  protected readonly pageCommits = signal(0);
+  protected readonly drawChannel = signal(2);
+  protected readonly acceptPage = (n: number) => n >= 1 && n <= this.pageCount;
   protected readonly confirmAnswer = signal('Not asked yet');
   private readonly confirm = inject(NeatConfirm);
 
@@ -701,6 +798,19 @@ export class ComponentsPage {
       cancelLabel: 'Not now',
     });
     this.confirmAnswer.set(`Apply to all: ${apply ? 'confirmed' : 'cancelled'}`);
+  }
+
+  protected deleteRegion(region: string): void {
+    this.regions.update((regions) => regions.filter((name) => name !== region));
+  }
+
+  protected resetRegions(): void {
+    this.regions.set(INITIAL_REGIONS);
+  }
+
+  protected commitPage(page: number): void {
+    this.page.set(page);
+    this.pageCommits.update((count) => count + 1);
   }
 
   protected togglePressed(variant: NeatButtonVariant): void {

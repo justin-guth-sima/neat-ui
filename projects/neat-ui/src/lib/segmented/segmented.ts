@@ -130,6 +130,11 @@ export class NeatSegmented<T> {
 
   private readonly segments = viewChildren<ElementRef<HTMLButtonElement>>('segment');
 
+  /** Focuses the control's tab stop, the checked option (else the first): where Tab enters it. */
+  focus(): void {
+    this.segments()[this.tabStop()]?.nativeElement.focus();
+  }
+
   /** Moves the choice from the segment at `current` (the one with focus) as the key says. */
   protected move(event: KeyboardEvent, current: number): void {
     const next = MOVES[event.key];
