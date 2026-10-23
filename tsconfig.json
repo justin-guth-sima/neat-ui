@@ -8,6 +8,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "@sima/neat-ui/video": ["./projects/neat-ui/video/src/public-api.ts"],
       "@sima/neat-ui": ["./projects/neat-ui/src/public-api.ts"]
     },
     "skipLibCheck": true,

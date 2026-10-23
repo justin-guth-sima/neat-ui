@@ -1,5 +1,5 @@
 import type { NeatMetadataMessage } from '../sync/metadata-message';
-import { OVERLAY_ROI_COLORS } from '../../theme/overlay-palette';
+import { OVERLAY_ROI_COLORS } from '../theme/overlay-palette';
 import type { NeatRoiPolygon } from './overlay-settings';
 import {
   drawMessages,

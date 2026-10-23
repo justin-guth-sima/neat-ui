@@ -27,13 +27,15 @@ import {
   NeatSwitch,
   NeatTab,
   NeatTabs,
+  NeatTooltip,
+  type NeatTooltipPosition,
+} from '@sima/neat-ui';
+import {
   NeatTileGrid,
   type NeatTileLayout,
   type NeatTileState,
-  NeatTooltip,
-  type NeatTooltipPosition,
   NeatVideoTile,
-} from '@sima/neat-ui';
+} from '@sima/neat-ui/video';
 import { TestPatternSource } from './test-pattern-source';
 
 const VARIANTS: NeatButtonVariant[] = ['primary', 'secondary', 'outlined', 'text', 'danger'];

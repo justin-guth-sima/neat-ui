@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
-import { type NeatMetadataMessage, type NeatTileSource, SIMA_PALETTE } from '@sima/neat-ui';
+import { SIMA_PALETTE } from '@sima/neat-ui';
+import type { NeatMetadataMessage, NeatTileSource } from '@sima/neat-ui/video';
 
 const WIDTH = 640;
 const HEIGHT = 360;

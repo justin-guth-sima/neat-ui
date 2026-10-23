@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { OVERLAY_NEUTRAL_COLOR, OVERLAY_PALETTE } from '../../theme/overlay-palette';
+import { OVERLAY_NEUTRAL_COLOR, OVERLAY_PALETTE } from '../theme/overlay-palette';
 
 /** An identity that has not been drawn for this long no longer holds its slot. */
 export const RELEASE_AFTER_MS = 5000;

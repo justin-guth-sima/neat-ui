@@ -25,7 +25,11 @@
           "defaultConfiguration": "production"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            // Globs are relative to the source root, which the video entry point sits beside.
+            "include": ["**/*.spec.ts", "../video/src/**/*.spec.ts"]
+          }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
@@ -64,10 +68,9 @@
               "budgets": [
                 {
                   // The @sima/neat-ui barrel puts all kit code in the showcase's main bundle, lazy
-                  // pages or not, so this grows with every kit component. Kit secondary entry
-                  // points (planned for plan 2b) are the real fix.
+                  // pages or not, so this grows with every kit component.
                   "type": "initial",
-                  "maximumWarning": "750kB",
+                  "maximumWarning": "700kB",
                   "maximumError": "1MB"
                 },
                 {

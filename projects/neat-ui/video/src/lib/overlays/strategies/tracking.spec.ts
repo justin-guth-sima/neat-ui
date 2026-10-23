@@ -1,5 +1,5 @@
 import type { NeatMetadataMessage } from '../../sync/metadata-message';
-import { OVERLAY_NEUTRAL_COLOR, OVERLAY_PALETTE } from '../../../theme/overlay-palette';
+import { OVERLAY_NEUTRAL_COLOR, OVERLAY_PALETTE } from '../../theme/overlay-palette';
 import type { NeatOverlaySettings } from '../overlay-settings';
 import {
   colorOfText,

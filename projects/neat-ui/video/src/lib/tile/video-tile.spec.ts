@@ -1,6 +1,6 @@
 import { afterEveryRender, Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { OVERLAY_PALETTE } from '../../theme/overlay-palette';
+import { OVERLAY_PALETTE } from '../theme/overlay-palette';
 import type { NeatMetadataMessage } from '../sync/metadata-message';
 import type { NeatOverlaySettings } from '../overlays/overlay-settings';
 import { NEAT_OVERLAY_DEFAULTS } from '../overlays/overlay-settings';

@@ -1,4 +1,4 @@
-import { OVERLAY_LABEL_PLATE_COLOR } from '../../theme/overlay-palette';
+import { OVERLAY_LABEL_PLATE_COLOR } from '../theme/overlay-palette';
 import type { ColorAllocator, ColorNamespace } from './colors';
 import { resolveColor } from './colors';
 import type { Letterbox } from './letterbox';

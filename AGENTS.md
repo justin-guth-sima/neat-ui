@@ -10,8 +10,23 @@ hatch says what to do instead of working around the rule.
 demo apps later). Its value is that every app looks and behaves the same and that a change to the
 look happens in one place. Every rule here protects that.
 
-- `projects/neat-ui`: the library (`@sima/neat-ui`). Public API is `projects/neat-ui/src/public-api.ts`.
+- `projects/neat-ui`: the library, with two entry points, each with its own public API file:
+  - `@sima/neat-ui`: everything but video. Public API is `projects/neat-ui/src/public-api.ts`.
+  - `@sima/neat-ui/video`: the video tile, the tile grid and what they need (overlay drawing,
+    metadata sync, the overlay palette). Public API is `projects/neat-ui/video/src/public-api.ts`;
+    its code lives in `projects/neat-ui/video/src/lib/`. Why a separate entry point: a page that
+    shows no video must not load the canvas, frame-loop and overlay code, and an app's lazy routes
+    can only keep it out of the main bundle if it is a different import.
 - `projects/showcase`: the component gallery.
+
+**The entry points depend one way.** `@sima/neat-ui/video` may import the primary only through
+the package name (`from '@sima/neat-ui'`), never by a relative path across the boundary; the
+primary never imports from `video`. Why: ng-packagr builds the primary first and gives the
+secondary the built package, so a relative path would copy the primary into the video bundle, and
+an import the other way is a cycle. `npm run check:dist` fails a build whose primary bundle
+contains `neat-video-tile`. A new export goes into the entry point that owns its code, and only
+what an app or the showcase needs is exported: a helper that only the kit's own code uses stays
+internal.
 
 ## How the kit is built on Spartan
 
@@ -101,7 +116,8 @@ such as a video grid), never from a page's own stylesheet. Escape hatch: if a lo
 reached through tokens and inputs, that is a kit gap. Treat it as a proposal under the previous
 rule, not as a reason to override.
 
-**No colour literals outside `projects/neat-ui/src/lib/theme/`.**
+**No colour literals outside the theme directories: `projects/neat-ui/src/lib/theme/`, and
+`projects/neat-ui/video/src/lib/theme/` for the video overlay palette.**
 No hex, `rgb()`, `rgba()`, `hsl()` or `hsla()` anywhere else, in CSS, TypeScript or templates.
 Why: the palette is fixed and lives in the theme so both themes stay coherent. Stylelint enforces
 this for stylesheets (`npm run lint`). Escape hatch: if you need a colour that is not a token, add a
@@ -161,7 +177,7 @@ Node 24 is required (`.node-version`; Angular 22 supports `^22.22.3 || ^24.15.0`
 | `npm test`               | Unit tests for all projects (`npm test -- --watch=false` runs once and exits)   |
 | `npm run lint`           | ESLint (angular-eslint) and Stylelint                                           |
 | `npm run build`          | Build the library and its compiled stylesheet into `dist/neat-ui`               |
-| `npm run check:dist`     | Check the built package (no helm alias imports, stylesheet present)             |
+| `npm run check:dist`     | Check the built package (both entry points, no helm alias imports, stylesheet)  |
 | `npm run test:tools`     | Tests for the repo tools (`tools/*.test.mjs`)                                   |
 | `npm run theme:emit`     | Regenerate `lib/theme/tokens.generated.css` from the theme sources              |
 | `npm run helm:add`       | Add a Spartan helm component to `lib/ui/` (`-- <name>`), the only way in        |

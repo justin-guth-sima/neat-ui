@@ -1,6 +1,6 @@
 import type { NeatMetadataMessage } from '../../sync/metadata-message';
-import { NEAT_OVERLAY_STYLE_FALLBACK_COLOR, OVERLAY_PALETTE } from '../../../theme/overlay-palette';
-import { SIMA_PALETTE } from '../../../theme/palette';
+import { NEAT_OVERLAY_STYLE_FALLBACK_COLOR, OVERLAY_PALETTE } from '../../theme/overlay-palette';
+import { SIMA_PALETTE } from '@sima/neat-ui';
 import type { NeatOverlaySettings } from '../overlay-settings';
 import {
   colorOfText,

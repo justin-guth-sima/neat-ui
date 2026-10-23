@@ -1,4 +1,4 @@
-import { OVERLAY_ROI_COLORS } from '../../theme/overlay-palette';
+import { OVERLAY_ROI_COLORS } from '../theme/overlay-palette';
 import type { Letterbox } from './letterbox';
 import type { NeatRoiPolygon } from './overlay-settings';
 
