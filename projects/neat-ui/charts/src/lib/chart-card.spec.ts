@@ -70,6 +70,26 @@ class OtherChartsHost {
   activations = 0;
 }
 
+/** A selectable card holding controls of its own beside its chart. */
+@Component({
+  imports: [NeatChartCard],
+  template: `
+    <neat-chart-card heading="Controls" selectable (activate)="activations = activations + 1">
+      <p class="around">
+        <button class="own" type="button">Reset</button>
+        <a class="own" href="#details"><span>Details</span></a>
+        <input class="own" type="checkbox" aria-label="Pin" />
+        <select class="own" aria-label="Window">
+          <option>4 min</option>
+        </select>
+      </p>
+    </neat-chart-card>
+  `,
+})
+class ControlsHost {
+  activations = 0;
+}
+
 async function render(setup: (host: CardHost) => void = () => undefined) {
   const fixture = TestBed.createComponent(CardHost);
   setup(fixture.componentInstance);
@@ -156,38 +176,57 @@ describe('NeatChartCard', () => {
     await fixture.whenStable();
   });
 
-  it('a click on the chart plot does not activate the card', async () => {
+  it('a click on the chart plot activates the card; keys in the plot stay the chart’s', async () => {
     const { host, one } = await render();
     const plot = one('neat-time-chart .plot')!;
     expect(plot.getAttribute('role')).toBe('group');
     expect(plot.getAttribute('tabindex')).toBe('0');
 
+    // The readout follows the pointer without a click, so a click on the plot chooses the card.
     plot.click();
+    expect(host.activations).toBe(1);
     // The drawing inside the plot is SVG, which has no `click()`; its clicks bubble all the same.
     for (const drawn of ['svg', '.grid']) {
       one(`neat-time-chart .plot ${drawn}`)!.dispatchEvent(
         new MouseEvent('click', { bubbles: true }),
       );
     }
+    expect(host.activations).toBe(3);
 
-    expect(host.activations).toBe(0);
+    // Keys move the readout and choose nothing: the heading button is the keyboard's way in.
+    for (const key of ['ArrowLeft', 'Home', 'End', 'Enter', ' ']) {
+      plot.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    }
+    expect(host.activations).toBe(3);
   });
 
-  it('a click inside the stacked chart’s plot or the heatmap’s grid does not activate its card', async () => {
+  it('a click inside the stacked chart’s plot or the heatmap’s grid activates its card', async () => {
     const fixture = TestBed.createComponent(OtherChartsHost);
     await fixture.whenStable();
     const root: HTMLElement = fixture.nativeElement;
 
-    // The same marker as the time chart's plot: a group that is a tab stop of its own.
     for (const stop of ['neat-stacked-chart .plot', 'neat-heatmap .grid']) {
       const element = root.querySelector<HTMLElement>(stop)!;
       expect(element.getAttribute('tabindex'), stop).toBe('0');
       element.click();
       element.firstElementChild!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     }
+    expect(fixture.componentInstance.activations).toBe(4);
+  });
+
+  it('a control in the content handles its own click and leaves the card alone', async () => {
+    const fixture = TestBed.createComponent(ControlsHost);
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+
+    for (const control of ['button.own', 'a.own', 'input.own', 'select.own']) {
+      root.querySelector<HTMLElement>(control)!.click();
+    }
+    root.querySelector('a.own span')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(fixture.componentInstance.activations).toBe(0);
 
-    root.querySelector<HTMLElement>('neat-heatmap .title')!.click();
+    // Around the controls, the card is still the card.
+    root.querySelector<HTMLElement>('.around')!.click();
     expect(fixture.componentInstance.activations).toBe(1);
   });
 

@@ -177,9 +177,14 @@ function duration(seconds: number): string {
   return whole < MINUTES_FROM ? `${whole} s` : `${Math.round(seconds / 60)} min`;
 }
 
-/** The time axis's label for a point `secondsBefore` the newest: "now", "−45 s", "−4 min". */
+/**
+ * The time axis's label for a point `secondsBefore` the newest: "now", "−45 s" under a minute,
+ * and whole minutes from one ("−2 min"): an axis label is read at a glance, not to the second.
+ */
 export function axisTimeLabel(secondsBefore: number): string {
-  return Math.round(secondsBefore) === 0 ? 'now' : `−${duration(secondsBefore)}`;
+  const whole = Math.round(secondsBefore);
+  if (whole === 0) return 'now';
+  return whole < 60 ? `−${whole} s` : `−${Math.round(secondsBefore / 60)} min`;
 }
 
 /**

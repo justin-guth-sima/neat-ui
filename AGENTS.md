@@ -133,9 +133,11 @@ tiles): heading, `[neatChartCardChip]`, value with unit, caption, then the chart
 `--neat-surface` to `--card` for the charts' label halos and has no `overflow`, `z-index`,
 `isolation` or `transform`: a readout can hang below its plot, and a card that clipped it or made a
 stacking context would let the next card paint over it. A `selectable` card's heading is a button
-with `aria-current` and a click anywhere on the card emits `activate` too, except a click inside
-something in the content that has a `tabindex`: the plots are tab stops that read out by pointer
-and keys, so the card needs no list of chart selectors to drift out of date.
+with `aria-current` and a click anywhere on the card emits `activate` too, its chart's plot
+included: the readout follows the pointer without a click, and the plot is most of the card. Only
+a control in the content (a button, a link, a form field) keeps its click; the plot's keys move the
+readout and choose nothing. A chart in a card can drop its value labels (`[valueLabels]="false"`):
+the grid and level lines, the time axis and the readout stay.
 
 **What entries share goes through the primary under a `ɵ` prefix.** The vendored helm code
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,

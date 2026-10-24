@@ -22,6 +22,7 @@ import type {
     [tone]="tone()"
     [size]="size()"
     [headless]="headless()"
+    [valueLabels]="valueLabels()"
     [format]="format()"
   />`,
 })
@@ -35,6 +36,7 @@ class TimeChartHost {
   readonly tone = signal<NeatChartTone>('default');
   readonly size = signal<'compact' | 'medium' | 'large'>('medium');
   readonly headless = signal(false);
+  readonly valueLabels = signal(true);
   readonly format = signal<NeatChartFormat>((value) => `${value}%`);
 }
 
@@ -244,6 +246,46 @@ describe('NeatTimeChart', () => {
     chart.host.reference.set({ value: 80, label: 'Average 80%' });
     await chart.fixture.whenStable();
     expect(chart.text('.grid-label')).toEqual(['0', '50', '100']);
+  });
+
+  it('leaves out a grid label that would sit on the one kept below it', async () => {
+    // 0 to 20 has a tick every 5. Medium, "20" sits below the top line at 2 to 15 units and "15"
+    // above its line at 10 to 23: the higher one goes, its grid line stays.
+    const chart = await render((host) => {
+      host.series.set([cpu(4, 8, 12)]);
+      host.domain.set([0, 20]);
+    });
+    expect(chart.all('line.grid')).toHaveLength(5);
+    expect(chart.text('.grid-label')).toEqual(['0', '5', '10', '15']);
+
+    // Large has the room for all five.
+    chart.host.size.set('large');
+    await chart.fixture.whenStable();
+    expect(chart.text('.grid-label')).toEqual(['0', '5', '10', '15', '20']);
+  });
+
+  it('without value labels keeps the grid and level lines, the time axis, the readout and the name', async () => {
+    const chart = await render((host) => {
+      host.headline.set('30%');
+      host.series.set([cpu(10, 20, 30)]);
+      host.times.set(seconds(0, 120, 240));
+      host.thresholds.set([{ value: 80, tone: 'warning', label: 'Warning 80%' }]);
+      host.reference.set({ value: 30, label: 'Average 30%' });
+      host.valueLabels.set(false);
+    });
+    expect(chart.all('line.grid')).toHaveLength(3);
+    expect(chart.all('.level')).toHaveLength(2);
+    expect(chart.all('.grid-label'), 'no grid values').toHaveLength(0);
+    expect(chart.all('.level-tag'), 'no threshold or reference labels').toHaveLength(0);
+    expect(chart.text('.axis span')).toEqual(['−4 min', '−2 min', 'now']);
+    expect(chart.plot.getAttribute('aria-label')).toBe('CPU usage: 30%, over the last 4 min');
+    await chart.point(1);
+    expect(chart.readout()?.textContent).toContain('CPU 30%');
+
+    chart.host.valueLabels.set(true);
+    await chart.fixture.whenStable();
+    expect(chart.text('.grid-label')).toEqual(['0', '50']);
+    expect(chart.text('.level-tag')).toEqual(['Warning 80%', 'Average 30%']);
   });
 
   it('sets the plot height by size', async () => {

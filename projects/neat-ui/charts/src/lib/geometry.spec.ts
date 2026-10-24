@@ -170,11 +170,18 @@ describe('axes', () => {
     ]);
   });
 
-  it('axisTimeLabel reads now, −45 s and −4 min', () => {
-    expect([0, 45, 119, 120, 240, 479.6].map(axisTimeLabel)).toEqual([
+  it('axisTimeLabel reads now, seconds under a minute and whole minutes from one', () => {
+    expect([0, 0.4, 45, 59.4, 59.6, 60, 89, 90, 119, 120, 240, 479.6].map(axisTimeLabel)).toEqual([
+      'now',
       'now',
       '−45 s',
-      '−119 s',
+      '−59 s',
+      '−1 min',
+      '−1 min',
+      '−1 min',
+      '−2 min',
+      // The middle of a four-minute window, which read "−119 s".
+      '−2 min',
       '−2 min',
       '−4 min',
       '−8 min',

@@ -13,6 +13,7 @@ import type { NeatChartFormat, NeatSeries } from './types';
     [domain]="domain()"
     [size]="size()"
     [headless]="headless()"
+    [valueLabels]="valueLabels()"
     [format]="format()"
   />`,
 })
@@ -23,6 +24,7 @@ class StackedChartHost {
   readonly domain = signal<readonly [number, number]>([0, 4]);
   readonly size = signal<'compact' | 'medium' | 'large'>('large');
   readonly headless = signal(false);
+  readonly valueLabels = signal(true);
   readonly format = signal<NeatChartFormat>((value) => `${value} W`);
 }
 
@@ -241,9 +243,18 @@ describe('NeatStackedChart', () => {
     expect(chart.text('.grid-label')).toEqual(['0', '1', '2', '3', '4']);
     expect(chart.text('.axis span')).toEqual(['−8 min', '−4 min', 'now']);
 
+    chart.host.valueLabels.set(false);
+    await chart.fixture.whenStable();
+    expect(chart.all('.grid-label'), 'no grid values').toHaveLength(0);
+    expect(chart.all('line.grid'), 'the grid stays').toHaveLength(5);
+    expect(chart.text('.axis span'), 'and the time axis').toEqual(['−8 min', '−4 min', 'now']);
+    chart.host.valueLabels.set(true);
+
     chart.host.size.set('medium');
     await chart.fixture.whenStable();
     expect(height()).toBe('6rem');
+    // Medium, "4" below the top line would sit on "3" above its own.
+    expect(chart.text('.grid-label')).toEqual(['0', '1', '2', '3']);
 
     chart.host.size.set('compact');
     chart.host.headless.set(true);

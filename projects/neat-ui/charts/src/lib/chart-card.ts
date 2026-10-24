@@ -8,6 +8,9 @@ import {
   output,
 } from '@angular/core';
 
+/** The elements that handle a click of their own. */
+const CONTROLS = 'a[href], button, input, select, textarea, summary, [contenteditable="true"]';
+
 /**
  * A card for a metric and its chart:
  *
@@ -25,10 +28,11 @@ import {
  *
  * With `selectable`, the card is one choice among its siblings: the heading is a button (so it is
  * the keyboard's way in, and `aria-current` marks it while `selected`) and a click anywhere on the
- * card emits `activate` as well. A click on something in the content that is a tab stop of its own
- * (a chart's plot, which reads out a sample by pointer and keys) is the chart's and leaves the card
- * alone, so a readout is not lost to a selection. Not selectable, the heading is text and the card
- * handles no clicks.
+ * card emits `activate` as well, its chart's plot included: the plot reads out a sample as the
+ * pointer moves over it, so a click there takes nothing from the readout, and the plot is most of
+ * the card. The plot's keys stay the chart's (they move the readout and choose nothing). A control
+ * in the content (a button, a link, a form field) handles its own click and leaves the card alone.
+ * Not selectable, the heading is text and the card handles no clicks.
  *
  * The card is the fill of `--card`, so it sets `--neat-surface` to it for the charts' label halos.
  * It does not clip its content or make a stacking context: a readout can hang below its plot.
@@ -79,7 +83,7 @@ export class NeatChartCard {
   readonly unit = input('');
   /** A line under the value: what it is the value of. */
   readonly caption = input('');
-  /** Whether the card can be chosen: the heading is a button, and a click on the card activates it. */
+  /** Whether the card can be chosen: its heading is a button, and a click on the card activates it. */
   readonly selectable = input(false, { transform: booleanAttribute });
   /** Whether this is the chosen card; only a selectable card shows it. */
   readonly selected = input(false, { transform: booleanAttribute });
@@ -89,20 +93,21 @@ export class NeatChartCard {
   private readonly host: HTMLElement = inject(ElementRef).nativeElement;
 
   protected onClick(event: MouseEvent): void {
-    if (!this.selectable() || this.handlesItself(event.target)) {
+    if (!this.selectable() || this.inControl(event.target)) {
       return;
     }
     this.activate.emit();
   }
 
   /**
-   * Whether a click landed in something inside the card that is a tab stop of its own, so it
-   * handles the pointer and keys itself. The charts' plots mark themselves that way (they are
-   * `tabindex="0"` groups), so this follows whatever a chart makes interactive instead of a list
-   * of their selectors.
+   * Whether a click landed in a control of the content, which acts on it itself. The heading's own
+   * button is the card's, so its click (from the pointer, Enter or Space) activates it. A chart's
+   * plot is a tab stop but no control: it is a group that reads out by pointer and keys.
    */
-  private handlesItself(target: EventTarget | null): boolean {
-    const stop = target instanceof Element ? target.closest('[tabindex]') : null;
-    return stop !== null && stop !== this.host && this.host.contains(stop);
+  private inControl(target: EventTarget | null): boolean {
+    const control = target instanceof Element ? target.closest(CONTROLS) : null;
+    return (
+      control !== null && this.host.contains(control) && !control.classList.contains('activator')
+    );
   }
 }

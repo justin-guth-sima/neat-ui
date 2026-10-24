@@ -85,8 +85,10 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
             <code>neatChartCardChip</code> beside it, the value with its unit, a caption and the
             chart. It sets <code>--neat-surface</code> to <code>--card</code> for the charts' label
             halos. A <code>selectable</code> card is one choice of several: its heading is a button
-            (<code>aria-current</code> while <code>selected</code>) and a click on the card chooses
-            it too, but a click on a chart's plot keeps the plot's readout. Without
+            (<code>aria-current</code> while <code>selected</code>) and a click anywhere on the
+            card chooses it too, its chart's plot included (the readout follows the pointer). A
+            chart in a card can leave out its value labels with
+            <code>[valueLabels]="false"</code>: the lines and the time axis stay. Without
             <code>selectable</code>, the heading is text and clicks do nothing, as on a tile.
           </p>
           <div class="chart-grid">
@@ -102,10 +104,11 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
               <neat-time-chart
                 label="CPU usage"
                 headless
-                size="compact"
+                [valueLabels]="false"
                 [series]="cpu"
                 [times]="times"
                 [domain]="[0, 100]"
+                [thresholds]="cpuThresholds"
                 [format]="percent"
               />
             </neat-chart-card>

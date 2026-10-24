@@ -7,7 +7,15 @@ import {
   input,
   viewChild,
 } from '@angular/core';
-import { chartName, FLIP_BELOW, gridMarks, PLOT_REM, timeAxis } from './frame';
+import {
+  chartName,
+  FLIP_BELOW,
+  gridMarks,
+  labelSpan,
+  PLOT_REM,
+  roomyGridMarks,
+  timeAxis,
+} from './frame';
 import { foldSeries, linePaths, timeFractions, yAt } from './geometry';
 import { lineToken, seriesToken } from './line-token';
 import {
@@ -28,9 +36,6 @@ import type {
 
 /** The reference line is neither a warning nor a danger, so it is the quiet colour. */
 const REFERENCE_TOKEN = 'var(--muted-foreground)';
-/** A label's height (the text-xs line) and its gap to its line, in rem. */
-const LABEL_REM = 0.75;
-const LABEL_GAP_REM = 0.125;
 /** A line across the plot at `y` (0 to 100 from the top) and, when the chart has room, its label. */
 interface Level {
   readonly y: number;
@@ -69,8 +74,11 @@ interface Level {
  * to the card's fill, as the select list's sticky header asks.
  *
  * `size` sets the plot's height (3.5, 6 or 9.5 rem). `compact` leaves out every label and the time
- * axis, which suits a row among others; `headless` leaves out the title and headline, for a chart
- * that sits under a heading of its own. Neither changes the accessible name.
+ * axis, which suits a row among others; `[valueLabels]="false"` leaves out only the grid's values
+ * and the levels' labels, keeping their lines and the time axis, which suits a card in a grid;
+ * `headless` leaves out the title and headline, for a chart that sits under a heading of its own.
+ * None changes the accessible name or the readout. A grid label that would sit on a level's label
+ * or on the grid label below it is left out.
  *
  * The plot is a group in the tab order named "<label>: <headline, or the current values>, over
  * the last <window>". The readout follows the pointer; with focus it shows the newest sample, and
@@ -142,7 +150,7 @@ interface Level {
           </g>
         }
       </svg>
-      @if (labelled()) {
+      @if (valueLabelled()) {
         @for (tick of gridLabels(); track tick.value) {
           <span
             class="tag grid-label"
@@ -230,6 +238,12 @@ export class NeatTimeChart {
   readonly size = input<'compact' | 'medium' | 'large'>('medium');
   /** Leaves out the title row, for a chart under a heading of its own. */
   readonly headless = input(false, { transform: booleanAttribute });
+  /**
+   * Whether the grid lines and the levels carry their values. Without them the lines, the time
+   * axis, the readout and the accessible name stay: for a small chart among others, such as a
+   * card's, where the labels would crowd the plot.
+   */
+  readonly valueLabels = input(true, { transform: booleanAttribute });
   /** Words a value with its unit, for the legend, the readout and the accessible name. */
   readonly format = input<NeatChartFormat>(String);
 
@@ -239,6 +253,8 @@ export class NeatTimeChart {
 
   /** Compact leaves the labels out: a row of charts has no room for them. */
   protected readonly labelled = computed(() => this.size() !== 'compact');
+  /** The grid's values and the levels' labels, which `valueLabels` can leave out on their own. */
+  protected readonly valueLabelled = computed(() => this.labelled() && this.valueLabels());
 
   private readonly lines = computed(() => foldSeries(this.series()));
   private readonly length = computed(() =>
@@ -288,24 +304,17 @@ export class NeatTimeChart {
   protected readonly grid = computed(() => gridMarks(this.domain()));
 
   /**
-   * The grid labels that do not sit on a threshold or reference label. Both start at the plot's
-   * left edge, so a level near a grid line (a warning at 80 under the top label) would print one
-   * over the other; the level's label stays, since it says more, and the grid line stays too.
-   * Labels at the end do not meet them.
+   * The grid labels that do not sit on a threshold or reference label, nor on the grid label below
+   * them. Levels and grid labels start at the plot's left edge, so a level near a grid line (a
+   * warning at 80 under the top label) would print one over the other; the level's label stays,
+   * since it says more, and the grid line stays too. Labels at the end do not meet them.
    */
   protected readonly gridLabels = computed(() => {
-    const unit = 100 / PLOT_REM[this.size()];
-    const [height, gap] = [LABEL_REM * unit, LABEL_GAP_REM * unit];
-    /** The label's stretch of the box: above its line, or below it near the top. */
-    const span = (y: number): [number, number] =>
-      y < FLIP_BELOW ? [y + gap, y + gap + height] : [y - gap - height, y - gap];
+    const size = this.size();
     const taken = this.levels()
       .filter((level) => level.side === 'start')
-      .map((level) => span(level.y));
-    return this.grid().filter((tick) => {
-      const [top, bottom] = span(tick.y);
-      return !taken.some(([from, to]) => top < to && from < bottom);
-    });
+      .map((level) => labelSpan(level.y, size));
+    return roomyGridMarks(this.grid(), size, taken);
   });
 
   /** The thresholds and the reference inside the domain, edges included (Inv-S §13.27). */

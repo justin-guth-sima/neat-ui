@@ -7,7 +7,7 @@ import {
   input,
   viewChild,
 } from '@angular/core';
-import { chartName, FLIP_BELOW, gridMarks, PLOT_REM, timeAxis } from './frame';
+import { chartName, FLIP_BELOW, gridMarks, PLOT_REM, roomyGridMarks, timeAxis } from './frame';
 import { foldSeries, isNumber, stackedPaths, timeFractions } from './geometry';
 import { seriesToken } from './line-token';
 import {
@@ -39,8 +39,8 @@ import type { NeatChartFormat, NeatSeries } from './types';
  * 0.85 opacity with a hairline in `--neat-surface` between them, so inside a card set that to the
  * card's fill. More than eight fold into "Other", as on the time chart. A sample where any band is
  * missing breaks the whole stack: a partial sum would draw a total that was never measured.
- * `times`, `domain`, `format`, `size` and `headless` are as on the time chart, and `domain` must
- * reach the largest total or the top of the stack is cut off.
+ * `times`, `domain`, `format`, `size`, `headless` and `valueLabels` are as on the time chart,
+ * and `domain` must reach the largest total or the top of the stack is cut off.
  *
  * The legend lists each band with its current value and its share of the current total, as a
  * whole percent; the share is "—" while the total is unknown (a band has no current sample) or
@@ -97,8 +97,8 @@ import type { NeatChartFormat, NeatSeries } from './types';
           <path class="band" [attr.d]="band.path" [style.--series]="band.color" />
         }
       </svg>
-      @if (labelled()) {
-        @for (tick of grid(); track tick.value) {
+      @if (labelled() && valueLabels()) {
+        @for (tick of gridLabels(); track tick.value) {
           <span
             class="tag grid-label"
             data-side="start"
@@ -157,6 +157,8 @@ export class NeatStackedChart {
   readonly size = input<'compact' | 'medium' | 'large'>('large');
   /** Leaves out the title row, for a chart under a heading of its own. */
   readonly headless = input(false, { transform: booleanAttribute });
+  /** Whether the grid lines carry their values; the lines, the time axis and the readout stay. */
+  readonly valueLabels = input(true, { transform: booleanAttribute });
   /** Words a value with its unit, for the legend, the readout and the accessible name. */
   readonly format = input<NeatChartFormat>(String);
 
@@ -211,6 +213,8 @@ export class NeatStackedChart {
 
   protected readonly plotHeight = computed(() => `${PLOT_REM[this.size()]}rem`);
   protected readonly grid = computed(() => gridMarks(this.domain()));
+  /** The grid labels that do not sit on the one below them. */
+  protected readonly gridLabels = computed(() => roomyGridMarks(this.grid(), this.size()));
   protected readonly axis = computed(() => timeAxis(this.times(), this.length()));
 
   protected readonly name = computed(() =>
