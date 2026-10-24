@@ -36,6 +36,7 @@ import { NeatDropZone } from '@sima/neat-ui/drop-zone';
 import { NeatErrorNote, NeatField } from '@sima/neat-ui/field';
 import { NeatFileBrowser } from '@sima/neat-ui/file-browser';
 import { NeatInput } from '@sima/neat-ui/input';
+import { NeatLevelMeter } from '@sima/neat-ui/level-meter';
 import { NeatLine, NeatLineEnd, NeatLineList } from '@sima/neat-ui/line-list';
 import { NeatNumberField } from '@sima/neat-ui/number-field';
 import { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } from '@sima/neat-ui/popover';
@@ -188,6 +189,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatIcon,
     NeatInlineButton,
     NeatInput,
+    NeatLevelMeter,
     NeatLine,
     NeatLineEnd,
     NeatLineList,
@@ -410,6 +412,22 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             @for (tone of tones; track tone) {
               <neat-callout [tone]="tone">A {{ tone }} note: {{ toneLabels[tone] }}.</neat-callout>
             }
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Level meter</h2>
+          <p class="showcase-muted">
+            <code>neat-level-meter</code>: a live audio level as 28 segments from -50 dBFS to full
+            scale, green, then amber, then red. <code>sample</code> is a function the meter calls once
+            per animation frame (here a sine wave); <code>null</code> stops it and leaves it dark. It
+            is hidden from assistive technology, so say the state in text beside it.
+          </p>
+          <div class="meter-demo">
+            <neat-level-meter [sample]="meterRunning() ? sineLevel : null" />
+            <button neatButton type="button" size="small" (click)="meterRunning.update((on) => !on)">
+              {{ meterRunning() ? 'Stop' : 'Start' }}
+            </button>
           </div>
         </section>
 
@@ -1563,6 +1581,9 @@ export class ComponentsPage {
     'Could not validate the URL.\nyt-dlp: ERROR: [youtube] abc123: Video unavailable';
   protected readonly narrowList = signal(false);
   protected readonly detailsOpen = signal(false);
+  protected readonly meterRunning = signal(true);
+  /** Swings from -50 to 0 dBFS and back about every four seconds, as the meter's demo signal. */
+  protected readonly sineLevel = () => -25 + 25 * Math.sin(performance.now() / 600);
   protected readonly boardOpen = signal(false);
   protected readonly demoTypes = DEMO_TYPES;
   protected readonly demoDevices = DEMO_DEVICES;

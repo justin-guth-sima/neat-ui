@@ -17,6 +17,7 @@
       "@sima/neat-ui/field": ["./projects/neat-ui/field/src/public-api.ts"],
       "@sima/neat-ui/file-browser": ["./projects/neat-ui/file-browser/src/public-api.ts"],
       "@sima/neat-ui/input": ["./projects/neat-ui/input/src/public-api.ts"],
+      "@sima/neat-ui/level-meter": ["./projects/neat-ui/level-meter/src/public-api.ts"],
       "@sima/neat-ui/line-list": ["./projects/neat-ui/line-list/src/public-api.ts"],
       "@sima/neat-ui/number-field": ["./projects/neat-ui/number-field/src/public-api.ts"],
       "@sima/neat-ui/popover": ["./projects/neat-ui/popover/src/public-api.ts"],

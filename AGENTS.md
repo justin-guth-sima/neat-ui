@@ -32,8 +32,9 @@ look happens in one place. Every rule here protects that.
     primary's, since a select list's `rowTone` takes the same tones), `details` (`NeatDetails`, the
     key/value list of a side panel), `field` (`NeatField`, a control under its visible name with
     a hint and an error, and `NeatErrorNote`, a failure said in place), `collapsible`
-    (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed)
-    and `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
+    (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed),
+    `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions) and
+    `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
@@ -153,6 +154,15 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   app's notice never builds its own around it. Its icon takes the tone's solid colour where that
   holds 3:1 on the tint; warning's does not on its light tint, so its icon is `--foreground` and
   the start border carries the tone.
+
+  `NeatLevelMeter` hosts no brain primitive (brain has none); it is the kit's own bar of 28
+  segments over -50…0 dBFS, on the theme's status colours (`--success`, `--warning`,
+  `--destructive` lit, `--muted` dark). Its `sample` is a function, not a value: the meter calls
+  it once per animation frame while it is set and the meter is rendered, and writes each
+  segment's fill straight to the DOM, outside change detection (the per-frame rule below), so a
+  level the app polls and a Web Audio analyser both feed it without a signal write per frame. It
+  calls the function on its own, so an app passes an arrow-function property, never a method. It
+  is `aria-hidden`; the app says the state in text.
 
   `NeatSelectList` and `NeatFileBrowser` own their behaviour too. Brain has no listbox on its own
   (its select's list lives in a popover, and `command` is a palette), so the list owns its roles

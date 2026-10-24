@@ -217,6 +217,15 @@
   max-width: 36rem;
 }
 
+/* The meter takes the row's width beside its button, as in a microphone test. */
+.meter-demo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--neat-space-3);
+  max-width: 28rem;
+}
+
 /* The value's own layout, which is the page's: the URL and its Copy, wrapping as one. */
 .details-url {
   display: flex;

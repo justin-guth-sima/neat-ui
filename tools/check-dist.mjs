@@ -26,6 +26,7 @@ export const SECONDARY_ENTRIES = {
   field: ['neat-field', 'neat-error-note'],
   'file-browser': ['neat-file-browser'],
   input: ['input[neatInput]'],
+  'level-meter': ['neat-level-meter'],
   'line-list': ['ul[neatLineList]', 'li[neatLine]', '[neatLineEnd]'],
   'number-field': ['neat-number-field'],
   popover: ['neat-popover', 'ng-template[neatPopoverContent]', 'button[neatPopoverTrigger]'],
