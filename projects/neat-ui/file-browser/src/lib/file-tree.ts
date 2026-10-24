@@ -90,7 +90,7 @@ export function listFolder(
   return { folders, files };
 }
 
-/** Enabled files in `folderPath` and all its subfolders: what a folder's badge shows for it. */
+/** Available files in `folderPath` and all its subfolders: what a folder's badge shows for it. */
 export function playableCount(tree: readonly NeatFileNode[], folderPath: string): number {
   return availableFilePaths(childrenAt(tree, folderPath) ?? []).length;
 }

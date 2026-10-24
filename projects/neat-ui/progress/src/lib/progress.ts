@@ -41,7 +41,8 @@ const INDETERMINATE_CLASSES = `animate-indeterminate motion-reduce:animate-none 
  */
 const READOUT_CLASSES = 'flex flex-col gap-(--neat-space-2) text-(length:--neat-text-sm)';
 const TITLE_CLASSES = 'm-0 flex justify-between gap-(--neat-space-3) font-medium tabular-nums';
-const DETAIL_CLASSES = 'm-0 truncate text-muted-foreground text-(length:--neat-text-xs)';
+const DETAIL_CLASSES =
+  'm-0 truncate text-muted-foreground tabular-nums text-(length:--neat-text-xs)';
 
 /**
  * A horizontal progress bar: `<neat-progress label="Uploading clip.mp4" [value]="percent" />`.
@@ -94,7 +95,9 @@ const DETAIL_CLASSES = 'm-0 truncate text-muted-foreground text-(length:--neat-t
     @if (heading()) {
       <div data-slot="progress-readout" [class]="readoutClasses">
         <p data-slot="progress-title" [class]="titleClasses">
-          <span role="status" class="min-w-0 truncate">{{ heading() }}</span>
+          <span role="status" class="min-w-0 truncate" [attr.title]="heading()">{{
+            heading()
+          }}</span>
           @if (percent() !== null) {
             <span>{{ percent() }}%</span>
           }
