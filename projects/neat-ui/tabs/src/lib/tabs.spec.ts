@@ -417,6 +417,71 @@ describe('NeatTabs', () => {
     },
   );
 
+  describe('when the tabs are wider than their container', () => {
+    /** The strip around the tab list, which is what scrolls. */
+    const stripOf = (root: HTMLElement) =>
+      root.querySelector<HTMLElement>('[role="tablist"]')!.parentElement!;
+
+    /**
+     * jsdom has no layout: the strip is 100 px wide at x = 0 and each tab 60 px wide, laid out in a
+     * row that the strip's scroll offset shifts, so the spec can say where a tab lies.
+     */
+    function layOut(root: HTMLElement) {
+      const strip = stripOf(root);
+      let scrolled = 0;
+      Object.defineProperty(strip, 'scrollLeft', {
+        get: () => scrolled,
+        set: (value: number) => (scrolled = value),
+      });
+      const tabs = Array.from(root.querySelectorAll<HTMLElement>('[role="tab"]'));
+      const rect = (left: number, width: number) =>
+        ({ left, right: left + width, width }) as DOMRect;
+      vi.spyOn(strip, 'getBoundingClientRect').mockReturnValue(rect(0, 100));
+      tabs.forEach((tab, index) =>
+        vi
+          .spyOn(tab, 'getBoundingClientRect')
+          .mockImplementation(() => rect(index * 60 - scrolled, 60)),
+      );
+      return strip;
+    }
+
+    it('keeps the tab list in a strip that scrolls sideways, so the page does not', async () => {
+      const fixture = TestBed.createComponent(TabsHost);
+      await fixture.whenStable();
+      const strip = stripOf(fixture.nativeElement);
+      expect(strip.classList).toContain('overflow-x-auto');
+      // The list itself keeps its role and name, and is the strip's only child.
+      expect(strip.children).toHaveLength(1);
+      expect(strip.firstElementChild?.getAttribute('aria-label')).toBe('Channel settings');
+    });
+
+    it('brings the open tab into view when it changes', async () => {
+      const fixture = TestBed.createComponent(TabsHost);
+      await fixture.whenStable();
+      const strip = layOut(fixture.nativeElement);
+
+      // The fourth tab lies at 180 to 240 in a strip 100 wide: its end is brought to the edge.
+      fixture.componentInstance.tab.set('aux');
+      await fixture.whenStable();
+      expect(strip.scrollLeft).toBe(140);
+
+      // The first tab is now at -140: its start is brought to the edge.
+      fixture.componentInstance.tab.set('metadata');
+      await fixture.whenStable();
+      expect(strip.scrollLeft).toBe(0);
+
+      // The second tab lies at 60 to 120: only the 20 px that were out of view are scrolled.
+      fixture.componentInstance.tab.set('general');
+      await fixture.whenStable();
+      expect(strip.scrollLeft).toBe(20);
+
+      // The first tab again, at -20 to 40.
+      fixture.componentInstance.tab.set('metadata');
+      await fixture.whenStable();
+      expect(strip.scrollLeft).toBe(0);
+    });
+  });
+
   it('draws the tabs with helm’s line variant classes', async () => {
     const { root, list, tabs, shown } = await render();
 

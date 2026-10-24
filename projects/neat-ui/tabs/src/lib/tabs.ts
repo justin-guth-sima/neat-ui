@@ -6,10 +6,13 @@ import {
   computed,
   contentChild,
   contentChildren,
+  ElementRef,
   inject,
   input,
   model,
   TemplateRef,
+  viewChild,
+  viewChildren,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { BrnTabs, BrnTabsContent, BrnTabsList, BrnTabsTrigger } from '@spartan-ng/brain/tabs';
@@ -44,6 +47,13 @@ export const TABS_HELM_CLASSES = {
 const LIST_CLASSES = listVariants({ variant: 'line' });
 
 /**
+ * The strip the tab list sits in: it scrolls sideways when the tabs do not fit, so the page never
+ * does. The bottom padding holds the open tab's underline, which helm draws a pixel below the
+ * list and a scroll container would otherwise cut off.
+ */
+const STRIP_CLASSES = 'overflow-x-auto pb-1';
+
+/**
  * A tab: helm's trigger with the kit's focus ring. Helm's `ring-ring/50` is about 1.85:1 on white,
  * where a focus indicator needs 3:1; the kit draws full `--ring`. tabs.spec failed without it.
  */
@@ -74,6 +84,21 @@ export class NeatTab {
   readonly content = contentChild.required(TemplateRef);
 }
 
+/**
+ * Scrolls `strip` sideways just far enough to show `trigger` in full. Only the strip moves:
+ * `scrollIntoView` would also scroll the page or pane to reach a tab below the fold, which a tab
+ * set that is merely opening must not do.
+ */
+function reveal(trigger: HTMLElement, strip: HTMLElement): void {
+  const tab = trigger.getBoundingClientRect();
+  const view = strip.getBoundingClientRect();
+  if (tab.left < view.left) {
+    strip.scrollLeft -= view.left - tab.left;
+  } else if (tab.right > view.right) {
+    strip.scrollLeft += tab.right - view.right;
+  }
+}
+
 /** Numbers each `neat-tabs`, so brain's ids (derived from the tab keys) are unique on a page. */
 let nextTabsId = 0;
 
@@ -85,8 +110,10 @@ let nextTabsId = 0;
  * exists, but only the open tab's holds its content: the others are empty and `hidden`. When
  * `value` names no tab (or is unset), the first enabled tab is open, so the list stays reachable.
  *
- * The tabs do not scroll: a panel taller than the space it has is for the surrounding page or pane
- * to scroll, which keeps one scroll context.
+ * A panel taller than the space it has is for the surrounding page or pane to scroll, which keeps
+ * one scroll context. The tab list is the one part that scrolls itself: tabs that do not fit their
+ * container's width (a side panel's) scroll sideways, never wrap, and the open tab is brought into
+ * view when it changes.
  *
  * Brain's tabs are the host directive; its list, trigger and content directives give the tab
  * roles, the keyboard handling and the panel's labelling. Brain derives element ids from the tab
@@ -105,16 +132,19 @@ let nextTabsId = 0;
   host: { '[class]': 'rootClasses' },
   template: `
     @for (set of [tabSet()]; track set) {
-      <div brnTabsList data-variant="line" [attr.aria-label]="label()" [class]="listClasses">
-        @for (tab of tabs(); track tab.value(); let index = $index) {
-          <button
-            [brnTabsTrigger]="key(index)"
-            [disabled]="tab.disabled()"
-            [class]="triggerClasses"
-          >
-            {{ tab.label() }}
-          </button>
-        }
+      <div #strip [class]="stripClasses">
+        <div brnTabsList data-variant="line" [attr.aria-label]="label()" [class]="listClasses">
+          @for (tab of tabs(); track tab.value(); let index = $index) {
+            <button
+              #trigger
+              [brnTabsTrigger]="key(index)"
+              [disabled]="tab.disabled()"
+              [class]="triggerClasses"
+            >
+              {{ tab.label() }}
+            </button>
+          }
+        </div>
       </div>
     }
     @for (tab of tabs(); track tab.value(); let index = $index) {
@@ -146,7 +176,11 @@ export class NeatTabs {
     const named = tabs.findIndex((tab) => tab.value() === this.value());
     return named >= 0 ? named : tabs.findIndex((tab) => !tab.disabled());
   });
+  /** The strip is drawn once per tab set, like the list in it. */
+  private readonly strip = viewChild<ElementRef<HTMLElement>>('strip');
+  private readonly triggers = viewChildren<ElementRef<HTMLElement>>('trigger');
   protected readonly rootClasses: string = TABS_HELM_CLASSES.root;
+  protected readonly stripClasses: string = STRIP_CLASSES;
   protected readonly listClasses: string = LIST_CLASSES;
   protected readonly triggerClasses: string = TRIGGER_CLASSES;
   protected readonly contentClasses: string = TABS_HELM_CLASSES.content;
@@ -160,6 +194,11 @@ export class NeatTabs {
     afterRenderEffect(() => {
       const open = this.openIndex();
       tabs.activeTab.set(open < 0 ? undefined : this.key(open));
+      const trigger = this.triggers()[open]?.nativeElement;
+      const strip = this.strip()?.nativeElement;
+      if (trigger && strip) {
+        reveal(trigger, strip);
+      }
     });
     // Brain's output lives on this same host, so the subscription ends with it.
     tabs.tabActivated.subscribe((key) => {

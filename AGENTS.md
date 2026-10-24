@@ -292,6 +292,9 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   element that exists; only the open tab's holds its template, and the others are empty and
   `hidden`. Brain's ids come from the keys alone, so the kit's keys are the instance's prefix and
   the tab's index, never its `value`: a value with spaces ("Board 1") would be an invalid id.
+  The tab list sits in a strip that scrolls sideways (`overflow-x-auto`) when the tabs do not fit
+  their container, as in a side panel: the tabs neither wrap nor push the page sideways, and the
+  strip, not the page, moves to show the open tab.
   Inside a `neat-popover`'s panel, a menu's items are `button[neatPopoverItem]`: the panel is a
   flex column, and the directive's `self-start` keeps each button the width of its text, at the
   panel's start. An app has no stylesheet of its own to say that, and the look is the kit's.
