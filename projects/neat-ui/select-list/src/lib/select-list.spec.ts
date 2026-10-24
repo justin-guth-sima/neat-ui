@@ -178,6 +178,8 @@ const KINDS: readonly NeatSelectListGroup[] = [
       [trackBy]="byId"
       [groups]="groups()"
       [groupOf]="kindOf"
+      [checkable]="checkable()"
+      [(checked)]="checked"
       [(selected)]="selected"
       (activated)="activated.push($event.id)"
     >
@@ -189,9 +191,28 @@ class GroupedHost {
   readonly items = signal<readonly Device[]>(DEVICES);
   readonly groups = signal<readonly NeatSelectListGroup[] | null>(KINDS);
   readonly selected = signal<Device | null>(null);
+  readonly checkable = signal(false);
+  readonly checked = signal<readonly number[]>([]);
   readonly activated: number[] = [];
   readonly byId = (device: Device) => device.id;
   readonly kindOf = vi.fn((device: Device) => device.kind);
+}
+
+/** A cell with a `data-index` of its own, as a chart or a nested list in a cell may have. */
+@Component({
+  imports: [NeatSelectList, NeatColumn],
+  template: `
+    <neat-select-list label="Slots" [items]="items" [trackBy]="byId" [(selected)]="selected">
+      <ng-template neatColumn="name" let-item
+        ><span [attr.data-index]="items.length - 1 - item.id">{{ item.name }}</span></ng-template
+      >
+    </neat-select-list>
+  `,
+})
+class CellIndexHost {
+  readonly items = SLOTS;
+  readonly selected = signal<Slot | null>(null);
+  readonly byId = (item: Slot) => item.id;
 }
 
 async function renderGrouped(setup: (host: GroupedHost) => void = () => undefined) {
@@ -1239,6 +1260,7 @@ describe('NeatSelectList', () => {
 
       const lidar = groups()[2];
       expect([...lidar.children]).toEqual([headings()[2]]);
+      for (const heading of headings()) expect(heading.classList).toContain('bg-muted');
       expect([...headings()[0].classList]).toEqual(
         expect.arrayContaining(['text-xs', 'font-medium', 'uppercase', 'text-foreground']),
       );
@@ -1247,6 +1269,28 @@ describe('NeatSelectList', () => {
         expect.arrayContaining(['text-xs', 'font-medium', 'uppercase', 'text-muted-foreground']),
       );
       expect(headings()[2].classList).not.toContain('text-foreground');
+    });
+
+    it('draws each heading on a muted band from edge to edge of the area, its text where the cells’ starts', async () => {
+      const { headings } = await renderGrouped();
+
+      // The heading reaches into the grid's padding as a row does (the same negative margins), and
+      // pads its text back by the same amount: the band spans the area, the text sits on the inset.
+      for (const heading of headings()) {
+        expect([...heading.classList]).toEqual(
+          expect.arrayContaining([
+            'bg-muted',
+            '-ms-[calc(var(--neat-space-3)+2px)]',
+            '-me-(--neat-space-3)',
+            'ps-[calc(var(--neat-space-3)+2px)]',
+            'pe-(--neat-space-3)',
+          ]),
+        );
+        // In the flow under the sticky header, whose z-index covers it as it scrolls under.
+        expect(
+          [...heading.classList].filter((name) => /^(relative|sticky|absolute|z-)/.test(name)),
+        ).toEqual([]);
+      }
     });
 
     it('arrow keys, Home and End cross groups and never land on a heading; a click on a heading selects nothing', async () => {
@@ -1284,17 +1328,74 @@ describe('NeatSelectList', () => {
       const { fixture, host, options } = await renderGrouped();
       scrolled.length = 0;
 
-      // The microphone is the second item but the third row shown: rows are found by data-index,
-      // not by their place among their parent's children or in items.
+      // The Logitech camera is the third item but the second row shown: rows are found by
+      // data-index, not by their place among their parent's children or in items.
+      host.selected.set(DEVICES[2]);
+      await fixture.whenStable();
+      expect(scrolled).toEqual([options()[1]]);
+      expect(options()[1].getAttribute('data-index')).toBe('1');
+
+      options()[2].click();
+      await fixture.whenStable();
+      expect(host.selected()).toBe(DEVICES[1]);
+      expect(host.activated).toEqual([2]);
+    });
+
+    it('brings a group’s heading into view with the group’s first row', async () => {
+      const { fixture, host, listbox, options, headings } = await renderGrouped();
+      host.selected.set(DEVICES[2]);
+      await fixture.whenStable();
+      scrolled.length = 0;
+
+      // Up onto the first camera puts it under the sticky header; its heading follows, so the row
+      // does not show without its kind. The row goes first, so that a move down needs no scroll.
+      press(listbox(), 'ArrowUp');
+      await fixture.whenStable();
+      expect(scrolled).toEqual([options()[0], headings()[0]]);
+    });
+
+    it('brings the empty groups after the last row into view with it', async () => {
+      const { fixture, listbox, options, headings } = await renderGrouped();
+      press(listbox(), 'ArrowDown');
+      await fixture.whenStable();
+      scrolled.length = 0;
+
+      // End: the microphone is the last row, first of its group, and LiDAR (empty, "none found")
+      // follows it; that heading is content, so it comes into view too.
+      press(listbox(), 'End');
+      await fixture.whenStable();
+      expect(scrolled).toEqual([options()[2], headings()[1], headings()[2]]);
+    });
+
+    it('scrolls to the row, not to an element in a cell that has a data-index of its own', async () => {
+      const fixture = TestBed.createComponent(CellIndexHost);
+      await fixture.whenStable();
+      const element: HTMLElement = fixture.nativeElement;
+      scrolled.length = 0;
+
+      fixture.componentInstance.selected.set(SLOTS[3]);
+      await fixture.whenStable();
+
+      expect(scrolled).toEqual([element.querySelectorAll('[role="option"]')[3]]);
+    });
+
+    it('checks a row inside a group by its box, and with Space, by the row it is', async () => {
+      const { fixture, host, listbox, options, headings } = await renderGrouped((host) =>
+        host.checkable.set(true),
+      );
+
+      // The box takes the first track; the heading still spans every one.
+      expect(options()[0].children).toHaveLength(2);
+      expect(headings()[0].classList).toContain('col-span-full');
+      options()[1].querySelector<HTMLElement>('[data-slot="select-list-check"]')!.click();
+      await fixture.whenStable();
+      expect(host.checked()).toEqual([3]);
+
       host.selected.set(DEVICES[1]);
       await fixture.whenStable();
-      expect(scrolled).toEqual([options()[2]]);
-      expect(options()[2].getAttribute('data-index')).toBe('2');
-
-      options()[1].click();
+      press(listbox(), ' ');
       await fixture.whenStable();
-      expect(host.selected()).toBe(DEVICES[2]);
-      expect(host.activated).toEqual([3]);
+      expect(host.checked()).toEqual([3, 2]);
     });
 
     it('asks groupOf once per item when the items change', async () => {
@@ -1330,6 +1431,40 @@ describe('NeatSelectList', () => {
         expect(error).toHaveBeenCalledWith('ERROR', expect.objectContaining({ message }));
       } finally {
         error.mockRestore();
+      }
+    });
+
+    it('throws in dev mode for a group listed twice', async () => {
+      const fixture = TestBed.createComponent(GroupedHost);
+      fixture.componentInstance.groups.set([...KINDS, { key: 'camera', label: 'Cameras again' }]);
+      const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      const message = 'neat-select-list: the group "camera" is listed twice';
+      try {
+        await expect(fixture.whenStable()).rejects.toThrow(message);
+        expect(error).toHaveBeenCalledWith('ERROR', expect.objectContaining({ message }));
+      } finally {
+        error.mockRestore();
+      }
+    });
+
+    it('in production keeps the first listing of a group listed twice, each row shown once', async () => {
+      const global = globalThis as { ngDevMode?: unknown };
+      const devMode = global.ngDevMode;
+      global.ngDevMode = false;
+      try {
+        const { groups, headings, names } = await renderGrouped((host) =>
+          host.groups.set([...KINDS, { key: 'camera', label: 'Cameras again' }]),
+        );
+
+        expect(groups()).toHaveLength(3);
+        expect(headings().map((heading) => heading.textContent!.trim())).toEqual([
+          'Cameras · 2',
+          'Microphones · 1',
+          'LiDAR · none found',
+        ]);
+        expect(names()).toEqual(['IMX219', 'Logitech C920', 'C920 microphone']);
+      } finally {
+        global.ngDevMode = devMode;
       }
     });
 
@@ -1602,16 +1737,16 @@ describe('NeatSelectList', () => {
         });
       });
 
-      it(`${scheme}: group headings reach 4.5:1 on the surfaces, muted ones too`, async () => {
+      it(`${scheme}: group headings reach 4.5:1 on their band, muted ones too`, async () => {
         const { headings } = await renderGrouped();
         for (const heading of [headings()[0], headings()[2]]) {
           const classes = [...heading.classList];
+          // The band is opaque, so whatever the list sits on, the text is on the band.
           for (const surface of ['background', 'popover', 'card']) {
-            const under = tokens[surface];
-            const text = stateColor(classes, 'text', q(on()), under, tokens['foreground']);
-            expect(contrastRatio(text, under), `${text} on --${surface}`).toBeGreaterThanOrEqual(
-              4.5,
-            );
+            const band = stateColor(classes, 'bg', q(on()), tokens[surface]);
+            expect(band).toBe(tokens['muted']);
+            const text = stateColor(classes, 'text', q(on()), band, tokens['foreground']);
+            expect(contrastRatio(text, band), `${text} on ${band}`).toBeGreaterThanOrEqual(4.5);
           }
         }
       });

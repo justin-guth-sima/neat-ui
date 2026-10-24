@@ -154,18 +154,22 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   padding is the header's height, so a row scrolled into view stops below it. The focus ring is
   the outline of a pseudo-element over the area, since the sticky header paints over an outline
   of the area itself. `groups` (with `groupOf`) puts the rows under headings, each group a
-  `role="group"` named by its heading and, like its heading, a line of the grid; the keys move over
-  the rows as shown, which a row's `data-index` numbers, never onto a heading. An item of a group
-  the app did not list throws in dev mode and, in production, shows after the groups under no
-  heading: never dropped, since a silently missing row (a device) is the worse failure. A row's
-  `rowTone` tints it with the tone its status chip has (theme tokens
-  `--neat-tint-<tone>` and, for hover and selection, `--neat-tint-<tone>-accent`); each row takes
-  exactly one set of fills, so no class has to outweigh another, and the tints are opaque mixes
-  over `--background`, so a toned list sits on the page, not on a card. The file browser reuses
-  the list for its rows, since a folder row is a row that Enter or a click also opens
-  (`activated`), and its `manage` mode is the list's checked mode (a file's path is its key); what differs is the browser's, not the list's: an arrow key onto a folder
-  highlights it without changing `selected` (which is a file's path), and Backspace, which the
-  list has no use for, is handled on the list's host. A checked list adds no hint of its own: the
+  `role="group"` named by its heading and, like its heading, a line of the grid. A heading is a
+  `--muted` band from edge to edge of the area (the rows' negative margins), its text on the
+  cells' inset. The keys move over the rows as shown, which a row's `data-index` numbers, never
+  onto a heading, and a group's first row brings its heading into view with it, as the last row
+  does the empty groups after it. An item of a group the app did not list, or a group listed
+  twice, throws in dev mode; in production the item shows after the groups under no heading and
+  the first listing stands: never a row dropped or shown twice, since a silently missing row (a
+  device) is the worse failure. A row's `rowTone` tints it with the tone its status chip has
+  (theme tokens `--neat-tint-<tone>` and, for hover and selection, `--neat-tint-<tone>-accent`);
+  each row takes exactly one set of fills, so no class has to outweigh another, and the tints are
+  opaque mixes over `--background`, so a toned list sits on the page, not on a card. The file
+  browser reuses the list for its rows, since a folder row is a row that Enter or a click also
+  opens (`activated`), and its `manage` mode is the list's checked mode (a file's path is its
+  key); what differs is the browser's, not the list's: an arrow key onto a folder highlights it
+  without changing `selected` (which is a file's path), and Backspace, which the list has no use
+  for, is handled on the list's host. A checked list adds no hint of its own: the
   multi-selectable listbox says what checking is. A node's `tag` is a neutral `neat-status-chip`,
   the kit's one look for a fact beside a value, and an `unavailable` node is greyed but usable (so
   not `disabled`, which in the kit means "cannot be used"). The browser says nothing of its own that

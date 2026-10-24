@@ -85,15 +85,18 @@ const HEADER_CLASSES = `${LINE_CLASSES} sticky top-0 z-1 h-7 border-b border-s-t
 const GROUP_CLASSES = 'col-span-full grid grid-cols-subgrid';
 
 /**
- * A group's heading, across every track: small uppercase medium text in the body colour or, for a
- * group the app mutes (nothing found, not looked for yet), the muted one; select-list.spec holds
- * both to 4.5:1 on every surface. It has no fill, so it takes the grid's inset as it is and its
- * text starts where the cells' does.
+ * A group's heading, across every track, on a `--muted` band: small uppercase medium text in the
+ * body colour or, for a group the app mutes (nothing found, not looked for yet), the muted one;
+ * select-list.spec holds both to 4.5:1 on the band. The band runs from edge to edge of the area as
+ * a row's fill does, reaching into the grid's padding with the rows' negative margins (see
+ * LINE_CLASSES), and pads its text back by as much, so the text starts where the cells' does. It
+ * stays in the flow, so the sticky header (z-1) covers it as it scrolls under.
  */
+const GROUP_HEADING_BASE =
+  'col-span-full -ms-[calc(var(--neat-space-3)+2px)] -me-(--neat-space-3) bg-muted py-1.5 ps-[calc(var(--neat-space-3)+2px)] pe-(--neat-space-3) text-xs font-medium uppercase';
 const GROUP_HEADING_CLASSES = {
-  plain: 'col-span-full pt-(--neat-space-3) pb-1 text-xs font-medium uppercase text-foreground',
-  muted:
-    'col-span-full pt-(--neat-space-3) pb-1 text-xs font-medium uppercase text-muted-foreground',
+  plain: `${GROUP_HEADING_BASE} text-foreground`,
+  muted: `${GROUP_HEADING_BASE} text-muted-foreground`,
 } as const;
 
 /** A column's header label and its cells by the column's `align`. */
@@ -204,6 +207,8 @@ interface Row<T, K> {
   readonly item: T;
   readonly key: K;
   readonly index: number;
+  /** The id of its group's heading if it is the group's first row, which reveals it too. */
+  readonly heading: string | null;
   readonly checkable: boolean;
   readonly classes: string;
   readonly id: string;
@@ -214,13 +219,15 @@ interface Row<T, K> {
  * Rows as shown together: a group's, under its heading (an element id and its classes), or rows
  * under no heading (`group` null): all rows of a list without groups, or, in production, the items
  * of groups the app did not list. `key` tracks it: the group's key, or null for the one without.
+ * `views` are its rows as the row template's contexts, made once with the rows rather than as a
+ * literal per row on every check.
  */
 interface Section<T, K> {
   readonly key: string | null;
   readonly group: NeatSelectListGroup | null;
   readonly headingId: string;
   readonly headingClasses: string;
-  readonly rows: readonly Row<T, K>[];
+  readonly views: readonly { readonly $implicit: Row<T, K> }[];
 }
 
 /** Whether two lists hold the same columns in the same order. */
@@ -343,19 +350,13 @@ let nextListId = 0;
                 >
                   {{ group.label }}
                 </div>
-                @for (row of section.rows; track row.key) {
-                  <ng-container
-                    [ngTemplateOutlet]="rowTemplate"
-                    [ngTemplateOutletContext]="{ $implicit: row }"
-                  />
+                @for (view of section.views; track view.$implicit.key) {
+                  <ng-container [ngTemplateOutlet]="rowTemplate" [ngTemplateOutletContext]="view" />
                 }
               </div>
             } @else {
-              @for (row of section.rows; track row.key) {
-                <ng-container
-                  [ngTemplateOutlet]="rowTemplate"
-                  [ngTemplateOutletContext]="{ $implicit: row }"
-                />
+              @for (view of section.views; track view.$implicit.key) {
+                <ng-container [ngTemplateOutlet]="rowTemplate" [ngTemplateOutletContext]="view" />
               }
             }
           }
@@ -371,7 +372,10 @@ let nextListId = 0;
         }
       </div>
     </div>
-    <!-- One row, as a listbox option; written once for rows inside a group and outside one. -->
+    <!--
+      One row, as a listbox option; written once for rows inside a group and outside one. Its
+      context is { $implicit: Row<T, K> }, which Angular cannot check in a local template.
+    -->
     <ng-template #rowTemplate let-row>
       <div
         role="option"
@@ -433,7 +437,10 @@ export class NeatSelectList<T, K = unknown> {
   readonly rowTone = input<(item: T) => NeatTone>(() => 'neutral');
   /** The groups to show the rows under, in order; `null` (the default) for no headings. */
   readonly groups = input<readonly NeatSelectListGroup[] | null>(null);
-  /** With `groups`, the key of an item's group; called once per item as `items` change. */
+  /**
+   * With `groups`, the key of an item's group; called once per item as the inputs that shape the
+   * rows change (`items`, `groups` and the other per-item functions), never as the selection moves.
+   */
   readonly groupOf = input<(item: T) => string>(() => '');
   /** What to say, in place of rows, while there are no items. */
   readonly emptyLabel = input('');
@@ -494,10 +501,11 @@ export class NeatSelectList<T, K = unknown> {
   );
 
   /**
-   * The rows as shown and the sections they sit in, worked out once per `items`: each row's key,
-   * its tone's classes, in checked mode whether it has a box, and with groups its group (calls of
-   * the app's functions), its index as shown, its id and its cells' context. Change detection then
-   * reads these and calls nothing.
+   * The rows as shown and the sections they sit in, worked out as the inputs that shape them
+   * change: each row's key, its tone's classes, in checked mode whether it has a box, and with
+   * groups its group (calls of the app's functions), its index as shown, its id, its cells' context
+   * and the heading it reveals. `trailingHeading` is the last empty group's heading, which End
+   * reveals with the last row. Change detection then reads these and calls nothing.
    */
   private readonly layout = computed(() => {
     const keyOf = this.trackBy();
@@ -510,6 +518,8 @@ export class NeatSelectList<T, K = unknown> {
       items: readonly T[],
       position: number,
     ): Section<T, K> => {
+      // Numbered, not named by the key, which is the app's text and may hold spaces.
+      const headingId = `neat-select-list-${this.id}-group-${position}`;
       const start = rows.length;
       for (const item of items) {
         const index = rows.length;
@@ -517,6 +527,7 @@ export class NeatSelectList<T, K = unknown> {
           item,
           key: keyOf(item),
           index,
+          heading: group && index === start ? headingId : null,
           checkable: canCheck(item),
           classes: `${ROW_CLASSES} ${ROW_FILL_CLASSES[toneOf(item)]}`,
           id: `neat-select-list-${this.id}-${index}`,
@@ -526,18 +537,34 @@ export class NeatSelectList<T, K = unknown> {
       return {
         key,
         group,
-        // Numbered, not named by the key, which is the app's text and may hold spaces.
-        headingId: `neat-select-list-${this.id}-group-${position}`,
+        headingId,
         headingClasses: GROUP_HEADING_CLASSES[group?.muted ? 'muted' : 'plain'],
-        rows: rows.slice(start),
+        views: rows.slice(start).map((row) => ({ $implicit: row })),
       };
     };
     const groups = this.groups();
     if (groups === null) {
-      return { rows, sections: [section(null, null, this.items(), 0)] };
+      return {
+        rows,
+        sections: [section(null, null, this.items(), 0)],
+        trailingHeading: null,
+      };
+    }
+    // A group listed twice is the app's mistake, as an unlisted one is: in production the first
+    // listing stands, so that no row shows twice.
+    const listed: NeatSelectListGroup[] = [];
+    const members = new Map<string, T[]>();
+    for (const group of groups) {
+      if (members.has(group.key)) {
+        if (isDevMode()) {
+          throw new Error(`neat-select-list: the group "${group.key}" is listed twice`);
+        }
+        continue;
+      }
+      members.set(group.key, []);
+      listed.push(group);
     }
     const groupOf = this.groupOf();
-    const members = new Map<string, T[]>(groups.map((group) => [group.key, []]));
     const unlisted: T[] = [];
     for (const item of this.items()) {
       const key = groupOf(item);
@@ -550,11 +577,13 @@ export class NeatSelectList<T, K = unknown> {
         unlisted.push(item);
       }
     }
-    const sections = groups.map((group, position) =>
+    const sections = listed.map((group, position) =>
       section(group.key, group, members.get(group.key)!, position),
     );
-    if (unlisted.length) sections.push(section(null, null, unlisted, groups.length));
-    return { rows, sections };
+    if (unlisted.length) sections.push(section(null, null, unlisted, listed.length));
+    const last = sections.at(-1);
+    const trailingHeading = last?.group && last.views.length === 0 ? last.headingId : null;
+    return { rows, sections, trailingHeading };
   });
 
   /** The rows in the order they are shown, which the keys move through. */
@@ -618,14 +647,23 @@ export class NeatSelectList<T, K = unknown> {
       this.revealed = NONE;
       return;
     }
-    const key = this.rows()[index].key;
-    if (key === this.revealed) return;
-    this.revealed = key;
-    // A row is found by its index as shown: with groups, it is not its place among its parent's
-    // children. jsdom has no scrollIntoView.
-    this.listbox()
-      .nativeElement.querySelector(`[data-index="${index}"]`)
-      ?.scrollIntoView?.({ block: 'nearest' });
+    const { rows, trailingHeading } = this.layout();
+    const row = rows[index];
+    if (row.key === this.revealed) return;
+    this.revealed = row.key;
+    const listbox = this.listbox().nativeElement;
+    // A row is found by its index as shown (with groups, not its place among its parent's
+    // children), and as an option, since a cell's content may carry a data-index of its own.
+    // jsdom has no scrollIntoView.
+    const reveal = (element: Element | null) => element?.scrollIntoView?.({ block: 'nearest' });
+    reveal(listbox.querySelector(`[role="option"][data-index="${index}"]`));
+    // Then the headings that belong with it, nearest again, so that only a move up scrolls for
+    // them: a group's first row brings its heading (it would stop under the sticky header, its kind
+    // out of view), and the last row the empty groups after it, whose "none found" is content.
+    if (row.heading) reveal(listbox.querySelector(`#${row.heading}`));
+    if (trailingHeading && index === rows.length - 1) {
+      reveal(listbox.querySelector(`#${trailingHeading}`));
+    }
   }
 
   /**
