@@ -21,6 +21,7 @@ import {
   windowText,
   yAt,
 } from './geometry';
+import { lineToken } from './line-token';
 import type {
   NeatChartFormat,
   NeatChartTone,
@@ -29,16 +30,15 @@ import type {
   NeatThreshold,
 } from './types';
 
-/** A single series strokes in the line token of its tone; a threshold line takes its tone's too. */
-const LINE_TOKEN: Record<NeatChartTone, string> = {
-  default: 'var(--neat-line)',
-  warning: 'var(--neat-line-warning)',
-  danger: 'var(--neat-line-danger)',
-};
 /** The reference line is neither a warning nor a danger, so it is the quiet colour. */
 const REFERENCE_TOKEN = 'var(--muted-foreground)';
 /** A label whose line is within this much of the top (in the box's 0 to 100) sits below the line. */
 const FLIP_BELOW = 14;
+/** The plot's height in rem by size, set as `--plot-height` so the labels' room is worked out from it. */
+const PLOT_REM = { compact: 3.5, medium: 6, large: 9.5 } as const;
+/** A label's height (the text-xs line) and its gap to its line, in rem. */
+const LABEL_REM = 0.75;
+const LABEL_GAP_REM = 0.125;
 /** What a readout shows for a sample that was not taken. */
 const MISSING = '—';
 
@@ -106,7 +106,7 @@ interface Readout {
   selector: 'neat-time-chart',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    '[attr.data-size]': 'size()',
+    '[style.--plot-height]': 'plotHeight()',
   },
   template: `
     @if (!headless()) {
@@ -168,7 +168,7 @@ interface Readout {
         }
       </svg>
       @if (labelled()) {
-        @for (tick of grid(); track tick.value) {
+        @for (tick of gridLabels(); track tick.value) {
           <span
             class="tag grid-label"
             data-side="start"
@@ -282,7 +282,7 @@ export class NeatTimeChart {
   private readonly colors = computed(() => {
     const lines = this.lines();
     return lines.length === 1
-      ? [LINE_TOKEN[this.tone()]]
+      ? [lineToken(this.tone())]
       : lines.map((_, index) => `var(--neat-series-${index + 1})`);
   });
 
@@ -315,6 +315,8 @@ export class NeatTimeChart {
     }));
   });
 
+  protected readonly plotHeight = computed(() => `${PLOT_REM[this.size()]}rem`);
+
   protected readonly grid = computed(() =>
     gridTicks(this.domain()).map((value) => ({
       value,
@@ -322,6 +324,27 @@ export class NeatTimeChart {
       text: axisLabel(value),
     })),
   );
+
+  /**
+   * The grid labels that do not sit on a threshold or reference label. Both start at the plot's
+   * left edge, so a level near a grid line (a warning at 80 under the top label) would print one
+   * over the other; the level's label stays, since it says more, and the grid line stays too.
+   * Labels at the end do not meet them.
+   */
+  protected readonly gridLabels = computed(() => {
+    const unit = 100 / PLOT_REM[this.size()];
+    const [height, gap] = [LABEL_REM * unit, LABEL_GAP_REM * unit];
+    /** The label's stretch of the box: above its line, or below it near the top. */
+    const span = (y: number): [number, number] =>
+      y < FLIP_BELOW ? [y + gap, y + gap + height] : [y - gap - height, y - gap];
+    const taken = this.levels()
+      .filter((level) => level.side === 'start')
+      .map((level) => span(level.y));
+    return this.grid().filter((tick) => {
+      const [top, bottom] = span(tick.y);
+      return !taken.some(([from, to]) => top < to && from < bottom);
+    });
+  });
 
   /** The thresholds and the reference inside the domain, edges included (Inv-S §13.27). */
   protected readonly levels = computed((): Level[] => {
@@ -333,7 +356,7 @@ export class NeatTimeChart {
         .filter((threshold) => inside(threshold.value))
         .map((threshold) => ({
           y: yAt(threshold.value, domain),
-          color: LINE_TOKEN[threshold.tone],
+          color: lineToken(threshold.tone),
           label: threshold.label,
           // A warning label stays clear of the danger label's corner.
           side: threshold.tone === 'danger' ? ('end' as const) : ('start' as const),

@@ -1,15 +1,6 @@
 :host {
   display: block;
   height: 1.75rem;
-  --sparkline-stroke: var(--neat-line);
-}
-
-:host([data-tone='warning']) {
-  --sparkline-stroke: var(--neat-line-warning);
-}
-
-:host([data-tone='danger']) {
-  --sparkline-stroke: var(--neat-line-danger);
 }
 
 svg {

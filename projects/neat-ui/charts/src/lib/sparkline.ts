@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { evenFractions, linePaths } from './geometry';
+import { lineToken } from './line-token';
 import type { NeatChartFormat, NeatChartTone } from './types';
 
 /**
@@ -24,7 +25,7 @@ import type { NeatChartFormat, NeatChartTone } from './types';
   host: {
     role: 'img',
     '[attr.aria-label]': 'description()',
-    '[attr.data-tone]': 'tone()',
+    '[style.--sparkline-stroke]': 'stroke()',
   },
   template: `
     <svg viewBox="0 0 600 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
@@ -49,6 +50,8 @@ export class NeatSparkline {
   private readonly numbers = computed(() =>
     this.values().filter((value): value is number => value !== null && Number.isFinite(value)),
   );
+
+  protected readonly stroke = computed(() => lineToken(this.tone()));
 
   protected readonly path = computed(() => {
     const numbers = this.numbers();

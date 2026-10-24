@@ -3,19 +3,6 @@
   font-size: var(--neat-text-sm);
 }
 
-/* The plot's height; compact is the one that also drops the labels (see the template). */
-:host([data-size='compact']) {
-  --plot-height: 3.5rem;
-}
-
-:host([data-size='medium']) {
-  --plot-height: 6rem;
-}
-
-:host([data-size='large']) {
-  --plot-height: 9.5rem;
-}
-
 .head {
   display: flex;
   flex-wrap: wrap;

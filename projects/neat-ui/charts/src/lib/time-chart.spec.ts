@@ -218,6 +218,49 @@ describe('NeatTimeChart', () => {
     expect(chart.all('.axis'), 'and the time axis').toHaveLength(0);
   });
 
+  it('leaves out a grid label that a threshold or reference label would sit on, and keeps the others', async () => {
+    // Medium is 6 rem high, so a label (0.75 rem) spans about 12 units of the box's 100.
+    const chart = await render((host) => {
+      host.series.set([cpu(10, 20, 30)]);
+      host.thresholds.set([{ value: 80, tone: 'warning', label: 'Warning 80%' }]);
+    });
+    // "100" would sit below the top line at 2 to 14 units, the warning label above 80 at 5 to 17.
+    expect(chart.text('.grid-label')).toEqual(['0', '50']);
+    expect(chart.all('line.grid'), 'the grid lines all stay').toHaveLength(3);
+
+    // A label at the end does not meet the start's grid labels.
+    chart.host.thresholds.set([{ value: 80, tone: 'danger', label: 'Critical 80%' }]);
+    await chart.fixture.whenStable();
+    expect(chart.text('.grid-label')).toEqual(['0', '50', '100']);
+
+    // The reference is at the start too: 52 sits where "50" would be.
+    chart.host.thresholds.set([]);
+    chart.host.reference.set({ value: 52, label: 'Average 52%' });
+    await chart.fixture.whenStable();
+    expect(chart.text('.grid-label')).toEqual(['0', '100']);
+
+    // Taller, the same labels take less of the box and the same levels clear them.
+    chart.host.size.set('large');
+    chart.host.reference.set({ value: 80, label: 'Average 80%' });
+    await chart.fixture.whenStable();
+    expect(chart.text('.grid-label')).toEqual(['0', '50', '100']);
+  });
+
+  it('sets the plot height by size', async () => {
+    const chart = await render();
+    const height = () =>
+      chart.root
+        .querySelector<HTMLElement>('neat-time-chart')!
+        .style.getPropertyValue('--plot-height');
+    expect(height()).toBe('6rem');
+    chart.host.size.set('compact');
+    await chart.fixture.whenStable();
+    expect(height()).toBe('3.5rem');
+    chart.host.size.set('large');
+    await chart.fixture.whenStable();
+    expect(height()).toBe('9.5rem');
+  });
+
   it('a null breaks the line and the newest point gets a dot only when it has a value', async () => {
     const chart = await render((host) => host.series.set([cpu(10, 20, null, 40, 50)]));
     const [path] = chart.all('.line');

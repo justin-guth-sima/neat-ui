@@ -66,11 +66,15 @@ describe('NeatSparkline', () => {
     expect(segments(paths()[0])).toBe(1);
   });
 
-  it('takes its stroke from the tone, stated once in its stylesheet', async () => {
+  it('takes its stroke from the tone', async () => {
     const { host, fixture } = await render([1, 2]);
-    expect(host.getAttribute('data-tone')).toBe('default');
+    const stroke = () => host.style.getPropertyValue('--sparkline-stroke');
+    expect(stroke()).toBe('var(--neat-line)');
+    fixture.componentInstance.tone.set('warning');
+    await fixture.whenStable();
+    expect(stroke()).toBe('var(--neat-line-warning)');
     fixture.componentInstance.tone.set('danger');
     await fixture.whenStable();
-    expect(host.getAttribute('data-tone')).toBe('danger');
+    expect(stroke()).toBe('var(--neat-line-danger)');
   });
 });
