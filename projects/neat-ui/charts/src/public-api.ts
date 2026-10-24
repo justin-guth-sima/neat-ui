@@ -4,6 +4,7 @@
  * packages it draws with) only if a page it loads imports it. It imports the primary only by its
  * package name; the primary never imports it. Every export added here is a promise to consumers.
  */
+export { NeatChartCard } from './lib/chart-card';
 export { NeatHeatmap, type NeatHeatmapRow } from './lib/heatmap';
 export { NeatSparkline } from './lib/sparkline';
 export { NeatStackedChart } from './lib/stacked-chart';

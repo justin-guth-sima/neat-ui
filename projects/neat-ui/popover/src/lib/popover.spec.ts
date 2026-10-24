@@ -22,6 +22,7 @@ import {
   NeatPopover,
   type NeatPopoverAlign,
   NeatPopoverContent,
+  NeatPopoverItem,
   NeatPopoverTrigger,
   POPOVER_HELM_CLASSES,
 } from './popover';
@@ -31,7 +32,7 @@ const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 const SURFACES = ['background', 'card'] as const;
 
 @Component({
-  imports: [NeatPopover, NeatPopoverTrigger, NeatPopoverContent],
+  imports: [NeatPopover, NeatPopoverTrigger, NeatPopoverContent, NeatPopoverItem],
   template: `
     <button type="button" class="outside">Elsewhere</button>
     <p class="outside-text">Page text</p>
@@ -41,7 +42,9 @@ const SURFACES = ['background', 'card'] as const;
         <p>How the tiles look.</p>
         <button type="button" class="first">Bars</button>
         <button type="button">Hide empty slots</button>
-        <button type="button" class="reset" (click)="confirm.ask(resetQuestion)">Reset</button>
+        <button type="button" neatPopoverItem class="reset" (click)="confirm.ask(resetQuestion)">
+          Reset
+        </button>
       </ng-template>
     </neat-popover>
     <button type="button" class="after">Next</button>
@@ -635,6 +638,19 @@ describe('NeatPopover', () => {
 
     // A select list's sticky header fills with --neat-surface to cover the rows under it.
     expect(panel()!.classList).toContain('[--neat-surface:var(--popover)]');
+  });
+
+  it('a popover item lines up at the start of the panel, whose column would stretch it', async () => {
+    const { trigger, settle } = await render();
+    trigger.click();
+    await settle();
+
+    // The panel is a flex column, which stretches a button across it; a menu item hugs its text.
+    expect(panel()!.classList).toContain('flex-col');
+    const items = panel()!.querySelectorAll('[neatPopoverItem]');
+    expect(items).toHaveLength(1);
+    expect([...items[0].classList]).toEqual(expect.arrayContaining(['self-start', 'reset']));
+    expect(panel()!.querySelector('.first')!.classList).not.toContain('self-start');
   });
 
   it('helm drift: the copied class string still appears in the vendored helm popover', () => {

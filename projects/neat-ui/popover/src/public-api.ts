@@ -5,4 +5,9 @@
  * promise to consumers.
  */
 export type { NeatPopoverAlign } from './lib/popover';
-export { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } from './lib/popover';
+export {
+  NeatPopover,
+  NeatPopoverContent,
+  NeatPopoverItem,
+  NeatPopoverTrigger,
+} from './lib/popover';

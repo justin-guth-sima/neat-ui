@@ -39,7 +39,8 @@ look happens in one place. Every rule here protects that.
     `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments) and `charts` (live
     metric charts, drawn as SVG but for the heatmap: `NeatSparkline`, `NeatTimeChart`,
-    `NeatStackedChart` and `NeatHeatmap`; the only code that imports d3),
+    `NeatStackedChart` and `NeatHeatmap`, and `NeatChartCard`, the card they sit on; the only code that
+    imports d3),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
@@ -126,6 +127,15 @@ is a `color-mix` of `--neat-heat-low` and `--neat-heat-high` by the value's plac
 per sampling interval while the history is short, so a pause stays visible), and its grid is one
 tab stop with a cell cursor. The geometry is internal; only the components and their types are
 exported.
+
+`NeatChartCard` is the one card for a metric (the overview cards, the Power tiles, a run view's
+tiles): heading, `[neatChartCardChip]`, value with unit, caption, then the chart. It sets
+`--neat-surface` to `--card` for the charts' label halos and has no `overflow`, `z-index`,
+`isolation` or `transform`: a readout can hang below its plot, and a card that clipped it or made a
+stacking context would let the next card paint over it. A `selectable` card's heading is a button
+with `aria-current` and a click anywhere on the card emits `activate` too, except a click inside
+something in the content that has a `tabindex`: the plots are tab stops that read out by pointer
+and keys, so the card needs no list of chart selectors to drift out of date.
 
 **What entries share goes through the primary under a `ɵ` prefix.** The vendored helm code
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,
@@ -277,6 +287,14 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   - `NeatPopoverTrigger` owns its ARIA and its click (`NeatPopover` itself hosts brain's popover):
     brain's trigger names the panel in `aria-controls` while it is closed, when no element has
     that id.
+
+  `NeatTabs` renders a panel element for every tab, so each trigger's `aria-controls` names an
+  element that exists; only the open tab's holds its template, and the others are empty and
+  `hidden`. Brain's ids come from the keys alone, so the kit's keys are the instance's prefix and
+  the tab's index, never its `value`: a value with spaces ("Board 1") would be an invalid id.
+  Inside a `neat-popover`'s panel, a menu's items are `button[neatPopoverItem]`: the panel is a
+  flex column, and the directive's `self-start` keeps each button the width of its text, at the
+  panel's start. An app has no stylesheet of its own to say that, and the look is the kit's.
 
 - **Customise in this order: theme tokens, then wrapper inputs and classes, never helm.** Tokens
   come from `lib/theme/*.ts`; `npm run theme:emit` regenerates `tokens.generated.css`, and the theme

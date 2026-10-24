@@ -36,7 +36,12 @@ export const SECONDARY_ENTRIES = {
   'level-meter': ['neat-level-meter'],
   'line-list': ['ul[neatLineList]', 'li[neatLine]', '[neatLineEnd]'],
   'number-field': ['neat-number-field'],
-  popover: ['neat-popover', 'ng-template[neatPopoverContent]', 'button[neatPopoverTrigger]'],
+  popover: [
+    'neat-popover',
+    'ng-template[neatPopoverContent]',
+    'button[neatPopoverTrigger]',
+    'button[neatPopoverItem]',
+  ],
   progress: ['neat-progress'],
   segmented: ['neat-segmented'],
   select: ['neat-select'],

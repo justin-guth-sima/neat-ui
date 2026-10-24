@@ -39,7 +39,12 @@ import { NeatInput } from '@sima/neat-ui/input';
 import { NeatLevelMeter } from '@sima/neat-ui/level-meter';
 import { NeatLine, NeatLineEnd, NeatLineList } from '@sima/neat-ui/line-list';
 import { NeatNumberField } from '@sima/neat-ui/number-field';
-import { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } from '@sima/neat-ui/popover';
+import {
+  NeatPopover,
+  NeatPopoverContent,
+  NeatPopoverItem,
+  NeatPopoverTrigger,
+} from '@sima/neat-ui/popover';
 import { NeatProgress } from '@sima/neat-ui/progress';
 import { NeatSegmented, type NeatSegmentedOption } from '@sima/neat-ui/segmented';
 import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
@@ -198,6 +203,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatPage,
     NeatPopover,
     NeatPopoverContent,
+    NeatPopoverItem,
     NeatPopoverTrigger,
     NeatProgress,
     NeatSegmented,
@@ -714,7 +720,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             trigger close it and give focus back to the trigger; Tab out of it closes it and focus
             goes on to the element after the trigger; Shift+Tab out goes back to the trigger.
             <code>align</code> lines it up with the trigger's start, centre or end. The content is
-            an <code>ng-template</code>, so its values live in the page.
+            an <code>ng-template</code>, so its values live in the page. A menu's items are
+            <code>button[neatPopoverItem]</code>: each hugs its text at the panel's start instead of
+            stretching across it.
           </p>
           <div class="showcase-row">
             <neat-popover label="View options" [(open)]="viewOptionsOpen">
@@ -770,6 +778,23 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
                     Aligned to the trigger's end edge.
                   </span>
                 </div>
+              </ng-template>
+            </neat-popover>
+            <neat-popover label="Channel actions" align="end">
+              <button
+                neatButton
+                neatPopoverTrigger
+                type="button"
+                variant="text"
+                iconOnly
+                aria-label="Channel actions"
+                neatTooltip="Channel actions"
+              >
+                <neat-icon name="more" />
+              </button>
+              <ng-template neatPopoverContent>
+                <button neatButton neatPopoverItem type="button" variant="text">Rename</button>
+                <button neatButton neatPopoverItem type="button" variant="text">Duplicate</button>
               </ng-template>
             </neat-popover>
           </div>

@@ -1,0 +1,76 @@
+:host {
+  /* The charts' labels carry a halo in the fill of the surface they sit on: this card's. */
+  --neat-surface: var(--card);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  min-width: 0;
+  padding: var(--neat-space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+
+  /*
+   * No `overflow`, `position` with a `z-index`, `isolation`, `transform` or `opacity` on the card:
+   * a chart's readout can hang below its plot, and a card that clipped it or made a stacking
+   * context of its own would let the next card paint over it.
+   */
+}
+
+:host([data-selectable]) {
+  cursor: pointer;
+}
+
+/* The outline is 2px: the border's 1px and the same again inside it, so the card does not move. */
+:host([data-selected]) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--neat-space-2);
+}
+
+.heading {
+  min-width: 0;
+  font-size: var(--neat-text-sm);
+  font-weight: 500;
+}
+
+.activator {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.activator:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.unit {
+  font-size: var(--neat-text-sm);
+  font-weight: 400;
+  color: var(--muted-foreground);
+}
+
+.caption {
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+}

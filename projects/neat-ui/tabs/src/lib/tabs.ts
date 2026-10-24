@@ -56,8 +56,8 @@ const TRIGGER_CLASSES = hlm(
 );
 
 /**
- * One tab of a `neat-tabs`. Its panel goes in an `<ng-template>`, so it is created only while the
- * tab is open and destroyed when another one opens:
+ * One tab of a `neat-tabs`. Its panel goes in an `<ng-template>`, so its content is created only
+ * while the tab is open and destroyed when another one opens:
  * `<neat-tab label="General" value="general"><ng-template>…</ng-template></neat-tab>`.
  */
 @Component({
@@ -81,7 +81,8 @@ let nextTabsId = 0;
  * Tabs with one open panel: `<neat-tabs label="Channel settings" [(value)]="tab">` around
  * `neat-tab` children. The tab list is named by `label`. Arrow keys move to the next or previous
  * tab and open it, skipping disabled tabs and wrapping; Home and End jump to the ends; the open tab
- * is the only tab stop. Only the open tab's panel exists: the others are not created at all. When
+ * is the only tab stop. Every tab has a panel element, so each tab's `aria-controls` names one that
+ * exists, but only the open tab's holds its content: the others are empty and `hidden`. When
  * `value` names no tab (or is unset), the first enabled tab is open, so the list stays reachable.
  *
  * The tabs do not scroll: a panel taller than the space it has is for the surrounding page or pane
@@ -89,9 +90,11 @@ let nextTabsId = 0;
  *
  * Brain's tabs are the host directive; its list, trigger and content directives give the tab
  * roles, the keyboard handling and the panel's labelling. Brain derives element ids from the tab
- * keys alone (`brn-tabs-label-<key>`), so the kit gives brain keys prefixed per instance and keeps
- * `value` in the app's terms. Brain's lazy content keeps a visited panel alive, so the kit renders
- * the open panel itself.
+ * keys alone (`brn-tabs-label-<key>`) and puts them in ids and `aria-controls` as they are. The
+ * kit's keys are the instance's prefix and the tab's place in the list, so two tab sets with the
+ * same values do not share ids and a value with spaces ("Board 1") is still a valid id; `value`
+ * stays in the app's terms. Brain's lazy content keeps a visited panel alive, so the kit puts the
+ * open tab's template in its panel itself.
  */
 @Component({
   selector: 'neat-tabs',
@@ -101,22 +104,18 @@ let nextTabsId = 0;
   host: { '[class]': 'rootClasses' },
   template: `
     <div brnTabsList data-variant="line" [attr.aria-label]="label()" [class]="listClasses">
-      @for (tab of tabs(); track tab.value()) {
-        <button
-          [brnTabsTrigger]="key(tab.value())"
-          [disabled]="tab.disabled()"
-          [class]="triggerClasses"
-        >
+      @for (tab of tabs(); track tab.value(); let index = $index) {
+        <button [brnTabsTrigger]="key(index)" [disabled]="tab.disabled()" [class]="triggerClasses">
           {{ tab.label() }}
         </button>
       }
     </div>
-    @for (tab of tabs(); track tab.value()) {
-      @if (tab.value() === open()) {
-        <div [brnTabsContent]="key(tab.value())" [class]="contentClasses">
+    @for (tab of tabs(); track tab.value(); let index = $index) {
+      <div [brnTabsContent]="key(index)" [class]="contentClasses">
+        @if (index === openIndex()) {
           <ng-container [ngTemplateOutlet]="tab.content()" />
-        </div>
-      }
+        }
+      </div>
     }
   `,
 })
@@ -127,11 +126,11 @@ export class NeatTabs {
   readonly label = input.required<string>();
 
   protected readonly tabs = contentChildren(NeatTab);
-  /** The tab shown open: the one `value` names, else the first enabled one. */
-  protected readonly open = computed(() => {
+  /** The place of the tab shown open: the one `value` names, else the first enabled one; -1 for none. */
+  protected readonly openIndex = computed(() => {
     const tabs = this.tabs();
-    const named = tabs.find((tab) => tab.value() === this.value());
-    return (named ?? tabs.find((tab) => !tab.disabled()))?.value();
+    const named = tabs.findIndex((tab) => tab.value() === this.value());
+    return named >= 0 ? named : tabs.findIndex((tab) => !tab.disabled());
   });
   protected readonly rootClasses: string = TABS_HELM_CLASSES.root;
   protected readonly listClasses: string = LIST_CLASSES;
@@ -143,15 +142,20 @@ export class NeatTabs {
   constructor() {
     const tabs = inject(BrnTabs);
     effect(() => {
-      const open = this.open();
-      tabs.activeTab.set(open === undefined ? undefined : this.key(open));
+      const open = this.openIndex();
+      tabs.activeTab.set(open < 0 ? undefined : this.key(open));
     });
     // Brain's output lives on this same host, so the subscription ends with it.
-    tabs.tabActivated.subscribe((key) => this.value.set(key.slice(this.prefix.length)));
+    tabs.tabActivated.subscribe((key) => {
+      const tab = this.tabs()[Number(key.slice(this.prefix.length))];
+      if (tab) {
+        this.value.set(tab.value());
+      }
+    });
   }
 
-  /** The key brain knows a tab by: its value, prefixed per instance. */
-  protected key(value: string): string {
-    return this.prefix + value;
+  /** The key brain knows a tab by: its place in the list, prefixed per instance. */
+  protected key(index: number): string {
+    return this.prefix + index;
   }
 }

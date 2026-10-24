@@ -82,6 +82,15 @@ export class NeatPopoverTrigger {
 }
 
 /**
+ * A button that is a menu item of a `neat-popover`'s panel (the ⋯ menu): `<button neatPopoverItem>`
+ * inside the content. The panel is a flex column, which would stretch every button across it; an
+ * item hugs its text and lines up at the panel's start. The class is a literal so that Tailwind
+ * finds it.
+ */
+@Directive({ selector: 'button[neatPopoverItem]', host: { class: 'self-start' } })
+export class NeatPopoverItem {}
+
+/**
  * A panel of controls that opens below a button and stays open while they are used:
  *
  * ```html

@@ -111,6 +111,23 @@ class FallbackTabsHost {
   value: string | undefined = 'unknown';
 }
 
+/** The panel under `scope` that is not `hidden`. */
+const openPanel = (scope: ParentNode) =>
+  scope.querySelector<HTMLElement>('[role="tabpanel"]:not([hidden])');
+
+@Component({
+  imports: [NeatTabs, NeatTab],
+  template: `
+    <neat-tabs label="Sensor groups" [(value)]="value">
+      <neat-tab label="Board 1" value="Board 1"><ng-template>first</ng-template></neat-tab>
+      <neat-tab label="Board 2" value="Board 2"><ng-template>second</ng-template></neat-tab>
+    </neat-tabs>
+  `,
+})
+class SpacedTabsHost {
+  readonly value = signal('Board 1');
+}
+
 async function render(setup: (host: TabsHost) => void = () => undefined) {
   const fixture = TestBed.createComponent(TabsHost);
   setup(fixture.componentInstance);
@@ -118,8 +135,10 @@ async function render(setup: (host: TabsHost) => void = () => undefined) {
   const root: HTMLElement = fixture.nativeElement;
   const tabs = () => Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
   const panels = () => Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+  /** The panels that are not `hidden`: one, the open tab's. */
+  const shown = () => panels().filter((panel) => !panel.hidden);
   const list = root.querySelector<HTMLElement>('[role="tablist"]')!;
-  return { fixture, host: fixture.componentInstance, root, list, tabs, panels };
+  return { fixture, host: fixture.componentInstance, root, list, tabs, panels, shown };
 }
 
 /** Brain's tab list moves with CDK's key manager, which reads the legacy `keyCode` browsers set. */
@@ -132,7 +151,7 @@ const selected = (tabs: HTMLElement[]) => tabs.map((tab) => tab.getAttribute('ar
 
 describe('NeatTabs', () => {
   it('renders a tab list named by label, one tab per neat-tab, and the active tab’s panel', async () => {
-    const { list, tabs, panels } = await render();
+    const { list, tabs, shown } = await render();
 
     expect(list.getAttribute('aria-label')).toBe('Channel settings');
     expect(tabs().map((tab) => tab.textContent?.trim())).toEqual([
@@ -142,22 +161,51 @@ describe('NeatTabs', () => {
       'Aux',
     ]);
     expect(selected(tabs())).toEqual(['true', 'false', 'false', 'false']);
-    expect(panels()).toHaveLength(1);
-    expect(panels()[0].getAttribute('aria-labelledby')).toBe(tabs()[0].id);
-    expect(tabs()[0].getAttribute('aria-controls')).toBe(panels()[0].id);
-    expect(panels()[0].textContent?.trim()).toBe('metadata panel');
+    expect(shown()).toHaveLength(1);
+    expect(shown()[0].getAttribute('aria-labelledby')).toBe(tabs()[0].id);
+    expect(tabs()[0].getAttribute('aria-controls')).toBe(shown()[0].id);
+    expect(shown()[0].textContent?.trim()).toBe('metadata panel');
+  });
+
+  it('every tab’s aria-controls names an element that exists, and only the open panel has content', async () => {
+    const { fixture, host, root, tabs, panels, shown } = await render();
+    const controlled = () =>
+      tabs().map((tab) => root.querySelector(`[id="${tab.getAttribute('aria-controls')}"]`));
+
+    // One panel per tab, so a trigger never points at nothing; the disabled tab's included.
+    expect(controlled().every((panel) => panel?.getAttribute('role') === 'tabpanel')).toBe(true);
+    expect(panels()).toHaveLength(4);
+    expect(panels().map((panel) => panel.hidden)).toEqual([false, true, true, true]);
+    expect(panels().map((panel) => panel.textContent?.trim())).toEqual([
+      'metadata panel',
+      '',
+      '',
+      '',
+    ]);
+    // A closed panel is labelled by its own tab, as the open one is.
+    expect(panels().map((panel) => panel.getAttribute('aria-labelledby'))).toEqual(
+      tabs().map((tab) => tab.id),
+    );
+
+    host.tab.set('aux');
+    await fixture.whenStable();
+
+    expect(controlled().every((panel) => panel !== null)).toBe(true);
+    expect(panels().map((panel) => panel.hidden)).toEqual([true, true, true, false]);
+    expect(panels().map((panel) => panel.textContent?.trim())).toEqual(['', '', '', 'aux panel']);
+    expect(shown()[0]).toBe(controlled()[3]);
   });
 
   it('creates only the active panel and destroys it when another tab opens', async () => {
-    const { fixture, host, panels } = await render();
+    const { fixture, host, shown } = await render();
     expect([...host.log.alive]).toEqual(['metadata']);
 
     host.tab.set('general');
     await fixture.whenStable();
 
     expect([...host.log.alive]).toEqual(['general']);
-    expect(panels()).toHaveLength(1);
-    expect(panels()[0].textContent?.trim()).toBe('general panel');
+    expect(shown()).toHaveLength(1);
+    expect(shown()[0].textContent?.trim()).toBe('general panel');
   });
 
   it('a click opens a tab and writes back through [(value)]', async () => {
@@ -222,12 +270,12 @@ describe('NeatTabs', () => {
 
     for (const set of sets) {
       const tabs = Array.from(set.querySelectorAll<HTMLElement>('[role="tab"]'));
-      const panel = set.querySelector<HTMLElement>('[role="tabpanel"]')!;
+      const panel = openPanel(set)!;
       const open = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true')!;
       expect(open.getAttribute('aria-controls')).toBe(panel.id);
       expect(panel.getAttribute('aria-labelledby')).toBe(open.id);
     }
-    expect(sets.map((set) => set.querySelector('[role="tabpanel"]')?.textContent?.trim())).toEqual([
+    expect(sets.map((set) => openPanel(set)?.textContent?.trim())).toEqual([
       'first metadata',
       'second general',
     ]);
@@ -235,10 +283,35 @@ describe('NeatTabs', () => {
     sets[0].querySelectorAll<HTMLButtonElement>('[role="tab"]')[1].click();
     await fixture.whenStable();
     expect(fixture.componentInstance.open).toEqual({ first: 'general', second: 'general' });
-    expect(sets.map((set) => set.querySelector('[role="tabpanel"]')?.textContent?.trim())).toEqual([
+    expect(sets.map((set) => openPanel(set)?.textContent?.trim())).toEqual([
       'first general',
       'second general',
     ]);
+  });
+
+  it('a tab value with spaces gives valid, unique ids and still opens its tab', async () => {
+    const fixture = TestBed.createComponent(SpacedTabsHost);
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    const tabs = () => Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const panels = () => Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+    const ids = () => [...tabs(), ...panels()].map((element) => element.id);
+
+    // An id with whitespace is not a valid HTML id, and brain would have built one from the value.
+    expect(ids().every((id) => id !== '' && !/\s/.test(id))).toBe(true);
+    expect(new Set(ids()).size).toBe(ids().length);
+    expect(tabs().map((tab) => tab.getAttribute('aria-controls'))).toEqual(
+      panels().map((panel) => panel.id),
+    );
+    expect(selected(tabs())).toEqual(['true', 'false']);
+
+    tabs()[1].click();
+    await fixture.whenStable();
+
+    // The key brain reports is the tab's place, which maps back to its value, not to the key.
+    expect(fixture.componentInstance.value()).toBe('Board 2');
+    expect(selected(tabs())).toEqual(['false', 'true']);
+    expect(openPanel(root)?.textContent?.trim()).toBe('second');
   });
 
   it.each([['unknown'], [undefined]])(
@@ -252,12 +325,12 @@ describe('NeatTabs', () => {
 
       expect(selected(tabs)).toEqual(['false', 'true', 'false']);
       expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1]);
-      expect(root.querySelector('[role="tabpanel"]')?.textContent?.trim()).toBe('metadata');
+      expect(openPanel(root)?.textContent?.trim()).toBe('metadata');
     },
   );
 
   it('draws the tabs with helm’s line variant classes', async () => {
-    const { root, list, tabs, panels } = await render();
+    const { root, list, tabs, shown } = await render();
 
     expect(root.querySelector('neat-tabs')?.classList).toContain('group/tabs');
     expect(list.dataset['variant']).toBe('line');
@@ -267,7 +340,7 @@ describe('NeatTabs', () => {
     expect([...tabs()[0].classList]).toEqual(
       expect.arrayContaining(TABS_HELM_CLASSES.triggerIndicator.split(' ')),
     );
-    expect(panels()[0].classList).toContain('outline-none');
+    expect(shown()[0].classList).toContain('outline-none');
   });
 
   it('helm drift: the copied class strings still appear in the vendored helm tabs', () => {

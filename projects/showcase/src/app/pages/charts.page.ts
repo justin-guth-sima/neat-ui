@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { NeatPage } from '@sima/neat-ui';
 import {
+  NeatChartCard,
   NeatChartFormat,
   NeatChartTone,
   NeatHeatmap,
@@ -12,6 +13,7 @@ import {
   NeatThreshold,
   NeatTimeChart,
 } from '@sima/neat-ui/charts';
+import { NeatStatusChip } from '@sima/neat-ui/status-chip';
 
 /** A sine wave of `count` samples, the demo data of every chart: a plausible, smooth metric. */
 function sine(count: number, cycles: number, low: number, high: number): number[] {
@@ -39,7 +41,15 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
 
 @Component({
   selector: 'app-charts-page',
-  imports: [NeatHeatmap, NeatPage, NeatSparkline, NeatStackedChart, NeatTimeChart],
+  imports: [
+    NeatChartCard,
+    NeatHeatmap,
+    NeatPage,
+    NeatSparkline,
+    NeatStackedChart,
+    NeatStatusChip,
+    NeatTimeChart,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-page>
@@ -66,6 +76,67 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
               </div>
             }
           </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Chart card</h2>
+          <p class="showcase-muted">
+            <code>neat-chart-card</code> is the card a metric sits on: its heading with a
+            <code>neatChartCardChip</code> beside it, the value with its unit, a caption and the
+            chart. It sets <code>--neat-surface</code> to <code>--card</code> for the charts' label
+            halos. A <code>selectable</code> card is one choice of several: its heading is a button
+            (<code>aria-current</code> while <code>selected</code>) and a click on the card chooses
+            it too, but a click on a chart's plot keeps the plot's readout. Without
+            <code>selectable</code>, the heading is text and clicks do nothing, as on a tile.
+          </p>
+          <div class="chart-grid">
+            <neat-chart-card
+              heading="CPU usage"
+              value="34"
+              unit="%"
+              caption="All cores"
+              selectable
+              [selected]="chosen() === 'cpu'"
+              (activate)="chosen.set('cpu')"
+            >
+              <neat-time-chart
+                label="CPU usage"
+                headless
+                size="compact"
+                [series]="cpu"
+                [times]="times"
+                [domain]="[0, 100]"
+                [format]="percent"
+              />
+            </neat-chart-card>
+            <neat-chart-card
+              heading="MLA temperature"
+              value="78.2"
+              unit="°C"
+              caption="Hottest of 8 sensors"
+              selectable
+              [selected]="chosen() === 'mla'"
+              (activate)="chosen.set('mla')"
+            >
+              <neat-status-chip neatChartCardChip tone="warning">Warning</neat-status-chip>
+              <neat-sparkline
+                label="MLA temperature"
+                tone="warning"
+                [values]="temperature[0].values"
+                [format]="celsius"
+              />
+            </neat-chart-card>
+            <neat-chart-card
+              heading="Fan speed"
+              value="Not reported"
+              caption="The board does not report it"
+              selectable
+              [selected]="chosen() === 'fan'"
+              (activate)="chosen.set('fan')"
+            />
+            <neat-chart-card heading="Board power" value="11.4" unit="W" caption="Now" />
+          </div>
+          <p class="showcase-code showcase-muted">Chosen: {{ chosen() }}</p>
         </section>
 
         <section class="showcase-section">
@@ -161,8 +232,8 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
             given, in <code>--neat-series-1</code> to <code>-8</code>. The legend gives each band's
             current value and its share of the current total, which the eight colours alone cannot
             tell apart. A sample where any band is missing breaks the whole stack: here the board
-            did not report for a while. The readout reads "Total" and then each band, with the
-            time chart's keys.
+            did not report for a while. The readout reads "Total" and then each band, with the time
+            chart's keys.
           </p>
           <div class="chart-grid">
             <div class="chart-card">
@@ -206,6 +277,7 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
   styleUrl: './charts.page.css',
 })
 export class ChartsPage {
+  protected readonly chosen = signal('cpu');
   private static readonly celsius: NeatChartFormat = (value) => `${value.toFixed(1)} °C`;
 
   protected readonly times = TIMES;
