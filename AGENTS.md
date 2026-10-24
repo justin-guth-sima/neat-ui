@@ -156,7 +156,9 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   of the area itself. `groups` (with `groupOf`) puts the rows under headings, each group a
   `role="group"` named by its heading and, like its heading, a line of the grid. A heading is a
   `--muted` band from edge to edge of the area (the rows' negative margins), its text on the
-  cells' inset. The keys move over the rows as shown, which a row's `data-index` numbers, never
+  cells' inset. In dark, `--muted` is the card, dialog and popover surface itself, so the band
+  shows only on the page there (in light it shows on every surface); the heading's type still sets
+  it apart. The keys move over the rows as shown, which a row's `data-index` numbers, never
   onto a heading, and a group's first row brings its heading into view with it, as the last row
   does the empty groups after it. An item of a group the app did not list, or a group listed
   twice, throws in dev mode; in production the item shows after the groups under no heading and
