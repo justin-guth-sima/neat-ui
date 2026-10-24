@@ -88,11 +88,11 @@ let nextSelectId = 0;
  * `label` is the accessible name of the select and of its list; `showLabel` also shows it above
  * the select, and a click on it opens the list. The shown label is drawn as `neat-field`'s is, and
  * `size` matches `neatInput`'s and `neatButton`'s, so a select in a row of fields and buttons of
- * the same size lines up with them. `options` are `{ value, label, disabled? }`; the
- * selected value is `value`, `null` while there is none, and the trigger shows the selected
- * option's label or, without one, `placeholder`; a value that is not among the options (a deleted
- * file, options that load later) shows the placeholder as well, in its muted colour. The select fills its container's width, and its
- * list is as wide as the select.
+ * the same size lines up with them. `options` are `{ value, label, disabled? }`; the selected
+ * value is `value`, `null` while there is none, and the trigger shows the selected option's label
+ * or, without one, `placeholder`; a value that is not among the options (a deleted file, options
+ * that load later) shows the placeholder as well, in its muted colour. The select fills its
+ * container's width, and its list is as wide as the select.
  *
  * It follows the WAI-ARIA select-only combobox. On the trigger, Down, Up, Enter and Space open the
  * list; open, Down, Up, Home, End and Page Up and Down move through the options (disabled ones are

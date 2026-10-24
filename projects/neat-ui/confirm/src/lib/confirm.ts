@@ -1,4 +1,6 @@
+import { DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, Injectable } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   BRN_ALERT_DIALOG_DEFAULT_OPTIONS,
   BrnAlertDialogDescription,
@@ -10,6 +12,7 @@ import {
   cssClassesToArray,
   injectBrnDialogContext,
 } from '@spartan-ng/brain/dialog';
+import { filter } from 'rxjs';
 import { NeatButton, ɵhlm as hlm } from '@sima/neat-ui';
 
 /** What `NeatConfirm.ask` asks: the copy of the dialog and the weight of its confirm button. */
@@ -91,6 +94,7 @@ interface Question {
 /**
  * The dialog's content, rendered by `NeatConfirm` inside the CDK dialog container, which carries
  * the role and the modal state. Brain's title and description name and describe that container.
+ * Escape closes it (brain's alert-dialog default) and stops there, as in `NeatDialog`.
  */
 @Component({
   selector: 'neat-confirm-dialog',
@@ -135,6 +139,19 @@ class NeatConfirmDialog {
   protected readonly options = this.context.options;
   protected readonly classes = CONFIRM_HELM_CLASSES;
   protected readonly contentClasses: string = CONTENT_CLASSES;
+
+  constructor() {
+    // The topmost dialog is the only one that gets the key (the CDK's dispatcher), and a modal
+    // absorbs it: page shortcuts on Escape (a panel, a drawing mode) must not fire behind the
+    // question. The CDK listens on `body`, so this stops it on the way up to `document` and
+    // `window`; the CDK still closes the dialog with it.
+    inject(DialogRef)
+      .keydownEvents.pipe(
+        filter((event) => event.key === 'Escape'),
+        takeUntilDestroyed(),
+      )
+      .subscribe((event) => event.stopPropagation());
+  }
 }
 
 /**

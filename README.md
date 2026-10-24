@@ -5,7 +5,10 @@ on Spartan UI (headless brain primitives plus its helm styles, Tailwind inside t
 apps such as Neat Insight get one consistent look and one place to change it. Apps use only the
 kit's `neat-*` API and its prebuilt stylesheet; they need no Tailwind of their own.
 
-- `projects/neat-ui`: the library, published as `@sima/neat-ui`.
+- `projects/neat-ui`: the library, published as `@sima/neat-ui`. The primary entry point holds
+  what the shell and every page need; every other component has its own entry point, imported as
+  `@sima/neat-ui/<name>` (`@sima/neat-ui/dialog`, `@sima/neat-ui/select-list`, …), so an app's
+  main bundle carries only the entries its shell imports. AGENTS.md lists them.
 - `projects/showcase`: a gallery of every component in both themes. Look here before building
   something new.
 
@@ -41,7 +44,8 @@ build the kit; they vendor the released tarball.
    is the workspace, not the package).
 2. Run `npm test -- --watch=false && npm run lint`, then `npm run pack`. It builds the library and
    its stylesheet, runs `check:dist` and writes `dist/neat-ui/sima-neat-ui-<version>.tgz`. Inspect
-   it with `tar -tzf`: it holds the FESM bundle, the types, `styles/neat-ui.css` and
+   it with `tar -tzf`: it holds one FESM bundle per entry point (`fesm2022/sima-neat-ui.mjs` and
+   `fesm2022/sima-neat-ui-<name>.mjs`), the types, `styles/neat-ui.css` and
    `styles/neat-ui.tailwind.css`. Every build empties `dist/neat-ui`, tarball included, so the
    GitHub release (step 5) is the tarball's durable home, not the checkout.
 3. Commit the bump as `Release neat-ui <version>` and tag it `v<version>`.

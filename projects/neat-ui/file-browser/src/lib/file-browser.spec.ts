@@ -19,7 +19,7 @@ const folder = (path: string, children: NeatFileNode[]): NeatFileNode => ({
   type: 'folder',
   children,
 });
-const unsupported = { disabled: true, tag: 'NOT STREAMABLE' };
+const unsupported = { unavailable: true, tag: 'NOT STREAMABLE' };
 
 const TREE: readonly NeatFileNode[] = [
   folder('120FPS-720p-h264', [file('120FPS-720p-h264/drone.mp4')]),
@@ -190,17 +190,14 @@ describe('NeatFileBrowser', () => {
       expect(count().previousElementSibling!.textContent).toBe('30FPS');
     });
 
-    it('describes the list to a screen reader in manage mode only: how to check a file', async () => {
-      const { listbox, element, host, fixture } = await render();
+    it('adds no description to the list in manage mode: the multi-select listbox says what checking is', async () => {
+      const { listbox, host, fixture } = await render();
       expect(listbox().hasAttribute('aria-describedby')).toBe(false);
 
       host.mode.set('manage');
       await fixture.whenStable();
 
-      const id = listbox().getAttribute('aria-describedby')!;
-      expect(element.querySelector(`#${id}`)!.textContent).toBe(
-        'Press Space to check or uncheck the file.',
-      );
+      expect(listbox().hasAttribute('aria-describedby')).toBe(false);
     });
 
     it('is a listbox named by labels.files', async () => {
@@ -212,7 +209,7 @@ describe('NeatFileBrowser', () => {
       expect(listbox().getAttribute('aria-label')).toBe('Library files');
     });
 
-    it('greys a disabled file and shows its tag, yet it stays selectable', async () => {
+    it('greys an unavailable file and shows its tag as a neutral status chip, yet it stays selectable', async () => {
       const { click, row, host } = await render();
       const name = row('Readme.md').querySelector<HTMLElement>('[data-slot="file-name"]')!;
 
@@ -220,10 +217,13 @@ describe('NeatFileBrowser', () => {
       expect(row('video.mp4').querySelector('[data-slot="file-name"]')!.classList).not.toContain(
         'text-muted-foreground',
       );
-      expect(row('Readme.md').querySelector('[data-slot="file-tag"]')!.textContent).toBe(
-        'NOT STREAMABLE',
+      const tag = row('Readme.md').querySelector('neat-status-chip')!;
+      expect(tag.textContent!.trim()).toBe('NOT STREAMABLE');
+      // The kit's chip for a fact beside a value, in its neutral tone (status-chip.spec holds it).
+      expect([...tag.classList]).toEqual(
+        expect.arrayContaining(['bg-muted', 'text-muted-foreground']),
       );
-      expect(row('video.mp4').querySelector('[data-slot="file-tag"]')).toBeNull();
+      expect(row('video.mp4').querySelector('neat-status-chip')).toBeNull();
 
       await click('Readme.md');
       expect(host.selected()).toBe('Readme.md');
@@ -231,9 +231,10 @@ describe('NeatFileBrowser', () => {
   });
 
   describe('the count', () => {
-    it('counts the enabled files in the folder and below, by default as files', async () => {
+    it('counts the available files in the folder and below, by default as files', async () => {
       const { count, host, settle } = await render();
-      // video.mp4, drone.mp4, highway.mp4, lobby.mp4 and deep.mp4; the two disabled ones do not count.
+      // video.mp4, drone.mp4, highway.mp4, lobby.mp4 and deep.mp4; the two unavailable ones are
+      // not counted.
       expect(count()).toBe('5 files');
 
       host.folder.set('30FPS/indoor/cam-a');
@@ -909,11 +910,10 @@ describe('NeatFileBrowser', () => {
       // A row sits on the surface, and is --accent when hovered or selected.
       const FILLS = ['background', 'card', 'accent'] as const;
 
-      it(`${scheme}: a disabled file’s name, a tag, a folder’s count and the count line reach 4.5:1`, async () => {
+      it(`${scheme}: an unavailable file’s name, a folder’s count and the count line reach 4.5:1`, async () => {
         const { row, element } = await render();
         const cases = {
-          'disabled name': row('Readme.md').querySelector('[data-slot="file-name"]')!,
-          tag: row('Readme.md').querySelector('[data-slot="file-tag"]')!,
+          'unavailable name': row('Readme.md').querySelector('[data-slot="file-name"]')!,
           'folder count': row('30FPS').querySelector('.tabular-nums')!,
           'count line': element.querySelector('[data-slot="file-browser-count"]')!,
         };

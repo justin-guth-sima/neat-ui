@@ -12,7 +12,7 @@ const folder = (path: string, children: NeatFileNode[]): NeatFileNode => ({
   type: 'folder',
   children,
 });
-const unsupported = { disabled: true, tag: 'NOT SUPPORTED' };
+const unsupported = { unavailable: true, tag: 'NOT SUPPORTED' };
 
 /** A folder with a thousand files, to see the list scroll and stay quick. */
 const ARCHIVE_SIZE = 1000;

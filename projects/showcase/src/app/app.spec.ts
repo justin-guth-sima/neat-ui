@@ -62,17 +62,18 @@ describe('App', () => {
 
   it('demonstrates the page toolbar and side panel on the page demo', async () => {
     await navigate('/page');
-    const toggle = root().querySelector('header button[role="switch"]') as HTMLButtonElement;
+    const toggle = root().querySelector(
+      'header neat-aside-toggle button[aria-label="Side panel"]',
+    ) as HTMLButtonElement;
     const aside = (): HTMLElement | null => content().querySelector('neat-page aside');
 
-    expect(toggle.textContent?.trim()).toBe('Side panel');
-    expect(toggle.getAttribute('aria-checked')).toBe('true');
-    expect(aside()?.querySelector('h3')?.textContent).toBe('Side panel');
+    expect(toggle.getAttribute('aria-pressed')).toBe('true');
+    expect(aside()?.querySelector('h2')?.textContent).toBe('src3');
 
     toggle.click();
     await fixture.whenStable();
 
-    expect(toggle.getAttribute('aria-checked')).toBe('false');
+    expect(toggle.getAttribute('aria-pressed')).toBe('false');
     expect(aside()).toBeNull();
   });
 });

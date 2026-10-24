@@ -3,7 +3,7 @@ import {
   breadcrumbs,
   childrenAt,
   childTowards,
-  enabledFilePaths,
+  availableFilePaths,
   listFolder,
   nearestExistingFolder,
   type NeatFileNode,
@@ -13,17 +13,17 @@ import {
 } from './file-tree';
 
 // These are the tree tests of the media browser the kit's was extracted from, with the kit's tree:
-// a file the app cannot use is `disabled` where the original said it was not `streamable`, a
+// a file the app cannot use is `unavailable` where the original said it was not `streamable`, a
 // folder's count is computed here rather than sent by the server, and folder names carry no leading
 // slash. The expectations are the original's. Its `streamableOnly` and `hidden` (which hid those
-// files and counted them) live on as the listing's `disabled` flags: the kit never hides, so an
+// files and counted them) live on as the listing's `unavailable` flags: the kit never hides, so an
 // app that must not offer a file leaves it out of the tree and counts what it left out itself
 // (the tests below read the flags the way that app would).
 const file = (path: string, enabled = true): NeatFileNode => ({
   name: path.split('/').pop()!,
   path,
   type: 'file',
-  ...(enabled ? {} : { disabled: true }),
+  ...(enabled ? {} : { unavailable: true }),
 });
 const folder = (path: string, children: NeatFileNode[]): NeatFileNode => ({
   name: path.split('/').pop()!,
@@ -68,13 +68,13 @@ describe('listFolder', () => {
       ['30FPS', 3],
       ['empty', 0],
     ]);
-    expect(root.files.map((f) => [f.name, f.path, f.disabled ?? false])).toEqual([
+    expect(root.files.map((f) => [f.name, f.path, f.unavailable ?? false])).toEqual([
       ['readme.md', 'readme.md', true],
       ['video.mp4', 'video.mp4', false],
     ]);
     const indoor = listFolder(tree, '30FPS/indoor');
     expect(indoor.folders.map((f) => f.path)).toEqual(['30FPS/indoor/cam-a']);
-    expect(indoor.files.map((f) => [f.name, f.path, f.disabled ?? false])).toEqual([
+    expect(indoor.files.map((f) => [f.name, f.path, f.unavailable ?? false])).toEqual([
       ['lobby.mp4', '30FPS/indoor/lobby.mp4', false],
       ['notes.txt', '30FPS/indoor/notes.txt', true],
     ]);
@@ -82,7 +82,7 @@ describe('listFolder', () => {
   });
 
   it('flags the files that cannot be used, so an app can offer only the others and count the rest', () => {
-    const enabled = (files: readonly NeatFileNode[]) => files.filter((f) => !f.disabled);
+    const enabled = (files: readonly NeatFileNode[]) => files.filter((f) => !f.unavailable);
     const hidden = (files: readonly NeatFileNode[]) => files.length - enabled(files).length;
 
     const root = listFolder(tree, '');
@@ -173,7 +173,7 @@ describe('searchFolder', () => {
     expect(searchFolder(tree, '30FPS', 'notes').map((m) => [m.node.path, m.relative])).toEqual([
       ['30FPS/indoor/notes.txt', 'indoor/notes.txt'],
     ]);
-    expect(searchFolder(tree, '30FPS', 'notes')[0].node.disabled).toBe(true);
+    expect(searchFolder(tree, '30FPS', 'notes')[0].node.unavailable).toBe(true);
     expect(searchFolder(tree, '30FPS', '  ')).toEqual([]);
     expect(searchFolder(tree, '', 'mp4')).toHaveLength(5);
   });
@@ -210,9 +210,9 @@ describe('nearestExistingFolder', () => {
   });
 });
 
-describe('enabledFilePaths', () => {
+describe('availableFilePaths', () => {
   it('flattens only the usable files in tree order', () => {
-    expect(enabledFilePaths(tree)).toEqual([
+    expect(availableFilePaths(tree)).toEqual([
       '120FPS-720p-h264/drone.mp4',
       '30FPS/indoor/cam-a/deep.mp4',
       '30FPS/indoor/lobby.mp4',

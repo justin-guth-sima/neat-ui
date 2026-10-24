@@ -3,6 +3,7 @@ import {
   LucideBlocks,
   LucideCable,
   LucideCheck,
+  LucideCircleAlert,
   LucideChevronDown,
   LucideChevronLeft,
   LucideChevronRight,
@@ -29,6 +30,7 @@ import {
   LucideShapes,
   LucideSquare,
   LucideSun,
+  LucideTriangleAlert,
   LucideUpload,
   LucideX,
 } from '@lucide/angular';
@@ -70,6 +72,8 @@ export const NEAT_ICONS = {
   upload: LucideUpload,
   folder: LucideFolder,
   file: LucideFile,
+  error: LucideCircleAlert,
+  warning: LucideTriangleAlert,
 } satisfies Record<string, LucideIcon>;
 
 export type NeatIconName = keyof typeof NEAT_ICONS;

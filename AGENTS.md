@@ -13,13 +13,16 @@ look happens in one place. Every rule here protects that.
 - `projects/neat-ui`: the library, with one primary and several secondary entry points, each with
   its own public API file:
   - `@sima/neat-ui` (the primary): what the shell and every page need: theme, `NeatIcon`,
-    `NeatShell`, `NeatPageToolbar`, `NeatPage`, `KioskService`, `NeatButton`, `NeatInlineButton`,
-    `NeatTooltip` and `NeatNote`. Public API is `projects/neat-ui/src/public-api.ts`.
+    `NeatShell`, `NeatPageToolbar`, `NeatPage` with its side panel's parts (`NeatAsideToggle`,
+    `NeatAsidePanel`, `NeatAsideTitle`, `NeatAsideHeading`, `NeatAsideActions`), `NeatCode`,
+    `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatTooltip` and `NeatNote`. Public API is
+    `projects/neat-ui/src/public-api.ts`.
   - one secondary entry point per other component, `@sima/neat-ui/<name>`: `switch`, `slider`,
     `segmented`, `tabs`, `popover`, `confirm`, `input`, `number-field`, `line-list`, `select`
-    (`NeatSelect`, a labelled listbox combobox), `progress` (`NeatProgress`, which the toasts'
-    bar is), `drop-zone` (`NeatDropZone`, files by drop or by the system's chooser), `dialog`
-    (`NeatDialog`, the general modal dialog, with `neat-dialog-body` and `neat-dialog-actions`) and
+    (`NeatSelect`, a labelled listbox combobox), `progress` (`NeatProgress`, a bar or, with a
+    `heading`, a titled readout, which the progress toast renders through), `drop-zone`
+    (`NeatDropZone`, files by drop or by the system's chooser), `dialog` (`NeatDialog`, the general
+    modal dialog, with `neat-dialog-body` and `neat-dialog-actions`) and
     `toast` (`NeatToasts` and `neat-toast-host`), `select-list` (`NeatSelectList`, a listbox of rows
     in columns, with the `neatColumn` templates that lay them out) and `file-browser`
     (`NeatFileBrowser`, a tree's breadcrumb, count, filter and rows, built on `select-list` and
@@ -112,6 +115,8 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   classes copied into a table behind a drift spec). Brain reads "may this close" once, when the
   dialog opens, so `NeatDialog` opens it with closing switched off and closes it on Escape and the
   backdrop itself while `NeatDialogRef.dismissible()`, which `setDismissible` changes at any time.
+  Both modals stop a handled Escape at the dialog (the CDK's `keydownEvents`, then
+  `stopPropagation`), so `document` and `window` shortcuts never see it behind a modal.
   The toast is not helm's `sonner`: that is Spartan's stacked, swiped, hover-expanded toaster
   (about 100 kB of brain source, no third-party library), and none of its model is needed by what
   the kit's toasts do (a column of at most three, fixed lifetimes, progress that updates). The
@@ -144,8 +149,11 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   or a click also opens (`activated`), and its `manage` mode is the list's checked mode (a file's
   path is its key); what differs is the browser's, not the list's: an arrow key onto a folder
   highlights it without changing `selected` (which is a file's path), and Backspace, which the
-  list has no use for, is handled on the list's host. The browser says nothing of its own that an
-  app cannot replace (`labels`), and its tree helpers are the helpers of the media browser it was
+  list has no use for, is handled on the list's host. A checked list adds no hint of its own: the
+  multi-selectable listbox says what checking is. A node's `tag` is a neutral `neat-status-chip`,
+  the kit's one look for a fact beside a value, and an `unavailable` node is greyed but usable (so
+  not `disabled`, which in the kit means "cannot be used"). The browser says nothing of its own that
+  an app cannot replace (`labels`), and its tree helpers are the helpers of the media browser it was
   extracted from (`file-tree.ts`, not exported). `filter` is a model so that an app can show a
   note about its folder (how many files it left out) only while no filter is active; the kit never
   hides a file itself.
@@ -260,6 +268,12 @@ builds its own bar or panel duplicates both and breaks in one of them.
   narrowing beside it and keeping its own `scroll` setting. Closed, the panel is removed from the
   DOM, but projected content is still instantiated: gate expensive content (an inspector with a
   live preview) with an `@if` of your own.
+- The panel opens and closes with `<neat-aside-toggle [(open)]="asideOpen" />` in the page's
+  toolbar, the one look for that button on every page ("Side panel" unless `label` says
+  otherwise); the page owns `open` and remembers it where it likes. Inside the panel,
+  `neatAsidePanel` stacks the parts one gap apart, `neatAsideTitle` and `neatAsideHeading` are the
+  panel's title and section headings, `neatAsideActions` a row of buttons and `code[neatCode]` a
+  URL or path in running text. A page's panel styles nothing of this itself.
 
 **Raw browser APIs used for performance stay isolated, outside change detection, with tests.**
 Why: canvas, requestAnimationFrame, observers and similar code is fast because it bypasses Angular;

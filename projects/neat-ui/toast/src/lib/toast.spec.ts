@@ -133,6 +133,31 @@ describe('NeatToasts and the toast host', () => {
     expect(items()).toHaveLength(0);
   });
 
+  it('leads an error and a warning with the kit’s icon of their kind, so the kind shows without colour', () => {
+    toasts.error('Upload failed.');
+    toasts.warning('Could not restart src2.');
+    toasts.status('Stopped 2 sources.');
+    render();
+
+    const icons = items().map((item) => {
+      const icon = item.querySelector('[data-slot="toast-icon"]');
+      return (
+        icon && {
+          first: item.firstElementChild?.contains(icon),
+          name: icon.getAttribute('data-icon'),
+        }
+      );
+    });
+    expect(icons).toEqual([{ first: true, name: 'error' }, { first: true, name: 'warning' }, null]);
+    // Decorative: the announcer says "Error: " and "Warning: " in words.
+    for (const item of items().slice(0, 2)) {
+      expect(
+        item.querySelector('[data-slot="toast-icon"] svg')?.getAttribute('aria-hidden'),
+      ).not.toBe('false');
+      expect(item.querySelector('[data-slot="toast-icon"] [role="img"]')).toBeNull();
+    }
+  });
+
   it('hides a warning before a progress toast, as it does errors and statuses', () => {
     const progress = toasts.progress('Uploading');
     toasts.warning('a');
@@ -229,6 +254,10 @@ describe('NeatToasts and the toast host', () => {
     const fill = () => items()[0].querySelector<HTMLElement>('[data-slot="progress-indicator"]')!;
 
     expect(items()[0].dataset['kind']).toBe('progress');
+    // One readout for every progress: the titled neat-progress, as the app's readouts use it.
+    expect(
+      items()[0].querySelector('neat-progress [data-slot="progress-title"]')?.textContent,
+    ).toContain('Uploading 3 files');
     expect(items()[0].textContent).toContain('Uploading 3 files');
     expect(bar().getAttribute('aria-label')).toBe('Uploading 3 files');
     expect(bar().hasAttribute('aria-valuenow')).toBe(false);

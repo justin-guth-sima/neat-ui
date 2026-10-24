@@ -27,6 +27,23 @@ class ProgressHost {
   readonly value = signal<number | null>(null);
 }
 
+/** A titled readout, as the import dialog, the encode readout and the progress toast show one. */
+@Component({
+  imports: [NeatProgress],
+  template: `<neat-progress
+    [heading]="heading()"
+    [detail]="detail()"
+    [label]="label()"
+    [value]="value()"
+  />`,
+})
+class TitledHost {
+  readonly heading = signal('Uploading 3 files');
+  readonly detail = signal('clip.mp4 · file 1 of 3');
+  readonly label = signal('');
+  readonly value = signal<number | null>(41.6);
+}
+
 async function render(value: number | null) {
   const fixture = TestBed.createComponent(ProgressHost);
   fixture.componentInstance.value.set(value);
@@ -107,6 +124,98 @@ describe('NeatProgress', () => {
   it('helm drift: the copied class strings still appear in the vendored helm progress', () => {
     expect(helmProgress).toContain(PROGRESS_HELM_CLASSES.track);
     expect(helmIndicator).toContain(PROGRESS_HELM_CLASSES.indicator);
+  });
+
+  describe('titled', () => {
+    async function renderTitled(setup: (host: TitledHost) => void = () => undefined) {
+      const fixture = TestBed.createComponent(TitledHost);
+      setup(fixture.componentInstance);
+      await fixture.whenStable();
+      const root: HTMLElement = fixture.nativeElement.querySelector('neat-progress');
+      const text = (selector: string) =>
+        root.querySelector(selector)?.textContent?.replace(/\s+/g, ' ').trim();
+      return { fixture, host: fixture.componentInstance, root, text };
+    }
+
+    it('without a heading it is the bar alone', async () => {
+      const { root } = await render(42);
+
+      expect(root.querySelector('[data-slot="progress-title"]')).toBeNull();
+      expect(root.children).toHaveLength(1);
+    });
+
+    it('shows the heading with the whole percent at its line’s end, the detail under it, then the bar', async () => {
+      const { root, text } = await renderTitled();
+
+      const parts = [...root.querySelector('[data-slot="progress-readout"]')!.children].map(
+        (child) => child.getAttribute('data-slot'),
+      );
+      expect(parts).toEqual(['progress-title', 'progress-detail', 'progress']);
+      const title = root.querySelector('[data-slot="progress-title"]')!;
+      expect([...title.children].map((part) => part.textContent?.trim())).toEqual([
+        'Uploading 3 files',
+        '42%',
+      ]);
+      expect(text('[data-slot="progress-detail"]')).toBe('clip.mp4 · file 1 of 3');
+    });
+
+    it('announces the heading politely as a status, not the changing percent or detail', async () => {
+      const { root, fixture, host } = await renderTitled();
+
+      const status = root.querySelector('[role="status"]')!;
+      expect(status.textContent?.trim()).toBe('Uploading 3 files');
+      host.heading.set('Preparing clip.mp4');
+      await fixture.whenStable();
+      expect(status.textContent?.trim()).toBe('Preparing clip.mp4');
+      expect(root.querySelectorAll('[role="status"]')).toHaveLength(1);
+    });
+
+    it('leaves the percent out while the work cannot say, and the detail out while empty', async () => {
+      const { text, root } = await renderTitled((host) => {
+        host.value.set(null);
+        host.detail.set('');
+      });
+
+      expect(text('[data-slot="progress-title"]')).toBe('Uploading 3 files');
+      expect(root.querySelector('[data-slot="progress-detail"]')).toBeNull();
+    });
+
+    it('cuts a long detail on one line, with its full text as a tooltip', async () => {
+      const { root } = await renderTitled();
+
+      const detail = root.querySelector<HTMLElement>('[data-slot="progress-detail"]')!;
+      expect([...detail.classList]).toEqual(expect.arrayContaining(['truncate']));
+      expect(detail.getAttribute('title')).toBe('clip.mp4 · file 1 of 3');
+    });
+
+    it('names the bar by the heading, or by label when one is given', async () => {
+      const { root, fixture, host } = await renderTitled();
+      const bar = () => root.querySelector('[role="progressbar"]')!;
+      expect(bar().getAttribute('aria-label')).toBe('Uploading 3 files');
+
+      host.label.set('Upload');
+      await fixture.whenStable();
+      expect(bar().getAttribute('aria-label')).toBe('Upload');
+    });
+
+    for (const scheme of SCHEMES) {
+      it(`${scheme}: the heading and the detail reach 4.5:1 on background, card and popover`, async () => {
+        const { root } = await renderTitled();
+        const tokens = spartanThemeTokens(scheme);
+        const q = { tokens, vocabulary: VOCABULARY, on: scheme === 'dark' ? ['dark'] : [] };
+        for (const slot of ['progress-title', 'progress-detail']) {
+          const classes = [...root.querySelector(`[data-slot="${slot}"]`)!.classList];
+          for (const surface of SURFACES) {
+            const under = tokens[surface];
+            const text = stateColor(classes, 'text', q, under, tokens['foreground']);
+            expect(
+              contrastRatio(text, under),
+              `${slot}: ${text} on --${surface}`,
+            ).toBeGreaterThanOrEqual(4.5);
+          }
+        }
+      });
+    }
   });
 
   describe('contrast, from the emitted theme tokens', () => {

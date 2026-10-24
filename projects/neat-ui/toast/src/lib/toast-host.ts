@@ -13,6 +13,7 @@ import {
   viewChild,
   ViewContainerRef,
 } from '@angular/core';
+import { NeatIcon, type NeatIconName } from '@sima/neat-ui';
 import { NeatProgress } from '@sima/neat-ui/progress';
 import { type MessageKind, ToastStore, visibleToasts, type ToastEntry } from './toast-store';
 
@@ -34,6 +35,18 @@ const TOAST_CLASSES: Record<ToastEntry['kind'], string> = {
   progress: NEUTRAL,
   error: `${SHAPE} bg-popover text-destructive ring-destructive`,
   warning: `${SHAPE} bg-popover text-popover-foreground ring-warning`,
+};
+
+/**
+ * The icon that leads an error and a warning, so that their kind shows without its colour (a
+ * warning's outline alone is 2.2:1 on the surface in light). It takes the toast's text colour
+ * and is decorative: the live region says the kind in words.
+ */
+const KIND_ICONS: Record<ToastEntry['kind'], NeatIconName | null> = {
+  error: 'error',
+  warning: 'warning',
+  status: null,
+  progress: null,
 };
 
 /** What the live region says before a message of each kind; a status is said as it is. */
@@ -83,7 +96,7 @@ const ANNOUNCED_KIND: Record<MessageKind, string> = {
  */
 @Component({
   selector: 'neat-toast-host',
-  imports: [NeatProgress],
+  imports: [NeatIcon, NeatProgress],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './toast-host.css',
   template: `
@@ -111,16 +124,22 @@ const ANNOUNCED_KIND: Record<MessageKind, string> = {
         @for (toast of visible(); track toast.id) {
           <div data-slot="toast" [attr.data-kind]="toast.kind" [class]="classes[toast.kind]">
             @if (toast.kind === 'progress') {
-              <p class="m-0 font-medium">{{ toast.title }}</p>
-              <div
-                class="text-muted-foreground mt-1 flex justify-between gap-3 text-(length:--neat-text-xs)"
-              >
-                <span class="truncate" [attr.title]="toast.detail">{{ toast.detail }}</span>
-                @if (toast.percent !== null) {
-                  <span>{{ toast.percent }}%</span>
-                }
-              </div>
-              <neat-progress class="mt-2" [label]="toast.title" [value]="toast.percent" />
+              <neat-progress
+                [heading]="toast.title"
+                [detail]="toast.detail"
+                [value]="toast.percent"
+              />
+            } @else if (kindIcons[toast.kind]; as icon) {
+              <p class="m-0 flex gap-(--neat-space-2)">
+                <neat-icon
+                  data-slot="toast-icon"
+                  class="mt-0.5 shrink-0"
+                  [attr.data-icon]="icon"
+                  [name]="icon"
+                  [size]="16"
+                />
+                <span class="min-w-0">{{ toast.message }}</span>
+              </p>
             } @else {
               <p class="m-0">{{ toast.message }}</p>
             }
@@ -138,6 +157,7 @@ export class NeatToastHost {
   private newestShown = 0;
   protected readonly classes = TOAST_CLASSES;
   protected readonly announcedKind = ANNOUNCED_KIND;
+  protected readonly kindIcons = KIND_ICONS;
   /** Every toast there is: an entry is announced when it appears, whether it is on screen or not. */
   protected readonly announced = this.store.entries;
   protected readonly visible = computed(() => visibleToasts(this.store.entries()));

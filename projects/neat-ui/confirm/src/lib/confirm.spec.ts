@@ -147,6 +147,31 @@ describe('NeatConfirm', () => {
     expect(document.activeElement).toBe(button('Cancel'));
   });
 
+  it('a handled Escape stops at the dialog: document and window listeners never see it', async () => {
+    const { settle, ask } = await render();
+    const seen = vi.fn();
+    document.addEventListener('keydown', seen);
+    window.addEventListener('keydown', seen);
+    try {
+      const answer = await ask();
+      escape();
+      await settle();
+      expect(answer).toEqual({ settled: true, value: false });
+      expect(dialog()).toBeNull();
+      expect(seen).not.toHaveBeenCalled();
+
+      // Other keys are the page's own.
+      await ask();
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'a', bubbles: true }),
+      );
+      expect(seen).toHaveBeenCalledTimes(2);
+    } finally {
+      document.removeEventListener('keydown', seen);
+      window.removeEventListener('keydown', seen);
+    }
+  });
+
   it('a cancelLabel replaces Cancel', async () => {
     const { ask } = await render();
 

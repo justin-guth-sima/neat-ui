@@ -15,16 +15,17 @@ export interface NeatFileNode {
   /** A folder's entries. */
   readonly children?: readonly NeatFileNode[];
   /**
-   * Greys the row without hiding it. It does not stop the row from being selected, opened or
-   * checked, and a disabled file does not count towards a folder's count: an app that must not
-   * offer a file leaves it out of the tree.
+   * Greys the row without hiding it: a file the app cannot use for its main purpose (one the
+   * streamer does not accept), shown so the user knows it is there. It does not stop the row from
+   * being selected, opened or checked, so it is not `disabled`; an unavailable file does not count
+   * towards a folder's count. An app that must not offer a file leaves it out of the tree.
    */
-  readonly disabled?: boolean;
+  readonly unavailable?: boolean;
   /** A short text after the name, such as the reason the row is greyed. */
   readonly tag?: string;
 }
 
-/** A folder of a listing, with the number of enabled files in it and below. */
+/** A folder of a listing, with the number of available files in it and below. */
 export interface FolderEntry {
   readonly node: NeatFileNode;
   readonly name: string;
@@ -83,7 +84,7 @@ export function listFolder(
       node,
       name: node.name,
       path: node.path,
-      count: enabledFilePaths(node.children).length,
+      count: availableFilePaths(node.children).length,
     }));
   const files = nodes.filter((node) => node.type === 'file').sort(byName);
   return { folders, files };
@@ -91,7 +92,7 @@ export function listFolder(
 
 /** Enabled files in `folderPath` and all its subfolders: what a folder's badge shows for it. */
 export function playableCount(tree: readonly NeatFileNode[], folderPath: string): number {
-  return enabledFilePaths(childrenAt(tree, folderPath) ?? []).length;
+  return availableFilePaths(childrenAt(tree, folderPath) ?? []).length;
 }
 
 export function parentPath(folderPath: string): string {
@@ -116,10 +117,10 @@ export function breadcrumbs(
 }
 
 /**
- * Every file anywhere below `folderPath`, enabled or not, whose path relative to that folder
+ * Every file anywhere below `folderPath`, available or not, whose path relative to that folder
  * contains `query` without regard to case, sorted by relative path (the tree's own order, which
- * the listing sorts too, would put a subfolder's files among the folder's). `relative` is what the list shows;
- * the node's `path` is the one to act on.
+ * the listing sorts too, would put a subfolder's files among the folder's). `relative` is what the
+ * list shows; the node's `path` is the one to act on.
  */
 export function searchFolder(
   tree: readonly NeatFileNode[],
@@ -163,19 +164,19 @@ export function childTowards(descendant: string, ancestor: string): string | nul
   return `${prefix}${descendant.slice(prefix.length).split('/')[0]}`;
 }
 
-/** Every enabled file's path in tree order. */
-export function enabledFilePaths(
+/** Every available file's path in tree order. */
+export function availableFilePaths(
   tree: readonly NeatFileNode[] | undefined,
   acc: string[] = [],
 ): string[] {
   for (const node of tree ?? []) {
-    if (node.type === 'file' && !node.disabled) acc.push(node.path);
-    if (node.type === 'folder') enabledFilePaths(node.children, acc);
+    if (node.type === 'file' && !node.unavailable) acc.push(node.path);
+    if (node.type === 'folder') availableFilePaths(node.children, acc);
   }
   return acc;
 }
 
-/** Every file's path in tree order, enabled or not (a selection is pruned against this). */
+/** Every file's path in tree order, available or not (a selection is pruned against this). */
 export function allFilePaths(
   tree: readonly NeatFileNode[] | undefined,
   acc: string[] = [],

@@ -754,14 +754,14 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <h2>Toast</h2>
           <p class="showcase-muted">
             <code>NeatToasts</code> shows short messages without taking the user's attention:
-            <code>error</code> and <code>warning</code> clear after 4.6 s, <code>status</code> after
-            3.2 s, and <code>progress</code> stays until <code>done</code> or <code>fail</code>, so
-            work that outlives its page keeps reporting, or until <code>dismiss</code> removes it
-            with no outcome (work a dialog took back). The app renders one
-            <code>neat-toast-host</code> beside the shell; it shows the newest three in the
-            bottom-right corner and announces them politely. A new toast comes to the front, above
-            an open dialog; one that was already showing when a dialog opened stays under it. Clicks
-            pass through toasts.
+            <code>error</code> and <code>warning</code> (each led by its kind's icon) clear after
+            4.6 s, <code>status</code> after 3.2 s, and <code>progress</code> stays until
+            <code>done</code> or <code>fail</code>, so work that outlives its page keeps reporting,
+            or until <code>dismiss</code> removes it with no outcome (work a dialog took back). The
+            app renders one <code>neat-toast-host</code> beside the shell; it shows the newest three
+            in the bottom-right corner and announces them politely. A new toast comes to the front,
+            above an open dialog; one that was already showing when a dialog opened stays under it.
+            Clicks pass through toasts.
           </p>
           <div class="showcase-row">
             <button
@@ -986,7 +986,10 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             0 to 100) or without one (<code>null</code>: the bar moves on its own, and without
             motion it is a still bar of stripes). <code>label</code> is the accessible name; a
             screen reader reads the value when it reaches the bar but is not told of every change.
-            The toasts' progress bar is this one.
+            The toasts' progress bar is this one. With a <code>heading</code> it is a titled
+            readout: the heading (a polite status) with the whole percent at its end, a
+            <code>detail</code> line that cuts with its full text as a tooltip, then the bar; the
+            progress toast renders through it.
           </p>
           <div class="progress-demo">
             <span>Known, from the slider</span>
@@ -1003,6 +1006,13 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <neat-progress label="Import" [value]="100" />
             <span>Unknown</span>
             <neat-progress label="Preparing" [value]="null" />
+            <span>Titled</span>
+            <neat-progress
+              heading="Encoding clip.mp4"
+              detail="0:41 / 1:37 · h264_v4l2m2m, at 30 fps, a very long detail that cuts at the end"
+              [value]="progress()"
+            />
+            <neat-progress heading="Preparing" detail="Probing the file" [value]="null" />
           </div>
         </section>
 
@@ -1138,7 +1148,6 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
               <neat-select-list
                 label="Asset types"
                 checkable
-                hint="Press Space to check or uncheck a type."
                 [items]="demoTypes"
                 [trackBy]="typeId"
                 [canCheck]="hasFiles"
@@ -1164,11 +1173,12 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             empties when you navigate. Folders list first, by name ignoring case, each with the
             number of usable files in it. Click a folder or press Enter on it to open it; click a
             crumb or press Backspace in the list to go up. The arrow keys move the selection, which
-            is a file (they leave it as it is while passing a folder). Greyed files can still be
-            selected. The second browser is in <code>manage</code> mode, the select list's checked
-            mode: a box per file that Space toggles from the keyboard (the boxes are not tab stops),
-            and extra columns, after which a folder's count follows its name. The
-            <code>archive</code> folder has a thousand files.
+            is a file (they leave it as it is while passing a folder). Files marked
+            <code>unavailable</code> are greyed, with their <code>tag</code> as a neutral status
+            chip, and can still be selected. The second browser is in <code>manage</code> mode, the
+            select list's checked mode: a box per file that Space toggles from the keyboard (the
+            boxes are not tab stops), and extra columns, after which a folder's count follows its
+            name. The <code>archive</code> folder has a thousand files.
           </p>
           <div class="showcase-row list-row">
             <div class="browser-box">

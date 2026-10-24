@@ -16,6 +16,7 @@ import {
 import { NeatIcon, NeatInlineButton } from '@sima/neat-ui';
 import { NeatInput } from '@sima/neat-ui/input';
 import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
+import { NeatStatusChip } from '@sima/neat-ui/status-chip';
 import {
   allFilePaths,
   breadcrumbs,
@@ -50,8 +51,6 @@ export interface NeatFileBrowserLabels {
   readonly folder: string;
   /** What a folder's count means, read after the folder's name and shown as its tooltip. */
   readonly folderCount: (folder: string, count: number) => string;
-  /** Describes the list in `manage` mode: how to check a file from the keyboard. */
-  readonly checkHint: string;
   /** The count while a filter is active: its matches, below the named folder. */
   readonly matches: (folder: string, count: number) => string;
 }
@@ -69,7 +68,6 @@ const DEFAULT_LABELS: NeatFileBrowserLabels = {
   folder: 'Folder',
   folderCount: (folder, count) =>
     `${plural(count, 'file', 'files')} in ${folder} and its subfolders`,
-  checkHint: 'Press Space to check or uncheck the file.',
   matches: (folder, count) => `${plural(count, 'match', 'matches')} in ${folder}`,
 };
 
@@ -80,7 +78,7 @@ const defaultCountLabel = (_folder: string, count: number): string =>
 interface BrowserRow {
   readonly node: NeatFileNode;
   readonly label: string;
-  /** A folder's enabled files, in it and below; null for a file. */
+  /** A folder's available files, in it and below; null for a file. */
   readonly count: number | null;
   /** What a folder's count means, in words. */
   readonly countLabel: string;
@@ -119,7 +117,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
  *
  * It shows the breadcrumb of the current `folder` (a path; '' is the root, named `rootLabel`), a
  * count, a filter field and the folder's rows in a `neat-select-list`: folders first, then files,
- * each by name ignoring case. A folder row shows the number of enabled files in it and below.
+ * each by name ignoring case. A folder row shows the number of available files in it and below.
  *
  * - **Filter.** Typing lists every file below the current folder whose path, relative to it,
  *   contains the text, ignoring case; the rows show those relative paths, and the count says how
@@ -129,8 +127,9 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
  * - **Navigating.** A click, or Enter on the row the keyboard is on, opens a folder; a click on a
  *   breadcrumb, or Backspace in the list, goes up. When the folder is gone from `root` (after a
  *   reload), `folder` becomes its nearest ancestor that exists. The list takes the focus after any
- *   navigation, and going up highlights the folder just left; every listing starts at the top. Pass `root` once it is loaded: an
- *   empty tree has no folders, so the browser goes back to the root.
+ *   navigation, and going up highlights the folder just left; every listing starts at the top.
+ *   Pass `root` once it is loaded: an empty tree has no folders, so the browser goes back to the
+ *   root.
  * - **Selecting.** `selected` is a file's path. Moving the list's selection with the arrow keys
  *   onto a file selects it, as a click does; onto a folder leaves `selected` as it is (the
  *   preview of a file stays while the keyboard passes folders) and highlights the folder. A
@@ -138,12 +137,13 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
  * - **`manage` mode** is the list's checked mode: a box on each file (not on folders), for the
  *   paths in `checked`, which hold files of other folders too. A click on the box toggles it and
  *   nothing else. From the keyboard, Space toggles the file the list is on; the boxes are not tab
- *   stops, so the arrow keys keep moving the selection (`labels.checkHint` tells a screen reader,
- *   and the listbox is multi-selectable, a file `aria-selected` while checked). Paths that are no
- *   longer in `root` leave `checked`; `selected` is not pruned, since an app may select a file
- *   before the tree that holds it has loaded.
- * - **Disabled and tagged nodes** are greyed (`disabled`) and carry their `tag` after the name;
- *   they can still be selected, opened and checked.
+ *   stops, so the arrow keys keep moving the selection. The listbox is multi-selectable and a file
+ *   `aria-selected` while checked, which says what checking is; the browser adds no hint of its
+ *   own. Paths that are no longer in `root` leave `checked`; `selected` is not pruned, since an
+ *   app may select a file before the tree that holds it has loaded.
+ * - **Unavailable and tagged nodes**: an `unavailable` node is greyed, and a `tag` shows after
+ *   the name as a neutral `neat-status-chip`; such nodes can still be selected, opened and
+ *   checked.
  * - **Columns.** `neatColumn` templates (from `@sima/neat-ui/select-list`) add columns after the
  *   name, filled for files only; the template gets the `NeatFileNode`, and `hideBelow` works as on
  *   the list. Setting any adds a header row, the name's heading being `labels.name`, and moves a
@@ -153,7 +153,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
  * Everything the browser says is a default in `labels` (a partial, merged over them) except
  * `rootLabel`, which is required, and `filterPlaceholder`. `countLabel` words the count under the
  * breadcrumb from the name of the current folder (`rootLabel` at the root) and the number of
- * enabled files in it and below.
+ * available files in it and below.
  *
  * It fills its container, whose height it needs, and scrolls its rows inside. A folder of a
  * thousand files is one pass over the folder's nodes when the folder, filter or tree changes; a
@@ -168,6 +168,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
     NeatInput,
     NeatSelectList,
     NeatColumn,
+    NeatStatusChip,
     NgTemplateOutlet,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -212,7 +213,6 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
       [trackBy]="rowPath"
       [selected]="highlighted()"
       [emptyLabel]="query() ? text().noMatches : text().empty"
-      [hint]="mode() === 'manage' ? text().checkHint : ''"
       [checkable]="mode() === 'manage'"
       [canCheck]="isFile"
       [(checked)]="checked"
@@ -229,7 +229,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
         <span
           data-slot="file-name"
           class="flex min-w-0 items-center gap-(--neat-space-2)"
-          [class.text-muted-foreground]="row.node.disabled"
+          [class.text-muted-foreground]="row.node.unavailable"
         >
           @if (row.node.type === 'folder') {
             <neat-icon name="folder" [size]="16" class="shrink-0" />
@@ -239,11 +239,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
           }
           <span class="truncate">{{ row.label }}</span>
           @if (row.node.tag) {
-            <span
-              data-slot="file-tag"
-              class="shrink-0 rounded-sm border border-border px-1 text-xs text-muted-foreground"
-              >{{ row.node.tag }}</span
-            >
+            <neat-status-chip class="shrink-0">{{ row.node.tag }}</neat-status-chip>
           }
           @if (row.count !== null) {
             <span
@@ -290,7 +286,7 @@ export class NeatFileBrowser {
   /** The checked files' paths, in `manage` mode. */
   readonly checked = model<readonly string[]>([]);
   readonly filterPlaceholder = input('');
-  /** Words the count under the breadcrumb: the current folder's name, and its enabled files. */
+  /** Words the count under the breadcrumb: the current folder's name, and its available files. */
   readonly countLabel = input<(folder: string, count: number) => string>(defaultCountLabel);
   readonly labels = input<Partial<NeatFileBrowserLabels>>({});
   /**

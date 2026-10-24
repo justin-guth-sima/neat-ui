@@ -1,13 +1,38 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { NeatPage, NeatPageToolbar } from '@sima/neat-ui';
-import { NeatSwitch } from '@sima/neat-ui/switch';
+import {
+  NeatAsideActions,
+  NeatAsideHeading,
+  NeatAsidePanel,
+  NeatAsideTitle,
+  NeatAsideToggle,
+  NeatButton,
+  NeatCode,
+  NeatNote,
+  NeatPage,
+  NeatPageToolbar,
+} from '@sima/neat-ui';
+import { NeatDetails } from '@sima/neat-ui/details';
 
 @Component({
   selector: 'app-page-page',
-  imports: [NeatPage, NeatPageToolbar, NeatSwitch],
+  imports: [
+    NeatAsideActions,
+    NeatAsideHeading,
+    NeatAsidePanel,
+    NeatAsideTitle,
+    NeatAsideToggle,
+    NeatButton,
+    NeatCode,
+    NeatDetails,
+    NeatNote,
+    NeatPage,
+    NeatPageToolbar,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <button neatSwitch *neatPageToolbar [(checked)]="asideOpen">Side panel</button>
+    <div *neatPageToolbar>
+      <neat-aside-toggle [(open)]="asideOpen" />
+    </div>
 
     <neat-page [aside]="asideOpen() ? 'open' : 'closed'">
       <div class="showcase-page">
@@ -24,10 +49,15 @@ import { NeatSwitch } from '@sima/neat-ui/switch';
             edges.
           </p>
           <p>
-            The page's own controls go to the top bar with <code>*neatPageToolbar</code>, as the
-            "Side panel" switch there does; in kiosk mode they float beside the exit control while
-            the pointer moves. Its side panel goes into <code>[neatPageAside]</code> and shows while
-            <code>aside="open"</code>: the body narrows beside it, and each scrolls on its own.
+            The page's own controls go to the top bar with <code>*neatPageToolbar</code>; in kiosk
+            mode they float beside the exit control while the pointer moves. Its side panel goes
+            into <code>[neatPageAside]</code> and shows while <code>aside="open"</code>: the body
+            narrows beside it, and each scrolls on its own. The top bar's
+            <code>neat-aside-toggle</code> opens and closes it: one button on every page, named
+            "Side panel" unless the page says otherwise, with <code>[(open)]</code> the page's own
+            state. Inside, <code>neatAsidePanel</code>, <code>neatAsideTitle</code>,
+            <code>neatAsideHeading</code>, <code>neatAsideActions</code> and
+            <code>neatCode</code> draw the panel's parts the same way everywhere.
           </p>
         </section>
         @for (section of sections; track section) {
@@ -48,11 +78,28 @@ import { NeatSwitch } from '@sima/neat-ui/switch';
         }
       </div>
 
-      <section neatPageAside class="showcase-section">
-        <h3>Side panel</h3>
+      <section neatPageAside neatAsidePanel>
+        <h2 neatAsideTitle>src3</h2>
+        <div neatAsideActions>
+          <button neatButton type="button" size="small">Start</button>
+          <button neatButton type="button" variant="outlined" size="small">Change…</button>
+        </div>
+        <h3 neatAsideHeading>Source</h3>
+        <p neatNote>
+          The browser publishes the camera to <code neatCode>rtsp://…/src3</code> while this tab is
+          open.
+        </p>
+        <h3 neatAsideHeading>Details</h3>
+        <dl neatDetails>
+          <dt>URL</dt>
+          <dd><code neatCode>rtsp://neat.local:8554/src3</code></dd>
+          <dt>Live for</dt>
+          <dd>1:02:41</dd>
+        </dl>
+        <h3 neatAsideHeading>Notes</h3>
         @for (item of asideItems; track item) {
-          <p class="showcase-muted">
-            Inspector content {{ item }}. The panel is <code>--neat-aside-width</code> wide and
+          <p neatNote>
+            Panel content {{ item }}. The panel is <code neatCode>--neat-aside-width</code> wide and
             scrolls independently of the page body.
           </p>
         }

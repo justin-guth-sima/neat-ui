@@ -74,7 +74,7 @@ const TYPES: readonly AssetType[] = [
     <neat-select-list
       label="Asset types"
       checkable
-      hint="Press Space to check or uncheck a type."
+      hint="Press Delete to hide a type."
       [items]="types"
       [trackBy]="byId"
       [canCheck]="hasFiles"
@@ -532,7 +532,7 @@ describe('NeatSelectList', () => {
         template: `
           <neat-select-list
             label="Files"
-            hint="Press Space to check."
+            hint="Press Delete to remove a slot."
             emptyLabel="None."
             [items]="[]"
             [trackBy]="id"
@@ -554,7 +554,7 @@ describe('NeatSelectList', () => {
 
       expect(ids.map((id) => el.querySelector(`#${id}`)!.textContent!.trim())).toEqual([
         'None.',
-        'Press Space to check.',
+        'Press Delete to remove a slot.',
       ]);
       expect(el.querySelector(`#${ids[1]}`)!.classList).toContain('sr-only');
     });
@@ -871,11 +871,11 @@ describe('NeatSelectList', () => {
       expect(host.checked()).toEqual([99, 1]);
     });
 
-    it('describes the listbox by the hint, which says how to check from the keyboard', async () => {
+    it('describes the listbox by a hint the app gives, as in the single mode', async () => {
       const { listbox, element } = await renderChecked();
 
       const hint = element.querySelector(`#${listbox().getAttribute('aria-describedby')}`);
-      expect(hint?.textContent).toBe('Press Space to check or uncheck a type.');
+      expect(hint?.textContent).toBe('Press Delete to hide a type.');
     });
   });
 

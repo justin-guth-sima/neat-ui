@@ -22,6 +22,14 @@ export type { NeatNavItem } from './lib/shell/nav-item';
 export { NeatShell } from './lib/shell/shell';
 export { NeatPageToolbar } from './lib/shell/page-toolbar';
 export { NeatPage } from './lib/page/page';
+export {
+  NeatAsideActions,
+  NeatAsideHeading,
+  NeatAsidePanel,
+  NeatAsideTitle,
+  NeatAsideToggle,
+  NeatCode,
+} from './lib/page/aside';
 export { KIOSK_POINTER_IDLE_MS, KioskService } from './lib/kiosk/kiosk.service';
 export type { NeatButtonSize, NeatButtonVariant } from './lib/button/button';
 export { NeatButton } from './lib/button/button';
@@ -37,7 +45,7 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
  * (which `select` and `field` share) reach them only through here.
  * Angular marks its own private API the same way; these may change or go in any release.
  */
-export { FIELD_LABEL_CLASSES as ɵFIELD_LABEL_CLASSES } from './lib/field/field-label';
+export { FIELD_LABEL_CLASSES as ɵFIELD_LABEL_CLASSES } from './lib/form/field-label';
 export { IN_PAGE_TOOLBAR as ɵIN_PAGE_TOOLBAR } from './lib/shell/page-toolbar';
 export { listVariants as ɵlistVariants } from './lib/ui/tabs/src';
 export { toggleVariants as ɵtoggleVariants } from './lib/ui/toggle/src';

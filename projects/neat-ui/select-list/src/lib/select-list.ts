@@ -82,8 +82,10 @@ const NONE = Symbol('none');
  *
  * The key names the column, `header` is the label over it (no label on any column: no header row),
  * and `width` is its CSS track size in the row's grid, `1fr` by default. The template gets the
- * item as its implicit context. A cell is a block that may shrink to nothing, so a long text
- * truncates in the cell rather than pushing the next column out.
+ * item as its implicit context. A cell is a block that may shrink to nothing (`min-width: 0`), so
+ * it does not push the next column out; it does not cut its content, though. A long text wraps,
+ * and an unbroken one overflows into the next cell, unless the template truncates it (an element
+ * with `overflow: hidden`, `text-overflow: ellipsis` and `white-space: nowrap`).
  *
  * `hideBelow` is a width of the list in CSS pixels: while the list is narrower, the column and its
  * header leave the layout entirely, as if the template were not there. For columns that matter
@@ -160,8 +162,8 @@ let nextListId = 0;
  * stays: it is the row the keyboard is on, named in `aria-activedescendant` and drawn with the bar.
  * Space checks or unchecks that row; a click on a row's box checks or unchecks it and does nothing
  * else, and a click elsewhere on the row selects and activates it as in the single mode. The boxes
- * are not tab stops. Say how to check from the keyboard in `hint` ("Press Space to check or
- * uncheck a file."), which the list leaves to the app.
+ * are not tab stops. The multi-selectable listbox says what checking is, so a checked list needs
+ * no `hint` of its own.
  *
  * Typing a letter to jump to a row, Page Up and Page Down, a range of rows checked with Shift and
  * a disabled row are not offered; none is needed yet.
@@ -273,8 +275,8 @@ export class NeatSelectList<T, K = unknown> {
   /** What to say, in place of rows, while there are no items. */
   readonly emptyLabel = input('');
   /**
-   * Text for assistive technology that says what the keys do beyond the listbox's own, such as
-   * "Press Space to check a file"; it describes the listbox, and is not shown.
+   * Text for assistive technology that says what keys an app adds beyond the listbox's own (such
+   * as Delete on a row); it describes the listbox, and is not shown.
    */
   readonly hint = input('');
   /** The item of the row that was clicked or that had Enter pressed on it. */
