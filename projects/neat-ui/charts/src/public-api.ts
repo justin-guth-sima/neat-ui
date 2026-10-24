@@ -5,6 +5,7 @@
  * package name; the primary never imports it. Every export added here is a promise to consumers.
  */
 export { NeatSparkline } from './lib/sparkline';
+export { NeatTimeChart } from './lib/time-chart';
 export type {
   NeatChartFormat,
   NeatChartTone,

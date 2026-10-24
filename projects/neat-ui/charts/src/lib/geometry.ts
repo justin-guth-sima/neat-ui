@@ -76,6 +76,11 @@ function yScale(domain: readonly [number, number]) {
   return scaleLinear().domain(domain).range([HEIGHT, 0]).clamp(true);
 }
 
+/** Where a value sits in the box, from 0 (the top of the domain) to 100; values beyond it clamp. */
+export function yAt(value: number, domain: readonly [number, number]): number {
+  return round(yScale(domain)(value));
+}
+
 /**
  * The line and the filled area under it for one series, and the newest point (null unless the
  * newest sample exists). A missing sample breaks the line rather than dropping to zero, and a run
@@ -177,12 +182,21 @@ export function axisTimeLabel(secondsBefore: number): string {
 }
 
 /**
+ * The seconds from the oldest sample to the newest, or null when the times cannot place the
+ * samples (the same test `timeFractions` applies).
+ */
+export function timeSpan(times: readonly (number | null)[], length: number): number | null {
+  const ordered = orderedTimes(times, length);
+  return ordered ? (ordered[length - 1] - ordered[0]) / 1000 : null;
+}
+
+/**
  * How much the chart shows: the span of the sample times ("8 min", "45 s"), or, when the times
  * cannot place the samples, how many there are.
  */
 export function windowText(times: readonly (number | null)[], length: number): string {
-  const ordered = orderedTimes(times, length);
-  if (ordered) return duration((ordered[length - 1] - ordered[0]) / 1000);
+  const span = timeSpan(times, length);
+  if (span !== null) return duration(span);
   return `${length} ${length === 1 ? 'sample' : 'samples'}`;
 }
 

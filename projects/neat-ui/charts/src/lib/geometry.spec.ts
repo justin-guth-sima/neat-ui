@@ -7,7 +7,9 @@ import {
   linePaths,
   stackedPaths,
   timeFractions,
+  timeSpan,
   windowText,
+  yAt,
 } from './geometry';
 import type { NeatSeries } from './types';
 
@@ -63,6 +65,15 @@ describe('linePaths', () => {
     const path = linePaths([10, 20, 30], at, [0, 100]);
     expect(path.line).toBe('M0,90L37.5,80L600,70');
     expect(path.last).toEqual({ x: 600, y: 70 });
+  });
+});
+
+describe('yAt', () => {
+  it('places a value in the drawing box, the top of the domain at 0, clamped to the domain', () => {
+    expect([0, 25, 100, -10, 140].map((value) => yAt(value, [0, 100]))).toEqual([
+      100, 75, 0, 100, 0,
+    ]);
+    expect(yAt(50, [40, 90])).toBe(80);
   });
 });
 
@@ -168,6 +179,13 @@ describe('axes', () => {
       '−4 min',
       '−8 min',
     ]);
+  });
+
+  it('timeSpan is the seconds from the oldest sample to the newest, or null without usable times', () => {
+    expect(timeSpan(seconds(0, 240, 480), 3)).toBe(480);
+    expect(timeSpan([0, null, 2000], 3)).toBeNull();
+    expect(timeSpan([5000], 1)).toBeNull();
+    expect(timeSpan([1000, 1000], 2)).toBeNull();
   });
 
   it('windowText says the span of the times, or how many samples without them', () => {

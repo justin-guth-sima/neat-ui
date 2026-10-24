@@ -38,7 +38,7 @@ look happens in one place. Every rule here protects that.
     (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed),
     `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments) and `charts` (live
-    metric charts drawn as SVG, starting with `NeatSparkline`; the only code that imports d3),
+    metric charts drawn as SVG: `NeatSparkline` and `NeatTimeChart`; the only code that imports d3),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
@@ -100,8 +100,14 @@ overlay positioned in percent of the box, so nothing measures the chart. Colours
 variant (a tone) is stated once, as a custom property the stroke reads. The paths come from
 `charts/src/lib/geometry.ts` (d3-shape's `line` and `area`, and d3-scale's linear scale for y,
 clamped): samples sit where their times put them, or evenly when a time is missing, and a
-missing sample (`null`) breaks the line instead of dropping to zero. The geometry is internal;
-only the components and their types are exported.
+missing sample (`null`) breaks the line instead of dropping to zero. A lone sample draws no line
+and no area; the time chart's newest-point dot, an HTML overlay at `linePaths().last`, is the only
+dot, so a lone sample shows as that. The time chart's readout words its relative time with
+`neatSecondsAgo` from the primary, the kit's one relative-time style; its x axis ("−8 min · −4 min ·
+now") is axis notation, not prose, and stays short for that reason. Its plot is a tab stop whose
+readout the arrow keys, Home, End and Escape drive; each key press, and only a key press, is
+repeated in a polite live region, since a pointer move announced on every pixel would be noise. The
+geometry is internal; only the components and their types are exported.
 
 **What entries share goes through the primary under a `ɵ` prefix.** The vendored helm code
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,

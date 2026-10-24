@@ -14,3 +14,40 @@
   font-size: var(--neat-text-sm);
   color: var(--muted-foreground);
 }
+
+.chart-card {
+  /* The chart's labels carry a halo in the fill of the surface they sit on. */
+  --neat-surface: var(--card);
+
+  padding: var(--neat-space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--neat-space-4);
+}
+
+/* The rows of a list of metrics: a name, a compact chart that takes what is left, a value. */
+.chart-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+
+.chart-row {
+  display: grid;
+  grid-template-columns: 6rem 1fr 3rem;
+  align-items: center;
+  gap: var(--neat-space-3);
+  font-size: var(--neat-text-sm);
+}
+
+.chart-row span:last-child {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
