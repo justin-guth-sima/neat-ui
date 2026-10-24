@@ -15,6 +15,7 @@ export {
   NEAT_HIGHLIGHT_BASE,
   NEAT_NEAR_BLACK,
   NEAT_PRIMARY_BASE,
+  NEAT_SERIES_TEAL_BASE,
   NEAT_WARN_BASE,
   SIMA_PALETTE,
 } from './lib/theme/palette';

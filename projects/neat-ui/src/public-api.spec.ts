@@ -67,6 +67,12 @@ describe('the public API', () => {
     }
   });
 
+  it('exports the series teal beside the other palette bases', () => {
+    expect(Object.keys(primary)).toEqual(
+      expect.arrayContaining(['NEAT_PRIMARY_BASE', 'NEAT_HIGHLIGHT_BASE', 'NEAT_SERIES_TEAL_BASE']),
+    );
+  });
+
   it('shares its internals with the entries only under a ɵ prefix', () => {
     const shared = Object.keys(primary).filter((symbol) => symbol.startsWith('ɵ'));
     expect(shared.sort()).toEqual([
