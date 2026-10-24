@@ -51,9 +51,9 @@ describe('the heatmap columns', () => {
       null,
       90,
     ]);
-    expect([0, 1, 2, 16].map((column) => newestInColumn(column, 3, paused.length, times))).toEqual(
-      [0, 1, -1, 2],
-    );
+    expect([0, 1, 2, 16].map((column) => newestInColumn(column, 3, paused.length, times))).toEqual([
+      0, 1, -1, 2,
+    ]);
     // Sampled evenly, the columns stay adjacent.
     expect(columnMeans([1, 2, 3], NEAT_HEATMAP_COLUMNS, at(0, 2, 4))).toEqual([1, 2, 3]);
   });

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { chartName, timeAxis } from './frame';
 import { isNumber } from './geometry';
 import { columnMeans, NEAT_HEATMAP_COLUMNS, newestInColumn } from './heatmap-columns';
-import { lineToken } from './line-token';
+import { textToken } from './line-token';
 import { agoText, describe, fractionAcross, ReadoutCursor } from './readout';
 import type { NeatChartFormat, NeatChartTone } from './types';
 
@@ -15,7 +15,7 @@ export interface NeatHeatmapRow {
   readonly values: readonly (number | null)[];
   /** The figure at the row's end as the app words it, such as a one-minute average. */
   readonly end: string;
-  /** The line colour of `end`. */
+  /** The colour of `end`: the foreground, or the warning or danger line colour (text strength in both). */
   readonly endTone: NeatChartTone;
 }
 
@@ -58,7 +58,7 @@ interface CellReadout extends Cell {
  * `--neat-heat-low` and `--neat-heat-high` by where its value lies in `domain` (0 to 100 by
  * default, clamped); an empty cell is transparent. A ramp in the head shows the domain's two
  * ends, worded by `format`. A row is 1.5 rem tall, with its label before the cells and `end`,
- * in the line colour of its tone, after them.
+ * in the colour of its tone, after them.
  *
  * The grid is one tab stop named "<label>: <headline>, over the last <window>". Its readout,
  * which the pointer shows over a cell and the keys over the cursor's, reads "<row label> · <how
@@ -163,7 +163,7 @@ export class NeatHeatmap {
       key: row.key,
       label: row.label,
       end: row.end,
-      tone: lineToken(row.endTone),
+      tone: textToken(row.endTone),
       fills: cells[index].map((mean) => fillOf(mean, domain)),
     }));
   });

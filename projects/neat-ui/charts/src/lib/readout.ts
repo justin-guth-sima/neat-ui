@@ -1,6 +1,6 @@
 import { computed, signal } from '@angular/core';
 import { neatSecondsAgo } from '@sima/neat-ui';
-import { isNumber } from './geometry';
+import { indexAt, isNumber } from './geometry';
 import type { NeatChartFormat } from './types';
 
 /*
@@ -104,6 +104,29 @@ export interface CursorShape<P, C> {
   after(key: string, current: C | null): C | null;
   /** The readout of a cursor as one sentence, for the live region. */
   spoken(cursor: C): string;
+}
+
+/**
+ * The cursor of a chart whose readout reads one sample across its plot, the time chart's and the
+ * stacked chart's: a sample is the cursor, and the pointer is a place across the plot (0 to 1),
+ * so the readout follows data that shifts under it. `fractions` place the samples, as
+ * `timeFractions` does.
+ */
+export function sampleCursor(chart: {
+  length: () => number;
+  fractions: () => readonly number[];
+  spoken: (index: number) => string;
+}): ReadoutCursor<number, number> {
+  return new ReadoutCursor<number, number>({
+    under: (pointer) => {
+      const index = indexAt(pointer, chart.length(), chart.fractions());
+      return index < 0 ? null : index;
+    },
+    fit: (index) => (chart.length() ? Math.min(index, chart.length() - 1) : null),
+    start: () => (chart.length() ? chart.length() - 1 : null),
+    after: (key, current) => sampleAfter(key, current, chart.length()),
+    spoken: chart.spoken,
+  });
 }
 
 /**

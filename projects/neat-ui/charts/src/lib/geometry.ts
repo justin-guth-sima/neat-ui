@@ -34,10 +34,7 @@ export function evenFractions(length: number): number[] {
  * The times of `length` samples if every one has a time, none goes back and they do not all
  * fall at one instant; otherwise null, and the samples cannot be placed by time.
  */
-export function orderedTimes(
-  times: readonly (number | null)[],
-  length: number,
-): number[] | null {
+export function orderedTimes(times: readonly (number | null)[], length: number): number[] | null {
   if (length < 2 || times.length !== length) return null;
   const ordered: number[] = [];
   for (const time of times) {
@@ -210,8 +207,9 @@ const MAX_SERIES = 8;
 /**
  * Up to eight series pass unchanged. Beyond that the seven with the largest mean (of the samples
  * they have; a series without any is the smallest) stay in their own order, and the rest sum into
- * a last series, "Other", whose sample is the sum of the folded numbers or null where none of them
- * has one. Ties keep the series that comes first.
+ * a last series, "Other", whose sample is the sum of the folded numbers, or null where any of them
+ * is missing: a partial sum would be a total that was never measured, which a stack must not draw.
+ * Ties keep the series that comes first.
  */
 export function foldSeries(series: readonly NeatSeries[]): NeatSeries[] {
   if (series.length <= MAX_SERIES) return [...series];
@@ -230,8 +228,8 @@ export function foldSeries(series: readonly NeatSeries[]): NeatSeries[] {
   const folded = series.filter((_, index) => !kept.has(index));
   const length = Math.max(...folded.map((entry) => entry.values.length));
   const sums = Array.from({ length }, (_, index) => {
-    const numbers = folded.map((entry) => entry.values[index]).filter(isNumber);
-    return numbers.length ? numbers.reduce((sum, value) => sum + value, 0) : null;
+    const values = folded.map((entry) => entry.values[index]);
+    return values.every(isNumber) ? values.reduce((sum, value) => sum + value, 0) : null;
   });
   return [
     ...series.filter((_, index) => kept.has(index)),

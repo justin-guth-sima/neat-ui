@@ -117,7 +117,8 @@ time-based charts, a row and column for the heatmap). The frame the plots share 
 time axis, accessible name) is `frame.ts`, and their styles are `chart-frame.css` (head, readout,
 axis) and `plot.css` (the drawn box), which a component lists before its own in `styleUrls`. The
 stacked chart's bands are `stackedPaths` (bottom first; a sample where any band is missing breaks
-the whole stack, since a partial sum was never measured), at 0.85 opacity with a hairline in
+the whole stack, since a partial sum was never measured, and for the same reason a sample of "Other", the sum
+of the series folded beyond eight, is null where any folded value is), at 0.85 opacity with a hairline in
 `--neat-surface`; its legend carries each band's value and share as text, because eight colours
 alone are not enough. The heatmap is an HTML grid, not an SVG: a cell is a `<span>` whose `--cell`
 is a `color-mix` of `--neat-heat-low` and `--neat-heat-high` by the value's place in the domain

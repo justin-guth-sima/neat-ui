@@ -8,16 +8,15 @@ import {
   viewChild,
 } from '@angular/core';
 import { chartName, FLIP_BELOW, gridMarks, PLOT_REM, timeAxis } from './frame';
-import { foldSeries, indexAt, linePaths, timeFractions, yAt } from './geometry';
-import { lineToken } from './line-token';
+import { foldSeries, linePaths, timeFractions, yAt } from './geometry';
+import { lineToken, seriesToken } from './line-token';
 import {
   agoText,
   describe,
   fractionAcross,
   type Readout,
-  ReadoutCursor,
   readoutAt,
-  sampleAfter,
+  sampleCursor,
 } from './readout';
 import type {
   NeatChartFormat,
@@ -252,7 +251,7 @@ export class NeatTimeChart {
     const lines = this.lines();
     return lines.length === 1
       ? [lineToken(this.tone())]
-      : lines.map((_, index) => `var(--neat-series-${index + 1})`);
+      : lines.map((_, index) => seriesToken(index));
   });
 
   protected readonly drawn = computed(() => {
@@ -349,16 +348,9 @@ export class NeatTimeChart {
     return chartName(this.label(), current, this.times(), this.length());
   });
 
-  /** The readout's cursor is a sample, and the pointer a place across the plot. */
-  protected readonly cursor = new ReadoutCursor<number, number>({
-    // The pointer is kept as a place, not a sample, so the readout follows data that shifts under it.
-    under: (pointer) => {
-      const index = indexAt(pointer, this.length(), this.fractions());
-      return index < 0 ? null : index;
-    },
-    fit: (index) => (this.length() ? Math.min(index, this.length() - 1) : null),
-    start: () => (this.length() ? this.length() - 1 : null),
-    after: (key, current) => sampleAfter(key, current, this.length()),
+  protected readonly cursor = sampleCursor({
+    length: this.length,
+    fractions: this.fractions,
     spoken: (index) => this.readoutFor(index).spoken,
   });
 

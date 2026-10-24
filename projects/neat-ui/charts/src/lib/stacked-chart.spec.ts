@@ -139,6 +139,27 @@ describe('NeatStackedChart', () => {
     expect(chart.all('.band')[7].style.getPropertyValue('--series')).toBe('var(--neat-series-8)');
   });
 
+  it('breaks the stack where a folded rail is missing, since Other would be a partial sum', async () => {
+    const chart = await render((host) => {
+      host.domain.set([0, 100]);
+      // Rails 0 and 1 fold into Other; rail 1 has no third sample.
+      host.series.set(
+        Array.from({ length: 9 }, (_, index) =>
+          rail(`r${index}`, index, index + 1, index === 1 ? null : index + 2, index + 3),
+        ),
+      );
+    });
+    const paths = chart.all('.band').map((band) => band.getAttribute('d') ?? '');
+    for (const path of paths) {
+      expect(path.match(/M/g), 'the gap splits every band').toHaveLength(1);
+    }
+    expect(chart.text('.legend li > strong').at(-1), 'Other now: 3 + 4').toBe('7 W');
+    // The pointer's middle is nearest the third sample, where Other would have summed 2 alone.
+    await chart.point(0.5);
+    expect(chart.text('.readout > *').at(0)).toBe('Total —');
+    expect(chart.text('.readout > *').at(-1)).toBe('Other —');
+  });
+
   it('reads "Total" and then each band at the sample the pointer or a key chose', async () => {
     const chart = await render((host) => {
       host.series.set([rail('a', 1, 2, 3), rail('b', 1, null, 1)]);

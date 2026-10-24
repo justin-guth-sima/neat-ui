@@ -239,14 +239,15 @@ describe('foldSeries', () => {
     ]);
   });
 
-  it('Other sums the folded values per sample and is null only where all of them are', () => {
+  it('Other sums the folded values per sample and is null where any of them is missing', () => {
     const lists: (number | null)[][] = [
-      [null, 1, null],
-      [null, 2, 4],
-      ...Array.from({ length: 7 }, () => [100, 100, 100]),
+      [null, 1, null, 5],
+      [null, 2, 4, 6],
+      ...Array.from({ length: 7 }, () => [100, 100, 100, 100]),
     ];
     const other = foldSeries(series(9, (key) => lists[key])).at(-1);
-    expect(other?.values).toEqual([null, 3, 4]);
+    // A partial sum (the 4 beside a missing value) would be a total nobody measured.
+    expect(other?.values).toEqual([null, 3, null, 11]);
   });
 
   it('judges a series by the mean of its numbers only, a series without any as the smallest', () => {

@@ -8,16 +8,16 @@ import {
   viewChild,
 } from '@angular/core';
 import { chartName, FLIP_BELOW, gridMarks, PLOT_REM, timeAxis } from './frame';
-import { foldSeries, indexAt, isNumber, stackedPaths, timeFractions } from './geometry';
+import { foldSeries, isNumber, stackedPaths, timeFractions } from './geometry';
+import { seriesToken } from './line-token';
 import {
   agoText,
   describe,
   fractionAcross,
   MISSING,
   type Readout,
-  ReadoutCursor,
   readoutAt,
-  sampleAfter,
+  sampleCursor,
 } from './readout';
 import type { NeatChartFormat, NeatSeries } from './types';
 
@@ -173,10 +173,6 @@ export class NeatStackedChart {
   );
   private readonly fractions = computed(() => timeFractions(this.times(), this.length()));
 
-  private colorOf(index: number): string {
-    return `var(--neat-series-${index + 1})`;
-  }
-
   protected readonly bands = computed(() => {
     const lines = this.lines();
     const paths = stackedPaths(
@@ -186,7 +182,7 @@ export class NeatStackedChart {
     );
     return lines.map((entry, index) => ({
       key: entry.key,
-      color: this.colorOf(index),
+      color: seriesToken(index),
       path: paths[index],
     }));
   });
@@ -206,7 +202,7 @@ export class NeatStackedChart {
       return {
         key: entry.key,
         label: entry.label,
-        color: this.colorOf(index),
+        color: seriesToken(index),
         value: describe(value, format),
         share: total && isNumber(value) ? `${Math.round((value / total) * 100)}%` : MISSING,
       };
@@ -221,16 +217,9 @@ export class NeatStackedChart {
     chartName(this.label(), this.headline(), this.times(), this.length()),
   );
 
-  /** The readout's cursor is a sample, and the pointer a place across the plot. */
-  protected readonly cursor = new ReadoutCursor<number, number>({
-    // The pointer is kept as a place, not a sample, so the readout follows data that shifts under it.
-    under: (pointer) => {
-      const index = indexAt(pointer, this.length(), this.fractions());
-      return index < 0 ? null : index;
-    },
-    fit: (index) => (this.length() ? Math.min(index, this.length() - 1) : null),
-    start: () => (this.length() ? this.length() - 1 : null),
-    after: (key, current) => sampleAfter(key, current, this.length()),
+  protected readonly cursor = sampleCursor({
+    length: this.length,
+    fractions: this.fractions,
     spoken: (index) => this.readoutFor(index).spoken,
   });
 
@@ -247,7 +236,7 @@ export class NeatStackedChart {
         key: entry.key,
         label: entry.label,
         value: describe(entry.values[index], format),
-        color: this.colorOf(line),
+        color: seriesToken(line),
       })),
     ]);
   }

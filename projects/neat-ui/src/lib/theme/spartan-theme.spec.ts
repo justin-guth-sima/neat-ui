@@ -511,6 +511,22 @@ describe('buildSpartanThemeCss', () => {
     expect(schemes.dark.get('--neat-line-warning')).toBe('#f2b35f');
   });
 
+  it('neat-line-warning and neat-line-danger reach 4.5:1 as text on --background and --card, which is how the heatmap writes a row end', () => {
+    // neat-line itself is line strength (4.2:1 on white), so the heatmap writes a default end in
+    // --foreground; only these two line tokens are used as text.
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      for (const line of ['neat-line-warning', 'neat-line-danger']) {
+        for (const surface of ['background', 'card']) {
+          expect(
+            contrastRatio(tokens.get(`--${line}`)!, tokens.get(`--${surface}`)!),
+            `${scheme}: ${line} on --${surface}`,
+          ).toBeGreaterThanOrEqual(4.5);
+        }
+      }
+    }
+  });
+
   it(`neat-heat-low shows on --background and --card (${MIN_FILL_CONTRAST}:1) and neat-heat-high reaches ${MIN_NON_TEXT_CONTRAST}:1 on neat-heat-low, in both schemes`, () => {
     const blue = HUES.blue;
     const ends = { light: [100, 800], dark: [900, 300] } as const;

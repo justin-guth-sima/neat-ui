@@ -146,16 +146,21 @@ describe('NeatHeatmap', () => {
     );
   });
 
-  it("shows each row as 1.5 rem tall: its label, its cells, then its end in the tone's line colour", async () => {
+  it("shows each row as 1.5 rem tall: its label, its cells, then its end in the tone's colour", async () => {
     const chart = await render((host) => {
-      host.rows.set([core(0, [10, 20, 30]), core(1, [90, 95, 99], 'danger')]);
+      host.rows.set([
+        core(0, [10, 20, 30]),
+        core(1, [90, 95, 99], 'danger'),
+        core(2, [70, 75, 79], 'warning'),
+      ]);
       host.times.set(MINUTES);
     });
-    expect(chart.text('.name')).toEqual(['Core 0', 'Core 1']);
-    expect(chart.text('.end')).toEqual(['0%', '10%']);
+    expect(chart.text('.name')).toEqual(['Core 0', 'Core 1', 'Core 2']);
+    expect(chart.text('.end')).toEqual(['0%', '10%', '20%']);
     expect(chart.all('.end').map((end) => end.style.getPropertyValue('--tone'))).toEqual([
-      'var(--neat-line)',
+      'var(--foreground)',
       'var(--neat-line-danger)',
+      'var(--neat-line-warning)',
     ]);
     // The grid places the three parts of a row side by side, in this order.
     expect(
