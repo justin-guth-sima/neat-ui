@@ -21,7 +21,8 @@ const DIGITS = 2;
 /** From this many seconds, a span reads in minutes: "−119 s", then "−2 min". */
 const MINUTES_FROM = 120;
 
-const isNumber = (value: unknown): value is number =>
+/** Whether a sample is a number rather than `null`, `NaN` or an infinity: the one test every chart makes. */
+export const isNumber = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value);
 
 /** `length` positions from 0 to 1, evenly spaced; a single sample sits at 0. */
@@ -33,7 +34,10 @@ export function evenFractions(length: number): number[] {
  * The times of `length` samples if every one has a time, none goes back and they do not all
  * fall at one instant; otherwise null, and the samples cannot be placed by time.
  */
-function orderedTimes(times: readonly (number | null)[], length: number): number[] | null {
+export function orderedTimes(
+  times: readonly (number | null)[],
+  length: number,
+): number[] | null {
   if (length < 2 || times.length !== length) return null;
   const ordered: number[] = [];
   for (const time of times) {

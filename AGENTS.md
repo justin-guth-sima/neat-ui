@@ -38,7 +38,8 @@ look happens in one place. Every rule here protects that.
     (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed),
     `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments) and `charts` (live
-    metric charts drawn as SVG: `NeatSparkline` and `NeatTimeChart`; the only code that imports d3),
+    metric charts, drawn as SVG but for the heatmap: `NeatSparkline`, `NeatTimeChart`,
+    `NeatStackedChart` and `NeatHeatmap`; the only code that imports d3),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
@@ -91,7 +92,7 @@ still do. Why: d3 reaches an app's bundle only through the entry its lazy route 
 apps draw through the kit's components, never through d3 (`d3-scale` and `d3-shape` are ISC
 licensed runtime `dependencies` of the package, listed in `allowedNonPeerDependencies`).
 
-**How the charts are drawn.** Every chart in `charts` is an SVG with `viewBox="0 0 600 100"`,
+**How the charts are drawn.** Every chart in `charts` but the heatmap is an SVG with `viewBox="0 0 600 100"`,
 `preserveAspectRatio="none"` and `overflow: visible`, so it fills whatever box its host has, and
 its strokes carry `vector-effect: non-scaling-stroke`, so a stretched box does not thicken them.
 What must not stretch (labels, the newest point's dot, the crosshair, the readout) is an HTML
@@ -106,8 +107,24 @@ dot, so a lone sample shows as that. The time chart's readout words its relative
 `neatSecondsAgo` from the primary, the kit's one relative-time style; its x axis ("−8 min · −4 min ·
 now") is axis notation, not prose, and stays short for that reason. Its plot is a tab stop whose
 readout the arrow keys, Home, End and Escape drive; each key press, and only a key press, is
-repeated in a polite live region, since a pointer move announced on every pixel would be noise. The
-geometry is internal; only the components and their types are exported.
+repeated in a polite live region, since a pointer move announced on every pixel would be noise.
+
+The charts that read out a sample (the time chart, the stacked chart and the heatmap) share one
+cursor, `ReadoutCursor` in `charts/src/lib/readout.ts`: the pointer-versus-keys rule, Escape (a
+readout that is there to close, else it belongs to whatever holds the chart), focus, blur and the
+announce rule live there once, and each chart tells it only what its cells are (a sample for the
+time-based charts, a row and column for the heatmap). The frame the plots share (heights, grid,
+time axis, accessible name) is `frame.ts`, and their styles are `chart-frame.css` (head, readout,
+axis) and `plot.css` (the drawn box), which a component lists before its own in `styleUrls`. The
+stacked chart's bands are `stackedPaths` (bottom first; a sample where any band is missing breaks
+the whole stack, since a partial sum was never measured), at 0.85 opacity with a hairline in
+`--neat-surface`; its legend carries each band's value and share as text, because eight colours
+alone are not enough. The heatmap is an HTML grid, not an SVG: a cell is a `<span>` whose `--cell`
+is a `color-mix` of `--neat-heat-low` and `--neat-heat-high` by the value's place in the domain
+(transparent when empty), its rows are columns of time from `heatmap-columns.ts` (at most 48, one
+per sampling interval while the history is short, so a pause stays visible), and its grid is one
+tab stop with a cell cursor. The geometry is internal; only the components and their types are
+exported.
 
 **What entries share goes through the primary under a `ɵ` prefix.** The vendored helm code
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,

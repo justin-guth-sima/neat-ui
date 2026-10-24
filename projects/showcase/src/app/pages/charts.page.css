@@ -32,6 +32,11 @@
   gap: var(--neat-space-4);
 }
 
+/* A chart that wants the whole row, such as a heatmap of sixteen cores. */
+.chart-wide {
+  grid-column: 1 / -1;
+}
+
 /* The rows of a list of metrics: a name, a compact chart that takes what is left, a value. */
 .chart-rows {
   display: flex;

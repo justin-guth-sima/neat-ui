@@ -1,26 +1,3 @@
-:host {
-  display: block;
-  font-size: var(--neat-text-sm);
-}
-
-.head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--neat-space-2);
-  margin-block-end: var(--neat-space-2);
-}
-
-.title {
-  color: var(--muted-foreground);
-}
-
-.headline {
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -39,39 +16,6 @@
 .legend strong {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-}
-
-.swatch {
-  flex: none;
-  width: 0.625rem;
-  height: 0.625rem;
-  border-radius: 2px;
-  background: var(--series);
-}
-
-.plot {
-  position: relative;
-  height: var(--plot-height);
-  /* A finger dragging along the plot reads it; a drag up or down still scrolls the page. */
-  touch-action: pan-y;
-}
-
-.plot:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
-}
-
-svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.grid {
-  stroke: var(--border);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
 }
 
 .level {
@@ -95,37 +39,6 @@ svg {
   vector-effect: non-scaling-stroke;
 }
 
-/* Labels sit on their line: above it, or below it when the line is at the top of the plot. */
-.tag {
-  position: absolute;
-  padding-inline: 0.25rem;
-  font-size: var(--neat-text-xs);
-  line-height: 1;
-  white-space: nowrap;
-  color: var(--muted-foreground);
-  /* A label sits over the lines: a halo in the surface's fill keeps it readable where one crosses. */
-  text-shadow:
-    0 0 2px var(--neat-surface),
-    0 0 2px var(--neat-surface);
-  pointer-events: none;
-}
-
-.tag:not([data-below]) {
-  transform: translateY(calc(-100% - 2px));
-}
-
-.tag[data-below] {
-  transform: translateY(2px);
-}
-
-.tag[data-side='start'] {
-  inset-inline-start: 0;
-}
-
-.tag[data-side='end'] {
-  inset-inline-end: 0;
-}
-
 .level-tag {
   color: var(--level);
 }
@@ -138,66 +51,4 @@ svg {
   background: var(--series);
   transform: translate(-50%, -50%);
   pointer-events: none;
-}
-
-.crosshair {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--muted-foreground);
-  pointer-events: none;
-}
-
-/* The readout stands to the right of its sample, and to the left past the middle of the plot. */
-.readout {
-  position: absolute;
-  top: 0;
-  left: calc(var(--at) * 100%);
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  padding: var(--neat-space-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--popover);
-  color: var(--popover-foreground);
-  font-size: var(--neat-text-xs);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-.readout:not([data-flip]) {
-  transform: translateX(var(--neat-space-2));
-}
-
-.readout[data-flip] {
-  transform: translateX(calc(-100% - var(--neat-space-2)));
-}
-
-.ago {
-  color: var(--muted-foreground);
-}
-
-.row {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--neat-space-2);
-}
-
-.axis {
-  position: relative;
-  height: 1rem;
-  margin-block-start: 0.25rem;
-  font-size: var(--neat-text-xs);
-  color: var(--muted-foreground);
-}
-
-.axis span {
-  position: absolute;
-  left: calc(var(--at) * 100%);
-  transform: translateX(calc(var(--at) * -100%));
-  white-space: nowrap;
 }

@@ -5,23 +5,20 @@ import {
   computed,
   ElementRef,
   input,
-  signal,
   viewChild,
 } from '@angular/core';
-import { neatSecondsAgo } from '@sima/neat-ui';
-import {
-  axisLabel,
-  axisTimeLabel,
-  foldSeries,
-  gridTicks,
-  indexAt,
-  linePaths,
-  timeFractions,
-  timeSpan,
-  windowText,
-  yAt,
-} from './geometry';
+import { chartName, FLIP_BELOW, gridMarks, PLOT_REM, timeAxis } from './frame';
+import { foldSeries, indexAt, linePaths, timeFractions, yAt } from './geometry';
 import { lineToken } from './line-token';
+import {
+  agoText,
+  describe,
+  fractionAcross,
+  type Readout,
+  ReadoutCursor,
+  readoutAt,
+  sampleAfter,
+} from './readout';
 import type {
   NeatChartFormat,
   NeatChartTone,
@@ -32,36 +29,15 @@ import type {
 
 /** The reference line is neither a warning nor a danger, so it is the quiet colour. */
 const REFERENCE_TOKEN = 'var(--muted-foreground)';
-/** A label whose line is within this much of the top (in the box's 0 to 100) sits below the line. */
-const FLIP_BELOW = 14;
-/** The plot's height in rem by size, set as `--plot-height` so the labels' room is worked out from it. */
-const PLOT_REM = { compact: 3.5, medium: 6, large: 9.5 } as const;
 /** A label's height (the text-xs line) and its gap to its line, in rem. */
 const LABEL_REM = 0.75;
 const LABEL_GAP_REM = 0.125;
-/** What a readout shows for a sample that was not taken. */
-const MISSING = '—';
-
-const isNumber = (value: unknown): value is number =>
-  typeof value === 'number' && Number.isFinite(value);
-
 /** A line across the plot at `y` (0 to 100 from the top) and, when the chart has room, its label. */
 interface Level {
   readonly y: number;
   readonly color: string;
   readonly label: string;
   readonly side: 'start' | 'end';
-}
-
-/** Where the readout reads: where the pointer is, or the sample a key chose. */
-interface Readout {
-  /** The sample's place across the plot, 0 to 1. */
-  readonly at: number;
-  /** How long before the newest sample it was taken, when the times say. */
-  readonly ago: string | null;
-  readonly rows: readonly { key: string; label: string; value: string; color: string }[];
-  /** The readout as one sentence, for the live region. */
-  readonly spoken: string;
 }
 
 /**
@@ -136,10 +112,10 @@ interface Readout {
       aria-roledescription="chart"
       [attr.aria-label]="name()"
       (pointermove)="onPointerMove($event)"
-      (pointerleave)="onPointerLeave()"
-      (focus)="onFocus()"
-      (blur)="onBlur()"
-      (keydown)="onKeydown($event)"
+      (pointerleave)="cursor.pointerLeave()"
+      (focus)="cursor.focus()"
+      (blur)="cursor.blur()"
+      (keydown)="cursor.keydown($event)"
     >
       <svg viewBox="0 0 600 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
         @for (tick of grid(); track tick.value) {
@@ -230,9 +206,9 @@ interface Readout {
         }
       </div>
     }
-    <span class="sr-only" aria-live="polite">{{ announcement() }}</span>
+    <span class="sr-only" aria-live="polite">{{ cursor.announcement() }}</span>
   `,
-  styleUrl: './time-chart.css',
+  styleUrls: ['./chart-frame.css', './plot.css', './time-chart.css'],
 })
 export class NeatTimeChart {
   /** The chart's title, which also names it for assistive technology. */
@@ -259,13 +235,6 @@ export class NeatTimeChart {
   readonly format = input<NeatChartFormat>(String);
 
   private readonly plot = viewChild.required<ElementRef<HTMLElement>>('plot');
-
-  /** Fraction of the plot's width the pointer is at, while it is over the plot. */
-  private readonly pointerAt = signal<number | null>(null);
-  /** The sample a key chose. A key takes the readout over from the pointer, and a move gives it back. */
-  private readonly keyIndex = signal<number | null>(null);
-  /** The readout as of the last key press: the live region's text. Pointer moves never write it. */
-  protected readonly announcement = signal('');
 
   protected readonly flipBelow = FLIP_BELOW;
 
@@ -311,19 +280,13 @@ export class NeatTimeChart {
       key: entry.key,
       label: entry.label,
       color: this.colors()[index],
-      value: this.describe(entry.values.at(-1), format),
+      value: describe(entry.values.at(-1), format),
     }));
   });
 
   protected readonly plotHeight = computed(() => `${PLOT_REM[this.size()]}rem`);
 
-  protected readonly grid = computed(() =>
-    gridTicks(this.domain()).map((value) => ({
-      value,
-      y: yAt(value, this.domain()),
-      text: axisLabel(value),
-    })),
-  );
+  protected readonly grid = computed(() => gridMarks(this.domain()));
 
   /**
    * The grid labels that do not sit on a threshold or reference label. Both start at the plot's
@@ -374,125 +337,53 @@ export class NeatTimeChart {
     ];
   });
 
-  /** The time axis: the start, middle and end of the span, or only "now" without a span. */
-  protected readonly axis = computed(() => {
-    const length = this.length();
-    if (!length) return [];
-    const span = timeSpan(this.times(), length);
-    // Without a span there is nothing to count back from; the newest sample sits at the end,
-    // except a lone one, which sits at the start.
-    if (span === null) return [{ at: length > 1 ? 1 : 0, text: axisTimeLabel(0) }];
-    return [0, 0.5, 1].map((at) => ({ at, text: axisTimeLabel(span * (1 - at)) }));
-  });
+  protected readonly axis = computed(() => timeAxis(this.times(), this.length()));
 
   protected readonly name = computed(() => {
     const format = this.format();
     const current =
       this.headline() ||
       this.lines()
-        .map((entry) => this.describe(entry.values.at(-1), format))
+        .map((entry) => describe(entry.values.at(-1), format))
         .join(', ');
-    const window = windowText(this.times(), this.length());
-    return `${this.label()}${current ? `: ${current}` : ''}, over the last ${window}`;
+    return chartName(this.label(), current, this.times(), this.length());
   });
 
-  /** The sample the readout reads, or -1 while it is hidden. */
-  private readonly activeIndex = computed(() => {
-    const length = this.length();
-    if (!length) return -1;
-    const key = this.keyIndex();
-    if (key !== null) return Math.min(key, length - 1);
-    const pointer = this.pointerAt();
+  /** The readout's cursor is a sample, and the pointer a place across the plot. */
+  protected readonly cursor = new ReadoutCursor<number, number>({
     // The pointer is kept as a place, not a sample, so the readout follows data that shifts under it.
-    return pointer === null ? -1 : indexAt(pointer, length, this.fractions());
+    under: (pointer) => {
+      const index = indexAt(pointer, this.length(), this.fractions());
+      return index < 0 ? null : index;
+    },
+    fit: (index) => (this.length() ? Math.min(index, this.length() - 1) : null),
+    start: () => (this.length() ? this.length() - 1 : null),
+    after: (key, current) => sampleAfter(key, current, this.length()),
+    spoken: (index) => this.readoutFor(index).spoken,
   });
 
   protected readonly readout = computed((): Readout | null => {
-    const index = this.activeIndex();
-    if (index < 0) return null;
-    const times = this.times();
-    const newest = times[this.length() - 1];
-    const taken = times[index];
-    const ago =
-      isNumber(newest) && isNumber(taken) && newest >= taken
-        ? neatSecondsAgo((newest - taken) / 1000)
-        : null;
-    const format = this.format();
-    const colors = this.colors();
-    const rows = this.lines().map((entry, line) => ({
-      key: entry.key,
-      label: entry.label,
-      value: this.describe(entry.values[index], format),
-      color: colors[line],
-    }));
-    return {
-      at: this.fractions()[index],
-      ago,
-      rows,
-      spoken: [ago, ...rows.map((row) => `${row.label} ${row.value}`)].filter(Boolean).join(', '),
-    };
+    const index = this.cursor.active();
+    return index === null ? null : this.readoutFor(index);
   });
 
-  private describe(value: number | null | undefined, format: NeatChartFormat): string {
-    return isNumber(value) ? format(value) : MISSING;
+  private readoutFor(index: number): Readout {
+    const format = this.format();
+    const colors = this.colors();
+    return readoutAt(
+      this.fractions()[index],
+      agoText(this.times(), this.length(), index),
+      this.lines().map((entry, line) => ({
+        key: entry.key,
+        label: entry.label,
+        value: describe(entry.values[index], format),
+        color: colors[line],
+      })),
+    );
   }
 
   protected onPointerMove(event: MouseEvent): void {
-    const box = this.plot().nativeElement.getBoundingClientRect();
-    if (!box.width) return;
-    this.keyIndex.set(null);
-    this.pointerAt.set(Math.min(1, Math.max(0, (event.clientX - box.left) / box.width)));
-  }
-
-  /** The pointer leaving hides what the pointer showed; a sample a key chose stays. */
-  protected onPointerLeave(): void {
-    this.pointerAt.set(null);
-  }
-
-  protected onFocus(): void {
-    // A click focuses too, after the pointer has chosen; the pointer's sample is the one to keep.
-    if (this.activeIndex() < 0 && this.length()) this.keyIndex.set(this.length() - 1);
-  }
-
-  protected onBlur(): void {
-    this.keyIndex.set(null);
-    this.announcement.set('');
-  }
-
-  protected onKeydown(event: KeyboardEvent): void {
-    const current = this.activeIndex();
-    if (event.key === 'Escape') {
-      // Only a visible readout is Escape's to close; otherwise it belongs to whatever holds the chart.
-      if (current < 0) return;
-      event.preventDefault();
-      event.stopPropagation();
-      this.pointerAt.set(null);
-      this.keyIndex.set(null);
-      this.announcement.set('');
-      return;
-    }
-    const next = this.sampleFor(event.key, current);
-    if (next === null) return;
-    event.preventDefault();
-    this.keyIndex.set(next);
-    this.announcement.set(this.readout()?.spoken ?? '');
-  }
-
-  /** The sample a key moves the readout to, or null for a key the chart does not use. */
-  private sampleFor(key: string, current: number): number | null {
-    const last = this.length() - 1;
-    if (last < 0) return null;
-    switch (key) {
-      case 'ArrowLeft':
-        return current < 0 ? last : Math.max(0, current - 1);
-      case 'ArrowRight':
-        return current < 0 ? last : Math.min(last, current + 1);
-      case 'Home':
-        return 0;
-      case 'End':
-        return last;
-      default:
-        return null;
-    }
+    const fraction = fractionAcross(event, this.plot().nativeElement);
+    if (fraction !== null) this.cursor.pointerTo(fraction);
   }
 }

@@ -1,0 +1,64 @@
+/* The ramp is the cells' own mix, drawn as a gradient so the legend and the cells agree. */
+.scale {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.ramp {
+  width: 6rem;
+  height: 0.5rem;
+  border-radius: 2px;
+  background: linear-gradient(in oklab 90deg, var(--neat-heat-low), var(--neat-heat-high));
+}
+
+/* Each row is a label, its cells and its end, on the grid's three tracks, so the cells line up. */
+.grid {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  grid-template-rows: repeat(var(--rows), 1.5rem);
+  grid-auto-rows: auto;
+  align-items: center;
+  column-gap: var(--neat-space-3);
+  row-gap: 0.125rem;
+}
+
+.grid:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.name {
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.end {
+  color: var(--tone);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+  white-space: nowrap;
+}
+
+.cells {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+  gap: 0.125rem;
+  height: 100%;
+  /* A finger dragging along a row reads it; a drag up or down still scrolls the page. */
+  touch-action: pan-y;
+}
+
+.cell {
+  border-radius: 2px;
+  background: var(--cell);
+}
+
+.cell[data-cursor] {
+  outline: 2px solid var(--foreground);
+  outline-offset: 1px;
+}

@@ -1,0 +1,45 @@
+/*
+ * A grid of swatch, label, value and share: every row on the same four tracks, so the columns line
+ * up, kept to what they need so a value stays beside its label on a wide chart.
+ */
+.legend {
+  display: grid;
+  grid-template-columns: auto minmax(6rem, max-content) auto auto;
+  justify-content: start;
+  align-items: center;
+  gap: var(--neat-space-2) var(--neat-space-3);
+  margin: 0 0 var(--neat-space-2);
+  padding: 0;
+  list-style: none;
+}
+
+.legend li {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+}
+
+.legend strong,
+.share {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.legend strong {
+  font-weight: 600;
+}
+
+.share {
+  color: var(--muted-foreground);
+}
+
+/* A hairline in the surface's fill parts one band from the next. */
+.band {
+  fill: var(--series);
+  fill-opacity: 0.85;
+  stroke: var(--neat-surface);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}

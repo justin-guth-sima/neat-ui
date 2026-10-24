@@ -3,9 +3,12 @@ import { NeatPage } from '@sima/neat-ui';
 import {
   NeatChartFormat,
   NeatChartTone,
+  NeatHeatmap,
+  NeatHeatmapRow,
   NeatReference,
   NeatSeries,
   NeatSparkline,
+  NeatStackedChart,
   NeatThreshold,
   NeatTimeChart,
 } from '@sima/neat-ui/charts';
@@ -36,7 +39,7 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
 
 @Component({
   selector: 'app-charts-page',
-  imports: [NeatPage, NeatSparkline, NeatTimeChart],
+  imports: [NeatHeatmap, NeatPage, NeatSparkline, NeatStackedChart, NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-page>
@@ -150,6 +153,53 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
             </div>
           </div>
         </section>
+
+        <section class="showcase-section">
+          <h2>Stacked chart</h2>
+          <p class="showcase-muted">
+            <code>neat-stacked-chart</code> splits a total into bands, bottom first in the order
+            given, in <code>--neat-series-1</code> to <code>-8</code>. The legend gives each band's
+            current value and its share of the current total, which the eight colours alone cannot
+            tell apart. A sample where any band is missing breaks the whole stack: here the board
+            did not report for a while. The readout reads "Total" and then each band, with the
+            time chart's keys.
+          </p>
+          <div class="chart-grid">
+            <div class="chart-card">
+              <neat-stacked-chart
+                label="Where the power goes"
+                headline="11.2 W"
+                [series]="rails"
+                [times]="times"
+                [domain]="[0, 16]"
+                [format]="watts"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Heatmap</h2>
+          <p class="showcase-muted">
+            <code>neat-heatmap</code> shows one row per metric, split into at most 48 columns of
+            time, each cell the mean of its samples. A cell mixes <code>--neat-heat-low</code> and
+            <code>--neat-heat-high</code> by its place in the domain, and a column with no samples
+            is empty. The grid is one tab stop: the arrow keys move a cell cursor, Home and End go
+            to the ends of a row, and each key announces the cell. Each row ends in a figure in its
+            tone's line colour.
+          </p>
+          <div class="chart-grid">
+            <div class="chart-card chart-wide">
+              <neat-heatmap
+                label="Per-core CPU"
+                headline="47%"
+                [rows]="coreRows"
+                [times]="times"
+                [format]="percent"
+              />
+            </div>
+          </div>
+        </section>
       </div>
     </neat-page>
   `,
@@ -191,6 +241,38 @@ export class ChartsPage {
     label: `Core ${index}`,
     values: sine(SAMPLES, 1 + index / 4, 5 + index * 3, 25 + index * 6),
   }));
+  /** Eight rails that sum to about 11 W: the stacked chart uses all eight series colours. */
+  protected readonly rails: readonly NeatSeries[] = [
+    { key: 'core', label: 'Core', low: 3.2, high: 4.6 },
+    { key: 'mla', label: 'MLA', low: 1.5, high: 3.4 },
+    { key: 'ddr', label: 'DDR', low: 1.2, high: 1.9 },
+    { key: 'cam', label: 'Camera', low: 0.6, high: 1.1 },
+    { key: 'net', label: 'Network', low: 0.4, high: 0.9 },
+    { key: 'sto', label: 'Storage', low: 0.3, high: 0.6 },
+    { key: 'fan', label: 'Fan', low: 0.2, high: 0.5 },
+    { key: 'board', label: 'Board', low: 0.5, high: 0.7 },
+  ].map(({ key, label, low, high }, index) => {
+    const values = sine(SAMPLES, 1.5 + index / 3, low, high);
+    // One rail does not report for a minute, which breaks the stack there.
+    return { key, label, values: index === 2 ? withGap(values, 40, 15) : values };
+  });
+
+  /** Sixteen cores: some idle, some busy, the last few near the limit. */
+  protected readonly coreRows: readonly NeatHeatmapRow[] = Array.from(
+    { length: 16 },
+    (_, index) => {
+      const values = sine(SAMPLES, 1 + index / 5, 5 + index * 2, 35 + index * 4);
+      const recent = values.slice(-15).reduce((sum, value) => sum + value, 0) / 15;
+      return {
+        key: `core${index}`,
+        label: `Core ${index}`,
+        values,
+        end: percent(recent),
+        endTone: recent >= 85 ? 'danger' : recent >= 70 ? 'warning' : 'default',
+      };
+    },
+  );
+
   /** A list of metrics, one compact chart a row: two that fill the window and one just started. */
   protected readonly rows = [
     {
