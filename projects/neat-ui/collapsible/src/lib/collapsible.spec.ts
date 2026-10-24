@@ -10,7 +10,12 @@ import { NeatCollapsible } from './collapsible';
   imports: [NeatCollapsible],
   template: `
     <button type="button" class="elsewhere">Elsewhere</button>
-    <neat-collapsible label="Details" [summary]="summary()" [(open)]="open">
+    <neat-collapsible
+      label="Details"
+      [summary]="summary()"
+      [headingLevel]="level()"
+      [(open)]="open"
+    >
       <button type="button" class="inside">Save</button>
     </neat-collapsible>
   `,
@@ -18,6 +23,7 @@ import { NeatCollapsible } from './collapsible';
 class CollapsibleHost {
   readonly open = signal(false);
   readonly summary = signal('IMX219 · NV12 1920×1080');
+  readonly level = signal<2 | 3 | 4 | 5 | 6 | null>(null);
 }
 
 async function render(setup: (host: CollapsibleHost) => void = () => undefined) {
@@ -44,6 +50,10 @@ describe('NeatCollapsible', () => {
     expect(content.hasAttribute('inert')).toBe(true);
     expect(content.getAttribute('data-state')).toBe('closed');
     expect(content.classList).toContain('data-closed:hidden');
+    // The variant is the content's only display statement, so no other class has to lose to it.
+    expect([...content.classList].filter((name) => /^(block|flex|grid|inline)/.test(name))).toEqual(
+      [],
+    );
     expect(trigger.textContent).toContain('Details');
   });
 
@@ -72,9 +82,12 @@ describe('NeatCollapsible', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 
-  it('turns its chevron a quarter while open', async () => {
+  it('turns its chevron a quarter while open, without the motion when reduced motion is asked', async () => {
     const { fixture, host } = await render();
     const icon = () => fixture.debugElement.query(By.directive(NeatIcon));
+    expect([...icon().nativeElement.classList]).toEqual(
+      expect.arrayContaining(['transition-transform', 'motion-reduce:transition-none']),
+    );
 
     expect(icon().componentInstance.name()).toBe('next');
     expect(icon().nativeElement.classList).not.toContain('rotate-90');
@@ -103,14 +116,34 @@ describe('NeatCollapsible', () => {
   });
 
   it('moves the focus to the trigger when it closes with the focus inside, as the content goes inert', async () => {
-    const { fixture, host, element, trigger } = await render((host) => host.open.set(true));
+    const { fixture, host, element, trigger, content } = await render((host) =>
+      host.open.set(true),
+    );
     document.body.append(element);
     element.querySelector<HTMLElement>('.inside')!.focus();
 
     host.open.set(false);
     await fixture.whenStable();
 
+    // jsdom does not drop the focus from inert content as a browser does; the state is pinned
+    // here, and the order (focus moved before inert applies) is the effect's, checked in Chromium.
+    expect(content.hasAttribute('inert')).toBe(true);
     expect(document.activeElement).toBe(trigger);
+  });
+
+  it('puts its trigger in a heading at the level asked, and in none by default', async () => {
+    const { fixture, host, trigger } = await render();
+    expect(trigger.closest('[role="heading"]')).toBeNull();
+
+    // As a section's title in an outline (System Info's sections): the button inside a heading,
+    // as the WAI-ARIA disclosure and accordion patterns have it.
+    host.level.set(4);
+    await fixture.whenStable();
+    const heading = fixture.nativeElement.querySelector('[data-slot="collapsible-trigger"]')!
+      .parentElement as HTMLElement;
+    expect(heading.getAttribute('role')).toBe('heading');
+    expect(heading.getAttribute('aria-level')).toBe('4');
+    expect(heading.textContent).toContain('Details');
   });
 
   it('leaves the focus where it is when it closes with the focus elsewhere', async () => {

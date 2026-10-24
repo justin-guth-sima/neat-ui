@@ -397,12 +397,13 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <h2>Callout</h2>
           <p class="showcase-muted">
             <code>neat-callout</code>: a note set apart on a status tint, with an icon by tone, an
-            optional <code>heading</code> and actions marked <code>neatCalloutActions</code>.
-            <code>announce</code> (<code>status</code> or <code>alert</code>) makes it a live region
-            for news, rendered when the news happens.
+            optional <code>heading</code> (a real heading, at <code>headingLevel</code>) and actions
+            marked <code>neatCalloutActions</code>. <code>region</code> makes it a landmark named by
+            its heading (the first one here); <code>announce</code> (<code>status</code> or
+            <code>alert</code>) makes it a live region for news, rendered when the news happens.
           </p>
           <div class="callout-demo">
-            <neat-callout tone="warning" heading="Board changed">
+            <neat-callout tone="warning" heading="Board changed" region>
               The board at 192.168.1.20 replaced the previous one. Devices are from the last scan.
               <button neatButton neatCalloutActions type="button" size="small">Refresh</button>
             </neat-callout>

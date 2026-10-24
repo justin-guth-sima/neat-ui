@@ -31,15 +31,19 @@ import { NeatIcon } from '@sima/neat-ui';
 const TRIGGER_CLASSES =
   'group flex w-full min-w-0 cursor-pointer items-center gap-(--neat-space-2) rounded-(--radius) py-1 text-start text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring';
 
-/** The chevron: turned a quarter while open, by a transform the theme's motion setting times. */
+/**
+ * The chevron: turned a quarter while open, by a transform the kit's transition duration times and
+ * that a reduced-motion setting turns into a jump, as the kit's other motion is.
+ */
 const CHEVRON_CLASSES =
-  'shrink-0 text-muted-foreground transition-transform duration-(--neat-transition-duration) group-hover:text-foreground';
+  'shrink-0 text-muted-foreground transition-transform duration-(--neat-transition-duration) group-hover:text-foreground motion-reduce:transition-none';
 
 /**
  * The content. Brain makes it `inert` while closed (no focus, no clicks) but leaves it shown, so
- * the kit hides it: `data-state` is brain's, and the one variant states the closed look.
+ * the kit hides it: `data-state` is brain's, and the one variant is the content's only display
+ * statement (a `div` is a block already), so no class has to lose to it.
  */
-const CONTENT_CLASSES = 'block pt-(--neat-space-2) data-closed:hidden';
+const CONTENT_CLASSES = 'pt-(--neat-space-2) data-closed:hidden';
 
 /**
  * A section that a full-width button opens and closes, such as a panel's "Details":
@@ -51,7 +55,9 @@ const CONTENT_CLASSES = 'block pt-(--neat-space-2) data-closed:hidden';
  * The trigger shows the `next` chevron (turned a quarter while open), `label` and, only while
  * closed, `summary` in muted text that truncates, for what the section holds at a glance. It is a
  * native button that names the content in `aria-controls` and says whether it is open in
- * `aria-expanded`; Enter and Space work as on any button. `open` is two-way bound.
+ * `aria-expanded`; Enter and Space work as on any button. `open` is two-way bound. With
+ * `headingLevel`, the button sits in a heading of that level (the WAI-ARIA disclosure and accordion
+ * patterns), so the section's title is in the page's outline.
  *
  * The content stays instantiated while closed (hidden and `inert`), so its state survives a close;
  * gate expensive content (a live preview) on `open` with an `@if` of your own. When the section
@@ -74,20 +80,32 @@ const CONTENT_CLASSES = 'block pt-(--neat-space-2) data-closed:hidden';
   ],
   host: { class: 'block' },
   template: `
-    <button #trigger brnCollapsibleTrigger data-slot="collapsible-trigger" [class]="triggerClasses">
-      <neat-icon
-        name="next"
-        [size]="16"
-        [class]="chevronClasses"
-        [class.rotate-90]="brain.expanded()"
-      />
-      <span class="shrink-0 font-medium">{{ label() }}</span>
-      @if (!brain.expanded() && summary()) {
-        <span data-slot="collapsible-summary" class="min-w-0 truncate text-muted-foreground">{{
-          summary()
-        }}</span>
-      }
-    </button>
+    <!-- A heading only at a level the app sets; otherwise a plain wrapper. -->
+    <div
+      data-slot="collapsible-heading"
+      [attr.role]="headingLevel() ? 'heading' : null"
+      [attr.aria-level]="headingLevel()"
+    >
+      <button
+        #trigger
+        brnCollapsibleTrigger
+        data-slot="collapsible-trigger"
+        [class]="triggerClasses"
+      >
+        <neat-icon
+          name="next"
+          [size]="16"
+          [class]="chevronClasses"
+          [class.rotate-90]="brain.expanded()"
+        />
+        <span class="shrink-0 font-medium">{{ label() }}</span>
+        @if (!brain.expanded() && summary()) {
+          <span data-slot="collapsible-summary" class="min-w-0 truncate text-muted-foreground">{{
+            summary()
+          }}</span>
+        }
+      </button>
+    </div>
     <div #content brnCollapsibleContent data-slot="collapsible-content" [class]="contentClasses">
       <ng-content />
     </div>
@@ -98,6 +116,11 @@ export class NeatCollapsible {
   readonly label = input.required<string>();
   /** What the section holds, shown beside the label while it is closed; none if empty. */
   readonly summary = input('');
+  /**
+   * The level of the heading the trigger sits in, for a section that is part of an outline (System
+   * Info's); none by default, for a disclosure such as a panel's "Details".
+   */
+  readonly headingLevel = input<2 | 3 | 4 | 5 | 6 | null>(null);
 
   protected readonly brain = inject(BrnCollapsible);
   protected readonly triggerClasses = TRIGGER_CLASSES;

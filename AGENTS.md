@@ -144,11 +144,15 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   content `inert`, so the kit hides it (`data-closed:hidden`, the one class helm's collapsible
   has, stated by the kit through the preset's variant, so no helm is vendored for it), and when it
   closes with the focus inside, it moves the focus to its trigger before the content turns inert,
-  which would drop the focus to the page.
+  which would drop the focus to the page. Its `headingLevel` puts the trigger in a heading, for
+  sections that are part of an outline (the disclosure pattern's button inside a heading).
   `NeatCallout` hosts no brain primitive (brain has none); it is the kit's own box over the theme's
-  tints, one look for the banners, problems and guides of every app. Its icon takes the tone's
-  solid colour where that holds 3:1 on the tint; warning's does not on its light tint, so its icon
-  is `--foreground` and the start border carries the tone.
+  tints, one look for the banners, problems and guides of every app. Its heading is a real heading
+  (`role="heading"`, `headingLevel`, 3 by default), and with `region` (a landmark) or `announce`
+  (a live role) the callout is labelled by it; the role and the label are the callout's, so an
+  app's notice never builds its own around it. Its icon takes the tone's solid colour where that
+  holds 3:1 on the tint; warning's does not on its light tint, so its icon is `--foreground` and
+  the start border carries the tone.
 
   `NeatSelectList` and `NeatFileBrowser` own their behaviour too. Brain has no listbox on its own
   (its select's list lives in a popover, and `command` is a palette), so the list owns its roles

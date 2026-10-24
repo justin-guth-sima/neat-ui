@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from '@angular/core';
 import { NeatIcon, type NeatIconName, type NeatTone } from '@sima/neat-ui';
+
+/** Numbers each callout, for the id its heading has. */
+let nextCalloutId = 0;
 
 /*
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
@@ -52,23 +61,43 @@ const ICONS: Record<NeatTone, NeatIconName> = {
  * danger, `warning`, `check` for success, `info` otherwise. The content is the body; elements
  * marked `neatCalloutActions` go to a row under it.
  *
- * `announce` gives the host the live role to say the note with when it appears: `status` for news
- * that can wait, `alert` for a failure that needs attention now; none by default, for a note that
- * is simply there. A live region speaks what is added to it, so render the callout when its news
- * happens (an `@if`), not hidden beforehand.
+ * The heading is a real heading (`role="heading"`), at `headingLevel`, 3 by default: under a
+ * dialog's title (a level 2) or a page's section, as heading navigation finds it. Pick the level
+ * that fits where the callout stands.
+ *
+ * `region` makes the callout a landmark, for a notice a user should be able to jump to (the
+ * Viewer's late notice); it needs a heading, which names it. `announce` gives the host the live
+ * role to say the note with when it appears instead: `status` for news that can wait, `alert` for
+ * a failure that needs attention now; it wins over `region`, since a host has one role. A callout
+ * with a role is labelled by its heading (`aria-labelledby`); one with none is simply there. A
+ * live region speaks what is added to it, so render the callout when its news happens (an `@if`),
+ * not hidden beforehand.
  */
 @Component({
   selector: 'neat-callout',
   imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class]': 'classes()', '[attr.role]': 'announce()' },
+  host: {
+    '[class]': 'classes()',
+    '[attr.role]': 'role()',
+    '[attr.aria-labelledby]': 'role() && heading() ? headingId : null',
+  },
   template: `
     <neat-icon [name]="icon()" [size]="16" [class]="iconClasses()" />
     <div class="flex min-w-0 flex-1 flex-col gap-(--neat-space-2)">
       @if (heading()) {
-        <p data-slot="callout-heading" class="font-medium">{{ heading() }}</p>
+        <div
+          data-slot="callout-heading"
+          role="heading"
+          class="font-medium"
+          [id]="headingId"
+          [attr.aria-level]="headingLevel()"
+        >
+          {{ heading() }}
+        </div>
       }
-      <div data-slot="callout-body"><ng-content /></div>
+      <!-- empty:hidden: a callout with no body (a heading and actions) keeps no gap for it. -->
+      <div data-slot="callout-body" class="empty:hidden"><ng-content /></div>
       <div
         data-slot="callout-actions"
         class="flex flex-wrap items-center gap-(--neat-space-2) empty:hidden"
@@ -82,8 +111,15 @@ export class NeatCallout {
   readonly tone = input<NeatTone>('info');
   /** A short heading over the body; none if empty. */
   readonly heading = input('');
+  /** The heading's level in the page's outline. */
+  readonly headingLevel = input<2 | 3 | 4 | 5 | 6>(3);
+  /** Whether the callout is a landmark, named by its heading; a live role wins over it. */
+  readonly region = input(false, { transform: booleanAttribute });
   /** The live role the note is said with when it appears; none by default. */
   readonly announce = input<'status' | 'alert' | null>(null);
+
+  protected readonly headingId = `neat-callout-${++nextCalloutId}-heading`;
+  protected readonly role = computed(() => this.announce() ?? (this.region() ? 'region' : null));
 
   protected readonly classes = computed(() => `${CALLOUT_CLASSES} ${TONES[this.tone()].classes}`);
   protected readonly icon = computed(() => ICONS[this.tone()]);

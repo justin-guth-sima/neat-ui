@@ -12,7 +12,13 @@ const TONES: NeatTone[] = ['neutral', 'success', 'warning', 'danger', 'info', 'h
 @Component({
   imports: [NeatCallout],
   template: `
-    <neat-callout [tone]="tone()" [heading]="heading()" [announce]="announce()">
+    <neat-callout
+      [tone]="tone()"
+      [heading]="heading()"
+      [headingLevel]="level()"
+      [region]="region()"
+      [announce]="announce()"
+    >
       The board at 192.168.1.20 replaced the previous one.
       @if (withAction()) {
         <button type="button" neatCalloutActions>Refresh</button>
@@ -24,8 +30,21 @@ class CalloutHost {
   readonly tone = signal<NeatTone>('warning');
   readonly heading = signal('Board changed');
   readonly announce = signal<'status' | 'alert' | null>(null);
+  readonly region = signal(false);
+  readonly level = signal<2 | 3 | 4 | 5 | 6>(3);
   readonly withAction = signal(true);
 }
+
+/** A heading and an action, no body: the Viewer's late notice has a body, a banner may not. */
+@Component({
+  imports: [NeatCallout],
+  template: `
+    <neat-callout heading="Scan failed">
+      <button type="button" neatCalloutActions>Open board settings</button>
+    </neat-callout>
+  `,
+})
+class NoBodyHost {}
 
 async function render(setup: (host: CalloutHost) => void = () => undefined) {
   const fixture = TestBed.createComponent(CalloutHost);
@@ -102,6 +121,75 @@ describe('NeatCallout', () => {
     expect(slot('actions')!.classList).toContain('empty:hidden');
   });
 
+  it('makes its heading a real heading, at level 3 unless the app picks another', async () => {
+    const { fixture, host, slot } = await render();
+
+    // The title of a banner or a notice is found by heading navigation, as an h3 would be.
+    expect(slot('heading')!.getAttribute('role')).toBe('heading');
+    expect(slot('heading')!.getAttribute('aria-level')).toBe('3');
+
+    host.level.set(4);
+    await fixture.whenStable();
+    expect(slot('heading')!.getAttribute('aria-level')).toBe('4');
+  });
+
+  it('as a region, is a landmark named by its heading, as the Viewer’s late notice is', async () => {
+    const { callout, slot } = await render((host) => host.region.set(true));
+
+    expect(callout.getAttribute('role')).toBe('region');
+    const heading = slot('heading')!;
+    expect(heading.id).not.toBe('');
+    expect(callout.getAttribute('aria-labelledby')).toBe(heading.id);
+  });
+
+  it('labels a live callout by its heading too, and leaves a callout with no role unlabelled', async () => {
+    const { fixture, host, callout, slot } = await render();
+    expect(callout.hasAttribute('aria-labelledby')).toBe(false);
+
+    host.announce.set('alert');
+    await fixture.whenStable();
+    expect(callout.getAttribute('aria-labelledby')).toBe(slot('heading')!.id);
+
+    // A live role wins over region: one host has one role.
+    host.region.set(true);
+    await fixture.whenStable();
+    expect(callout.getAttribute('role')).toBe('alert');
+
+    host.heading.set('');
+    await fixture.whenStable();
+    expect(callout.hasAttribute('aria-labelledby')).toBe(false);
+  });
+
+  it('gives each callout’s heading an id of its own', async () => {
+    const first = await render();
+    const second = await render();
+
+    expect(first.slot('heading')!.id).not.toBe(second.slot('heading')!.id);
+  });
+
+  it('takes no room for a body it does not have', async () => {
+    const fixture = TestBed.createComponent(NoBodyHost);
+    await fixture.whenStable();
+    const body = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-slot="callout-body"]',
+    )!;
+
+    // An empty block in the column would still add its gap between the heading and the actions.
+    expect(body.children).toHaveLength(0);
+    expect(body.textContent!.trim()).toBe('');
+    expect(body.classList).toContain('empty:hidden');
+  });
+
+  it('keeps the warning icon in the text colour in both schemes, the border carrying the tone', async () => {
+    const { icon } = await render();
+
+    // One statement, no dark variant: warning's solid colour fails 3:1 on its light tint (F30).
+    expect([...icon().nativeElement.classList]).toContain('text-foreground');
+    expect([...icon().nativeElement.classList].filter((name) => name.includes('warning'))).toEqual(
+      [],
+    );
+  });
+
   it('neat-callout takes the role it announces with, and none by default', async () => {
     const { fixture, host, callout } = await render();
     expect(callout.hasAttribute('role')).toBe(false);
@@ -121,7 +209,7 @@ describe('NeatCallout', () => {
       const tokens = spartanThemeTokens(scheme);
       const q = { tokens, vocabulary: {}, on: [] };
 
-      it(`${scheme}: callout heading and body text hold 4.5:1 on every tone tint in both schemes`, async () => {
+      it(`${scheme}: callout heading and body text hold 4.5:1 on every tone tint`, async () => {
         const { fixture, host, callout, slot } = await render();
         for (const tone of TONES) {
           host.tone.set(tone);
