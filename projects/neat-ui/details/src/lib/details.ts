@@ -10,12 +10,13 @@ import { Directive } from '@angular/core';
  */
 
 /**
- * Two columns: the terms as wide as the widest, the values taking the rest. A value may hold a
+ * Two columns: the terms as wide as the widest (or `--neat-details-term-width`, which an app sets
+ * on an ancestor to line several lists up on one term column), the values taking the rest. A value may hold a
  * long unbroken string (a URL, a path), so it can shrink with its column and wraps anywhere; its
  * figures are tabular, so numbers that change in place do not jitter.
  */
 const DETAILS_CLASSES =
-  'm-0 grid grid-cols-[auto_1fr] gap-x-(--neat-space-3) gap-y-(--neat-space-2) text-(length:--neat-text-sm) [&>dt]:text-muted-foreground [&>dd]:m-0 [&>dd]:min-w-0 [&>dd]:wrap-anywhere [&>dd]:tabular-nums';
+  'm-0 grid grid-cols-[var(--neat-details-term-width,auto)_1fr] gap-x-(--neat-space-3) gap-y-(--neat-space-2) text-(length:--neat-text-sm) [&>dt]:text-muted-foreground [&>dd]:m-0 [&>dd]:min-w-0 [&>dd]:wrap-anywhere [&>dd]:tabular-nums';
 
 /**
  * Facts about the selected thing, as a side panel shows them: a native description list whose

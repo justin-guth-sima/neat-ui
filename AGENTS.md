@@ -30,7 +30,8 @@ look happens in one place. Every rule here protects that.
     `input`; `NeatFileNode` is its tree), `status-chip` (`NeatStatusChip`, a short status on a
     status fill, and `NeatStatusChipButton`, the same as a button; their `NeatTone` is the
     primary's, since a select list's `rowTone` takes the same tones), `details` (`NeatDetails`, the
-    key/value list of a side panel), `field` (`NeatField`, a control under its visible name with
+    key/value list of a side panel; `--neat-details-term-width` on an ancestor lines several up),
+    `field` (`NeatField`, a control under its visible name with
     a hint and an error, and `NeatErrorNote`, a failure said in place), `collapsible`
     (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed),
     `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions) and

@@ -41,7 +41,7 @@ describe('NeatDetails', () => {
       expect.arrayContaining([
         'm-0',
         'grid',
-        'grid-cols-[auto_1fr]',
+        'grid-cols-[var(--neat-details-term-width,auto)_1fr]',
         'gap-x-(--neat-space-3)',
         'gap-y-(--neat-space-2)',
         'text-(length:--neat-text-sm)',
