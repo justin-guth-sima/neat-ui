@@ -11,6 +11,7 @@ import {
   ElementRef,
   inject,
   input,
+  isDevMode,
   model,
   output,
   signal,
@@ -79,6 +80,21 @@ const ROW_CLASSES = `${LINE_CLASSES} min-h-9 cursor-default border-transparent p
  * rows' bar inset.
  */
 const HEADER_CLASSES = `${LINE_CLASSES} sticky top-0 z-1 h-7 border-b border-s-transparent border-b-border bg-(--neat-surface) text-xs font-medium text-muted-foreground`;
+
+/** A group: a line of the grid that holds its heading and its rows, which stay lines of it. */
+const GROUP_CLASSES = 'col-span-full grid grid-cols-subgrid';
+
+/**
+ * A group's heading, across every track: small uppercase medium text in the body colour or, for a
+ * group the app mutes (nothing found, not looked for yet), the muted one; select-list.spec holds
+ * both to 4.5:1 on every surface. It has no fill, so it takes the grid's inset as it is and its
+ * text starts where the cells' does.
+ */
+const GROUP_HEADING_CLASSES = {
+  plain: 'col-span-full pt-(--neat-space-3) pb-1 text-xs font-medium uppercase text-foreground',
+  muted:
+    'col-span-full pt-(--neat-space-3) pb-1 text-xs font-medium uppercase text-muted-foreground',
+} as const;
 
 /** A column's header label and its cells by the column's `align`. */
 const HEADER_LABEL_CLASSES: Record<'start' | 'end', string> = {
@@ -170,16 +186,41 @@ export class NeatColumn {
 }
 
 /**
- * A row: the item, its key, whether it can be checked, its classes (by its tone), the element id
- * the listbox points at, and its cells' context.
+ * A group of a `neat-select-list`'s rows under a heading: `key` is what `groupOf` returns for its
+ * items, `label` the heading's text (the app's own, a count included if it wants one), and `muted`
+ * greys the heading, for a group with nothing in it.
+ */
+export interface NeatSelectListGroup {
+  readonly key: string;
+  readonly label: string;
+  readonly muted?: boolean;
+}
+
+/**
+ * A row: the item, its key, its place among the rows as shown (`data-index`), whether it can be
+ * checked, its classes (by its tone), the element id the listbox points at, and its cells' context.
  */
 interface Row<T, K> {
   readonly item: T;
   readonly key: K;
+  readonly index: number;
   readonly checkable: boolean;
   readonly classes: string;
   readonly id: string;
   readonly context: { readonly $implicit: T };
+}
+
+/**
+ * Rows as shown together: a group's, under its heading (an element id and its classes), or rows
+ * under no heading (`group` null): all rows of a list without groups, or, in production, the items
+ * of groups the app did not list. `key` tracks it: the group's key, or null for the one without.
+ */
+interface Section<T, K> {
+  readonly key: string | null;
+  readonly group: NeatSelectListGroup | null;
+  readonly headingId: string;
+  readonly headingClasses: string;
+  readonly rows: readonly Row<T, K>[];
 }
 
 /** Whether two lists hold the same columns in the same order. */
@@ -244,6 +285,14 @@ let nextListId = 0;
  * (`--background`), so a toned list belongs on it, not on a card. The words in the row still carry
  * the state; the tint repeats them.
  *
+ * **Groups** (`groups`, with `groupOf` naming an item's group by its key) put the rows under
+ * headings, in the groups' order, each item keeping its order within its group. A group is a
+ * `group` named by its heading, which spans the columns; an empty group shows its heading alone,
+ * and a `muted` one greys it. The arrow keys, Home and End move over the rows as shown, never onto
+ * a heading, and a click on a heading does nothing. An item whose group is not listed is a mistake
+ * in the app: it throws in dev mode, and in production shows after the groups, under no heading,
+ * rather than going missing.
+ *
  * Typing a letter to jump to a row, Page Up and Page Down, a range of rows checked with Shift and
  * a disabled row are not offered; none is needed yet.
  */
@@ -283,45 +332,32 @@ let nextListId = 0;
           (keydown)="onKeydown($event)"
           (click)="onClick($event)"
         >
-          @for (row of rows(); track row.key) {
-            <div
-              role="option"
-              [id]="row.id"
-              [class]="row.classes"
-              [attr.data-active]="row.key === selectedKey() ? '' : null"
-              [attr.aria-selected]="
-                checkable()
-                  ? row.checkable
-                    ? checkedKeys().has(row.key)
-                    : null
-                  : row.key === selectedKey()
-              "
-            >
-              @if (checkable()) {
-                <div class="flex">
-                  @if (row.checkable) {
-                    <span
-                      data-slot="select-list-check"
-                      aria-hidden="true"
-                      [class]="checkClasses"
-                      [attr.data-checked]="checkedKeys().has(row.key) ? '' : null"
-                    >
-                      @if (checkedKeys().has(row.key)) {
-                        <neat-icon name="check" [size]="12" class="text-primary-foreground" />
-                      }
-                    </span>
-                  }
+          @for (section of sections(); track section.key) {
+            @if (section.group; as group) {
+              <div role="group" [attr.aria-labelledby]="section.headingId" [class]="groupClasses">
+                <div
+                  role="presentation"
+                  data-slot="select-list-group-heading"
+                  [id]="section.headingId"
+                  [class]="section.headingClasses"
+                >
+                  {{ group.label }}
                 </div>
-              }
-              @for (column of visibleColumns(); track column) {
-                <div [class]="cellClasses[column.align()]">
+                @for (row of section.rows; track row.key) {
                   <ng-container
-                    [ngTemplateOutlet]="column.template"
-                    [ngTemplateOutletContext]="row.context"
+                    [ngTemplateOutlet]="rowTemplate"
+                    [ngTemplateOutletContext]="{ $implicit: row }"
                   />
-                </div>
+                }
+              </div>
+            } @else {
+              @for (row of section.rows; track row.key) {
+                <ng-container
+                  [ngTemplateOutlet]="rowTemplate"
+                  [ngTemplateOutletContext]="{ $implicit: row }"
+                />
               }
-            </div>
+            }
           }
         </div>
         @if (isEmpty()) {
@@ -335,6 +371,48 @@ let nextListId = 0;
         }
       </div>
     </div>
+    <!-- One row, as a listbox option; written once for rows inside a group and outside one. -->
+    <ng-template #rowTemplate let-row>
+      <div
+        role="option"
+        [id]="row.id"
+        [attr.data-index]="row.index"
+        [class]="row.classes"
+        [attr.data-active]="row.key === selectedKey() ? '' : null"
+        [attr.aria-selected]="
+          checkable()
+            ? row.checkable
+              ? checkedKeys().has(row.key)
+              : null
+            : row.key === selectedKey()
+        "
+      >
+        @if (checkable()) {
+          <div class="flex">
+            @if (row.checkable) {
+              <span
+                data-slot="select-list-check"
+                aria-hidden="true"
+                [class]="checkClasses"
+                [attr.data-checked]="checkedKeys().has(row.key) ? '' : null"
+              >
+                @if (checkedKeys().has(row.key)) {
+                  <neat-icon name="check" [size]="12" class="text-primary-foreground" />
+                }
+              </span>
+            }
+          </div>
+        }
+        @for (column of visibleColumns(); track column) {
+          <div [class]="cellClasses[column.align()]">
+            <ng-container
+              [ngTemplateOutlet]="column.template"
+              [ngTemplateOutletContext]="row.context"
+            />
+          </div>
+        }
+      </div>
+    </ng-template>
   `,
 })
 export class NeatSelectList<T, K = unknown> {
@@ -353,6 +431,10 @@ export class NeatSelectList<T, K = unknown> {
   readonly canCheck = input<(item: T) => boolean>(() => true);
   /** An item's row tone, `neutral` (untinted) by default; called once per item as `items` change. */
   readonly rowTone = input<(item: T) => NeatTone>(() => 'neutral');
+  /** The groups to show the rows under, in order; `null` (the default) for no headings. */
+  readonly groups = input<readonly NeatSelectListGroup[] | null>(null);
+  /** With `groups`, the key of an item's group; called once per item as `items` change. */
+  readonly groupOf = input<(item: T) => string>(() => '');
   /** What to say, in place of rows, while there are no items. */
   readonly emptyLabel = input('');
   /**
@@ -369,6 +451,7 @@ export class NeatSelectList<T, K = unknown> {
   protected readonly headerClasses = HEADER_CLASSES;
   protected readonly headerLabelClasses = HEADER_LABEL_CLASSES;
   protected readonly cellClasses = CELL_CLASSES;
+  protected readonly groupClasses = GROUP_CLASSES;
   protected readonly checkClasses = CHECK_CLASSES;
 
   private readonly id = ++nextListId;
@@ -411,23 +494,72 @@ export class NeatSelectList<T, K = unknown> {
   );
 
   /**
-   * Everything a row needs, worked out once per `items`: the key, its tone's classes and, in checked
-   * mode, whether it has a box (calls of the app's functions), the id and the cells' context.
-   * Change detection then reads these and calls nothing.
+   * The rows as shown and the sections they sit in, worked out once per `items`: each row's key,
+   * its tone's classes, in checked mode whether it has a box, and with groups its group (calls of
+   * the app's functions), its index as shown, its id and its cells' context. Change detection then
+   * reads these and calls nothing.
    */
-  protected readonly rows = computed<readonly Row<T, K>[]>(() => {
+  private readonly layout = computed(() => {
     const keyOf = this.trackBy();
     const canCheck = this.checkable() ? this.canCheck() : () => false;
     const toneOf = this.rowTone();
-    return this.items().map((item, index) => ({
-      item,
-      key: keyOf(item),
-      checkable: canCheck(item),
-      classes: `${ROW_CLASSES} ${ROW_FILL_CLASSES[toneOf(item)]}`,
-      id: `neat-select-list-${this.id}-${index}`,
-      context: { $implicit: item },
-    }));
+    const rows: Row<T, K>[] = [];
+    const section = (
+      key: string | null,
+      group: NeatSelectListGroup | null,
+      items: readonly T[],
+      position: number,
+    ): Section<T, K> => {
+      const start = rows.length;
+      for (const item of items) {
+        const index = rows.length;
+        rows.push({
+          item,
+          key: keyOf(item),
+          index,
+          checkable: canCheck(item),
+          classes: `${ROW_CLASSES} ${ROW_FILL_CLASSES[toneOf(item)]}`,
+          id: `neat-select-list-${this.id}-${index}`,
+          context: { $implicit: item },
+        });
+      }
+      return {
+        key,
+        group,
+        // Numbered, not named by the key, which is the app's text and may hold spaces.
+        headingId: `neat-select-list-${this.id}-group-${position}`,
+        headingClasses: GROUP_HEADING_CLASSES[group?.muted ? 'muted' : 'plain'],
+        rows: rows.slice(start),
+      };
+    };
+    const groups = this.groups();
+    if (groups === null) {
+      return { rows, sections: [section(null, null, this.items(), 0)] };
+    }
+    const groupOf = this.groupOf();
+    const members = new Map<string, T[]>(groups.map((group) => [group.key, []]));
+    const unlisted: T[] = [];
+    for (const item of this.items()) {
+      const key = groupOf(item);
+      const bucket = members.get(key);
+      if (bucket) {
+        bucket.push(item);
+      } else if (isDevMode()) {
+        throw new Error(`neat-select-list: an item is in the unlisted group "${key}"`);
+      } else {
+        unlisted.push(item);
+      }
+    }
+    const sections = groups.map((group, position) =>
+      section(group.key, group, members.get(group.key)!, position),
+    );
+    if (unlisted.length) sections.push(section(null, null, unlisted, groups.length));
+    return { rows, sections };
   });
+
+  /** The rows in the order they are shown, which the keys move through. */
+  protected readonly rows = computed<readonly Row<T, K>[]>(() => this.layout().rows);
+  protected readonly sections = computed<readonly Section<T, K>[]>(() => this.layout().sections);
 
   protected readonly checkedKeys = computed(() => new Set<unknown>(this.checked()));
 
@@ -489,8 +621,11 @@ export class NeatSelectList<T, K = unknown> {
     const key = this.rows()[index].key;
     if (key === this.revealed) return;
     this.revealed = key;
-    // The rows are the listbox's only children. jsdom has no scrollIntoView.
-    this.listbox().nativeElement.children[index]?.scrollIntoView?.({ block: 'nearest' });
+    // A row is found by its index as shown: with groups, it is not its place among its parent's
+    // children. jsdom has no scrollIntoView.
+    this.listbox()
+      .nativeElement.querySelector(`[data-index="${index}"]`)
+      ?.scrollIntoView?.({ block: 'nearest' });
   }
 
   /**
@@ -543,7 +678,7 @@ export class NeatSelectList<T, K = unknown> {
     const control = target.closest(INTERACTIVE);
     // The listbox is focusable too, so only a control inside the row is the control's click.
     if (control && control !== option && option.contains(control)) return;
-    const row = this.rows()[Array.prototype.indexOf.call(option.parentElement!.children, option)];
+    const row = this.rows()[Number(option.getAttribute('data-index'))];
     if (target.closest('[data-slot="select-list-check"]')) {
       this.toggle(row);
       return;

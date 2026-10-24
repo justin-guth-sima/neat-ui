@@ -4,7 +4,7 @@ import { contrastRatio, type NeatColorScheme, type NeatTone } from '@sima/neat-u
 import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
-import { NeatColumn, NeatSelectList } from './select-list';
+import { NeatColumn, NeatSelectList, type NeatSelectListGroup } from './select-list';
 
 interface Slot {
   readonly id: number;
@@ -148,6 +148,71 @@ class NarrowHost {
   readonly items = SLOTS;
   readonly shown = signal(true);
   readonly byId = (item: Slot) => item.id;
+}
+
+interface Device {
+  readonly id: number;
+  readonly name: string;
+  readonly kind: string;
+}
+
+/** Items in scan order, kinds interleaved: the list shows them grouped by kind. */
+const DEVICES: readonly Device[] = [
+  { id: 1, name: 'IMX219', kind: 'camera' },
+  { id: 2, name: 'C920 microphone', kind: 'microphone' },
+  { id: 3, name: 'Logitech C920', kind: 'camera' },
+];
+
+const KINDS: readonly NeatSelectListGroup[] = [
+  { key: 'camera', label: 'Cameras · 2' },
+  { key: 'microphone', label: 'Microphones · 1' },
+  { key: 'lidar', label: 'LiDAR · none found', muted: true },
+];
+
+@Component({
+  imports: [NeatSelectList, NeatColumn],
+  template: `
+    <neat-select-list
+      label="Devices"
+      [items]="items()"
+      [trackBy]="byId"
+      [groups]="groups()"
+      [groupOf]="kindOf"
+      [(selected)]="selected"
+      (activated)="activated.push($event.id)"
+    >
+      <ng-template neatColumn="name" header="Device" let-device>{{ device.name }}</ng-template>
+    </neat-select-list>
+  `,
+})
+class GroupedHost {
+  readonly items = signal<readonly Device[]>(DEVICES);
+  readonly groups = signal<readonly NeatSelectListGroup[] | null>(KINDS);
+  readonly selected = signal<Device | null>(null);
+  readonly activated: number[] = [];
+  readonly byId = (device: Device) => device.id;
+  readonly kindOf = vi.fn((device: Device) => device.kind);
+}
+
+async function renderGrouped(setup: (host: GroupedHost) => void = () => undefined) {
+  const fixture = TestBed.createComponent(GroupedHost);
+  setup(fixture.componentInstance);
+  await fixture.whenStable();
+  const element: HTMLElement = fixture.nativeElement;
+  const listbox = () => element.querySelector<HTMLElement>('[role="listbox"]')!;
+  return {
+    fixture,
+    host: fixture.componentInstance,
+    element,
+    listbox,
+    groups: () => [...listbox().querySelectorAll<HTMLElement>('[role="group"]')],
+    headings: () => [
+      ...element.querySelectorAll<HTMLElement>('[data-slot="select-list-group-heading"]'),
+    ],
+    options: () => [...element.querySelectorAll<HTMLElement>('[role="option"]')],
+    /** The names of the rows, in the order the list shows them. */
+    names: () => [...element.querySelectorAll<HTMLElement>('[role="option"]')].map(cellTexts),
+  };
 }
 
 interface TonedSlot extends Slot {
@@ -1134,6 +1199,163 @@ describe('NeatSelectList', () => {
     });
   });
 
+  describe('groups', () => {
+    it('renders each listed group as a labelled group under its heading, in order, rows in item order within it', async () => {
+      const { element, groups, names } = await renderGrouped();
+
+      expect(groups()).toHaveLength(3);
+      const labels = groups().map((group) => {
+        const heading = element.querySelector(`#${group.getAttribute('aria-labelledby')}`)!;
+        // The heading is the group's first child: the group's name, not one of its options.
+        expect(heading.parentElement).toBe(group);
+        expect(heading.getAttribute('role')).toBe('presentation');
+        return heading.textContent!.trim();
+      });
+      expect(labels).toEqual(['Cameras · 2', 'Microphones · 1', 'LiDAR · none found']);
+      expect(
+        groups().map((group) => [...group.querySelectorAll('[role="option"]')].map(cellTexts)),
+      ).toEqual([['IMX219', 'Logitech C920'], ['C920 microphone'], []]);
+      expect(names()).toEqual(['IMX219', 'Logitech C920', 'C920 microphone']);
+    });
+
+    it('keeps groups and headings on the one grid: each spans all tracks, a group on grid-cols-subgrid', async () => {
+      const { groups, headings, options } = await renderGrouped();
+
+      for (const group of groups()) {
+        expect([...group.classList]).toEqual(
+          expect.arrayContaining(['col-span-full', 'grid', 'grid-cols-subgrid']),
+        );
+      }
+      for (const heading of headings()) expect(heading.classList).toContain('col-span-full');
+      // A row inside a group is still a line of the grid.
+      for (const option of options()) {
+        expect(option.parentElement!.getAttribute('role')).toBe('group');
+        expect(option.classList).toContain('grid-cols-subgrid');
+      }
+    });
+
+    it('shows an empty group as its heading alone, muted when asked', async () => {
+      const { groups, headings } = await renderGrouped();
+
+      const lidar = groups()[2];
+      expect([...lidar.children]).toEqual([headings()[2]]);
+      expect([...headings()[0].classList]).toEqual(
+        expect.arrayContaining(['text-xs', 'font-medium', 'uppercase', 'text-foreground']),
+      );
+      expect(headings()[0].classList).not.toContain('text-muted-foreground');
+      expect([...headings()[2].classList]).toEqual(
+        expect.arrayContaining(['text-xs', 'font-medium', 'uppercase', 'text-muted-foreground']),
+      );
+      expect(headings()[2].classList).not.toContain('text-foreground');
+    });
+
+    it('arrow keys, Home and End cross groups and never land on a heading; a click on a heading selects nothing', async () => {
+      const { fixture, host, listbox, options, headings } = await renderGrouped();
+      const shown = () => host.selected()?.name;
+      const calls = host.kindOf.mock.calls.length;
+
+      press(listbox(), 'ArrowDown');
+      expect(shown()).toBe('IMX219');
+      press(listbox(), 'ArrowDown');
+      expect(shown()).toBe('Logitech C920');
+      press(listbox(), 'ArrowDown');
+      expect(shown()).toBe('C920 microphone');
+      // The last group is empty: there is nothing below the microphone to move to.
+      press(listbox(), 'ArrowDown');
+      expect(shown()).toBe('C920 microphone');
+      press(listbox(), 'Home');
+      expect(shown()).toBe('IMX219');
+      press(listbox(), 'End');
+      expect(shown()).toBe('C920 microphone');
+      press(listbox(), 'ArrowUp');
+      await fixture.whenStable();
+      expect(shown()).toBe('Logitech C920');
+      expect(listbox().getAttribute('aria-activedescendant')).toBe(options()[1].id);
+      // groupOf is asked as items change, not as the selection moves.
+      expect(host.kindOf.mock.calls.length).toBe(calls);
+
+      headings()[1].click();
+      await fixture.whenStable();
+      expect(shown()).toBe('Logitech C920');
+      expect(host.activated).toEqual([]);
+    });
+
+    it('the selected row scrolls into view, and a click selects it, when rows sit inside groups', async () => {
+      const { fixture, host, options } = await renderGrouped();
+      scrolled.length = 0;
+
+      // The microphone is the second item but the third row shown: rows are found by data-index,
+      // not by their place among their parent's children or in items.
+      host.selected.set(DEVICES[1]);
+      await fixture.whenStable();
+      expect(scrolled).toEqual([options()[2]]);
+      expect(options()[2].getAttribute('data-index')).toBe('2');
+
+      options()[1].click();
+      await fixture.whenStable();
+      expect(host.selected()).toBe(DEVICES[2]);
+      expect(host.activated).toEqual([3]);
+    });
+
+    it('asks groupOf once per item when the items change', async () => {
+      const { fixture, host } = await renderGrouped();
+      expect(host.kindOf).toHaveBeenCalledTimes(DEVICES.length);
+
+      host.items.set([...DEVICES]);
+      await fixture.whenStable();
+      expect(host.kindOf).toHaveBeenCalledTimes(DEVICES.length * 2);
+    });
+
+    it('without groups the list renders no group elements and no headings', async () => {
+      const { listbox, groups, headings, options, host } = await renderGrouped((host) =>
+        host.groups.set(null),
+      );
+
+      expect(groups()).toEqual([]);
+      expect(headings()).toEqual([]);
+      expect(options().map(cellTexts)).toEqual(['IMX219', 'C920 microphone', 'Logitech C920']);
+      expect(options().every((option) => option.parentElement === listbox())).toBe(true);
+      expect(host.kindOf).not.toHaveBeenCalled();
+    });
+
+    it('throws in dev mode for an item in an unlisted group', async () => {
+      const fixture = TestBed.createComponent(GroupedHost);
+      fixture.componentInstance.items.set([...DEVICES, { id: 4, name: 'Radar', kind: 'radar' }]);
+      // Angular's ErrorHandler logs the error as well as rejecting; asserted, not left in the
+      // test output.
+      const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      const message = 'neat-select-list: an item is in the unlisted group "radar"';
+      try {
+        await expect(fixture.whenStable()).rejects.toThrow(message);
+        expect(error).toHaveBeenCalledWith('ERROR', expect.objectContaining({ message }));
+      } finally {
+        error.mockRestore();
+      }
+    });
+
+    it('in production shows an item of an unlisted group after the groups, under no heading, never dropping it', async () => {
+      const global = globalThis as { ngDevMode?: unknown };
+      const devMode = global.ngDevMode;
+      global.ngDevMode = false;
+      try {
+        const { listbox, groups, names, host, fixture } = await renderGrouped((host) =>
+          host.items.set([{ id: 4, name: 'Radar', kind: 'radar' }, ...DEVICES]),
+        );
+
+        expect(groups()).toHaveLength(3);
+        const radar = listbox().lastElementChild!;
+        expect(radar.getAttribute('role')).toBe('option');
+        expect(cellTexts(radar)).toBe('Radar');
+        expect(names()).toEqual(['IMX219', 'Logitech C920', 'C920 microphone', 'Radar']);
+        press(listbox(), 'End');
+        await fixture.whenStable();
+        expect(host.selected()?.name).toBe('Radar');
+      } finally {
+        global.ngDevMode = devMode;
+      }
+    });
+  });
+
   describe('row tones', () => {
     it('tints a toned row with its tone, hovered and selected with more of it; a neutral row keeps the plain fills', async () => {
       const { row } = await renderToned();
@@ -1378,6 +1600,20 @@ describe('NeatSelectList', () => {
             }
           }
         });
+      });
+
+      it(`${scheme}: group headings reach 4.5:1 on the surfaces, muted ones too`, async () => {
+        const { headings } = await renderGrouped();
+        for (const heading of [headings()[0], headings()[2]]) {
+          const classes = [...heading.classList];
+          for (const surface of ['background', 'popover', 'card']) {
+            const under = tokens[surface];
+            const text = stateColor(classes, 'text', q(on()), under, tokens['foreground']);
+            expect(contrastRatio(text, under), `${text} on --${surface}`).toBeGreaterThanOrEqual(
+              4.5,
+            );
+          }
+        }
       });
 
       it(`${scheme}: the empty message reaches 4.5:1 on the surfaces`, async () => {

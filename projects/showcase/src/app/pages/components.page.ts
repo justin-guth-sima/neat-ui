@@ -40,7 +40,7 @@ import { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } from '@sima/neat-
 import { NeatProgress } from '@sima/neat-ui/progress';
 import { NeatSegmented, type NeatSegmentedOption } from '@sima/neat-ui/segmented';
 import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
-import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
+import { NeatColumn, NeatSelectList, type NeatSelectListGroup } from '@sima/neat-ui/select-list';
 import { NeatSlider } from '@sima/neat-ui/slider';
 import { NeatStatusChip, NeatStatusChipButton } from '@sima/neat-ui/status-chip';
 import { NeatSwitch } from '@sima/neat-ui/switch';
@@ -117,6 +117,25 @@ const DEMO_TYPES: readonly DemoType[] = [
   { id: 'drones', name: 'Drones', files: 0 },
   { id: 'boats', name: 'Boats', files: 3 },
   { id: 'trucks', name: 'Trucks', files: 5 },
+];
+/** A device of the grouped list's demo, in scan order: the list groups them by kind. */
+interface DemoDevice {
+  readonly id: number;
+  readonly name: string;
+  readonly kind: 'camera' | 'microphone' | 'lidar';
+  readonly connection: string;
+}
+const DEMO_DEVICES: readonly DemoDevice[] = [
+  { id: 1, name: 'IMX219', kind: 'camera', connection: 'MIPI CSI' },
+  { id: 2, name: 'C920 microphone', kind: 'microphone', connection: 'USB' },
+  { id: 3, name: 'Logitech C920', kind: 'camera', connection: 'USB 3.0' },
+  { id: 4, name: 'Arducam USB', kind: 'camera', connection: 'USB 2.0' },
+];
+/** The demo's groups: the app writes each label, its count included; LiDAR has none, muted. */
+const DEVICE_GROUPS: readonly NeatSelectListGroup[] = [
+  { key: 'camera', label: 'Cameras · 3' },
+  { key: 'microphone', label: 'Microphones · 1' },
+  { key: 'lidar', label: 'LiDAR · none found', muted: true },
 ];
 const CLIP_LENGTHS: NeatSelectOption<number>[] = [
   { value: 60, label: '1 min' },
@@ -1185,6 +1204,32 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <p class="showcase-code showcase-muted" aria-live="polite">
             Checked: {{ checkedTypes().length ? checkedTypes().join(', ') : 'none' }}
           </p>
+          <h3>Grouped</h3>
+          <p class="showcase-muted">
+            <code>groups</code> puts the rows under headings, in the groups' order, and
+            <code>groupOf</code> names each item's group. The label is the app's own (the count
+            too); a <code>muted</code> group, such as one with nothing found, greys its heading. The
+            arrow keys cross the groups and never stop on a heading.
+          </p>
+          <div class="showcase-row list-row">
+            <div class="list-box list-box-grouped">
+              <neat-select-list
+                label="Devices"
+                [items]="demoDevices"
+                [trackBy]="deviceId"
+                [groups]="deviceGroups"
+                [groupOf]="deviceKind"
+                [(selected)]="device"
+              >
+                <ng-template neatColumn="name" header="Device" let-device>{{
+                  device.name
+                }}</ng-template>
+                <ng-template neatColumn="connection" header="Connection" width="6rem" let-device>{{
+                  device.connection
+                }}</ng-template>
+              </neat-select-list>
+            </div>
+          </div>
           <h3>Toned</h3>
           <p class="showcase-muted">
             <code>rowTone</code> gives each row a tone (<code>NeatTone</code>, as the status chip
@@ -1464,6 +1509,11 @@ export class ComponentsPage {
     'Could not validate the URL.\nyt-dlp: ERROR: [youtube] abc123: Video unavailable';
   protected readonly narrowList = signal(false);
   protected readonly demoTypes = DEMO_TYPES;
+  protected readonly demoDevices = DEMO_DEVICES;
+  protected readonly deviceGroups = DEVICE_GROUPS;
+  protected readonly device = signal<DemoDevice | null>(null);
+  protected readonly deviceId = (device: DemoDevice) => device.id;
+  protected readonly deviceKind = (device: DemoDevice) => device.kind;
   protected readonly typeId = (type: DemoType) => type.id;
   protected readonly hasFiles = (type: DemoType) => type.files > 0;
   protected readonly checkedTypes = signal<readonly string[]>(['cars']);

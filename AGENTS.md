@@ -24,7 +24,8 @@ look happens in one place. Every rule here protects that.
     (`NeatDropZone`, files by drop or by the system's chooser), `dialog` (`NeatDialog`, the general
     modal dialog, with `neat-dialog-body` and `neat-dialog-actions`) and
     `toast` (`NeatToasts` and `neat-toast-host`), `select-list` (`NeatSelectList`, a listbox of rows
-    in columns, with the `neatColumn` templates that lay them out) and `file-browser`
+    in columns, with the `neatColumn` templates that lay them out and `NeatSelectListGroup` for
+    rows under headings) and `file-browser`
     (`NeatFileBrowser`, a tree's breadcrumb, count, filter and rows, built on `select-list` and
     `input`; `NeatFileNode` is its tree), `status-chip` (`NeatStatusChip`, a short status on a
     status fill, and `NeatStatusChipButton`, the same as a button; their `NeatTone` is the
@@ -152,7 +153,12 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   the scrolling area, sticky at its top and filled with `--neat-surface`; the area's top scroll
   padding is the header's height, so a row scrolled into view stops below it. The focus ring is
   the outline of a pseudo-element over the area, since the sticky header paints over an outline
-  of the area itself. A row's `rowTone` tints it with the tone its status chip has (theme tokens
+  of the area itself. `groups` (with `groupOf`) puts the rows under headings, each group a
+  `role="group"` named by its heading and, like its heading, a line of the grid; the keys move over
+  the rows as shown, which a row's `data-index` numbers, never onto a heading. An item of a group
+  the app did not list throws in dev mode and, in production, shows after the groups under no
+  heading: never dropped, since a silently missing row (a device) is the worse failure. A row's
+  `rowTone` tints it with the tone its status chip has (theme tokens
   `--neat-tint-<tone>` and, for hover and selection, `--neat-tint-<tone>-accent`); each row takes
   exactly one set of fills, so no class has to outweigh another, and the tints are opaque mixes
   over `--background`, so a toned list sits on the page, not on a card. The file browser reuses
