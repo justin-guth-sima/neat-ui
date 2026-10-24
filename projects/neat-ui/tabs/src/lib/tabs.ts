@@ -1,11 +1,11 @@
 import {
+  afterRenderEffect,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
   contentChild,
   contentChildren,
-  effect,
   inject,
   input,
   model,
@@ -93,7 +93,8 @@ let nextTabsId = 0;
  * keys alone (`brn-tabs-label-<key>`) and puts them in ids and `aria-controls` as they are. The
  * kit's keys are the instance's prefix and the tab's place in the list, so two tab sets with the
  * same values do not share ids and a value with spaces ("Board 1") is still a valid id; `value`
- * stays in the app's terms. Brain's lazy content keeps a visited panel alive, so the kit puts the
+ * stays in the app's terms. The tab list is built anew when the set of tabs changes, so the keys
+ * follow tabs added or removed while mounted. Brain's lazy content keeps a visited panel alive, so the kit puts the
  * open tab's template in its panel itself.
  */
 @Component({
@@ -103,13 +104,19 @@ let nextTabsId = 0;
   hostDirectives: [BrnTabs],
   host: { '[class]': 'rootClasses' },
   template: `
-    <div brnTabsList data-variant="line" [attr.aria-label]="label()" [class]="listClasses">
-      @for (tab of tabs(); track tab.value(); let index = $index) {
-        <button [brnTabsTrigger]="key(index)" [disabled]="tab.disabled()" [class]="triggerClasses">
-          {{ tab.label() }}
-        </button>
-      }
-    </div>
+    @for (set of [tabSet()]; track set) {
+      <div brnTabsList data-variant="line" [attr.aria-label]="label()" [class]="listClasses">
+        @for (tab of tabs(); track tab.value(); let index = $index) {
+          <button
+            [brnTabsTrigger]="key(index)"
+            [disabled]="tab.disabled()"
+            [class]="triggerClasses"
+          >
+            {{ tab.label() }}
+          </button>
+        }
+      </div>
+    }
     @for (tab of tabs(); track tab.value(); let index = $index) {
       <div [brnTabsContent]="key(index)" [class]="contentClasses">
         @if (index === openIndex()) {
@@ -126,6 +133,13 @@ export class NeatTabs {
   readonly label = input.required<string>();
 
   protected readonly tabs = contentChildren(NeatTab);
+  /**
+   * The tabs' values in order, as one string. The tab list is drawn once per distinct value of it
+   * (a one-item `@for` tracked by it): brain's list builds its key manager from the triggers it
+   * has when it starts and never sees tabs added or removed later, so the arrow keys would walk
+   * the old set. A new list is a new key manager. A label or `disabled` change keeps the list.
+   */
+  protected readonly tabSet = computed(() => JSON.stringify(this.tabs().map((tab) => tab.value())));
   /** The place of the tab shown open: the one `value` names, else the first enabled one; -1 for none. */
   protected readonly openIndex = computed(() => {
     const tabs = this.tabs();
@@ -141,7 +155,9 @@ export class NeatTabs {
 
   constructor() {
     const tabs = inject(BrnTabs);
-    effect(() => {
+    // After render, not in a plain effect: tabs a template creates (`@for` over `neat-tab` with
+    // bound inputs) have no `value` until the template's first update, and a plain effect runs before.
+    afterRenderEffect(() => {
       const open = this.openIndex();
       tabs.activeTab.set(open < 0 ? undefined : this.key(open));
     });

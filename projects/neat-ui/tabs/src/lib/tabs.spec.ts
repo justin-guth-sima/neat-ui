@@ -128,6 +128,24 @@ class SpacedTabsHost {
   readonly value = signal('Board 1');
 }
 
+/** Tabs whose set changes while they are mounted, as a board switch changes a sensor-group list. */
+@Component({
+  imports: [NeatTabs, NeatTab],
+  template: `
+    <neat-tabs label="Sensor groups" [(value)]="value">
+      @for (name of names(); track name) {
+        <neat-tab [label]="name" [value]="name"
+          ><ng-template>{{ name }} panel</ng-template></neat-tab
+        >
+      }
+    </neat-tabs>
+  `,
+})
+class ChangingTabsHost {
+  readonly names = signal(['a', 'b', 'c']);
+  readonly value = signal<string | undefined>('a');
+}
+
 async function render(setup: (host: TabsHost) => void = () => undefined) {
   const fixture = TestBed.createComponent(TabsHost);
   setup(fixture.componentInstance);
@@ -312,6 +330,76 @@ describe('NeatTabs', () => {
     expect(fixture.componentInstance.value()).toBe('Board 2');
     expect(selected(tabs())).toEqual(['false', 'true']);
     expect(openPanel(root)?.textContent?.trim()).toBe('second');
+  });
+
+  describe('when its tabs change while mounted', () => {
+    async function renderChanging(value: string) {
+      const fixture = TestBed.createComponent(ChangingTabsHost);
+      fixture.componentInstance.value.set(value);
+      await fixture.whenStable();
+      const root: HTMLElement = fixture.nativeElement;
+      const tabs = () => Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+      const change = async (names: string[]) => {
+        fixture.componentInstance.names.set(names);
+        await fixture.whenStable();
+      };
+      return { fixture, host: fixture.componentInstance, root, tabs, change };
+    }
+
+    it('the arrow keys walk the new set, from the first tab of it', async () => {
+      const { fixture, host, root, tabs, change } = await renderChanging('a');
+      // Use the old list's keys first, so a stale key manager would be the one built and in use.
+      tabs()[0].focus();
+      key(tabs()[0], 'ArrowRight');
+      await fixture.whenStable();
+      expect(host.value()).toBe('b');
+
+      await change(['x', 'y']);
+      // 'b' is gone, so the first tab of the new set opens.
+      expect(tabs().map((tab) => tab.textContent?.trim())).toEqual(['x', 'y']);
+      expect(selected(tabs())).toEqual(['true', 'false']);
+
+      tabs()[0].focus();
+      key(tabs()[0], 'ArrowRight');
+      await fixture.whenStable();
+
+      expect(host.value()).toBe('y');
+      expect(document.activeElement).toBe(tabs()[1]);
+      expect(openPanel(root)?.textContent?.trim()).toBe('y panel');
+
+      key(tabs()[1], 'ArrowRight');
+      await fixture.whenStable();
+      expect(host.value()).toBe('x');
+      key(tabs()[0], 'End');
+      await fixture.whenStable();
+      expect(host.value()).toBe('y');
+    });
+
+    it('keeps the open tab when it is still there, and the keys move from it', async () => {
+      const { fixture, host, tabs, change } = await renderChanging('b');
+
+      await change(['b', 'c', 'd']);
+      expect(selected(tabs())).toEqual(['true', 'false', 'false']);
+
+      tabs()[0].focus();
+      key(tabs()[0], 'ArrowRight');
+      await fixture.whenStable();
+      expect(host.value()).toBe('c');
+      key(tabs()[1], 'ArrowRight');
+      await fixture.whenStable();
+      expect(host.value()).toBe('d');
+    });
+
+    it('keeps its list while the set of tabs is the same', async () => {
+      const { fixture, root, tabs, change } = await renderChanging('a');
+      const list = root.querySelector('[role="tablist"]');
+
+      await change(['a', 'b', 'c']);
+      await fixture.whenStable();
+
+      expect(root.querySelector('[role="tablist"]')).toBe(list);
+      expect(tabs()).toHaveLength(3);
+    });
   });
 
   it.each([['unknown'], [undefined]])(
