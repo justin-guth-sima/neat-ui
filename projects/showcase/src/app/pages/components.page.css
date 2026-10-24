@@ -245,3 +245,8 @@
 .list-box-checked {
   height: 12rem;
 }
+
+.list-box-toned {
+  width: 28rem;
+  height: 20rem;
+}

@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import {
   buildColorScale,
+  buildNeutralSurfaceScale,
   buildSurfaceScale,
+  NEAT_NEAR_BLACK,
   NEAT_PRIMARY_BASE,
   NeatPage,
   SIMA_PALETTE,
@@ -63,8 +65,14 @@ const KIT_VARIABLES = [
   'warning-foreground',
   'info',
   'info-foreground',
+  'highlight',
+  'highlight-foreground',
   'neat-video-scrim',
   'neat-video-scrim-foreground',
+  ...['success', 'warning', 'danger', 'info', 'highlight'].flatMap((tone) => [
+    `neat-tint-${tone}`,
+    `neat-tint-${tone}-accent`,
+  ]),
 ];
 
 /** The text pairs the kit's components draw, as [text, background]. */
@@ -88,6 +96,11 @@ const TEXT_PAIRS: [string, string][] = [
   ['warning-foreground', 'warning'],
   ['info', 'background'],
   ['info-foreground', 'info'],
+  ['highlight', 'background'],
+  ['highlight-foreground', 'highlight'],
+  ['muted-foreground', 'accent'],
+  ['muted-foreground', 'neat-tint-success'],
+  ['muted-foreground', 'neat-tint-warning-accent'],
 ];
 
 const WEIGHTS = [400, 500, 700] as const;
@@ -132,10 +145,23 @@ const SIZES = [
           <h2>Surface scale</h2>
           <p class="showcase-muted">
             White, the two palette backgrounds and the palette text, with the steps between them
-            interpolated.
+            interpolated. The light scheme's surfaces.
           </p>
           <div class="showcase-grid">
             @for (chip of surface; track chip.name) {
+              <app-swatch [name]="chip.name" [hex]="chip.hex" />
+            }
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Neutral surface scale</h2>
+          <p class="showcase-muted">
+            The same construction in greys only, down to the near-black
+            <code>NEAT_NEAR_BLACK</code> ({{ nearBlack }}). The dark scheme's surfaces.
+          </p>
+          <div class="showcase-grid">
+            @for (chip of neutral; track chip.name) {
               <app-swatch [name]="chip.name" [hex]="chip.hex" />
             }
           </div>
@@ -220,6 +246,8 @@ export class ThemePage {
   protected readonly primaryBase = NEAT_PRIMARY_BASE;
   protected readonly primary = toChips(buildColorScale(NEAT_PRIMARY_BASE));
   protected readonly surface = toChips(buildSurfaceScale());
+  protected readonly nearBlack = NEAT_NEAR_BLACK;
+  protected readonly neutral = toChips(buildNeutralSurfaceScale());
   protected readonly weights = WEIGHTS;
   protected readonly sizes = SIZES;
 

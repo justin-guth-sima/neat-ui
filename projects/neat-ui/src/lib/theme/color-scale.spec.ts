@@ -1,6 +1,13 @@
-import { hexToOklch, relativeLuminance } from './color';
-import { buildColorScale, buildSurfaceScale } from './color-scale';
-import { NEAT_DANGER_BASE, NEAT_PRIMARY_BASE, NEAT_WARN_BASE, SIMA_PALETTE } from './palette';
+import { hexToOklab, hexToOklch, relativeLuminance } from './color';
+import { buildColorScale, buildNeutralSurfaceScale, buildSurfaceScale } from './color-scale';
+import {
+  NEAT_DANGER_BASE,
+  NEAT_HIGHLIGHT_BASE,
+  NEAT_NEAR_BLACK,
+  NEAT_PRIMARY_BASE,
+  NEAT_WARN_BASE,
+  SIMA_PALETTE,
+} from './palette';
 
 const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;
 const SURFACE_STEPS = [0, ...STEPS] as const;
@@ -28,6 +35,7 @@ const chromaticBases = [
   ...Object.values(SIMA_PALETTE).filter(isChromatic),
   NEAT_DANGER_BASE,
   NEAT_WARN_BASE,
+  NEAT_HIGHLIGHT_BASE,
 ];
 
 describe('buildColorScale', () => {
@@ -120,5 +128,64 @@ describe('buildSurfaceScale', () => {
       900: '#0D1D1C',
       950: '#010F0E',
     });
+  });
+});
+
+describe('buildNeutralSurfaceScale', () => {
+  /** A grey: equal channels, which is zero chroma in OKLab up to 8-bit rounding. */
+  const isGrey = (hex: string) =>
+    hex.slice(1, 3) === hex.slice(3, 5) && hex.slice(3, 5) === hex.slice(5, 7);
+
+  it('is grey at every step, with no hue of its own', () => {
+    for (const [step, hex] of Object.entries(buildNeutralSurfaceScale())) {
+      expect(isGrey(hex), `${step}: ${hex}`).toBe(true);
+    }
+  });
+
+  it('anchors on white, greys as light as the two palette backgrounds, and the near-black', () => {
+    const neutral = buildNeutralSurfaceScale();
+    expect(neutral[0]).toBe('#FFFFFF');
+    expect(neutral[950]).toBe(NEAT_NEAR_BLACK);
+    for (const [step, color] of [
+      [50, SIMA_PALETTE.background],
+      [100, SIMA_PALETTE.backgroundAlt],
+    ] as const) {
+      expect(hexToOklab(neutral[step])[0], `${step}`).toBeCloseTo(hexToOklab(color)[0], 2);
+    }
+  });
+
+  it('gets strictly darker across all steps', () => {
+    const neutral = buildNeutralSurfaceScale();
+    for (const [a, b] of pairwise(SURFACE_STEPS)) {
+      expect(relativeLuminance(neutral[a]), `${a} vs ${b}`).toBeGreaterThan(
+        relativeLuminance(neutral[b]),
+      );
+    }
+  });
+
+  it('builds the expected neutral scale', () => {
+    expect(buildNeutralSurfaceScale()).toEqual({
+      0: '#FFFFFF',
+      50: '#F4F4F4',
+      100: '#E9E9E9',
+      200: '#D0D0D0',
+      300: '#B3B3B3',
+      400: '#929292',
+      500: '#727272',
+      600: '#595959',
+      700: '#424242',
+      800: '#2E2E2E',
+      900: '#1E1E1E',
+      950: '#101010',
+    });
+  });
+});
+
+describe('NEAT_HIGHLIGHT_BASE', () => {
+  it('has the palette purple’s hue, with more chroma than the pale palette colour', () => {
+    const base = hexToOklch(NEAT_HIGHLIGHT_BASE);
+    const purple = hexToOklch(SIMA_PALETTE.purple);
+    expect(hueDistance(base.h, purple.h)).toBeLessThan(2);
+    expect(base.c).toBeGreaterThan(purple.c * 2);
   });
 });

@@ -1,4 +1,5 @@
 import stylesheet from './neat-ui.tailwind.css' with { loader: 'text' };
+import { spartanThemeTokens } from '../lib/theme/spartan-theme';
 
 /** The `@apply` list of the base layer's universal rule. */
 function universalBaseUtilities(): string[] {
@@ -21,5 +22,17 @@ describe('the kit stylesheet', () => {
   it('defines the page aside width token next to the spacing tokens', () => {
     // neat-page's aside takes this width; apps read the same token to lay out beside it.
     expect(stylesheet).toMatch(/--neat-aside-width:\s*22rem;/);
+  });
+
+  it('maps the highlight tone and every row tint to a Tailwind colour, so their utilities exist', () => {
+    // Spartan's preset maps its own variables; the kit's extensions need a mapping each, or a
+    // class such as `bg-neat-tint-success` compiles to nothing.
+    const names = Object.keys(spartanThemeTokens('light')).filter(
+      (name) => name.startsWith('highlight') || name.startsWith('neat-tint-'),
+    );
+    expect(names).toEqual(expect.arrayContaining(['highlight', 'neat-tint-success-accent']));
+    for (const name of names) {
+      expect(stylesheet, name).toContain(`--color-${name}: var(--${name});`);
+    }
   });
 });

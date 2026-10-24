@@ -50,9 +50,10 @@ export interface SchemeContrastRules {
 
 /**
  * The contrast rules every theme layer derives its text colours, form-control boundaries and focus
- * rings from. Light text sits on white and on the palette background (50) used by the shell and
- * pages; dark text on the content background (900) and the raised surface (800). Filled colours
- * carry white text in light and the palette text in dark.
+ * rings from. Each scheme's steps are of its own surface scale: the brand scale in light, the
+ * neutral (grey) scale in dark. Light text sits on white and on the palette background (50) used
+ * by the shell and pages; dark text on the content background (950, the near-black) and the raised
+ * surface (900). Filled colours carry white text in light and the near-black in dark.
  */
 export const CONTRAST_RULES: Record<NeatColorScheme, SchemeContrastRules> = {
   light: {
@@ -65,11 +66,11 @@ export const CONTRAST_RULES: Record<NeatColorScheme, SchemeContrastRules> = {
     surfaceWalk: [500, 600, 700, 800, 900, 950],
   },
   dark: {
-    background: 900,
+    background: 950,
     text: 0,
     onColor: 950,
-    textBackgrounds: [900, 800],
-    tint: { alpha: 0.2, over: [900, 800] },
+    textBackgrounds: [950, 900],
+    tint: { alpha: 0.2, over: [950, 900] },
     colorWalk: [400, 300, 200, 100, 50],
     surfaceWalk: [400, 300, 200, 100, 50, 0],
   },

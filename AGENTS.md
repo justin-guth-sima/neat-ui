@@ -27,7 +27,8 @@ look happens in one place. Every rule here protects that.
     in columns, with the `neatColumn` templates that lay them out) and `file-browser`
     (`NeatFileBrowser`, a tree's breadcrumb, count, filter and rows, built on `select-list` and
     `input`; `NeatFileNode` is its tree), `status-chip` (`NeatStatusChip`, a short status on a
-    status fill, and `NeatStatusChipButton`, the same as a button), `details` (`NeatDetails`, the
+    status fill, and `NeatStatusChipButton`, the same as a button; their `NeatTone` is the
+    primary's, since a select list's `rowTone` takes the same tones), `details` (`NeatDetails`, the
     key/value list of a side panel) and `field` (`NeatField`, a control under its visible name with
     a hint and an error, and `NeatErrorNote`, a failure said in place), each exporting that
     component and its types; and
@@ -145,8 +146,11 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   not brain's checkbox (a thousand-file folder would be a thousand brain components), and is
   `aria-hidden` and no tab stop, since the row says whether it is checked. A column's `hideBelow`
   is judged against the list's own width, which a ResizeObserver watches only while some column
-  has one. The file browser reuses the list for its rows, since a folder row is a row that Enter
-  or a click also opens (`activated`), and its `manage` mode is the list's checked mode (a file's
+  has one. A row's `rowTone` tints it with the tone its status chip has (theme tokens
+  `--neat-tint-<tone>` and, for hover and selection, `--neat-tint-<tone>-accent`); each row takes
+  exactly one set of fills, so no class has to outweigh another, and the tints are opaque mixes
+  over `--background`, so a toned list sits on the page, not on a card. The file browser reuses
+  the list for its rows, since a folder row is a row that Enter or a click also opens (`activated`), and its `manage` mode is the list's checked mode (a file's
   path is its key); what differs is the browser's, not the list's: an arrow key onto a folder
   highlights it without changing `selected` (which is a file's path), and Backspace, which the
   list has no use for, is handled on the list's host. A checked list adds no hint of its own: the

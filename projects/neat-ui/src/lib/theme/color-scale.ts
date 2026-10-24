@@ -7,7 +7,7 @@ import {
   oklabToHex,
   oklchToHex,
 } from './color';
-import { SIMA_PALETTE } from './palette';
+import { NEAT_NEAR_BLACK, SIMA_PALETTE } from './palette';
 
 export type ColorStep = 0 | 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950;
 export type ColorScale = Record<Exclude<ColorStep, 0>, string>;
@@ -96,13 +96,20 @@ export function buildColorScale(base: string): ColorScale {
   };
 }
 
+/** The anchors of a surface ramp that are not white: the two light backgrounds and the darkest step. */
+interface SurfaceAnchors {
+  readonly background: string;
+  readonly backgroundAlt: string;
+  readonly darkest: string;
+}
+
 /**
- * Builds the neutral surface ramp: white, the two palette backgrounds and the palette text as
- * anchors, with 200-900 interpolated in OKLab between the alternate background and the text.
+ * White and the anchors, with 200-900 interpolated in OKLab between the alternate background and
+ * the darkest step.
  */
-export function buildSurfaceScale(): SurfaceScale {
-  const from = hexToOklab(SIMA_PALETTE.backgroundAlt);
-  const to = hexToOklab(SIMA_PALETTE.text);
+function surfaceRamp({ background, backgroundAlt, darkest }: SurfaceAnchors): SurfaceScale {
+  const from = hexToOklab(backgroundAlt);
+  const to = hexToOklab(darkest);
   const between = (step: InterpolatedSurfaceStep) => {
     const t = SURFACE_FRACTIONS[step];
     const mix = (channel: 0 | 1 | 2) => from[channel] + (to[channel] - from[channel]) * t;
@@ -110,8 +117,8 @@ export function buildSurfaceScale(): SurfaceScale {
   };
   return {
     0: SIMA_PALETTE.white,
-    50: SIMA_PALETTE.background,
-    100: SIMA_PALETTE.backgroundAlt,
+    50: background,
+    100: backgroundAlt,
     200: between(200),
     300: between(300),
     400: between(400),
@@ -120,6 +127,37 @@ export function buildSurfaceScale(): SurfaceScale {
     700: between(700),
     800: between(800),
     900: between(900),
-    950: SIMA_PALETTE.text,
+    950: darkest,
   };
+}
+
+/** The grey as light as `hex` in OKLab: the colour with its chroma removed. */
+function grey(hex: string): string {
+  return oklabToHex([hexToOklab(hex)[0], 0, 0]);
+}
+
+/**
+ * Builds the brand surface ramp: white, the two palette backgrounds and the palette text as
+ * anchors, with 200-900 interpolated in OKLab between the alternate background and the text. The
+ * light scheme's surfaces.
+ */
+export function buildSurfaceScale(): SurfaceScale {
+  return surfaceRamp({
+    background: SIMA_PALETTE.background,
+    backgroundAlt: SIMA_PALETTE.backgroundAlt,
+    darkest: SIMA_PALETTE.text,
+  });
+}
+
+/**
+ * Builds the neutral surface ramp: the brand ramp's construction in greys only, from greys as light
+ * as the two palette backgrounds down to the near-black (`NEAT_NEAR_BLACK`). The dark scheme's
+ * surfaces, which carry no hue of their own.
+ */
+export function buildNeutralSurfaceScale(): SurfaceScale {
+  return surfaceRamp({
+    background: grey(SIMA_PALETTE.background),
+    backgroundAlt: grey(SIMA_PALETTE.backgroundAlt),
+    darkest: NEAT_NEAR_BLACK,
+  });
 }

@@ -42,6 +42,19 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  /* A select-list row's tint per tone, and its hover and selection fill. */
+  --color-neat-tint-success: var(--neat-tint-success);
+  --color-neat-tint-success-accent: var(--neat-tint-success-accent);
+  --color-neat-tint-warning: var(--neat-tint-warning);
+  --color-neat-tint-warning-accent: var(--neat-tint-warning-accent);
+  --color-neat-tint-danger: var(--neat-tint-danger);
+  --color-neat-tint-danger-accent: var(--neat-tint-danger-accent);
+  --color-neat-tint-info: var(--neat-tint-info);
+  --color-neat-tint-info-accent: var(--neat-tint-info-accent);
+  --color-neat-tint-highlight: var(--neat-tint-highlight);
+  --color-neat-tint-highlight-accent: var(--neat-tint-highlight-accent);
   --font-sans: var(--neat-font-family);
 }
 

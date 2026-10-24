@@ -1,7 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, Directive, input } from '@angular/core';
-
-/** What a chip's fill says: nothing in particular, it went well, take note, it failed, for info. */
-export type NeatStatusTone = 'neutral' | 'success' | 'warning' | 'danger' | 'info';
+import type { NeatTone } from '@sima/neat-ui';
 
 /*
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
@@ -18,12 +16,13 @@ const CHIP_CLASSES =
   'inline-block max-w-full truncate rounded-(--radius) px-(--neat-space-2) align-middle text-(length:--neat-text-xs) leading-normal font-medium';
 
 /** Each tone is a fill and the text colour the theme pairs with it. */
-const TONE_CLASSES: Record<NeatStatusTone, string> = {
+const TONE_CLASSES: Record<NeatTone, string> = {
   neutral: 'bg-muted text-muted-foreground',
   success: 'bg-success text-success-foreground',
   warning: 'bg-warning text-warning-foreground',
   danger: 'bg-destructive text-destructive-foreground',
   info: 'bg-info text-info-foreground',
+  highlight: 'bg-highlight text-highlight-foreground',
 };
 
 /**
@@ -41,7 +40,9 @@ const BUTTON_CLASSES =
  * A short status on one of the theme's status fills, the text being the content:
  * `<neat-status-chip tone="success">Live</neat-status-chip>`. For a state in a list's cell or over
  * a panel (Live, Idle, External), or a fact to note beside a value (a codec that cannot be
- * decoded). The words are the app's; the colour repeats them and is never the only way a state is
+ * decoded). `highlight` is for a state that is none of the statuses but should stand out (a stream
+ * that someone else publishes); a `neat-select-list` row can take the same tone as its chip
+ * (`rowTone`). The words are the app's; the colour repeats them and is never the only way a state is
  * told.
  */
 @Component({
@@ -51,7 +52,7 @@ const BUTTON_CLASSES =
   template: '<ng-content />',
 })
 export class NeatStatusChip {
-  readonly tone = input<NeatStatusTone>('neutral');
+  readonly tone = input<NeatTone>('neutral');
 
   protected readonly classes = computed(() => `${CHIP_CLASSES} ${TONE_CLASSES[this.tone()]}`);
 }
@@ -67,7 +68,7 @@ export class NeatStatusChip {
   host: { 'data-slot': 'status-chip', '[class]': 'classes()' },
 })
 export class NeatStatusChipButton {
-  readonly tone = input<NeatStatusTone>('neutral');
+  readonly tone = input<NeatTone>('neutral');
 
   protected readonly classes = computed(
     () => `${CHIP_CLASSES} ${TONE_CLASSES[this.tone()]} ${BUTTON_CLASSES}`,

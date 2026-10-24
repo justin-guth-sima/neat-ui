@@ -121,6 +121,19 @@ export function composite(foreground: string, alpha: number, background: string)
 }
 
 /**
+ * `color` mixed into an opaque `background` by `share` (0 to 1), in OKLab, as CSS
+ * `color-mix(in oklab, color <share>, background)` does: a perceptually even step from the
+ * background towards the colour, for an opaque tint.
+ */
+export function mixOklab(color: string, share: number, background: string): string {
+  if (!(share >= 0 && share <= 1)) throw new Error(`Expected a share from 0 to 1, got ${share}`);
+  const top = hexToOklab(color);
+  const bottom = hexToOklab(background);
+  const mix = (channel: 0 | 1 | 2) => bottom[channel] + (top[channel] - bottom[channel]) * share;
+  return oklabToHex([mix(0), mix(1), mix(2)]);
+}
+
+/**
  * `color` with an alpha channel, as `#RRGGBBAA`, for a translucent token such as a scrim. The alpha
  * is rounded to the nearest of the 256 values the hex byte can hold.
  */

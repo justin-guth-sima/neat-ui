@@ -18,6 +18,7 @@ import {
   NeatInlineButton,
   NeatNote,
   NeatPage,
+  type NeatTone,
   NeatTooltip,
   type NeatTooltipPosition,
 } from '@sima/neat-ui';
@@ -41,11 +42,7 @@ import { NeatSegmented, type NeatSegmentedOption } from '@sima/neat-ui/segmented
 import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
 import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
 import { NeatSlider } from '@sima/neat-ui/slider';
-import {
-  NeatStatusChip,
-  NeatStatusChipButton,
-  type NeatStatusTone,
-} from '@sima/neat-ui/status-chip';
+import { NeatStatusChip, NeatStatusChipButton } from '@sima/neat-ui/status-chip';
 import { NeatSwitch } from '@sima/neat-ui/switch';
 import { NeatTab, NeatTabs } from '@sima/neat-ui/tabs';
 import { NeatToasts } from '@sima/neat-ui/toast';
@@ -83,15 +80,31 @@ const DEMO_CHANNELS: readonly DemoChannel[] = Array.from({ length: 24 }, (_, ind
   name: `Channel ${index + 1}`,
   state: index % 5 === 1 ? 'Live' : 'Idle',
 }));
-const TONES: NeatStatusTone[] = ['neutral', 'success', 'warning', 'danger', 'info'];
+const TONES: NeatTone[] = ['neutral', 'success', 'warning', 'danger', 'info', 'highlight'];
 /** What each tone says in the demo, as Streaming's slot states do. */
-const TONE_LABELS: Record<NeatStatusTone, string> = {
+const TONE_LABELS: Record<NeatTone, string> = {
   neutral: 'Idle',
   success: 'Live',
-  warning: 'Encoding',
-  danger: 'Failed',
-  info: 'External',
+  warning: 'Unreachable',
+  danger: 'Auth failed',
+  info: 'Connecting',
+  highlight: 'External',
 };
+/** A stream of the toned list's demo: its state's tone tints the row and colours its chip. */
+interface DemoStream {
+  readonly id: number;
+  readonly name: string;
+  readonly tone: NeatTone;
+  readonly state: string;
+}
+const DEMO_STREAMS: readonly DemoStream[] = (
+  ['success', 'success', 'neutral', 'highlight', 'warning', 'danger', 'info', 'neutral'] as const
+).map((tone, index) => ({
+  id: index + 1,
+  name: `src${index + 1}`,
+  tone,
+  state: TONE_LABELS[tone],
+}));
 /** An asset type of the checked list's demo; one has no files, so nothing to check. */
 interface DemoType {
   readonly id: string;
@@ -271,8 +284,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
         <section class="showcase-section">
           <h2>Status chip</h2>
           <p class="showcase-muted">
-            <code>neat-status-chip</code>: a short status on a status fill, in five tones, the text
-            being the content; it truncates rather than widen what holds it. As
+            <code>neat-status-chip</code>: a short status on a status fill, in six tones, the text
+            being the content; it truncates rather than widen what holds it. <code>highlight</code>,
+            the brand purple, is for a state that is none of the statuses but should stand out. As
             <code>button[neatStatusChip]</code> it is a button that looks the same, for a status
             that opens more about itself (a video tile's "Metadata late"). The words carry the
             state; the colour repeats it.
@@ -293,7 +307,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             </div>
           }
           <div class="chip-cell">
-            <neat-status-chip tone="info"
+            <neat-status-chip tone="highlight"
               >External publisher on a very narrow column</neat-status-chip
             >
           </div>
@@ -1163,6 +1177,35 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <p class="showcase-code showcase-muted" aria-live="polite">
             Checked: {{ checkedTypes().length ? checkedTypes().join(', ') : 'none' }}
           </p>
+          <h3>Toned</h3>
+          <p class="showcase-muted">
+            <code>rowTone</code> gives each row a tone (<code>NeatTone</code>, as the status chip
+            has): a toned row has a soft tint of it, a neutral one none. Give a row and its chip the
+            same tone. Hover and selection still show, with more of the tone, and the selected row
+            keeps its bar. The tints are mixed over the content background, so a toned list sits on
+            the page, not on a card.
+          </p>
+          <div class="showcase-row list-row">
+            <div class="list-box list-box-toned">
+              <neat-select-list
+                label="Streams"
+                [items]="demoStreams"
+                [trackBy]="streamId"
+                [rowTone]="streamTone"
+                [(selected)]="stream"
+              >
+                <ng-template neatColumn="name" header="Slot" let-stream>{{
+                  stream.name
+                }}</ng-template>
+                <ng-template neatColumn="kind" header="Kind" width="3rem" let-stream>
+                  <span class="showcase-muted">VID</span>
+                </ng-template>
+                <ng-template neatColumn="state" header="State" width="7rem" let-stream>
+                  <neat-status-chip [tone]="stream.tone">{{ stream.state }}</neat-status-chip>
+                </ng-template>
+              </neat-select-list>
+            </div>
+          </div>
         </section>
 
         <section class="showcase-section">
@@ -1416,6 +1459,10 @@ export class ComponentsPage {
   protected readonly typeId = (type: DemoType) => type.id;
   protected readonly hasFiles = (type: DemoType) => type.files > 0;
   protected readonly checkedTypes = signal<readonly string[]>(['cars']);
+  protected readonly demoStreams = DEMO_STREAMS;
+  protected readonly streamId = (stream: DemoStream) => stream.id;
+  protected readonly streamTone = (stream: DemoStream) => stream.tone;
+  protected readonly stream = signal<DemoStream | null>(DEMO_STREAMS[3]);
   protected readonly overlays = OVERLAYS;
 
   protected readonly bars = signal(true);

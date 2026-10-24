@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { contrastRatio, type NeatColorScheme } from '@sima/neat-ui';
+import { contrastRatio, type NeatColorScheme, type NeatTone } from '@sima/neat-ui';
 import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
@@ -119,6 +119,49 @@ class NarrowHost {
   readonly items = SLOTS;
   readonly shown = signal(true);
   readonly byId = (item: Slot) => item.id;
+}
+
+interface TonedSlot extends Slot {
+  readonly tone: NeatTone;
+}
+
+/** One row per tone, in the order of TONED_SLOTS, and a neutral row first. */
+const TONED_SLOTS: readonly TonedSlot[] = (
+  ['neutral', 'success', 'warning', 'danger', 'info', 'highlight'] as const
+).map((tone, index) => ({ ...slot(index + 1), tone }));
+
+@Component({
+  imports: [NeatSelectList, NeatColumn],
+  template: `
+    <neat-select-list
+      label="Streaming slots"
+      [checkable]="checkable()"
+      [items]="items()"
+      [trackBy]="byId"
+      [rowTone]="toneOf"
+      [(selected)]="selected"
+    >
+      <ng-template neatColumn="name" header="Slot" let-item>{{ item.name }}</ng-template>
+    </neat-select-list>
+  `,
+})
+class TonedHost {
+  readonly items = signal<readonly TonedSlot[]>(TONED_SLOTS);
+  readonly selected = signal<TonedSlot | null>(null);
+  readonly checkable = signal(false);
+  readonly byId = (item: TonedSlot) => item.id;
+  readonly toneOf = vi.fn((item: TonedSlot) => item.tone);
+}
+
+async function renderToned(setup: (host: TonedHost) => void = () => undefined) {
+  const fixture = TestBed.createComponent(TonedHost);
+  setup(fixture.componentInstance);
+  await fixture.whenStable();
+  const element: HTMLElement = fixture.nativeElement;
+  const options = () => [...element.querySelectorAll<HTMLElement>('[role="option"]')];
+  /** The row of an item's tone. */
+  const row = (tone: NeatTone) => options()[TONED_SLOTS.findIndex((item) => item.tone === tone)];
+  return { fixture, host: fixture.componentInstance, element, options, row };
 }
 
 /**
@@ -879,6 +922,81 @@ describe('NeatSelectList', () => {
     });
   });
 
+  describe('row tones', () => {
+    it('tints a toned row with its tone, hovered and selected with more of it; a neutral row keeps the plain fills', async () => {
+      const { row } = await renderToned();
+
+      expect([...row('success').classList]).toEqual(
+        expect.arrayContaining([
+          'bg-neat-tint-success',
+          'hover:bg-neat-tint-success-accent',
+          'data-active:bg-neat-tint-success-accent',
+        ]),
+      );
+      expect([...row('highlight').classList]).toContain('bg-neat-tint-highlight');
+      const neutral = [...row('neutral').classList];
+      expect(neutral).toEqual(expect.arrayContaining(['hover:bg-accent', 'data-active:bg-accent']));
+      expect(neutral.filter((name) => name.includes('neat-tint'))).toEqual([]);
+    });
+
+    it('states each row’s fills once: a toned row has none of the plain row’s', async () => {
+      const { row } = await renderToned();
+
+      for (const tone of ['success', 'warning', 'danger', 'info', 'highlight'] as const) {
+        const fills = [...row(tone).classList].filter((name) => /(^|:)bg-/.test(name));
+        expect(fills.sort(), tone).toEqual(
+          [
+            `bg-neat-tint-${tone}`,
+            `hover:bg-neat-tint-${tone}-accent`,
+            `data-active:bg-neat-tint-${tone}-accent`,
+          ].sort(),
+        );
+      }
+    });
+
+    it('keeps the primary bar on a selected toned row', async () => {
+      const { fixture, host, row } = await renderToned();
+
+      host.selected.set(TONED_SLOTS[1]);
+      await fixture.whenStable();
+
+      expect(row('success').hasAttribute('data-active')).toBe(true);
+      expect([...row('success').classList]).toContain('data-active:border-primary');
+    });
+
+    it('tints no row by default', async () => {
+      const { options } = await render();
+
+      for (const option of options()) {
+        expect([...option.classList].filter((name) => name.includes('neat-tint'))).toEqual([]);
+      }
+    });
+
+    it('asks rowTone once per item when the items change, not per selection', async () => {
+      const { fixture, host } = await renderToned();
+      expect(host.toneOf).toHaveBeenCalledTimes(TONED_SLOTS.length);
+
+      host.selected.set(TONED_SLOTS[2]);
+      await fixture.whenStable();
+      expect(host.toneOf).toHaveBeenCalledTimes(TONED_SLOTS.length);
+
+      host.items.set(TONED_SLOTS.map((item) => ({ ...item, tone: 'danger' })));
+      await fixture.whenStable();
+      expect(host.toneOf).toHaveBeenCalledTimes(TONED_SLOTS.length * 2);
+    });
+
+    it('follows a row’s new tone when the items are replaced', async () => {
+      const { fixture, host, options } = await renderToned();
+
+      host.items.set(TONED_SLOTS.map((item) => ({ ...item, tone: 'info' })));
+      await fixture.whenStable();
+
+      for (const option of options()) {
+        expect([...option.classList]).toContain('bg-neat-tint-info');
+      }
+    });
+  });
+
   describe('contrast, from the emitted theme tokens', () => {
     const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
     const SURFACES = ['background', 'card'] as const;
@@ -975,6 +1093,79 @@ describe('NeatSelectList', () => {
           const text = stateColor(classes, 'text', q(on()), under, tokens['foreground']);
           expect(contrastRatio(text, under), `${text} on --${surface}`).toBeGreaterThanOrEqual(4.5);
         }
+      });
+
+      describe(`${scheme}: toned rows, on the content background`, () => {
+        const TINTED: NeatTone[] = ['success', 'warning', 'danger', 'info', 'highlight'];
+        const under = tokens['background'];
+
+        it('keep body and muted text at 4.5:1 at rest, hovered and selected', async () => {
+          const { row } = await renderToned();
+          for (const tone of TINTED) {
+            const classes = [...row(tone).classList];
+            for (const state of [on(), on('hover'), on('selected')]) {
+              const fill = stateColor(classes, 'bg', q(state), under);
+              for (const text of ['foreground', 'muted-foreground']) {
+                expect(
+                  contrastRatio(tokens[text], fill),
+                  `${tone}, [${state.join(', ')}] --${text} on ${fill}`,
+                ).toBeGreaterThanOrEqual(4.5);
+              }
+            }
+          }
+        });
+
+        it(`show hover and selection on the tint (${MIN_FILL_CONTRAST}:1), and the selected row's bar (${MIN_NON_TEXT_CONTRAST}:1, against its fill and the surface)`, async () => {
+          const { row } = await renderToned();
+          for (const tone of TINTED) {
+            const classes = [...row(tone).classList];
+            const rest = stateColor(classes, 'bg', q(on()), under);
+            expect(rest, `${tone} is tinted`).not.toBe(under);
+            for (const state of ['hover', 'selected']) {
+              const fill = stateColor(classes, 'bg', q(on(state)), under);
+              expect(
+                contrastRatio(fill, rest),
+                `${tone}, ${state}: ${fill} on ${rest}`,
+              ).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
+            }
+            const fill = stateColor(classes, 'bg', q(on('selected')), under);
+            const bar = stateColor(classes, 'border', q(on('selected')), fill);
+            expect(
+              contrastRatio(bar, fill),
+              `${tone}: bar ${bar} on ${fill}`,
+            ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+            expect(
+              contrastRatio(bar, under),
+              `${tone}: bar ${bar} on --background`,
+            ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+            expect(stateColor(classes, 'border', q(on()), rest), `${tone}: no bar at rest`).toBe(
+              rest,
+            );
+          }
+        });
+
+        it('show a checked row’s box on every tint (3:1), unchecked by its border and checked by its fill', async () => {
+          const { row } = await renderToned((host) => host.checkable.set(true));
+          for (const tone of TINTED) {
+            const rowClasses = [...row(tone).classList];
+            const box = [
+              ...row(tone).querySelector<HTMLElement>('[data-slot="select-list-check"]')!.classList,
+            ];
+            for (const state of [on(), on('hover'), on('selected')]) {
+              const fill = stateColor(rowClasses, 'bg', q(state), under);
+              const border = stateColor(box, 'border', q(on()), fill);
+              expect(
+                contrastRatio(border, fill),
+                `${tone}, [${state.join(', ')}]: border ${border} on ${fill}`,
+              ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+              const checked = stateColor(box, 'bg', q(on('checked')), fill);
+              expect(
+                contrastRatio(checked, fill),
+                `${tone}, [${state.join(', ')}]: checked ${checked} on ${fill}`,
+              ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+            }
+          }
+        });
       });
 
       it(`${scheme}: the empty message reaches 4.5:1 on the surfaces`, async () => {

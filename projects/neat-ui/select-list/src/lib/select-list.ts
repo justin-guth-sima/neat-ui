@@ -17,7 +17,7 @@ import {
   TemplateRef,
   viewChild,
 } from '@angular/core';
-import { NeatIcon } from '@sima/neat-ui';
+import { NeatIcon, type NeatTone } from '@sima/neat-ui';
 
 /*
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
@@ -38,14 +38,34 @@ const SCROLLER_CLASSES =
 
 /**
  * A line of cells on the columns' widths, with a 2px inset on the start side that the active
- * row's bar fills (`--primary`, 3:1 against the row's fill and the surface). A row is `--accent` when
- * hovered or active; the bar, not the fill alone, marks it. The active row is the selected one,
- * marked `data-active` rather than by `aria-selected`, which in checked mode says a row is checked.
+ * row's bar fills (`--primary`, 3:1 against the row's fill and the surface); the bar, not the fill
+ * alone, marks it. The active row is the selected one, marked `data-active` rather than by
+ * `aria-selected`, which in checked mode says a row is checked.
  */
 const LINE_CLASSES =
   'grid grid-cols-(--neat-select-list-columns) items-center gap-x-(--neat-space-3) border-s-2 border-transparent px-(--neat-space-3)';
-const ROW_CLASSES = `${LINE_CLASSES} min-h-9 cursor-default py-1 text-sm hover:bg-accent data-active:border-primary data-active:bg-accent`;
+const ROW_CLASSES = `${LINE_CLASSES} min-h-9 cursor-default py-1 text-sm data-active:border-primary`;
 const HEADER_LINE_CLASSES = `${LINE_CLASSES} py-1`;
+
+/**
+ * A row's fills by its tone, each row taking exactly one set. A neutral row has none at rest and is
+ * `--accent` when hovered or active. A toned row is its tone's tint at rest and the tint's accent,
+ * more of the same tone, when hovered or active: the plain `--accent` would be a grey about as light
+ * as the tint, which hardly shows on it, and would hide the tone of the row it marks. The theme
+ * holds each accent to MIN_FILL_CONTRAST on its tint, and body and muted text to 4.5:1 on both.
+ */
+const ROW_FILL_CLASSES: Record<NeatTone, string> = {
+  neutral: 'hover:bg-accent data-active:bg-accent',
+  success:
+    'bg-neat-tint-success hover:bg-neat-tint-success-accent data-active:bg-neat-tint-success-accent',
+  warning:
+    'bg-neat-tint-warning hover:bg-neat-tint-warning-accent data-active:bg-neat-tint-warning-accent',
+  danger:
+    'bg-neat-tint-danger hover:bg-neat-tint-danger-accent data-active:bg-neat-tint-danger-accent',
+  info: 'bg-neat-tint-info hover:bg-neat-tint-info-accent data-active:bg-neat-tint-info-accent',
+  highlight:
+    'bg-neat-tint-highlight hover:bg-neat-tint-highlight-accent data-active:bg-neat-tint-highlight-accent',
+};
 
 /**
  * A row's box in checked mode, drawn by the kit: unchecked, its boundary is `--input`, the theme's
@@ -102,13 +122,14 @@ export class NeatColumn {
 }
 
 /**
- * A row: the item, its key, whether it can be checked, the element id the listbox points at, and
- * its cells' context.
+ * A row: the item, its key, whether it can be checked, its classes (by its tone), the element id
+ * the listbox points at, and its cells' context.
  */
 interface Row<T, K> {
   readonly item: T;
   readonly key: K;
   readonly checkable: boolean;
+  readonly classes: string;
   readonly id: string;
   readonly context: { readonly $implicit: T };
 }
@@ -165,6 +186,13 @@ let nextListId = 0;
  * are not tab stops. The multi-selectable listbox says what checking is, so a checked list needs
  * no `hint` of its own.
  *
+ * **Row tones** (`rowTone`) tint a row with a soft fill of a status colour, the tone its status
+ * chip has (`NeatTone`), so that a state reads along the whole row: the app gives both the same
+ * tone. A `neutral` row is untinted. A toned row still shows hover and selection, with more of its
+ * tone, and the selected one keeps its bar. The tints are mixed over the content background
+ * (`--background`), so a toned list belongs on it, not on a card. The words in the row still carry
+ * the state; the tint repeats them.
+ *
  * Typing a letter to jump to a row, Page Up and Page Down, a range of rows checked with Shift and
  * a disabled row are not offered; none is needed yet.
  */
@@ -209,7 +237,7 @@ let nextListId = 0;
           <div
             role="option"
             [id]="row.id"
-            [class]="rowClasses"
+            [class]="row.classes"
             [attr.data-active]="row.key === selectedKey() ? '' : null"
             [attr.aria-selected]="
               checkable()
@@ -272,6 +300,8 @@ export class NeatSelectList<T, K = unknown> {
   readonly checked = model<readonly K[]>([]);
   /** In checked mode, whether an item's row has a box; called once per item as `items` change. */
   readonly canCheck = input<(item: T) => boolean>(() => true);
+  /** An item's row tone, `neutral` (untinted) by default; called once per item as `items` change. */
+  readonly rowTone = input<(item: T) => NeatTone>(() => 'neutral');
   /** What to say, in place of rows, while there are no items. */
   readonly emptyLabel = input('');
   /**
@@ -285,7 +315,6 @@ export class NeatSelectList<T, K = unknown> {
   protected readonly headerClasses = HEADER_CLASSES;
   protected readonly headerLineClasses = HEADER_LINE_CLASSES;
   protected readonly scrollerClasses = SCROLLER_CLASSES;
-  protected readonly rowClasses = ROW_CLASSES;
   protected readonly checkClasses = CHECK_CLASSES;
 
   private readonly id = ++nextListId;
@@ -328,17 +357,19 @@ export class NeatSelectList<T, K = unknown> {
   );
 
   /**
-   * Everything a row needs, worked out once per `items`: the key and, in checked mode, whether it
-   * has a box (calls of the app's functions), the id and the cells' context. Change detection then
-   * reads these and calls nothing.
+   * Everything a row needs, worked out once per `items`: the key, its tone's classes and, in checked
+   * mode, whether it has a box (calls of the app's functions), the id and the cells' context.
+   * Change detection then reads these and calls nothing.
    */
   protected readonly rows = computed<readonly Row<T, K>[]>(() => {
     const keyOf = this.trackBy();
     const canCheck = this.checkable() ? this.canCheck() : () => false;
+    const toneOf = this.rowTone();
     return this.items().map((item, index) => ({
       item,
       key: keyOf(item),
       checkable: canCheck(item),
+      classes: `${ROW_CLASSES} ${ROW_FILL_CLASSES[toneOf(item)]}`,
       id: `neat-select-list-${this.id}-${index}`,
       context: { $implicit: item },
     }));

@@ -4,5 +4,4 @@
  * the primary entry point (`@sima/neat-ui`) by package name; the primary never imports it. Every
  * export added here is a promise to consumers.
  */
-export type { NeatStatusTone } from './lib/status-chip';
 export { NeatStatusChip, NeatStatusChipButton } from './lib/status-chip';

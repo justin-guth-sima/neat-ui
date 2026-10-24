@@ -2,7 +2,9 @@ import {
   composite,
   contrastRatio,
   hexToOklch,
+  hexToOklab,
   isInSrgbGamut,
+  mixOklab,
   oklchToHex,
   relativeLuminance,
   withAlpha,
@@ -43,6 +45,30 @@ describe('composite', () => {
   it('returns the background at alpha 0 and the colour at alpha 1', () => {
     expect(composite('#D26728', 0, '#0D1D1C')).toBe('#0D1D1C');
     expect(composite('#d26728', 1, '#0D1D1C')).toBe('#D26728');
+  });
+});
+
+describe('mixOklab', () => {
+  it('moves the background towards the colour by the share, in OKLab', () => {
+    const [l, a, b] = hexToOklab(mixOklab('#2A9C4F', 0.1, '#FFFFFF'));
+    const green = hexToOklab('#2A9C4F');
+    const white = hexToOklab('#FFFFFF');
+    // Within one 8-bit step of the exact mix: the result is rounded to #RRGGBB.
+    expect(l).toBeCloseTo(white[0] + (green[0] - white[0]) * 0.1, 2);
+    expect(a).toBeCloseTo(white[1] + (green[1] - white[1]) * 0.1, 2);
+    expect(b).toBeCloseTo(white[2] + (green[2] - white[2]) * 0.1, 2);
+    // CSS `color-mix(in oklab, #2a9c4f 10%, #ffffff)` gives the same colour.
+    expect(mixOklab('#2A9C4F', 0.1, '#FFFFFF')).toBe('#EBF5ED');
+  });
+
+  it('returns the background at share 0 and the colour at share 1', () => {
+    expect(mixOklab('#d26728', 0, '#101010')).toBe('#101010');
+    expect(mixOklab('#d26728', 1, '#101010')).toBe('#D26728');
+  });
+
+  it('rejects a share outside 0 to 1', () => {
+    expect(() => mixOklab('#D26728', 1.2, '#FFFFFF')).toThrow(/share/);
+    expect(() => mixOklab('#D26728', -0.1, '#FFFFFF')).toThrow(/share/);
   });
 });
 

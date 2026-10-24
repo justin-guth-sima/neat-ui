@@ -19,3 +19,18 @@ export const NEAT_PRIMARY_BASE: string = SIMA_PALETTE.orange;
 export const NEAT_DANGER_BASE = '#C8372D';
 /** Used unchanged as the warning fill (step 500 of its scale), with palette text colour on it. */
 export const NEAT_WARN_BASE = '#E9A23B';
+
+/**
+ * The hue of the highlight tone, which marks a distinct state that is none of the statuses: the
+ * palette purple's hue (291° in OKLCH) at about three times its chroma. The palette purple itself is
+ * too pale to work from: a row tint of 10% of it on white is #FAFAFD, no tint at all, and no step
+ * of its scale is a fill that white text reads on and that still looks purple.
+ */
+export const NEAT_HIGHLIGHT_BASE = '#9D93D6';
+
+/**
+ * The dark scheme's darkest surface, its page: a neutral near-black. The dark surfaces are greys
+ * from here up (`buildNeutralSurfaceScale`) rather than steps towards the palette text, whose teal
+ * made a whole dark page read green.
+ */
+export const NEAT_NEAR_BLACK = '#101010';

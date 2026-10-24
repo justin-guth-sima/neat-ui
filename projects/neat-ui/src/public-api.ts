@@ -4,14 +4,21 @@
  * shell uses. Every export added here is a promise to consumers.
  */
 export type { ColorScale, ColorStep, SurfaceScale } from './lib/theme/color-scale';
-export { buildColorScale, buildSurfaceScale } from './lib/theme/color-scale';
+export {
+  buildColorScale,
+  buildNeutralSurfaceScale,
+  buildSurfaceScale,
+} from './lib/theme/color-scale';
 export { contrastRatio } from './lib/theme/color';
 export {
   NEAT_DANGER_BASE,
+  NEAT_HIGHLIGHT_BASE,
+  NEAT_NEAR_BLACK,
   NEAT_PRIMARY_BASE,
   NEAT_WARN_BASE,
   SIMA_PALETTE,
 } from './lib/theme/palette';
+export type { NeatTone } from './lib/theme/tone';
 export { provideNeatUi } from './lib/theme/provide-neat-ui';
 export type { NeatColorScheme } from './lib/theme/theme.service';
 export { ThemeService } from './lib/theme/theme.service';
