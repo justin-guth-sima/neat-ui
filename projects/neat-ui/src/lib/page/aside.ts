@@ -29,7 +29,8 @@ import { NeatTooltip } from '../tooltip/tooltip';
  * <neat-page [aside]="asideOpen() ? 'open' : 'closed'">…</neat-page>
  * ```
  *
- * One look on every page: a small, text, icon-only `neatButton` with the `info` icon, whose
+ * One look on every page: a small, text, icon-only `neatButton` with the `side-panel` icon (not `info`, which
+ * the app's System Info keeps), whose
  * pressed state is the panel's. `label` names it and is its tooltip ("Side panel" unless the page
  * says otherwise). `open` is a model the page owns, so the page decides where it is remembered;
  * the toggle only flips it. `focus()` puts the focus on the button, for a page whose panel closes
@@ -58,7 +59,7 @@ import { NeatTooltip } from '../tooltip/tooltip';
       [pressed]="open()"
       (click)="open.set(!open())"
     >
-      <neat-icon name="info" />
+      <neat-icon name="side-panel" />
     </button>
   `,
 })

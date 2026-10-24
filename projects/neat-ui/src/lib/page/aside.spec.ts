@@ -61,7 +61,7 @@ describe('NeatAsideToggle', () => {
     document.querySelectorAll('.cdk-overlay-container').forEach((container) => container.remove());
   });
 
-  it('is one small, text, icon-only kit button with the info icon, named "Side panel" by default', async () => {
+  it('is one small, text, icon-only kit button with the side-panel icon, named "Side panel" by default', async () => {
     const fixture = TestBed.createComponent(DefaultToggleHost);
     await fixture.whenStable();
     const button = (fixture.nativeElement as HTMLElement).querySelector('button')!;
@@ -69,7 +69,7 @@ describe('NeatAsideToggle', () => {
     expect(button.getAttribute('data-slot')).toBe('button');
     expect(button.type).toBe('button');
     expect(classesOf(button)).toEqual(expect.arrayContaining(['size-8', 'hover:bg-accent']));
-    expect(button.querySelector('neat-icon')).not.toBeNull();
+    expect(button.querySelector('neat-icon[name="side-panel"]')).not.toBeNull();
     expect(button.getAttribute('aria-label')).toBe('Side panel');
   });
 
