@@ -505,15 +505,20 @@ describe('NeatButton', () => {
     vi.spyOn(document.documentElement, 'clientHeight', 'get').mockReturnValue(768);
     button.getBoundingClientRect = () => new DOMRect(472, 368, 80, 32);
 
-    button.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
-    // The tooltip opens after a zero delay, then renders its text.
-    await settle(fixture);
-    await fixture.whenStable();
+    try {
+      button.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+      // The tooltip opens after a zero delay, then renders its text.
+      await settle(fixture);
+      await fixture.whenStable();
 
-    const tooltip = document.querySelector('[role="tooltip"]');
-    expect(tooltip?.textContent?.trim()).toBe('Waiting for the source change to finish');
-    vi.restoreAllMocks();
-    document.querySelectorAll('.cdk-overlay-container').forEach((container) => container.remove());
+      const tooltip = document.querySelector('[role="tooltip"]');
+      expect(tooltip?.textContent?.trim()).toBe('Waiting for the source change to finish');
+    } finally {
+      vi.restoreAllMocks();
+      document
+        .querySelectorAll('.cdk-overlay-container')
+        .forEach((container) => container.remove());
+    }
   });
 
   it.each(VARIANTS)(
