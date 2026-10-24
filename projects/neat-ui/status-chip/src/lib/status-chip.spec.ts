@@ -153,7 +153,7 @@ describe('NeatStatusChip', () => {
         }
       });
 
-      it(`${scheme}: each tone keeps its text’s 4.5:1 in a toned list row, over every row tint`, async () => {
+      it(`${scheme}: every tone’s fill is opaque, so its text keeps 4.5:1 in a toned list row, over any row tint`, async () => {
         const { fixture, host, chip } = await render();
         const tints = Object.keys(tokens).filter((name) => name.startsWith('neat-tint-'));
         expect(tints.length).toBeGreaterThan(0);

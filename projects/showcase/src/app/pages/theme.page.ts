@@ -75,7 +75,7 @@ const KIT_VARIABLES = [
   ]),
 ];
 
-/** The text pairs the kit's components draw, as [text, background]. */
+/** The text pairs the kit's components draw, as [text, background]; the row tints are a sample (the theme spec checks all of them). */
 const TEXT_PAIRS: [string, string][] = [
   ['foreground', 'background'],
   ['foreground', 'muted'],

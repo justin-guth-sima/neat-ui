@@ -150,8 +150,8 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   `--neat-tint-<tone>` and, for hover and selection, `--neat-tint-<tone>-accent`); each row takes
   exactly one set of fills, so no class has to outweigh another, and the tints are opaque mixes
   over `--background`, so a toned list sits on the page, not on a card. The file browser reuses
-  the list for its rows, since a folder row is a row that Enter or a click also opens (`activated`), and its `manage` mode is the list's checked mode (a file's
-  path is its key); what differs is the browser's, not the list's: an arrow key onto a folder
+  the list for its rows, since a folder row is a row that Enter or a click also opens
+  (`activated`), and its `manage` mode is the list's checked mode (a file's path is its key); what differs is the browser's, not the list's: an arrow key onto a folder
   highlights it without changing `selected` (which is a file's path), and Backspace, which the
   list has no use for, is handled on the list's host. A checked list adds no hint of its own: the
   multi-selectable listbox says what checking is. A node's `tag` is a neutral `neat-status-chip`,
