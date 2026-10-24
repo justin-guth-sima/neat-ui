@@ -419,13 +419,20 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <h2>Level meter</h2>
           <p class="showcase-muted">
             <code>neat-level-meter</code>: a live audio level as 28 segments from -50 dBFS to full
-            scale, green, then amber, then red. <code>sample</code> is a function the meter calls once
-            per animation frame (here a sine wave); <code>null</code> stops it and leaves it dark. It
-            is hidden from assistive technology, so say the state in text beside it.
+            scale, green, then amber, then red, with the dark ones in the border colour.
+            <code>sample</code> is a function the meter calls once per animation frame (here a sine
+            wave); <code>null</code> stops it and leaves it dark. Render it only while there is a
+            level to show: hidden, it still samples. It is hidden from assistive technology, so say
+            the state in text beside it.
           </p>
           <div class="meter-demo">
             <neat-level-meter [sample]="meterRunning() ? sineLevel : null" />
-            <button neatButton type="button" size="small" (click)="meterRunning.update((on) => !on)">
+            <button
+              neatButton
+              type="button"
+              size="small"
+              (click)="meterRunning.update((on) => !on)"
+            >
               {{ meterRunning() ? 'Stop' : 'Start' }}
             </button>
           </div>

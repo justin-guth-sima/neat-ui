@@ -156,13 +156,16 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   the start border carries the tone.
 
   `NeatLevelMeter` hosts no brain primitive (brain has none); it is the kit's own bar of 28
-  segments over -50…0 dBFS, on the theme's status colours (`--success`, `--warning`,
-  `--destructive` lit, `--muted` dark). Its `sample` is a function, not a value: the meter calls
-  it once per animation frame while it is set and the meter is rendered, and writes each
-  segment's fill straight to the DOM, outside change detection (the per-frame rule below), so a
-  level the app polls and a Web Audio analyser both feed it without a signal write per frame. It
-  calls the function on its own, so an app passes an arrow-function property, never a method. It
-  is `aria-hidden`; the app says the state in text.
+  segments over -50…0 dBFS, lit in the theme's status colours (`--success`, `--warning`,
+  `--destructive`) and dark in `--border` (`--muted` would vanish on a dark card, whose fill it
+  is). Its `sample` is a function, not a value: the meter calls it once per animation frame while
+  it is set and the meter is rendered, and writes each segment's fill straight to the DOM,
+  outside change detection (the per-frame rule below), so a level the app polls and a Web Audio
+  analyser both feed it without a signal write per frame. It calls the function on its own, so an
+  app passes an arrow-function property, never a method, which returns null rather than throw
+  when its source is gone (a throw repeats every frame). A rendered meter samples even when
+  hidden, so an app renders it only while there is a level (`@if`). It is `aria-hidden`; the app
+  says the state in text.
 
   `NeatSelectList` and `NeatFileBrowser` own their behaviour too. Brain has no listbox on its own
   (its select's list lives in a popover, and `command` is a palette), so the list owns its roles

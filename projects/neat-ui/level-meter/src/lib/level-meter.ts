@@ -21,7 +21,8 @@ export type MeterTone = 'low' | 'mid' | 'high';
 
 /** How many of `count` meter segments a level lights. */
 export function meterSegments(levelDbfs: number | null | undefined, count: number): number {
-  if (levelDbfs === null || levelDbfs === undefined || !Number.isFinite(Number(levelDbfs))) return 0;
+  if (levelDbfs === null || levelDbfs === undefined || !Number.isFinite(Number(levelDbfs)))
+    return 0;
   const fraction = (Number(levelDbfs) - METER_FLOOR_DBFS) / -METER_FLOOR_DBFS;
   return Math.round(Math.max(0, Math.min(1, fraction)) * count);
 }
@@ -35,10 +36,11 @@ export function segmentTone(index: number, count: number): MeterTone {
 
 /*
  * A segment holds exactly one fill class at a time: the template gives it the unlit one, and
- * lighting it replaces that with its tone's, so no class has to outweigh another. Literals, so
- * that Tailwind finds them.
+ * lighting it swaps that for its tone's, so no class has to outweigh another. Literals, so that
+ * Tailwind finds them. Unlit is the border colour, not `--muted`, which is faint on the light
+ * page and is the card, dialog and popover fill in dark, where the bar would vanish.
  */
-const UNLIT_FILL = 'bg-muted';
+const UNLIT_FILL = 'bg-border';
 const TONE_FILLS: Record<MeterTone, string> = {
   low: 'bg-success',
   mid: 'bg-warning',
@@ -74,7 +76,13 @@ function everyAnimationFrame(onFrame: () => void): () => void {
  * and the meter is rendered, the meter calls it once per animation frame, so one input serves a
  * value the app polls and keeps in a field as well as a Web Audio analyser read on demand. Pass
  * null to stop. The meter calls the function on its own, never as a method of the app's object:
- * give it an arrow function (`readonly level = () => this.lastLevel`), not a method.
+ * give it an arrow function (`readonly level = () => this.lastLevel`), not a method. Return null
+ * when the source is gone (an audio context closed) rather than throw: the loop outlives a throw,
+ * so a sample that keeps throwing reports an error every frame.
+ *
+ * A meter that is rendered samples even where it cannot be seen (under a `display: none`
+ * ancestor, in a closed collapsible), so render it only while there is a level to show
+ * (`@if (recording || playing)`) instead of hiding it.
  *
  * Each frame writes the segments straight to the DOM, outside change detection: sixty change
  * detections a second for a bar of colour would cost more than everything else on the page.
@@ -94,7 +102,7 @@ function everyAnimationFrame(onFrame: () => void): () => void {
       <span
         #segment
         data-slot="level-meter-segment"
-        class="h-full min-w-0.5 flex-1 rounded-xs bg-muted"
+        class="h-full min-w-0.5 flex-1 rounded-xs bg-border"
       ></span>
     }
   `,
@@ -103,8 +111,7 @@ export class NeatLevelMeter {
   /** Reads the level in dBFS, once per frame; null leaves the meter dark. */
   readonly sample = input<(() => number | null) | null>(null);
 
-  /** One entry per segment, for the template to repeat. */
-  protected readonly segments = LIT_FILLS;
+  protected readonly segments = Array.from({ length: METER_SEGMENTS });
   private readonly segmentElements = viewChildren<ElementRef<HTMLElement>>('segment');
   /** How many segments are lit now, so a frame touches only the segments that change. */
   private lit = 0;
@@ -130,10 +137,11 @@ export class NeatLevelMeter {
     const elements = this.segmentElements();
     for (let index = Math.min(lit, this.lit); index < Math.max(lit, this.lit); index++) {
       const on = index < lit;
-      elements[index].nativeElement.classList.replace(
-        on ? UNLIT_FILL : LIT_FILLS[index],
-        on ? LIT_FILLS[index] : UNLIT_FILL,
-      );
+      // Remove, then add: `replace` does nothing when the old class is missing, which would
+      // leave a segment in the wrong colour without a sign.
+      const { classList } = elements[index].nativeElement;
+      classList.remove(on ? UNLIT_FILL : LIT_FILLS[index]);
+      classList.add(on ? LIT_FILLS[index] : UNLIT_FILL);
     }
     this.lit = lit;
   }

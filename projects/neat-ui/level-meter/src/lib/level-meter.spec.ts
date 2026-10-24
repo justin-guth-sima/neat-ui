@@ -43,7 +43,7 @@ class MeterHost {
 
 /** The fill of each tone's lit segment, and of an unlit one: the theme's tokens. */
 const FILLS = { low: 'bg-success', mid: 'bg-warning', high: 'bg-destructive' } as const;
-const UNLIT = 'bg-muted';
+const UNLIT = 'bg-border';
 
 describe('the meter scale (ported from #170)', () => {
   it('the level meter lights green, then amber, then red, from -50 dBFS to full scale', () => {
