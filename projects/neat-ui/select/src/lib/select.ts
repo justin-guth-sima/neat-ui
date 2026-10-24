@@ -22,7 +22,7 @@ import {
 } from '@spartan-ng/brain/select';
 import { NeatIcon, ɵFIELD_LABEL_CLASSES as FIELD_LABEL_CLASSES, ɵhlm as hlm } from '@sima/neat-ui';
 
-/** `medium` matches the kit's medium input and button (2.25rem), `small` their small ones (2rem). */
+/** `medium` matches the kit's medium input and button (2.25rem), `small` the small ones (2rem). */
 export type NeatSelectSize = 'small' | 'medium';
 
 /** The kit's sizes in helm's vocabulary: its trigger takes its height from `data-size`. */

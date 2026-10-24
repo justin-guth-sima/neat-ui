@@ -268,7 +268,7 @@ export class NeatSelectList<T, K = unknown> {
   readonly checkable = input(false, { transform: booleanAttribute });
   /** In checked mode, the keys of the checked rows, including rows the list does not show. */
   readonly checked = model<readonly K[]>([]);
-  /** In checked mode, whether an item's row has a box; called once per item when `items` changes. */
+  /** In checked mode, whether an item's row has a box; called once per item as `items` change. */
   readonly canCheck = input<(item: T) => boolean>(() => true);
   /** What to say, in place of rows, while there are no items. */
   readonly emptyLabel = input('');

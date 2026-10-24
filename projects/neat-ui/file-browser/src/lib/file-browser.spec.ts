@@ -820,27 +820,37 @@ describe('NeatFileBrowser', () => {
       expect(cells).toEqual(['', '', '', 'md', 'mp4']);
     });
 
-    it('passes a column’s hideBelow on to the list', async () => {
-      class WideResizeObserver {
-        observe = vi.fn();
-        disconnect = vi.fn();
-      }
-      vi.stubGlobal('ResizeObserver', WideResizeObserver);
-      vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
-        width: 500,
-      } as DOMRect);
-      const { element } = await render((host) => {
-        host.withColumn.set(true);
-        host.hideSizeBelow.set(600);
+    describe('a column that hides when narrow', () => {
+      beforeEach(() => {
+        vi.stubGlobal(
+          'ResizeObserver',
+          class {
+            observe = vi.fn();
+            disconnect = vi.fn();
+          },
+        );
+        vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+          width: 500,
+        } as DOMRect);
       });
 
-      const header = element.querySelector('[data-slot="select-list-header"]')!;
-      expect([...header.firstElementChild!.children].map((c) => c.textContent!.trim())).toEqual([
-        'Name',
-        'Type',
-      ]);
-      vi.unstubAllGlobals();
-      vi.restoreAllMocks();
+      afterEach(() => {
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+      });
+
+      it('passes a column’s hideBelow on to the list', async () => {
+        const { element } = await render((host) => {
+          host.withColumn.set(true);
+          host.hideSizeBelow.set(600);
+        });
+
+        const header = element.querySelector('[data-slot="select-list-header"]')!;
+        expect([...header.firstElementChild!.children].map((c) => c.textContent!.trim())).toEqual([
+          'Name',
+          'Type',
+        ]);
+      });
     });
 
     it('takes the name column’s heading from labels.name', async () => {

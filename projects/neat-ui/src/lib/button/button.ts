@@ -93,13 +93,15 @@ const PRESSED =
   'bg-foreground text-background hover:bg-foreground hover:text-background dark:bg-foreground dark:text-background dark:hover:bg-foreground dark:hover:text-background';
 
 /**
- * The disabled look for a button that is `aria-disabled` rather than `disabled`: helm's
- * `data-disabled` classes (dimmed, and no pointer events, so no hover look and no click from the
- * pointer) under `aria-disabled`. Such a button keeps the focus, which a `disabled` one loses: a
- * main action that changes its label while it waits, or a dialog's close button while the dialog
- * is busy. button.spec checks every `data-disabled` class has its `aria-disabled` twin.
+ * The look of a button that is `aria-disabled` rather than `disabled`: dimmed as helm dims a
+ * disabled one (`data-disabled:opacity-50`), with a not-allowed cursor. Helm's
+ * `data-disabled:pointer-events-none` is left out on purpose: the pointer still reaches the
+ * button, so a tooltip on it (why it waits) opens on hover, and its click reaches the handler,
+ * which ignores presses while the button waits. Such a button keeps the focus, which a `disabled`
+ * one loses: a main action that changes its label while it waits, or a dialog's close button
+ * while the dialog is busy.
  */
-const HELD = 'aria-disabled:pointer-events-none aria-disabled:opacity-50';
+const HELD = 'aria-disabled:cursor-not-allowed aria-disabled:opacity-50';
 
 /**
  * A button or link styled as a kit button. Content is the label and/or a `neat-icon`; an
@@ -113,10 +115,10 @@ const HELD = 'aria-disabled:pointer-events-none aria-disabled:opacity-50';
  * A toggle button binds `pressed`: it sets `aria-pressed` and the pressed look. Leave it undefined
  * on a button that is not a toggle, since `aria-pressed="false"` would announce one.
  *
- * `[attr.aria-disabled]="true"` gives the disabled look while the button stays focusable, for a
- * button that waits and must not drop the focus. The kit only styles it: the pointer cannot press
- * it, but Enter and Space still fire `click`, so the handler ignores presses while it waits. A
- * tooltip on it opens on focus, not on hover.
+ * `[attr.aria-disabled]="true"` dims the button with a not-allowed cursor while it stays focusable
+ * and its tooltip still opens on hover, for a button that waits and must not drop the focus. The
+ * kit only styles it: a click, Enter and Space all still fire `click`, so the handler ignores
+ * presses while it waits.
  */
 @Directive({
   selector: 'button[neatButton], a[neatButton]',

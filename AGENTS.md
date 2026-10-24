@@ -76,9 +76,9 @@ needs is exported: a helper that only the kit's own code uses stays internal.
 yet the secondary entries need them, and an entry sees the primary only through its public API. So
 the primary exports `ɵhlm`, `ɵtoggleVariants`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
 `ɵFIELD_LABEL_CLASSES` (the field label's look, which `select` and `field` share so that their
-fields line up): Angular's convention for private API. They are not for apps, may change in any release, and no app file may
-import a `ɵ` name. A shared internal that a second entry needs is exported the same way, never by
-a relative path. `lib/ui/` itself stays where `helm:add` writes it.
+fields line up): Angular's convention for private API. They are not for apps, may change in any
+release, and no app file may import a `ɵ` name. A shared internal that a second entry needs is
+exported the same way, never by a relative path. `lib/ui/` itself stays where `helm:add` writes it.
 
 ## How the kit is built on Spartan
 
@@ -174,10 +174,11 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   contains exactly the utilities the kit's sources use; utility classes in app templates are not
   part of the kit's API.
 - **A button that waits without losing the focus is `aria-disabled`, not `disabled`.** `NeatButton`
-  gives `[attr.aria-disabled]="true"` the disabled look (helm's `data-disabled` classes: dimmed, no
-  pointer events) while the button stays focusable; a `disabled` button drops the focus, which a
-  dialog's focus trap then cannot take back. The kit only styles it: Enter and Space still fire
-  `click`, so the handler ignores presses while it waits.
+  dims `[attr.aria-disabled]="true"` as helm dims a disabled button, with a not-allowed cursor,
+  while the button stays focusable and keeps its pointer events, so a tooltip saying why it waits
+  still opens on hover; a `disabled` button drops the focus, which a dialog's focus trap then
+  cannot take back. The kit only styles it: a click, Enter and Space all still fire `click`, so
+  the handler ignores presses while it waits.
 - **A toggle button binds `pressed`, never `aria-pressed`.** `NeatButton` owns the attribute (a
   host binding that is absent while `pressed` is undefined) and gives the pressed look with it, so
   an `[attr.aria-pressed]` on a `neatButton` is overwritten. The look is the inverse of the page

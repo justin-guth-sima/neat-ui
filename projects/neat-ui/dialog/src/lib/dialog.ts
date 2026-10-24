@@ -34,10 +34,13 @@ export interface NeatDialogOptions {
 
 /**
  * The inputs of a component `C` that `NeatDialog.open` can set: each signal input (`input()`,
- * `input.required()`) by its property name, with the type it takes. All are optional here, since
- * the type cannot tell a required input from one with a default; a required one left out fails
- * when the component reads it, as it would in a template. Models and aliased inputs are not
- * included.
+ * `input.required()`, and `model()`, which is one too) by its property name, with the type it
+ * takes. All are optional here, since the type cannot tell a required input from one with a
+ * default; a required one left out fails when the component reads it, as it would in a template.
+ *
+ * Do not alias an input of a dialog component (`input(…, { alias })`): the type names inputs by
+ * property, Angular binds them by alias, and an aliased one passed here throws as the dialog
+ * opens. The alias lives in the component's metadata, out of the type's reach.
  */
 export type NeatDialogInputs<C> = {
   readonly [K in keyof C as [InputValue<C[K]>] extends [never] ? never : K]?: InputValue<C[K]>;

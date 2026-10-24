@@ -5,6 +5,7 @@ import { composite, contrastRatio, hexToOklch, oklchToHex } from '../theme/color
 import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../theme/contrast-rules';
 import { spartanThemeTokens } from '../theme/spartan-theme';
 import type { NeatColorScheme } from '../theme/theme.service';
+import { NeatTooltip } from '../tooltip/tooltip';
 import { NeatButton, type NeatButtonSize, type NeatButtonVariant } from './button';
 
 const VARIANTS: NeatButtonVariant[] = ['primary', 'secondary', 'outlined', 'text', 'danger'];
@@ -62,6 +63,22 @@ class ButtonHost {
   readonly bound = signal(true);
   clicks = 0;
 }
+
+/** A held main action with a tooltip, as Streaming's slot panel has it. */
+@Component({
+  imports: [NeatButton, NeatTooltip],
+  template: `
+    <button
+      neatButton
+      type="button"
+      aria-disabled="true"
+      neatTooltip="Waiting for the source change to finish"
+    >
+      Start
+    </button>
+  `,
+})
+class HeldTooltipHost {}
 
 @Component({ template: '' })
 class EmptyPage {}
@@ -447,19 +464,17 @@ describe('NeatButton', () => {
   });
 
   it.each(VARIANTS)(
-    '%s: aria-disabled gives the disabled look (every data-disabled class of helm) and keeps the focus',
+    '%s: aria-disabled dims the button as disabled does and keeps the focus and the pointer',
     async (variant) => {
       const { fixture, host, button } = await renderButton((host) => host.variant.set(variant));
       const classes = [...button.classList];
-      const disabledLook = classes.filter((name) => name.startsWith('data-disabled:'));
-      expect(disabledLook).toEqual(
-        expect.arrayContaining(['data-disabled:pointer-events-none', 'data-disabled:opacity-50']),
-      );
+      // The disabled dimming, with a not-allowed cursor in place of helm's pointer-events-none:
+      // the pointer must still reach a held button, for its hover and its tooltip.
+      expect(classes).toEqual(expect.arrayContaining(['data-disabled:opacity-50']));
       expect(classes).toEqual(
-        expect.arrayContaining(
-          disabledLook.map((name) => name.replace(/^data-disabled:/, 'aria-disabled:')),
-        ),
+        expect.arrayContaining(['aria-disabled:opacity-50', 'aria-disabled:cursor-not-allowed']),
       );
+      expect(classes.filter((name) => /^aria-disabled:pointer-events/.test(name))).toEqual([]);
 
       host.held.set(true);
       await settle(fixture);
@@ -471,6 +486,35 @@ describe('NeatButton', () => {
       expect(document.activeElement).toBe(button);
     },
   );
+
+  it('leaves a held button’s presses to its handler, which ignores them while it waits', async () => {
+    const { fixture, host, button } = await renderButton((host) => host.held.set(true));
+
+    // The kit only styles aria-disabled: a pointer click reaches the handler, as Enter and Space
+    // do, so the handler is the guard.
+    button.click();
+    await settle(fixture);
+    expect(host.clicks).toBe(1);
+  });
+
+  it('opens a tooltip on a held button on hover, as on any button', async () => {
+    const fixture = TestBed.createComponent(HeldTooltipHost);
+    await settle(fixture);
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    vi.spyOn(document.documentElement, 'clientWidth', 'get').mockReturnValue(1024);
+    vi.spyOn(document.documentElement, 'clientHeight', 'get').mockReturnValue(768);
+    button.getBoundingClientRect = () => new DOMRect(472, 368, 80, 32);
+
+    button.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+    // The tooltip opens after a zero delay, then renders its text.
+    await settle(fixture);
+    await fixture.whenStable();
+
+    const tooltip = document.querySelector('[role="tooltip"]');
+    expect(tooltip?.textContent?.trim()).toBe('Waiting for the source change to finish');
+    vi.restoreAllMocks();
+    document.querySelectorAll('.cdk-overlay-container').forEach((container) => container.remove());
+  });
 
   it.each(VARIANTS)(
     '%s: text reaches 4.5:1 on its background at rest and on hover, in both schemes, over background and card',

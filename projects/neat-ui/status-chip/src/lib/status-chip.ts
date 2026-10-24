@@ -27,17 +27,22 @@ const TONE_CLASSES: Record<NeatStatusTone, string> = {
 };
 
 /**
- * The button's additions: the pointer, and the focus outline the kit draws at full `--ring`
- * (held to 3:1 by the theme), set off the fill so it shows on every tone.
+ * The button's additions:
+ * - the pointer, and the focus outline the kit draws at full `--ring` (held to 3:1 by the theme),
+ *   set off the fill so it shows on every tone;
+ * - no shrinking: in a row such as a video tile's bar, beside a status that takes the rest, the
+ *   chip keeps its text whole;
+ * - the disabled look of the kit's buttons, dimmed with a not-allowed cursor.
  */
 const BUTTON_CLASSES =
-  'cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring';
+  'shrink-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50';
 
 /**
  * A short status on one of the theme's status fills, the text being the content:
  * `<neat-status-chip tone="success">Live</neat-status-chip>`. For a state in a list's cell or over
- * a panel (Live, Idle, External), or a fact to note beside a value (a codec that cannot be decoded).
- * The words are the app's; the colour repeats them and is never the only way a state is told.
+ * a panel (Live, Idle, External), or a fact to note beside a value (a codec that cannot be
+ * decoded). The words are the app's; the colour repeats them and is never the only way a state is
+ * told.
  */
 @Component({
   selector: 'neat-status-chip',

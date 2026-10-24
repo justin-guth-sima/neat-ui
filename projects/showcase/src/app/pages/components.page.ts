@@ -228,9 +228,10 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <h2>Button states</h2>
           <p class="showcase-muted">
             With a <code>neat-icon</code> before the label, disabled, waiting and as a link, per
-            variant. Waiting is <code>aria-disabled="true"</code>: it looks disabled, takes no
-            pointer, and keeps the focus (Tab reaches it), for a button that waits without dropping
-            the focus; Enter and Space still fire its click, which the app ignores while it waits.
+            variant. Waiting is <code>aria-disabled="true"</code>: it looks disabled with a
+            not-allowed cursor, keeps the focus (Tab reaches it) and its hover, so a tooltip on it
+            still opens, for a button that waits without dropping the focus; a click, Enter and
+            Space still fire its click handler, which the app ignores while it waits.
           </p>
           @for (variant of variants; track variant) {
             <div class="showcase-row">

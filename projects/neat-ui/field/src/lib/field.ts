@@ -2,11 +2,12 @@ import {
   afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
+  contentChild,
   ElementRef,
   input,
-  viewChild,
 } from '@angular/core';
 import { NeatNote, ɵFIELD_LABEL_CLASSES as FIELD_LABEL_CLASSES } from '@sima/neat-ui';
+import { NeatInput } from '@sima/neat-ui/input';
 import { NeatErrorNote } from './error-note';
 
 /** Numbers each field, for the ids its hint and error get. */
@@ -27,9 +28,10 @@ function setAttribute(element: Element, name: string, value: string | null): voi
  * </neat-field>
  * ```
  *
- * The control is the content, inside a `label` whose text is `label`: the label names it, and a
- * click on the name focuses it. One labelable control per field (an `input`, a `textarea`, a native
- * `select`); `neat-select` shows its own name with `showLabel` instead, drawn the same way.
+ * The control is the content, one `input neatInput` inside a `label` whose text is `label`: the
+ * label names it, and a click on the name focuses it. The app may swap it (an `@if` in the
+ * content); the field follows the control it has. `neat-select` shows its own name with
+ * `showLabel` instead, drawn the same way.
  *
  * `hint` is a note under the control and `error` a `neat-error-note` under that, both outside the
  * label so that they are not part of the control's name. The field describes the control by them
@@ -51,7 +53,7 @@ function setAttribute(element: Element, name: string, value: string | null): voi
   // The rule cannot see a control projected into the label, which is how the label names it.
   template: `
     <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
-    <label #labelElement [class]="classes.stack">
+    <label [class]="classes.stack">
       <span [class]="classes.label">{{ label() }}</span>
       <ng-content />
     </label>
@@ -76,15 +78,16 @@ export class NeatField {
   protected readonly hintId = `neat-field-${this.id}-hint`;
   protected readonly errorId = `neat-field-${this.id}-error`;
 
-  private readonly labelElement = viewChild.required<ElementRef<HTMLLabelElement>>('labelElement');
+  /** The control, as a content query: a swapped control is a new value that the effect follows. */
+  private readonly control = contentChild(NeatInput, { read: ElementRef });
 
   constructor() {
-    // The control is the app's element, projected: the field reaches it through the label it sits
-    // in (`control` is the label's first labelable descendant) once it is rendered.
+    // The control is the app's element, projected; its two attributes are written once it is
+    // rendered, and again for a new control, hint or error.
     afterRenderEffect(() => {
       const hint = this.hint();
       const error = this.error();
-      const control = this.labelElement().nativeElement.control;
+      const control = this.control()?.nativeElement as HTMLElement | undefined;
       if (!control) return;
       const describedBy = [hint ? this.hintId : '', error ? this.errorId : '']
         .filter(Boolean)

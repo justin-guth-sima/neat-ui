@@ -22,6 +22,24 @@ class FieldHost {
   readonly error = signal('');
 }
 
+/** A field whose control the app swaps, as an `@if` in its content does. */
+@Component({
+  imports: [NeatField, NeatInput],
+  template: `
+    <neat-field label="Address" hint="Host and port." [error]="error()">
+      @if (url()) {
+        <input neatInput class="url" type="url" />
+      } @else {
+        <input neatInput class="host" type="text" />
+      }
+    </neat-field>
+  `,
+})
+class SwappingHost {
+  readonly url = signal(false);
+  readonly error = signal('Not reachable.');
+}
+
 @Component({
   imports: [NeatErrorNote],
   template: `<neat-error-note>{{ message }}</neat-error-note>`,
@@ -135,6 +153,24 @@ describe('NeatField', () => {
     expect(field.querySelector('neat-error-note')).toBeNull();
     expect(input.getAttribute('aria-describedby')).toBe(hint.id);
     expect(input.hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  it('describes a control that replaces the one it had, and the new one only', async () => {
+    const fixture = TestBed.createComponent(SwappingHost);
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    const described = (input: Element) => [
+      input.getAttribute('aria-describedby')?.split(' ').length ?? 0,
+      input.getAttribute('aria-invalid'),
+    ];
+    expect(described(root.querySelector('input.host')!)).toEqual([2, 'true']);
+
+    fixture.componentInstance.url.set(true);
+    await fixture.whenStable();
+
+    const url = root.querySelector('input.url')!;
+    expect(root.querySelector('label')!.control).toBe(url);
+    expect(described(url)).toEqual([2, 'true']);
   });
 
   it('gives each field its own ids', async () => {

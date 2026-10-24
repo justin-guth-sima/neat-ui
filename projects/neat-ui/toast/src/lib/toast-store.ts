@@ -33,9 +33,9 @@ export type ToastEntry =
 
 /**
  * The toasts the host shows: at most `MAX_VISIBLE_TOASTS`, oldest first. When there are more,
- * message toasts (error, warning, status) are hidden before progress toasts (oldest first in each group): work in
- * progress is what the user is waiting for, and it has no timer to clear it. The newest toast is
- * never hidden: a message that has just arrived is the news.
+ * message toasts (error, warning, status) are hidden before progress toasts (oldest first in each
+ * group): work in progress is what the user is waiting for, and it has no timer to clear it. The
+ * newest toast is never hidden: a message that has just arrived is the news.
  */
 export function visibleToasts(entries: readonly ToastEntry[]): readonly ToastEntry[] {
   let excess = entries.length - MAX_VISIBLE_TOASTS;

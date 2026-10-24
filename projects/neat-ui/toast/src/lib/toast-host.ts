@@ -21,9 +21,10 @@ const SCREEN_INSET = '1rem';
 
 /*
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
- * them. A status or progress toast is the popover's surface, outlined in `--border`; an error is
- * the same surface, outlined and written in the danger colour. A warning is the warning fill with
- * its own text colour: the theme's warning is a fill only, not readable as text on a surface.
+ * them. Every toast is the popover's surface. A status or progress toast is outlined in
+ * `--border`; an error is outlined and written in the danger colour; a warning is outlined in the
+ * warning colour and written in the surface's own, since the theme's warning is a fill only, not
+ * readable as text. An outline, not a fill, keeps a warning quieter than an error.
  */
 const SHAPE =
   'ring-1 rounded-md shadow-md p-3 text-sm animate-in fade-in-0 slide-in-from-bottom-2 duration-200 motion-reduce:animate-none';
@@ -32,7 +33,7 @@ const TOAST_CLASSES: Record<ToastEntry['kind'], string> = {
   status: NEUTRAL,
   progress: NEUTRAL,
   error: `${SHAPE} bg-popover text-destructive ring-destructive`,
-  warning: `${SHAPE} bg-warning text-warning-foreground ring-warning`,
+  warning: `${SHAPE} bg-popover text-popover-foreground ring-warning`,
 };
 
 /** What the live region says before a message of each kind; a status is said as it is. */
@@ -54,19 +55,19 @@ const ANNOUNCED_KIND: Record<MessageKind, string> = {
  * and an app that shows no toasts should not carry them.
  *
  * The toasts stack in the bottom-right corner, the newest last, at most three at a time. When
- * more exist, the oldest error, warning and status toasts are hidden first and the oldest progress toasts
- * last (work in progress is what the user is waiting for); a hidden toast shows again if it is
- * still there when the others clear.
+ * more exist, the oldest error, warning and status toasts are hidden first and the oldest
+ * progress toasts last (work in progress is what the user is waiting for); a hidden toast shows
+ * again if it is still there when the others clear.
  *
  * What the user sees and what a screen reader announces are two layers. The visible stack is
  * `aria-hidden`. A second overlay, never re-shown and never hidden, holds a visually hidden
  * `aria-live="polite"` region with one entry per toast: the message ("Error: " or "Warning: " in
- * front of an error or a warning), or a progress toast's title. An entry is added when its toast is, so each toast is
- * announced once, as it appears. A progress toast's changing detail and percent are in a nested
- * `aria-live="off"` part: a screen reader finds the current value when it reads the region, but a
- * long upload is not read out every second. The two layers are separate because bringing the
- * stack to the front (below) hides and shows it, which takes a live region out of the
- * accessibility tree and back with its content already in it, and that is not announced.
+ * front of an error or a warning), or a progress toast's title. An entry is added when its toast
+ * is, so each toast is announced once, as it appears. A progress toast's changing detail and
+ * percent are in a nested `aria-live="off"` part: a screen reader finds the current value when it
+ * reads the region, but a long upload is not read out every second. The two layers are separate
+ * because bringing the stack to the front (below) hides and shows it, which takes a live region out
+ * of the accessibility tree and back with its content already in it, and that is not announced.
  *
  * Both layers are rendered in the CDK overlay layer rather than where the host stands, for two
  * reasons: a modal dialog hides everything outside that layer from assistive technology, which

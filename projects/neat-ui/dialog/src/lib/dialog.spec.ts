@@ -3,6 +3,7 @@ import {
   computed,
   inject,
   input,
+  model,
   type OnInit,
   TemplateRef,
   type Type,
@@ -78,12 +79,16 @@ class RenameForm {
   selector: 'neat-source-form',
   imports: [NeatDialogBody],
   template: `<neat-dialog-body
-    ><p class="for">src{{ slot() }}, {{ tab() }} tab, {{ heading() }}</p></neat-dialog-body
+    ><p class="for">
+      src{{ slot() }}, {{ tab() }} tab, {{ heading() }}{{ note() }}
+    </p></neat-dialog-body
   >`,
 })
 class SourceForm implements OnInit {
   readonly slot = input.required<number>();
   readonly tab = input<'local' | 'youtube'>('local');
+  /** A model is an input too: the opener can set it. */
+  readonly note = model('');
   protected readonly heading = computed(() => (this.tab() === 'youtube' ? 'YouTube' : 'Local'));
 
   ngOnInit(): void {
@@ -273,17 +278,19 @@ describe('NeatDialog', () => {
 
     const ref = dialogs.open(SourceForm, {
       title: 'Change source',
-      inputs: { slot: 3, tab: 'youtube' },
+      inputs: { slot: 3, tab: 'youtube', note: ', new' },
     });
     await settle();
-    expect(dialog()!.querySelector('.for')?.textContent).toBe('src3, youtube tab, YouTube');
+    expect(dialog()!.querySelector('.for')?.textContent?.trim()).toBe(
+      'src3, youtube tab, YouTube, new',
+    );
 
     ref.close();
     await settle();
     // An input left out keeps its default.
     dialogs.open(SourceForm, { title: 'Change source', inputs: { slot: 5 } });
     await settle();
-    expect(dialog()!.querySelector('.for')?.textContent).toBe('src5, local tab, Local');
+    expect(dialog()!.querySelector('.for')?.textContent?.trim()).toBe('src5, local tab, Local');
   });
 
   it('has the component see its inputs in its init hook', async () => {
@@ -343,7 +350,9 @@ describe('NeatDialog', () => {
     expect(busy.dismissible()).toBe(false);
     expect(button('Close')!.getAttribute('aria-disabled')).toBe('true');
     // The dimmed look is neatButton's own for aria-disabled, not a second copy in the dialog.
-    expect(button('Close')!.classList).toContain('aria-disabled:opacity-50');
+    expect([...button('Close')!.classList]).toEqual(
+      expect.arrayContaining(['aria-disabled:opacity-50', 'aria-disabled:cursor-not-allowed']),
+    );
     escape();
     clickBackdrop();
     button('Close')!.click();

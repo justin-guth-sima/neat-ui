@@ -120,6 +120,11 @@ describe('NeatToasts and the toast host', () => {
 
     expect(items()).toHaveLength(1);
     expect(items()[0].dataset['kind']).toBe('warning');
+    // Outlined as an error is, in the warning colour: the surface and its text, not a fill that
+    // would read louder than an error.
+    expect([...items()[0].classList]).toEqual(
+      expect.arrayContaining(['bg-popover', 'text-popover-foreground', 'ring-warning']),
+    );
     expect(messages()).toEqual(['Could not restart src2: the file is gone.']);
     expect(announcements()).toEqual(['Warning: Could not restart src2: the file is gone.']);
     await advance(WARNING_TOAST_MS - 1);

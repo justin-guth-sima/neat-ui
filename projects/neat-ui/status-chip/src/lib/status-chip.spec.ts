@@ -105,6 +105,20 @@ describe('NeatStatusChip', () => {
         expect.arrayContaining(['cursor-pointer', 'focus-visible:outline-2']),
       );
     });
+
+    it('keeps its width in a row that shrinks, as a video tile’s bar beside a long status', async () => {
+      const { button } = await render();
+
+      expect(classesOf(button)).toContain('shrink-0');
+    });
+
+    it('looks disabled while disabled: dimmed, with a not-allowed cursor', async () => {
+      const { button } = await render();
+
+      expect(classesOf(button)).toEqual(
+        expect.arrayContaining(['disabled:opacity-50', 'disabled:cursor-not-allowed']),
+      );
+    });
   });
 
   describe('contrast, from the emitted theme tokens', () => {
