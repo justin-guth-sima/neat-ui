@@ -1407,6 +1407,17 @@ describe('NeatSelectList', () => {
       expect(host.kindOf).toHaveBeenCalledTimes(DEVICES.length * 2);
     });
 
+    it('draws no separator when every item is in a listed group, or when there are no groups', async () => {
+      const { element } = await renderGrouped();
+      const separators = (root: Element) =>
+        root.querySelectorAll('[data-slot="select-list-group-separator"]');
+      expect(separators(element)).toHaveLength(0);
+
+      const plain = TestBed.createComponent(ListHost);
+      await plain.whenStable();
+      expect(separators(plain.nativeElement)).toHaveLength(0);
+    });
+
     it('without groups the list renders no group elements and no headings', async () => {
       const { listbox, groups, headings, options, host } = await renderGrouped((host) =>
         host.groups.set(null),
@@ -1482,6 +1493,13 @@ describe('NeatSelectList', () => {
         expect(radar.getAttribute('role')).toBe('option');
         expect(cellTexts(radar)).toBe('Radar');
         expect(names()).toEqual(['IMX219', 'Logitech C920', 'C920 microphone', 'Radar']);
+        // The empty LiDAR heading is the last group's: a row straight under it would read as
+        // its member, so a rule of its own stands between, hidden from assistive technology.
+        const separator = radar.previousElementSibling!;
+        expect(separator.getAttribute('data-slot')).toBe('select-list-group-separator');
+        expect(separator.getAttribute('aria-hidden')).toBe('true');
+        expect(separator.classList).toContain('col-span-full');
+        expect(separator.previousElementSibling).toBe(groups().at(-1));
         press(listbox(), 'End');
         await fixture.whenStable();
         expect(host.selected()?.name).toBe('Radar');

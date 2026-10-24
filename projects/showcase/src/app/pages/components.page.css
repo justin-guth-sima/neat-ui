@@ -209,6 +209,15 @@
   max-width: 22rem;
 }
 
+/* Two lists on one term column: the kit's knob, set on their common ancestor. */
+.details-demo-aligned {
+  --neat-details-term-width: 7rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+  margin-top: var(--neat-space-3);
+}
+
 /* Callouts stack one gap apart, as banners over a page do. */
 .callout-demo {
   display: flex;

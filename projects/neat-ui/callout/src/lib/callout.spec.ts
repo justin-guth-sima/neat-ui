@@ -142,6 +142,20 @@ describe('NeatCallout', () => {
     expect(callout.getAttribute('aria-labelledby')).toBe(heading.id);
   });
 
+  it('is no region without a heading: an unnamed region is no landmark, so it takes no role', async () => {
+    const { fixture, host, callout } = await render((host) => host.region.set(true));
+    expect(callout.getAttribute('role')).toBe('region');
+
+    host.heading.set('');
+    await fixture.whenStable();
+    expect(callout.hasAttribute('role')).toBe(false);
+    expect(callout.hasAttribute('aria-labelledby')).toBe(false);
+
+    host.heading.set('Board changed');
+    await fixture.whenStable();
+    expect(callout.getAttribute('role')).toBe('region');
+  });
+
   it('labels a live callout by its heading too, and leaves a callout with no role unlabelled', async () => {
     const { fixture, host, callout, slot } = await render();
     expect(callout.hasAttribute('aria-labelledby')).toBe(false);

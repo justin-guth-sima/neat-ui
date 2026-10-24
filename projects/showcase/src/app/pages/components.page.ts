@@ -344,7 +344,10 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <code>neatDetails</code> on a <code>dl</code>: facts about the selected thing, as a side
             panel shows them. The terms are muted, the values beside them take the rest of the
             width, wrap anywhere when long and keep their figures aligned. The pairs are your own
-            <code>dt</code> and <code>dd</code> elements, conditional ones too.
+            <code>dt</code> and <code>dd</code> elements, conditional ones too. Several lists line
+            up on one term column when an ancestor sets
+            <code>--neat-details-term-width</code> (below); a term wider than that column breaks
+            inside the word.
           </p>
           <div class="card details-demo">
             <dl neatDetails>
@@ -361,6 +364,20 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
               <dd>1:02:41</dd>
               <dt>Bitrate</dt>
               <dd>4.2 Mbit/s</dd>
+            </dl>
+          </div>
+          <div class="card details-demo details-demo-aligned">
+            <dl neatDetails>
+              <dt>Model</dt>
+              <dd>IMX219</dd>
+              <dt>Reconnect_attempts_since_boot</dt>
+              <dd>3</dd>
+            </dl>
+            <dl neatDetails>
+              <dt>Receiver</dt>
+              <dd><code>imx219 1-0010</code></dd>
+              <dt>Format</dt>
+              <dd>NV12</dd>
             </dl>
           </div>
         </section>

@@ -30,7 +30,8 @@ look happens in one place. Every rule here protects that.
     `input`; `NeatFileNode` is its tree), `status-chip` (`NeatStatusChip`, a short status on a
     status fill, and `NeatStatusChipButton`, the same as a button; their `NeatTone` is the
     primary's, since a select list's `rowTone` takes the same tones), `details` (`NeatDetails`, the
-    key/value list of a side panel; `--neat-details-term-width` on an ancestor lines several up),
+    key/value list of a side panel; `--neat-details-term-width` on an ancestor lines several up, and
+    a term wider than a fixed column breaks inside the word),
     `field` (`NeatField`, a control under its visible name with
     a hint and an error, and `NeatErrorNote`, a failure said in place), `collapsible`
     (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed),
@@ -150,11 +151,15 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   sections that are part of an outline (the disclosure pattern's button inside a heading).
   `NeatCallout` hosts no brain primitive (brain has none); it is the kit's own box over the theme's
   tints, one look for the banners, problems and guides of every app. Its heading is a real heading
-  (`role="heading"`, `headingLevel`, 3 by default), and with `region` (a landmark) or `announce`
-  (a live role) the callout is labelled by it; the role and the label are the callout's, so an
-  app's notice never builds its own around it. Its icon takes the tone's solid colour where that
-  holds 3:1 on the tint; warning's does not on its light tint, so its icon is `--foreground` and
-  the start border carries the tone.
+  (`role="heading"`, `headingLevel`, 3 by default), and with `region` (a landmark, which needs a
+  heading to be named and takes no role without one) or `announce` (a live role) the callout is
+  labelled by it; the role and the label are the callout's, so an app's notice never builds its own
+  around it. Its fills are the tints the select list's rows have, opaque mixes over `--background`,
+  so on a raised surface (a dialog, a popover) a tinted callout is the page's colour mixed, not the
+  surface's, and a neutral one's `--muted` fill is a dark dialog's own surface: there the start
+  border and the icon carry the tone (with the words), and the fill alone does not. Its icon takes
+  the tone's solid colour where that holds 3:1 on the tint; warning's does not on its light tint, so
+  its icon is `--foreground` and the start border carries the tone.
 
   `NeatLevelMeter` hosts no brain primitive (brain has none); it is the kit's own bar of 28
   segments over -50…0 dBFS, lit in the theme's status colours (`--success`, `--warning`,
@@ -192,9 +197,11 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   it apart. The keys move over the rows as shown, which a row's `data-index` numbers, never
   onto a heading, and a group's first row brings its heading into view with it, as the last row
   does the empty groups after it. An item of a group the app did not list, or a group listed
-  twice, throws in dev mode; in production the item shows after the groups under no heading and
-  the first listing stands: never a row dropped or shown twice, since a silently missing row (a
-  device) is the worse failure. A row's `rowTone` tints it with the tone its status chip has
+  twice, throws in dev mode; in production the item shows after the groups under no heading, set off
+  from the last group by a rule (an empty strip between two border lines, not a band, which would
+  run into a muted last heading), and the first listing stands: never a row dropped or shown twice,
+  since a silently missing row (a device) is the worse failure. A row's `rowTone` tints it with the
+  tone its status chip has
   (theme tokens `--neat-tint-<tone>` and, for hover and selection, `--neat-tint-<tone>-accent`);
   each row takes exactly one set of fills, so no class has to outweigh another, and the tints are
   opaque mixes over `--background`, so a toned list sits on the page, not on a card. The file

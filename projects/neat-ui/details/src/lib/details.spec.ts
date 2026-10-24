@@ -63,6 +63,14 @@ describe('NeatDetails', () => {
     );
   });
 
+  it('wraps a term too long for its track, rather than letting it run into the value column', async () => {
+    const { list } = await render();
+
+    // `break-word`, not `anywhere`: the auto track keeps sizing to the terms' real widths.
+    expect(classesOf(list)).toEqual(expect.arrayContaining(['[&>dt]:wrap-break-word']));
+    expect(classesOf(list)).not.toContain('[&>dt]:wrap-anywhere');
+  });
+
   it('keeps the list a native description list whose pairs the app writes, conditionally too', async () => {
     const { fixture, host, list } = await render();
 

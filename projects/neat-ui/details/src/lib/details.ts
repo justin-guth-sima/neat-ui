@@ -11,12 +11,15 @@ import { Directive } from '@angular/core';
 
 /**
  * Two columns: the terms as wide as the widest (or `--neat-details-term-width`, which an app sets
- * on an ancestor to line several lists up on one term column), the values taking the rest. A value may hold a
- * long unbroken string (a URL, a path), so it can shrink with its column and wraps anywhere; its
- * figures are tabular, so numbers that change in place do not jitter.
+ * on an ancestor to line several lists up on one term column), the values taking the rest. A value
+ * may hold a long unbroken string (a URL, a path), so it can shrink with its column and wraps
+ * anywhere; its figures are tabular, so numbers that change in place do not jitter. A term wider
+ * than a fixed term column breaks inside the word instead of running into the values; it breaks
+ * only when it must (`break-word`, not `anywhere`), so the auto column still sizes to the terms'
+ * real widths.
  */
 const DETAILS_CLASSES =
-  'm-0 grid grid-cols-[var(--neat-details-term-width,auto)_1fr] gap-x-(--neat-space-3) gap-y-(--neat-space-2) text-(length:--neat-text-sm) [&>dt]:text-muted-foreground [&>dd]:m-0 [&>dd]:min-w-0 [&>dd]:wrap-anywhere [&>dd]:tabular-nums';
+  'm-0 grid grid-cols-[var(--neat-details-term-width,auto)_1fr] gap-x-(--neat-space-3) gap-y-(--neat-space-2) text-(length:--neat-text-sm) [&>dt]:wrap-break-word [&>dt]:text-muted-foreground [&>dd]:m-0 [&>dd]:min-w-0 [&>dd]:wrap-anywhere [&>dd]:tabular-nums';
 
 /**
  * Facts about the selected thing, as a side panel shows them: a native description list whose

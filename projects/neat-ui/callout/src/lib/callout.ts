@@ -26,6 +26,10 @@ const CALLOUT_CLASSES =
  * muted text colour. The icon takes the tone's solid colour where that holds 3:1 on the tint;
  * warning's (about 2:1 on its light tint) does not, so its icon is `--foreground` in both schemes
  * and the border alone carries the colour. The icon's shape and the words carry the tone too.
+ *
+ * The tints are opaque mixes over `--background`: on a raised surface (a dialog, a popover) the
+ * fill is the page's colour, not the surface's, and neutral's `--muted` is a dark dialog's own
+ * surface. There the border and the icon carry the tone, not the fill.
  */
 const TONES: Record<NeatTone, { readonly classes: string; readonly icon: string }> = {
   neutral: { classes: 'bg-muted border-muted-foreground', icon: 'text-muted-foreground' },
@@ -65,8 +69,12 @@ const ICONS: Record<NeatTone, NeatIconName> = {
  * dialog's title (a level 2) or a page's section, as heading navigation finds it. Pick the level
  * that fits where the callout stands.
  *
+ * The fill is the page's colour mixed with the tone (see TONES), so in a dialog it differs from
+ * the dialog's own surface, and a neutral callout in a dark one shows by its border and icon.
+ *
  * `region` makes the callout a landmark, for a notice a user should be able to jump to (the
- * Viewer's late notice); it needs a heading, which names it. `announce` gives the host the live
+ * Viewer's late notice); the heading names it, and without a heading the callout takes no role,
+ * since a region with no name is no landmark. `announce` gives the host the live
  * role to say the note with when it appears instead: `status` for news that can wait, `alert` for
  * a failure that needs attention now; it wins over `region`, since a host has one role. A callout
  * with a role is labelled by its heading (`aria-labelledby`); one with none is simply there. A
@@ -113,13 +121,18 @@ export class NeatCallout {
   readonly heading = input('');
   /** The heading's level in the page's outline. */
   readonly headingLevel = input<2 | 3 | 4 | 5 | 6>(3);
-  /** Whether the callout is a landmark, named by its heading; a live role wins over it. */
+  /**
+   * Whether the callout is a landmark, named by its heading (none without one); a live role wins
+   * over it.
+   */
   readonly region = input(false, { transform: booleanAttribute });
   /** The live role the note is said with when it appears; none by default. */
   readonly announce = input<'status' | 'alert' | null>(null);
 
   protected readonly headingId = `neat-callout-${++nextCalloutId}-heading`;
-  protected readonly role = computed(() => this.announce() ?? (this.region() ? 'region' : null));
+  protected readonly role = computed(
+    () => this.announce() ?? (this.region() && this.heading() ? 'region' : null),
+  );
 
   protected readonly classes = computed(() => `${CALLOUT_CLASSES} ${TONES[this.tone()].classes}`);
   protected readonly icon = computed(() => ICONS[this.tone()]);

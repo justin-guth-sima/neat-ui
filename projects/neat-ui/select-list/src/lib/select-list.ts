@@ -85,6 +85,16 @@ const HEADER_CLASSES = `${LINE_CLASSES} sticky top-0 z-1 h-7 border-b border-s-t
 const GROUP_CLASSES = 'col-span-full grid grid-cols-subgrid';
 
 /**
+ * The rule before the rows of a group the app did not list (production only): an empty strip
+ * between two border lines, from edge to edge of the area as a heading's band is. Without it those
+ * rows would sit straight under the last group's heading and read as its members, which for a
+ * device list is a misreported device. It is not a band: after a muted, empty last group it would
+ * run together with that heading's.
+ */
+const GROUP_SEPARATOR_CLASSES =
+  'col-span-full -ms-[calc(var(--neat-space-3)+2px)] -me-(--neat-space-3) h-(--neat-space-2) border-y border-border';
+
+/**
  * A group's heading, across every track, on a `--muted` band: small uppercase medium text in the
  * body colour or, for a group the app mutes (nothing found, not looked for yet), the muted one;
  * select-list.spec holds both to 4.5:1 on the band. The band runs from edge to edge of the area as
@@ -219,14 +229,16 @@ interface Row<T, K> {
  * Rows as shown together: a group's, under its heading (an element id and its classes), or rows
  * under no heading (`group` null): all rows of a list without groups, or, in production, the items
  * of groups the app did not list. `key` tracks it: the group's key, or null for the one without.
- * `views` are its rows as the row template's contexts, made once with the rows rather than as a
- * literal per row on every check.
+ * `separated` is that last case, set off from the groups before it. `views` are its rows as the
+ * row template's contexts, made once with the rows rather than as a literal per row on every
+ * check.
  */
 interface Section<T, K> {
   readonly key: string | null;
   readonly group: NeatSelectListGroup | null;
   readonly headingId: string;
   readonly headingClasses: string;
+  readonly separated: boolean;
   readonly views: readonly { readonly $implicit: Row<T, K> }[];
 }
 
@@ -297,8 +309,8 @@ let nextListId = 0;
  * `group` named by its heading, which spans the columns; an empty group shows its heading alone,
  * and a `muted` one greys it. The arrow keys, Home and End move over the rows as shown, never onto
  * a heading, and a click on a heading does nothing. An item whose group is not listed is a mistake
- * in the app: it throws in dev mode, and in production shows after the groups, under no heading,
- * rather than going missing.
+ * in the app: it throws in dev mode, and in production shows after the groups, under no heading
+ * and set off from the last group by a rule, rather than going missing.
  *
  * Typing a letter to jump to a row, Page Up and Page Down, a range of rows checked with Shift and
  * a disabled row are not offered; none is needed yet.
@@ -355,6 +367,13 @@ let nextListId = 0;
                 }
               </div>
             } @else {
+              @if (section.separated) {
+                <div
+                  data-slot="select-list-group-separator"
+                  aria-hidden="true"
+                  [class]="separatorClasses"
+                ></div>
+              }
               @for (view of section.views; track view.$implicit.key) {
                 <ng-container [ngTemplateOutlet]="rowTemplate" [ngTemplateOutletContext]="view" />
               }
@@ -459,6 +478,7 @@ export class NeatSelectList<T, K = unknown> {
   protected readonly headerLabelClasses = HEADER_LABEL_CLASSES;
   protected readonly cellClasses = CELL_CLASSES;
   protected readonly groupClasses = GROUP_CLASSES;
+  protected readonly separatorClasses = GROUP_SEPARATOR_CLASSES;
   protected readonly checkClasses = CHECK_CLASSES;
 
   private readonly id = ++nextListId;
@@ -517,6 +537,7 @@ export class NeatSelectList<T, K = unknown> {
       group: NeatSelectListGroup | null,
       items: readonly T[],
       position: number,
+      separated = false,
     ): Section<T, K> => {
       // Numbered, not named by the key, which is the app's text and may hold spaces.
       const headingId = `neat-select-list-${this.id}-group-${position}`;
@@ -539,6 +560,7 @@ export class NeatSelectList<T, K = unknown> {
         group,
         headingId,
         headingClasses: GROUP_HEADING_CLASSES[group?.muted ? 'muted' : 'plain'],
+        separated,
         views: rows.slice(start).map((row) => ({ $implicit: row })),
       };
     };
@@ -580,7 +602,7 @@ export class NeatSelectList<T, K = unknown> {
     const sections = listed.map((group, position) =>
       section(group.key, group, members.get(group.key)!, position),
     );
-    if (unlisted.length) sections.push(section(null, null, unlisted, listed.length));
+    if (unlisted.length) sections.push(section(null, null, unlisted, listed.length, true));
     const last = sections.at(-1);
     const trailingHeading = last?.group && last.views.length === 0 ? last.headingId : null;
     return { rows, sections, trailingHeading };
