@@ -79,7 +79,8 @@ function yScale(domain: readonly [number, number]) {
 /**
  * The line and the filled area under it for one series, and the newest point (null unless the
  * newest sample exists). A missing sample breaks the line rather than dropping to zero, and a run
- * of one sample has a point on the line but no area.
+ * of one sample draws neither line nor area, as in #170: a lone sample is the newest-point dot's
+ * to show, not the line's. `fractions` that do not cover `values` are read as evenly spaced.
  */
 export function linePaths(
   values: readonly (number | null)[],
@@ -87,9 +88,10 @@ export function linePaths(
   domain: readonly [number, number],
 ): { line: string; area: string; last: { x: number; y: number } | null } {
   const y = yScale(domain);
-  const x = (_: unknown, index: number) => fractions[index] * WIDTH;
-  const drawn = (_: number | null, index: number) => isNumber(values[index]);
-  // An area needs two samples side by side: d3 would draw a zero-width sliver for a lone one.
+  const at = fractions.length === values.length ? fractions : evenFractions(values.length);
+  const x = (_: unknown, index: number) => at[index] * WIDTH;
+  // A sample is drawn only beside another: d3 would draw a lone one as a closed point (a dot under
+  // round caps) in the line and as a zero-width sliver in the area.
   const joined = (_: number | null, index: number) =>
     isNumber(values[index]) && (isNumber(values[index - 1]) || isNumber(values[index + 1]));
 
@@ -97,7 +99,7 @@ export function linePaths(
   return {
     line:
       line<number | null>()
-        .defined(drawn)
+        .defined(joined)
         .x(x)
         .y((value) => y(value as number))
         .digits(DIGITS)(values) ?? '',
@@ -109,7 +111,7 @@ export function linePaths(
         .y1((value) => y(value as number))
         .digits(DIGITS)(values) ?? '',
     last: isNumber(newest)
-      ? { x: round(fractions[values.length - 1] * WIDTH), y: round(y(newest)) }
+      ? { x: round(at[values.length - 1] * WIDTH), y: round(y(newest)) }
       : null,
   };
 }
@@ -120,7 +122,9 @@ function round(value: number): number {
 
 /**
  * The areas of a stack, the bottom band first, each as one path. A sample where any band is
- * missing breaks the whole stack: a partial sum would draw a total that was never measured.
+ * missing breaks the whole stack: a partial sum would draw a total that was never measured. A run
+ * of one sample draws no band. `fractions` that do not cover the longest list are read as evenly
+ * spaced.
  */
 export function stackedPaths(
   lists: readonly (readonly (number | null)[])[],
@@ -128,9 +132,11 @@ export function stackedPaths(
   domain: readonly [number, number],
 ): string[] {
   const y = yScale(domain);
-  const complete = fractions.map((_, index) => lists.every((list) => isNumber(list[index])));
+  const length = Math.max(0, ...lists.map((list) => list.length));
+  const at = fractions.length === length ? fractions : evenFractions(length);
+  const complete = at.map((_, index) => lists.every((list) => isNumber(list[index])));
   const joined = (index: number) => complete[index] && (complete[index - 1] || complete[index + 1]);
-  const top = fractions.map(() => 0);
+  const top = at.map(() => 0);
   return lists.map((list) => {
     const bottom = top.slice();
     complete.forEach((whole, index) => {
@@ -139,7 +145,7 @@ export function stackedPaths(
     return (
       area<number>()
         .defined((_, index) => joined(index))
-        .x((_, index) => fractions[index] * WIDTH)
+        .x((_, index) => at[index] * WIDTH)
         .y0((_, index) => y(bottom[index]))
         .y1((_, index) => y(top[index]))
         .digits(DIGITS)(top) ?? ''

@@ -22,8 +22,8 @@ describe('linePaths', () => {
   it('a missing sample breaks the line instead of dropping to zero', () => {
     const even = timeFractions([], 4);
     const path = linePaths([50, null, 50, 100], even, [0, 100]);
-    expect(segments(path.line)).toBe(2);
-    expect(path.line).toBe('M0,50ZM400,50L600,0');
+    expect(segments(path.line)).toBe(1);
+    expect(path.line, 'a lone sample draws no line segment, as in #170').toBe('M400,50L600,0');
     expect(path.area, 'a lone point has a line start but no area').toBe(
       'M400,50L600,0L600,100L400,100Z',
     );
@@ -35,8 +35,20 @@ describe('linePaths', () => {
   });
 
   it('clamps values beyond the domain to it', () => {
-    expect(linePaths([150], [0], [0, 100]).line).toBe('M0,0Z');
     expect(linePaths([-20, 150], [0, 1], [0, 100]).line).toBe('M0,100L600,0');
+  });
+
+  it('draws no line and no area for a lone sample, which only the newest-point dot shows', () => {
+    expect(linePaths([150], [0], [0, 100])).toEqual({ line: '', area: '', last: { x: 0, y: 0 } });
+    const between = linePaths([null, 5, null], timeFractions([], 3), [0, 10]);
+    expect(between).toEqual({ line: '', area: '', last: null });
+  });
+
+  it('reads fractions that do not cover the samples as evenly spaced, not as NaN', () => {
+    const path = linePaths([0, 50, 100], [0, 1], [0, 100]);
+    expect(path.line).toBe('M0,100L300,50L600,0');
+    expect(path.area).toBe('M0,100L300,50L600,0L600,100L300,100L0,100Z');
+    expect(path.last).toEqual({ x: 600, y: 0 });
   });
 
   it('draws nothing for no samples', () => {
@@ -74,6 +86,12 @@ describe('stackedPaths', () => {
     const at = timeFractions(seconds(0, 2, 32), 3);
     expect(stackedPaths([[1, 1, 1]], at, [0, 2])).toEqual([
       'M0,50L37.5,50L600,50L600,100L37.5,100L0,100Z',
+    ]);
+  });
+
+  it('reads fractions that do not cover the bands as evenly spaced, not as NaN', () => {
+    expect(stackedPaths([[1, 1, 1]], [0, 1], [0, 2])).toEqual([
+      'M0,50L300,50L600,50L600,100L300,100L0,100Z',
     ]);
   });
 

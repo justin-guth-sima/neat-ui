@@ -40,7 +40,7 @@ describe('NeatSparkline', () => {
   it('scales min to max across the index and splits the line at a missing sample', async () => {
     const { paths } = await render([70, null, 72, 74]);
     expect(paths()).toHaveLength(1);
-    expect(paths()[0].getAttribute('d')).toBe('M0,100ZM400,50L600,0');
+    expect(paths()[0].getAttribute('d')).toBe('M400,50L600,0');
   });
 
   it('describes itself: the label, how many samples, the lowest and the highest', async () => {
