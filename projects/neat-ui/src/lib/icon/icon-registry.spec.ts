@@ -2,6 +2,8 @@ import {
   LucideCamera,
   LucideCircuitBoard,
   LucideMic,
+  LucidePause,
+  LucidePlay,
   LucideRadar,
   LucideRefreshCw,
   LucideSquareTerminal,
@@ -25,5 +27,9 @@ describe('NEAT_ICONS', () => {
       refresh: LucideRefreshCw,
       terminal: LucideSquareTerminal,
     });
+  });
+
+  it('the registry has pause and play', () => {
+    expect(NEAT_ICONS).toMatchObject({ pause: LucidePause, play: LucidePlay });
   });
 });

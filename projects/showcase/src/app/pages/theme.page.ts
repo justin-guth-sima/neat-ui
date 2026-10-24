@@ -69,6 +69,12 @@ const KIT_VARIABLES = [
   'highlight-foreground',
   'neat-video-scrim',
   'neat-video-scrim-foreground',
+  ...Array.from({ length: 8 }, (_, i) => `neat-series-${i + 1}`),
+  'neat-line',
+  'neat-line-warning',
+  'neat-line-danger',
+  'neat-heat-low',
+  'neat-heat-high',
   ...['success', 'warning', 'danger', 'info', 'highlight'].flatMap((tone) => [
     `neat-tint-${tone}`,
     `neat-tint-${tone}-accent`,

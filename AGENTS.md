@@ -287,10 +287,15 @@ and 1.5rem, for gaps and insets), `--neat-text-xs`, `--neat-text-sm` (0.75 and 0
 `--neat-aside-width` (22rem, the width of a page's side panel) and `--neat-surface` (the fill of
 the surface a component sits on, for a part that covers what scrolls under it: `--background`, set
 to `--popover` by a dialog panel and a popover, and to its fill by an app's own surface such as a
-card). Page insets come from `neat-page` (`padding="page"` by default, `padding="none"` for
-full-bleed content such as a video grid), never from a page's own stylesheet. Escape hatch: if a
-look cannot be reached through tokens and inputs, that is a kit gap. Treat it as a proposal under
-the previous rule, not as a reason to override.
+card). Charts draw with `--neat-series-1` to `--neat-series-8` (four hues, blue, purple, orange and
+teal, then a darker blue and the lighter purple, orange and blue), `--neat-line` (a single metric's
+line), `--neat-line-warning` and `--neat-line-danger` (threshold lines), and `--neat-heat-low` and
+`--neat-heat-high` (the ends of the heatmap ramp). Green, amber and red are left out of the series
+so that they keep meaning status. Light series 6 to 8 are below 3:1 on white: use them as fills
+whose values the legend carries as text. Page insets come from `neat-page` (`padding="page"` by
+default, `padding="none"` for full-bleed content such as a video grid), never from a page's own
+stylesheet. Escape hatch: if a look cannot be reached through tokens and inputs, that is a kit gap.
+Treat it as a proposal under the previous rule, not as a reason to override.
 
 **No colour literals outside the theme directories: `projects/neat-ui/src/lib/theme/`, and
 `projects/neat-ui/video/src/lib/theme/` for the video overlay palette.**

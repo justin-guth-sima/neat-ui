@@ -18,6 +18,7 @@ import {
   NEAT_DANGER_BASE,
   NEAT_HIGHLIGHT_BASE,
   NEAT_PRIMARY_BASE,
+  NEAT_SERIES_TEAL_BASE,
   NEAT_WARN_BASE,
   SIMA_PALETTE,
 } from './palette';
@@ -81,6 +82,17 @@ const scales = {
   warning: buildColorScale(NEAT_WARN_BASE),
   info: buildColorScale(SIMA_PALETTE.blue),
   highlight: buildColorScale(NEAT_HIGHLIGHT_BASE),
+};
+/** The chart series' fourth hue, which is not a status colour. */
+const SERIES_TEAL = buildColorScale(NEAT_SERIES_TEAL_BASE);
+/** The steps of a colour scale, lightest to darkest. */
+const SCALE_STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;
+/** How many places a series' darker or lighter shade sits from its hue's line step. */
+const SERIES_SHADE_OFFSET = 2;
+/** Where the heatmap ramp (a blue scale) starts and ends, per scheme: the low end is the fill that shows on the page. */
+const HEAT_STEPS: Record<NeatColorScheme, { low: keyof ColorScale; high: keyof ColorScale }> = {
+  light: { low: 100, high: 800 },
+  dark: { low: 900, high: 300 },
 };
 /** Each tinted tone's scale; its base (step 500), the tone's own colour, is what tints a row. */
 const TONE_SCALES: Record<TintedTone, ColorScale> = {
@@ -202,6 +214,59 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     'neat-video-scrim': withAlpha(SIMA_PALETTE.text, VIDEO_SCRIM_ALPHA),
     'neat-video-scrim-foreground': SIMA_PALETTE.white,
     ...rowTints(ROW_TINT_SHARE[scheme], background),
+    ...chartTokens(scheme, status(scales.destructive)),
+  };
+}
+
+/**
+ * The step of `scale` that is a line or a mark on the page: the first along the scheme's colour
+ * walk that reaches the non-text minimum on every text background. Series, lines and heat colours
+ * are shapes, not text, so they take 3:1 (WCAG 1.4.11) and not 4.5:1.
+ */
+function lineStep(scale: ColorScale, scheme: NeatColorScheme): keyof ColorScale {
+  const rules = CONTRAST_RULES[scheme];
+  const surface = SURFACES[scheme];
+  const backgrounds = rules.textBackgrounds.map((step) => surface[step]);
+  return rules.colorWalk[firstReadable(scale, rules.colorWalk, backgrounds, MIN_NON_TEXT_CONTRAST)];
+}
+
+/** The step `offset` places down SCALE_STEPS (towards 950) from `step`; negative is lighter. */
+function shifted(step: keyof ColorScale, offset: number): keyof ColorScale {
+  const shiftedStep = SCALE_STEPS[SCALE_STEPS.indexOf(step) + offset];
+  if (shiftedStep === undefined) throw new Error(`No step ${offset} places from ${step}`);
+  return shiftedStep;
+}
+
+/**
+ * The tokens a chart draws with: eight series colours, the single-metric and threshold lines, and
+ * the heatmap ramp's ends (`danger` is the theme's own `--destructive`). Series 1 to 4 are four hues (blue, purple, orange, teal) at their line
+ * step, and 5 to 8 are the "darker and lighter shade" set of the colours mockup: blue two steps
+ * darker, then purple, orange and blue two steps lighter. Green, amber and red are left out on
+ * purpose: they mean status, and a series in one of them would read as a state.
+ *
+ * Light series 6 to 8 reach only about 2.1 to 2.4:1 on white. They are kept (the palette was
+ * chosen by eye): the lighter shades sit below 3:1 on light surfaces and are used as stacked
+ * fills whose values the legend carries as text. The theme spec pins the shortfall.
+ */
+function chartTokens(scheme: NeatColorScheme, danger: string): SpartanTokens {
+  /** The palette blue's scale: `info` is its status use, so the scale is shared, not rebuilt. */
+  const blue = scales.info;
+  const hues = [blue, scales.highlight, scales.primary, SERIES_TEAL];
+  const lines = hues.map((scale) => lineStep(scale, scheme));
+  const series = [
+    ...hues.map((scale, i) => scale[lines[i]]),
+    blue[shifted(lines[0], SERIES_SHADE_OFFSET)],
+    ...[1, 2, 0].map((i) => hues[i][shifted(lines[i], -SERIES_SHADE_OFFSET)]),
+  ];
+  const heat = HEAT_STEPS[scheme];
+  return {
+    ...Object.fromEntries(series.map((color, i) => [`neat-series-${i + 1}`, color])),
+    'neat-line': series[0],
+    // `--warning` is a fill (2.2:1 on white), too faint for a line.
+    'neat-line-warning': scales.warning[lineStep(scales.warning, scheme)],
+    'neat-line-danger': danger,
+    'neat-heat-low': blue[heat.low],
+    'neat-heat-high': blue[heat.high],
   };
 }
 

@@ -1,11 +1,17 @@
 import generated from './tokens.generated.css' with { loader: 'text' };
 import { composite, contrastRatio, mixOklab } from './color';
-import { buildColorScale, buildNeutralSurfaceScale, buildSurfaceScale } from './color-scale';
+import {
+  buildColorScale,
+  buildNeutralSurfaceScale,
+  buildSurfaceScale,
+  type ColorScale,
+} from './color-scale';
 import { along, CONTRAST_RULES, MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from './contrast-rules';
 import {
   NEAT_DANGER_BASE,
   NEAT_HIGHLIGHT_BASE,
   NEAT_PRIMARY_BASE,
+  NEAT_SERIES_TEAL_BASE,
   NEAT_WARN_BASE,
   SIMA_PALETTE,
 } from './palette';
@@ -141,6 +147,53 @@ const NON_TEXT = ['input', 'ring', 'sidebar-ring'];
  * the video extremes in a test of its own, not on the fill alone.
  */
 const OVER_VIDEO = ['neat-video-scrim'];
+
+/** The steps of a colour scale, lightest to darkest. */
+const SCALE_STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;
+const SURFACE_SCALES = { light: buildSurfaceScale(), dark: buildNeutralSurfaceScale() };
+const HUES: Record<'blue' | 'purple' | 'orange' | 'teal', ColorScale> = {
+  blue: buildColorScale(SIMA_PALETTE.blue),
+  purple: buildColorScale(NEAT_HIGHLIGHT_BASE),
+  orange: buildColorScale(NEAT_PRIMARY_BASE),
+  teal: buildColorScale(NEAT_SERIES_TEAL_BASE),
+};
+/** The series' hues in order: series 1–4 are their line steps. */
+const SERIES_HUES = ['blue', 'purple', 'orange', 'teal'] as const;
+
+/**
+ * The index into SCALE_STEPS of a scale's line step: the first step along the scheme's colour walk
+ * that reaches 3:1 on every text background, found here step by step rather than with the theme's
+ * own `firstReadable`, so the spec does not repeat the code it checks.
+ */
+function lineStepIndex(scale: ColorScale, scheme: keyof typeof schemes): number {
+  const { colorWalk, textBackgrounds } = CONTRAST_RULES[scheme];
+  const surface = SURFACE_SCALES[scheme];
+  for (const step of colorWalk) {
+    if (
+      textBackgrounds.every(
+        (background) => contrastRatio(scale[step], surface[background]) >= MIN_NON_TEXT_CONTRAST,
+      )
+    ) {
+      return SCALE_STEPS.indexOf(step);
+    }
+  }
+  throw new Error(`No step of ${colorWalk.join(', ')} reaches ${MIN_NON_TEXT_CONTRAST}:1`);
+}
+
+/** The series values of a scheme as the spec states them: `offset` places down SCALE_STEPS from the line step. */
+const seriesValue = (
+  scheme: keyof typeof schemes,
+  hue: (typeof SERIES_HUES)[number],
+  offset = 0,
+) => {
+  const scale = HUES[hue];
+  return scale[SCALE_STEPS[lineStepIndex(scale, scheme) + offset]].toLowerCase();
+};
+
+const SERIES_VALUES = {
+  light: ['#477fbc', '#837ab5', '#d26728', '#2a8c9a', '#214974', '#afa6e2', '#f4a076', '#75acea'],
+  dark: ['#75acea', '#afa6e2', '#e28250', '#55a3af', '#477fbc', '#d5d0fc', '#ffbd9c', '#b2d6ff'],
+};
 
 interface TextPair {
   label: string;
@@ -378,6 +431,102 @@ describe('buildSpartanThemeCss', () => {
         const ratio = contrastRatio(text, composite(color, alpha, video));
         expect(ratio, `${scheme}: scrim text over ${video}`).toBeGreaterThanOrEqual(4.5);
       }
+    }
+  });
+
+  it('series 1–4 are the first step of blue, purple, orange and teal that reaches 3:1 on every text background, in both schemes', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const { textBackgrounds } = CONTRAST_RULES[scheme];
+      SERIES_HUES.forEach((hue, i) => {
+        const value = schemes[scheme].get(`--neat-series-${i + 1}`);
+        expect(value, `${scheme}: ${hue}`).toBe(seriesValue(scheme, hue));
+        for (const background of textBackgrounds) {
+          const ratio = contrastRatio(value!, SURFACE_SCALES[scheme][background]);
+          expect(
+            ratio,
+            `${scheme}: series ${i + 1} on surface ${background}`,
+          ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+        }
+      });
+    }
+  });
+
+  it('series 5 is blue two steps darker than series 1; series 6–8 are purple, orange and blue two steps lighter than their line steps', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      expect(tokens.get('--neat-series-5'), scheme).toBe(seriesValue(scheme, 'blue', 2));
+      expect(tokens.get('--neat-series-6'), scheme).toBe(seriesValue(scheme, 'purple', -2));
+      expect(tokens.get('--neat-series-7'), scheme).toBe(seriesValue(scheme, 'orange', -2));
+      expect(tokens.get('--neat-series-8'), scheme).toBe(seriesValue(scheme, 'blue', -2));
+    }
+  });
+
+  it('series values: light #477fbc #837ab5 #d26728 #2a8c9a #214974 #afa6e2 #f4a076 #75acea; dark #75acea #afa6e2 #e28250 #55a3af #477fbc #d5d0fc #ffbd9c #b2d6ff', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const values = SERIES_VALUES[scheme].map((_, i) =>
+        schemes[scheme].get(`--neat-series-${i + 1}`),
+      );
+      expect(values, scheme).toEqual(SERIES_VALUES[scheme]);
+    }
+  });
+
+  it('pins the known shortfall: light series 6–8 are the lighter shades, below 3:1 on white (2.2, 2.1 and 2.4:1), and every other series reaches 3:1', () => {
+    // Deliberate, chosen by eye: the lighter shades are stacked fills whose values the legend
+    // carries as text. A change to this must be as deliberate, so this test names the shortfall.
+    const below = (scheme: keyof typeof schemes) =>
+      SERIES_VALUES[scheme]
+        .map((_, i) => i + 1)
+        .filter(
+          (n) =>
+            contrastRatio(
+              schemes[scheme].get(`--neat-series-${n}`)!,
+              schemes[scheme].get('--background')!,
+            ) < MIN_NON_TEXT_CONTRAST,
+        );
+    expect(below('light')).toEqual([6, 7, 8]);
+    expect(below('dark')).toEqual([]);
+    const ratios = [6, 7, 8].map((n) =>
+      contrastRatio(schemes.light.get(`--neat-series-${n}`)!, schemes.light.get('--background')!),
+    );
+    expect(ratios.map((ratio) => ratio.toFixed(1))).toEqual(['2.2', '2.1', '2.4']);
+  });
+
+  it('neat-line is series 1, neat-line-danger is --destructive, and neat-line-warning reaches 3:1 on every text background', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      expect(tokens.get('--neat-line'), scheme).toBe(tokens.get('--neat-series-1'));
+      expect(tokens.get('--neat-line-danger'), scheme).toBe(tokens.get('--destructive'));
+      for (const background of CONTRAST_RULES[scheme].textBackgrounds) {
+        const ratio = contrastRatio(
+          tokens.get('--neat-line-warning')!,
+          SURFACE_SCALES[scheme][background],
+        );
+        expect(ratio, `${scheme}: warning line on surface ${background}`).toBeGreaterThanOrEqual(
+          MIN_NON_TEXT_CONTRAST,
+        );
+      }
+    }
+    // The first step of the warning scale that does, which --warning (a fill, 2.2:1 on white) is not.
+    expect(schemes.light.get('--neat-line-warning')).toBe('#9d6812');
+    expect(schemes.dark.get('--neat-line-warning')).toBe('#f2b35f');
+  });
+
+  it(`neat-heat-low shows on --background and --card (${MIN_FILL_CONTRAST}:1) and neat-heat-high reaches ${MIN_NON_TEXT_CONTRAST}:1 on neat-heat-low, in both schemes`, () => {
+    const blue = HUES.blue;
+    const ends = { light: [100, 800], dark: [900, 300] } as const;
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      const low = tokens.get('--neat-heat-low')!;
+      const high = tokens.get('--neat-heat-high')!;
+      expect(low, scheme).toBe(blue[ends[scheme][0]].toLowerCase());
+      expect(high, scheme).toBe(blue[ends[scheme][1]].toLowerCase());
+      for (const surface of ['background', 'card']) {
+        expect(
+          contrastRatio(low, tokens.get(`--${surface}`)!),
+          `${scheme}: low on --${surface}`,
+        ).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
+      }
+      expect(contrastRatio(high, low), scheme).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
     }
   });
 

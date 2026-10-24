@@ -29,6 +29,13 @@ export const NEAT_WARN_BASE = '#E9A23B';
 export const NEAT_HIGHLIGHT_BASE = '#9D93D6';
 
 /**
+ * Base of the series teal: the teal of Justin's colours mockup, a hue the palette lacks. Chart
+ * series need a fourth hue next to blue, purple and orange that is not a status colour (green,
+ * amber and red stay free to mean status).
+ */
+export const NEAT_SERIES_TEAL_BASE = '#2A8C9A';
+
+/**
  * The dark scheme's darkest surface, its page: a neutral near-black. The dark surfaces are greys
  * from here up (`buildNeutralSurfaceScale`) rather than steps towards the palette text, whose teal
  * made a whole dark page read green.

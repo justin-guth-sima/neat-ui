@@ -28,6 +28,8 @@ import {
   LucidePanelLeftClose,
   LucidePanelLeftOpen,
   LucidePanelRight,
+  LucidePause,
+  LucidePlay,
   LucideRadar,
   LucideRadioTower,
   LucideRectangleHorizontal,
@@ -88,6 +90,8 @@ export const NEAT_ICONS = {
   warning: LucideTriangleAlert,
   refresh: LucideRefreshCw,
   terminal: LucideSquareTerminal,
+  pause: LucidePause,
+  play: LucidePlay,
 } satisfies Record<string, LucideIcon>;
 
 export type NeatIconName = keyof typeof NEAT_ICONS;
