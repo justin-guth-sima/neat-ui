@@ -23,7 +23,11 @@ look happens in one place. Every rule here protects that.
     `toast` (`NeatToasts` and `neat-toast-host`), `select-list` (`NeatSelectList`, a listbox of rows
     in columns, with the `neatColumn` templates that lay them out) and `file-browser`
     (`NeatFileBrowser`, a tree's breadcrumb, count, filter and rows, built on `select-list` and
-    `input`; `NeatFileNode` is its tree), each exporting that component and its types; and
+    `input`; `NeatFileNode` is its tree), `status-chip` (`NeatStatusChip`, a short status on a
+    status fill, and `NeatStatusChipButton`, the same as a button), `details` (`NeatDetails`, the
+    key/value list of a side panel) and `field` (`NeatField`, a control under its visible name with
+    a hint and an error, and `NeatErrorNote`, a failure said in place), each exporting that
+    component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
     sit in the tile's overlay layer. Public API is `projects/neat-ui/<name>/src/public-api.ts`; its
@@ -70,8 +74,9 @@ needs is exported: a helper that only the kit's own code uses stays internal.
 **What entries share goes through the primary under a `ɵ` prefix.** The vendored helm code
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,
 yet the secondary entries need them, and an entry sees the primary only through its public API. So
-the primary exports `ɵhlm`, `ɵtoggleVariants`, `ɵlistVariants` and `ɵIN_PAGE_TOOLBAR`: Angular's
-convention for private API. They are not for apps, may change in any release, and no app file may
+the primary exports `ɵhlm`, `ɵtoggleVariants`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
+`ɵFIELD_LABEL_CLASSES` (the field label's look, which `select` and `field` share so that their
+fields line up): Angular's convention for private API. They are not for apps, may change in any release, and no app file may
 import a `ɵ` name. A shared internal that a second entry needs is exported the same way, never by
 a relative path. `lib/ui/` itself stays where `helm:add` writes it.
 
@@ -128,23 +133,27 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   `NeatSelectList` and `NeatFileBrowser` own their behaviour too. Brain has no listbox on its own
   (its select's list lives in a popover, and `command` is a palette), so the list owns its roles
   and keys as `NeatSegmented` does: a `listbox` that holds the focus and names the selected row in
-  `aria-activedescendant`, with selection following focus. The file browser reuses the list for its
-  rows, since a folder row is a row that Enter or a click also opens (`activated`); what differs
-  is the browser's, not the list's: an arrow key onto a folder highlights it without changing
-  `selected` (which is a file's path), and Space and Backspace, which the list has no use for, are
-  handled on the list's host. The file browser's checkbox is a native input drawn from the theme's
-  tokens, not brain's checkbox: a thousand-file folder would be a thousand brain components. The
-  browser says nothing of its own that an app cannot replace (`labels`), and its tree helpers are
-  the helpers of the media browser it was extracted from (`file-tree.ts`, not exported). `filter`
-  is a model so that an app can show a note about its folder (how many files it left out) only
-  while no filter is active; the kit never hides a file itself.
+  `aria-activedescendant`, with selection following focus. Its checked mode (`checkable`) is the
+  WAI-ARIA multi-select listbox: the listbox is `aria-multiselectable`, a checked row is
+  `aria-selected`, Space checks the row the keyboard is on, and the selected row becomes that row
+  only (drawn by `data-active`, not by `aria-selected`). Its box is drawn from the theme's tokens,
+  not brain's checkbox (a thousand-file folder would be a thousand brain components), and is
+  `aria-hidden` and no tab stop, since the row says whether it is checked. A column's `hideBelow`
+  is judged against the list's own width, which a ResizeObserver watches only while some column
+  has one. The file browser reuses the list for its rows, since a folder row is a row that Enter
+  or a click also opens (`activated`), and its `manage` mode is the list's checked mode (a file's
+  path is its key); what differs is the browser's, not the list's: an arrow key onto a folder
+  highlights it without changing `selected` (which is a file's path), and Backspace, which the
+  list has no use for, is handled on the list's host. The browser says nothing of its own that an
+  app cannot replace (`labels`), and its tree helpers are the helpers of the media browser it was
+  extracted from (`file-tree.ts`, not exported). `filter` is a model so that an app can show a
+  note about its folder (how many files it left out) only while no filter is active; the kit never
+  hides a file itself.
 
-  A listbox's options have presentational children, so a checkbox or a button in a row is not
-  strictly valid ARIA. The compromise is deliberate and holds only as long as the row's controls
-  are pointer conveniences: the file checkbox is not a tab stop, its state is spoken as text
-  ("Checked") and Space does its job from the keyboard (described by `labels.checkHint`). A cell
-  button that is a tab stop needs an `aria-label` naming its row; if every row's controls must be
-  keyboard-reachable on their own, the list should become a grid.
+  A listbox's options have presentational children, so a button in a row is not strictly valid
+  ARIA. The compromise is deliberate and holds only as long as the row's controls are pointer
+  conveniences: a cell button that is a tab stop needs an `aria-label` naming its row; if every
+  row's controls must be keyboard-reachable on their own, the list should become a grid.
 
   Three wrappers own their behaviour instead of hosting a brain primitive, each for a stated reason:
   - `NeatSwitch` is a native `button` with `role="switch"`: brain's switch is a component that
@@ -164,6 +173,11 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
 - **Apps need no Tailwind.** The kit ships its compiled stylesheet (`styles/neat-ui.css`), which
   contains exactly the utilities the kit's sources use; utility classes in app templates are not
   part of the kit's API.
+- **A button that waits without losing the focus is `aria-disabled`, not `disabled`.** `NeatButton`
+  gives `[attr.aria-disabled]="true"` the disabled look (helm's `data-disabled` classes: dimmed, no
+  pointer events) while the button stays focusable; a `disabled` button drops the focus, which a
+  dialog's focus trap then cannot take back. The kit only styles it: Enter and Space still fire
+  `click`, so the handler ignores presses while it waits.
 - **A toggle button binds `pressed`, never `aria-pressed`.** `NeatButton` owns the attribute (a
   host binding that is absent while `pressed` is undefined) and gives the pressed look with it, so
   an `[attr.aria-pressed]` on a `neatButton` is overwritten. The look is the inverse of the page

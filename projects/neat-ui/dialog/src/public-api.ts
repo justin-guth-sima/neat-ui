@@ -4,7 +4,7 @@
  * point (`@sima/neat-ui`) by package name; the primary never imports it. Every export added here
  * is a promise to consumers.
  */
-export type { NeatDialogOptions } from './lib/dialog';
+export type { NeatDialogComponentOptions, NeatDialogInputs, NeatDialogOptions } from './lib/dialog';
 export { NeatDialog } from './lib/dialog';
 export type { NeatDialogSize } from './lib/dialog-panel';
 export { NeatDialogActions, NeatDialogBody } from './lib/dialog-parts';

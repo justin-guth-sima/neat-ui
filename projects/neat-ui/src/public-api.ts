@@ -33,9 +33,11 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
 /*
  * Not for apps. The `ɵ` exports are what the kit's secondary entry points share with this one:
  * ng-packagr gives each entry the built primary and nothing else, so the vendored helm code in
- * `lib/ui/` (never exported otherwise) and the shell's toolbar token reach them only through here.
+ * `lib/ui/` (never exported otherwise), the shell's toolbar token and the field label's classes
+ * (which `select` and `field` share) reach them only through here.
  * Angular marks its own private API the same way; these may change or go in any release.
  */
+export { FIELD_LABEL_CLASSES as ɵFIELD_LABEL_CLASSES } from './lib/field/field-label';
 export { IN_PAGE_TOOLBAR as ɵIN_PAGE_TOOLBAR } from './lib/shell/page-toolbar';
 export { listVariants as ɵlistVariants } from './lib/ui/tabs/src';
 export { toggleVariants as ɵtoggleVariants } from './lib/ui/toggle/src';

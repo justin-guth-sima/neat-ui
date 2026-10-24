@@ -1,4 +1,10 @@
-import { inject, Injectable, TemplateRef, type Type } from '@angular/core';
+import {
+  inject,
+  Injectable,
+  type InputSignalWithTransform,
+  TemplateRef,
+  type Type,
+} from '@angular/core';
 import {
   BrnDialogRef,
   BrnDialogService,
@@ -27,6 +33,37 @@ export interface NeatDialogOptions {
 }
 
 /**
+ * The inputs of a component `C` that `NeatDialog.open` can set: each signal input (`input()`,
+ * `input.required()`) by its property name, with the type it takes. All are optional here, since
+ * the type cannot tell a required input from one with a default; a required one left out fails
+ * when the component reads it, as it would in a template. Models and aliased inputs are not
+ * included.
+ */
+export type NeatDialogInputs<C> = {
+  readonly [K in keyof C as [InputValue<C[K]>] extends [never] ? never : K]?: InputValue<C[K]>;
+};
+
+/**
+ * What a signal input takes when it is set; `never` for a member that is no signal input. The read
+ * type is inferred though unused: the input's node holds it both ways (a value out, a value in),
+ * so a fixed `unknown` in its place would match no input at all.
+ */
+type InputValue<S> =
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  S extends InputSignalWithTransform<infer Read, infer Write> ? Write : never;
+
+/** What `NeatDialog.open` takes for a component whose inputs the opener sets. */
+export interface NeatDialogComponentOptions<C> extends NeatDialogOptions {
+  /**
+   * Values for the component's inputs, set as it is created, before its first change detection,
+   * as a template's bindings would be: the component sees them in its template, in `computed`
+   * and `linkedSignal`, and from `ngOnInit` on, but not in a field initializer or its constructor.
+   * They are set once; the dialog does not follow later changes.
+   */
+  readonly inputs: NeatDialogInputs<C>;
+}
+
+/**
  * Brain's dialog behaviour on its service, with helm's backdrop: a modal centred on the page that
  * traps focus, hides the page from assistive technology and gives focus back on closing to
  * whatever had it on opening. Closing from outside is switched off here and done by the panel,
@@ -52,6 +89,19 @@ const DIALOG_OPTIONS: Partial<BrnDialogOptions> = {
  * result or to block dismissing it while it is busy: a template as its implicit context
  * (`<ng-template let-dialog>`), a component by injection.
  *
+ * A component can take inputs from the opener, typed by the component (a template needs none: it
+ * sees the opener's own fields):
+ *
+ * ```ts
+ * const dialog = this.dialogs.open<ImportDialog, string | null>(ImportDialog, {
+ *   title: 'Import media',
+ *   inputs: { openingTab: 'youtube' },
+ * });
+ * ```
+ *
+ * With `inputs` the type arguments are the component's, then the result's; both are inferred when
+ * none is given, the result as `unknown`.
+ *
  * The dialog is modal: focus moves into it and stays inside, the page behind is hidden from
  * assistive technology, and Escape or a click on the backdrop close it while it is dismissible.
  * On closing, focus goes back to the element that had it on opening. Dialogs can stack; Escape
@@ -71,6 +121,11 @@ export class NeatDialog {
   open<R = unknown>(
     content: TemplateRef<unknown> | Type<unknown>,
     options: NeatDialogOptions,
+  ): NeatDialogRef<R>;
+  open<C, R = unknown>(content: Type<C>, options: NeatDialogComponentOptions<C>): NeatDialogRef<R>;
+  open<R>(
+    content: TemplateRef<unknown> | Type<unknown>,
+    options: NeatDialogOptions & { readonly inputs?: Readonly<Record<string, unknown>> },
   ): NeatDialogRef<R> {
     // The ref exists before the dialog does, since the content is built while the dialog opens and
     // may ask for it; it closes through the dialog, which is there by the time anyone calls it.
@@ -85,6 +140,7 @@ export class NeatDialog {
       title: options.title,
       size: options.size ?? 'medium',
       content,
+      inputs: options.inputs ?? {},
       ref,
     };
 

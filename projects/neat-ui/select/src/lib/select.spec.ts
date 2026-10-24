@@ -14,7 +14,12 @@ import helmTrigger from '../../../src/lib/ui/select/src/lib/hlm-select-trigger.t
 import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
-import { NeatSelect, type NeatSelectOption, SELECT_HELM_CLASSES } from './select';
+import {
+  NeatSelect,
+  type NeatSelectOption,
+  type NeatSelectSize,
+  SELECT_HELM_CLASSES,
+} from './select';
 
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 const SURFACES = ['background', 'card'] as const;
@@ -51,6 +56,7 @@ const SOURCES: NeatSelectOption<string>[] = [
       [options]="options"
       [showLabel]="showLabel()"
       [disabled]="disabled()"
+      [size]="size()"
       [(value)]="source"
     />
   `,
@@ -60,6 +66,7 @@ class SelectHost {
   readonly source = signal<string | null>(null);
   readonly showLabel = signal(false);
   readonly disabled = signal(false);
+  readonly size = signal<NeatSelectSize>('medium');
 }
 
 /** A select in a dialog, and a record of the Escapes the page behind it hears. */
@@ -196,6 +203,25 @@ describe('NeatSelect', () => {
     label.click();
     await settle();
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('is as tall as the medium input and button by default, and as the small ones when small', async () => {
+    const { fixture, host, trigger } = await render();
+    // Helm's trigger sizes itself by data-size: `data-[size=default]:h-9 data-[size=sm]:h-8`.
+    expect(trigger.getAttribute('data-size')).toBe('default');
+
+    host.size.set('small');
+    await fixture.whenStable();
+    expect(trigger.getAttribute('data-size')).toBe('sm');
+  });
+
+  it('names itself, when shown, as a field does: the kit’s field label over the trigger', async () => {
+    const { root } = await render((host) => host.showLabel.set(true));
+
+    expect([...root.querySelector('label')!.classList].sort()).toEqual(['font-medium', 'text-sm']);
+    expect([...root.querySelector('neat-select')!.classList]).toEqual(
+      expect.arrayContaining(['flex', 'flex-col', 'gap-2']),
+    );
   });
 
   it('shows no visible label by default', async () => {

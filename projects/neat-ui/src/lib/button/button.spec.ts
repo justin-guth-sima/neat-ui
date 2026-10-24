@@ -44,6 +44,7 @@ const HELM_VARIANT_MARKERS: Record<NeatButtonVariant, string[]> = {
       [rounded]="rounded()"
       [disabled]="disabled()"
       [pressed]="pressed()"
+      [attr.aria-disabled]="held() || null"
       (click)="clicks = clicks + 1"
     >
       Label
@@ -57,6 +58,7 @@ class ButtonHost {
   readonly rounded = signal(false);
   readonly disabled = signal(false);
   readonly pressed = signal<boolean | undefined>(undefined);
+  readonly held = signal(false);
   readonly bound = signal(true);
   clicks = 0;
 }
@@ -443,6 +445,32 @@ describe('NeatButton', () => {
     button.click();
     expect(host.clicks).toBe(1);
   });
+
+  it.each(VARIANTS)(
+    '%s: aria-disabled gives the disabled look (every data-disabled class of helm) and keeps the focus',
+    async (variant) => {
+      const { fixture, host, button } = await renderButton((host) => host.variant.set(variant));
+      const classes = [...button.classList];
+      const disabledLook = classes.filter((name) => name.startsWith('data-disabled:'));
+      expect(disabledLook).toEqual(
+        expect.arrayContaining(['data-disabled:pointer-events-none', 'data-disabled:opacity-50']),
+      );
+      expect(classes).toEqual(
+        expect.arrayContaining(
+          disabledLook.map((name) => name.replace(/^data-disabled:/, 'aria-disabled:')),
+        ),
+      );
+
+      host.held.set(true);
+      await settle(fixture);
+      expect(button.getAttribute('aria-disabled')).toBe('true');
+      expect(button.disabled).toBe(false);
+      expect(button.hasAttribute('data-disabled')).toBe(false);
+      expect(button.hasAttribute('tabindex')).toBe(false);
+      button.focus();
+      expect(document.activeElement).toBe(button);
+    },
+  );
 
   it.each(VARIANTS)(
     '%s: text reaches 4.5:1 on its background at rest and on hover, in both schemes, over background and card',

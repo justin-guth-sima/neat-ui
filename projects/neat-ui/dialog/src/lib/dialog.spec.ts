@@ -1,4 +1,13 @@
-import { Component, inject, TemplateRef, type Type, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  type OnInit,
+  TemplateRef,
+  type Type,
+  viewChild,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import helmContent from '../../../src/lib/ui/dialog/src/lib/hlm-dialog-content.ts?source' with {
   loader: 'text',
@@ -64,6 +73,27 @@ class RenameForm {
   protected readonly dialog = inject<NeatDialogRef<string>>(NeatDialogRef);
 }
 
+/** Content that takes inputs from its opener: the slot it is for, and the tab it starts on. */
+@Component({
+  selector: 'neat-source-form',
+  imports: [NeatDialogBody],
+  template: `<neat-dialog-body
+    ><p class="for">src{{ slot() }}, {{ tab() }} tab, {{ heading() }}</p></neat-dialog-body
+  >`,
+})
+class SourceForm implements OnInit {
+  readonly slot = input.required<number>();
+  readonly tab = input<'local' | 'youtube'>('local');
+  protected readonly heading = computed(() => (this.tab() === 'youtube' ? 'YouTube' : 'Local'));
+
+  ngOnInit(): void {
+    seenOnInit.push(`${this.slot()} ${this.tab()}`);
+  }
+}
+
+/** What each `SourceForm` read from its inputs in its init hook. */
+const seenOnInit: string[] = [];
+
 /** Content that styles its own host, as components commonly do. */
 @Component({
   selector: 'neat-block-host-form',
@@ -100,6 +130,9 @@ class DialogHost {
   readonly dialogs = inject(NeatDialog);
   readonly form = viewChild.required<TemplateRef<unknown>>('form');
 }
+
+/** A template, for the type checks: nothing renders it. */
+declare const fixtureTemplate: TemplateRef<unknown>;
 
 /** Whether a promise has settled yet, and with what, without waiting for it. */
 function track<T>(promise: Promise<T>) {
@@ -234,6 +267,55 @@ describe('NeatDialog', () => {
     expect(closed).toEqual({ settled: true, value: 'Front door' });
   });
 
+  it('sets the inputs the opener gives a component before the component first runs', async () => {
+    const { fixture, settle } = await render();
+    const dialogs = fixture.componentInstance.dialogs;
+
+    const ref = dialogs.open(SourceForm, {
+      title: 'Change source',
+      inputs: { slot: 3, tab: 'youtube' },
+    });
+    await settle();
+    expect(dialog()!.querySelector('.for')?.textContent).toBe('src3, youtube tab, YouTube');
+
+    ref.close();
+    await settle();
+    // An input left out keeps its default.
+    dialogs.open(SourceForm, { title: 'Change source', inputs: { slot: 5 } });
+    await settle();
+    expect(dialog()!.querySelector('.for')?.textContent).toBe('src5, local tab, Local');
+  });
+
+  it('has the component see its inputs in its init hook', async () => {
+    const { fixture, settle } = await render();
+    seenOnInit.length = 0;
+
+    fixture.componentInstance.dialogs.open(SourceForm, {
+      title: 'Change source',
+      inputs: { slot: 2, tab: 'youtube' },
+    });
+    await settle();
+    expect(seenOnInit).toEqual(['2 youtube']);
+  });
+
+  it('types the inputs by the component and the result by the second type argument', () => {
+    // Checked when the spec compiles; never called.
+    const check = (dialogs: NeatDialog) => {
+      const ref: NeatDialogRef<string> = dialogs.open<SourceForm, string>(SourceForm, {
+        title: 'Change source',
+        inputs: { slot: 1 },
+      });
+      // @ts-expect-error: the component has no input of that name.
+      dialogs.open(SourceForm, { title: 'Change source', inputs: { slots: 1 } });
+      // @ts-expect-error: the input takes a number.
+      dialogs.open(SourceForm, { title: 'Change source', inputs: { slot: '1' } });
+      // @ts-expect-error: a template has no inputs.
+      dialogs.open(fixtureTemplate, { title: 'Rename source', inputs: { slot: 1 } });
+      return ref;
+    };
+    expect(check).toBeTypeOf('function');
+  });
+
   it('Escape and the backdrop close a dismissible dialog and do nothing while setDismissible(false)', async () => {
     const { opener, settle, open } = await render();
 
@@ -260,6 +342,8 @@ describe('NeatDialog', () => {
     await settle();
     expect(busy.dismissible()).toBe(false);
     expect(button('Close')!.getAttribute('aria-disabled')).toBe('true');
+    // The dimmed look is neatButton's own for aria-disabled, not a second copy in the dialog.
+    expect(button('Close')!.classList).toContain('aria-disabled:opacity-50');
     escape();
     clickBackdrop();
     button('Close')!.click();

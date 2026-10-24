@@ -14,23 +14,32 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { NeatProgress } from '@sima/neat-ui/progress';
-import { ToastStore, visibleToasts, type ToastEntry } from './toast-store';
+import { type MessageKind, ToastStore, visibleToasts, type ToastEntry } from './toast-store';
 
 /** The gap between the stack and the screen's corner. */
 const SCREEN_INSET = '1rem';
 
 /*
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
- * them. Every toast is the popover's surface, outlined in `--border`; an error is outlined and
- * written in the danger colour.
+ * them. A status or progress toast is the popover's surface, outlined in `--border`; an error is
+ * the same surface, outlined and written in the danger colour. A warning is the warning fill with
+ * its own text colour: the theme's warning is a fill only, not readable as text on a surface.
  */
-const SURFACE =
-  'bg-popover ring-1 rounded-md shadow-md p-3 text-sm animate-in fade-in-0 slide-in-from-bottom-2 duration-200 motion-reduce:animate-none';
-const NEUTRAL = `${SURFACE} text-popover-foreground ring-border`;
+const SHAPE =
+  'ring-1 rounded-md shadow-md p-3 text-sm animate-in fade-in-0 slide-in-from-bottom-2 duration-200 motion-reduce:animate-none';
+const NEUTRAL = `${SHAPE} bg-popover text-popover-foreground ring-border`;
 const TOAST_CLASSES: Record<ToastEntry['kind'], string> = {
   status: NEUTRAL,
   progress: NEUTRAL,
-  error: `${SURFACE} text-destructive ring-destructive`,
+  error: `${SHAPE} bg-popover text-destructive ring-destructive`,
+  warning: `${SHAPE} bg-warning text-warning-foreground ring-warning`,
+};
+
+/** What the live region says before a message of each kind; a status is said as it is. */
+const ANNOUNCED_KIND: Record<MessageKind, string> = {
+  error: 'Error: ',
+  warning: 'Warning: ',
+  status: '',
 };
 
 /**
@@ -45,14 +54,14 @@ const TOAST_CLASSES: Record<ToastEntry['kind'], string> = {
  * and an app that shows no toasts should not carry them.
  *
  * The toasts stack in the bottom-right corner, the newest last, at most three at a time. When
- * more exist, the oldest error and status toasts are hidden first and the oldest progress toasts
+ * more exist, the oldest error, warning and status toasts are hidden first and the oldest progress toasts
  * last (work in progress is what the user is waiting for); a hidden toast shows again if it is
  * still there when the others clear.
  *
  * What the user sees and what a screen reader announces are two layers. The visible stack is
  * `aria-hidden`. A second overlay, never re-shown and never hidden, holds a visually hidden
- * `aria-live="polite"` region with one entry per toast: the message ("Error: " in front of an
- * error), or a progress toast's title. An entry is added when its toast is, so each toast is
+ * `aria-live="polite"` region with one entry per toast: the message ("Error: " or "Warning: " in
+ * front of an error or a warning), or a progress toast's title. An entry is added when its toast is, so each toast is
  * announced once, as it appears. A progress toast's changing detail and percent are in a nested
  * `aria-live="off"` part: a screen reader finds the current value when it reads the region, but a
  * long upload is not read out every second. The two layers are separate because bringing the
@@ -90,10 +99,7 @@ const TOAST_CLASSES: Record<ToastEntry['kind'], string> = {
                 }
               </span>
             } @else {
-              @if (toast.kind === 'error') {
-                Error:
-              }
-              {{ toast.message }}
+              {{ announcedKind[toast.kind] }}{{ toast.message }}
             }
           </div>
         }
@@ -130,6 +136,7 @@ export class NeatToastHost {
   private stackOverlay: OverlayRef | undefined;
   private newestShown = 0;
   protected readonly classes = TOAST_CLASSES;
+  protected readonly announcedKind = ANNOUNCED_KIND;
   /** Every toast there is: an entry is announced when it appears, whether it is on screen or not. */
   protected readonly announced = this.store.entries;
   protected readonly visible = computed(() => visibleToasts(this.store.entries()));

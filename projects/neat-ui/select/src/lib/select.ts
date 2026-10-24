@@ -20,7 +20,13 @@ import {
   BrnSelectTrigger,
   provideBrnSelectConfig,
 } from '@spartan-ng/brain/select';
-import { NeatIcon, ɵhlm as hlm } from '@sima/neat-ui';
+import { NeatIcon, ɵFIELD_LABEL_CLASSES as FIELD_LABEL_CLASSES, ɵhlm as hlm } from '@sima/neat-ui';
+
+/** `medium` matches the kit's medium input and button (2.25rem), `small` their small ones (2rem). */
+export type NeatSelectSize = 'small' | 'medium';
+
+/** The kit's sizes in helm's vocabulary: its trigger takes its height from `data-size`. */
+const SIZES: Record<NeatSelectSize, 'default' | 'sm'> = { small: 'sm', medium: 'default' };
 
 /** One choice of a `neat-select`. */
 export interface NeatSelectOption<T> {
@@ -80,7 +86,9 @@ let nextSelectId = 0;
  * ```
  *
  * `label` is the accessible name of the select and of its list; `showLabel` also shows it above
- * the select, and a click on it opens the list. `options` are `{ value, label, disabled? }`; the
+ * the select, and a click on it opens the list. The shown label is drawn as `neat-field`'s is, and
+ * `size` matches `neatInput`'s and `neatButton`'s, so a select in a row of fields and buttons of
+ * the same size lines up with them. `options` are `{ value, label, disabled? }`; the
  * selected value is `value`, `null` while there is none, and the trigger shows the selected
  * option's label or, without one, `placeholder`; a value that is not among the options (a deleted
  * file, options that load later) shows the placeholder as well, in its muted colour. The select fills its container's width, and its
@@ -122,10 +130,10 @@ let nextSelectId = 0;
       isSingleValuePresent: (value) => value !== null && value !== undefined,
     }),
   ],
-  host: { 'data-slot': 'select-field', class: 'flex flex-col gap-2' },
+  host: { 'data-slot': 'select-field', '[class]': 'fieldClasses.stack' },
   template: `
     @if (showLabel()) {
-      <label class="text-sm font-medium" [attr.for]="triggerId">{{ label() }}</label>
+      <label [class]="fieldClasses.label" [attr.for]="triggerId">{{ label() }}</label>
     }
     <div
       brnSelect
@@ -142,7 +150,7 @@ let nextSelectId = 0;
       <button
         brnSelectTrigger
         data-slot="select-trigger"
-        data-size="default"
+        [attr.data-size]="helmSize()"
         [id]="triggerId"
         [class]="triggerClasses"
         [attr.aria-label]="label()"
@@ -189,7 +197,11 @@ export class NeatSelect<T> {
   /** Shows `label` above the select. */
   readonly showLabel = input(false, { transform: booleanAttribute });
   readonly disabled = input(false, { transform: booleanAttribute });
+  /** The trigger's height: `medium` (2.25rem) or `small` (2rem), as the kit's input and button. */
+  readonly size = input<NeatSelectSize>('medium');
 
+  protected readonly fieldClasses = FIELD_LABEL_CLASSES;
+  protected readonly helmSize = computed(() => SIZES[this.size()]);
   protected readonly triggerId = `neat-select-${++nextSelectId}`;
   protected readonly triggerClasses: string = TRIGGER_CLASSES;
   protected readonly triggerIconClasses: string = SELECT_HELM_CLASSES.triggerIcon;

@@ -93,6 +93,15 @@ const PRESSED =
   'bg-foreground text-background hover:bg-foreground hover:text-background dark:bg-foreground dark:text-background dark:hover:bg-foreground dark:hover:text-background';
 
 /**
+ * The disabled look for a button that is `aria-disabled` rather than `disabled`: helm's
+ * `data-disabled` classes (dimmed, and no pointer events, so no hover look and no click from the
+ * pointer) under `aria-disabled`. Such a button keeps the focus, which a `disabled` one loses: a
+ * main action that changes its label while it waits, or a dialog's close button while the dialog
+ * is busy. button.spec checks every `data-disabled` class has its `aria-disabled` twin.
+ */
+const HELD = 'aria-disabled:pointer-events-none aria-disabled:opacity-50';
+
+/**
  * A button or link styled as a kit button. Content is the label and/or a `neat-icon`; an
  * icon-only button needs an `aria-label` (and usually a `neatTooltip` with the same text).
  *
@@ -103,6 +112,11 @@ const PRESSED =
  *
  * A toggle button binds `pressed`: it sets `aria-pressed` and the pressed look. Leave it undefined
  * on a button that is not a toggle, since `aria-pressed="false"` would announce one.
+ *
+ * `[attr.aria-disabled]="true"` gives the disabled look while the button stays focusable, for a
+ * button that waits and must not drop the focus. The kit only styles it: the pointer cannot press
+ * it, but Enter and Space still fire `click`, so the handler ignores presses while it waits. A
+ * tooltip on it opens on focus, not on hover.
  */
 @Directive({
   selector: 'button[neatButton], a[neatButton]',
@@ -139,6 +153,7 @@ export class NeatButton {
       }),
       variant.hover,
       variant.focus,
+      HELD,
       iconOnly ? size.extraIconOnly : size.extra,
       this.rounded() && 'rounded-full',
       this.pressed() && PRESSED,

@@ -18,8 +18,10 @@ const ALIAS = '@neat-ui/helm';
  */
 export const SECONDARY_ENTRIES = {
   confirm: ['neat-confirm-dialog'],
+  details: ['dl[neatDetails]'],
   dialog: ['neat-dialog-panel', 'neat-dialog-body', 'neat-dialog-actions'],
   'drop-zone': ['neat-drop-zone'],
+  field: ['neat-field', 'neat-error-note'],
   'file-browser': ['neat-file-browser'],
   input: ['input[neatInput]'],
   'line-list': ['ul[neatLineList]', 'li[neatLine]', '[neatLineEnd]'],
@@ -30,6 +32,7 @@ export const SECONDARY_ENTRIES = {
   select: ['neat-select'],
   'select-list': ['neat-select-list', 'ng-template[neatColumn]'],
   slider: ['neat-slider'],
+  'status-chip': ['neat-status-chip', 'button[neatStatusChip]'],
   switch: ['button[neatSwitch]'],
   tabs: ['neat-tabs', 'neat-tab'],
   toast: ['neat-toast-host'],

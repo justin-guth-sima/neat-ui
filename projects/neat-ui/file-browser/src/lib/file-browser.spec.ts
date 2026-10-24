@@ -54,6 +54,9 @@ const TREE: readonly NeatFileNode[] = [
         <ng-template neatColumn="type" header="Type" width="4rem" let-file>{{
           file.name.split('.').pop()
         }}</ng-template>
+        <ng-template neatColumn="size" header="Size" width="5rem" [hideBelow]="hideSizeBelow()"
+          >1 MB</ng-template
+        >
       }
     </neat-file-browser>
   `,
@@ -63,6 +66,7 @@ class BrowserHost {
   readonly mode = signal<'pick' | 'manage'>('pick');
   readonly labels = signal<Partial<NeatFileBrowserLabels>>({});
   readonly withColumn = signal(false);
+  readonly hideSizeBelow = signal<number | undefined>(undefined);
   readonly folder = signal('');
   readonly selected = signal<string | null>(null);
   readonly checked = signal<readonly string[]>([]);
@@ -118,8 +122,10 @@ async function render(setup: (host: BrowserHost) => void = () => undefined) {
     filter: () => element.querySelector<HTMLInputElement>('input[type="text"]')!,
     row: (name: string) =>
       view.options().find((o) => view.names()[view.options().indexOf(o)] === name)!,
-    checkbox: (name: string) =>
-      view.row(name).querySelector<HTMLInputElement>('input[type="checkbox"]'),
+    /** A row's box, which the list draws in manage mode. */
+    box: (name: string) =>
+      view.row(name).querySelector<HTMLElement>('[data-slot="select-list-check"]'),
+    isChecked: (name: string) => view.box(name)!.hasAttribute('data-checked'),
     async settle() {
       await fixture.whenStable();
     },
@@ -170,6 +176,18 @@ describe('NeatFileBrowser', () => {
       );
       expect(folder.querySelector('.tabular-nums')!.getAttribute('aria-hidden')).toBe('true');
       expect(row('empty').textContent).toContain('0 files in empty and its subfolders');
+    });
+
+    it('puts a folder’s count at the end of the name cell, or right after the name when the app adds columns', async () => {
+      const { row, host, fixture } = await render();
+      const count = () => row('30FPS').querySelector('.tabular-nums')!;
+      expect(count().classList).toContain('ms-auto');
+
+      host.withColumn.set(true);
+      await fixture.whenStable();
+      // The count reads as the folder's, not as a value in the next column.
+      expect(count().classList).not.toContain('ms-auto');
+      expect(count().previousElementSibling!.textContent).toBe('30FPS');
     });
 
     it('describes the list to a screen reader in manage mode only: how to check a file', async () => {
@@ -586,7 +604,7 @@ describe('NeatFileBrowser', () => {
 
       expect(host.selected()).toBe('video.mp4');
       expect(row('video.mp4').getAttribute('aria-selected')).toBe('true');
-      expect(element.querySelector('input[type="checkbox"]')).toBeNull();
+      expect(element.querySelector('[data-slot="select-list-check"]')).toBeNull();
     });
 
     it('selects one file at a time and keeps it selected across folders', async () => {
@@ -655,26 +673,40 @@ describe('NeatFileBrowser', () => {
   describe('manage mode', () => {
     const manage = (host: BrowserHost) => host.mode.set('manage');
 
-    it('puts a checkbox on each file, not on folders, that no Tab stop reaches', async () => {
-      const { options, checkbox, element } = await render(manage);
+    it('is the list’s checked mode: a box on each file, not on folders, and a multi-select listbox', async () => {
+      const { options, box, element, listbox } = await render(manage);
 
-      expect(element.querySelectorAll('input[type="checkbox"]')).toHaveLength(2);
-      expect(checkbox('video.mp4')!.tabIndex).toBe(-1);
-      expect(options()[0].querySelector('input')).toBeNull();
+      expect(element.querySelectorAll('[data-slot="select-list-check"]')).toHaveLength(2);
+      expect(box('video.mp4')!.getAttribute('aria-hidden')).toBe('true');
+      expect(options()[0].querySelector('[data-slot="select-list-check"]')).toBeNull();
+      expect(listbox().getAttribute('aria-multiselectable')).toBe('true');
+      expect(element.querySelector('input[type="checkbox"]')).toBeNull();
+    });
+
+    it('says which files are checked through the list: each file is aria-selected while checked, a folder never', async () => {
+      const { row, host, fixture } = await render(manage);
+      expect(row('video.mp4').getAttribute('aria-selected')).toBe('false');
+      expect(row('30FPS').hasAttribute('aria-selected')).toBe(false);
+
+      host.checked.set(['video.mp4']);
+      await fixture.whenStable();
+
+      expect(row('video.mp4').getAttribute('aria-selected')).toBe('true');
+      expect(row('Readme.md').getAttribute('aria-selected')).toBe('false');
     });
 
     it('checks a file with a click on its box without selecting or opening anything', async () => {
-      const { checkbox, host, fixture } = await render(manage);
+      const { box, isChecked, host, fixture } = await render(manage);
 
-      checkbox('video.mp4')!.click();
+      box('video.mp4')!.click();
       await fixture.whenStable();
 
       expect(host.checked()).toEqual(['video.mp4']);
       expect(host.selected()).toBeNull();
       expect(host.folder()).toBe('');
-      expect(checkbox('video.mp4')!.checked).toBe(true);
+      expect(isChecked('video.mp4')).toBe(true);
 
-      checkbox('video.mp4')!.click();
+      box('video.mp4')!.click();
       await fixture.whenStable();
       expect(host.checked()).toEqual([]);
     });
@@ -688,28 +720,13 @@ describe('NeatFileBrowser', () => {
       expect(host.checked()).toEqual([]);
     });
 
-    it('gives the focus back to the list after a click on a box, so the arrow keys keep working', async () => {
-      const { fixture, checkbox, press, host, listbox } = await render(manage);
-      document.body.append(fixture.nativeElement);
-      const box = checkbox('video.mp4')!;
-      box.focus();
-
-      box.click();
-      await fixture.whenStable();
-      expect(document.activeElement).toBe(listbox());
-
-      await press('End');
-      expect(host.selected()).toBe('video.mp4');
-      fixture.nativeElement.remove();
-    });
-
     it('checks the file the list is on with Space, without moving the selection, and unchecks it with the next', async () => {
-      const { press, host, checkbox } = await render(manage);
+      const { press, host, isChecked } = await render(manage);
       await press('End');
 
       expect((await press(' ')).defaultPrevented).toBe(true);
       expect(host.checked()).toEqual(['video.mp4']);
-      expect(checkbox('video.mp4')!.checked).toBe(true);
+      expect(isChecked('video.mp4')).toBe(true);
       expect(host.selected()).toBe('video.mp4');
 
       await press('ArrowUp');
@@ -754,32 +771,23 @@ describe('NeatFileBrowser', () => {
       expect(host.selected()).toBe('video.mp4');
     });
 
-    it('gives each box a name from labels.selectFile, and says a checked file is checked', async () => {
-      const { checkbox, row, host, fixture } = await render(manage);
-      expect(checkbox('video.mp4')!.getAttribute('aria-label')).toBe('Select video.mp4');
-      expect(row('video.mp4').textContent).not.toContain('Checked');
-
-      host.labels.set({ selectFile: (path) => `Select ${path} for deletion` });
-      host.checked.set(['video.mp4']);
-      await fixture.whenStable();
-
-      expect(checkbox('video.mp4')!.getAttribute('aria-label')).toBe(
-        'Select video.mp4 for deletion',
-      );
-      expect(row('video.mp4').textContent).toContain('Checked');
-    });
-
     it('keeps files checked across folders and filters, and on the files that are shown', async () => {
-      const { checkbox, click, type, host, fixture } = await render(manage);
+      const { isChecked, click, type, box, host, fixture } = await render(manage);
       host.checked.set(['30FPS/highway.mp4']);
       await fixture.whenStable();
 
       await click('30FPS');
-      expect(checkbox('highway.mp4')!.checked).toBe(true);
+      expect(isChecked('highway.mp4')).toBe(true);
 
       await type('highway');
-      expect(checkbox('highway.mp4')!.checked).toBe(true);
+      expect(isChecked('highway.mp4')).toBe(true);
       expect(host.checked()).toEqual(['30FPS/highway.mp4']);
+
+      // A file checked here joins the ones checked elsewhere.
+      await type('lobby');
+      box('indoor/lobby.mp4')!.click();
+      await fixture.whenStable();
+      expect(host.checked()).toEqual(['30FPS/highway.mp4', '30FPS/indoor/lobby.mp4']);
     });
 
     it('drops checked paths that are no longer in the tree', async () => {
@@ -806,9 +814,33 @@ describe('NeatFileBrowser', () => {
       expect([...header.firstElementChild!.children].map((c) => c.textContent!.trim())).toEqual([
         'Name',
         'Type',
+        'Size',
       ]);
       const cells = options().map((o) => o.children[1]?.textContent?.trim());
       expect(cells).toEqual(['', '', '', 'md', 'mp4']);
+    });
+
+    it('passes a column’s hideBelow on to the list', async () => {
+      class WideResizeObserver {
+        observe = vi.fn();
+        disconnect = vi.fn();
+      }
+      vi.stubGlobal('ResizeObserver', WideResizeObserver);
+      vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+        width: 500,
+      } as DOMRect);
+      const { element } = await render((host) => {
+        host.withColumn.set(true);
+        host.hideSizeBelow.set(600);
+      });
+
+      const header = element.querySelector('[data-slot="select-list-header"]')!;
+      expect([...header.firstElementChild!.children].map((c) => c.textContent!.trim())).toEqual([
+        'Name',
+        'Type',
+      ]);
+      vi.unstubAllGlobals();
+      vi.restoreAllMocks();
     });
 
     it('takes the name column’s heading from labels.name', async () => {
@@ -835,7 +867,7 @@ describe('NeatFileBrowser', () => {
     ];
 
     it('shows them all, keeps their rows when one is checked or selected, and filters them', async () => {
-      const { host, fixture, options, press, checkbox, type, names } = await render((host) => {
+      const { host, fixture, options, press, box, type, names } = await render((host) => {
         host.root.set(big);
         host.folder.set('big');
         host.mode.set('manage');
@@ -843,7 +875,7 @@ describe('NeatFileBrowser', () => {
       expect(options()).toHaveLength(1000);
       const before = options();
 
-      checkbox('clip-0003.mp4')!.click();
+      box('clip-0003.mp4')!.click();
       await press('ArrowDown');
       await press('ArrowDown');
       await fixture.whenStable();
@@ -859,7 +891,7 @@ describe('NeatFileBrowser', () => {
 
   describe('contrast, from the emitted theme tokens', () => {
     const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
-    const VOCABULARY = { dark: 'dark', checked: 'checked', 'focus-visible': 'focus' };
+    const VOCABULARY = { dark: 'dark' };
 
     for (const scheme of SCHEMES) {
       const tokens = spartanThemeTokens(scheme);
@@ -895,38 +927,7 @@ describe('NeatFileBrowser', () => {
           }
         }
       });
-
-      it(`${scheme}: a file's checkbox shows against every surface (3:1), unchecked by its border and checked by its fill, and its tick reaches 4.5:1`, async () => {
-        const { checkbox, host, fixture, row } = await render((host) => host.mode.set('manage'));
-        host.checked.set(['video.mp4']);
-        await fixture.whenStable();
-        const classes = [...checkbox('video.mp4')!.classList];
-        const q = (...states: string[]) => ({
-          tokens,
-          vocabulary: VOCABULARY,
-          on: [...on, ...states],
-        });
-        for (const fill of FILLS) {
-          const under = tokens[fill];
-          const border = stateColor(classes, 'border', q(), under);
-          expect(
-            contrastRatio(border, under),
-            `${scheme} unchecked border ${border} on --${fill}`,
-          ).toBeGreaterThanOrEqual(3);
-          const fillColor = stateColor(classes, 'bg', q('checked'), under);
-          expect(
-            contrastRatio(fillColor, under),
-            `${scheme} checked fill ${fillColor} on --${fill}`,
-          ).toBeGreaterThanOrEqual(3);
-        }
-        const tickClasses = [...row('video.mp4').querySelector('input + neat-icon')!.classList];
-        const tickOn = tokens['primary'];
-        const tickColor = stateColor(tickClasses, 'text', q(), tickOn);
-        expect(
-          contrastRatio(tickColor, tickOn),
-          `${scheme} tick ${tickColor} on ${tickOn}`,
-        ).toBeGreaterThanOrEqual(4.5);
-      });
+      // A file's box is the select list's (checked mode); select-list.spec holds it to the theme.
     }
   });
 });

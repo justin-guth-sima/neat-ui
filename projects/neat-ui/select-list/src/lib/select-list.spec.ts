@@ -54,6 +54,101 @@ class HeaderlessHost {
   readonly id = (n: number) => n;
 }
 
+interface AssetType {
+  readonly id: number;
+  readonly name: string;
+  /** A type the catalog has no files of: listed, but nothing to check. */
+  readonly empty?: boolean;
+}
+
+const TYPES: readonly AssetType[] = [
+  { id: 1, name: 'Cars' },
+  { id: 2, name: 'People' },
+  { id: 3, name: 'Drones', empty: true },
+  { id: 4, name: 'Boats' },
+];
+
+@Component({
+  imports: [NeatSelectList, NeatColumn],
+  template: `
+    <neat-select-list
+      label="Asset types"
+      checkable
+      hint="Press Space to check or uncheck a type."
+      [items]="types"
+      [trackBy]="byId"
+      [canCheck]="hasFiles"
+      [(checked)]="checked"
+      [(selected)]="selected"
+      (activated)="activated.push($event.id)"
+    >
+      <ng-template neatColumn="name" header="Type" let-type>{{ type.name }}</ng-template>
+      <ng-template neatColumn="count" header="Files" width="6rem" let-type>
+        <button type="button" (click)="pressed.push(type.id)">{{ type.id * 10 }}</button>
+      </ng-template>
+    </neat-select-list>
+  `,
+})
+class CheckedHost {
+  readonly types = TYPES;
+  readonly checked = signal<readonly number[]>([]);
+  readonly selected = signal<AssetType | null>(null);
+  readonly activated: number[] = [];
+  readonly pressed: number[] = [];
+  readonly byId = (type: AssetType) => type.id;
+  readonly hasFiles = vi.fn((type: AssetType) => !type.empty);
+}
+
+@Component({
+  imports: [NeatSelectList, NeatColumn],
+  template: `
+    @if (shown()) {
+      <neat-select-list label="Streaming slots" [items]="items" [trackBy]="byId">
+        <ng-template neatColumn="name" header="Slot" let-item>{{ item.name }}</ng-template>
+        <ng-template neatColumn="rate" header="Rate" width="5rem" [hideBelow]="600" let-item
+          >30</ng-template
+        >
+        <ng-template neatColumn="codec" header="Codec" width="6rem" [hideBelow]="800" let-item
+          >H.264</ng-template
+        >
+      </neat-select-list>
+    }
+  `,
+})
+class NarrowHost {
+  readonly items = SLOTS;
+  readonly shown = signal(true);
+  readonly byId = (item: Slot) => item.id;
+}
+
+/**
+ * A ResizeObserver whose callbacks the spec calls, with the list's width: jsdom lays nothing out.
+ * `instances` holds every observer made, newest last.
+ */
+class FakeResizeObserver {
+  static instances: FakeResizeObserver[] = [];
+  readonly observed: Element[] = [];
+  disconnected = false;
+
+  constructor(private readonly callback: ResizeObserverCallback) {
+    FakeResizeObserver.instances.push(this);
+  }
+
+  observe(element: Element): void {
+    this.observed.push(element);
+  }
+
+  disconnect(): void {
+    this.disconnected = true;
+  }
+
+  /** Reports the observed element at `width` CSS pixels. */
+  resize(width: number): void {
+    const entry = { contentRect: { width } } as ResizeObserverEntry;
+    this.callback([entry], this as unknown as ResizeObserver);
+  }
+}
+
 let scrolled: HTMLElement[];
 
 beforeEach(() => {
@@ -164,6 +259,23 @@ describe('NeatSelectList', () => {
         'false',
         'false',
       ]);
+    });
+
+    it('marks the selected row active, which draws its look, and offers no boxes and no multiple selection', async () => {
+      const { host, fixture, options, listbox, element } = await render();
+
+      host.selected.set(SLOTS[1]);
+      await fixture.whenStable();
+
+      expect(options().map((o) => o.hasAttribute('data-active'))).toEqual([
+        false,
+        true,
+        false,
+        false,
+        false,
+      ]);
+      expect(listbox().hasAttribute('aria-multiselectable')).toBe(false);
+      expect(element.querySelector('[data-slot="select-list-check"]')).toBeNull();
     });
 
     it('selects a row on click and tells activated, but not for a click on a control in the row', async () => {
@@ -485,10 +597,297 @@ describe('NeatSelectList', () => {
     });
   });
 
+  describe('columns that hide when narrow', () => {
+    let width = 0;
+
+    beforeEach(() => {
+      FakeResizeObserver.instances = [];
+      vi.stubGlobal('ResizeObserver', FakeResizeObserver);
+      width = 0;
+      vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(
+        () => ({ width }) as DOMRect,
+      );
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      vi.restoreAllMocks();
+    });
+
+    async function renderNarrow(initialWidth: number) {
+      width = initialWidth;
+      const fixture = TestBed.createComponent(NarrowHost);
+      await fixture.whenStable();
+      const element: HTMLElement = fixture.nativeElement;
+      const list = () => element.querySelector<HTMLElement>('neat-select-list')!;
+      return {
+        fixture,
+        list,
+        headers: () =>
+          cellTexts(element.querySelector('[data-slot="select-list-header"]')!.firstElementChild!),
+        firstRow: () => cellTexts(element.querySelector('[role="option"]')!),
+        tracks: () => list().style.getPropertyValue('--neat-select-list-columns'),
+        async resize(to: number) {
+          width = to;
+          FakeResizeObserver.instances.at(-1)!.resize(to);
+          await fixture.whenStable();
+        },
+      };
+    }
+
+    it('shows every column while the list is at least as wide as each one’s hideBelow', async () => {
+      const { headers, firstRow, tracks } = await renderNarrow(900);
+
+      expect(headers()).toBe('Slot Rate Codec');
+      expect(firstRow()).toBe('src1 30 H.264');
+      expect(tracks()).toBe('1fr 5rem 6rem');
+    });
+
+    it('takes a column and its header out of the layout below its hideBelow, and back above it', async () => {
+      const { headers, firstRow, tracks, resize } = await renderNarrow(900);
+
+      await resize(799);
+      expect(headers()).toBe('Slot Rate');
+      expect(firstRow()).toBe('src1 30');
+      expect(tracks()).toBe('1fr 5rem');
+
+      await resize(599);
+      expect(headers()).toBe('Slot');
+      expect(tracks()).toBe('1fr');
+
+      await resize(800);
+      expect(headers()).toBe('Slot Rate Codec');
+      expect(tracks()).toBe('1fr 5rem 6rem');
+    });
+
+    it('lays the first render out at the width the list has, before any resize is reported', async () => {
+      const { headers } = await renderNarrow(640);
+
+      expect(headers()).toBe('Slot Rate');
+    });
+
+    it('shows every column while the list has no width, not being laid out', async () => {
+      const { headers, resize } = await renderNarrow(0);
+      expect(headers()).toBe('Slot Rate Codec');
+
+      await resize(500);
+      expect(headers()).toBe('Slot');
+      await resize(0);
+      expect(headers()).toBe('Slot Rate Codec');
+    });
+
+    it('watches its own width, and stops when it goes', async () => {
+      const { fixture, list } = await renderNarrow(900);
+      const [observer] = FakeResizeObserver.instances;
+
+      expect(FakeResizeObserver.instances).toHaveLength(1);
+      expect(observer.observed).toEqual([list()]);
+
+      fixture.componentInstance.shown.set(false);
+      await fixture.whenStable();
+      expect(observer.disconnected).toBe(true);
+    });
+
+    it('watches nothing when no column hides', async () => {
+      await render();
+
+      expect(FakeResizeObserver.instances).toHaveLength(0);
+    });
+  });
+
+  describe('checked mode', () => {
+    async function renderChecked(setup: (host: CheckedHost) => void = () => undefined) {
+      const fixture = TestBed.createComponent(CheckedHost);
+      setup(fixture.componentInstance);
+      await fixture.whenStable();
+      const element: HTMLElement = fixture.nativeElement;
+      const options = () => [...element.querySelectorAll<HTMLElement>('[role="option"]')];
+      return {
+        fixture,
+        host: fixture.componentInstance,
+        element,
+        list: element.querySelector<HTMLElement>('neat-select-list')!,
+        listbox: () => element.querySelector<HTMLElement>('[role="listbox"]')!,
+        options,
+        box: (index: number) =>
+          options()[index].querySelector<HTMLElement>('[data-slot="select-list-check"]'),
+        async press(key: string) {
+          const event = press(element.querySelector<HTMLElement>('[role="listbox"]')!, key);
+          await fixture.whenStable();
+          return event;
+        },
+      };
+    }
+
+    it('is a multi-select listbox whose checkable rows say whether they are checked', async () => {
+      const { fixture, host, listbox, options } = await renderChecked();
+
+      expect(listbox().getAttribute('aria-multiselectable')).toBe('true');
+      expect(options().map((o) => o.getAttribute('aria-selected'))).toEqual([
+        'false',
+        'false',
+        null,
+        'false',
+      ]);
+
+      host.checked.set([2, 4]);
+      await fixture.whenStable();
+      expect(options().map((o) => o.getAttribute('aria-selected'))).toEqual([
+        'false',
+        'true',
+        null,
+        'true',
+      ]);
+    });
+
+    it('keeps the row the keyboard is on apart from the checked ones: active, and the active descendant', async () => {
+      const { fixture, host, listbox, options } = await renderChecked((host) =>
+        host.checked.set([1]),
+      );
+
+      host.selected.set(TYPES[1]);
+      await fixture.whenStable();
+
+      expect(options().map((o) => o.hasAttribute('data-active'))).toEqual([
+        false,
+        true,
+        false,
+        false,
+      ]);
+      expect(listbox().getAttribute('aria-activedescendant')).toBe(options()[1].id);
+      expect(options()[1].getAttribute('aria-selected')).toBe('false');
+    });
+
+    it('draws a box before the cells of each checkable row, in a column of its own with an empty header', async () => {
+      const { element, list, options, box, fixture, host } = await renderChecked();
+
+      expect(list.style.getPropertyValue('--neat-select-list-columns')).toBe('1rem 1fr 6rem');
+      const header = element.querySelector('[data-slot="select-list-header"]')!.firstElementChild!;
+      expect([...header.children].map((cell) => cell.textContent!.trim())).toEqual([
+        '',
+        'Type',
+        'Files',
+      ]);
+      expect(options().map((o) => o.children.length)).toEqual([3, 3, 3, 3]);
+      expect(box(2)).toBeNull();
+      expect(box(0)!.getAttribute('aria-hidden')).toBe('true');
+      // Not a tab stop, nor focusable by a click: the focus stays on the listbox.
+      expect(box(0)!.hasAttribute('tabindex')).toBe(false);
+      expect(box(0)!.hasAttribute('data-checked')).toBe(false);
+      expect(box(0)!.querySelector('neat-icon')).toBeNull();
+
+      host.checked.set([1]);
+      await fixture.whenStable();
+      expect(box(0)!.hasAttribute('data-checked')).toBe(true);
+      expect(box(0)!.querySelector('neat-icon')).not.toBeNull();
+    });
+
+    it('asks canCheck once per item when the items change, not per check or selection', async () => {
+      const { host, press } = await renderChecked();
+      const calls = host.hasFiles.mock.calls.length;
+
+      await press('ArrowDown');
+      await press(' ');
+
+      expect(host.hasFiles.mock.calls.length).toBe(calls);
+    });
+
+    it('checks and unchecks the row the keyboard is on with Space, which the arrow keys move without checking', async () => {
+      const { host, press } = await renderChecked();
+
+      await press('ArrowDown');
+      expect(host.checked()).toEqual([]);
+      expect((await press(' ')).defaultPrevented).toBe(true);
+      expect(host.checked()).toEqual([1]);
+      expect(host.selected()).toBe(TYPES[0]);
+
+      await press('End');
+      await press(' ');
+      expect(host.checked()).toEqual([1, 4]);
+
+      await press('Home');
+      await press(' ');
+      expect(host.checked()).toEqual([4]);
+    });
+
+    it('does nothing on Space over a row it cannot check, or with no row active', async () => {
+      const { host, press } = await renderChecked();
+
+      expect((await press(' ')).defaultPrevented).toBe(true);
+      await press('ArrowDown');
+      await press('ArrowDown');
+      await press('ArrowDown');
+      expect(host.selected()).toBe(TYPES[2]);
+      await press(' ');
+
+      expect(host.checked()).toEqual([]);
+    });
+
+    it('toggles a row with a click on its box, and nothing else: no selection, no activation', async () => {
+      const { fixture, host, box } = await renderChecked();
+
+      box(1)!.click();
+      await fixture.whenStable();
+      expect(host.checked()).toEqual([2]);
+      expect(host.selected()).toBeNull();
+      expect(host.activated).toEqual([]);
+
+      box(1)!.click();
+      await fixture.whenStable();
+      expect(host.checked()).toEqual([]);
+    });
+
+    it('selects and activates a row with a click elsewhere on it, without checking it', async () => {
+      const { fixture, host, options } = await renderChecked();
+
+      options()[0].click();
+      await fixture.whenStable();
+
+      expect(host.selected()).toBe(TYPES[0]);
+      expect(host.activated).toEqual([1]);
+      expect(host.checked()).toEqual([]);
+    });
+
+    it('leaves a click on a control in a cell to the control', async () => {
+      const { fixture, host, options } = await renderChecked();
+
+      options()[0].querySelector('button')!.click();
+      await fixture.whenStable();
+
+      expect(host.pressed).toEqual([1]);
+      expect(host.checked()).toEqual([]);
+      expect(host.selected()).toBeNull();
+    });
+
+    it('holds keys, keeping the ones it does not list, and appends a newly checked one', async () => {
+      const { fixture, host, box } = await renderChecked((host) => host.checked.set([99, 4]));
+
+      box(0)!.click();
+      await fixture.whenStable();
+      expect(host.checked()).toEqual([99, 4, 1]);
+
+      box(3)!.click();
+      await fixture.whenStable();
+      expect(host.checked()).toEqual([99, 1]);
+    });
+
+    it('describes the listbox by the hint, which says how to check from the keyboard', async () => {
+      const { listbox, element } = await renderChecked();
+
+      const hint = element.querySelector(`#${listbox().getAttribute('aria-describedby')}`);
+      expect(hint?.textContent).toBe('Press Space to check or uncheck a type.');
+    });
+  });
+
   describe('contrast, from the emitted theme tokens', () => {
     const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
     const SURFACES = ['background', 'card'] as const;
-    const VOCABULARY = { dark: 'dark', hover: 'hover', 'aria-selected': 'selected' };
+    const VOCABULARY = {
+      dark: 'dark',
+      hover: 'hover',
+      'data-active': 'selected',
+      'data-checked': 'checked',
+    };
 
     for (const scheme of SCHEMES) {
       const tokens = spartanThemeTokens(scheme);
@@ -535,6 +934,35 @@ describe('NeatSelectList', () => {
         const classes = [...options()[0].classList];
         const under = tokens['background'];
         expect(stateColor(classes, 'border', q(on()), under)).toBe(under);
+      });
+
+      it(`${scheme}: a row’s box shows against the surface and the row’s fills (3:1), unchecked by its border and checked by its fill, and its tick reaches 4.5:1`, async () => {
+        const fixture = TestBed.createComponent(CheckedHost);
+        fixture.componentInstance.checked.set([1]);
+        await fixture.whenStable();
+        const box = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+          '[data-slot="select-list-check"]',
+        )!;
+        const classes = [...box.classList];
+        for (const under of [...SURFACES, 'accent'].map((name) => tokens[name])) {
+          const border = stateColor(classes, 'border', q(on()), under);
+          expect(
+            contrastRatio(border, under),
+            `unchecked border ${border} on ${under}`,
+          ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+          const fill = stateColor(classes, 'bg', q(on('checked')), under);
+          expect(
+            contrastRatio(fill, under),
+            `checked fill ${fill} on ${under}`,
+          ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+        }
+        const tick = [...box.querySelector('neat-icon')!.classList];
+        const tickOn = tokens['primary'];
+        const tickColor = stateColor(tick, 'text', q(on()), tickOn);
+        expect(
+          contrastRatio(tickColor, tickOn),
+          `tick ${tickColor} on ${tickOn}`,
+        ).toBeGreaterThanOrEqual(4.5);
       });
 
       it(`${scheme}: the header’s text reaches 4.5:1 on the surfaces`, async () => {

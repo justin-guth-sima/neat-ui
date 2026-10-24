@@ -6,7 +6,12 @@ import { MIN_FILL_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
 import { NeatToastHost } from './toast-host';
-import { ERROR_TOAST_MS, MAX_VISIBLE_TOASTS, STATUS_TOAST_MS } from './toast-store';
+import {
+  ERROR_TOAST_MS,
+  MAX_VISIBLE_TOASTS,
+  STATUS_TOAST_MS,
+  WARNING_TOAST_MS,
+} from './toast-store';
 import { NeatToasts, type NeatProgressToast } from './toasts';
 
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
@@ -106,6 +111,59 @@ describe('NeatToasts and the toast host', () => {
     expect(items()).toHaveLength(1);
     await advance(1);
     expect(items()).toHaveLength(0);
+  });
+
+  it('a warning toast is its own kind, announced as a warning, and clears after 4.6 s as an error does', async () => {
+    expect(WARNING_TOAST_MS).toBe(ERROR_TOAST_MS);
+    toasts.warning('Could not restart src2: the file is gone.');
+    render();
+
+    expect(items()).toHaveLength(1);
+    expect(items()[0].dataset['kind']).toBe('warning');
+    expect(messages()).toEqual(['Could not restart src2: the file is gone.']);
+    expect(announcements()).toEqual(['Warning: Could not restart src2: the file is gone.']);
+    await advance(WARNING_TOAST_MS - 1);
+    expect(items()).toHaveLength(1);
+    await advance(1);
+    expect(items()).toHaveLength(0);
+  });
+
+  it('hides a warning before a progress toast, as it does errors and statuses', () => {
+    const progress = toasts.progress('Uploading');
+    toasts.warning('a');
+    toasts.status('b');
+    toasts.error('c');
+    render();
+
+    expect(messages()).toEqual([expect.stringContaining('Uploading'), 'b', 'c']);
+    progress.done('Uploaded.');
+  });
+
+  it('dismiss removes a progress toast with no outcome toast, and the handle does nothing after', () => {
+    const progress = toasts.progress('Uploading 3 files');
+    toasts.status('Stopped 2 sources.');
+    render();
+
+    progress.dismiss();
+    render();
+    expect(messages()).toEqual(['Stopped 2 sources.']);
+    expect(announcements()).toEqual(['Stopped 2 sources.']);
+
+    progress.update('late', 50);
+    progress.done('Uploaded 3 files.');
+    progress.fail('Upload failed.');
+    progress.dismiss();
+    render();
+    expect(messages()).toEqual(['Stopped 2 sources.']);
+  });
+
+  it('dismiss after the work settled leaves its outcome toast alone', () => {
+    const progress = toasts.progress('Uploading');
+    progress.done('Uploaded.');
+    progress.dismiss();
+    render();
+
+    expect(messages()).toEqual(['Uploaded.']);
   });
 
   it('keeps at most 3 toasts, newest last, and hides error and status toasts before progress ones', async () => {
@@ -422,30 +480,41 @@ describe('NeatToasts and the toast host', () => {
       const tokens = spartanThemeTokens(scheme);
       const q = { tokens, vocabulary: VOCABULARY, on: scheme === 'dark' ? ['dark'] : [] };
 
-      it(`${scheme}: every kind of toast meets the theme contrast rules`, () => {
+      it(`${scheme}: every kind of toast meets the theme contrast rules`, async () => {
+        const measured = new Set<string>();
+        const measure = () => {
+          for (const item of items()) {
+            const kind = item.dataset['kind']!;
+            measured.add(kind);
+            const classes = [...item.classList];
+            const fill = stateColor(classes, 'bg', q, tokens['background']);
+            const text = stateColor(classes, 'text', q, fill);
+            expect(
+              contrastRatio(text, fill),
+              `${scheme}: ${kind} text ${text} on ${fill}`,
+            ).toBeGreaterThanOrEqual(4.5);
+            const outline = stateColor(classes, 'ring', q, fill);
+            // A toast is no control, so its outline is held to the panels' (the dialog's, the
+            // popover's), not to the 3:1 of a control's boundary.
+            expect(
+              contrastRatio(outline, tokens['background']),
+              `${scheme}: ${kind} outline ${outline}`,
+            ).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
+          }
+        };
+
+        // Three at a time are shown: the transient kinds first, then progress on its own.
         toasts.error('Upload failed.');
+        toasts.warning('Could not restart src2.');
         toasts.status('Stopped 2 sources.');
+        render();
+        measure();
+        await advance(ERROR_TOAST_MS);
         const progress: NeatProgressToast = toasts.progress('Importing');
         progress.update('clip.mp4', 40);
         render();
-
-        for (const item of items()) {
-          const kind = item.dataset['kind'];
-          const classes = [...item.classList];
-          const fill = stateColor(classes, 'bg', q, tokens['background']);
-          const text = stateColor(classes, 'text', q, fill);
-          expect(
-            contrastRatio(text, fill),
-            `${scheme}: ${kind} text ${text} on ${fill}`,
-          ).toBeGreaterThanOrEqual(4.5);
-          const outline = stateColor(classes, 'ring', q, fill);
-          // A toast is no control, so its outline is held to the panels' (the dialog's, the
-          // popover's), not to the 3:1 of a control's boundary.
-          expect(
-            contrastRatio(outline, tokens['background']),
-            `${scheme}: ${kind} outline ${outline}`,
-          ).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
-        }
+        measure();
+        expect([...measured].sort()).toEqual(['error', 'progress', 'status', 'warning']);
         // The progress bar is `neat-progress`; progress.spec holds its fill and track to 3:1 on
         // the popover surface a toast sits on.
       });

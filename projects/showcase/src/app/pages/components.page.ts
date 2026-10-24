@@ -22,6 +22,7 @@ import {
   type NeatTooltipPosition,
 } from '@sima/neat-ui';
 import { NeatConfirm } from '@sima/neat-ui/confirm';
+import { NeatDetails } from '@sima/neat-ui/details';
 import {
   NeatDialog,
   NeatDialogActions,
@@ -29,6 +30,7 @@ import {
   type NeatDialogRef,
 } from '@sima/neat-ui/dialog';
 import { NeatDropZone } from '@sima/neat-ui/drop-zone';
+import { NeatErrorNote, NeatField } from '@sima/neat-ui/field';
 import { NeatFileBrowser } from '@sima/neat-ui/file-browser';
 import { NeatInput } from '@sima/neat-ui/input';
 import { NeatLine, NeatLineEnd, NeatLineList } from '@sima/neat-ui/line-list';
@@ -39,6 +41,11 @@ import { NeatSegmented, type NeatSegmentedOption } from '@sima/neat-ui/segmented
 import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
 import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
 import { NeatSlider } from '@sima/neat-ui/slider';
+import {
+  NeatStatusChip,
+  NeatStatusChipButton,
+  type NeatStatusTone,
+} from '@sima/neat-ui/status-chip';
 import { NeatSwitch } from '@sima/neat-ui/switch';
 import { NeatTab, NeatTabs } from '@sima/neat-ui/tabs';
 import { NeatToasts } from '@sima/neat-ui/toast';
@@ -54,6 +61,7 @@ import {
   NeatVideoTile,
 } from '@sima/neat-ui/video';
 import { DEMO_TREE, demoSize } from './demo-tree';
+import { SourceDialog, type SourceKind } from './source-dialog';
 import { TestPatternSource } from './test-pattern-source';
 
 const VARIANTS: NeatButtonVariant[] = ['primary', 'secondary', 'outlined', 'text', 'danger'];
@@ -75,6 +83,34 @@ const DEMO_CHANNELS: readonly DemoChannel[] = Array.from({ length: 24 }, (_, ind
   name: `Channel ${index + 1}`,
   state: index % 5 === 1 ? 'Live' : 'Idle',
 }));
+const TONES: NeatStatusTone[] = ['neutral', 'success', 'warning', 'danger', 'info'];
+/** What each tone says in the demo, as Streaming's slot states do. */
+const TONE_LABELS: Record<NeatStatusTone, string> = {
+  neutral: 'Idle',
+  success: 'Live',
+  warning: 'Encoding',
+  danger: 'Failed',
+  info: 'External',
+};
+/** An asset type of the checked list's demo; one has no files, so nothing to check. */
+interface DemoType {
+  readonly id: string;
+  readonly name: string;
+  readonly files: number;
+}
+const DEMO_TYPES: readonly DemoType[] = [
+  { id: 'cars', name: 'Cars', files: 12 },
+  { id: 'people', name: 'People', files: 8 },
+  { id: 'drones', name: 'Drones', files: 0 },
+  { id: 'boats', name: 'Boats', files: 3 },
+  { id: 'trucks', name: 'Trucks', files: 5 },
+];
+const CLIP_LENGTHS: NeatSelectOption<number>[] = [
+  { value: 60, label: '1 min' },
+  { value: 300, label: '5 min' },
+  { value: 600, label: '10 min' },
+];
+
 /** A demo choice for the segmented control; the kit's tiles are always 16:9. */
 type Shape = '16:9' | '1:1';
 
@@ -105,10 +141,13 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
   selector: 'app-components-page',
   imports: [
     NeatButton,
+    NeatDetails,
     NeatDialogActions,
     NeatDialogBody,
     NeatColumn,
     NeatDropZone,
+    NeatErrorNote,
+    NeatField,
     NeatFileBrowser,
     NeatIcon,
     NeatInlineButton,
@@ -127,6 +166,8 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatSelect,
     NeatSelectList,
     NeatSlider,
+    NeatStatusChip,
+    NeatStatusChipButton,
     NeatSwitch,
     NeatTab,
     NeatTabs,
@@ -186,7 +227,10 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
         <section class="showcase-section">
           <h2>Button states</h2>
           <p class="showcase-muted">
-            With a <code>neat-icon</code> before the label, disabled, and as a link, per variant.
+            With a <code>neat-icon</code> before the label, disabled, waiting and as a link, per
+            variant. Waiting is <code>aria-disabled="true"</code>: it looks disabled, takes no
+            pointer, and keeps the focus (Tab reaches it), for a button that waits without dropping
+            the focus; Enter and Space still fire its click, which the app ignores while it waits.
           </p>
           @for (variant of variants; track variant) {
             <div class="showcase-row">
@@ -195,6 +239,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
                 With icon
               </button>
               <button neatButton type="button" [variant]="variant" disabled>Disabled</button>
+              <button neatButton type="button" [variant]="variant" aria-disabled="true">
+                Waiting
+              </button>
               <!-- Links back to this page, so trying it navigates nowhere. -->
               <a neatButton [variant]="variant" routerLink="/components">Link</a>
             </div>
@@ -217,6 +264,64 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
               Applies to every channel that has no value of its own.
               <button neatInlineButton type="button">Show channels</button>
             </p>
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Status chip</h2>
+          <p class="showcase-muted">
+            <code>neat-status-chip</code>: a short status on a status fill, in five tones, the text
+            being the content; it truncates rather than widen what holds it. As
+            <code>button[neatStatusChip]</code> it is a button that looks the same, for a status
+            that opens more about itself (a video tile's "Metadata late"). The words carry the
+            state; the colour repeats it.
+          </p>
+          @for (surface of surfaces; track surface) {
+            <div class="showcase-row" [class.card]="surface === 'card'">
+              @for (tone of tones; track tone) {
+                <neat-status-chip [tone]="tone">{{ toneLabels[tone] }}</neat-status-chip>
+              }
+              <button
+                neatStatusChip
+                type="button"
+                tone="warning"
+                (click)="toasts.status('The late notice would open here.')"
+              >
+                Metadata late
+              </button>
+            </div>
+          }
+          <div class="chip-cell">
+            <neat-status-chip tone="info"
+              >External publisher on a very narrow column</neat-status-chip
+            >
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Details</h2>
+          <p class="showcase-muted">
+            <code>neatDetails</code> on a <code>dl</code>: facts about the selected thing, as a side
+            panel shows them. The terms are muted, the values beside them take the rest of the
+            width, wrap anywhere when long and keep their figures aligned. The pairs are your own
+            <code>dt</code> and <code>dd</code> elements, conditional ones too.
+          </p>
+          <div class="card details-demo">
+            <dl neatDetails>
+              <dt>Source</dt>
+              <dd><code>rtsp://192.168.1.10:554/stream1</code></dd>
+              <dt>Status</dt>
+              <dd>Pulling</dd>
+              <dt>URL</dt>
+              <dd class="details-url">
+                <code>rtsp://neat.local:8554/src3</code>
+                <button neatInlineButton type="button">Copy</button>
+              </dd>
+              <dt>Live for</dt>
+              <dd>1:02:41</dd>
+              <dt>Bitrate</dt>
+              <dd>4.2 Mbit/s</dd>
+            </dl>
           </div>
         </section>
 
@@ -574,8 +679,10 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <code>neat-dialog-actions</code>. Focus stays inside, Escape and the backdrop close it
             while it is dismissible, and focus goes back to the button that opened it. The
             <code>NeatDialogRef</code> closes it with a result and, while the dialog is busy,
-            <code>setDismissible(false)</code> blocks Escape, the backdrop and the close button. For
-            a yes/no question use Confirm.
+            <code>setDismissible(false)</code> blocks Escape, the backdrop and the close button. A
+            component takes values for its inputs from the opener (<code>inputs</code>, typed by the
+            component): "Change source of src3…" opens one on the Camera kind. For a yes/no question
+            use Confirm.
           </p>
           <div class="showcase-row">
             <button neatButton type="button" variant="outlined" (click)="openRename(renameDialog)">
@@ -583,6 +690,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             </button>
             <button neatButton type="button" variant="outlined" (click)="openLong(longDialog)">
               Large dialog with long content…
+            </button>
+            <button neatButton type="button" variant="outlined" (click)="openSource()">
+              Change source of src3…
             </button>
           </div>
           <p class="showcase-code showcase-muted" aria-live="polite">{{ dialogResult() }}</p>
@@ -643,9 +753,10 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <h2>Toast</h2>
           <p class="showcase-muted">
             <code>NeatToasts</code> shows short messages without taking the user's attention:
-            <code>error</code> clears after 4.6 s, <code>status</code> after 3.2 s, and
-            <code>progress</code> stays until <code>done</code> or <code>fail</code>, so work that
-            outlives its page keeps reporting. The app renders one
+            <code>error</code> and <code>warning</code> clear after 4.6 s, <code>status</code> after
+            3.2 s, and <code>progress</code> stays until <code>done</code> or <code>fail</code>, so
+            work that outlives its page keeps reporting, or until <code>dismiss</code> removes it
+            with no outcome (work a dialog took back). The app renders one
             <code>neat-toast-host</code> beside the shell; it shows the newest three in the
             bottom-right corner and announces them politely. A new toast comes to the front, above
             an open dialog; one that was already showing when a dialog opened stays under it. Clicks
@@ -670,6 +781,16 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             >
               Status
             </button>
+            <button
+              neatButton
+              type="button"
+              variant="outlined"
+              (click)="
+                toasts.warning('Uploaded clip.mp4, but could not restart src2: it is in use.')
+              "
+            >
+              Warning
+            </button>
             <button neatButton type="button" variant="outlined" (click)="runProgress('done')">
               Progress, succeeding
             </button>
@@ -678,6 +799,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             </button>
             <button neatButton type="button" variant="outlined" (click)="runProgress('unknown')">
               Progress, unknown length
+            </button>
+            <button neatButton type="button" variant="outlined" (click)="runProgress('dismiss')">
+              Progress, dismissed
             </button>
           </div>
         </section>
@@ -740,6 +864,65 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
         </section>
 
         <section class="showcase-section">
+          <h2>Field</h2>
+          <p class="showcase-muted">
+            <code>neat-field</code>: a control under its visible name, inside a label that names it,
+            with an optional <code>hint</code> and <code>error</code> under it that describe the
+            control (and mark it invalid). Its name is drawn as a shown select's is, so in a row of
+            controls of one <code>size</code>, aligned at their bottom edge, the names share a
+            baseline and the controls their edges: below, a field, two selects, a number field and a
+            button, small and then medium. <code>neat-error-note</code> says a failure in place: an
+            alert in the danger colour that keeps the message's line breaks.
+          </p>
+          <div class="field-demo">
+            <neat-field label="Stream URL" hint="RTSP and RTSPS only.">
+              <input
+                neatInput
+                size="small"
+                type="url"
+                placeholder="rtsp://192.168.1.10:554/stream1"
+              />
+            </neat-field>
+            <neat-field label="Start Time" error="Use minutes and seconds, as 1:30.">
+              <input neatInput size="small" value="90s" />
+            </neat-field>
+          </div>
+          @for (size of fieldSizes; track size) {
+            <div class="field-row" [attr.data-size]="size">
+              <neat-field class="field-narrow" label="Start Time"
+                ><input neatInput [size]="size" placeholder="0:00"
+              /></neat-field>
+              <neat-select
+                class="field-wide"
+                label="Target Resolution & FPS"
+                showLabel
+                [size]="size"
+                [options]="sourceOptions"
+                [(value)]="source"
+              />
+              <neat-select
+                class="field-narrow"
+                label="Clip Length"
+                showLabel
+                [size]="size"
+                [options]="clipLengths"
+                [value]="300"
+              />
+              @if (size === 'small') {
+                <neat-number-field
+                  label="Page"
+                  [value]="page()"
+                  [accept]="acceptPage"
+                  (commit)="commitPage($event)"
+                />
+              }
+              <button neatButton type="button" variant="outlined" [size]="size">Validate</button>
+            </div>
+          }
+          <neat-error-note>{{ validateError }}</neat-error-note>
+        </section>
+
+        <section class="showcase-section">
           <h2>Select</h2>
           <p class="showcase-muted">
             <code>neat-select</code>: a choice of one value from a list, no free text. Its
@@ -747,7 +930,8 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <code>showLabel</code> also shows it above the select. The arrow keys, Home and End move
             through the options (a disabled one is skipped), typing a few letters jumps to a label,
             Enter or Space picks and Escape closes the list without picking. It fills its
-            container's width. Inside a dialog its list shows above the dialog, and Escape closes
+            container's width, and <code>size</code> (small or medium) matches the input's and the
+            button's (see Field). Inside a dialog its list shows above the dialog, and Escape closes
             the list only; the next Escape closes the dialog.
           </p>
           <div class="showcase-row select-row">
@@ -901,6 +1085,29 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
                 }}</ng-template>
               </neat-select-list>
             </div>
+            <div class="list-box" [class.list-box-narrow]="narrowList()">
+              <neat-select-list
+                label="Channels, narrowing"
+                [items]="listChannels()"
+                [trackBy]="channelId"
+                [(selected)]="listChannel"
+              >
+                <ng-template neatColumn="name" header="Channel" let-channel>{{
+                  channel.name
+                }}</ng-template>
+                <ng-template
+                  neatColumn="rate"
+                  header="Rate"
+                  width="4rem"
+                  [hideBelow]="300"
+                  let-channel
+                  >30</ng-template
+                >
+                <ng-template neatColumn="state" header="State" width="5rem" let-channel>{{
+                  channel.state
+                }}</ng-template>
+              </neat-select-list>
+            </div>
             <div class="list-box list-box-short">
               <neat-select-list
                 label="Cameras"
@@ -912,8 +1119,39 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
               </neat-select-list>
             </div>
           </div>
+          <div class="showcase-row">
+            <button neatSwitch [(checked)]="narrowList">Narrow the third list</button>
+          </div>
           <p class="showcase-code showcase-muted" aria-live="polite">
             Selected: {{ listChannel()?.name ?? 'none' }}; {{ listLog() }}
+          </p>
+          <h3>Checked</h3>
+          <p class="showcase-muted">
+            With <code>checkable</code>, each row that <code>canCheck</code> allows has a box, and
+            <code>checked</code> holds their keys. The arrow keys move the row the keyboard is on
+            (the bar); Space checks or unchecks it, as a click on its box does. Drones has no files,
+            so nothing to check.
+          </p>
+          <div class="showcase-row list-row">
+            <div class="list-box list-box-checked">
+              <neat-select-list
+                label="Asset types"
+                checkable
+                hint="Press Space to check or uncheck a type."
+                [items]="demoTypes"
+                [trackBy]="typeId"
+                [canCheck]="hasFiles"
+                [(checked)]="checkedTypes"
+              >
+                <ng-template neatColumn="name" header="Type" let-type>{{ type.name }}</ng-template>
+                <ng-template neatColumn="files" header="Files" width="4rem" let-type>{{
+                  type.files
+                }}</ng-template>
+              </neat-select-list>
+            </div>
+          </div>
+          <p class="showcase-code showcase-muted" aria-live="polite">
+            Checked: {{ checkedTypes().length ? checkedTypes().join(', ') : 'none' }}
           </p>
         </section>
 
@@ -926,8 +1164,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             number of usable files in it. Click a folder or press Enter on it to open it; click a
             crumb or press Backspace in the list to go up. The arrow keys move the selection, which
             is a file (they leave it as it is while passing a folder). Greyed files can still be
-            selected. The second browser is in <code>manage</code> mode: a checkbox per file that
-            Space toggles from the keyboard (the boxes are not tab stops), and extra columns. The
+            selected. The second browser is in <code>manage</code> mode, the select list's checked
+            mode: a box per file that Space toggles from the keyboard (the boxes are not tab stops),
+            and extra columns, after which a folder's count follows its name. The
             <code>archive</code> folder has a thousand files.
           </p>
           <div class="showcase-row list-row">
@@ -947,7 +1186,6 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
                 filterPlaceholder="Filter files…"
                 [root]="demoTree"
                 [countLabel]="videoCount"
-                [labels]="manageLabels"
                 [(folder)]="manageFolder"
                 [(selected)]="manageSelected"
                 [(checked)]="manageChecked"
@@ -1155,6 +1393,18 @@ export class ComponentsPage {
   protected readonly iconSizes = ICON_SIZES;
   protected readonly tooltipPositions = TOOLTIP_POSITIONS;
   protected readonly shapes = SHAPES;
+  protected readonly tones = TONES;
+  protected readonly toneLabels = TONE_LABELS;
+  protected readonly fieldSizes = ['small', 'medium'] as const;
+  protected readonly clipLengths = CLIP_LENGTHS;
+  /** A server's diagnostics, on two lines. */
+  protected readonly validateError =
+    'Could not validate the URL.\nyt-dlp: ERROR: [youtube] abc123: Video unavailable';
+  protected readonly narrowList = signal(false);
+  protected readonly demoTypes = DEMO_TYPES;
+  protected readonly typeId = (type: DemoType) => type.id;
+  protected readonly hasFiles = (type: DemoType) => type.files > 0;
+  protected readonly checkedTypes = signal<readonly string[]>(['cars']);
   protected readonly overlays = OVERLAYS;
 
   protected readonly bars = signal(true);
@@ -1194,9 +1444,6 @@ export class ComponentsPage {
   protected readonly manageSelected = signal<string | null>(null);
   protected readonly manageChecked = signal<readonly string[]>([]);
   protected readonly manageFilter = signal('');
-  protected readonly manageLabels = {
-    selectFile: (path: string) => `Select ${path} for deletion`,
-  };
   protected readonly videoCount = (_folder: string, count: number) =>
     `${count} ${count === 1 ? 'video' : 'videos'}`;
   protected readonly fileType = (name: string) => name.split('.').pop()!.toUpperCase();
@@ -1287,6 +1534,14 @@ export class ComponentsPage {
     );
   }
 
+  protected async openSource(): Promise<void> {
+    const kind = await this.dialogs.open<SourceDialog, SourceKind>(SourceDialog, {
+      title: 'Change source',
+      inputs: { slot: 3, startOn: 'camera' },
+    }).closed;
+    this.dialogResult.set(kind === undefined ? 'Source: dismissed' : `Source: ${kind}`);
+  }
+
   /** Newest first, as a log: a drop can report what it took and what it did not. */
   protected logDrop(what: 'Received' | 'Not accepted', files: File[]): void {
     const names = files.map((file) => file.name).join(', ');
@@ -1313,15 +1568,22 @@ export class ComponentsPage {
   }
 
   /**
-   * Simulates work: it reports for a few seconds and then settles. It runs on its own, as an
-   * upload does, so leaving the page does not stop the toast from reporting the outcome.
+   * Simulates work: it reports for a few seconds and then settles, or, for `dismiss`, is taken
+   * away halfway. It runs on its own, as an upload does, so leaving the page does not stop the
+   * toast from reporting the outcome.
    */
-  protected runProgress(outcome: 'done' | 'fail' | 'unknown'): void {
+  protected runProgress(outcome: 'done' | 'fail' | 'unknown' | 'dismiss'): void {
     const toast = this.toasts.progress('Uploading 3 files');
     const known = outcome !== 'unknown';
     let percent = 0;
     const timer = setInterval(() => {
       percent += 8;
+      if (outcome === 'dismiss' && percent >= 48) {
+        // As when a dialog takes the work back: the toast goes, with no outcome.
+        clearInterval(timer);
+        toast.dismiss();
+        return;
+      }
       if (percent < 100) {
         const file = Math.min(3, Math.floor(percent / 34) + 1);
         toast.update(`clip-${file}.mp4 · file ${file} of 3`, known ? percent : null);

@@ -10,6 +10,7 @@ import {
   Component,
   ComponentRef,
   inject,
+  inputBinding,
   Injector,
   TemplateRef,
   Type,
@@ -72,6 +73,8 @@ export interface DialogContext {
   readonly title: string;
   readonly size: NeatDialogSize;
   readonly content: TemplateRef<unknown> | Type<unknown>;
+  /** A component's input values by name; empty for a template. */
+  readonly inputs: Readonly<Record<string, unknown>>;
   readonly ref: NeatDialogRef;
 }
 
@@ -121,11 +124,12 @@ export class NeatDialogPanel {
   protected readonly classes = DIALOG_HELM_CLASSES;
   protected readonly panelClasses: string = hlm(PANEL_CLASSES, SIZE_CLASSES[this.context.size]);
   /**
-   * Helm's corner position; while the dialog is not dismissible the button is dimmed, not removed
-   * or `disabled`: a button that has focus loses it when it goes, and the trap only works from
-   * inside the dialog, so the next Tab would leave for the page behind.
+   * Helm's corner position. While the dialog is not dismissible the button is `aria-disabled`,
+   * which `neatButton` dims, rather than removed or `disabled`: a button that has focus loses it
+   * when it goes, and the trap only works from inside the dialog, so the next Tab would leave for
+   * the page behind.
    */
-  protected readonly closeButtonClasses = `${DIALOG_HELM_CLASSES.closeButton} aria-disabled:opacity-50 aria-disabled:cursor-not-allowed`;
+  protected readonly closeButtonClasses = DIALOG_HELM_CLASSES.closeButton;
   protected readonly content: ComponentPortal<unknown> | TemplatePortal<unknown>;
 
   constructor() {
@@ -141,6 +145,11 @@ export class NeatDialogPanel {
               providers: [{ provide: NeatDialogRef, useValue: this.ref }],
               parent: injector,
             }),
+            null,
+            // Bound at creation, so the component has its inputs before it first runs.
+            Object.entries(this.context.inputs).map(([name, value]) =>
+              inputBinding(name, () => value),
+            ),
           );
 
     const cdkRef = inject(DialogRef);

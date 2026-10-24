@@ -196,3 +196,52 @@
 .browser-box.card {
   box-sizing: border-box;
 }
+
+/* A chip truncates rather than widen its container: a cell narrower than its text. */
+.chip-cell {
+  width: 8rem;
+}
+
+.details-demo {
+  max-width: 22rem;
+}
+
+/* The value's own layout, which is the page's: the URL and its Copy, wrapping as one. */
+.details-url {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--neat-space-2);
+}
+
+.field-demo {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 18rem));
+  align-items: start;
+  gap: var(--neat-space-4);
+}
+
+/* Fields, selects, a number field and a button in a row, level at their bottom edge. */
+.field-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--neat-space-3);
+}
+
+/* A field and a select fill their container's width, so the row gives each one. */
+.field-narrow {
+  width: 10rem;
+}
+
+.field-wide {
+  width: 14rem;
+}
+
+.list-box-narrow {
+  width: 16rem;
+}
+
+.list-box-checked {
+  height: 12rem;
+}

@@ -4,12 +4,24 @@ import { DestroyRef, inject, Injectable, signal, type Signal } from '@angular/co
 export const ERROR_TOAST_MS = 4600;
 /** How long a status toast stays (#170's value). */
 export const STATUS_TOAST_MS = 3200;
+/** How long a warning toast stays: as long as an error, since it is read the same way. */
+export const WARNING_TOAST_MS = ERROR_TOAST_MS;
 /** The most toasts the host shows at once; the newest ones. */
 export const MAX_VISIBLE_TOASTS = 3;
 
+/** The kinds of toast that carry a message and clear on their own. */
+export type MessageKind = 'error' | 'warning' | 'status';
+
+/** How long each kind of message toast stays. */
+const LIFETIMES: Record<MessageKind, number> = {
+  error: ERROR_TOAST_MS,
+  warning: WARNING_TOAST_MS,
+  status: STATUS_TOAST_MS,
+};
+
 /** A toast the host shows. */
 export type ToastEntry =
-  | { readonly id: number; readonly kind: 'error' | 'status'; readonly message: string }
+  | { readonly id: number; readonly kind: MessageKind; readonly message: string }
   | {
       readonly id: number;
       readonly kind: 'progress';
@@ -21,7 +33,7 @@ export type ToastEntry =
 
 /**
  * The toasts the host shows: at most `MAX_VISIBLE_TOASTS`, oldest first. When there are more,
- * error and status toasts are hidden before progress toasts (oldest first in each group): work in
+ * message toasts (error, warning, status) are hidden before progress toasts (oldest first in each group): work in
  * progress is what the user is waiting for, and it has no timer to clear it. The newest toast is
  * never hidden: a message that has just arrived is the news.
  */
@@ -52,7 +64,7 @@ function wholePercent(percent: number | null): number | null {
  * (which shows them). Not exported by the entry: a toast is added through `NeatToasts`, and the
  * state stays out of its API.
  *
- * Error and status toasts clear themselves a fixed time after they are added, whether the host
+ * Message toasts clear themselves a fixed time after they are added, whether the host
  * shows them or newer toasts hide them: a toast is news for as long as it lives, and a hidden one
  * that waited for room would show its message late.
  */
@@ -68,21 +80,18 @@ export class ToastStore {
     inject(DestroyRef).onDestroy(() => this.timers.forEach((timer) => clearTimeout(timer)));
   }
 
-  /** Adds an error or status toast as the newest, and clears it after its time. */
-  show(kind: 'error' | 'status', message: string): void {
+  /** Adds a message toast as the newest, and clears it after its kind's time. */
+  show(kind: MessageKind, message: string): void {
     const id = this.nextId++;
     this.state.update((entries) => [...entries, { id, kind, message }]);
-    const timer = setTimeout(
-      () => {
-        this.timers.delete(timer);
-        this.remove(id);
-      },
-      kind === 'error' ? ERROR_TOAST_MS : STATUS_TOAST_MS,
-    );
+    const timer = setTimeout(() => {
+      this.timers.delete(timer);
+      this.remove(id);
+    }, LIFETIMES[kind]);
     this.timers.add(timer);
   }
 
-  /** Adds a progress toast as the newest; it stays until `settleProgress`. Returns its id. */
+  /** Adds a progress toast as the newest; it stays until settled or dismissed. Returns its id. */
   startProgress(title: string): number {
     const id = this.nextId++;
     this.state.update((entries) => [
@@ -113,7 +122,11 @@ export class ToastStore {
     this.show(kind, message);
   }
 
-  private remove(id: number): void {
+  /**
+   * Removes a toast, with no outcome in its place. Ids are never reused, so removing one that has
+   * already gone (a progress toast that settled into a new toast) does nothing.
+   */
+  remove(id: number): void {
     this.state.update((entries) => entries.filter((entry) => entry.id !== id));
   }
 }

@@ -48,14 +48,10 @@ export interface NeatFileBrowserLabels {
   readonly noMatches: string;
   /** Read before a folder's name, which an icon alone tells apart from a file. */
   readonly folder: string;
-  /** Read before the name of a checked file. */
-  readonly checked: string;
   /** What a folder's count means, read after the folder's name and shown as its tooltip. */
   readonly folderCount: (folder: string, count: number) => string;
   /** Describes the list in `manage` mode: how to check a file from the keyboard. */
   readonly checkHint: string;
-  /** The accessible name of a file's checkbox. */
-  readonly selectFile: (path: string) => string;
   /** The count while a filter is active: its matches, below the named folder. */
   readonly matches: (folder: string, count: number) => string;
 }
@@ -71,11 +67,9 @@ const DEFAULT_LABELS: NeatFileBrowserLabels = {
   empty: 'This folder is empty.',
   noMatches: 'No files match the filter.',
   folder: 'Folder',
-  checked: 'Checked',
   folderCount: (folder, count) =>
     `${plural(count, 'file', 'files')} in ${folder} and its subfolders`,
   checkHint: 'Press Space to check or uncheck the file.',
-  selectFile: (path) => `Select ${path}`,
   matches: (folder, count) => `${plural(count, 'match', 'matches')} in ${folder}`,
 };
 
@@ -90,20 +84,9 @@ interface BrowserRow {
   readonly count: number | null;
   /** What a folder's count means, in words. */
   readonly countLabel: string;
-  /** The checkbox's accessible name, for a file in `manage` mode. */
-  readonly checkLabel: string;
   /** What the app's column templates get for a file. */
   readonly context: { readonly $implicit: NeatFileNode };
 }
-
-/**
- * The file checkbox: a native input drawn by the kit, since the browser's own box in dark is a grey
- * square that does not reach 3:1 on a card. The unchecked boundary is `--input`, the theme's
- * form-control boundary (3:1 on every surface, as on `neatInput`); checked fills with `--primary`,
- * and the tick, which is an icon beside the input, is `--primary-foreground` on it.
- */
-const CHECKBOX_CLASSES =
-  'size-4 cursor-pointer appearance-none rounded-sm border border-input bg-transparent outline-none checked:border-primary checked:bg-primary focus-visible:ring-3 focus-visible:ring-ring';
 
 /**
  * Types the `let-row` of the browser's own column templates as a `BrowserRow`, so that a mistyped
@@ -122,6 +105,7 @@ class FileRowContext {
 }
 
 const rowPath = (row: BrowserRow): string => row.node.path;
+const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
 
 /**
  * A browser for a tree of folders and files:
@@ -151,16 +135,20 @@ const rowPath = (row: BrowserRow): string => row.node.path;
  *   onto a file selects it, as a click does; onto a folder leaves `selected` as it is (the
  *   preview of a file stays while the keyboard passes folders) and highlights the folder. A
  *   selected file in another folder stays selected. The list's keys are `neat-select-list`'s.
- * - **`manage` mode** adds a checkbox to each file, for the paths in `checked`. A click on the box
- *   toggles it and nothing else. From the keyboard, Space toggles the file the list is on; the
- *   boxes are not tab stops, so the arrow keys keep moving the selection (`labels.checkHint`
- *   tells a screen reader). Paths that are no longer in `root` leave `checked`; `selected` is not
- *   pruned, since an app may select a file before the tree that holds it has loaded.
+ * - **`manage` mode** is the list's checked mode: a box on each file (not on folders), for the
+ *   paths in `checked`, which hold files of other folders too. A click on the box toggles it and
+ *   nothing else. From the keyboard, Space toggles the file the list is on; the boxes are not tab
+ *   stops, so the arrow keys keep moving the selection (`labels.checkHint` tells a screen reader,
+ *   and the listbox is multi-selectable, a file `aria-selected` while checked). Paths that are no
+ *   longer in `root` leave `checked`; `selected` is not pruned, since an app may select a file
+ *   before the tree that holds it has loaded.
  * - **Disabled and tagged nodes** are greyed (`disabled`) and carry their `tag` after the name;
  *   they can still be selected, opened and checked.
  * - **Columns.** `neatColumn` templates (from `@sima/neat-ui/select-list`) add columns after the
- *   name, filled for files only; the template gets the `NeatFileNode`. Setting any adds a header
- *   row, the name's heading being `labels.name`.
+ *   name, filled for files only; the template gets the `NeatFileNode`, and `hideBelow` works as on
+ *   the list. Setting any adds a header row, the name's heading being `labels.name`, and moves a
+ *   folder's count from the end of the name cell to just after the name, so that it reads as the
+ *   folder's rather than as a value in the next column.
  *
  * Everything the browser says is a default in `labels` (a partial, merged over them) except
  * `rootLabel`, which is required, and `filterPlaceholder`. `countLabel` words the count under the
@@ -225,6 +213,9 @@ const rowPath = (row: BrowserRow): string => row.node.path;
       [selected]="highlighted()"
       [emptyLabel]="query() ? text().noMatches : text().empty"
       [hint]="mode() === 'manage' ? text().checkHint : ''"
+      [checkable]="mode() === 'manage'"
+      [canCheck]="isFile"
+      [(checked)]="checked"
       (selectedChange)="moveCursor($event)"
       (activated)="open($event)"
       (keydown)="onKeydown($event)"
@@ -240,37 +231,11 @@ const rowPath = (row: BrowserRow): string => row.node.path;
           class="flex min-w-0 items-center gap-(--neat-space-2)"
           [class.text-muted-foreground]="row.node.disabled"
         >
-          @if (mode() === 'manage') {
-            @if (row.node.type === 'file') {
-              <span class="relative inline-flex size-4 shrink-0">
-                <input
-                  type="checkbox"
-                  tabindex="-1"
-                  [class]="checkboxClasses"
-                  [checked]="checkedSet().has(row.node.path)"
-                  [attr.aria-label]="row.checkLabel"
-                  (change)="toggle(row.node.path)"
-                />
-                @if (checkedSet().has(row.node.path)) {
-                  <neat-icon
-                    name="check"
-                    [size]="12"
-                    class="pointer-events-none absolute inset-0 m-auto text-primary-foreground"
-                  />
-                }
-              </span>
-            } @else {
-              <span aria-hidden="true" class="size-4 shrink-0"></span>
-            }
-          }
           @if (row.node.type === 'folder') {
             <neat-icon name="folder" [size]="16" class="shrink-0" />
             <span class="sr-only">{{ text().folder }}</span>
           } @else {
             <neat-icon name="file" [size]="16" class="shrink-0" />
-            @if (checkedSet().has(row.node.path)) {
-              <span class="sr-only">{{ text().checked }}</span>
-            }
           }
           <span class="truncate">{{ row.label }}</span>
           @if (row.node.tag) {
@@ -283,7 +248,8 @@ const rowPath = (row: BrowserRow): string => row.node.path;
           @if (row.count !== null) {
             <span
               aria-hidden="true"
-              class="ms-auto shrink-0 text-muted-foreground tabular-nums"
+              class="shrink-0 text-muted-foreground tabular-nums"
+              [class.ms-auto]="!columns().length"
               [attr.title]="row.countLabel"
               >{{ row.count }}</span
             >
@@ -296,6 +262,7 @@ const rowPath = (row: BrowserRow): string => row.node.path;
           [neatColumn]="column.key()"
           [header]="column.header()"
           [width]="column.width()"
+          [hideBelow]="column.hideBelow()"
           neatFileRow
           let-row
         >
@@ -334,7 +301,7 @@ export class NeatFileBrowser {
   readonly filter = model('');
 
   protected readonly rowPath = rowPath;
-  protected readonly checkboxClasses = CHECKBOX_CLASSES;
+  protected readonly isFile = isFile;
   protected readonly text = computed<NeatFileBrowserLabels>(() => ({
     ...DEFAULT_LABELS,
     ...this.labels(),
@@ -355,18 +322,16 @@ export class NeatFileBrowser {
   );
 
   /**
-   * The list's rows, worked out when the folder, filter, tree or mode changes: the sort, the
-   * folders' counts, the label texts. Nothing in the template computes per row.
+   * The list's rows, worked out when the folder, filter or tree changes: the sort, the folders'
+   * counts, the label texts. Nothing in the template computes per row.
    */
   protected readonly rows = computed<readonly BrowserRow[]>(() => {
-    const manage = this.mode() === 'manage';
     const text = this.text();
     const fileRow = (node: NeatFileNode, label: string): BrowserRow => ({
       node,
       label,
       count: null,
       countLabel: '',
-      checkLabel: manage ? text.selectFile(node.path) : '',
       context: { $implicit: node },
     });
     if (this.query()) return this.matches().map(({ node, relative }) => fileRow(node, relative));
@@ -377,7 +342,6 @@ export class NeatFileBrowser {
         label: name,
         count,
         countLabel: text.folderCount(name, count),
-        checkLabel: '',
         context: { $implicit: node },
       })),
       ...files.map((node) => fileRow(node, node.name)),
@@ -412,8 +376,6 @@ export class NeatFileBrowser {
     const path = this.cursorFolder() ?? this.selected();
     return this.rows().find((row) => row.node.path === path) ?? null;
   });
-
-  protected readonly checkedSet = computed(() => new Set(this.checked()));
 
   constructor() {
     // The filter belongs to the folder it was typed in; the first run keeps what the app gave.
@@ -475,18 +437,9 @@ export class NeatFileBrowser {
     if (row.node.type === 'folder') this.navigate(row.node.path);
   }
 
-  protected toggle(path: string): void {
-    this.checked.update((checked) =>
-      checked.includes(path) ? checked.filter((p) => p !== path) : [...checked, path],
-    );
-    // The box took the focus; the arrow keys belong to the list.
-    this.list().focus();
-  }
-
   /**
-   * Keys that are the browser's rather than the list's, pressed on the list itself (not on the
-   * filter field or a control in a cell): Backspace goes up a folder, and Space, in `manage`
-   * mode, checks or unchecks the highlighted file.
+   * The key that is the browser's rather than the list's, pressed on the list itself (not on the
+   * filter field or a control in a cell): Backspace goes up a folder.
    */
   protected onKeydown(event: KeyboardEvent): void {
     const target = event.target as Element;
@@ -495,10 +448,6 @@ export class NeatFileBrowser {
     if (event.key === 'Backspace') {
       event.preventDefault();
       if (this.current() !== ROOT) this.navigate(parentPath(this.current()));
-    } else if (event.key === ' ' && this.mode() === 'manage') {
-      event.preventDefault();
-      const node = this.highlighted()?.node;
-      if (node?.type === 'file') this.toggle(node.path);
     }
   }
 }

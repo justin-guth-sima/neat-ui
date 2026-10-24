@@ -1,19 +1,23 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
   afterRenderEffect,
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
   contentChildren,
+  DestroyRef,
   Directive,
   ElementRef,
   inject,
   input,
   model,
   output,
+  signal,
   TemplateRef,
   viewChild,
 } from '@angular/core';
+import { NeatIcon } from '@sima/neat-ui';
 
 /*
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
@@ -33,14 +37,26 @@ const SCROLLER_CLASSES =
   'min-h-0 flex-1 overflow-x-hidden overflow-y-auto [scrollbar-gutter:stable] has-[[role=listbox]:focus-visible]:outline-2 has-[[role=listbox]:focus-visible]:-outline-offset-2 has-[[role=listbox]:focus-visible]:outline-ring';
 
 /**
- * A line of cells on the columns' widths, with a 2px inset on the start side that the selected
+ * A line of cells on the columns' widths, with a 2px inset on the start side that the active
  * row's bar fills (`--primary`, 3:1 against the row's fill and the surface). A row is `--accent` when
- * hovered or selected; the bar, not the fill alone, marks the selection.
+ * hovered or active; the bar, not the fill alone, marks it. The active row is the selected one,
+ * marked `data-active` rather than by `aria-selected`, which in checked mode says a row is checked.
  */
 const LINE_CLASSES =
   'grid grid-cols-(--neat-select-list-columns) items-center gap-x-(--neat-space-3) border-s-2 border-transparent px-(--neat-space-3)';
-const ROW_CLASSES = `${LINE_CLASSES} min-h-9 cursor-default py-1 text-sm hover:bg-accent aria-selected:border-primary aria-selected:bg-accent`;
+const ROW_CLASSES = `${LINE_CLASSES} min-h-9 cursor-default py-1 text-sm hover:bg-accent data-active:border-primary data-active:bg-accent`;
 const HEADER_LINE_CLASSES = `${LINE_CLASSES} py-1`;
+
+/**
+ * A row's box in checked mode, drawn by the kit: unchecked, its boundary is `--input`, the theme's
+ * form-control boundary (3:1 on every surface, as on `neatInput`); checked, it fills with
+ * `--primary`, and the tick is `--primary-foreground` on it. It is no control of its own (the row
+ * says whether it is checked), so it takes neither the focus nor a name.
+ */
+const CHECK_CLASSES =
+  'flex size-4 shrink-0 cursor-pointer items-center justify-center rounded-sm border border-input data-checked:border-primary data-checked:bg-primary';
+/** The box's track in the row's grid: as wide as the box. */
+const CHECK_TRACK = '1rem';
 
 /** The keys that move the selection: the new index from the current one (-1: none), of `count`. */
 const MOVES: Record<string, (index: number, count: number) => number> = {
@@ -68,22 +84,36 @@ const NONE = Symbol('none');
  * and `width` is its CSS track size in the row's grid, `1fr` by default. The template gets the
  * item as its implicit context. A cell is a block that may shrink to nothing, so a long text
  * truncates in the cell rather than pushing the next column out.
+ *
+ * `hideBelow` is a width of the list in CSS pixels: while the list is narrower, the column and its
+ * header leave the layout entirely, as if the template were not there. For columns that matter
+ * less than the others on a narrow screen: `[hideBelow]="720"`.
  */
 @Directive({ selector: 'ng-template[neatColumn]' })
 export class NeatColumn {
   readonly key = input.required<string>({ alias: 'neatColumn' });
   readonly header = input('');
   readonly width = input('1fr');
+  /** The list's width in CSS pixels below which the column is not shown; always shown if unset. */
+  readonly hideBelow = input<number>();
   readonly template = inject<TemplateRef<unknown>>(TemplateRef);
 }
 
-/** A row: the item, its key, the element id the listbox points at, and its cells' context. */
-interface Row<T> {
+/**
+ * A row: the item, its key, whether it can be checked, the element id the listbox points at, and
+ * its cells' context.
+ */
+interface Row<T, K> {
   readonly item: T;
-  readonly key: unknown;
+  readonly key: K;
+  readonly checkable: boolean;
   readonly id: string;
   readonly context: { readonly $implicit: T };
 }
+
+/** Whether two lists hold the same columns in the same order. */
+const sameColumns = (a: readonly NeatColumn[], b: readonly NeatColumn[]): boolean =>
+  a.length === b.length && a.every((column, index) => column === b[index]);
 
 /** Numbers each list, for the element ids its options and empty message get. */
 let nextListId = 0;
@@ -120,12 +150,25 @@ let nextListId = 0;
  *
  * `hint` is read as the listbox's description, for keys the app adds on top of these.
  *
- * Typing a letter to jump to a row, Page Up and Page Down, a selection of several rows and a
- * disabled row are not offered; none is needed yet.
+ * **Checked mode** (`checkable`) is for acting on several rows: each row that `canCheck` allows
+ * has a box before its cells, and `checked` holds the keys (`trackBy`'s) of the checked rows. It
+ * holds keys rather than items, and keeps the keys of rows it does not list (a file in another
+ * folder, a type a filter hides): a newly checked key is appended, an unchecked one removed, the
+ * rest left as they are. The listbox is then multi-selectable, and a checkable row is
+ * `aria-selected` while it is checked (as the WAI-ARIA multi-select listbox has it); a row that
+ * cannot be checked has no `aria-selected`. The selection that follows the arrow keys (`selected`)
+ * stays: it is the row the keyboard is on, named in `aria-activedescendant` and drawn with the bar.
+ * Space checks or unchecks that row; a click on a row's box checks or unchecks it and does nothing
+ * else, and a click elsewhere on the row selects and activates it as in the single mode. The boxes
+ * are not tab stops. Say how to check from the keyboard in `hint` ("Press Space to check or
+ * uncheck a file."), which the list leaves to the app.
+ *
+ * Typing a letter to jump to a row, Page Up and Page Down, a range of rows checked with Shift and
+ * a disabled row are not offered; none is needed yet.
  */
 @Component({
   selector: 'neat-select-list',
-  imports: [NgTemplateOutlet],
+  imports: [NeatIcon, NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'flex h-full min-h-0 flex-col',
@@ -135,7 +178,10 @@ let nextListId = 0;
     @if (hasHeader()) {
       <div data-slot="select-list-header" aria-hidden="true" [class]="headerClasses">
         <div [class]="headerLineClasses">
-          @for (column of columns(); track column) {
+          @if (checkable()) {
+            <span></span>
+          }
+          @for (column of visibleColumns(); track column) {
             <span class="min-w-0 truncate">{{ column.header() }}</span>
           }
         </div>
@@ -151,6 +197,7 @@ let nextListId = 0;
         tabindex="0"
         class="outline-none"
         [attr.aria-label]="label()"
+        [attr.aria-multiselectable]="checkable() || null"
         [attr.aria-activedescendant]="activeId()"
         [attr.aria-describedby]="describedBy()"
         (keydown)="onKeydown($event)"
@@ -161,9 +208,32 @@ let nextListId = 0;
             role="option"
             [id]="row.id"
             [class]="rowClasses"
-            [attr.aria-selected]="row.key === selectedKey()"
+            [attr.data-active]="row.key === selectedKey() ? '' : null"
+            [attr.aria-selected]="
+              checkable()
+                ? row.checkable
+                  ? checkedKeys().has(row.key)
+                  : null
+                : row.key === selectedKey()
+            "
           >
-            @for (column of columns(); track column) {
+            @if (checkable()) {
+              <div class="flex">
+                @if (row.checkable) {
+                  <span
+                    data-slot="select-list-check"
+                    aria-hidden="true"
+                    [class]="checkClasses"
+                    [attr.data-checked]="checkedKeys().has(row.key) ? '' : null"
+                  >
+                    @if (checkedKeys().has(row.key)) {
+                      <neat-icon name="check" [size]="12" class="text-primary-foreground" />
+                    }
+                  </span>
+                }
+              </div>
+            }
+            @for (column of visibleColumns(); track column) {
               <div class="min-w-0">
                 <ng-container
                   [ngTemplateOutlet]="column.template"
@@ -186,14 +256,20 @@ let nextListId = 0;
     </div>
   `,
 })
-export class NeatSelectList<T> {
+export class NeatSelectList<T, K = unknown> {
   /** The accessible name of the list. */
   readonly label = input.required<string>();
   readonly items = input.required<readonly T[]>();
   /** An item's identity, unique in the list. */
-  readonly trackBy = input.required<(item: T) => unknown>();
-  /** The selected item; `null` while there is none. */
+  readonly trackBy = input.required<(item: T) => K>();
+  /** The selected item: the row the keyboard is on; `null` while there is none. */
   readonly selected = model<T | null>(null);
+  /** Checked mode: a box on each row that `canCheck` allows, for acting on several rows. */
+  readonly checkable = input(false, { transform: booleanAttribute });
+  /** In checked mode, the keys of the checked rows, including rows the list does not show. */
+  readonly checked = model<readonly K[]>([]);
+  /** In checked mode, whether an item's row has a box; called once per item when `items` changes. */
+  readonly canCheck = input<(item: T) => boolean>(() => true);
   /** What to say, in place of rows, while there are no items. */
   readonly emptyLabel = input('');
   /**
@@ -208,35 +284,65 @@ export class NeatSelectList<T> {
   protected readonly headerLineClasses = HEADER_LINE_CLASSES;
   protected readonly scrollerClasses = SCROLLER_CLASSES;
   protected readonly rowClasses = ROW_CLASSES;
+  protected readonly checkClasses = CHECK_CLASSES;
 
   private readonly id = ++nextListId;
   protected readonly emptyId = `neat-select-list-${this.id}-empty`;
   protected readonly hintId = `neat-select-list-${this.id}-hint`;
 
-  protected readonly columns = contentChildren(NeatColumn, { descendants: true });
+  private readonly columns = contentChildren(NeatColumn, { descendants: true });
   private readonly listbox = viewChild.required<ElementRef<HTMLElement>>('listbox');
   private readonly scroller = viewChild.required<ElementRef<HTMLElement>>('scroller');
 
-  protected readonly hasHeader = computed(() => this.columns().some((column) => column.header()));
+  /**
+   * The list's own width in CSS pixels, watched only while a column has `hideBelow`; `null` until
+   * then and while the list has no width (not laid out: hidden, or not in a document), when every
+   * column shows.
+   */
+  private readonly width = signal<number | null>(null);
+  private readonly hidesColumns = computed(() =>
+    this.columns().some((column) => column.hideBelow() !== undefined),
+  );
+  /** The columns shown at the list's width; a new list only when one comes or goes. */
+  protected readonly visibleColumns = computed(
+    () => {
+      const width = this.width();
+      return this.columns().filter((column) => {
+        const hideBelow = column.hideBelow();
+        return hideBelow === undefined || width === null || width >= hideBelow;
+      });
+    },
+    { equal: sameColumns },
+  );
+
+  protected readonly hasHeader = computed(() =>
+    this.visibleColumns().some((column) => column.header()),
+  );
   protected readonly gridColumns = computed(() =>
-    this.columns()
-      .map((column) => column.width())
-      .join(' '),
+    [
+      ...(this.checkable() ? [CHECK_TRACK] : []),
+      ...this.visibleColumns().map((column) => column.width()),
+    ].join(' '),
   );
 
   /**
-   * Everything a row needs, worked out once per `items`: the key (a call of the app's function),
-   * the id and the cells' context. Change detection then reads these and calls nothing.
+   * Everything a row needs, worked out once per `items`: the key and, in checked mode, whether it
+   * has a box (calls of the app's functions), the id and the cells' context. Change detection then
+   * reads these and calls nothing.
    */
-  protected readonly rows = computed<readonly Row<T>[]>(() => {
+  protected readonly rows = computed<readonly Row<T, K>[]>(() => {
     const keyOf = this.trackBy();
+    const canCheck = this.checkable() ? this.canCheck() : () => false;
     return this.items().map((item, index) => ({
       item,
       key: keyOf(item),
+      checkable: canCheck(item),
       id: `neat-select-list-${this.id}-${index}`,
       context: { $implicit: item },
     }));
   });
+
+  protected readonly checkedKeys = computed(() => new Set<unknown>(this.checked()));
 
   protected readonly isEmpty = computed(() => this.rows().length === 0 && !!this.emptyLabel());
   protected readonly describedBy = computed(
@@ -261,6 +367,29 @@ export class NeatSelectList<T> {
 
   constructor() {
     afterRenderEffect(() => this.revealSelected());
+    this.watchWidthWhileNeeded();
+  }
+
+  /**
+   * Watches the list's width once a column has `hideBelow`, and never for a list without one. The
+   * first width is read as soon as the list is rendered, so the first frame is laid out at it; a
+   * resize then reports each change. The list is zoneless: setting the signal schedules the
+   * render, and only a column coming or going changes what is drawn.
+   */
+  private watchWidthWhileNeeded(): void {
+    const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+    const destroyRef = inject(DestroyRef);
+    const setWidth = (width: number) => this.width.set(width > 0 ? width : null);
+    let observer: ResizeObserver | undefined;
+    afterRenderEffect(() => {
+      if (observer || !this.hidesColumns()) return;
+      setWidth(host.getBoundingClientRect().width);
+      observer = new ResizeObserver((entries) =>
+        setWidth(entries[entries.length - 1].contentRect.width),
+      );
+      observer.observe(host);
+    });
+    destroyRef.onDestroy(() => observer?.disconnect());
   }
 
   /** Scrolls the selected row into view unless that row was the last one scrolled to. */
@@ -296,8 +425,14 @@ export class NeatSelectList<T> {
     // A key pressed on a control in a cell bubbles up to here; it is the control's.
     if (event.target !== event.currentTarget) return;
     if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) return;
-    // Space has no job in a list that selects with the arrow keys, but it would scroll the area.
-    if (event.key === ' ') event.preventDefault();
+    // Space checks the row the keyboard is on in checked mode; either way it must not scroll the
+    // area.
+    if (event.key === ' ') {
+      event.preventDefault();
+      const row = this.rows()[this.selectedIndex()];
+      if (row) this.toggle(row);
+      return;
+    }
     const rows = this.rows();
     if (rows.length === 0) return;
     if (event.key === 'Enter') {
@@ -322,7 +457,19 @@ export class NeatSelectList<T> {
     // The listbox is focusable too, so only a control inside the row is the control's click.
     if (control && control !== option && option.contains(control)) return;
     const row = this.rows()[Array.prototype.indexOf.call(option.parentElement!.children, option)];
+    if (target.closest('[data-slot="select-list-check"]')) {
+      this.toggle(row);
+      return;
+    }
     this.selected.set(row.item);
     this.activated.emit(row.item);
+  }
+
+  /** Checks or unchecks a row that has a box; does nothing for one that has none. */
+  private toggle(row: Row<T, K>): void {
+    if (!row.checkable) return;
+    this.checked.update((keys) =>
+      keys.includes(row.key) ? keys.filter((key) => key !== row.key) : [...keys, row.key],
+    );
   }
 }
