@@ -18,6 +18,13 @@ const ALIAS = '@neat-ui/helm';
  */
 export const SECONDARY_ENTRIES = {
   callout: ['neat-callout'],
+  charts: [
+    'neat-sparkline',
+    'neat-time-chart',
+    'neat-stacked-chart',
+    'neat-heatmap',
+    'neat-chart-card',
+  ],
   collapsible: ['neat-collapsible'],
   confirm: ['neat-confirm-dialog'],
   details: ['dl[neatDetails]'],

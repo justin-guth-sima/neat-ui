@@ -7,6 +7,7 @@ const PAGES = [
   { path: '/theme', link: 'Theme', heading: 'Palette' },
   { path: '/icons', link: 'Icons', heading: 'Icons' },
   { path: '/components', link: 'Components', heading: 'Button' },
+  { path: '/charts', link: 'Charts', heading: 'Sparkline' },
   { path: '/page', link: 'Page', heading: 'Page' },
 ];
 
@@ -42,9 +43,9 @@ describe('App', () => {
 
   afterEach(() => vi.unstubAllGlobals());
 
-  it('lists the four pages in the shell navigation', () => {
+  it('lists the five pages in the shell navigation', () => {
     const labels = Array.from(root().querySelectorAll('nav a'), (a) => a.textContent?.trim());
-    expect(labels).toEqual(['Theme', 'Icons', 'Components', 'Page']);
+    expect(labels).toEqual(['Theme', 'Icons', 'Components', 'Charts', 'Page']);
   });
 
   it('redirects the root to the theme page', () => {

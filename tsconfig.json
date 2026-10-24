@@ -9,6 +9,7 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@sima/neat-ui/callout": ["./projects/neat-ui/callout/src/public-api.ts"],
+      "@sima/neat-ui/charts": ["./projects/neat-ui/charts/src/public-api.ts"],
       "@sima/neat-ui/collapsible": ["./projects/neat-ui/collapsible/src/public-api.ts"],
       "@sima/neat-ui/confirm": ["./projects/neat-ui/confirm/src/public-api.ts"],
       "@sima/neat-ui/details": ["./projects/neat-ui/details/src/public-api.ts"],

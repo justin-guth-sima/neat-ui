@@ -18,6 +18,7 @@ export class App {
     { label: 'Theme', icon: 'palette', path: '/theme' },
     { label: 'Icons', icon: 'shapes', path: '/icons' },
     { label: 'Components', icon: 'blocks', path: '/components' },
+    { label: 'Charts', icon: 'stats', path: '/charts' },
     { label: 'Page', icon: 'document', path: '/page' },
   ];
 }

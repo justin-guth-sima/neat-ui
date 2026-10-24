@@ -15,7 +15,8 @@ look happens in one place. Every rule here protects that.
   - `@sima/neat-ui` (the primary): what the shell and every page need: theme, `NeatIcon`,
     `NeatShell`, `NeatPageToolbar`, `NeatPage` with its side panel's parts (`NeatAsideToggle`,
     `NeatAsidePanel`, `NeatAsideTitle`, `NeatAsideHeading`, `NeatAsideActions`), `NeatCode`,
-    `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatTooltip` and `NeatNote`. Public API is
+    `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatTooltip`, `NeatNote` and `neatSecondsAgo`
+    (the kit's one relative-time style, "just now", "12 s ago", "3 min ago"). Public API is
     `projects/neat-ui/src/public-api.ts`.
   - one secondary entry point per other component, `@sima/neat-ui/<name>`: `switch`, `slider`,
     `segmented`, `tabs`, `popover`, `confirm`, `input`, `number-field`, `line-list`, `select`
@@ -35,8 +36,9 @@ look happens in one place. Every rule here protects that.
     `field` (`NeatField`, a control under its visible name with
     a hint and an error, and `NeatErrorNote`, a failure said in place), `collapsible`
     (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed),
-    `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions) and
-    `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments),
+    `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
+    `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments) and `charts` (live
+    metric charts drawn as SVG, starting with `NeatSparkline`; the only code that imports d3),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
@@ -80,6 +82,26 @@ as text). The primary's `public-api.spec.ts`, which compares it with every entry
 that imports entries by relative path.
 A new export goes into the entry point that owns its code, and only what an app or the showcase
 needs is exported: a helper that only the kit's own code uses stays internal.
+
+**d3 belongs to the `charts` entry alone.** ESLint (`@typescript-eslint/no-restricted-imports` in
+the root `eslint.config.js`, which the kit's and the showcase's configs both take) fails an import
+of `d3` or `d3-*` anywhere outside `projects/neat-ui/charts/`; `tools/lint-boundaries.test.mjs`
+runs the real configs over sample code to prove it fires and that the entry-direction rules above
+still do. Why: d3 reaches an app's bundle only through the entry its lazy route imports, and the
+apps draw through the kit's components, never through d3 (`d3-scale` and `d3-shape` are ISC
+licensed runtime `dependencies` of the package, listed in `allowedNonPeerDependencies`).
+
+**How the charts are drawn.** Every chart in `charts` is an SVG with `viewBox="0 0 600 100"`,
+`preserveAspectRatio="none"` and `overflow: visible`, so it fills whatever box its host has, and
+its strokes carry `vector-effect: non-scaling-stroke`, so a stretched box does not thicken them.
+What must not stretch (labels, the newest point's dot, the crosshair, the readout) is an HTML
+overlay positioned in percent of the box, so nothing measures the chart. Colours come from the
+`--neat-series-*`, `--neat-line*` and `--neat-heat-*` tokens in each component's CSS, and a
+variant (a tone) is stated once, as a custom property the stroke reads. The paths come from
+`charts/src/lib/geometry.ts` (d3-shape's `line` and `area`, and d3-scale's linear scale for y,
+clamped): samples sit where their times put them, or evenly when a time is missing, and a
+missing sample (`null`) breaks the line instead of dropping to zero. The geometry is internal;
+only the components and their types are exported.
 
 **What entries share goes through the primary under a `ɵ` prefix.** The vendored helm code
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,
