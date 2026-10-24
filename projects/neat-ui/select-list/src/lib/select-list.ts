@@ -46,7 +46,7 @@ const SCROLLER_CLASSES = 'isolate min-h-0 flex-1 overflow-x-hidden overflow-y-au
  * through `grid-cols-subgrid`. Every line sizes the same tracks, so a content-sized track (`auto`,
  * `max-content`) fits the widest of the heading and the cells, and the headings stay over their
  * columns. The lines' inset (the active row's bar and the padding) is the grid's padding: see
- * LINE_CLASSES.
+ * LINE_CLASSES. The empty note takes that inset as it is, so its text starts where the cells' does.
  */
 const GRID_CLASSES =
   'grid grid-cols-(--neat-select-list-columns) gap-x-(--neat-space-3) ps-[calc(var(--neat-space-3)+2px)] pe-(--neat-space-3)';
@@ -327,7 +327,7 @@ let nextListId = 0;
         @if (isEmpty()) {
           <p
             data-slot="select-list-empty"
-            class="col-span-full px-(--neat-space-3) py-(--neat-space-2) text-sm text-muted-foreground"
+            class="col-span-full py-(--neat-space-2) text-sm text-muted-foreground"
             [id]="emptyId"
           >
             {{ emptyLabel() }}

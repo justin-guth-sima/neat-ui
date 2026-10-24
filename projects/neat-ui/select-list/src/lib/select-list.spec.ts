@@ -377,6 +377,10 @@ describe('NeatSelectList', () => {
       const note = element.querySelector<HTMLElement>('[data-slot="select-list-empty"]')!;
       expect(note.parentElement).toBe(scroller().querySelector('[data-slot="select-list-grid"]'));
       expect(note.classList).toContain('col-span-full');
+      // The grid's padding is the inset the header labels and the cells have; a padding of the
+      // note's own on top would set its text in from theirs.
+      const inline = [...note.classList].filter((name) => /^(px|ps|pe|pl|pr|mx|ms|me)-/.test(name));
+      expect(inline).toEqual([]);
     });
 
     it('keeps the header inside the scrolling area, sticky at its top, filled with --neat-surface and aria-hidden', async () => {
