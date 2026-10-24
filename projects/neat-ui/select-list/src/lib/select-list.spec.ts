@@ -54,6 +54,35 @@ class HeaderlessHost {
   readonly id = (n: number) => n;
 }
 
+interface Asset {
+  readonly id: number;
+  readonly name: string;
+  readonly size: string;
+}
+
+const ASSETS: readonly Asset[] = [
+  { id: 1, name: 'highway.mp4', size: '1.2 GB' },
+  { id: 2, name: 'people.mp4', size: '840 MB' },
+];
+
+/** A Size column sized to its content and aligned to the end, as numbers read best. */
+@Component({
+  imports: [NeatSelectList, NeatColumn],
+  template: `
+    <neat-select-list label="Assets" [checkable]="checkable()" [items]="assets" [trackBy]="byId">
+      <ng-template neatColumn="name" header="Name" let-asset>{{ asset.name }}</ng-template>
+      <ng-template neatColumn="size" header="Size" width="max-content" align="end" let-asset>{{
+        asset.size
+      }}</ng-template>
+    </neat-select-list>
+  `,
+})
+class AlignedHost {
+  readonly assets = ASSETS;
+  readonly checkable = signal(false);
+  readonly byId = (asset: Asset) => asset.id;
+}
+
 interface AssetType {
   readonly id: number;
   readonly name: string;
@@ -218,6 +247,8 @@ async function render(setup: (host: ListHost) => void = () => undefined) {
     list: element.querySelector<HTMLElement>('neat-select-list')!,
     listbox: () => element.querySelector<HTMLElement>('[role="listbox"]')!,
     options: () => [...element.querySelectorAll<HTMLElement>('[role="option"]')],
+    header: () => element.querySelector<HTMLElement>('[data-slot="select-list-header"]'),
+    scroller: () => element.querySelector<HTMLElement>('neat-select-list .overflow-y-auto')!,
     selectedNames: () =>
       [...element.querySelectorAll<HTMLElement>('[role="option"][aria-selected="true"]')].map(
         cellTexts,
@@ -258,7 +289,7 @@ describe('NeatSelectList', () => {
       const { element } = await render();
 
       const header = element.querySelector<HTMLElement>('[data-slot="select-list-header"]')!;
-      expect(cellTexts(header.firstElementChild!)).toBe('Slot State');
+      expect(cellTexts(header)).toBe('Slot State');
       expect(header.getAttribute('aria-hidden')).toBe('true');
       expect(element.querySelector('[role="listbox"] [data-slot="select-list-header"]')).toBeNull();
     });
@@ -281,6 +312,170 @@ describe('NeatSelectList', () => {
       const message = element.querySelector<HTMLElement>('[data-slot="select-list-empty"]')!;
       expect(message.textContent!.trim()).toBe('No slots.');
       expect(listbox().getAttribute('aria-describedby')).toBe(message.id);
+    });
+  });
+
+  describe('one grid', () => {
+    /** The classes that put an element on every track of the one grid, laid out on its tracks. */
+    const ON_THE_GRID = ['col-span-full', 'grid', 'grid-cols-subgrid'];
+
+    it('lays the header line and every row on one grid: each spans all tracks on grid-cols-subgrid', async () => {
+      const { header, listbox, options, scroller } = await render();
+
+      // jsdom has no layout: the structure is what makes a content-sized track fit the widest of
+      // the heading and the cells, since every line sizes the same tracks.
+      const grid = scroller().querySelector<HTMLElement>('[data-slot="select-list-grid"]')!;
+      expect([...grid.classList]).toEqual(
+        expect.arrayContaining(['grid', 'grid-cols-(--neat-select-list-columns)']),
+      );
+      expect(header()!.parentElement).toBe(grid);
+      expect(listbox().parentElement).toBe(grid);
+      for (const line of [header()!, listbox(), ...options()]) {
+        expect([...line.classList], line.getAttribute('role') ?? 'header').toEqual(
+          expect.arrayContaining(ON_THE_GRID),
+        );
+        // No line has tracks of its own, which would size apart from the others.
+        expect(line.classList).not.toContain('grid-cols-(--neat-select-list-columns)');
+      }
+      expect(options().every((option) => option.parentElement === listbox())).toBe(true);
+    });
+
+    it('keeps the full width of a fixed edge track for its cells: each line’s inline margins cancel its border and padding', async () => {
+      const fixture = TestBed.createComponent(CheckedHost);
+      await fixture.whenStable();
+      const element: HTMLElement = fixture.nativeElement;
+
+      // A subgrid's margin, border and padding at an edge become margin on the cells in that edge's
+      // track, so uncancelled they would leave the 1rem box track 2px for the box (jsdom has no
+      // layout, so the classes are what holds it). The grid's padding makes the room.
+      const grid = element.querySelector('[data-slot="select-list-grid"]')!;
+      expect([...grid.classList]).toEqual(
+        expect.arrayContaining(['ps-[calc(var(--neat-space-3)+2px)]', 'pe-(--neat-space-3)']),
+      );
+      const lines = [
+        element.querySelector('[data-slot="select-list-header"]')!,
+        ...element.querySelectorAll('[role="option"]'),
+      ];
+      for (const line of lines) {
+        expect([...line.classList]).toEqual(
+          expect.arrayContaining([
+            '-ms-[calc(var(--neat-space-3)+2px)]',
+            'border-s-2',
+            'px-(--neat-space-3)',
+            '-me-(--neat-space-3)',
+          ]),
+        );
+      }
+    });
+
+    it('places the empty note across every track of the one grid', async () => {
+      const { fixture, host, element, scroller } = await render();
+
+      host.items.set([]);
+      await fixture.whenStable();
+
+      const note = element.querySelector<HTMLElement>('[data-slot="select-list-empty"]')!;
+      expect(note.parentElement).toBe(scroller().querySelector('[data-slot="select-list-grid"]'));
+      expect(note.classList).toContain('col-span-full');
+    });
+
+    it('keeps the header inside the scrolling area, sticky at its top, filled with --neat-surface and aria-hidden', async () => {
+      const { header, scroller } = await render();
+
+      expect(scroller().contains(header())).toBe(true);
+      expect([...header()!.classList]).toEqual(
+        expect.arrayContaining(['sticky', 'top-0', 'bg-(--neat-surface)']),
+      );
+      expect(header()!.getAttribute('aria-hidden')).toBe('true');
+      // One scrolling area, so no scrollbar gutter has to be matched between two.
+      expect(scroller().className).not.toContain('scrollbar-gutter');
+    });
+
+    it('keeps a row scrolled into view at the top out from under the header: the area’s top padding is the header’s height', async () => {
+      const { header, scroller } = await render();
+
+      // ArrowUp and Home scroll the row to the area's top edge (`block: 'nearest'`), which the
+      // sticky header covers; scroll padding of its height stops the scroll below it.
+      expect(header()!.classList).toContain('h-7');
+      expect(scroller().classList).toContain('scroll-pt-7');
+
+      const fixture = TestBed.createComponent(HeaderlessHost);
+      await fixture.whenStable();
+      const headerless = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+        'neat-select-list .overflow-y-auto',
+      )!;
+      expect(headerless.classList).not.toContain('scroll-pt-7');
+    });
+
+    it('stacks the header over what the rows draw, and the focus ring over the header', async () => {
+      const { list, header, scroller } = await render();
+
+      // A positioned element in a cell (a chip, a badge) would paint over a sticky header in
+      // document order; the header's z-index, kept inside the area by its isolation, puts it on
+      // top.
+      expect(header()!.classList).toContain('z-1');
+      expect(scroller().classList).toContain('isolate');
+      // A child layer such as the sticky header paints over an outline of the area or of the list,
+      // so the ring is drawn by the list's own pseudo-element, which comes after the area.
+      expect([...list.classList]).toEqual(
+        expect.arrayContaining([
+          'relative',
+          'after:pointer-events-none',
+          'after:absolute',
+          'after:inset-0',
+          'has-[[role=listbox]:focus-visible]:after:outline-2',
+          'has-[[role=listbox]:focus-visible]:after:-outline-offset-2',
+          'has-[[role=listbox]:focus-visible]:after:outline-ring',
+        ]),
+      );
+    });
+  });
+
+  describe('column alignment', () => {
+    async function renderAligned(setup: (host: AlignedHost) => void = () => undefined) {
+      const fixture = TestBed.createComponent(AlignedHost);
+      setup(fixture.componentInstance);
+      await fixture.whenStable();
+      const element: HTMLElement = fixture.nativeElement;
+      const header = element.querySelector<HTMLElement>('[data-slot="select-list-header"]')!;
+      const options = [...element.querySelectorAll<HTMLElement>('[role="option"]')];
+      return { element, header, options };
+    }
+
+    it('an end-aligned column aligns its header label and its cells to the end', async () => {
+      const { element, header, options } = await renderAligned();
+
+      expect(
+        element
+          .querySelector<HTMLElement>('neat-select-list')!
+          .style.getPropertyValue('--neat-select-list-columns'),
+      ).toBe('1fr max-content');
+      const [nameLabel, sizeLabel] = [...header.children];
+      expect(sizeLabel.textContent!.trim()).toBe('Size');
+      expect(sizeLabel.classList).toContain('text-end');
+      expect(nameLabel.classList).not.toContain('text-end');
+      for (const option of options) {
+        const [name, size] = [...option.children];
+        expect(size.classList).toContain('text-end');
+        expect(name.classList).not.toContain('text-end');
+      }
+    });
+
+    it('aligns the same cells to the end in checked mode, after the box’s column', async () => {
+      const { header, options } = await renderAligned((host) => host.checkable.set(true));
+
+      expect([...header.children].map((label) => label.classList.contains('text-end'))).toEqual([
+        false,
+        false,
+        true,
+      ]);
+      for (const option of options) {
+        expect([...option.children].map((cell) => cell.classList.contains('text-end'))).toEqual([
+          false,
+          false,
+          true,
+        ]);
+      }
     });
   });
 
@@ -666,8 +861,8 @@ describe('NeatSelectList', () => {
       return {
         fixture,
         list,
-        headers: () =>
-          cellTexts(element.querySelector('[data-slot="select-list-header"]')!.firstElementChild!),
+        header: () => element.querySelector<HTMLElement>('[data-slot="select-list-header"]')!,
+        headers: () => cellTexts(element.querySelector('[data-slot="select-list-header"]')!),
         firstRow: () => cellTexts(element.querySelector('[role="option"]')!),
         tracks: () => list().style.getPropertyValue('--neat-select-list-columns'),
         async resize(to: number) {
@@ -701,6 +896,19 @@ describe('NeatSelectList', () => {
       await resize(800);
       expect(headers()).toBe('Slot Rate Codec');
       expect(tracks()).toBe('1fr 5rem 6rem');
+    });
+
+    it('hideBelow still removes a column and its header from the one grid', async () => {
+      const { fixture, header, tracks, resize } = await renderNarrow(900);
+
+      await resize(799);
+
+      // The heading, every row and the tracks lose the same column, so the rest stay aligned.
+      expect(tracks()).toBe('1fr 5rem');
+      expect(header().children).toHaveLength(2);
+      expect(header().parentElement!.getAttribute('data-slot')).toBe('select-list-grid');
+      const rows = (fixture.nativeElement as HTMLElement).querySelectorAll('[role="option"]');
+      for (const row of rows) expect(row.children).toHaveLength(2);
     });
 
     it('lays the first render out at the width the list has, before any resize is reported', async () => {
@@ -805,7 +1013,7 @@ describe('NeatSelectList', () => {
       const { element, list, options, box, fixture, host } = await renderChecked();
 
       expect(list.style.getPropertyValue('--neat-select-list-columns')).toBe('1rem 1fr 6rem');
-      const header = element.querySelector('[data-slot="select-list-header"]')!.firstElementChild!;
+      const header = element.querySelector('[data-slot="select-list-header"]')!;
       expect([...header.children].map((cell) => cell.textContent!.trim())).toEqual([
         '',
         'Type',
@@ -1083,15 +1291,15 @@ describe('NeatSelectList', () => {
         ).toBeGreaterThanOrEqual(4.5);
       });
 
-      it(`${scheme}: the header’s text reaches 4.5:1 on the surfaces`, async () => {
-        const { element } = await render();
-        const classes = [
-          ...element.querySelector<HTMLElement>('[data-slot="select-list-header"]')!.classList,
-        ];
-        for (const surface of SURFACES) {
-          const under = tokens[surface];
-          const text = stateColor(classes, 'text', q(on()), under, tokens['foreground']);
-          expect(contrastRatio(text, under), `${text} on --${surface}`).toBeGreaterThanOrEqual(4.5);
+      it(`${scheme}: the header’s text reaches 4.5:1 on its fill, whichever surface --neat-surface names`, async () => {
+        const { header } = await render();
+        const classes = [...header()!.classList];
+        // The fill is `--neat-surface`: the page's background, a dialog's or popover's surface, or
+        // an app's card that sets it.
+        for (const surface of ['background', 'popover', 'card']) {
+          const fill = tokens[surface];
+          const text = stateColor(classes, 'text', q(on()), fill, tokens['foreground']);
+          expect(contrastRatio(text, fill), `${text} on --${surface}`).toBeGreaterThanOrEqual(4.5);
         }
       });
 

@@ -54,11 +54,14 @@ export const DIALOG_HELM_CLASSES = {
  * - a column of flex items instead of a grid, so that the body can shrink and scroll between the
  *   title and the actions, within the height of the screen;
  * - the width: helm's `sm:max-w-md` cap becomes the screen's width less the margins, and the size
- *   sets the width up to it. Below `sm` the panel is as wide as the screen allows, as helm's is.
+ *   sets the width up to it. Below `sm` the panel is as wide as the screen allows, as helm's is;
+ * - `--neat-surface` set to the panel's fill, `--popover`: what the content sits on, so that a part
+ *   that covers what scrolls under it (a select list's sticky header) fills with the panel's
+ *   colour, not the page's.
  */
 const PANEL_CLASSES = hlm(
   DIALOG_HELM_CLASSES.content,
-  'ring-border flex flex-col max-h-[calc(100dvh-2rem)] sm:max-w-[calc(100%-2rem)]',
+  'ring-border flex flex-col max-h-[calc(100dvh-2rem)] sm:max-w-[calc(100%-2rem)] [--neat-surface:var(--popover)]',
 );
 
 /** Each size's width, written out in full: Tailwind reads class names, it cannot build them. */

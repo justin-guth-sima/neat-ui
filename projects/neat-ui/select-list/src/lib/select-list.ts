@@ -24,28 +24,71 @@ import { NeatIcon, type NeatTone } from '@sima/neat-ui';
  * them. Colours are the theme's tokens only; select-list.spec holds each pairing to its contrast.
  */
 
-/** The header: the columns' labels over the rows, in the rows' columns and with their inset. */
-const HEADER_CLASSES =
-  'shrink-0 overflow-y-hidden border-b border-border text-xs font-medium text-muted-foreground [scrollbar-gutter:stable]';
-
 /**
- * The scrolling area under the header. `scrollbar-gutter: stable` on both reserves the same width
- * for a scrollbar, so the header's columns stay over the rows' whether or not the rows scroll. The
- * ring is an outline, drawn over the content, so a header above the area cannot cover its top edge.
+ * The list's own box. It draws the focus ring, as an outline of a pseudo-element laid over the
+ * scrolling area: an outline of the area itself, or of the list, paints under the sticky header
+ * (a layer of its own), whose fill would hide the ring's top edge. The pseudo-element comes after
+ * the area, so it paints over it; it takes no clicks.
  */
-const SCROLLER_CLASSES =
-  'min-h-0 flex-1 overflow-x-hidden overflow-y-auto [scrollbar-gutter:stable] has-[[role=listbox]:focus-visible]:outline-2 has-[[role=listbox]:focus-visible]:-outline-offset-2 has-[[role=listbox]:focus-visible]:outline-ring';
+const HOST_CLASSES =
+  'relative flex h-full min-h-0 flex-col after:pointer-events-none after:absolute after:inset-0 has-[[role=listbox]:focus-visible]:after:outline-2 has-[[role=listbox]:focus-visible]:after:-outline-offset-2 has-[[role=listbox]:focus-visible]:after:outline-ring';
 
 /**
- * A line of cells on the columns' widths, with a 2px inset on the start side that the active
+ * The scrolling area, which holds the header and the rows. It isolates what it draws, so that the
+ * header's z-index ranks it over the rows' content but not over the ring. While there is a header,
+ * the area's top padding is the header's height (`scroll-pt-7`, bound in the template): a row
+ * scrolled into view at the top (ArrowUp, Home) stops below the header instead of under it.
+ */
+const SCROLLER_CLASSES = 'isolate min-h-0 flex-1 overflow-x-hidden overflow-y-auto';
+
+/**
+ * The one grid: the columns' tracks, which the header line, the listbox and each row in it take
+ * through `grid-cols-subgrid`. Every line sizes the same tracks, so a content-sized track (`auto`,
+ * `max-content`) fits the widest of the heading and the cells, and the headings stay over their
+ * columns. The lines' inset (the active row's bar and the padding) is the grid's padding: see
+ * LINE_CLASSES.
+ */
+const GRID_CLASSES =
+  'grid grid-cols-(--neat-select-list-columns) gap-x-(--neat-space-3) ps-[calc(var(--neat-space-3)+2px)] pe-(--neat-space-3)';
+
+/** The listbox: a line of the grid that holds the rows, which are lines of it in turn. */
+const LISTBOX_CLASSES = 'col-span-full grid grid-cols-subgrid outline-none';
+
+/**
+ * A line of cells on every track of the grid, with a 2px inset on the start side that the active
  * row's bar fills (`--primary`, 3:1 against the row's fill and the surface); the bar, not the fill
  * alone, marks it. The active row is the selected one, marked `data-active` rather than by
  * `aria-selected`, which in checked mode says a row is checked.
+ *
+ * A subgrid's margin, border and padding at an edge are added to the margin of the cells in that
+ * edge's track, which would take them out of a fixed track's width (a 1rem box track would leave
+ * the box 2px). So a line's negative inline margins cancel its border and padding at both edges,
+ * and the grid's padding, which they reach into, makes the room: the cells keep their tracks'
+ * widths, and a line's fill and bar still run from edge to edge of the area.
  */
 const LINE_CLASSES =
-  'grid grid-cols-(--neat-select-list-columns) items-center gap-x-(--neat-space-3) border-s-2 border-transparent px-(--neat-space-3)';
-const ROW_CLASSES = `${LINE_CLASSES} min-h-9 cursor-default py-1 text-sm data-active:border-primary`;
-const HEADER_LINE_CLASSES = `${LINE_CLASSES} py-1`;
+  'col-span-full grid grid-cols-subgrid items-center -ms-[calc(var(--neat-space-3)+2px)] -me-(--neat-space-3) border-s-2 px-(--neat-space-3)';
+const ROW_CLASSES = `${LINE_CLASSES} min-h-9 cursor-default border-transparent py-1 text-sm data-active:border-primary`;
+
+/**
+ * The header line: the columns' labels, sticky at the top of the scrolling area. Its height is
+ * fixed (`h-7`, the area's `scroll-pt-7`) so that the area can keep rows from under it. It fills
+ * with `--neat-surface`, the fill of whatever the list sits on (the page, a dialog, a popover), to
+ * cover the rows scrolling under it, and its z-index puts it over what they draw (a positioned
+ * chip would otherwise paint over it, coming later). Its start edge is transparent: it is the
+ * rows' bar inset.
+ */
+const HEADER_CLASSES = `${LINE_CLASSES} sticky top-0 z-1 h-7 border-b border-s-transparent border-b-border bg-(--neat-surface) text-xs font-medium text-muted-foreground`;
+
+/** A column's header label and its cells by the column's `align`. */
+const HEADER_LABEL_CLASSES: Record<'start' | 'end', string> = {
+  start: 'min-w-0 truncate',
+  end: 'min-w-0 truncate text-end',
+};
+const CELL_CLASSES: Record<'start' | 'end', string> = {
+  start: 'min-w-0',
+  end: 'min-w-0 text-end',
+};
 
 /**
  * A row's fills by its tone, each row taking exactly one set. A neutral row has none at rest and is
@@ -101,11 +144,14 @@ const NONE = Symbol('none');
  * ```
  *
  * The key names the column, `header` is the label over it (no label on any column: no header row),
- * and `width` is its CSS track size in the row's grid, `1fr` by default. The template gets the
- * item as its implicit context. A cell is a block that may shrink to nothing (`min-width: 0`), so
- * it does not push the next column out; it does not cut its content, though. A long text wraps,
- * and an unbroken one overflows into the next cell, unless the template truncates it (an element
- * with `overflow: hidden`, `text-overflow: ellipsis` and `white-space: nowrap`).
+ * and `width` is its CSS track size in the list's grid, `1fr` by default. The header and the rows
+ * share the grid's tracks, so a content-sized width (`auto`, `max-content`) fits the widest of the
+ * label and the cells. `align="end"` puts the label and the cells' text at the end of the column,
+ * as numbers read best. The template gets the item as its implicit context. A cell is a block
+ * that may shrink to nothing (`min-width: 0`), so it does not push the next column out; it does not
+ * cut its content, though. A long text wraps, and an unbroken one overflows into the next cell,
+ * unless the template truncates it (an element with `overflow: hidden`, `text-overflow: ellipsis`
+ * and `white-space: nowrap`).
  *
  * `hideBelow` is a width of the list in CSS pixels: while the list is narrower, the column and its
  * header leave the layout entirely, as if the template were not there. For columns that matter
@@ -116,6 +162,8 @@ export class NeatColumn {
   readonly key = input.required<string>({ alias: 'neatColumn' });
   readonly header = input('');
   readonly width = input('1fr');
+  /** Where the label and the cells' text sit in the column. */
+  readonly align = input<'start' | 'end'>('start');
   /** The list's width in CSS pixels below which the column is not shown; always shown if unset. */
   readonly hideBelow = input<number>();
   readonly template = inject<TemplateRef<unknown>>(TemplateRef);
@@ -153,10 +201,13 @@ let nextListId = 0;
  * ```
  *
  * It fills its container (the container needs a height) and scrolls its rows inside, under a header
- * that stays put. `trackBy` gives an item's identity, unique in the list: the selection follows
- * the item with the same key when `items` is replaced by new objects (a poll's answer), and rows,
- * with the state in their cells, are kept rather than rebuilt. It is called once per item whenever
- * `items` changes, never while the list is only checked or the selection moves.
+ * that stays put: the header sits in the scrolling area, sticky at its top, filled with
+ * `--neat-surface` (the page's background, or a dialog's or popover's surface, which they set; a
+ * card of the app's sets it to its own fill). `trackBy` gives an item's identity, unique in the
+ * list: the selection follows the item with the same key when `items` is replaced by new objects (a
+ * poll's answer), and rows, with the state in their cells, are kept rather than rebuilt. It is
+ * called once per item whenever `items` changes, never while the list is only checked or the
+ * selection moves.
  *
  * It is a single-select `listbox` named by `label`, whose `option` rows are `aria-selected`.
  * Selection follows focus: the listbox is the one tab stop, holds the focus, and names the
@@ -201,88 +252,88 @@ let nextListId = 0;
   imports: [NeatIcon, NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'flex h-full min-h-0 flex-col',
+    class: HOST_CLASSES,
     '[style.--neat-select-list-columns]': 'gridColumns()',
   },
   template: `
-    @if (hasHeader()) {
-      <div data-slot="select-list-header" aria-hidden="true" [class]="headerClasses">
-        <div [class]="headerLineClasses">
-          @if (checkable()) {
-            <span></span>
-          }
-          @for (column of visibleColumns(); track column) {
-            <span class="min-w-0 truncate">{{ column.header() }}</span>
-          }
-        </div>
-      </div>
-    }
-    <div #scroller [class]="scrollerClasses">
+    <div #scroller [class]="scrollerClasses" [class.scroll-pt-7]="hasHeader()">
       @if (hint()) {
         <span class="sr-only" [id]="hintId">{{ hint() }}</span>
       }
-      <div
-        #listbox
-        role="listbox"
-        tabindex="0"
-        class="outline-none"
-        [attr.aria-label]="label()"
-        [attr.aria-multiselectable]="checkable() || null"
-        [attr.aria-activedescendant]="activeId()"
-        [attr.aria-describedby]="describedBy()"
-        (keydown)="onKeydown($event)"
-        (click)="onClick($event)"
-      >
-        @for (row of rows(); track row.key) {
-          <div
-            role="option"
-            [id]="row.id"
-            [class]="row.classes"
-            [attr.data-active]="row.key === selectedKey() ? '' : null"
-            [attr.aria-selected]="
-              checkable()
-                ? row.checkable
-                  ? checkedKeys().has(row.key)
-                  : null
-                : row.key === selectedKey()
-            "
-          >
+      <div data-slot="select-list-grid" [class]="gridClasses">
+        @if (hasHeader()) {
+          <div data-slot="select-list-header" aria-hidden="true" [class]="headerClasses">
             @if (checkable()) {
-              <div class="flex">
-                @if (row.checkable) {
-                  <span
-                    data-slot="select-list-check"
-                    aria-hidden="true"
-                    [class]="checkClasses"
-                    [attr.data-checked]="checkedKeys().has(row.key) ? '' : null"
-                  >
-                    @if (checkedKeys().has(row.key)) {
-                      <neat-icon name="check" [size]="12" class="text-primary-foreground" />
-                    }
-                  </span>
-                }
-              </div>
+              <span></span>
             }
             @for (column of visibleColumns(); track column) {
-              <div class="min-w-0">
-                <ng-container
-                  [ngTemplateOutlet]="column.template"
-                  [ngTemplateOutletContext]="row.context"
-                />
-              </div>
+              <span [class]="headerLabelClasses[column.align()]">{{ column.header() }}</span>
             }
           </div>
         }
-      </div>
-      @if (isEmpty()) {
-        <p
-          data-slot="select-list-empty"
-          class="px-(--neat-space-3) py-(--neat-space-2) text-sm text-muted-foreground"
-          [id]="emptyId"
+        <div
+          #listbox
+          role="listbox"
+          tabindex="0"
+          [class]="listboxClasses"
+          [attr.aria-label]="label()"
+          [attr.aria-multiselectable]="checkable() || null"
+          [attr.aria-activedescendant]="activeId()"
+          [attr.aria-describedby]="describedBy()"
+          (keydown)="onKeydown($event)"
+          (click)="onClick($event)"
         >
-          {{ emptyLabel() }}
-        </p>
-      }
+          @for (row of rows(); track row.key) {
+            <div
+              role="option"
+              [id]="row.id"
+              [class]="row.classes"
+              [attr.data-active]="row.key === selectedKey() ? '' : null"
+              [attr.aria-selected]="
+                checkable()
+                  ? row.checkable
+                    ? checkedKeys().has(row.key)
+                    : null
+                  : row.key === selectedKey()
+              "
+            >
+              @if (checkable()) {
+                <div class="flex">
+                  @if (row.checkable) {
+                    <span
+                      data-slot="select-list-check"
+                      aria-hidden="true"
+                      [class]="checkClasses"
+                      [attr.data-checked]="checkedKeys().has(row.key) ? '' : null"
+                    >
+                      @if (checkedKeys().has(row.key)) {
+                        <neat-icon name="check" [size]="12" class="text-primary-foreground" />
+                      }
+                    </span>
+                  }
+                </div>
+              }
+              @for (column of visibleColumns(); track column) {
+                <div [class]="cellClasses[column.align()]">
+                  <ng-container
+                    [ngTemplateOutlet]="column.template"
+                    [ngTemplateOutletContext]="row.context"
+                  />
+                </div>
+              }
+            </div>
+          }
+        </div>
+        @if (isEmpty()) {
+          <p
+            data-slot="select-list-empty"
+            class="col-span-full px-(--neat-space-3) py-(--neat-space-2) text-sm text-muted-foreground"
+            [id]="emptyId"
+          >
+            {{ emptyLabel() }}
+          </p>
+        }
+      </div>
     </div>
   `,
 })
@@ -312,9 +363,12 @@ export class NeatSelectList<T, K = unknown> {
   /** The item of the row that was clicked or that had Enter pressed on it. */
   readonly activated = output<T>();
 
-  protected readonly headerClasses = HEADER_CLASSES;
-  protected readonly headerLineClasses = HEADER_LINE_CLASSES;
   protected readonly scrollerClasses = SCROLLER_CLASSES;
+  protected readonly gridClasses = GRID_CLASSES;
+  protected readonly listboxClasses = LISTBOX_CLASSES;
+  protected readonly headerClasses = HEADER_CLASSES;
+  protected readonly headerLabelClasses = HEADER_LABEL_CLASSES;
+  protected readonly cellClasses = CELL_CLASSES;
   protected readonly checkClasses = CHECK_CLASSES;
 
   private readonly id = ++nextListId;

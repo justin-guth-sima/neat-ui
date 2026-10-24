@@ -146,7 +146,13 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   not brain's checkbox (a thousand-file folder would be a thousand brain components), and is
   `aria-hidden` and no tab stop, since the row says whether it is checked. A column's `hideBelow`
   is judged against the list's own width, which a ResizeObserver watches only while some column
-  has one. A row's `rowTone` tints it with the tone its status chip has (theme tokens
+  has one. The header line, the listbox and each row are lines of one grid (each spans every track
+  on `grid-cols-subgrid`), so a content-sized column (`width="max-content"`) fits the widest of its
+  heading and its cells, and `align="end"` puts both at the column's end. The header sits inside
+  the scrolling area, sticky at its top and filled with `--neat-surface`; the area's top scroll
+  padding is the header's height, so a row scrolled into view stops below it. The focus ring is
+  the outline of a pseudo-element over the area, since the sticky header paints over an outline
+  of the area itself. A row's `rowTone` tints it with the tone its status chip has (theme tokens
   `--neat-tint-<tone>` and, for hover and selection, `--neat-tint-<tone>-accent`); each row takes
   exactly one set of fills, so no class has to outweigh another, and the tints are opaque mixes
   over `--background`, so a toned list sits on the page, not on a card. The file browser reuses
@@ -227,12 +233,14 @@ Why: tokens are what make light/dark and later rebranding work. Overrides (deep 
 The tokens are the theme's colours (Spartan's variables such as `--primary`, `--muted-foreground`,
 `--border`), `--radius`, and a short layout set from Tailwind's scale, defined once in the kit
 stylesheet: `--neat-space-2`, `--neat-space-3`, `--neat-space-4`, `--neat-space-6` (0.5, 0.75, 1
-and 1.5rem, for gaps and insets), `--neat-text-xs`, `--neat-text-sm` (0.75 and 0.875rem) and
-`--neat-aside-width` (22rem, the width of a page's side panel). Page
-insets come from `neat-page` (`padding="page"` by default, `padding="none"` for full-bleed content
-such as a video grid), never from a page's own stylesheet. Escape hatch: if a look cannot be
-reached through tokens and inputs, that is a kit gap. Treat it as a proposal under the previous
-rule, not as a reason to override.
+and 1.5rem, for gaps and insets), `--neat-text-xs`, `--neat-text-sm` (0.75 and 0.875rem),
+`--neat-aside-width` (22rem, the width of a page's side panel) and `--neat-surface` (the fill of
+the surface a component sits on, for a part that covers what scrolls under it: `--background`, set
+to `--popover` by a dialog panel and a popover, and to its fill by an app's own surface such as a
+card). Page insets come from `neat-page` (`padding="page"` by default, `padding="none"` for
+full-bleed content such as a video grid), never from a page's own stylesheet. Escape hatch: if a
+look cannot be reached through tokens and inputs, that is a kit gap. Treat it as a proposal under
+the previous rule, not as a reason to override.
 
 **No colour literals outside the theme directories: `projects/neat-ui/src/lib/theme/`, and
 `projects/neat-ui/video/src/lib/theme/` for the video overlay palette.**

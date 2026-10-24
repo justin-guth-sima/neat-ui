@@ -628,6 +628,15 @@ describe('NeatPopover', () => {
     expect(classes).not.toContain('ring-foreground/10');
   });
 
+  it('a popover sets --neat-surface to --popover, the fill its content sits on', async () => {
+    const { trigger, settle } = await render();
+    trigger.click();
+    await settle();
+
+    // A select list's sticky header fills with --neat-surface to cover the rows under it.
+    expect(panel()!.classList).toContain('[--neat-surface:var(--popover)]');
+  });
+
   it('helm drift: the copied class string still appears in the vendored helm popover', () => {
     expect(helmContent).toContain(POPOVER_HELM_CLASSES.content);
   });

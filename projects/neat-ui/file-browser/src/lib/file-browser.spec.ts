@@ -54,7 +54,12 @@ const TREE: readonly NeatFileNode[] = [
         <ng-template neatColumn="type" header="Type" width="4rem" let-file>{{
           file.name.split('.').pop()
         }}</ng-template>
-        <ng-template neatColumn="size" header="Size" width="5rem" [hideBelow]="hideSizeBelow()"
+        <ng-template
+          neatColumn="size"
+          header="Size"
+          width="5rem"
+          align="end"
+          [hideBelow]="hideSizeBelow()"
           >1 MB</ng-template
         >
       }
@@ -812,13 +817,28 @@ describe('NeatFileBrowser', () => {
       await fixture.whenStable();
 
       const header = element.querySelector('[data-slot="select-list-header"]')!;
-      expect([...header.firstElementChild!.children].map((c) => c.textContent!.trim())).toEqual([
+      expect([...header.children].map((c) => c.textContent!.trim())).toEqual([
         'Name',
         'Type',
         'Size',
       ]);
       const cells = options().map((o) => o.children[1]?.textContent?.trim());
       expect(cells).toEqual(['', '', '', 'md', 'mp4']);
+    });
+
+    it('passes a column’s align on to the list', async () => {
+      const { element, options } = await render((host) => host.withColumn.set(true));
+
+      const header = element.querySelector('[data-slot="select-list-header"]')!;
+      expect([...header.children].map((c) => c.classList.contains('text-end'))).toEqual([
+        false,
+        false,
+        true,
+      ]);
+      for (const option of options()) {
+        expect(option.children[2].classList).toContain('text-end');
+        expect(option.children[1].classList).not.toContain('text-end');
+      }
     });
 
     describe('a column that hides when narrow', () => {
@@ -847,10 +867,7 @@ describe('NeatFileBrowser', () => {
         });
 
         const header = element.querySelector('[data-slot="select-list-header"]')!;
-        expect([...header.firstElementChild!.children].map((c) => c.textContent!.trim())).toEqual([
-          'Name',
-          'Type',
-        ]);
+        expect([...header.children].map((c) => c.textContent!.trim())).toEqual(['Name', 'Type']);
       });
     });
 
@@ -861,8 +878,7 @@ describe('NeatFileBrowser', () => {
       });
 
       expect(
-        element.querySelector('[data-slot="select-list-header"]')!.firstElementChild!.children[0]
-          .textContent,
+        element.querySelector('[data-slot="select-list-header"]')!.children[0].textContent,
       ).toBe('File');
     });
   });

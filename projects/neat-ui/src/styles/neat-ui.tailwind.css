@@ -74,6 +74,12 @@
   --neat-space-6: --spacing(6);
   /* The width of a page's side panel (neat-page's aside). */
   --neat-aside-width: 22rem;
+  /*
+   * The fill of the surface a component sits on, for a part that must cover what scrolls under it
+   * (a select list's sticky header). The page's background here; a dialog panel and a popover set
+   * it to --popover, and an app's own surface (a card) sets it to its fill.
+   */
+  --neat-surface: var(--background);
   --neat-text-xs: --theme(--text-xs inline);
   --neat-text-sm: --theme(--text-sm inline);
 }

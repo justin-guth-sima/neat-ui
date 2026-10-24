@@ -525,6 +525,16 @@ describe('NeatDialog', () => {
     expect(document.querySelector('.cdk-overlay-backdrop')!.classList).toContain('bg-black/10');
   });
 
+  it('a dialog panel sets --neat-surface to --popover, the fill its content sits on', async () => {
+    const { open } = await render();
+    await open();
+
+    // A select list's sticky header fills with --neat-surface to cover the rows under it.
+    expect(document.querySelector('[data-slot="dialog-content"]')!.classList).toContain(
+      '[--neat-surface:var(--popover)]',
+    );
+  });
+
   it('lays a component’s own element out as part of the panel, and the body scrolls on its own', async () => {
     const { open } = await render();
     await open<string>(RenameForm);

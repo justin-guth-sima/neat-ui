@@ -1068,10 +1068,11 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <p class="showcase-muted">
             <code>neat-select-list</code>: rows in columns that the app lays out with
             <code>neatColumn</code> templates, one selected. It fills its container and scrolls its
-            rows under a header that stays put. Focus the list with Tab: Up and Down move the
-            selection, Home and End jump to the ends, Enter and a click tell <code>activated</code>.
-            A button in a row keeps its own keys and clicks (Tab reaches it after the list). With no
-            items it says why.
+            rows under a header that stays put, filled with <code>--neat-surface</code> (the card
+            sets it to its own fill). Focus the list with Tab: Up and Down move the selection, Home
+            and End jump to the ends, Enter and a click tell <code>activated</code>. A button in a
+            row keeps its own keys and clicks (Tab reaches it after the list). With no items it says
+            why.
           </p>
           <div class="showcase-row list-row">
             <div class="list-box">
@@ -1155,7 +1156,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             With <code>checkable</code>, each row that <code>canCheck</code> allows has a box, and
             <code>checked</code> holds their keys. The arrow keys move the row the keyboard is on
             (the bar); Space checks or unchecks it, as a click on its box does. Drones has no files,
-            so nothing to check.
+            so nothing to check. The header and the rows share one grid, so Files sizes to its
+            widest heading or count (<code>width="max-content"</code>), and
+            <code>align="end"</code> puts both at the column's end, as numbers read best.
           </p>
           <div class="showcase-row list-row">
             <div class="list-box list-box-checked">
@@ -1168,9 +1171,14 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
                 [(checked)]="checkedTypes"
               >
                 <ng-template neatColumn="name" header="Type" let-type>{{ type.name }}</ng-template>
-                <ng-template neatColumn="files" header="Files" width="4rem" let-type>{{
-                  type.files
-                }}</ng-template>
+                <ng-template
+                  neatColumn="files"
+                  header="Files"
+                  width="max-content"
+                  align="end"
+                  let-type
+                  >{{ type.files }}</ng-template
+                >
               </neat-select-list>
             </div>
           </div>

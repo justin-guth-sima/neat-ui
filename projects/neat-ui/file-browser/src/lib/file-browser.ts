@@ -145,10 +145,10 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
  *   the name as a neutral `neat-status-chip`; such nodes can still be selected, opened and
  *   checked.
  * - **Columns.** `neatColumn` templates (from `@sima/neat-ui/select-list`) add columns after the
- *   name, filled for files only; the template gets the `NeatFileNode`, and `hideBelow` works as on
- *   the list. Setting any adds a header row, the name's heading being `labels.name`, and moves a
- *   folder's count from the end of the name cell to just after the name, so that it reads as the
- *   folder's rather than as a value in the next column.
+ *   name, filled for files only; the template gets the `NeatFileNode`, and `align` and
+ *   `hideBelow` work as on the list. Setting any adds a header row, the name's heading being
+ *   `labels.name`, and moves a folder's count from the end of the name cell to just after the
+ *   name, so that it reads as the folder's rather than as a value in the next column.
  *
  * Everything the browser says is a default in `labels` (a partial, merged over them) except
  * `rootLabel`, which is required, and `filterPlaceholder`. `countLabel` words the count under the
@@ -258,6 +258,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
           [neatColumn]="column.key()"
           [header]="column.header()"
           [width]="column.width()"
+          [align]="column.align()"
           [hideBelow]="column.hideBelow()"
           neatFileRow
           let-row

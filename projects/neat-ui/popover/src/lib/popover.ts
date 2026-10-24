@@ -37,9 +37,14 @@ export const POPOVER_HELM_CLASSES = {
 
 /**
  * The panel: helm's, outlined in `--border`, the theme's colour for card outlines and dividers,
- * where helm draws the text colour at 10%.
+ * where helm draws the text colour at 10%. It sets `--neat-surface` to its fill, `--popover`: what
+ * the content sits on, so that a part that covers what scrolls under it (a select list's sticky
+ * header) fills with the panel's colour, not the page's.
  */
-const PANEL_CLASSES = hlm(POPOVER_HELM_CLASSES.content, 'ring-border');
+const PANEL_CLASSES = hlm(
+  POPOVER_HELM_CLASSES.content,
+  'ring-border [--neat-surface:var(--popover)]',
+);
 
 /** The gap between the trigger and the panel, so the panel's outline does not touch the trigger. */
 const SIDE_OFFSET = 4;

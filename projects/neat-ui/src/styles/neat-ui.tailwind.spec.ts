@@ -24,6 +24,11 @@ describe('the kit stylesheet', () => {
     expect(stylesheet).toMatch(/--neat-aside-width:\s*22rem;/);
   });
 
+  it('defines --neat-surface, the fill of the surface a component sits on, as the page background', () => {
+    // A dialog panel and a popover set it to --popover; a sticky header fills with it.
+    expect(stylesheet).toMatch(/:root\s*\{[^}]*--neat-surface:\s*var\(--background\);/);
+  });
+
   it('maps the highlight tone and every row tint to a Tailwind colour, so their utilities exist', () => {
     // Spartan's preset maps its own variables; the kit's extensions need a mapping each, or a
     // class such as `bg-neat-tint-success` compiles to nothing.
