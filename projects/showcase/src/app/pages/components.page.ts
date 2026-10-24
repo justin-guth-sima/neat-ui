@@ -22,6 +22,8 @@ import {
   NeatTooltip,
   type NeatTooltipPosition,
 } from '@sima/neat-ui';
+import { NeatCallout } from '@sima/neat-ui/callout';
+import { NeatCollapsible } from '@sima/neat-ui/collapsible';
 import { NeatConfirm } from '@sima/neat-ui/confirm';
 import { NeatDetails } from '@sima/neat-ui/details';
 import {
@@ -173,6 +175,8 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
   selector: 'app-components-page',
   imports: [
     NeatButton,
+    NeatCallout,
+    NeatCollapsible,
     NeatDetails,
     NeatDialogActions,
     NeatDialogBody,
@@ -356,6 +360,55 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
               <dt>Bitrate</dt>
               <dd>4.2 Mbit/s</dd>
             </dl>
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Collapsible</h2>
+          <p class="showcase-muted">
+            <code>neat-collapsible</code>: a section that a full-width button opens and closes, for
+            what is not needed every day. While closed, <code>summary</code> says what it holds. The
+            content stays instantiated while closed, so gate an expensive one on <code>open</code>.
+            Closing it from inside (Save below) puts the focus on its button.
+          </p>
+          <div class="card details-demo">
+            <neat-collapsible
+              label="Details"
+              summary="IMX219 · MIPI CSI · NV12"
+              [(open)]="detailsOpen"
+            >
+              <dl neatDetails>
+                <dt>Model</dt>
+                <dd>IMX219</dd>
+                <dt>Receiver</dt>
+                <dd><code>imx219 1-0010</code></dd>
+              </dl>
+            </neat-collapsible>
+            <neat-collapsible label="Change board" [(open)]="boardOpen">
+              <div class="showcase-row">
+                <input neatInput type="text" value="192.168.1.20" aria-label="Board address" />
+                <button neatButton type="button" (click)="boardOpen.set(false)">Save</button>
+              </div>
+            </neat-collapsible>
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Callout</h2>
+          <p class="showcase-muted">
+            <code>neat-callout</code>: a note set apart on a status tint, with an icon by tone, an
+            optional <code>heading</code> and actions marked <code>neatCalloutActions</code>.
+            <code>announce</code> (<code>status</code> or <code>alert</code>) makes it a live region
+            for news, rendered when the news happens.
+          </p>
+          <div class="callout-demo">
+            <neat-callout tone="warning" heading="Board changed">
+              The board at 192.168.1.20 replaced the previous one. Devices are from the last scan.
+              <button neatButton neatCalloutActions type="button" size="small">Refresh</button>
+            </neat-callout>
+            @for (tone of tones; track tone) {
+              <neat-callout [tone]="tone">A {{ tone }} note: {{ toneLabels[tone] }}.</neat-callout>
+            }
           </div>
         </section>
 
@@ -1508,6 +1561,8 @@ export class ComponentsPage {
   protected readonly validateError =
     'Could not validate the URL.\nyt-dlp: ERROR: [youtube] abc123: Video unavailable';
   protected readonly narrowList = signal(false);
+  protected readonly detailsOpen = signal(false);
+  protected readonly boardOpen = signal(false);
   protected readonly demoTypes = DEMO_TYPES;
   protected readonly demoDevices = DEMO_DEVICES;
   protected readonly deviceGroups = DEVICE_GROUPS;

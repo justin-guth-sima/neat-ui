@@ -209,6 +209,14 @@
   max-width: 22rem;
 }
 
+/* Callouts stack one gap apart, as banners over a page do. */
+.callout-demo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+  max-width: 36rem;
+}
+
 /* The value's own layout, which is the page's: the URL and its Copy, wrapping as one. */
 .details-url {
   display: flex;

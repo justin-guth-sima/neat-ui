@@ -30,9 +30,11 @@ look happens in one place. Every rule here protects that.
     `input`; `NeatFileNode` is its tree), `status-chip` (`NeatStatusChip`, a short status on a
     status fill, and `NeatStatusChipButton`, the same as a button; their `NeatTone` is the
     primary's, since a select list's `rowTone` takes the same tones), `details` (`NeatDetails`, the
-    key/value list of a side panel) and `field` (`NeatField`, a control under its visible name with
-    a hint and an error, and `NeatErrorNote`, a failure said in place), each exporting that
-    component and its types; and
+    key/value list of a side panel), `field` (`NeatField`, a control under its visible name with
+    a hint and an error, and `NeatErrorNote`, a failure said in place), `collapsible`
+    (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed)
+    and `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
+    each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
     sit in the tile's overlay layer. Public API is `projects/neat-ui/<name>/src/public-api.ts`; its
@@ -136,6 +138,17 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
 
   `NeatDropZone` hosts no brain primitive because brain has none for files: it is a native `button`
   plus a hidden file input, with its own drag handling, over the kit's tokens.
+
+  `NeatCollapsible` hosts brain's collapsible (its `open` is brain's `expanded` under the kit's
+  name), with brain's trigger and content directives in its template. Brain only makes closed
+  content `inert`, so the kit hides it (`data-closed:hidden`, the one class helm's collapsible
+  has, stated by the kit through the preset's variant, so no helm is vendored for it), and when it
+  closes with the focus inside, it moves the focus to its trigger before the content turns inert,
+  which would drop the focus to the page.
+  `NeatCallout` hosts no brain primitive (brain has none); it is the kit's own box over the theme's
+  tints, one look for the banners, problems and guides of every app. Its icon takes the tone's
+  solid colour where that holds 3:1 on the tint; warning's does not on its light tint, so its icon
+  is `--foreground` and the start border carries the tone.
 
   `NeatSelectList` and `NeatFileBrowser` own their behaviour too. Brain has no listbox on its own
   (its select's list lives in a popover, and `command` is a palette), so the list owns its roles
