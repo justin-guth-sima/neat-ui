@@ -3,4 +3,4 @@
  * app's main bundle carries it only if a page it loads imports it. Every export added here is a
  * promise to consumers.
  */
-export { NeatNumeric, NeatTable } from './lib/table';
+export { NeatFigure, NeatNumeric, NeatTable } from './lib/table';

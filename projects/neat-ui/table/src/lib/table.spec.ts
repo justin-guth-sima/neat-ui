@@ -3,10 +3,10 @@ import { TestBed } from '@angular/core/testing';
 import { contrastRatio, type NeatColorScheme } from '@sima/neat-ui';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
-import { NeatNumeric, NeatTable } from './table';
+import { NeatFigure, NeatNumeric, NeatTable } from './table';
 
 @Component({
-  imports: [NeatTable, NeatNumeric],
+  imports: [NeatTable, NeatNumeric, NeatFigure],
   template: `
     <table neatTable class="host-class" aria-label="Metrics">
       <thead>
@@ -19,6 +19,7 @@ import { NeatNumeric, NeatTable } from './table';
         <tr>
           <th scope="row">Power</th>
           <td neatNumeric>12.5 W</td>
+          <td neatFigure>12.51 W <span>OK</span></td>
         </tr>
       </tbody>
     </table>
@@ -36,6 +37,7 @@ async function render() {
     name: query('thead th:first-child'),
     mean: query('th[scope=col]:last-child'),
     value: query('td'),
+    figure: query('td[data-figure]:not([data-numeric])'),
   };
 }
 
@@ -50,7 +52,7 @@ describe('NeatTable', () => {
     );
   });
 
-  it('pads every cell by the layout tokens and rules it off below, start-aligned and centred', async () => {
+  it('pads every cell by the layout tokens and rules it off below, centred', async () => {
     const { table } = await render();
 
     expect(classesOf(table)).toEqual(
@@ -59,7 +61,6 @@ describe('NeatTable', () => {
         '[&_:where(th,td)]:py-(--neat-space-2)',
         '[&_:where(th,td)]:border-be',
         '[&_:where(th,td)]:border-border',
-        '[&_:where(th,td)]:text-start',
         '[&_:where(th,td)]:align-middle',
       ]),
     );
@@ -77,27 +78,41 @@ describe('NeatTable', () => {
     );
   });
 
-  it('states the cell defaults without specificity, so a table can adjust one plainly', async () => {
+  it('gives each cell exactly one alignment: start but for the numeric cells, which end-align', async () => {
     const { table } = await render();
 
-    // `:where` weighs nothing: an app's own `th` or `.cell` rule needs no heavier selector.
-    const defaults = classesOf(table).filter((name) => name.startsWith('[&_'));
-    const numeric = defaults.filter((name) => name.includes('[data-numeric]'));
-    expect(defaults.filter((name) => !numeric.includes(name) && !name.includes(':where('))).toEqual(
-      [],
-    );
+    const alignments = classesOf(table).filter((name) => /:text-(start|end)$/.test(name));
+    expect(alignments.sort()).toEqual([
+      '[&_:where([data-numeric])]:text-end',
+      '[&_:where(th,td):where(:not([data-numeric]))]:text-start',
+    ]);
   });
 
-  it('lets the numeric cells end-align by the specificity of their attribute, not by order', async () => {
+  it('keeps a figure on one line with tabular digits, once for figures and numeric cells alike', async () => {
     const { table } = await render();
 
     expect(classesOf(table)).toEqual(
       expect.arrayContaining([
-        '[&_[data-numeric]]:text-end',
-        '[&_[data-numeric]]:whitespace-nowrap',
-        '[&_[data-numeric]]:tabular-nums',
+        '[&_:where([data-figure])]:whitespace-nowrap',
+        '[&_:where([data-figure])]:tabular-nums',
       ]),
     );
+    expect(classesOf(table).filter((name) => name.includes('tabular-nums'))).toHaveLength(1);
+  });
+
+  it('states every rule at the weight of its element selector, with nothing outweighing another', async () => {
+    const { table } = await render();
+
+    // Each child variant's selector sits wholly in `:where`, so it adds no class or attribute to
+    // the specificity: a rule of an app's own is not outweighed by the kit's defaults, and no
+    // default is outweighed by another (the kit's utilities are also layered, below component CSS).
+    const rules = classesOf(table).filter((name) => name.startsWith('[&_'));
+    expect(rules.length).toBeGreaterThan(0);
+    for (const rule of rules) {
+      const selector = rule.slice(0, rule.lastIndexOf(']:') + 1);
+      const outsideWhere = selector.replace(/:where\((?:[^()]|\([^()]*\))*\)/g, '');
+      expect(outsideWhere, rule).toBe('[&_]');
+    }
   });
 
   it('keeps classes the app sets alongside its own, and leaves the table a native table', async () => {
@@ -135,12 +150,16 @@ describe('NeatTable', () => {
   });
 });
 
-describe('NeatNumeric', () => {
-  it('marks a cell, header or body, as numeric for the table to align', async () => {
-    const { mean, value, name } = await render();
+describe('NeatFigure and NeatNumeric', () => {
+  it('mark a cell as a figure, and only a numeric cell as end-aligned', async () => {
+    const { mean, value, figure, name } = await render();
 
+    expect(mean.hasAttribute('data-figure')).toBe(true);
     expect(mean.hasAttribute('data-numeric')).toBe(true);
     expect(value.hasAttribute('data-numeric')).toBe(true);
+    expect(figure.hasAttribute('data-figure')).toBe(true);
+    expect(figure.hasAttribute('data-numeric')).toBe(false);
+    expect(name.hasAttribute('data-figure')).toBe(false);
     expect(name.hasAttribute('data-numeric')).toBe(false);
   });
 });

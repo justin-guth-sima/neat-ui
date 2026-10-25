@@ -214,6 +214,14 @@
   max-width: 36rem;
 }
 
+/* A figure's own layout, which is the page's: the figure and its status on one line. */
+.table-demo-figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--neat-space-2);
+}
+
 /* Two lists on one term column: the kit's knob, set on their common ancestor. */
 .details-demo-aligned {
   --neat-details-term-width: 7rem;
