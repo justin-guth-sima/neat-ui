@@ -93,40 +93,47 @@ still do. Why: d3 reaches an app's bundle only through the entry its lazy route 
 apps draw through the kit's components, never through d3 (`d3-scale` and `d3-shape` are ISC
 licensed runtime `dependencies` of the package, listed in `allowedNonPeerDependencies`).
 
-**How the charts are drawn.** Every chart in `charts` but the heatmap is an SVG with `viewBox="0 0 600 100"`,
-`preserveAspectRatio="none"` and `overflow: visible`, so it fills whatever box its host has, and
-its strokes carry `vector-effect: non-scaling-stroke`, so a stretched box does not thicken them.
-What must not stretch (labels, the newest point's dot, the crosshair, the readout) is an HTML
-overlay positioned in percent of the box, so nothing measures the chart. Colours come from the
-`--neat-series-*`, `--neat-line*` and `--neat-heat-*` tokens in each component's CSS, and a
-variant (a tone) is stated once, as a custom property the stroke reads. The paths come from
-`charts/src/lib/geometry.ts` (d3-shape's `line` and `area`, and d3-scale's linear scale for y,
-clamped): samples sit where their times put them, or evenly when a time is missing, and a
-missing sample (`null`) breaks the line instead of dropping to zero. A lone sample draws no line
-and no area; the time chart's newest-point dot, an HTML overlay at `linePaths().last`, is the only
-dot, so a lone sample shows as that. The time chart's readout words its relative time with
-`neatSecondsAgo` from the primary, the kit's one relative-time style; its x axis ("−8 min · −4 min ·
-now") is axis notation, not prose, and stays short for that reason. Its plot is a tab stop whose
-readout the arrow keys, Home, End and Escape drive; each key press, and only a key press, is
-repeated in a polite live region, since a pointer move announced on every pixel would be noise.
+**How the charts are drawn.** Every chart in `charts` but the heatmap is an SVG with
+`viewBox="0 0 600 100"`, `preserveAspectRatio="none"` and `overflow: visible`, so it fills
+whatever box its host has, and its strokes carry `vector-effect: non-scaling-stroke`, so a
+stretched box does not thicken them. What must not stretch (labels, the newest point's dot, the
+crosshair, the readout) is an HTML overlay positioned in percent of the box, so nothing measures
+the chart. Colours are named in `line-token.ts`, the one place a tone or a series index becomes a
+token (the reference line's `--muted-foreground`, `REFERENCE_TOKEN` in `time-chart.ts`, and the
+heatmap's `color-mix` in `fillOf` aside), and reach the CSS as a custom property the stroke or
+fill reads (`--series`, `--level`, `--tone`, `--cell`, `--sparkline-stroke`), so a variant (a
+tone) is stated once. The paths come from `charts/src/lib/geometry.ts` (d3-shape's `line` and
+`area`, and d3-scale's linear scale for y, clamped): samples sit where their times put them, or
+evenly when a time is missing, and a missing sample (`null`) breaks the line instead of dropping
+to zero. A lone sample draws no line and no area; the time chart's newest-point dot, an HTML
+overlay at `linePaths().last`, is the only dot, so a lone sample shows as that. The time chart's
+readout words its relative time with `neatSecondsAgo` from the primary, the kit's one
+relative-time style; its x axis ("−8 min · −4 min · now") is axis notation, not prose, and stays
+short for that reason. Its plot is a tab stop whose readout the arrow keys, Home, End and Escape
+drive; each key press, and only a key press, is repeated in a polite live region, since a pointer
+move announced on every pixel would be noise. A chart with a live region (the time chart, the
+stacked chart and the heatmap) is `position: relative` on its host, without a z-index
+(`chart-frame.css`): the host is the containing block of its own absolutely positioned parts, so
+the visually hidden live region cannot reach past a page's scroll body, which is not positioned,
+and a readout that hangs below its plot still paints over the next card.
 
 The charts that read out a sample (the time chart, the stacked chart and the heatmap) share one
 cursor, `ReadoutCursor` in `charts/src/lib/readout.ts`: the pointer-versus-keys rule, Escape (a
 readout that is there to close, else it belongs to whatever holds the chart), focus, blur and the
 announce rule live there once, and each chart tells it only what its cells are (a sample for the
 time-based charts, a row and column for the heatmap). The frame the plots share (heights, grid,
-time axis, accessible name) is `frame.ts`, and their styles are `chart-frame.css` (head, readout,
-axis) and `plot.css` (the drawn box), which a component lists before its own in `styleUrls`. The
-stacked chart's bands are `stackedPaths` (bottom first; a sample where any band is missing breaks
-the whole stack, since a partial sum was never measured, and for the same reason a sample of "Other", the sum
-of the series folded beyond eight, is null where any folded value is), at 0.85 opacity with a hairline in
-`--neat-surface`; its legend carries each band's value and share as text, because eight colours
-alone are not enough. The heatmap is an HTML grid, not an SVG: a cell is a `<span>` whose `--cell`
-is a `color-mix` of `--neat-heat-low` and `--neat-heat-high` by the value's place in the domain
-(transparent when empty), its rows are columns of time from `heatmap-columns.ts` (at most 48, one
-per sampling interval while the history is short, so a pause stays visible), and its grid is one
-tab stop with a cell cursor. The geometry is internal; only the components and their types are
-exported.
+time axis, accessible name) is `frame.ts`, and their styles are `chart-frame.css` (host, head,
+readout, axis) and `plot.css` (the drawn box), which a component lists before its own in
+`styleUrls`. The stacked chart's bands are `stackedPaths` (bottom first; a sample where any band is
+missing breaks the whole stack, since a partial sum was never measured, and for the same reason a
+sample of "Other", the sum of the series folded beyond eight, is null where any folded value is),
+at 0.85 opacity with a hairline in `--neat-surface`; its legend carries each band's value and
+share as text, because eight colours alone are not enough. The heatmap is an HTML grid, not an
+SVG: a cell is a `<span>` whose `--cell` is a `color-mix` of `--neat-heat-low` and
+`--neat-heat-high` by the value's place in the domain (transparent when empty), its rows are
+columns of time from `heatmap-columns.ts` (at most 48, one per sampling interval while the history
+is short, so a pause stays visible), and its grid is one tab stop with a cell cursor. The geometry
+is internal; only the components and their types are exported.
 
 `NeatChartCard` is the one card for a metric (the overview cards, the Power tiles, a run view's
 tiles): heading, `[neatChartCardChip]`, value with unit, caption, then the chart. It sets
@@ -373,6 +380,18 @@ Why: the palette is fixed and lives in the theme so both themes stay coherent. S
 this for stylesheets (`npm run lint`). Escape hatch: if you need a colour that is not a token, add a
 token in the theme directory through a kit change; never inline the value.
 The only exception: official brand-asset SVGs (the SiMa.ai logo) keep their own `fill` attributes.
+
+**A component is the containing block of its own absolutely positioned parts.**
+A part positioned `absolute` (a visually hidden label or live region, an overlay, a readout) has a
+positioned box of its component around it: the host, or the scrolling box inside the component
+that the part scrolls with (the select list's area, the shell's nav). Why: a clipping ancestor
+clips only the descendants whose containing block lies inside it, and a page's scroll body
+(neat-page's) is not positioned. A part whose containing block falls back to the viewport escapes
+every scroll body and, below the fold, makes the whole document scroll. Use `position: relative`
+without a z-index, so the box makes no stacking context and a part that hangs out of it (a
+readout below its plot) still paints over its neighbours. Escape hatch: a part that must leave its
+component (a popover, a tooltip, a toast) goes through the CDK overlay, never through a
+positioned ancestor of the app's.
 
 **Component styles live in a `.css` file next to the component, referenced with `styleUrl`.**
 Why: Stylelint reads only stylesheets, so a style written inline in the decorator (`styles:`)

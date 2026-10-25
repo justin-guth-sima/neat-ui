@@ -5,6 +5,7 @@ import { MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { NeatChartCard } from './chart-card';
 import cardStyles from './chart-card.css' with { loader: 'text' };
+import { CLIPS_OR_STACKS, stylesheet } from './css.testing';
 import { NeatHeatmap } from './heatmap';
 import { NeatStackedChart } from './stacked-chart';
 import { NeatTimeChart } from './time-chart';
@@ -101,15 +102,7 @@ async function render(setup: (host: CardHost) => void = () => undefined) {
 
 const text = (element: Element | null) => element?.textContent?.replace(/\s+/g, ' ').trim();
 
-/** The declarations of the stylesheet's rule with exactly this selector. */
-const rule = (selector: string): string =>
-  new RegExp(`(?:^|\\n)${selector.replace(/[()[\]]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(
-    cardStyles,
-  )?.[1] ?? '';
-
-/** The value a rule declares for a property (not a longhand of it: `color` is not `border-color`). */
-const declared = (selector: string, property: string): string | undefined =>
-  new RegExp(`(?:^|[;\\s])${property}:\\s*([^;]+);`).exec(rule(selector))?.[1];
+const { rule, declared } = stylesheet(cardStyles);
 
 /** The theme token a `var(--name)` value names. */
 const tokenOf = (value: string | undefined): string => /^var\(--([\w-]+)\)$/.exec(value ?? '')![1];
@@ -268,11 +261,7 @@ describe('NeatChartCard', () => {
   it('sets --neat-surface to its fill, and neither clips nor stacks above its neighbours', () => {
     expect(declared(':host', '--neat-surface')).toBe('var(--card)');
     expect(declared(':host', 'background')).toBe('var(--card)');
-    // A readout can hang below its plot; any of these would clip it, or make a stacking context
-    // that lets the next card paint over it.
-    expect(rule(':host')).not.toMatch(
-      /(?:^|[;\s])(?:overflow(?:-[xy])?|z-index|isolation|transform|opacity|filter|contain|will-change|mask|clip-path|perspective|backdrop-filter)\s*:/,
-    );
+    expect(rule(':host')).not.toMatch(CLIPS_OR_STACKS);
     expect(declared(':host', 'position')).toBeUndefined();
   });
 

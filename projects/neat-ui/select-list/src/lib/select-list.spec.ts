@@ -497,6 +497,15 @@ describe('NeatSelectList', () => {
       expect(headerless.classList).not.toContain('scroll-pt-7');
     });
 
+    it('is the containing block of what the rows position, so a row scrolled out of the list takes it along', async () => {
+      const { scroller } = await render();
+
+      // A row's visually hidden text (the file browser's "Folder") is absolutely positioned. Were
+      // the area not positioned, its containing block would be the list's box, outside the
+      // scrolling area, and a row scrolled past the bottom would make the page scroll.
+      expect(scroller().classList).toContain('relative');
+    });
+
     it('stacks the header over what the rows draw, and the focus ring over the header', async () => {
       const { list, header, scroller } = await render();
 

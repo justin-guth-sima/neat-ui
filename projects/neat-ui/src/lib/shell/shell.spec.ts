@@ -224,6 +224,16 @@ describe('NeatShell', () => {
     expect(localStorage.getItem(RAIL_KEY)).toBe('false');
   });
 
+  it('keeps the collapsed rail’s hidden labels inside the nav, which scrolls on a short screen', async () => {
+    await start();
+
+    // A hidden label is absolutely positioned. Its containing block must be the nav, the box that
+    // scrolls: past it (the shell host is not positioned) a label below the fold would make the
+    // whole document scroll.
+    expect(labelOf(link('Media')).classList).toContain('visually-hidden');
+    expect(getComputedStyle(nav()).position).toBe('relative');
+  });
+
   it('restores an expanded rail on start', async () => {
     localStorage.setItem(RAIL_KEY, 'true');
 

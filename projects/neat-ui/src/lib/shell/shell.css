@@ -61,7 +61,12 @@
   }
 }
 
+/*
+ * The containing block of the collapsed rail's hidden labels: the nav scrolls on a short screen,
+ * and the shell host is not positioned, so a label below the fold would make the document scroll.
+ */
 nav {
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow: hidden auto;

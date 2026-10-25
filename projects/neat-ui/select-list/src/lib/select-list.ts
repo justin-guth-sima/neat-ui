@@ -38,9 +38,12 @@ const HOST_CLASSES =
  * The scrolling area, which holds the header and the rows. It isolates what it draws, so that the
  * header's z-index ranks it over the rows' content but not over the ring. While there is a header,
  * the area's top padding is the header's height (`scroll-pt-7`, bound in the template): a row
- * scrolled into view at the top (ArrowUp, Home) stops below the header instead of under it.
+ * scrolled into view at the top (ArrowUp, Home) stops below the header instead of under it. It is
+ * the containing block of what the rows position (a cell's visually hidden text): the list's box
+ * lies outside the scrolling area, so a row scrolled past the bottom would otherwise make the page
+ * scroll.
  */
-const SCROLLER_CLASSES = 'isolate min-h-0 flex-1 overflow-x-hidden overflow-y-auto';
+const SCROLLER_CLASSES = 'relative isolate min-h-0 flex-1 overflow-x-hidden overflow-y-auto';
 
 /**
  * The one grid: the columns' tracks, which the header line, the listbox and each row in it take

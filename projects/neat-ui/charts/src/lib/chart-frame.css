@@ -3,7 +3,15 @@
  * sample, and the time axis. A chart lists this sheet before its own in `styleUrls`.
  */
 
+/*
+ * The host is the containing block of the chart's absolutely positioned parts, the visually
+ * hidden live region above all. A page's scroll body (neat-page's) is not positioned, so without
+ * this the region falls back to the viewport, and a chart below the fold makes the whole page
+ * scroll. No z-index: the host makes no stacking context, so a readout that hangs below its plot
+ * still paints over the next card.
+ */
 :host {
+  position: relative;
   display: block;
   font-size: var(--neat-text-sm);
 }
