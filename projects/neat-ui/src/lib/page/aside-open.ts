@@ -17,9 +17,8 @@ export interface NeatAsideOpen {
  * On a wide screen the panel is the remembered choice and `set` remembers. On a narrow screen the
  * panel floats over the page and starts closed, whatever was remembered, and `set` changes a
  * transient flag only: a phone's opening and closing must not overwrite the choice made on a wide
- * screen. The flag resets to closed whenever `narrow` has changed since it was last read, so each
- * time the viewport becomes narrow it starts closed, and going wide shows the remembered choice
- * again.
+ * screen. The flag resets to closed whenever `narrow` changes, so each time the viewport becomes
+ * narrow it starts closed, and going wide shows the remembered choice again.
  */
 export function neatAsideOpen(
   remembered: Signal<boolean>,

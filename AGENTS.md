@@ -423,7 +423,8 @@ builds its own bar or panel duplicates both and breaks in one of them.
   rows: the logo, the end slot and the actions share the first (the end slot has a zero basis and
   grows, so a long pill truncates inside it instead of wrapping onto a row of its own), and the
   toolbar takes the whole last row (the host's `data-narrow` says which). A page without tools
-  keeps the wide bar's height. The markup order is unchanged, so the tab order still runs toolbar, end slot, actions.
+  keeps the wide bar's height. The markup order is unchanged, so the tab order still runs toolbar,
+  end slot, actions.
   The toolbar still scrolls sideways past the row's width, so on a phone `neat-aside-toggle` is
   drawn first among the tools (the one control that must stay in view while the panel floats over
   the page); for that button the tab order differs from the visual order.
@@ -442,7 +443,8 @@ builds its own bar or panel duplicates both and breaks in one of them.
   that starts closed and is reset each time the screen becomes narrow, so a phone's opening and
   closing never overwrites the choice made on a wide screen. A page that opens its panel by
   itself (a row selected) calls `set(true)`, which floats it over the body on a phone.
-  Tests that need a screen width provide `{ provide: NeatViewport, useValue: { narrow: signal(true) } }`;
+  Tests that need a screen width provide
+  `{ provide: NeatViewport, useValue: { narrow: signal(true) } }`;
   nothing but `NeatViewport` calls `matchMedia` for the breakpoint.
 - The panel opens and closes with `<neat-aside-toggle [(open)]="asideOpen" />` in the page's
   toolbar, the one look for that button on every page ("Side panel" unless `label` says

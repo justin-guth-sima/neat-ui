@@ -56,17 +56,21 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
  * scrolls itself, so pages own their scrolling (see `neat-page`).
  *
  * Content projection: the default slot is the content area (usually a `<router-outlet />`);
- * elements marked `neatTopbarEnd` go to the right side of the top bar. The active page's own
- * controls (`*neatPageToolbar`) sit at the right of the top bar, just before that end slot.
+ * elements marked `neatTopbarEnd` go to the right side of the top bar. On a wide screen the active
+ * page's own controls (`*neatPageToolbar`) sit at the right of the top bar, just before that end
+ * slot.
  *
  * Kiosk mode (`KioskService`, entered from the top bar or with `?kiosk`) drops the rail and the
  * top bar, gives the content area the whole viewport and floats an exit control over its top
  * right corner while the pointer moves; the page toolbar floats beside it on the same terms. Its
  * view is re-created on entering and leaving kiosk mode, so the page keeps the toolbar's state.
  *
- * On a narrow screen (`NeatViewport`, below 48rem) the top bar drops what a phone has no room for
- * (the app name stays only as the logo's accessible name, and the page title goes) and tightens
- * its spacing, and an expanded rail floats over the content instead of squeezing it. The host's
+ * On a narrow screen (`NeatViewport`, below 48rem) the app name and the page title are visually
+ * hidden but stay for screen readers (the title as the page's `h1`; the name beside the logo,
+ * which is also named "SiMa.ai"). The logo, the end slot and the actions share the first row, the
+ * end slot growing from a zero basis, and the page toolbar takes its own full-width second row. An
+ * expanded rail floats over the content instead of squeezing it, starts collapsed without
+ * touching the remembered choice, and collapses when one of its links is followed. The host's
  * `data-narrow` says which, and the CSS reacts to that, never to a second `@media`.
  */
 @Component({
