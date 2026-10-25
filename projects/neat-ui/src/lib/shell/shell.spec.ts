@@ -751,6 +751,7 @@ describe('NeatShell', () => {
     expect(railBox().dataset['floating']).toBe('false');
     expect(getComputedStyle(railBox()).position).not.toBe('absolute');
     expect(getComputedStyle(shell()).gridTemplateColumns).toMatch(/^auto/);
+    expect(getComputedStyle(shell()).gridTemplateRows).toMatch(/^var\(--neat-topbar-height\)/);
   });
 
   describe('on a narrow screen', () => {
@@ -869,11 +870,47 @@ describe('NeatShell', () => {
       expect(railToggle().getAttribute('aria-pressed')).toBe('true');
     });
 
-    it('shrinks the top bar’s inset and gap to the smallest space', async () => {
+    it('shrinks the top bar’s inset and gap to the smallest space, and lets it wrap', async () => {
       await start();
       const declarations = rule(":host([data-narrow='true']) .topbar");
-      expect(declarations).toMatch(/gap:\s*var\(--neat-space-2\);/);
+      expect(declarations).toMatch(/gap:\s*0 var\(--neat-space-2\);/);
       expect(declarations).toMatch(/padding-inline:\s*var\(--neat-space-2\);/);
+      expect(declarations).toMatch(/flex-wrap:\s*wrap;/);
+    });
+
+    it('gives the page toolbar a row of its own under the logo, the end slot and the actions', async () => {
+      await start('/viewer/grid');
+      const region = getComputedStyle(toolbarRegion() as HTMLElement);
+
+      // jsdom lays nothing out: the row is read from the cascade. A basis of the whole bar that
+      // never shrinks wraps the toolbar onto its own line, and `order` puts that line last, after
+      // the actions that follow it in the markup.
+      expect(region.order).toBe('1');
+      expect(region.flexBasis).toBe('100%');
+      expect(region.flexShrink).toBe('0');
+      expect(region.flexGrow).toBe('0');
+      expect(region.overflow).toBe('auto hidden');
+      // The wide rules (beside the title, the free space, shrinking first) do not apply.
+      expect(region.marginInlineStart).not.toBe('auto');
+      expect(region.alignSelf).not.toBe('stretch');
+    });
+
+    it('puts the end slot at the right edge of the first row although the page has a toolbar', async () => {
+      await start('/viewer/grid');
+      const end = getComputedStyle(topbar().querySelector('.topbar-end') as HTMLElement);
+
+      expect(topbar().getAttribute('data-toolbar')).toBe('true');
+      expect(end.marginInlineStart).toBe('auto');
+    });
+
+    it('lets the top bar’s row be as high as its content, where the wide bar has one fixed height', async () => {
+      await start('/viewer/grid');
+
+      // The grid template cannot resolve var() in jsdom, so the row's size is read as written.
+      expect(rule(":host([data-kiosk='false'][data-narrow='true'])")).toMatch(
+        /grid-template-rows:\s*auto\s+minmax\(0,\s*1fr\);/,
+      );
+      expect(getComputedStyle(shell()).gridTemplateRows).toMatch(/^auto/);
     });
   });
 });

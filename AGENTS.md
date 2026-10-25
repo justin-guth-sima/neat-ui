@@ -419,7 +419,11 @@ builds its own bar or panel duplicates both and breaks in one of them.
   menus) in the page, never in components inside the toolbar.
   The region gives up width first and scrolls sideways rather than push the end slot out, so keep
   a toolbar narrow enough to fit at the screen sizes the app supports. One toolbar at a time; a
-  second throws in dev mode.
+  second throws in dev mode. On a narrow screen (below 48rem) the shell wraps its top bar and the
+  toolbar takes the whole last row under the logo, the end slot and the actions (the host's
+  `data-narrow` says which; the markup order is unchanged, so the tab order still runs toolbar,
+  end slot, actions): a phone has no room beside them. It still scrolls sideways past the row's
+  width, so its last control (the side panel toggle) stays in view only if the tools fit.
 - Elements marked `neatPageAside` inside `neat-page` form a right-hand panel shown while
   `aside="open"`: `--neat-aside-width` wide, inset and scrolling on its own, with the body
   narrowing beside it and keeping its own `scroll` setting. Closed, the panel is removed from the

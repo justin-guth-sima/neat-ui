@@ -20,23 +20,26 @@
   grid-template-areas:
     'rail topbar'
     'rail content';
-  grid-template-rows: var(--neat-topbar-height) minmax(0, 1fr);
 }
 
-/* The rail's column is as wide as the rail, expanded or not. */
+/* The rail's column is as wide as the rail, expanded or not; the top bar is one row high. */
 :host([data-kiosk='false'][data-narrow='false']) {
   grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: var(--neat-topbar-height) minmax(0, 1fr);
 }
 
 /*
  * On a narrow screen the column stays the collapsed rail's width, so the content does not move
  * when the rail expands: the expanded rail floats over it instead (see `.rail`). The host is the
  * containing block of that floating rail and of the app name hidden in the top bar, which would
- * otherwise reach the viewport's.
+ * otherwise reach the viewport's. The top bar's row is as high as its content: a phone has no
+ * room to put the page's tools beside the logo, so they take a row of their own (see
+ * `.page-toolbar`), and the bar is two rows high on a page that has tools.
  */
 :host([data-kiosk='false'][data-narrow='true']) {
   position: relative;
   grid-template-columns: var(--neat-rail-width) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 /* Kiosk mode: no rail or top bar, the content area is the whole viewport. */
@@ -186,9 +189,11 @@ nav {
   padding-inline: 1rem 0.5rem;
 }
 
-/* A phone has no room for the wide bar's spacing: its icons would overlap the app's end content. */
+/* A phone has no room for the wide bar's spacing: its icons would overlap the app's end content.
+   It wraps so that the page's toolbar can take the last row, with no gap between the rows. */
 :host([data-narrow='true']) .topbar {
-  gap: var(--neat-space-2);
+  flex-wrap: wrap;
+  gap: 0 var(--neat-space-2);
   padding-inline: var(--neat-space-2);
 }
 
@@ -220,25 +225,44 @@ nav {
 }
 
 /*
- * The active page's toolbar (`*neatPageToolbar`). The free space of the top bar goes to one auto
- * margin: the toolbar's, which puts it at the right end ahead of the end slot with the gap between
- * the page title and the toolbar; or, on a page without a toolbar (`data-toolbar='false'` on the
- * top bar), the end slot's, see below. It gives up width before the page title and the end slot do
- * (the high shrink factor) and scrolls sideways instead of pushing them out of the top bar.
- * Spanning the bar's height leaves room for a thin scrollbar; the inline padding keeps the focus
- * rings of its first and last controls inside the scroll container, which clips.
+ * The active page's toolbar (`*neatPageToolbar`). It scrolls sideways when its controls exceed its
+ * width instead of pushing the rest of the bar out; the inline padding keeps the focus rings of
+ * its first and last controls inside the scroll container, which clips.
  */
 .page-toolbar {
   display: flex;
-  flex: 0 100 auto;
-  align-self: stretch;
   align-items: center;
   gap: 0.5rem;
   min-width: 0;
-  margin-inline-start: auto;
   padding-inline: 0.25rem;
   overflow: auto hidden;
   scrollbar-width: thin;
+}
+
+/*
+ * Wide: beside the title, spanning the bar's height (room for a thin scrollbar). The free space
+ * of the top bar goes to one auto margin: the toolbar's, which puts it at the right end ahead of
+ * the end slot with the gap between the page title and the toolbar; or, on a page without a
+ * toolbar (`data-toolbar='false'` on the top bar), the end slot's, see below. It gives up width
+ * before the page title and the end slot do (the high shrink factor).
+ */
+:host([data-narrow='false']) .page-toolbar {
+  flex: 0 100 auto;
+  align-self: stretch;
+  margin-inline-start: auto;
+}
+
+/*
+ * Narrow: the last row of the wrapped top bar, the bar's whole width, so a phone shows the page's
+ * tools in full beside nothing else (the logo, the end slot and the actions fill the first row).
+ * `order` moves it after the actions, which come later in the markup. It is a row of controls
+ * as tall as they are, never shrunk: past the width it scrolls.
+ */
+:host([data-narrow='true']) .page-toolbar {
+  order: 1;
+  flex: 0 0 100%;
+  box-sizing: border-box;
+  min-height: 2.5rem;
 }
 
 .topbar-end {
@@ -251,8 +275,10 @@ nav {
   gap: 0.5rem;
 }
 
-/* Without a toolbar the end slot is the one to sit at the right edge. */
-.topbar[data-toolbar='false'] .topbar-end {
+/* Without a toolbar the end slot is the one to sit at the right edge, and so it is on a phone,
+   where the toolbar is in the row below. */
+.topbar[data-toolbar='false'] .topbar-end,
+:host([data-narrow='true']) .topbar-end {
   margin-inline-start: auto;
 }
 
