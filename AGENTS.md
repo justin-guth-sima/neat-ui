@@ -269,42 +269,40 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   promise a check that Space silently refuses, and `aria-disabled` blocks no events while the row
   stays the active descendant. The reason describes it (`aria-describedby` to a `hidden` element
   in the row, so it is not part of the row's name) and is the box's tooltip; any reason but null
-  blocks. A column's `hideBelow`
-  is judged against the list's own width, which a ResizeObserver watches only while some column
-  has one. The header line, the listbox and each row are lines of one grid (each spans every track
-  on `grid-cols-subgrid`), so a content-sized column (`width="max-content"`) fits the widest of its
-  heading and its cells, and `align="end"` puts both at the column's end. The header sits inside
-  the scrolling area, sticky at its top and filled with `--neat-surface`; the area's top scroll
-  padding is the header's height, so a row scrolled into view stops below it. The focus ring is
-  the outline of a pseudo-element over the area, since the sticky header paints over an outline
-  of the area itself. `groups` (with `groupOf`) puts the rows under headings, each group a
-  `role="group"` named by its heading and, like its heading, a line of the grid. A heading is a
-  `--muted` band from edge to edge of the area (the rows' negative margins), its text on the
-  cells' inset. In dark, `--muted` is the card, dialog and popover surface itself, so the band
-  shows only on the page there (in light it shows on every surface); the heading's type still sets
-  it apart. The keys move over the rows as shown, which a row's `data-index` numbers, never
-  onto a heading, and a group's first row brings its heading into view with it, as the last row
-  does the empty groups after it. An item of a group the app did not list, or a group listed
-  twice, throws in dev mode; in production the item shows after the groups under no heading, set off
-  from the last group by a rule (an empty strip between two border lines, not a band, which would
-  run into a muted last heading), and the first listing stands: never a row dropped or shown twice,
-  since a silently missing row (a device) is the worse failure. A row's `rowTone` tints it with the
-  tone its status chip has
-  (theme tokens `--neat-tint-<tone>` and, for hover and selection, `--neat-tint-<tone>-accent`);
-  each row takes exactly one set of fills, so no class has to outweigh another, and the tints are
-  opaque mixes over `--background`, so a toned list sits on the page, not on a card. The file
-  browser reuses the list for its rows, since a folder row is a row that Enter or a click also
-  opens (`activated`), and its `manage` mode is the list's checked mode (a file's path is its
-  key); what differs is the browser's, not the list's: an arrow key onto a folder highlights it
-  without changing `selected` (which is a file's path), and Backspace, which the list has no use
-  for, is handled on the list's host. A checked list adds no hint of its own: the
-  multi-selectable listbox says what checking is. A node's `tag` is a neutral `neat-status-chip`,
-  the kit's one look for a fact beside a value, and an `unavailable` node is greyed but usable (so
-  not `disabled`, which in the kit means "cannot be used"). The browser says nothing of its own that
-  an app cannot replace (`labels`), and its tree helpers are the helpers of the media browser it was
-  extracted from (`file-tree.ts`, not exported). `filter` is a model so that an app can show a
-  note about its folder (how many files it left out) only while no filter is active; the kit never
-  hides a file itself.
+  blocks. A column's `hideBelow` is judged against the list's own width, which a ResizeObserver
+  watches only while some column has one. The header line, the listbox and each row are lines of one
+  grid (each spans every track on `grid-cols-subgrid`), so a content-sized column
+  (`width="max-content"`) fits the widest of its heading and its cells, and `align="end"` puts both
+  at the column's end. The header sits inside the scrolling area, sticky at its top and filled with
+  `--neat-surface`; the area's top scroll padding is the header's height, so a row scrolled into
+  view stops below it. The focus ring is the outline of a pseudo-element over the area, since the
+  sticky header paints over an outline of the area itself. `groups` (with `groupOf`) puts the rows
+  under headings, each group a `role="group"` named by its heading and, like its heading, a line of
+  the grid. A heading is a `--muted` band from edge to edge of the area (the rows' negative
+  margins), its text on the cells' inset. In dark, `--muted` is the card, dialog and popover surface
+  itself, so the band shows only on the page there (in light it shows on every surface); the
+  heading's type still sets it apart. The keys move over the rows as shown, which a row's
+  `data-index` numbers, never onto a heading, and a group's first row brings its heading into view
+  with it, as the last row does the empty groups after it. An item of a group the app did not list,
+  or a group listed twice, throws in dev mode; in production the item shows after the groups under
+  no heading, set off from the last group by a rule (an empty strip between two border lines, not a
+  band, which would run into a muted last heading), and the first listing stands: never a row
+  dropped or shown twice, since a silently missing row (a device) is the worse failure. A row's
+  `rowTone` tints it with the tone its status chip has (theme tokens `--neat-tint-<tone>` and, for
+  hover and selection, `--neat-tint-<tone>-accent`); each row takes exactly one set of fills, so no
+  class has to outweigh another, and the tints are opaque mixes over `--background`, so a toned list
+  sits on the page, not on a card. The file browser reuses the list for its rows, since a folder row
+  is a row that Enter or a click also opens (`activated`), and its `manage` mode is the list's
+  checked mode (a file's path is its key); what differs is the browser's, not the list's: an arrow
+  key onto a folder highlights it without changing `selected` (which is a file's path), and
+  Backspace, which the list has no use for, is handled on the list's host. A checked list adds no
+  hint of its own: the multi-selectable listbox says what checking is. A node's `tag` is a neutral
+  `neat-status-chip`, the kit's one look for a fact beside a value, and an `unavailable` node is
+  greyed but usable (so not `disabled`, which in the kit means "cannot be used"). The browser says
+  nothing of its own that an app cannot replace (`labels`), and its tree helpers are the helpers of
+  the media browser it was extracted from (`file-tree.ts`, not exported). `filter` is a model so
+  that an app can show a note about its folder (how many files it left out) only while no filter is
+  active; the kit never hides a file itself.
 
   A listbox's options have presentational children, so a button in a row is not strictly valid
   ARIA. The compromise is deliberate and holds only as long as the row's controls are pointer

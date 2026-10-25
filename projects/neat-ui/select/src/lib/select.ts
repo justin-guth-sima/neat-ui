@@ -104,9 +104,9 @@ let nextSelectId = 0;
  *
  * `label` is the accessible name of the select and of its list; `showLabel` also shows it above
  * the select, and `labelPosition="inline"` shows it before the select on the same row instead
- * (for a select in a toolbar or a heading); a click on the shown label opens the list. The shown label is drawn as
- * `neat-field`'s is, and `size` matches `neatInput`'s and `neatButton`'s, so a select in a row of
- * fields and buttons of the same size lines up with them. `options` are
+ * (for a select in a toolbar or a heading); a click on the shown label opens the list. The shown
+ * label is drawn as `neat-field`'s is, and `size` matches `neatInput`'s and `neatButton`'s, so a
+ * select in a row of fields and buttons of the same size lines up with them. `options` are
  * `{ value, label, disabled? }`; the selected value is `value`, `null` while there is none, and
  * the trigger shows the selected option's label or, without one, `placeholder`; a value that is
  * not among the options (a deleted file, options that load later) shows the placeholder as well,
@@ -206,7 +206,10 @@ let nextSelectId = 0;
   `,
 })
 export class NeatSelect<T> {
-  /** The accessible name of the select and its list; shown with `showLabel`. */
+  /**
+   * The accessible name of the select and its list; shown with `showLabel`, or always when
+   * `labelPosition` is `inline`.
+   */
   readonly label = input.required<string>();
   readonly options = input.required<readonly NeatSelectOption<T>[]>();
   /** The selected option's value; `null` while there is none. Options are matched with `Object.is`. */
