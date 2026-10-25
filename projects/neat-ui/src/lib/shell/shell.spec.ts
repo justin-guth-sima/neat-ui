@@ -728,6 +728,21 @@ describe('NeatShell', () => {
     expect(pageTitle()?.textContent?.trim()).toBe('Media');
   });
 
+  it('on a wide screen: shows the page title heading', async () => {
+    await start();
+    expect(pageTitle()?.classList).not.toContain('visually-hidden');
+  });
+
+  it('on a wide screen: keeps the rail expanded after following a link', async () => {
+    localStorage.setItem(RAIL_KEY, 'true');
+    await start();
+
+    link('Streaming').click();
+    await settle();
+
+    expect(railToggle().getAttribute('aria-pressed')).toBe('true');
+  });
+
   it('on a wide screen: lays the expanded rail beside the content', async () => {
     await start();
     railToggle().click();
@@ -760,9 +775,10 @@ describe('NeatShell', () => {
       expect(appName().classList).toContain('visually-hidden');
     });
 
-    it('renders no page title heading', async () => {
+    it('keeps the page title as a visually hidden heading', async () => {
       await start();
-      expect(pageTitle()).toBeNull();
+      expect(pageTitle()?.textContent?.trim()).toBe('Media');
+      expect(pageTitle()?.classList).toContain('visually-hidden');
     });
 
     it('floats the expanded rail over the content', async () => {
@@ -794,6 +810,63 @@ describe('NeatShell', () => {
       // as its utility.
       expect(rule('.rail')).toMatch(/background:\s*var\(--sidebar\);/);
       expect(railBox().className).toContain('shadow-md');
+    });
+
+    it('starts with the rail collapsed whatever was remembered', async () => {
+      localStorage.setItem(RAIL_KEY, 'true');
+      await start();
+
+      expect(railToggle().getAttribute('aria-pressed')).toBe('false');
+      expect(railBox().dataset['floating']).toBe('false');
+    });
+
+    it('opens and closes the rail without writing the remembered choice', async () => {
+      localStorage.setItem(RAIL_KEY, 'true');
+      await start();
+
+      railToggle().click();
+      await settle();
+      expect(railToggle().getAttribute('aria-pressed')).toBe('true');
+      railToggle().click();
+      await settle();
+
+      expect(localStorage.getItem(RAIL_KEY)).toBe('true');
+    });
+
+    it('collapses the floating rail when a link is followed', async () => {
+      await start();
+      railToggle().click();
+      await settle();
+      expect(railBox().dataset['floating']).toBe('true');
+
+      link('Streaming').click();
+      await settle();
+
+      expect(railToggle().getAttribute('aria-pressed')).toBe('false');
+      expect(railBox().dataset['floating']).toBe('false');
+    });
+
+    it('has no width transition, so the rail floats in and out at once', async () => {
+      await start();
+      // A transition only on the wide screen's rail, stated once in the stylesheet.
+      expect(shellStyles).toMatch(
+        /prefers-reduced-motion: no-preference\)\s*\{\s*:host\(\[data-narrow='false'\]\) \.rail\s*\{[^}]*transition:/,
+      );
+      expect(shellStyles).not.toMatch(/(^|\n)\s*\.rail\s*\{[^}]*transition:/);
+    });
+
+    it('shows the remembered rail again when the screen turns wide', async () => {
+      localStorage.setItem(RAIL_KEY, 'true');
+      const narrow = signal(true);
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+      await start();
+      expect(railToggle().getAttribute('aria-pressed')).toBe('false');
+
+      narrow.set(false);
+      await settle();
+
+      expect(shell().dataset['narrow']).toBe('false');
+      expect(railToggle().getAttribute('aria-pressed')).toBe('true');
     });
 
     it('shrinks the top bar’s inset and gap to the smallest space', async () => {

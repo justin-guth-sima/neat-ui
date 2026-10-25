@@ -23,6 +23,7 @@ import { NeatButton } from '../button/button';
 import { NeatIcon } from '../icon/icon';
 import { NeatKioskExit } from '../kiosk/kiosk-exit';
 import { KioskService } from '../kiosk/kiosk.service';
+import { neatAsideOpen } from '../page/aside-open';
 import { NeatViewport } from '../page/viewport';
 import { safeStorage } from '../storage';
 import { ThemeService } from '../theme/theme.service';
@@ -101,7 +102,17 @@ export class NeatShell {
   private readonly injector = inject(Injector);
 
   protected readonly activeMatch = ACTIVE_MATCH;
-  protected readonly railExpanded = signal(safeStorage.get(RAIL_EXPANDED_KEY) === 'true');
+  private readonly rememberedRail = signal(safeStorage.get(RAIL_EXPANDED_KEY) === 'true');
+  /**
+   * Whether the rail shows its labels: the remembered choice on a wide screen; on a narrow one,
+   * where it floats over the content, a transient flag that starts collapsed and never overwrites
+   * the wide screen's choice (the rule of a page's side panel).
+   */
+  private readonly rail = neatAsideOpen(this.rememberedRail, (expanded) => {
+    this.rememberedRail.set(expanded);
+    safeStorage.set(RAIL_EXPANDED_KEY, String(expanded));
+  });
+  protected readonly railExpanded = this.rail.open;
   private readonly kioskExit = viewChild(NeatKioskExit);
   private readonly kioskButton = viewChild<ElementRef<HTMLElement>>('kioskButton');
 
@@ -142,8 +153,13 @@ export class NeatShell {
   }
 
   protected toggleRail(): void {
-    const expanded = !this.railExpanded();
-    this.railExpanded.set(expanded);
-    safeStorage.set(RAIL_EXPANDED_KEY, String(expanded));
+    this.rail.set(!this.railExpanded());
+  }
+
+  /** A floating rail covers the page it just opened, so following a link puts it away. */
+  protected collapseRailWhenNarrow(): void {
+    if (this.viewport.narrow()) {
+      this.rail.set(false);
+    }
   }
 }

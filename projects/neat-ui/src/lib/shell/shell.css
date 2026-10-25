@@ -76,7 +76,8 @@
 }
 
 /* Expanded on a narrow screen: out of the grid, over the content, which a phone has no room to
-   give up. It keeps the rail's own fill, since the content would show through otherwise. */
+   give up. It keeps the rail's own fill, since the content would show through otherwise, and
+   its z-index lifts it over the content's isolated stacking context and the top bar. */
 .rail[data-floating='true'] {
   position: absolute;
   inset-block: 0;
@@ -84,15 +85,18 @@
   z-index: 1;
 }
 
+/* Not on a narrow screen: the rail floats in and out at once, since collapsing would drop the
+   13rem rail under the content mid-animation. */
 @media (prefers-reduced-motion: no-preference) {
-  .rail {
+  :host([data-narrow='false']) .rail {
     transition: width var(--neat-transition-duration);
   }
 }
 
 /*
  * The containing block of the collapsed rail's hidden labels: the nav scrolls on a short screen,
- * and the shell host is not positioned, so a label below the fold would make the document scroll.
+ * and the shell host is positioned only on a narrow screen, so a label below the fold would make
+ * the document scroll on a wide one.
  */
 nav {
   position: relative;
@@ -157,7 +161,7 @@ nav {
   flex: none;
 }
 
-/* Out of sight, still the link's accessible name. */
+/* Out of sight, still in the accessible tree. */
 .visually-hidden {
   position: absolute;
   width: 1px;
