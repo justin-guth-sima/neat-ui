@@ -228,10 +228,8 @@ describe('NeatSelect', () => {
   });
 
   it('inline: the same label on the trigger’s row, still for the trigger, and a click on it opens the list', async () => {
-    const { root, trigger, settle } = await render((host) => {
-      host.showLabel.set(true);
-      host.labelPosition.set('inline');
-    });
+    // Inline shows the label by itself: no showLabel.
+    const { root, trigger, settle } = await render((host) => host.labelPosition.set('inline'));
     const select = root.querySelector('neat-select')!;
     const label = select.querySelector('label')!;
 
@@ -258,14 +256,15 @@ describe('NeatSelect', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
   });
 
-  it('puts the label above by default, and back above when labelPosition returns to above', async () => {
-    const { fixture, host, root } = await render((host) => {
-      host.showLabel.set(true);
-      host.labelPosition.set('inline');
-    });
+  it('puts the label above, with showLabel, when labelPosition returns to above', async () => {
+    const { fixture, host, root } = await render((host) => host.labelPosition.set('inline'));
     const select = root.querySelector('neat-select')!;
 
     host.labelPosition.set('above');
+    await fixture.whenStable();
+    expect(select.querySelector('label'), 'above needs showLabel').toBeNull();
+
+    host.showLabel.set(true);
     await fixture.whenStable();
     expect([...select.classList]).toEqual(expect.arrayContaining(['flex', 'flex-col', 'gap-2']));
     expect([...select.querySelector('label')!.classList].sort()).toEqual([
@@ -274,11 +273,14 @@ describe('NeatSelect', () => {
     ]);
   });
 
-  it('shows no label inline either without showLabel: the position only places a shown label', async () => {
-    const { root, trigger } = await render((host) => host.labelPosition.set('inline'));
+  it('shows the label inline whether or not showLabel is set', async () => {
+    const { root } = await render((host) => {
+      host.showLabel.set(true);
+      host.labelPosition.set('inline');
+    });
 
-    expect(root.querySelector('label')).toBeNull();
-    expect(trigger.getAttribute('aria-label')).toBe('Source');
+    expect(root.querySelectorAll('label')).toHaveLength(1);
+    expect(root.querySelector('neat-select')!.classList).not.toContain('flex-col');
   });
 
   it('shows no visible label by default', async () => {

@@ -666,16 +666,24 @@ describe('NeatButton', () => {
     }
   });
 
-  it('danger-text hovers and focuses as danger does: the solid red fill, and the red ring', async () => {
+  it('danger-text hovers quietly, as the text variant does, keeping its red label; it focuses with the red ring', async () => {
     const dangerText = await classesOf('danger-text');
-    const danger = await classesOf('danger');
+    const text = await classesOf('text');
 
     for (const scheme of SCHEMES) {
+      const tokens = spartanThemeTokens(scheme);
       for (const surface of SURFACES) {
+        const hovered = colorsOf(dangerText, { scheme, hover: true }, surface);
+        const label = `${scheme}, hover over ${surface}`;
+        expect(hovered.fill, `${label}: the text variant's fill`).toBe(
+          colorsOf(text, { scheme, hover: true }, surface).fill,
+        );
+        expect(hovered.text, `${label}: the danger colour`).toBe(tokens['destructive']);
+        // About 5.6:1 in light and 5.5:1 in dark: red on the grey hover fill.
         expect(
-          colorsOf(dangerText, { scheme, hover: true }, surface),
-          `${scheme}, ${surface}`,
-        ).toEqual(colorsOf(danger, { scheme, hover: true }, surface));
+          contrastRatio(hovered.text, hovered.fill),
+          `${label}: ${hovered.text} on ${hovered.fill}`,
+        ).toBeGreaterThanOrEqual(4.5);
       }
       expect(focusRingValue(dangerText, scheme), scheme).toBe('destructive');
     }

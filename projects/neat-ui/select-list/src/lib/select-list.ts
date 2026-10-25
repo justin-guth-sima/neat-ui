@@ -310,11 +310,14 @@ let nextListId = 0;
  * cap: "At most 8 runs can be compared."). The box is drawn disabled, and neither Space nor a click
  * on it checks or unchecks the row; everything else about the row stays, since only its box is
  * blocked: the keys still land on it, a click and Enter still select and activate it. Its option
- * keeps `aria-selected` (false while unchecked) and takes no `aria-disabled`, which would announce
- * the whole row as unavailable; instead the reason describes it (`aria-describedby`, so a screen
- * reader says it as the keys land on the row), and a tooltip on the box shows it on hover. A
- * tooltip never opens on touch, so an app with a cap says it in its own text too. `canCheck` still
- * means whether a row has a box at all.
+ * keeps `aria-selected` (false while unchecked) and is `aria-disabled`: in this listbox selecting
+ * is checking, so a disabled option says that Space will not check it, where an enabled one would
+ * promise a check that silently fails. `aria-disabled` blocks no events and the row stays the
+ * active descendant, so it is still reached and activated. The reason describes the option
+ * (`aria-describedby`, so a screen reader says it as the keys land on the row), and a tooltip on
+ * the box shows it on hover. A tooltip never opens on touch, so an app with a cap says it in its
+ * own text too. Any reason but null blocks, so give a non-empty one: it is what is announced.
+ * `canCheck` still means whether a row has a box at all.
  *
  * **Row tones** (`rowTone`) tint a row with a soft fill of a status colour, the tone its status
  * chip has (`NeatTone`), so that a state reads along the whole row: the app gives both the same
@@ -428,6 +431,7 @@ let nextListId = 0;
               : null
             : row.key === selectedKey()
         "
+        [attr.aria-disabled]="blocked().has(row.key) || null"
         [attr.aria-describedby]="blocked().has(row.key) ? row.id + '-blocked' : null"
       >
         @if (checkable()) {
@@ -436,7 +440,8 @@ let nextListId = 0;
               <!-- Two boxes rather than one with a disabled tooltip: a tooltip is a brain
                    primitive, so only a blocked box carries one, never the open boxes of a
                    thousand-file folder. -->
-              @if (blocked().get(row.key); as reason) {
+              @let reason = blocked().get(row.key);
+              @if (reason !== undefined) {
                 <span
                   data-slot="select-list-check"
                   aria-hidden="true"
@@ -502,7 +507,9 @@ export class NeatSelectList<T, K = unknown> {
   readonly canCheck = input<(item: T) => boolean>(() => true);
   /**
    * In checked mode, why a row with a box cannot be ticked or unticked now (a cap that is
-   * reached), or null while it can; called for each row with a box as `items` or `checked` change.
+   * reached), or null while it can. Any string blocks, so make it a sentence: it is the row's
+   * description and its box's tooltip. Called for each row with a box as `items` or `checked`
+   * change.
    */
   readonly checkBlocked = input<(item: T) => string | null>(() => null);
   /** An item's row tone, `neutral` (untinted) by default; called once per item as `items` change. */
@@ -679,7 +686,7 @@ export class NeatSelectList<T, K = unknown> {
     this.checked();
     for (const row of this.rows()) {
       const reason = row.checkable ? reasonOf(row.item) : null;
-      if (reason) reasons.set(row.key, reason);
+      if (reason !== null) reasons.set(row.key, reason);
     }
     return reasons;
   });

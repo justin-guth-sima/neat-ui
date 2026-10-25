@@ -313,7 +313,7 @@ class CappedHost {
   readonly activated: number[] = [];
   readonly byId = (type: AssetType) => type.id;
   readonly hasFiles = (type: AssetType) => !type.empty;
-  readonly atCap = vi.fn((type: AssetType) =>
+  readonly atCap = vi.fn((type: AssetType): string | null =>
     this.checked().length >= 2 && !this.checked().includes(type.id) ? AT_CAP : null,
   );
 }
@@ -1327,14 +1327,18 @@ describe('NeatSelectList', () => {
       expect(host.activated).toEqual([4, 4]);
     });
 
-    it('says why to assistive technology: the option stays unselected, not disabled, and is described by the reason', async () => {
+    it('says why to assistive technology: the option is disabled, keeps its checked state and is described by the reason', async () => {
       const { options, description, element } = await renderCapped();
 
       const boats = options()[3];
-      // Still an option that can be checked in kind, unchecked now: aria-disabled would announce
-      // the whole row as unavailable, though it can still be selected and activated.
+      // aria-selected is the check here, so a disabled option says Space will not check it; the
+      // row stays the active descendant, and aria-disabled blocks no events.
       expect(boats.getAttribute('aria-selected')).toBe('false');
-      expect(boats.hasAttribute('aria-disabled')).toBe(false);
+      expect(boats.getAttribute('aria-disabled')).toBe('true');
+      expect(
+        options().map((option) => option.getAttribute('aria-disabled')),
+        'only the blocked row is disabled',
+      ).toEqual([null, null, null, 'true']);
       expect(description(3)).toEqual([AT_CAP]);
       // The reason is hidden, so it describes the option without becoming part of its name.
       const reason = element.querySelector(`#${boats.getAttribute('aria-describedby')}`)!;
@@ -1388,19 +1392,32 @@ describe('NeatSelectList', () => {
     });
 
     it('follows the checks: unticking a row lifts the block, and ticking up to the cap brings it back', async () => {
-      const { fixture, host, box, description } = await renderCapped();
+      const { fixture, host, box, description, options } = await renderCapped();
 
       box(0)!.click();
       await fixture.whenStable();
       expect(host.checked()).toEqual([2]);
       expect(box(3)!.hasAttribute('data-blocked')).toBe(false);
       expect(description(3)).toEqual([]);
+      expect(options()[3].hasAttribute('aria-disabled')).toBe(false);
 
       box(3)!.click();
       await fixture.whenStable();
       expect(host.checked()).toEqual([2, 4]);
       expect(box(0)!.hasAttribute('data-blocked')).toBe(true);
       expect(description(0)).toEqual([AT_CAP]);
+    });
+
+    it('blocks on an empty reason too: only null leaves a row free', async () => {
+      const { fixture, host, box, options } = await renderCapped((host) =>
+        host.atCap.mockImplementation((type: AssetType) => (type.id === 4 ? '' : null)),
+      );
+
+      expect(box(3)!.hasAttribute('data-blocked')).toBe(true);
+      expect(options()[3].getAttribute('aria-disabled')).toBe('true');
+      box(3)!.click();
+      await fixture.whenStable();
+      expect(host.checked()).toEqual([1, 2]);
     });
 
     it('lets a checked row be unticked at the cap: only the rows the app blocks are blocked', async () => {
@@ -1425,6 +1442,7 @@ describe('NeatSelectList', () => {
       const { options, element } = await renderCapped((host) => host.checkable.set(false));
 
       expect(options().some((option) => option.hasAttribute('aria-describedby'))).toBe(false);
+      expect(options().some((option) => option.hasAttribute('aria-disabled'))).toBe(false);
       expect(element.querySelector('[data-blocked]')).toBeNull();
     });
 
@@ -1436,6 +1454,7 @@ describe('NeatSelectList', () => {
 
       expect(element.querySelector('[data-blocked]')).toBeNull();
       expect(element.querySelector('[role="option"][aria-describedby]')).toBeNull();
+      expect(element.querySelector('[role="option"][aria-disabled]')).toBeNull();
     });
   });
 

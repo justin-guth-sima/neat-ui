@@ -244,9 +244,10 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <p class="showcase-muted">
             <code>neatButton</code> on a <code>button</code> or <code>a</code>: six variants in four
             sizes, then icon-only and rounded. Primary is the app's accent; secondary is the neutral
-            choice; danger-text is the text variant in the danger colour, hovering and focusing as
-            danger does, for a destructive action among text buttons; touch is a 48 px target for
-            kiosk and touch screens.
+            choice; danger-text is the text variant in the danger colour, hovering quietly as its
+            neighbours do with its label kept red and focusing with danger's red ring, for a
+            destructive action among text buttons; touch is a 48 px target for kiosk and touch
+            screens.
           </p>
           <div class="showcase-row">
             <button neatButton type="button" variant="text">Rename</button>
@@ -1155,14 +1156,15 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <p class="showcase-muted">
             <code>neat-select</code>: a choice of one value from a list, no free text. Its
             <code>label</code> is the accessible name of the select and its list;
-            <code>showLabel</code> also shows it above the select, or before it on the same row with
-            <code>labelPosition="inline"</code>, for a select in a toolbar or a heading; either way
-            the label is for the trigger, and a click on it opens the list. The arrow keys, Home and
-            End move through the options (a disabled one is skipped), typing a few letters jumps to
-            a label, Enter or Space picks and Escape closes the list without picking. It fills its
-            container's width, and <code>size</code> (small or medium) matches the input's and the
-            button's (see Field). Inside a dialog its list shows above the dialog, and Escape closes
-            the list only; the next Escape closes the dialog.
+            <code>showLabel</code> also shows it above the select, and
+            <code>labelPosition="inline"</code> shows it before the select on the same row instead,
+            for a select in a toolbar or a heading; either way the label is for the trigger, and a
+            click on it opens the list. The arrow keys, Home and End move through the options (a
+            disabled one is skipped), typing a few letters jumps to a label, Enter or Space picks
+            and Escape closes the list without picking. It fills its container's width, and
+            <code>size</code> (small or medium) matches the input's and the button's (see Field).
+            Inside a dialog its list shows above the dialog, and Escape closes the list only; the
+            next Escape closes the dialog.
           </p>
           <div class="showcase-row select-row">
             <neat-select
@@ -1181,7 +1183,6 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <neat-select
               label="Source"
               placeholder="Pick a source"
-              showLabel
               labelPosition="inline"
               [options]="sourceOptions"
               [(value)]="source"
@@ -1413,9 +1414,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <code>checkBlocked</code> gives the reason a row cannot be ticked now, here a cap of
             two: once two are checked, the others' boxes are drawn disabled, and Space and a click
             on the box do nothing. The row still takes the keys, a click and Enter. A screen reader
-            hears the reason as the row's description, and a pointer sees it in the box's tooltip;
-            touch gets no tooltip, so the app says the cap in its own text, as the note under the
-            list does.
+            hears the row as disabled (it cannot be checked) with the reason as its description, and
+            a pointer sees the reason in the box's tooltip; touch gets no tooltip, so the app says
+            the cap in its own text, as the note under the list does.
           </p>
           <div class="showcase-row list-row">
             <div class="list-box list-box-checked">

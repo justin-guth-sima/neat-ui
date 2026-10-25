@@ -16,7 +16,9 @@ const SERIES: readonly NeatSeries[] = [
   { key: 'c', label: 'Run C', values: [50, 60] },
 ];
 
-/** Swatches beside the charts that draw the same series, as a run view's chips sit by its charts. */
+/**
+ * Swatches beside the charts that draw the same series, as a run view's chips sit by its charts.
+ */
 @Component({
   imports: [NeatSeriesSwatch, NeatTimeChart, NeatStackedChart],
   template: `

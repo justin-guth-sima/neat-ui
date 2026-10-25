@@ -103,8 +103,8 @@ let nextSelectId = 0;
  * ```
  *
  * `label` is the accessible name of the select and of its list; `showLabel` also shows it above
- * the select, or with `labelPosition="inline"` before it on the same row (for a select in a
- * toolbar or a heading), and a click on it opens the list. The shown label is drawn as
+ * the select, and `labelPosition="inline"` shows it before the select on the same row instead
+ * (for a select in a toolbar or a heading); a click on the shown label opens the list. The shown label is drawn as
  * `neat-field`'s is, and `size` matches `neatInput`'s and `neatButton`'s, so a select in a row of
  * fields and buttons of the same size lines up with them. `options` are
  * `{ value, label, disabled? }`; the selected value is `value`, `null` while there is none, and
@@ -151,7 +151,7 @@ let nextSelectId = 0;
   ],
   host: { 'data-slot': 'select-field', '[class]': 'layout().host' },
   template: `
-    @if (showLabel()) {
+    @if (labelShown()) {
       <label [class]="layout().label" [attr.for]="triggerId">{{ label() }}</label>
     }
     <div
@@ -213,11 +213,12 @@ export class NeatSelect<T> {
   readonly value = model<T | null>(null);
   /** What the trigger shows while no option is selected. */
   readonly placeholder = input('');
-  /** Shows `label` above the select, or where `labelPosition` puts it. */
+  /** Shows `label` above the select. */
   readonly showLabel = input(false, { transform: booleanAttribute });
   /**
-   * Where the label that `showLabel` shows sits: `above` (the default) as a field's, or `inline`
-   * before the trigger on its row. It is the same `label` element, for the trigger, either way.
+   * Where the label sits: `above` (the default), as a field's and only with `showLabel`, or
+   * `inline`, which shows it before the trigger on its row by itself. It is the same `label`
+   * element, for the trigger, either way.
    */
   readonly labelPosition = input<NeatSelectLabelPosition>('above');
   readonly disabled = input(false, { transform: booleanAttribute });
@@ -225,6 +226,10 @@ export class NeatSelect<T> {
   readonly size = input<NeatSelectSize>('medium');
 
   protected readonly layout = computed(() => LAYOUTS[this.labelPosition()]);
+  /** Inline is a visible label by definition; above is one only when asked for. */
+  protected readonly labelShown = computed(
+    () => this.showLabel() || this.labelPosition() === 'inline',
+  );
   protected readonly helmSize = computed(() => SIZES[this.size()]);
   protected readonly triggerId = `neat-select-${++nextSelectId}`;
   protected readonly triggerClasses: string = TRIGGER_CLASSES;

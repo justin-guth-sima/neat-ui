@@ -272,13 +272,16 @@ export class NeatTimeChart {
   );
   private readonly fractions = computed(() => timeFractions(this.times(), this.length()));
 
+  /**
+   * Whether the chart draws several lines, the one rule for what that changes: the palette's
+   * colours instead of the tone's, no area, a legend, and a swatch on each readout row.
+   */
+  private readonly several = computed(() => this.lines().length > 1);
+
   /** Each line's colour: its tone when it is alone, else its place in the palette. */
-  private readonly colors = computed(() => {
-    const lines = this.lines();
-    return lines.length === 1
-      ? [lineToken(this.tone())]
-      : lines.map((_, index) => seriesToken(index));
-  });
+  private readonly colors = computed(() =>
+    this.several() ? this.lines().map((_, index) => seriesToken(index)) : [lineToken(this.tone())],
+  );
 
   protected readonly drawn = computed(() => {
     const lines = this.lines();
@@ -291,17 +294,16 @@ export class NeatTimeChart {
         color: this.colors()[index],
         line: paths.line,
         // One series is shaded; the shades of several would blur into each other.
-        area: lines.length === 1 ? paths.area : '',
+        area: this.several() ? '' : paths.area,
         last: paths.last,
       };
     });
   });
 
   protected readonly legend = computed(() => {
-    const lines = this.lines();
-    if (lines.length < 2) return [];
+    if (!this.several()) return [];
     const format = this.format();
-    return lines.map((entry, index) => ({
+    return this.lines().map((entry, index) => ({
       key: entry.key,
       label: entry.label,
       index,
@@ -380,16 +382,16 @@ export class NeatTimeChart {
 
   private readoutFor(index: number): Readout {
     const format = this.format();
-    const lines = this.lines();
+    const several = this.several();
     return readoutAt(
       this.fractions()[index],
       whenText(this.times(), this.length(), index, this.axis()),
-      lines.map((entry, line) => ({
+      this.lines().map((entry, line) => ({
         key: entry.key,
         label: entry.label,
         value: describe(entry.values[index], format),
         // A lone line is in its tone's colour, not the palette's, and needs no swatch.
-        series: lines.length > 1 ? line : null,
+        series: several ? line : null,
       })),
     );
   }

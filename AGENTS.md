@@ -22,7 +22,7 @@ look happens in one place. Every rule here protects that.
     `projects/neat-ui/src/public-api.ts`.
   - one secondary entry point per other component, `@sima/neat-ui/<name>`: `switch`, `slider`,
     `segmented`, `tabs`, `popover`, `confirm`, `input`, `number-field`, `line-list`, `select`
-    (`NeatSelect`, a labelled listbox combobox, its shown label above it or, with
+    (`NeatSelect`, a labelled listbox combobox, its label shown above it with `showLabel` or, with
     `labelPosition="inline"`, before it on its row), `progress` (`NeatProgress`, a bar or, with a
     `heading`, a titled readout, which the progress toast renders through), `drop-zone`
     (`NeatDropZone`, files by drop or by the system's chooser), `dialog` (`NeatDialog`, the general
@@ -265,9 +265,11 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   `aria-hidden` and no tab stop, since the row says whether it is checked. `checkBlocked` gives
   the reason a row's box cannot change now (a cap): the box is dimmed and Space and a click on it
   do nothing, while the row still takes the keys, a click and Enter. Its option keeps
-  `aria-selected` and is not `aria-disabled`, which would announce the whole row as unavailable;
-  the reason describes it (`aria-describedby` to a `hidden` element in the row, so it is not part
-  of the row's name) and is the box's tooltip. A column's `hideBelow`
+  `aria-selected` and is `aria-disabled`: selecting is checking here, so an enabled option would
+  promise a check that Space silently refuses, and `aria-disabled` blocks no events while the row
+  stays the active descendant. The reason describes it (`aria-describedby` to a `hidden` element
+  in the row, so it is not part of the row's name) and is the box's tooltip; any reason but null
+  blocks. A column's `hideBelow`
   is judged against the list's own width, which a ResizeObserver watches only while some column
   has one. The header line, the listbox and each row are lines of one grid (each spans every track
   on `grid-cols-subgrid`), so a content-sized column (`width="max-content"`) fits the widest of its

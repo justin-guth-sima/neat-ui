@@ -33,17 +33,16 @@ type SpartanSize = NonNullable<ButtonVariants['size']>;
  * Secondary keeps helm's hover (5% towards the text colour), which keeps its text readable.
  *
  * `danger-text` is the text variant (helm's ghost: no fill, no border) in the danger colour, for a
- * destructive action among text buttons (a Delete beside Rename). At rest its label is
- * `--destructive`, which the theme holds to text contrast on the page and on a card. Its hover and
- * focus are danger's, stated once below for both, so a destructive button hovers and focuses the
- * same wherever it stands and only its rest look differs: the solid fill with its foreground on
- * hover (which also replaces ghost's `hover:text-foreground`, a grey label), the red ring on
- * focus. Focus changes neither fill nor text, so the rest and hover contrast hold while focused.
+ * destructive action among text buttons (a Delete beside Rename). Its label is `--destructive`,
+ * which the theme holds to text contrast on the page and on a card. It hovers quietly, as the text
+ * buttons beside it do: their `--accent` fill, with the label kept red (`hover:text-destructive`
+ * replaces ghost's `hover:text-foreground`, a grey label), which button.spec holds to 4.5:1 on that
+ * fill. It focuses with danger's red ring. Focus changes neither fill nor text, so the rest and
+ * hover contrast hold while focused.
  *
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading them.
  */
-const DANGER_HOVER =
-  'hover:bg-destructive hover:text-destructive-foreground dark:hover:bg-destructive';
+const TEXT_HOVER = 'hover:bg-accent dark:hover:bg-accent';
 const DANGER_FOCUS = 'focus-visible:ring-destructive dark:focus-visible:ring-destructive';
 
 const VARIANTS: Record<
@@ -57,16 +56,16 @@ const VARIANTS: Record<
   },
   secondary: { spartan: 'secondary', hover: '', focus: 'focus-visible:ring-ring' },
   outlined: { spartan: 'outline', hover: 'hover:bg-accent', focus: 'focus-visible:ring-ring' },
-  text: {
-    spartan: 'ghost',
-    hover: 'hover:bg-accent dark:hover:bg-accent',
-    focus: 'focus-visible:ring-ring',
+  text: { spartan: 'ghost', hover: TEXT_HOVER, focus: 'focus-visible:ring-ring' },
+  danger: {
+    spartan: 'destructive',
+    hover: 'hover:bg-destructive hover:text-destructive-foreground dark:hover:bg-destructive',
+    focus: DANGER_FOCUS,
   },
-  danger: { spartan: 'destructive', hover: DANGER_HOVER, focus: DANGER_FOCUS },
   'danger-text': {
     spartan: 'ghost',
     rest: 'text-destructive',
-    hover: DANGER_HOVER,
+    hover: `${TEXT_HOVER} hover:text-destructive`,
     focus: DANGER_FOCUS,
   },
 };
