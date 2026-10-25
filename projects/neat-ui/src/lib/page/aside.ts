@@ -3,12 +3,14 @@ import {
   Component,
   Directive,
   ElementRef,
+  inject,
   input,
   model,
   viewChild,
 } from '@angular/core';
 import { NeatButton } from '../button/button';
 import { NeatIcon } from '../icon/icon';
+import { NeatViewport } from './viewport';
 import { NeatTooltip } from '../tooltip/tooltip';
 
 /*
@@ -36,6 +38,11 @@ import { NeatTooltip } from '../tooltip/tooltip';
  * the focus on the button, for a page whose panel closes from inside (Escape, a close button) and
  * must not leave the focus on nothing.
  *
+ * On a narrow screen (`NeatViewport`) the panel floats over the page and this button is the only
+ * way to close it, so it leads the page's tools: the toolbar scrolls when its tools exceed the
+ * phone's row, and the button must stay in view while the panel is open. It is drawn first but
+ * stays last in the markup, so for this one button the visual order differs from the tab order.
+ *
  * The page's toolbar is a template the shell renders elsewhere, outside `neat-page`, so the toggle
  * and the page meet in the page's own state, not through the kit.
  */
@@ -54,6 +61,8 @@ import { NeatTooltip } from '../tooltip/tooltip';
       size="small"
       iconOnly
       neatTooltipPosition="bottom"
+      class="data-[narrow=true]:order-first"
+      [attr.data-narrow]="viewport.narrow()"
       [attr.aria-label]="label()"
       [neatTooltip]="label()"
       [pressed]="open()"
@@ -69,6 +78,7 @@ export class NeatAsideToggle {
   /** Whether the page's side panel is open. */
   readonly open = model(false);
 
+  protected readonly viewport = inject(NeatViewport);
   private readonly button = viewChild.required<ElementRef<HTMLButtonElement>>('button');
 
   /** Puts the focus on the button. */

@@ -895,12 +895,27 @@ describe('NeatShell', () => {
       expect(region.alignSelf).not.toBe('stretch');
     });
 
-    it('puts the end slot at the right edge of the first row although the page has a toolbar', async () => {
+    it('lets the end slot take the first row’s free width, its content at the right', async () => {
       await start('/viewer/grid');
       const end = getComputedStyle(topbar().querySelector('.topbar-end') as HTMLElement);
 
+      // jsdom lays nothing out: a basis of zero that grows is what lets the slot sit beside the
+      // logo and the actions in one row instead of wrapping onto a line of its own.
       expect(topbar().getAttribute('data-toolbar')).toBe('true');
-      expect(end.marginInlineStart).toBe('auto');
+      expect(end.flexGrow).toBe('1');
+      expect(end.flexShrink).toBe('1');
+      expect(end.flexBasis).toMatch(/^0(px|%)?$/);
+      expect(end.minWidth).toBe('0px');
+      expect(end.justifyContent).toBe('flex-end');
+    });
+
+    it('keeps the bar as high as the wide one when the page has no tools', async () => {
+      await start('/media');
+
+      expect(rule(":host([data-narrow='true']) .topbar")).toMatch(
+        /min-height:\s*var\(--neat-topbar-height\);/,
+      );
+      expect(getComputedStyle(topbar()).minHeight).toBe('var(--neat-topbar-height)');
     });
 
     it('lets the top bar’s row be as high as its content, where the wide bar has one fixed height', async () => {

@@ -34,7 +34,8 @@
  * containing block of that floating rail and of the app name hidden in the top bar, which would
  * otherwise reach the viewport's. The top bar's row is as high as its content: a phone has no
  * room to put the page's tools beside the logo, so they take a row of their own (see
- * `.page-toolbar`), and the bar is two rows high on a page that has tools.
+ * `.page-toolbar`), and the bar is two rows high on a page that has tools. A bar without tools is
+ * held to the wide bar's height by `.topbar`'s min-height.
  */
 :host([data-kiosk='false'][data-narrow='true']) {
   position: relative;
@@ -190,9 +191,12 @@ nav {
 }
 
 /* A phone has no room for the wide bar's spacing: its icons would overlap the app's end content.
-   It wraps so that the page's toolbar can take the last row, with no gap between the rows. */
+   It wraps so that the page's toolbar can take the last row, with no gap between the rows. The
+   bar is as high as its rows, and no lower than the wide bar, so a page without tools keeps the
+   same 3rem. */
 :host([data-narrow='true']) .topbar {
   flex-wrap: wrap;
+  min-height: var(--neat-topbar-height);
   gap: 0 var(--neat-space-2);
   padding-inline: var(--neat-space-2);
 }
@@ -269,16 +273,29 @@ nav {
   display: flex;
   /* Shrinks below its content's width, so wide end content (a status pill) truncates inside the
      top bar instead of pushing out of it. */
-  flex: 0 1 auto;
   min-width: 0;
   align-items: center;
   gap: 0.5rem;
 }
 
-/* Without a toolbar the end slot is the one to sit at the right edge, and so it is on a phone,
-   where the toolbar is in the row below. */
-.topbar[data-toolbar='false'] .topbar-end,
+:host([data-narrow='false']) .topbar-end {
+  flex: 0 1 auto;
+}
+
+/*
+ * Narrow: a zero basis that grows. A wrapped flex line breaks on its items' max-content widths
+ * before anything shrinks, so an end slot sized by its content (a pill with a long name) would not
+ * fit beside the logo and take a line of its own, and the actions another. With no basis it fits
+ * wherever there is any room, takes what the logo and the actions leave, and its content, pushed
+ * to the right end, truncates inside it.
+ */
 :host([data-narrow='true']) .topbar-end {
+  flex: 1 1 0;
+  justify-content: flex-end;
+}
+
+/* Without a toolbar the end slot is the one to sit at the right edge. */
+.topbar[data-toolbar='false'] .topbar-end {
   margin-inline-start: auto;
 }
 

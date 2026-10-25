@@ -8,6 +8,7 @@ import {
   NeatAsideToggle,
   NeatCode,
 } from './aside';
+import { NeatViewport } from './viewport';
 
 @Component({
   imports: [NeatAsideToggle],
@@ -59,6 +60,20 @@ describe('NeatAsideToggle', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     document.querySelectorAll('.cdk-overlay-container').forEach((container) => container.remove());
+  });
+
+  it('leads the page’s tools on a narrow screen, where it is the one control that must stay in view', async () => {
+    const narrow = signal(true);
+    TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+    const { fixture, button } = await render();
+
+    // jsdom applies no Tailwind: the rule is its class under the host's `data-narrow` attribute.
+    expect(button.dataset['narrow']).toBe('true');
+    expect(classesOf(button)).toContain('data-[narrow=true]:order-first');
+
+    narrow.set(false);
+    await fixture.whenStable();
+    expect(button.dataset['narrow']).toBe('false');
   });
 
   it('is one small, text, icon-only kit button with the side-panel icon, named "Side panel" by default', async () => {

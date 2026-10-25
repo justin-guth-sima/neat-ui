@@ -419,11 +419,14 @@ builds its own bar or panel duplicates both and breaks in one of them.
   menus) in the page, never in components inside the toolbar.
   The region gives up width first and scrolls sideways rather than push the end slot out, so keep
   a toolbar narrow enough to fit at the screen sizes the app supports. One toolbar at a time; a
-  second throws in dev mode. On a narrow screen (below 48rem) the shell wraps its top bar and the
-  toolbar takes the whole last row under the logo, the end slot and the actions (the host's
-  `data-narrow` says which; the markup order is unchanged, so the tab order still runs toolbar,
-  end slot, actions): a phone has no room beside them. It still scrolls sideways past the row's
-  width, so its last control (the side panel toggle) stays in view only if the tools fit.
+  second throws in dev mode. On a narrow screen (below 48rem) the shell wraps its top bar into two
+  rows: the logo, the end slot and the actions share the first (the end slot has a zero basis and
+  grows, so a long pill truncates inside it instead of wrapping onto a row of its own), and the
+  toolbar takes the whole last row (the host's `data-narrow` says which). A page without tools
+  keeps the wide bar's height. The markup order is unchanged, so the tab order still runs toolbar, end slot, actions.
+  The toolbar still scrolls sideways past the row's width, so on a phone `neat-aside-toggle` is
+  drawn first among the tools (the one control that must stay in view while the panel floats over
+  the page); for that button the tab order differs from the visual order.
 - Elements marked `neatPageAside` inside `neat-page` form a right-hand panel shown while
   `aside="open"`: `--neat-aside-width` wide, inset and scrolling on its own, with the body
   narrowing beside it and keeping its own `scroll` setting. Closed, the panel is removed from the
