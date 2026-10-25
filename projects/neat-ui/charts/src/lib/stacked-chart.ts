@@ -19,6 +19,7 @@ import {
   sampleCursor,
   whenText,
 } from './readout';
+import { NeatSeriesSwatch } from './series-swatch';
 import type { NeatChartFormat, NeatSeries } from './types';
 
 /**
@@ -51,6 +52,7 @@ import type { NeatChartFormat, NeatSeries } from './types';
  */
 @Component({
   selector: 'neat-stacked-chart',
+  imports: [NeatSeriesSwatch],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[style.--plot-height]': 'plotHeight()',
@@ -68,7 +70,7 @@ import type { NeatChartFormat, NeatSeries } from './types';
       <ul class="legend">
         @for (item of legend(); track item.key) {
           <li>
-            <span class="swatch" [style.--series]="item.color"></span>
+            <neat-series-swatch [index]="item.index" />
             <span>{{ item.label }}</span>
             <strong>{{ item.value }}</strong>
             <span class="share">{{ item.share }}</span>
@@ -122,8 +124,8 @@ import type { NeatChartFormat, NeatSeries } from './types';
           }
           @for (row of readout.rows; track $index) {
             <span class="row">
-              @if (row.color) {
-                <span class="swatch" [style.--series]="row.color"></span>
+              @if (row.series !== null) {
+                <neat-series-swatch [index]="row.series" />
               }
               {{ row.label }} {{ row.value }}
             </span>
@@ -204,7 +206,7 @@ export class NeatStackedChart {
       return {
         key: entry.key,
         label: entry.label,
-        color: seriesToken(index),
+        index,
         value: describe(value, format),
         share: total && isNumber(value) ? `${Math.round((value / total) * 100)}%` : MISSING,
       };
@@ -235,12 +237,12 @@ export class NeatStackedChart {
   private readoutFor(index: number): Readout {
     const format = this.format();
     return readoutAt(this.fractions()[index], whenText(this.times(), this.length(), index), [
-      { key: 'total', label: 'Total', value: describe(this.totalAt(index), format), color: null },
+      { key: 'total', label: 'Total', value: describe(this.totalAt(index), format), series: null },
       ...this.lines().map((entry, line) => ({
         key: entry.key,
         label: entry.label,
         value: describe(entry.values[index], format),
-        color: seriesToken(line),
+        series: line,
       })),
     ]);
   }

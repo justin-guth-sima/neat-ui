@@ -4,5 +4,5 @@
  * (`@sima/neat-ui`) by package name; the primary never imports it. Every export added here is a
  * promise to consumers.
  */
-export type { NeatSelectOption, NeatSelectSize } from './lib/select';
+export type { NeatSelectLabelPosition, NeatSelectOption, NeatSelectSize } from './lib/select';
 export { NeatSelect } from './lib/select';

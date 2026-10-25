@@ -24,6 +24,8 @@ import { NeatIcon, ɵFIELD_LABEL_CLASSES as FIELD_LABEL_CLASSES, ɵhlm as hlm } 
 
 /** `medium` matches the kit's medium input and button (2.25rem), `small` the small ones (2rem). */
 export type NeatSelectSize = 'small' | 'medium';
+/** Where a shown label sits: over the select, as a field's does, or before it on its row. */
+export type NeatSelectLabelPosition = 'above' | 'inline';
 
 /** The kit's sizes in helm's vocabulary: its trigger takes its height from `data-size`. */
 const SIZES: Record<NeatSelectSize, 'default' | 'sm'> = { small: 'sm', medium: 'default' };
@@ -72,6 +74,21 @@ const TRIGGER_CLASSES = hlm(
 );
 const CONTENT_CLASSES = hlm(SELECT_HELM_CLASSES.content, 'ring-border');
 
+/**
+ * The select's parts by where its label sits, each position taking exactly one set: above, the
+ * field's column; inline, one row in which the label keeps its width (it neither wraps nor gives
+ * way to the trigger) and the select takes the rest. The label's look is the field label's either
+ * way.
+ */
+const LAYOUTS: Record<NeatSelectLabelPosition, { host: string; label: string; select: string }> = {
+  above: { host: FIELD_LABEL_CLASSES.stack, label: FIELD_LABEL_CLASSES.label, select: 'block' },
+  inline: {
+    host: 'flex items-center gap-2',
+    label: hlm(FIELD_LABEL_CLASSES.label, 'shrink-0'),
+    select: 'block min-w-0 flex-1',
+  },
+};
+
 /** The gap between the trigger and the panel, so the panel's outline does not touch the trigger. */
 const SIDE_OFFSET = 4;
 
@@ -86,13 +103,15 @@ let nextSelectId = 0;
  * ```
  *
  * `label` is the accessible name of the select and of its list; `showLabel` also shows it above
- * the select, and a click on it opens the list. The shown label is drawn as `neat-field`'s is, and
- * `size` matches `neatInput`'s and `neatButton`'s, so a select in a row of fields and buttons of
- * the same size lines up with them. `options` are `{ value, label, disabled? }`; the selected
- * value is `value`, `null` while there is none, and the trigger shows the selected option's label
- * or, without one, `placeholder`; a value that is not among the options (a deleted file, options
- * that load later) shows the placeholder as well, in its muted colour. The select fills its
- * container's width, and its list is as wide as the select.
+ * the select, or with `labelPosition="inline"` before it on the same row (for a select in a
+ * toolbar or a heading), and a click on it opens the list. The shown label is drawn as
+ * `neat-field`'s is, and `size` matches `neatInput`'s and `neatButton`'s, so a select in a row of
+ * fields and buttons of the same size lines up with them. `options` are
+ * `{ value, label, disabled? }`; the selected value is `value`, `null` while there is none, and
+ * the trigger shows the selected option's label or, without one, `placeholder`; a value that is
+ * not among the options (a deleted file, options that load later) shows the placeholder as well,
+ * in its muted colour. The select fills its container's width (inline, the width its label
+ * leaves), and its list is as wide as the select.
  *
  * It follows the WAI-ARIA select-only combobox. On the trigger, Down, Up, Enter and Space open the
  * list; open, Down, Up, Home, End and Page Up and Down move through the options (disabled ones are
@@ -130,17 +149,17 @@ let nextSelectId = 0;
       isSingleValuePresent: (value) => value !== null && value !== undefined,
     }),
   ],
-  host: { 'data-slot': 'select-field', '[class]': 'fieldClasses.stack' },
+  host: { 'data-slot': 'select-field', '[class]': 'layout().host' },
   template: `
     @if (showLabel()) {
-      <label [class]="fieldClasses.label" [attr.for]="triggerId">{{ label() }}</label>
+      <label [class]="layout().label" [attr.for]="triggerId">{{ label() }}</label>
     }
     <div
       brnSelect
       brnPopover
       #select="brnSelect"
       data-slot="select"
-      class="block"
+      [class]="layout().select"
       [value]="value()"
       [disabled]="disabled()"
       [itemToString]="labelOf"
@@ -187,20 +206,25 @@ let nextSelectId = 0;
   `,
 })
 export class NeatSelect<T> {
-  /** The accessible name of the select and its list; shown above the select with `showLabel`. */
+  /** The accessible name of the select and its list; shown with `showLabel`. */
   readonly label = input.required<string>();
   readonly options = input.required<readonly NeatSelectOption<T>[]>();
   /** The selected option's value; `null` while there is none. Options are matched with `Object.is`. */
   readonly value = model<T | null>(null);
   /** What the trigger shows while no option is selected. */
   readonly placeholder = input('');
-  /** Shows `label` above the select. */
+  /** Shows `label` above the select, or where `labelPosition` puts it. */
   readonly showLabel = input(false, { transform: booleanAttribute });
+  /**
+   * Where the label that `showLabel` shows sits: `above` (the default) as a field's, or `inline`
+   * before the trigger on its row. It is the same `label` element, for the trigger, either way.
+   */
+  readonly labelPosition = input<NeatSelectLabelPosition>('above');
   readonly disabled = input(false, { transform: booleanAttribute });
   /** The trigger's height: `medium` (2.25rem) or `small` (2rem), as the kit's input and button. */
   readonly size = input<NeatSelectSize>('medium');
 
-  protected readonly fieldClasses = FIELD_LABEL_CLASSES;
+  protected readonly layout = computed(() => LAYOUTS[this.labelPosition()]);
   protected readonly helmSize = computed(() => SIZES[this.size()]);
   protected readonly triggerId = `neat-select-${++nextSelectId}`;
   protected readonly triggerClasses: string = TRIGGER_CLASSES;

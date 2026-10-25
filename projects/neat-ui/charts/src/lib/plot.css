@@ -1,15 +1,8 @@
 /*
  * What the plots with a drawn box share, the time chart's and the stacked chart's: the box, its
- * grid, the labels on it, the swatch of a series and the crosshair.
+ * grid, the labels on it and the crosshair. A series' swatch is `neat-series-swatch`, which an app
+ * shows beside the chart too, so it is styled there.
  */
-
-.swatch {
-  flex: none;
-  width: 0.625rem;
-  height: 0.625rem;
-  border-radius: 2px;
-  background: var(--series);
-}
 
 .plot {
   position: relative;

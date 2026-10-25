@@ -106,7 +106,9 @@ describe('NeatStackedChart', () => {
     );
     expect(chart.text('.legend li')).toEqual(['Rail A6 W60%', 'Rail B3 W30%', 'Rail C1 W10%']);
     expect(
-      chart.all('.legend .swatch').map((swatch) => swatch.style.getPropertyValue('--series')),
+      chart
+        .all('.legend neat-series-swatch')
+        .map((swatch) => swatch.style.getPropertyValue('--series')),
     ).toEqual(['var(--neat-series-1)', 'var(--neat-series-2)', 'var(--neat-series-3)']);
 
     // A band without a current sample leaves no total, so no share to give.
@@ -176,6 +178,17 @@ describe('NeatStackedChart', () => {
       'Rail A 1 W',
       'Rail B 1 W',
     ]);
+    expect(
+      chart
+        .all('.readout .row')
+        .map(
+          (row) =>
+            row
+              .querySelector<HTMLElement>('neat-series-swatch')
+              ?.style.getPropertyValue('--series') ?? null,
+        ),
+      'a swatch for each band, none for the total',
+    ).toEqual([null, 'var(--neat-series-1)', 'var(--neat-series-2)']);
     expect(chart.all('.crosshair')[0].style.left).toBe('0%');
 
     await chart.point(0.5);

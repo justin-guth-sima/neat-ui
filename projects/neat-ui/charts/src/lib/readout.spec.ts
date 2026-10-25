@@ -146,8 +146,8 @@ describe('the readout words', () => {
 
   it('reads the date and then each row, one sentence for the live region', () => {
     const readout = readoutAt(0.5, '1 min ago', [
-      { key: 'a', label: 'CPU', value: '3%', color: null },
-      { key: 'b', label: 'GPU', value: '—', color: null },
+      { key: 'a', label: 'CPU', value: '3%', series: null },
+      { key: 'b', label: 'GPU', value: '—', series: null },
     ]);
     expect(readout.spoken).toBe('1 min ago, CPU 3%, GPU —');
     expect(readoutAt(0, null, []).spoken).toBe('');

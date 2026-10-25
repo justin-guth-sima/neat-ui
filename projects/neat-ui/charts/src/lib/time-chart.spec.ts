@@ -129,9 +129,21 @@ describe('NeatTimeChart', () => {
       'a tone is for one series only',
     ).toEqual(['var(--neat-series-1)', 'var(--neat-series-2)', 'var(--neat-series-3)']);
     expect(several.all('.area'), 'no area under several series').toHaveLength(0);
+    await several.point(1);
+    expect(
+      several
+        .all('.readout neat-series-swatch')
+        .map((swatch) => swatch.style.getPropertyValue('--series')),
+      'the readout shows each line by its swatch',
+    ).toEqual(['var(--neat-series-1)', 'var(--neat-series-2)', 'var(--neat-series-3)']);
+    await one.point(1);
+    expect(one.readout(), 'one line').not.toBeNull();
+    expect(one.all('.readout neat-series-swatch'), 'needs no swatch').toHaveLength(0);
     expect(several.text('.legend li')).toEqual(['CPU30%', 'GPU—', 'Memory60%']);
     expect(
-      several.all('.legend .swatch').map((swatch) => swatch.style.getPropertyValue('--series')),
+      several
+        .all('.legend neat-series-swatch')
+        .map((swatch) => swatch.style.getPropertyValue('--series')),
     ).toEqual(['var(--neat-series-1)', 'var(--neat-series-2)', 'var(--neat-series-3)']);
   });
 

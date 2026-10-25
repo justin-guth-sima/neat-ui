@@ -8,7 +8,14 @@ import type { NeatColorScheme } from '../theme/theme.service';
 import { NeatTooltip } from '../tooltip/tooltip';
 import { NeatButton, type NeatButtonSize, type NeatButtonVariant } from './button';
 
-const VARIANTS: NeatButtonVariant[] = ['primary', 'secondary', 'outlined', 'text', 'danger'];
+const VARIANTS: NeatButtonVariant[] = [
+  'primary',
+  'secondary',
+  'outlined',
+  'text',
+  'danger',
+  'danger-text',
+];
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 /** The surfaces a button sits on: the page and a card. */
 const SURFACES = ['background', 'card'] as const;
@@ -29,6 +36,8 @@ const HELM_VARIANT_MARKERS: Record<NeatButtonVariant, string[]> = {
   ],
   text: ['hover:text-foreground', 'aria-expanded:bg-muted'],
   danger: ['bg-destructive/10', 'dark:bg-destructive/20', 'text-destructive'],
+  // Helm's ghost, as the text variant is, in the danger colour.
+  'danger-text': ['aria-expanded:bg-muted', 'text-destructive'],
 };
 
 @Component({
@@ -640,7 +649,46 @@ describe('NeatButton', () => {
     },
   );
 
-  it.each<NeatButtonVariant>(['outlined', 'text'])(
+  it('danger-text has the text variant’s shape in the danger colour: no fill or border at rest, red text', async () => {
+    const dangerText = await classesOf('danger-text');
+    const text = await classesOf('text');
+
+    expect(dangerText.filter((name) => /^(border|shadow)/.test(name))).toEqual(
+      text.filter((name) => /^(border|shadow)/.test(name)),
+    );
+    for (const scheme of SCHEMES) {
+      const tokens = spartanThemeTokens(scheme);
+      for (const surface of SURFACES) {
+        const { fill, text: color } = colorsOf(dangerText, { scheme, hover: false }, surface);
+        expect(fill, `${scheme}, over ${surface}: no fill`).toBe(tokens[surface]);
+        expect(color, `${scheme}, over ${surface}: the danger colour`).toBe(tokens['destructive']);
+      }
+    }
+  });
+
+  it('danger-text hovers and focuses as danger does: the solid red fill, and the red ring', async () => {
+    const dangerText = await classesOf('danger-text');
+    const danger = await classesOf('danger');
+
+    for (const scheme of SCHEMES) {
+      for (const surface of SURFACES) {
+        expect(
+          colorsOf(dangerText, { scheme, hover: true }, surface),
+          `${scheme}, ${surface}`,
+        ).toEqual(colorsOf(danger, { scheme, hover: true }, surface));
+      }
+      expect(focusRingValue(dangerText, scheme), scheme).toBe('destructive');
+    }
+  });
+
+  it('danger-text keeps its text contrast while focused: focus draws only the ring', async () => {
+    // The contrast tests above skip focus-visible colour classes; with none for the fill or the
+    // text, a focused button shows its rest or hover colours, which they hold to 4.5:1.
+    const classes = await classesOf('danger-text');
+    expect(classes.filter((name) => /^(dark:)?focus-visible:(bg|text)-/.test(name))).toEqual([]);
+  });
+
+  it.each<NeatButtonVariant>(['outlined', 'text', 'danger-text'])(
     `%s: the hover fill differs from background and from card by a contrast ratio of at least ${MIN_FILL_CONTRAST}`,
     async (variant) => {
       const classes = await classesOf(variant);

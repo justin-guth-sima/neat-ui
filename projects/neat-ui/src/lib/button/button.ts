@@ -3,7 +3,8 @@ import { BrnButton } from '@spartan-ng/brain/button';
 import { buttonVariants, type ButtonVariants } from '../ui/button/src';
 import { hlm } from '../ui/utils/src';
 
-export type NeatButtonVariant = 'primary' | 'secondary' | 'outlined' | 'text' | 'danger';
+export type NeatButtonVariant =
+  'primary' | 'secondary' | 'outlined' | 'text' | 'danger' | 'danger-text';
 /** `touch` is a 3rem (48px) target, above the 44px minimum, for kiosk and touch screens. */
 export type NeatButtonSize = 'small' | 'medium' | 'large' | 'touch';
 
@@ -31,11 +32,23 @@ type SpartanSize = NonNullable<ButtonVariants['size']>;
  *   foreground, a pair the theme guarantees, in both schemes alike.
  * Secondary keeps helm's hover (5% towards the text colour), which keeps its text readable.
  *
+ * `danger-text` is the text variant (helm's ghost: no fill, no border) in the danger colour, for a
+ * destructive action among text buttons (a Delete beside Rename). At rest its label is
+ * `--destructive`, which the theme holds to text contrast on the page and on a card. Its hover and
+ * focus are danger's, stated once below for both, so a destructive button hovers and focuses the
+ * same wherever it stands and only its rest look differs: the solid fill with its foreground on
+ * hover (which also replaces ghost's `hover:text-foreground`, a grey label), the red ring on
+ * focus. Focus changes neither fill nor text, so the rest and hover contrast hold while focused.
+ *
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading them.
  */
+const DANGER_HOVER =
+  'hover:bg-destructive hover:text-destructive-foreground dark:hover:bg-destructive';
+const DANGER_FOCUS = 'focus-visible:ring-destructive dark:focus-visible:ring-destructive';
+
 const VARIANTS: Record<
   NeatButtonVariant,
-  { spartan: SpartanVariant; hover: string; focus: string }
+  { spartan: SpartanVariant; rest?: string; hover: string; focus: string }
 > = {
   primary: {
     spartan: 'default',
@@ -49,10 +62,12 @@ const VARIANTS: Record<
     hover: 'hover:bg-accent dark:hover:bg-accent',
     focus: 'focus-visible:ring-ring',
   },
-  danger: {
-    spartan: 'destructive',
-    hover: 'hover:bg-destructive hover:text-destructive-foreground dark:hover:bg-destructive',
-    focus: 'focus-visible:ring-destructive dark:focus-visible:ring-destructive',
+  danger: { spartan: 'destructive', hover: DANGER_HOVER, focus: DANGER_FOCUS },
+  'danger-text': {
+    spartan: 'ghost',
+    rest: 'text-destructive',
+    hover: DANGER_HOVER,
+    focus: DANGER_FOCUS,
   },
 };
 
@@ -153,6 +168,7 @@ export class NeatButton {
         variant: variant.spartan,
         size: iconOnly ? size.spartanIconOnly : size.spartan,
       }),
+      variant.rest,
       variant.hover,
       variant.focus,
       HELD,

@@ -56,3 +56,29 @@
   text-align: end;
   font-variant-numeric: tabular-nums;
 }
+
+/* A run view's chips over its chart: each a swatch and a name, as an app would draw them. */
+.swatch-demo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+
+.run-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--neat-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.run-chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+  padding: 0.125rem var(--neat-space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--neat-text-sm);
+}

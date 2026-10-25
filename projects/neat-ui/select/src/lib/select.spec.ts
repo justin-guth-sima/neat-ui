@@ -16,6 +16,7 @@ import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
 import {
   NeatSelect,
+  type NeatSelectLabelPosition,
   type NeatSelectOption,
   type NeatSelectSize,
   SELECT_HELM_CLASSES,
@@ -55,6 +56,7 @@ const SOURCES: NeatSelectOption<string>[] = [
       placeholder="Pick a source"
       [options]="options"
       [showLabel]="showLabel()"
+      [labelPosition]="labelPosition()"
       [disabled]="disabled()"
       [size]="size()"
       [(value)]="source"
@@ -65,6 +67,7 @@ class SelectHost {
   readonly options = SOURCES;
   readonly source = signal<string | null>(null);
   readonly showLabel = signal(false);
+  readonly labelPosition = signal<NeatSelectLabelPosition>('above');
   readonly disabled = signal(false);
   readonly size = signal<NeatSelectSize>('medium');
 }
@@ -222,6 +225,60 @@ describe('NeatSelect', () => {
     expect([...root.querySelector('neat-select')!.classList]).toEqual(
       expect.arrayContaining(['flex', 'flex-col', 'gap-2']),
     );
+  });
+
+  it('inline: the same label on the trigger’s row, still for the trigger, and a click on it opens the list', async () => {
+    const { root, trigger, settle } = await render((host) => {
+      host.showLabel.set(true);
+      host.labelPosition.set('inline');
+    });
+    const select = root.querySelector('neat-select')!;
+    const label = select.querySelector('label')!;
+
+    // One row: the label, then the select taking the rest of it.
+    expect([...select.classList]).toEqual(expect.arrayContaining(['flex', 'items-center']));
+    expect(select.classList).not.toContain('flex-col');
+    expect(label.parentElement).toBe(select);
+    expect(label.nextElementSibling?.contains(trigger)).toBe(true);
+    // The field label's look, kept whole on its row rather than squeezed by the trigger.
+    expect([...label.classList]).toEqual(
+      expect.arrayContaining(['text-sm', 'font-medium', 'shrink-0']),
+    );
+    expect([...label.nextElementSibling!.classList]).toEqual(
+      expect.arrayContaining(['min-w-0', 'flex-1']),
+    );
+
+    // Still the select's name: the label is for the trigger, and the trigger is named by label.
+    expect(label.textContent?.trim()).toBe('Source');
+    expect(label.control).toBe(trigger);
+    expect(trigger.getAttribute('aria-label')).toBe('Source');
+
+    label.click();
+    await settle();
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('puts the label above by default, and back above when labelPosition returns to above', async () => {
+    const { fixture, host, root } = await render((host) => {
+      host.showLabel.set(true);
+      host.labelPosition.set('inline');
+    });
+    const select = root.querySelector('neat-select')!;
+
+    host.labelPosition.set('above');
+    await fixture.whenStable();
+    expect([...select.classList]).toEqual(expect.arrayContaining(['flex', 'flex-col', 'gap-2']));
+    expect([...select.querySelector('label')!.classList].sort()).toEqual([
+      'font-medium',
+      'text-sm',
+    ]);
+  });
+
+  it('shows no label inline either without showLabel: the position only places a shown label', async () => {
+    const { root, trigger } = await render((host) => host.labelPosition.set('inline'));
+
+    expect(root.querySelector('label')).toBeNull();
+    expect(trigger.getAttribute('aria-label')).toBe('Source');
   });
 
   it('shows no visible label by default', async () => {

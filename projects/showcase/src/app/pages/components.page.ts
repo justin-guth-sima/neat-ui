@@ -70,7 +70,14 @@ import { DEMO_TREE, demoSize } from './demo-tree';
 import { SourceDialog, type SourceKind } from './source-dialog';
 import { TestPatternSource } from './test-pattern-source';
 
-const VARIANTS: NeatButtonVariant[] = ['primary', 'secondary', 'outlined', 'text', 'danger'];
+const VARIANTS: NeatButtonVariant[] = [
+  'primary',
+  'secondary',
+  'outlined',
+  'text',
+  'danger',
+  'danger-text',
+];
 /** The surfaces a button sits on, as the contrast tests have it: the page and a card. */
 const SURFACES = ['page', 'card'] as const;
 const SIZES: NeatButtonSize[] = ['small', 'medium', 'large', 'touch'];
@@ -127,6 +134,8 @@ const DEMO_TYPES: readonly DemoType[] = [
   { id: 'boats', name: 'Boats', files: 3 },
   { id: 'trucks', name: 'Trucks', files: 5 },
 ];
+/** How many types the capped list's demo compares at most. */
+const TYPE_CAP = 2;
 /** A device of the grouped list's demo, in scan order: the list groups them by kind. */
 interface DemoDevice {
   readonly id: number;
@@ -233,10 +242,17 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
         <section class="showcase-section">
           <h2>Button</h2>
           <p class="showcase-muted">
-            <code>neatButton</code> on a <code>button</code> or <code>a</code>: five variants in
-            four sizes, then icon-only and rounded. Primary is the app's accent; secondary is the
-            neutral choice; touch is a 48 px target for kiosk and touch screens.
+            <code>neatButton</code> on a <code>button</code> or <code>a</code>: six variants in four
+            sizes, then icon-only and rounded. Primary is the app's accent; secondary is the neutral
+            choice; danger-text is the text variant in the danger colour, hovering and focusing as
+            danger does, for a destructive action among text buttons; touch is a 48 px target for
+            kiosk and touch screens.
           </p>
+          <div class="showcase-row">
+            <button neatButton type="button" variant="text">Rename</button>
+            <button neatButton type="button" variant="text">Duplicate</button>
+            <button neatButton type="button" variant="danger-text">Delete</button>
+          </div>
           @for (variant of variants; track variant) {
             <h3>{{ variant }}</h3>
             <div class="showcase-row">
@@ -1139,9 +1155,11 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <p class="showcase-muted">
             <code>neat-select</code>: a choice of one value from a list, no free text. Its
             <code>label</code> is the accessible name of the select and its list;
-            <code>showLabel</code> also shows it above the select. The arrow keys, Home and End move
-            through the options (a disabled one is skipped), typing a few letters jumps to a label,
-            Enter or Space picks and Escape closes the list without picking. It fills its
+            <code>showLabel</code> also shows it above the select, or before it on the same row with
+            <code>labelPosition="inline"</code>, for a select in a toolbar or a heading; either way
+            the label is for the trigger, and a click on it opens the list. The arrow keys, Home and
+            End move through the options (a disabled one is skipped), typing a few letters jumps to
+            a label, Enter or Space picks and Escape closes the list without picking. It fills its
             container's width, and <code>size</code> (small or medium) matches the input's and the
             button's (see Field). Inside a dialog its list shows above the dialog, and Escape closes
             the list only; the next Escape closes the dialog.
@@ -1157,6 +1175,14 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <neat-select
               label="Source, label hidden"
               placeholder="Pick a source"
+              [options]="sourceOptions"
+              [(value)]="source"
+            />
+            <neat-select
+              label="Source"
+              placeholder="Pick a source"
+              showLabel
+              labelPosition="inline"
               [options]="sourceOptions"
               [(value)]="source"
             />
@@ -1381,6 +1407,34 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           </div>
           <p class="showcase-code showcase-muted" aria-live="polite">
             Checked: {{ checkedTypes().length ? checkedTypes().join(', ') : 'none' }}
+          </p>
+          <h3>Capped</h3>
+          <p class="showcase-muted">
+            <code>checkBlocked</code> gives the reason a row cannot be ticked now, here a cap of
+            two: once two are checked, the others' boxes are drawn disabled, and Space and a click
+            on the box do nothing. The row still takes the keys, a click and Enter. A screen reader
+            hears the reason as the row's description, and a pointer sees it in the box's tooltip;
+            touch gets no tooltip, so the app says the cap in its own text, as the note under the
+            list does.
+          </p>
+          <div class="showcase-row list-row">
+            <div class="list-box list-box-checked">
+              <neat-select-list
+                label="Types to compare"
+                checkable
+                [items]="demoTypes"
+                [trackBy]="typeId"
+                [canCheck]="hasFiles"
+                [checkBlocked]="atTypeCap"
+                [(checked)]="comparedTypes"
+              >
+                <ng-template neatColumn="name" header="Type" let-type>{{ type.name }}</ng-template>
+              </neat-select-list>
+            </div>
+          </div>
+          <p class="showcase-muted">{{ typeCapNote }}</p>
+          <p class="showcase-code showcase-muted" aria-live="polite">
+            Compared: {{ comparedTypes().length ? comparedTypes().join(', ') : 'none' }}
           </p>
           <h3>Grouped</h3>
           <p class="showcase-muted">
@@ -1700,6 +1754,13 @@ export class ComponentsPage {
   protected readonly typeId = (type: DemoType) => type.id;
   protected readonly hasFiles = (type: DemoType) => type.files > 0;
   protected readonly checkedTypes = signal<readonly string[]>(['cars']);
+  protected readonly typeCapNote = `At most ${TYPE_CAP} types can be compared.`;
+  protected readonly comparedTypes = signal<readonly string[]>(['cars', 'people']);
+  /** The cap's reason for a row that is not checked while the cap is reached. */
+  protected readonly atTypeCap = (type: DemoType): string | null =>
+    this.comparedTypes().length >= TYPE_CAP && !this.comparedTypes().includes(type.id)
+      ? this.typeCapNote
+      : null;
   protected readonly demoStreams = DEMO_STREAMS;
   protected readonly streamId = (stream: DemoStream) => stream.id;
   protected readonly streamTone = (stream: DemoStream) => stream.tone;

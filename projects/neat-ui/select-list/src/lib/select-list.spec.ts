@@ -283,6 +283,41 @@ async function renderToned(setup: (host: TonedHost) => void = () => undefined) {
  * A ResizeObserver whose callbacks the spec calls, with the list's width: jsdom lays nothing out.
  * `instances` holds every observer made, newest last.
  */
+/** The reason a capped list gives for a row that cannot be ticked while the cap is reached. */
+const AT_CAP = 'At most 2 types can be compared.';
+
+/** A checked list with a cap, as a run comparison has: at the cap, an unticked row is blocked. */
+@Component({
+  imports: [NeatSelectList, NeatColumn],
+  template: `
+    <neat-select-list
+      label="Asset types"
+      [checkable]="checkable()"
+      [items]="types"
+      [trackBy]="byId"
+      [canCheck]="hasFiles"
+      [checkBlocked]="atCap"
+      [(checked)]="checked"
+      [(selected)]="selected"
+      (activated)="activated.push($event.id)"
+    >
+      <ng-template neatColumn="name" header="Type" let-type>{{ type.name }}</ng-template>
+    </neat-select-list>
+  `,
+})
+class CappedHost {
+  readonly types = TYPES;
+  readonly checkable = signal(true);
+  readonly checked = signal<readonly number[]>([1, 2]);
+  readonly selected = signal<AssetType | null>(null);
+  readonly activated: number[] = [];
+  readonly byId = (type: AssetType) => type.id;
+  readonly hasFiles = (type: AssetType) => !type.empty;
+  readonly atCap = vi.fn((type: AssetType) =>
+    this.checked().length >= 2 && !this.checked().includes(type.id) ? AT_CAP : null,
+  );
+}
+
 class FakeResizeObserver {
   static instances: FakeResizeObserver[] = [];
   readonly observed: Element[] = [];
@@ -1226,6 +1261,181 @@ describe('NeatSelectList', () => {
 
       const hint = element.querySelector(`#${listbox().getAttribute('aria-describedby')}`);
       expect(hint?.textContent).toBe('Press Delete to hide a type.');
+    });
+  });
+
+  describe('blocked checks', () => {
+    async function renderCapped(setup: (host: CappedHost) => void = () => undefined) {
+      const fixture = TestBed.createComponent(CappedHost);
+      setup(fixture.componentInstance);
+      await fixture.whenStable();
+      const element: HTMLElement = fixture.nativeElement;
+      const options = () => [...element.querySelectorAll<HTMLElement>('[role="option"]')];
+      const listbox = () => element.querySelector<HTMLElement>('[role="listbox"]')!;
+      return {
+        fixture,
+        host: fixture.componentInstance,
+        element,
+        listbox,
+        options,
+        box: (index: number) =>
+          options()[index].querySelector<HTMLElement>('[data-slot="select-list-check"]'),
+        /** The text of the elements that describe an option, by its aria-describedby. */
+        description: (index: number) =>
+          (options()[index].getAttribute('aria-describedby') ?? '')
+            .split(' ')
+            .filter(Boolean)
+            .map((id) => element.querySelector(`#${id}`)?.textContent?.trim()),
+        async press(key: string) {
+          const event = press(listbox(), key);
+          await fixture.whenStable();
+          return event;
+        },
+      };
+    }
+
+    // TYPES: Cars (1), People (2), Drones (3, no box), Boats (4). Cars and People are checked, at
+    // the cap of two, so Boats is blocked.
+
+    it('keeps a blocked row unticked: Space on it and a click on its box change nothing', async () => {
+      const { fixture, host, box, press } = await renderCapped();
+
+      await press('End');
+      expect(host.selected()).toBe(TYPES[3]);
+      expect((await press(' ')).defaultPrevented, 'Space still never scrolls the area').toBe(true);
+      expect(host.checked()).toEqual([1, 2]);
+
+      box(3)!.click();
+      await fixture.whenStable();
+      expect(host.checked()).toEqual([1, 2]);
+    });
+
+    it('leaves a blocked row reachable and usable: the keys land on it and Enter and a click activate it', async () => {
+      const { fixture, host, listbox, options, press } = await renderCapped();
+
+      await press('End');
+      expect(listbox().getAttribute('aria-activedescendant')).toBe(options()[3].id);
+      expect(options()[3].hasAttribute('data-active')).toBe(true);
+      await press('Enter');
+      expect(host.activated).toEqual([4]);
+
+      host.selected.set(null);
+      await fixture.whenStable();
+      options()[3].click();
+      await fixture.whenStable();
+      expect(host.selected()).toBe(TYPES[3]);
+      expect(host.activated).toEqual([4, 4]);
+    });
+
+    it('says why to assistive technology: the option stays unselected, not disabled, and is described by the reason', async () => {
+      const { options, description, element } = await renderCapped();
+
+      const boats = options()[3];
+      // Still an option that can be checked in kind, unchecked now: aria-disabled would announce
+      // the whole row as unavailable, though it can still be selected and activated.
+      expect(boats.getAttribute('aria-selected')).toBe('false');
+      expect(boats.hasAttribute('aria-disabled')).toBe(false);
+      expect(description(3)).toEqual([AT_CAP]);
+      // The reason is hidden, so it describes the option without becoming part of its name.
+      const reason = element.querySelector(`#${boats.getAttribute('aria-describedby')}`)!;
+      expect(reason.hasAttribute('hidden')).toBe(true);
+      expect(boats.contains(reason)).toBe(true);
+
+      expect(
+        options().map((option) => option.hasAttribute('aria-describedby')),
+        'only the blocked row has a description',
+      ).toEqual([false, false, false, true]);
+    });
+
+    it('draws a blocked box disabled, still hidden from assistive technology and no tab stop', async () => {
+      const { box } = await renderCapped();
+
+      const blocked = box(3)!;
+      expect(blocked.hasAttribute('data-blocked')).toBe(true);
+      expect(blocked.getAttribute('aria-hidden')).toBe('true');
+      expect(blocked.hasAttribute('tabindex')).toBe(false);
+      expect([...blocked.classList]).toEqual(
+        expect.arrayContaining(['cursor-not-allowed', 'opacity-50']),
+      );
+      expect(blocked.classList).not.toContain('cursor-pointer');
+
+      const open = box(0)!;
+      expect(open.hasAttribute('data-blocked')).toBe(false);
+      expect(open.classList).toContain('cursor-pointer');
+      expect(open.classList).not.toContain('cursor-not-allowed');
+      expect(open.classList).not.toContain('opacity-50');
+    });
+
+    it('shows the reason in a tooltip on the blocked box on hover', async () => {
+      const { fixture, box } = await renderCapped();
+      const blocked = box(3)!;
+      vi.spyOn(document.documentElement, 'clientWidth', 'get').mockReturnValue(1024);
+      vi.spyOn(document.documentElement, 'clientHeight', 'get').mockReturnValue(768);
+      blocked.getBoundingClientRect = () => new DOMRect(10, 100, 16, 16);
+
+      try {
+        blocked.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+        // The tooltip opens after a zero delay, then renders its text.
+        await new Promise((resolve) => setTimeout(resolve));
+        await fixture.whenStable();
+        expect(document.querySelector('[role="tooltip"]')?.textContent?.trim()).toBe(AT_CAP);
+      } finally {
+        vi.restoreAllMocks();
+        document
+          .querySelectorAll('.cdk-overlay-container')
+          .forEach((container) => container.remove());
+      }
+    });
+
+    it('follows the checks: unticking a row lifts the block, and ticking up to the cap brings it back', async () => {
+      const { fixture, host, box, description } = await renderCapped();
+
+      box(0)!.click();
+      await fixture.whenStable();
+      expect(host.checked()).toEqual([2]);
+      expect(box(3)!.hasAttribute('data-blocked')).toBe(false);
+      expect(description(3)).toEqual([]);
+
+      box(3)!.click();
+      await fixture.whenStable();
+      expect(host.checked()).toEqual([2, 4]);
+      expect(box(0)!.hasAttribute('data-blocked')).toBe(true);
+      expect(description(0)).toEqual([AT_CAP]);
+    });
+
+    it('lets a checked row be unticked at the cap: only the rows the app blocks are blocked', async () => {
+      const { fixture, host, box } = await renderCapped();
+
+      box(1)!.click();
+      await fixture.whenStable();
+      expect(host.checked()).toEqual([1]);
+    });
+
+    it('asks checkBlocked about the rows with a box only, as the checks change, not as the selection moves', async () => {
+      const { host, press } = await renderCapped();
+      expect(host.atCap.mock.calls.map(([type]) => type.id)).not.toContain(3);
+
+      host.atCap.mockClear();
+      await press('ArrowDown');
+      await press('ArrowDown');
+      expect(host.atCap).not.toHaveBeenCalled();
+    });
+
+    it('blocks nothing outside checked mode', async () => {
+      const { options, element } = await renderCapped((host) => host.checkable.set(false));
+
+      expect(options().some((option) => option.hasAttribute('aria-describedby'))).toBe(false);
+      expect(element.querySelector('[data-blocked]')).toBeNull();
+    });
+
+    it('blocks nothing by default', async () => {
+      const fixture = TestBed.createComponent(CheckedHost);
+      fixture.componentInstance.checked.set([1, 2, 4]);
+      await fixture.whenStable();
+      const element: HTMLElement = fixture.nativeElement;
+
+      expect(element.querySelector('[data-blocked]')).toBeNull();
+      expect(element.querySelector('[role="option"][aria-describedby]')).toBeNull();
     });
   });
 

@@ -8,6 +8,7 @@ import {
   NeatHeatmapRow,
   NeatReference,
   NeatSeries,
+  NeatSeriesSwatch,
   NeatSparkline,
   NeatStackedChart,
   NeatThreshold,
@@ -45,6 +46,7 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
     NeatChartCard,
     NeatHeatmap,
     NeatPage,
+    NeatSeriesSwatch,
     NeatSparkline,
     NeatStackedChart,
     NeatStatusChip,
@@ -85,11 +87,11 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
             <code>neatChartCardChip</code> beside it, the value with its unit, a caption and the
             chart. It sets <code>--neat-surface</code> to <code>--card</code> for the charts' label
             halos. A <code>selectable</code> card is one choice of several: its heading is a button
-            (<code>aria-current</code> while <code>selected</code>) and a click anywhere on the
-            card chooses it too, its chart's plot included (the readout follows the pointer). A
-            chart in a card can leave out its value labels with
-            <code>[valueLabels]="false"</code>: the lines and the time axis stay. Without
-            <code>selectable</code>, the heading is text and clicks do nothing, as on a tile.
+            (<code>aria-current</code> while <code>selected</code>) and a click anywhere on the card
+            chooses it too, its chart's plot included (the readout follows the pointer). A chart in
+            a card can leave out its value labels with <code>[valueLabels]="false"</code>: the lines
+            and the time axis stay. Without <code>selectable</code>, the heading is text and clicks
+            do nothing, as on a tile.
           </p>
           <div class="chart-grid">
             <neat-chart-card
@@ -259,6 +261,35 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
                 [times]="times"
                 [domain]="[0, 16]"
                 [format]="watts"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Series swatch</h2>
+          <p class="showcase-muted">
+            <code>neat-series-swatch</code> is a series' colour beside a label outside the chart: a
+            run's chip, a summary row, a heading over a chart of one metric. Its
+            <code>index</code> is the series' place in the chart's <code>series</code>, from 0, and
+            it takes the colour the chart draws that series in, through the same rule, so the chips
+            below match the lines in both themes. The charts draw their own legends' and readouts'
+            swatches with it. It is hidden from assistive technology: the label names the series.
+          </p>
+          <div class="chart-grid">
+            <div class="chart-card swatch-demo">
+              <ul class="run-chips" aria-label="Compared runs">
+                @for (entry of clusters; track entry.key) {
+                  <li><neat-series-swatch [index]="$index" />{{ entry.label }}</li>
+                }
+              </ul>
+              <neat-time-chart
+                label="Cluster load by run"
+                headless
+                [series]="clusters"
+                [times]="times"
+                [domain]="[0, 100]"
+                [format]="percent"
               />
             </div>
           </div>

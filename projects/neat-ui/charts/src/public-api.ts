@@ -6,6 +6,7 @@
  */
 export { NeatChartCard } from './lib/chart-card';
 export { NeatHeatmap, type NeatHeatmapRow } from './lib/heatmap';
+export { NeatSeriesSwatch } from './lib/series-swatch';
 export { NeatSparkline } from './lib/sparkline';
 export { NeatStackedChart } from './lib/stacked-chart';
 export { NeatTimeChart } from './lib/time-chart';

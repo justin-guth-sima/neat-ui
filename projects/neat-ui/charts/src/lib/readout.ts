@@ -48,12 +48,16 @@ export function fractionAcross(event: MouseEvent, element: HTMLElement): number 
   return box.width ? Math.min(1, Math.max(0, (event.clientX - box.left) / box.width)) : null;
 }
 
-/** One line of a time-based readout. A row with a colour is a series, and shows its swatch. */
+/** One line of a time-based readout. */
 export interface ReadoutRow {
   readonly key: string;
   readonly label: string;
   readonly value: string;
-  readonly color: string | null;
+  /**
+   * The index of the series whose swatch the row shows, or null for a row without one: a total,
+   * or a chart's only line, which its tone colours and no swatch is needed to tell apart.
+   */
+  readonly series: number | null;
 }
 
 /** What a chart with a crosshair shows at the sample the cursor is on. */

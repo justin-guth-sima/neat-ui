@@ -18,6 +18,7 @@ import {
 } from './frame';
 import { foldSeries, linePaths, timeFractions, yAt } from './geometry';
 import { lineToken, seriesToken } from './line-token';
+import { NeatSeriesSwatch } from './series-swatch';
 import {
   describe,
   fractionAcross,
@@ -89,6 +90,7 @@ interface Level {
  */
 @Component({
   selector: 'neat-time-chart',
+  imports: [NeatSeriesSwatch],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[style.--plot-height]': 'plotHeight()',
@@ -106,7 +108,7 @@ interface Level {
       <ul class="legend">
         @for (item of legend(); track item.key) {
           <li>
-            <span class="swatch" [style.--series]="item.color"></span>
+            <neat-series-swatch [index]="item.index" />
             <span>{{ item.label }}</span>
             <strong>{{ item.value }}</strong>
           </li>
@@ -199,8 +201,8 @@ interface Level {
           }
           @for (row of readout.rows; track row.key) {
             <span class="row">
-              @if (drawn().length > 1) {
-                <span class="swatch" [style.--series]="row.color"></span>
+              @if (row.series !== null) {
+                <neat-series-swatch [index]="row.series" />
               }
               {{ row.label }} {{ row.value }}
             </span>
@@ -302,7 +304,7 @@ export class NeatTimeChart {
     return lines.map((entry, index) => ({
       key: entry.key,
       label: entry.label,
-      color: this.colors()[index],
+      index,
       value: describe(entry.values.at(-1), format),
     }));
   });
@@ -378,15 +380,16 @@ export class NeatTimeChart {
 
   private readoutFor(index: number): Readout {
     const format = this.format();
-    const colors = this.colors();
+    const lines = this.lines();
     return readoutAt(
       this.fractions()[index],
       whenText(this.times(), this.length(), index, this.axis()),
-      this.lines().map((entry, line) => ({
+      lines.map((entry, line) => ({
         key: entry.key,
         label: entry.label,
         value: describe(entry.values[index], format),
-        color: colors[line],
+        // A lone line is in its tone's colour, not the palette's, and needs no swatch.
+        series: lines.length > 1 ? line : null,
       })),
     );
   }

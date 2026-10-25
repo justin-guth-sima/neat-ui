@@ -24,6 +24,7 @@ export const SECONDARY_ENTRIES = {
     'neat-stacked-chart',
     'neat-heatmap',
     'neat-chart-card',
+    'neat-series-swatch',
   ],
   collapsible: ['neat-collapsible'],
   confirm: ['neat-confirm-dialog'],

@@ -18,7 +18,7 @@ import {
   TemplateRef,
   viewChild,
 } from '@angular/core';
-import { NeatIcon, type NeatTone } from '@sima/neat-ui';
+import { NeatIcon, type NeatTone, NeatTooltip } from '@sima/neat-ui';
 
 /*
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
@@ -146,10 +146,16 @@ const ROW_FILL_CLASSES: Record<NeatTone, string> = {
  * A row's box in checked mode, drawn by the kit: unchecked, its boundary is `--input`, the theme's
  * form-control boundary (3:1 on every surface, as on `neatInput`); checked, it fills with
  * `--primary`, and the tick is `--primary-foreground` on it. It is no control of its own (the row
- * says whether it is checked), so it takes neither the focus nor a name.
+ * says whether it is checked), so it takes neither the focus nor a name. A blocked box (see
+ * `checkBlocked`) is dimmed as a disabled button is, with a not-allowed cursor; each box takes
+ * exactly one of the two sets.
  */
-const CHECK_CLASSES =
-  'flex size-4 shrink-0 cursor-pointer items-center justify-center rounded-sm border border-input data-checked:border-primary data-checked:bg-primary';
+const CHECK_BASE =
+  'flex size-4 shrink-0 items-center justify-center rounded-sm border border-input data-checked:border-primary data-checked:bg-primary';
+const CHECK_CLASSES = {
+  open: `${CHECK_BASE} cursor-pointer`,
+  blocked: `${CHECK_BASE} cursor-not-allowed opacity-50`,
+} as const;
 /** The box's track in the row's grid: as wide as the box. */
 const CHECK_TRACK = '1rem';
 
@@ -300,6 +306,16 @@ let nextListId = 0;
  * are not tab stops. The multi-selectable listbox says what checking is, so a checked list needs
  * no `hint` of its own.
  *
+ * **Blocked checks** (`checkBlocked`) hold a row's box as it is while the app gives a reason (a
+ * cap: "At most 8 runs can be compared."). The box is drawn disabled, and neither Space nor a click
+ * on it checks or unchecks the row; everything else about the row stays, since only its box is
+ * blocked: the keys still land on it, a click and Enter still select and activate it. Its option
+ * keeps `aria-selected` (false while unchecked) and takes no `aria-disabled`, which would announce
+ * the whole row as unavailable; instead the reason describes it (`aria-describedby`, so a screen
+ * reader says it as the keys land on the row), and a tooltip on the box shows it on hover. A
+ * tooltip never opens on touch, so an app with a cap says it in its own text too. `canCheck` still
+ * means whether a row has a box at all.
+ *
  * **Row tones** (`rowTone`) tint a row with a soft fill of a status colour, the tone its status
  * chip has (`NeatTone`), so that a state reads along the whole row: the app gives both the same
  * tone. A `neutral` row is untinted. A toned row still shows hover and selection, with more of its
@@ -320,7 +336,7 @@ let nextListId = 0;
  */
 @Component({
   selector: 'neat-select-list',
-  imports: [NeatIcon, NgTemplateOutlet],
+  imports: [NeatIcon, NeatTooltip, NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: HOST_CLASSES,
@@ -412,20 +428,43 @@ let nextListId = 0;
               : null
             : row.key === selectedKey()
         "
+        [attr.aria-describedby]="blocked().has(row.key) ? row.id + '-blocked' : null"
       >
         @if (checkable()) {
           <div class="flex">
             @if (row.checkable) {
-              <span
-                data-slot="select-list-check"
-                aria-hidden="true"
-                [class]="checkClasses"
-                [attr.data-checked]="checkedKeys().has(row.key) ? '' : null"
-              >
-                @if (checkedKeys().has(row.key)) {
-                  <neat-icon name="check" [size]="12" class="text-primary-foreground" />
-                }
-              </span>
+              <!-- Two boxes rather than one with a disabled tooltip: a tooltip is a brain
+                   primitive, so only a blocked box carries one, never the open boxes of a
+                   thousand-file folder. -->
+              @if (blocked().get(row.key); as reason) {
+                <span
+                  data-slot="select-list-check"
+                  aria-hidden="true"
+                  data-blocked
+                  [class]="checkClasses.blocked"
+                  [attr.data-checked]="checkedKeys().has(row.key) ? '' : null"
+                  [neatTooltip]="reason"
+                >
+                  <ng-container
+                    [ngTemplateOutlet]="tick"
+                    [ngTemplateOutletContext]="{ $implicit: row }"
+                  />
+                </span>
+                <!-- Hidden: it describes the option without becoming part of the option's name. -->
+                <span hidden [id]="row.id + '-blocked'">{{ reason }}</span>
+              } @else {
+                <span
+                  data-slot="select-list-check"
+                  aria-hidden="true"
+                  [class]="checkClasses.open"
+                  [attr.data-checked]="checkedKeys().has(row.key) ? '' : null"
+                >
+                  <ng-container
+                    [ngTemplateOutlet]="tick"
+                    [ngTemplateOutletContext]="{ $implicit: row }"
+                  />
+                </span>
+              }
             }
           </div>
         }
@@ -438,6 +477,12 @@ let nextListId = 0;
           </div>
         }
       </div>
+    </ng-template>
+    <!-- A box's tick, while its row is checked; context { $implicit: Row<T, K> }. -->
+    <ng-template #tick let-row>
+      @if (checkedKeys().has(row.key)) {
+        <neat-icon name="check" [size]="12" class="text-primary-foreground" />
+      }
     </ng-template>
   `,
 })
@@ -455,6 +500,11 @@ export class NeatSelectList<T, K = unknown> {
   readonly checked = model<readonly K[]>([]);
   /** In checked mode, whether an item's row has a box; called once per item as `items` change. */
   readonly canCheck = input<(item: T) => boolean>(() => true);
+  /**
+   * In checked mode, why a row with a box cannot be ticked or unticked now (a cap that is
+   * reached), or null while it can; called for each row with a box as `items` or `checked` change.
+   */
+  readonly checkBlocked = input<(item: T) => string | null>(() => null);
   /** An item's row tone, `neutral` (untinted) by default; called once per item as `items` change. */
   readonly rowTone = input<(item: T) => NeatTone>(() => 'neutral');
   /** The groups to show the rows under, in order; `null` (the default) for no headings. */
@@ -617,6 +667,23 @@ export class NeatSelectList<T, K = unknown> {
 
   protected readonly checkedKeys = computed(() => new Set<unknown>(this.checked()));
 
+  /**
+   * The reasons the rows with a box cannot be checked now, by key. A block such as a cap depends on
+   * the checks, so this reads `checked` and asks again whenever they change, even when the app's
+   * function reads them from somewhere the list cannot see; never as the selection moves.
+   */
+  protected readonly blocked = computed(() => {
+    const reasons = new Map<unknown, string>();
+    if (!this.checkable()) return reasons;
+    const reasonOf = this.checkBlocked();
+    this.checked();
+    for (const row of this.rows()) {
+      const reason = row.checkable ? reasonOf(row.item) : null;
+      if (reason) reasons.set(row.key, reason);
+    }
+    return reasons;
+  });
+
   protected readonly isEmpty = computed(() => this.rows().length === 0 && !!this.emptyLabel());
   protected readonly describedBy = computed(
     () =>
@@ -750,9 +817,9 @@ export class NeatSelectList<T, K = unknown> {
     this.activated.emit(row.item);
   }
 
-  /** Checks or unchecks a row that has a box; does nothing for one that has none. */
+  /** Checks or unchecks a row that has a box; does nothing for one that has none or is blocked. */
   private toggle(row: Row<T, K>): void {
-    if (!row.checkable) return;
+    if (!row.checkable || this.blocked().has(row.key)) return;
     this.checked.update((keys) =>
       keys.includes(row.key) ? keys.filter((key) => key !== row.key) : [...keys, row.key],
     );

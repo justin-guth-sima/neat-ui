@@ -22,7 +22,8 @@ look happens in one place. Every rule here protects that.
     `projects/neat-ui/src/public-api.ts`.
   - one secondary entry point per other component, `@sima/neat-ui/<name>`: `switch`, `slider`,
     `segmented`, `tabs`, `popover`, `confirm`, `input`, `number-field`, `line-list`, `select`
-    (`NeatSelect`, a labelled listbox combobox), `progress` (`NeatProgress`, a bar or, with a
+    (`NeatSelect`, a labelled listbox combobox, its shown label above it or, with
+    `labelPosition="inline"`, before it on its row), `progress` (`NeatProgress`, a bar or, with a
     `heading`, a titled readout, which the progress toast renders through), `drop-zone`
     (`NeatDropZone`, files by drop or by the system's chooser), `dialog` (`NeatDialog`, the general
     modal dialog, with `neat-dialog-body` and `neat-dialog-actions`) and
@@ -46,7 +47,8 @@ look happens in one place. Every rule here protects that.
     `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments) and `charts` (live
     metric charts, drawn as SVG but for the heatmap: `NeatSparkline`, `NeatTimeChart`,
-    `NeatStackedChart` and `NeatHeatmap`, and `NeatChartCard`, the card they sit on; the only code that
+    `NeatStackedChart` and `NeatHeatmap`, `NeatChartCard`, the card they sit on, and
+    `NeatSeriesSwatch`, a series' colour beside a label outside the chart; the only code that
     imports d3),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
@@ -109,7 +111,10 @@ the chart. Colours are named in `line-token.ts`, the one place a tone or a serie
 token (the reference line's `--muted-foreground`, `REFERENCE_TOKEN` in `time-chart.ts`, and the
 heatmap's `color-mix` in `fillOf` aside), and reach the CSS as a custom property the stroke or
 fill reads (`--series`, `--level`, `--tone`, `--cell`, `--sparkline-stroke`), so a variant (a
-tone) is stated once. The paths come from `charts/src/lib/geometry.ts` (d3-shape's `line` and
+tone) is stated once. A series' swatch is `NeatSeriesSwatch` (its `index` from 0, through
+`seriesToken`), which the legends and readouts render and an app shows beside its own labels (a
+run's chip), so a label outside the chart matches its line by the same rule and its look is
+stated once. The paths come from `charts/src/lib/geometry.ts` (d3-shape's `line` and
 `area`, and d3-scale's linear scale for y, clamped): samples sit where their times put them, or
 evenly when a time is missing, and a missing sample (`null`) breaks the line instead of dropping
 to zero. A lone sample draws no line and no area; the time chart's newest-point dot, an HTML
@@ -257,7 +262,12 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   `aria-selected`, Space checks the row the keyboard is on, and the selected row becomes that row
   only (drawn by `data-active`, not by `aria-selected`). Its box is drawn from the theme's tokens,
   not brain's checkbox (a thousand-file folder would be a thousand brain components), and is
-  `aria-hidden` and no tab stop, since the row says whether it is checked. A column's `hideBelow`
+  `aria-hidden` and no tab stop, since the row says whether it is checked. `checkBlocked` gives
+  the reason a row's box cannot change now (a cap): the box is dimmed and Space and a click on it
+  do nothing, while the row still takes the keys, a click and Enter. Its option keeps
+  `aria-selected` and is not `aria-disabled`, which would announce the whole row as unavailable;
+  the reason describes it (`aria-describedby` to a `hidden` element in the row, so it is not part
+  of the row's name) and is the box's tooltip. A column's `hideBelow`
   is judged against the list's own width, which a ResizeObserver watches only while some column
   has one. The header line, the listbox and each row are lines of one grid (each spans every track
   on `grid-cols-subgrid`), so a content-sized column (`width="max-content"`) fits the widest of its
