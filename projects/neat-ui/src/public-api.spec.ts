@@ -73,6 +73,12 @@ describe('the public API', () => {
     );
   });
 
+  it('exports the viewport and the side panel state beside the page', () => {
+    expect(Object.keys(primary)).toEqual(
+      expect.arrayContaining(['NeatPage', 'NeatViewport', 'neatAsideOpen']),
+    );
+  });
+
   it('shares its internals with the entries only under a ɵ prefix', () => {
     const shared = Object.keys(primary).filter((symbol) => symbol.startsWith('ɵ'));
     expect(shared.sort()).toEqual([

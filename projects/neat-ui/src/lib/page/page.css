@@ -1,5 +1,7 @@
-/* The body and, while open, the aside side by side; the page itself never scrolls. */
+/* The body and, while open, the aside side by side; the page itself never scrolls. It is the
+   containing block of the floating aside, so the aside stays inside the page's scroll-free box. */
 :host {
+  position: relative;
   display: flex;
   height: 100%;
   overflow: hidden;
@@ -31,14 +33,31 @@
   padding: 0;
 }
 
-/* A fixed-width panel with its own scroll context and inset, divided from the body by the theme's
-   border colour. Narrower than a page, so a smaller inset than the page's. */
+/* A panel with its own scroll context and inset, divided from the body by the theme's border
+   colour. Narrower than a page, so a smaller inset than the page's. Its width and place come from
+   whether it sits beside the body or over it. */
 aside {
-  flex: none;
   box-sizing: border-box;
-  width: var(--neat-aside-width);
   height: 100%;
   padding: var(--neat-space-4);
   overflow: auto;
   border-inline-start: 1px solid var(--border);
+}
+
+/* Beside the body: a fixed-width column of the row. */
+:host([data-aside='beside']) aside {
+  flex: none;
+  width: var(--neat-aside-width);
+}
+
+/* On a narrow screen the aside floats over the body's right edge instead of squeezing it, as wide
+   as the panel but never wider than the page. Its own fill, since the body shows through it
+   otherwise; the shadow is the kit's raised-surface one, set on the element as its utility. */
+:host([data-aside='overlay']) aside {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  z-index: 1;
+  width: min(var(--neat-aside-width), 100%);
+  background: var(--background);
 }

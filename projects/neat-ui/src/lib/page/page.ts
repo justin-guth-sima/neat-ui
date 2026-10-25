@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { NeatViewport } from './viewport';
 
 /**
  * A page in the shell's content area. It fills its parent and owns at most one scroll context:
@@ -16,16 +17,24 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
  * the one supported second scroll context of a page. Closed, the panel and its content are out
  * of the DOM, but projected content is still instantiated (content projection always creates
  * it): gate expensive content with an `@if` of your own.
+ *
+ * On a narrow screen (`NeatViewport`) the panel floats over the right of the page instead,
+ * `--neat-aside-width` wide but never wider than the page, and the body keeps the whole width.
+ * There is no scrim and no Escape handling: the page owns the open state, and the toolbar's
+ * `neat-aside-toggle` closes it. A page that keeps its panel's state should use `neatAsideOpen`,
+ * which starts the panel closed on a narrow screen without overwriting the choice remembered
+ * for a wide one.
  */
 @Component({
   selector: 'neat-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[attr.data-aside]': "viewport.narrow() ? 'overlay' : 'beside'" },
   template: `
     <div class="body" [attr.data-scroll]="scroll()" [attr.data-padding]="padding()">
       <ng-content />
     </div>
     @if (aside() === 'open') {
-      <aside>
+      <aside class="in-data-[aside=overlay]:shadow-md">
         <ng-content select="[neatPageAside]" />
       </aside>
     }
@@ -33,6 +42,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   styleUrl: './page.css',
 })
 export class NeatPage {
+  protected readonly viewport = inject(NeatViewport);
+
   readonly scroll = input<'body' | 'none'>('body');
   readonly padding = input<'page' | 'none'>('page');
   readonly aside = input<'open' | 'closed'>('closed');

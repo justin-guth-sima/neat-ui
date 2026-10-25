@@ -14,7 +14,9 @@ look happens in one place. Every rule here protects that.
   its own public API file:
   - `@sima/neat-ui` (the primary): what the shell and every page need: theme, `NeatIcon`,
     `NeatShell`, `NeatPageToolbar`, `NeatPage` with its side panel's parts (`NeatAsideToggle`,
-    `NeatAsidePanel`, `NeatAsideTitle`, `NeatAsideHeading`, `NeatAsideActions`), `NeatCode`,
+    `NeatAsidePanel`, `NeatAsideTitle`, `NeatAsideHeading`, `NeatAsideActions`), `neatAsideOpen`
+    (a page's panel state, closed on a narrow screen) and `NeatViewport` (the kit's one answer to
+    "is this screen narrow", below 48rem), `NeatCode`,
     `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatTooltip`, `NeatNote` and `neatSecondsAgo`
     (the kit's one relative-time style, "just now", "12 s ago", "3 min ago"). Public API is
     `projects/neat-ui/src/public-api.ts`.
@@ -423,6 +425,18 @@ builds its own bar or panel duplicates both and breaks in one of them.
   narrowing beside it and keeping its own `scroll` setting. Closed, the panel is removed from the
   DOM, but projected content is still instantiated: gate expensive content (an inspector with a
   live preview) with an `@if` of your own.
+  On a narrow screen (`NeatViewport.narrow`, below 48rem, stated once there) the panel floats
+  over the right of the page instead, at most the page's width, and the body keeps the whole
+  width; `neat-page` says which with a `data-aside="beside" | "overlay"` attribute on its host,
+  and its CSS reacts to that, never to a second `@media` with the breakpoint. No scrim, no Escape:
+  the toolbar's toggle closes it. Why: a phone has no room for a column beside the body.
+  `neatAsideOpen(remembered, remember)` (in an injection context) is the state a page that
+  remembers its panel should bind: wide, it is the remembered choice; narrow, a transient flag
+  that starts closed and is reset each time the screen becomes narrow, so a phone's opening and
+  closing never overwrites the choice made on a wide screen. A page that opens its panel by
+  itself (a row selected) calls `set(true)`, which floats it over the body on a phone.
+  Tests that need a screen width provide `{ provide: NeatViewport, useValue: { narrow: signal(true) } }`;
+  nothing but `NeatViewport` calls `matchMedia` for the breakpoint.
 - The panel opens and closes with `<neat-aside-toggle [(open)]="asideOpen" />` in the page's
   toolbar, the one look for that button on every page ("Side panel" unless `label` says
   otherwise); the page owns `open` and remembers it where it likes. Inside the panel,

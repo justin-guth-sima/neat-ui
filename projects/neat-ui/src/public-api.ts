@@ -30,6 +30,9 @@ export type { NeatNavItem } from './lib/shell/nav-item';
 export { NeatShell } from './lib/shell/shell';
 export { NeatPageToolbar } from './lib/shell/page-toolbar';
 export { NeatPage } from './lib/page/page';
+export type { NeatAsideOpen } from './lib/page/aside-open';
+export { neatAsideOpen } from './lib/page/aside-open';
+export { NeatViewport } from './lib/page/viewport';
 export {
   NeatAsideActions,
   NeatAsideHeading,
