@@ -9,7 +9,11 @@
     }
   </div>
 } @else {
-  <div class="rail" [attr.data-expanded]="railExpanded()">
+  <div
+    class="rail data-[floating=true]:shadow-md"
+    [attr.data-expanded]="railExpanded()"
+    [attr.data-floating]="viewport.narrow() && railExpanded()"
+  >
     <nav aria-label="Main">
       <ul class="rail-list">
         @for (item of navItems(); track item.path) {
@@ -49,10 +53,12 @@
   <header class="topbar" [attr.data-toolbar]="pageToolbar() ? 'true' : 'false'">
     <div class="brand">
       <neat-logo />
-      <span class="app-name">{{ appName() }}</span>
+      <span class="app-name" [class.visually-hidden]="viewport.narrow()">{{ appName() }}</span>
     </div>
-    @if (pageTitle(); as title) {
-      <h1 class="page-title">{{ title }}</h1>
+    @if (!viewport.narrow()) {
+      @if (pageTitle(); as title) {
+        <h1 class="page-title">{{ title }}</h1>
+      }
     }
     @if (pageToolbar(); as toolbar) {
       <div class="page-toolbar" role="group" [attr.aria-label]="toolbarLabel">

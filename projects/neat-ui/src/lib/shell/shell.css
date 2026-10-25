@@ -20,8 +20,23 @@
   grid-template-areas:
     'rail topbar'
     'rail content';
-  grid-template-columns: auto minmax(0, 1fr);
   grid-template-rows: var(--neat-topbar-height) minmax(0, 1fr);
+}
+
+/* The rail's column is as wide as the rail, expanded or not. */
+:host([data-kiosk='false'][data-narrow='false']) {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+/*
+ * On a narrow screen the column stays the collapsed rail's width, so the content does not move
+ * when the rail expands: the expanded rail floats over it instead (see `.rail`). The host is the
+ * containing block of that floating rail and of the app name hidden in the top bar, which would
+ * otherwise reach the viewport's.
+ */
+:host([data-kiosk='false'][data-narrow='true']) {
+  position: relative;
+  grid-template-columns: var(--neat-rail-width) minmax(0, 1fr);
 }
 
 /* Kiosk mode: no rail or top bar, the content area is the whole viewport. */
@@ -44,6 +59,11 @@
   /* A divider drawn inside the padding, not a border, so items keep the full 2.5rem width. */
   background: var(--sidebar);
   color: var(--sidebar-foreground);
+}
+
+/* The divider, where the rail does not float. A floating rail has the kit's raised-surface shadow
+   instead (`shadow-md` in the template), and one box-shadow cannot be both. */
+.rail[data-floating='false'] {
   box-shadow: inset -1px 0 0 var(--sidebar-border);
 }
 
@@ -53,6 +73,15 @@
 
 .rail[data-expanded='true'] {
   width: var(--neat-rail-width-expanded);
+}
+
+/* Expanded on a narrow screen: out of the grid, over the content, which a phone has no room to
+   give up. It keeps the rail's own fill, since the content would show through otherwise. */
+.rail[data-floating='true'] {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: 1;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -144,10 +173,19 @@ nav {
   grid-area: topbar;
   display: flex;
   align-items: center;
-  gap: 1rem;
   min-width: 0;
-  padding-inline: 1rem 0.5rem;
   border-block-end: 1px solid var(--border);
+}
+
+:host([data-narrow='false']) .topbar {
+  gap: 1rem;
+  padding-inline: 1rem 0.5rem;
+}
+
+/* A phone has no room for the wide bar's spacing: its icons would overlap the app's end content. */
+:host([data-narrow='true']) .topbar {
+  gap: var(--neat-space-2);
+  padding-inline: var(--neat-space-2);
 }
 
 .brand {

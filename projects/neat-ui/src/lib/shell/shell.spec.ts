@@ -4,9 +4,11 @@ import { provideRouter, RouterOutlet, Routes } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { KIOSK_POINTER_IDLE_MS, KioskService } from '../kiosk/kiosk.service';
 import { ThemeService } from '../theme/theme.service';
+import { NeatViewport } from '../page/viewport';
 import { NeatNavItem } from './nav-item';
 import { NeatPageToolbar } from './page-toolbar';
 import { NeatShell } from './shell';
+import shellStyles from './shell.css' with { loader: 'text' };
 
 const RAIL_KEY = 'neat-ui:rail-expanded';
 
@@ -710,5 +712,95 @@ describe('NeatShell', () => {
 
     expect(exitControl()).not.toBeNull();
     expect(kioskToolbar()).toBeNull();
+  });
+
+  // The viewport a wide screen has is the real `NeatViewport`, which stays wide where jsdom has no
+  // `matchMedia`; the narrow screen's is stubbed below.
+  const railBox = (): HTMLElement => shell().querySelector('.rail') as HTMLElement;
+  const appName = (): HTMLElement => shell().querySelector('.app-name') as HTMLElement;
+  const pageTitle = (): HTMLElement | null => shell().querySelector('h1.page-title');
+
+  it('on a wide screen: says so on the host and shows the app name and the page title', async () => {
+    await start();
+
+    expect(shell().dataset['narrow']).toBe('false');
+    expect(appName().classList).not.toContain('visually-hidden');
+    expect(pageTitle()?.textContent?.trim()).toBe('Media');
+  });
+
+  it('on a wide screen: lays the expanded rail beside the content', async () => {
+    await start();
+    railToggle().click();
+    await settle();
+
+    expect(railBox().dataset['floating']).toBe('false');
+    expect(getComputedStyle(railBox()).position).not.toBe('absolute');
+    expect(getComputedStyle(shell()).gridTemplateColumns).toMatch(/^auto/);
+  });
+
+  describe('on a narrow screen', () => {
+    /** The declarations of the stylesheet's rule for `selector`, written as in the stylesheet. */
+    const rule = (selector: string): string | undefined =>
+      new RegExp(`${selector.replace(/[()[\]'.]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(
+        shellStyles,
+      )?.[1];
+
+    beforeEach(() => {
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow: signal(true) } });
+    });
+
+    it('says so on the host', async () => {
+      await start();
+      expect(shell().dataset['narrow']).toBe('true');
+    });
+
+    it('keeps the app name visually hidden and still in the accessible tree', async () => {
+      await start();
+      expect(appName().textContent).toBe('Neat Insight');
+      expect(appName().classList).toContain('visually-hidden');
+    });
+
+    it('renders no page title heading', async () => {
+      await start();
+      expect(pageTitle()).toBeNull();
+    });
+
+    it('floats the expanded rail over the content', async () => {
+      await start();
+      // jsdom lays nothing out and resolves no var() in a grid template, so the geometry is read
+      // from the cascade: the rail column is the collapsed rail's width whether or not the rail is
+      // open (the content's left edge stays), and an open rail is absolutely positioned over it.
+      expect(rule(":host([data-kiosk='false'][data-narrow='true'])")).toMatch(
+        /grid-template-columns:\s*var\(--neat-rail-width\)\s+minmax\(0,\s*1fr\);/,
+      );
+      expect(getComputedStyle(shell()).gridTemplateColumns).toMatch(/^var\(--neat-rail-width\)/);
+      expect(getComputedStyle(shell()).position).toBe('relative');
+      expect(getComputedStyle(railBox()).position).not.toBe('absolute');
+
+      railToggle().click();
+      await settle();
+
+      expect(railBox().dataset['expanded']).toBe('true');
+      expect(getComputedStyle(shell()).gridTemplateColumns).toMatch(/^var\(--neat-rail-width\)/);
+      expect(getComputedStyle(railBox()).position).toBe('absolute');
+      expect(rule(".rail[data-floating='true']")).toMatch(/inset-block:\s*0;/);
+      expect(rule(".rail[data-floating='true']")).toMatch(/inset-inline-start:\s*0;/);
+      expect(rule(".rail[data-floating='true']")).toMatch(/z-index:\s*1;/);
+      // Wider than the column it floats over.
+      expect(rule(".rail[data-expanded='true']")).toMatch(
+        /width:\s*var\(--neat-rail-width-expanded\);/,
+      );
+      // Its fill is the rail's own (the sidebar), and the shadow is the kit's raised-surface one,
+      // as its utility.
+      expect(rule('.rail')).toMatch(/background:\s*var\(--sidebar\);/);
+      expect(railBox().className).toContain('shadow-md');
+    });
+
+    it('shrinks the top bar’s inset and gap to the smallest space', async () => {
+      await start();
+      const declarations = rule(":host([data-narrow='true']) .topbar");
+      expect(declarations).toMatch(/gap:\s*var\(--neat-space-2\);/);
+      expect(declarations).toMatch(/padding-inline:\s*var\(--neat-space-2\);/);
+    });
   });
 });

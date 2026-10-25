@@ -23,6 +23,7 @@ import { NeatButton } from '../button/button';
 import { NeatIcon } from '../icon/icon';
 import { NeatKioskExit } from '../kiosk/kiosk-exit';
 import { KioskService } from '../kiosk/kiosk.service';
+import { NeatViewport } from '../page/viewport';
 import { safeStorage } from '../storage';
 import { ThemeService } from '../theme/theme.service';
 import { NeatTooltip } from '../tooltip/tooltip';
@@ -61,6 +62,11 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
  * top bar, gives the content area the whole viewport and floats an exit control over its top
  * right corner while the pointer moves; the page toolbar floats beside it on the same terms. Its
  * view is re-created on entering and leaving kiosk mode, so the page keeps the toolbar's state.
+ *
+ * On a narrow screen (`NeatViewport`, below 48rem) the top bar drops what a phone has no room for
+ * (the app name stays only as the logo's accessible name, and the page title goes) and tightens
+ * its spacing, and an expanded rail floats over the content instead of squeezing it. The host's
+ * `data-narrow` says which, and the CSS reacts to that, never to a second `@media`.
  */
 @Component({
   selector: 'neat-shell',
@@ -75,7 +81,10 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
     RouterLinkActive,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[attr.data-kiosk]': 'kiosk.active()' },
+  host: {
+    '[attr.data-kiosk]': 'kiosk.active()',
+    '[attr.data-narrow]': 'viewport.narrow()',
+  },
   templateUrl: './shell.html',
   styleUrl: './shell.css',
 })
@@ -85,6 +94,7 @@ export class NeatShell {
 
   protected readonly theme = inject(ThemeService);
   protected readonly kiosk = inject(KioskService);
+  protected readonly viewport = inject(NeatViewport);
   protected readonly pageToolbar = inject(PageToolbarSlot).portal;
   protected readonly toolbarLabel = PAGE_TOOLBAR_LABEL;
   private readonly router = inject(Router);
