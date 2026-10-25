@@ -1,13 +1,4 @@
-import {
-  LucideCamera,
-  LucideCircuitBoard,
-  LucideMic,
-  LucidePause,
-  LucidePlay,
-  LucideRadar,
-  LucideRefreshCw,
-  LucideSquareTerminal,
-} from '@lucide/angular';
+import { Camera, Pause, Play } from 'lucide';
 import { NEAT_ICON_NAMES, NEAT_ICONS } from './icon-registry';
 
 describe('NEAT_ICON_NAMES', () => {
@@ -18,18 +9,17 @@ describe('NEAT_ICON_NAMES', () => {
 });
 
 describe('NEAT_ICONS', () => {
-  it('the registry has camera, microphone, lidar, device, refresh and terminal', () => {
-    expect(NEAT_ICONS).toMatchObject({
-      camera: LucideCamera,
-      microphone: LucideMic,
-      lidar: LucideRadar,
-      device: LucideCircuitBoard,
-      refresh: LucideRefreshCw,
-      terminal: LucideSquareTerminal,
-    });
+  it('each entry is the plain drawing named after its key', () => {
+    expect(NEAT_ICONS.camera).toEqual({ name: 'camera', node: Camera });
+    expect(NEAT_ICONS.pause).toEqual({ name: 'pause', node: Pause });
+    expect(NEAT_ICONS.play).toEqual({ name: 'play', node: Play });
   });
 
-  it('the registry has pause and play', () => {
-    expect(NEAT_ICONS).toMatchObject({ pause: LucidePause, play: LucidePlay });
+  it('every entry is named after its key', () => {
+    for (const name of NEAT_ICON_NAMES) expect(NEAT_ICONS[name].name).toBe(name);
+  });
+
+  it('no entry is a component class', () => {
+    for (const name of NEAT_ICON_NAMES) expect(typeof NEAT_ICONS[name]).toBe('object');
   });
 });

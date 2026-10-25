@@ -5,9 +5,9 @@ import { adoptSource, glyphsFromRegistry, importedPackages } from './adopt-helm.
 
 const REGISTRY = `
 export const NEAT_ICONS = {
-  info: LucideInfo,
-  'kiosk-exit': LucideMinimize,
-} satisfies Record<string, LucideIcon>;
+  info: drawing('info', Info),
+  'kiosk-exit': drawing('kiosk-exit', Minimize),
+} satisfies Record<string, LucideIconData>;
 `;
 const glyphs = glyphsFromRegistry(REGISTRY);
 
@@ -87,12 +87,12 @@ test('reads every glyph of the real icon registry', () => {
   );
   const real = glyphsFromRegistry(registry);
   // Every Lucide glyph the registry imports is drawn by exactly one name.
-  const [, imported] = /import \{([^}]*)\} from '@lucide\/angular'/.exec(registry);
+  const [, imported] = /import \{([^}]*)\} from 'lucide'/.exec(registry);
   const expected = imported
     .split(',')
     .map((name) => name.trim())
-    .filter((name) => name && name !== 'LucideIcon')
-    .map((name) => `lucide${name.slice('Lucide'.length)}`);
+    .filter((name) => name)
+    .map((name) => `lucide${name}`);
   assert.deepEqual([...real.keys()].sort(), expected.sort());
   assert.ok([...real.values()].every((name) => typeof name === 'string'));
   assert.equal(real.get('lucideInfo'), 'info');
@@ -100,7 +100,7 @@ test('reads every glyph of the real icon registry', () => {
 });
 
 test('fails on an ng-icon glyph several neat-icon names draw', () => {
-  const ambiguous = glyphsFromRegistry(`${REGISTRY}\n  help: LucideInfo,\n`);
+  const ambiguous = glyphsFromRegistry(`${REGISTRY}\n  help: drawing('help', Info),\n`);
   assert.equal(ambiguous.get('lucideInfo'), null);
   assert.throws(
     () => adoptSource(THING_FILE, ICON_COMPONENT, ambiguous),

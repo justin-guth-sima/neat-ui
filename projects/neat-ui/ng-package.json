@@ -9,6 +9,7 @@
     "clsx",
     "d3-scale",
     "d3-shape",
+    "lucide",
     "tailwind-merge"
   ],
   "lib": {

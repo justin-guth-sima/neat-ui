@@ -25,11 +25,14 @@ const RESIDUE = /@neat-ui\/helm|@ng-icons|\bNgIcon\b|provideIcons|\bng-icon\b|\b
 
 /**
  * Maps `@ng-icons/lucide` glyph names (`lucideInfo`) to the NEAT_ICONS names whose Lucide glyph
- * matches (`info: LucideInfo`). A glyph two names share maps to `null`: adopting it is ambiguous.
+ * matches (`info: drawing('info', Info)`). A glyph two names share maps to `null`: adopting it is
+ * ambiguous.
  */
 export function glyphsFromRegistry(registrySource) {
   const glyphs = new Map();
-  const entries = registrySource.matchAll(/^\s*(?:'([^']+)'|(\w+)):\s*Lucide(\w+),\s*$/gm);
+  const entries = registrySource.matchAll(
+    /^\s*(?:'([^']+)'|(\w+)):\s*drawing\('[^']+',\s*(\w+)\),\s*$/gm,
+  );
   for (const [, quotedName, bareName, glyph] of entries) {
     const key = `lucide${glyph}`;
     glyphs.set(key, glyphs.has(key) ? null : (quotedName ?? bareName));

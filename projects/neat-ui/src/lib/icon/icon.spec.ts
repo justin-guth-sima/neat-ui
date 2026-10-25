@@ -71,6 +71,14 @@ describe('NeatIcon', () => {
     }
   });
 
+  it('draws every registered icon', async () => {
+    for (const name of NEAT_ICON_NAMES) {
+      fixture.componentRef.setInput('name', name);
+      await fixture.whenStable();
+      expect(svg().children.length, name).toBeGreaterThan(0);
+    }
+  });
+
   it('rejects names outside the registry at compile time', () => {
     // @ts-expect-error 'no-such-icon' is not a NeatIconName
     const unknown: NeatIconName = 'no-such-icon';
