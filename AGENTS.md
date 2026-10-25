@@ -37,8 +37,9 @@ look happens in one place. Every rule here protects that.
     a term wider than a fixed column breaks inside the word),
     `table` (`NeatTable`, the data table's look on a `table`: cells, rules, column headings; and
     `NeatNumeric`, which end-aligns a column's figures on one line with tabular digits, and
-    `NeatFigure`, the same without the end alignment, for a cell with something after its figure; a table that gives up
-    columns when its container is narrow says so itself, since the kit does not know the container),
+    `NeatFigure`, the same without the end alignment, for a cell with something after its figure; a
+    table that gives up columns when its container is narrow says so itself, since the kit does not
+    know the container),
     `field` (`NeatField`, a control under its visible name with
     a hint and an error, and `NeatErrorNote`, a failure said in place), `collapsible`
     (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed),
