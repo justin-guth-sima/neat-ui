@@ -62,7 +62,7 @@
   transform: translateX(calc(-100% - var(--neat-space-2)));
 }
 
-.ago {
+.when {
   color: var(--muted-foreground);
 }
 

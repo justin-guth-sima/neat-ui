@@ -11,13 +11,13 @@ import { chartName, FLIP_BELOW, gridMarks, PLOT_REM, roomyGridMarks, timeAxis } 
 import { foldSeries, isNumber, stackedPaths, timeFractions } from './geometry';
 import { seriesToken } from './line-token';
 import {
-  agoText,
   describe,
   fractionAcross,
   MISSING,
   type Readout,
   readoutAt,
   sampleCursor,
+  whenText,
 } from './readout';
 import type { NeatChartFormat, NeatSeries } from './types';
 
@@ -117,8 +117,8 @@ import type { NeatChartFormat, NeatSeries } from './types';
           [attr.data-flip]="readout.at > 0.5 ? '' : null"
           [style.--at]="readout.at"
         >
-          @if (readout.ago) {
-            <span class="ago">{{ readout.ago }}</span>
+          @if (readout.when) {
+            <span class="when">{{ readout.when }}</span>
           }
           @for (row of readout.rows; track $index) {
             <span class="row">
@@ -234,7 +234,7 @@ export class NeatStackedChart {
 
   private readoutFor(index: number): Readout {
     const format = this.format();
-    return readoutAt(this.fractions()[index], agoText(this.times(), this.length(), index), [
+    return readoutAt(this.fractions()[index], whenText(this.times(), this.length(), index), [
       { key: 'total', label: 'Total', value: describe(this.totalAt(index), format), color: null },
       ...this.lines().map((entry, line) => ({
         key: entry.key,

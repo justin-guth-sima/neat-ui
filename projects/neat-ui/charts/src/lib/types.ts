@@ -1,3 +1,9 @@
+/**
+ * What a time chart's x axis counts: `recent` back from the newest sample ("−8 min … now"), for a
+ * live window, or `elapsed` forward from the first ("0 s … 33.9 s"), for a run read from its start.
+ */
+export type NeatChartAxis = 'recent' | 'elapsed';
+
 /** How a chart draws its line: the default colour, or a threshold's. */
 export type NeatChartTone = 'default' | 'warning' | 'danger';
 

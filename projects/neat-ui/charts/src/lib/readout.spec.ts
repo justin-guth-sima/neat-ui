@@ -1,5 +1,5 @@
 import {
-  agoText,
+  whenText,
   describe as describeValue,
   fractionAcross,
   ReadoutCursor,
@@ -119,11 +119,21 @@ describe('ReadoutCursor', () => {
 describe('the readout words', () => {
   it('dates a sample by how long before the newest it was taken', () => {
     const times = [0, 60_000, 120_000];
-    expect(agoText(times, 3, 0)).toBe('2 min ago');
-    expect(agoText(times, 3, 2)).toBe('just now');
-    expect(agoText([0, null, 120_000], 3, 1), 'a sample without a time').toBeNull();
-    expect(agoText([0, 60_000], 3, 0), 'times that stop short').toBeNull();
-    expect(agoText([120_000, 0], 2, 0), 'a sample after the newest').toBeNull();
+    expect(whenText(times, 3, 0)).toBe('2 min ago');
+    expect(whenText(times, 3, 2)).toBe('just now');
+    expect(whenText([0, null, 120_000], 3, 1), 'a sample without a time').toBeNull();
+    expect(whenText([0, 60_000], 3, 0), 'times that stop short').toBeNull();
+    expect(whenText([120_000, 0], 2, 0), 'a sample after the newest').toBeNull();
+  });
+
+  it('dates a sample by its offset from the first on the elapsed axis', () => {
+    const times = [5_000, 22_000, 38_900];
+    expect(whenText(times, 3, 0, 'elapsed')).toBe('at 0 s');
+    expect(whenText(times, 3, 1, 'elapsed')).toBe('at 17 s');
+    expect(whenText(times, 3, 2, 'elapsed')).toBe('at 33.9 s');
+    expect(whenText([0, null, 120_000], 3, 1, 'elapsed'), 'a sample without a time').toBeNull();
+    expect(whenText([null, 1000], 2, 1, 'elapsed'), 'no first time').toBeNull();
+    expect(whenText([5000, 0], 2, 1, 'elapsed'), 'a sample before the first').toBeNull();
   });
 
   it('says a missing sample as a dash', () => {

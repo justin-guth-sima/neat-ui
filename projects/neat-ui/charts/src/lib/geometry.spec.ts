@@ -1,6 +1,7 @@
 import {
   axisLabel,
   axisTimeLabel,
+  elapsedText,
   foldSeries,
   gridTicks,
   indexAt,
@@ -188,6 +189,22 @@ describe('axes', () => {
     ]);
   });
 
+  it('elapsedText reads seconds to a decimal under a minute and whole minutes from one', () => {
+    expect([0, 17, 33.9, 33.94, 59.94, 59.96, 60, 89, 90, 120, 479.6].map(elapsedText)).toEqual([
+      '0 s',
+      '17 s',
+      '33.9 s',
+      '33.9 s',
+      '59.9 s',
+      '1 min',
+      '1 min',
+      '1 min',
+      '2 min',
+      '2 min',
+      '8 min',
+    ]);
+  });
+
   it('timeSpan is the seconds from the oldest sample to the newest, or null without usable times', () => {
     expect(timeSpan(seconds(0, 240, 480), 3)).toBe(480);
     expect(timeSpan([0, null, 2000], 3)).toBeNull();
@@ -198,6 +215,9 @@ describe('axes', () => {
   it('windowText says the span of the times, or how many samples without them', () => {
     expect(windowText(seconds(0, 240, 480), 3)).toBe('8 min');
     expect(windowText(seconds(0, 45), 2)).toBe('45 s');
+    expect(windowText(seconds(0, 17, 33.9), 3, 'elapsed')).toBe('33.9 s');
+    expect(windowText(seconds(0, 240, 480), 3, 'elapsed')).toBe('8 min');
+    expect(windowText([0, null, 2000], 3, 'elapsed')).toBe('3 samples');
     expect(windowText([0, null, 2000], 3)).toBe('3 samples');
     expect(windowText([], 1)).toBe('1 sample');
   });

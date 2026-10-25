@@ -150,7 +150,9 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
             use the arrow keys, Home, End and Escape, for the readout. One series takes its tone's
             line token; several take <code>--neat-series-1</code> to <code>-8</code> with a legend,
             and beyond eight the rest fold into Other. A missing sample breaks the line, and a lone
-            sample is only its dot.
+            sample is only its dot. The x axis counts back from the newest sample
+            (<code>recent</code>, the default) or, with <code>axis="elapsed"</code>, forward from
+            the first, as "0 s … 8 min" does for a run read from its start.
           </p>
           <div class="chart-grid">
             <div class="chart-card">
@@ -181,6 +183,16 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
               <neat-time-chart
                 label="Cluster load"
                 [series]="clusters"
+                [times]="times"
+                [domain]="[0, 100]"
+                [format]="percent"
+              />
+            </div>
+            <div class="chart-card">
+              <neat-time-chart
+                label="CPU usage, run"
+                axis="elapsed"
+                [series]="cpu"
                 [times]="times"
                 [domain]="[0, 100]"
                 [format]="percent"

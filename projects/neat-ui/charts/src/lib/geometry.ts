@@ -1,6 +1,6 @@
 import { scaleLinear } from 'd3-scale';
 import { area, line } from 'd3-shape';
-import type { NeatSeries } from './types';
+import type { NeatChartAxis, NeatSeries } from './types';
 
 /*
  * The geometry every chart in the entry shares. A chart's SVG has `viewBox="0 0 600 100"` and
@@ -178,6 +178,16 @@ function duration(seconds: number): string {
 }
 
 /**
+ * A span as the elapsed axis words it: seconds to one decimal under a minute ("33.9 s", "17 s"),
+ * whole minutes from one ("2 min"). Rounding to the decimal first keeps 59.97 from reading
+ * "60 s".
+ */
+export function elapsedText(seconds: number): string {
+  const tenths = Math.round(seconds * 10) / 10;
+  return tenths < 60 ? `${tenths} s` : `${Math.round(seconds / 60)} min`;
+}
+
+/**
  * The time axis's label for a point `secondsBefore` the newest: "now", "−45 s" under a minute,
  * and whole minutes from one ("−2 min"): an axis label is read at a glance, not to the second.
  */
@@ -197,12 +207,16 @@ export function timeSpan(times: readonly (number | null)[], length: number): num
 }
 
 /**
- * How much the chart shows: the span of the sample times ("8 min", "45 s"), or, when the times
- * cannot place the samples, how many there are.
+ * How much the chart shows: the span of the sample times ("8 min", "45 s", or "33.9 s" on the
+ * elapsed axis), or, when the times cannot place the samples, how many there are.
  */
-export function windowText(times: readonly (number | null)[], length: number): string {
+export function windowText(
+  times: readonly (number | null)[],
+  length: number,
+  axis: NeatChartAxis = 'recent',
+): string {
   const span = timeSpan(times, length);
-  if (span !== null) return duration(span);
+  if (span !== null) return axis === 'elapsed' ? elapsedText(span) : duration(span);
   return `${length} ${length === 1 ? 'sample' : 'samples'}`;
 }
 

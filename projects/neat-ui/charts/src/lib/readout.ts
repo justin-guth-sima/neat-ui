@@ -1,7 +1,7 @@
 import { computed, signal } from '@angular/core';
 import { neatSecondsAgo } from '@sima/neat-ui';
-import { indexAt, isNumber } from './geometry';
-import type { NeatChartFormat } from './types';
+import { elapsedText, indexAt, isNumber } from './geometry';
+import type { NeatChartAxis, NeatChartFormat } from './types';
 
 /*
  * What the charts that read out a sample share: the cursor that the pointer and the keys move,
@@ -18,16 +18,25 @@ export function describe(value: number | null | undefined, format: NeatChartForm
 }
 
 /**
- * How long before the newest sample (the last of `length`) the sample at `index` was taken, as
- * the kit words it, or null when the times do not say.
+ * When the sample at `index` was taken, or null when the times do not say: how long before the
+ * newest sample (the last of `length`), as the kit words it ("2 min ago"), or, on the elapsed
+ * axis, how long after the first ("at 17 s"). Both are the same distance, counted from the other
+ * end of the window.
  */
-export function agoText(
+export function whenText(
   times: readonly (number | null)[],
   length: number,
   index: number,
+  axis: NeatChartAxis = 'recent',
 ): string | null {
-  const newest = times[length - 1];
   const taken = times[index];
+  if (axis === 'elapsed') {
+    const first = times[0];
+    return isNumber(first) && isNumber(taken) && taken >= first
+      ? `at ${elapsedText((taken - first) / 1000)}`
+      : null;
+  }
+  const newest = times[length - 1];
   return isNumber(newest) && isNumber(taken) && newest >= taken
     ? neatSecondsAgo((newest - taken) / 1000)
     : null;
@@ -51,19 +60,19 @@ export interface ReadoutRow {
 export interface Readout {
   /** The sample's place across the plot, 0 to 1. */
   readonly at: number;
-  /** How long before the newest sample it was taken, when the times say. */
-  readonly ago: string | null;
+  /** When the sample was taken ("2 min ago", "at 17 s"), when the times say. */
+  readonly when: string | null;
   readonly rows: readonly ReadoutRow[];
   /** The readout as one sentence, for the live region. */
   readonly spoken: string;
 }
 
-export function readoutAt(at: number, ago: string | null, rows: readonly ReadoutRow[]): Readout {
+export function readoutAt(at: number, when: string | null, rows: readonly ReadoutRow[]): Readout {
   return {
     at,
-    ago,
+    when,
     rows,
-    spoken: [ago, ...rows.map((row) => `${row.label} ${row.value}`)].filter(Boolean).join(', '),
+    spoken: [when, ...rows.map((row) => `${row.label} ${row.value}`)].filter(Boolean).join(', '),
   };
 }
 

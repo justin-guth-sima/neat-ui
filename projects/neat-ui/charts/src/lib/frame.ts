@@ -1,4 +1,13 @@
-import { axisLabel, axisTimeLabel, gridTicks, timeSpan, windowText, yAt } from './geometry';
+import {
+  axisLabel,
+  axisTimeLabel,
+  elapsedText,
+  gridTicks,
+  timeSpan,
+  windowText,
+  yAt,
+} from './geometry';
+import type { NeatChartAxis } from './types';
 
 /*
  * What a plot's frame is made of, which the time chart and the stacked chart share: how tall it
@@ -69,25 +78,41 @@ export function gridMarks(domain: readonly [number, number]): GridMark[] {
   }));
 }
 
-/** The time axis: the start, middle and end of the span, or only "now" without a span. */
+/**
+ * The time axis: the start, middle and end of the span, counted back from the newest sample
+ * (`recent`) or forward from the first (`elapsed`). Without a span there is nothing to measure.
+ */
 export function timeAxis(
   times: readonly (number | null)[],
   length: number,
+  axis: NeatChartAxis = 'recent',
 ): { at: number; text: string }[] {
   if (!length) return [];
   const span = timeSpan(times, length);
-  // Without a span there is nothing to count back from; the newest sample sits at the end,
-  // except a lone one, which sits at the start.
-  if (span === null) return [{ at: length > 1 ? 1 : 0, text: axisTimeLabel(0) }];
-  return [0, 0.5, 1].map((at) => ({ at, text: axisTimeLabel(span * (1 - at)) }));
+  if (span === null) {
+    // The first sample is the start of an elapsed axis, at 0 s; a recent axis ends on "now", the
+    // newest sample, except a lone one, which sits at the start.
+    return axis === 'elapsed'
+      ? [{ at: 0, text: elapsedText(0) }]
+      : [{ at: length > 1 ? 1 : 0, text: axisTimeLabel(0) }];
+  }
+  return [0, 0.5, 1].map((at) => ({
+    at,
+    text: axis === 'elapsed' ? elapsedText(span * at) : axisTimeLabel(span * (1 - at)),
+  }));
 }
 
-/** A chart's accessible name: "<label>: <current>, over the last <window>". */
+/**
+ * A chart's accessible name: "<label>: <current>, over the last <window>", or "over <span>" on
+ * the elapsed axis.
+ */
 export function chartName(
   label: string,
   current: string,
   times: readonly (number | null)[],
   length: number,
+  axis: NeatChartAxis = 'recent',
 ): string {
-  return `${label}${current ? `: ${current}` : ''}, over the last ${windowText(times, length)}`;
+  const over = axis === 'elapsed' ? 'over' : 'over the last';
+  return `${label}${current ? `: ${current}` : ''}, ${over} ${windowText(times, length, axis)}`;
 }

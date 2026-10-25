@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NeatTimeChart } from './time-chart';
 import type {
+  NeatChartAxis,
   NeatChartFormat,
   NeatChartTone,
   NeatReference,
@@ -21,6 +22,7 @@ import type {
     [reference]="reference()"
     [tone]="tone()"
     [size]="size()"
+    [axis]="axis()"
     [headless]="headless()"
     [valueLabels]="valueLabels()"
     [format]="format()"
@@ -35,6 +37,7 @@ class TimeChartHost {
   readonly reference = signal<NeatReference | null>(null);
   readonly tone = signal<NeatChartTone>('default');
   readonly size = signal<'compact' | 'medium' | 'large'>('medium');
+  readonly axis = signal<NeatChartAxis>('recent');
   readonly headless = signal(false);
   readonly valueLabels = signal(true);
   readonly format = signal<NeatChartFormat>((value) => `${value}%`);
@@ -451,6 +454,62 @@ describe('NeatTimeChart', () => {
     expect(chart.live().textContent?.trim(), 'a pointer move leaves it as it was').toBe(
       '2 min ago, CPU 10%',
     );
+  });
+
+  describe('with the elapsed axis', () => {
+    /** One series over 33.9 s: the offsets the compare overlay plots a run at. */
+    const elapsed = (host: TimeChartHost) => {
+      host.axis.set('elapsed');
+      host.series.set([cpu(10, 20, 30)]);
+      host.times.set([1_000_000, 1_017_000, 1_033_900]);
+    };
+
+    it('labels the x axis from 0 s to the window', async () => {
+      const chart = await render(elapsed);
+      expect(chart.text('.axis span')).toEqual(['0 s', '17 s', '33.9 s']);
+    });
+
+    it('names the offset of a sample in the readout where recent says how long ago', async () => {
+      const chart = await render(elapsed);
+      await chart.point(0.5);
+      expect(chart.text('.readout > *')[0]).toBe('at 17 s');
+
+      chart.host.axis.set('recent');
+      await chart.fixture.whenStable();
+      expect(chart.text('.readout > *')[0]).toBe('17 s ago');
+    });
+
+    it('states the span in its accessible name', async () => {
+      const chart = await render(elapsed);
+      expect(chart.plot.getAttribute('aria-label')).toBe('CPU usage: 30%, over 33.9 s');
+    });
+
+    it('speaks the offset when a key moves the readout', async () => {
+      const chart = await render(elapsed);
+      await chart.focus();
+      await chart.key('Home');
+      expect(chart.live().textContent?.trim()).toBe('at 0 s, CPU 10%');
+    });
+
+    it('starts at 0 s without usable times and counts the samples in the name', async () => {
+      const chart = await render((host) => {
+        host.axis.set('elapsed');
+        host.series.set([cpu(10, 20, 30)]);
+      });
+      expect(chart.text('.axis span')).toEqual(['0 s']);
+      expect(chart.plot.getAttribute('aria-label')).toBe('CPU usage: 30%, over 3 samples');
+    });
+  });
+
+  it('keeps the recent axis without the input: −N s to now', async () => {
+    const chart = await render((host) => {
+      host.series.set([cpu(10, 20, 30)]);
+      host.times.set([0, 17_000, 33_900]);
+    });
+    expect(chart.text('.axis span')).toEqual(['−34 s', '−17 s', 'now']);
+    await chart.point(0.5);
+    expect(chart.text('.readout > *')[0]).toBe('17 s ago');
+    expect(chart.plot.getAttribute('aria-label')).toBe('CPU usage: 30%, over the last 34 s');
   });
 
   it('its accessible name has the title, the headline and the window: "CPU usage: 34%, over the last 8 min"', async () => {

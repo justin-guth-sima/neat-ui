@@ -111,7 +111,11 @@ to zero. A lone sample draws no line and no area; the time chart's newest-point 
 overlay at `linePaths().last`, is the only dot, so a lone sample shows as that. The time chart's
 readout words its relative time with `neatSecondsAgo` from the primary, the kit's one
 relative-time style; its x axis ("−8 min · −4 min · now") is axis notation, not prose, and stays
-short for that reason. Its plot is a tab stop whose readout the arrow keys, Home, End and Escape
+short for that reason. Its `axis` input (`NeatChartAxis`) picks what that axis, the readout and
+the accessible name count: `recent` (the default) back from the newest sample, `elapsed` forward
+from the first ("0 s · 17 s · 33.9 s", "at 17 s", "over 33.9 s"), for a run read from its start.
+Both wordings come from one code path (`timeAxis`, `whenText` and `chartName` take the axis), so
+they cannot drift apart. Its plot is a tab stop whose readout the arrow keys, Home, End and Escape
 drive; each key press, and only a key press, is repeated in a polite live region, since a pointer
 move announced on every pixel would be noise. A chart with a live region (the time chart, the
 stacked chart and the heatmap) is `position: relative` on its host, without a z-index

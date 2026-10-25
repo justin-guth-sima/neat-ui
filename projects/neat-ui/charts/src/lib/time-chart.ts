@@ -19,14 +19,15 @@ import {
 import { foldSeries, linePaths, timeFractions, yAt } from './geometry';
 import { lineToken, seriesToken } from './line-token';
 import {
-  agoText,
   describe,
   fractionAcross,
   type Readout,
   readoutAt,
   sampleCursor,
+  whenText,
 } from './readout';
 import type {
+  NeatChartAxis,
   NeatChartFormat,
   NeatChartTone,
   NeatReference,
@@ -81,9 +82,10 @@ interface Level {
  * or on the grid label below it is left out.
  *
  * The plot is a group in the tab order named "<label>: <headline, or the current values>, over
- * the last <window>". The readout follows the pointer; with focus it shows the newest sample, and
- * the arrow keys, Home and End move it and Escape hides it. Each key press is repeated in a polite
- * live region, so a screen reader hears the sample; pointer moves are not.
+ * the last <window>" ("over <span>" on the elapsed axis). The readout follows the pointer; with
+ * focus it shows the newest sample, and the arrow keys, Home and End move it and Escape hides it.
+ * Each key press is repeated in a polite live region, so a screen reader hears the sample;
+ * pointer moves are not.
  */
 @Component({
   selector: 'neat-time-chart',
@@ -192,8 +194,8 @@ interface Level {
           [attr.data-flip]="readout.at > 0.5 ? '' : null"
           [style.--at]="readout.at"
         >
-          @if (readout.ago) {
-            <span class="ago">{{ readout.ago }}</span>
+          @if (readout.when) {
+            <span class="when">{{ readout.when }}</span>
           }
           @for (row of readout.rows; track row.key) {
             <span class="row">
@@ -208,7 +210,7 @@ interface Level {
     </div>
     @if (labelled()) {
       <div class="axis" aria-hidden="true">
-        @for (tick of axis(); track tick.at) {
+        @for (tick of timeTicks(); track tick.at) {
           <span [style.--at]="tick.at">{{ tick.text }}</span>
         }
       </div>
@@ -236,6 +238,12 @@ export class NeatTimeChart {
   readonly tone = input<NeatChartTone>('default');
   /** The plot's height: 3.5, 6 or 9.5 rem. Compact also leaves out the labels and the time axis. */
   readonly size = input<'compact' | 'medium' | 'large'>('medium');
+  /**
+   * What the x axis, the readout and the accessible name count: `recent` back from the newest
+   * sample ("−8 min … now", "2 min ago"), for a live window, or `elapsed` forward from the first
+   * ("0 s … 33.9 s", "at 17 s"), for a run read from its start or several laid over each other.
+   */
+  readonly axis = input<NeatChartAxis>('recent');
   /** Leaves out the title row, for a chart under a heading of its own. */
   readonly headless = input(false, { transform: booleanAttribute });
   /**
@@ -345,7 +353,7 @@ export class NeatTimeChart {
     ];
   });
 
-  protected readonly axis = computed(() => timeAxis(this.times(), this.length()));
+  protected readonly timeTicks = computed(() => timeAxis(this.times(), this.length(), this.axis()));
 
   protected readonly name = computed(() => {
     const format = this.format();
@@ -354,7 +362,7 @@ export class NeatTimeChart {
       this.lines()
         .map((entry) => describe(entry.values.at(-1), format))
         .join(', ');
-    return chartName(this.label(), current, this.times(), this.length());
+    return chartName(this.label(), current, this.times(), this.length(), this.axis());
   });
 
   protected readonly cursor = sampleCursor({
@@ -373,7 +381,7 @@ export class NeatTimeChart {
     const colors = this.colors();
     return readoutAt(
       this.fractions()[index],
-      agoText(this.times(), this.length(), index),
+      whenText(this.times(), this.length(), index, this.axis()),
       this.lines().map((entry, line) => ({
         key: entry.key,
         label: entry.label,

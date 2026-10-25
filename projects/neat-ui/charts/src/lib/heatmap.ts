@@ -3,7 +3,7 @@ import { chartName, timeAxis } from './frame';
 import { isNumber } from './geometry';
 import { columnMeans, NEAT_HEATMAP_COLUMNS, newestInColumn } from './heatmap-columns';
 import { textToken } from './line-token';
-import { agoText, describe, fractionAcross, ReadoutCursor } from './readout';
+import { describe, fractionAcross, ReadoutCursor, whenText } from './readout';
 import type { NeatChartFormat, NeatChartTone } from './types';
 
 /** One row of a heatmap: its samples become the cells, and `end` is the figure beside them. */
@@ -114,7 +114,7 @@ interface CellReadout extends Cell {
                 [attr.data-flip]="readout.at > 0.5 ? '' : null"
                 [style.--at]="readout.at"
               >
-                <span class="ago">{{ readout.head }}</span>
+                <span class="when">{{ readout.head }}</span>
                 <span class="row">{{ readout.value }}</span>
               </span>
             }
@@ -267,12 +267,12 @@ export class NeatHeatmap {
     const means = this.cells()[row];
     const mean = means[column];
     const newest = newestInColumn(column, values.length, means.length, this.times());
-    const ago = newest < 0 ? null : agoText(this.times(), values.length, newest);
+    const when = newest < 0 ? null : whenText(this.times(), values.length, newest);
     return {
       row,
       column,
       at: (column + 0.5) / means.length,
-      head: ago ? `${label} · ${ago}` : label,
+      head: when ? `${label} · ${when}` : label,
       value: isNumber(mean) ? `${describe(mean, this.format())} average` : 'no data',
     };
   }
