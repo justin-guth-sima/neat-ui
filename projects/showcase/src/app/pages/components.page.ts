@@ -52,6 +52,7 @@ import { NeatColumn, NeatSelectList, type NeatSelectListGroup } from '@sima/neat
 import { NeatSlider } from '@sima/neat-ui/slider';
 import { NeatStatusChip, NeatStatusChipButton } from '@sima/neat-ui/status-chip';
 import { NeatSwitch } from '@sima/neat-ui/switch';
+import { NeatNumeric, NeatTable } from '@sima/neat-ui/table';
 import { NeatTab, NeatTabs } from '@sima/neat-ui/tabs';
 import { NeatToasts } from '@sima/neat-ui/toast';
 import {
@@ -214,6 +215,8 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatStatusChipButton,
     NeatSwitch,
     NeatTab,
+    NeatTable,
+    NeatNumeric,
     NeatTabs,
     NeatTileGrid,
     NeatTooltip,
@@ -385,6 +388,50 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
               <dt>Format</dt>
               <dd>NV12</dd>
             </dl>
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Table</h2>
+          <p class="showcase-muted">
+            <code>neatTable</code> on a <code>table</code>: a data table, full width with a rule
+            under every row, the column headings muted and small. The rows and cells are your own
+            <code>tr</code>, <code>th</code> and <code>td</code> elements. <code>neatNumeric</code>
+            on a column's heading and cells end-aligns its figures on one line with tabular digits.
+            Which columns a narrow container gives up is the page's; the kit does not know the
+            container.
+          </p>
+          <div class="card table-demo">
+            <table neatTable aria-label="Metrics of a run">
+              <thead>
+                <tr>
+                  <th scope="col">Metric</th>
+                  <th scope="col" neatNumeric>Mean</th>
+                  <th scope="col" neatNumeric>Max</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Board power</th>
+                  <td neatNumeric>7.9 W</td>
+                  <td neatNumeric>12.51 W</td>
+                  <td><neat-status-chip tone="success">OK</neat-status-chip></td>
+                </tr>
+                <tr>
+                  <th scope="row">SoC temperature</th>
+                  <td neatNumeric>61.2 °C</td>
+                  <td neatNumeric>84.0 °C</td>
+                  <td><neat-status-chip tone="warning">Warm</neat-status-chip></td>
+                </tr>
+                <tr>
+                  <th scope="row">Memory used</th>
+                  <td neatNumeric>2.1 GiB</td>
+                  <td neatNumeric>2.4 GiB</td>
+                  <td><neat-status-chip tone="success">OK</neat-status-chip></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </section>
 

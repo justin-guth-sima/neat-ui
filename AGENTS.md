@@ -35,6 +35,9 @@ look happens in one place. Every rule here protects that.
     primary's, since a select list's `rowTone` takes the same tones), `details` (`NeatDetails`, the
     key/value list of a side panel; `--neat-details-term-width` on an ancestor lines several up, and
     a term wider than a fixed column breaks inside the word),
+    `table` (`NeatTable`, the data table's look on a `table`: cells, rules, column headings; and
+    `NeatNumeric`, which end-aligns a column's figures with tabular digits; a table that gives up
+    columns when its container is narrow says so itself, since the kit does not know the container),
     `field` (`NeatField`, a control under its visible name with
     a hint and an error, and `NeatErrorNote`, a failure said in place), `collapsible`
     (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed),

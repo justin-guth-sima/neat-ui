@@ -209,6 +209,11 @@
   max-width: 22rem;
 }
 
+/* The table fills a card of the width a page's main column gives it. */
+.table-demo {
+  max-width: 36rem;
+}
+
 /* Two lists on one term column: the kit's knob, set on their common ancestor. */
 .details-demo-aligned {
   --neat-details-term-width: 7rem;

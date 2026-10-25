@@ -23,6 +23,7 @@ import * as selectList from '../select-list/src/public-api';
 import * as slider from '../slider/src/public-api';
 import * as statusChip from '../status-chip/src/public-api';
 import * as switchEntry from '../switch/src/public-api';
+import * as table from '../table/src/public-api';
 import * as tabs from '../tabs/src/public-api';
 import * as toast from '../toast/src/public-api';
 import * as video from '../video/src/public-api';
@@ -50,6 +51,7 @@ const ENTRIES = {
   slider,
   statusChip,
   switchEntry,
+  table,
   tabs,
   toast,
   video,

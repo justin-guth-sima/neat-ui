@@ -49,6 +49,7 @@ export const SECONDARY_ENTRIES = {
   slider: ['neat-slider'],
   'status-chip': ['neat-status-chip', 'button[neatStatusChip]'],
   switch: ['button[neatSwitch]'],
+  table: ['table[neatTable]', 'td[neatNumeric]', 'th[neatNumeric]'],
   tabs: ['neat-tabs', 'neat-tab'],
   toast: ['neat-toast-host'],
   video: ['neat-video-tile', 'neat-tile-grid', 'neat-roi-editor', 'neat-roi-swatch'],
