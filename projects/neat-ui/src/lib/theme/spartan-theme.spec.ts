@@ -434,6 +434,46 @@ describe('buildSpartanThemeCss', () => {
     }
   });
 
+  it('gives the live dot a red that reads at 3:1 on the page and on the video scrim, over black to mid-grey video', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      const live = tokens.get('--neat-live')!;
+      const scrim = tokens.get('--neat-video-scrim')!;
+      const alpha = parseInt(scrim.slice(7), 16) / 255;
+      const surface = SURFACE_SCALES[scheme];
+      for (const step of CONTRAST_RULES[scheme].textBackgrounds) {
+        expect(
+          contrastRatio(live, surface[step]),
+          `${scheme}: on surface ${step}`,
+        ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+      }
+      // A red is darker than light video: past mid grey no red reaches 3:1 on the scrim and on a
+      // white page at once, so the badge's word ("Live") carries the state there.
+      for (const video of ['#000000', '#808080']) {
+        const backdrop = composite(scrim.slice(0, 7), alpha, video);
+        expect(
+          contrastRatio(live, backdrop),
+          `${scheme}: on the scrim over ${video}`,
+        ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+      }
+    }
+    // Light `--destructive` does not, on the scrim: the reason the dot has a token of its own.
+    const scrim = schemes.light.get('--neat-video-scrim')!;
+    const alpha = parseInt(scrim.slice(7), 16) / 255;
+    expect(
+      contrastRatio(
+        schemes.light.get('--destructive')!,
+        composite(scrim.slice(0, 7), alpha, '#808080'),
+      ),
+    ).toBeLessThan(MIN_NON_TEXT_CONTRAST);
+  });
+
+  it('takes the live red from the danger scale, the same in both schemes, as video is', () => {
+    const danger = buildColorScale(NEAT_DANGER_BASE);
+    expect(schemes.light.get('--neat-live')).toBe(danger[400].toLowerCase());
+    expect(schemes.dark.get('--neat-live')).toBe(schemes.light.get('--neat-live'));
+  });
+
   it('series 1–4 are the first step of blue, purple, orange and teal that reaches 3:1 on every text background, in both schemes', () => {
     for (const scheme of ['light', 'dark'] as const) {
       const { textBackgrounds } = CONTRAST_RULES[scheme];

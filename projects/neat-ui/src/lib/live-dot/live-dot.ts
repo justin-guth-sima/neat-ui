@@ -6,7 +6,8 @@ import { booleanAttribute, ChangeDetectionStrategy, Component, input } from '@an
  * meaning, so give it text. With `pulse` the dot beats and a ring grows out of it and fades, once
  * in 1.6 s; without it, or under a reduced-motion setting, it is a still dot. The ring is drawn
  * outside the dot's 0.625rem box and does not move the layout, but an ancestor that clips its
- * overflow clips the ring too. The colour is the theme's `--destructive`.
+ * overflow clips the ring too. The colour is the theme's `--neat-live`, a red that reads at 3:1 on
+ * the page and on the video scrim (over black to mid-grey video), so a badge over video can use it.
  */
 @Component({
   selector: 'neat-live-dot',

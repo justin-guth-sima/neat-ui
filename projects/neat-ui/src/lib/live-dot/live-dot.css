@@ -13,7 +13,8 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: var(--destructive);
+  /* Its own red, not --destructive: the dot also sits on the dark video scrim (a badge). */
+  background: var(--neat-live);
 }
 
 .ring {

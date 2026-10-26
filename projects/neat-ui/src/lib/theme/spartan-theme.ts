@@ -62,6 +62,14 @@ const SURFACES: Record<NeatColorScheme, SurfaceScale> = {
  * reach 4.5:1 over white video, the worst case for light text, which needs at least 0.57.
  */
 const VIDEO_SCRIM_ALPHA = 0.6;
+/**
+ * The video the live dot is held to under the scrim: black and mid grey. A red is darker than light
+ * video, and past mid grey no red reaches the non-text minimum on the scrim and on a white page at
+ * once; there the badge's word ("Live") carries the state.
+ */
+const LIVE_VIDEO = ['#000000', '#808080'] as const;
+/** The danger steps searched for the live red, from the base outwards, lighter first. */
+const LIVE_WALK = [500, 400, 600, 300, 700] as const;
 /** Spartan's chart palette: a single-hue ramp on the primary scale, like Spartan's own themes. */
 const CHART_STEPS = [300, 400, 500, 600, 700] as const;
 
@@ -224,10 +232,28 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     // dark scheme's surfaces are.
     'neat-video-scrim': withAlpha(SIMA_PALETTE.text, VIDEO_SCRIM_ALPHA),
     'neat-video-scrim-foreground': SIMA_PALETTE.white,
+    'neat-live': liveToken(),
     ...segmentedTokens(scheme, surface, primary),
     ...rowTints(ROW_TINT_SHARE[scheme], background),
     ...chartTokens(scheme, status(scales.destructive)),
   };
+}
+
+/**
+ * The live dot's red (`--neat-live`): a mark on the page and on a badge over video, where
+ * `--destructive`, a text colour, is too dark on the scrim. The danger step nearest the base that
+ * reaches the non-text minimum on both schemes' text backgrounds and on the scrim over LIVE_VIDEO,
+ * so it is one red in both schemes, as video looks the same in either.
+ */
+function liveToken(): string {
+  const backgrounds = [
+    ...(['light', 'dark'] as const).flatMap((scheme) =>
+      CONTRAST_RULES[scheme].textBackgrounds.map((step) => SURFACES[scheme][step]),
+    ),
+    ...LIVE_VIDEO.map((video) => composite(SIMA_PALETTE.text, VIDEO_SCRIM_ALPHA, video)),
+  ];
+  const danger = scales.destructive;
+  return danger[LIVE_WALK[firstReadable(danger, LIVE_WALK, backgrounds, MIN_NON_TEXT_CONTRAST)]];
 }
 
 /**

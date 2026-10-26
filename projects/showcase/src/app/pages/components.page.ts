@@ -367,11 +367,13 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <code>neat-live-dot</code>: a small red dot for something live or recording, hidden from
             assistive technology, so the words beside it say what it means. With
             <code>pulse</code> it beats and a ring grows out of it and fades; under a reduced-motion
-            setting it is a still dot.
+            setting it is a still dot. Its red, <code>--neat-live</code>, reads on the page and on
+            the video scrim, as in a badge over a picture.
           </p>
           <div class="showcase-row">
             <span class="showcase-row"><neat-live-dot /> Still</span>
             <span class="showcase-row"><neat-live-dot pulse /> Recording 0:34</span>
+            <span class="showcase-row showcase-scrim-badge"><neat-live-dot pulse /> Live</span>
             <button neatButton type="button" variant="danger" size="small">
               <neat-icon name="stop" [size]="14" />
               Stop

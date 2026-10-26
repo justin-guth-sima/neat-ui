@@ -54,10 +54,11 @@ describe('NeatLiveDot', () => {
     expect(beating.querySelector('.dot')?.classList).toContain('beat');
   });
 
-  it('is 0.625rem across, in the destructive token for the dot and the ring alike', () => {
+  it('is 0.625rem across, in its own live token for the dot and the ring alike', () => {
     expect(liveDotStyles).toMatch(/:host\s*\{[^}]*width:\s*0\.625rem/);
     expect(liveDotStyles).toMatch(/:host\s*\{[^}]*height:\s*0\.625rem/);
-    expect(liveDotStyles).toMatch(/\.dot,\s*\.ring\s*\{[^}]*background:\s*var\(--destructive\)/);
+    // Not --destructive, which is too dark on the video scrim the dot also sits on.
+    expect(liveDotStyles).toMatch(/\.dot,\s*\.ring\s*\{[^}]*background:\s*var\(--neat-live\)/);
     expect(liveDotStyles).not.toMatch(/#[0-9a-f]{3,8}\b|rgb\(|hsl\(|oklch\(/i);
   });
 
