@@ -349,9 +349,18 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   The tab list sits in a strip that scrolls sideways (`overflow-x-auto`) when the tabs do not fit
   their container, as in a side panel: the tabs neither wrap nor push the page sideways, and the
   strip, not the page, moves to show the open tab.
-  Inside a `neat-popover`'s panel, a menu's items are `button[neatPopoverItem]`: the panel is a
-  flex column, and the directive's `self-start` keeps each button the width of its text, at the
-  panel's start. An app has no stylesheet of its own to say that, and the look is the kit's.
+  Inside a `neat-popover`'s panel, a menu's items are `button[neatPopoverItem]`, full-width rows
+  with the text at the start and no gap to the next row, and `hr[neatPopoverDivider]` (a
+  `separator`) sets groups of rows apart. The panel's padding and gap are one number,
+  `--neat-popover-inset`, which the rows reach back across to the panel's edges (a negative
+  inline margin, the same inset as padding), so the hover fill is a band edge to edge and the
+  number is stated once. A row is a plain button, not a `neatButton`: its look is the item's, and
+  a button's classes would compete with it. Hover and keyboard focus fill it with `--accent`
+  (focus adds the `--ring` inside the row); a disabled row is `--muted-foreground` with no fill
+  and, being a disabled button, no tab stop. The panel puts focus on its first _enabled_ control
+  and carries Tab from its first and last enabled ones, because CDK's `isTabbable` counts a
+  disabled button. An app has no stylesheet of its own to say any of this, and the look is the
+  kit's.
 
 - **Customise in this order: theme tokens, then wrapper inputs and classes, never helm.** Tokens
   come from `lib/theme/*.ts`; `npm run theme:emit` regenerates `tokens.generated.css`, and the theme

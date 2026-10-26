@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { InteractivityChecker } from '@angular/cdk/a11y';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter, RouterOutlet } from '@angular/router';
@@ -15,13 +16,14 @@ import {
   type NeatColorScheme,
 } from '@sima/neat-ui';
 import { NeatConfirm } from '@sima/neat-ui/confirm';
-import { MIN_FILL_CONTRAST } from '../../../src/lib/theme/contrast-rules';
+import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor, stateValue } from '../../../src/lib/theme/state-colors';
 import {
   NeatPopover,
   type NeatPopoverAlign,
   NeatPopoverContent,
+  NeatPopoverDivider,
   NeatPopoverItem,
   NeatPopoverTrigger,
   POPOVER_HELM_CLASSES,
@@ -59,6 +61,45 @@ class PopoverHost {
   };
   readonly open = signal(false);
   readonly align = signal<NeatPopoverAlign>('center');
+}
+
+/**
+ * A menu, as Streaming's ⋯ is: rows in two groups with a divider between, one of them disabled.
+ * A button after the popover shows where Tab goes on leaving it.
+ */
+@Component({
+  imports: [
+    NeatPopover,
+    NeatPopoverTrigger,
+    NeatPopoverContent,
+    NeatPopoverItem,
+    NeatPopoverDivider,
+  ],
+  template: `
+    <neat-popover label="Actions" [(open)]="open">
+      <button type="button" neatPopoverTrigger>Actions</button>
+      <ng-template neatPopoverContent>
+        <button type="button" neatPopoverItem class="auto" [disabled]="autoDisabled()">
+          Auto assign
+        </button>
+        <button type="button" neatPopoverItem class="start" [disabled]="startDisabled()">
+          Start…
+        </button>
+        <hr neatPopoverDivider />
+        <button type="button" neatPopoverItem class="reset">Reset</button>
+        <button type="button" neatPopoverItem class="clear" [disabled]="clearDisabled()">
+          Clear renditions
+        </button>
+      </ng-template>
+    </neat-popover>
+    <button type="button" class="after">Next</button>
+  `,
+})
+class MenuHost {
+  readonly open = signal(false);
+  readonly autoDisabled = signal(false);
+  readonly startDisabled = signal(true);
+  readonly clearDisabled = signal(false);
 }
 
 /** Two popovers side by side, as a toolbar has. */
@@ -640,17 +681,222 @@ describe('NeatPopover', () => {
     expect(panel()!.classList).toContain('[--neat-surface:var(--popover)]');
   });
 
-  it('a popover item lines up at the start of the panel, whose column would stretch it', async () => {
+  describe('a menu of rows', () => {
+    async function openMenu(setup: (host: MenuHost) => void = () => undefined) {
+      const fixture = TestBed.createComponent(MenuHost);
+      setup(fixture.componentInstance);
+      await fixture.whenStable();
+      const trigger = fixture.nativeElement.querySelector('[neatPopoverTrigger]') as HTMLElement;
+      vi.spyOn(document.documentElement, 'clientWidth', 'get').mockReturnValue(1024);
+      vi.spyOn(document.documentElement, 'clientHeight', 'get').mockReturnValue(768);
+      trigger.getBoundingClientRect = () => new DOMRect(472, 368, 80, 32);
+      trigger.click();
+      for (let i = 0; i < 3; i++) {
+        await new Promise((resolve) => setTimeout(resolve));
+        await fixture.whenStable();
+      }
+      const rows = Array.from(panel()!.querySelectorAll<HTMLButtonElement>('[neatPopoverItem]'));
+      return { fixture, trigger, rows, after: fixture.nativeElement.querySelector('.after') };
+    }
+
+    const classesOf = (element: Element) => [...element.classList];
+
+    it('states the panel inset once, as a property the panel and its rows both read', async () => {
+      await openMenu();
+      const classes = classesOf(panel()!);
+
+      expect(classes).toEqual(
+        expect.arrayContaining([
+          '[--neat-popover-inset:var(--neat-space-4)]',
+          'p-(--neat-popover-inset)',
+          'gap-(--neat-popover-inset)',
+          'flex-col',
+        ]),
+      );
+      // The inset replaces helm's literal padding and gap, so there is one number, not two.
+      expect(classes).not.toContain('p-4');
+      expect(classes).not.toContain('gap-4');
+    });
+
+    it('draws an item as a full-width row, left-aligned, with the inset moved into the row', async () => {
+      const { rows } = await openMenu();
+      expect(rows).toHaveLength(4);
+
+      for (const row of rows) {
+        const classes = classesOf(row);
+        // A negative inline margin by the inset lets the stretched row reach the panel's edges,
+        // and the same inset as padding keeps the text where the panel's padding put it.
+        expect(classes).toEqual(
+          expect.arrayContaining([
+            '-mx-(--neat-popover-inset)',
+            'px-(--neat-popover-inset)',
+            'text-left',
+          ]),
+        );
+        // A row hugging its text at the panel's start is the look this replaces.
+        expect(classes).not.toContain('self-start');
+      }
+    });
+
+    it('leaves no gap between rows: each takes back half of the panel gap above and below', async () => {
+      const { rows } = await openMenu();
+
+      for (const row of rows) {
+        expect(classesOf(row)).toContain('-my-[calc(var(--neat-popover-inset)/2)]');
+      }
+    });
+
+    it('is a divider that spans the panel like a row and is no tab stop', async () => {
+      await openMenu();
+      const divider = panel()!.querySelector('hr[neatPopoverDivider]') as HTMLElement;
+
+      expect(divider.getAttribute('role')).toBe('separator');
+      expect(classesOf(divider)).toEqual(
+        expect.arrayContaining([
+          '-mx-(--neat-popover-inset)',
+          '-my-[calc(var(--neat-popover-inset)/4)]',
+          'border-t',
+          'border-border',
+        ]),
+      );
+      expect(TestBed.inject(InteractivityChecker).isTabbable(divider)).toBe(false);
+    });
+
+    it('keeps the rows in document order, as native buttons, in the Tab order written', async () => {
+      const { rows } = await openMenu();
+
+      expect(rows.map((row) => row.textContent!.trim())).toEqual([
+        'Auto assign',
+        'Start…',
+        'Reset',
+        'Clear renditions',
+      ]);
+      // No tabindex and no reordering class: the Tab order is the order written.
+      for (const row of rows) {
+        expect(row.tagName).toBe('BUTTON');
+        expect(row.hasAttribute('tabindex')).toBe(false);
+        expect(classesOf(row).some((name) => /(^|:)order-/.test(name))).toBe(false);
+      }
+    });
+
+    it('moves focus to the first enabled row on opening', async () => {
+      const { rows } = await openMenu((host) => host.autoDisabled.set(true));
+
+      expect(document.activeElement).toBe(rows[2]);
+    });
+
+    it('Tab on the last enabled row carries on after the trigger, past a disabled last row', async () => {
+      const { rows, after } = await openMenu((host) => host.clearDisabled.set(true));
+
+      rows[2].focus();
+      rows[2].dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }),
+      );
+      await new Promise((resolve) => setTimeout(resolve));
+
+      expect(document.activeElement).toBe(after);
+      expect(panel()).toBeNull();
+    });
+
+    it('Shift+Tab on the first enabled row goes back to the trigger, past a disabled first row', async () => {
+      const { rows, trigger } = await openMenu((host) => {
+        host.autoDisabled.set(true);
+        host.startDisabled.set(false);
+      });
+
+      rows[1].focus();
+      rows[1].dispatchEvent(
+        new KeyboardEvent('keydown', {
+          key: 'Tab',
+          shiftKey: true,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      await new Promise((resolve) => setTimeout(resolve));
+
+      expect(document.activeElement).toBe(trigger);
+      expect(panel()).toBeNull();
+    });
+
+    it('shows keyboard focus on a row by an inset ring and the hover fill, not by outline', async () => {
+      const { rows } = await openMenu();
+      const classes = classesOf(rows[0]);
+
+      expect(classes).toEqual(
+        expect.arrayContaining([
+          'focus-visible:ring-2',
+          'focus-visible:ring-inset',
+          'focus-visible:ring-ring',
+          'focus-visible:bg-accent',
+          // Forced colours drop the ring: the transparent outline is what they paint instead.
+          'outline-hidden',
+        ]),
+      );
+    });
+
+    it('reads a disabled row as disabled: muted text, the default cursor, no hover fill', async () => {
+      const { rows } = await openMenu();
+      const [auto, start] = rows;
+
+      expect(start.disabled).toBe(true);
+      expect(classesOf(start)).toEqual(
+        expect.arrayContaining(['disabled:text-muted-foreground', 'disabled:cursor-default']),
+      );
+      // The hover fill belongs to enabled rows only, so a disabled row never lights up.
+      expect(classesOf(auto)).toContain('enabled:hover:bg-accent');
+      expect(classesOf(auto)).not.toContain('hover:bg-accent');
+    });
+
+    for (const scheme of SCHEMES) {
+      const tokens = spartanThemeTokens(scheme);
+      const vocabulary = {
+        enabled: 'enabled',
+        disabled: 'disabled',
+        hover: 'hover',
+        'focus-visible': 'focus',
+      };
+      const q = (on: string[]) => ({ tokens, vocabulary, on });
+      const popover = tokens['popover'];
+
+      it(`${scheme}: row text is ${4.5}:1 at rest and hovered, a disabled row's too and unlike it`, async () => {
+        const { rows } = await openMenu();
+        const [auto, start] = rows.map(classesOf);
+
+        const rest = stateColor(auto, 'text', q(['enabled']), popover, tokens['foreground']);
+        const hoverFill = stateColor(auto, 'bg', q(['enabled', 'hover']), popover);
+        const disabled = stateColor(start, 'text', q(['disabled']), popover, tokens['foreground']);
+        expect(hoverFill).toBe(tokens['accent']);
+        expect(contrastRatio(rest, popover)).toBeGreaterThanOrEqual(4.5);
+        expect(contrastRatio(rest, hoverFill)).toBeGreaterThanOrEqual(4.5);
+        expect(contrastRatio(disabled, popover)).toBeGreaterThanOrEqual(4.5);
+        expect(disabled).not.toBe(rest);
+        // A disabled row has no hover fill to light up.
+        expect(stateColor(start, 'bg', q(['disabled', 'hover']), popover)).toBe(popover);
+      });
+
+      it(`${scheme}: the focus ring is ${MIN_NON_TEXT_CONTRAST}:1 on the panel and on the focused row's fill`, async () => {
+        const { rows } = await openMenu();
+        const classes = classesOf(rows[0]);
+        const ring = stateColor(classes, 'ring', q(['enabled', 'focus']), popover);
+        const fill = stateColor(classes, 'bg', q(['enabled', 'focus']), popover);
+
+        expect(fill).toBe(tokens['accent']);
+        expect(contrastRatio(ring, popover)).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+        expect(contrastRatio(ring, fill)).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+      });
+    }
+  });
+
+  it('keeps a plain control out of the row look, so a panel can mix fields and rows', async () => {
     const { trigger, settle } = await render();
     trigger.click();
     await settle();
 
-    // The panel is a flex column, which stretches a button across it; a menu item hugs its text.
-    expect(panel()!.classList).toContain('flex-col');
     const items = panel()!.querySelectorAll('[neatPopoverItem]');
     expect(items).toHaveLength(1);
-    expect([...items[0].classList]).toEqual(expect.arrayContaining(['self-start', 'reset']));
-    expect(panel()!.querySelector('.first')!.classList).not.toContain('self-start');
+    expect([...items[0].classList]).toContain('reset');
+    expect(panel()!.querySelector('.first')!.classList).not.toContain('-mx-(--neat-popover-inset)');
   });
 
   it('helm drift: the copied class string still appears in the vendored helm popover', () => {

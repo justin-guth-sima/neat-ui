@@ -43,6 +43,7 @@ import { NeatNumberField } from '@sima/neat-ui/number-field';
 import {
   NeatPopover,
   NeatPopoverContent,
+  NeatPopoverDivider,
   NeatPopoverItem,
   NeatPopoverTrigger,
 } from '@sima/neat-ui/popover';
@@ -228,6 +229,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatPage,
     NeatPopover,
     NeatPopoverContent,
+    NeatPopoverDivider,
     NeatPopoverItem,
     NeatPopoverTrigger,
     NeatProgress,
@@ -855,8 +857,8 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             goes on to the element after the trigger; Shift+Tab out goes back to the trigger.
             <code>align</code> lines it up with the trigger's start, centre or end. The content is
             an <code>ng-template</code>, so its values live in the page. A menu's items are
-            <code>button[neatPopoverItem]</code>: each hugs its text at the panel's start instead of
-            stretching across it.
+            <code>button[neatPopoverItem]</code>: full-width rows with no gap between them, and
+            <code>hr[neatPopoverDivider]</code> sets groups of them apart.
           </p>
           <div class="showcase-row">
             <neat-popover label="View options" [(open)]="viewOptionsOpen">
@@ -927,8 +929,11 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
                 <neat-icon name="more" />
               </button>
               <ng-template neatPopoverContent>
-                <button neatButton neatPopoverItem type="button" variant="text">Rename</button>
-                <button neatButton neatPopoverItem type="button" variant="text">Duplicate</button>
+                <button neatPopoverItem type="button">Rename</button>
+                <button neatPopoverItem type="button">Duplicate</button>
+                <button neatPopoverItem type="button" disabled>Move…</button>
+                <hr neatPopoverDivider />
+                <button neatPopoverItem type="button">Delete</button>
               </ng-template>
             </neat-popover>
           </div>

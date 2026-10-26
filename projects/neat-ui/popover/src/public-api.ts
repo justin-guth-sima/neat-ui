@@ -8,6 +8,7 @@ export type { NeatPopoverAlign } from './lib/popover';
 export {
   NeatPopover,
   NeatPopoverContent,
+  NeatPopoverDivider,
   NeatPopoverItem,
   NeatPopoverTrigger,
 } from './lib/popover';

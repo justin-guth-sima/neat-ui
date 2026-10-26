@@ -42,6 +42,7 @@ export const SECONDARY_ENTRIES = {
     'ng-template[neatPopoverContent]',
     'button[neatPopoverTrigger]',
     'button[neatPopoverItem]',
+    'hr[neatPopoverDivider]',
   ],
   progress: ['neat-progress'],
   segmented: ['neat-segmented'],

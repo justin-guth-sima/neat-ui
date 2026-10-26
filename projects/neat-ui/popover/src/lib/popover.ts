@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   contentChild,
@@ -6,6 +7,7 @@ import {
   effect,
   ElementRef,
   inject,
+  Injector,
   input,
   model,
   TemplateRef,
@@ -40,11 +42,39 @@ export const POPOVER_HELM_CLASSES = {
  * where helm draws the text colour at 10%. It sets `--neat-surface` to its fill, `--popover`: what
  * the content sits on, so that a part that covers what scrolls under it (a select list's sticky
  * header) fills with the panel's colour, not the page's.
+ *
+ * Its padding and the gap between its children are one number, `--neat-popover-inset` (helm's
+ * `p-4` and `gap-4`, which it replaces): the menu rows below reach back across it to the panel's
+ * edges, so the number is stated here and read there, never repeated.
  */
 const PANEL_CLASSES = hlm(
   POPOVER_HELM_CLASSES.content,
-  'ring-border [--neat-surface:var(--popover)]',
+  'ring-border [--neat-surface:var(--popover)] [--neat-popover-inset:var(--neat-space-4)] p-(--neat-popover-inset) gap-(--neat-popover-inset)',
 );
+
+/**
+ * A menu row, the look of every `button[neatPopoverItem]`. In the panel's flex column a button
+ * stretches across the panel's content box; the negative inline margin by the inset widens it to
+ * the panel's edges, so the hover fill is a band edge to edge, and the same inset as padding keeps
+ * the text where the panel's padding put it. The negative block margin takes back half of the
+ * panel's gap above and below, so two rows touch; beside other content the gap that is left is
+ * half the inset. The fill on hover and keyboard focus is `--accent`, the theme's hover fill, held
+ * to text contrast under the label; keyboard focus adds the full-strength `--ring` inside the
+ * row, which the row's neighbours cannot paint over (an outer ring would be clipped by them), and
+ * a transparent outline that forced-colours mode paints in place of the ring. A disabled row
+ * keeps its place and its text in `--muted-foreground`, takes no hover fill and no focus (a
+ * disabled button is no tab stop). It stands on its own: not combined with `neatButton`, whose
+ * classes would compete with these.
+ */
+const ITEM_CLASSES =
+  '-mx-(--neat-popover-inset) -my-[calc(var(--neat-popover-inset)/2)] block cursor-pointer px-(--neat-popover-inset) py-2 text-left text-sm text-foreground outline-hidden enabled:hover:bg-accent focus-visible:bg-accent focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring disabled:cursor-default disabled:text-muted-foreground';
+
+/**
+ * The line between two groups of rows. It spans the panel like a row and sits 4px from the rows
+ * around it: the same quarter of the inset below the gap a row leaves, `-my` taking back the rest.
+ */
+const DIVIDER_CLASSES =
+  '-mx-(--neat-popover-inset) -my-[calc(var(--neat-popover-inset)/4)] border-t border-border';
 
 /** The gap between the trigger and the panel, so the panel's outline does not touch the trigger. */
 const SIDE_OFFSET = 4;
@@ -82,13 +112,23 @@ export class NeatPopoverTrigger {
 }
 
 /**
- * A button that is a menu item of a `neat-popover`'s panel (the ⋯ menu): `<button neatPopoverItem>`
- * inside the content. The panel is a flex column, which would stretch every button across it; an
- * item hugs its text and lines up at the panel's start. The class is a literal so that Tailwind
- * finds it.
+ * A menu row of a `neat-popover`'s panel (the ⋯ menu): `<button neatPopoverItem>` inside the
+ * content. It fills the panel's width, text at the start, and touches the next row; see
+ * `ITEM_CLASSES`. Rows are plain buttons in the order they are written, which is their Tab order.
  */
-@Directive({ selector: 'button[neatPopoverItem]', host: { class: 'self-start' } })
-export class NeatPopoverItem {}
+@Directive({ selector: 'button[neatPopoverItem]', host: { '[class]': 'itemClasses' } })
+export class NeatPopoverItem {
+  protected readonly itemClasses = ITEM_CLASSES;
+}
+
+/** A line between two groups of menu rows: `<hr neatPopoverDivider />` among the items. */
+@Directive({
+  selector: 'hr[neatPopoverDivider]',
+  host: { role: 'separator', '[class]': 'dividerClasses' },
+})
+export class NeatPopoverDivider {
+  protected readonly dividerClasses = DIVIDER_CLASSES;
+}
 
 /**
  * A panel of controls that opens below a button and stays open while they are used:
@@ -103,8 +143,8 @@ export class NeatPopoverItem {}
  * The panel is a non-modal dialog named by `label`, on the popover surface. `align` lines it up
  * with the trigger's start, centre or end; it flips above the trigger when there is no room below.
  * The content template is created on opening and destroyed on closing, so keep its state (a typed
- * value, a checked switch) in the page. On opening, focus moves to the panel's first focusable
- * element. Escape, a click outside, the trigger, or `open` set to false close it; focus then goes
+ * value, a checked switch) in the page. On opening, focus moves to the panel's first enabled
+ * control. Escape, a click outside, the trigger, or `open` set to false close it; focus then goes
  * back to the trigger, unless the closing click put it somewhere else. Setting `open` to true
  * opens it as the trigger does, which is how a keyboard shortcut opens it.
  *
@@ -129,7 +169,10 @@ export class NeatPopoverItem {}
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     provideBrnPopoverConfig({ sideOffset: SIDE_OFFSET }),
-    provideBrnPopoverDefaultOptions({ role: null }),
+    // Brain moves focus into the panel itself, to the first element CDK calls tabbable, and CDK
+    // calls a disabled button tabbable: a menu whose first row is disabled would keep the focus on
+    // the trigger. The kit moves it (see `focusFirstControl`), past what is disabled.
+    provideBrnPopoverDefaultOptions({ role: null, autoFocus: false }),
   ],
   hostDirectives: [{ directive: BrnPopover, inputs: ['align'] }],
   // The trigger takes part in the surrounding layout (a toolbar's row) as if it stood there alone.
@@ -164,6 +207,7 @@ export class NeatPopover {
   private readonly overlayContainer = inject(OverlayContainer);
   private readonly interactivity = inject(InteractivityChecker);
   private readonly document = inject(DOCUMENT);
+  private readonly injector = inject(Injector);
 
   constructor() {
     // Brain closes the panel on Escape and outside clicks; the model follows. Brain's output lives
@@ -264,6 +308,18 @@ export class NeatPopover {
     return found;
   }
 
+  /**
+   * Moves focus to the panel's first enabled control, where the panel opens. CDK's `isTabbable`
+   * only reads `tabIndex`, which a disabled button has too, so a disabled control is skipped here
+   * and in every walk of this class. With none, the focus stays on the trigger.
+   */
+  private focusFirstControl(): void {
+    const panel = this.document.getElementById(this.panelId);
+    if (panel) {
+      this.tabbablesIn(panel)[0]?.focus();
+    }
+  }
+
   /** The first tabbable element after the trigger in the page, outside the overlay container. */
   private tabbableAfterTrigger(): HTMLElement | null {
     const walker = this.tabbableWalker(
@@ -280,7 +336,8 @@ export class NeatPopover {
       if (node === excluded) {
         return NodeFilter.FILTER_REJECT;
       }
-      return this.interactivity.isTabbable(node as HTMLElement)
+      const element = node as HTMLElement;
+      return this.interactivity.isTabbable(element) && !this.interactivity.isDisabled(element)
         ? NodeFilter.FILTER_ACCEPT
         : NodeFilter.FILTER_SKIP;
     });
@@ -294,5 +351,13 @@ export class NeatPopover {
     trigger.focus({ preventScroll: true });
     this.brain.setOrigin(trigger);
     this.brain.open();
+    afterNextRender(
+      () => {
+        if (this.open()) {
+          this.focusFirstControl();
+        }
+      },
+      { injector: this.injector },
+    );
   }
 }
