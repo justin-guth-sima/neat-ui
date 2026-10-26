@@ -20,16 +20,15 @@ export interface NeatSegmentedOption<T> {
 /**
  * The track: a grid of equal columns, so that the thumb's width and position follow from the option
  * count and the chosen index alone, as two custom properties on the group, with no measuring.
- * The columns are `minmax(max-content, 1fr)`, not Tailwind's equal-fraction utility, whose
- * minimum is 0 (`minmax(0, 1fr)`): with that, a column shrinks below its label in a crowded flex
- * row and the labels overlap. The content minimum keeps every label whole; the `1fr` maximum keeps
- * the columns equal, since the group sizes to its widest column times the count. The padding is
- * the thumb's inset (`p-0.5`, which the thumb's `calc` takes off twice, 4px); the thumb's radius is
- * the track's less that inset. `isolate` keeps the thumb's and the segments' z-indexes inside the
- * control. Disabled dims the whole group, so the segments (disabled buttons) add none.
+ * The columns are `auto-cols-fr`, `minmax(0, 1fr)`: with room, the group is its widest label times
+ * the count; in a container narrower than that the columns shrink together, still equal, and each
+ * label clips with an ellipsis (see the label in the template). The padding is the thumb's inset
+ * (`p-0.5`, which the thumb's `calc` takes off twice, 4px); the thumb's radius is the track's less
+ * that inset. `isolate` keeps the thumb's and the segments' z-indexes inside the control. Disabled
+ * dims the whole group, so the segments (disabled buttons) add none.
  */
 const GROUP_CLASSES =
-  'relative isolate inline-grid grid-flow-col auto-cols-[minmax(max-content,1fr)] rounded-lg bg-neat-segmented-track p-0.5 aria-disabled:opacity-50';
+  'relative isolate inline-grid grid-flow-col auto-cols-fr rounded-lg bg-neat-segmented-track p-0.5 aria-disabled:opacity-50';
 
 /**
  * The thumb: the chosen option's cell of the track, raised. It is `1 / count` of the width inside
@@ -51,7 +50,11 @@ const THUMB_CLASSES =
  * ring is the full `--ring` (3:1) rather than a faint mix. The label sits in one grid cell with an
  * invisible, `aria-hidden` semibold copy of itself (the template), so that every column is as wide
  * as semibold needs and the control keeps its width, and its neighbours their places, as the
- * choice moves; the copy is not part of the accessible name.
+ * choice moves; the copy is not part of the accessible name. The cell may shrink below the label
+ * (`min-w-0` in the segment's flex row, one column with a 0 minimum) and both copies `truncate`
+ * in it: a narrow container clips the labels with an ellipsis instead of overlapping them, and
+ * the invisible copy cannot overflow. The clipping is visual only: the name stays the whole label,
+ * and the label's `title` shows it on hover, as the progress readout's clipped heading does.
  */
 const ITEM_CLASSES =
   'relative z-10 inline-flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-md bg-transparent px-3.5 text-sm font-medium whitespace-nowrap text-foreground outline-none transition-colors duration-200 motion-reduce:transition-none disabled:pointer-events-none focus-visible:z-20 focus-visible:ring-[3px] focus-visible:ring-ring data-[state=on]:font-semibold data-[state=on]:text-primary before:absolute before:inset-y-1.5 before:left-0 before:w-px before:bg-muted-foreground/40 before:transition-opacity before:duration-200 motion-reduce:before:transition-none first-of-type:before:hidden data-[state=on]:before:opacity-0 [[data-state=on]+&]:before:opacity-0';
@@ -81,9 +84,10 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
   selector: 'neat-segmented',
   imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // `shrink-0`: the group is as wide as its labels need, so a flex row that runs out of room must
-  // move or wrap the control, never squeeze it.
-  host: { class: 'inline-flex shrink-0' },
+  // `max-w-full`: the control is at most as wide as its container, inside which its labels clip.
+  // `shrink-0`: in a flex row it keeps the width its labels need (up to that cap), so a row that
+  // runs out of room moves or wraps it, or squeezes its other items, never the control.
+  host: { class: 'inline-flex max-w-full shrink-0' },
   template: `
     <div
       role="radiogroup"
@@ -113,12 +117,14 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
           @if (option.icon) {
             <neat-icon [name]="option.icon" [size]="16" />
           }
-          <span class="inline-grid text-center">
-            <span class="col-start-1 row-start-1">{{ option.label }}</span>
+          <span data-slot="segmented-label" class="inline-grid min-w-0 grid-cols-1 text-center">
+            <span class="col-start-1 row-start-1 truncate" [attr.title]="option.label">{{
+              option.label
+            }}</span>
             <span
               aria-hidden="true"
               data-slot="segmented-label-reserve"
-              class="invisible col-start-1 row-start-1 font-semibold"
+              class="invisible col-start-1 row-start-1 truncate font-semibold"
               >{{ option.label }}</span
             >
           </span>

@@ -271,6 +271,11 @@
   gap: var(--neat-space-3);
 }
 
+/* The content width of a side panel at its 18rem minimum: narrower than the switch's labels. */
+.segmented-narrow {
+  width: 16rem;
+}
+
 /* A field and a select fill their container's width, so the row gives each one. */
 .field-narrow {
   width: 10rem;

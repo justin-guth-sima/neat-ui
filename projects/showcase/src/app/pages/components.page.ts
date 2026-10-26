@@ -175,6 +175,12 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
   { value: 'boxes', label: 'Boxes' },
   { value: 'masks', label: 'Masks' },
 ];
+/** The labels of Insight's source switch, too wide together for a narrow side panel. */
+const SOURCES: NeatSegmentedOption<string>[] = [
+  { value: 'file', label: 'File' },
+  { value: 'camera', label: 'Camera' },
+  { value: 'url', label: 'Stream URL' },
+];
 const VIEWS: NeatSegmentedOption<string>[] = [
   { value: 'live', label: 'Live' },
   { value: 'runs', label: 'Runs' },
@@ -805,6 +811,13 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <div class="showcase-crowded">
             <neat-segmented label="Stats view" [options]="views" value="live" />
             <span class="showcase-crowded-title">Stats for a stream with a long name</span>
+          </div>
+          <p class="showcase-muted">
+            It is never wider than its container, though: in a side panel dragged narrower than
+            its labels, the options shrink together and each label ends in an ellipsis.
+          </p>
+          <div class="segmented-narrow">
+            <neat-segmented label="Source" [options]="sources" [(value)]="sourceForm" />
           </div>
         </section>
 
@@ -1818,6 +1831,7 @@ export class ComponentsPage {
   protected readonly stream = signal<DemoStream | null>(DEMO_STREAMS[3]);
   protected readonly overlays = OVERLAYS;
   protected readonly views = VIEWS;
+  protected readonly sources = SOURCES;
 
   protected readonly bars = signal(true);
   protected readonly hideEmpty = signal(false);
@@ -1828,6 +1842,7 @@ export class ComponentsPage {
   );
   protected readonly shape = signal<Shape>('16:9');
   protected readonly overlay = signal('boxes');
+  protected readonly sourceForm = signal('url');
   protected readonly tab = signal('metadata');
   protected readonly viewOptionsOpen = signal(false);
   protected readonly channelOpen = signal(false);

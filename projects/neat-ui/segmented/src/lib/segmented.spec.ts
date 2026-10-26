@@ -14,6 +14,12 @@ const OPTIONS: NeatSegmentedOption<Shape>[] = [
   { value: 'square', label: '1:1', icon: 'aspect-square' },
   { value: 'tall', label: '9:16' },
 ];
+/** Labels too long for a narrow container, as Insight's source switch in a narrow side panel. */
+const LONG_OPTIONS: NeatSegmentedOption<string>[] = [
+  { value: 'file', label: 'File' },
+  { value: 'camera', label: 'Camera' },
+  { value: 'url', label: 'Stream URL' },
+];
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 const SURFACES = ['background', 'card'] as const;
 /**
@@ -56,6 +62,14 @@ class SegmentedHost {
   readonly shape = signal<Shape>('wide');
   readonly disabled = signal(false);
   readonly changes: Shape[] = [];
+}
+
+@Component({
+  imports: [NeatSegmented],
+  template: `<neat-segmented label="Source" [options]="options" value="url" />`,
+})
+class LongLabelsHost {
+  readonly options = LONG_OPTIONS;
 }
 
 async function render(setup: (host: SegmentedHost) => void = () => undefined) {
@@ -263,22 +277,44 @@ describe('NeatSegmented', () => {
       );
     });
 
-    it('never squeezes an option below its content: the columns have no 0 minimum', async () => {
+    it('keeps its columns equal and lets them shrink: Tailwind\u2019s minmax(0, 1fr)', async () => {
       const { group } = await render();
       const classes = [...group.classList];
 
-      // `auto-cols-fr` is `minmax(0, 1fr)`: in a crowded flex row the columns shrink below their
-      // labels and the labels overlap. The minimum is the content's, the maximum an equal share.
-      expect(classes).not.toContain('auto-cols-fr');
-      expect(classes).toContain('auto-cols-[minmax(max-content,1fr)]');
+      // `auto-cols-fr` is `minmax(0, 1fr)`: as wide as the widest label times the count when there
+      // is room, and narrower, still equal, when the container is narrower than that.
+      expect(classes).toContain('auto-cols-fr');
       expect(classes.filter((name) => name.startsWith('auto-cols-'))).toHaveLength(1);
     });
 
-    it('does not shrink in a flex row, so a crowded toolbar cannot squeeze the control', async () => {
+    it('fills at most its container, and a flex row cannot squeeze it below its content', async () => {
       const { fixture } = await render();
       const host: HTMLElement = fixture.nativeElement.querySelector('neat-segmented');
 
-      expect([...host.classList]).toEqual(expect.arrayContaining(['inline-flex', 'shrink-0']));
+      expect([...host.classList]).toEqual(
+        expect.arrayContaining(['inline-flex', 'shrink-0', 'max-w-full']),
+      );
+    });
+
+    it('clips a label that does not fit with an ellipsis, its whole text still the name', async () => {
+      const fixture = TestBed.createComponent(LongLabelsHost);
+      await fixture.whenStable();
+      const radios = Array.from(
+        (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('[role="radio"]'),
+      );
+      expect(radios).toHaveLength(LONG_OPTIONS.length);
+
+      for (const [index, radio] of radios.entries()) {
+        const box = radio.querySelector<HTMLElement>('[data-slot="segmented-label"]')!;
+        const [label, reserve] = Array.from(box.children) as HTMLElement[];
+        // The label's box may shrink below its text (a flex item with no content minimum, one
+        // column with a 0 minimum), and both the label and its semibold copy clip inside it.
+        expect([...box.classList]).toEqual(expect.arrayContaining(['min-w-0', 'grid-cols-1']));
+        expect(label.classList).toContain('truncate');
+        expect(reserve.classList).toContain('truncate');
+        expect(label.getAttribute('title')).toBe(LONG_OPTIONS[index].label);
+        expect(nameOf(radio)).toBe(LONG_OPTIONS[index].label);
+      }
     });
 
     it('slides the thumb in 280 ms and not at all under reduced motion', async () => {
