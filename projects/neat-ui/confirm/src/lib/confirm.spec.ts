@@ -259,7 +259,9 @@ describe('NeatConfirm', () => {
 
     await ask();
     expect(classesOf(button('Reset')!)).toEqual(danger);
-    expect(button('Reset')!.classList).toContain('text-destructive');
+    // The danger variant is a solid red under its foreground.
+    expect(button('Reset')!.classList).toContain('bg-destructive');
+    expect(button('Reset')!.classList).toContain('text-destructive-foreground');
     escape();
     await settle();
 

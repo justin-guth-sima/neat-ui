@@ -36,7 +36,9 @@ const HELM_VARIANT_MARKERS: Record<NeatButtonVariant, string[]> = {
     'aria-expanded:bg-muted',
   ],
   text: ['hover:text-foreground', 'aria-expanded:bg-muted'],
-  danger: ['bg-destructive/10', 'dark:bg-destructive/20', 'text-destructive'],
+  // A solid fill in the status colour, like success; helm's destructive (a tint) only supplies the
+  // base classes that the fill replaces.
+  danger: ['bg-destructive', 'dark:bg-destructive', 'text-destructive-foreground'],
   // Helm's ghost, as the text variant is, in the danger colour.
   'danger-text': ['aria-expanded:bg-muted', 'text-destructive'],
   // A solid fill in the status colour, which helm has no variant for: it starts from default's.
@@ -608,9 +610,21 @@ describe('NeatButton', () => {
    * 3:1 from it, and the pressed fill, the page's inverse, reaches 2.86:1; in dark its fill
    * (#7DC88D) is light and the pressed fill, white, reaches 2.0:1. It is exempt from the rule
    * against the resting fill in both, and is held to the surface and text rules below.
+   *
+   * Danger is a solid fill too, and likewise has no fill 3:1 from it and from the surface in
+   * either scheme: in light its fill (#AB2A22, luminance 0.104) needs one darker than 0.0013 to be
+   * 3:1 from it, and the pressed fill, the page's inverse (#010F0E, 0.0038), reaches 2.87:1; in
+   * dark its fill (#F48577, 0.373) would need one darker than 0.091 (lighter than 1.2 does not
+   * exist) but a fill 3:1 from the dark background (0.010) must be lighter than 0.13, and the
+   * pressed fill, white, reaches 2.48:1. It is exempt from the rule against the resting fill in
+   * both, and is held to the surface and text rules below. A toggle belongs on another variant.
    */
   const SCHEMES_SEPARABLE_FROM_REST = (variant: NeatButtonVariant): NeatColorScheme[] =>
-    variant === 'primary' ? ['light'] : variant === 'success' ? [] : SCHEMES;
+    variant === 'primary'
+      ? ['light']
+      : variant === 'success' || variant === 'danger'
+        ? []
+        : SCHEMES;
 
   it.each(VARIANTS)(
     `%s: pressed text reaches 4.5:1 and the fill ${MIN_NON_TEXT_CONTRAST}:1 against the surface, at rest and on hover, in both schemes`,
@@ -638,7 +652,7 @@ describe('NeatButton', () => {
   );
 
   it.each(VARIANTS)(
-    `%s: the pressed fill is ${MIN_NON_TEXT_CONTRAST}:1 from the resting fill, in both schemes (primary: light only, success: neither), at rest and on hover`,
+    `%s: the pressed fill is ${MIN_NON_TEXT_CONTRAST}:1 from the resting fill, in both schemes (primary: light only, success and danger: neither), at rest and on hover`,
     async (variant) => {
       const rest = await classesOf(variant);
       const pressed = await classesOf(variant, true);
@@ -703,6 +717,46 @@ describe('NeatButton', () => {
     // text, a focused button shows its rest or hover colours, which they hold to 4.5:1.
     const classes = await classesOf('danger-text');
     expect(classes.filter((name) => /^(dark:)?focus-visible:(bg|text)-/.test(name))).toEqual([]);
+  });
+
+  it('danger is a solid fill in the danger colour with its foreground, in both schemes, never helm’s tint', async () => {
+    const danger = await classesOf('danger');
+
+    // Helm's destructive is a 10% tint (20% in dark) that hovers to 20% (30%); none may survive.
+    expect(
+      danger.filter((name) =>
+        /^((dark:)?(hover:)?bg-destructive\/(10|20|30)|text-destructive)$/.test(name),
+      ),
+    ).toEqual([]);
+    for (const scheme of SCHEMES) {
+      const tokens = spartanThemeTokens(scheme);
+      for (const surface of SURFACES) {
+        const { fill, text } = colorsOf(danger, { scheme, hover: false }, surface);
+        expect(fill, `${scheme}, over ${surface}: the danger colour`).toBe(tokens['destructive']);
+        expect(text, `${scheme}, over ${surface}: its foreground`).toBe(
+          tokens['destructive-foreground'],
+        );
+      }
+    }
+  });
+
+  it('danger hovers to 90% of its fill and focuses with the danger ring', async () => {
+    const danger = await classesOf('danger');
+
+    expect(danger).toContain('hover:bg-destructive/90');
+    for (const scheme of SCHEMES) {
+      const tokens = spartanThemeTokens(scheme);
+      for (const surface of SURFACES) {
+        const { fill, text } = colorsOf(danger, { scheme, hover: true }, surface);
+        expect(fill, `${scheme}, hover over ${surface}`).toBe(
+          composite(tokens['destructive'], 0.9, tokens[surface]),
+        );
+        expect(text, `${scheme}, hover over ${surface}: the foreground stays`).toBe(
+          tokens['destructive-foreground'],
+        );
+      }
+      expect(focusRingValue(danger, scheme), scheme).toBe('destructive');
+    }
   });
 
   it('success is a solid fill in the success colour with its foreground, in both schemes', async () => {

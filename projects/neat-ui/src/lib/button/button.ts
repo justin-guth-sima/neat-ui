@@ -27,9 +27,6 @@ type SpartanSize = NonNullable<ButtonVariants['size']>;
  * - outlined, text: `bg-muted` is 1.10:1 against white in light, and in dark ghost's `bg-muted/50`
  *   is the card colour itself. `--accent`, the theme's hover and selection fill, is visible on
  *   every surface. Outlined keeps helm's dark hover (`bg-input/50`), which already is.
- * - danger: a deeper tint (`/30` in dark) drops the red text to 4.0:1 on a card; the theme only
- *   guarantees status text on its resting tint. On hover it takes the solid fill and its
- *   foreground, a pair the theme guarantees, in both schemes alike.
  * Secondary keeps helm's hover (5% towards the text colour), which keeps its text readable.
  *
  * `danger-text` is the text variant (helm's ghost: no fill, no border) in the danger colour, for a
@@ -39,6 +36,14 @@ type SpartanSize = NonNullable<ButtonVariants['size']>;
  * replaces ghost's `hover:text-foreground`, a grey label), which button.spec holds to 4.5:1 on that
  * fill. It focuses with danger's red ring. Focus changes neither fill nor text, so the rest and
  * hover contrast hold while focused.
+ *
+ * `danger` is a solid fill in the status colour (`--destructive` under `--destructive-foreground`),
+ * for the action that stops or discards something (Stop recording), as `success` is for the one
+ * that starts it; the quiet red is `danger-text`. Helm's destructive is a 10% tint (20% in dark)
+ * that hovers to 20% (30%), so the rest classes replace both the tint and its dark twin, and the
+ * hover sets both chains too: a stray dark tint would win in dark. It hovers to 90% of its fill,
+ * which keeps the foreground readable (the spec holds that in both schemes), and focuses with its
+ * red ring, which `--destructive` holds at 3:1 on the page and on a card.
  *
  * `success` is a solid fill in the status colour (`--success` under `--success-foreground`), for a
  * main action that starts something, such as Start recording. Helm has no such variant, so it
@@ -65,7 +70,8 @@ const VARIANTS: Record<
   text: { spartan: 'ghost', hover: TEXT_HOVER, focus: 'focus-visible:ring-ring' },
   danger: {
     spartan: 'destructive',
-    hover: 'hover:bg-destructive hover:text-destructive-foreground dark:hover:bg-destructive',
+    rest: 'bg-destructive text-destructive-foreground dark:bg-destructive',
+    hover: 'hover:bg-destructive/90 dark:hover:bg-destructive/90',
     focus: DANGER_FOCUS,
   },
   'danger-text': {
@@ -107,9 +113,10 @@ const SIZES: Record<
  * - the text is at least 4.5:1 on the fill;
  * - the fill is at least 3:1 against the surface;
  * - the fill is at least 3:1 against the variant's resting fill, except primary in dark (2.78:1;
- *   in light it reaches 3.9:1), where no fill is 3:1 from both its solid fill and the surface.
- * Hover fills are not compared: the pressed fill against a hovered primary or danger is lower
- * (2.07:1 for primary in dark, 2.87:1 for danger in light).
+ *   in light it reaches 3.9:1), success (2.86:1 in light, 2.0:1 in dark) and danger (2.87:1 in
+ *   light, 2.48:1 in dark), where no fill is 3:1 from both their solid fill and the surface.
+ * Hover fills are not compared: the pressed fill against a hovered primary is lower (2.07:1 in
+ * dark).
  *
  * It sets the colour in all four chains the variants use (rest, hover, dark, dark hover) so that
  * the merge replaces whatever the variant's classes set there. Hover does not change a pressed
@@ -164,10 +171,10 @@ export class NeatButton {
   readonly rounded = input(false, { transform: booleanAttribute });
   /**
    * A toggle's state: `aria-pressed` and the pressed look. Undefined for a button that is not a
-   * toggle. Only for `button[neatButton]`: `aria-pressed` is not valid on a link. The primary
-   * and success variants are solid fills already, so their pressed look is the least distinct
-   * (primary 2.78:1 against its resting fill in dark; success 2.86:1 in light and 2.0:1 in dark);
-   * put toggles on the other variants.
+   * toggle. Only for `button[neatButton]`: `aria-pressed` is not valid on a link. The primary,
+   * success and danger variants are solid fills already, so their pressed look is the least
+   * distinct (primary 2.78:1 against its resting fill in dark; success 2.86:1 in light and 2.0:1
+   * in dark; danger 2.87:1 in light and 2.48:1 in dark); put toggles on the other variants.
    */
   readonly pressed = input<boolean | undefined>(undefined);
 

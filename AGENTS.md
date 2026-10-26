@@ -369,9 +369,12 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
 - **`NeatButton` has seven variants: `primary`, `secondary`, `outlined`, `text`, `danger`,
   `danger-text` and `success`.** `success` is a solid `--success` fill under `--success-foreground`
   for the action that starts something (Start recording), hovering to 90% of the fill and focusing
-  with the ring colour as `primary` does; `button.spec` holds its text to 4.5:1 at rest and on
-  hover in both schemes. Each variant's contrast is pinned there, so a new one is added to the
-  spec's variant list first.
+  with the ring colour as `primary` does. `danger` is its counterpart, a solid `--destructive` fill
+  under `--destructive-foreground` for the action that stops or discards (Stop recording), hovering
+  to 90% and focusing with its red ring; the quiet red, for a destructive action among text
+  buttons, is `danger-text`. `button.spec` holds the text of both to 4.5:1 at rest and on hover in
+  both schemes. Each variant's contrast is pinned there, so a new one is added to the spec's
+  variant list first.
 - **The kit's icons are outlines, except `play`, `pause` and `stop`, which are filled.** Why: media
   controls are solid by convention, and a filled glyph reads at the sizes a transport is drawn at.
   `lib/icon/icon-registry.ts` makes them through `filled(...)` (`fill: currentColor` on each shape);
@@ -380,9 +383,9 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   host binding that is absent while `pressed` is undefined) and gives the pressed look with it, so
   an `[attr.aria-pressed]` on a `neatButton` is overwritten. The look is the inverse of the page
   (`foreground` fill, `background` text) and is 3:1 from the surface in both themes and from the
-  resting fill of every variant but `primary` and `success`, whose solid fills leave no room: put
-  toggles on the others. A name that stays the same while the state changes is a toggle's; a
-  button whose label changes with the state is not one, so leave `pressed` unset.
+  resting fill of every variant but `primary`, `success` and `danger`, whose solid fills leave no
+  room: put toggles on the others. A name that stays the same while the state changes is a
+  toggle's; a button whose label changes with the state is not one, so leave `pressed` unset.
 - **`NeatSlider` takes `describedBy`, an element id, for notes about the slider; it lands on the
   thumb, with `aria-disabled` mirrored there.** Why: brain puts `aria-disabled` on the root and
   assistive technology moves focus to the thumb, so a description or a disabled state on the root

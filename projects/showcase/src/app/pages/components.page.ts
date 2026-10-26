@@ -175,6 +175,10 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
   { value: 'boxes', label: 'Boxes' },
   { value: 'masks', label: 'Masks' },
 ];
+const VIEWS: NeatSegmentedOption<string>[] = [
+  { value: 'live', label: 'Live' },
+  { value: 'runs', label: 'Runs' },
+];
 const SOURCE_OPTIONS: NeatSelectOption<string>[] = [
   { value: 'camera', label: 'Front camera' },
   { value: 'clip', label: 'Warehouse clip' },
@@ -248,10 +252,12 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <code>neatButton</code> on a <code>button</code> or <code>a</code>: seven variants in
             four sizes, then icon-only and rounded. Primary is the app's accent; secondary is the
             neutral choice; success is a solid green for the action that starts something (Start
-            recording), with a filled play or stop icon; danger-text is the text variant in the
-            danger colour, hovering quietly as its neighbours do with its label kept red and
-            focusing with danger's red ring, for a destructive action among text buttons; touch is a
-            48 px target for kiosk and touch screens.
+            recording), with a filled play icon; danger is its solid red counterpart for the action
+            that stops or discards something (Stop recording), with a filled stop icon; danger-text
+            is the quiet red, the text variant in the danger colour, hovering quietly as its
+            neighbours do with its label kept red and focusing with danger's red ring, for a
+            destructive action among text buttons; touch is a 48 px target for kiosk and touch
+            screens.
           </p>
           <div class="showcase-row">
             <button neatButton type="button" variant="text">Rename</button>
@@ -792,6 +798,14 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             </button>
           </div>
           <p class="showcase-code showcase-muted">Shape {{ shape() }}, overlays {{ overlay() }}</p>
+          <p class="showcase-muted">
+            It never gives up width: in a flex row that is too narrow for everything in it, the
+            control keeps its labels whole and the text beside it gives way.
+          </p>
+          <div class="showcase-crowded">
+            <neat-segmented label="Stats view" [options]="views" value="live" />
+            <span class="showcase-crowded-title">Stats for a stream with a long name</span>
+          </div>
         </section>
 
         <section class="showcase-section">
@@ -1803,6 +1817,7 @@ export class ComponentsPage {
   protected readonly streamTone = (stream: DemoStream) => stream.tone;
   protected readonly stream = signal<DemoStream | null>(DEMO_STREAMS[3]);
   protected readonly overlays = OVERLAYS;
+  protected readonly views = VIEWS;
 
   protected readonly bars = signal(true);
   protected readonly hideEmpty = signal(false);
