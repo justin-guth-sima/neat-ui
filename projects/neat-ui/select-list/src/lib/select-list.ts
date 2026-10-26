@@ -174,12 +174,20 @@ const INTERACTIVE =
 /** Stands for "no selection" in key comparisons; no item's key can be it. */
 const NONE = Symbol('none');
 
-/** Ctrl+A, or Cmd+A on a Mac, with no other modifier. */
+/** A key that types one Latin letter. */
+const LATIN_LETTER = /^[a-z]$/i;
+
+/**
+ * Ctrl+A, or Cmd+A on a Mac, with no other modifier. The A is the letter the layout types, so
+ * AZERTY's A counts though it sits where QWERTY has Q. A layout that types no Latin letter on the
+ * key (Cyrillic, Greek) is read by the key's place, `code` KeyA, as shortcuts are on such layouts;
+ * reading the place alone would take AZERTY's Q for A.
+ */
 const isSelectAll = (event: KeyboardEvent): boolean =>
   (event.ctrlKey || event.metaKey) &&
   !event.altKey &&
   !event.shiftKey &&
-  event.key.toLowerCase() === 'a';
+  (LATIN_LETTER.test(event.key) ? event.key.toLowerCase() === 'a' : event.code === 'KeyA');
 
 /**
  * One column of a `neat-select-list`, as a template for the cells in it:

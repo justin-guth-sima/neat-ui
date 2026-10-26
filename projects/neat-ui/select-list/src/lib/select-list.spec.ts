@@ -1718,6 +1718,22 @@ describe('NeatSelectList', () => {
       expect(host.activated).toEqual([]);
     });
 
+    it('finds Ctrl+A by the letter the layout types, and by the key\u2019s place where no Latin letter is typed', async () => {
+      const { host, press, set } = await renderGestures();
+
+      // Cyrillic: the A key types a Cyrillic letter, so only its place, KeyA, makes it Ctrl+A.
+      expect((await press('\u0444', { ...CTRL, code: 'KeyA' })).defaultPrevented).toBe(true);
+      expect(host.checked()).toEqual([1, 2, 4, 6]);
+
+      // AZERTY: A sits where QWERTY has Q, and the key there types A; KeyA types Q there.
+      await set((h) => h.checked.set([]));
+      expect((await press('a', { ...CTRL, code: 'KeyQ' })).defaultPrevented).toBe(true);
+      expect(host.checked()).toEqual([1, 2, 4, 6]);
+      await set((h) => h.checked.set([]));
+      expect((await press('q', { ...CTRL, code: 'KeyA' })).defaultPrevented).toBe(false);
+      expect(host.checked()).toEqual([]);
+    });
+
     it('leaves a blocked row ticked on Ctrl+A: it is neither ticked nor unticked', async () => {
       const { host, press } = await renderGestures((host) => host.checked.set([5]));
 
