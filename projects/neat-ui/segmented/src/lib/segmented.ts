@@ -20,13 +20,16 @@ export interface NeatSegmentedOption<T> {
 /**
  * The track: a grid of equal columns, so that the thumb's width and position follow from the option
  * count and the chosen index alone, as two custom properties on the group, with no measuring.
- * The padding is the thumb's inset (`p-0.5`, which the thumb's `calc` takes off twice, 4px); the
- * thumb's radius is the track's less that inset. `isolate` keeps the thumb's and the segments'
- * z-indexes inside the control. Disabled dims the whole group, so the segments (disabled buttons)
- * add none.
+ * The columns are `minmax(max-content, 1fr)`, not Tailwind's equal-fraction utility, whose
+ * minimum is 0 (`minmax(0, 1fr)`): with that, a column shrinks below its label in a crowded flex
+ * row and the labels overlap. The content minimum keeps every label whole; the `1fr` maximum keeps
+ * the columns equal, since the group sizes to its widest column times the count. The padding is
+ * the thumb's inset (`p-0.5`, which the thumb's `calc` takes off twice, 4px); the thumb's radius is
+ * the track's less that inset. `isolate` keeps the thumb's and the segments' z-indexes inside the
+ * control. Disabled dims the whole group, so the segments (disabled buttons) add none.
  */
 const GROUP_CLASSES =
-  'relative isolate inline-grid grid-flow-col auto-cols-fr rounded-lg bg-neat-segmented-track p-0.5 aria-disabled:opacity-50';
+  'relative isolate inline-grid grid-flow-col auto-cols-[minmax(max-content,1fr)] rounded-lg bg-neat-segmented-track p-0.5 aria-disabled:opacity-50';
 
 /**
  * The thumb: the chosen option's cell of the track, raised. It is `1 / count` of the width inside
@@ -78,7 +81,9 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
   selector: 'neat-segmented',
   imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'inline-flex' },
+  // `shrink-0`: the group is as wide as its labels need, so a flex row that runs out of room must
+  // move or wrap the control, never squeeze it.
+  host: { class: 'inline-flex shrink-0' },
   template: `
     <div
       role="radiogroup"

@@ -259,14 +259,26 @@ describe('NeatSegmented', () => {
       const { group } = await render();
 
       expect([...group.classList]).toEqual(
-        expect.arrayContaining([
-          'inline-grid',
-          'grid-flow-col',
-          'auto-cols-fr',
-          'p-0.5',
-          'isolate',
-        ]),
+        expect.arrayContaining(['inline-grid', 'grid-flow-col', 'p-0.5', 'isolate']),
       );
+    });
+
+    it('never squeezes an option below its content: the columns have no 0 minimum', async () => {
+      const { group } = await render();
+      const classes = [...group.classList];
+
+      // `auto-cols-fr` is `minmax(0, 1fr)`: in a crowded flex row the columns shrink below their
+      // labels and the labels overlap. The minimum is the content's, the maximum an equal share.
+      expect(classes).not.toContain('auto-cols-fr');
+      expect(classes).toContain('auto-cols-[minmax(max-content,1fr)]');
+      expect(classes.filter((name) => name.startsWith('auto-cols-'))).toHaveLength(1);
+    });
+
+    it('does not shrink in a flex row, so a crowded toolbar cannot squeeze the control', async () => {
+      const { fixture } = await render();
+      const host: HTMLElement = fixture.nativeElement.querySelector('neat-segmented');
+
+      expect([...host.classList]).toEqual(expect.arrayContaining(['inline-flex', 'shrink-0']));
     });
 
     it('slides the thumb in 280 ms and not at all under reduced motion', async () => {
