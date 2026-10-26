@@ -77,4 +77,26 @@ describe('App', () => {
     expect(toggle.getAttribute('aria-pressed')).toBe('false');
     expect(aside()).toBeNull();
   });
+
+  it('demonstrates page tabs on the page demo: route links, the open one marked', async () => {
+    await navigate('/page');
+    const tabs = (): HTMLAnchorElement[] =>
+      Array.from(content().querySelectorAll<HTMLAnchorElement>('neat-page > nav a'));
+    const open = (): string[] =>
+      tabs()
+        .filter((tab) => tab.getAttribute('aria-current') === 'page')
+        .map((tab) => tab.textContent?.trim() ?? '');
+
+    expect(content().querySelector('neat-page > nav')?.getAttribute('aria-label')).toBe(
+      'Page demo views',
+    );
+    expect(tabs().map((tab) => tab.getAttribute('href'))).toEqual(['/page', '/page/details']);
+    expect(open()).toEqual(['Overview']);
+
+    await navigate('/page/details');
+
+    expect(open()).toEqual(['Details']);
+    // The rail's item stays open under the nested route.
+    expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe('Page');
+  });
 });

@@ -13,8 +13,9 @@ look happens in one place. Every rule here protects that.
 - `projects/neat-ui`: the library, with one primary and several secondary entry points, each with
   its own public API file:
   - `@sima/neat-ui` (the primary): what the shell and every page need: theme, `NeatIcon`,
-    `NeatShell`, `NeatPageToolbar`, `NeatPage` with its side panel's parts (`NeatAsideToggle`,
-    `NeatAsidePanel`, `NeatAsideTitle`, `NeatAsideHeading`, `NeatAsideActions`), `neatAsideOpen`
+    `NeatShell`, `NeatPageToolbar`, `NeatPage` with its page tabs (`NeatPageTabs`, `NeatPageTab`)
+    and its side panel's parts (`NeatAsideToggle`, `NeatAsidePanel`, `NeatAsideTitle`,
+    `NeatAsideHeading`, `NeatAsideActions`), `neatAsideOpen`
     (a page's panel state, closed on a narrow screen) and `NeatViewport` (the kit's one answer to
     "is this screen narrow", below 48rem), `NeatCode`,
     `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatTooltip`, `NeatNote`, `NeatLiveDot` (a
@@ -476,9 +477,12 @@ supported second scroll context is the page's side panel (below). Escape hatch: 
 another independently scrolling region (for example a log pane beside a form), raise it as a kit
 change so the layout is a supported component, not an ad hoc one.
 
-**A page's toolbar goes through `*neatPageToolbar`, its side panel through `[neatPageAside]`.**
+**A page's toolbar goes through `*neatPageToolbar`, its views through `nav[neatPageTabs]`, its
+side panel through `[neatPageAside]`.**
 Why: the shell owns the top bar and kiosk mode, and `neat-page` owns the page's layout; a page that
-builds its own bar or panel duplicates both and breaks in one of them.
+builds its own bar, row of views or panel duplicates both and breaks in one of them. Views do not
+belong in the toolbar: it sits at the right end of the top bar, so its left edge moves with the
+number of tools and a switch in it moves too.
 
 - `<div *neatPageToolbar>…</div>` anywhere in a page's template renders that content in the top
   bar, at its right end just before the end slot, while the page exists. In kiosk mode it floats
@@ -496,6 +500,22 @@ builds its own bar or panel duplicates both and breaks in one of them.
   The toolbar still scrolls sideways past the row's width, so on a phone `neat-aside-toggle` is
   drawn first among the tools (the one control that must stay in view while the panel floats over
   the page); for that button the tab order differs from the visual order.
+- `<nav neatPageTabs aria-label="Stats views">` with an `<a neatPageTab routerLink="…">` per view,
+  as a direct child of `neat-page`, is the page's views as tabs: a full-width row above the body
+  and the side panel, left-aligned, divided from the page by a border (a page without it has no
+  row, and nothing else changes). They are navigation, never an ARIA `tablist`: `neat-tabs` is the
+  in-page tablist (one tab stop, arrow keys, no routes); these are links between routes, each a
+  tab stop, the landmark named by the `aria-label` the app writes (a nav without a name throws in
+  dev mode). The open tab follows the router, so deep links, back and forward and a view's own
+  query parameters all land right: it carries `aria-current="page"`, is drawn in the foreground
+  colour, semibold and underlined in `--primary`, and the others are `--muted-foreground`.
+  `activeMatch` is `exact` (the default: the path is the tab's) or `subset` (routes nested under
+  the tab's keep it open); the query and the fragment are never judged, since they belong to the
+  view. The row scrolls sideways when its tabs do not fit and never wraps them. A tab for a view
+  that exists only sometimes (a comparison being open) is an `@if` of the app's.
+  The side panel starts below the row, also when it floats over the page on a phone. Why a row of
+  its own and not part of the toolbar: the toolbar is for the view's actions, the tabs for where
+  you are, and they must stay where they are when the actions change.
 - Elements marked `neatPageAside` inside `neat-page` form a right-hand panel shown while
   `aside="open"`: `--neat-aside-width` wide (unless `asideWidth` says otherwise, below), inset and
   scrolling on its own, with the body narrowing beside it and keeping its own `scroll` setting.

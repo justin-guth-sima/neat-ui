@@ -1,10 +1,20 @@
-/* The body and, while open, the aside side by side; the page itself never scrolls. It is the
-   containing block of the floating aside, so the aside stays inside the page's scroll-free box. */
+/* The page's tabs, if it has any, above the content row; the page itself never scrolls. */
 :host {
-  position: relative;
   display: flex;
+  flex-direction: column;
   height: 100%;
   overflow: hidden;
+}
+
+/* The body and, while open, the aside side by side, in what the tabs leave of the page's height. It
+   is the containing block of the floating aside, so the aside stays inside this box, below the
+   tabs. It may shrink below its content's height so the body scrolls inside it instead of
+   growing it. */
+.content {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 /* Takes the width the aside leaves and may shrink below its content's, so content never pushes

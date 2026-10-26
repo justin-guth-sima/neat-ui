@@ -10,4 +10,9 @@ export const routes: Routes = [
   },
   { path: 'charts', loadComponent: () => import('./pages/charts.page').then((m) => m.ChartsPage) },
   { path: 'page', loadComponent: () => import('./pages/page.page').then((m) => m.PagePage) },
+  // The same page on a second route, for the page tabs' demo to link to.
+  {
+    path: 'page/details',
+    loadComponent: () => import('./pages/page.page').then((m) => m.PagePage),
+  },
 ];

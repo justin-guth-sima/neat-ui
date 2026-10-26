@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   NeatAsideActions,
   NeatAsideHeading,
@@ -9,6 +10,8 @@ import {
   NeatCode,
   NeatNote,
   NeatPage,
+  NeatPageTab,
+  NeatPageTabs,
   NeatPageToolbar,
 } from '@sima/neat-ui';
 import { NeatDetails } from '@sima/neat-ui/details';
@@ -26,7 +29,10 @@ import { NeatDetails } from '@sima/neat-ui/details';
     NeatDetails,
     NeatNote,
     NeatPage,
+    NeatPageTab,
+    NeatPageTabs,
     NeatPageToolbar,
+    RouterLink,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -35,6 +41,10 @@ import { NeatDetails } from '@sima/neat-ui/details';
     </div>
 
     <neat-page [aside]="asideOpen() ? 'open' : 'closed'" [(asideWidth)]="asideWidth">
+      <nav neatPageTabs aria-label="Page demo views">
+        <a neatPageTab routerLink="/page">Overview</a>
+        <a neatPageTab routerLink="/page/details" activeMatch="subset">Details</a>
+      </nav>
       <div class="showcase-page">
         <section class="showcase-section">
           <h2>Page</h2>
@@ -58,6 +68,15 @@ import { NeatDetails } from '@sima/neat-ui/details';
             state. Inside, <code>neatAsidePanel</code>, <code>neatAsideTitle</code>,
             <code>neatAsideHeading</code>, <code>neatAsideActions</code> and
             <code>neatCode</code> draw the panel's parts the same way everywhere.
+          </p>
+          <p>
+            The page's views go in page tabs: a <code>nav[neatPageTabs]</code> of
+            <code>a[neatPageTab]</code> route links, as a direct child of <code>neat-page</code>.
+            The row sits full width under the top bar, above the body and the side panel (which on a
+            phone floats below it), and stays put when the views change. The open tab follows the
+            route and carries <code>aria-current="page"</code>; <code>activeMatch="subset"</code>
+            keeps a tab open under routes nested below its own. Resize this window to see the row
+            scroll sideways instead of wrapping.
           </p>
           <p>
             Beside the body the panel is resizable: drag the line on its left edge, or focus it and

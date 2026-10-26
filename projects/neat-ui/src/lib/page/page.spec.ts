@@ -2,6 +2,7 @@ import type { Mock } from 'vitest';
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NeatPage } from './page';
+import { NeatPageTabs } from './page-tabs';
 import { NeatViewport } from './viewport';
 import pageStyles from './page.css' with { loader: 'text' };
 
@@ -25,6 +26,18 @@ class Host {
   readonly aside = signal<'open' | 'closed'>('closed');
   readonly asideWidth = signal<number | null>(null);
 }
+
+@Component({
+  imports: [NeatPage, NeatPageTabs],
+  template: `
+    <neat-page [aside]="'open'">
+      <nav neatPageTabs aria-label="Views"><a href="/live">Live</a></nav>
+      <p>Long content</p>
+      <section neatPageAside class="inspector">Inspector</section>
+    </neat-page>
+  `,
+})
+class TabbedHost {}
 
 /** A ResizeObserver the spec drives: jsdom lays nothing out, so the spec says what was measured. */
 class FakeResizeObserver {
@@ -57,6 +70,8 @@ describe('NeatPage', () => {
   const page = (): HTMLElement => fixture.nativeElement.querySelector('neat-page');
   const body = (): HTMLElement => page().querySelector('.body') as HTMLElement;
   const aside = (): HTMLElement | null => page().querySelector('aside');
+  /** The row of the body and the aside, which the page's tabs sit above. */
+  const content = (): HTMLElement => page().querySelector('.content') as HTMLElement;
   // jsdom computes the stylesheet's `overflow` shorthand but does not expand it into
   // `overflow-x`/`overflow-y`, so the shorthand is what can be asserted.
   const overflow = (element: Element): string => getComputedStyle(element).overflow;
@@ -155,7 +170,7 @@ describe('NeatPage', () => {
     expect(body().contains(panel)).toBe(false);
     // Beside the body, not over it: the page lays the two out in a row, the body takes what the
     // aside leaves and may shrink below its content's width, and the aside keeps its width.
-    expect(getComputedStyle(page()).display).toBe('flex');
+    expect(getComputedStyle(content()).display).toBe('flex');
     expect(getComputedStyle(body()).flexGrow).toBe('1');
     expect(getComputedStyle(body()).minWidth).toBe('0px');
     expect(getComputedStyle(panel).flexShrink).toBe('0');
@@ -186,7 +201,6 @@ describe('NeatPage', () => {
     await fixture.whenStable();
 
     expect(page().dataset['aside']).toBe('beside');
-    expect(getComputedStyle(page()).position).toBe('relative');
     expect(getComputedStyle(aside() as HTMLElement).position).toBe('static');
     expect(getComputedStyle(body()).flexGrow).toBe('1');
   });
@@ -197,9 +211,9 @@ describe('NeatPage', () => {
     await fixture.whenStable();
 
     expect(page().dataset['aside']).toBe('overlay');
-    // The page is the aside's containing block, so it floats over the page's own box and the body
-    // keeps the page's whole width (it is the only item left in the row).
-    expect(getComputedStyle(page()).position).toBe('relative');
+    // The row below the tabs is the aside's containing block, so it floats over that box (not over
+    // the tabs) and the body keeps its whole width (it is the only item left in the row).
+    expect(getComputedStyle(content()).position).toBe('relative');
     expect(getComputedStyle(aside() as HTMLElement).position).toBe('absolute');
     // jsdom resolves no var() or min(), so the rest is asserted as the stylesheet's rule.
     expect(overlayAsideRule()).toMatch(/inset-block:\s*0;/);
@@ -209,6 +223,47 @@ describe('NeatPage', () => {
     expect(overlayAsideRule()).toMatch(/background:\s*var\(--background\);/);
     // The kit's raised-surface shadow, as its utility (the popover and the toast take theirs the same way).
     expect((aside() as HTMLElement).className).toContain('shadow-md');
+  });
+
+  describe('page tabs', () => {
+    it('renders no row, and nothing above the content, on a page without tabs', async () => {
+      expect(page().querySelector('nav')).toBeNull();
+      expect([...page().children]).toEqual([content()]);
+    });
+
+    it('projects [neatPageTabs] as a row above the body and the side panel', async () => {
+      const tabbed = TestBed.createComponent(TabbedHost);
+      await tabbed.whenStable();
+
+      const tabbedPage = tabbed.nativeElement.querySelector('neat-page') as HTMLElement;
+      const tabs = tabbedPage.querySelector('nav') as HTMLElement;
+      const row = tabbedPage.querySelector('.content') as HTMLElement;
+      expect([...tabbedPage.children]).toEqual([tabs, row]);
+      expect(row.contains(row.querySelector('.body'))).toBe(true);
+      expect(row.contains(row.querySelector('aside'))).toBe(true);
+      // The tabs are not part of the body: they neither scroll with it nor take its inset.
+      expect(tabbedPage.querySelector('.body')?.contains(tabs)).toBe(false);
+      expect(tabbedPage.querySelector('.body p')?.textContent).toBe('Long content');
+    });
+
+    it('stacks the tabs over the row, which takes the rest of the height', () => {
+      expect(getComputedStyle(page()).flexDirection).toBe('column');
+      expect(getComputedStyle(content()).flexGrow).toBe('1');
+      // So the body can scroll inside the row instead of growing it.
+      expect(getComputedStyle(content()).minHeight).toBe('0px');
+    });
+
+    it('floats the side panel inside the row, so on a phone it opens below the tabs', async () => {
+      narrow.set(true);
+      const tabbed = TestBed.createComponent(TabbedHost);
+      await tabbed.whenStable();
+
+      const tabbedPage = tabbed.nativeElement.querySelector('neat-page') as HTMLElement;
+      const panel = tabbedPage.querySelector('aside') as HTMLElement;
+      expect(tabbedPage.dataset['aside']).toBe('overlay');
+      expect(getComputedStyle(panel).position).toBe('absolute');
+      expect(panel.parentElement).toBe(tabbedPage.querySelector('.content'));
+    });
   });
 
   it('follows the viewport when it is resized across the breakpoint', async () => {

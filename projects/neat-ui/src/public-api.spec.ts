@@ -81,6 +81,10 @@ describe('the public API', () => {
     );
   });
 
+  it("exports the page tabs, the primary entry's page navigation", () => {
+    expect(Object.keys(primary)).toEqual(expect.arrayContaining(['NeatPageTabs', 'NeatPageTab']));
+  });
+
   it('exports the live dot, which every page that shows a running state needs', () => {
     expect(Object.keys(primary)).toEqual(expect.arrayContaining(['NeatLiveDot']));
   });
