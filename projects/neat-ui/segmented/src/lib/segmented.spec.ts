@@ -317,6 +317,20 @@ describe('NeatSegmented', () => {
       }
     });
 
+    it('is 32 px tall, the height of the small buttons: 28 px segments in a 2 px inset', async () => {
+      const { group, radios } = await render();
+
+      for (const radio of radios) {
+        expect(radio.classList).toContain('h-7');
+        expect(radio.classList).not.toContain('h-8');
+      }
+      expect(group.classList).toContain('p-0.5');
+      // The thumb fills the segments' height, so it follows the inset and not a height of its own.
+      const thumb = thumbOf(group)[0];
+      expect(thumb.classList).toContain('inset-y-0.5');
+      expect([...thumb.classList].some((name) => /^h-/.test(name))).toBe(false);
+    });
+
     it('slides the thumb in 280 ms and not at all under reduced motion', async () => {
       const { group } = await render();
       const classes = [...thumbOf(group)[0].classList];

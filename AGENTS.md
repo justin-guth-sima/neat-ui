@@ -329,7 +329,8 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
     (`--neat-segmented-thumb`) that slides under the chosen label, which is semibold in `--primary`,
     and a divider between two unchosen neighbours. The options are equal-width grid columns, so the
     thumb is pure CSS from two custom properties on the group (`--neat-segmented-count` and
-    `--neat-segmented-index`), never measured. It sizes to its widest label times the count and
+    `--neat-segmented-index`), never measured. The control is 32 px tall (28 px segments in a 2 px
+    inset), the height of the small buttons, icon buttons and pills beside it in a toolbar. It sizes to its widest label times the count and
     fills at most its container (`max-w-full`): in a narrower one the columns shrink together
     (`auto-cols-fr`) and each label ends in an ellipsis, its accessible name still whole. A flex row
     never squeezes it (`shrink-0`): a crowded row moves or wraps it, or its other items give way, as
