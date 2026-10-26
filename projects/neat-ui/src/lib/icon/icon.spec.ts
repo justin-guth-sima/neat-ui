@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NeatIcon } from './icon';
+import iconStyles from './icon.css' with { loader: 'text' };
 import { NEAT_ICON_NAMES, NeatIconName } from './icon-registry';
 
 describe('NeatIcon', () => {
@@ -93,6 +94,46 @@ describe('NeatIcon', () => {
 
   it('leaves an outline glyph unfilled', async () => {
     expect(svg().querySelector('[fill]')).toBeNull();
+  });
+
+  describe('the spinner', () => {
+    /** The stylesheet inside its `no-preference` media block, and the rest outside it. */
+    function split(css: string): { inside: string; outside: string } {
+      const start = css.indexOf('@media (prefers-reduced-motion: no-preference)');
+      if (start < 0) return { inside: '', outside: css };
+      const open = css.indexOf('{', start);
+      let depth = 0;
+      let end = open;
+      for (; end < css.length; end++) {
+        if (css[end] === '{') depth++;
+        if (css[end] === '}' && --depth === 0) break;
+      }
+      return { inside: css.slice(open, end), outside: css.slice(0, start) + css.slice(end + 1) };
+    }
+
+    it('names its glyph on the host, which is what the stylesheet turns', async () => {
+      fixture.componentRef.setInput('name', 'spinner');
+      await fixture.whenStable();
+
+      expect(fixture.nativeElement.getAttribute('data-icon')).toBe('spinner');
+      expect(svg().children.length).toBeGreaterThan(0);
+    });
+
+    it('turns once a second, in one rule of the kit', () => {
+      const { inside } = split(iconStyles);
+
+      expect(inside).toMatch(
+        /:host\(\[data-icon='spinner'\]\)\s+svg\s*\{[^}]*animation:\s*neat-icon-spin\s+1s\s+linear\s+infinite/,
+      );
+      expect(iconStyles).toMatch(/@keyframes neat-icon-spin\s*\{[^}]*rotate\(360deg\)/);
+      expect(iconStyles.match(/animation\s*:/g)).toHaveLength(1);
+    });
+
+    it('does not turn at all for a user who asked for reduced motion', () => {
+      const { outside } = split(iconStyles);
+
+      expect(outside).not.toMatch(/animation\s*:/);
+    });
   });
 
   it('rejects names outside the registry at compile time', () => {

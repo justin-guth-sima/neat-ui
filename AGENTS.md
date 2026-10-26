@@ -389,7 +389,10 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
 - **The kit's icons are outlines, except `play`, `pause` and `stop`, which are filled.** Why: media
   controls are solid by convention, and a filled glyph reads at the sizes a transport is drawn at.
   `lib/icon/icon-registry.ts` makes them through `filled(...)` (`fill: currentColor` on each shape);
-  no other glyph is filled, so do not use it to emphasise one.
+  no other glyph is filled, so do not use it to emphasise one. `spinner` is the one glyph that
+  moves: `icon.css` turns it once a second, and only for a user who has not asked for reduced
+  motion (otherwise it is a still glyph), so an app's busy control never animates it itself and
+  says that it waits in text or state (`aria-busy`), since the icon is decorative.
 - **A toggle button binds `pressed`, never `aria-pressed`.** `NeatButton` owns the attribute (a
   host binding that is absent while `pressed` is undefined) and gives the pressed look with it, so
   an `[attr.aria-pressed]` on a `neatButton` is overwritten. The look is the inverse of the page

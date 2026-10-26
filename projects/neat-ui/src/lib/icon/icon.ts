@@ -5,12 +5,15 @@ import { NEAT_ICONS, NeatIconName } from './icon-registry';
 /**
  * An icon from the kit's curated set. Decorative by default (hidden from assistive technology);
  * give it a `label` when it carries meaning on its own. It takes its colour from the surrounding
- * text.
+ * text. The `spinner` turns (see `icon.css`), still for a user who asked for reduced motion; it
+ * says nothing of waiting, so the control it sits in does (an `aria-busy`, a held state).
  */
 @Component({
   selector: 'neat-icon',
   imports: [LucideDynamicIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // The stylesheet's hook for the one glyph that moves.
+  host: { '[attr.data-icon]': 'name()' },
   template: `
     <svg
       [lucideIcon]="glyph()"

@@ -1,4 +1,4 @@
-import { Camera } from 'lucide';
+import { Camera, LoaderCircle } from 'lucide';
 import { NEAT_ICON_NAMES, NEAT_ICONS } from './icon-registry';
 
 describe('NEAT_ICON_NAMES', () => {
@@ -11,6 +11,11 @@ describe('NEAT_ICON_NAMES', () => {
 describe('NEAT_ICONS', () => {
   it('each entry is the plain drawing named after its key', () => {
     expect(NEAT_ICONS.camera).toEqual({ name: 'camera', node: Camera });
+  });
+
+  it('draws spinner as Lucide’s loader circle, an outline like the rest', () => {
+    expect(NEAT_ICON_NAMES).toContain('spinner');
+    expect(NEAT_ICONS.spinner).toEqual({ name: 'spinner', node: LoaderCircle });
   });
 
   it('draws stop as a square, like aspect-square but filled', () => {

@@ -1,3 +1,17 @@
 :host {
   display: inline-flex;
 }
+
+/* The spinner turns, once a second, for a user who has not asked for reduced motion; otherwise it
+   is a still glyph. Stated here once, so an app's busy button never animates by itself. */
+@media (prefers-reduced-motion: no-preference) {
+  :host([data-icon='spinner']) svg {
+    animation: neat-icon-spin 1s linear infinite;
+  }
+}
+
+@keyframes neat-icon-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
