@@ -8,12 +8,7 @@ import {
   model,
   viewChildren,
 } from '@angular/core';
-import {
-  NeatIcon,
-  type NeatIconName,
-  ɵhlm as hlm,
-  ɵtoggleVariants as toggleVariants,
-} from '@sima/neat-ui';
+import { NeatIcon, type NeatIconName } from '@sima/neat-ui';
 
 /** One choice of a `neat-segmented`: its value, its label and an optional icon before the label. */
 export interface NeatSegmentedOption<T> {
@@ -23,35 +18,33 @@ export interface NeatSegmentedOption<T> {
 }
 
 /**
- * Helm's toggle-group classes (`lib/ui/toggle-group`), copied because helm keeps them inline; the
- * segment's variant classes come from helm's exported `toggleVariants`. segmented.spec checks
- * that each copied string still appears in the vendored helm, so a helm update that changes one
- * fails until this table is reviewed.
+ * The track: a grid of equal columns, so that the thumb's width and position follow from the option
+ * count and the chosen index alone, as two custom properties on the group, with no measuring. The
+ * padding is the thumb's inset (`p-0.5`, which the thumb's `calc` takes off twice, 4px); the thumb's
+ * radius is the track's less that inset. `isolate` keeps the thumb's and the segments' z-indexes
+ * inside the control. Disabled dims the whole group, so the segments (disabled buttons) add none.
  */
-export const SEGMENTED_HELM_CLASSES = {
-  /** `hlm-toggle-group.ts` */
-  group:
-    'rounded-md data-[spacing=0]:data-[variant=outline]:shadow-xs group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] data-vertical:flex-col data-vertical:items-stretch',
-  /** `hlm-toggle-group-item.ts` */
-  item: 'data-[state=on]:bg-muted group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 group-data-[spacing=0]/toggle-group:shadow-none group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-s-md group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-md group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-e-md group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-md shrink-0 focus:z-10 focus-visible:z-10 group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:border-s-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-s group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-t',
-} as const;
+const GROUP_CLASSES =
+  'relative isolate inline-grid grid-flow-col auto-cols-fr rounded-lg bg-neat-segmented-track p-0.5 aria-disabled:opacity-50';
 
 /**
- * A segment: helm's outline toggle with the kit's states. Each override exists because
- * segmented.spec failed without it.
- * - Checked: helm's `bg-muted` is 1.10:1 on white, too faint to show which segment is chosen
- *   (3:1). The kit fills the checked segment with the primary colour and its foreground, a pair
- *   the theme guarantees, and on hover with `--primary-hover`, which only gains text contrast.
- * - Hover: `bg-muted` is 1.10:1 on white; `--accent`, the theme's hover fill, stays visible.
- * - Focus ring: helm's `ring-ring/50` is about 1.85:1 on white; the kit draws full `--ring`.
+ * The thumb: the chosen option's cell of the track, raised. It is `1 / count` of the width inside
+ * the padding and moves by whole multiples of its own width (a percentage in `translate` is of the
+ * element itself). The 280 ms curve is the switch's; reduced motion jumps instead.
  */
-const ITEM_CLASSES = hlm(
-  SEGMENTED_HELM_CLASSES.item,
-  toggleVariants({ variant: 'outline', size: 'default' }),
-  'hover:bg-accent focus-visible:ring-ring',
-  'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
-  'data-[state=on]:hover:bg-primary-hover data-[state=on]:hover:text-primary-foreground',
-);
+const THUMB_CLASSES =
+  'pointer-events-none absolute inset-y-0.5 left-0.5 z-0 w-[calc((100%-4px)/var(--neat-segmented-count))] translate-x-[calc(var(--neat-segmented-index)*100%)] rounded-md bg-neat-segmented-thumb shadow-sm transition-transform duration-280 ease-[cubic-bezier(.3,.7,.2,1)] motion-reduce:transition-none';
+
+/**
+ * A segment, transparent above the thumb; the chosen one is the semibold primary label (primary on
+ * the thumb is a pair the segmented spec holds to 4.5:1). Between two unchosen neighbours a 1px
+ * divider is drawn on the segment's start edge (`before`), and hidden by `opacity` so that it fades
+ * with the thumb's slide: not on the first segment (`first-of-type`: the thumb is the group's first
+ * child), nor on the chosen one, nor on the one after it.
+ * The focus ring is the full `--ring` (3:1) rather than a faint mix.
+ */
+const ITEM_CLASSES =
+  'relative z-10 inline-flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-md bg-transparent px-3.5 text-sm font-medium whitespace-nowrap text-foreground outline-none transition-colors duration-200 motion-reduce:transition-none disabled:pointer-events-none focus-visible:z-20 focus-visible:ring-[3px] focus-visible:ring-ring data-[state=on]:font-semibold data-[state=on]:text-primary before:absolute before:inset-y-1.5 before:left-0 before:w-px before:bg-muted-foreground/40 before:transition-opacity before:duration-200 motion-reduce:before:transition-none first-of-type:before:hidden data-[state=on]:before:opacity-0 [[data-state=on]+&]:before:opacity-0';
 
 /** Keys that move the selection, and where to: the next index from the current one of `count`. */
 const MOVES: Record<string, (index: number, count: number) => number> = {
@@ -69,9 +62,10 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
  * (the checked option, else the first), arrow keys move the choice and wrap, Home and End jump to
  * the ends, and a click on the checked option keeps it checked.
  *
- * Built on helm's toggle-group look but not on brain's toggle group: brain makes its items pressed
- * toggle buttons (`aria-pressed`, rewritten on every change) with no arrow keys, while a choice of
- * one is a radio group. The roles, the roving tab stop, the keys and `data-state` are the kit's.
+ * Drawn as an iOS-style switch: a track with a raised thumb that slides under the chosen label.
+ * Not built on brain's toggle group: brain makes its items pressed toggle buttons (`aria-pressed`,
+ * rewritten on every change) with no arrow keys, while a choice of one is a radio group. The
+ * roles, the roving tab stop, the keys and `data-state` are the kit's.
  */
 @Component({
   selector: 'neat-segmented',
@@ -83,11 +77,14 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
       role="radiogroup"
       [attr.aria-label]="label()"
       [attr.aria-disabled]="disabled() || null"
-      data-variant="outline"
-      data-spacing="0"
       data-orientation="horizontal"
+      [style.--neat-segmented-count]="options().length"
+      [style.--neat-segmented-index]="tabStop()"
       [class]="groupClasses"
     >
+      @if (chosen() >= 0) {
+        <span aria-hidden="true" data-slot="segmented-thumb" [class]="thumbClasses"></span>
+      }
       @for (option of options(); track option.value; let index = $index) {
         <button
           #segment
@@ -97,9 +94,6 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
           [attr.data-state]="option.value === value() ? 'on' : 'off'"
           [tabIndex]="index === tabStop() ? 0 : -1"
           [disabled]="disabled()"
-          data-variant="outline"
-          data-size="default"
-          data-spacing="0"
           [class]="itemClasses"
           (click)="value.set(option.value)"
           (keydown)="move($event, index)"
@@ -120,15 +114,15 @@ export class NeatSegmented<T> {
   readonly label = input.required<string>();
   readonly disabled = input(false, { transform: booleanAttribute });
 
-  protected readonly groupClasses: string = SEGMENTED_HELM_CLASSES.group;
-  protected readonly itemClasses: string = ITEM_CLASSES;
-  /** The option keyboard focus enters on: the checked one, else the first. */
-  protected readonly tabStop = computed(() =>
-    Math.max(
-      0,
-      this.options().findIndex((option) => option.value === this.value()),
-    ),
+  protected readonly groupClasses = GROUP_CLASSES;
+  protected readonly thumbClasses = THUMB_CLASSES;
+  protected readonly itemClasses = ITEM_CLASSES;
+  /** The index of the checked option, or -1 when the value is none of the options. */
+  protected readonly chosen = computed(() =>
+    this.options().findIndex((option) => option.value === this.value()),
   );
+  /** The option keyboard focus enters on, and where the thumb sits: the checked one, else the first. */
+  protected readonly tabStop = computed(() => Math.max(0, this.chosen()));
 
   private readonly segments = viewChildren<ElementRef<HTMLButtonElement>>('segment');
 

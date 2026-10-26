@@ -46,6 +46,8 @@
   --sidebar-ring: #d26728;
   --neat-video-scrim: #010f0e99;
   --neat-video-scrim-foreground: #ffffff;
+  --neat-segmented-track: #e8e9eb;
+  --neat-segmented-thumb: #ffffff;
   --neat-tint-success: #ebf5ed;
   --neat-tint-success-accent: #d0e8d4;
   --neat-tint-warning: #fdf6ed;
@@ -116,6 +118,8 @@
   --sidebar-ring: #e28250;
   --neat-video-scrim: #010f0e99;
   --neat-video-scrim-foreground: #ffffff;
+  --neat-segmented-track: #2b2b2b;
+  --neat-segmented-thumb: #333333;
   --neat-tint-success: #172119;
   --neat-tint-success-accent: #1c3020;
   --neat-tint-warning: #292218;

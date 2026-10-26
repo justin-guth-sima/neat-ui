@@ -88,7 +88,6 @@ describe('the public API', () => {
       'ɵIN_PAGE_TOOLBAR',
       'ɵhlm',
       'ɵlistVariants',
-      'ɵtoggleVariants',
     ]);
   });
 });

@@ -741,8 +741,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <h2>Segmented</h2>
           <p class="showcase-muted">
             <code>neat-segmented</code>: one of a few choices, side by side, each with a label and
-            an optional icon. A radio group named by <code>label</code>: one tab stop, and the arrow
-            keys move the choice.
+            an optional icon, drawn as an iOS-style switch whose thumb slides under the chosen
+            label. A radio group named by <code>label</code>: one tab stop, and the arrow keys move
+            the choice.
           </p>
           <div class="showcase-row">
             <neat-segmented #shapeControl label="Tile shape" [options]="shapes" [(value)]="shape" />

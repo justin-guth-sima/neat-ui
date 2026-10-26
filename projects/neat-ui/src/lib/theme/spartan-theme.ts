@@ -11,6 +11,7 @@ import {
   along,
   CONTRAST_RULES,
   firstReadable,
+  MIN_CONTRAST,
   MIN_FILL_CONTRAST,
   MIN_NON_TEXT_CONTRAST,
 } from './contrast-rules';
@@ -74,6 +75,16 @@ const ROW_TINT_SHARE: Record<NeatColorScheme, number> = { light: 0.1, dark: 0.14
  * tone gets about the least that shows, as a plain row's `--accent` does on the page.
  */
 const ROW_TINT_ACCENT_STEP = 0.02;
+
+/**
+ * Dark segmented track: this share of the accent step over the card step. The accent step alone
+ * (`--accent`) leaves no room for a lighter thumb that the primary label still reads on, and the
+ * card step is too faint on a card (1.0:1). At this share the track shows on both the page and
+ * a card (MIN_FILL_CONTRAST).
+ */
+const SEGMENTED_DARK_TRACK_SHARE = 0.8;
+/** How finely the dark thumb's share of the step above the track is searched, lightest first. */
+const SEGMENTED_THUMB_STEP = 0.05;
 
 const scales = {
   primary: buildColorScale(NEAT_PRIMARY_BASE),
@@ -213,9 +224,32 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     // dark scheme's surfaces are.
     'neat-video-scrim': withAlpha(SIMA_PALETTE.text, VIDEO_SCRIM_ALPHA),
     'neat-video-scrim-foreground': SIMA_PALETTE.white,
+    ...segmentedTokens(scheme, surface, primary),
     ...rowTints(ROW_TINT_SHARE[scheme], background),
     ...chartTokens(scheme, status(scales.destructive)),
   };
+}
+
+/**
+ * The segmented control's track and its raised thumb, which the chosen label (`--primary`) sits on.
+ * Light: the accent step and white. Dark: the thumb is lighter than the track, as on iOS, but only
+ * as light as keeps the primary label at the text minimum on it, a mix of the next step up over the
+ * accent step, which leaves the thumb about 1.1:1 from the track; the label's colour, not the fill,
+ * says most of what is chosen.
+ */
+function segmentedTokens(scheme: NeatColorScheme, surface: SurfaceScale, primary: string) {
+  if (scheme === 'light') {
+    return { 'neat-segmented-track': surface[100], 'neat-segmented-thumb': surface[0] };
+  }
+  const track = mixOklab(surface[800], SEGMENTED_DARK_TRACK_SHARE, surface[900]);
+  const shares = Array.from(
+    { length: Math.round(1 / SEGMENTED_THUMB_STEP) },
+    (_, i) => 1 - i * SEGMENTED_THUMB_STEP,
+  );
+  const thumbs = shares.map((share) => mixOklab(surface[700], share, surface[800]));
+  const thumb = thumbs.find((color) => contrastRatio(primary, color) >= MIN_CONTRAST);
+  if (thumb === undefined) throw new Error('No dark thumb the primary label reads on');
+  return { 'neat-segmented-track': track, 'neat-segmented-thumb': thumb };
 }
 
 /**

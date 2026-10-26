@@ -3,7 +3,7 @@ import type { ColorScale, ColorStep } from './color-scale';
 import type { NeatColorScheme } from './theme.service';
 
 /** WCAG 2.x AA for normal text. */
-const MIN_CONTRAST = 4.5;
+export const MIN_CONTRAST = 4.5;
 
 /**
  * WCAG 2.x AA for non-text contrast (1.4.11): what a user needs to see to identify a control or

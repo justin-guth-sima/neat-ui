@@ -2,16 +2,10 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { contrastRatio, type NeatColorScheme } from '@sima/neat-ui';
-import helmGroup from '../../../src/lib/ui/toggle-group/src/lib/hlm-toggle-group.ts?source' with {
-  loader: 'text',
-};
-import helmItem from '../../../src/lib/ui/toggle-group/src/lib/hlm-toggle-group-item.ts?source' with {
-  loader: 'text',
-};
 import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
-import { NeatSegmented, type NeatSegmentedOption, SEGMENTED_HELM_CLASSES } from './segmented';
+import { NeatSegmented, type NeatSegmentedOption } from './segmented';
 
 type Shape = 'wide' | 'square' | 'tall';
 
@@ -22,19 +16,22 @@ const OPTIONS: NeatSegmentedOption<Shape>[] = [
 ];
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 const SURFACES = ['background', 'card'] as const;
+/**
+ * How far the thumb must stand from the track. Below the 1.15:1 of a fill on the page: in dark the
+ * chosen label (primary, 4.5:1 on the thumb) caps how light the thumb can be, and the track must
+ * stay 1.15:1 from a card, which leaves about 1.1:1 between them. The label's colour and weight
+ * carry the rest.
+ */
+const MIN_THUMB_CONTRAST = 1.1;
 
 /**
- * The variants on a segment's colour classes. Helm's `aria-pressed:` never applies (segments are
- * radios, checked through `data-state`), nor do validation or disabled styles in these states.
+ * The variants on the colour classes of the track, the thumb and a segment. Disabled dims the whole
+ * group (an opacity, not a colour), so no segment colour class has a disabled variant.
  */
 const VOCABULARY = {
   dark: 'dark',
-  hover: 'hover',
   'focus-visible': 'focus',
   'data-[state=on]': 'checked',
-  'aria-pressed': false,
-  'data-[matches-spartan-invalid=true]': false,
-  disabled: false,
 };
 
 @Component({
@@ -209,99 +206,179 @@ describe('NeatSegmented', () => {
     expect(host.changes).toEqual([]);
   });
 
-  it('draws the group and its segments with helm’s outline toggle-group classes', async () => {
-    const { group, radios } = await render();
+  describe('the iOS-style switch', () => {
+    const thumbOf = (group: HTMLElement) =>
+      group.querySelectorAll<HTMLElement>('[data-slot="segmented-thumb"]');
+    const property = (group: HTMLElement, name: string) => group.style.getPropertyValue(name);
 
-    expect([...group.classList]).toEqual(
-      expect.arrayContaining(SEGMENTED_HELM_CLASSES.group.split(' ')),
-    );
-    expect(group.dataset['variant']).toBe('outline');
-    expect(group.dataset['spacing']).toBe('0');
-    expect([...radios[0].classList]).toEqual(
-      expect.arrayContaining(['border-input', 'h-9', 'shrink-0', 'focus-visible:z-10']),
-    );
-  });
+    it('draws one thumb, hidden from assistive technology, outside the radios', async () => {
+      const { group, radios } = await render();
 
-  it('helm drift: the copied class strings still appear in the vendored helm toggle group', () => {
-    expect(helmGroup).toContain(SEGMENTED_HELM_CLASSES.group);
-    expect(helmItem).toContain(SEGMENTED_HELM_CLASSES.item);
+      const thumbs = thumbOf(group);
+      expect(thumbs).toHaveLength(1);
+      expect(thumbs[0].getAttribute('aria-hidden')).toBe('true');
+      expect(radios.some((radio) => radio.contains(thumbs[0]))).toBe(false);
+      expect(group.querySelectorAll('[role="radio"]')).toHaveLength(3);
+    });
+
+    it('positions the thumb from two custom properties on the group: count and chosen index', async () => {
+      const { fixture, host, group } = await render();
+      expect(property(group, '--neat-segmented-count')).toBe('3');
+      expect(property(group, '--neat-segmented-index')).toBe('0');
+
+      host.shape.set('tall');
+      await fixture.whenStable();
+      expect(property(group, '--neat-segmented-index')).toBe('2');
+      expect(property(group, '--neat-segmented-count')).toBe('3');
+
+      key(group.querySelectorAll<HTMLElement>('[role="radio"]')[2], 'ArrowLeft');
+      await fixture.whenStable();
+      expect(property(group, '--neat-segmented-index')).toBe('1');
+    });
+
+    it('sizes the thumb to one option and moves it by whole thumb widths, in pure CSS', async () => {
+      const { group } = await render();
+      const classes = [...thumbOf(group)[0].classList];
+
+      expect(classes).toContain('w-[calc((100%-4px)/var(--neat-segmented-count))]');
+      expect(classes).toContain('translate-x-[calc(var(--neat-segmented-index)*100%)]');
+    });
+
+    it('lays the options out as equal columns, so the thumb needs no measuring', async () => {
+      const { group } = await render();
+
+      expect([...group.classList]).toEqual(
+        expect.arrayContaining([
+          'inline-grid',
+          'grid-flow-col',
+          'auto-cols-fr',
+          'p-0.5',
+          'isolate',
+        ]),
+      );
+    });
+
+    it('slides the thumb in 280 ms and not at all under reduced motion', async () => {
+      const { group } = await render();
+      const classes = [...thumbOf(group)[0].classList];
+
+      expect(classes).toContain('transition-transform');
+      expect(classes).toContain('duration-280');
+      expect(classes).toContain('ease-[cubic-bezier(.3,.7,.2,1)]');
+      expect(classes).toContain('motion-reduce:transition-none');
+    });
+
+    it('shows no thumb while no option is chosen', async () => {
+      const { fixture, host, group } = await render();
+
+      host.shape.set('none' as Shape);
+      await fixture.whenStable();
+      expect(thumbOf(group)).toHaveLength(0);
+
+      host.shape.set('square');
+      await fixture.whenStable();
+      expect(thumbOf(group)).toHaveLength(1);
+      expect(property(group, '--neat-segmented-index')).toBe('1');
+    });
+
+    it('the chosen segment is data-state on, a semibold primary label with no filled background', async () => {
+      const { radios } = await render();
+      const classes = [...radios[0].classList];
+
+      expect(radios[0].dataset['state']).toBe('on');
+      expect(classes).toContain('data-[state=on]:font-semibold');
+      expect(classes).toContain('data-[state=on]:text-primary');
+      expect(
+        classes.filter((name) => /(^|:)bg-/.test(name) && !name.startsWith('before:')),
+      ).toEqual(['bg-transparent']);
+    });
+
+    it('draws a divider before every segment but the first, hidden next to the chosen one', async () => {
+      const { radios } = await render();
+      const classes = [...radios[1].classList];
+
+      expect(classes).toEqual(
+        expect.arrayContaining([
+          'before:absolute',
+          'before:w-px',
+          'first-of-type:before:hidden',
+          'data-[state=on]:before:opacity-0',
+          '[[data-state=on]+&]:before:opacity-0',
+        ]),
+      );
+    });
+
+    it('dims the whole group when disabled, not each segment on top of it', async () => {
+      const { group, radios } = await render((host) => host.disabled.set(true));
+
+      expect(group.getAttribute('aria-disabled')).toBe('true');
+      expect([...group.classList]).toContain('aria-disabled:opacity-50');
+      expect(
+        radios.some((radio) => [...radio.classList].some((name) => name.includes('opacity-50'))),
+      ).toBe(false);
+    });
   });
 
   describe('contrast, from the emitted theme tokens', () => {
     for (const scheme of SCHEMES) {
       const tokens = spartanThemeTokens(scheme);
-      const q = (on: string[], box?: string) => ({ tokens, vocabulary: VOCABULARY, on, box });
+      const q = (on: string[]) => ({ tokens, vocabulary: VOCABULARY, on });
       const on = (...states: string[]) => (scheme === 'dark' ? ['dark', ...states] : states);
-      const text = (surface: (typeof SURFACES)[number]) =>
-        tokens[surface === 'card' ? 'card-foreground' : 'foreground'];
 
-      async function segmentClasses(): Promise<string[]> {
-        const { radios } = await render();
-        return [...radios[0].classList];
+      async function parts() {
+        const { group, radios } = await render();
+        const classesOf = (element: Element) => [...element.classList];
+        return {
+          group: classesOf(group),
+          thumb: classesOf(group.querySelector('[data-slot="segmented-thumb"]')!),
+          segment: classesOf(radios[0]),
+        };
       }
 
-      it(`${scheme}: a segment's border reaches ${MIN_NON_TEXT_CONTRAST}:1 against background and card`, async () => {
-        const classes = await segmentClasses();
+      it(`${scheme}: the track shows (${MIN_FILL_CONTRAST}:1) on background and card`, async () => {
+        const { group } = await parts();
         for (const surface of SURFACES) {
           const under = tokens[surface];
-          const border = stateColor(classes, 'border', q(on()), under);
+          const track = stateColor(group, 'bg', q(on()), under);
           expect(
-            contrastRatio(border, under),
-            `${scheme}, border on --${surface}`,
-          ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
-        }
-      });
-
-      it(`${scheme}: the checked segment's fill reaches ${MIN_NON_TEXT_CONTRAST}:1 against background and card, at rest and on hover`, async () => {
-        const classes = await segmentClasses();
-        for (const hover of [[], ['hover']]) {
-          for (const surface of SURFACES) {
-            const under = tokens[surface];
-            const fill = stateColor(classes, 'bg', q(on('checked', ...hover)), under);
-            expect(
-              contrastRatio(fill, under),
-              `${scheme}, checked ${hover.join('')} on --${surface}: ${fill}`,
-            ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
-          }
-        }
-      });
-
-      it(`${scheme}: labels reach 4.5:1 unchecked and checked, at rest and on hover`, async () => {
-        const classes = await segmentClasses();
-        for (const state of [[], ['checked']]) {
-          for (const hover of [[], ['hover']]) {
-            for (const surface of SURFACES) {
-              const under = tokens[surface];
-              const states = on(...state, ...hover);
-              const fill = stateColor(classes, 'bg', q(states), under);
-              const label = stateColor(classes, 'text', q(states), fill, text(surface));
-              expect(
-                contrastRatio(label, fill),
-                `${scheme}, [${states.join(', ')}] on --${surface}: ${label} on ${fill}`,
-              ).toBeGreaterThanOrEqual(4.5);
-            }
-          }
-        }
-      });
-
-      it(`${scheme}: an unchecked segment's hover fill is visible (${MIN_FILL_CONTRAST}:1) on background and card`, async () => {
-        const classes = await segmentClasses();
-        for (const surface of SURFACES) {
-          const under = tokens[surface];
-          const fill = stateColor(classes, 'bg', q(on('hover')), under);
-          expect(
-            contrastRatio(fill, under),
-            `${scheme}, hover on --${surface}: ${fill}`,
+            contrastRatio(track, under),
+            `${scheme}, track ${track} on --${surface}`,
           ).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
         }
       });
 
+      it(`${scheme}: the thumb shows (${MIN_THUMB_CONTRAST}:1) on the track`, async () => {
+        const { group, thumb } = await parts();
+        const track = stateColor(group, 'bg', q(on()), tokens['background']);
+        const fill = stateColor(thumb, 'bg', q(on()), track);
+        expect(
+          contrastRatio(fill, track),
+          `${scheme}, thumb ${fill} on track ${track}`,
+        ).toBeGreaterThanOrEqual(MIN_THUMB_CONTRAST);
+      });
+
+      it(`${scheme}: labels reach 4.5:1, the unchosen on the track and the chosen on the thumb`, async () => {
+        const { group, thumb, segment } = await parts();
+        const track = stateColor(group, 'bg', q(on()), tokens['background']);
+        const fill = stateColor(thumb, 'bg', q(on()), track);
+        const unchosen = stateColor(segment, 'text', q(on()), track, tokens['foreground']);
+        const chosen = stateColor(segment, 'text', q(on('checked')), fill, tokens['foreground']);
+        expect(
+          contrastRatio(unchosen, track),
+          `${scheme}, unchosen ${unchosen} on ${track}`,
+        ).toBeGreaterThanOrEqual(4.5);
+        expect(
+          contrastRatio(chosen, fill),
+          `${scheme}, chosen ${chosen} on ${fill}`,
+        ).toBeGreaterThanOrEqual(4.5);
+      });
+
       it(`${scheme}: the focus ring reaches ${MIN_NON_TEXT_CONTRAST}:1 against background and card`, async () => {
-        const classes = await segmentClasses();
-        expect(classes).toContain('focus-visible:ring-[3px]');
+        const { segment } = await parts();
+        expect(segment).toContain('focus-visible:ring-[3px]');
         for (const surface of SURFACES) {
           const under = tokens[surface];
-          const ring = stateColor(classes, 'ring', q(on('focus')), under);
+          const ring = stateColor(segment, 'ring', q(on('focus')), under);
           expect(
             contrastRatio(ring, under),
             `${scheme}, ring on --${surface}`,

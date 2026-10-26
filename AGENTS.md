@@ -165,7 +165,7 @@ the grid and level lines, the time axis and the readout stay.
 **What entries share goes through the primary under a `ɵ` prefix.** The vendored helm code
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,
 yet the secondary entries need them, and an entry sees the primary only through its public API. So
-the primary exports `ɵhlm`, `ɵtoggleVariants`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
+the primary exports `ɵhlm`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
 `ɵFIELD_LABEL_CLASSES` (the field label's look, which `select` and `field` share so that their
 fields line up): Angular's convention for private API. They are not for apps, may change in any
 release, and no app file may import a `ɵ` name. A shared internal that a second entry needs is
@@ -314,6 +314,12 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
     renders its own button, so it cannot be a host directive.
   - `NeatSegmented` owns its radios (roles, roving tabindex, arrow keys): brain's toggle item
     re-writes `aria-pressed` on every change, which contradicts the radio roles.
+    It is drawn as an iOS-style switch: a track (`--neat-segmented-track`) with a raised thumb
+    (`--neat-segmented-thumb`) that slides under the chosen label, which is semibold in `--primary`,
+    and a divider between two unchosen neighbours. The options are equal-width grid columns, so
+    the thumb is pure CSS from two custom properties on the group (`--neat-segmented-count` and
+    `--neat-segmented-index`), never measured. In dark the thumb is only as light as keeps the
+    primary label 4.5:1 on it, so it stands about 1.1:1 from the track.
   - `NeatPopoverTrigger` owns its ARIA and its click (`NeatPopover` itself hosts brain's popover):
     brain's trigger names the panel in `aria-controls` while it is closed, when no element has
     that id.

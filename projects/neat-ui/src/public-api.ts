@@ -60,5 +60,4 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
 export { FIELD_LABEL_CLASSES as ɵFIELD_LABEL_CLASSES } from './lib/form/field-label';
 export { IN_PAGE_TOOLBAR as ɵIN_PAGE_TOOLBAR } from './lib/shell/page-toolbar';
 export { listVariants as ɵlistVariants } from './lib/ui/tabs/src';
-export { toggleVariants as ɵtoggleVariants } from './lib/ui/toggle/src';
 export { hlm as ɵhlm } from './lib/ui/utils/src';
