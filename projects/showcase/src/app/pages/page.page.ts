@@ -64,7 +64,7 @@ import { NeatDetails } from '@sima/neat-ui/details';
             press the left or right arrow (16 px a step), Home or End; a double click restores the
             default. <code>[(asideWidth)]</code> is the width in pixels (<code>null</code> for the
             default, now {{ asideWidth() ?? 'null' }}): the page only exposes it, and the app keeps
-            it where it likes. The panel stays between 18rem and 48rem or 60 % of the page.
+            it where it likes. The panel stays between 18rem and the page less 20rem.
           </p>
         </section>
         @for (section of sections; track section) {

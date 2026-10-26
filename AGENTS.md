@@ -521,7 +521,9 @@ builds its own bar or panel duplicates both and breaks in one of them.
   and `-valuetext` in pixels, "Resize side panel"): dragging it with a pointer shows the width
   live and writes the model on release; ArrowLeft widens and ArrowRight narrows by 16 px, Home and
   End go to the bounds, a double click resets to `null`. The bounds, stated once in `page.ts`, are
-  18rem and the smaller of 48rem and 60 % of the page (so the body keeps 40 %). A width outside
+  18rem and the page's width less 20rem (so the body keeps 20rem; no other cap, and on a page too
+  small for both the minimum wins). Until the page is measured there is no maximum, and the CSS
+  falls back to the page's own width. A width outside
   them is shown clamped and the model left alone, and the panel is re-clamped when the page is
   resized (a `ResizeObserver` on the page, only while the panel is open), so a remembered width
   returns with a wider window. The handle's look (an 8 px hit area, the `col-resize` cursor, a

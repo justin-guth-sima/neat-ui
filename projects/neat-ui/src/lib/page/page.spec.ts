@@ -298,16 +298,49 @@ describe('NeatPage', () => {
       expect(attr('tabindex')).toBe('0');
     });
 
-    it('announces its value in pixels, bounded by 18rem and 48rem or 60 % of the page', async () => {
+    it('announces its value in pixels, bounded by 18rem and the page less 20rem', async () => {
       await open(1000);
-      // The default panel as laid out, bounded by 18rem and by 60 % of a 1000 px page.
+      // The default panel as laid out, bounded by 18rem and by what leaves the body 20rem (320 px)
+      // of a 1000 px page.
       expect(attr('aria-valuemin')).toBe('288');
-      expect(attr('aria-valuemax')).toBe('600');
+      expect(attr('aria-valuemax')).toBe('680');
       expect(attr('aria-valuenow')).toBe('352');
       expect(attr('aria-valuetext')).toBe('352 px');
+    });
 
-      await layout(2000);
-      expect(attr('aria-valuemax')).toBe('768');
+    it('states no maximum before the page is measured, and leaves the keys to Home and End alone', async () => {
+      host().aside.set('open');
+      await fixture.whenStable();
+
+      expect(separator()?.hasAttribute('aria-valuemax')).toBe(false);
+      expect(aside()?.style.getPropertyValue('--neat-page-aside-max')).toBe('');
+      expect(attr('aria-valuemin')).toBe('288');
+
+      Object.defineProperty(aside(), 'offsetWidth', { configurable: true, value: 352 });
+      press('End');
+      expect(host().asideWidth()).toBeNull();
+    });
+
+    it('has no other cap: on a wide page the panel may grow until the body is 20rem', async () => {
+      await open(2000);
+      // Neither the old 48rem (768 px) nor a share of the page.
+      expect(attr('aria-valuemax')).toBe('1680');
+
+      host().asideWidth.set(1500);
+      await fixture.whenStable();
+      expect(attr('aria-valuenow')).toBe('1500');
+    });
+
+    it('counts the rem as the browser sets it, for the minimum and the body it keeps', async () => {
+      document.documentElement.style.fontSize = '20px';
+      try {
+        await open(1500);
+        // 18rem and 1500 px less 20rem, at 20 px a rem.
+        expect(attr('aria-valuemin')).toBe('360');
+        expect(attr('aria-valuemax')).toBe('1100');
+      } finally {
+        document.documentElement.style.fontSize = '';
+      }
     });
 
     it('lets the panel keep the width the model asks for', async () => {
@@ -329,8 +362,8 @@ describe('NeatPage', () => {
 
       host().asideWidth.set(900);
       await fixture.whenStable();
-      expect(attr('aria-valuenow')).toBe('600');
-      expect(aside()?.style.getPropertyValue('--neat-page-aside-max')).toBe('600px');
+      expect(attr('aria-valuenow')).toBe('680');
+      expect(aside()?.style.getPropertyValue('--neat-page-aside-max')).toBe('680px');
       expect(aside()?.style.getPropertyValue('--neat-page-aside-min')).toBe('288px');
 
       host().asideWidth.set(100);
@@ -345,9 +378,9 @@ describe('NeatPage', () => {
       expect(attr('aria-valuenow')).toBe('500');
 
       await layout(700);
-      expect(attr('aria-valuemax')).toBe('420');
-      expect(attr('aria-valuenow')).toBe('420');
-      expect(aside()?.style.getPropertyValue('--neat-page-aside-max')).toBe('420px');
+      expect(attr('aria-valuemax')).toBe('380');
+      expect(attr('aria-valuenow')).toBe('380');
+      expect(aside()?.style.getPropertyValue('--neat-page-aside-max')).toBe('380px');
       expect(host().asideWidth()).toBe(500);
 
       // The remembered width comes back when the window does.
@@ -355,9 +388,13 @@ describe('NeatPage', () => {
       expect(attr('aria-valuenow')).toBe('500');
     });
 
-    it('never lets the maximum fall below the minimum on a very small page', async () => {
+    it('never lets the maximum fall below the minimum on a small page', async () => {
       await open(400);
       expect(attr('aria-valuemin')).toBe('288');
+      expect(attr('aria-valuemax')).toBe('288');
+
+      // 600 px less 20rem is 280 px, under the minimum: the minimum wins.
+      await layout(600);
       expect(attr('aria-valuemax')).toBe('288');
     });
 
@@ -371,7 +408,7 @@ describe('NeatPage', () => {
       expect(FakeResizeObserver.instances.every((each) => each.disconnected)).toBe(true);
     });
 
-    it('widens from the panel\'s own width before anything is measured', async () => {
+    it("widens from the panel's own width before anything is measured", async () => {
       host().aside.set('open');
       await fixture.whenStable();
       Object.defineProperty(aside(), 'offsetWidth', { configurable: true, value: 352 });
@@ -411,13 +448,13 @@ describe('NeatPage', () => {
     });
 
     it('stops at the bounds', async () => {
-      host().asideWidth.set(596);
+      host().asideWidth.set(676);
       await open(1000);
 
       press('ArrowLeft');
-      expect(host().asideWidth()).toBe(600);
+      expect(host().asideWidth()).toBe(680);
       press('ArrowLeft');
-      expect(host().asideWidth()).toBe(600);
+      expect(host().asideWidth()).toBe(680);
 
       host().asideWidth.set(292);
       await fixture.whenStable();
@@ -431,7 +468,7 @@ describe('NeatPage', () => {
       press('Home');
       expect(host().asideWidth()).toBe(288);
       press('End');
-      expect(host().asideWidth()).toBe(600);
+      expect(host().asideWidth()).toBe(680);
     });
 
     it('leaves other keys alone', async () => {
@@ -490,7 +527,7 @@ describe('NeatPage', () => {
         pointer('pointerdown', 600);
         pointer('pointermove', 0);
         await fixture.whenStable();
-        expect(attr('aria-valuenow')).toBe('600');
+        expect(attr('aria-valuenow')).toBe('680');
 
         pointer('pointermove', 2000);
         await fixture.whenStable();
@@ -584,7 +621,7 @@ describe('NeatPage', () => {
 
       it('bounds the panel by what the page tells it, in one place', () => {
         expect(asideRule()).toMatch(
-          /width:\s*clamp\(\s*var\(--neat-page-aside-min\),\s*var\(--neat-aside-width\),\s*var\(--neat-page-aside-max\)\s*\);/,
+          /width:\s*clamp\(\s*var\(--neat-page-aside-min\),\s*var\(--neat-aside-width\),\s*var\(--neat-page-aside-max,\s*100%\)\s*\);/,
         );
       });
 

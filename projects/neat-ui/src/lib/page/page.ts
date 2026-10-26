@@ -14,13 +14,14 @@ import { NeatViewport } from './viewport';
 
 /*
  * The side panel's bounds and the keyboard step, stated here and nowhere else. The panel is at
- * least 18rem, so its content stays usable, and at most 48rem or 60 % of the page, so the body
- * keeps at least 40 % of it. They reach the stylesheet as pixels (`--neat-page-aside-min` and
+ * least 18rem, so its content stays usable, and at most what leaves the body 20rem: there is no
+ * other cap, since a wide screen is the reason to widen the panel (a table of columns, say) and a
+ * share of the page or a fixed width would stop it short. On a page too small for both the
+ * minimum wins. They reach the stylesheet as pixels (`--neat-page-aside-min` and
  * `--neat-page-aside-max` on the aside), which is also where they are enforced.
  */
 const MIN_REM = 18;
-const MAX_REM = 48;
-const MAX_SHARE = 0.6;
+const BODY_MIN_REM = 20;
 const KEY_STEP = 16;
 
 /**
@@ -52,9 +53,9 @@ const KEY_STEP = 16;
  * click returns to the default. `asideWidth` is the width in pixels, `null` for the default
  * `--neat-aside-width`. The page only exposes the model, so an app that wants the width kept
  * binds `[(asideWidth)]` and stores it where it likes; a drag writes it on release, a key press
- * at once. The panel is shown between 18rem and the smaller of 48rem and 60 % of the page; a
- * width outside that is shown clamped and the model left alone, so a remembered width returns
- * when the window is wide enough again.
+ * at once. The panel is shown between 18rem and the page's width less 20rem, which leaves the
+ * body 20rem; a width outside that is shown clamped and the model left alone, so a remembered
+ * width returns when the window is wide enough again.
  */
 @Component({
   selector: 'neat-page',
@@ -93,7 +94,9 @@ const KEY_STEP = 16;
         class="in-data-[aside=overlay]:shadow-md"
         [style.--neat-aside-width]="requested() === null ? null : requested() + 'px'"
         [style.--neat-page-aside-min]="viewport.narrow() ? null : bounds().min + 'px'"
-        [style.--neat-page-aside-max]="viewport.narrow() ? null : bounds().max + 'px'"
+        [style.--neat-page-aside-max]="
+          viewport.narrow() || bounds().max === null ? null : bounds().max + 'px'
+        "
       >
         <ng-content select="[neatPageAside]" />
       </aside>
@@ -126,11 +129,12 @@ export class NeatPage {
   protected readonly bounds = computed(() => {
     const rem = this.rem();
     const min = Math.round(MIN_REM * rem);
-    const cap = MAX_REM * rem;
     const page = this.pageWidth();
-    const max = page > 0 ? Math.min(cap, page * MAX_SHARE) : cap;
     // On a page too small for both, the minimum wins: a panel cannot be narrower than its content.
-    return { min, max: Math.max(min, Math.floor(max)) };
+    // Until the page is measured there is no maximum to state (`null`): the panel is bounded by
+    // the page itself, and the observer's first report, before anything is painted, replaces it.
+    const max = page > 0 ? Math.max(min, Math.floor(page - BODY_MIN_REM * rem)) : null;
+    return { min, max };
   });
 
   /** The width asked for, by a drag or the model; `null` when the default applies. */
@@ -167,7 +171,7 @@ export class NeatPage {
       ArrowLeft: current + KEY_STEP,
       ArrowRight: current - KEY_STEP,
       Home: min,
-      End: max,
+      End: max ?? current,
     }[event.key];
     if (next === undefined) return;
     event.preventDefault();
@@ -210,7 +214,7 @@ export class NeatPage {
 
   private clamp(width: number): number {
     const { min, max } = this.bounds();
-    return Math.round(Math.min(max, Math.max(min, width)));
+    return Math.round(Math.min(max ?? Infinity, Math.max(min, width)));
   }
 
   private measure(panel: HTMLElement): void {

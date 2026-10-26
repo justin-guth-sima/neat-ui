@@ -92,8 +92,13 @@ aside {
 :host([data-aside='beside']) aside {
   flex: none;
   /* The default width, or the one the page sets, kept between the bounds the page computes
-     from its own width. */
-  width: clamp(var(--neat-page-aside-min), var(--neat-aside-width), var(--neat-page-aside-max));
+     from its own width. Before it has measured itself there is no maximum yet, and the page's own
+     width stands in for it. */
+  width: clamp(
+    var(--neat-page-aside-min),
+    var(--neat-aside-width),
+    var(--neat-page-aside-max, 100%)
+  );
 }
 
 /* On a narrow screen the aside floats over the body's right edge instead of squeezing it, as wide
