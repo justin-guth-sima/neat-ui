@@ -231,15 +231,26 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
 }
 
 /**
- * The segmented control's track and its raised thumb, which the chosen label (`--primary`) sits on.
- * Light: the accent step and white. Dark: the thumb is lighter than the track, as on iOS, but only
- * as light as keeps the primary label at the text minimum on it, a mix of the next step up over the
- * accent step, which leaves the thumb about 1.1:1 from the track; the label's colour, not the fill,
- * says most of what is chosen.
+ * How far the dark thumb's hairline edge stands from the track: the fill alone is about 1.1:1 from
+ * it, so the edge carries the thumb's outline.
+ */
+const SEGMENTED_EDGE_CONTRAST = 1.5;
+
+/**
+ * The segmented control's track, its raised thumb (which the chosen `--primary` label sits on) and
+ * the thumb's hairline edge. Light: the accent step, white and a faint grey edge that the shadow
+ * backs. Dark: the thumb is lighter than the track, as on iOS, but only as light as keeps the
+ * primary label at the text minimum on it, a mix of the next step up over the accent step, which
+ * leaves the fill about 1.1:1 from the track; so the edge is the first grey step further up that
+ * reaches SEGMENTED_EDGE_CONTRAST on the track, and a shadow would not show there.
  */
 function segmentedTokens(scheme: NeatColorScheme, surface: SurfaceScale, primary: string) {
   if (scheme === 'light') {
-    return { 'neat-segmented-track': surface[100], 'neat-segmented-thumb': surface[0] };
+    return {
+      'neat-segmented-track': surface[100],
+      'neat-segmented-thumb': surface[0],
+      'neat-segmented-thumb-edge': surface[200],
+    };
   }
   const track = mixOklab(surface[800], SEGMENTED_DARK_TRACK_SHARE, surface[900]);
   const shares = Array.from(
@@ -249,7 +260,14 @@ function segmentedTokens(scheme: NeatColorScheme, surface: SurfaceScale, primary
   const thumbs = shares.map((share) => mixOklab(surface[700], share, surface[800]));
   const thumb = thumbs.find((color) => contrastRatio(primary, color) >= MIN_CONTRAST);
   if (thumb === undefined) throw new Error('No dark thumb the primary label reads on');
-  return { 'neat-segmented-track': track, 'neat-segmented-thumb': thumb };
+  const edgeWalk = [700, 600, 500] as const;
+  const edge =
+    surface[edgeWalk[firstReadable(surface, edgeWalk, [track], SEGMENTED_EDGE_CONTRAST)]];
+  return {
+    'neat-segmented-track': track,
+    'neat-segmented-thumb': thumb,
+    'neat-segmented-thumb-edge': edge,
+  };
 }
 
 /**

@@ -17,12 +17,17 @@ const OPTIONS: NeatSegmentedOption<Shape>[] = [
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 const SURFACES = ['background', 'card'] as const;
 /**
- * How far the thumb must stand from the track. Below the 1.15:1 of a fill on the page: in dark the
- * chosen label (primary, 4.5:1 on the thumb) caps how light the thumb can be, and the track must
- * stay 1.15:1 from a card, which leaves about 1.1:1 between them. The label's colour and weight
- * carry the rest.
+ * How far the thumb's fill must stand from the track: a regression guard, below the 1.15:1 of a
+ * fill on the page. In dark the chosen label (primary, 4.5:1 on the thumb) caps how light the fill
+ * can be and the track must stay 1.15:1 from a card, which leaves about 1.1:1 between them; the
+ * thumb's edge, not its fill, carries the definition there (see MIN_EDGE_CONTRAST).
  */
 const MIN_THUMB_CONTRAST = 1.1;
+/**
+ * How far the thumb's hairline edge must stand from the track in dark, where the fill alone is
+ * about 1.12:1 from it and a shadow does not show: 1.5:1 makes the thumb's outline read.
+ */
+const MIN_EDGE_CONTRAST = 1.5;
 
 /**
  * The variants on the colour classes of the track, the thumb and a segment. Disabled dims the whole
@@ -65,6 +70,12 @@ async function render(setup: (host: SegmentedHost) => void = () => undefined) {
 
 const key = (element: HTMLElement, name: string) =>
   element.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true }));
+/** A segment's accessible name: its text without what is hidden from assistive technology. */
+const nameOf = (radio: HTMLElement) => {
+  const copy = radio.cloneNode(true) as HTMLElement;
+  copy.querySelectorAll('[aria-hidden="true"]').forEach((hidden) => hidden.remove());
+  return copy.textContent?.replace(/\s+/g, ' ').trim();
+};
 const checked = (radios: HTMLElement[]) =>
   radios.map((radio) => radio.getAttribute('aria-checked'));
 const tabStops = (radios: HTMLElement[]) => radios.map((radio) => radio.tabIndex);
@@ -74,7 +85,7 @@ describe('NeatSegmented', () => {
     const { group, radios } = await render();
 
     expect(group.getAttribute('aria-label')).toBe('Tile shape');
-    expect(radios.map((radio) => radio.textContent?.trim())).toEqual(['16:9', '1:1', '9:16']);
+    expect(radios.map(nameOf)).toEqual(['16:9', '1:1', '9:16']);
     expect(checked(radios)).toEqual(['true', 'false', 'false']);
     for (const radio of radios) {
       expect(radio.type).toBe('button');
@@ -113,7 +124,7 @@ describe('NeatSegmented', () => {
     expect(icon).not.toBeNull();
     // A neat-icon without a label is decorative: its svg is hidden from assistive technology.
     expect(icon?.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
-    expect(radios[0].textContent?.trim()).toBe('16:9');
+    expect(nameOf(radios[0])).toBe('16:9');
     expect(radios[2].querySelector('neat-icon')).toBeNull();
   });
 
@@ -308,6 +319,27 @@ describe('NeatSegmented', () => {
       );
     });
 
+    it('reserves the semibold width in every segment, outside the accessible name', async () => {
+      const { fixture, host, radios } = await render();
+      const reserve = (radio: HTMLElement) =>
+        radio.querySelector<HTMLElement>('[data-slot="segmented-label-reserve"]')!;
+
+      for (const [index, radio] of radios.entries()) {
+        const copy = reserve(radio);
+        expect(copy.textContent?.trim()).toBe(OPTIONS[index].label);
+        expect(copy.getAttribute('aria-hidden')).toBe('true');
+        expect([...copy.classList]).toEqual(expect.arrayContaining(['invisible', 'font-semibold']));
+        // The visible label and the copy share one grid cell, so the cell is the wider of the two.
+        expect(copy.parentElement!.classList).toContain('inline-grid');
+        expect(copy.classList).toContain('col-start-1');
+        expect(nameOf(radio)).toBe(OPTIONS[index].label);
+      }
+
+      host.shape.set('tall');
+      await fixture.whenStable();
+      expect(radios.map(nameOf)).toEqual(['16:9', '1:1', '9:16']);
+    });
+
     it('dims the whole group when disabled, not each segment on top of it', async () => {
       const { group, radios } = await render((host) => host.disabled.set(true));
 
@@ -355,6 +387,21 @@ describe('NeatSegmented', () => {
           contrastRatio(fill, track),
           `${scheme}, thumb ${fill} on track ${track}`,
         ).toBeGreaterThanOrEqual(MIN_THUMB_CONTRAST);
+      });
+
+      it(`${scheme}: the thumb has a hairline edge${scheme === 'dark' ? ` ${MIN_EDGE_CONTRAST}:1 from the track` : ''}`, async () => {
+        const { group, thumb } = await parts();
+        expect(thumb).toContain('ring-1');
+        const track = stateColor(group, 'bg', q(on()), tokens['background']);
+        const edge = stateColor(thumb, 'ring', q(on()), track);
+        expect(tokens['neat-segmented-thumb-edge'], 'the token exists').toBeDefined();
+        expect(edge).toBe(tokens['neat-segmented-thumb-edge']);
+        if (scheme === 'dark') {
+          expect(
+            contrastRatio(edge, track),
+            `${scheme}, edge ${edge} on track ${track}`,
+          ).toBeGreaterThanOrEqual(MIN_EDGE_CONTRAST);
+        }
       });
 
       it(`${scheme}: labels reach 4.5:1, the unchosen on the track and the chosen on the thumb`, async () => {

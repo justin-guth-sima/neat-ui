@@ -55,9 +55,10 @@
   --color-neat-tint-info-accent: var(--neat-tint-info-accent);
   --color-neat-tint-highlight: var(--neat-tint-highlight);
   --color-neat-tint-highlight-accent: var(--neat-tint-highlight-accent);
-  /* The segmented control's track and the raised thumb that slides under the chosen label. */
+  /* The segmented control's track, the raised thumb that slides under the chosen label, its edge. */
   --color-neat-segmented-track: var(--neat-segmented-track);
   --color-neat-segmented-thumb: var(--neat-segmented-thumb);
+  --color-neat-segmented-thumb-edge: var(--neat-segmented-thumb-edge);
   --font-sans: var(--neat-font-family);
 }
 

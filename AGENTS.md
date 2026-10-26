@@ -319,7 +319,9 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
     and a divider between two unchosen neighbours. The options are equal-width grid columns, so
     the thumb is pure CSS from two custom properties on the group (`--neat-segmented-count` and
     `--neat-segmented-index`), never measured. In dark the thumb is only as light as keeps the
-    primary label 4.5:1 on it, so it stands about 1.1:1 from the track.
+    primary label 4.5:1 on it, so it stands about 1.1:1 from the track and a hairline ring
+    (`--neat-segmented-thumb-edge`, 1.5:1 from the track) outlines it. Each label is stacked with
+    an invisible `aria-hidden` semibold copy, so the control does not resize as the choice moves.
   - `NeatPopoverTrigger` owns its ARIA and its click (`NeatPopover` itself hosts brain's popover):
     brain's trigger names the panel in `aria-controls` while it is closed, when no element has
     that id.

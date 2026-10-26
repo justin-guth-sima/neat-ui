@@ -19,10 +19,11 @@ export interface NeatSegmentedOption<T> {
 
 /**
  * The track: a grid of equal columns, so that the thumb's width and position follow from the option
- * count and the chosen index alone, as two custom properties on the group, with no measuring. The
- * padding is the thumb's inset (`p-0.5`, which the thumb's `calc` takes off twice, 4px); the thumb's
- * radius is the track's less that inset. `isolate` keeps the thumb's and the segments' z-indexes
- * inside the control. Disabled dims the whole group, so the segments (disabled buttons) add none.
+ * count and the chosen index alone, as two custom properties on the group, with no measuring.
+ * The padding is the thumb's inset (`p-0.5`, which the thumb's `calc` takes off twice, 4px); the
+ * thumb's radius is the track's less that inset. `isolate` keeps the thumb's and the segments'
+ * z-indexes inside the control. Disabled dims the whole group, so the segments (disabled buttons)
+ * add none.
  */
 const GROUP_CLASSES =
   'relative isolate inline-grid grid-flow-col auto-cols-fr rounded-lg bg-neat-segmented-track p-0.5 aria-disabled:opacity-50';
@@ -30,18 +31,24 @@ const GROUP_CLASSES =
 /**
  * The thumb: the chosen option's cell of the track, raised. It is `1 / count` of the width inside
  * the padding and moves by whole multiples of its own width (a percentage in `translate` is of the
- * element itself). The 280 ms curve is the switch's; reduced motion jumps instead.
+ * element itself). The 280 ms curve is the switch's; reduced motion jumps instead. The 1px ring is
+ * the thumb's edge: in dark the fill is only about 1.1:1 from the track (the primary label caps
+ * how light it can be) and a shadow does not show, so a lighter hairline outlines it.
  */
 const THUMB_CLASSES =
-  'pointer-events-none absolute inset-y-0.5 left-0.5 z-0 w-[calc((100%-4px)/var(--neat-segmented-count))] translate-x-[calc(var(--neat-segmented-index)*100%)] rounded-md bg-neat-segmented-thumb shadow-sm transition-transform duration-280 ease-[cubic-bezier(.3,.7,.2,1)] motion-reduce:transition-none';
+  'pointer-events-none absolute inset-y-0.5 left-0.5 z-0 w-[calc((100%-4px)/var(--neat-segmented-count))] translate-x-[calc(var(--neat-segmented-index)*100%)] rounded-md bg-neat-segmented-thumb shadow-sm ring-1 ring-neat-segmented-thumb-edge transition-transform duration-280 ease-[cubic-bezier(.3,.7,.2,1)] motion-reduce:transition-none';
 
 /**
  * A segment, transparent above the thumb; the chosen one is the semibold primary label (primary on
  * the thumb is a pair the segmented spec holds to 4.5:1). Between two unchosen neighbours a 1px
  * divider is drawn on the segment's start edge (`before`), and hidden by `opacity` so that it fades
  * with the thumb's slide: not on the first segment (`first-of-type`: the thumb is the group's first
- * child), nor on the chosen one, nor on the one after it.
- * The focus ring is the full `--ring` (3:1) rather than a faint mix.
+ * child), nor on the chosen one, nor on the one after it. The divider is `--muted-foreground` at
+ * 40%, not `--border`, which in dark is the very colour of the track and would vanish. The focus
+ * ring is the full `--ring` (3:1) rather than a faint mix. The label sits in one grid cell with an
+ * invisible, `aria-hidden` semibold copy of itself (the template), so that every column is as wide
+ * as semibold needs and the control keeps its width, and its neighbours their places, as the
+ * choice moves; the copy is not part of the accessible name.
  */
 const ITEM_CLASSES =
   'relative z-10 inline-flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-md bg-transparent px-3.5 text-sm font-medium whitespace-nowrap text-foreground outline-none transition-colors duration-200 motion-reduce:transition-none disabled:pointer-events-none focus-visible:z-20 focus-visible:ring-[3px] focus-visible:ring-ring data-[state=on]:font-semibold data-[state=on]:text-primary before:absolute before:inset-y-1.5 before:left-0 before:w-px before:bg-muted-foreground/40 before:transition-opacity before:duration-200 motion-reduce:before:transition-none first-of-type:before:hidden data-[state=on]:before:opacity-0 [[data-state=on]+&]:before:opacity-0';
@@ -101,7 +108,15 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
           @if (option.icon) {
             <neat-icon [name]="option.icon" [size]="16" />
           }
-          {{ option.label }}
+          <span class="inline-grid text-center">
+            <span class="col-start-1 row-start-1">{{ option.label }}</span>
+            <span
+              aria-hidden="true"
+              data-slot="segmented-label-reserve"
+              class="invisible col-start-1 row-start-1 font-semibold"
+              >{{ option.label }}</span
+            >
+          </span>
         </button>
       }
     </div>
@@ -121,7 +136,10 @@ export class NeatSegmented<T> {
   protected readonly chosen = computed(() =>
     this.options().findIndex((option) => option.value === this.value()),
   );
-  /** The option keyboard focus enters on, and where the thumb sits: the checked one, else the first. */
+  /**
+   * The option keyboard focus enters on: the checked one, else the first. It is also the thumb's
+   * index: the thumb is drawn only while an option is checked, and then the two are the same.
+   */
   protected readonly tabStop = computed(() => Math.max(0, this.chosen()));
 
   private readonly segments = viewChildren<ElementRef<HTMLButtonElement>>('segment');
