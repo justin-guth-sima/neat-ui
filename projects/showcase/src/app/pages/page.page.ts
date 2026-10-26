@@ -34,7 +34,7 @@ import { NeatDetails } from '@sima/neat-ui/details';
       <neat-aside-toggle [(open)]="asideOpen" />
     </div>
 
-    <neat-page [aside]="asideOpen() ? 'open' : 'closed'">
+    <neat-page [aside]="asideOpen() ? 'open' : 'closed'" [(asideWidth)]="asideWidth">
       <div class="showcase-page">
         <section class="showcase-section">
           <h2>Page</h2>
@@ -58,6 +58,13 @@ import { NeatDetails } from '@sima/neat-ui/details';
             state. Inside, <code>neatAsidePanel</code>, <code>neatAsideTitle</code>,
             <code>neatAsideHeading</code>, <code>neatAsideActions</code> and
             <code>neatCode</code> draw the panel's parts the same way everywhere.
+          </p>
+          <p>
+            Beside the body the panel is resizable: drag the line on its left edge, or focus it and
+            press the left or right arrow (16 px a step), Home or End; a double click restores the
+            default. <code>[(asideWidth)]</code> is the width in pixels (<code>null</code> for the
+            default, now {{ asideWidth() ?? 'null' }}): the page only exposes it, and the app keeps
+            it where it likes. The panel stays between 18rem and 48rem or 60 % of the page.
           </p>
         </section>
         @for (section of sections; track section) {
@@ -109,6 +116,7 @@ import { NeatDetails } from '@sima/neat-ui/details';
 })
 export class PagePage {
   protected readonly asideOpen = signal(true);
+  protected readonly asideWidth = signal<number | null>(null);
   protected readonly sections = Array.from({ length: 20 }, (_, index) => index + 1);
   protected readonly asideItems = Array.from({ length: 30 }, (_, index) => index + 1);
 }

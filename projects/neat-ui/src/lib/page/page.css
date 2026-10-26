@@ -33,6 +33,48 @@
   padding: 0;
 }
 
+/* No text selection while the panel is dragged. */
+:host([data-resizing]) {
+  user-select: none;
+}
+
+/* The drag handle on the panel's inline-start edge: a flex item that takes no room of its own (its
+   margins cancel its width), so its hit area spans the edge without moving the body or the panel.
+   Above both, since the panel's border and the body's scrollbar meet it. */
+.separator {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: var(--neat-space-2);
+  margin-inline: calc(var(--neat-space-2) / -2);
+  cursor: col-resize;
+  touch-action: none;
+  /* The line below is its focus indicator. */
+  outline: none;
+}
+
+.separator::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(50% - var(--neat-focus-ring-width) / 2);
+  width: var(--neat-focus-ring-width);
+  background: var(--ring);
+  opacity: 0;
+}
+
+.separator:hover::after,
+.separator:focus-visible::after,
+:host([data-resizing]) .separator::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .separator::after {
+    transition: opacity var(--neat-transition-duration);
+  }
+}
+
 /* A panel with its own scroll context and inset, divided from the body by the theme's border
    colour. Narrower than a page, so a smaller inset than the page's. Its width and place come from
    whether it sits beside the body or over it. */
@@ -47,7 +89,9 @@ aside {
 /* Beside the body: a fixed-width column of the row. */
 :host([data-aside='beside']) aside {
   flex: none;
-  width: var(--neat-aside-width);
+  /* The default width, or the one the page sets, kept between the bounds the page computes
+     from its own width. */
+  width: clamp(var(--neat-page-aside-min), var(--neat-aside-width), var(--neat-page-aside-max));
 }
 
 /* On a narrow screen the aside floats over the body's right edge instead of squeezing it, as wide

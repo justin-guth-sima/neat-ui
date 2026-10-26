@@ -468,10 +468,10 @@ builds its own bar or panel duplicates both and breaks in one of them.
   drawn first among the tools (the one control that must stay in view while the panel floats over
   the page); for that button the tab order differs from the visual order.
 - Elements marked `neatPageAside` inside `neat-page` form a right-hand panel shown while
-  `aside="open"`: `--neat-aside-width` wide, inset and scrolling on its own, with the body
-  narrowing beside it and keeping its own `scroll` setting. Closed, the panel is removed from the
-  DOM, but projected content is still instantiated: gate expensive content (an inspector with a
-  live preview) with an `@if` of your own.
+  `aside="open"`: `--neat-aside-width` wide (unless `asideWidth` says otherwise, below), inset and
+  scrolling on its own, with the body narrowing beside it and keeping its own `scroll` setting.
+  Closed, the panel is removed from the DOM, but projected content is still instantiated: gate
+  expensive content (an inspector with a live preview) with an `@if` of your own.
   On a narrow screen (`NeatViewport.narrow`, below 48rem, stated once there) the panel floats
   over the right of the page instead, at most the page's width, and the body keeps the whole
   width; `neat-page` says which with a `data-aside="beside" | "overlay"` attribute on its host,
@@ -485,6 +485,18 @@ builds its own bar or panel duplicates both and breaks in one of them.
   Tests that need a screen width provide
   `{ provide: NeatViewport, useValue: { narrow: signal(true) } }`;
   nothing but `NeatViewport` calls `matchMedia` for the breakpoint.
+- Beside the body (wide screens only; a phone's panel keeps its fixed width and has no handle) the
+  panel is resizable. `[(asideWidth)]` is its width in pixels, `null` for the default; the kit
+  stores nothing, so an app that wants the width kept binds the model to its own storage. The
+  handle is a `role="separator"` on the panel's inline-start edge (`aria-valuemin`, `-max`, `-now`
+  and `-valuetext` in pixels, "Resize side panel"): dragging it with a pointer shows the width
+  live and writes the model on release; ArrowLeft widens and ArrowRight narrows by 16 px, Home and
+  End go to the bounds, a double click resets to `null`. The bounds, stated once in `page.ts`, are
+  18rem and the smaller of 48rem and 60 % of the page (so the body keeps 40 %). A width outside
+  them is shown clamped and the model left alone, and the panel is re-clamped when the page is
+  resized (a `ResizeObserver` on the page, only while the panel is open), so a remembered width
+  returns with a wider window. The handle's look (an 8 px hit area, the `col-resize` cursor, a
+  line on hover, focus and drag) is the page's stylesheet, not the app's.
 - The panel opens and closes with `<neat-aside-toggle [(open)]="asideOpen" />` in the page's
   toolbar, the one look for that button on every page ("Side panel" unless `label` says
   otherwise); the page owns `open` and remembers it where it likes. Inside the panel,

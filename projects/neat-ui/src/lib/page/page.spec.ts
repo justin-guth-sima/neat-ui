@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NeatPage } from './page';
@@ -7,7 +8,12 @@ import pageStyles from './page.css' with { loader: 'text' };
 @Component({
   imports: [NeatPage],
   template: `
-    <neat-page [scroll]="scroll()" [padding]="padding()" [aside]="aside()">
+    <neat-page
+      [scroll]="scroll()"
+      [padding]="padding()"
+      [aside]="aside()"
+      [(asideWidth)]="asideWidth"
+    >
       <p>Long content</p>
       <section neatPageAside class="inspector">Inspector</section>
     </neat-page>
@@ -17,6 +23,30 @@ class Host {
   readonly scroll = signal<'body' | 'none'>('body');
   readonly padding = signal<'page' | 'none'>('page');
   readonly aside = signal<'open' | 'closed'>('closed');
+  readonly asideWidth = signal<number | null>(null);
+}
+
+/** A ResizeObserver the spec drives: jsdom lays nothing out, so the spec says what was measured. */
+class FakeResizeObserver {
+  static instances: FakeResizeObserver[] = [];
+  observed: Element[] = [];
+  disconnected = false;
+
+  constructor(private readonly callback: ResizeObserverCallback) {
+    FakeResizeObserver.instances.push(this);
+  }
+
+  observe(element: Element): void {
+    this.observed.push(element);
+  }
+
+  disconnect(): void {
+    this.disconnected = true;
+  }
+
+  fire(): void {
+    this.callback([], this as unknown as ResizeObserver);
+  }
 }
 
 describe('NeatPage', () => {
@@ -50,6 +80,8 @@ describe('NeatPage', () => {
     /:host\(\[data-aside='overlay'\]\) aside\s*\{([^}]*)\}/.exec(pageStyles)?.[1];
 
   beforeEach(async () => {
+    FakeResizeObserver.instances = [];
+    vi.stubGlobal('ResizeObserver', FakeResizeObserver);
     narrow.set(false);
     TestBed.configureTestingModule({
       providers: [{ provide: NeatViewport, useValue: { narrow } }],
@@ -57,6 +89,8 @@ describe('NeatPage', () => {
     fixture = TestBed.createComponent(Host);
     await fixture.whenStable();
   });
+
+  afterEach(() => vi.unstubAllGlobals());
 
   it('projects its content into the page body', () => {
     expect(body().querySelector('p')?.textContent).toBe('Long content');
@@ -126,8 +160,9 @@ describe('NeatPage', () => {
     expect(getComputedStyle(body()).minWidth).toBe('0px');
     expect(getComputedStyle(panel).flexShrink).toBe('0');
     expect(getComputedStyle(panel).position).not.toMatch(/absolute|fixed/);
-    // jsdom resolves no var(), so the width is asserted as the stylesheet's rule.
-    expect(asideRule()).toMatch(/width:\s*var\(--neat-aside-width\);/);
+    // jsdom resolves no var(), so the width is asserted as the stylesheet's rule: the token,
+    // between the bounds the page computes.
+    expect(asideRule()).toMatch(/width:\s*clamp\([^;]*var\(--neat-aside-width\)[^;]*\);/);
     expect(sharedAsideRule()).toMatch(/border-inline-start:\s*1px solid var\(--border\);/);
     // Two scroll containers side by side; the page itself still never scrolls.
     expect(overflow(body())).toBe('auto');
@@ -195,5 +230,325 @@ describe('NeatPage', () => {
     await plain.whenStable();
 
     expect(plain.nativeElement.querySelector('aside')).toBeNull();
+  });
+
+  describe('resizing the side panel', () => {
+    const separator = (): HTMLElement | null =>
+      page().querySelector<HTMLElement>('[role="separator"]');
+    const host = (): Host => fixture.componentInstance;
+    const attr = (name: string): string | null => separator()?.getAttribute(name) ?? null;
+
+    /** The page and the panel as the browser would lay them out, reported to the observers. */
+    async function layout(pageWidth: number, asideWidth = 352): Promise<void> {
+      Object.defineProperty(page(), 'clientWidth', { configurable: true, value: pageWidth });
+      const panel = aside();
+      if (panel) Object.defineProperty(panel, 'offsetWidth', { configurable: true, value: asideWidth });
+      FakeResizeObserver.instances.forEach((observer) => observer.fire());
+      await fixture.whenStable();
+    }
+
+    async function open(pageWidth = 1000): Promise<void> {
+      host().aside.set('open');
+      await fixture.whenStable();
+      await layout(pageWidth);
+    }
+
+    /** Presses a key on the separator; says whether the page took it (prevented the default). */
+    function press(key: string): boolean {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      separator()?.dispatchEvent(event);
+      return event.defaultPrevented;
+    }
+
+    function pointer(type: string, clientX: number, init: MouseEventInit = {}): void {
+      separator()?.dispatchEvent(
+        new MouseEvent(type, { clientX, button: 0, bubbles: true, cancelable: true, ...init }),
+      );
+    }
+
+    /** The width the panel is asked to have, as the custom property the stylesheet reads. */
+    const requested = (): string =>
+      (aside() as HTMLElement).style.getPropertyValue('--neat-aside-width');
+
+    it('has a separator only beside the body, while the panel is open', async () => {
+      expect(separator()).toBeNull();
+
+      await open();
+      expect(separator()).not.toBeNull();
+
+      narrow.set(true);
+      await fixture.whenStable();
+      expect(separator()).toBeNull();
+
+      narrow.set(false);
+      host().aside.set('closed');
+      await fixture.whenStable();
+      expect(separator()).toBeNull();
+    });
+
+    it('sits between the body and the panel, a tab stop that is a vertical separator', async () => {
+      await open();
+
+      expect(separator()?.previousElementSibling).toBe(body());
+      expect(separator()?.nextElementSibling).toBe(aside());
+      expect(attr('aria-orientation')).toBe('vertical');
+      expect(attr('aria-label')).toBe('Resize side panel');
+      expect(attr('tabindex')).toBe('0');
+    });
+
+    it('announces its value in pixels with its bounds: 18rem up to 48rem or 60 % of the page', async () => {
+      await open(1000);
+      // The default panel as laid out, bounded by 18rem and by 60 % of a 1000 px page.
+      expect(attr('aria-valuemin')).toBe('288');
+      expect(attr('aria-valuemax')).toBe('600');
+      expect(attr('aria-valuenow')).toBe('352');
+      expect(attr('aria-valuetext')).toBe('352 px');
+
+      await layout(2000);
+      expect(attr('aria-valuemax')).toBe('768');
+    });
+
+    it('lets the panel keep the width the model asks for', async () => {
+      await open();
+      expect(requested()).toBe('');
+
+      host().asideWidth.set(400);
+      await fixture.whenStable();
+      expect(requested()).toBe('400px');
+      expect(attr('aria-valuenow')).toBe('400');
+
+      host().asideWidth.set(null);
+      await fixture.whenStable();
+      expect(requested()).toBe('');
+    });
+
+    it('renders a width above the maximum, or below the minimum, clamped, and leaves the model alone', async () => {
+      await open(1000);
+
+      host().asideWidth.set(900);
+      await fixture.whenStable();
+      expect(attr('aria-valuenow')).toBe('600');
+      expect(aside()?.style.getPropertyValue('--neat-page-aside-max')).toBe('600px');
+      expect(aside()?.style.getPropertyValue('--neat-page-aside-min')).toBe('288px');
+
+      host().asideWidth.set(100);
+      await fixture.whenStable();
+      expect(attr('aria-valuenow')).toBe('288');
+      expect(host().asideWidth()).toBe(100);
+    });
+
+    it('re-clamps when the page is resized, without writing the model', async () => {
+      host().asideWidth.set(500);
+      await open(1200);
+      expect(attr('aria-valuenow')).toBe('500');
+
+      await layout(700);
+      expect(attr('aria-valuemax')).toBe('420');
+      expect(attr('aria-valuenow')).toBe('420');
+      expect(aside()?.style.getPropertyValue('--neat-page-aside-max')).toBe('420px');
+      expect(host().asideWidth()).toBe(500);
+
+      // The remembered width comes back when the window does.
+      await layout(1200);
+      expect(attr('aria-valuenow')).toBe('500');
+    });
+
+    it('never lets the maximum fall below the minimum on a very small page', async () => {
+      await open(400);
+      expect(attr('aria-valuemin')).toBe('288');
+      expect(attr('aria-valuemax')).toBe('288');
+    });
+
+    it('watches the page and the panel only while the panel is open', async () => {
+      await open();
+      const observer = FakeResizeObserver.instances.find((each) => !each.disconnected);
+      expect(observer?.observed).toContain(page());
+
+      host().aside.set('closed');
+      await fixture.whenStable();
+      expect(FakeResizeObserver.instances.every((each) => each.disconnected)).toBe(true);
+    });
+
+    it('widens with ArrowLeft and narrows with ArrowRight, 16 px a step', async () => {
+      host().asideWidth.set(400);
+      await open();
+
+      expect(press('ArrowLeft')).toBe(true);
+      expect(host().asideWidth()).toBe(416);
+      expect(press('ArrowRight')).toBe(true);
+      expect(press('ArrowRight')).toBe(true);
+      expect(host().asideWidth()).toBe(384);
+      await fixture.whenStable();
+      expect(attr('aria-valuenow')).toBe('384');
+    });
+
+    it('starts from the width the default panel has', async () => {
+      await open();
+      press('ArrowLeft');
+      expect(host().asideWidth()).toBe(368);
+    });
+
+    it('stops at the bounds', async () => {
+      host().asideWidth.set(596);
+      await open(1000);
+
+      press('ArrowLeft');
+      expect(host().asideWidth()).toBe(600);
+      press('ArrowLeft');
+      expect(host().asideWidth()).toBe(600);
+
+      host().asideWidth.set(292);
+      await fixture.whenStable();
+      press('ArrowRight');
+      expect(host().asideWidth()).toBe(288);
+    });
+
+    it('jumps to the minimum with Home and the maximum with End', async () => {
+      await open(1000);
+
+      press('Home');
+      expect(host().asideWidth()).toBe(288);
+      press('End');
+      expect(host().asideWidth()).toBe(600);
+    });
+
+    it('leaves other keys alone', async () => {
+      await open();
+
+      expect(press('Tab')).toBe(false);
+      expect(press('ArrowUp')).toBe(false);
+      expect(host().asideWidth()).toBeNull();
+    });
+
+    it('resets to the default on a double click', async () => {
+      host().asideWidth.set(450);
+      await open();
+
+      separator()?.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+      expect(host().asideWidth()).toBeNull();
+    });
+
+    describe('dragging', () => {
+      let capture: Mock<(pointerId: number) => void>;
+
+      beforeEach(async () => {
+        host().asideWidth.set(400);
+        await open(1000);
+        capture = vi.fn<(pointerId: number) => void>();
+        (separator() as HTMLElement).setPointerCapture = capture;
+      });
+
+      it('follows the pointer live, left widening the panel, and writes the model on release', async () => {
+        pointer('pointerdown', 600);
+        expect(capture).toHaveBeenCalled();
+
+        pointer('pointermove', 550);
+        await fixture.whenStable();
+        expect(requested()).toBe('450px');
+        expect(attr('aria-valuenow')).toBe('450');
+        expect(host().asideWidth()).toBe(400);
+        expect(page().hasAttribute('data-resizing')).toBe(true);
+
+        pointer('pointermove', 650);
+        await fixture.whenStable();
+        expect(requested()).toBe('350px');
+
+        pointer('pointerup', 650);
+        await fixture.whenStable();
+        expect(host().asideWidth()).toBe(350);
+        expect(page().hasAttribute('data-resizing')).toBe(false);
+
+        // Once released, the pointer no longer moves it.
+        pointer('pointermove', 100);
+        await fixture.whenStable();
+        expect(requested()).toBe('350px');
+      });
+
+      it('keeps to the bounds while dragging', async () => {
+        pointer('pointerdown', 600);
+        pointer('pointermove', 0);
+        await fixture.whenStable();
+        expect(attr('aria-valuenow')).toBe('600');
+
+        pointer('pointermove', 2000);
+        await fixture.whenStable();
+        expect(attr('aria-valuenow')).toBe('288');
+      });
+
+      it('drops the drag on a cancelled pointer', async () => {
+        pointer('pointerdown', 600);
+        pointer('pointermove', 500);
+        pointer('pointercancel', 500);
+        await fixture.whenStable();
+
+        expect(host().asideWidth()).toBe(400);
+        expect(requested()).toBe('400px');
+        expect(page().hasAttribute('data-resizing')).toBe(false);
+      });
+
+      it('does not write the model for a click that moved nothing', async () => {
+        host().asideWidth.set(null);
+        await fixture.whenStable();
+
+        pointer('pointerdown', 600);
+        pointer('pointerup', 600);
+        expect(host().asideWidth()).toBeNull();
+      });
+
+      it('ignores buttons other than the primary one', async () => {
+        pointer('pointerdown', 600, { button: 2 });
+        pointer('pointermove', 500);
+        expect(requested()).toBe('400px');
+        expect(capture).not.toHaveBeenCalled();
+      });
+    });
+
+    it('asks nothing of the panel on a narrow screen: it keeps its own width there', async () => {
+      host().asideWidth.set(500);
+      await open();
+      narrow.set(true);
+      await fixture.whenStable();
+
+      expect(requested()).toBe('');
+      expect(aside()?.style.getPropertyValue('--neat-page-aside-max')).toBe('');
+      expect(overlayAsideRule()).toMatch(/width:\s*min\(var\(--neat-aside-width\),\s*100%\);/);
+    });
+
+    describe('look', () => {
+      const rule = (selector: string): string | undefined =>
+        new RegExp(`(?:^|\\n)${selector}\\s*\\{([^}]*)\\}`).exec(pageStyles)?.[1];
+
+      it('bounds the panel by what the page tells it, in one place', () => {
+        expect(asideRule()).toMatch(
+          /width:\s*clamp\(var\(--neat-page-aside-min\),\s*var\(--neat-aside-width\),\s*var\(--neat-page-aside-max\)\);/,
+        );
+      });
+
+      it('has an 8 px hit area over the panel edge, a column-resize cursor and no touch scrolling', () => {
+        const separatorRule = rule('\\.separator') ?? '';
+        expect(separatorRule).toMatch(/width:\s*var\(--neat-space-2\);/);
+        expect(separatorRule).toMatch(/margin-inline:\s*calc\(var\(--neat-space-2\)\s*\/\s*-2\);/);
+        expect(separatorRule).toMatch(/cursor:\s*col-resize;/);
+        expect(separatorRule).toMatch(/touch-action:\s*none;/);
+      });
+
+      it('shows its line on hover, on keyboard focus and while dragging, with tokens', () => {
+        const line = rule('\\.separator::after') ?? '';
+        expect(line).toMatch(/background:\s*var\(--ring\);/);
+        expect(line).toMatch(/width:\s*var\(--neat-focus-ring-width\);/);
+        expect(pageStyles).toMatch(
+          /\.separator:hover::after,\s*\.separator:focus-visible::after,\s*:host\(\[data-resizing\]\) \.separator::after\s*\{[^}]*opacity:\s*1;/,
+        );
+      });
+
+      it('fades its line only for a user who has not asked for reduced motion', () => {
+        const motion = /@media \(prefers-reduced-motion: no-preference\)\s*\{([\s\S]*?)\n\}/.exec(
+          pageStyles,
+        )?.[1];
+        expect(motion).toMatch(/\.separator::after\s*\{[^}]*transition:/);
+        // No transition outside that query.
+        expect(pageStyles.replace(motion ?? '', '')).not.toMatch(/transition:/);
+      });
+    });
   });
 });
