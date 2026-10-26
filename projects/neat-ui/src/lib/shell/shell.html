@@ -2,9 +2,10 @@
   <div class="kiosk-chrome" [attr.data-shown]="!kiosk.pointerIdle()">
     <!-- First in the tab order, so it is reachable from the keyboard; drawn last (right). -->
     <neat-kiosk-exit (exited)="focusKioskButtonAfterExit()" />
-    @if (pageToolbar(); as toolbar) {
+    @if (pageToolbar() || asideToggle()) {
       <div class="kiosk-toolbar shadow-md" role="group" [attr.aria-label]="toolbarLabel">
-        <ng-template [cdkPortalOutlet]="toolbar" />
+        <ng-template [cdkPortalOutlet]="pageToolbar()" />
+        <ng-template [cdkPortalOutlet]="asideToggle()" />
       </div>
     }
   </div>
@@ -19,32 +20,39 @@
         @for (item of navItems(); track item.path) {
           <li>
             <a
-              class="rail-item"
+              neatRailItem
+              [label]="item.label"
               [routerLink]="item.path"
               routerLinkActive="active"
               [routerLinkActiveOptions]="activeMatch"
               ariaCurrentWhenActive="page"
-              [neatTooltip]="item.label"
-              neatTooltipPosition="right"
-              [neatTooltipDisabled]="railExpanded()"
-              (click)="collapseRailWhenNarrow()"
             >
               <neat-icon [name]="item.icon" />
-              <span class="label" [class.visually-hidden]="!railExpanded()">{{ item.label }}</span>
             </a>
           </li>
         }
       </ul>
     </nav>
 
+    <!-- The app's items, then the kit's theme switch: after the pages in the tab order. -->
+    <div class="rail-end">
+      <ng-content select="[neatRailEnd]" />
+      <button
+        neatRailItem
+        type="button"
+        label="Dark theme"
+        [pressed]="theme.scheme() === 'dark'"
+        (click)="theme.toggle()"
+      >
+        <neat-icon [name]="theme.scheme() === 'dark' ? 'sun' : 'moon'" />
+      </button>
+    </div>
+
     <button
+      neatRailItem
       type="button"
-      class="rail-item rail-toggle"
-      aria-label="Show labels"
-      [attr.aria-pressed]="railExpanded()"
-      neatTooltip="Show labels"
-      neatTooltipPosition="right"
-      [neatTooltipDisabled]="railExpanded()"
+      label="Show labels"
+      [pressed]="railExpanded()"
       (click)="toggleRail()"
     >
       <neat-icon [name]="railExpanded() ? 'rail-collapse' : 'rail-expand'" />
@@ -54,10 +62,10 @@
   <header class="topbar" [attr.data-toolbar]="pageToolbar() ? 'true' : 'false'">
     <div class="brand">
       <neat-logo />
-      <span class="app-name" [class.visually-hidden]="viewport.narrow()">{{ appName() }}</span>
+      <span class="app-name" [class.sr-only]="viewport.narrow()">{{ appName() }}</span>
     </div>
     @if (pageTitle(); as title) {
-      <h1 class="page-title" [class.visually-hidden]="viewport.narrow()">{{ title }}</h1>
+      <h1 class="page-title" [class.sr-only]="viewport.narrow()">{{ title }}</h1>
     }
     @if (pageToolbar(); as toolbar) {
       <div class="page-toolbar" role="group" [attr.aria-label]="toolbarLabel">
@@ -68,21 +76,6 @@
       <ng-content select="[neatTopbarEnd]" />
     </div>
     <div class="topbar-actions">
-      <button
-        neatButton
-        type="button"
-        variant="text"
-        size="large"
-        rounded
-        iconOnly
-        aria-label="Dark mode"
-        [pressed]="theme.scheme() === 'dark'"
-        neatTooltip="Dark mode"
-        neatTooltipPosition="bottom"
-        (click)="theme.toggle()"
-      >
-        <neat-icon [name]="theme.scheme() === 'dark' ? 'sun' : 'moon'" />
-      </button>
       <button
         #kioskButton
         neatButton
@@ -99,6 +92,12 @@
         <neat-icon name="kiosk-enter" />
       </button>
     </div>
+    @if (asideToggle(); as toggle) {
+      <!-- The page's side-panel toggle, at the right edge above the panel. -->
+      <div class="aside-edge">
+        <ng-template [cdkPortalOutlet]="toggle" />
+      </div>
+    }
   </header>
 }
 

@@ -14,6 +14,21 @@ import { hlm } from '../ui/utils/src';
 export type NeatTooltipPosition = 'top' | 'right' | 'bottom' | 'left';
 
 /**
+ * The kit's tooltip look, as brain's default options, for every element that hosts brain's
+ * tooltip: `NeatTooltip`, and the rail item, which hosts it directly because it names its own
+ * tooltip. Internal to the kit. `position` is the side the host prefers when its template does not
+ * bind one.
+ */
+export function provideNeatTooltipOptions(position?: NeatTooltipPosition) {
+  return provideBrnTooltipDefaultOptions({
+    svgClasses: DEFAULT_TOOLTIP_SVG_CLASS,
+    tooltipContentClasses: DEFAULT_TOOLTIP_CONTENT_CLASSES,
+    arrowClasses: (side: BrnTooltipPosition) => hlm(tooltipPositionVariants({ position: side })),
+    ...(position ? { position } : {}),
+  });
+}
+
+/**
  * A short text label shown on mouse or pen hover and on keyboard focus, hidden on leave, blur and
  * Escape; the host carries `aria-describedby` while it is shown. It never opens on touch (a tap
  * would trigger the host's action too), so it must not carry anything the host's accessible name
@@ -28,13 +43,7 @@ export type NeatTooltipPosition = 'top' | 'right' | 'bottom' | 'left';
  */
 @Directive({
   selector: '[neatTooltip]',
-  providers: [
-    provideBrnTooltipDefaultOptions({
-      svgClasses: DEFAULT_TOOLTIP_SVG_CLASS,
-      tooltipContentClasses: DEFAULT_TOOLTIP_CONTENT_CLASSES,
-      arrowClasses: (position: BrnTooltipPosition) => hlm(tooltipPositionVariants({ position })),
-    }),
-  ],
+  providers: [provideNeatTooltipOptions()],
   hostDirectives: [
     {
       directive: BrnTooltip,

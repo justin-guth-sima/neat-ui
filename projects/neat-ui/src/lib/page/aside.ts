@@ -1,89 +1,131 @@
+import { TemplatePortal } from '@angular/cdk/portal';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   Directive,
   ElementRef,
   inject,
+  Injectable,
   input,
+  isDevMode,
   model,
+  OnInit,
+  TemplateRef,
   viewChild,
+  ViewContainerRef,
 } from '@angular/core';
 import { NeatButton } from '../button/button';
 import { NeatIcon } from '../icon/icon';
-import { NeatViewport } from './viewport';
+import { IN_PAGE_TOOLBAR } from '../shell/page-toolbar';
+import { ShellSlot } from '../shell/shell-slot';
 import { NeatTooltip } from '../tooltip/tooltip';
 
 /*
  * The parts of a page's side panel (`neat-page`'s aside) that every page draws the same way: the
- * toolbar button that opens and closes it, and the panel's column, title, section headings, action
+ * top-bar button that opens and closes it, and the panel's column, title, section headings, action
  * rows and inline code. Class strings stay literals: Tailwind finds the classes the kit stylesheet
  * needs by reading them. Sizes and gaps come from the kit's scale only.
  */
 
 /**
- * The toolbar button that opens and closes the page's side panel:
+ * Where the active page's side-panel toggle is handed to the shell, which draws it at the top
+ * bar's right edge (or in kiosk mode's floating bar). Internal to the kit: pages declare
+ * `neat-aside-toggle`, the shell renders `portal`.
+ */
+@Injectable({ providedIn: 'root' })
+export class AsideToggleSlot extends ShellSlot {
+  constructor() {
+    super(
+      'neat-ui: only one side-panel toggle at a time; remove the other neat-aside-toggle first.',
+    );
+  }
+}
+
+/**
+ * The button that opens and closes the page's side panel, which the shell draws at the top bar's
+ * right edge, after the kiosk button and above the panel:
  *
  * ```html
- * <div *neatPageToolbar>
- *   …
- *   <neat-aside-toggle [(open)]="asideOpen" />
- * </div>
+ * <div *neatPageToolbar>…</div>
+ * <neat-aside-toggle [(open)]="asideOpen" />
  * <neat-page [aside]="asideOpen() ? 'open' : 'closed'">…</neat-page>
  * ```
  *
- * One look on every page: a small, text, icon-only `neatButton` with the `side-panel` icon (not
- * `info`, which is left for an information action), whose pressed state is the panel's. `label`
- * names it and is its tooltip ("Side panel" unless the page says otherwise). `open` is a model the
- * page owns, so the page decides where it is remembered; the toggle only flips it. `focus()` puts
- * the focus on the button, for a page whose panel closes from inside (Escape, a close button) and
- * must not leave the focus on nothing.
+ * The page declares it anywhere in its template except inside `*neatPageToolbar` (which throws in
+ * dev mode: the toggle has a place of its own, and the toolbar's view is re-created by the shell);
+ * it renders nothing where it is declared, and its button, a template of its own, goes to the
+ * shell while the page exists, as the page toolbar does. On a narrow screen it is the last item of
+ * the top bar's first row; in kiosk mode it floats with the page's tools, after them. One toggle
+ * at a time; a second throws in dev mode.
  *
- * On a narrow screen (`NeatViewport`) the panel floats over the page and this button is the only
- * way to close it, so it leads the page's tools: the toolbar scrolls when its tools exceed the
- * phone's row, and the button must stay in view while the panel is open. It is drawn first but
- * stays last in the markup, so for this one button the visual order differs from the tab order.
- *
- * The page's toolbar is a template the shell renders elsewhere, outside `neat-page`, so the toggle
- * and the page meet in the page's own state, not through the kit.
+ * One look on every page: the top bar's edge control, as the kiosk button beside it (a large,
+ * round, text, icon-only `neatButton`), with the `side-panel` icon (not `info`, which is left for
+ * an information action), whose pressed state is the panel's. `label` names it and is its tooltip
+ * ("Side panel" unless the page says otherwise). `open` is a model the page owns, so the page
+ * decides where it is remembered; the toggle only flips it. `focus()` puts the focus on the button,
+ * for a page whose panel closes from inside (Escape, a close button) and must not leave the focus
+ * on nothing.
  */
 @Component({
   selector: 'neat-aside-toggle',
   imports: [NeatButton, NeatIcon, NeatTooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // No box of its own: the button is the toolbar's item.
-  host: { class: 'contents' },
+  // Nothing is drawn where the page declares it, so it takes no box (or gap) there.
+  host: { hidden: '' },
   template: `
-    <button
-      #button
-      neatButton
-      type="button"
-      variant="text"
-      size="small"
-      iconOnly
-      neatTooltipPosition="bottom"
-      class="data-[narrow=true]:order-first"
-      [attr.data-narrow]="viewport.narrow()"
-      [attr.aria-label]="label()"
-      [neatTooltip]="label()"
-      [pressed]="open()"
-      (click)="open.set(!open())"
-    >
-      <neat-icon name="side-panel" />
-    </button>
+    <ng-template #toggle>
+      <button
+        #button
+        neatButton
+        type="button"
+        variant="text"
+        size="large"
+        rounded
+        iconOnly
+        neatTooltipPosition="bottom"
+        [attr.aria-label]="label()"
+        [neatTooltip]="label()"
+        [pressed]="open()"
+        (click)="open.set(!open())"
+      >
+        <neat-icon name="side-panel" />
+      </button>
+    </ng-template>
   `,
 })
-export class NeatAsideToggle {
+export class NeatAsideToggle implements OnInit {
   /** The button's name and tooltip. */
   readonly label = input('Side panel');
   /** Whether the page's side panel is open. */
   readonly open = model(false);
 
-  protected readonly viewport = inject(NeatViewport);
-  private readonly button = viewChild.required<ElementRef<HTMLButtonElement>>('button');
+  private readonly slot = inject(AsideToggleSlot);
+  private readonly viewContainer = inject(ViewContainerRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly template = viewChild.required('toggle', { read: TemplateRef });
+  // The button is drawn by the shell, yet it comes from this component's template, so the query
+  // finds it where it is rendered.
+  private readonly button = viewChild<ElementRef<HTMLButtonElement>>('button');
+
+  constructor() {
+    if (isDevMode() && inject(IN_PAGE_TOOLBAR)) {
+      throw new Error(
+        'neat-ui: declare neat-aside-toggle outside *neatPageToolbar; the shell draws it at the ' +
+          "top bar's right edge.",
+      );
+    }
+  }
+
+  ngOnInit(): void {
+    const portal = new TemplatePortal(this.template(), this.viewContainer);
+    this.slot.register(portal);
+    this.destroyRef.onDestroy(() => this.slot.unregister(portal));
+  }
 
   /** Puts the focus on the button. */
   focus(): void {
-    this.button().nativeElement.focus();
+    this.button()?.nativeElement.focus();
   }
 }
 

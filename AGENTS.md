@@ -13,7 +13,8 @@ look happens in one place. Every rule here protects that.
 - `projects/neat-ui`: the library, with one primary and several secondary entry points, each with
   its own public API file:
   - `@sima/neat-ui` (the primary): what the shell and every page need: theme, `NeatIcon`,
-    `NeatShell`, `NeatPageToolbar`, `NeatPage` with its page tabs (`NeatPageTabs`, `NeatPageTab`)
+    `NeatShell` with `NeatRailItem` (an item of its rail, for the app's items at its bottom),
+    `NeatPageToolbar`, `NeatPage` with its page tabs (`NeatPageTabs`, `NeatPageTab`)
     and its side panel's parts (`NeatAsideToggle`, `NeatAsidePanel`, `NeatAsideTitle`,
     `NeatAsideHeading`, `NeatAsideActions`), `neatAsideOpen`
     (a page's panel state, closed on a narrow screen) and `NeatViewport` (the kit's one answer to
@@ -477,29 +478,55 @@ supported second scroll context is the page's side panel (below). Escape hatch: 
 another independently scrolling region (for example a log pane beside a form), raise it as a kit
 change so the layout is a supported component, not an ad hoc one.
 
-**A page's toolbar goes through `*neatPageToolbar`, its views through `nav[neatPageTabs]`, its
-side panel through `[neatPageAside]`.**
+**The rail is the app's, the top bar is the page's.**
+Why: a colleague's review found that page tools running straight into the app's controls (the
+board, System Info, the theme) did not read as the page's. `neat-shell` says which is which by
+place, so every app reads the same way.
+
+- The rail holds the pages (`navItems`), then, at its bottom below a divider, the app's items:
+  elements marked `neatRailEnd`, then the kit's theme switch (a toggle named "Dark theme", pressed
+  while dark, its icon the other scheme's sun or moon), then the rail's own control ("Show
+  labels"). The tab order follows: pages, the app's items, the theme, the rail's control.
+- An app's item is a `button[neatRailItem]` or `a[neatRailItem]` with a `label`, the look and
+  behaviour the page links have (they are rail items too): the content is the icon (a
+  `neat-icon`, or an icon with a state dot the app draws), the label shows beside it while the
+  rail is expanded, and while it is collapsed stays as visually hidden text (the item's name) and
+  shows as a tooltip on the right. Richer visible text (two lines, a coloured state) goes in an
+  element marked `neatRailItemLabel` inside the item, which takes the label's place; `label` stays
+  the tooltip, so it should say at least as much, and an `aria-label` the app sets wins as the
+  name. `pressed` makes an item a toggle (`aria-pressed`); its state shows in its icon, since the
+  rail's selection fill means "the current page" (`aria-current="page"`). A link followed on a
+  phone puts the floating rail away; a button leaves it. The item's look is `rail-item.css`, once;
+  an app's rail content draws nothing of its own but what goes inside an item.
+- The top bar holds the logo, the app name and the page title, then at its right the page's tools
+  (`*neatPageToolbar`, below), elements marked `neatTopbarEnd` (kept for an app that needs one),
+  the kiosk button (the one app control there: it changes how the page is shown), and last, at the
+  right edge above the side panel, the page's side-panel toggle, in a cell of its own set apart by
+  a divider.
+
+**A page's toolbar goes through `*neatPageToolbar`, its side-panel toggle through
+`neat-aside-toggle`, its views through `nav[neatPageTabs]`, its side panel through
+`[neatPageAside]`.**
 Why: the shell owns the top bar and kiosk mode, and `neat-page` owns the page's layout; a page that
 builds its own bar, row of views or panel duplicates both and breaks in one of them. Views do not
 belong in the toolbar: it sits at the right end of the top bar, so its left edge moves with the
 number of tools and a switch in it moves too.
 
 - `<div *neatPageToolbar>…</div>` anywhere in a page's template renders that content in the top
-  bar, at its right end just before the end slot, while the page exists. In kiosk mode it floats
-  beside the exit control and fades with it. The content stays the page's (bindings, injection),
-  but its view is re-created on entering and leaving kiosk mode, so keep its state (values, open
-  menus) in the page, never in components inside the toolbar.
+  bar, at its right end just before the end slot and the kiosk button, while the page exists. In
+  kiosk mode it floats beside the exit control and fades with it. The content stays the page's
+  (bindings, injection), but its view is re-created on entering and leaving kiosk mode, so keep its
+  state (values, open menus) in the page, never in components inside the toolbar.
   The region gives up width first and scrolls sideways rather than push the end slot out, so keep
   a toolbar narrow enough to fit at the screen sizes the app supports. One toolbar at a time; a
   second throws in dev mode. On a narrow screen (below 48rem) the shell wraps its top bar into two
-  rows: the logo, the end slot and the actions share the first (the end slot has a zero basis and
-  grows, so a long pill truncates inside it instead of wrapping onto a row of its own), and the
-  toolbar takes the whole last row (the host's `data-narrow` says which). A page without tools
-  keeps the wide bar's height. The markup order is unchanged, so the tab order still runs toolbar,
-  end slot, actions.
-  The toolbar still scrolls sideways past the row's width, so on a phone `neat-aside-toggle` is
-  drawn first among the tools (the one control that must stay in view while the panel floats over
-  the page); for that button the tab order differs from the visual order.
+  rows: the logo, the end slot, the kiosk button and the side-panel toggle share the first (the end
+  slot has a zero basis and grows, so a long pill truncates inside it instead of wrapping onto a
+  row of its own; the toggle is the row's last item), and the toolbar takes the whole last row (the
+  host's `data-narrow` says which). A page without tools keeps the wide bar's height. The markup
+  order is unchanged, so the tab order runs toolbar, end slot, kiosk button, toggle. Kit 0.12.2's
+  rule that the toggle leads the tools on a phone is gone with the toggle's place in the first row,
+  where it stays in view and the visual order is the tab order.
 - `<nav neatPageTabs aria-label="Stats views">` with an `<a neatPageTab routerLink="…">` per view,
   as a direct child of `neat-page`, is the page's views as tabs: a full-width row above the body
   and the side panel, left-aligned, divided from the page by a border (a page without it has no
@@ -525,7 +552,7 @@ number of tools and a switch in it moves too.
   over the right of the page instead, at most the page's width, and the body keeps the whole
   width; `neat-page` says which with a `data-aside="beside" | "overlay"` attribute on its host,
   and its CSS reacts to that, never to a second `@media` with the breakpoint. No scrim, no Escape:
-  the toolbar's toggle closes it. Why: a phone has no room for a column beside the body.
+  the top bar's toggle closes it. Why: a phone has no room for a column beside the body.
   `neatAsideOpen(remembered, remember)` (in an injection context) is the state a page that
   remembers its panel should bind: wide, it is the remembered choice; narrow, a transient flag
   that starts closed and is reset each time the screen becomes narrow, so a phone's opening and
@@ -549,9 +576,15 @@ number of tools and a switch in it moves too.
   returns with a wider window. The handle's look (an 8 px hit area, the `col-resize` cursor, a
   line on hover, focus and drag) is the page's stylesheet, not the app's. The handle assumes a
   right-hand panel: right-to-left layouts are not supported.
-- The panel opens and closes with `<neat-aside-toggle [(open)]="asideOpen" />` in the page's
-  toolbar, the one look for that button on every page ("Side panel" unless `label` says
-  otherwise); the page owns `open` and remembers it where it likes. Inside the panel,
+- The panel opens and closes with `<neat-aside-toggle [(open)]="asideOpen" />`, declared in the
+  page's template beside `*neatPageToolbar`, never inside it (that throws in dev mode). It renders
+  nothing where it is declared: its button is a template the shell draws at the top bar's right
+  edge after the kiosk button (on a phone, the first row's last item; in kiosk mode, after the
+  page's tools in the floating bar), the way the toolbar reaches the top bar, and it leaves with
+  the page. One at a time; a second throws in dev mode. It is the one look for that button on
+  every page, drawn as the kiosk button beside it (a large, round, text, icon-only `neatButton`,
+  "Side panel" unless `label` says otherwise); the page owns `open` and remembers it where it
+  likes. Inside the panel,
   `neatAsidePanel` stacks the parts one gap apart, `neatAsideTitle` and `neatAsideHeading` are the
   panel's title and section headings, `neatAsideActions` a row of buttons and `code[neatCode]` a
   URL or path in running text. A page's panel styles nothing of this itself.

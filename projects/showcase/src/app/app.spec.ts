@@ -63,8 +63,9 @@ describe('App', () => {
 
   it('demonstrates the page toolbar and side panel on the page demo', async () => {
     await navigate('/page');
+    // The page declares the toggle; the shell draws it at the top bar's right edge.
     const toggle = root().querySelector(
-      'header neat-aside-toggle button[aria-label="Side panel"]',
+      'header .aside-edge button[aria-label="Side panel"]',
     ) as HTMLButtonElement;
     const aside = (): HTMLElement | null => content().querySelector('neat-page aside');
 
@@ -76,6 +77,17 @@ describe('App', () => {
 
     expect(toggle.getAttribute('aria-pressed')).toBe('false');
     expect(aside()).toBeNull();
+  });
+
+  it('demonstrates the rail’s end slot: an app item above the theme and the collapse control', () => {
+    const end = root().querySelector('neat-shell .rail-end') as HTMLElement;
+    const items = Array.from(end.querySelectorAll('[neatRailItem]'), (item) =>
+      item.getAttribute('label'),
+    );
+
+    // The second shows richer text of its own through [neatRailItemLabel].
+    expect(items).toEqual(['About this showcase', 'Demo board, 192.168.1.20', 'Dark theme']);
+    expect(end.querySelector('[neatRailItemLabel]')?.textContent).toContain('192.168.1.20');
   });
 
   it('demonstrates page tabs on the page demo: route links, the open one marked', async () => {

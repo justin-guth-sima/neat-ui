@@ -8,7 +8,6 @@ import {
   inject,
   Injector,
   input,
-  signal,
   viewChild,
 } from '@angular/core';
 import { CdkPortalOutlet } from '@angular/cdk/portal';
@@ -23,16 +22,14 @@ import { NeatButton } from '../button/button';
 import { NeatIcon } from '../icon/icon';
 import { NeatKioskExit } from '../kiosk/kiosk-exit';
 import { KioskService } from '../kiosk/kiosk.service';
-import { neatAsideOpen } from '../page/aside-open';
+import { AsideToggleSlot } from '../page/aside';
 import { NeatViewport } from '../page/viewport';
-import { safeStorage } from '../storage';
 import { ThemeService } from '../theme/theme.service';
 import { NeatTooltip } from '../tooltip/tooltip';
 import { NeatLogo } from './logo';
 import { NeatNavItem } from './nav-item';
 import { PageToolbarSlot } from './page-toolbar';
-
-const RAIL_EXPANDED_KEY = 'neat-ui:rail-expanded';
+import { NeatRailItem, RailState } from './rail-item';
 
 /**
  * The accessible name of the page toolbar's region, in the top bar and in kiosk mode alike. A
@@ -50,25 +47,32 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
 };
 
 /**
- * The app frame: an icon rail with the pages on the left (expandable to show labels), a top bar
- * with logo, app name, page title and app-specific items, and the content area for the routed
- * page. It fills the viewport; the content area gives its page the remaining space and never
- * scrolls itself, so pages own their scrolling (see `neat-page`).
+ * The app frame: the rail on the left, which is the app's, the top bar, which is the page's, and
+ * the content area for the routed page. It fills the viewport; the content area gives its page the
+ * remaining space and never scrolls itself, so pages own their scrolling (see `neat-page`).
  *
- * Content projection: the default slot is the content area (usually a `<router-outlet />`);
- * elements marked `neatTopbarEnd` go to the right side of the top bar. On a wide screen the active
- * page's own controls (`*neatPageToolbar`) sit at the right of the top bar, just before that end
- * slot.
+ * The rail holds the pages (`navItems`) and, at its bottom below a divider, the app's own items
+ * (elements marked `neatRailEnd`, usually `neatRailItem`s), then the kit's theme switch ("Dark
+ * theme"), then the rail's control that shows and hides the labels. Expanded, its items show icon
+ * and label; collapsed, the icon with the label as a tooltip and as hidden text.
+ *
+ * The top bar holds the logo, the app name and the page title, then at its right the active page's
+ * tools (`*neatPageToolbar`), elements marked `neatTopbarEnd`, the kiosk button (the one app
+ * control there, since it changes how the page is shown), and last, at the right edge above the
+ * side panel, the page's side-panel toggle (`neat-aside-toggle`) when the page has one. The
+ * default slot is the content area (usually a `<router-outlet />`).
  *
  * Kiosk mode (`KioskService`, entered from the top bar or with `?kiosk`) drops the rail and the
  * top bar, gives the content area the whole viewport and floats an exit control over its top
- * right corner while the pointer moves; the page toolbar floats beside it on the same terms. Its
- * view is re-created on entering and leaving kiosk mode, so the page keeps the toolbar's state.
+ * right corner while the pointer moves; the page toolbar, then the side-panel toggle, float beside
+ * it on the same terms. Their views are re-created on entering and leaving kiosk mode, so the page
+ * keeps their state.
  *
  * On a narrow screen (`NeatViewport`, below 48rem) the app name and the page title are visually
  * hidden but stay for screen readers (the title as the page's `h1`; the name beside the logo,
- * which is also named "SiMa.ai"). The logo, the end slot and the actions share the first row, the
- * end slot growing from a zero basis, and the page toolbar takes its own full-width second row. An
+ * which is also named "SiMa.ai"). The logo, the end slot, the kiosk button and the side-panel
+ * toggle share the first row, the end slot growing from a zero basis and the toggle last, and the
+ * page toolbar takes its own full-width second row. An
  * expanded rail floats over the content instead of squeezing it, starts collapsed without
  * touching the remembered choice, and collapses when one of its links is followed. The host's
  * `data-narrow` says which, and the CSS reacts to that, never to a second `@media`.
@@ -81,11 +85,14 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
     NeatIcon,
     NeatKioskExit,
     NeatLogo,
+    NeatRailItem,
     NeatTooltip,
     RouterLink,
     RouterLinkActive,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // To its own template and to the app's items projected into the rail.
+  providers: [RailState],
   host: {
     '[attr.data-kiosk]': 'kiosk.active()',
     '[attr.data-narrow]': 'viewport.narrow()',
@@ -101,22 +108,14 @@ export class NeatShell {
   protected readonly kiosk = inject(KioskService);
   protected readonly viewport = inject(NeatViewport);
   protected readonly pageToolbar = inject(PageToolbarSlot).portal;
+  protected readonly asideToggle = inject(AsideToggleSlot).portal;
   protected readonly toolbarLabel = PAGE_TOOLBAR_LABEL;
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
 
   protected readonly activeMatch = ACTIVE_MATCH;
-  private readonly rememberedRail = signal(safeStorage.get(RAIL_EXPANDED_KEY) === 'true');
-  /**
-   * Whether the rail shows its labels: the remembered choice on a wide screen; on a narrow one,
-   * where it floats over the content, a transient flag that starts collapsed and never overwrites
-   * the wide screen's choice (the rule of a page's side panel).
-   */
-  private readonly rail = neatAsideOpen(this.rememberedRail, (expanded) => {
-    this.rememberedRail.set(expanded);
-    safeStorage.set(RAIL_EXPANDED_KEY, String(expanded));
-  });
-  protected readonly railExpanded = this.rail.open;
+  private readonly rail = inject(RailState);
+  protected readonly railExpanded = this.rail.expanded;
   private readonly kioskExit = viewChild(NeatKioskExit);
   private readonly kioskButton = viewChild<ElementRef<HTMLElement>>('kioskButton');
 
@@ -158,12 +157,5 @@ export class NeatShell {
 
   protected toggleRail(): void {
     this.rail.set(!this.railExpanded());
-  }
-
-  /** A floating rail covers the page it just opened, so following a link puts it away. */
-  protected collapseRailWhenNarrow(): void {
-    if (this.viewport.narrow()) {
-      this.rail.set(false);
-    }
   }
 }

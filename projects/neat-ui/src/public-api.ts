@@ -28,6 +28,7 @@ export type { NeatIconName } from './lib/icon/icon-registry';
 export { NEAT_ICON_NAMES } from './lib/icon/icon-registry';
 export type { NeatNavItem } from './lib/shell/nav-item';
 export { NeatShell } from './lib/shell/shell';
+export { NeatRailItem } from './lib/shell/rail-item';
 export { NeatPageToolbar } from './lib/shell/page-toolbar';
 export { NeatPage } from './lib/page/page';
 export { NeatPageTab, NeatPageTabs } from './lib/page/page-tabs';

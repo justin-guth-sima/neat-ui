@@ -37,8 +37,19 @@ import { NeatDetails } from '@sima/neat-ui/details';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div *neatPageToolbar>
-      <neat-aside-toggle [(open)]="asideOpen" />
+      <button
+        neatButton
+        type="button"
+        variant="text"
+        size="small"
+        [attr.aria-disabled]="asideWidth() === null || null"
+        (click)="asideWidth.set(null)"
+      >
+        Reset panel width
+      </button>
     </div>
+    <!-- Declared beside the toolbar, not in it: the shell draws it at the top bar's right edge. -->
+    <neat-aside-toggle [(open)]="asideOpen" />
 
     <neat-page [aside]="asideOpen() ? 'open' : 'closed'" [(asideWidth)]="asideWidth">
       <nav neatPageTabs aria-label="Page demo views">
@@ -62,10 +73,12 @@ import { NeatDetails } from '@sima/neat-ui/details';
             The page's own controls go to the top bar with <code>*neatPageToolbar</code>; in kiosk
             mode they float beside the exit control while the pointer moves. Its side panel goes
             into <code>[neatPageAside]</code> and shows while <code>aside="open"</code>: the body
-            narrows beside it, and each scrolls on its own. The top bar's
-            <code>neat-aside-toggle</code> opens and closes it: one button on every page, named
-            "Side panel" unless the page says otherwise, with <code>[(open)]</code> the page's own
-            state. Inside, <code>neatAsidePanel</code>, <code>neatAsideTitle</code>,
+            narrows beside it, and each scrolls on its own. <code>neat-aside-toggle</code>, which
+            the page declares beside its toolbar, opens and closes it: the shell draws it at the top
+            bar's right edge, after the kiosk button and above the panel (on a phone, last in the
+            first row; in kiosk mode, after the page's tools), one button on every page, named "Side
+            panel" unless the page says otherwise, with <code>[(open)]</code> the page's own state.
+            Inside, <code>neatAsidePanel</code>, <code>neatAsideTitle</code>,
             <code>neatAsideHeading</code>, <code>neatAsideActions</code> and
             <code>neatCode</code> draw the panel's parts the same way everywhere.
           </p>

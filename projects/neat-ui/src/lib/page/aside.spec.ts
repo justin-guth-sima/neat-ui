@@ -1,6 +1,9 @@
-import { Component, signal, viewChild } from '@angular/core';
+import { CdkPortalOutlet } from '@angular/cdk/portal';
+import { Component, inject, signal, Type, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { NeatPageToolbar, PageToolbarSlot } from '../shell/page-toolbar';
 import {
+  AsideToggleSlot,
   NeatAsideActions,
   NeatAsideHeading,
   NeatAsidePanel,
@@ -8,7 +11,6 @@ import {
   NeatAsideToggle,
   NeatCode,
 } from './aside';
-import { NeatViewport } from './viewport';
 
 @Component({
   imports: [NeatAsideToggle],
@@ -26,6 +28,43 @@ class ToggleHost {
 })
 class DefaultToggleHost {
   readonly open = signal(false);
+}
+
+@Component({
+  imports: [NeatAsideToggle],
+  template: `
+    <neat-aside-toggle />
+    @if (second()) {
+      <neat-aside-toggle label="Inspector" />
+    }
+  `,
+})
+class TwoToggles {
+  readonly second = signal(false);
+}
+
+@Component({
+  imports: [NeatAsideToggle, NeatPageToolbar],
+  template: `<div *neatPageToolbar><neat-aside-toggle /></div>`,
+})
+class ToggleInToolbar {}
+
+/** Renders the registered toggle, as the shell's top bar does at its right edge. */
+@Component({
+  imports: [CdkPortalOutlet],
+  template: `<ng-template [cdkPortalOutlet]="slot.portal()" />`,
+})
+class Outlet {
+  protected readonly slot = inject(AsideToggleSlot);
+}
+
+/** Renders the registered page toolbar, as the shell does. */
+@Component({
+  imports: [CdkPortalOutlet],
+  template: `<ng-template [cdkPortalOutlet]="slot.portal()" />`,
+})
+class ToolbarOutlet {
+  protected readonly slot = inject(PageToolbarSlot);
 }
 
 @Component({
@@ -50,11 +89,15 @@ async function settle(fixture: { whenStable(): Promise<unknown> }): Promise<void
 const classesOf = (element: Element) => [...element.classList];
 
 describe('NeatAsideToggle', () => {
-  async function render() {
-    const fixture = TestBed.createComponent(ToggleHost);
+  /** The page that declares the toggle, and the outlet where the shell renders its button. */
+  async function render<T>(page: Type<T>) {
+    const fixture = TestBed.createComponent(page);
+    const outlet = TestBed.createComponent(Outlet);
     await fixture.whenStable();
-    const button = (fixture.nativeElement as HTMLElement).querySelector('button')!;
-    return { fixture, host: fixture.componentInstance, button };
+    await outlet.whenStable();
+    const button = (): HTMLButtonElement =>
+      (outlet.nativeElement as HTMLElement).querySelector('button')!;
+    return { fixture, outlet, host: fixture.componentInstance, button };
   }
 
   afterEach(() => {
@@ -62,83 +105,117 @@ describe('NeatAsideToggle', () => {
     document.querySelectorAll('.cdk-overlay-container').forEach((container) => container.remove());
   });
 
-  it('leads the page’s tools on a narrow screen, where it is the one control that must stay in view', async () => {
-    const narrow = signal(true);
-    TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
-    const { fixture, button } = await render();
+  it('renders its button where the shell puts it and nothing where the page declares it', async () => {
+    const { fixture, button } = await render(ToggleHost);
+    const declared = (fixture.nativeElement as HTMLElement).querySelector('neat-aside-toggle')!;
 
-    // jsdom applies no Tailwind: the rule is its class under the host's `data-narrow` attribute.
-    expect(button.dataset['narrow']).toBe('true');
-    expect(classesOf(button)).toContain('data-[narrow=true]:order-first');
-
-    narrow.set(false);
-    await fixture.whenStable();
-    expect(button.dataset['narrow']).toBe('false');
+    expect(button()).not.toBeNull();
+    expect(declared.querySelector('button')).toBeNull();
+    // No box where it is declared, so it never takes a gap in the page's layout.
+    expect(declared.hasAttribute('hidden')).toBe(true);
   });
 
-  it('is one small, text, icon-only kit button with the side-panel icon, named "Side panel" by default', async () => {
-    const fixture = TestBed.createComponent(DefaultToggleHost);
-    await fixture.whenStable();
-    const button = (fixture.nativeElement as HTMLElement).querySelector('button')!;
+  it('is drawn as the top bar’s other edge control, the kiosk button: a large, round, text, icon-only kit button', async () => {
+    const { button } = await render(DefaultToggleHost);
 
-    expect(button.getAttribute('data-slot')).toBe('button');
-    expect(button.type).toBe('button');
-    expect(classesOf(button)).toEqual(expect.arrayContaining(['size-8', 'hover:bg-accent']));
-    expect(button.querySelector('neat-icon[name="side-panel"]')).not.toBeNull();
-    expect(button.getAttribute('aria-label')).toBe('Side panel');
+    expect(button().getAttribute('data-slot')).toBe('button');
+    expect(button().type).toBe('button');
+    expect(classesOf(button())).toEqual(
+      expect.arrayContaining(['size-10', 'rounded-full', 'hover:bg-accent']),
+    );
+    expect(button().querySelector('neat-icon[name="side-panel"]')).not.toBeNull();
+    expect(button().getAttribute('aria-label')).toBe('Side panel');
+  });
+
+  it('no longer reorders itself on a narrow screen: the shell puts it last in the first row', async () => {
+    const { button } = await render(ToggleHost);
+
+    expect(button().hasAttribute('data-narrow')).toBe(false);
+    expect(classesOf(button()).some((name) => /(^|:)order-/.test(name))).toBe(false);
   });
 
   it('shows whether the panel is open as its pressed state', async () => {
-    const { fixture, host, button } = await render();
-    expect(button.getAttribute('aria-pressed')).toBe('true');
+    const { fixture, outlet, host, button } = await render(ToggleHost);
+    expect(button().getAttribute('aria-pressed')).toBe('true');
 
     host.open.set(false);
     await fixture.whenStable();
-    expect(button.getAttribute('aria-pressed')).toBe('false');
+    await outlet.whenStable();
+    expect(button().getAttribute('aria-pressed')).toBe('false');
   });
 
   it('opens and closes the panel on a click, through the model the page binds', async () => {
-    const { fixture, host, button } = await render();
+    const { fixture, outlet, host, button } = await render(ToggleHost);
 
-    button.click();
+    button().click();
     await fixture.whenStable();
+    await outlet.whenStable();
     expect(host.open()).toBe(false);
-    expect(button.getAttribute('aria-pressed')).toBe('false');
+    expect(button().getAttribute('aria-pressed')).toBe('false');
 
-    button.click();
+    button().click();
     await fixture.whenStable();
     expect(host.open()).toBe(true);
   });
 
   it('takes its name and its tooltip from label', async () => {
-    const { fixture, host, button } = await render();
+    const { fixture, outlet, host, button } = await render(ToggleHost);
     host.label.set('Inspector');
     await fixture.whenStable();
-    expect(button.getAttribute('aria-label')).toBe('Inspector');
+    await outlet.whenStable();
+    expect(button().getAttribute('aria-label')).toBe('Inspector');
 
     vi.spyOn(document.documentElement, 'clientWidth', 'get').mockReturnValue(1024);
     vi.spyOn(document.documentElement, 'clientHeight', 'get').mockReturnValue(768);
-    button.getBoundingClientRect = () => new DOMRect(472, 368, 32, 32);
-    button.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
-    await settle(fixture);
-    await fixture.whenStable();
+    button().getBoundingClientRect = () => new DOMRect(472, 368, 40, 40);
+    button().dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+    await settle(outlet);
     expect(document.querySelector('[role="tooltip"]')?.textContent?.trim()).toBe('Inspector');
+    expect(document.querySelector('[role="tooltip"]')?.getAttribute('data-side')).toBe('bottom');
   });
 
-  it('focus() puts the focus on its button, for a page that closes the panel from inside it', async () => {
-    const { host, button } = await render();
+  it('focus() puts the focus on its button where the shell renders it', async () => {
+    const { host, button } = await render(ToggleHost);
 
     host.toggle().focus();
 
-    expect(document.activeElement).toBe(button);
+    expect(document.activeElement).toBe(button());
   });
 
-  it('takes no box of its own in the toolbar', async () => {
-    const { fixture } = await render();
+  it('takes its button out of the shell as soon as the page is destroyed', async () => {
+    const { fixture, outlet } = await render(ToggleHost);
+    expect(outlet.nativeElement.querySelector('button')).not.toBeNull();
 
-    expect(classesOf(fixture.nativeElement.querySelector('neat-aside-toggle'))).toContain(
-      'contents',
-    );
+    fixture.destroy();
+
+    // Before any change detection: the button's bindings never run against a destroyed page.
+    expect(outlet.nativeElement.querySelector('button')).toBeNull();
+    expect(TestBed.inject(AsideToggleSlot).portal()).toBeNull();
+  });
+
+  it('a second toggle throws in dev mode: one page, one side panel', async () => {
+    const fixture = TestBed.createComponent(TwoToggles);
+    await fixture.whenStable();
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    fixture.componentInstance.second.set(true);
+
+    try {
+      await expect(fixture.whenStable()).rejects.toThrow(/one side-panel toggle at a time/);
+    } finally {
+      error.mockRestore();
+    }
+  });
+
+  it('declared inside *neatPageToolbar, throws in dev mode: it has a place of its own', async () => {
+    TestBed.createComponent(ToggleInToolbar);
+    const outlet = TestBed.createComponent(ToolbarOutlet);
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    try {
+      await expect(outlet.whenStable()).rejects.toThrow(/outside \*neatPageToolbar/);
+    } finally {
+      error.mockRestore();
+    }
   });
 });
 

@@ -2,11 +2,14 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, RouterOutlet, Routes } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { NeatIcon } from '../icon/icon';
 import { KIOSK_POINTER_IDLE_MS, KioskService } from '../kiosk/kiosk.service';
+import { NeatAsideToggle } from '../page/aside';
 import { ThemeService } from '../theme/theme.service';
 import { NeatViewport } from '../page/viewport';
 import { NeatNavItem } from './nav-item';
 import { NeatPageToolbar } from './page-toolbar';
+import { NeatRailItem } from './rail-item';
 import { NeatShell } from './shell';
 import shellStyles from './shell.css' with { loader: 'text' };
 
@@ -46,11 +49,34 @@ class ToolbarPage {
 })
 class OtherToolbarPage {}
 
+/** A page with tools and a side panel, whose toggle it declares beside its toolbar. */
 @Component({
-  imports: [NeatShell, RouterOutlet],
+  imports: [NeatAsideToggle, NeatPageToolbar],
+  template: `
+    <div *neatPageToolbar><button type="button" class="tool">Refresh</button></div>
+    <neat-aside-toggle [(open)]="open" />
+    <p>panel page</p>
+  `,
+})
+class AsidePage {
+  readonly open = signal(true);
+}
+
+/** A page with a side panel and no other tools. */
+@Component({
+  imports: [NeatAsideToggle],
+  template: `<neat-aside-toggle label="Inspector" />`,
+})
+class AsideOnlyPage {}
+
+@Component({
+  imports: [NeatIcon, NeatRailItem, NeatShell, RouterOutlet],
   template: `
     <neat-shell appName="Neat Insight" [navItems]="navItems">
       <span neatTopbarEnd class="board-status">Board connected</span>
+      <button neatRailEnd neatRailItem type="button" label="System information">
+        <neat-icon name="info" />
+      </button>
       <router-outlet />
     </neat-shell>
   `,
@@ -70,6 +96,8 @@ const routes: Routes = [
       { path: 'viewer', component: StubPage },
       { path: 'viewer/grid', component: ToolbarPage },
       { path: 'media/library', component: OtherToolbarPage },
+      { path: 'viewer/panel', component: AsidePage },
+      { path: 'viewer/inspect', component: AsideOnlyPage },
     ],
   },
 ];
@@ -83,10 +111,16 @@ describe('NeatShell', () => {
   const link = (label: string): HTMLAnchorElement =>
     links().find((a) => a.textContent?.trim() === label) as HTMLAnchorElement;
   const topbar = (): HTMLElement => shell().querySelector('header') as HTMLElement;
+  /** The shell's button of that accessible name: its `aria-label`, or its text (a rail item's). */
   const button = (name: string): HTMLButtonElement =>
-    shell().querySelector(`button[aria-label="${name}"]`) as HTMLButtonElement;
+    (Array.from(shell().querySelectorAll('button')).find(
+      (element) => (element.ariaLabel ?? element.textContent?.trim()) === name,
+    ) ?? null) as HTMLButtonElement;
   const railToggle = (): HTMLButtonElement => button('Show labels');
-  const themeToggle = (): HTMLButtonElement => button('Dark mode');
+  const themeToggle = (): HTMLButtonElement => button('Dark theme');
+  const systemInfo = (): HTMLButtonElement => button('System information');
+  const asideToggle = (name = 'Side panel'): HTMLButtonElement => button(name);
+  const asideEdge = (): HTMLElement | null => shell().querySelector('.aside-edge');
   const kioskButton = (): HTMLButtonElement => button('Kiosk mode');
   const exitControl = (): HTMLButtonElement => button('Exit kiosk mode');
   const main = (): HTMLElement => shell().querySelector('main') as HTMLElement;
@@ -116,8 +150,10 @@ describe('NeatShell', () => {
     }
     return 'auto';
   };
-  const labelOf = (anchor: HTMLAnchorElement): HTMLElement =>
-    anchor.querySelector('.label') as HTMLElement;
+  const labelOf = (item: HTMLElement): HTMLElement => item.querySelector('.label') as HTMLElement;
+  /** The declarations of the stylesheet's rule for `selector`, written as in the stylesheet. */
+  const rule = (selector: string): string | undefined =>
+    new RegExp(`${selector.replace(/[()[\]'.]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(shellStyles)?.[1];
   const tooltip = (): HTMLElement | null => document.querySelector('[role="tooltip"]');
   /**
    * A mouse entering `element`. jsdom lays nothing out, so the viewport gets a size and the element
@@ -205,13 +241,13 @@ describe('NeatShell', () => {
   it('expands the rail to show labels and persists that under neat-ui:rail-expanded', async () => {
     await start();
     expect(railToggle().getAttribute('aria-pressed')).toBe('false');
-    expect(labelOf(link('Media')).classList).toContain('visually-hidden');
+    expect(labelOf(link('Media')).classList).toContain('sr-only');
 
     railToggle().click();
     await settle();
 
     expect(railToggle().getAttribute('aria-pressed')).toBe('true');
-    expect(labelOf(link('Media')).classList).not.toContain('visually-hidden');
+    expect(labelOf(link('Media')).classList).not.toContain('sr-only');
     expect(localStorage.getItem(RAIL_KEY)).toBe('true');
 
     // Labels are visible now, so the links show no tooltip.
@@ -226,14 +262,15 @@ describe('NeatShell', () => {
     expect(localStorage.getItem(RAIL_KEY)).toBe('false');
   });
 
-  it('keeps the collapsed rail’s hidden labels inside the nav, which scrolls on a short screen', async () => {
+  it('keeps the collapsed rail’s hidden labels inside their items, which scroll with the nav', async () => {
     await start();
 
-    // A hidden label is absolutely positioned. Its containing block must be the nav, the box that
-    // scrolls: past it (the shell host is not positioned) a label below the fold would make the
-    // whole document scroll.
-    expect(labelOf(link('Media')).classList).toContain('visually-hidden');
-    expect(getComputedStyle(nav()).position).toBe('relative');
+    // A hidden label is absolutely positioned. Its containing block is its item, inside the nav
+    // that scrolls: past it (the shell host is not positioned) a label below the fold would make
+    // the whole document scroll.
+    expect(labelOf(link('Media')).classList).toContain('sr-only');
+    expect(getComputedStyle(link('Media')).position).toBe('relative');
+    expect(nav().contains(link('Media'))).toBe(true);
   });
 
   it('restores an expanded rail on start', async () => {
@@ -242,7 +279,7 @@ describe('NeatShell', () => {
     await start();
 
     expect(railToggle().getAttribute('aria-pressed')).toBe('true');
-    expect(labelOf(link('Media')).classList).not.toContain('visually-hidden');
+    expect(labelOf(link('Media')).classList).not.toContain('sr-only');
   });
 
   it('keeps the rail collapsed by default when localStorage throws', async () => {
@@ -263,23 +300,85 @@ describe('NeatShell', () => {
     expect(railToggle().getAttribute('aria-pressed')).toBe('true');
   });
 
-  it('toggles the colour scheme from the top-bar button', async () => {
+  it('toggles the colour scheme from the rail’s last end item, "Dark theme", pressed while dark', async () => {
     await start();
     const theme = TestBed.inject(ThemeService);
     expect(themeToggle().getAttribute('aria-pressed')).toBe('false');
-    expect(topbar().contains(themeToggle())).toBe(true);
+    expect(railBox().contains(themeToggle())).toBe(true);
+    expect(topbar().contains(themeToggle())).toBe(false);
+    expect(themeToggle().querySelector('neat-icon')?.getAttribute('data-icon')).toBe('moon');
 
     themeToggle().click();
     await settle();
 
     expect(theme.scheme()).toBe('dark');
     expect(themeToggle().getAttribute('aria-pressed')).toBe('true');
+    // The name stays while the state changes (a toggle's); the icon shows the other scheme.
+    expect(themeToggle().textContent?.trim()).toBe('Dark theme');
+    expect(themeToggle().querySelector('neat-icon')?.getAttribute('data-icon')).toBe('sun');
 
     themeToggle().click();
     await settle();
 
     expect(theme.scheme()).toBe('light');
     expect(themeToggle().getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('is a rail item: its label shows when the rail is expanded and is a right tooltip when not', async () => {
+    await start();
+    expect(labelOf(themeToggle()).classList).toContain('sr-only');
+
+    hover(themeToggle());
+    await tick();
+    expect(tooltip()?.textContent?.trim()).toBe('Dark theme');
+    expect(tooltip()?.getAttribute('data-side')).toBe('right');
+
+    railToggle().click();
+    await settle();
+    expect(labelOf(themeToggle()).classList).not.toContain('sr-only');
+  });
+
+  it('projects [neatRailEnd] at the bottom of the rail, below a divider: the app’s items, the theme, then the collapse control', async () => {
+    await start();
+    const end = shell().querySelector('.rail-end') as HTMLElement;
+
+    expect(railBox().contains(end)).toBe(true);
+    expect(nav().contains(end)).toBe(false);
+    expect(end.contains(systemInfo())).toBe(true);
+    expect([...end.children].at(-1)).toBe(themeToggle());
+    expect(
+      end.compareDocumentPosition(railToggle()) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(end.contains(railToggle())).toBe(false);
+    // The divider is a line inside the rail's colours, drawn above the group.
+    expect(rule('.rail-end')).toMatch(/border-block-start:\s*1px solid var\(--sidebar-border\);/);
+  });
+
+  it('reaches the rail’s bottom items in order after the pages, from the keyboard', async () => {
+    await start();
+    const focusable = Array.from(
+      railBox().querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+    ).filter((element) => element.tabIndex >= 0);
+
+    expect(focusable.map((element) => element.textContent?.trim() || element.ariaLabel)).toEqual([
+      'Media',
+      'Streaming',
+      'Viewer',
+      'System information',
+      'Dark theme',
+      'Show labels',
+    ]);
+  });
+
+  it('keeps the names of the app’s collapsed rail items: the label, visually hidden, and a tooltip', async () => {
+    await start();
+    expect(systemInfo().textContent?.trim()).toBe('System information');
+    expect(labelOf(systemInfo()).classList).toContain('sr-only');
+
+    hover(systemInfo());
+    await tick();
+    expect(tooltip()?.textContent?.trim()).toBe('System information');
+    expect(tooltip()?.getAttribute('data-side')).toBe('right');
   });
 
   it('hides rail and top bar while kiosk is active', async () => {
@@ -373,19 +472,97 @@ describe('NeatShell', () => {
     expect(exitControl().classList).toContain('rounded-full');
   });
 
-  it('gives the top-bar buttons 40px round icon-only targets with tooltips below them', async () => {
+  it('keeps the kiosk button in the top bar: a 40px round icon-only target, its tooltip below', async () => {
     await start();
     await tick();
 
-    for (const control of [themeToggle(), kioskButton()]) {
-      expect(control.classList).toContain('size-10');
-      expect(control.classList).toContain('rounded-full');
-    }
+    expect(topbar().contains(kioskButton())).toBe(true);
+    expect(kioskButton().classList).toContain('size-10');
+    expect(kioskButton().classList).toContain('rounded-full');
 
-    hover(themeToggle());
+    hover(kioskButton());
     await tick();
-    expect(tooltip()?.textContent?.trim()).toBe('Dark mode');
+    expect(tooltip()?.textContent?.trim()).toBe('Kiosk mode');
     expect(tooltip()?.getAttribute('data-side')).toBe('bottom');
+  });
+
+  it('puts the page’s side-panel toggle at the top bar’s right edge, after the kiosk button', async () => {
+    await start('/viewer/panel');
+    const edge = asideEdge() as HTMLElement;
+
+    expect(topbar().lastElementChild).toBe(edge);
+    expect(edge.contains(asideToggle())).toBe(true);
+    expect(main().contains(asideToggle())).toBe(false);
+    expect(
+      kioskButton().compareDocumentPosition(asideToggle()) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    // After the page's tools and the end slot too, so the tab order matches what is drawn.
+    const tool = topbar().querySelector('.page-toolbar .tool') as HTMLElement;
+    expect(tool.compareDocumentPosition(edge) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // The page's own state drives it, as it did inside the toolbar.
+    expect(asideToggle().getAttribute('aria-pressed')).toBe('true');
+    asideToggle().click();
+    await settle();
+    expect(asideToggle().getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('sets the toggle apart from the rest of the bar by a divider the bar’s height, flush with its end', async () => {
+    await start('/viewer/inspect');
+
+    expect(asideToggle('Inspector')).not.toBeNull();
+    // jsdom lays nothing out: read from the cascade. The edge spans the bar's height and reaches
+    // back across the bar's end inset, so its divider and its cell sit on the edge.
+    const edge = rule('.aside-edge') as string;
+    expect(edge).toMatch(/align-self:\s*stretch;/);
+    expect(edge).toMatch(/border-inline-start:\s*1px solid var\(--border\);/);
+    expect(edge).toMatch(/margin-inline-end:\s*calc\(-1 \* var\(--neat-space-2\)\);/);
+    expect(rule(":host([data-narrow='false']) .topbar")).toMatch(
+      /padding-inline:\s*1rem var\(--neat-space-2\);/,
+    );
+  });
+
+  it('shows no edge on a page without a side panel, and drops it when the page goes', async () => {
+    await start('/viewer/panel');
+    expect(asideEdge()).not.toBeNull();
+
+    await harness.navigateByUrl('/media');
+
+    expect(asideEdge()).toBeNull();
+    expect(asideToggle()).toBeNull();
+  });
+
+  it('in kiosk the toggle floats with the page tools, after them, and keeps the page’s state', async () => {
+    await start('/viewer/panel');
+    await TestBed.inject(KioskService).enter();
+    await settle();
+
+    const bar = kioskToolbar() as HTMLElement;
+    expect(bar.contains(asideToggle())).toBe(true);
+    const tool = bar.querySelector('.tool') as HTMLElement;
+    expect(
+      tool.compareDocumentPosition(asideToggle()) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    // The exit control stays first in the tab order.
+    expect(
+      exitControl().compareDocumentPosition(asideToggle()) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    asideToggle().click();
+    await settle();
+    await TestBed.inject(KioskService).exit();
+    await settle();
+
+    expect(asideToggle().getAttribute('aria-pressed')).toBe('false');
+    expect(asideEdge()?.contains(asideToggle())).toBe(true);
+  });
+
+  it('in kiosk floats the toggle of a page without other tools in a bar of its own', async () => {
+    await start('/viewer/inspect');
+    await TestBed.inject(KioskService).enter();
+    await settle();
+
+    expect(kioskToolbar()?.contains(asideToggle('Inspector'))).toBe(true);
+    expect(kioskToolbar()?.getAttribute('aria-label')).toBe('Page tools');
   });
 
   it('entering kiosk mode focuses the exit control', async () => {
@@ -724,13 +901,13 @@ describe('NeatShell', () => {
     await start();
 
     expect(shell().dataset['narrow']).toBe('false');
-    expect(appName().classList).not.toContain('visually-hidden');
+    expect(appName().classList).not.toContain('sr-only');
     expect(pageTitle()?.textContent?.trim()).toBe('Media');
   });
 
   it('on a wide screen: shows the page title heading', async () => {
     await start();
-    expect(pageTitle()?.classList).not.toContain('visually-hidden');
+    expect(pageTitle()?.classList).not.toContain('sr-only');
   });
 
   it('on a wide screen: keeps the rail expanded after following a link', async () => {
@@ -755,12 +932,6 @@ describe('NeatShell', () => {
   });
 
   describe('on a narrow screen', () => {
-    /** The declarations of the stylesheet's rule for `selector`, written as in the stylesheet. */
-    const rule = (selector: string): string | undefined =>
-      new RegExp(`${selector.replace(/[()[\]'.]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(
-        shellStyles,
-      )?.[1];
-
     beforeEach(() => {
       TestBed.overrideProvider(NeatViewport, { useValue: { narrow: signal(true) } });
     });
@@ -773,13 +944,13 @@ describe('NeatShell', () => {
     it('keeps the app name visually hidden and still in the accessible tree', async () => {
       await start();
       expect(appName().textContent).toBe('Neat Insight');
-      expect(appName().classList).toContain('visually-hidden');
+      expect(appName().classList).toContain('sr-only');
     });
 
     it('keeps the page title as a visually hidden heading', async () => {
       await start();
       expect(pageTitle()?.textContent?.trim()).toBe('Media');
-      expect(pageTitle()?.classList).toContain('visually-hidden');
+      expect(pageTitle()?.classList).toContain('sr-only');
     });
 
     it('floats the expanded rail over the content', async () => {
@@ -907,6 +1078,35 @@ describe('NeatShell', () => {
       expect(end.flexBasis).toMatch(/^0(px|%)?$/);
       expect(end.minWidth).toBe('0px');
       expect(end.justifyContent).toBe('flex-end');
+    });
+
+    it('makes the side-panel toggle the last item of the first row, after the kiosk button', async () => {
+      await start('/viewer/panel');
+      const region = getComputedStyle(toolbarRegion() as HTMLElement);
+      const edge = asideEdge() as HTMLElement;
+
+      // The toolbar's `order` moves it to a row of its own; the edge keeps the markup's place,
+      // last on the first row, after the actions.
+      expect(region.order).toBe('1');
+      expect(getComputedStyle(edge).order).toBe('0');
+      const actions = topbar().querySelector('.topbar-actions') as HTMLElement;
+      expect(actions.nextElementSibling).toBe(edge);
+      expect(edge.contains(asideToggle())).toBe(true);
+      // The logo, the kiosk button and the toggle share the row; nothing in it grows but the end
+      // slot, so they fit at 390 px (measured in the browser check).
+      expect(getComputedStyle(edge).flexGrow).toBe('0');
+      expect(getComputedStyle(edge).flexShrink).toBe('0');
+    });
+
+    it('shows the rail’s bottom group in the floating rail, the app’s items still reachable', async () => {
+      await start();
+      railToggle().click();
+      await settle();
+
+      expect(railBox().dataset['floating']).toBe('true');
+      expect(railBox().contains(systemInfo())).toBe(true);
+      expect(labelOf(systemInfo()).classList).not.toContain('sr-only');
+      expect(labelOf(themeToggle()).classList).not.toContain('sr-only');
     });
 
     it('keeps the bar as high as the wide one when the page has no tools', async () => {

@@ -97,13 +97,9 @@
   }
 }
 
-/*
- * The containing block of the collapsed rail's hidden labels: the nav scrolls on a short screen,
- * and the shell host is positioned only on a narrow screen, so a label below the fold would make
- * the document scroll on a wide one.
- */
+/* The pages scroll on a short screen; the rail's bottom group and its control stay in view. Each
+   item is the containing block of its own hidden label (see `rail-item.css`). */
 nav {
-  position: relative;
   flex: 1;
   min-height: 0;
   overflow: hidden auto;
@@ -118,61 +114,17 @@ nav {
   list-style: none;
 }
 
-/* A link or button in the rail: a 2.5rem (40px) row with the icon centred in the collapsed width. */
-.rail-item {
+/*
+ * The app's items, the theme switch and, after the group, the rail's control, at the bottom of the
+ * rail below a divider in the rail's colours. The items are `neatRailItem`s, whose look is theirs.
+ */
+.rail-end {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  box-sizing: border-box;
-  width: 100%;
-  min-height: 2.5rem;
-  padding: 0 0.625rem;
-  border: 0;
-  border-radius: var(--radius);
-  background: transparent;
-  color: var(--muted-foreground);
-  font: inherit;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.rail-item:hover,
-.rail-item.active {
-  background: var(--sidebar-accent);
-  color: var(--sidebar-accent-foreground);
-}
-
-.rail-item.active {
-  font-weight: 500;
-}
-
-.rail-item:focus-visible {
-  outline: var(--neat-focus-ring-width) solid var(--sidebar-ring);
-  outline-offset: calc(-1 * var(--neat-focus-ring-width));
-}
-
-.rail-item neat-icon {
   flex: none;
-}
-
-.label {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.rail-toggle {
-  flex: none;
-}
-
-/* Out of sight, still in the accessible tree. */
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-block-start: 0.5rem;
+  border-block-start: 1px solid var(--sidebar-border);
 }
 
 /* Top bar */
@@ -187,7 +139,7 @@ nav {
 
 :host([data-narrow='false']) .topbar {
   gap: 1rem;
-  padding-inline: 1rem 0.5rem;
+  padding-inline: 1rem var(--neat-space-2);
 }
 
 /* A phone has no room for the wide bar's spacing: its icons would overlap the app's end content.
@@ -304,6 +256,25 @@ nav {
   flex: none;
   align-items: center;
   gap: 0.25rem;
+}
+
+/*
+ * The page's side-panel toggle, last in the bar on wide and narrow screens alike (on a phone the
+ * last item of the first row: the toolbar's `order` moves only the toolbar). A cell as wide as the
+ * bar is high, set apart by a divider the height of its row, so the toggle reads as the panel's
+ * and not as one of the page's tools. It reaches back across the bar's end inset (the same
+ * `--neat-space-2` on both screens), so the cell sits on the bar's edge.
+ */
+.aside-edge {
+  display: flex;
+  flex: none;
+  align-self: stretch;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--neat-topbar-height);
+  margin-inline-end: calc(-1 * var(--neat-space-2));
+  border-inline-start: 1px solid var(--border);
 }
 
 /* Content area: pages size to it and own their scrolling. Its own stacking context keeps

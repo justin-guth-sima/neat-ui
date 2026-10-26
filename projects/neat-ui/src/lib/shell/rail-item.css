@@ -1,0 +1,54 @@
+/*
+ * A rail item: a 2.5rem (40px) row with the icon centred in the collapsed rail's width. Colours are
+ * the rail's (Spartan's sidebar): muted text at rest, accent-foreground on the selection fill,
+ * which the theme holds to 4.5:1.
+ */
+:host {
+  /* The containing block of the label hidden while the rail is collapsed (`sr-only`, absolutely
+     positioned), inside the nav that scrolls: past it, a label below the fold would make the
+     document scroll. */
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.75rem;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0 0.625rem;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted-foreground);
+  font: inherit;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+:host(:hover),
+:host([aria-current='page']) {
+  background: var(--sidebar-accent);
+  color: var(--sidebar-accent-foreground);
+}
+
+:host([aria-current='page']) {
+  font-weight: 500;
+}
+
+:host(:focus-visible) {
+  outline: var(--neat-focus-ring-width) solid var(--sidebar-ring);
+  outline-offset: calc(-1 * var(--neat-focus-ring-width));
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

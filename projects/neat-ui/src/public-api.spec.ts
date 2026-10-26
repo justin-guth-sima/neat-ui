@@ -85,6 +85,16 @@ describe('the public API', () => {
     expect(Object.keys(primary)).toEqual(expect.arrayContaining(['NeatPageTabs', 'NeatPageTab']));
   });
 
+  it('exports the rail item beside the shell, for the app’s items at the bottom of the rail', () => {
+    expect(Object.keys(primary)).toEqual(expect.arrayContaining(['NeatShell', 'NeatRailItem']));
+  });
+
+  it('keeps the rail’s state and the shell’s slots internal', () => {
+    for (const name of ['RailState', 'AsideToggleSlot', 'PageToolbarSlot']) {
+      expect(name in primary, name).toBe(false);
+    }
+  });
+
   it('exports the live dot, which every page that shows a running state needs', () => {
     expect(Object.keys(primary)).toEqual(expect.arrayContaining(['NeatLiveDot']));
   });
