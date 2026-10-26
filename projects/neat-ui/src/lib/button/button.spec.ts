@@ -15,6 +15,7 @@ const VARIANTS: NeatButtonVariant[] = [
   'text',
   'danger',
   'danger-text',
+  'success',
 ];
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 /** The surfaces a button sits on: the page and a card. */
@@ -38,6 +39,8 @@ const HELM_VARIANT_MARKERS: Record<NeatButtonVariant, string[]> = {
   danger: ['bg-destructive/10', 'dark:bg-destructive/20', 'text-destructive'],
   // Helm's ghost, as the text variant is, in the danger colour.
   'danger-text': ['aria-expanded:bg-muted', 'text-destructive'],
+  // A solid fill in the status colour, which helm has no variant for: it starts from default's.
+  success: ['bg-success', 'text-success-foreground'],
 };
 
 @Component({
@@ -599,9 +602,15 @@ describe('NeatButton', () => {
    * primary is exempt from the rule against the resting fill (the pressed fill reaches 2.78:1);
    * light primary keeps it (3.9:1). A toggle belongs on one of the other variants; primary still
    * shows the pressed look and is held to the surface and text rules below.
+   *
+   * Success is a solid fill too, and in neither scheme is there a fill 3:1 from it and from the
+   * surface: in light its fill (#0A692F, luminance 0.10) needs a near black one (below 0.001) to be
+   * 3:1 from it, and the pressed fill, the page's inverse, reaches 2.86:1; in dark its fill
+   * (#7DC88D) is light and the pressed fill, white, reaches 2.0:1. It is exempt from the rule
+   * against the resting fill in both, and is held to the surface and text rules below.
    */
   const SCHEMES_SEPARABLE_FROM_REST = (variant: NeatButtonVariant): NeatColorScheme[] =>
-    variant === 'primary' ? ['light'] : SCHEMES;
+    variant === 'primary' ? ['light'] : variant === 'success' ? [] : SCHEMES;
 
   it.each(VARIANTS)(
     `%s: pressed text reaches 4.5:1 and the fill ${MIN_NON_TEXT_CONTRAST}:1 against the surface, at rest and on hover, in both schemes`,
@@ -629,7 +638,7 @@ describe('NeatButton', () => {
   );
 
   it.each(VARIANTS)(
-    `%s: the pressed fill is ${MIN_NON_TEXT_CONTRAST}:1 from the resting fill, in both schemes (primary: light only), at rest and on hover`,
+    `%s: the pressed fill is ${MIN_NON_TEXT_CONTRAST}:1 from the resting fill, in both schemes (primary: light only, success: neither), at rest and on hover`,
     async (variant) => {
       const rest = await classesOf(variant);
       const pressed = await classesOf(variant, true);
@@ -694,6 +703,41 @@ describe('NeatButton', () => {
     // text, a focused button shows its rest or hover colours, which they hold to 4.5:1.
     const classes = await classesOf('danger-text');
     expect(classes.filter((name) => /^(dark:)?focus-visible:(bg|text)-/.test(name))).toEqual([]);
+  });
+
+  it('success is a solid fill in the success colour with its foreground, in both schemes', async () => {
+    const success = await classesOf('success');
+
+    for (const scheme of SCHEMES) {
+      const tokens = spartanThemeTokens(scheme);
+      for (const surface of SURFACES) {
+        const { fill, text } = colorsOf(success, { scheme, hover: false }, surface);
+        expect(fill, `${scheme}, over ${surface}: the success colour`).toBe(tokens['success']);
+        expect(text, `${scheme}, over ${surface}: its foreground`).toBe(
+          tokens['success-foreground'],
+        );
+      }
+    }
+  });
+
+  it('success hovers to 90% of its fill and focuses with the ring colour, as primary does', async () => {
+    const success = await classesOf('success');
+
+    expect(success).toContain('hover:bg-success/90');
+    expect(success).not.toContain('hover:bg-primary/80');
+    for (const scheme of SCHEMES) {
+      const tokens = spartanThemeTokens(scheme);
+      for (const surface of SURFACES) {
+        const { fill, text } = colorsOf(success, { scheme, hover: true }, surface);
+        expect(fill, `${scheme}, hover over ${surface}`).toBe(
+          composite(tokens['success'], 0.9, tokens[surface]),
+        );
+        expect(text, `${scheme}, hover over ${surface}: the foreground stays`).toBe(
+          tokens['success-foreground'],
+        );
+      }
+      expect(focusRingValue(success, scheme), scheme).toBe('ring');
+    }
   });
 
   it.each<NeatButtonVariant>(['outlined', 'text', 'danger-text'])(

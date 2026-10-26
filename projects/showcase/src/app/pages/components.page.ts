@@ -16,6 +16,7 @@ import {
   type NeatButtonVariant,
   NeatIcon,
   NeatInlineButton,
+  NeatLiveDot,
   NeatNote,
   NeatPage,
   type NeatTone,
@@ -77,6 +78,7 @@ const VARIANTS: NeatButtonVariant[] = [
   'text',
   'danger',
   'danger-text',
+  'success',
 ];
 /** The surfaces a button sits on, as the contrast tests have it: the page and a card. */
 const SURFACES = ['page', 'card'] as const;
@@ -209,6 +211,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatLine,
     NeatLineEnd,
     NeatLineList,
+    NeatLiveDot,
     NeatNote,
     NeatNumberField,
     NeatNumeric,
@@ -242,17 +245,28 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
         <section class="showcase-section">
           <h2>Button</h2>
           <p class="showcase-muted">
-            <code>neatButton</code> on a <code>button</code> or <code>a</code>: six variants in four
-            sizes, then icon-only and rounded. Primary is the app's accent; secondary is the neutral
-            choice; danger-text is the text variant in the danger colour, hovering quietly as its
-            neighbours do with its label kept red and focusing with danger's red ring, for a
-            destructive action among text buttons; touch is a 48 px target for kiosk and touch
-            screens.
+            <code>neatButton</code> on a <code>button</code> or <code>a</code>: seven variants in
+            four sizes, then icon-only and rounded. Primary is the app's accent; secondary is the
+            neutral choice; success is a solid green for the action that starts something (Start
+            recording), with a filled play or stop icon; danger-text is the text variant in the
+            danger colour, hovering quietly as its neighbours do with its label kept red and
+            focusing with danger's red ring, for a destructive action among text buttons; touch is a
+            48 px target for kiosk and touch screens.
           </p>
           <div class="showcase-row">
             <button neatButton type="button" variant="text">Rename</button>
             <button neatButton type="button" variant="text">Duplicate</button>
             <button neatButton type="button" variant="danger-text">Delete</button>
+          </div>
+          <div class="showcase-row">
+            <button neatButton type="button" variant="success">
+              <neat-icon name="play" [size]="16" />
+              Start
+            </button>
+            <button neatButton type="button" variant="danger">
+              <neat-icon name="stop" [size]="16" />
+              Stop
+            </button>
           </div>
           @for (variant of variants; track variant) {
             <h3>{{ variant }}</h3>
@@ -330,6 +344,24 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
               Applies to every channel that has no value of its own.
               <button neatInlineButton type="button">Show channels</button>
             </p>
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Live dot</h2>
+          <p class="showcase-muted">
+            <code>neat-live-dot</code>: a small red dot for something live or recording, hidden from
+            assistive technology, so the words beside it say what it means. With
+            <code>pulse</code> it beats and a ring grows out of it and fades; under a reduced-motion
+            setting it is a still dot.
+          </p>
+          <div class="showcase-row">
+            <span class="showcase-row"><neat-live-dot /> Still</span>
+            <span class="showcase-row"><neat-live-dot pulse /> Recording 0:34</span>
+            <button neatButton type="button" variant="danger" size="small">
+              <neat-icon name="stop" [size]="14" />
+              Stop
+            </button>
           </div>
         </section>
 
@@ -616,9 +648,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <p class="showcase-muted">
             <code>[pressed]</code> on a toggle: it sets <code>aria-pressed</code> and inverts the
             fill, so the state does not rest on colour alone. Click each one. Leave the input unset
-            on a button that is not a toggle. Primary is a solid fill already, so its pressed look
-            is the least distinct: toggles belong on the other variants. The last button uses the
-            <code>close</code> icon.
+            on a button that is not a toggle. Primary and success are solid fills already, so their
+            pressed look is the least distinct: toggles belong on the other variants. The last
+            button uses the <code>close</code> icon.
           </p>
           @for (surface of surfaces; track surface) {
             <div class="showcase-row" [class.card]="surface === 'card'">

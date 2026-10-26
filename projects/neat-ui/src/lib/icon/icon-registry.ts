@@ -57,6 +57,18 @@ function drawing(name: string, node: LucideIconNode[]): LucideIconData {
   return { name, node };
 }
 
+/**
+ * A glyph drawn filled with the text colour. Media controls are the one place the kit fills an
+ * icon: play, pause and stop are solid shapes by convention (a player's transport reads as solid
+ * whatever its size), while every other glyph is an outline, so nothing else uses this.
+ */
+function filled(name: string, node: LucideIconNode[]): LucideIconData {
+  return drawing(
+    name,
+    node.map(([tag, attrs]): LucideIconNode => [tag, { ...attrs, fill: 'currentColor' }]),
+  );
+}
+
 export const NEAT_ICONS = {
   media: drawing('media', FolderOpen),
   streaming: drawing('streaming', RadioTower),
@@ -98,8 +110,9 @@ export const NEAT_ICONS = {
   warning: drawing('warning', TriangleAlert),
   refresh: drawing('refresh', RefreshCw),
   terminal: drawing('terminal', SquareTerminal),
-  pause: drawing('pause', Pause),
-  play: drawing('play', Play),
+  pause: filled('pause', Pause),
+  play: filled('play', Play),
+  stop: filled('stop', Square),
 } satisfies Record<string, LucideIconData>;
 
 export type NeatIconName = keyof typeof NEAT_ICONS;

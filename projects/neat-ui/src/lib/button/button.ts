@@ -4,7 +4,7 @@ import { buttonVariants, type ButtonVariants } from '../ui/button/src';
 import { hlm } from '../ui/utils/src';
 
 export type NeatButtonVariant =
-  'primary' | 'secondary' | 'outlined' | 'text' | 'danger' | 'danger-text';
+  'primary' | 'secondary' | 'outlined' | 'text' | 'danger' | 'danger-text' | 'success';
 /** `touch` is a 3rem (48px) target, above the 44px minimum, for kiosk and touch screens. */
 export type NeatButtonSize = 'small' | 'medium' | 'large' | 'touch';
 
@@ -40,6 +40,12 @@ type SpartanSize = NonNullable<ButtonVariants['size']>;
  * fill. It focuses with danger's red ring. Focus changes neither fill nor text, so the rest and
  * hover contrast hold while focused.
  *
+ * `success` is a solid fill in the status colour (`--success` under `--success-foreground`), for a
+ * main action that starts something, such as Start recording. Helm has no such variant, so it
+ * starts from default's and replaces the colours. It hovers to 90% of its fill: the foreground stays
+ * readable on it, which the spec holds in both schemes. It focuses with the ring colour, as primary
+ * does, since the ring must read against the page and not against the fill.
+ *
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading them.
  */
 const TEXT_HOVER = 'hover:bg-accent dark:hover:bg-accent';
@@ -67,6 +73,12 @@ const VARIANTS: Record<
     rest: 'text-destructive',
     hover: `${TEXT_HOVER} hover:text-destructive`,
     focus: DANGER_FOCUS,
+  },
+  success: {
+    spartan: 'default',
+    rest: 'bg-success text-success-foreground',
+    hover: 'hover:bg-success/90',
+    focus: 'focus-visible:ring-ring',
   },
 };
 
@@ -153,8 +165,9 @@ export class NeatButton {
   /**
    * A toggle's state: `aria-pressed` and the pressed look. Undefined for a button that is not a
    * toggle. Only for `button[neatButton]`: `aria-pressed` is not valid on a link. The primary
-   * variant is a solid fill already, so its pressed look is the least distinct (2.78:1 against
-   * its resting fill in dark); put toggles on the other variants.
+   * and success variants are solid fills already, so their pressed look is the least distinct
+   * (primary 2.78:1 against its resting fill in dark; success 2.86:1 in light and 2.0:1 in dark);
+   * put toggles on the other variants.
    */
   readonly pressed = input<boolean | undefined>(undefined);
 

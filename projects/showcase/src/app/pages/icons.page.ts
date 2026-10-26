@@ -12,7 +12,8 @@ import { NEAT_ICON_NAMES, NeatIcon, NeatPage } from '@sima/neat-ui';
           <h2>Icons</h2>
           <p class="showcase-muted">
             Every name <code>neat-icon</code> accepts, drawn at 24 px. An icon takes its colour from
-            the surrounding text.
+            the surrounding text. Play, pause and stop are the only filled glyphs: media controls
+            are solid by convention, and everything else is an outline.
           </p>
           <div class="showcase-grid">
             @for (name of names; track name) {

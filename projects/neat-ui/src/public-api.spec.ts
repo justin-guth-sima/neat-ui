@@ -81,6 +81,10 @@ describe('the public API', () => {
     );
   });
 
+  it('exports the live dot, which every page that shows a running state needs', () => {
+    expect(Object.keys(primary)).toEqual(expect.arrayContaining(['NeatLiveDot']));
+  });
+
   it('shares its internals with the entries only under a ɵ prefix', () => {
     const shared = Object.keys(primary).filter((symbol) => symbol.startsWith('ɵ'));
     expect(shared.sort()).toEqual([

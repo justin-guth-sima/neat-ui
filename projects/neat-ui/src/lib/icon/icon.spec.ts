@@ -79,6 +79,22 @@ describe('NeatIcon', () => {
     }
   });
 
+  it.each(['play', 'pause', 'stop'] as const)(
+    'draws %s filled with the text colour, where the other glyphs are outlines',
+    async (name) => {
+      fixture.componentRef.setInput('name', name);
+      await fixture.whenStable();
+      const shapes = [...svg().querySelectorAll('path, rect')];
+
+      expect(shapes.length).toBeGreaterThan(0);
+      for (const shape of shapes) expect(shape.getAttribute('fill')).toBe('currentColor');
+    },
+  );
+
+  it('leaves an outline glyph unfilled', async () => {
+    expect(svg().querySelector('[fill]')).toBeNull();
+  });
+
   it('rejects names outside the registry at compile time', () => {
     // @ts-expect-error 'no-such-icon' is not a NeatIconName
     const unknown: NeatIconName = 'no-such-icon';

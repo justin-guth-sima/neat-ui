@@ -45,6 +45,7 @@ export { KIOSK_POINTER_IDLE_MS, KioskService } from './lib/kiosk/kiosk.service';
 export type { NeatButtonSize, NeatButtonVariant } from './lib/button/button';
 export { NeatButton } from './lib/button/button';
 export { NeatInlineButton } from './lib/button/inline-button';
+export { NeatLiveDot } from './lib/live-dot/live-dot';
 export { NeatNote } from './lib/note/note';
 export { neatSecondsAgo } from './lib/time/seconds-ago';
 export type { NeatTooltipPosition } from './lib/tooltip/tooltip';

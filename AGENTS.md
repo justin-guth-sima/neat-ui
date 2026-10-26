@@ -17,8 +17,10 @@ look happens in one place. Every rule here protects that.
     `NeatAsidePanel`, `NeatAsideTitle`, `NeatAsideHeading`, `NeatAsideActions`), `neatAsideOpen`
     (a page's panel state, closed on a narrow screen) and `NeatViewport` (the kit's one answer to
     "is this screen narrow", below 48rem), `NeatCode`,
-    `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatTooltip`, `NeatNote` and `neatSecondsAgo`
-    (the kit's one relative-time style, "just now", "12 s ago", "3 min ago"). Public API is
+    `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatTooltip`, `NeatNote`, `NeatLiveDot` (a
+    red dot for something live, still or, with `pulse`, beating with a ring that grows out of it)
+    and `neatSecondsAgo` (the kit's one relative-time style, "just now", "12 s ago", "3 min ago").
+    Public API is
     `projects/neat-ui/src/public-api.ts`.
   - one secondary entry point per other component, `@sima/neat-ui/<name>`: `switch`, `slider`,
     `segmented`, `tabs`, `popover`, `confirm`, `input`, `number-field`, `line-list`, `select`
@@ -352,13 +354,23 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   still opens on hover; a `disabled` button drops the focus, which a dialog's focus trap then
   cannot take back. The kit only styles it: a click, Enter and Space all still fire `click`, so
   the handler ignores presses while it waits.
+- **`NeatButton` has seven variants: `primary`, `secondary`, `outlined`, `text`, `danger`,
+  `danger-text` and `success`.** `success` is a solid `--success` fill under `--success-foreground`
+  for the action that starts something (Start recording), hovering to 90% of the fill and focusing
+  with the ring colour as `primary` does; `button.spec` holds its text to 4.5:1 at rest and on
+  hover in both schemes. Each variant's contrast is pinned there, so a new one is added to the
+  spec's variant list first.
+- **The kit's icons are outlines, except `play`, `pause` and `stop`, which are filled.** Why: media
+  controls are solid by convention, and a filled glyph reads at the sizes a transport is drawn at.
+  `lib/icon/icon-registry.ts` makes them through `filled(...)` (`fill: currentColor` on each shape);
+  no other glyph is filled, so do not use it to emphasise one.
 - **A toggle button binds `pressed`, never `aria-pressed`.** `NeatButton` owns the attribute (a
   host binding that is absent while `pressed` is undefined) and gives the pressed look with it, so
   an `[attr.aria-pressed]` on a `neatButton` is overwritten. The look is the inverse of the page
   (`foreground` fill, `background` text) and is 3:1 from the surface in both themes and from the
-  resting fill of every variant but `primary`, whose solid fill leaves no room: put toggles on the
-  others. A name that stays the same while the state changes is a toggle's; a button whose label
-  changes with the state is not one, so leave `pressed` unset.
+  resting fill of every variant but `primary` and `success`, whose solid fills leave no room: put
+  toggles on the others. A name that stays the same while the state changes is a toggle's; a
+  button whose label changes with the state is not one, so leave `pressed` unset.
 - **`NeatSlider` takes `describedBy`, an element id, for notes about the slider; it lands on the
   thumb, with `aria-disabled` mirrored there.** Why: brain puts `aria-disabled` on the root and
   assistive technology moves focus to the thumb, so a description or a disabled state on the root

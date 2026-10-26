@@ -94,9 +94,19 @@ test('reads every glyph of the real icon registry', () => {
     .filter((name) => name)
     .map((name) => `lucide${name}`);
   assert.deepEqual([...real.keys()].sort(), expected.sort());
-  assert.ok([...real.values()].every((name) => typeof name === 'string'));
+  // A glyph two names draw (the square: `aspect-square` outlined, `stop` filled) is ambiguous;
+  // every other one has exactly one name.
+  const ambiguous = [...real].filter(([, name]) => name === null).map(([glyph]) => glyph);
+  assert.deepEqual(ambiguous, ['lucideSquare']);
+  assert.ok([...real.values()].every((name) => name === null || typeof name === 'string'));
+  assert.equal(real.get('lucidePlay'), 'play');
   assert.equal(real.get('lucideInfo'), 'info');
   assert.equal(real.get('lucideMinimize'), 'kiosk-exit');
+});
+
+test('reads a filled entry as the glyph it draws', () => {
+  const filled = glyphsFromRegistry(`${REGISTRY}\n  play: filled('play', Play),\n`);
+  assert.equal(filled.get('lucidePlay'), 'play');
 });
 
 test('fails on an ng-icon glyph several neat-icon names draw', () => {
