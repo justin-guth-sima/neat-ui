@@ -46,8 +46,12 @@
   touch-action: none;
   /* A drag starting here must not select text. */
   user-select: none;
-  /* The line below is the focus indicator; the transparent outline is what forced-colors mode
-     paints in its place, since that mode drops backgrounds. */
+}
+
+/* The line below is the focus indicator; the transparent outline is what forced-colors mode paints
+   in its place, since that mode drops backgrounds. Only on focus: forced colours draws a
+   transparent outline in a system colour, so a static one would box the handle for good. */
+.separator:focus-visible {
   outline: var(--neat-focus-ring-width) solid transparent;
 }
 

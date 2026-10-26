@@ -594,9 +594,15 @@ describe('NeatPage', () => {
         expect(separatorRule).toMatch(/margin-inline:\s*calc\(var\(--neat-space-2\)\s*\/\s*-2\);/);
         expect(separatorRule).toMatch(/cursor:\s*col-resize;/);
         expect(separatorRule).toMatch(/touch-action:\s*none;/);
-        // Selection never starts at the handle, and forced colours still show the focus.
+        // Selection never starts at the handle.
         expect(separatorRule).toMatch(/user-select:\s*none;/);
-        expect(separatorRule).toMatch(
+      });
+
+      it('keeps forced colours from boxing the handle, drawing its transparent outline on focus only', () => {
+        // Forced-colors mode paints a transparent outline in a system colour, since it drops the
+        // line's background: always, that would be a permanent box around the handle.
+        expect(rule('\\.separator') ?? '').not.toMatch(/outline/);
+        expect(rule('\\.separator:focus-visible') ?? '').toMatch(
           /outline:\s*var\(--neat-focus-ring-width\) solid transparent;/,
         );
       });
