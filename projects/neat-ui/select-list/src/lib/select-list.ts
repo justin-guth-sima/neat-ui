@@ -174,6 +174,13 @@ const INTERACTIVE =
 /** Stands for "no selection" in key comparisons; no item's key can be it. */
 const NONE = Symbol('none');
 
+/** Ctrl+A, or Cmd+A on a Mac, with no other modifier. */
+const isSelectAll = (event: KeyboardEvent): boolean =>
+  (event.ctrlKey || event.metaKey) &&
+  !event.altKey &&
+  !event.shiftKey &&
+  event.key.toLowerCase() === 'a';
+
 /**
  * One column of a `neat-select-list`, as a template for the cells in it:
  *
@@ -302,9 +309,16 @@ let nextListId = 0;
  * cannot be checked has no `aria-selected`. The selection that follows the arrow keys (`selected`)
  * stays: it is the row the keyboard is on, named in `aria-activedescendant` and drawn with the bar.
  * Space checks or unchecks that row; a click on a row's box checks or unchecks it and does nothing
- * else, and a click elsewhere on the row selects and activates it as in the single mode. The boxes
- * are not tab stops. The multi-selectable listbox says what checking is, so a checked list needs
- * no `hint` of its own.
+ * else. A click elsewhere on the row selects and activates it as in the single mode, except on the
+ * selected row, which it checks or unchecks as Space does (a row that cannot be checked is
+ * activated again as before). Ctrl-click or Cmd-click on a row checks or unchecks it and selects it
+ * without activating it. Shift-click checks the rows from the anchor to the clicked one, inclusive,
+ * and selects the clicked one; the anchor is the row last clicked plainly, with Ctrl or Cmd, or
+ * checked by Space or its box, else the selected row, else the clicked row alone. A range only
+ * checks, never unchecks, and Ctrl+A or Cmd+A checks every row. None of them checks a row without
+ * a box or a blocked one, and a row they do not check stays as it is. The boxes are not tab stops.
+ * The multi-selectable listbox says what checking is, so a checked list needs no `hint` of its
+ * own.
  *
  * **Blocked checks** (`checkBlocked`) hold a row's box as it is while the app gives a reason (a
  * cap: "At most 8 runs can be compared."). The box is drawn disabled, and neither Space nor a click
@@ -334,8 +348,8 @@ let nextListId = 0;
  * in the app: it throws in dev mode, and in production shows after the groups, under no heading
  * and set off from the last group by a rule, rather than going missing.
  *
- * Typing a letter to jump to a row, Page Up and Page Down, a range of rows checked with Shift and
- * a disabled row are not offered; none is needed yet.
+ * Typing a letter to jump to a row, Page Up and Page Down, and a disabled row are not offered; none
+ * is needed yet.
  */
 @Component({
   selector: 'neat-select-list',
@@ -709,6 +723,12 @@ export class NeatSelectList<T, K = unknown> {
   });
   protected readonly activeId = computed(() => this.rows()[this.selectedIndex()]?.id ?? null);
 
+  /**
+   * The key of the row a Shift-click's range starts from: the one last clicked plainly, clicked
+   * with Ctrl or Cmd, or checked by Space or its box. The arrow keys do not move it.
+   */
+  private anchor: unknown = NONE;
+
   /** The key of the row last scrolled to, so that a row that only moved is not scrolled to again. */
   private revealed: unknown = NONE;
 
@@ -783,6 +803,13 @@ export class NeatSelectList<T, K = unknown> {
   protected onKeydown(event: KeyboardEvent): void {
     // A key pressed on a control in a cell bubbles up to here; it is the control's.
     if (event.target !== event.currentTarget) return;
+    // Ctrl+A or Cmd+A checks every row that can be checked in checked mode; otherwise it stays the
+    // browser's.
+    if (this.checkable() && isSelectAll(event)) {
+      event.preventDefault();
+      this.checkAll(this.rows());
+      return;
+    }
     if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) return;
     // Space checks the row the keyboard is on in checked mode; either way it must not scroll the
     // area.
@@ -815,20 +842,78 @@ export class NeatSelectList<T, K = unknown> {
     const control = target.closest(INTERACTIVE);
     // The listbox is focusable too, so only a control inside the row is the control's click.
     if (control && control !== option && option.contains(control)) return;
-    const row = this.rows()[Number(option.getAttribute('data-index'))];
+    const index = Number(option.getAttribute('data-index'));
+    const row = this.rows()[index];
     if (target.closest('[data-slot="select-list-check"]')) {
       this.toggle(row);
       return;
+    }
+    if (this.checkable()) {
+      if (event.shiftKey) {
+        // The range runs from the anchor, which a range does not move, so that the next Shift-click
+        // redraws it from the same row. The browser extends a text selection on Shift-click too,
+        // which would paint the rows' text, so it is cleared.
+        window.getSelection()?.removeAllRanges();
+        this.checkAll(this.rangeTo(index));
+        this.selected.set(row.item);
+        return;
+      }
+      if (event.ctrlKey || event.metaKey) {
+        this.toggle(row);
+        this.selected.set(row.item);
+        return;
+      }
+      // A second click on the row the keyboard is on checks it, as Space does. A row that cannot
+      // be checked has nothing to toggle, so the click keeps its meaning of opening it.
+      if (index === this.selectedIndex() && this.canToggle(row)) {
+        this.toggle(row);
+        return;
+      }
+      this.anchor = row.key;
     }
     this.selected.set(row.item);
     this.activated.emit(row.item);
   }
 
+  private canToggle(row: Row<T, K>): boolean {
+    return row.checkable && !this.blocked().has(row.key);
+  }
+
   /** Checks or unchecks a row that has a box; does nothing for one that has none or is blocked. */
   private toggle(row: Row<T, K>): void {
-    if (!row.checkable || this.blocked().has(row.key)) return;
+    this.anchor = row.key;
+    if (!this.canToggle(row)) return;
     this.checked.update((keys) =>
       keys.includes(row.key) ? keys.filter((key) => key !== row.key) : [...keys, row.key],
     );
+  }
+
+  /**
+   * Checks the rows among these that have a box and are not blocked, and leaves the rest as they
+   * are: no gesture over many rows unchecks one, or checks what a single click could not. The
+   * blocks are those of now, asked once: a cap that the checks this makes would reach is not seen
+   * until the app's `checkBlocked` changes, so a cap is also the app's to enforce on `checked`.
+   */
+  private checkAll(rows: readonly Row<T, K>[]): void {
+    const blocked = this.blocked();
+    this.checked.update((keys) => {
+      const held = new Set(keys);
+      const fresh = rows.filter(
+        (row) => row.checkable && !blocked.has(row.key) && !held.has(row.key),
+      );
+      return fresh.length ? [...keys, ...fresh.map((row) => row.key)] : keys;
+    });
+  }
+
+  /**
+   * The rows from the anchor to the row at `index`, both included, in the order shown. The anchor
+   * is the row last clicked or checked, else the selected row, else the clicked row alone.
+   */
+  private rangeTo(index: number): readonly Row<T, K>[] {
+    const rows = this.rows();
+    let from = rows.findIndex((row) => row.key === this.anchor);
+    if (from < 0) from = this.selectedIndex();
+    if (from < 0) from = index;
+    return rows.slice(Math.min(from, index), Math.max(from, index) + 1);
   }
 }

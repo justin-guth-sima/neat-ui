@@ -1412,9 +1412,11 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
           <p class="showcase-muted">
             With <code>checkable</code>, each row that <code>canCheck</code> allows has a box, and
             <code>checked</code> holds their keys. The arrow keys move the row the keyboard is on
-            (the bar); Space checks or unchecks it, as a click on its box does. Drones has no files,
-            so nothing to check. The header and the rows share one grid, so Files sizes to its
-            widest heading or count (<code>width="max-content"</code>), and
+            (the bar); Space checks or unchecks it, as a click on its box does, and so does a click
+            on the selected row. Ctrl-click (Cmd on a Mac) checks or unchecks any row, Shift-click
+            checks the rows from the last one clicked, and Ctrl+A checks them all. Drones has no
+            files, so nothing to check. The header and the rows share one grid, so Files sizes to
+            its widest heading or count (<code>width="max-content"</code>), and
             <code>align="end"</code> puts both at the column's end, as numbers read best.
           </p>
           <div class="showcase-row list-row">
@@ -1539,8 +1541,9 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <code>unavailable</code> are greyed, with their <code>tag</code> as a neutral status
             chip, and can still be selected. The second browser is in <code>manage</code> mode, the
             select list's checked mode: a box per file that Space toggles from the keyboard (the
-            boxes are not tab stops), and extra columns, after which a folder's count follows its
-            name. The <code>archive</code> folder has a thousand files.
+            boxes are not tab stops) and Ctrl-click, Shift-click and Ctrl+A check without opening a
+            folder, and extra columns, after which a folder's count follows its name. The
+            <code>archive</code> folder has a thousand files.
           </p>
           <div class="showcase-row list-row">
             <div class="browser-box">

@@ -279,6 +279,47 @@ async function renderToned(setup: (host: TonedHost) => void = () => undefined) {
   return { fixture, host: fixture.componentInstance, element, options, row };
 }
 
+interface Row6 {
+  readonly id: number;
+}
+
+/**
+ * A checked list of six rows for the check gestures: row 3 has no box (`canCheck` false) and row 5
+ * a box that cannot change (`checkBlocked` gives a reason), so a gesture that ticks rows has two
+ * to skip.
+ */
+@Component({
+  imports: [NeatSelectList, NeatColumn],
+  template: `
+    <neat-select-list
+      label="Rows"
+      checkable
+      [items]="items()"
+      [trackBy]="byId"
+      [canCheck]="canCheck"
+      [checkBlocked]="blockedReason"
+      [(checked)]="checked"
+      [(selected)]="selected"
+      (activated)="activated.push($event.id)"
+    >
+      <ng-template neatColumn="id" header="Row" let-row>{{ row.id }}</ng-template>
+      <ng-template neatColumn="action" header="Action" width="6rem" let-row>
+        <button type="button" (click)="pressed.push(row.id)">Go {{ row.id }}</button>
+      </ng-template>
+    </neat-select-list>
+  `,
+})
+class GestureHost {
+  readonly items = signal<readonly Row6[]>([1, 2, 3, 4, 5, 6].map((id) => ({ id })));
+  readonly checked = signal<readonly number[]>([]);
+  readonly selected = signal<Row6 | null>(null);
+  readonly activated: number[] = [];
+  readonly pressed: number[] = [];
+  readonly byId = (row: Row6) => row.id;
+  readonly canCheck = (row: Row6) => row.id !== 3;
+  readonly blockedReason = (row: Row6): string | null => (row.id === 5 ? 'Not this one.' : null);
+}
+
 /**
  * A ResizeObserver whose callbacks the spec calls, with the list's width: jsdom lays nothing out.
  * `instances` holds every observer made, newest last.
@@ -1455,6 +1496,263 @@ describe('NeatSelectList', () => {
       expect(element.querySelector('[data-blocked]')).toBeNull();
       expect(element.querySelector('[role="option"][aria-describedby]')).toBeNull();
       expect(element.querySelector('[role="option"][aria-disabled]')).toBeNull();
+    });
+  });
+
+  describe('check gestures', () => {
+    async function renderGestures(setup: (host: GestureHost) => void = () => undefined) {
+      const fixture = TestBed.createComponent(GestureHost);
+      setup(fixture.componentInstance);
+      await fixture.whenStable();
+      const element: HTMLElement = fixture.nativeElement;
+      const options = () => [...element.querySelectorAll<HTMLElement>('[role="option"]')];
+      const listbox = () => element.querySelector<HTMLElement>('[role="listbox"]')!;
+      return {
+        fixture,
+        host: fixture.componentInstance,
+        /** Sets what the host passes in and lets the list take it, as a click would find it. */
+        async set(change: (host: GestureHost) => void) {
+          change(fixture.componentInstance);
+          await fixture.whenStable();
+        },
+        listbox,
+        options,
+        /** Clicks the row with this id on its text cell, as a pointer would, with modifiers. */
+        async click(id: number, init: MouseEventInit = {}) {
+          // The box has the first cell; the row's own text is the second.
+          const cell = options()
+            .map((o) => o.children[1])
+            .find((c) => c.textContent!.trim() === `${id}`)!;
+          cell.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ...init }));
+          await fixture.whenStable();
+        },
+        async press(key: string, init: KeyboardEventInit = {}) {
+          const event = press(listbox(), key, init);
+          await fixture.whenStable();
+          return event;
+        },
+      };
+    }
+
+    const CTRL = { ctrlKey: true };
+    const META = { metaKey: true };
+    const SHIFT = { shiftKey: true };
+
+    it('toggles the box of the selected row on a plain click on it, outside the box, and activates nothing', async () => {
+      const { host, click } = await renderGestures((host) => host.selected.set(host.items()[0]));
+
+      await click(1);
+      expect(host.checked()).toEqual([1]);
+      expect(host.activated).toEqual([]);
+
+      await click(1);
+      expect(host.checked()).toEqual([]);
+      expect(host.activated).toEqual([]);
+    });
+
+    it('still only selects and activates a plain click on a row that is not selected', async () => {
+      const { host, click } = await renderGestures((host) => host.checked.set([2]));
+
+      await click(4);
+      expect(host.selected()).toBe(host.items()[3]);
+      expect(host.activated).toEqual([4]);
+      expect(host.checked(), 'nothing ticked or unticked').toEqual([2]);
+
+      await click(2);
+      expect(host.selected()).toBe(host.items()[1]);
+      expect(host.activated).toEqual([4, 2]);
+      expect(host.checked()).toEqual([2]);
+    });
+
+    it('keeps a plain click on a selected row that cannot be ticked as before: select and activate', async () => {
+      const { host, click, set } = await renderGestures((host) =>
+        host.selected.set(host.items()[2]),
+      );
+
+      await click(3);
+      expect(host.activated, 'no box: the click activates it').toEqual([3]);
+
+      await set((h) => h.selected.set(h.items()[4]));
+      await click(5);
+      expect(host.activated, 'blocked box: the click activates it').toEqual([3, 5]);
+      expect(host.checked()).toEqual([]);
+    });
+
+    it('toggles a row with Ctrl-click or Cmd-click, moves the selection to it and activates nothing', async () => {
+      const { host, click } = await renderGestures();
+
+      await click(2, CTRL);
+      expect(host.checked()).toEqual([2]);
+      expect(host.selected()).toBe(host.items()[1]);
+
+      await click(4, META);
+      expect(host.checked()).toEqual([2, 4]);
+      expect(host.selected()).toBe(host.items()[3]);
+
+      await click(2, CTRL);
+      expect(host.checked()).toEqual([4]);
+      expect(host.activated).toEqual([]);
+    });
+
+    it('moves the selection on a Ctrl-click on a row that cannot be ticked, without ticking or activating', async () => {
+      const { host, click } = await renderGestures();
+
+      await click(3, CTRL);
+      expect(host.selected()).toBe(host.items()[2]);
+      await click(5, CTRL);
+      expect(host.selected()).toBe(host.items()[4]);
+
+      expect(host.checked()).toEqual([]);
+      expect(host.activated).toEqual([]);
+    });
+
+    it('ticks the rows from the last plainly clicked one to the Shift-clicked one, inclusive, selecting the last', async () => {
+      const { host, click } = await renderGestures();
+
+      await click(1);
+      await click(4, SHIFT);
+
+      expect(host.checked(), 'row 3 has no box').toEqual([1, 2, 4]);
+      expect(host.selected()).toBe(host.items()[3]);
+      expect(host.activated, 'only the first, plain click activated').toEqual([1]);
+    });
+
+    it('ticks upwards as well, keeps the ticks it finds and never unticks one in the range', async () => {
+      const { host, click } = await renderGestures((host) => host.checked.set([99, 2]));
+
+      await click(6);
+      await click(1, SHIFT);
+
+      expect([...host.checked()].sort((a, b) => a - b)).toEqual([1, 2, 4, 6, 99]);
+    });
+
+    it('skips a row with no box and a row whose box is blocked, in a range and at its ends', async () => {
+      const { host, click, set } = await renderGestures();
+
+      await click(3);
+      await click(6, SHIFT);
+      expect(host.checked(), 'the anchor has no box, the blocked row 5 is skipped').toEqual([4, 6]);
+
+      await set((h) => h.checked.set([]));
+      await click(5);
+      await click(2, SHIFT);
+      expect(host.checked(), 'the anchor is blocked').toEqual([2, 4]);
+    });
+
+    it('takes the anchor from the last Ctrl-click, box click or Space, whichever came last', async () => {
+      const { host, options, click, press, set } = await renderGestures();
+
+      await click(2, CTRL);
+      await click(4, SHIFT);
+      expect(host.checked()).toEqual([2, 4]);
+
+      await set((h) => h.checked.set([]));
+      options()[5].querySelector<HTMLElement>('[data-slot="select-list-check"]')!.click();
+      await click(4, SHIFT);
+      expect(host.checked(), 'the box of row 6 was the anchor').toEqual([6, 4]);
+
+      await set((h) => h.checked.set([]));
+      await set((h) => h.selected.set(h.items()[0]));
+      await press(' ');
+      await press('ArrowDown');
+      await press('ArrowDown');
+      await click(2, SHIFT);
+      expect(host.checked(), 'Space on row 1 was, the arrows are not').toEqual([1, 2]);
+    });
+
+    it('keeps its anchor across Shift-clicks, so that a range can be redrawn from the same row', async () => {
+      const { host, click } = await renderGestures();
+
+      await click(1);
+      await click(2, SHIFT);
+      await click(4, SHIFT);
+
+      expect(host.checked()).toEqual([1, 2, 4]);
+    });
+
+    it('anchors a Shift-click on the selected row when no row was clicked, then on the clicked row alone', async () => {
+      const { host, click } = await renderGestures((host) => host.selected.set(host.items()[1]));
+
+      await click(4, SHIFT);
+      expect(host.checked(), 'from the selected row 2 to 4').toEqual([2, 4]);
+
+      const none = await renderGestures();
+      await none.click(4, SHIFT);
+      expect(none.host.checked(), 'nothing to anchor on').toEqual([4]);
+      expect(none.host.selected()).toBe(none.host.items()[3]);
+    });
+
+    it('forgets an anchor whose row left the list', async () => {
+      const { host, click, set } = await renderGestures();
+
+      await click(1);
+      await set((h) => h.items.set(h.items().slice(1)));
+      await click(4, SHIFT);
+
+      expect(host.checked(), 'the selected row is gone too: only the clicked one').toEqual([4]);
+    });
+
+    it('leaves a Shift-click or Ctrl-click on a control in a cell to the control', async () => {
+      const { host, options, fixture } = await renderGestures();
+
+      options()[1]
+        .querySelector('button')!
+        .dispatchEvent(new MouseEvent('click', { bubbles: true, shiftKey: true, ctrlKey: true }));
+      await fixture.whenStable();
+
+      expect(host.pressed).toEqual([2]);
+      expect(host.checked()).toEqual([]);
+      expect(host.selected()).toBeNull();
+    });
+
+    it('ticks every row that can be ticked on Ctrl+A or Cmd+A, keeping the keys of unlisted rows, and keeps the browser from selecting the page', async () => {
+      const { host, press, set } = await renderGestures((host) => host.checked.set([99, 2]));
+
+      const event = await press('a', CTRL);
+      expect(event.defaultPrevented).toBe(true);
+      expect(host.checked(), 'not row 3 (no box) or 5 (blocked)').toEqual([99, 2, 1, 4, 6]);
+
+      await set((h) => h.checked.set([]));
+      expect((await press('A', META)).defaultPrevented).toBe(true);
+      expect(host.checked()).toEqual([1, 2, 4, 6]);
+      expect(host.activated).toEqual([]);
+    });
+
+    it('leaves a blocked row ticked on Ctrl+A: it is neither ticked nor unticked', async () => {
+      const { host, press } = await renderGestures((host) => host.checked.set([5]));
+
+      await press('a', CTRL);
+
+      expect(host.checked()).toEqual([5, 1, 2, 4, 6]);
+    });
+
+    it('leaves Ctrl+A with other modifiers, and a Ctrl+A on a control in a cell, alone', async () => {
+      const { host, options, press: pressOnList } = await renderGestures();
+
+      expect((await pressOnList('a', { ctrlKey: true, shiftKey: true })).defaultPrevented).toBe(
+        false,
+      );
+      expect((await pressOnList('a', { ctrlKey: true, altKey: true })).defaultPrevented).toBe(
+        false,
+      );
+      expect((await pressOnList('a')).defaultPrevented).toBe(false);
+      expect(
+        press(options()[0].querySelector<HTMLElement>('button')!, 'a', CTRL).defaultPrevented,
+      ).toBe(false);
+
+      expect(host.checked()).toEqual([]);
+    });
+
+    it('changes nothing in a list that is not checkable: a modified click selects and activates, Ctrl+A is the browser’s', async () => {
+      const { fixture, host, options, listbox } = await render();
+
+      options()[1].dispatchEvent(new MouseEvent('click', { bubbles: true, shiftKey: true }));
+      options()[2].dispatchEvent(new MouseEvent('click', { bubbles: true, ctrlKey: true }));
+      await fixture.whenStable();
+      expect(host.selected()).toBe(SLOTS[2]);
+      expect(host.activated).toEqual([2, 3]);
+
+      expect(press(listbox(), 'a', CTRL).defaultPrevented).toBe(false);
     });
   });
 

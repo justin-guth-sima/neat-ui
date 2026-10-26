@@ -140,12 +140,12 @@ async function render(setup: (host: BrowserHost) => void = () => undefined) {
       input.dispatchEvent(new Event('input', { bubbles: true }));
       await fixture.whenStable();
     },
-    async click(name: string) {
-      view.row(name).click();
+    async click(name: string, init: MouseEventInit = {}) {
+      view.row(name).dispatchEvent(new MouseEvent('click', { bubbles: true, ...init }));
       await fixture.whenStable();
     },
-    async press(key: string, target: HTMLElement = view.listbox()) {
-      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+    async press(key: string, target: HTMLElement = view.listbox(), init: KeyboardEventInit = {}) {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
       target.dispatchEvent(event);
       await fixture.whenStable();
       return event;
@@ -765,6 +765,64 @@ describe('NeatFileBrowser', () => {
 
       expect(host.checked()).toEqual([]);
       expect(host.folder()).toBe('');
+    });
+
+    it('highlights a folder on a Ctrl-click or a Shift-click without opening it, and checks no folder', async () => {
+      const { click, host } = await render(manage);
+
+      await click('30FPS', { ctrlKey: true });
+      expect(host.folder()).toBe('');
+      expect(host.checked()).toEqual([]);
+
+      await click('empty', { shiftKey: true });
+      expect(host.folder()).toBe('');
+      expect(host.checked()).toEqual([]);
+    });
+
+    it('opens the highlighted folder on a plain click on it, as on Enter', async () => {
+      const { click, host } = await render(manage);
+
+      await click('30FPS', { ctrlKey: true });
+      expect(host.folder()).toBe('');
+      await click('30FPS');
+
+      expect(host.folder()).toBe('30FPS');
+    });
+
+    it('checks the files of a Shift-click range and leaves the folders in it alone', async () => {
+      const { click, host, isChecked } = await render(manage);
+
+      await click('video.mp4');
+      await click('30FPS', { shiftKey: true });
+
+      expect(host.checked()).toEqual(['Readme.md', 'video.mp4']);
+      expect(isChecked('video.mp4')).toBe(true);
+      expect(host.folder(), 'the folder the range ends at is highlighted, not opened').toBe('');
+    });
+
+    it('checks the selected file on a second plain click, which opens nothing', async () => {
+      const { click, host } = await render(manage);
+
+      await click('video.mp4');
+      expect(host.checked()).toEqual([]);
+      await click('video.mp4');
+
+      expect(host.checked()).toEqual(['video.mp4']);
+      expect(host.selected()).toBe('video.mp4');
+    });
+
+    it('checks every file of the folder on Ctrl+A, never a folder, and leaves the key to the browser in pick mode', async () => {
+      const { press, host, listbox, fixture } = await render(manage);
+      host.checked.set(['30FPS/highway.mp4']);
+      await fixture.whenStable();
+
+      expect((await press('a', listbox(), { ctrlKey: true })).defaultPrevented).toBe(true);
+      expect(host.checked()).toEqual(['30FPS/highway.mp4', 'Readme.md', 'video.mp4']);
+      expect(host.folder()).toBe('');
+
+      host.mode.set('pick');
+      await fixture.whenStable();
+      expect((await press('a', listbox(), { ctrlKey: true })).defaultPrevented).toBe(false);
     });
 
     it('checks nothing on Space in pick mode', async () => {

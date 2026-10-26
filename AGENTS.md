@@ -271,7 +271,16 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   promise a check that Space silently refuses, and `aria-disabled` blocks no events while the row
   stays the active descendant. The reason describes it (`aria-describedby` to a `hidden` element
   in the row, so it is not part of the row's name) and is the box's tooltip; any reason but null
-  blocks. A column's `hideBelow` is judged against the list's own width, which a ResizeObserver
+  blocks. The pointer has a file manager's gestures in checked mode, each checking only rows the
+  box could: a click on the selected row toggles its box (a row with no box, or a blocked one, is
+  activated instead, so a folder still opens), Ctrl or Cmd-click toggles and selects without
+  activating, Shift-click checks the rows from the anchor (the row last clicked or toggled, else
+  the selected row) to the clicked one and selects it, and Ctrl or Cmd+A checks every row. They
+  only ever check: a row with no box or a blocked one is skipped and nothing is unchecked. The
+  blocks are those of the moment the gesture starts, so an app whose cap is its `checkBlocked`
+  must clamp `checked` too. The file browser needs nothing more: a Ctrl or Shift-click on a folder
+  highlights it and opens nothing.
+  A column's `hideBelow` is judged against the list's own width, which a ResizeObserver
   watches only while some column has one. The header line, the listbox and each row are lines of one
   grid (each spans every track on `grid-cols-subgrid`), so a content-sized column
   (`width="max-content"`) fits the widest of its heading and its cells, and `align="end"` puts both
