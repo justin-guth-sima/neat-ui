@@ -1,6 +1,6 @@
 {
   "name": "@sima/neat-ui",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "description": "SiMa.ai-branded Angular UI kit for Neat applications",
   "private": true,
   "exports": {
