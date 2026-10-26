@@ -84,6 +84,7 @@ const KEY_STEP = 16;
           (pointermove)="drag($event)"
           (pointerup)="endDrag()"
           (pointercancel)="cancelDrag()"
+          (lostpointercapture)="cancelDrag()"
           (dblclick)="asideWidth.set(null)"
         ></div>
       }
@@ -146,7 +147,12 @@ export class NeatPage {
   constructor() {
     effect((onCleanup) => {
       const panel = this.panel()?.nativeElement;
-      if (!panel || typeof ResizeObserver !== 'function') return;
+      const narrow = this.viewport.narrow();
+      // The handle is gone when the panel closes or the screen turns narrow, and takes its pointer
+      // events with it: a drag in progress would otherwise never end.
+      onCleanup(() => this.cancelDrag());
+      // Nothing to measure for a panel that floats over the page at its own width.
+      if (!panel || narrow || typeof ResizeObserver !== 'function') return;
       const observer = new ResizeObserver(() => this.measure(panel));
       observer.observe(this.page);
       observer.observe(panel);
@@ -156,7 +162,7 @@ export class NeatPage {
 
   protected step(event: KeyboardEvent): void {
     const { min, max } = this.bounds();
-    const current = this.width() ?? min;
+    const current = this.current();
     const next = {
       ArrowLeft: current + KEY_STEP,
       ArrowRight: current - KEY_STEP,
@@ -172,7 +178,7 @@ export class NeatPage {
   protected startDrag(event: PointerEvent): void {
     if (event.button !== 0) return;
     (event.currentTarget as Element).setPointerCapture(event.pointerId);
-    const width = this.width() ?? this.bounds().min;
+    const width = this.current();
     this.dragStart = { x: event.clientX, width, moved: false };
     this.dragWidth.set(width);
   }
@@ -195,6 +201,11 @@ export class NeatPage {
   protected cancelDrag(): void {
     this.dragStart = null;
     this.dragWidth.set(null);
+  }
+
+  /** The width now, from the panel itself while the observer has not reported yet. */
+  private current(): number {
+    return this.width() ?? this.clamp(this.panel()?.nativeElement.offsetWidth || this.bounds().min);
   }
 
   private clamp(width: number): number {

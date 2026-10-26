@@ -242,7 +242,9 @@ describe('NeatPage', () => {
     async function layout(pageWidth: number, asideWidth = 352): Promise<void> {
       Object.defineProperty(page(), 'clientWidth', { configurable: true, value: pageWidth });
       const panel = aside();
-      if (panel) Object.defineProperty(panel, 'offsetWidth', { configurable: true, value: asideWidth });
+      if (panel) {
+        Object.defineProperty(panel, 'offsetWidth', { configurable: true, value: asideWidth });
+      }
       FakeResizeObserver.instances.forEach((observer) => observer.fire());
       await fixture.whenStable();
     }
@@ -296,7 +298,7 @@ describe('NeatPage', () => {
       expect(attr('tabindex')).toBe('0');
     });
 
-    it('announces its value in pixels with its bounds: 18rem up to 48rem or 60 % of the page', async () => {
+    it('announces its value in pixels, bounded by 18rem and 48rem or 60 % of the page', async () => {
       await open(1000);
       // The default panel as laid out, bounded by 18rem and by 60 % of a 1000 px page.
       expect(attr('aria-valuemin')).toBe('288');
@@ -322,7 +324,7 @@ describe('NeatPage', () => {
       expect(requested()).toBe('');
     });
 
-    it('renders a width above the maximum, or below the minimum, clamped, and leaves the model alone', async () => {
+    it('shows a width outside the bounds clamped and leaves the model alone', async () => {
       await open(1000);
 
       host().asideWidth.set(900);
@@ -367,6 +369,26 @@ describe('NeatPage', () => {
       host().aside.set('closed');
       await fixture.whenStable();
       expect(FakeResizeObserver.instances.every((each) => each.disconnected)).toBe(true);
+    });
+
+    it('widens from the panel\'s own width before anything is measured', async () => {
+      host().aside.set('open');
+      await fixture.whenStable();
+      Object.defineProperty(aside(), 'offsetWidth', { configurable: true, value: 352 });
+
+      press('ArrowLeft');
+      expect(host().asideWidth()).toBe(368);
+    });
+
+    it('does not watch the page on a narrow screen', async () => {
+      narrow.set(true);
+      host().aside.set('open');
+      await fixture.whenStable();
+      expect(FakeResizeObserver.instances.filter((each) => !each.disconnected)).toEqual([]);
+
+      narrow.set(false);
+      await fixture.whenStable();
+      expect(FakeResizeObserver.instances.some((each) => !each.disconnected)).toBe(true);
     });
 
     it('widens with ArrowLeft and narrows with ArrowRight, 16 px a step', async () => {
@@ -438,7 +460,7 @@ describe('NeatPage', () => {
         (separator() as HTMLElement).setPointerCapture = capture;
       });
 
-      it('follows the pointer live, left widening the panel, and writes the model on release', async () => {
+      it('follows the pointer live, left widening, and writes the model on release', async () => {
         pointer('pointerdown', 600);
         expect(capture).toHaveBeenCalled();
 
@@ -495,6 +517,48 @@ describe('NeatPage', () => {
         expect(host().asideWidth()).toBeNull();
       });
 
+      it('ends the drag when the pointer capture is lost without a release', async () => {
+        pointer('pointerdown', 600);
+        pointer('pointermove', 500);
+        separator()?.dispatchEvent(new Event('lostpointercapture', { bubbles: true }));
+        await fixture.whenStable();
+        expect(page().hasAttribute('data-resizing')).toBe(false);
+        expect(host().asideWidth()).toBe(400);
+
+        // Hovering afterwards does not move the panel.
+        pointer('pointermove', 100);
+        await fixture.whenStable();
+        expect(requested()).toBe('400px');
+      });
+
+      it('clears the drag when the screen turns narrow mid-drag', async () => {
+        pointer('pointerdown', 600);
+        pointer('pointermove', 500);
+        await fixture.whenStable();
+        expect(page().hasAttribute('data-resizing')).toBe(true);
+
+        narrow.set(true);
+        await fixture.whenStable();
+        expect(page().hasAttribute('data-resizing')).toBe(false);
+
+        // Wide again, the panel has the model's width, not the abandoned drag's.
+        narrow.set(false);
+        await fixture.whenStable();
+        expect(requested()).toBe('400px');
+      });
+
+      it('clears the drag when the panel closes mid-drag', async () => {
+        pointer('pointerdown', 600);
+        pointer('pointermove', 500);
+        host().aside.set('closed');
+        await fixture.whenStable();
+        expect(page().hasAttribute('data-resizing')).toBe(false);
+
+        host().aside.set('open');
+        await fixture.whenStable();
+        expect(requested()).toBe('400px');
+      });
+
       it('ignores buttons other than the primary one', async () => {
         pointer('pointerdown', 600, { button: 2 });
         pointer('pointermove', 500);
@@ -520,16 +584,21 @@ describe('NeatPage', () => {
 
       it('bounds the panel by what the page tells it, in one place', () => {
         expect(asideRule()).toMatch(
-          /width:\s*clamp\(var\(--neat-page-aside-min\),\s*var\(--neat-aside-width\),\s*var\(--neat-page-aside-max\)\);/,
+          /width:\s*clamp\(\s*var\(--neat-page-aside-min\),\s*var\(--neat-aside-width\),\s*var\(--neat-page-aside-max\)\s*\);/,
         );
       });
 
-      it('has an 8 px hit area over the panel edge, a column-resize cursor and no touch scrolling', () => {
+      it('has an 8 px hit area on the panel edge, a column-resize cursor, no touch scrolling', () => {
         const separatorRule = rule('\\.separator') ?? '';
         expect(separatorRule).toMatch(/width:\s*var\(--neat-space-2\);/);
         expect(separatorRule).toMatch(/margin-inline:\s*calc\(var\(--neat-space-2\)\s*\/\s*-2\);/);
         expect(separatorRule).toMatch(/cursor:\s*col-resize;/);
         expect(separatorRule).toMatch(/touch-action:\s*none;/);
+        // Selection never starts at the handle, and forced colours still show the focus.
+        expect(separatorRule).toMatch(/user-select:\s*none;/);
+        expect(separatorRule).toMatch(
+          /outline:\s*var\(--neat-focus-ring-width\) solid transparent;/,
+        );
       });
 
       it('shows its line on hover, on keyboard focus and while dragging, with tokens', () => {
@@ -537,7 +606,10 @@ describe('NeatPage', () => {
         expect(line).toMatch(/background:\s*var\(--ring\);/);
         expect(line).toMatch(/width:\s*var\(--neat-focus-ring-width\);/);
         expect(pageStyles).toMatch(
-          /\.separator:hover::after,\s*\.separator:focus-visible::after,\s*:host\(\[data-resizing\]\) \.separator::after\s*\{[^}]*opacity:\s*1;/,
+          new RegExp(
+            '\\.separator:hover::after,\\s*\\.separator:focus-visible::after,\\s*' +
+              ':host\\(\\[data-resizing\\]\\) \\.separator::after\\s*\\{[^}]*opacity:\\s*1;',
+          ),
         );
       });
 

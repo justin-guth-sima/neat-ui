@@ -33,11 +33,6 @@
   padding: 0;
 }
 
-/* No text selection while the panel is dragged. */
-:host([data-resizing]) {
-  user-select: none;
-}
-
 /* The drag handle on the panel's inline-start edge: a flex item that takes no room of its own (its
    margins cancel its width), so its hit area spans the edge without moving the body or the panel.
    Above both, since the panel's border and the body's scrollbar meet it. */
@@ -49,8 +44,11 @@
   margin-inline: calc(var(--neat-space-2) / -2);
   cursor: col-resize;
   touch-action: none;
-  /* The line below is its focus indicator. */
-  outline: none;
+  /* A drag starting here must not select text. */
+  user-select: none;
+  /* The line below is the focus indicator; the transparent outline is what forced-colors mode
+     paints in its place, since that mode drops backgrounds. */
+  outline: var(--neat-focus-ring-width) solid transparent;
 }
 
 .separator::after {

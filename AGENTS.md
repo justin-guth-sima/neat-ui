@@ -496,7 +496,8 @@ builds its own bar or panel duplicates both and breaks in one of them.
   them is shown clamped and the model left alone, and the panel is re-clamped when the page is
   resized (a `ResizeObserver` on the page, only while the panel is open), so a remembered width
   returns with a wider window. The handle's look (an 8 px hit area, the `col-resize` cursor, a
-  line on hover, focus and drag) is the page's stylesheet, not the app's.
+  line on hover, focus and drag) is the page's stylesheet, not the app's. The handle assumes a
+  right-hand panel: right-to-left layouts are not supported.
 - The panel opens and closes with `<neat-aside-toggle [(open)]="asideOpen" />` in the page's
   toolbar, the one look for that button on every page ("Side panel" unless `label` says
   otherwise); the page owns `open` and remembers it where it likes. Inside the panel,

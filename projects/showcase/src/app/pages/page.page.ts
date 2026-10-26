@@ -106,8 +106,8 @@ import { NeatDetails } from '@sima/neat-ui/details';
         <h3 neatAsideHeading>Notes</h3>
         @for (item of asideItems; track item) {
           <p neatNote>
-            Panel content {{ item }}. The panel is <code neatCode>--neat-aside-width</code> wide and
-            scrolls independently of the page body.
+            Panel content {{ item }}. The panel is <code neatCode>--neat-aside-width</code> wide by
+            default and scrolls independently of the page body.
           </p>
         }
       </section>
