@@ -1,14 +1,14 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, reflectComponentType, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, RouterLink } from '@angular/router';
 import { NeatIcon } from '../icon/icon';
 import { NeatViewport } from '../page/viewport';
-import { NeatRailItem, RailState } from './rail-item';
+import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
 import railItemStyles from './rail-item.css' with { loader: 'text' };
 
 /** Items as an app puts them in the rail: the shell provides the rail's state to its content. */
 @Component({
-  imports: [NeatIcon, NeatRailItem, RouterLink],
+  imports: [NeatIcon, NeatRailDivider, NeatRailItem, RouterLink],
   providers: [RailState],
   template: `
     <button
@@ -19,9 +19,10 @@ import railItemStyles from './rail-item.css' with { loader: 'text' };
     >
       <neat-icon name="info" />
     </button>
-    <button neatRailItem type="button" label="Dark theme" [pressed]="dark()">
+    <button neatRailItem type="button" label="Dark theme">
       <neat-icon name="moon" />
     </button>
+    <hr neatRailDivider />
     <button neatRailItem type="button" label="DevKit, 192.168.100.2, connected" class="board">
       <neat-icon name="board" />
       <span neatRailItemLabel class="custom">DevKit <small>192.168.100.2</small></span>
@@ -32,7 +33,6 @@ import railItemStyles from './rail-item.css' with { loader: 'text' };
 class RailHost {
   readonly rail = inject(RailState);
   readonly clicks = signal(0);
-  readonly dark = signal<boolean | undefined>(undefined);
 }
 
 @Component({
@@ -122,17 +122,13 @@ describe('NeatRailItem', () => {
     expect(item('Help').getAttribute('href')).toBe('/help');
   });
 
-  it('binds pressed as aria-pressed, absent while pressed is unset', async () => {
-    const { fixture, host, item } = await render();
+  it('has no pressed state: a rail item is an action whose label says what a click does', async () => {
+    const { item } = await render();
+
     expect(item('Dark theme').hasAttribute('aria-pressed')).toBe(false);
-
-    host.dark.set(false);
-    await fixture.whenStable();
-    expect(item('Dark theme').getAttribute('aria-pressed')).toBe('false');
-
-    host.dark.set(true);
-    await fixture.whenStable();
-    expect(item('Dark theme').getAttribute('aria-pressed')).toBe('true');
+    expect(reflectComponentType(NeatRailItem)!.inputs.map((input) => input.templateName)).toEqual([
+      'label',
+    ]);
   });
 
   it('takes richer visible text from [neatRailItemLabel], the label staying its tooltip', async () => {
@@ -197,5 +193,28 @@ describe('NeatRailItem', () => {
 
   it('says where it belongs when used outside the shell’s rail', async () => {
     expect(() => TestBed.createComponent(OutsideShell)).toThrow(/neatRailItem.*neat-shell/);
+  });
+});
+
+describe('NeatRailDivider', () => {
+  it('is a line in the rail’s colours, a quarter step from the items around it, and decorative', async () => {
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    const fixture = TestBed.createComponent(RailHost);
+    await fixture.whenStable();
+    const divider = (fixture.nativeElement as HTMLElement).querySelector('hr') as HTMLElement;
+
+    // jsdom applies no Tailwind: the look is its classes, stated once on the directive.
+    expect([...divider.classList]).toEqual(
+      expect.arrayContaining([
+        'mx-0',
+        'my-1',
+        'h-0',
+        'shrink-0',
+        'border-t',
+        'border-sidebar-border',
+      ]),
+    );
+    // The items' names say what they are; a separator between them would only add noise.
+    expect(divider.getAttribute('aria-hidden')).toBe('true');
   });
 });

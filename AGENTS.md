@@ -13,7 +13,8 @@ look happens in one place. Every rule here protects that.
 - `projects/neat-ui`: the library, with one primary and several secondary entry points, each with
   its own public API file:
   - `@sima/neat-ui` (the primary): what the shell and every page need: theme, `NeatIcon`,
-    `NeatShell` with `NeatRailItem` (an item of its rail, for the app's items at its bottom),
+    `NeatShell` with `NeatRailItem` and `NeatRailDivider` (an item of its rail and the line between
+    groups of items, for the app's items at its bottom),
     `NeatPageToolbar`, `NeatPage` with its page tabs (`NeatPageTabs`, `NeatPageTab`)
     and its side panel's parts (`NeatAsideToggle`, `NeatAsidePanel`, `NeatAsideTitle`,
     `NeatAsideHeading`, `NeatAsideActions`), `neatAsideOpen`
@@ -487,9 +488,11 @@ board, System Info, the theme) did not read as the page's. `neat-shell` says whi
 place, so every app reads the same way.
 
 - The rail holds the pages (`navItems`), then, at its bottom below a divider, the app's items:
-  elements marked `neatRailEnd`, then the kit's theme switch (a toggle named "Dark theme", pressed
-  while dark, its icon the other scheme's sun or moon), then the rail's own control ("Show
-  labels"). The tab order follows: pages, the app's items, the theme, the rail's control.
+  elements marked `neatRailEnd`, then the kit's theme item, then the rail's own control. The tab
+  order follows: pages, the app's items, the theme, the rail's control. Rail items are actions
+  whose label says what a click does, never toggles: the theme item is "Dark theme" with the moon
+  while light and "Light theme" with the sun while dark; the control is "Show labels" while
+  collapsed and "Collapse" while expanded.
 - An app's item is a `button[neatRailItem]` or `a[neatRailItem]` with a `label`, the look and
   behaviour the page links have (they are rail items too): the content is the icon (a
   `neat-icon`, or an icon with a state dot the app draws), the label shows beside it while the
@@ -497,10 +500,17 @@ place, so every app reads the same way.
   shows as a tooltip on the right. Richer visible text (two lines, a coloured state) goes in an
   element marked `neatRailItemLabel` inside the item, which takes the label's place; `label` stays
   the tooltip, so it should say at least as much, and an `aria-label` the app sets wins as the
-  name. `pressed` makes an item a toggle (`aria-pressed`); its state shows in its icon, since the
-  rail's selection fill means "the current page" (`aria-current="page"`). A link followed on a
-  phone puts the floating rail away; a button leaves it. The item's look is `rail-item.css`, once;
-  an app's rail content draws nothing of its own but what goes inside an item.
+  name. The kit ellipsizes only the label's own line: the lines of such a flex column are the
+  app's elements, so each one ellipsizes itself (`min-width: 0`, `overflow: hidden`,
+  `white-space: nowrap`, `text-overflow: ellipsis`), as the showcase's board item does. An item
+  has no pressed state, and the rail's selection fill means only "the current page"
+  (`aria-current="page"`). A link followed on a phone puts the floating rail away; a button leaves
+  it. The item's look is `rail-item.css`, once.
+- `<hr neatRailEnd neatRailDivider />` between an app's items sets groups apart (below a board
+  block, for example): 1px of `--sidebar-border`, half a step from the items around it,
+  decorative (`aria-hidden`). The shell draws the line above the whole group with the same
+  element, so the line exists once. An app's rail content draws nothing of its own but what goes
+  inside an item.
 - The top bar holds the logo, the app name and the page title, then at its right the page's tools
   (`*neatPageToolbar`, below), elements marked `neatTopbarEnd` (kept for an app that needs one),
   the kiosk button (the one app control there: it changes how the page is shown), and last, at the

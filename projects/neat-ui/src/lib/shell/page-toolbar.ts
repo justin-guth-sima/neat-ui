@@ -35,8 +35,8 @@ export class PageToolbarSlot extends ShellSlot {
  * The page's toolbar: `<div *neatPageToolbar>…</div>` on a page renders that content in the
  * shell's top bar, at its right end just before the end slot and the kiosk button, while the page
  * exists. In kiosk mode, where the top bar is hidden, it renders in a floating bar beside the exit
- * control that shows while the pointer moves. The content stays the page's: its bindings and injection context are
- * those of the page's template.
+ * control that shows while the pointer moves. The content stays the page's: its bindings and
+ * injection context are those of the page's template.
  *
  * One page toolbar at a time; a second one throws in dev mode.
  */

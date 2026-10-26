@@ -29,7 +29,7 @@ import { NeatTooltip } from '../tooltip/tooltip';
 import { NeatLogo } from './logo';
 import { NeatNavItem } from './nav-item';
 import { PageToolbarSlot } from './page-toolbar';
-import { NeatRailItem, RailState } from './rail-item';
+import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
 
 /**
  * The accessible name of the page toolbar's region, in the top bar and in kiosk mode alike. A
@@ -52,9 +52,11 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
  * remaining space and never scrolls itself, so pages own their scrolling (see `neat-page`).
  *
  * The rail holds the pages (`navItems`) and, at its bottom below a divider, the app's own items
- * (elements marked `neatRailEnd`, usually `neatRailItem`s), then the kit's theme switch ("Dark
- * theme"), then the rail's control that shows and hides the labels. Expanded, its items show icon
- * and label; collapsed, the icon with the label as a tooltip and as hidden text.
+ * (elements marked `neatRailEnd`: `neatRailItem`s, and `neatRailDivider`s between groups of them),
+ * then the kit's theme item, then the rail's control. Expanded, its items show icon and label;
+ * collapsed, the icon with the label as a tooltip and as hidden text. The theme item and the
+ * control are actions named for what a click does: "Dark theme" or "Light theme", "Show labels" or
+ * "Collapse".
  *
  * The top bar holds the logo, the app name and the page title, then at its right the active page's
  * tools (`*neatPageToolbar`), elements marked `neatTopbarEnd`, the kiosk button (the one app
@@ -85,6 +87,7 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
     NeatIcon,
     NeatKioskExit,
     NeatLogo,
+    NeatRailDivider,
     NeatRailItem,
     NeatTooltip,
     RouterLink,

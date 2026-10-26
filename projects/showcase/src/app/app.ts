@@ -1,10 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NeatIcon, NeatNavItem, NeatRailItem, NeatShell } from '@sima/neat-ui';
+import { NeatIcon, NeatNavItem, NeatRailDivider, NeatRailItem, NeatShell } from '@sima/neat-ui';
 import { NeatToastHost, NeatToasts } from '@sima/neat-ui/toast';
 
 @Component({
-  imports: [NeatIcon, NeatRailItem, NeatShell, NeatToastHost, RouterOutlet],
+  imports: [NeatIcon, NeatRailDivider, NeatRailItem, NeatShell, NeatToastHost, RouterOutlet],
   selector: 'app-root',
   template: `
     <neat-shell appName="neat-ui showcase" [navItems]="navItems">
@@ -27,9 +27,12 @@ import { NeatToastHost, NeatToasts } from '@sima/neat-ui/toast';
       >
         <neat-icon name="board" />
         <span neatRailItemLabel class="showcase-rail-lines">
-          Demo board <small>192.168.1.20</small>
+          <span>Demo board</span>
+          <small>192.168.1.20</small>
         </span>
       </button>
+      <!-- Sets the board apart from the items below it, as the kit's line above the group does. -->
+      <hr neatRailEnd neatRailDivider />
       <router-outlet />
     </neat-shell>
     <neat-toast-host />

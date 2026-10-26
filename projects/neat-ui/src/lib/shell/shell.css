@@ -115,16 +115,15 @@ nav {
 }
 
 /*
- * The app's items, the theme switch and, after the group, the rail's control, at the bottom of the
- * rail below a divider in the rail's colours. The items are `neatRailItem`s, whose look is theirs.
+ * The app's items and the theme item at the bottom of the rail, the rail's control after them. The
+ * line above the group is a `neatRailDivider`, the element an app puts between its own items, and
+ * the items are `neatRailItem`s: both looks are theirs, stated once.
  */
 .rail-end {
   display: flex;
   flex: none;
   flex-direction: column;
   gap: 0.25rem;
-  padding-block-start: 0.5rem;
-  border-block-start: 1px solid var(--sidebar-border);
 }
 
 /* Top bar */

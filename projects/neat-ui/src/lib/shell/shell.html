@@ -34,14 +34,14 @@
       </ul>
     </nav>
 
-    <!-- The app's items, then the kit's theme switch: after the pages in the tab order. -->
+    <!-- The app's items, then the kit's theme item: after the pages in the tab order. -->
     <div class="rail-end">
+      <hr neatRailDivider />
       <ng-content select="[neatRailEnd]" />
       <button
         neatRailItem
         type="button"
-        label="Dark theme"
-        [pressed]="theme.scheme() === 'dark'"
+        [label]="theme.scheme() === 'dark' ? 'Light theme' : 'Dark theme'"
         (click)="theme.toggle()"
       >
         <neat-icon [name]="theme.scheme() === 'dark' ? 'sun' : 'moon'" />
@@ -51,8 +51,7 @@
     <button
       neatRailItem
       type="button"
-      label="Show labels"
-      [pressed]="railExpanded()"
+      [label]="railExpanded() ? 'Collapse' : 'Show labels'"
       (click)="toggleRail()"
     >
       <neat-icon [name]="railExpanded() ? 'rail-collapse' : 'rail-expand'" />

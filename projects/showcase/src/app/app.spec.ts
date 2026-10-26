@@ -82,12 +82,19 @@ describe('App', () => {
   it('demonstrates the rail’s end slot: an app item above the theme and the collapse control', () => {
     const end = root().querySelector('neat-shell .rail-end') as HTMLElement;
     const items = Array.from(end.querySelectorAll('[neatRailItem]'), (item) =>
-      item.getAttribute('label'),
+      item.textContent?.replace(/\s+/g, ' ').trim(),
     );
 
-    // The second shows richer text of its own through [neatRailItemLabel].
-    expect(items).toEqual(['About this showcase', 'Demo board, 192.168.1.20', 'Dark theme']);
-    expect(end.querySelector('[neatRailItemLabel]')?.textContent).toContain('192.168.1.20');
+    expect(items.length).toBe(3);
+    expect([items[0], items[2]]).toEqual(['About this showcase', 'Dark theme']);
+    // The second shows two lines of its own through [neatRailItemLabel].
+    const lines = Array.from(end.querySelectorAll('[neatRailItemLabel] > *'), (line) =>
+      line.textContent?.trim(),
+    );
+    expect(lines).toEqual(['Demo board', '192.168.1.20']);
+    // A divider of the app's own sets the board apart from the items below it.
+    const board = end.querySelector('[label="Demo board, 192.168.1.20"]') as HTMLElement;
+    expect(board.nextElementSibling?.matches('hr[neatRailDivider]')).toBe(true);
   });
 
   it('demonstrates page tabs on the page demo: route links, the open one marked', async () => {

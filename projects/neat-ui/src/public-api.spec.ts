@@ -86,7 +86,9 @@ describe('the public API', () => {
   });
 
   it('exports the rail item beside the shell, for the app’s items at the bottom of the rail', () => {
-    expect(Object.keys(primary)).toEqual(expect.arrayContaining(['NeatShell', 'NeatRailItem']));
+    expect(Object.keys(primary)).toEqual(
+      expect.arrayContaining(['NeatShell', 'NeatRailItem', 'NeatRailDivider']),
+    );
   });
 
   it('keeps the rail’s state and the shell’s slots internal', () => {

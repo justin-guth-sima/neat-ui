@@ -9,7 +9,7 @@ import { ThemeService } from '../theme/theme.service';
 import { NeatViewport } from '../page/viewport';
 import { NeatNavItem } from './nav-item';
 import { NeatPageToolbar } from './page-toolbar';
-import { NeatRailItem } from './rail-item';
+import { NeatRailDivider, NeatRailItem } from './rail-item';
 import { NeatShell } from './shell';
 import shellStyles from './shell.css' with { loader: 'text' };
 
@@ -70,13 +70,14 @@ class AsidePage {
 class AsideOnlyPage {}
 
 @Component({
-  imports: [NeatIcon, NeatRailItem, NeatShell, RouterOutlet],
+  imports: [NeatIcon, NeatRailDivider, NeatRailItem, NeatShell, RouterOutlet],
   template: `
     <neat-shell appName="Neat Insight" [navItems]="navItems">
       <span neatTopbarEnd class="board-status">Board connected</span>
       <button neatRailEnd neatRailItem type="button" label="System information">
         <neat-icon name="info" />
       </button>
+      <hr neatRailEnd neatRailDivider class="app-divider" />
       <router-outlet />
     </neat-shell>
   `,
@@ -116,8 +117,12 @@ describe('NeatShell', () => {
     (Array.from(shell().querySelectorAll('button')).find(
       (element) => (element.ariaLabel ?? element.textContent?.trim()) === name,
     ) ?? null) as HTMLButtonElement;
-  const railToggle = (): HTMLButtonElement => button('Show labels');
-  const themeToggle = (): HTMLButtonElement => button('Dark theme');
+  /** The rail's own control, after its bottom group: named for what a click does. */
+  const railToggle = (): HTMLButtonElement =>
+    shell().querySelector('.rail > button[neatRailItem]') as HTMLButtonElement;
+  /** The kit's theme item, the last of the rail's bottom group. */
+  const themeToggle = (): HTMLButtonElement =>
+    shell().querySelector('.rail-end > button[neatRailItem]:last-child') as HTMLButtonElement;
   const systemInfo = (): HTMLButtonElement => button('System information');
   const asideToggle = (name = 'Side panel'): HTMLButtonElement => button(name);
   const asideEdge = (): HTMLElement | null => shell().querySelector('.aside-edge');
@@ -240,13 +245,13 @@ describe('NeatShell', () => {
 
   it('expands the rail to show labels and persists that under neat-ui:rail-expanded', async () => {
     await start();
-    expect(railToggle().getAttribute('aria-pressed')).toBe('false');
+    expect(railToggle().textContent?.trim()).toBe('Show labels');
     expect(labelOf(link('Media')).classList).toContain('sr-only');
 
     railToggle().click();
     await settle();
 
-    expect(railToggle().getAttribute('aria-pressed')).toBe('true');
+    expect(railToggle().textContent?.trim()).toBe('Collapse');
     expect(labelOf(link('Media')).classList).not.toContain('sr-only');
     expect(localStorage.getItem(RAIL_KEY)).toBe('true');
 
@@ -258,7 +263,7 @@ describe('NeatShell', () => {
     railToggle().click();
     await settle();
 
-    expect(railToggle().getAttribute('aria-pressed')).toBe('false');
+    expect(railToggle().textContent?.trim()).toBe('Show labels');
     expect(localStorage.getItem(RAIL_KEY)).toBe('false');
   });
 
@@ -278,7 +283,7 @@ describe('NeatShell', () => {
 
     await start();
 
-    expect(railToggle().getAttribute('aria-pressed')).toBe('true');
+    expect(railToggle().textContent?.trim()).toBe('Collapse');
     expect(labelOf(link('Media')).classList).not.toContain('sr-only');
   });
 
@@ -292,36 +297,62 @@ describe('NeatShell', () => {
 
     await start();
 
-    expect(railToggle().getAttribute('aria-pressed')).toBe('false');
+    expect(railToggle().textContent?.trim()).toBe('Show labels');
 
     railToggle().click();
     await settle();
 
-    expect(railToggle().getAttribute('aria-pressed')).toBe('true');
+    expect(railToggle().textContent?.trim()).toBe('Collapse');
   });
 
-  it('toggles the colour scheme from the rail’s last end item, "Dark theme", pressed while dark', async () => {
+  it('switches the colour scheme from the rail’s last end item, named for what a click does', async () => {
     await start();
     const theme = TestBed.inject(ThemeService);
-    expect(themeToggle().getAttribute('aria-pressed')).toBe('false');
     expect(railBox().contains(themeToggle())).toBe(true);
     expect(topbar().contains(themeToggle())).toBe(false);
+    expect(themeToggle().textContent?.trim()).toBe('Dark theme');
     expect(themeToggle().querySelector('neat-icon')?.getAttribute('data-icon')).toBe('moon');
 
     themeToggle().click();
     await settle();
 
     expect(theme.scheme()).toBe('dark');
-    expect(themeToggle().getAttribute('aria-pressed')).toBe('true');
-    // The name stays while the state changes (a toggle's); the icon shows the other scheme.
-    expect(themeToggle().textContent?.trim()).toBe('Dark theme');
+    expect(themeToggle().textContent?.trim()).toBe('Light theme');
     expect(themeToggle().querySelector('neat-icon')?.getAttribute('data-icon')).toBe('sun');
 
     themeToggle().click();
     await settle();
 
     expect(theme.scheme()).toBe('light');
-    expect(themeToggle().getAttribute('aria-pressed')).toBe('false');
+    expect(themeToggle().textContent?.trim()).toBe('Dark theme');
+  });
+
+  it('names the rail’s control for what a click does: "Show labels", then "Collapse"', async () => {
+    await start();
+    expect(railToggle().textContent?.trim()).toBe('Show labels');
+    hover(railToggle());
+    await tick();
+    expect(tooltip()?.textContent?.trim()).toBe('Show labels');
+
+    railToggle().click();
+    await settle();
+
+    // Expanded, the label shows, as in the mockup's bottom row.
+    expect(railToggle().textContent?.trim()).toBe('Collapse');
+    expect(labelOf(railToggle()).classList).not.toContain('sr-only');
+  });
+
+  it('gives the theme item and the rail’s control no pressed state: they are actions', async () => {
+    await start();
+    expect(themeToggle().hasAttribute('aria-pressed')).toBe(false);
+    expect(railToggle().hasAttribute('aria-pressed')).toBe(false);
+
+    themeToggle().click();
+    railToggle().click();
+    await settle();
+
+    expect(themeToggle().hasAttribute('aria-pressed')).toBe(false);
+    expect(railToggle().hasAttribute('aria-pressed')).toBe(false);
   });
 
   it('is a rail item: its label shows when the rail is expanded and is a right tooltip when not', async () => {
@@ -350,8 +381,13 @@ describe('NeatShell', () => {
       end.compareDocumentPosition(railToggle()) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(end.contains(railToggle())).toBe(false);
-    // The divider is a line inside the rail's colours, drawn above the group.
-    expect(rule('.rail-end')).toMatch(/border-block-start:\s*1px solid var\(--sidebar-border\);/);
+    // The line above the group is the kit's rail divider, the element an app draws between its
+    // own items, so the pattern exists once.
+    const children = [...end.children];
+    expect(children[0].matches('hr[neatRailDivider]')).toBe(true);
+    expect(children.map((child) => child.tagName)).toEqual(['HR', 'BUTTON', 'HR', 'BUTTON']);
+    expect(children[2].classList).toContain('app-divider');
+    expect(rule('.rail-end')).not.toMatch(/border|padding/);
   });
 
   it('reaches the rail’s bottom items in order after the pages, from the keyboard', async () => {
@@ -917,7 +953,7 @@ describe('NeatShell', () => {
     link('Streaming').click();
     await settle();
 
-    expect(railToggle().getAttribute('aria-pressed')).toBe('true');
+    expect(railToggle().textContent?.trim()).toBe('Collapse');
   });
 
   it('on a wide screen: lays the expanded rail beside the content', async () => {
@@ -988,7 +1024,7 @@ describe('NeatShell', () => {
       localStorage.setItem(RAIL_KEY, 'true');
       await start();
 
-      expect(railToggle().getAttribute('aria-pressed')).toBe('false');
+      expect(railToggle().textContent?.trim()).toBe('Show labels');
       expect(railBox().dataset['floating']).toBe('false');
     });
 
@@ -998,7 +1034,7 @@ describe('NeatShell', () => {
 
       railToggle().click();
       await settle();
-      expect(railToggle().getAttribute('aria-pressed')).toBe('true');
+      expect(railToggle().textContent?.trim()).toBe('Collapse');
       railToggle().click();
       await settle();
 
@@ -1014,7 +1050,7 @@ describe('NeatShell', () => {
       link('Streaming').click();
       await settle();
 
-      expect(railToggle().getAttribute('aria-pressed')).toBe('false');
+      expect(railToggle().textContent?.trim()).toBe('Show labels');
       expect(railBox().dataset['floating']).toBe('false');
     });
 
@@ -1032,13 +1068,13 @@ describe('NeatShell', () => {
       const narrow = signal(true);
       TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
       await start();
-      expect(railToggle().getAttribute('aria-pressed')).toBe('false');
+      expect(railToggle().textContent?.trim()).toBe('Show labels');
 
       narrow.set(false);
       await settle();
 
       expect(shell().dataset['narrow']).toBe('false');
-      expect(railToggle().getAttribute('aria-pressed')).toBe('true');
+      expect(railToggle().textContent?.trim()).toBe('Collapse');
     });
 
     it('shrinks the top bar’s inset and gap to the smallest space, and lets it wrap', async () => {

@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  Directive,
   effect,
   ElementRef,
   inject,
@@ -48,7 +49,7 @@ export class RailState {
 }
 
 /**
- * An item of the shell's rail, the one look of the page links, the theme switch, the rail's own
+ * An item of the shell's rail, the one look of the page links, the theme item, the rail's own
  * control and an app's items at the bottom of the rail (`[neatRailEnd]`):
  *
  * ```html
@@ -63,8 +64,13 @@ export class RailState {
  * richer than its label (two lines, a coloured state) puts it in an element marked
  * `neatRailItemLabel`, which takes the label's place; `label` stays the tooltip, so it should say
  * at least what that text says. Its name is then that text, unless the app gives an `aria-label`.
- * `pressed` makes it a toggle (`aria-pressed`, absent while unset); its state shows in its icon,
- * since the rail's selection fill means "the current page" (`aria-current="page"`).
+ * The kit cuts the label's own line with an ellipsis, but the lines of an app's flex column are the
+ * app's elements, which the kit's stylesheet cannot reach: each line ellipsizes itself
+ * (`min-width: 0`, `overflow: hidden`, `white-space: nowrap`, `text-overflow: ellipsis`).
+ *
+ * An item is an action, never a toggle: its label says what a click does ("Dark theme" while
+ * light, "Light theme" while dark), so it has no pressed state, and the rail's selection fill means
+ * only "the current page" (`aria-current="page"`).
  *
  * The host stays the native button or link, with its own click, focus and `routerLink`. A link
  * followed on a narrow screen puts the floating rail away; a button leaves it, since its action
@@ -82,10 +88,7 @@ export class RailState {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideNeatTooltipOptions('right')],
   hostDirectives: [{ directive: BrnTooltip, inputs: ['brnTooltip: label'] }],
-  host: {
-    '[attr.aria-pressed]': 'pressed() ?? null',
-    '(click)': 'followed()',
-  },
+  host: { '(click)': 'followed()' },
   template: `
     <span class="icon"><ng-content /></span>
     <span class="label" [class.sr-only]="!expanded()">
@@ -97,8 +100,6 @@ export class RailState {
 export class NeatRailItem {
   /** The item's text: visible while the rail is expanded, its tooltip while it is not. */
   readonly label = input.required<string>();
-  /** A toggle's state; leave unset for an item that is not one. */
-  readonly pressed = input<boolean>();
 
   private readonly rail = inject(RailState, { optional: true });
   private readonly isLink = inject(ElementRef).nativeElement instanceof HTMLAnchorElement;
@@ -125,3 +126,20 @@ export class NeatRailItem {
     }
   }
 }
+
+/**
+ * A line between groups of the rail's bottom items: `<hr neatRailEnd neatRailDivider />` among an
+ * app's `[neatRailEnd]` items (below a board block, for example). The shell draws the line above
+ * the whole group with the same element, so the look is stated once: 1px of `--sidebar-border`, a
+ * quarter step of margin above and below, which with the group's quarter-step gap leaves half a
+ * step to the items around it. Decorative (`aria-hidden`): the items' names say what they are, and
+ * a separator announced between them would only be noise.
+ */
+@Directive({
+  selector: 'hr[neatRailDivider]',
+  host: {
+    'aria-hidden': 'true',
+    class: 'mx-0 my-1 h-0 shrink-0 border-t border-sidebar-border',
+  },
+})
+export class NeatRailDivider {}
