@@ -162,10 +162,15 @@ export class DiagramHover {
 
   private readonly leave = (): void => this.pointer.set(null);
 
+  /**
+   * An open button the keyboard focuses. A press on a block focuses its button too (d3-zoom lets
+   * the press through), and after a pan from it the block would stay in focus with the rest
+   * dimmed and no ring to say why; `:focus-visible` is the browser's word for the keyboard's.
+   */
   private readonly focusIn = (event: FocusEvent): void => {
     const target = event.target instanceof Element ? event.target : null;
-    const block = target?.matches('.block[data-node]') ? target.getAttribute('data-node') : null;
-    this.keyboard.set(block);
+    const keyboard = target?.matches('.block[data-node]:focus-visible');
+    this.keyboard.set(keyboard ? target!.getAttribute('data-node') : null);
   };
 
   private readonly focusOut = (): void => this.keyboard.set(null);

@@ -9,14 +9,16 @@
  * The containing block of every layer; the app gives the box its size. The cards' small shadow
  * (blocks and notes, as the demo's) is stated here once. The box is what the user drags, wheels
  * and pinches (d3-zoom), so the browser's own touch panning and pinch-zoom stay off it; it is a
- * tab stop for the keys.
+ * tab stop for the keys. It clips without being a scroll container (`clip`, not `hidden`): a
+ * focused part out of view would otherwise scroll the drawing, the bar and the tip inside it, and
+ * nothing would scroll them back; pan and zoom bring a focused part into view instead.
  */
 :host {
   --diagram-card-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 8%, transparent);
 
   display: block;
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   touch-action: none;
 }
 
@@ -171,10 +173,12 @@ button.block:focus-visible {
 
 /*
  * Back a level and where you are, top left over the drawing and outside the zoomed content, so it
- * keeps its size. Only its controls catch the pointer; the drawing under its gaps stays draggable.
+ * keeps its size. It comes before the drawing, first in the tab order, so it is lifted to paint
+ * over it. Only its controls catch the pointer; the drawing under its gaps stays draggable.
  */
 .bar {
   position: absolute;
+  z-index: 1;
   top: 0;
   left: 0;
   display: flex;
@@ -204,12 +208,14 @@ button.block:focus-visible {
 
 /*
  * The app's tip for the edge under the pointer, in the popover's colours; placed by hover.ts, in
- * the box. It never catches the pointer, so it does not take the hover from the edge.
+ * the box, over the bar as well (it comes after it). It never catches the pointer, so it does not
+ * take the hover from the edge.
  */
 .edge-tip {
   --neat-surface: var(--popover);
 
   position: absolute;
+  z-index: 1;
   top: 0;
   left: 0;
   box-sizing: border-box;

@@ -7,7 +7,7 @@ import {
   zoomTransform,
   type ZoomTransform,
 } from 'd3-zoom';
-import { fitTransform, ZOOM_LIMITS } from './fit';
+import { FIT_MARGIN, fitTransform, ZOOM_LIMITS } from './fit';
 import type { Rect } from './layout';
 
 /*
@@ -60,6 +60,18 @@ function pointOf(event: Event): { x: number; y: number } | null {
   return null;
 }
 
+/**
+ * How far to move the span from `start` to `end` (px on screen) so it lies inside `0..room`, a fit
+ * margin in from each side; one longer than that room shows from its start. 0 when it is inside.
+ */
+function shiftInto(start: number, end: number, room: number): number {
+  const low = FIT_MARGIN;
+  const high = room - FIT_MARGIN;
+  if (start < low) return low - start;
+  if (end > high) return Math.max(high - end, low - start);
+  return 0;
+}
+
 /** Cubic ease in and out, d3's default for a transition. */
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2);
 
@@ -110,6 +122,7 @@ export class DiagramZoom {
     this.motion?.addEventListener('change', this.syncDuration);
     this.selection = select(box).call(this.behavior);
     box.addEventListener('keydown', this.keydown);
+    box.addEventListener('focusin', this.focusIn);
     // Its first report is the box's first size: the first fit, or none while it has none.
     this.observer = new ResizeObserver(() => this.autoFit());
     this.observer.observe(box);
@@ -148,6 +161,7 @@ export class DiagramZoom {
     this.jump(zoomTransform(this.box));
     this.observer.disconnect();
     this.box.removeEventListener('keydown', this.keydown);
+    this.box.removeEventListener('focusin', this.focusIn);
     this.motion?.removeEventListener('change', this.syncDuration);
     this.selection.on('.zoom', null);
   }
@@ -265,6 +279,27 @@ export class DiagramZoom {
       return;
     }
     event.preventDefault();
+  };
+
+  /**
+   * A part of the drawing the keyboard focuses (an open button, a control in a note) is panned
+   * into view, as a page scrolls to what Tab reaches; the box clips and never scrolls itself. A
+   * press focuses what it presses, which is in view.
+   */
+  private readonly focusIn = (event: FocusEvent): void => {
+    const part = event.target;
+    if (!(part instanceof Element) || !this.content.contains(part)) return;
+    if (!part.matches(':focus-visible')) return;
+    const box = this.box.getBoundingClientRect();
+    const rect = part.getBoundingClientRect();
+    const left = box.left + this.box.clientLeft;
+    const top = box.top + this.box.clientTop;
+    const dx = shiftInto(rect.left - left, rect.right - left, this.box.clientWidth);
+    const dy = shiftInto(rect.top - top, rect.bottom - top, this.box.clientHeight);
+    if (dx === 0 && dy === 0) return;
+    this.moved();
+    const { k, x, y } = zoomTransform(this.box);
+    this.jump(zoomIdentity.translate(x + dx, y + dy).scale(k));
   };
 
   /** `from` zoomed by `by` within the limits, the point at the box's centre staying there. */

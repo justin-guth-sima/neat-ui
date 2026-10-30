@@ -377,6 +377,56 @@ describe('DiagramZoom', () => {
       expectAt(view.now(), panned);
     });
 
+    it('pans a part the keyboard focuses into view, a margin inside the box', () => {
+      const start = view.now();
+      const part = view.content.appendChild(document.createElement('button'));
+      const rect = { left: 900, right: 1000, top: -60, bottom: -20 };
+      part.getBoundingClientRect = () => ({ ...rect, x: 0, y: 0, width: 0, height: 0 }) as DOMRect;
+
+      part.focus();
+
+      // Right: its right edge 24 px inside the box's (800); down: its top 24 px below the box's.
+      expectAt(view.now(), { k: start.k, x: start.x - (1000 - 776), y: start.y + (24 + 60) });
+      // Panned for the user: the view no longer fits by itself.
+      view.size(400, 300);
+      expectAt(view.now(), { k: start.k, x: start.x - 224, y: start.y + 84 });
+    });
+
+    it('leaves the view alone for a part in view, or one a press focuses', () => {
+      const start = view.now();
+      const part = view.content.appendChild(document.createElement('button'));
+      part.getBoundingClientRect = () =>
+        ({
+          left: 900,
+          right: 1000,
+          top: 100,
+          bottom: 140,
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 0,
+        }) as DOMRect;
+      part.dispatchEvent(mouse('mousedown', 10, 10));
+      part.focus();
+      view.release();
+      expectAt(view.now(), start);
+
+      part.blur();
+      part.getBoundingClientRect = () =>
+        ({
+          left: 100,
+          right: 200,
+          top: 100,
+          bottom: 140,
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 0,
+        }) as DOMRect;
+      part.focus();
+      expectAt(view.now(), start);
+    });
+
     it('leaves alone other keys, keys with a modifier and keys from inside the box', () => {
       const start = view.now();
       const inside = view.content.appendChild(document.createElement('button'));

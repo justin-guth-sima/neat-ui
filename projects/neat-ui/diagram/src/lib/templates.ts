@@ -3,9 +3,9 @@ import type { NeatDiagramEdge, NeatDiagramNode, NeatDiagramNote } from './model'
 
 /*
  * The app's content in a diagram: one template for every block's body, one for every note and one
- * for the tip of the edge under the pointer, each given the part it renders for, so the app decides per part (by id, by its `data`) what it
- * shows. One template per kind rather than one per id keeps the diagram's input plain data that
- * an app can recompute on every poll.
+ * for the tip of the edge under the pointer, each given the part it renders for, so the app
+ * decides per part (by id, by its `data`) what it shows. One template per kind rather than one per
+ * id keeps the diagram's input plain data that an app can recompute on every poll.
  */
 
 /** What a block's template is given: the block. */

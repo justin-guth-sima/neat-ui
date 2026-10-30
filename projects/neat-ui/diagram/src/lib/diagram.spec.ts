@@ -615,7 +615,7 @@ describe('NeatDiagramView’s hover, levels and words', () => {
   }
 
   describe('hover', () => {
-    it('puts a block and its edges in focus and dims the rest to 0.25, until it leaves', async () => {
+    it('dims all but a hovered block and its edges to 0.25, until it leaves', async () => {
       const view = await renderLevels();
       expect(view.dimmed()).toEqual([]);
 
@@ -654,6 +654,8 @@ describe('NeatDiagramView’s hover, levels and words', () => {
     it('puts a block in focus while its open button has the keyboard’s focus', async () => {
       const view = await renderLevels();
       const decode = view.node('decode');
+      // As the keyboard moves the focus: Tab, then the focus (jsdom judges :focus-visible so).
+      view.host.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
       decode.focus();
       await view.stable();
       expect(view.dimmed().sort()).toEqual(['camera', 'sink']);
@@ -669,6 +671,23 @@ describe('NeatDiagramView’s hover, levels and words', () => {
 
       decode.blur();
       await view.stable();
+      expect(view.dimmed()).toEqual([]);
+    });
+
+    it('puts nothing in focus when a press focuses an open button (a pan from a block)', async () => {
+      const view = await renderLevels();
+      const decode = view.node('decode');
+      // d3-zoom follows a press on the event's window, which jsdom refuses in the constructor.
+      const press = (type: string) => {
+        const event = new MouseEvent(type, { bubbles: true, cancelable: true });
+        Object.defineProperty(event, 'view', { value: window });
+        return event;
+      };
+      decode.dispatchEvent(press('mousedown'));
+      decode.focus();
+      window.dispatchEvent(press('mouseup'));
+      await view.stable();
+      expect(document.activeElement).toBe(decode);
       expect(view.dimmed()).toEqual([]);
     });
   });
@@ -824,6 +843,23 @@ describe('NeatDiagramView’s hover, levels and words', () => {
       diagram.fit();
 
       expect(zoomTransform(view.host)).toEqual(opened);
+    });
+  });
+
+  describe('the box', () => {
+    it('clips what lies outside without scrolling, so focus never scrolls the drawing', () => {
+      // `hidden` would make the box a scroll container, which a focused part scrolls into view.
+      const host = /\n:host \{([^}]*)\}/.exec(diagramStyles)?.[1] ?? '';
+      expect(host).toMatch(/overflow: clip;/);
+    });
+
+    it('puts the level bar first in the tab order, painted over the drawing', async () => {
+      const view = await renderLevels(['stages']);
+      expect(view.one('.bar').compareDocumentPosition(view.one('.content'))).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+      const bar = /\n\.bar \{([^}]*)\}/.exec(diagramStyles)?.[1] ?? '';
+      expect(bar).toMatch(/z-index: 1;/);
     });
   });
 

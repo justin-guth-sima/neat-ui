@@ -59,7 +59,8 @@ import { DiagramZoom } from './zoom';
  * with what it is joined to; the rest is dimmed. A block that opens a level is a button that opens
  * it; `level` is the path of open levels, which an app can bind to its route, and the bar over the
  * drawing goes back and shows the path. A path that leads nowhere (a stale route) is cut to the
- * part that does, and the model is set to it.
+ * part that does, and the model is set to it; so render the diagram once its data is there, since
+ * a routed path is checked against the diagram given, a placeholder too.
  *
  * The user pans and zooms it (drag, wheel, pinch, double-click; with the box focused, the arrow
  * keys, `+`, `-` and `0`); it fits its level to the box by itself until they do, and `fit()` fits
