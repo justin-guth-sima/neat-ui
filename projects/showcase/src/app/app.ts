@@ -85,6 +85,7 @@ export class App {
     { label: 'Icons', icon: 'shapes', path: '/icons' },
     { label: 'Components', icon: 'blocks', path: '/components' },
     { label: 'Charts', icon: 'stats', path: '/charts' },
+    { label: 'Diagram', icon: 'device', path: '/diagram' },
     { label: 'Page', icon: 'document', path: '/page' },
   ];
 }

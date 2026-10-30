@@ -98,7 +98,7 @@ interface Route {
  * Per side: `t`, the way its ports are spread (offset grows along it), `n`, the way out of the
  * node.
  */
-const SIDE_AXES: Record<NeatDiagramSide, { t: Point; n: Point }> = {
+export const SIDE_AXES: Record<NeatDiagramSide, { t: Point; n: Point }> = {
   left: { t: { x: 0, y: 1 }, n: { x: -1, y: 0 } },
   right: { t: { x: 0, y: 1 }, n: { x: 1, y: 0 } },
   top: { t: { x: 1, y: 0 }, n: { x: 0, y: -1 } },

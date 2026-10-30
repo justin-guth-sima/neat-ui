@@ -1,0 +1,143 @@
+/*
+ * Blocks and brackets, drawn in front of the edges (frames and bands are in frames.css, the rest of
+ * the diagram in diagram.css), from the reference sheet and the Autoware demo's System page, in
+ * the theme's tokens. Each look is stated once, as the custom properties the block's rule reads,
+ * so no look outweighs another and a block that opens takes its open border whatever its look.
+ */
+
+/* The demo's card. */
+.block {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+  padding: var(--neat-space-2) var(--neat-space-3);
+  border: var(--block-line) var(--block-open-edge, var(--block-edge));
+  border-radius: var(--radius);
+  background: var(--block-fill);
+  color: var(--block-ink);
+  box-shadow: var(--block-open-ring, var(--block-shadow));
+}
+
+.block[data-look='default'] {
+  --block-line: 1px solid;
+  --block-edge: var(--border);
+  --block-fill: var(--card);
+  --block-ink: var(--card-foreground);
+  --block-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 8%, transparent);
+  --block-weight: 600;
+}
+
+.block[data-look='accent'] {
+  --block-line: 1px solid;
+  --block-edge: color-mix(in oklab, var(--primary) 45%, transparent);
+  --block-fill: color-mix(in oklab, var(--primary) 5%, var(--card));
+  --block-ink: var(--card-foreground);
+  --block-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 8%, transparent);
+  --block-weight: 600;
+}
+
+.block[data-look='dashed'] {
+  --block-line: 1px dashed;
+  --block-edge: var(--border);
+  --block-fill: var(--card);
+  --block-ink: var(--card-foreground);
+  --block-shadow: none;
+  --block-weight: 600;
+}
+
+/* A part that does not run here: dashed, no fill of its own, quiet words. */
+.block[data-look='ghost'] {
+  --block-line: 2px dashed;
+  --block-edge: var(--muted-foreground);
+  --block-fill: transparent;
+  --block-ink: var(--muted-foreground);
+  --block-shadow: none;
+  --block-weight: 500;
+}
+
+.block[data-look='muted'] {
+  --block-line: 1px solid;
+  --block-edge: var(--border);
+  --block-fill: var(--muted);
+  --block-ink: var(--muted-foreground);
+  --block-shadow: none;
+  --block-weight: 600;
+}
+
+/* Opens a level: the primary border, ringed, whatever the look. */
+.block[data-opens] {
+  --block-open-edge: var(--primary);
+  --block-open-ring: 0 0 0 1px var(--primary);
+}
+
+.block .text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: calc(var(--neat-space-2) / 2);
+  justify-items: start;
+}
+
+.block .label {
+  font-size: var(--neat-text-sm);
+  font-weight: var(--block-weight);
+  line-height: 1.2;
+}
+
+.block .detail {
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+  line-height: 1.25;
+}
+
+/* A block the app's template renders nothing for keeps its card as it is. */
+.body:empty {
+  display: none;
+}
+
+.more {
+  color: var(--primary);
+}
+
+/* The demo's brace under the siblings a bracket spans, its label below. */
+.bracket {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--neat-space-2) / 2);
+}
+
+.bracket svg {
+  display: block;
+  width: 100%;
+  flex: none;
+  overflow: visible;
+}
+
+.bracket path {
+  fill: none;
+  stroke: var(--muted-foreground);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.bracket-text {
+  display: flex;
+  align-items: baseline;
+  gap: var(--neat-space-2);
+  font-size: var(--neat-text-sm);
+  white-space: nowrap;
+}
+
+.bracket-text .label {
+  font-weight: 600;
+}
+
+.separator {
+  color: var(--muted-foreground);
+}

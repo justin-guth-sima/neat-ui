@@ -1,0 +1,119 @@
+/*
+ * The diagram's box and layers, its edges, edge labels and notes, from the reference sheet and the
+ * Autoware demo's System page, in the theme's tokens; the nodes' look is in frames.css and
+ * blocks.css. Sizes in px are diagram units (px at zoom 1), the space the app places its nodes
+ * in. Each line is stated once, as the custom properties the edge's rule reads.
+ */
+
+/* The containing block of every layer; the app gives the box its size. */
+:host {
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+.content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+/* Parts without a size of their own (labels, notes) take their content's, not a squeezed one. */
+.edge-label,
+.note {
+  width: max-content;
+}
+
+/* --- edges, in one SVG between the frames and the blocks --- */
+
+/* A point to draw from: what it draws overflows it. Edges catch no pointer (yet). */
+.edges {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.line {
+  fill: none;
+  stroke: var(--edge);
+  stroke-width: var(--edge-width);
+  stroke-dasharray: var(--edge-dash);
+  stroke-opacity: var(--edge-opacity);
+}
+
+.tip {
+  fill: var(--edge);
+  fill-opacity: 0.85;
+}
+
+.edge[data-line='solid'] {
+  --edge-width: 1.5;
+  --edge-dash: none;
+  --edge-opacity: 0.75;
+}
+
+.edge[data-line='dashed'] {
+  --edge-width: 1.5;
+  --edge-dash: 4 4;
+  --edge-opacity: 0.75;
+}
+
+/* What would run but does not here: secondary yet clearly visible, in either theme. */
+.edge[data-line='ghost'] {
+  --edge-width: 2;
+  --edge-dash: 8 6;
+  --edge-opacity: 0.9;
+}
+
+/* A note's leader: dotted, from a dot on its anchor. */
+.leader line {
+  stroke: var(--muted-foreground);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+
+.leader circle {
+  fill: var(--muted-foreground);
+}
+
+/* --- edge labels and notes, in front of the blocks --- */
+
+/* A short mono chip centred on its point of the route. */
+.edge-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0 calc(var(--neat-space-2) / 2);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) / 2);
+  background: var(--card);
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-xs);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/*
+ * The app's content in a box. Opaque: a leader may run on to its centre underneath (`leaderTo`).
+ * Hidden until it is measured and placed, so it never shows at the corner first.
+ */
+.note {
+  position: absolute;
+  box-sizing: border-box;
+  padding: var(--neat-space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+  font-size: var(--neat-text-xs);
+  line-height: 1.3;
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+
+.note:not(.placed) {
+  visibility: hidden;
+}

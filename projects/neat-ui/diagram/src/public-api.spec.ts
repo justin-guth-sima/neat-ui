@@ -1,8 +1,13 @@
 import * as diagram from './public-api';
 
 describe('the diagram entry', () => {
-  it('exports the drill-down helper; the routing, the layout, notes and fit stay internal', () => {
-    expect(Object.keys(diagram)).toEqual(['neatDrillDownLevel']);
+  it('exports the diagram, its templates and the drill-down helper; the rest stays internal', () => {
+    expect(Object.keys(diagram).sort()).toEqual([
+      'NeatDiagramBlockTemplate',
+      'NeatDiagramNoteTemplate',
+      'NeatDiagramView',
+      'neatDrillDownLevel',
+    ]);
   });
 });
 

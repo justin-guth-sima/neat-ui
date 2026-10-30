@@ -1,0 +1,87 @@
+/*
+ * Frames and bands, drawn behind the edges (blocks and brackets are in blocks.css, the rest of the
+ * diagram in diagram.css), from the reference sheet and the Autoware demo's System page, in the
+ * theme's tokens. Each look is stated once, as the custom properties the frame's rule reads, so no
+ * look outweighs another.
+ */
+
+.frame {
+  position: absolute;
+  box-sizing: border-box;
+  padding: var(--neat-space-2) var(--neat-space-3);
+  border: var(--frame-line) var(--frame-edge);
+  border-radius: var(--radius);
+  background: var(--frame-fill);
+}
+
+.frame[data-look='default'] {
+  --frame-line: 1px solid;
+  --frame-edge: var(--border);
+  --frame-fill: color-mix(in oklab, var(--muted) 35%, transparent);
+  --frame-ink: var(--foreground);
+  --frame-weight: 600;
+}
+
+/* The primary tint: the main device. */
+.frame[data-look='accent'] {
+  --frame-line: 1px solid;
+  --frame-edge: color-mix(in oklab, var(--primary) 45%, transparent);
+  --frame-fill: color-mix(in oklab, var(--primary) 5%, transparent);
+  --frame-ink: var(--foreground);
+  --frame-weight: 600;
+}
+
+/* A group. */
+.frame[data-look='dashed'] {
+  --frame-line: 1px dashed;
+  --frame-edge: var(--border);
+  --frame-fill: color-mix(in oklab, var(--card) 60%, transparent);
+  --frame-ink: var(--foreground);
+  --frame-weight: 600;
+}
+
+/* A part that does not run here: no fill, a dashed line, a quiet title; clear in either theme. */
+.frame[data-look='ghost'] {
+  --frame-line: 2px dashed;
+  --frame-edge: var(--muted-foreground);
+  --frame-fill: transparent;
+  --frame-ink: var(--muted-foreground);
+  --frame-weight: 400;
+}
+
+.frame[data-look='muted'] {
+  --frame-line: 1px solid;
+  --frame-edge: var(--border);
+  --frame-fill: var(--muted);
+  --frame-ink: var(--muted-foreground);
+  --frame-weight: 600;
+}
+
+.frame .title {
+  font-size: var(--neat-text-sm);
+  font-weight: var(--frame-weight);
+  color: var(--frame-ink);
+}
+
+.frame .detail {
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+}
+
+/* A strip such as a cable or a bus, its label along it (down the strip when it stands upright). */
+.band {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.band.upright {
+  writing-mode: vertical-rl;
+}

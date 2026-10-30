@@ -1,0 +1,167 @@
+<!-- One container for every layer, so pan and zoom move one element. -->
+<div class="content">
+  <div class="behind">
+    @for (part of level().behind; track part.node.id) {
+      @if (part.node.role === 'frame') {
+        <div
+          class="frame"
+          [attr.data-node]="part.node.id"
+          [attr.data-look]="part.look"
+          [style.left.px]="part.rect.x"
+          [style.top.px]="part.rect.y"
+          [style.width.px]="part.rect.w"
+          [style.height.px]="part.rect.h"
+        >
+          <div class="title">{{ part.node.label }}</div>
+          @if (part.node.detail) {
+            <div class="detail">{{ part.node.detail }}</div>
+          }
+        </div>
+      } @else {
+        <div
+          class="band"
+          [class.upright]="part.rect.h > part.rect.w"
+          [attr.data-node]="part.node.id"
+          [style.left.px]="part.rect.x"
+          [style.top.px]="part.rect.y"
+          [style.width.px]="part.rect.w"
+          [style.height.px]="part.rect.h"
+        >
+          {{ part.node.label }}
+        </div>
+      }
+    }
+  </div>
+
+  <svg class="edges" aria-hidden="true" focusable="false">
+    @for (edge of level().edges; track edge.id) {
+      <g
+        class="edge"
+        [attr.data-edge]="edge.id"
+        [attr.data-line]="edge.line"
+        [style.--edge]="edge.colour"
+      >
+        <path class="line" [attr.d]="edge.path" />
+        @for (tip of edge.tips; track tip.end) {
+          @if (tip.shape === 'arrow') {
+            <path class="tip" data-shape="arrow" [attr.data-tip]="tip.end" [attr.d]="tip.d" />
+          } @else {
+            <circle
+              class="tip"
+              data-shape="dot"
+              [attr.data-tip]="tip.end"
+              [attr.cx]="tip.cx"
+              [attr.cy]="tip.cy"
+              [attr.r]="tip.r"
+            />
+          }
+        }
+      </g>
+    }
+    @for (note of notes(); track note.id) {
+      @if (placements().get(note.id)?.leader; as leader) {
+        <g class="leader" [attr.data-note]="note.id">
+          <line
+            [attr.x1]="leader[0].x"
+            [attr.y1]="leader[0].y"
+            [attr.x2]="leader[1].x"
+            [attr.y2]="leader[1].y"
+          />
+          <circle [attr.cx]="leader[0].x" [attr.cy]="leader[0].y" r="2.5" />
+        </g>
+      }
+    }
+  </svg>
+
+  <div class="front">
+    @for (part of level().front; track part.node.id) {
+      @if (part.node.role === 'block') {
+        <div
+          class="block"
+          [attr.data-node]="part.node.id"
+          [attr.data-look]="part.look"
+          [attr.data-opens]="part.opens ? '' : null"
+          [style.left.px]="part.rect.x"
+          [style.top.px]="part.rect.y"
+          [style.width.px]="part.rect.w"
+          [style.height.px]="part.rect.h"
+        >
+          <div class="text">
+            <span class="label">{{ part.node.label }}</span>
+            @if (part.node.detail) {
+              <span class="detail">{{ part.node.detail }}</span>
+            }
+            @if (blockTemplate(); as body) {
+              <div class="body">
+                <ng-container
+                  *ngTemplateOutlet="body.template; context: { $implicit: part.node }"
+                />
+              </div>
+            }
+          </div>
+          @for (chip of part.node.chips ?? []; track $index) {
+            <neat-status-chip [tone]="chip.tone">{{ chip.label }}</neat-status-chip>
+          }
+          @if (part.opens) {
+            <span class="more" aria-hidden="true">›</span>
+          }
+        </div>
+      } @else {
+        <div
+          class="bracket"
+          [attr.data-node]="part.node.id"
+          [style.left.px]="part.rect.x"
+          [style.top.px]="part.rect.y"
+          [style.width.px]="part.rect.w"
+          [style.height.px]="part.rect.h"
+        >
+          <svg
+            [attr.viewBox]="'0 0 ' + part.rect.w + ' ' + BRACE_HEIGHT"
+            [attr.height]="BRACE_HEIGHT"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path [attr.d]="part.brace" />
+          </svg>
+          <span class="bracket-text">
+            <span class="label">{{ part.node.label }}</span>
+            @if (part.node.detail) {
+              <!-- Spaced in the text too, so it reads as words where it is not seen. -->
+              <span class="separator"> · </span>
+              <span>{{ part.node.detail }}</span>
+            }
+          </span>
+        </div>
+      }
+    }
+
+    @for (edge of level().edges; track edge.id) {
+      @if (edge.label; as label) {
+        <code
+          class="edge-label"
+          [attr.data-edge]="edge.id"
+          [style.left.px]="label.at.x"
+          [style.top.px]="label.at.y"
+          >{{ label.text }}</code
+        >
+      }
+    }
+
+    @if (noteTemplate(); as content) {
+      @for (note of notes(); track note.id) {
+        @let placement = placements().get(note.id);
+        <div
+          class="note"
+          [neatDiagramNoteBox]="note.id"
+          [attr.data-note]="note.id"
+          [class.placed]="placement !== undefined"
+          [style.left.px]="placement?.box?.x ?? 0"
+          [style.top.px]="placement?.box?.y ?? 0"
+        >
+          <ng-container *ngTemplateOutlet="content.template; context: { $implicit: note }" />
+        </div>
+      }
+    }
+  </div>
+</div>

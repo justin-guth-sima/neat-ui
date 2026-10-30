@@ -1,0 +1,6 @@
+/* The diagram fills the box it is given: a framed area as tall as the example needs. */
+.diagram {
+  height: 30rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
