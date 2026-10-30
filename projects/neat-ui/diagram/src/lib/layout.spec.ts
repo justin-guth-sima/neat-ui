@@ -316,6 +316,43 @@ describe('layoutEdges', () => {
     expect(throughCards(diagram)).toEqual([]);
   });
 
+  it('keeps a frame’s own sides for its outside neighbours, not for the nodes inside it', () => {
+    // outSide and inSide say where the frame meets the nodes around it; inside, the nearest border.
+    const diagram: NeatDiagram = {
+      nodes: [
+        block('frame', 0, 0, { role: 'frame', w: 500, h: 160, outSide: 'right', inSide: 'left' }),
+        block('inner', 200, 80, { parent: 'frame', w: 100, h: 40 }),
+        block('sink', 700, 50, { w: 100, h: 40 }),
+      ],
+      edges: [
+        edge('down', 'frame', 'inner'),
+        edge('up', 'inner', 'frame'),
+        edge('out', 'frame', 'sink'),
+      ],
+    };
+    const edges = layoutEdges(diagram);
+    expect(edges.get('down')?.source.y).toBe(160);
+    expect(edges.get('up')?.target.y).toBe(160);
+    expect(edges.get('out')).toMatchObject({ sourceSide: 'right', source: { x: 500 } });
+  });
+
+  it('runs an edge from a frame to a node two frames inside it within the outer frame', () => {
+    const diagram: NeatDiagram = {
+      nodes: [
+        block('outer', 0, 0, { role: 'frame', w: 600, h: 300 }),
+        block('group', 100, 60, { parent: 'outer', role: 'frame', w: 400, h: 200 }),
+        block('deep', 150, 40, { parent: 'group', w: 100, h: 40 }),
+      ],
+      edges: [edge('in', 'outer', 'deep')],
+    };
+    const edges = layoutEdges(diagram);
+    // `deep` sits at 250..350 × 100..140: the outer frame's top border, 100 above it, is nearest.
+    expect(edges.get('in')).toMatchObject({ targetSide: 'top', source: { y: 0 } });
+    const points = drawnEdges(diagram).get('in') ?? [];
+    expect(points.filter((p) => p.x < 0 || p.x > 600 || p.y < 0 || p.y > 300)).toEqual([]);
+    expect(throughCards(diagram)).toEqual([]);
+  });
+
   it('keeps the ports of a side inside it however many there are', () => {
     const many = Array.from({ length: 30 }, (_, i) => block(`t${i}`, 400, i * 10));
     const edges = layoutEdges({
