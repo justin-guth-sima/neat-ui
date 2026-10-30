@@ -1,6 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { stylesheet } from './css.testing';
 import { NeatTimeChart } from './time-chart';
+import timeStyles from './time-chart.css' with { loader: 'text' };
 import type {
   NeatChartAxis,
   NeatChartFormat,
@@ -36,7 +38,7 @@ class TimeChartHost {
   readonly thresholds = signal<readonly NeatThreshold[]>([]);
   readonly reference = signal<NeatReference | null>(null);
   readonly tone = signal<NeatChartTone>('default');
-  readonly size = signal<'compact' | 'medium' | 'large'>('medium');
+  readonly size = signal<'compact' | 'medium' | 'large' | 'fill'>('medium');
   readonly axis = signal<NeatChartAxis>('recent');
   readonly headless = signal(false);
   readonly valueLabels = signal(true);
@@ -316,6 +318,36 @@ describe('NeatTimeChart', () => {
     chart.host.size.set('large');
     await chart.fixture.whenStable();
     expect(height()).toBe('9.5rem');
+  });
+
+  it('fill is labelled as medium, with the plot taking the height the host leaves', async () => {
+    const chart = await render((host) => {
+      host.size.set('fill');
+      host.series.set([cpu(10, 20, 30, 40, 50)]);
+      host.times.set(WINDOW);
+    });
+    const medium = await render((host) => {
+      host.series.set([cpu(10, 20, 30, 40, 50)]);
+      host.times.set(WINDOW);
+    });
+    const host = chart.root.querySelector<HTMLElement>('neat-time-chart')!;
+    expect(host.style.getPropertyValue('--plot-height')).toBe('6rem');
+    expect(host.hasAttribute('data-fill')).toBe(true);
+    expect(chart.text('.axis span')).toEqual(medium.text('.axis span'));
+    expect(chart.text('.grid-label')).toEqual(medium.text('.grid-label'));
+    expect(chart.text('.axis span')).not.toHaveLength(0);
+
+    // jsdom does no layout, so the rules that make it fill are read from the sheet: a flex column
+    // host, and a plot that grows from nothing but never below medium's height.
+    const { declared } = stylesheet(timeStyles);
+    expect(declared(':host([data-fill])', 'display')).toBe('flex');
+    expect(declared(':host([data-fill])', 'flex-direction')).toBe('column');
+    expect(declared(':host([data-fill]) .plot', 'flex')).toBe('1 1 0');
+    expect(declared(':host([data-fill]) .plot', 'min-height')).toBe('var(--plot-height)');
+
+    chart.host.size.set('medium');
+    await chart.fixture.whenStable();
+    expect(host.hasAttribute('data-fill')).toBe(false);
   });
 
   it('a null breaks the line and the newest point gets a dot only when it has a value', async () => {

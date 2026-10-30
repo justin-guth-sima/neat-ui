@@ -93,8 +93,8 @@ function samplingInterval(times: readonly number[]): number {
 
 /**
  * A row's samples split into slices of time, at most `columns`, each the mean of the numbers in
- * it (null where it has none). `times` (ms, oldest first) place the samples; without usable times
- * they go by count.
+ * it (null where it has none, or, for a jitter hole, its previous column's mean). `times` (ms,
+ * oldest first) place the samples; without usable times they go by count.
  */
 export function columnMeans(
   values: readonly (number | null)[],

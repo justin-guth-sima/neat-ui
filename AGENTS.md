@@ -181,6 +181,10 @@ a control in the content (a button, a link, a form field) keeps its click; the p
 readout and choose nothing. A chart in a card can drop its value labels (`[valueLabels]="false"`):
 the grid and level lines, the time axis and the readout stay.
 
+A time chart's `size="fill"` is labelled as `medium` and takes the height its host is given: the
+host is a flex column and the plot takes what the title, legend and axis leave, never under
+medium's 6 rem. The app gives the host that height (a grid item its row stretches), so it needs no
+`::ng-deep` to make the plot grow.
 **What entries share goes through the primary under a `ɵ` prefix.** The vendored helm code
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,
 yet the secondary entries need them, and an entry sees the primary only through its public API. So

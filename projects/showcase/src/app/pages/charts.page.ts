@@ -156,6 +156,35 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
             (<code>recent</code>, the default) or, with <code>axis="elapsed"</code>, forward from
             the first, as "0 s … 8 min" does for a run read from its start.
           </p>
+          <p class="showcase-muted">
+            <code>size="fill"</code> is for a chart whose host the app gives a height, such as a
+            grid item that its row stretches: it is labelled as <code>medium</code> and its plot
+            takes the height left, never under medium's 6 rem. Here the card on the right is as tall
+            as the one beside it.
+          </p>
+          <div class="chart-pair">
+            <div class="chart-card">
+              <neat-time-chart
+                label="Ten cores"
+                size="large"
+                [series]="cores"
+                [times]="times"
+                [domain]="[0, 100]"
+                [format]="percent"
+              />
+            </div>
+            <div class="chart-card chart-fill">
+              <neat-time-chart
+                label="MLA usage"
+                headline="62%"
+                size="fill"
+                [series]="mla"
+                [times]="times"
+                [domain]="[0, 100]"
+                [format]="percent"
+              />
+            </div>
+          </div>
           <div class="chart-grid">
             <div class="chart-card">
               <neat-time-chart
@@ -349,6 +378,9 @@ export class ChartsPage {
     { key: 'a', label: 'Cluster A', values: sine(SAMPLES, 2, 30, 70) },
     { key: 'b', label: 'Cluster B', values: sine(SAMPLES, 3, 10, 50) },
     { key: 'c', label: 'Cluster C', values: sine(SAMPLES, 1.5, 40, 90) },
+  ];
+  protected readonly mla: readonly NeatSeries[] = [
+    { key: 'mla', label: 'MLA', values: sine(SAMPLES, 3, 30, 90) },
   ];
   protected readonly power: readonly NeatSeries[] = [
     { key: 'power', label: 'Power', values: sine(SAMPLES, 2.5, 8, 13) },

@@ -1,3 +1,18 @@
+/*
+ * `size="fill"`: the host is a column and the plot takes what its height leaves after the title,
+ * legend and axis, from nothing up, never under the height medium has (`--plot-height`). The app
+ * gives the host its height; with none, the plot is that minimum.
+ */
+:host([data-fill]) {
+  display: flex;
+  flex-direction: column;
+}
+
+:host([data-fill]) .plot {
+  flex: 1 1 0;
+  min-height: var(--plot-height);
+}
+
 .legend {
   display: flex;
   flex-wrap: wrap;

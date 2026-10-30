@@ -76,9 +76,12 @@ interface Level {
  * to the card's fill, as the select list's sticky header asks.
  *
  * `size` sets the plot's height (3.5, 6 or 9.5 rem). `compact` leaves out every label and the time
- * axis, which suits a row among others; `[valueLabels]="false"` leaves out only the grid's values
- * and the levels' labels, keeping their lines and the time axis, which suits a card in a grid;
- * `headless` leaves out the title and headline, for a chart that sits under a heading of its own.
+ * axis, which suits a row among others; `fill` is labelled as `medium` and makes the host a flex
+ * column whose plot takes the height left after the title, legend and axis, never under medium's
+ * 6 rem, so the app gives the host its height (a grid item that a row stretches, say);
+ * `[valueLabels]="false"` leaves out only the grid's values and the levels' labels, keeping their
+ * lines and the time axis, which suits a card in a grid; `headless` leaves out the title and
+ * headline, for a chart that sits under a heading of its own.
  * None changes the accessible name or the readout. A grid label that would sit on a level's label
  * or on the grid label below it is left out.
  *
@@ -94,6 +97,7 @@ interface Level {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[style.--plot-height]': 'plotHeight()',
+    '[attr.data-fill]': "size() === 'fill' ? '' : null",
   },
   template: `
     @if (!headless()) {
@@ -238,8 +242,11 @@ export class NeatTimeChart {
   readonly reference = input<NeatReference | null>(null);
   /** The stroke of a single series; several series take the palette's colours instead. */
   readonly tone = input<NeatChartTone>('default');
-  /** The plot's height: 3.5, 6 or 9.5 rem. Compact also leaves out the labels and the time axis. */
-  readonly size = input<'compact' | 'medium' | 'large'>('medium');
+  /**
+   * The plot's height: 3.5, 6 or 9.5 rem. Compact also leaves out the labels and the time axis.
+   * `fill` is labelled as medium, with the plot taking the height the app gives the host.
+   */
+  readonly size = input<'compact' | 'medium' | 'large' | 'fill'>('medium');
   /**
    * What the x axis, the readout and the accessible name count: `recent` back from the newest
    * sample ("−8 min … now", "2 min ago"), for a live window, or `elapsed` forward from the first
@@ -260,6 +267,12 @@ export class NeatTimeChart {
   private readonly plot = viewChild.required<ElementRef<HTMLElement>>('plot');
 
   protected readonly flipBelow = FLIP_BELOW;
+
+  /** The size the labels are laid out for: a filling plot is at least medium's, so it is medium. */
+  private readonly frameSize = computed(() => {
+    const size = this.size();
+    return size === 'fill' ? 'medium' : size;
+  });
 
   /** Compact leaves the labels out: a row of charts has no room for them. */
   protected readonly labelled = computed(() => this.size() !== 'compact');
@@ -311,7 +324,7 @@ export class NeatTimeChart {
     }));
   });
 
-  protected readonly plotHeight = computed(() => `${PLOT_REM[this.size()]}rem`);
+  protected readonly plotHeight = computed(() => `${PLOT_REM[this.frameSize()]}rem`);
 
   protected readonly grid = computed(() => gridMarks(this.domain()));
 
@@ -322,7 +335,7 @@ export class NeatTimeChart {
    * since it says more, and the grid line stays too. Labels at the end do not meet them.
    */
   protected readonly gridLabels = computed(() => {
-    const size = this.size();
+    const size = this.frameSize();
     const taken = this.levels()
       .filter((level) => level.side === 'start')
       .map((level) => labelSpan(level.y, size));

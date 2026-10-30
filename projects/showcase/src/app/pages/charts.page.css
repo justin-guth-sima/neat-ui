@@ -32,6 +32,23 @@
   gap: var(--neat-space-4);
 }
 
+/* Two cards on a row, which stretches the shorter to the taller one's height. */
+.chart-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--neat-space-4);
+}
+
+/* The card gives its chart the height it has, which `size="fill"` turns into a taller plot. */
+.chart-fill {
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-fill neat-time-chart {
+  flex: 1;
+}
+
 /* A chart that wants the whole row, such as a heatmap of sixteen cores. */
 .chart-wide {
   grid-column: 1 / -1;
