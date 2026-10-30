@@ -108,6 +108,7 @@ export class DiagramZoom {
   constructor(
     private readonly box: HTMLElement,
     private readonly content: HTMLElement,
+    private readonly edges: SVGElement,
   ) {
     this.behavior = zoom<HTMLElement, unknown>()
       .scaleExtent([ZOOM_LIMITS[0], ZOOM_LIMITS[1]])
@@ -236,13 +237,14 @@ export class DiagramZoom {
   }
 
   /**
-   * The zoom goes to the content as `--diagram-zoom` too, for what keeps its size on screen (an
-   * edge's hit path): `vector-effect: non-scaling-stroke` does not undo a CSS transform on an
-   * HTML ancestor, only the SVG's own.
+   * The zoom goes to the edges' SVG as `--diagram-zoom` too, for what keeps its size on screen
+   * (an edge's hit path): `vector-effect: non-scaling-stroke` does not undo a CSS transform on an
+   * HTML ancestor, only the SVG's own. On the SVG, not the content, since the hit paths are its
+   * only readers: a custom property set on the content would restyle the whole drawing each zoom.
    */
   private draw({ k, x, y }: ZoomTransform): void {
     this.content.style.transform = `translate(${x}px, ${y}px) scale(${k})`;
-    this.content.style.setProperty('--diagram-zoom', String(k));
+    this.edges.style.setProperty('--diagram-zoom', String(k));
   }
 
   /** Sets the transform at once; d3-zoom keeps it and draws it through `draw`. */

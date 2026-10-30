@@ -27,10 +27,8 @@
   outline-offset: 2px;
 }
 
-/* Moved and scaled by pan and zoom (zoom.ts), which also sets the zoom it is drawn at. */
+/* Moved and scaled by pan and zoom (zoom.ts). */
 .content {
-  --diagram-zoom: 1;
-
   position: absolute;
   top: 0;
   left: 0;
@@ -45,8 +43,13 @@
 
 /* --- edges, in one SVG between the frames and the blocks --- */
 
-/* A point to draw from: what it draws overflows it. Only the edges' hit paths catch the pointer. */
+/*
+ * A point to draw from: what it draws overflows it. Only the edges' hit paths catch the pointer.
+ * Pan and zoom (zoom.ts) set the zoom the drawing is at here, for the hit paths alone.
+ */
 .edges {
+  --diagram-zoom: 1;
+
   position: absolute;
   top: 0;
   left: 0;

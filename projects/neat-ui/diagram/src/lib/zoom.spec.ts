@@ -27,20 +27,26 @@ function mouse(type: string, clientX: number, clientY: number): MouseEvent {
   return event;
 }
 
-/** A box holding the content container, in the document, without a size (jsdom lays out none). */
+/**
+ * A box holding the content container and its edges' SVG, in the document, without a size (jsdom
+ * lays out none).
+ */
 function setup() {
   const box = document.createElement('div');
   const content = document.createElement('div');
+  const edges = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  content.append(edges);
   box.append(content);
   document.body.append(box);
   let w = 0;
   let h = 0;
   Object.defineProperty(box, 'clientWidth', { configurable: true, get: () => w });
   Object.defineProperty(box, 'clientHeight', { configurable: true, get: () => h });
-  const zoom = new DiagramZoom(box, content);
+  const zoom = new DiagramZoom(box, content, edges);
   return {
     box,
     content,
+    edges,
     zoom,
     /** Gives the box a size and tells the observers, as a browser does after layout. */
     size(width: number, height: number) {
@@ -113,13 +119,15 @@ describe('DiagramZoom', () => {
       expectAt(view.now(), fitIn(800, 600));
     });
 
-    it('moves the content container by the transform, and gives it the zoom', () => {
+    it('moves the content container by the transform, and gives the edges the zoom', () => {
       view.zoom.setExtent(EXTENT);
       view.size(800, 600);
       const { k, x, y } = view.now();
       expect(view.content.style.transform).toBe(`translate(${x}px, ${y}px) scale(${k})`);
-      // What keeps a width the same on screen at any zoom (an edge's hit path) divides by it.
-      expect(view.content.style.getPropertyValue('--diagram-zoom')).toBe(String(k));
+      // What keeps a width the same on screen at any zoom (an edge's hit path) divides by it. Only
+      // the edges read it, so only they are restyled when it changes.
+      expect(view.edges.style.getPropertyValue('--diagram-zoom')).toBe(String(k));
+      expect(view.content.style.getPropertyValue('--diagram-zoom')).toBe('');
     });
 
     it('fits again when the box resizes and when the level’s extent changes', () => {

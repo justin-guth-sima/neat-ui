@@ -60,7 +60,7 @@
     }
   </div>
 
-  <svg class="edges" aria-hidden="true" focusable="false">
+  <svg class="edges" #edges aria-hidden="true" focusable="false">
     @for (edge of drawn().edges; track edge.id) {
       <g
         class="edge"

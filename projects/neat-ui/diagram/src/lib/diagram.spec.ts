@@ -468,7 +468,8 @@ describe('NeatDiagramView’s pan, zoom and fit', () => {
     expect(t.x).toBeCloseTo(FITTED.x, 6);
     expect(t.y).toBeCloseTo(FITTED.y, 6);
     expect(one('.content').style.transform).toBe(`translate(${t.x}px, ${t.y}px) scale(${t.k})`);
-    expect(one('.content').style.getPropertyValue('--diagram-zoom')).toBe(String(t.k));
+    expect(one('svg.edges').style.getPropertyValue('--diagram-zoom')).toBe(String(t.k));
+    expect(one('.content').style.getPropertyValue('--diagram-zoom')).toBe('');
   });
 
   it('keeps the user’s view when an equal diagram arrives (a poll recomputing it)', async () => {
@@ -500,8 +501,8 @@ describe('NeatDiagramView’s pan, zoom and fit', () => {
     expect(hit?.getAttribute('d')).toBe(edge.querySelector('path.line')?.getAttribute('d'));
     // Under the line, so the line is drawn over it.
     expect(edge.firstElementChild).toBe(hit);
-    // Its width is divided by the zoom, which the content container carries: a CSS transform on
-    // an HTML ancestor is not undone by `vector-effect: non-scaling-stroke` (checked in Chromium).
+    // Its width is divided by the zoom, which the edges' SVG carries: a CSS transform on an HTML
+    // ancestor is not undone by `vector-effect: non-scaling-stroke` (checked in Chromium).
     const rule = /\n\.hit \{([^}]*)\}/.exec(diagramStyles)?.[1] ?? '';
     expect(rule).toMatch(/stroke-width: calc\(12px \/ var\(--diagram-zoom\)\);/);
   });

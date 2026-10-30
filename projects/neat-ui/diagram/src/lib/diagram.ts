@@ -92,6 +92,7 @@ export class NeatDiagramView {
   private readonly edgeTipTemplate = contentChild(NeatDiagramEdgeTipTemplate);
   private readonly noteSizes = inject(NoteSizes);
   private readonly content = viewChild.required<ElementRef<HTMLElement>>('content');
+  private readonly edges = viewChild.required<ElementRef<SVGElement>>('edges');
   private readonly tipBox = viewChild<ElementRef<HTMLElement>>('tip');
   private readonly bar = viewChild<ElementRef<HTMLElement>>('bar');
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
@@ -167,7 +168,8 @@ export class NeatDiagramView {
       const bar = this.bar()?.nativeElement ?? null;
       untracked(() => {
         this.zoom ??= this.zone.runOutsideAngular(
-          () => new DiagramZoom(this.host, this.content().nativeElement),
+          () =>
+            new DiagramZoom(this.host, this.content().nativeElement, this.edges().nativeElement),
         );
         // A fit leaves the bar's height free, so the level does not start under it.
         this.zoom.setTopInset(bar);
