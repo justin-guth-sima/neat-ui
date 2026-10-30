@@ -99,6 +99,10 @@ const routes: Routes = [
       { path: 'media/library', component: OtherToolbarPage },
       { path: 'viewer/panel', component: AsidePage },
       { path: 'viewer/inspect', component: AsideOnlyPage },
+      // Routes that no nav item matches, one with a title, and one a nav item matches with its own.
+      { path: 'board', title: 'Board', component: StubPage },
+      { path: 'untitled', component: StubPage },
+      { path: 'media/titled', title: 'Library', component: StubPage },
     ],
   },
 ];
@@ -233,6 +237,26 @@ describe('NeatShell', () => {
 
     expect(link('Streaming').getAttribute('aria-current')).toBe('page');
     expect(topbar().querySelector('h1')?.textContent?.trim()).toBe('Streaming');
+  });
+
+  it('takes the page title from the route’s title where no nav item matches', async () => {
+    await start('/board');
+
+    expect(links().some((a) => a.hasAttribute('aria-current'))).toBe(false);
+    expect(topbar().querySelector('h1')?.textContent?.trim()).toBe('Board');
+  });
+
+  it('prefers the nav item’s label to the route’s title', async () => {
+    await start('/media/titled');
+
+    expect(topbar().querySelector('h1')?.textContent?.trim()).toBe('Media');
+  });
+
+  it('shows no page title for a route with neither a nav item nor a title', async () => {
+    await start('/board');
+    await harness.navigateByUrl('/untitled');
+
+    expect(topbar().querySelector('h1')).toBeNull();
   });
 
   it('shows the logo and appName text in the top bar', async () => {

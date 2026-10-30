@@ -516,7 +516,8 @@ place, so every app reads the same way.
   (`*neatPageToolbar`, below), elements marked `neatTopbarEnd` (kept for an app that needs one),
   the kiosk button (the one app control there: it changes how the page is shown), and last, at the
   right edge above the side panel, the page's side-panel toggle, in a cell of its own set apart by
-  a divider.
+  a divider. The page title is the label of the nav item the route belongs to, else the route's
+  own `title` (a page with no rail item), else none.
 
 **A page's toolbar goes through `*neatPageToolbar`, its side-panel toggle through
 `neat-aside-toggle`, its views through `nav[neatPageTabs]`, its side panel through

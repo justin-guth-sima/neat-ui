@@ -12,8 +12,10 @@ import {
 } from '@angular/core';
 import { CdkPortalOutlet } from '@angular/cdk/portal';
 import {
+  ActivatedRouteSnapshot,
   containsTree,
   IsActiveMatchOptions,
+  PRIMARY_OUTLET,
   Router,
   RouterLink,
   RouterLinkActive,
@@ -47,6 +49,22 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
 };
 
 /**
+ * The title of the deepest primary route that has one, as the router's own title strategy picks
+ * it for the document; '' when none has. The primary child, not `firstChild`, which can be a
+ * named outlet's. The router commits its state before it records the navigation as successful,
+ * so this is the navigation's own route.
+ */
+function routeTitle(root: ActivatedRouteSnapshot): string {
+  let title = '';
+  let route: ActivatedRouteSnapshot | undefined = root;
+  while (route) {
+    title = route.title ?? title;
+    route = route.children.find((child) => child.outlet === PRIMARY_OUTLET);
+  }
+  return title;
+}
+
+/**
  * The app frame: the rail on the left, which is the app's, the top bar, which is the page's, and
  * the content area for the routed page. It fills the viewport; the content area gives its page the
  * remaining space and never scrolls itself, so pages own their scrolling (see `neat-page`).
@@ -61,8 +79,9 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
  * The top bar holds the logo, the app name and the page title, then at its right the active page's
  * tools (`*neatPageToolbar`), elements marked `neatTopbarEnd`, the kiosk button (the one app
  * control there, since it changes how the page is shown), and last, at the right edge above the
- * side panel, the page's side-panel toggle (`neat-aside-toggle`) when the page has one. The
- * default slot is the content area (usually a `<router-outlet />`).
+ * side panel, the page's side-panel toggle (`neat-aside-toggle`) when the page has one. The page
+ * title is the matching nav item's label, else the route's `title`. The default slot is the
+ * content area (usually a `<router-outlet />`).
  *
  * Kiosk mode (`KioskService`, entered from the top bar or with `?kiosk`) drops the rail and the
  * top bar, gives the content area the whole viewport and floats an exit control over its top
@@ -122,7 +141,12 @@ export class NeatShell {
   private readonly kioskExit = viewChild(NeatKioskExit);
   private readonly kioskButton = viewChild<ElementRef<HTMLElement>>('kioskButton');
 
-  /** Label of the nav item the current route belongs to; the first match wins. */
+  /**
+   * The label of the nav item the current route belongs to (the first match wins), else the
+   * route's own `title`, so a page with no rail item (a board's page, a detail view) still has a
+   * heading. The nav label wins because it is what the rail shows as the current page, and nested
+   * routes under one item (Stats' views) keep its name whatever their titles say.
+   */
   protected readonly pageTitle = computed(() => {
     const url = this.router.lastSuccessfulNavigation()?.finalUrl;
     if (!url) {
@@ -131,7 +155,7 @@ export class NeatShell {
     const active = this.navItems().find((item) =>
       containsTree(url, this.router.parseUrl(item.path), ACTIVE_MATCH),
     );
-    return active?.label ?? '';
+    return active?.label ?? routeTitle(this.router.routerState.snapshot.root);
   });
 
   constructor() {
