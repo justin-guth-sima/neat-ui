@@ -177,9 +177,9 @@ button.block:focus-visible {
 }
 
 /*
- * The app's tip for the edge under the pointer, in the popover's colours; placed by hover.ts, in
- * the box, over the bar as well (it comes after it). It never catches the pointer, so it does not
- * take the hover from the edge.
+ * The app's tip for the edge under the pointer, in the popover's colours and the charts' readout
+ * box (no shadow); placed by hover.ts, in the box, over the bar as well (it comes after it). It
+ * never catches the pointer, so it does not take the hover from the edge.
  */
 .edge-tip {
   --neat-surface: var(--popover);
@@ -198,7 +198,6 @@ button.block:focus-visible {
   color: var(--popover-foreground);
   font-size: var(--neat-text-xs);
   line-height: 1.35;
-  box-shadow: 0 4px 12px color-mix(in oklab, var(--foreground) 14%, transparent);
   pointer-events: none;
 }
 

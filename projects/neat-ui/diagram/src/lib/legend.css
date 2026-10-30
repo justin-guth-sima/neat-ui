@@ -15,7 +15,8 @@ ul {
   flex-wrap: wrap;
   gap: calc(var(--neat-space-2) / 2) var(--neat-space-4);
   border: 1px solid var(--border);
-  border-radius: 999px;
+  /* Fully round, the value of the kit's `rounded-full` (a rounded neatButton's). */
+  border-radius: calc(infinity * 1px);
   background: color-mix(in oklab, var(--card) 85%, transparent);
   font-size: var(--neat-text-xs);
   color: var(--muted-foreground);

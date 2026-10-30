@@ -4,6 +4,7 @@ import {
   inject,
   Injectable,
   input,
+  NgZone,
   type OnDestroy,
   type OnInit,
   signal,
@@ -29,11 +30,16 @@ export class NoteSizes implements OnDestroy {
   /** The sizes so far; a note without content, or not laid out yet, has none. */
   readonly sizes = this.measured.asReadonly();
   private readonly ids = new Map<Element, string>();
+  private readonly zone = inject(NgZone);
   private observer: ResizeObserver | null = null;
 
   observe(box: HTMLElement, id: string): void {
     this.ids.set(box, id);
-    this.observer ??= new ResizeObserver((entries) => this.read(entries));
+    // Outside the zone, so a zone.js app runs no change detection for every report; the signal
+    // it writes when a size changes is what schedules the render.
+    this.observer ??= this.zone.runOutsideAngular(
+      () => new ResizeObserver((entries) => this.read(entries)),
+    );
     this.observer.observe(box, { box: 'border-box' });
   }
 
