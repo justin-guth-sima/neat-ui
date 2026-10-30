@@ -56,7 +56,7 @@ class RailHost {
     <button neatRailItem type="button" label="Modalix DevKit, connecting" text="Modalix DevKit">
       <neat-icon name="board" />
     </button>
-    <button neatRailItem type="button" label="Gateway" detail="Connecting…">
+    <button neatRailItem type="button" label="Gateway, connecting" detail="Connecting…">
       <neat-icon name="board" />
     </button>
     <button neatRailItem type="button" label="Search" aria-label="Search the media">
@@ -261,7 +261,7 @@ describe('NeatRailItem', () => {
     it('shows its label as the first line when it has a detail and no text', async () => {
       const { item, lines } = await renderState();
 
-      expect(lines(item('Gateway'))).toEqual(['Gateway', 'Connecting…']);
+      expect(lines(item('Gateway, connecting'))).toEqual(['Gateway, connecting', 'Connecting…']);
     });
 
     it('shows its text alone, on one line, when it has no detail', async () => {
@@ -276,7 +276,7 @@ describe('NeatRailItem', () => {
       for (const label of [
         'DevKit, 192.168.100.2, connected',
         'Modalix DevKit, connecting',
-        'Gateway',
+        'Gateway, connecting',
       ]) {
         // Named by its content, not an aria-label of the kit's, which would take the place of one
         // the app sets.

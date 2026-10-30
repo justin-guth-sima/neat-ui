@@ -32,7 +32,44 @@ import { NeatToastHost, NeatToasts } from '@sima/neat-ui/toast';
       >
         <neat-icon name="board" />
       </button>
-      <!-- Sets the board apart from the items below it, as the kit's line above the group does. -->
+      <!-- The other tones, so each dot and detail colour can be checked by eye on the rail. -->
+      <button
+        neatRailEnd
+        neatRailItem
+        type="button"
+        label="Front camera, reconnecting"
+        text="Front camera"
+        detail="Reconnecting"
+        tone="warning"
+        (click)="toasts.status('A device item would open its dialog here.')"
+      >
+        <neat-icon name="camera" />
+      </button>
+      <button
+        neatRailEnd
+        neatRailItem
+        type="button"
+        label="Lidar, no data"
+        text="Lidar"
+        detail="No data"
+        tone="danger"
+        (click)="toasts.status('A device item would open its dialog here.')"
+      >
+        <neat-icon name="lidar" />
+      </button>
+      <button
+        neatRailEnd
+        neatRailItem
+        type="button"
+        label="Microphone, idle"
+        text="Microphone"
+        detail="Idle"
+        tone="neutral"
+        (click)="toasts.status('A device item would open its dialog here.')"
+      >
+        <neat-icon name="microphone" />
+      </button>
+      <!-- Sets the devices apart from the items below them, as the kit's line above the group does. -->
       <hr neatRailEnd neatRailDivider />
       <router-outlet />
     </neat-shell>

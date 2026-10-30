@@ -512,15 +512,18 @@ place, so every app reads the same way.
 - An item with a state (a board, a connection) says it with `tone` (a `NeatTone`: a 0.5rem dot on
   the icon's corner, ringed in the surface it sits on, the rail's or the hover and current-page
   fill), `text` (the visible first line, the label by default) and `detail` (a smaller second line
-  in the tone's colour, muted for success, neutral or no tone), as the showcase's board item does.
+  in the tone's colour, muted for success, neutral or no tone), as the showcase's board item and
+  the device items after it, one per other tone, do.
   Both lines ellipsize and hide with the label while the rail is collapsed. `label` stays the
   tooltip and the name, so the app writes the whole sentence there, the state the dot alone shows
   included ("DevKit, 192.168.100.2, connected"). Why not composed by the kit: brain's tooltip takes
   its text from the template only. While the lines say other than `label`, they are `aria-hidden`
   and the label is visually hidden text beside them, so the name still comes from the content: a
-  kit `aria-label` binding would remove one the app sets. Each tone's dot and detail colour is
-  stated once in `rail-item.css`, and its spec holds the detail text to 4.5:1 and the dot to 3:1 on
-  `--sidebar` and `--sidebar-accent` in both schemes.
+  kit `aria-label` binding would remove one the app sets. So `label` must contain the visible
+  `text` and `detail` as they read: the name is all assistive technology gets, and someone who
+  speaks what they see ("click DevKit") must find it there (WCAG 2.5.3, label in name). Each
+  tone's dot and detail colour is stated once in `rail-item.css`, and its spec holds the detail
+  text to 4.5:1 and the dot to 3:1 on `--sidebar` and `--sidebar-accent` in both schemes.
 - Visible text the inputs cannot say goes in an element marked `neatRailItemLabel` inside the item,
   which takes the label's place; `label` stays the tooltip, so it should say at least as much, and
   an `aria-label` the app sets wins as the name. The kit ellipsizes only the label's own line: the
