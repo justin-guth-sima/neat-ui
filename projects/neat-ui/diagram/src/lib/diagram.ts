@@ -93,6 +93,7 @@ export class NeatDiagramView {
   private readonly noteSizes = inject(NoteSizes);
   private readonly content = viewChild.required<ElementRef<HTMLElement>>('content');
   private readonly tipBox = viewChild<ElementRef<HTMLElement>>('tip');
+  private readonly bar = viewChild<ElementRef<HTMLElement>>('bar');
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly injector = inject(Injector);
   private readonly zone = inject(NgZone);
@@ -163,10 +164,13 @@ export class NeatDiagramView {
     afterRenderEffect(() => {
       const extent = this.extent();
       const path = this.path();
+      const bar = this.bar()?.nativeElement ?? null;
       untracked(() => {
         this.zoom ??= this.zone.runOutsideAngular(
           () => new DiagramZoom(this.host, this.content().nativeElement),
         );
+        // A fit leaves the bar's height free, so the level does not start under it.
+        this.zoom.setTopInset(bar);
         this.zoom.setExtent(extent);
         if (shownPath !== null && path !== shownPath) {
           // A new level has other parts: nothing stays in focus, and it fits afresh.

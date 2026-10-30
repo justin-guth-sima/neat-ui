@@ -12,9 +12,10 @@ import type { Rect } from './layout';
 
 /*
  * Pan, zoom and fit for one diagram, as the Autoware demo's System page does them: the view fits
- * the level by itself (on its first size, a resize, a new extent, a new level) until the user pans
- * or zooms; Fit fits again and hands the view back. d3-zoom handles the pointer (drag, wheel,
- * pinch, double-click) on the box; the keys are this unit's. The transform is written to the
+ * the level by itself (on its first size, a resize, a new extent, a new level, a new height of
+ * what covers its top) until the user pans or zooms; Fit fits again and hands the view back.
+ * d3-zoom handles the pointer (drag, wheel, pinch, double-click) on the box; the keys are this
+ * unit's. The transform is written to the
  * content container's style, never through a signal, and every listener, the box's
  * ResizeObserver and the animation frames stay here (AGENTS.md: raw browser APIs stay isolated,
  * outside change detection).
@@ -84,6 +85,8 @@ export class DiagramZoom {
   private readonly motion: MediaQueryList | null =
     typeof matchMedia === 'function' ? matchMedia(REDUCED_MOTION) : null;
   private extent: Rect | null = null;
+  /** What covers the top of the box (`setTopInset`). */
+  private topInset: HTMLElement | null = null;
   /** Set once the user pans or zooms; the view then fits only when asked or on a new level. */
   private userMoved = false;
   /**
@@ -123,7 +126,8 @@ export class DiagramZoom {
     this.selection = select(box).call(this.behavior);
     box.addEventListener('keydown', this.keydown);
     box.addEventListener('focusin', this.focusIn);
-    // Its first report is the box's first size: the first fit, or none while it has none.
+    // Its first report is the box's first size: the first fit, or none while it has none. It
+    // watches the top inset too (`setTopInset`).
     this.observer = new ResizeObserver(() => this.autoFit());
     this.observer.observe(box);
   }
@@ -138,6 +142,18 @@ export class DiagramZoom {
       known?.h === extent?.h;
     if (same) return;
     this.extent = extent;
+    this.autoFit();
+  }
+
+  /**
+   * An element over the top of the box (the level bar), whose height a fit leaves free above the
+   * level; null for none. Watched, so a new height (its path wrapping) fits again.
+   */
+  setTopInset(element: HTMLElement | null): void {
+    if (element === this.topInset) return;
+    if (this.topInset) this.observer.unobserve(this.topInset);
+    this.topInset = element;
+    if (element) this.observer.observe(element);
     this.autoFit();
   }
 
@@ -175,11 +191,25 @@ export class DiagramZoom {
     this.jump(to);
   }
 
-  /** The transform that fits the level in the box; null without a level or a box size. */
+  /**
+   * The transform that fits the level in the box below the top inset; null without a level or a
+   * box size.
+   */
   private fitted(): ZoomTransform | null {
     if (!this.extent) return null;
-    const fit = fitTransform(this.extent, { w: this.box.clientWidth, h: this.box.clientHeight });
-    return fit && zoomIdentity.translate(fit.x, fit.y).scale(fit.k);
+    const inset = this.insetHeight();
+    const box = { w: this.box.clientWidth, h: this.box.clientHeight - inset };
+    const fit = fitTransform(this.extent, box);
+    return fit && zoomIdentity.translate(fit.x, fit.y + inset).scale(fit.k);
+  }
+
+  /**
+   * How much of the box's top the inset covers, px on screen; none in a box it would fill, where
+   * the level is better drawn under it than not at all.
+   */
+  private insetHeight(): number {
+    const height = this.topInset?.offsetHeight ?? 0;
+    return height < this.box.clientHeight ? height : 0;
   }
 
   /**
@@ -295,7 +325,9 @@ export class DiagramZoom {
     const left = box.left + this.box.clientLeft;
     const top = box.top + this.box.clientTop;
     const dx = shiftInto(rect.left - left, rect.right - left, this.box.clientWidth);
-    const dy = shiftInto(rect.top - top, rect.bottom - top, this.box.clientHeight);
+    const inset = this.insetHeight();
+    const height = this.box.clientHeight - inset;
+    const dy = shiftInto(rect.top - top - inset, rect.bottom - top - inset, height);
     if (dx === 0 && dy === 0) return;
     this.moved();
     const { k, x, y } = zoomTransform(this.box);

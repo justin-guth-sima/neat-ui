@@ -3,6 +3,7 @@
 @if (crumbs().length > 0) {
   <!-- A press on its controls is theirs: no pan starts and a double-click does not zoom. -->
   <div
+    #bar
     class="bar"
     (mousedown)="$event.stopPropagation()"
     (touchstart)="$event.stopPropagation()"

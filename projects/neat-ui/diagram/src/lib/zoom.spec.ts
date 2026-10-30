@@ -1,5 +1,5 @@
 import { zoomTransform } from 'd3-zoom';
-import { fitTransform, type FitTransform } from './fit';
+import { FIT_MARGIN, fitTransform, type FitTransform } from './fit';
 import type { Rect } from './layout';
 import { resize, stubResizeObserver, watched } from './resize-observer.testing';
 import { DiagramZoom } from './zoom';
@@ -238,6 +238,43 @@ describe('DiagramZoom', () => {
 
       view.size(400, 300);
       expectAt(view.now(), fitIn(400, 300, level));
+    });
+  });
+
+  describe('a bar over the top of the box', () => {
+    /** A level much wider than tall, in a short box: centred, its top would sit under the bar. */
+    const WIDE: Rect = { x: 0, y: 0, w: 1000, h: 100 };
+    const top = () => view.now().y + view.now().k * WIDE.y;
+
+    function bar(height: number) {
+      const element = view.box.appendChild(document.createElement('div'));
+      Object.defineProperty(element, 'offsetHeight', { configurable: true, value: height });
+      return element;
+    }
+
+    it('fits the level below the bar, a margin under it', () => {
+      view.zoom.setExtent(WIDE);
+      view.size(800, 200);
+      expect(top()).toBeLessThan(48 + FIT_MARGIN);
+
+      view.zoom.setTopInset(bar(48));
+
+      expect(top()).toBeGreaterThanOrEqual(48 + FIT_MARGIN);
+      expect(view.now().k).toBeCloseTo(fitIn(800, 200, WIDE)!.k, 6);
+    });
+
+    it('fits again when the bar changes height (its path rewraps) or goes', () => {
+      view.zoom.setExtent(WIDE);
+      view.size(800, 200);
+      const element = bar(48);
+      view.zoom.setTopInset(element);
+
+      Object.defineProperty(element, 'offsetHeight', { configurable: true, value: 80 });
+      resize(new Map([[element, { w: 300, h: 80 }]]));
+      expect(top()).toBeGreaterThanOrEqual(80 + FIT_MARGIN);
+
+      view.zoom.setTopInset(null);
+      expectAt(view.now(), fitIn(800, 200, WIDE));
     });
   });
 

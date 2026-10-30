@@ -92,23 +92,23 @@ look happens in one place. Every rule here protects that.
     diagram is shown; while a level is open a bar top left over the drawing, unscaled and first in
     the tab order, has a back button (an outlined small `neatButton` with the registry's `previous`
     icon, named "Overview" or after the level before, by the block that opens it) and the path as
-    the file browser's breadcrumbs; a pressed control that leaves with its level leaves the focus on
-    the box, and a part the keyboard focuses is panned into view (the box clips with
-    `overflow: clip` and never scrolls); a visually hidden list after the drawing says the level's
-    nodes (label, detail, chips) and edges ("Camera to Decode, image") in words; the user pans and
-    zooms it (d3-zoom on the box: drag, wheel, pinch, double-click; the box is a tab stop whose
-    arrow keys pan 48 px, `+`/`=` and `-` zoom 1.25× about its centre and `0` fits; zoom 0.2 to 3),
-    and it fits its level to its box by itself (on its first size, a resize, a new extent or level)
-    until the user pans or zooms, as the demo does (a press that moves 3 px or less is a click, not
-    a pan); its `fit()` (for an app's Fit button) fits again, over 250 ms or at once under reduced
-    motion, and hands the view back; it takes the wheel and touch over its box
-    (`touch-action: none`), so an app gives it a bounded box, not a long stretch of a scrolling
-    page; an edge's hit path stays 12 px wide on screen at any zoom; and `neatDrillDownLevel`, which
-    places the level a block opens from the diagram the block sits in, as the demo does: the block
-    as the frame, what it holds inside, the nodes it exchanges edges with in a column left (senders)
-    and right (receivers); the edge routing, the port layout, the notes' placement and measurement
-    and the fit maths and the pan and zoom (`zoom.ts`), ported from the Autoware demo's System page,
-    stay internal),
+    the file browser's breadcrumbs, and a fit leaves the bar's height free above the level (and fits
+    again when the path wraps); a pressed control that leaves with its level leaves the focus on the
+    box, and a part the keyboard focuses is panned into view (the box clips with `overflow: clip`
+    and never scrolls); a visually hidden list after the drawing says the level's nodes (label,
+    detail, chips) and edges ("Camera to Decode, image") in words; the user pans and zooms it
+    (d3-zoom on the box: drag, wheel, pinch, double-click; the box is a tab stop whose arrow keys
+    pan 48 px, `+`/`=` and `-` zoom 1.25× about its centre and `0` fits; zoom 0.2 to 3), and it fits
+    its level to its box by itself (on its first size, a resize, a new extent or level) until the
+    user pans or zooms, as the demo does (a press that moves 3 px or less is a click, not a pan);
+    its `fit()` (for an app's Fit button) fits again, over 250 ms or at once under reduced motion,
+    and hands the view back; it takes the wheel and touch over its box (`touch-action: none`), so an
+    app gives it a bounded box, not a long stretch of a scrolling page; an edge's hit path stays
+    12 px wide on screen at any zoom; and `neatDrillDownLevel`, which places the level a block opens
+    from the diagram the block sits in, as the demo does: the block as the frame, what it holds
+    inside, the nodes it exchanges edges with in a column left (senders) and right (receivers); the
+    edge routing, the port layout, the notes' placement and measurement and the fit maths and the
+    pan and zoom (`zoom.ts`), ported from the Autoware demo's System page, stay internal),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
