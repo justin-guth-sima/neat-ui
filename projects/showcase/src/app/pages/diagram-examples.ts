@@ -12,9 +12,8 @@ import {
  * The reference sheet's three examples (insight-next, docs/superpowers/reference/diagram): a
  * messaging pipeline, a compile flow and a model graph, placed after the sheet with room for the
  * kit's type and edge labels. The diagram fits each level to its box, so where a level starts
- * does not matter. The chips follow the kit's
- * convention for where a part runs: HW (the hardware decoder) success, EV74 highlight, MLA info,
- * A65 neutral.
+ * does not matter. The chips follow the kit's convention for where a part runs: HW (the hardware
+ * decoder) success, EV74 highlight, MLA info, A65 neutral.
  */
 
 const HW = { label: 'HW', tone: 'success' } as const;
@@ -217,8 +216,10 @@ export const COMPILE_FLOW: NeatDiagramSet = {
         look: 'ghost',
         label: 'Accuracy check',
         detail: 'optional',
+        // Level with the lower of Quantize's two right-hand ports (they sit 10 apart about its
+        // middle, 183), so the ghost edge runs straight.
         x: 220,
-        y: 160,
+        y: 165,
         w: 160,
         h: 46,
       },
@@ -386,7 +387,7 @@ export const MODEL_GRAPH: NeatDiagramSet = {
           parent: 'stages',
           x: 280,
           y: 120,
-          w: 640,
+          w: 660,
           h: 40,
         },
       ],
