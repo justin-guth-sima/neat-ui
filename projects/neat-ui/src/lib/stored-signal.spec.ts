@@ -1,3 +1,4 @@
+import { isSignal } from '@angular/core';
 import { neatStoredSignal } from './stored-signal';
 
 const KEY = 'neat-ui:stored-signal-spec';
@@ -57,6 +58,16 @@ describe('neatStoredSignal', () => {
 
     expect(first()).toBe(5);
     expect(neatStoredSignal(KEY, 3, level)()).toBe(5);
+  });
+
+  it('stays a real signal: isSignal holds and asReadonly follows a set', () => {
+    const stored = neatStoredSignal(KEY, 3, level);
+    const readonly = stored.asReadonly();
+
+    stored.set(8);
+
+    expect(isSignal(stored)).toBe(true);
+    expect(readonly()).toBe(8);
   });
 
   it('works in memory when reading the storage throws', () => {

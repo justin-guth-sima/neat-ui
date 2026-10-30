@@ -92,7 +92,7 @@ describe('App', () => {
     expect(aside()).toBeNull();
   });
 
-  it('demonstrates the rail’s end slot: the app’s items above the theme and the collapse control', () => {
+  it('demonstrates the rail’s end slot: the app’s items, then the theme, then collapse', () => {
     const end = root().querySelector('neat-shell .rail-end') as HTMLElement;
     const items = Array.from(end.querySelectorAll('[neatRailItem]'), (item) =>
       item.textContent?.replace(/\s+/g, ' ').trim(),

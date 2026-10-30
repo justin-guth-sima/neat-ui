@@ -33,7 +33,8 @@ look happens in one place. Every rule here protects that.
     tabular digits, "–" while there is none) are the kit's one way a live figure moves.
     `neatThemeColors` (the theme's tokens as `NeatRgb`, sRGB from 0 to 1, read again when the
     scheme changes) and `neatResolveColor` (any CSS colour, resolved on a 1×1 canvas) are for code
-    that draws outside CSS (WebGL, a canvas), which cannot take the tokens' `oklch()` as written.
+    that draws outside CSS (three.js, a canvas), which takes colours as numbers: any CSS colour a
+    token or an app holds, resolved by the browser, so the kit has no colour parser of its own.
     `neatStoredSignal(key, initial, parse)` is a signal kept in localStorage as JSON, the app's
     `parse` judging what it reads back; storage that refuses never throws.
     Public API is
@@ -180,11 +181,11 @@ included: the readout follows the pointer without a click, and the plot is most 
 a control in the content (a button, a link, a form field) keeps its click; the plot's keys move the
 readout and choose nothing. A chart in a card can drop its value labels (`[valueLabels]="false"`):
 the grid and level lines, the time axis and the readout stay.
-
 A time chart's `size="fill"` is labelled as `medium` and takes the height its host is given: the
 host is a flex column and the plot takes what the title, legend and axis leave, never under
 medium's 6 rem. The app gives the host that height (a grid item its row stretches), so it needs no
 `::ng-deep` to make the plot grow.
+
 **What entries share goes through the primary under a `ɵ` prefix.** The vendored helm code
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,
 yet the secondary entries need them, and an entry sees the primary only through its public API. So

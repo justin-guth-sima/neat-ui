@@ -30,8 +30,9 @@ function probe(): CanvasRenderingContext2D | null {
  * A CSS colour in any notation the browser knows (hex, `rgb()`, `oklch()`, a name) as sRGB
  * channels from 0 to 1, resolved by drawing it on a 1×1 canvas and reading the pixel back, so the
  * kit parses no colour syntax of its own. Null where there is no canvas or the colour does not
- * parse. For code that draws outside CSS (WebGL, a canvas) in the theme's colours: the theme's
- * tokens are `oklch()` values, which such code cannot take as they are.
+ * parse. For code that draws outside CSS (three.js, a canvas) in the theme's colours or any other
+ * colour an app holds, which such code takes as numbers. Alpha is ignored, so a token with alpha
+ * (a scrim) is not a fit.
  */
 export function neatResolveColor(css: string): NeatRgb | null {
   const context = probe();

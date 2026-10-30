@@ -2058,12 +2058,12 @@ export class ComponentsPage {
     this.dialogResult.set(kind === undefined ? 'Source: dismissed' : `Source: ${kind}`);
   }
 
-  /** Newest first, as a log: a drop can report what it took and what it did not. */
   protected nextFps(): void {
     this.fpsIndex = (this.fpsIndex + 1) % FPS_VALUES.length;
     this.fps.set(FPS_VALUES[this.fpsIndex]);
   }
 
+  /** Newest first, as a log: a drop can report what it took and what it did not. */
   protected logDrop(what: 'Received' | 'Not accepted', files: File[]): void {
     const names = files.map((file) => file.name).join(', ');
     this.dropLog.update((log) => [`${what}: ${names}`, ...log].slice(0, 4));

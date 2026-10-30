@@ -69,7 +69,9 @@ import { NeatToastHost, NeatToasts } from '@sima/neat-ui/toast';
       >
         <neat-icon name="microphone" />
       </button>
-      <!-- Sets the devices apart from the items below them, as the kit's line above the group does. -->
+      <!--
+        Sets the devices apart from the items below them, as the kit's line above the group does.
+      -->
       <hr neatRailEnd neatRailDivider />
       <router-outlet />
     </neat-shell>
