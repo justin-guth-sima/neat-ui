@@ -1,7 +1,7 @@
 import { absoluteRects, crossings, intersect, layoutEdges } from './layout';
 import type { NeatDiagram, NeatDiagramEdge, NeatDiagramNode } from './model';
 import { resetReported } from './report';
-import { roundCorners, roundedPath, sampleRoute, type Point } from './route';
+import { roundCorners, sampleRoute, type Point } from './route';
 import { SYSTEM_LEVELS } from './system-levels.testing';
 
 /** Each edge of a level as drawn in the rounded shape, as a polyline (turns sampled). */
@@ -240,7 +240,7 @@ describe('layoutEdges', () => {
       sourceSide: 'right',
       target: { x: 400, y: 50 },
       targetSide: 'left',
-      path: roundedPath({ x: 100, y: 50 }, 'right', { x: 400, y: 50 }, 'left'),
+      path: 'M 100 50 L 400 50',
       points: [
         { x: 100, y: 50 },
         { x: 400, y: 50 },

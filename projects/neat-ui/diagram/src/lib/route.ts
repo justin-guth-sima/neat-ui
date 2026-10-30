@@ -13,7 +13,7 @@ export interface Point {
 }
 
 /** How long a turn's legs are at most (diagram units); a shorter run makes them shorter. */
-export const BEND = 60;
+const BEND = 60;
 /** How far an edge goes straight out of a port before turning (when its target lies behind). */
 const STUB = 30;
 
@@ -152,17 +152,6 @@ export function pathThrough(points: Point[]): string {
     else d += ` C ${piece.curve.map((p) => `${n(p.x)} ${n(p.y)}`).join(' ')}`;
   }
   return d;
-}
-
-/** The SVG path of an edge drawn in the rounded shape. */
-export function roundedPath(
-  source: Point,
-  sourceSide: NeatDiagramSide,
-  target: Point,
-  targetSide: NeatDiagramSide,
-  jog = 0,
-): string {
-  return pathThrough(routePoints(source, sourceSide, target, targetSide, jog));
 }
 
 /** Points along the pieces from `start` (each turn in `steps` parts): the drawn shape, sampled. */

@@ -1,12 +1,17 @@
 import {
-  BEND,
+  pathThrough,
   pointAlong,
   roundCorners,
-  roundedPath,
   routePoints,
   sampleRoute,
   type Point,
 } from './route';
+
+/** A turn's legs at most (route.ts's `BEND`): what a turn with long runs on both sides takes. */
+const BEND = 60;
+
+/** The SVG path the layout draws for an edge between these ports. */
+const pathBetween = (...ends: Parameters<typeof routePoints>) => pathThrough(routePoints(...ends));
 
 describe('rounded routes', () => {
   it('an L: straight runs, the turn one bezier with both control points on the corner', () => {
@@ -27,16 +32,16 @@ describe('rounded routes', () => {
       },
       { line: { x: 300, y: -200 } },
     ]);
-    expect(roundedPath({ x: 0, y: 0 }, 'right', { x: 300, y: -200 }, 'bottom')).toBe(
+    expect(pathBetween({ x: 0, y: 0 }, 'right', { x: 300, y: -200 }, 'bottom')).toBe(
       `M 0 0 L ${300 - BEND} 0 C 300 0 300 0 300 -${BEND} L 300 -200`,
     );
   });
 
   it('a straight edge stays straight', () => {
-    expect(roundedPath({ x: 0, y: 10 }, 'right', { x: 400, y: 10 }, 'left')).toBe(
+    expect(pathBetween({ x: 0, y: 10 }, 'right', { x: 400, y: 10 }, 'left')).toBe(
       'M 0 10 L 400 10',
     );
-    expect(roundedPath({ x: 5, y: 300 }, 'top', { x: 5, y: 0 }, 'bottom')).toBe('M 5 300 L 5 0');
+    expect(pathBetween({ x: 5, y: 300 }, 'top', { x: 5, y: 0 }, 'bottom')).toBe('M 5 300 L 5 0');
   });
 
   it('a short run shortens both legs of its turn equally', () => {
@@ -92,7 +97,7 @@ describe('rounded routes', () => {
   });
 
   it('a very short edge degrades gracefully: equal legs as long as its shorter run', () => {
-    const d = roundedPath({ x: 0, y: 0 }, 'right', { x: 8, y: -6 }, 'bottom');
+    const d = pathBetween({ x: 0, y: 0 }, 'right', { x: 8, y: -6 }, 'bottom');
     // Legs of 6 (the shorter run) on both sides of the corner; no zero-length line after it.
     expect(d).toBe('M 0 0 L 2 0 C 8 0 8 0 8 -6');
   });
