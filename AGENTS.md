@@ -67,8 +67,8 @@ look happens in one place. Every rule here protects that.
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments) and `charts` (live
     metric charts, drawn as SVG but for the heatmap: `NeatSparkline`, `NeatTimeChart`,
     `NeatStackedChart` and `NeatHeatmap`, `NeatChartCard`, the card they sit on, and
-    `NeatSeriesSwatch`, a series' colour beside a label outside the chart; the only code that
-    imports d3), `diagram` (hand-placed diagrams: their model, `NeatDiagramSet`, an
+    `NeatSeriesSwatch`, a series' colour beside a label outside the chart; with `diagram`, the
+    only code that imports d3), `diagram` (hand-placed diagrams: their model, `NeatDiagramSet`, an
     overview and its drill-down levels, each a `NeatDiagram` of nodes by role and look, edges and
     notes, positions relative to the parent node; `NeatDiagramView` (`neat-diagram`, a `figure`
     named by its `label`), which draws a level: frames and bands as positioned HTML behind one SVG
@@ -77,11 +77,18 @@ look happens in one place. Every rule here protects that.
     an equal diagram recomputed on every poll changes nothing in the DOM; its templates,
     `ng-template[neatDiagramBlock]` (a block's body below its label) and
     `ng-template[neatDiagramNote]` (a note's content; a note it renders nothing for is not drawn),
-    each given its part as `$implicit`; and `neatDrillDownLevel`, which places the level
+    each given its part as `$implicit`; the user pans and zooms it (d3-zoom on the box: drag,
+    wheel, pinch, double-click; the box is a tab stop whose arrow keys pan 48 px, `+`/`=` and `-`
+    zoom 1.25× about its centre and `0` fits; zoom 0.2 to 3), and it fits its level to its box by
+    itself (on its first size, a resize, a new extent or level) until the user pans or zooms, as
+    the demo does; its `fit()` (for an app's Fit button) fits again, over 250 ms or at once under
+    reduced motion, and hands the view back; an edge's hit path stays 12 px wide on screen at any
+    zoom; and `neatDrillDownLevel`, which places the level
     a block opens from the diagram the block sits in, as the demo does: the block as the frame,
     what it holds inside, the nodes it exchanges edges with in a column left (senders) and right
     (receivers); the edge routing, the port layout, the notes' placement and measurement and the
-    fit maths, ported from the Autoware demo's System page, stay internal),
+    fit maths and the pan and zoom (`zoom.ts`), ported from the Autoware demo's System page, stay
+    internal),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
@@ -126,13 +133,18 @@ that imports entries by relative path.
 A new export goes into the entry point that owns its code, and only what an app or the showcase
 needs is exported: a helper that only the kit's own code uses stays internal.
 
-**d3 belongs to the `charts` entry alone.** ESLint (`@typescript-eslint/no-restricted-imports` in
-the root `eslint.config.js`, which the kit's and the showcase's configs both take) fails an import
-of `d3` or `d3-*` anywhere outside `projects/neat-ui/charts/`; `tools/lint-boundaries.test.mjs`
-runs the real configs over sample code to prove it fires and that the entry-direction rules above
-still do. Why: d3 reaches an app's bundle only through the entry its lazy route imports, and the
-apps draw through the kit's components, never through d3 (`d3-scale` and `d3-shape` are ISC
-licensed runtime `dependencies` of the package, listed in `allowedNonPeerDependencies`).
+**d3 belongs to two entries, each to its own packages.** `charts` imports `d3-scale` and
+`d3-shape`, `diagram` imports `d3-zoom` and `d3-selection` (each by its exact name, no deep paths),
+and nothing else imports d3. ESLint (`@typescript-eslint/no-restricted-imports` in the root
+`eslint.config.js`, which the kit's and the showcase's configs both take) fails any other import of
+`d3` or `d3-*`; `tools/lint-boundaries.test.mjs` runs the real configs over sample code to prove it
+fires and that the entry-direction rules above still do. Why: d3 reaches an app's bundle only
+through the entry its lazy route imports, and the apps draw through the kit's components, never
+through d3. Licences: `d3-scale`, `d3-shape`, `d3-zoom` and `d3-selection` are ISC licensed runtime
+`dependencies` of the package, listed in `allowedNonPeerDependencies`; what `d3-zoom` brings with it
+is ISC too (`d3-dispatch`, `d3-drag`, `d3-interpolate`, `d3-timer`, `d3-transition`) but for
+`d3-ease`, which is BSD-3-Clause. A new d3 package is a new dependency: check its licence and its
+own dependencies' before adding it here and to the rule.
 
 **How the charts are drawn.** Every chart in `charts` but the heatmap is an SVG with
 `viewBox="0 0 600 100"`, `preserveAspectRatio="none"` and `overflow: visible`, so it fills

@@ -1,4 +1,6 @@
-import { fitTransform } from './fit';
+import { drawLevel } from './drawing';
+import { fitTransform, levelExtent } from './fit';
+import type { NeatDiagram } from './model';
 
 /** Where the transform puts a diagram point on the box: k times the point, moved by x and y. */
 const onBox = (t: { k: number; x: number; y: number }, x: number, y: number) => ({
@@ -50,5 +52,41 @@ describe('fitTransform', () => {
     const tiny = fitTransform({ x: 0, y: 0, w: 1000, h: 500 }, { w: 40, h: 40 });
     expect(tiny?.k).toBe(0.2);
     expect(Number.isFinite(tiny?.x) && Number.isFinite(tiny?.y)).toBe(true);
+  });
+});
+
+describe('levelExtent', () => {
+  /** Two blocks side by side, the edge from the right one into the left one around them both. */
+  const BACKWARDS: NeatDiagram = {
+    nodes: [
+      { id: 'a', role: 'block', label: 'A', inSide: 'left', x: 0, y: 0, w: 100, h: 40 },
+      { id: 'b', role: 'block', label: 'B', outSide: 'right', x: 300, y: 100, w: 100, h: 40 },
+    ],
+    edges: [{ id: 'back', from: 'b', to: 'a' }],
+  };
+
+  it('holds every node, every edge’s route and every placed note', () => {
+    const level = drawLevel(BACKWARDS, new Set());
+    const xs = level.layouts.get('back')!.points.map((p) => p.x);
+    // The route leaves B rightwards and enters A from the left: it reaches past both.
+    expect(Math.min(...xs)).toBeLessThan(0);
+    expect(Math.max(...xs)).toBeGreaterThan(400);
+
+    expect(levelExtent(level, [])).toEqual({
+      x: Math.min(...xs),
+      y: 0,
+      w: Math.max(...xs) - Math.min(...xs),
+      h: 140,
+    });
+    expect(levelExtent(level, [{ x: 500, y: 200, w: 80, h: 30 }])).toEqual({
+      x: Math.min(...xs),
+      y: 0,
+      w: 580 - Math.min(...xs),
+      h: 230,
+    });
+  });
+
+  it('is null for a level with nothing drawn', () => {
+    expect(levelExtent(drawLevel({ nodes: [], edges: [] }, new Set()), [])).toBeNull();
   });
 });

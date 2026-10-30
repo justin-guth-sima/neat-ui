@@ -1,5 +1,5 @@
 <!-- One container for every layer, so pan and zoom move one element. -->
-<div class="content">
+<div class="content" #content>
   <div class="behind">
     @for (part of level().behind; track part.node.id) {
       @if (part.node.role === 'frame') {
@@ -41,6 +41,7 @@
         [attr.data-line]="edge.line"
         [style.--edge]="edge.colour"
       >
+        <path class="hit" [attr.d]="edge.path" />
         <path class="line" [attr.d]="edge.path" />
         @for (tip of edge.tips; track tip.end) {
           @if (tip.shape === 'arrow') {

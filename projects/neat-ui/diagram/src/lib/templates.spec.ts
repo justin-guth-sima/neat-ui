@@ -131,7 +131,7 @@ describe('the diagram’s templates', () => {
   });
 
   it('draws no notes without a note template, and stops measuring them', async () => {
-    const { all, note, fixture, refresh } = await render();
+    const { all, one, note, fixture, refresh } = await render();
     expect(all('.note')).toHaveLength(2);
     resize(new Map([[note('rate'), { w: 100, h: 40 }]]));
     await refresh();
@@ -140,7 +140,9 @@ describe('the diagram’s templates', () => {
     await refresh();
     expect(all('.note')).toEqual([]);
     expect(all('svg.edges .leader')).toEqual([]);
-    expect(watched()).toEqual([]);
+    // The box itself stays watched, for its fit; no note box is.
+    expect(watched().filter((element) => element.matches('.note'))).toEqual([]);
+    expect(watched()).toEqual([one('neat-diagram')]);
   });
 
   it('keeps a measured note placed when an equal diagram arrives', async () => {

@@ -1,0 +1,407 @@
+import { zoomTransform } from 'd3-zoom';
+import { fitTransform, type FitTransform } from './fit';
+import type { Rect } from './layout';
+import { resize, stubResizeObserver, watched } from './resize-observer.testing';
+import { DiagramZoom } from './zoom';
+
+/** A level 420 × 140 from the origin; in an 800 × 600 box it fits at about 1.79. */
+const EXTENT: Rect = { x: 0, y: 0, w: 420, h: 140 };
+
+/** `matchMedia` answering the reduced-motion query with `reduce`. */
+function stubReducedMotion(reduce: boolean): void {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    matches: reduce,
+    media: query,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }));
+}
+
+/** A box holding the content container, in the document, without a size (jsdom lays out none). */
+function setup() {
+  const box = document.createElement('div');
+  const content = document.createElement('div');
+  box.append(content);
+  document.body.append(box);
+  let w = 0;
+  let h = 0;
+  Object.defineProperty(box, 'clientWidth', { configurable: true, get: () => w });
+  Object.defineProperty(box, 'clientHeight', { configurable: true, get: () => h });
+  const zoom = new DiagramZoom(box, content);
+  return {
+    box,
+    content,
+    zoom,
+    /** Gives the box a size and tells the observers, as a browser does after layout. */
+    size(width: number, height: number) {
+      w = width;
+      h = height;
+      resize(new Map([[box, { w: width, h: height }]]));
+    },
+    /** The transform d3-zoom holds for the box. */
+    now: () => zoomTransform(box),
+    key(key: string, init: KeyboardEventInit = {}, target: Element = box) {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
+      target.dispatchEvent(event);
+      return event;
+    },
+    /** A wheel turn away from the user: zooms in 2^0.2× about the pointer (the box's corner). */
+    wheel(deltaY = -100) {
+      box.dispatchEvent(new WheelEvent('wheel', { deltaY, bubbles: true, cancelable: true }));
+    },
+    /** A mouse drag from (10, 10) by (dx, dy). */
+    drag(dx: number, dy: number) {
+      // d3-zoom follows the drag on the event's window. Angular's jsdom setup refuses its own
+      // window as `view` in the constructor, so it is set on each event afterwards.
+      const mouse = (type: string, clientX: number, clientY: number) => {
+        const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientX, clientY });
+        Object.defineProperty(event, 'view', { value: window });
+        return event;
+      };
+      box.dispatchEvent(mouse('mousedown', 10, 10));
+      window.dispatchEvent(mouse('mousemove', 10 + dx, 10 + dy));
+      window.dispatchEvent(mouse('mouseup', 10 + dx, 10 + dy));
+    },
+    teardown() {
+      zoom.destroy();
+      box.remove();
+    },
+  };
+}
+
+function expectAt(actual: FitTransform, expected: FitTransform | null): void {
+  expect(expected).not.toBeNull();
+  expect(actual.k).toBeCloseTo(expected!.k, 6);
+  expect(actual.x).toBeCloseTo(expected!.x, 6);
+  expect(actual.y).toBeCloseTo(expected!.y, 6);
+}
+
+const fitIn = (w: number, h: number, extent = EXTENT) => fitTransform(extent, { w, h });
+
+describe('DiagramZoom', () => {
+  let view: ReturnType<typeof setup>;
+
+  beforeEach(() => {
+    stubResizeObserver();
+    stubReducedMotion(false);
+    view = setup();
+  });
+
+  afterEach(() => {
+    view.teardown();
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  describe('fitting by itself', () => {
+    it('fits the level once the box has a size; without one (a hidden tab) it is at zoom 1', () => {
+      view.zoom.setExtent(EXTENT);
+      view.size(0, 0);
+      expectAt(view.now(), { k: 1, x: 0, y: 0 });
+
+      view.size(800, 600);
+
+      expectAt(view.now(), fitIn(800, 600));
+    });
+
+    it('moves the content container by the transform, and gives it the zoom', () => {
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+      const { k, x, y } = view.now();
+      expect(view.content.style.transform).toBe(`translate(${x}px, ${y}px) scale(${k})`);
+      // What keeps a width the same on screen at any zoom (an edge's hit path) divides by it.
+      expect(view.content.style.getPropertyValue('--diagram-zoom')).toBe(String(k));
+    });
+
+    it('fits again when the box resizes and when the level’s extent changes', () => {
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+
+      view.size(400, 300);
+      expectAt(view.now(), fitIn(400, 300));
+
+      const wider: Rect = { x: -100, y: 0, w: 900, h: 140 };
+      view.zoom.setExtent(wider);
+      expectAt(view.now(), fitIn(400, 300, wider));
+    });
+
+    it('fits nothing for an empty level, and the next level with something in it', () => {
+      view.size(800, 600);
+      view.zoom.setExtent(null);
+      expectAt(view.now(), { k: 1, x: 0, y: 0 });
+
+      view.zoom.setExtent(EXTENT);
+      expectAt(view.now(), fitIn(800, 600));
+    });
+
+    it('leaves the view alone after the user zooms with the wheel', () => {
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+      const fitted = view.now();
+
+      view.wheel();
+      const zoomed = view.now();
+      expect(zoomed.k).toBeCloseTo(fitted.k * 2 ** 0.2, 6);
+
+      view.size(400, 300);
+      view.zoom.setExtent({ x: 0, y: 0, w: 900, h: 300 });
+      expectAt(view.now(), zoomed);
+    });
+
+    it('leaves the view alone after the user drags it', () => {
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+      const fitted = view.now();
+
+      view.drag(30, 20);
+      expectAt(view.now(), { k: fitted.k, x: fitted.x + 30, y: fitted.y + 20 });
+
+      view.size(400, 300);
+      expectAt(view.now(), { k: fitted.k, x: fitted.x + 30, y: fitted.y + 20 });
+    });
+
+    it('fits a new level at once and hands the view back, whatever the user did before', () => {
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+      view.wheel();
+
+      const level: Rect = { x: 0, y: 0, w: 1200, h: 600 };
+      view.zoom.setExtent(level);
+      view.zoom.levelChanged();
+      expectAt(view.now(), fitIn(800, 600, level));
+
+      view.size(400, 300);
+      expectAt(view.now(), fitIn(400, 300, level));
+    });
+  });
+
+  describe('fit()', () => {
+    it('fits again over 250 ms after the user moved the view', () => {
+      vi.useFakeTimers({
+        toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'],
+      });
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+      view.wheel();
+      const zoomed = view.now();
+
+      view.zoom.fit();
+      expectAt(view.now(), zoomed);
+      vi.advanceTimersByTime(125);
+      const between = view.now().k;
+      expect(between).toBeLessThan(zoomed.k);
+      expect(between).toBeGreaterThan(fitIn(800, 600)!.k);
+      vi.advanceTimersByTime(150);
+
+      expectAt(view.now(), fitIn(800, 600));
+    });
+
+    it('hands the view back, as the demo’s Fit does: a resize fits again', () => {
+      stubReducedMotion(true);
+      view.teardown();
+      view = setup();
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+      view.drag(30, 20);
+
+      view.zoom.fit();
+      view.size(400, 300);
+
+      expectAt(view.now(), fitIn(400, 300));
+    });
+
+    it('stops in flight when the user takes the view', () => {
+      vi.useFakeTimers({
+        toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'],
+      });
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+      view.drag(200, 0);
+
+      view.zoom.fit();
+      vi.advanceTimersByTime(100);
+      view.drag(10, 0);
+      const taken = view.now();
+      vi.advanceTimersByTime(300);
+
+      expectAt(view.now(), taken);
+      view.size(400, 300);
+      expectAt(view.now(), taken);
+    });
+  });
+
+  describe('keys', () => {
+    beforeEach(() => {
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+    });
+
+    it('pans 48 px on screen by the arrow keys, whatever the zoom, the way the key points', () => {
+      const start = view.now();
+      const panned = (dx: number, dy: number) => ({ k: start.k, x: start.x + dx, y: start.y + dy });
+
+      expect(view.key('ArrowRight').defaultPrevented).toBe(true);
+      expectAt(view.now(), panned(-48, 0));
+      view.key('ArrowDown');
+      expectAt(view.now(), panned(-48, -48));
+      view.key('ArrowLeft');
+      view.key('ArrowLeft');
+      expectAt(view.now(), panned(48, -48));
+      view.key('ArrowUp');
+      expectAt(view.now(), panned(48, 0));
+    });
+
+    it('zooms 1.25× about the box’s centre by + and =, and back by -, over 250 ms', () => {
+      vi.useFakeTimers({
+        toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'],
+      });
+      const start = view.now();
+      const centre = start.invert([400, 300]);
+
+      expect(view.key('+').defaultPrevented).toBe(true);
+      expect(view.now().k).toBeCloseTo(start.k, 6);
+      vi.advanceTimersByTime(300);
+      expect(view.now().k).toBeCloseTo(start.k * 1.25, 6);
+      expect(view.now().apply(centre)[0]).toBeCloseTo(400, 6);
+      expect(view.now().apply(centre)[1]).toBeCloseTo(300, 6);
+
+      view.key('=');
+      vi.advanceTimersByTime(300);
+      expect(view.now().k).toBeCloseTo(start.k * 1.25 * 1.25, 6);
+
+      view.key('-');
+      vi.advanceTimersByTime(300);
+      expect(view.now().k).toBeCloseTo(start.k * 1.25, 6);
+      expect(view.now().apply(centre)[0]).toBeCloseTo(400, 6);
+    });
+
+    it('zooms on from where a zoom in flight is going, so quick presses add up', () => {
+      vi.useFakeTimers({
+        toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'],
+      });
+      const start = view.now();
+
+      view.key('+');
+      vi.advanceTimersByTime(100);
+      view.key('+');
+      vi.advanceTimersByTime(300);
+
+      expect(view.now().k).toBeCloseTo(start.k * 1.25 * 1.25, 6);
+    });
+
+    it('fits by 0', () => {
+      stubReducedMotion(true);
+      view.teardown();
+      view = setup();
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+      view.drag(100, 50);
+
+      expect(view.key('0').defaultPrevented).toBe(true);
+
+      expectAt(view.now(), fitIn(800, 600));
+    });
+
+    it('stops automatic fits once they pan or zoom', () => {
+      view.key('ArrowRight');
+      const panned = view.now();
+
+      view.size(400, 300);
+
+      expectAt(view.now(), panned);
+    });
+
+    it('leaves alone other keys, keys with a modifier and keys from inside the box', () => {
+      const start = view.now();
+      const inside = view.content.appendChild(document.createElement('button'));
+
+      expect(view.key('a').defaultPrevented).toBe(false);
+      expect(view.key('+', { ctrlKey: true }).defaultPrevented).toBe(false);
+      expect(view.key('0', { metaKey: true }).defaultPrevented).toBe(false);
+      expect(view.key('ArrowLeft', { altKey: true }).defaultPrevented).toBe(false);
+      expect(view.key('ArrowLeft', {}, inside).defaultPrevented).toBe(false);
+
+      expectAt(view.now(), start);
+      // Not having moved, the view still fits by itself.
+      view.size(400, 300);
+      expectAt(view.now(), fitIn(400, 300));
+    });
+  });
+
+  describe('limits', () => {
+    beforeEach(() => {
+      stubReducedMotion(true);
+      view.teardown();
+      view = setup();
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+    });
+
+    it('keeps the keys’ zoom between 0.2 and 3', () => {
+      for (let i = 0; i < 20; i++) view.key('+');
+      expect(view.now().k).toBe(3);
+      for (let i = 0; i < 40; i++) view.key('-');
+      expect(view.now().k).toBe(0.2);
+    });
+
+    it('keeps the wheel’s zoom between 0.2 and 3', () => {
+      view.wheel(-5000);
+      expect(view.now().k).toBe(3);
+      view.wheel(5000);
+      expect(view.now().k).toBe(0.2);
+    });
+
+    it('keeps a fit within them: a tiny level at 3, a huge one at 0.2', () => {
+      view.zoom.setExtent({ x: 0, y: 0, w: 10, h: 10 });
+      expect(view.now().k).toBe(3);
+      view.zoom.setExtent({ x: 0, y: 0, w: 100_000, h: 100_000 });
+      expect(view.now().k).toBe(0.2);
+    });
+  });
+
+  describe('under reduced motion', () => {
+    beforeEach(() => {
+      stubReducedMotion(true);
+      view.teardown();
+      view = setup();
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+      view.drag(100, 50);
+    });
+
+    it('jumps to a fit', () => {
+      view.zoom.fit();
+      expectAt(view.now(), fitIn(800, 600));
+    });
+
+    it('jumps by a key’s zoom', () => {
+      const start = view.now();
+      view.key('+');
+      expect(view.now().k).toBeCloseTo(start.k * 1.25, 6);
+    });
+
+    it('jumps by a double-click’s zoom, d3-zoom’s own', () => {
+      const start = view.now();
+      // With Shift it zooms out by half (in, it would pass the upper limit from this fit).
+      const init = { bubbles: true, cancelable: true, shiftKey: true };
+      view.box.dispatchEvent(new MouseEvent('dblclick', init));
+      expect(view.now().k).toBeCloseTo(start.k / 2, 6);
+    });
+  });
+
+  it('lets go of the box when destroyed: no keys, no observer, no frame in flight', () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'] });
+    view.zoom.setExtent(EXTENT);
+    view.size(800, 600);
+    view.drag(100, 0);
+    view.zoom.fit();
+    const before = view.now();
+
+    view.zoom.destroy();
+    vi.advanceTimersByTime(300);
+
+    expectAt(view.now(), before);
+    expect(view.key('+').defaultPrevented).toBe(false);
+    expect(watched()).toEqual([]);
+  });
+});

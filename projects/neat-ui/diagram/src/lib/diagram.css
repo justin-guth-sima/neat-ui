@@ -7,7 +7,9 @@
 
 /*
  * The containing block of every layer; the app gives the box its size. The cards' small shadow
- * (blocks and notes, as the demo's) is stated here once.
+ * (blocks and notes, as the demo's) is stated here once. The box is what the user drags, wheels
+ * and pinches (d3-zoom), so the browser's own touch panning and pinch-zoom stay off it; it is a
+ * tab stop for the keys.
  */
 :host {
   --diagram-card-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 8%, transparent);
@@ -15,9 +17,18 @@
   display: block;
   position: relative;
   overflow: hidden;
+  touch-action: none;
 }
 
+:host(:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Moved and scaled by pan and zoom (zoom.ts), which also sets the zoom it is drawn at. */
 .content {
+  --diagram-zoom: 1;
+
   position: absolute;
   top: 0;
   left: 0;
@@ -32,7 +43,7 @@
 
 /* --- edges, in one SVG between the frames and the blocks --- */
 
-/* A point to draw from: what it draws overflows it. Edges catch no pointer (yet). */
+/* A point to draw from: what it draws overflows it. Only the edges' hit paths catch the pointer. */
 .edges {
   position: absolute;
   top: 0;
@@ -41,6 +52,17 @@
   height: 1px;
   overflow: visible;
   pointer-events: none;
+}
+
+/*
+ * What the pointer finds an edge by: unseen, under the line, 12 px wide on screen at any zoom (its
+ * width divided by the zoom the content is scaled by).
+ */
+.hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: calc(12px / var(--diagram-zoom));
+  pointer-events: stroke;
 }
 
 .line {

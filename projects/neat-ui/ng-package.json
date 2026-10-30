@@ -8,7 +8,9 @@
     "class-variance-authority",
     "clsx",
     "d3-scale",
+    "d3-selection",
     "d3-shape",
+    "d3-zoom",
     "lucide",
     "tailwind-merge"
   ],

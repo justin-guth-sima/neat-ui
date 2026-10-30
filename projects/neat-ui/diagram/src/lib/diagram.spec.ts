@@ -1,10 +1,15 @@
 import { Component, signal } from '@angular/core';
 import type { MockInstance } from 'vitest';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { zoomTransform } from 'd3-zoom';
 import { NeatDiagramView } from './diagram';
+import diagramStyles from './diagram.css' with { loader: 'text' };
+import { fitTransform } from './fit';
 import { layoutEdges } from './layout';
 import type { NeatDiagram, NeatDiagramSet } from './model';
 import { resetReported } from './report';
+import { resize, stubResizeObserver } from './resize-observer.testing';
 import { pointAlong } from './route';
 
 @Component({
@@ -132,11 +137,13 @@ const numbers = (d: string | null) => (d ?? '').match(/-?\d+(\.\d+)?/g)?.map(Num
 describe('NeatDiagramView', () => {
   let error: MockInstance<typeof console.error>;
   beforeEach(() => {
+    stubResizeObserver();
     error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
   });
   afterEach(() => {
     error.mockRestore();
     resetReported();
+    vi.unstubAllGlobals();
   });
 
   it('is a figure named by its label', async () => {
@@ -403,5 +410,97 @@ describe('NeatDiagramView', () => {
       expect(messages.filter((m) => m.includes(id)).length, id).toBeGreaterThan(0);
     }
     expect(new Set(messages).size).toBe(messages.length);
+  });
+});
+
+describe('NeatDiagramView’s pan, zoom and fit', () => {
+  /** Two blocks and the edge between them, which stays between them: 420 × 140 from the origin. */
+  const PAIR: NeatDiagramSet = {
+    overview: {
+      nodes: [
+        { id: 'camera', role: 'block', label: 'Camera', x: 0, y: 0, w: 120, h: 40 },
+        { id: 'decode', role: 'block', label: 'Decode', x: 300, y: 100, w: 120, h: 40 },
+      ],
+      edges: [{ id: 'frames', from: 'camera', to: 'decode', series: 1 }],
+    },
+  };
+  const FITTED = fitTransform({ x: 0, y: 0, w: 420, h: 140 }, { w: 800, h: 600 })!;
+
+  beforeEach(() => {
+    stubResizeObserver();
+    // Fit and zoom jump instead of animating, so each step is checked at once.
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: true,
+      media: query,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+    }));
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  /** The diagram drawn in an 800 × 600 box, as a browser reports it after the first layout. */
+  async function renderSized() {
+    const { fixture, host, one } = await render(PAIR);
+    for (const [name, value] of [
+      ['clientWidth', 800],
+      ['clientHeight', 600],
+    ] as const) {
+      Object.defineProperty(host, name, { configurable: true, value });
+    }
+    resize(new Map([[host, { w: 800, h: 600 }]]));
+    const view: NeatDiagramView = fixture.debugElement.query(
+      By.directive(NeatDiagramView),
+    ).componentInstance;
+    return { fixture, host, one, view };
+  }
+
+  it('is a tab stop, for the keys that pan and zoom it', async () => {
+    const { host } = await render(PAIR);
+    expect(host.getAttribute('tabindex')).toBe('0');
+  });
+
+  it('fits the level to its box on first render, moving the content container', async () => {
+    const { host, one } = await renderSized();
+    const t = zoomTransform(host);
+    expect(t.k).toBeCloseTo(FITTED.k, 6);
+    expect(t.x).toBeCloseTo(FITTED.x, 6);
+    expect(t.y).toBeCloseTo(FITTED.y, 6);
+    expect(one('.content').style.transform).toBe(`translate(${t.x}px, ${t.y}px) scale(${t.k})`);
+    expect(one('.content').style.getPropertyValue('--diagram-zoom')).toBe(String(t.k));
+  });
+
+  it('keeps the user’s view when an equal diagram arrives (a poll recomputing it)', async () => {
+    const { fixture, host } = await renderSized();
+    host.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    const moved = zoomTransform(host);
+
+    fixture.componentInstance.diagram.set(structuredClone(PAIR));
+    await fixture.whenStable();
+
+    expect(zoomTransform(host)).toEqual(moved);
+  });
+
+  it('fits again by fit(), for an app’s Fit button', async () => {
+    const { host, view } = await renderSized();
+    host.dispatchEvent(new KeyboardEvent('keydown', { key: '+', bubbles: true }));
+    expect(zoomTransform(host).k).toBeCloseTo(FITTED.k * 1.25, 6);
+
+    view.fit();
+
+    expect(zoomTransform(host).k).toBeCloseTo(FITTED.k, 6);
+    expect(zoomTransform(host).x).toBeCloseTo(FITTED.x, 6);
+  });
+
+  it('gives each edge a hit path along its line, 12 px wide on screen at any zoom', async () => {
+    const { one } = await render(PAIR);
+    const edge = one('g[data-edge="frames"]');
+    const hit = edge.querySelector('path.hit');
+    expect(hit?.getAttribute('d')).toBe(edge.querySelector('path.line')?.getAttribute('d'));
+    // Under the line, so the line is drawn over it.
+    expect(edge.firstElementChild).toBe(hit);
+    // Its width is divided by the zoom, which the content container carries: a CSS transform on
+    // an HTML ancestor is not undone by `vector-effect: non-scaling-stroke` (checked in Chromium).
+    const rule = /\n\.hit \{([^}]*)\}/.exec(diagramStyles)?.[1] ?? '';
+    expect(rule).toMatch(/stroke-width: calc\(12px \/ var\(--diagram-zoom\)\);/);
   });
 });

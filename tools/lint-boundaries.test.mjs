@@ -28,16 +28,43 @@ async function boundaryMessages(config, filePath, code) {
   return messages.filter((message) => /no-restricted-imports$/.test(message.ruleId ?? ''));
 }
 
-const D3_IMPORTS = [
+/** A sample importing `specifier`, the way the kit's code does. */
+const importOf = (specifier) => `import * as d3 from '${specifier}';\nexport const all = d3;\n`;
+
+/** Each entry's own d3 packages, and what every other d3 import looks like. */
+const CHARTS_D3 = [
   "import { scaleLinear } from 'd3-scale';\nexport const scale = scaleLinear;\n",
   "import type { ScaleLinear } from 'd3-scale';\nexport type Scale = ScaleLinear<number, number>;\n",
   "export { line } from 'd3-shape';\n",
+];
+const DIAGRAM_D3 = [
+  "import { zoom } from 'd3-zoom';\nexport const behaviour = zoom;\n",
+  "import type { ZoomTransform } from 'd3-zoom';\nexport type Transform = ZoomTransform;\n",
+  "export { select } from 'd3-selection';\n",
+];
+const OTHER_D3 = [
   "import { interpolate } from 'd3-interpolate';\nexport const mix = interpolate;\n",
-  "import * as d3 from 'd3';\nexport const all = d3;\n",
+  importOf('d3'),
+  importOf('d3-transition'),
   "import { path } from 'd3-path/src/path.js';\nexport const draw = path;\n",
+  importOf('d3-shape/src/line.js'),
+  importOf('d3-zoom/src/zoom.js'),
 ];
 
-test('d3 is importable from the charts entry only', async () => {
+/** Lints each sample as `filePath`: one d3 message each when `fires`, none when not. */
+async function expectD3Rule(config, filePath, samples, fires) {
+  for (const code of samples) {
+    const messages = await boundaryMessages(config, filePath, code);
+    if (!fires) {
+      assert.deepEqual(messages, [], `${filePath}: ${code}`);
+      continue;
+    }
+    assert.equal(messages.length, 1, `${filePath}: ${code}`);
+    assert.match(messages[0].message, /charts.*diagram/, filePath);
+  }
+}
+
+test('d3 is importable from the charts and diagram entries only', async () => {
   const outside = [
     [KIT_CONFIG, 'projects/neat-ui/src/lib/x.ts'],
     [KIT_CONFIG, 'projects/neat-ui/level-meter/src/lib/x.ts'],
@@ -45,23 +72,27 @@ test('d3 is importable from the charts entry only', async () => {
     [SHOWCASE_CONFIG, 'projects/showcase/src/app/x.ts'],
   ];
   for (const [config, filePath] of outside) {
-    for (const code of D3_IMPORTS) {
-      const messages = await boundaryMessages(config, filePath, code);
-      assert.equal(messages.length, 1, `${filePath}: ${code}`);
-      assert.match(messages[0].message, /charts/, filePath);
-    }
+    await expectD3Rule(config, filePath, [...CHARTS_D3, ...DIAGRAM_D3, ...OTHER_D3], true);
   }
+});
+
+test('the charts entry imports d3-scale and d3-shape, and no other d3', async () => {
   for (const filePath of [
     'projects/neat-ui/charts/src/lib/x.ts',
     'projects/neat-ui/charts/src/lib/x.spec.ts',
   ]) {
-    for (const code of D3_IMPORTS) {
-      assert.deepEqual(
-        await boundaryMessages(KIT_CONFIG, filePath, code),
-        [],
-        `${filePath}: ${code}`,
-      );
-    }
+    await expectD3Rule(KIT_CONFIG, filePath, CHARTS_D3, false);
+    await expectD3Rule(KIT_CONFIG, filePath, [...DIAGRAM_D3, ...OTHER_D3], true);
+  }
+});
+
+test('the diagram entry imports d3-zoom and d3-selection, and no other d3', async () => {
+  for (const filePath of [
+    'projects/neat-ui/diagram/src/lib/x.ts',
+    'projects/neat-ui/diagram/src/lib/x.spec.ts',
+  ]) {
+    await expectD3Rule(KIT_CONFIG, filePath, DIAGRAM_D3, false);
+    await expectD3Rule(KIT_CONFIG, filePath, [...CHARTS_D3, ...OTHER_D3], true);
   }
 });
 
@@ -70,11 +101,12 @@ test('a package that only starts with d3 is not d3', async () => {
   assert.deepEqual(await boundaryMessages(KIT_CONFIG, 'projects/neat-ui/src/lib/x.ts', code), []);
 });
 
-test('the direction rules still fire beside the d3 rule, in the charts entry too', async () => {
+test('the direction rules still fire beside the d3 rule, in the d3 entries too', async () => {
   const climbs = "import { x } from '../../../src/lib/theme/color';\nexport const y = x;\n";
   for (const filePath of [
     'projects/neat-ui/level-meter/src/lib/x.ts',
     'projects/neat-ui/charts/src/lib/x.ts',
+    'projects/neat-ui/diagram/src/lib/x.ts',
   ]) {
     const messages = await boundaryMessages(KIT_CONFIG, filePath, climbs);
     assert.equal(messages.length, 1, filePath);

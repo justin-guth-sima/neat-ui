@@ -4,6 +4,23 @@ const { defineConfig } = require('eslint/config');
 const tseslint = require('typescript-eslint');
 const angular = require('angular-eslint');
 
+/** Fails an import of d3 or a d3 package other than `allowed` (each by its exact name). */
+function d3Rule(allowed) {
+  const except = allowed.length ? `(?!(${allowed.join('|')})$)` : '';
+  return [
+    'error',
+    {
+      patterns: [
+        {
+          regex: `^${except}d3(-|/|$)`,
+          message:
+            'Only the charts entry (d3-scale, d3-shape) and the diagram entry (d3-zoom, d3-selection) import d3; draw through the components of @sima/neat-ui/charts and @sima/neat-ui/diagram.',
+        },
+      ],
+    },
+  ];
+}
+
 module.exports = defineConfig([
   {
     files: ['**/*.ts'],
@@ -40,29 +57,26 @@ module.exports = defineConfig([
       ],
     },
   },
+  // d3 belongs to two entries, each to its own packages (AGENTS.md "d3 belongs to two entries"):
+  // `charts` to d3-scale and d3-shape, `diagram` to d3-zoom and d3-selection; every other part of
+  // the kit, and every app that takes the kit's config, draws through those entries' components.
+  // It is the typescript-eslint rule, not core `no-restricted-imports`, on purpose: ESLint replaces
+  // a rule's options wholesale when a later block sets the same rule for a file, so these blocks
+  // would silently switch off the kit's entry-direction rules in
+  // `projects/neat-ui/eslint.config.js` (tools/lint-boundaries.test.mjs checks that both still
+  // fire). The three blocks match disjoint files for the same reason.
   {
-    // d3 is the charts entry's alone (AGENTS.md "How the charts are drawn"): every other part of the
-    // kit, and every app that takes the kit's config, draws through `@sima/neat-ui/charts`. It is
-    // the typescript-eslint rule, not core `no-restricted-imports`, on purpose: ESLint replaces a
-    // rule's options wholesale when a later block sets the same rule for a file, so this block
-    // would silently switch off the kit's entry-direction rules in `projects/neat-ui/eslint.config.js`
-    // (tools/lint-boundaries.test.mjs checks that both still fire).
     files: ['**/*.ts'],
-    ignores: ['projects/neat-ui/charts/**'],
-    rules: {
-      '@typescript-eslint/no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            {
-              regex: '^d3(-|/|$)',
-              message:
-                'Only projects/neat-ui/charts/ imports d3; draw charts with the components of @sima/neat-ui/charts.',
-            },
-          ],
-        },
-      ],
-    },
+    ignores: ['projects/neat-ui/charts/**', 'projects/neat-ui/diagram/**'],
+    rules: { '@typescript-eslint/no-restricted-imports': d3Rule([]) },
+  },
+  {
+    files: ['projects/neat-ui/charts/**/*.ts'],
+    rules: { '@typescript-eslint/no-restricted-imports': d3Rule(['d3-scale', 'd3-shape']) },
+  },
+  {
+    files: ['projects/neat-ui/diagram/**/*.ts'],
+    rules: { '@typescript-eslint/no-restricted-imports': d3Rule(['d3-zoom', 'd3-selection']) },
   },
   {
     files: ['**/*.html'],

@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { NeatPage } from '@sima/neat-ui';
+import { ChangeDetectionStrategy, Component, viewChild } from '@angular/core';
+import { NeatButton, NeatIcon, NeatPage, NeatPageToolbar } from '@sima/neat-ui';
 import {
   type NeatDiagramSet,
   NeatDiagramNoteTemplate,
@@ -9,7 +9,7 @@ import {
 /**
  * A model graph (the reference sheet's third example): a backbone frame holding two blocks, one
  * of which opens a level, edges with tensor shapes as labels, a bracket under the post-processing
- * and a note on an edge. Placed with a margin, as the diagram draws at zoom 1 from its origin.
+ * and a note on an edge. The diagram fits it to its box, so where it starts does not matter.
  */
 const MODEL_GRAPH: NeatDiagramSet = {
   overview: {
@@ -116,9 +116,22 @@ const MODEL_GRAPH: NeatDiagramSet = {
 
 @Component({
   selector: 'app-diagram-page',
-  imports: [NeatDiagramNoteTemplate, NeatDiagramView, NeatPage],
+  imports: [
+    NeatButton,
+    NeatDiagramNoteTemplate,
+    NeatDiagramView,
+    NeatIcon,
+    NeatPage,
+    NeatPageToolbar,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <div *neatPageToolbar>
+      <button neatButton type="button" variant="text" size="small" (click)="diagram()?.fit()">
+        <neat-icon name="fit-all" [size]="16" />
+        Fit
+      </button>
+    </div>
     <neat-page>
       <div class="showcase-page">
         <section class="showcase-section">
@@ -127,7 +140,9 @@ const MODEL_GRAPH: NeatDiagramSet = {
             <code>neat-diagram</code> draws a hand-placed level: frames and bands behind one SVG of
             routed edges, blocks, brackets, edge labels and notes in front of it. Edges take the
             charts' series colours; chips are the kit's status chips; a note's content is the app's
-            template.
+            template. Drag, wheel, pinch or double-click to pan and zoom, or focus it and use the
+            arrow keys, <kbd>+</kbd>, <kbd>-</kbd> and <kbd>0</kbd>; it fits itself to its box until
+            you do, and the toolbar's Fit (its <code>fit()</code>) fits it again.
           </p>
           <neat-diagram class="diagram" [diagram]="modelGraph" label="A detector's model graph">
             <ng-template neatDiagramNote let-note>
@@ -144,4 +159,5 @@ const MODEL_GRAPH: NeatDiagramSet = {
 })
 export class DiagramPage {
   protected readonly modelGraph = MODEL_GRAPH;
+  protected readonly diagram = viewChild(NeatDiagramView);
 }

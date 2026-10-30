@@ -3,8 +3,8 @@
  * frames with the edges routed between them, drawn by `neat-diagram`. A secondary entry point, so
  * an app's main bundle carries it only if a page it loads imports it. It imports the primary and
  * the status chip's entry only by their package names; the primary never imports it. The routing,
- * the port layout, the notes' placement and measurement and the fit stay internal. Every export
- * added here is a promise to consumers.
+ * the port layout, the notes' placement and measurement, the fit and the pan and zoom stay
+ * internal. Every export added here is a promise to consumers.
  */
 export type {
   NeatDiagram,

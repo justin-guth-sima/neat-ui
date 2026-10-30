@@ -1,3 +1,4 @@
+import type { DrawnLevel } from './drawing';
 import type { Rect } from './layout';
 
 /** The zoom limits, which the user's zoom keeps to as well. */
@@ -34,4 +35,25 @@ export function fitTransform(
     x: box.w / 2 - k * (bounds.x + bounds.w / 2),
     y: box.h / 2 - k * (bounds.y + bounds.h / 2),
   };
+}
+
+/**
+ * What a fit frames: the smallest rect holding the level's nodes, its edges' routes (a stub can
+ * reach past the nodes) and its placed notes' boxes. Null for a level with nothing drawn.
+ */
+export function levelExtent(level: DrawnLevel, notes: Iterable<Rect>): Rect | null {
+  let x0 = Infinity;
+  let y0 = Infinity;
+  let x1 = -Infinity;
+  let y1 = -Infinity;
+  const take = (x: number, y: number, w = 0, h = 0) => {
+    x0 = Math.min(x0, x);
+    y0 = Math.min(y0, y);
+    x1 = Math.max(x1, x + w);
+    y1 = Math.max(y1, y + h);
+  };
+  for (const { rect } of [...level.behind, ...level.front]) take(rect.x, rect.y, rect.w, rect.h);
+  for (const { points } of level.layouts.values()) for (const p of points) take(p.x, p.y);
+  for (const box of notes) take(box.x, box.y, box.w, box.h);
+  return x0 === Infinity ? null : { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
 }
