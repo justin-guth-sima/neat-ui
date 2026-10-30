@@ -414,13 +414,33 @@ describe('DiagramZoom', () => {
       expectAt(view.now(), panned);
     });
 
+    /** A part of the drawing at a place on screen (px from the box's corner, which is at 0, 0). */
+    function part(left: number, right: number, top: number, bottom: number): HTMLElement {
+      const element = view.content.appendChild(document.createElement('button'));
+      element.getBoundingClientRect = () =>
+        ({
+          left,
+          right,
+          top,
+          bottom,
+          x: left,
+          y: top,
+          width: right - left,
+          height: bottom - top,
+        }) as DOMRect;
+      return element;
+    }
+
+    /** Focuses `element` as the keyboard does: Tab, then the focus (jsdom's :focus-visible). */
+    function tabTo(element: HTMLElement): void {
+      view.key('Tab');
+      element.focus();
+    }
+
     it('pans a part the keyboard focuses into view, a margin inside the box', () => {
       const start = view.now();
-      const part = view.content.appendChild(document.createElement('button'));
-      const rect = { left: 900, right: 1000, top: -60, bottom: -20 };
-      part.getBoundingClientRect = () => ({ ...rect, x: 0, y: 0, width: 0, height: 0 }) as DOMRect;
 
-      part.focus();
+      tabTo(part(900, 1000, -60, -20));
 
       // Right: its right edge 24 px inside the box's (800); down: its top 24 px below the box's.
       expectAt(view.now(), { k: start.k, x: start.x - (1000 - 776), y: start.y + (24 + 60) });
@@ -429,38 +449,15 @@ describe('DiagramZoom', () => {
       expectAt(view.now(), { k: start.k, x: start.x - 224, y: start.y + 84 });
     });
 
-    it('leaves the view alone for a part in view, or one a press focuses', () => {
+    it('leaves the view alone for a part a press focuses, or one in view', () => {
       const start = view.now();
-      const part = view.content.appendChild(document.createElement('button'));
-      part.getBoundingClientRect = () =>
-        ({
-          left: 900,
-          right: 1000,
-          top: 100,
-          bottom: 140,
-          x: 0,
-          y: 0,
-          width: 0,
-          height: 0,
-        }) as DOMRect;
-      part.dispatchEvent(mouse('mousedown', 10, 10));
-      part.focus();
+      const pressed = part(900, 1000, 100, 140);
+      pressed.dispatchEvent(mouse('mousedown', 10, 10));
+      pressed.focus();
       view.release();
       expectAt(view.now(), start);
 
-      part.blur();
-      part.getBoundingClientRect = () =>
-        ({
-          left: 100,
-          right: 200,
-          top: 100,
-          bottom: 140,
-          x: 0,
-          y: 0,
-          width: 0,
-          height: 0,
-        }) as DOMRect;
-      part.focus();
+      tabTo(part(100, 200, 100, 140));
       expectAt(view.now(), start);
     });
 
