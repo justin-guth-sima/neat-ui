@@ -1,5 +1,5 @@
 import type { NeatDiagram, NeatDiagramEdge, NeatDiagramNode, NeatDiagramSide } from './model';
-import { reportLeftOut } from './report';
+import { firstOfEachId, reportLeftOut } from './report';
 import { pathThrough, type Point, routePoints } from './route';
 
 /*
@@ -30,10 +30,12 @@ export interface EdgeLayout {
 /**
  * Each node's rectangle in the level's coordinates: its position plus those of the nodes it sits
  * in, however deep. A node whose parent is not on the level, or that lies inside itself, is left
- * out with what sits in it, so the rest of a broken diagram still draws.
+ * out with what sits in it, so the rest of a broken diagram still draws; so is a node whose id an
+ * earlier node already has.
  */
 export function absoluteRects(diagram: NeatDiagram): Map<string, Rect> {
-  const byId = new Map(diagram.nodes.map((node) => [node.id, node]));
+  const nodes = firstOfEachId(diagram.nodes, 'node');
+  const byId = new Map(nodes.map((node) => [node.id, node]));
   // Each node's top-left corner, null when it cannot be placed.
   const corners = new Map<string, Point | null>();
   // `chain`: the node and those below it whose corners wait for this one, to catch a loop.
@@ -58,7 +60,7 @@ export function absoluteRects(diagram: NeatDiagram): Map<string, Rect> {
     return at;
   };
   const rects = new Map<string, Rect>();
-  for (const node of diagram.nodes) {
+  for (const node of nodes) {
     const at = corner(node, new Set([node.id]));
     if (at) rects.set(node.id, { ...at, w: node.w, h: node.h });
   }
@@ -119,15 +121,18 @@ const JOG_STEP = 24;
 /**
  * Each edge as drawn, by id: its ends on the sides that face each other (or that its nodes name),
  * spread along each side so a fan does not cross itself, and its rounded route, Z routes that
- * share a corridor spread apart. An edge with an end that is not a node on the level is left out.
+ * share a corridor spread apart. An edge with an end that is not a node on the level (or one left
+ * out), or whose id an earlier edge already has, is left out.
  */
 export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
   const rects = absoluteRects(diagram);
-  const nodes = new Map(diagram.nodes.map((node) => [node.id, node]));
-  const edges = diagram.edges.filter((edge) => {
+  const nodes = new Map(firstOfEachId(diagram.nodes, 'node').map((node) => [node.id, node]));
+  const edges = firstOfEachId(diagram.edges, 'edge').filter((edge) => {
     const missing = [edge.from, edge.to].filter((id) => !rects.has(id));
     for (const id of missing) {
-      reportLeftOut(`edge "${edge.id}" is left out: its end "${id}" is not on its level`);
+      // A node that is on the level but could not be placed has been named already, with why.
+      const why = nodes.has(id) ? 'is left out itself' : 'is not on its level';
+      reportLeftOut(`edge "${edge.id}" is left out: its end "${id}" ${why}`);
     }
     return missing.length === 0;
   });

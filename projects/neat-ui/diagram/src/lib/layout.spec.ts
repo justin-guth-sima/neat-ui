@@ -1,5 +1,6 @@
 import { absoluteRects, crossings, intersect, layoutEdges } from './layout';
 import type { NeatDiagram, NeatDiagramEdge, NeatDiagramNode } from './model';
+import { resetReported } from './report';
 import { roundCorners, roundedPath, sampleRoute, type Point } from './route';
 import { SYSTEM_LEVELS } from './system-levels.testing';
 
@@ -130,6 +131,10 @@ const block = (
 
 const edge = (id: string, from: string, to: string): NeatDiagramEdge => ({ id, from, to });
 
+// Each problem is said once per run, and the runner shares modules between spec files: forget what
+// was said, so a later spec's message is not swallowed by an earlier one's.
+afterEach(() => resetReported());
+
 describe('absoluteRects', () => {
   it('positions are relative to the parent: a child is placed in its frame', () => {
     const rects = absoluteRects({
@@ -175,6 +180,22 @@ describe('absoluteRects', () => {
         1,
       );
       expect(messages.filter((m) => m.includes('"loop-'))).toHaveLength(1);
+    } finally {
+      error.mockRestore();
+    }
+  });
+
+  it('keeps the first of two nodes with one id and names the later one once', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      const diagram: NeatDiagram = {
+        nodes: [block('a', 0, 0), block('b', 400, 0), block('a', 900, 900)],
+        edges: [],
+      };
+      expect(absoluteRects(diagram).get('a')).toMatchObject({ x: 0, y: 0 });
+      absoluteRects(diagram);
+      expect(error).toHaveBeenCalledTimes(1);
+      expect(String(error.mock.calls[0][0])).toContain('node "a"');
     } finally {
       error.mockRestore();
     }
@@ -299,6 +320,42 @@ describe('layoutEdges', () => {
     }
   });
 
+  it('says that an edge’s end is left out itself, not missing, when the node could not be placed', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      const diagram: NeatDiagram = {
+        nodes: [block('a', 0, 0), block('lost', 400, 0, { parent: 'nowhere' })],
+        edges: [edge('to-lost', 'a', 'lost')],
+      };
+      expect([...layoutEdges(diagram).keys()]).toEqual([]);
+      const messages = error.mock.calls.map((call) => String(call[0]));
+      const about = messages.filter((m) => m.includes('"to-lost"'));
+      expect(about).toHaveLength(1);
+      expect(about[0]).toContain('"lost"');
+      expect(about[0]).not.toContain('not on its level');
+    } finally {
+      error.mockRestore();
+    }
+  });
+
+  it('keeps the first of two edges with one id and names the later one once', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      const diagram: NeatDiagram = {
+        nodes: [block('a', 0, 0), block('b', 400, 0), block('c', 0, 400)],
+        edges: [edge('e', 'a', 'b'), edge('e', 'a', 'c')],
+      };
+      const edges = layoutEdges(diagram);
+      expect(edges.size).toBe(1);
+      expect(edges.get('e')?.target).toEqual({ x: 400, y: 50 });
+      layoutEdges(diagram);
+      expect(error).toHaveBeenCalledTimes(1);
+      expect(String(error.mock.calls[0][0])).toContain('edge "e"');
+    } finally {
+      error.mockRestore();
+    }
+  });
+
   it('Z edges sharing a port side spread their middle runs apart', () => {
     const yolox = SYSTEM_LEVELS.find(([name]) => name === 'yolox_multi')?.[1] as NeatDiagram;
     const edges = layoutEdges(yolox);
@@ -347,7 +404,7 @@ describe('the Autoware demo’s System page', () => {
     }
   });
 
-  it('hangs the ghost edges off the Gateway’s left, clear of every real edge', () => {
+  it('hangs the ghost edges off the Gateway’s left', () => {
     const edges = layoutEdges(overview);
     const ghosts = overview.edges.filter((e) => e.line === 'ghost' && e.from === 'gateway');
     expect(ghosts.length).toBeGreaterThan(0);

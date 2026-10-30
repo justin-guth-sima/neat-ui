@@ -19,9 +19,9 @@ export type NeatDiagramSide = 'left' | 'right' | 'top' | 'bottom';
 export type NeatDiagramRole = 'frame' | 'block' | 'band' | 'bracket';
 
 /**
- * How a node is drawn within its role: `accent` is the primary tint (the board), `dashed` a group,
- * `ghost` dashed, transparent and quiet (a part that is not running), `muted` filled with
- * `--muted`.
+ * How a node is drawn within its role: `accent` is the primary tint (e.g. the main device),
+ * `dashed` a group, `ghost` dashed, transparent and quiet (a part that is not running), `muted`
+ * filled with `--muted`.
  */
 export type NeatDiagramLook = 'default' | 'accent' | 'dashed' | 'ghost' | 'muted';
 
