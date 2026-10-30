@@ -57,4 +57,73 @@ describe('the heatmap columns', () => {
     // Sampled evenly, the columns stay adjacent.
     expect(columnMeans([1, 2, 3], NEAT_HEATMAP_COLUMNS, at(0, 2, 4))).toEqual([1, 2, 3]);
   });
+
+  /** Seconds `0 … count - 1`, one a second, with sample `shifted` moved by `by` seconds. */
+  const everySecond = (count: number, shifted = -1, by = 0): number[] =>
+    at(...Array.from({ length: count }, (_, index) => index + (index === shifted ? by : 0)));
+  /** The row of `count` samples whose value is its index, so every column's mean is its own. */
+  const indices = (count: number): number[] => Array.from({ length: count }, (_, index) => index);
+
+  it('no empty column when one sample of a short 1 Hz history arrives early or late', () => {
+    for (const by of [-0.3, 0.3]) {
+      for (let shifted = 1; shifted <= 28; shifted += 1) {
+        const means = columnMeans(indices(30), NEAT_HEATMAP_COLUMNS, everySecond(30, shifted, by));
+        expect(means, `sample ${shifted} moved by ${by} s`).toHaveLength(30);
+        expect(means.includes(null), `sample ${shifted} moved by ${by} s`).toBe(false);
+      }
+    }
+  });
+
+  it('no empty column when one sample of a slotted 1 Hz history arrives late', () => {
+    for (let shifted = 1; shifted <= 58; shifted += 1) {
+      const means = columnMeans(indices(60), NEAT_HEATMAP_COLUMNS, everySecond(60, shifted, 0.3));
+      expect(means, `sample ${shifted} late`).toHaveLength(48);
+      expect(means.includes(null), `sample ${shifted} late`).toBe(false);
+    }
+  });
+
+  it('a pause stays empty in a short history', () => {
+    const offsets = [...indices(10), ...indices(10).map((second) => second + 15)];
+    const means = columnMeans(indices(20), NEAT_HEATMAP_COLUMNS, at(...offsets));
+    expect(means).toHaveLength(25);
+    means.forEach((mean, column) => {
+      const paused = column >= 10 && column <= 14;
+      expect(mean === null, `column ${column}`).toBe(paused);
+    });
+  });
+
+  it('a pause stays empty in a slotted history', () => {
+    // Every two seconds over 480 s, none in 200–240 s: 48 slots of ten seconds, 20 to 23 inside it.
+    const offsets = indices(241)
+      .map((index) => index * 2)
+      .filter((second) => second < 200 || second > 240);
+    const means = columnMeans(offsets, NEAT_HEATMAP_COLUMNS, at(...offsets));
+    expect(means).toHaveLength(48);
+    means.forEach((mean, column) => {
+      const paused = column >= 20 && column <= 23;
+      expect(mean === null, `column ${column}`).toBe(paused);
+    });
+  });
+
+  it("the readout of a filled hole names the previous column's sample", () => {
+    // Sample 28 a third of a second late left slot 22 empty in 0.19.1.
+    const times = everySecond(60, 28, 0.3);
+    const means = columnMeans(indices(60), NEAT_HEATMAP_COLUMNS, times);
+    expect(means[22]).toBe(means[21]);
+    expect(newestInColumn(22, 60, means.length, times)).toBe(
+      newestInColumn(21, 60, means.length, times),
+    );
+    expect(newestInColumn(21, 60, means.length, times)).toBeGreaterThanOrEqual(0);
+  });
+
+  it('reads out what it draws when the history has exactly as many instants as columns', () => {
+    // 48 instants fill the 48 columns centred, the layout the readout derives from the count.
+    const times = everySecond(48, 20, 0.6);
+    const means = columnMeans(indices(48), NEAT_HEATMAP_COLUMNS, times);
+    expect(means).toHaveLength(48);
+    expect(means.slice(19, 22)).toEqual([19, 19, 20.5]);
+    expect([19, 20, 21].map((column) => newestInColumn(column, 48, 48, times))).toEqual([
+      19, 19, 21,
+    ]);
+  });
 });

@@ -155,8 +155,9 @@ share as text, because eight colours alone are not enough. The heatmap is an HTM
 SVG: a cell is a `<span>` whose `--cell` is a `color-mix` of `--neat-heat-low` and
 `--neat-heat-high` by the value's place in the domain (transparent when empty), its rows are
 columns of time from `heatmap-columns.ts` (at most 48, one per sampling interval while the history
-is short, so a pause stays visible), and its grid is one tab stop with a cell cursor. The geometry
-is internal; only the components and their types are exported.
+is short, so a pause stays visible, and a poll that comes late leaves no empty column), and its
+grid is one tab stop with a cell cursor. The geometry is internal; only the components and their
+types are exported.
 
 `NeatChartCard` is the one card for a metric (the overview cards, the Power tiles, a run view's
 tiles): heading, `[neatChartCardChip]`, value with unit, caption, then the chart. It sets
