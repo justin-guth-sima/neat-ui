@@ -26,6 +26,12 @@ const ANIMATION_MS = 250;
 const PAN_STEP = 48;
 /** How much `+` zooms in and `-` out. */
 const ZOOM_STEP = 1.25;
+/**
+ * How far a press may move, in px on screen, and still be a click: a hand on a mouse or a finger
+ * on a pad jitters a pixel or two while it clicks. Within it, the press is not the user's drag
+ * (the view keeps fitting by itself) and the click still reaches what was pressed.
+ */
+const CLICK_DISTANCE = 3;
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 
 /** How each arrow key moves the content: the view goes the way the key points. */
@@ -40,6 +46,19 @@ const ZOOM_KEYS: Readonly<Record<string, number>> = {
   '=': ZOOM_STEP,
   '-': 1 / ZOOM_STEP,
 };
+
+/**
+ * Where a mouse event, or a touch event with one finger, happens (px on screen); null for any
+ * other event, or a touch with more fingers than one.
+ */
+function pointOf(event: Event): { x: number; y: number } | null {
+  if (event instanceof MouseEvent) return { x: event.clientX, y: event.clientY };
+  if (typeof TouchEvent === 'function' && event instanceof TouchEvent) {
+    const [touch, more] = Array.from(event.touches);
+    return touch && !more ? { x: touch.clientX, y: touch.clientY } : null;
+  }
+  return null;
+}
 
 /** Cubic ease in and out, d3's default for a transition. */
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2);
@@ -60,6 +79,11 @@ export class DiagramZoom {
    * the press's event, this unit's own moves too; they are not the user's.
    */
   private ownMove = false;
+  /**
+   * Where the press in progress went down (px on screen), until it moves more than
+   * `CLICK_DISTANCE` from there; null without a press, or once it has.
+   */
+  private press: { readonly x: number; readonly y: number } | null = null;
   /** The fit or key zoom in flight: where it goes and the frame it waits for. */
   private animation: { readonly to: ZoomTransform; readonly frame: number } | null = null;
 
@@ -69,13 +93,19 @@ export class DiagramZoom {
   ) {
     this.behavior = zoom<HTMLElement, unknown>()
       .scaleExtent([ZOOM_LIMITS[0], ZOOM_LIMITS[1]])
+      // d3-zoom swallows the click that ends a drag; a click that jitters is still a click.
+      .clickDistance(CLICK_DISTANCE)
+      .on('start', (event: D3ZoomEvent<HTMLElement, unknown>) => {
+        this.press = event.sourceEvent ? pointOf(event.sourceEvent) : null;
+      })
       .on('zoom', (event: D3ZoomEvent<HTMLElement, unknown>) => {
         // A user's gesture that changes the view: d3-zoom emits `zoom` on a drag's move, a wheel,
         // a pinch or a double-click, not on a press alone (`start`), so a click or a tap on the
         // box (focusing it, a block's button) leaves the view fitting by itself.
-        if (event.sourceEvent && !this.ownMove) this.moved();
+        if (event.sourceEvent && !this.ownMove && this.isUsers(event.sourceEvent)) this.moved();
         this.draw(event.transform);
-      });
+      })
+      .on('end', () => (this.press = null));
     this.syncDuration();
     this.motion?.addEventListener('change', this.syncDuration);
     this.selection = select(box).call(this.behavior);
@@ -136,6 +166,21 @@ export class DiagramZoom {
     if (!this.extent) return null;
     const fit = fitTransform(this.extent, { w: this.box.clientWidth, h: this.box.clientHeight });
     return fit && zoomIdentity.translate(fit.x, fit.y).scale(fit.k);
+  }
+
+  /**
+   * Whether a zoom event from `source` is the user's: a drag's move only once it is more than
+   * `CLICK_DISTANCE` from its press (d3-zoom emits one on any move, a click's jitter too); a wheel,
+   * a pinch and a double-click at once.
+   */
+  private isUsers(source: Event): boolean {
+    if (!this.press || (source.type !== 'mousemove' && source.type !== 'touchmove')) return true;
+    const at = pointOf(source);
+    // A second finger (a pinch) is the user's at once.
+    if (!at) return true;
+    if (Math.hypot(at.x - this.press.x, at.y - this.press.y) <= CLICK_DISTANCE) return false;
+    this.press = null;
+    return true;
   }
 
   private moved(): void {

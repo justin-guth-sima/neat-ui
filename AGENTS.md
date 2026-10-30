@@ -81,16 +81,16 @@ look happens in one place. Every rule here protects that.
     wheel, pinch, double-click; the box is a tab stop whose arrow keys pan 48 px, `+`/`=` and `-`
     zoom 1.25× about its centre and `0` fits; zoom 0.2 to 3), and it fits its level to its box by
     itself (on its first size, a resize, a new extent or level) until the user pans or zooms, as
-    the demo does; its `fit()` (for an app's Fit button) fits again, over 250 ms or at once under
-    reduced motion, and hands the view back; it takes the wheel and touch over its box
-    (`touch-action: none`), so an app gives it a bounded box, not a long stretch of a scrolling
-    page; an edge's hit path stays 12 px wide on screen at any zoom; and `neatDrillDownLevel`,
-    which places the level
-    a block opens from the diagram the block sits in, as the demo does: the block as the frame,
-    what it holds inside, the nodes it exchanges edges with in a column left (senders) and right
-    (receivers); the edge routing, the port layout, the notes' placement and measurement and the
-    fit maths and the pan and zoom (`zoom.ts`), ported from the Autoware demo's System page, stay
-    internal),
+    the demo does (a press that moves 3 px or less is a click, not a pan); its `fit()` (for an
+    app's Fit button) fits again, over 250 ms or at once under reduced motion, and hands the view
+    back; it takes the wheel and touch over its box (`touch-action: none`), so an app gives it a
+    bounded box, not a long stretch of a scrolling page; an edge's hit path stays 12 px wide on
+    screen at any zoom; and `neatDrillDownLevel`,
+    which places the level a block opens from the diagram the block sits in, as the demo does:
+    the block as the frame, what it holds inside, the nodes it exchanges edges with in a column
+    left (senders) and right (receivers); the edge routing, the port layout, the notes' placement
+    and measurement and the fit maths and the pan and zoom (`zoom.ts`), ported from the Autoware
+    demo's System page, stay internal),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which

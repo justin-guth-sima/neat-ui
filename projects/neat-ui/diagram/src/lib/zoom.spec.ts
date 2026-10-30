@@ -173,6 +173,47 @@ describe('DiagramZoom', () => {
       expectAt(view.now(), fitIn(800, 600));
     });
 
+    it('counts a press as a drag only once it is more than 3 px from where it went down', () => {
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+
+      // A click whose pointer jitters by 2 px still leaves the view fitting by itself.
+      view.drag(2, 0);
+      view.size(400, 300);
+      expectAt(view.now(), fitIn(400, 300));
+
+      // A press that jitters, then goes on past 3 px, is a drag.
+      view.press();
+      window.dispatchEvent(mouse('mousemove', 12, 11));
+      window.dispatchEvent(mouse('mousemove', 20, 10));
+      view.release(10, 0);
+      const dragged = view.now();
+      view.size(800, 600);
+      expectAt(view.now(), dragged);
+    });
+
+    it('still clicks a control in the box after a press that jitters by up to 3 px', async () => {
+      // d3-zoom swallows clicks for one task after a drag ends; the last spec's drag has ended.
+      await new Promise((done) => setTimeout(done));
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+      const button = view.content.appendChild(document.createElement('button'));
+      const clicked = vi.fn();
+      button.addEventListener('click', clicked);
+      const click = (dx: number) => {
+        button.dispatchEvent(mouse('mousedown', 10, 10));
+        window.dispatchEvent(mouse('mousemove', 10 + dx, 10));
+        window.dispatchEvent(mouse('mouseup', 10 + dx, 10));
+        button.dispatchEvent(mouse('click', 10 + dx, 10));
+      };
+
+      click(3);
+      expect(clicked).toHaveBeenCalledTimes(1);
+      // d3-zoom swallows the click that ends a drag.
+      click(10);
+      expect(clicked).toHaveBeenCalledTimes(1);
+    });
+
     it('leaves the view alone after the user drags it', () => {
       view.zoom.setExtent(EXTENT);
       view.size(800, 600);
