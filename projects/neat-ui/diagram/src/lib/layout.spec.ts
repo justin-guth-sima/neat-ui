@@ -293,6 +293,29 @@ describe('layoutEdges', () => {
     expect(edges.get('in')).toMatchObject({ targetSide: 'left', target: { x: 17, y: 50 } });
   });
 
+  it('runs an edge between a frame and a node inside it inside the frame, from its nearest border', () => {
+    // The drilled block as its level's frame, with an edge to one of its own children and back.
+    const diagram: NeatDiagram = {
+      nodes: [
+        block('frame', 0, 0, { role: 'frame', w: 500, h: 160 }),
+        block('first', 20, 20, { parent: 'frame', w: 100, h: 40 }),
+        block('inner', 200, 80, { parent: 'frame', w: 100, h: 40 }),
+      ],
+      edges: [edge('down', 'frame', 'inner'), edge('up', 'inner', 'frame')],
+    };
+    const edges = layoutEdges(diagram);
+    // The frame's bottom border is 40 below the node, nearer than its other borders.
+    expect(edges.get('down')).toMatchObject({ targetSide: 'bottom' });
+    expect(edges.get('down')?.source.y).toBe(160);
+    expect(edges.get('up')).toMatchObject({ sourceSide: 'bottom' });
+    expect(edges.get('up')?.target.y).toBe(160);
+    for (const [id, points] of drawnEdges(diagram)) {
+      const outside = points.filter((p) => p.x < 0 || p.x > 500 || p.y < 0 || p.y > 160);
+      expect(outside, id).toEqual([]);
+    }
+    expect(throughCards(diagram)).toEqual([]);
+  });
+
   it('keeps the ports of a side inside it however many there are', () => {
     const many = Array.from({ length: 30 }, (_, i) => block(`t${i}`, 400, i * 10));
     const edges = layoutEdges({

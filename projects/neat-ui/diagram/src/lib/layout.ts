@@ -15,10 +15,14 @@ export interface Rect extends Point {
 
 /** An edge as drawn: its ports and their sides, and its route in the rounded shape. */
 export interface EdgeLayout {
-  /** Its port on `from`, in the level's coordinates, and the side of `from` it leaves through. */
+  /**
+   * Its port on `from`, in the level's coordinates, and the side of `from` it leaves through. An
+   * edge between a frame and a node inside it has its frame end on the border nearest the node and
+   * runs inward: that end's side is the way it runs (`top` for a port on the bottom border).
+   */
   source: Point;
   sourceSide: NeatDiagramSide;
-  /** Its port on `to` and the side of `to` it enters through. */
+  /** Its port on `to` and the side of `to` it enters through (for a frame, as above). */
   target: Point;
   targetSide: NeatDiagramSide;
   /** The SVG path of its rounded shape. */
@@ -105,6 +109,13 @@ export const SIDE_AXES: Record<NeatDiagramSide, { t: Point; n: Point }> = {
   bottom: { t: { x: 1, y: 0 }, n: { x: 0, y: 1 } },
 };
 
+const OPPOSITE: Record<NeatDiagramSide, NeatDiagramSide> = {
+  left: 'right',
+  right: 'left',
+  top: 'bottom',
+  bottom: 'top',
+};
+
 const dot = (a: Point, b: Point) => a.x * b.x + a.y * b.y;
 const horizontal = (side: NeatDiagramSide) => side === 'left' || side === 'right';
 
@@ -142,12 +153,34 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
     return { x: r.x + r.w / 2, y: r.y + r.h / 2 };
   };
 
+  /** True when `inner` sits in `outer`, however deep. */
+  const holds = (outer: string, inner: string): boolean => {
+    // Bounded by the node count: a parent loop has been left out of `rects`, but stays in `nodes`.
+    let parent = nodes.get(inner)?.parent;
+    for (let steps = 0; parent !== undefined && steps < nodes.size; steps++) {
+      if (parent === outer) return true;
+      parent = nodes.get(parent)?.parent;
+    }
+    return false;
+  };
+
   // Each edge end goes on the side its node names for it, else on the side that faces the other
-  // end.
+  // end; between a frame and a node inside it, on the frame's border nearest the node and the
+  // node's side facing that border, so the edge runs inside the frame.
   const ends = edges.map((edge, order) => {
     const a = centre(edge.from);
     const b = centre(edge.to);
-    const [out, into] = facingSides(a, b);
+    const frame = holds(edge.from, edge.to)
+      ? edge.from
+      : holds(edge.to, edge.from)
+        ? edge.to
+        : null;
+    const inward = frame === null ? null : frame === edge.from ? 'source' : 'target';
+    const border =
+      frame === null
+        ? null
+        : nearestBorder(rectOf(frame), rectOf(frame === edge.from ? edge.to : edge.from));
+    const [out, into] = border === null ? facingSides(a, b) : [border, border];
     const along = { x: b.x - a.x, y: b.y - a.y };
     const source: End = {
       node: edge.from,
@@ -165,19 +198,20 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
       sign: -1,
       order,
     };
-    return { edge, source, target };
+    return { edge, source, target, inward };
   });
   spreadPorts(
     ends.flatMap((e) => [e.source, e.target]),
     rects,
   );
 
-  const routes: Route[] = ends.map(({ edge, source, target }) => ({
+  // A frame's port on its own border leads inward: the route takes the border's opposite side.
+  const routes: Route[] = ends.map(({ edge, source, target, inward }) => ({
     edge,
     source: portPoint(rectOf(source.node), source),
-    sourceSide: source.side,
+    sourceSide: inward === 'source' ? OPPOSITE[source.side] : source.side,
     target: portPoint(rectOf(target.node), target),
-    targetSide: target.side,
+    targetSide: inward === 'target' ? OPPOSITE[target.side] : target.side,
     jog: 0,
   }));
   spreadCorridors(routes);
@@ -227,6 +261,17 @@ function facingSides(a: Point, b: Point): [NeatDiagramSide, NeatDiagramSide] {
   const dy = b.y - a.y;
   if (Math.abs(dx) >= Math.abs(dy) / 2) return dx >= 0 ? ['right', 'left'] : ['left', 'right'];
   return dy >= 0 ? ['bottom', 'top'] : ['top', 'bottom'];
+}
+
+/** The border of `outer` nearest `inner`, which sits in it (the first of a tie, in this order). */
+function nearestBorder(outer: Rect, inner: Rect): NeatDiagramSide {
+  const room: [NeatDiagramSide, number][] = [
+    ['bottom', outer.y + outer.h - (inner.y + inner.h)],
+    ['left', inner.x - outer.x],
+    ['right', outer.x + outer.w - (inner.x + inner.w)],
+    ['top', inner.y - outer.y],
+  ];
+  return room.reduce((best, side) => (side[1] < best[1] ? side : best))[0];
 }
 
 /** Where a port sits in the level's coordinates. */
@@ -288,13 +333,7 @@ function spreadCorridors(routes: Route[]): void {
 
 /** True when the ports face each other with the target ahead and not level: drawn as a Z. */
 function isZ(r: Route): boolean {
-  const opposite: Record<NeatDiagramSide, NeatDiagramSide> = {
-    left: 'right',
-    right: 'left',
-    top: 'bottom',
-    bottom: 'top',
-  };
-  if (opposite[r.sourceSide] !== r.targetSide) return false;
+  if (OPPOSITE[r.sourceSide] !== r.targetSide) return false;
   const n = SIDE_AXES[r.sourceSide].n;
   const ahead = dot({ x: r.target.x - r.source.x, y: r.target.y - r.source.y }, n) > 0;
   const level = horizontal(r.sourceSide) ? r.source.y === r.target.y : r.source.x === r.target.x;
