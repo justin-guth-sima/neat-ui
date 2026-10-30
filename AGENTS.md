@@ -70,7 +70,10 @@ look happens in one place. Every rule here protects that.
     `NeatSeriesSwatch`, a series' colour beside a label outside the chart; the only code that
     imports d3), `diagram` (hand-placed diagrams; so far their model: `NeatDiagramSet`, an
     overview and its drill-down levels, each a `NeatDiagram` of nodes by role and look, edges and
-    notes, positions relative to the parent node; the edge routing and the port layout, ported
+    notes, positions relative to the parent node; and `neatDrillDownLevel`, which places the level
+    a block opens from the diagram the block sits in, as the demo does: the block as the frame,
+    what it holds inside, the nodes it exchanges edges with in a column left (senders) and right
+    (receivers); the edge routing, the port layout, the notes' placement and the fit maths, ported
     from the Autoware demo's System page, stay internal),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the

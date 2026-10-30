@@ -7,6 +7,7 @@ import * as charts from '../charts/src/public-api';
 import * as collapsible from '../collapsible/src/public-api';
 import * as confirm from '../confirm/src/public-api';
 import * as details from '../details/src/public-api';
+import * as diagram from '../diagram/src/public-api';
 import * as dialog from '../dialog/src/public-api';
 import * as dropZone from '../drop-zone/src/public-api';
 import * as field from '../field/src/public-api';
@@ -35,6 +36,7 @@ const ENTRIES = {
   collapsible,
   confirm,
   details,
+  diagram,
   dialog,
   dropZone,
   field,

@@ -1,8 +1,8 @@
 import * as diagram from './public-api';
 
 describe('the diagram entry', () => {
-  it('exports no runtime symbol yet: the routing and the port layout stay internal', () => {
-    expect(Object.keys(diagram)).toEqual([]);
+  it('exports the drill-down helper; the routing, the layout, notes and fit stay internal', () => {
+    expect(Object.keys(diagram)).toEqual(['neatDrillDownLevel']);
   });
 });
 
