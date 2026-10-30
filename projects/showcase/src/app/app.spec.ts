@@ -87,13 +87,13 @@ describe('App', () => {
 
     expect(items.length).toBe(3);
     expect([items[0], items[2]]).toEqual(['About this showcase', 'Dark theme']);
-    // The second shows two lines of its own through [neatRailItemLabel].
-    const lines = Array.from(end.querySelectorAll('[neatRailItemLabel] > *'), (line) =>
-      line.textContent?.trim(),
-    );
+    // The second says a board's state with the item's tone, text and detail.
+    const board = end.querySelector('[label="Demo board, 192.168.1.20, connected"]') as HTMLElement;
+    const lines = Array.from(board.querySelectorAll('.line'), (line) => line.textContent?.trim());
     expect(lines).toEqual(['Demo board', '192.168.1.20']);
+    expect(board.getAttribute('data-tone')).toBe('success');
+    expect(board.querySelector('.dot')).not.toBeNull();
     // A divider of the app's own sets the board apart from the items below it.
-    const board = end.querySelector('[label="Demo board, 192.168.1.20"]') as HTMLElement;
     expect(board.nextElementSibling?.matches('hr[neatRailDivider]')).toBe(true);
   });
 

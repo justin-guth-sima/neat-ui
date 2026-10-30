@@ -8,26 +8,6 @@ app-root {
   height: 100%;
 }
 
-/* A rail item's two lines of its own ([neatRailItemLabel]), as an app's board item has. The kit
-   cuts only its label's own line, so each of these lines ellipsizes itself. */
-.showcase-rail-lines {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.25;
-}
-
-.showcase-rail-lines > * {
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.showcase-rail-lines small {
-  color: var(--muted-foreground);
-  font-size: var(--neat-text-xs);
-}
-
 .showcase-page {
   display: flex;
   flex-direction: column;

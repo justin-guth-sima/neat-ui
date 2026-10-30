@@ -24,10 +24,15 @@
   text-align: start;
   text-decoration: none;
   cursor: pointer;
+  /* The surface the item shows, which the state dot's ring takes so that it cuts the icon
+     cleanly: the rail's, or the fill of hover and the current page. */
+  --rail-item-surface: var(--sidebar);
 }
 
 :host(:hover),
 :host([aria-current='page']) {
+  --rail-item-surface: var(--sidebar-accent);
+
   background: var(--sidebar-accent);
   color: var(--sidebar-accent-foreground);
 }
@@ -41,14 +46,79 @@
   outline-offset: calc(-1 * var(--neat-focus-ring-width));
 }
 
+/* The containing block of the state dot, which sits on the icon's corner. */
 .icon {
+  position: relative;
   display: inline-flex;
   flex: none;
 }
 
-.label {
+/*
+ * Each tone's colours, stated once: the dot's and the detail line's (the rail item spec holds the
+ * text to 4.5:1 and the dot to 3:1 on the rail and on the hover fill, in both schemes). A good or
+ * neutral state is quiet, so its detail stays the rail's muted text; the others say themselves in
+ * their colour. The theme's `--warning` is a fill (2.2:1 on white), too faint for a dot or for
+ * text, so warning's dot is the line step of its scale, and its words that step mixed a fifth of
+ * the way to the text colour, which holds 4.5:1 on the hover fill where the step alone does not.
+ */
+:host([data-tone='success']) {
+  --rail-item-dot: var(--success);
+  --rail-item-detail: var(--muted-foreground);
+}
+
+:host([data-tone='neutral']) {
+  --rail-item-dot: var(--muted-foreground);
+  --rail-item-detail: var(--muted-foreground);
+}
+
+:host([data-tone='warning']) {
+  --rail-item-dot: var(--neat-line-warning);
+  --rail-item-detail: color-mix(in oklab, var(--neat-line-warning) 80%, var(--foreground));
+}
+
+:host([data-tone='danger']) {
+  --rail-item-dot: var(--destructive);
+  --rail-item-detail: var(--destructive);
+}
+
+:host([data-tone='info']) {
+  --rail-item-dot: var(--info);
+  --rail-item-detail: var(--info);
+}
+
+:host([data-tone='highlight']) {
+  --rail-item-dot: var(--highlight);
+  --rail-item-detail: var(--highlight);
+}
+
+.dot {
+  position: absolute;
+  inset-block-end: -0.125rem;
+  inset-inline-end: -0.125rem;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: 50%;
+  background: var(--rail-item-dot);
+  box-shadow: 0 0 0 0.125rem var(--rail-item-surface);
+}
+
+/* The label's own line, and each of the text and the detail, cut with an ellipsis. */
+.label,
+.line {
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+/* Without a tone, the detail is the rail's muted text, as a quiet state's is. */
+.detail {
+  color: var(--rail-item-detail, var(--muted-foreground));
+  font-size: var(--neat-text-xs);
 }

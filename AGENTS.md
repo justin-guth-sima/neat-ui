@@ -496,14 +496,25 @@ place, so every app reads the same way.
   collapsed and "Collapse" while expanded.
 - An app's item is a `button[neatRailItem]` or `a[neatRailItem]` with a `label`, the look and
   behaviour the page links have (they are rail items too): the content is the icon (a
-  `neat-icon`, or an icon with a state dot the app draws), the label shows beside it while the
-  rail is expanded, and while it is collapsed stays as visually hidden text (the item's name) and
-  shows as a tooltip on the right. Richer visible text (two lines, a coloured state) goes in an
-  element marked `neatRailItemLabel` inside the item, which takes the label's place; `label` stays
-  the tooltip, so it should say at least as much, and an `aria-label` the app sets wins as the
-  name. The kit ellipsizes only the label's own line: the lines of such a flex column are the
-  app's elements, so each one ellipsizes itself (`min-width: 0`, `overflow: hidden`,
-  `white-space: nowrap`, `text-overflow: ellipsis`), as the showcase's board item does. An item
+  `neat-icon`), the label shows beside it while the rail is expanded, and while it is collapsed
+  stays as visually hidden text (the item's name) and shows as a tooltip on the right.
+- An item with a state (a board, a connection) says it with `tone` (a `NeatTone`: a 0.5rem dot on
+  the icon's corner, ringed in the surface it sits on, the rail's or the hover and current-page
+  fill), `text` (the visible first line, the label by default) and `detail` (a smaller second line
+  in the tone's colour, muted for success, neutral or no tone), as the showcase's board item does.
+  Both lines ellipsize and hide with the label while the rail is collapsed. `label` stays the
+  tooltip and the name, so the app writes the whole sentence there, the state the dot alone shows
+  included ("DevKit, 192.168.100.2, connected"). Why not composed by the kit: brain's tooltip takes
+  its text from the template only. While the lines say other than `label`, they are `aria-hidden`
+  and the label is visually hidden text beside them, so the name still comes from the content: a
+  kit `aria-label` binding would remove one the app sets. Each tone's dot and detail colour is
+  stated once in `rail-item.css`, and its spec holds the detail text to 4.5:1 and the dot to 3:1 on
+  `--sidebar` and `--sidebar-accent` in both schemes.
+- Visible text the inputs cannot say goes in an element marked `neatRailItemLabel` inside the item,
+  which takes the label's place; `label` stays the tooltip, so it should say at least as much, and
+  an `aria-label` the app sets wins as the name. The kit ellipsizes only the label's own line: the
+  lines of such a flex column are the app's elements, so each one ellipsizes itself
+  (`min-width: 0`, `overflow: hidden`, `white-space: nowrap`, `text-overflow: ellipsis`). An item
   has no pressed state, and the rail's selection fill means only "the current page"
   (`aria-current="page"`). A link followed on a phone puts the floating rail away; a button leaves
   it. The item's look is `rail-item.css`, once.

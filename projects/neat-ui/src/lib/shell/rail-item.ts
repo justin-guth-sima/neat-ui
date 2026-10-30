@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   Directive,
   effect,
   ElementRef,
@@ -13,6 +14,7 @@ import { BrnTooltip } from '@spartan-ng/brain/tooltip';
 import { neatAsideOpen } from '../page/aside-open';
 import { NeatViewport } from '../page/viewport';
 import { safeStorage } from '../storage';
+import type { NeatTone } from '../theme/tone';
 import { provideNeatTooltipOptions } from '../tooltip/tooltip';
 
 const RAIL_EXPANDED_KEY = 'neat-ui:rail-expanded';
@@ -58,15 +60,33 @@ export class RailState {
  * </button>
  * ```
  *
- * The content is the icon, so an app can draw more than a glyph there (a state dot on it). `label`
- * is the visible text while the rail is expanded; collapsed, it stays as the item's visually hidden
- * text, so the name is kept, and shows as a tooltip on the right. An item whose visible text is
- * richer than its label (two lines, a coloured state) puts it in an element marked
- * `neatRailItemLabel`, which takes the label's place; `label` stays the tooltip, so it should say
- * at least what that text says. Its name is then that text, unless the app gives an `aria-label`.
- * The kit cuts the label's own line with an ellipsis, but the lines of an app's flex column are the
- * app's elements, which the kit's stylesheet cannot reach: each line ellipsizes itself
- * (`min-width: 0`, `overflow: hidden`, `white-space: nowrap`, `text-overflow: ellipsis`).
+ * The content is the icon. `label` is the visible text while the rail is expanded; collapsed, it
+ * stays as the item's visually hidden text, so the name is kept, and shows as a tooltip on the
+ * right.
+ *
+ * An item with a state (a board, a connection) says it with the kit's inputs:
+ *
+ * ```html
+ * <button neatRailEnd neatRailItem type="button" label="DevKit, 192.168.100.2, connected"
+ *         text="DevKit" detail="192.168.100.2" tone="success" (click)="…">
+ *   <neat-icon name="board" />
+ * </button>
+ * ```
+ *
+ * `tone` puts a dot on the icon's corner, `text` is the visible first line (the label by default)
+ * and `detail` a smaller second line in the tone's colour, both cut with an ellipsis and hidden
+ * with the label while the rail is collapsed. `label` stays the tooltip and the name, so it is the
+ * whole sentence, with the state the dot alone shows: brain's tooltip takes its text from the
+ * template only, so the kit cannot compose it from the lines. While the lines say other than
+ * `label`, they are `aria-hidden` and the label is visually hidden text beside them, so the name
+ * still comes from the content and an `aria-label` the app sets still wins (a kit `aria-label`
+ * binding would remove the app's).
+ *
+ * Visible text the inputs cannot say goes in an element marked `neatRailItemLabel`, which takes
+ * the label's place; `label` stays the tooltip, so it should say at least what that text says. Its
+ * name is then that text, unless the app gives an `aria-label`. The lines of such an element are
+ * the app's, which the kit's stylesheet cannot reach: each ellipsizes itself (`min-width: 0`,
+ * `overflow: hidden`, `white-space: nowrap`, `text-overflow: ellipsis`).
  *
  * An item is an action, never a toggle: its label says what a click does ("Dark theme" while
  * light, "Light theme" while dark), so it has no pressed state, and the rail's selection fill means
@@ -88,18 +108,52 @@ export class RailState {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideNeatTooltipOptions('right')],
   hostDirectives: [{ directive: BrnTooltip, inputs: ['brnTooltip: label'] }],
-  host: { '(click)': 'followed()' },
+  host: {
+    '[attr.data-tone]': 'tone() ?? null',
+    '(click)': 'followed()',
+  },
   template: `
-    <span class="icon"><ng-content /></span>
+    <span class="icon">
+      <ng-content />
+      @if (tone()) {
+        <span class="dot" aria-hidden="true"></span>
+      }
+    </span>
     <span class="label" [class.sr-only]="!expanded()">
-      <ng-content select="[neatRailItemLabel]">{{ label() }}</ng-content>
+      <ng-content select="[neatRailItemLabel]">
+        @if (showsLines()) {
+          <span class="lines" aria-hidden="true">
+            <span class="line">{{ text() ?? label() }}</span>
+            @if (detail(); as detail) {
+              <span class="line detail">{{ detail }}</span>
+            }
+          </span>
+          <span class="sr-only">{{ label() }}</span>
+        } @else {
+          {{ label() }}
+        }
+      </ng-content>
     </span>
   `,
   styleUrl: './rail-item.css',
 })
 export class NeatRailItem {
-  /** The item's text: visible while the rail is expanded, its tooltip while it is not. */
+  /**
+   * The item's name and tooltip, and its visible text while the rail is expanded unless `text` or
+   * `detail` say otherwise.
+   */
   readonly label = input.required<string>();
+  /** The visible first line, when it says less than `label` (a board's name, its state aside). */
+  readonly text = input<string>();
+  /** A smaller second line under the first (an address, a state), in the tone's colour. */
+  readonly detail = input<string>();
+  /** The state a dot on the icon's corner shows; no dot without it. */
+  readonly tone = input<NeatTone>();
+
+  /** Whether the item shows lines that say other than `label`, which then names it unseen. */
+  protected readonly showsLines = computed(
+    () => !!this.detail() || (this.text() ?? this.label()) !== this.label(),
+  );
 
   private readonly rail = inject(RailState, { optional: true });
   private readonly isLink = inject(ElementRef).nativeElement instanceof HTMLAnchorElement;

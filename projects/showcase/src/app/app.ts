@@ -8,7 +8,9 @@ import { NeatToastHost, NeatToasts } from '@sima/neat-ui/toast';
   selector: 'app-root',
   template: `
     <neat-shell appName="neat-ui showcase" [navItems]="navItems">
-      <!-- The app's own items at the bottom of the rail, above the kit's theme switch. -->
+      <!-- The app's own items at the bottom of the rail, above the kit's theme switch. The board
+           says its state with the item's tone, text and detail; its label is the whole sentence,
+           the tooltip and the name. -->
       <button
         neatRailEnd
         neatRailItem
@@ -22,14 +24,13 @@ import { NeatToastHost, NeatToasts } from '@sima/neat-ui/toast';
         neatRailEnd
         neatRailItem
         type="button"
-        label="Demo board, 192.168.1.20"
+        label="Demo board, 192.168.1.20, connected"
+        text="Demo board"
+        detail="192.168.1.20"
+        tone="success"
         (click)="toasts.status('A board item would open its dialog here.')"
       >
         <neat-icon name="board" />
-        <span neatRailItemLabel class="showcase-rail-lines">
-          <span>Demo board</span>
-          <small>192.168.1.20</small>
-        </span>
       </button>
       <!-- Sets the board apart from the items below it, as the kit's line above the group does. -->
       <hr neatRailEnd neatRailDivider />
