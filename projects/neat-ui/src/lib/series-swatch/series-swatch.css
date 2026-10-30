@@ -1,7 +1,7 @@
 /*
  * A series' colour as a small square: the one definition of the swatch, for the charts' legends
- * and readouts and for an app's labels beside them. It fills with the token the chart's line or
- * band reads (`--series`), at full strength, so the two cannot differ.
+ * and readouts, the diagram's legend and an app's labels beside them. It fills with the token the
+ * chart's line or band reads (`--series`), at full strength, so the two cannot differ.
  */
 :host {
   display: inline-block;

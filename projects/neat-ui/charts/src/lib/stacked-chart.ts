@@ -7,6 +7,7 @@ import {
   input,
   viewChild,
 } from '@angular/core';
+import { NeatSeriesSwatch } from '@sima/neat-ui';
 import { chartName, FLIP_BELOW, gridMarks, PLOT_REM, roomyGridMarks, timeAxis } from './frame';
 import { foldSeries, isNumber, stackedPaths, timeFractions } from './geometry';
 import { seriesToken } from './line-token';
@@ -19,7 +20,6 @@ import {
   sampleCursor,
   whenText,
 } from './readout';
-import { NeatSeriesSwatch } from './series-swatch';
 import type { NeatChartFormat, NeatSeries } from './types';
 
 /**

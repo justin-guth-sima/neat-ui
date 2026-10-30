@@ -7,6 +7,7 @@ import {
   input,
   viewChild,
 } from '@angular/core';
+import { NeatSeriesSwatch } from '@sima/neat-ui';
 import {
   chartName,
   FLIP_BELOW,
@@ -18,7 +19,6 @@ import {
 } from './frame';
 import { foldSeries, linePaths, timeFractions, yAt } from './geometry';
 import { lineToken, seriesToken } from './line-token';
-import { NeatSeriesSwatch } from './series-swatch';
 import {
   describe,
   fractionAcross,

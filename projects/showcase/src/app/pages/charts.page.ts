@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { NeatPage } from '@sima/neat-ui';
+import { NeatPage, NeatSeriesSwatch } from '@sima/neat-ui';
 import {
   NeatChartCard,
   NeatChartFormat,
@@ -8,7 +8,6 @@ import {
   NeatHeatmapRow,
   NeatReference,
   NeatSeries,
-  NeatSeriesSwatch,
   NeatSparkline,
   NeatStackedChart,
   NeatThreshold,
@@ -303,7 +302,9 @@ const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
             <code>index</code> is the series' place in the chart's <code>series</code>, from 0, and
             it takes the colour the chart draws that series in, through the same rule, so the chips
             below match the lines in both themes. The charts draw their own legends' and readouts'
-            swatches with it. It is hidden from assistive technology: the label names the series.
+            swatches with it, and so does the diagram's legend; it lives in the primary
+            <code>&#64;sima/neat-ui</code> (and <code>&#64;sima/neat-ui/charts</code> still exports
+            it). It is hidden from assistive technology: the label names the series.
           </p>
           <div class="chart-grid">
             <div class="chart-card swatch-demo">

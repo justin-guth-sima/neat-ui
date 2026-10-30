@@ -1,3 +1,4 @@
+import { ɵseriesToken } from '@sima/neat-ui';
 import { absoluteRects, type EdgeLayout, layoutEdges, type Rect, SIDE_AXES } from './layout';
 import type {
   NeatDiagram,
@@ -159,10 +160,9 @@ function drawEdge(edge: NeatDiagramEdge, layout: EdgeLayout): DrawnEdge {
 }
 
 /**
- * The colour of a line, an edge's or a legend sample's: its series' token (the charts' palette, 1
- * to 8, so a legend's swatch matches its edges), else the muted colour. A ghost is muted whatever
- * its series: it is a part that does not run here, and stays quiet beside the edges that do. The
- * one place a series becomes a token; `part` names what has the line in the dev-mode message.
+ * The colour of a line, an edge's or a legend sample's: its series' token, else the muted colour.
+ * A ghost is muted whatever its series: it is a part that does not run here, and stays quiet
+ * beside the edges that do. `part` names what has the line in the dev-mode message.
  */
 export function lineColour(
   series: number | undefined,
@@ -170,9 +170,19 @@ export function lineColour(
   part: string,
 ): string {
   if (series === undefined || line === 'ghost') return MUTED;
-  if (Number.isInteger(series) && series >= 1 && series <= 8) return `var(--neat-series-${series})`;
+  const index = seriesIndex(series, part);
+  return index === null ? MUTED : ɵseriesToken(index);
+}
+
+/**
+ * The palette index (from 0, as `NeatSeriesSwatch` and the kit's token rule count) of a diagram
+ * series (from 1, as an edge's `series`): the one place the diagram converts between the two.
+ * Null for a series that is not 1 to 8, which is named once in dev mode and drawn muted.
+ */
+export function seriesIndex(series: number, part: string): number | null {
+  if (Number.isInteger(series) && series >= 1 && series <= 8) return series - 1;
   reportLeftOut(`${part} is drawn in the muted colour: its series ${series} is not 1 to 8`);
-  return MUTED;
+  return null;
 }
 
 /** A drawn part in words, for the list that says the picture without it. */

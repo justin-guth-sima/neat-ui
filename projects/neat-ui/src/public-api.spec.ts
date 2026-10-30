@@ -61,14 +61,27 @@ const ENTRIES = {
 
 describe('the public API', () => {
   it('the primary entry exports no component that has its own entry', () => {
+    // What moved into the primary and is still re-exported where apps imported it from before.
+    const REEXPORTED: Partial<Record<keyof typeof ENTRIES, string[]>> = {
+      charts: ['NeatSeriesSwatch'],
+    };
     for (const [name, entry] of Object.entries(ENTRIES)) {
       const exported = Object.keys(entry);
+      const moved = REEXPORTED[name as keyof typeof ENTRIES] ?? [];
       expect(exported.length, `${name} exports something`).toBeGreaterThan(0);
       expect(
-        exported.filter((symbol) => symbol in primary),
+        exported.filter((symbol) => symbol in primary && !moved.includes(symbol)),
         `${name} symbols also exported by the primary`,
       ).toEqual([]);
+      for (const symbol of moved)
+        expect(entry[symbol as keyof typeof entry], symbol).toBe(
+          primary[symbol as keyof typeof primary],
+        );
     }
+  });
+
+  it('exports the series swatch, which the charts and the diagram’s legend both show', () => {
+    expect(Object.keys(primary)).toEqual(expect.arrayContaining(['NeatSeriesSwatch']));
   });
 
   it('exports the series teal beside the other palette bases', () => {
@@ -138,6 +151,7 @@ describe('the public API', () => {
       'ɵIN_PAGE_TOOLBAR',
       'ɵhlm',
       'ɵlistVariants',
+      'ɵseriesToken',
     ]);
   });
 });

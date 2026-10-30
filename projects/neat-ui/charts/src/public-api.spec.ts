@@ -2,7 +2,7 @@ import * as primary from '@sima/neat-ui';
 import * as charts from './public-api';
 
 describe('the charts entry', () => {
-  it('exports its components and nothing from the primary', () => {
+  it('exports its components, and from the primary only the swatch that moved there', () => {
     // The geometry stays internal: only the components are runtime exports (the types are erased).
     expect(Object.keys(charts).sort()).toEqual([
       'NeatChartCard',
@@ -12,7 +12,9 @@ describe('the charts entry', () => {
       'NeatStackedChart',
       'NeatTimeChart',
     ]);
-    expect(Object.keys(charts).filter((symbol) => symbol in primary)).toEqual([]);
+    // The swatch moved to the primary; it stays here, the same class, for the apps importing it.
+    expect(Object.keys(charts).filter((symbol) => symbol in primary)).toEqual(['NeatSeriesSwatch']);
+    expect(charts.NeatSeriesSwatch).toBe(primary.NeatSeriesSwatch);
   });
 });
 

@@ -18,7 +18,8 @@ export function textToken(tone: NeatChartTone): string {
   return tone === 'default' ? 'var(--foreground)' : lineToken(tone);
 }
 
-/** The palette colour of the series at `index` (from 0): `--neat-series-1` to `-8`. */
-export function seriesToken(index: number): string {
-  return `var(--neat-series-${index + 1})`;
-}
+/**
+ * The palette colour of the series at `index` (from 0): `--neat-series-1` to `-8`, by the kit's
+ * one rule, which the primary keeps with `NeatSeriesSwatch` so a swatch and a line cannot differ.
+ */
+export { ɵseriesToken as seriesToken } from '@sima/neat-ui';

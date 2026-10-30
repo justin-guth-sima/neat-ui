@@ -1,23 +1,34 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { seriesToken } from './line-token';
 
 /**
- * The colour of a chart series as a small square, for a label that stands for that series outside
- * the chart (a run's chip, a summary row, a heading over a per-metric chart):
+ * The palette colour of the series at `index` (from 0): `--neat-series-1` to `-8`. The kit's one
+ * rule from a series to its token: the charts colour their lines and bands by it and the diagram
+ * its edges (whose `series` counts from 1, converted in one place there), so a swatch matches
+ * what it names.
+ */
+export function seriesToken(index: number): string {
+  return `var(--neat-series-${index + 1})`;
+}
+
+/**
+ * The colour of a series as a small square, for a label that stands for that series outside the
+ * drawing that uses it (a run's chip, a summary row, a chart's or a diagram's legend):
  *
  * ```html
  * <neat-series-swatch [index]="i" /> {{ run.name }}
  * ```
  *
- * `index` is the series' place in the chart's `series`, from 0, and the swatch takes the colour the
- * chart draws that series in when it has several (`--neat-series-1` to `-8`, through the charts'
- * one rule, `seriesToken`), so a label and its line match in either theme. A chart folds a ninth
- * series and beyond into "Other" (index 7), so an index past 7 names no colour. A lone series is
- * drawn in its tone's colour instead and needs no swatch.
+ * `index` is the series' place in the chart's `series`, from 0, and the swatch takes the colour
+ * that series is drawn in (`--neat-series-1` to `-8`, through `seriesToken`), so a label and its
+ * line match in either theme. A chart folds a ninth series and beyond into "Other" (index 7), so
+ * an index past 7 names no colour. A chart's lone series is drawn in its tone's colour instead and
+ * needs no swatch.
  *
- * The time and stacked charts draw their own legends' and readouts' swatches with it, so its size,
- * shape and colour are stated here once. It is `aria-hidden`: the text beside it names the series,
- * and a colour alone is not a name.
+ * In the primary, not in `charts`, so the diagram's legend shows it without the charts' d3 (and
+ * `@sima/neat-ui/charts` still exports it for the apps that import it from there). The time and
+ * stacked charts draw their legends' and readouts' swatches with it, and so does
+ * `neat-diagram-legend`, so its size, shape and colour are stated here once. It is
+ * `aria-hidden`: the text beside it names the series, and a colour alone is not a name.
  */
 @Component({
   selector: 'neat-series-swatch',

@@ -26,8 +26,12 @@ look happens in one place. Every rule here protects that.
     diagram's level bar use it), `NeatTooltip`, `NeatNote`, `NeatLiveDot` (a
     red dot for something live, still or, with `pulse`, beating with a ring that grows out of it;
     its red is `--neat-live`, not `--destructive`, held to 3:1 on the page and on the video scrim
-    over black to mid-grey video, so a "Live" badge over a picture can use it)
-    and `neatSecondsAgo` (the kit's one relative-time style, "just now", "12 s ago", "3 min ago"),
+    over black to mid-grey video, so a "Live" badge over a picture can use it),
+    `NeatSeriesSwatch` (a series' colour as a small square beside a label outside the drawing that
+    uses it: the charts' legends and readouts, the diagram's legend, an app's chip; in the primary
+    so the diagram shows it without the charts' d3, and still exported by `charts`, where apps
+    imported it first) and `neatSecondsAgo` (the kit's one relative-time style, "just now",
+    "12 s ago", "3 min ago"),
     `NeatStale` (`[neatStale]`: what its host shows is stale, faded to 0.55 and grey, with no
     transition; the words beside it say why) and `provideNeatTitles(appName)` (the document's
     title, `<appName> · <route title>`, or the app name alone on an untitled route).
@@ -70,12 +74,11 @@ look happens in one place. Every rule here protects that.
     `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments) and `charts` (live
     metric charts, drawn as SVG but for the heatmap: `NeatSparkline`, `NeatTimeChart`,
-    `NeatStackedChart` and `NeatHeatmap`, `NeatChartCard`, the card they sit on, and
-    `NeatSeriesSwatch`, a series' colour beside a label outside the chart; with `diagram`, the
-    only code that imports d3), `diagram` (hand-placed diagrams: their
-    model, `NeatDiagramView` (`neat-diagram`) with its templates, `NeatDiagramLegend`
-    (`neat-diagram-legend`) and `neatDrillDownLevel`; how it draws is under "How the diagram is
-    drawn" below),
+    `NeatStackedChart` and `NeatHeatmap`, `NeatChartCard`, the card they sit on, and the
+    primary's `NeatSeriesSwatch` again; with `diagram`, the only code that imports d3), `diagram`
+    (hand-placed diagrams: their model, `NeatDiagramView` (`neat-diagram`) with its templates,
+    `NeatDiagramLegend` (`neat-diagram-legend`) and `neatDrillDownLevel`; how it draws is under
+    "How the diagram is drawn" below),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
@@ -142,8 +145,10 @@ the chart. Colours are named in `line-token.ts`, the one place a tone or a serie
 token (the reference line's `--muted-foreground`, `REFERENCE_TOKEN` in `time-chart.ts`, and the
 heatmap's `color-mix` in `fillOf` aside), and reach the CSS as a custom property the stroke or
 fill reads (`--series`, `--level`, `--tone`, `--cell`, `--sparkline-stroke`), so a variant (a
-tone) is stated once. A series' swatch is `NeatSeriesSwatch` (its `index` from 0, through
-`seriesToken`), which the legends and readouts render and an app shows beside its own labels (a
+tone) is stated once. A series' swatch is the primary's `NeatSeriesSwatch` (its `index` from 0,
+through `seriesToken`, the kit's one rule from a series to its token, which the primary keeps
+beside the swatch and shares with `charts` and `diagram` as `ɵseriesToken`; `line-token.ts`
+re-exports it), which the legends and readouts render and an app shows beside its own labels (a
 run's chip), so a label outside the chart matches its line by the same rule and its look is
 stated once. The paths come from `charts/src/lib/geometry.ts` (d3-shape's `line` and
 `area`, and d3-scale's linear scale for y, clamped): samples sit where their times put them, or
@@ -211,10 +216,14 @@ the whole in the kit's look.
   chips. **Where a part runs is said by a chip in one convention**, documented here rather than
   enforced, so every demo reads alike: the hardware decoder `HW` in `success`, `EV74` in
   `highlight`, `MLA` in `info`, `A65` in `neutral`. An edge's `series` is 1 to 8, the charts'
-  `--neat-series-1` to `-8` (counted from 1, unlike `NeatSeriesSwatch`'s index from 0); unset, or
-  on a `ghost` line, it is muted. Its `line` is `solid`, `dashed` or `ghost`, its tips `none`,
-  `arrow` or `dot` (unset: none at the start, an arrow at the end), and its `label` a small mono
-  chip at `labelAt` along it. `data` is the app's and never read. A part whose ids name nothing (an
+  `--neat-series-1` to `-8` (counted from 1, unlike `NeatSeriesSwatch`'s index from 0, and
+  converted in one place, `seriesIndex` in `drawing.ts`); unset, or on a `ghost` line, it is
+  muted. Its `line` is `solid`, `dashed` or `ghost`, its tips `none`, `arrow` or `dot` (unset: none
+  at the start, an arrow at the end), and its `label` a small mono chip at `labelAt` along it. A
+  note is anchored to its `edges` (the mean of their points at `along`, 0.5 unset) or to an
+  `anchor` point, placed at `x`/`y` or moved `dx`/`dy` from the anchor, and joined to it by a
+  dotted leader that meets the box's nearest point, or its centre with `leaderTo: 'centre'`.
+  `data` is the app's and never read. A part whose ids name nothing (an
   edge's end, a node's parent, a block's `opens`, a note's edge) is left out and named once in dev
   mode; the diagram never throws for it.
 - **The drawing:** `neat-diagram` is a `figure` named by its `label`. Frames and bands are
@@ -224,8 +233,9 @@ the whole in the kit's look.
   node is the same element, moved. The routing (port sides and order so fans do not cross, Z
   routes sharing a corridor spread apart, stubs when the target lies behind) is the Autoware
   demo's, ported with its specs; an edge between a frame and a node inside it runs inside the
-  frame, from the frame's border nearest the node. An edge's colour comes from `lineColour` in
-  `drawing.ts`, the one place a series becomes a token, and each line look is stated once in
+  frame, from the frame's border nearest the node (the frame's own `outSide` and `inSide` are for
+  the nodes around it). An edge's colour comes from `lineColour` in `drawing.ts`, through
+  `seriesIndex` and the kit's `seriesToken`, and each line look is stated once in
   `lines.css`, which the edges and the legend's samples both read. A visually hidden list after
   the drawing says the level's nodes (label, detail, chips) and edges ("Camera to Decode, image")
   in words.
@@ -274,12 +284,11 @@ the whole in the kit's look.
   under reduced motion, and hands the view back to fitting by itself. An edge's hit path stays 12 px
   wide on screen at any zoom.
 - **The legend:** `neat-diagram-legend` takes `items` (`NeatDiagramLegendItem`: `series?`,
-  `line?`, `label`) and shows them as the demo's legend chip, a list named "Legend". An item with a
-  `line` shows a short sample of that line in its colour, drawn by the edges' own rules; one
-  without shows its series' swatch, `NeatSeriesSwatch`'s look. The swatch is restated in
-  `legend.css` rather than imported: importing it from `@sima/neat-ui/charts` would bring the
-  charts' module, and d3-scale and d3-shape with it, into this entry's chunk, so the two are kept
-  the same by hand. The app places the legend (above the diagram, or over it).
+  `line?`, `label`) and shows them as the demo's legend chip, a list named "Legend". A series
+  without a `line` shows the kit's `NeatSeriesSwatch` (from the primary, so no d3 comes with it);
+  any other item shows a short sample of its line (solid when unset) drawn by the edges' own rules
+  in the colour its edges take, muted for a ghost, without a series or for a series not 1 to 8.
+  The app places the legend (above the diagram, or over it).
 - What stays internal: the routing, the port layout, the notes' placement and measurement, the fit
   maths, the pan and zoom, the hover and the level path.
 

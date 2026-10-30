@@ -1,6 +1,7 @@
 /*
  * The Autoware demo's legend chip: a pill of entries in small muted type, on a veil of the card so
- * it reads where an app lays it over a drawing. Its lines are lines.css's.
+ * it reads where an app lays it over a drawing. Its lines are lines.css's, its swatches the kit's
+ * `neat-series-swatch`.
  */
 :host {
   display: flex;
@@ -32,17 +33,4 @@ li {
   width: 1.5rem;
   height: 0.25rem;
   overflow: visible;
-}
-
-/*
- * The charts' `NeatSeriesSwatch` (series-swatch.css), restated: importing it from
- * `@sima/neat-ui/charts` would bring the charts' module, and d3-scale and d3-shape with it, into
- * this entry's chunk. Keep the two the same.
- */
-.swatch {
-  flex: none;
-  width: 0.625rem;
-  height: 0.625rem;
-  border-radius: 2px;
-  background: var(--edge);
 }

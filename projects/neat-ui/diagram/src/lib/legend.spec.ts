@@ -41,13 +41,12 @@ describe('NeatDiagramLegend', () => {
     ]);
   });
 
-  it('shows a series without a line as its swatch, in the colour its edges take', async () => {
+  it('shows a series without a line as the kit’s series swatch, its index counted from 0', async () => {
     const { items } = await render();
     const [image] = items();
-    const swatch = image.querySelector('.swatch');
-    expect(swatch?.getAttribute('aria-hidden')).toBe('true');
+    const swatch = image.querySelector<HTMLElement>('neat-series-swatch');
+    expect(swatch?.style.getPropertyValue('--series')).toBe('var(--neat-series-1)');
     expect(image.querySelector('svg')).toBeNull();
-    expect(image.style.getPropertyValue('--edge')).toBe('var(--neat-series-1)');
   });
 
   it('shows a line as a sample of it, muted where its edges are (a ghost, no series)', async () => {
@@ -57,7 +56,7 @@ describe('NeatDiagramLegend', () => {
     expect(sample(results)?.dataset['line']).toBe('dashed');
     expect(sample(results)?.getAttribute('aria-hidden')).toBe('true');
     expect(sample(results)?.querySelector('line.line')).not.toBeNull();
-    expect(results.querySelector('.swatch')).toBeNull();
+    expect(results.querySelector('neat-series-swatch')).toBeNull();
     expect(results.style.getPropertyValue('--edge')).toBe('var(--neat-series-4)');
     expect(sample(ghost)?.dataset['line']).toBe('ghost');
     expect(ghost.style.getPropertyValue('--edge')).toBe('var(--muted-foreground)');
@@ -65,7 +64,7 @@ describe('NeatDiagramLegend', () => {
     expect(control.style.getPropertyValue('--edge')).toBe('var(--muted-foreground)');
   });
 
-  it('draws a series outside 1 to 8 muted and names it once, as an edge with it would be', async () => {
+  it('draws a series outside 1 to 8 as a muted line and names it once, as an edge with it', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     try {
       const { fixture, host, items } = await render();
@@ -73,7 +72,10 @@ describe('NeatDiagramLegend', () => {
       await fixture.whenStable();
       host.items.set([{ series: 9, label: 'ninth' }]);
       await fixture.whenStable();
-      expect(items()[0].style.getPropertyValue('--edge')).toBe('var(--muted-foreground)');
+      const [ninth] = items();
+      expect(ninth.querySelector('neat-series-swatch')).toBeNull();
+      expect(ninth.querySelector('svg')?.dataset['line']).toBe('solid');
+      expect(ninth.style.getPropertyValue('--edge')).toBe('var(--muted-foreground)');
       const messages = error.mock.calls.map((call) => String(call[0]));
       expect(messages.filter((m) => m.includes('"ninth"'))).toHaveLength(1);
     } finally {
@@ -87,5 +89,7 @@ describe('NeatDiagramLegend', () => {
       expect(diagramStyles).not.toContain(`[data-line='${look}']`);
       expect(legendStyles).not.toContain(`[data-line='${look}']`);
     }
+    // Its swatch is the kit's, not restated here.
+    expect(legendStyles).not.toMatch(/\.swatch\b/);
   });
 });
