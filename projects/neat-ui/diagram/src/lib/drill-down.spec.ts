@@ -60,7 +60,7 @@ describe('neatDrillDownLevel', () => {
   const level = neatDrillDownLevel(DIAGRAM, 'proc');
   const frame = byId(level, 'proc') as NeatDiagramNode;
 
-  it('makes the block the level’s frame at the origin, sized to its children and a padding of 40', () => {
+  it('makes the block the level’s frame at the origin, its children inside a padding of 40', () => {
     // The group reaches furthest: right to 360 + 200, down to 20 + 160.
     expect(frame).toMatchObject({
       id: 'proc',
@@ -85,7 +85,7 @@ describe('neatDrillDownLevel', () => {
     expect(absoluteRects(level).get('step3')).toEqual({ x: 380, y: 60, w: 160, h: 60 });
   });
 
-  it('puts the senders in a column left of the frame and the receivers right of it, centred', () => {
+  it('puts the senders in a column left of the frame, the receivers right of it, centred', () => {
     const senders = ['cam1', 'cam2'].map((id) => byId(level, id) as NeatDiagramNode);
     // Two blocks of 64 with 24 between them, centred on the frame's 220: from y 34.
     expect(senders.map(({ x, y, w, h }) => ({ x, y, w, h }))).toEqual([
@@ -122,7 +122,7 @@ describe('neatDrillDownLevel', () => {
     expect(level.notes ?? []).toEqual([]);
   });
 
-  it('lays out as a level: every edge drawn, inputs in from the left, results out to the right', () => {
+  it('lays out as a level: every edge drawn, inputs in from the left, results out right', () => {
     const edges = layoutEdges(level);
     expect([...edges.keys()]).toHaveLength(level.edges.length);
     expect(crossings(level)).toEqual([]);

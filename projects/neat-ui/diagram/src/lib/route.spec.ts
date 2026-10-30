@@ -9,7 +9,7 @@ import {
 } from './route';
 
 describe('rounded routes', () => {
-  it('an L: straight runs, the turn one bezier with both control points on the corner, legs of BEND', () => {
+  it('an L: straight runs, the turn one bezier with both control points on the corner', () => {
     const points = routePoints({ x: 0, y: 0 }, 'right', { x: 300, y: -200 }, 'bottom');
     expect(points).toEqual([
       { x: 0, y: 0 },
@@ -53,7 +53,7 @@ describe('rounded routes', () => {
     ]);
   });
 
-  it('a Z: two turns sharing the middle run, which turns at `jog` past halfway; a tiny step stays smooth', () => {
+  it('a Z: two turns sharing the middle run, `jog` past halfway; a tiny step stays smooth', () => {
     expect(routePoints({ x: 0, y: 0 }, 'right', { x: 200, y: 100 }, 'left', 10)).toEqual([
       { x: 0, y: 0 },
       { x: 110, y: 0 },
@@ -138,7 +138,7 @@ describe('pointAlong', () => {
     near(pointAlong(route, 1), { x: 400, y: 10 });
   });
 
-  it('measures along the drawn shape, so a point at a turn lies on the curve, not on its corner', () => {
+  it('measures along the drawn shape: a point at a turn lies on the curve, not its corner', () => {
     // A symmetric L: the middle of the drawn shape is the middle of its turn.
     const route = routePoints({ x: 0, y: 0 }, 'right', { x: 300, y: 300 }, 'top');
     const middle = pointAlong(route, 0.5);

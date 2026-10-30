@@ -160,7 +160,7 @@ describe('absoluteRects', () => {
     expect(rects.get('c')).toMatchObject({ x: 17, y: 3 });
   });
 
-  it('leaves out a node whose parent is unknown or that is its own ancestor, naming it once', () => {
+  it('leaves out a node with an unknown parent or that is its own ancestor, naming it once', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     try {
       const diagram: NeatDiagram = {
@@ -248,7 +248,7 @@ describe('layoutEdges', () => {
     });
   });
 
-  it('spreads the ports of one side evenly about its middle, ordered by where the other ends are', () => {
+  it('spreads a side’s ports evenly about its middle, ordered by where the other ends are', () => {
     const edges = layoutEdges({
       nodes: [
         block('hub', 0, 0),
@@ -320,7 +320,7 @@ describe('layoutEdges', () => {
     }
   });
 
-  it('says that an edge’s end is left out itself, not missing, when the node could not be placed', () => {
+  it('says an edge’s end is left out itself, not missing, when it could not be placed', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     try {
       const diagram: NeatDiagram = {
@@ -342,12 +342,17 @@ describe('layoutEdges', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     try {
       const diagram: NeatDiagram = {
-        nodes: [block('a', 0, 0), block('b', 400, 0), block('c', 0, 400)],
-        edges: [edge('e', 'a', 'b'), edge('e', 'a', 'c')],
+        // Both leave from a's right side: the later one, kept, would take a port of its own.
+        nodes: [block('a', 0, 0), block('b', 400, 0), block('b2', 400, 300)],
+        edges: [edge('e', 'a', 'b'), edge('e', 'a', 'b2')],
       };
       const edges = layoutEdges(diagram);
       expect(edges.size).toBe(1);
-      expect(edges.get('e')?.target).toEqual({ x: 400, y: 50 });
+      expect(edges.get('e')).toMatchObject({
+        source: { x: 100, y: 50 },
+        sourceSide: 'right',
+        target: { x: 400, y: 50 },
+      });
       layoutEdges(diagram);
       expect(error).toHaveBeenCalledTimes(1);
       expect(String(error.mock.calls[0][0])).toContain('edge "e"');
@@ -418,7 +423,7 @@ describe('the Autoware demo’s System page', () => {
     }
   });
 
-  it('drawn in the rounded shape, no two edges run along one another (shared corridors are spread)', () => {
+  it('drawn rounded, no two edges run along one another (shared corridors are spread)', () => {
     for (const [name, level] of SYSTEM_LEVELS) {
       expect([name, drawnOverlaps(level)]).toEqual([name, []]);
     }

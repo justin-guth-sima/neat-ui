@@ -140,7 +140,7 @@ describe('placeNotes', () => {
     });
   });
 
-  it('waits for a note’s size: a note not measured yet is not placed, and nothing is said', () => {
+  it('waits for a note’s size: one not measured yet is not placed, and nothing is said', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     try {
       const placed = place([{ id: 'unmeasured', edges: ['top'] }], new Map());
