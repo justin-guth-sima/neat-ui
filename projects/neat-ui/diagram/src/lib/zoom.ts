@@ -63,14 +63,17 @@ function pointOf(event: Event): { x: number; y: number } | null {
 
 /**
  * How far to move the span from `start` to `end` (px on screen) so it lies inside `0..room`, a fit
- * margin in from each side; one longer than that room shows from its start. 0 when it is inside.
+ * margin in from each side; one longer than that room shows from its start. 0 when it is inside,
+ * or less than a pixel out: a fitted level's edge lands on the margin give or take the transform's
+ * rounding (23.9999 px), and a sub-pixel pan would count as the user's and end the fitting.
  */
 function shiftInto(start: number, end: number, room: number): number {
   const low = FIT_MARGIN;
   const high = room - FIT_MARGIN;
-  if (start < low) return low - start;
-  if (end > high) return Math.max(high - end, low - start);
-  return 0;
+  let shift = 0;
+  if (start < low) shift = low - start;
+  else if (end > high) shift = Math.max(high - end, low - start);
+  return Math.abs(shift) < 1 ? 0 : shift;
 }
 
 /** Cubic ease in and out, d3's default for a transition. */

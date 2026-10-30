@@ -461,6 +461,18 @@ describe('DiagramZoom', () => {
       expectAt(view.now(), start);
     });
 
+    it('takes a part a fraction of a pixel into the margin (the transform’s rounding) as in view', () => {
+      const start = view.now();
+
+      // A fitted level's edge lands at the margin, give or take a fraction of a pixel.
+      tabTo(part(23.9999, 120, 23.9999, 60));
+
+      expectAt(view.now(), start);
+      // Not moved for the user: the view still fits by itself.
+      view.size(400, 300);
+      expectAt(view.now(), fitIn(400, 300));
+    });
+
     it('leaves alone other keys, keys with a modifier and keys from inside the box', () => {
       const start = view.now();
       const inside = view.content.appendChild(document.createElement('button'));
