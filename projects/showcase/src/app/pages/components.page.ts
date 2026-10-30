@@ -14,6 +14,7 @@ import {
   NeatButton,
   type NeatButtonSize,
   type NeatButtonVariant,
+  NeatEasedNumber,
   NeatIcon,
   NeatInlineButton,
   NeatLiveDot,
@@ -21,6 +22,7 @@ import {
   NeatPage,
   NeatStale,
   type NeatTone,
+  neatStoredSignal,
   NeatTooltip,
   type NeatTooltipPosition,
 } from '@sima/neat-ui';
@@ -200,6 +202,8 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
   { value: 'inclusion', label: 'Inclusion' },
   { value: 'exclusion', label: 'Exclusion' },
 ];
+/** The eased number's demo values, in turn: steps up and down, small and large. */
+const FPS_VALUES = [24, 29.9, 12.4, 18.2];
 
 @Component({
   selector: 'app-components-page',
@@ -225,6 +229,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatLineList,
     NeatLiveDot,
     NeatStale,
+    NeatEasedNumber,
     NeatNote,
     NeatNumberField,
     NeatNumeric,
@@ -404,6 +409,50 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
               (click)="stale.set(!stale())"
             >
               Stale
+            </button>
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Eased number</h2>
+          <p class="showcase-muted">
+            <code>neat-eased-number</code>: a figure that eases to each new value in 400 ms instead
+            of jumping, in tabular digits so it keeps its width. Its first value shows at once, a
+            dash stands in while there is none, and under a reduced-motion setting it follows at
+            once. <code>neatEased</code> does the same for any number signal.
+          </p>
+          <div class="showcase-row">
+            <span><neat-eased-number [value]="fps()" [digits]="1" /> fps</span>
+            <button neatButton type="button" variant="outlined" size="small" (click)="nextFps()">
+              Next value
+            </button>
+            <button neatButton type="button" variant="text" size="small" (click)="fps.set(null)">
+              No value
+            </button>
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Stored signal</h2>
+          <p class="showcase-muted">
+            <code>neatStoredSignal(key, initial, parse)</code>: a signal kept in localStorage, for a
+            setting an app remembers per browser. Press, then reload the page: the count stays. The
+            app's <code>parse</code> judges what is read back, and storage that refuses keeps the
+            value for the page load only.
+          </p>
+          <div class="showcase-row">
+            <span>Pressed {{ presses() }} times</span>
+            <button
+              neatButton
+              type="button"
+              variant="outlined"
+              size="small"
+              (click)="presses.set(presses() + 1)"
+            >
+              Press
+            </button>
+            <button neatButton type="button" variant="text" size="small" (click)="presses.set(0)">
+              Reset
             </button>
           </div>
         </section>
@@ -1841,6 +1890,11 @@ export class ComponentsPage {
   protected readonly detailsOpen = signal(false);
   protected readonly meterRunning = signal(true);
   protected readonly stale = signal(true);
+  protected readonly fps = signal<number | null>(FPS_VALUES[0]);
+  private fpsIndex = 0;
+  protected readonly presses = neatStoredSignal('neat-ui-showcase:presses', 0, (stored) =>
+    typeof stored === 'number' && Number.isInteger(stored) && stored >= 0 ? stored : undefined,
+  );
   /** Swings from -50 to 0 dBFS and back about every four seconds, as the meter's demo signal. */
   protected readonly sineLevel = () => -25 + 25 * Math.sin(performance.now() / 600);
   protected readonly boardOpen = signal(false);
@@ -2005,6 +2059,11 @@ export class ComponentsPage {
   }
 
   /** Newest first, as a log: a drop can report what it took and what it did not. */
+  protected nextFps(): void {
+    this.fpsIndex = (this.fpsIndex + 1) % FPS_VALUES.length;
+    this.fps.set(FPS_VALUES[this.fpsIndex]);
+  }
+
   protected logDrop(what: 'Received' | 'Not accepted', files: File[]): void {
     const names = files.map((file) => file.name).join(', ');
     this.dropLog.update((log) => [`${what}: ${names}`, ...log].slice(0, 4));

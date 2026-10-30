@@ -97,6 +97,24 @@ describe('the public API', () => {
     );
   });
 
+  it('exports the eased number, the theme’s colours as numbers and the stored signal', () => {
+    expect(Object.keys(primary)).toEqual(
+      expect.arrayContaining([
+        'neatEased',
+        'NeatEasedNumber',
+        'neatResolveColor',
+        'neatThemeColors',
+        'neatStoredSignal',
+      ]),
+    );
+  });
+
+  it('keeps the colour probe, the eased clock and the storage behind them internal', () => {
+    for (const name of ['colorProbe', 'easedBy', 'safeStorage']) {
+      expect(name in primary, name).toBe(false);
+    }
+  });
+
   it('keeps the rail’s state and the shell’s slots internal', () => {
     for (const name of ['RailState', 'AsideToggleSlot', 'PageToolbarSlot']) {
       expect(name in primary, name).toBe(false);

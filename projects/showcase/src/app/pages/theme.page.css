@@ -35,3 +35,12 @@ thead th {
   gap: var(--neat-space-4);
   grid-template-columns: 7rem minmax(0, 1fr);
 }
+
+.rgb-sample {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  vertical-align: middle;
+}

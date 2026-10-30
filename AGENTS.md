@@ -28,6 +28,14 @@ look happens in one place. Every rule here protects that.
     `NeatStale` (`[neatStale]`: what its host shows is stale, faded to 0.55 and grey, with no
     transition; the words beside it say why) and `provideNeatTitles(appName)` (the document's
     title, `<appName> · <route title>`, or the app name alone on an untitled route).
+    `neatEased` (a number signal that eases to each new value in 400 ms, ease-out cubic, and
+    follows at once under reduced motion or after no value) and `NeatEasedNumber` (that figure in
+    tabular digits, "–" while there is none) are the kit's one way a live figure moves.
+    `neatThemeColors` (the theme's tokens as `NeatRgb`, sRGB from 0 to 1, read again when the
+    scheme changes) and `neatResolveColor` (any CSS colour, resolved on a 1×1 canvas) are for code
+    that draws outside CSS (WebGL, a canvas), which cannot take the tokens' `oklch()` as written.
+    `neatStoredSignal(key, initial, parse)` is a signal kept in localStorage as JSON, the app's
+    `parse` judging what it reads back; storage that refuses never throws.
     Public API is
     `projects/neat-ui/src/public-api.ts`.
   - one secondary entry point per other component, `@sima/neat-ui/<name>`: `switch`, `slider`,

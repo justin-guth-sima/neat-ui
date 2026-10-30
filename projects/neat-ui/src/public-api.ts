@@ -23,6 +23,8 @@ export type { NeatTone } from './lib/theme/tone';
 export { provideNeatUi } from './lib/theme/provide-neat-ui';
 export type { NeatColorScheme } from './lib/theme/theme.service';
 export { ThemeService } from './lib/theme/theme.service';
+export type { NeatRgb } from './lib/theme/theme-colors';
+export { neatResolveColor, neatThemeColors } from './lib/theme/theme-colors';
 export { NeatIcon } from './lib/icon/icon';
 export type { NeatIconName } from './lib/icon/icon-registry';
 export { NEAT_ICON_NAMES } from './lib/icon/icon-registry';
@@ -52,6 +54,9 @@ export { NeatLiveDot } from './lib/live-dot/live-dot';
 export { NeatNote } from './lib/note/note';
 export { NeatStale } from './lib/stale/stale';
 export { neatSecondsAgo } from './lib/time/seconds-ago';
+export { neatEased } from './lib/motion/eased';
+export { NeatEasedNumber } from './lib/motion/eased-number';
+export { neatStoredSignal } from './lib/stored-signal';
 export type { NeatTooltipPosition } from './lib/tooltip/tooltip';
 export { NeatTooltip } from './lib/tooltip/tooltip';
 

@@ -35,13 +35,18 @@ describe('App', () => {
 
   beforeEach(async () => {
     vi.stubGlobal('ResizeObserver', NoopResizeObserver);
+    // jsdom has no canvas, and says so on the console; the theme page resolves colours on one.
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
     TestBed.configureTestingModule({ providers: appConfig.providers });
     router = TestBed.inject(Router);
     fixture = TestBed.createComponent(App);
     await navigate('/');
   });
 
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
 
   it('lists the five pages in the shell navigation', () => {
     const labels = Array.from(root().querySelectorAll('nav a'), (a) => a.textContent?.trim());
