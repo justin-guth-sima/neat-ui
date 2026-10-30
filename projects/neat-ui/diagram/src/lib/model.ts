@@ -1,0 +1,130 @@
+import type { NeatTone } from '@sima/neat-ui';
+
+/*
+ * A hand-placed diagram as data: the app places every node and the kit routes the edges between
+ * them. The model knows no domain (no messages, topics or stages): what a node or an edge stands
+ * for is the app's, kept in `data`, which the kit never reads. Coordinates are diagram units, px
+ * at zoom 1; a node's `x` and `y` are relative to its `parent`.
+ */
+
+/** A side of a node, where edges meet it. */
+export type NeatDiagramSide = 'left' | 'right' | 'top' | 'bottom';
+
+/**
+ * What a node is in the drawing: `frame` holds other nodes (drawn behind the edges, its title and
+ * detail top left), `block` is a card (label, detail, chips), `band` a strip such as a cable or a
+ * bus (its label along it), `bracket` spans a row of siblings below them (a curly line and a
+ * label).
+ */
+export type NeatDiagramRole = 'frame' | 'block' | 'band' | 'bracket';
+
+/**
+ * How a node is drawn within its role: `accent` is the primary tint (the board), `dashed` a group,
+ * `ghost` dashed, transparent and quiet (a part that is not running), `muted` filled with
+ * `--muted`.
+ */
+export type NeatDiagramLook = 'default' | 'accent' | 'dashed' | 'ghost' | 'muted';
+
+/** How an edge ends: plain, with an arrowhead, or with a dot. */
+export type NeatDiagramTip = 'none' | 'arrow' | 'dot';
+
+/** How an edge's line is drawn. */
+export type NeatDiagramLine = 'solid' | 'dashed' | 'ghost';
+
+/** A short fact on a block, drawn as the kit's status chip in its tone. */
+export interface NeatDiagramChip {
+  readonly label: string;
+  readonly tone: NeatTone;
+}
+
+export interface NeatDiagramNode {
+  readonly id: string;
+  readonly label: string;
+  /** A second line: what it is or where it runs. */
+  readonly detail?: string;
+  /** The node it sits in; `x` and `y` are relative to it. */
+  readonly parent?: string;
+  readonly x: number;
+  readonly y: number;
+  readonly w: number;
+  readonly h: number;
+  readonly role: NeatDiagramRole;
+  /** Unset: `default`. */
+  readonly look?: NeatDiagramLook;
+  readonly chips?: readonly NeatDiagramChip[];
+  /** The id of the level (`NeatDiagramSet.levels`) this block opens. */
+  readonly opens?: string;
+  /**
+   * The side its incoming (`inSide`) or outgoing (`outSide`) edges meet it on; unset, each edge
+   * end goes on the side that faces the other end.
+   */
+  readonly inSide?: NeatDiagramSide;
+  readonly outSide?: NeatDiagramSide;
+  /** The app's, never read by the kit. */
+  readonly data?: unknown;
+}
+
+export interface NeatDiagramEdge {
+  readonly id: string;
+  /** The node it leaves. */
+  readonly from: string;
+  /** The node it enters. */
+  readonly to: string;
+  /** Its colour, the charts' series colour 1 to 8; unset, the muted colour. */
+  readonly series?: number;
+  /** Unset: `solid`. */
+  readonly line?: NeatDiagramLine;
+  /** Its tip at `from`; unset, `none`. */
+  readonly start?: NeatDiagramTip;
+  /** Its tip at `to`; unset, `arrow`. */
+  readonly end?: NeatDiagramTip;
+  /** A short label on the edge, at `labelAt`. */
+  readonly label?: string;
+  /** Where the label sits along the edge, 0 at `from` to 1 at `to`; unset, 0.5. */
+  readonly labelAt?: number;
+  /** The app's, never read by the kit. */
+  readonly data?: unknown;
+}
+
+/**
+ * A box of the app's content (a template matched by the note's id), joined by a dotted leader to
+ * its anchor: a point along its edges, or a point of its own.
+ */
+export interface NeatDiagramNote {
+  readonly id: string;
+  /** The edges it is about; the anchor is the mean of their points at `along`. */
+  readonly edges?: readonly string[];
+  /** Where along its edges the anchor lies, 0 at their start to 1 at their end; unset, 0.5. */
+  readonly along?: number;
+  /**
+   * The anchor as a point instead (a node's side, for a note about the node); without `x`, the
+   * edges' mean x, for a leader into the middle of a bundle of parallel edges.
+   */
+  readonly anchor?: { readonly x?: number; readonly y: number };
+  /** The box's centre, per axis; unset, the anchor moved by `dx` and `dy`. */
+  readonly x?: number;
+  readonly y?: number;
+  readonly dx?: number;
+  readonly dy?: number;
+  /**
+   * Where the leader meets the box: its nearest point (unset; level or upright where it can be),
+   * or its centre, under the box (`centre`; a slanted leader then meets no rounded corner).
+   */
+  readonly leaderTo?: 'centre';
+}
+
+/** One level: nodes, the edges between them and the notes on them. */
+export interface NeatDiagram {
+  readonly nodes: readonly NeatDiagramNode[];
+  readonly edges: readonly NeatDiagramEdge[];
+  readonly notes?: readonly NeatDiagramNote[];
+}
+
+/**
+ * A diagram with its drill-down levels, each placed by hand: a block whose `opens` names a level
+ * opens it, and a level may open further levels.
+ */
+export interface NeatDiagramSet {
+  readonly overview: NeatDiagram;
+  readonly levels?: Readonly<Record<string, NeatDiagram>>;
+}

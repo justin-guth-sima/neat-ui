@@ -68,7 +68,10 @@ look happens in one place. Every rule here protects that.
     metric charts, drawn as SVG but for the heatmap: `NeatSparkline`, `NeatTimeChart`,
     `NeatStackedChart` and `NeatHeatmap`, `NeatChartCard`, the card they sit on, and
     `NeatSeriesSwatch`, a series' colour beside a label outside the chart; the only code that
-    imports d3),
+    imports d3), `diagram` (hand-placed diagrams; so far their model: `NeatDiagramSet`, an
+    overview and its drill-down levels, each a `NeatDiagram` of nodes by role and look, edges and
+    notes, positions relative to the parent node; the edge routing and the port layout, ported
+    from the Autoware demo's System page, stay internal),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which

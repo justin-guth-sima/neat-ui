@@ -1,0 +1,319 @@
+import type { NeatDiagram, NeatDiagramEdge, NeatDiagramNode, NeatDiagramSide } from './model';
+import { reportLeftOut } from './report';
+import { pathThrough, type Point, routePoints } from './route';
+
+/*
+ * A level laid out for drawing: where each node is in the level's coordinates, where each edge
+ * leaves and enters its nodes, and how it runs between them. Pure, so the layout is tested
+ * without a browser; the renderer draws what it returns.
+ */
+
+export interface Rect extends Point {
+  w: number;
+  h: number;
+}
+
+/** An edge as drawn: its ports and their sides, and its route in the rounded shape. */
+export interface EdgeLayout {
+  /** Its port on `from`, in the level's coordinates, and the side of `from` it leaves through. */
+  source: Point;
+  sourceSide: NeatDiagramSide;
+  /** Its port on `to` and the side of `to` it enters through. */
+  target: Point;
+  targetSide: NeatDiagramSide;
+  /** The SVG path of its rounded shape. */
+  path: string;
+  /** Its route's corners, ends included, along which `pointAlong` measures. */
+  points: Point[];
+}
+
+/**
+ * Each node's rectangle in the level's coordinates: its position plus those of the nodes it sits
+ * in, however deep. A node whose parent is not on the level, or that lies inside itself, is left
+ * out with what sits in it, so the rest of a broken diagram still draws.
+ */
+export function absoluteRects(diagram: NeatDiagram): Map<string, Rect> {
+  const byId = new Map(diagram.nodes.map((node) => [node.id, node]));
+  // Each node's top-left corner, null when it cannot be placed.
+  const corners = new Map<string, Point | null>();
+  // `chain`: the node and those below it whose corners wait for this one, to catch a loop.
+  const corner = (node: NeatDiagramNode, chain: ReadonlySet<string>): Point | null => {
+    const known = corners.get(node.id);
+    if (known !== undefined) return known;
+    const parent = node.parent === undefined ? undefined : byId.get(node.parent);
+    let at: Point | null = null;
+    if (node.parent === undefined) {
+      at = { x: node.x, y: node.y };
+    } else if (!parent) {
+      reportLeftOut(
+        `node "${node.id}" is left out: its parent "${node.parent}" is not on its level`,
+      );
+    } else if (chain.has(parent.id)) {
+      reportLeftOut(`node "${node.id}" is left out: its parent "${parent.id}" lies inside it`);
+    } else {
+      const origin = corner(parent, new Set(chain).add(parent.id));
+      at = origin && { x: origin.x + node.x, y: origin.y + node.y };
+    }
+    corners.set(node.id, at);
+    return at;
+  };
+  const rects = new Map<string, Rect>();
+  for (const node of diagram.nodes) {
+    const at = corner(node, new Set([node.id]));
+    if (at) rects.set(node.id, { ...at, w: node.w, h: node.h });
+  }
+  return rects;
+}
+
+/** An edge end while the ports are placed. */
+interface End {
+  node: string;
+  side: NeatDiagramSide;
+  /** From the side's middle, down or right. */
+  offset: number;
+  /** The edge's direction, from its source's centre to its target's. */
+  along: Point;
+  /** 1 at the edge's source, -1 at its target. */
+  sign: 1 | -1;
+  /** The edge's place in the level's list. */
+  order: number;
+}
+
+/**
+ * An edge's ends for the rounded shape, and how much further than halfway its middle run lies
+ * when it is a Z (`jog`).
+ */
+interface Route {
+  edge: NeatDiagramEdge;
+  source: Point;
+  sourceSide: NeatDiagramSide;
+  target: Point;
+  targetSide: NeatDiagramSide;
+  jog: number;
+}
+
+/**
+ * Per side: `t`, the way its ports are spread (offset grows along it), `n`, the way out of the
+ * node.
+ */
+const SIDE_AXES: Record<NeatDiagramSide, { t: Point; n: Point }> = {
+  left: { t: { x: 0, y: 1 }, n: { x: -1, y: 0 } },
+  right: { t: { x: 0, y: 1 }, n: { x: 1, y: 0 } },
+  top: { t: { x: 1, y: 0 }, n: { x: 0, y: -1 } },
+  bottom: { t: { x: 1, y: 0 }, n: { x: 0, y: 1 } },
+};
+
+const dot = (a: Point, b: Point) => a.x * b.x + a.y * b.y;
+const horizontal = (side: NeatDiagramSide) => side === 'left' || side === 'right';
+
+/** Most room between neighbouring ports on a side, and the share of the side they may take. */
+const PORT_STEP = 10;
+const PORT_SPAN = 0.8;
+
+/**
+ * How far apart the middle runs of neighbouring Z edges are at most; they keep to the middle half
+ * of their corridor, clear of the nodes (and frame borders) on either side.
+ */
+const JOG_STEP = 24;
+
+/**
+ * Each edge as drawn, by id: its ends on the sides that face each other (or that its nodes name),
+ * spread along each side so a fan does not cross itself, and its rounded route, Z routes that
+ * share a corridor spread apart. An edge with an end that is not a node on the level is left out.
+ */
+export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
+  const rects = absoluteRects(diagram);
+  const nodes = new Map(diagram.nodes.map((node) => [node.id, node]));
+  const edges = diagram.edges.filter((edge) => {
+    const missing = [edge.from, edge.to].filter((id) => !rects.has(id));
+    for (const id of missing) {
+      reportLeftOut(`edge "${edge.id}" is left out: its end "${id}" is not on its level`);
+    }
+    return missing.length === 0;
+  });
+  const rectOf = (id: string) => rects.get(id) as Rect;
+  const centre = (id: string): Point => {
+    const r = rectOf(id);
+    return { x: r.x + r.w / 2, y: r.y + r.h / 2 };
+  };
+
+  // Each edge end goes on the side its node names for it, else on the side that faces the other
+  // end.
+  const ends = edges.map((edge, order) => {
+    const a = centre(edge.from);
+    const b = centre(edge.to);
+    const [out, into] = facingSides(a, b);
+    const along = { x: b.x - a.x, y: b.y - a.y };
+    const source: End = {
+      node: edge.from,
+      side: nodes.get(edge.from)?.outSide ?? out,
+      offset: 0,
+      along,
+      sign: 1,
+      order,
+    };
+    const target: End = {
+      node: edge.to,
+      side: nodes.get(edge.to)?.inSide ?? into,
+      offset: 0,
+      along,
+      sign: -1,
+      order,
+    };
+    return { edge, source, target };
+  });
+  spreadPorts(
+    ends.flatMap((e) => [e.source, e.target]),
+    rects,
+  );
+
+  const routes: Route[] = ends.map(({ edge, source, target }) => ({
+    edge,
+    source: portPoint(rectOf(source.node), source),
+    sourceSide: source.side,
+    target: portPoint(rectOf(target.node), target),
+    targetSide: target.side,
+    jog: 0,
+  }));
+  spreadCorridors(routes);
+
+  return new Map(
+    routes.map(({ edge, source, sourceSide, target, targetSide, jog }) => {
+      const points = routePoints(source, sourceSide, target, targetSide, jog);
+      const path = pathThrough(points);
+      return [edge.id, { source, sourceSide, target, targetSide, path, points }];
+    }),
+  );
+}
+
+/**
+ * Ports on one side are spread along it in the order of the directions their edges leave in, so
+ * edges fanning out from a side do not cross; parallel edges between the same two nodes keep one
+ * order seen from both ends (by the side of the edge each port lies on). `ends` are in the order
+ * of their edges, which breaks the remaining ties.
+ */
+function spreadPorts(ends: End[], rects: Map<string, Rect>): void {
+  const sides = new Map<string, End[]>();
+  for (const end of ends) {
+    const key = `${end.node}\u0000${end.side}`;
+    sides.set(key, [...(sides.get(key) ?? []), end]);
+  }
+  for (const onSide of sides.values()) {
+    const { node, side } = onSide[0];
+    const { t, n } = SIDE_AXES[side];
+    // The way to the other end is the edge's direction, reversed at its target.
+    const angle = (e: End) => Math.atan2(e.sign * dot(e.along, t), e.sign * dot(e.along, n));
+    const tie = (e: End) => e.order * Math.sign(t.x * -e.along.y + t.y * e.along.x || 1);
+    onSide.sort((p, q) => angle(p) - angle(q) || tie(p) - tie(q));
+    const rect = rects.get(node) as Rect;
+    const length = horizontal(side) ? rect.h : rect.w;
+    const step =
+      onSide.length > 1 ? Math.min(PORT_STEP, (length * PORT_SPAN) / (onSide.length - 1)) : 0;
+    onSide.forEach((e, i) => (e.offset = (i - (onSide.length - 1) / 2) * step));
+  }
+}
+
+/**
+ * The sides of `a` and `b` that face each other: left and right unless `b` lies mostly above or
+ * below `a`.
+ */
+function facingSides(a: Point, b: Point): [NeatDiagramSide, NeatDiagramSide] {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  if (Math.abs(dx) >= Math.abs(dy) / 2) return dx >= 0 ? ['right', 'left'] : ['left', 'right'];
+  return dy >= 0 ? ['bottom', 'top'] : ['top', 'bottom'];
+}
+
+/** Where a port sits in the level's coordinates. */
+function portPoint(rect: Rect, { side, offset }: End): Point {
+  switch (side) {
+    case 'left':
+      return { x: rect.x, y: rect.y + rect.h / 2 + offset };
+    case 'right':
+      return { x: rect.x + rect.w, y: rect.y + rect.h / 2 + offset };
+    case 'top':
+      return { x: rect.x + rect.w / 2 + offset, y: rect.y };
+    case 'bottom':
+      return { x: rect.x + rect.w / 2 + offset, y: rect.y + rect.h };
+  }
+}
+
+/**
+ * Z routes (ports facing each other, not level) that share a port side at either end share a
+ * corridor: their middle runs are spread up to `JOG_STEP` apart instead of lying on one another,
+ * in the order that keeps them from crossing (going down, the one starting lower turns first;
+ * going up, the one starting higher).
+ */
+function spreadCorridors(routes: Route[]): void {
+  // Corridors as a union-find over the Z routes: each points towards its corridor's root.
+  const corridor = new Map<Route, Route>();
+  const root = (route: Route): Route => {
+    let r = route;
+    while (corridor.get(r) !== r) r = corridor.get(r) as Route;
+    return r;
+  };
+  const bySide = new Map<string, Route>();
+  for (const route of routes) {
+    if (!isZ(route)) continue;
+    corridor.set(route, route);
+    const { from, to } = route.edge;
+    for (const key of [`${from}\u0000${route.sourceSide}`, `${to}\u0000${route.targetSide}`]) {
+      const other = bySide.get(key);
+      if (other === undefined) bySide.set(key, route);
+      else corridor.set(root(route), root(other));
+    }
+  }
+  const groups = new Map<Route, Route[]>();
+  for (const route of corridor.keys()) {
+    groups.set(root(route), [...(groups.get(root(route)) ?? []), route]);
+  }
+  for (const list of groups.values()) {
+    if (list.length < 2) continue;
+    const across = (r: Route) => (horizontal(r.sourceSide) ? 'y' : 'x');
+    const along = (r: Route) => (horizontal(r.sourceSide) ? 'x' : 'y');
+    // The one furthest the way the edge steps turns first (smallest jog).
+    const key = (r: Route) =>
+      r.source[across(r)] * Math.sign(r.target[across(r)] - r.source[across(r)]);
+    const room = Math.min(...list.map((r) => Math.abs(r.target[along(r)] - r.source[along(r)])));
+    const step = Math.min(JOG_STEP, room / (2 * (list.length + 1)));
+    list.sort((p, q) => key(q) - key(p));
+    list.forEach((r, i) => (r.jog = (i - (list.length - 1) / 2) * step));
+  }
+}
+
+/** True when the ports face each other with the target ahead and not level: drawn as a Z. */
+function isZ(r: Route): boolean {
+  const opposite: Record<NeatDiagramSide, NeatDiagramSide> = {
+    left: 'right',
+    right: 'left',
+    top: 'bottom',
+    bottom: 'top',
+  };
+  if (opposite[r.sourceSide] !== r.targetSide) return false;
+  const n = SIDE_AXES[r.sourceSide].n;
+  const ahead = dot({ x: r.target.x - r.source.x, y: r.target.y - r.source.y }, n) > 0;
+  const level = horizontal(r.sourceSide) ? r.source.y === r.target.y : r.source.x === r.target.x;
+  return ahead && !level;
+}
+
+/**
+ * The pairs of edges (by id) whose straight port-to-port lines cross: a measure of how tangled a
+ * level reads (the drawn curves leave and enter their ports the same way).
+ */
+export function crossings(diagram: NeatDiagram): [string, string][] {
+  const segments = [...layoutEdges(diagram)];
+  const found: [string, string][] = [];
+  segments.forEach(([id, a], i) => {
+    for (const [other, b] of segments.slice(i + 1)) {
+      if (intersect(a.source, a.target, b.source, b.target)) found.push([id, other]);
+    }
+  });
+  return found;
+}
+
+/** True when the segments p1-p2 and p3-p4 cross properly (touching does not count). */
+export function intersect(p1: Point, p2: Point, p3: Point, p4: Point): boolean {
+  const turn = (o: Point, a: Point, b: Point) =>
+    (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  return turn(p3, p4, p1) * turn(p3, p4, p2) < 0 && turn(p1, p2, p3) * turn(p1, p2, p4) < 0;
+}

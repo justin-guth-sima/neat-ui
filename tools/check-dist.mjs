@@ -29,6 +29,7 @@ export const SECONDARY_ENTRIES = {
   collapsible: ['neat-collapsible'],
   confirm: ['neat-confirm-dialog'],
   details: ['dl[neatDetails]'],
+  diagram: [],
   dialog: ['neat-dialog-panel', 'neat-dialog-body', 'neat-dialog-actions'],
   'drop-zone': ['neat-drop-zone'],
   field: ['neat-field', 'neat-error-note'],

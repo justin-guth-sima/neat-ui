@@ -13,6 +13,7 @@
       "@sima/neat-ui/collapsible": ["./projects/neat-ui/collapsible/src/public-api.ts"],
       "@sima/neat-ui/confirm": ["./projects/neat-ui/confirm/src/public-api.ts"],
       "@sima/neat-ui/details": ["./projects/neat-ui/details/src/public-api.ts"],
+      "@sima/neat-ui/diagram": ["./projects/neat-ui/diagram/src/public-api.ts"],
       "@sima/neat-ui/dialog": ["./projects/neat-ui/dialog/src/public-api.ts"],
       "@sima/neat-ui/drop-zone": ["./projects/neat-ui/drop-zone/src/public-api.ts"],
       "@sima/neat-ui/field": ["./projects/neat-ui/field/src/public-api.ts"],
