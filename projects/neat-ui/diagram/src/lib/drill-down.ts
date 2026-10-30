@@ -6,23 +6,30 @@ import { reportLeftOut } from './report';
  * block sits in, for an app that does not place the level by hand.
  */
 
+// The demo's sizes, which its drill-downs were tested with.
+
 /** Room between the frame's border and the nodes inside it, right and below. */
-const FRAME_PAD = 24;
-/** The nodes outside the block: their size, the room between them and their gap to the frame. */
+const FRAME_PAD = 40;
+/**
+ * The nodes outside the block: their size (wide enough for a name on one line), the room between
+ * them, and their gap to the frame (room for six Z edges' spread middle runs, the demo's six
+ * cameras into YOLOX).
+ */
 const OUTSIDE_W = 300;
 const OUTSIDE_H = 64;
 const OUTSIDE_SPACING = 24;
-const OUTSIDE_GAP = 96;
+const OUTSIDE_GAP = 220;
 
 /**
  * The level that opens on `blockId`: the block as its frame at the origin, sized to its children
- * with a padding, and everything inside the block as placed (positions are relative to the
- * parent, so nothing moves); the nodes the edges from inside reach, in a column left of the frame
- * (senders) and right of it (receivers), vertically centred on it; and the edges with an end
- * inside. The outside nodes and the frame get their sides afresh (an overview's `inSide` and
- * `outSide` suit its placement, not this one), and the frame opens nothing (it is the level). The
- * diagram's notes are left behind: they are placed for it. A block that is not on the diagram or
- * holds nothing gives an empty level, named once.
+ * with a padding, and everything inside the block, however deep, as placed (positions are
+ * relative to the parent, so nothing moves); the nodes the edges from inside reach, in a column
+ * left of the frame (senders) and right of it (receivers), vertically centred on it; and the edges
+ * with an end inside. A node that both sends and receives goes in the senders' column only, so it
+ * is on the level once. The outside nodes and the frame get their sides afresh (an overview's
+ * `inSide` and `outSide` suit its placement, not this one), and the frame opens nothing (it is the
+ * level). The diagram's notes are left behind: they are placed for it. A block that is not on the
+ * diagram or holds nothing gives an empty level, named once.
  */
 export function neatDrillDownLevel(diagram: NeatDiagram, blockId: string): NeatDiagram {
   const block = diagram.nodes.find((node) => node.id === blockId);
@@ -40,8 +47,6 @@ export function neatDrillDownLevel(diagram: NeatDiagram, blockId: string): NeatD
   const h = Math.max(...children.map((child) => child.y + child.h)) + FRAME_PAD;
   const frame: NeatDiagramNode = { ...placed(block, 0, 0, w, h), role: 'frame', opens: undefined };
   const edges = diagram.edges.filter((edge) => inside.has(edge.from) || inside.has(edge.to));
-  // An outside node that both sends and receives goes in the senders' column, so it is on the
-  // level once.
   const senders = new Set(edges.filter((edge) => !inside.has(edge.from)).map((edge) => edge.from));
   const receivers = new Set(
     edges.filter((edge) => !inside.has(edge.to) && !senders.has(edge.to)).map((edge) => edge.to),

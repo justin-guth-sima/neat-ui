@@ -60,7 +60,7 @@ describe('neatDrillDownLevel', () => {
   const level = neatDrillDownLevel(DIAGRAM, 'proc');
   const frame = byId(level, 'proc') as NeatDiagramNode;
 
-  it('makes the block the level’s frame at the origin, sized to its children and a padding of 24', () => {
+  it('makes the block the level’s frame at the origin, sized to its children and a padding of 40', () => {
     // The group reaches furthest: right to 360 + 200, down to 20 + 160.
     expect(frame).toMatchObject({
       id: 'proc',
@@ -70,8 +70,8 @@ describe('neatDrillDownLevel', () => {
       look: 'accent',
       x: 0,
       y: 0,
-      w: 584,
-      h: 204,
+      w: 600,
+      h: 220,
     });
     expect(frame.parent).toBeUndefined();
     // It is the level now: it opens nothing, and its sides were the overview's.
@@ -87,15 +87,15 @@ describe('neatDrillDownLevel', () => {
 
   it('puts the senders in a column left of the frame and the receivers right of it, centred', () => {
     const senders = ['cam1', 'cam2'].map((id) => byId(level, id) as NeatDiagramNode);
-    // Two blocks of 64 with 24 between them, centred on the frame's 204: from y 26.
+    // Two blocks of 64 with 24 between them, centred on the frame's 220: from y 34.
     expect(senders.map(({ x, y, w, h }) => ({ x, y, w, h }))).toEqual([
-      { x: -396, y: 26, w: 300, h: 64 },
-      { x: -396, y: 114, w: 300, h: 64 },
+      { x: -520, y: 34, w: 300, h: 64 },
+      { x: -520, y: 122, w: 300, h: 64 },
     ]);
     const sink = byId(level, 'sink') as NeatDiagramNode;
     expect({ x: sink.x, y: sink.y, w: sink.w, h: sink.h }).toEqual({
-      x: 680,
-      y: 70,
+      x: 820,
+      y: 78,
       w: 300,
       h: 64,
     });
@@ -138,7 +138,7 @@ describe('neatDrillDownLevel', () => {
     const drilled = neatDrillDownLevel(loop, 'proc');
     const cams = drilled.nodes.filter((n) => n.id === 'cam1');
     expect(cams).toHaveLength(1);
-    expect(cams[0].x).toBe(-396);
+    expect(cams[0].x).toBe(-520);
   });
 
   it('leaves out a node an edge names that does not exist, without throwing', () => {
@@ -149,7 +149,7 @@ describe('neatDrillDownLevel', () => {
     const drilled = neatDrillDownLevel(broken, 'proc');
     expect(drilled.nodes.some((n) => n.id === 'ghost')).toBe(false);
     // The single sender sits at the frame's middle.
-    expect(byId(drilled, 'cam1')?.y).toBe(70);
+    expect(byId(drilled, 'cam1')?.y).toBe(78);
   });
 
   it('gives an empty level for a block that is not there or holds nothing, naming it once', () => {
