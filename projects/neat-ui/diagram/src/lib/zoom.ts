@@ -55,6 +55,11 @@ export class DiagramZoom {
   private extent: Rect | null = null;
   /** Set once the user pans or zooms; the view then fits only when asked or on a new level. */
   private userMoved = false;
+  /**
+   * True while this unit sets the transform. During a user's press d3-zoom gives every zoom event
+   * the press's event, this unit's own moves too; they are not the user's.
+   */
+  private ownMove = false;
   /** The fit or key zoom in flight: where it goes and the frame it waits for. */
   private animation: { readonly to: ZoomTransform; readonly frame: number } | null = null;
 
@@ -64,11 +69,13 @@ export class DiagramZoom {
   ) {
     this.behavior = zoom<HTMLElement, unknown>()
       .scaleExtent([ZOOM_LIMITS[0], ZOOM_LIMITS[1]])
-      .on('start', (event: D3ZoomEvent<HTMLElement, unknown>) => {
-        // Only the user's gestures carry an event; this unit's own moves carry none.
-        if (event.sourceEvent) this.moved();
-      })
-      .on('zoom', (event: D3ZoomEvent<HTMLElement, unknown>) => this.draw(event.transform));
+      .on('zoom', (event: D3ZoomEvent<HTMLElement, unknown>) => {
+        // A user's gesture that changes the view: d3-zoom emits `zoom` on a drag's move, a wheel,
+        // a pinch or a double-click, not on a press alone (`start`), so a click or a tap on the
+        // box (focusing it, a block's button) leaves the view fitting by itself.
+        if (event.sourceEvent && !this.ownMove) this.moved();
+        this.draw(event.transform);
+      });
     this.syncDuration();
     this.motion?.addEventListener('change', this.syncDuration);
     this.selection = select(box).call(this.behavior);
@@ -106,6 +113,9 @@ export class DiagramZoom {
 
   destroy(): void {
     this.stopAnimation();
+    // Setting the transform interrupts d3-zoom's double-click transition in flight, which would
+    // otherwise go on writing to the content for up to 250 ms.
+    this.jump(zoomTransform(this.box));
     this.observer.disconnect();
     this.box.removeEventListener('keydown', this.keydown);
     this.motion?.removeEventListener('change', this.syncDuration);
@@ -145,7 +155,12 @@ export class DiagramZoom {
 
   /** Sets the transform at once; d3-zoom keeps it and draws it through `draw`. */
   private jump(to: ZoomTransform): void {
-    this.behavior.transform(this.selection, to);
+    this.ownMove = true;
+    try {
+      this.behavior.transform(this.selection, to);
+    } finally {
+      this.ownMove = false;
+    }
   }
 
   /**

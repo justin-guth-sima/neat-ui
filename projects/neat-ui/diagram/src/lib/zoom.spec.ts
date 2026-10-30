@@ -17,6 +17,16 @@ function stubReducedMotion(reduce: boolean): void {
   }));
 }
 
+/**
+ * A mouse event at (clientX, clientY). d3-zoom follows a press on the event's window; Angular's
+ * jsdom setup refuses its own window as `view` in the constructor, so it is set afterwards.
+ */
+function mouse(type: string, clientX: number, clientY: number): MouseEvent {
+  const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientX, clientY });
+  Object.defineProperty(event, 'view', { value: window });
+  return event;
+}
+
 /** A box holding the content container, in the document, without a size (jsdom lays out none). */
 function setup() {
   const box = document.createElement('div');
@@ -49,17 +59,16 @@ function setup() {
     wheel(deltaY = -100) {
       box.dispatchEvent(new WheelEvent('wheel', { deltaY, bubbles: true, cancelable: true }));
     },
-    /** A mouse drag from (10, 10) by (dx, dy). */
+    /** A mouse press at (10, 10), moved by (dx, dy) unless both are 0, then released. */
     drag(dx: number, dy: number) {
-      // d3-zoom follows the drag on the event's window. Angular's jsdom setup refuses its own
-      // window as `view` in the constructor, so it is set on each event afterwards.
-      const mouse = (type: string, clientX: number, clientY: number) => {
-        const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientX, clientY });
-        Object.defineProperty(event, 'view', { value: window });
-        return event;
-      };
+      this.press();
+      if (dx || dy) window.dispatchEvent(mouse('mousemove', 10 + dx, 10 + dy));
+      this.release(dx, dy);
+    },
+    press() {
       box.dispatchEvent(mouse('mousedown', 10, 10));
-      window.dispatchEvent(mouse('mousemove', 10 + dx, 10 + dy));
+    },
+    release(dx = 0, dy = 0) {
       window.dispatchEvent(mouse('mouseup', 10 + dx, 10 + dy));
     },
     teardown() {
@@ -146,6 +155,22 @@ describe('DiagramZoom', () => {
       view.size(400, 300);
       view.zoom.setExtent({ x: 0, y: 0, w: 900, h: 300 });
       expectAt(view.now(), zoomed);
+    });
+
+    it('keeps fitting after a click or a press that does not move the view', () => {
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+
+      view.drag(0, 0);
+      view.size(400, 300);
+      expectAt(view.now(), fitIn(400, 300));
+
+      // A press held while the view fits by itself: the fit's own moves are not the user's.
+      view.press();
+      view.size(600, 500);
+      view.release();
+      view.size(800, 600);
+      expectAt(view.now(), fitIn(800, 600));
     });
 
     it('leaves the view alone after the user drags it', () => {
@@ -387,6 +412,29 @@ describe('DiagramZoom', () => {
       view.box.dispatchEvent(new MouseEvent('dblclick', init));
       expect(view.now().k).toBeCloseTo(start.k / 2, 6);
     });
+  });
+
+  it('stops d3-zoom’s double-click zoom in flight when destroyed', async () => {
+    view.zoom.setExtent(EXTENT);
+    view.size(800, 600);
+    const start = view.now();
+    const dblclick = () =>
+      view.box.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, shiftKey: true }));
+    const transition = () => new Promise((done) => setTimeout(done, 350));
+
+    // Its own transition, on d3's timer (not the spec's): it zooms out by half over 250 ms ...
+    dblclick();
+    await transition();
+    expect(view.now().k).toBeCloseTo(start.k / 2, 6);
+
+    // ... unless the diagram is destroyed on the way.
+    view.zoom.levelChanged();
+    dblclick();
+    view.zoom.destroy();
+    const drawn = view.content.style.transform;
+    await transition();
+    expectAt(view.now(), start);
+    expect(view.content.style.transform).toBe(drawn);
   });
 
   it('lets go of the box when destroyed: no keys, no observer, no frame in flight', () => {

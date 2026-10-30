@@ -44,7 +44,8 @@ import { DiagramZoom } from './zoom';
  *
  * The user pans and zooms it (drag, wheel, pinch, double-click; with the box focused, the arrow
  * keys, `+`, `-` and `0`); it fits its level to the box by itself until they do, and `fit()` fits
- * it again (`DiagramZoom`).
+ * it again (`DiagramZoom`). It takes the wheel and touch over its box (`touch-action: none`), so
+ * give it a bounded box, not a long stretch of a scrolling page.
  */
 @Component({
   selector: 'neat-diagram',
@@ -66,6 +67,7 @@ export class NeatDiagramView {
   private readonly noteSizes = inject(NoteSizes);
   private readonly content = viewChild.required<ElementRef<HTMLElement>>('content');
   private zoom: DiagramZoom | null = null;
+  private readonly zone = inject(NgZone);
 
   protected readonly BRACE_HEIGHT = BRACE_HEIGHT;
 
@@ -94,12 +96,11 @@ export class NeatDiagramView {
 
   constructor() {
     const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
-    const zone = inject(NgZone);
     // After a render, so the content container exists; d3-zoom's listeners run outside the zone.
     afterRenderEffect(() => {
       const extent = this.extent();
       untracked(() => {
-        this.zoom ??= zone.runOutsideAngular(
+        this.zoom ??= this.zone.runOutsideAngular(
           () => new DiagramZoom(host, this.content().nativeElement),
         );
         this.zoom.setExtent(extent);
@@ -110,6 +111,7 @@ export class NeatDiagramView {
 
   /** Fits the level to the box, animated unless reduced motion; it then fits by itself again. */
   fit(): void {
-    this.zoom?.fit();
+    // Outside the zone, so its animation frames run no change detection in a zone.js app.
+    this.zone.runOutsideAngular(() => this.zoom?.fit());
   }
 }
