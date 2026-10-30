@@ -13,7 +13,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { NeatIcon, NeatInlineButton } from '@sima/neat-ui';
+import { NeatBreadcrumbs, NeatIcon } from '@sima/neat-ui';
 import { NeatInput } from '@sima/neat-ui/input';
 import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
@@ -164,7 +164,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
   imports: [
     FileRowContext,
     NeatIcon,
-    NeatInlineButton,
+    NeatBreadcrumbs,
     NeatInput,
     NeatSelectList,
     NeatColumn,
@@ -174,24 +174,11 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex h-full min-h-0 flex-col gap-(--neat-space-2)' },
   template: `
-    <nav [attr.aria-label]="text().breadcrumb">
-      <ol class="m-0 flex list-none flex-wrap items-center gap-x-(--neat-space-2) p-0 text-sm">
-        @for (crumb of crumbs(); track crumb.path; let first = $first; let last = $last) {
-          <li class="flex items-center gap-(--neat-space-2)">
-            @if (!first) {
-              <span aria-hidden="true" class="text-muted-foreground">›</span>
-            }
-            @if (last) {
-              <span aria-current="location" class="font-medium">{{ crumb.name }}</span>
-            } @else {
-              <button neatInlineButton type="button" (click)="navigate(crumb.path)">
-                {{ crumb.name }}
-              </button>
-            }
-          </li>
-        }
-      </ol>
-    </nav>
+    <neat-breadcrumbs
+      [label]="text().breadcrumb"
+      [crumbs]="crumbItems()"
+      (go)="navigate(crumbs()[$event].path)"
+    />
     <p data-slot="file-browser-count" aria-live="polite" class="m-0 text-sm text-muted-foreground">
       {{ countText() }}
     </p>
@@ -307,6 +294,9 @@ export class NeatFileBrowser {
   /** The folder shown: `folder`, or its nearest ancestor that exists. */
   private readonly current = computed(() => nearestExistingFolder(this.root(), this.folder()));
   protected readonly crumbs = computed(() => breadcrumbs(this.current(), this.rootLabel()));
+  protected readonly crumbItems = computed(() =>
+    this.crumbs().map(({ name }) => ({ label: name })),
+  );
   private readonly folderName = computed(() => this.crumbs().at(-1)?.name ?? this.rootLabel());
 
   protected readonly query = computed(() => this.filter().trim());

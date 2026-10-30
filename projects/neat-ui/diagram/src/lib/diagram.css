@@ -200,12 +200,6 @@ button.block:focus-visible {
   background: color-mix(in oklab, var(--neat-surface) 85%, transparent);
 }
 
-.crumb-detail {
-  margin-left: calc(var(--neat-space-2) / 2);
-  font-weight: normal;
-  color: var(--muted-foreground);
-}
-
 /*
  * The app's tip for the edge under the pointer, in the popover's colours; placed by hover.ts, in
  * the box, over the bar as well (it comes after it). It never catches the pointer, so it does not

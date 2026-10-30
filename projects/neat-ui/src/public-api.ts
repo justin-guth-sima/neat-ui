@@ -50,6 +50,8 @@ export { KIOSK_POINTER_IDLE_MS, KioskService } from './lib/kiosk/kiosk.service';
 export type { NeatButtonSize, NeatButtonVariant } from './lib/button/button';
 export { NeatButton } from './lib/button/button';
 export { NeatInlineButton } from './lib/button/inline-button';
+export type { NeatBreadcrumb } from './lib/breadcrumbs/breadcrumbs';
+export { NeatBreadcrumbs } from './lib/breadcrumbs/breadcrumbs';
 export { NeatLiveDot } from './lib/live-dot/live-dot';
 export { NeatNote } from './lib/note/note';
 export { NeatStale } from './lib/stale/stale';

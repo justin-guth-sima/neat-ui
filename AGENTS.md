@@ -20,7 +20,10 @@ look happens in one place. Every rule here protects that.
     `NeatAsideHeading`, `NeatAsideActions`), `neatAsideOpen`
     (a page's panel state, closed on a narrow screen) and `NeatViewport` (the kit's one answer to
     "is this screen narrow", below 48rem), `NeatCode`,
-    `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatTooltip`, `NeatNote`, `NeatLiveDot` (a
+    `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatBreadcrumbs` (`neat-breadcrumbs`, the
+    kit's one breadcrumb: a `nav` named by `label`, each crumb but the last an inline button whose
+    index `go` emits, the last the location with its detail muted; the file browser and the
+    diagram's level bar use it), `NeatTooltip`, `NeatNote`, `NeatLiveDot` (a
     red dot for something live, still or, with `pulse`, beating with a ring that grows out of it;
     its red is `--neat-live`, not `--destructive`, held to 3:1 on the page and on the video scrim
     over black to mid-grey video, so a "Live" badge over a picture can use it)
@@ -49,10 +52,11 @@ look happens in one place. Every rule here protects that.
     `toast` (`NeatToasts` and `neat-toast-host`), `select-list` (`NeatSelectList`, a listbox of rows
     in columns, with the `neatColumn` templates that lay them out and `NeatSelectListGroup` for
     rows under headings) and `file-browser`
-    (`NeatFileBrowser`, a tree's breadcrumb, count, filter and rows, built on `select-list` and
-    `input`; `NeatFileNode` is its tree), `status-chip` (`NeatStatusChip`, a short status on a
-    status fill, and `NeatStatusChipButton`, the same as a button; their `NeatTone` is the
-    primary's, since a select list's `rowTone` takes the same tones), `details` (`NeatDetails`, the
+    (`NeatFileBrowser`, a tree's breadcrumb, count, filter and rows, built on `select-list`,
+    `input` and the primary's `NeatBreadcrumbs`; `NeatFileNode` is its tree), `status-chip`
+    (`NeatStatusChip`, a short status on a status fill, and `NeatStatusChipButton`, the same as a
+    button; their `NeatTone` is the primary's, since a select list's `rowTone` takes the same
+    tones), `details` (`NeatDetails`, the
     key/value list of a side panel; `--neat-details-term-width` on an ancestor lines several up, and
     a term wider than a fixed column breaks inside the word),
     `table` (`NeatTable`, the data table's look on a `table`: cells, rules, column headings; and
@@ -92,23 +96,23 @@ look happens in one place. Every rule here protects that.
     diagram is shown; while a level is open a bar top left over the drawing, unscaled and first in
     the tab order, has a back button (an outlined small `neatButton` with the registry's `previous`
     icon, named "Overview" or after the level before, by the block that opens it) and the path as
-    the file browser's breadcrumbs, and a fit leaves the bar's height free above the level (and fits
-    again when the path wraps); a pressed control that leaves with its level leaves the focus on the
-    box, and a part the keyboard focuses is panned into view (the box clips with `overflow: clip`
-    and never scrolls); a visually hidden list after the drawing says the level's nodes (label,
-    detail, chips) and edges ("Camera to Decode, image") in words; the user pans and zooms it
-    (d3-zoom on the box: drag, wheel, pinch, double-click; the box is a tab stop whose arrow keys
-    pan 48 px, `+`/`=` and `-` zoom 1.25× about its centre and `0` fits; zoom 0.2 to 3), and it fits
-    its level to its box by itself (on its first size, a resize, a new extent or level) until the
-    user pans or zooms, as the demo does (a press that moves 3 px or less is a click, not a pan);
-    its `fit()` (for an app's Fit button) fits again, over 250 ms or at once under reduced motion,
-    and hands the view back; it takes the wheel and touch over its box (`touch-action: none`), so an
-    app gives it a bounded box, not a long stretch of a scrolling page; an edge's hit path stays
-    12 px wide on screen at any zoom; and `neatDrillDownLevel`, which places the level a block opens
-    from the diagram the block sits in, as the demo does: the block as the frame, what it holds
-    inside, the nodes it exchanges edges with in a column left (senders) and right (receivers); the
-    edge routing, the port layout, the notes' placement and measurement and the fit maths and the
-    pan and zoom (`zoom.ts`), ported from the Autoware demo's System page, stay internal),
+    `neat-breadcrumbs`, and a fit leaves the bar's height free above the level (and fits again when
+    the path wraps); a pressed control that leaves with its level leaves the focus on the box, and a
+    part the keyboard focuses is panned into view (the box clips with `overflow: clip` and never
+    scrolls); a visually hidden list after the drawing says the level's nodes (label, detail, chips)
+    and edges ("Camera to Decode, image") in words; the user pans and zooms it (d3-zoom on the box:
+    drag, wheel, pinch, double-click; the box is a tab stop whose arrow keys pan 48 px, `+`/`=` and
+    `-` zoom 1.25× about its centre and `0` fits; zoom 0.2 to 3), and it fits its level to its box
+    by itself (on its first size, a resize, a new extent or level) until the user pans or zooms, as
+    the demo does (a press that moves 3 px or less is a click, not a pan); its `fit()` (for an app's
+    Fit button) fits again, over 250 ms or at once under reduced motion, and hands the view back; it
+    takes the wheel and touch over its box (`touch-action: none`), so an app gives it a bounded box,
+    not a long stretch of a scrolling page; an edge's hit path stays 12 px wide on screen at any
+    zoom; and `neatDrillDownLevel`, which places the level a block opens from the diagram the block
+    sits in, as the demo does: the block as the frame, what it holds inside, the nodes it exchanges
+    edges with in a column left (senders) and right (receivers); the edge routing, the port layout,
+    the notes' placement and measurement and the fit maths and the pan and zoom (`zoom.ts`), ported
+    from the Autoware demo's System page, stay internal),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which

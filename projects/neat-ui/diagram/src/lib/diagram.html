@@ -20,30 +20,7 @@
       <neat-icon name="previous" [size]="16" />
       {{ backTo() }}
     </button>
-    <!-- The file browser's breadcrumb. -->
-    <nav class="crumbs" aria-label="Levels">
-      <ol class="m-0 flex list-none flex-wrap items-center gap-x-(--neat-space-2) p-0 text-sm">
-        @for (crumb of crumbs(); track $index; let first = $first; let last = $last) {
-          <li class="flex items-center gap-(--neat-space-2)">
-            @if (!first) {
-              <span aria-hidden="true" class="text-muted-foreground">›</span>
-            }
-            @if (last) {
-              <span aria-current="location" class="font-medium">
-                {{ crumb.label }}
-                @if (crumb.detail) {
-                  <span class="crumb-detail">{{ crumb.detail }}</span>
-                }
-              </span>
-            } @else {
-              <button neatInlineButton type="button" (click)="goTo($index)">
-                {{ crumb.label }}
-              </button>
-            }
-          </li>
-        }
-      </ol>
-    </nav>
+    <neat-breadcrumbs class="crumbs" label="Levels" [crumbs]="crumbs()" (go)="goTo($event)" />
   </div>
 }
 

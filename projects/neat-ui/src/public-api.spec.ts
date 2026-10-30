@@ -123,6 +123,10 @@ describe('the public API', () => {
     }
   });
 
+  it('exports the breadcrumbs, which the file browser and the diagram share', () => {
+    expect(Object.keys(primary)).toEqual(expect.arrayContaining(['NeatBreadcrumbs']));
+  });
+
   it('exports the live dot, which every page that shows a running state needs', () => {
     expect(Object.keys(primary)).toEqual(expect.arrayContaining(['NeatLiveDot']));
   });

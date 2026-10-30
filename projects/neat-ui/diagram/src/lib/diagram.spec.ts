@@ -780,10 +780,9 @@ describe('NeatDiagramView’s hover, levels and words', () => {
       const view = await renderLevels(['stages', 'inner']);
       const crumbs = view.all('.bar nav li');
       expect(view.one('.bar nav').getAttribute('aria-label')).toBe('Levels');
-      expect(crumbs.map((li) => li.textContent?.replace(/\s+/g, ' ').trim())).toEqual([
-        'Decode',
-        '› Resize',
-      ]);
+      expect(
+        crumbs.map((li) => li.querySelector('button, [aria-current]')?.textContent?.trim()),
+      ).toEqual(['Decode', 'Resize']);
       expect(crumbs[0].querySelector('button')).not.toBeNull();
       expect(crumbs[1].querySelector('button')).toBeNull();
       expect(crumbs[1].querySelector('[aria-current="location"]')).not.toBeNull();

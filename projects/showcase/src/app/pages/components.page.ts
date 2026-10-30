@@ -11,6 +11,8 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
+  type NeatBreadcrumb,
+  NeatBreadcrumbs,
   NeatButton,
   type NeatButtonSize,
   type NeatButtonVariant,
@@ -208,6 +210,7 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
 @Component({
   selector: 'app-components-page',
   imports: [
+    NeatBreadcrumbs,
     NeatButton,
     NeatCallout,
     NeatCollapsible,
@@ -688,6 +691,33 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
                 <a neatInlineButton routerLink="/components">All components</a>
               </li>
             </ul>
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Breadcrumbs</h2>
+          <p class="showcase-muted">
+            <code>neat-breadcrumbs</code>: where you are and the way back, a <code>nav</code> named
+            by its <code>label</code>. Each crumb but the last is an inline button whose index
+            <code>go</code> emits; the last is the location, with its detail muted. The file browser
+            and the diagram's level bar use it. Go back and press Deeper to walk the path.
+          </p>
+          <div class="card inline-demo">
+            <neat-breadcrumbs
+              label="Example path"
+              [crumbs]="crumbPath()"
+              (go)="crumbDepth.set($event + 1)"
+            />
+            <p neatNote>
+              <button
+                neatInlineButton
+                type="button"
+                [disabled]="crumbDepth() === crumbPlaces.length"
+                (click)="crumbDepth.set(crumbDepth() + 1)"
+              >
+                Deeper
+              </button>
+            </p>
           </div>
         </section>
 
@@ -1874,6 +1904,15 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
 })
 export class ComponentsPage {
   protected readonly variants = VARIANTS;
+  /** The breadcrumbs' demo: a model's levels, and how deep the path goes. */
+  protected readonly crumbPlaces: readonly NeatBreadcrumb[] = [
+    { label: 'Overview' },
+    { label: 'Detector', detail: 'YOLOX' },
+    { label: 'Backbone', detail: 'CSPDarknet' },
+    { label: 'Stages', detail: 'four stages' },
+  ];
+  protected readonly crumbDepth = signal(3);
+  protected readonly crumbPath = computed(() => this.crumbPlaces.slice(0, this.crumbDepth()));
   protected readonly surfaces = SURFACES;
   protected readonly sizes = SIZES;
   protected readonly iconSizes = ICON_SIZES;

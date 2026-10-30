@@ -17,7 +17,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { NeatButton, NeatIcon, NeatInlineButton } from '@sima/neat-ui';
+import { NeatBreadcrumbs, NeatButton, NeatIcon } from '@sima/neat-ui';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
 import { BRACE_HEIGHT, describeLevel, drawLevel } from './drawing';
 import { levelExtent } from './fit';
@@ -69,7 +69,7 @@ import { DiagramZoom } from './zoom';
  */
 @Component({
   selector: 'neat-diagram',
-  imports: [NeatButton, NeatIcon, NeatInlineButton, NeatStatusChip, NgTemplateOutlet, NoteBox],
+  imports: [NeatBreadcrumbs, NeatButton, NeatIcon, NeatStatusChip, NgTemplateOutlet, NoteBox],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [NoteSizes],
   host: { role: 'figure', '[attr.aria-label]': 'label()', tabindex: '0' },
