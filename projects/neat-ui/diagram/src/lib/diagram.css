@@ -144,3 +144,89 @@
 .note:not(.placed) {
   visibility: hidden;
 }
+
+/* --- focus, the level bar and the edge tip, over the drawing --- */
+
+/*
+ * While a block or an edge is in focus (hover.ts), what it is not joined to fades: nodes but
+ * frames, edges, edge labels, notes and their leaders. A frame is the ground the parts stand on,
+ * and fading it would fade the picture's layout with the parts.
+ */
+.dim {
+  opacity: 0.25;
+}
+
+/* A block that opens a level is a button: its card, its type and the kit's focus ring. */
+button.block {
+  margin: 0;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+button.block:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/*
+ * Back a level and where you are, top left over the drawing and outside the zoomed content, so it
+ * keeps its size. Only its controls catch the pointer; the drawing under its gaps stays draggable.
+ */
+.bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--neat-space-3);
+  padding: var(--neat-space-2) var(--neat-space-3);
+  pointer-events: none;
+}
+
+.bar > * {
+  pointer-events: auto;
+}
+
+/* On a veil of the surface, so the path reads over whatever is drawn under it. */
+.crumbs {
+  padding: calc(var(--neat-space-2) / 2) var(--neat-space-2);
+  border-radius: var(--radius);
+  background: color-mix(in oklab, var(--neat-surface) 85%, transparent);
+}
+
+.crumb-detail {
+  margin-left: calc(var(--neat-space-2) / 2);
+  font-weight: normal;
+  color: var(--muted-foreground);
+}
+
+/*
+ * The app's tip for the edge under the pointer, in the popover's colours; placed by hover.ts, in
+ * the box. It never catches the pointer, so it does not take the hover from the edge.
+ */
+.edge-tip {
+  --neat-surface: var(--popover);
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  max-width: min(16rem, 100%);
+  width: max-content;
+  padding: var(--neat-space-2) var(--neat-space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  font-size: var(--neat-text-xs);
+  line-height: 1.35;
+  box-shadow: 0 4px 12px color-mix(in oklab, var(--foreground) 14%, transparent);
+  pointer-events: none;
+}
+
+/* An edge the app's template renders nothing for shows no tip. */
+.edge-tip:empty {
+  display: none;
+}

@@ -1,15 +1,17 @@
-import { ChangeDetectionStrategy, Component, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal, viewChild } from '@angular/core';
 import { NeatButton, NeatIcon, NeatPage, NeatPageToolbar } from '@sima/neat-ui';
 import {
   type NeatDiagramSet,
+  NeatDiagramEdgeTipTemplate,
   NeatDiagramNoteTemplate,
   NeatDiagramView,
 } from '@sima/neat-ui/diagram';
 
 /**
  * A model graph (the reference sheet's third example): a backbone frame holding two blocks, one
- * of which opens a level, edges with tensor shapes as labels, a bracket under the post-processing
- * and a note on an edge. The diagram fits it to its box, so where it starts does not matter.
+ * of which (Stages) opens a level of its own, edges with tensor shapes as labels, a bracket under
+ * the post-processing and a note on an edge. The diagram fits each level to its box, so where a
+ * level starts does not matter.
  */
 const MODEL_GRAPH: NeatDiagramSet = {
   overview: {
@@ -111,13 +113,54 @@ const MODEL_GRAPH: NeatDiagramSet = {
     ],
     notes: [{ id: 'stages-time', edges: ['stages-head'], dx: 250, dy: 8 }],
   },
-  levels: { stages: { nodes: [], edges: [] } },
+  levels: {
+    stages: {
+      nodes: [
+        {
+          id: 'stages-frame',
+          role: 'frame',
+          look: 'dashed',
+          label: 'Stages',
+          detail: 'CSPDarknet, four stages',
+          x: 0,
+          y: 0,
+          w: 1000,
+          h: 140,
+        },
+        ...(['Dark2', 'Dark3', 'Dark4', 'Dark5'] as const).map((label, i) => ({
+          id: label.toLowerCase(),
+          role: 'block' as const,
+          label,
+          chips: [{ label: 'MLA', tone: 'info' as const }],
+          parent: 'stages-frame',
+          x: 20 + i * 270,
+          y: 72,
+          w: 150,
+          h: 44,
+        })),
+      ],
+      edges: [
+        { id: 'dark2-dark3', from: 'dark2', to: 'dark3', series: 1, label: '1×128×160²' },
+        { id: 'dark3-dark4', from: 'dark3', to: 'dark4', series: 1, label: '1×256×80²' },
+        { id: 'dark4-dark5', from: 'dark4', to: 'dark5', series: 1, label: '1×512×40²' },
+      ],
+    },
+  },
+};
+
+/** What the tip of an edge says, by its id; an edge without one shows no tip. */
+const EDGE_TIPS: Readonly<Record<string, string>> = {
+  'input-stem': 'The camera frame, letterboxed to 640 × 640',
+  'stages-head': 'Three feature maps, at strides 8, 16 and 32',
+  'head-nms': 'Boxes, objectness and 80 class scores per cell',
+  'dark4-dark5': 'The deepest stage: the coarsest map, the widest view',
 };
 
 @Component({
   selector: 'app-diagram-page',
   imports: [
     NeatButton,
+    NeatDiagramEdgeTipTemplate,
     NeatDiagramNoteTemplate,
     NeatDiagramView,
     NeatIcon,
@@ -142,9 +185,24 @@ const MODEL_GRAPH: NeatDiagramSet = {
             charts' series colours; chips are the kit's status chips; a note's content is the app's
             template. Drag, wheel, pinch or double-click to pan and zoom, or focus it and use the
             arrow keys, <kbd>+</kbd>, <kbd>-</kbd> and <kbd>0</kbd>; it fits itself to its box until
-            you do, and the toolbar's Fit (its <code>fit()</code>) fits it again.
+            you do, and the toolbar's Fit (its <code>fit()</code>) fits it again. Hover a block or
+            an edge to bring it forward (an edge with a tip shows the app's
+            <code>neatDiagramEdgeTip</code>); Stages opens a level of its own, and the bar over the
+            drawing goes back. <code>[(level)]</code> is the path, here
+            <code>{{ levelText() }}</code
+            >.
           </p>
-          <neat-diagram class="diagram" [diagram]="modelGraph" label="A detector's model graph">
+          <neat-diagram
+            class="diagram"
+            [diagram]="modelGraph"
+            label="A detector's model graph"
+            [(level)]="level"
+          >
+            <ng-template neatDiagramEdgeTip let-edge>
+              @if (edgeTips[edge.id]; as tip) {
+                {{ tip }}
+              }
+            </ng-template>
             <ng-template neatDiagramNote let-note>
               @if (note.id === 'stages-time') {
                 <b>Stages → Head</b><br />24.0 ms · 3 outputs
@@ -159,5 +217,8 @@ const MODEL_GRAPH: NeatDiagramSet = {
 })
 export class DiagramPage {
   protected readonly modelGraph = MODEL_GRAPH;
+  protected readonly edgeTips = EDGE_TIPS;
+  protected readonly level = signal<string[]>([]);
+  protected readonly levelText = computed(() => JSON.stringify(this.level()));
   protected readonly diagram = viewChild(NeatDiagramView);
 }

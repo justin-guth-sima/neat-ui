@@ -4,6 +4,7 @@ describe('the diagram entry', () => {
   it('exports the diagram, its templates and the drill-down helper; the rest stays internal', () => {
     expect(Object.keys(diagram).sort()).toEqual([
       'NeatDiagramBlockTemplate',
+      'NeatDiagramEdgeTipTemplate',
       'NeatDiagramNoteTemplate',
       'NeatDiagramView',
       'neatDrillDownLevel',

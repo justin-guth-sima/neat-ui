@@ -75,22 +75,35 @@ look happens in one place. Every rule here protects that.
     of edges (series colour, line, tips, mono labels), blocks (the kit's status chips for their
     chips), brackets and notes in front of it, all in one container, every part keyed by its id so
     an equal diagram recomputed on every poll changes nothing in the DOM; its templates,
-    `ng-template[neatDiagramBlock]` (a block's body below its label) and
-    `ng-template[neatDiagramNote]` (a note's content; a note it renders nothing for is not drawn),
-    each given its part as `$implicit`; the user pans and zooms it (d3-zoom on the box: drag,
-    wheel, pinch, double-click; the box is a tab stop whose arrow keys pan 48 px, `+`/`=` and `-`
-    zoom 1.25× about its centre and `0` fits; zoom 0.2 to 3), and it fits its level to its box by
-    itself (on its first size, a resize, a new extent or level) until the user pans or zooms, as
-    the demo does (a press that moves 3 px or less is a click, not a pan); its `fit()` (for an
-    app's Fit button) fits again, over 250 ms or at once under reduced motion, and hands the view
-    back; it takes the wheel and touch over its box (`touch-action: none`), so an app gives it a
-    bounded box, not a long stretch of a scrolling page; an edge's hit path stays 12 px wide on
-    screen at any zoom; and `neatDrillDownLevel`,
-    which places the level a block opens from the diagram the block sits in, as the demo does:
-    the block as the frame, what it holds inside, the nodes it exchanges edges with in a column
-    left (senders) and right (receivers); the edge routing, the port layout, the notes' placement
-    and measurement and the fit maths and the pan and zoom (`zoom.ts`), ported from the Autoware
-    demo's System page, stay internal),
+    `ng-template[neatDiagramBlock]` (a block's body below its label), `ng-template[neatDiagramNote]`
+    (a note's content; a note it renders nothing for is not drawn) and
+    `ng-template[neatDiagramEdgeTip]` (the tip of the edge under a mouse or a pen, by the pointer in
+    the popover's colours and kept inside the box; hidden from assistive technology, so it must
+    hold nothing a reader needs that the hidden list or a note does not say), each given its part as
+    `$implicit`; a block or an edge under the pointer, or a block whose open button has the focus,
+    stays as it is with what it is joined to (a block's edges, an edge's ends, the notes on those
+    edges) while the rest but the frames fades to 0.25 (`hover.ts`); a block whose `opens` names a
+    level is a button ("Open Stages") that opens it, and `[(level)]` is the path of open levels,
+    `[]` for the overview, which an app can bind to its route: a path is followed while each id
+    names a level a block of the level before opens, and one that leads further nowhere (a stale
+    route) is cut there and the model set to it (`levels.ts`); while a level is open a bar top left
+    over the drawing, unscaled, has a back button (an outlined small `neatButton` with the
+    registry's `previous` icon, named "Overview" or after the level before, by the block that opens
+    it) and the path as the file browser's breadcrumbs; a pressed control that leaves with its level
+    leaves the focus on the box; a visually hidden list after the drawing says the level's nodes
+    (label, detail, chips) and edges ("Camera to Decode, image") in words; the user pans and zooms
+    it (d3-zoom on the box: drag, wheel, pinch, double-click; the box is a tab stop whose arrow keys
+    pan 48 px, `+`/`=` and `-` zoom 1.25× about its centre and `0` fits; zoom 0.2 to 3), and it fits
+    its level to its box by itself (on its first size, a resize, a new extent or level) until the
+    user pans or zooms, as the demo does (a press that moves 3 px or less is a click, not a pan);
+    its `fit()` (for an app's Fit button) fits again, over 250 ms or at once under reduced motion,
+    and hands the view back; it takes the wheel and touch over its box (`touch-action: none`), so an
+    app gives it a bounded box, not a long stretch of a scrolling page; an edge's hit path stays
+    12 px wide on screen at any zoom; and `neatDrillDownLevel`, which places the level a block opens
+    from the diagram the block sits in, as the demo does: the block as the frame, what it holds
+    inside, the nodes it exchanges edges with in a column left (senders) and right (receivers); the
+    edge routing, the port layout, the notes' placement and measurement and the fit maths and the
+    pan and zoom (`zoom.ts`), ported from the Autoware demo's System page, stay internal),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which

@@ -1,7 +1,8 @@
+@let focus = focused();
 <!-- One container for every layer, so pan and zoom move one element. -->
 <div class="content" #content>
   <div class="behind">
-    @for (part of level().behind; track part.node.id) {
+    @for (part of drawn().behind; track part.node.id) {
       @if (part.node.role === 'frame') {
         <div
           class="frame"
@@ -21,6 +22,7 @@
         <div
           class="band"
           [class.upright]="part.rect.h > part.rect.w"
+          [class.dim]="focus !== null && !focus.nodes.has(part.node.id)"
           [attr.data-node]="part.node.id"
           [style.left.px]="part.rect.x"
           [style.top.px]="part.rect.y"
@@ -34,9 +36,10 @@
   </div>
 
   <svg class="edges" aria-hidden="true" focusable="false">
-    @for (edge of level().edges; track edge.id) {
+    @for (edge of drawn().edges; track edge.id) {
       <g
         class="edge"
+        [class.dim]="focus !== null && !focus.edges.has(edge.id)"
         [attr.data-edge]="edge.id"
         [attr.data-line]="edge.line"
         [style.--edge]="edge.colour"
@@ -61,7 +64,11 @@
     }
     @for (note of notes(); track note.id) {
       @if (placements().get(note.id)?.leader; as leader) {
-        <g class="leader" [attr.data-note]="note.id">
+        <g
+          class="leader"
+          [class.dim]="focus !== null && !focus.notes.has(note.id)"
+          [attr.data-note]="note.id"
+        >
           <line
             [attr.x1]="leader[0].x"
             [attr.y1]="leader[0].y"
@@ -75,41 +82,44 @@
   </svg>
 
   <div class="front">
-    @for (part of level().front; track part.node.id) {
+    @for (part of drawn().front; track part.node.id) {
       @if (part.node.role === 'block') {
-        <div
-          class="block"
-          [attr.data-node]="part.node.id"
-          [attr.data-look]="part.look"
-          [attr.data-opens]="part.opens ? '' : null"
-          [style.left.px]="part.rect.x"
-          [style.top.px]="part.rect.y"
-          [style.width.px]="part.rect.w"
-          [style.height.px]="part.rect.h"
-        >
-          <div class="text">
-            <span class="label">{{ part.node.label }}</span>
-            @if (part.node.detail) {
-              <span class="detail">{{ part.node.detail }}</span>
-            }
-            @if (blockTemplate(); as body) {
-              <div class="body">
-                <ng-container
-                  *ngTemplateOutlet="body.template; context: { $implicit: part.node }"
-                />
-              </div>
-            }
-          </div>
-          @for (chip of part.node.chips ?? []; track $index) {
-            <neat-status-chip [tone]="chip.tone">{{ chip.label }}</neat-status-chip>
-          }
-          @if (part.opens) {
+        @if (part.opens) {
+          <button
+            type="button"
+            class="block"
+            data-opens
+            [class.dim]="focus !== null && !focus.nodes.has(part.node.id)"
+            [attr.data-node]="part.node.id"
+            [attr.data-look]="part.look"
+            [attr.aria-label]="'Open ' + part.node.label"
+            [style.left.px]="part.rect.x"
+            [style.top.px]="part.rect.y"
+            [style.width.px]="part.rect.w"
+            [style.height.px]="part.rect.h"
+            (click)="open(part.node)"
+          >
+            <ng-container *ngTemplateOutlet="blockContent; context: { $implicit: part.node }" />
             <span class="more" aria-hidden="true">›</span>
-          }
-        </div>
+          </button>
+        } @else {
+          <div
+            class="block"
+            [class.dim]="focus !== null && !focus.nodes.has(part.node.id)"
+            [attr.data-node]="part.node.id"
+            [attr.data-look]="part.look"
+            [style.left.px]="part.rect.x"
+            [style.top.px]="part.rect.y"
+            [style.width.px]="part.rect.w"
+            [style.height.px]="part.rect.h"
+          >
+            <ng-container *ngTemplateOutlet="blockContent; context: { $implicit: part.node }" />
+          </div>
+        }
       } @else {
         <div
           class="bracket"
+          [class.dim]="focus !== null && !focus.nodes.has(part.node.id)"
           [attr.data-node]="part.node.id"
           [style.left.px]="part.rect.x"
           [style.top.px]="part.rect.y"
@@ -137,10 +147,11 @@
       }
     }
 
-    @for (edge of level().edges; track edge.id) {
+    @for (edge of drawn().edges; track edge.id) {
       @if (edge.label; as label) {
         <code
           class="edge-label"
+          [class.dim]="focus !== null && !focus.edges.has(edge.id)"
           [attr.data-edge]="edge.id"
           [style.left.px]="label.at.x"
           [style.top.px]="label.at.y"
@@ -157,6 +168,7 @@
           [neatDiagramNoteBox]="note.id"
           [attr.data-note]="note.id"
           [class.placed]="placement !== undefined"
+          [class.dim]="focus !== null && !focus.notes.has(note.id)"
           [style.left.px]="placement?.box?.x ?? 0"
           [style.top.px]="placement?.box?.y ?? 0"
         >
@@ -166,3 +178,94 @@
     }
   </div>
 </div>
+
+<!--
+  A block's card: its label, detail, the app's body and its chips. Spans only, since an open
+  block's card is a button, which holds phrasing content.
+-->
+<ng-template #blockContent let-node>
+  <span class="text">
+    <span class="label">{{ node.label }}</span>
+    @if (node.detail) {
+      <span class="detail">{{ node.detail }}</span>
+    }
+    @if (blockTemplate(); as body) {
+      <span class="body">
+        <ng-container *ngTemplateOutlet="body.template; context: { $implicit: node }" />
+      </span>
+    }
+  </span>
+  @for (chip of node.chips ?? []; track $index) {
+    <neat-status-chip [tone]="chip.tone">{{ chip.label }}</neat-status-chip>
+  }
+</ng-template>
+
+<!-- Over the drawing, unscaled: back a level and where you are. -->
+@if (crumbs().length > 0) {
+  <!-- A press on its controls is theirs: no pan starts and a double-click does not zoom. -->
+  <div
+    class="bar"
+    (mousedown)="$event.stopPropagation()"
+    (touchstart)="$event.stopPropagation()"
+    (dblclick)="$event.stopPropagation()"
+  >
+    <button
+      neatButton
+      variant="outlined"
+      size="small"
+      type="button"
+      [attr.aria-label]="'Back to ' + backTo()"
+      (click)="back()"
+    >
+      <neat-icon name="previous" [size]="16" />
+      {{ backTo() }}
+    </button>
+    <!-- The file browser's breadcrumb. -->
+    <nav class="crumbs" aria-label="Levels">
+      <ol class="m-0 flex list-none flex-wrap items-center gap-x-(--neat-space-2) p-0 text-sm">
+        @for (crumb of crumbs(); track $index; let first = $first; let last = $last) {
+          <li class="flex items-center gap-(--neat-space-2)">
+            @if (!first) {
+              <span aria-hidden="true" class="text-muted-foreground">›</span>
+            }
+            @if (last) {
+              <span aria-current="location" class="font-medium">
+                {{ crumb.label }}
+                @if (crumb.detail) {
+                  <span class="crumb-detail">{{ crumb.detail }}</span>
+                }
+              </span>
+            } @else {
+              <button neatInlineButton type="button" (click)="goTo($index)">
+                {{ crumb.label }}
+              </button>
+            }
+          </li>
+        }
+      </ol>
+    </nav>
+  </div>
+}
+
+<!-- The level in words, after the drawing, so the picture is not only visual. -->
+<div class="sr-only">
+  <ul aria-label="Parts">
+    @for (part of described().nodes; track part.id) {
+      <li>{{ part.text }}</li>
+    }
+  </ul>
+  @if (described().edges.length > 0) {
+    <ul aria-label="Connections">
+      @for (edge of described().edges; track edge.id) {
+        <li>{{ edge.text }}</li>
+      }
+    </ul>
+  }
+</div>
+
+<!-- Placed by the pointer (hover.ts), in the box; presentational, as the list has the words. -->
+@if (edgeTip(); as tip) {
+  <div class="edge-tip" #tip aria-hidden="true">
+    <ng-container *ngTemplateOutlet="tip.template; context: { $implicit: tip.edge }" />
+  </div>
+}

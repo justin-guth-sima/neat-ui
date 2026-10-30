@@ -43,6 +43,8 @@ export type DrawnTip =
 /** An edge as drawn. */
 export interface DrawnEdge {
   readonly id: string;
+  /** The app's edge, for its tip's template and its words. */
+  readonly edge: NeatDiagramEdge;
   readonly path: string;
   /** The CSS colour its line and tips take. */
   readonly colour: string;
@@ -144,6 +146,7 @@ function drawEdge(edge: NeatDiagramEdge, layout: EdgeLayout): DrawnEdge {
   ].filter((t): t is DrawnTip => t !== null);
   return {
     id: edge.id,
+    edge,
     path: layout.path,
     colour: edgeColour(edge),
     line: edge.line ?? 'solid',
@@ -168,6 +171,37 @@ function edgeColour(edge: NeatDiagramEdge): string {
     `edge "${edge.id}" is drawn in the muted colour: its series ${series} is not 1 to 8`,
   );
   return MUTED;
+}
+
+/** A drawn part in words, for the list that says the picture without it. */
+export interface DescribedPart {
+  readonly id: string;
+  readonly text: string;
+}
+
+/**
+ * The level in words: each node by its label, detail and chips ("Decode, H.264, HW"), each edge
+ * by its ends and label ("Camera to Decode, image"). Only what is drawn, so the words and the
+ * picture say the same.
+ */
+export function describeLevel(level: DrawnLevel): {
+  readonly nodes: readonly DescribedPart[];
+  readonly edges: readonly DescribedPart[];
+} {
+  const drawnNodes = [...level.behind, ...level.front].map(({ node }) => node);
+  const labels = new Map(drawnNodes.map((node) => [node.id, node.label]));
+  const words = (...parts: (string | undefined)[]) =>
+    parts.filter((part) => part !== undefined && part !== '').join(', ');
+  return {
+    nodes: drawnNodes.map((node) => ({
+      id: node.id,
+      text: words(node.label, node.detail, ...(node.chips ?? []).map((chip) => chip.label)),
+    })),
+    edges: level.edges.map(({ id, edge }) => ({
+      id,
+      text: words(`${labels.get(edge.from)} to ${labels.get(edge.to)}`, edge.label),
+    })),
+  };
 }
 
 const n = (v: number) => Math.round(v * 100) / 100;

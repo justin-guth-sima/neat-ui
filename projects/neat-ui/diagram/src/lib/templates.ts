@@ -1,9 +1,9 @@
 import { Directive, inject, TemplateRef } from '@angular/core';
-import type { NeatDiagramNode, NeatDiagramNote } from './model';
+import type { NeatDiagramEdge, NeatDiagramNode, NeatDiagramNote } from './model';
 
 /*
- * The app's content in a diagram: one template for every block's body and one for every note,
- * each given the part it renders for, so the app decides per part (by id, by its `data`) what it
+ * The app's content in a diagram: one template for every block's body, one for every note and one
+ * for the tip of the edge under the pointer, each given the part it renders for, so the app decides per part (by id, by its `data`) what it
  * shows. One template per kind rather than one per id keeps the diagram's input plain data that
  * an app can recompute on every poll.
  */
@@ -11,6 +11,11 @@ import type { NeatDiagramNode, NeatDiagramNote } from './model';
 /** What a block's template is given: the block. */
 export interface NeatDiagramBlockContext {
   readonly $implicit: NeatDiagramNode;
+}
+
+/** What the edge tip's template is given: the edge. */
+export interface NeatDiagramEdgeTipContext {
+  readonly $implicit: NeatDiagramEdge;
 }
 
 /** What a note's template is given: the note. */
@@ -64,6 +69,35 @@ export class NeatDiagramNoteTemplate {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     context: unknown,
   ): context is NeatDiagramNoteContext {
+    return true;
+  }
+}
+
+/**
+ * The tip of the edge under the pointer, by the pointer, in the popover's colours and kept inside
+ * the diagram's box:
+ *
+ * ```html
+ * <ng-template neatDiagramEdgeTip let-edge>
+ *   <b>{{ edge.label }}</b> {{ rate(edge.id) }} msg/s
+ * </ng-template>
+ * ```
+ *
+ * It follows a mouse or a pen, never touch (which has no hover), and is hidden from assistive
+ * technology: the diagram's hidden list says each edge in words, so a tip must not hold anything
+ * a reader needs that the list or a note does not say. An edge it renders nothing for shows no
+ * tip.
+ */
+@Directive({ selector: 'ng-template[neatDiagramEdgeTip]' })
+export class NeatDiagramEdgeTipTemplate {
+  readonly template = inject<TemplateRef<NeatDiagramEdgeTipContext>>(TemplateRef);
+
+  static ngTemplateContextGuard(
+    _directive: NeatDiagramEdgeTipTemplate,
+    // Only its type is read: the guard tells the template compiler what `let-` variables hold.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    context: unknown,
+  ): context is NeatDiagramEdgeTipContext {
     return true;
   }
 }

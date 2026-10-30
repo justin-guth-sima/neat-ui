@@ -7,10 +7,12 @@ import { NeatDiagramView } from './diagram';
 import diagramStyles from './diagram.css' with { loader: 'text' };
 import { fitTransform } from './fit';
 import { layoutEdges } from './layout';
-import type { NeatDiagram, NeatDiagramSet } from './model';
+import { TIP_GAP } from './hover';
+import type { NeatDiagram, NeatDiagramNode, NeatDiagramSet } from './model';
 import { resetReported } from './report';
 import { resize, stubResizeObserver } from './resize-observer.testing';
 import { pointAlong } from './route';
+import { NeatDiagramEdgeTipTemplate, NeatDiagramNoteTemplate } from './templates';
 
 @Component({
   imports: [NeatDiagramView],
@@ -502,5 +504,346 @@ describe('NeatDiagramView’s pan, zoom and fit', () => {
     // an HTML ancestor is not undone by `vector-effect: non-scaling-stroke` (checked in Chromium).
     const rule = /\n\.hit \{([^}]*)\}/.exec(diagramStyles)?.[1] ?? '';
     expect(rule).toMatch(/stroke-width: calc\(12px \/ var\(--diagram-zoom\)\);/);
+  });
+});
+
+const block = (id: string, label: string, x: number, more: Partial<NeatDiagramNode> = {}) =>
+  ({ id, role: 'block', label, x, y: 0, w: 120, h: 40, ...more }) as NeatDiagramNode;
+
+/**
+ * A board frame behind Camera → Decode → Sink, Decode opening "stages", which opens "inner";
+ * a note on the second edge. "orphan" is a level no block opens.
+ */
+const LEVELS: NeatDiagramSet = {
+  overview: {
+    nodes: [
+      { id: 'board', role: 'frame', label: 'Board', x: -20, y: -40, w: 580, h: 120 },
+      block('camera', 'Camera', 0, { detail: 'USB' }),
+      block('decode', 'Decode', 200, {
+        opens: 'stages',
+        chips: [{ label: 'HW', tone: 'success' }],
+      }),
+      block('sink', 'Sink', 400),
+    ],
+    edges: [
+      { id: 'frames', from: 'camera', to: 'decode', label: '1080p' },
+      { id: 'images', from: 'decode', to: 'sink' },
+    ],
+    notes: [{ id: 'rate', edges: ['images'], dy: 60 }],
+  },
+  levels: {
+    stages: {
+      nodes: [
+        block('resize', 'Resize', 0, { opens: 'inner' }),
+        block('yolox', 'YOLOX', 200, { chips: [{ label: 'MLA', tone: 'info' }] }),
+      ],
+      edges: [{ id: 'tensors', from: 'resize', to: 'yolox', label: 'image' }],
+    },
+    inner: { nodes: [block('tile', 'Tile', 0)], edges: [] },
+    orphan: { nodes: [block('lost', 'Lost', 0)], edges: [] },
+  },
+};
+
+@Component({
+  imports: [NeatDiagramView, NeatDiagramEdgeTipTemplate, NeatDiagramNoteTemplate],
+  template: `
+    <neat-diagram [diagram]="diagram()" label="Levels" [(level)]="level">
+      <ng-template neatDiagramEdgeTip let-edge
+        ><b class="said">About {{ edge.id }}</b></ng-template
+      >
+      <ng-template neatDiagramNote let-note>Note {{ note.id }}</ng-template>
+    </neat-diagram>
+  `,
+})
+class LevelsHost {
+  readonly diagram = signal<NeatDiagramSet>(LEVELS);
+  readonly level = signal<string[]>([]);
+}
+
+describe('NeatDiagramView’s hover, levels and words', () => {
+  beforeEach(() => {
+    stubResizeObserver();
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: true,
+      media: query,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+    }));
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  async function renderLevels(level: string[] = []) {
+    const fixture = TestBed.createComponent(LevelsHost);
+    fixture.componentInstance.level.set(level);
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    const one = (selector: string) => root.querySelector<HTMLElement>(selector) as HTMLElement;
+    const all = (selector: string) => Array.from(root.querySelectorAll<HTMLElement>(selector));
+    const host = one('neat-diagram');
+    const stable = () => fixture.whenStable();
+    return {
+      fixture,
+      host,
+      one,
+      all,
+      stable,
+      node: (id: string) => one(`[data-node="${id}"]`),
+      edge: (id: string) => one(`g[data-edge="${id}"]`),
+      label: (id: string) => one(`.edge-label[data-edge="${id}"]`),
+      note: (id: string) => one(`.note[data-note="${id}"]`),
+      /** What carries the class `dim`, by its data id. */
+      dimmed: () =>
+        all('.dim').map(
+          (el) => el.dataset['node'] ?? el.dataset['note'] ?? `${el.tagName}:${el.dataset['edge']}`,
+        ),
+      async pointer(type: string, target: Element, init: PointerEventInit = {}) {
+        const event = new PointerEvent(type, {
+          bubbles: type !== 'pointerleave',
+          pointerType: 'mouse',
+          ...init,
+        });
+        target.dispatchEvent(event);
+        await stable();
+      },
+      async click(element: HTMLElement) {
+        element.click();
+        await stable();
+      },
+      level: () => fixture.componentInstance.level(),
+      shownIds: () => all('[data-node]').map((el) => el.dataset['node']),
+    };
+  }
+
+  describe('hover', () => {
+    it('puts a block and its edges in focus and dims the rest to 0.25, until it leaves', async () => {
+      const view = await renderLevels();
+      expect(view.dimmed()).toEqual([]);
+
+      await view.pointer('pointerover', view.node('camera').querySelector('.label')!);
+
+      // Its edge and that edge's label stay; the other blocks, edges and notes fade. A frame is
+      // the ground the parts sit on and never fades.
+      expect(view.dimmed().sort()).toEqual(['decode', 'g:images', 'rate', 'sink']);
+      expect(view.node('board').classList).not.toContain('dim');
+
+      await view.pointer('pointerleave', view.host);
+      expect(view.dimmed()).toEqual([]);
+      const rule = /\n\.dim \{([^}]*)\}/.exec(diagramStyles)?.[1] ?? '';
+      expect(rule).toMatch(/opacity: 0\.25;/);
+    });
+
+    it('puts an edge in focus with its ends and its notes, by its hit path', async () => {
+      const view = await renderLevels();
+      await view.pointer('pointerover', view.edge('images').querySelector('.hit')!);
+      expect(view.dimmed().sort()).toEqual(['CODE:frames', 'camera', 'g:frames']);
+      expect(view.note('rate').classList).not.toContain('dim');
+
+      // Onto the empty box: nothing is in focus.
+      await view.pointer('pointermove', view.one('.content'));
+      expect(view.dimmed()).toEqual([]);
+    });
+
+    it('puts nothing in focus for a touch or while a button is held (a drag)', async () => {
+      const view = await renderLevels();
+      await view.pointer('pointerover', view.node('camera'), { pointerType: 'touch' });
+      expect(view.dimmed()).toEqual([]);
+      await view.pointer('pointermove', view.node('camera'), { buttons: 1 });
+      expect(view.dimmed()).toEqual([]);
+    });
+
+    it('puts a block in focus while its open button has the keyboard’s focus', async () => {
+      const view = await renderLevels();
+      const decode = view.node('decode');
+      decode.focus();
+      await view.stable();
+      expect(view.dimmed().sort()).toEqual(['camera', 'sink']);
+
+      // Its keys are the button's: an arrow does not pan the box.
+      const arrow = new KeyboardEvent('keydown', {
+        key: 'ArrowLeft',
+        bubbles: true,
+        cancelable: true,
+      });
+      decode.dispatchEvent(arrow);
+      expect(arrow.defaultPrevented).toBe(false);
+
+      decode.blur();
+      await view.stable();
+      expect(view.dimmed()).toEqual([]);
+    });
+  });
+
+  describe('the edge tip', () => {
+    it('shows the app’s template for the edge under the pointer, and only then', async () => {
+      const view = await renderLevels();
+      expect(view.one('.edge-tip')).toBeNull();
+
+      await view.pointer('pointerover', view.edge('images').querySelector('.hit')!);
+      expect(view.one('.edge-tip').textContent?.trim()).toBe('About images');
+      // Presentational: the hidden list says each edge in words.
+      expect(view.one('.edge-tip').getAttribute('aria-hidden')).toBe('true');
+
+      // An edge's label is the edge too.
+      await view.pointer('pointerover', view.label('frames'));
+      expect(view.one('.edge-tip').textContent?.trim()).toBe('About frames');
+
+      await view.pointer('pointerover', view.node('sink'));
+      expect(view.one('.edge-tip')).toBeNull();
+      await view.pointer('pointerover', view.edge('frames').querySelector('.hit')!);
+      await view.pointer('pointerleave', view.host);
+      expect(view.one('.edge-tip')).toBeNull();
+    });
+
+    it('places the tip by the pointer, in the box, outside the zoomed content', async () => {
+      const view = await renderLevels();
+      for (const [name, value] of [
+        ['clientWidth', 800],
+        ['clientHeight', 600],
+      ] as const) {
+        Object.defineProperty(view.host, name, { configurable: true, value });
+      }
+      const hit = view.edge('frames').querySelector('.hit')!;
+      await view.pointer('pointerover', hit, { clientX: 50, clientY: 30 });
+      const tip = view.one('.edge-tip');
+      expect(tip.parentElement).toBe(view.host);
+      expect({ left: tip.style.left, top: tip.style.top }).toEqual({
+        left: `${50 + TIP_GAP}px`,
+        top: `${30 + TIP_GAP}px`,
+      });
+
+      await view.pointer('pointermove', hit, { clientX: 70, clientY: 40 });
+      expect(tip.style.left).toBe(`${70 + TIP_GAP}px`);
+    });
+  });
+
+  describe('levels', () => {
+    it('draws a block that opens a level as a button that opens it', async () => {
+      const view = await renderLevels();
+      const decode = view.node('decode');
+      expect(decode.tagName).toBe('BUTTON');
+      expect(decode.getAttribute('type')).toBe('button');
+      expect(decode.getAttribute('aria-label')).toBe('Open Decode');
+      expect(view.node('camera').tagName).toBe('DIV');
+      expect(view.one('.bar')).toBeNull();
+
+      decode.focus();
+      await view.click(decode);
+
+      expect(view.level()).toEqual(['stages']);
+      expect(view.shownIds()).toEqual(['resize', 'yolox']);
+      // The button went with its level; the focus stays in the diagram, on its box.
+      expect(document.activeElement).toBe(view.host);
+      expect(view.dimmed()).toEqual([]);
+
+      await view.click(view.node('resize'));
+      expect(view.level()).toEqual(['stages', 'inner']);
+      expect(view.shownIds()).toEqual(['tile']);
+    });
+
+    it('goes back a level by the bar’s back button, named after the level it goes to', async () => {
+      const view = await renderLevels(['stages', 'inner']);
+      const back = () => view.one('.bar button[neatButton]');
+      expect(back().textContent?.trim()).toBe('Decode');
+      expect(back().getAttribute('aria-label')).toBe('Back to Decode');
+
+      await view.click(back());
+      expect(view.level()).toEqual(['stages']);
+      expect(back().textContent?.trim()).toBe('Overview');
+      expect(back().getAttribute('aria-label')).toBe('Back to Overview');
+
+      await view.click(back());
+      expect(view.level()).toEqual([]);
+      expect(view.one('.bar')).toBeNull();
+      expect(view.shownIds()).toEqual(['board', 'camera', 'decode', 'sink']);
+    });
+
+    it('shows the path as breadcrumbs, each but the last a button that goes there', async () => {
+      const view = await renderLevels(['stages', 'inner']);
+      const crumbs = view.all('.bar nav li');
+      expect(view.one('.bar nav').getAttribute('aria-label')).toBe('Levels');
+      expect(crumbs.map((li) => li.textContent?.replace(/\s+/g, ' ').trim())).toEqual([
+        'Decode',
+        '› Resize',
+      ]);
+      expect(crumbs[0].querySelector('button')).not.toBeNull();
+      expect(crumbs[1].querySelector('button')).toBeNull();
+      expect(crumbs[1].querySelector('[aria-current="location"]')).not.toBeNull();
+
+      await view.click(crumbs[0].querySelector('button')!);
+      expect(view.level()).toEqual(['stages']);
+    });
+
+    it('cuts a stale path to its valid start and says so through the model', async () => {
+      const view = await renderLevels(['stages', 'gone']);
+      expect(view.level()).toEqual(['stages']);
+      expect(view.shownIds()).toEqual(['resize', 'yolox']);
+
+      view.fixture.componentInstance.level.set(['orphan']);
+      await view.stable();
+      expect(view.level()).toEqual([]);
+      expect(view.shownIds()).toEqual(['board', 'camera', 'decode', 'sink']);
+    });
+
+    it('keeps the open level, its parts and the user’s view given an equal diagram', async () => {
+      const view = await renderLevels(['stages']);
+      const emitted = vi.fn();
+      const diagram: NeatDiagramView = view.fixture.debugElement.query(
+        By.directive(NeatDiagramView),
+      ).componentInstance;
+      const subscription = diagram.level.subscribe(emitted);
+      const resizeBlock = view.node('resize');
+      view.host.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      const moved = zoomTransform(view.host);
+
+      view.fixture.componentInstance.diagram.set(structuredClone(LEVELS));
+      await view.stable();
+
+      expect(emitted).not.toHaveBeenCalled();
+      expect(view.level()).toEqual(['stages']);
+      expect(view.node('resize')).toBe(resizeBlock);
+      expect(zoomTransform(view.host)).toEqual(moved);
+      subscription.unsubscribe();
+    });
+
+    it('fits a level it opens, whatever the user did with the last one', async () => {
+      const view = await renderLevels();
+      for (const [name, value] of [
+        ['clientWidth', 800],
+        ['clientHeight', 600],
+      ] as const) {
+        Object.defineProperty(view.host, name, { configurable: true, value });
+      }
+      resize(new Map([[view.host, { w: 800, h: 600 }]]));
+      view.host.dispatchEvent(new KeyboardEvent('keydown', { key: '+', bubbles: true }));
+
+      await view.click(view.node('decode'));
+      const opened = zoomTransform(view.host);
+      const diagram: NeatDiagramView = view.fixture.debugElement.query(
+        By.directive(NeatDiagramView),
+      ).componentInstance;
+      diagram.fit();
+
+      expect(zoomTransform(view.host)).toEqual(opened);
+    });
+  });
+
+  describe('the hidden list', () => {
+    it('says each node and edge of the level shown in words, after the drawing', async () => {
+      const view = await renderLevels();
+      const list = view.one('.sr-only');
+      expect(view.one('.content').compareDocumentPosition(list)).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+      const items = (name: string) =>
+        Array.from(list.querySelectorAll(`ul[aria-label="${name}"] li`)).map((li) =>
+          li.textContent?.trim(),
+        );
+      expect(items('Parts')).toEqual(['Board', 'Camera, USB', 'Decode, HW', 'Sink']);
+      expect(items('Connections')).toEqual(['Camera to Decode, 1080p', 'Decode to Sink']);
+
+      await view.click(view.node('decode'));
+      expect(items('Parts')).toEqual(['Resize', 'YOLOX, MLA']);
+      expect(items('Connections')).toEqual(['Resize to YOLOX, image']);
+    });
   });
 });
