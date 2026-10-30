@@ -25,7 +25,7 @@
   --block-edge: var(--border);
   --block-fill: var(--card);
   --block-ink: var(--card-foreground);
-  --block-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 8%, transparent);
+  --block-shadow: var(--diagram-card-shadow);
   --block-weight: 600;
 }
 
@@ -34,7 +34,7 @@
   --block-edge: color-mix(in oklab, var(--primary) 45%, transparent);
   --block-fill: color-mix(in oklab, var(--primary) 5%, var(--card));
   --block-ink: var(--card-foreground);
-  --block-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 8%, transparent);
+  --block-shadow: var(--diagram-card-shadow);
   --block-weight: 600;
 }
 

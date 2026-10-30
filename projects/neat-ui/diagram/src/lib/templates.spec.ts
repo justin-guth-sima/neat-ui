@@ -146,11 +146,15 @@ describe('the diagram’s templates', () => {
   it('keeps a measured note placed when an equal diagram arrives', async () => {
     const { note, fixture, refresh } = await render();
     const rate = note('rate');
+    const leader = () => document.querySelector('svg.edges [data-note="rate"]');
     resize(new Map([[rate, { w: 100, h: 40 }]]));
     await refresh();
+    const drawn = leader();
+    expect(drawn).not.toBeNull();
     fixture.componentInstance.diagram.set(structuredClone({ overview: OVERVIEW }));
     await refresh();
     expect(note('rate')).toBe(rate);
     expect(rate.classList).toContain('placed');
+    expect(leader()).toBe(drawn);
   });
 });

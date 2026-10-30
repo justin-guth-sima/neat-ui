@@ -109,7 +109,7 @@ const MODEL_GRAPH: NeatDiagramSet = {
       { id: 'head-nms', from: 'head', to: 'nms', series: 4, label: '3 × 1×85×80²' },
       { id: 'nms-boxes', from: 'nms', to: 'boxes', series: 3, line: 'dashed', start: 'dot' },
     ],
-    notes: [{ id: 'stages-time', edges: ['stages-head'], dx: 250 }],
+    notes: [{ id: 'stages-time', edges: ['stages-head'], dx: 250, dy: 8 }],
   },
   levels: { stages: { nodes: [], edges: [] } },
 };

@@ -70,7 +70,7 @@ export interface NeatDiagramEdge {
   readonly from: string;
   /** The node it enters. */
   readonly to: string;
-  /** Its colour, the charts' series colour 1 to 8; unset, the muted colour. */
+  /** Its colour, the charts' series colour 1 to 8; unset, or on a `ghost` line, muted. */
   readonly series?: number;
   /** Unset: `solid`. */
   readonly line?: NeatDiagramLine;

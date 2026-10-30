@@ -251,7 +251,20 @@ describe('NeatDiagramView', () => {
     const { edge } = await render();
     expect(edge('decode-detect').style.getPropertyValue('--edge')).toBe('var(--neat-series-3)');
     expect(edge('detect-tracker').style.getPropertyValue('--edge')).toBe('var(--muted-foreground)');
-    expect(edge('tracker-cable').style.getPropertyValue('--edge')).toBe('var(--neat-series-8)');
+  });
+
+  it('draws a ghost edge in the muted colour whatever its series, its tips with it', async () => {
+    const { edge } = await render();
+    // tracker-cable is a ghost with series 8: a part that does not run stays quiet.
+    const ghost = edge('tracker-cable');
+    expect(ghost.style.getPropertyValue('--edge')).toBe('var(--muted-foreground)');
+    // Line and tips take their colour from the group's --edge (diagram.css), never their own.
+    const tips = Array.from(ghost.querySelectorAll('.tip'));
+    expect(tips).toHaveLength(1);
+    for (const part of [ghost.querySelector('path.line'), ...tips]) {
+      expect(part?.parentElement).toBe(ghost);
+      expect((part as SVGElement).style.getPropertyValue('--edge')).toBe('');
+    }
   });
 
   it('draws a series outside 1 to 8 in the muted colour and says so once', async () => {

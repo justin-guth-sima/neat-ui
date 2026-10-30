@@ -157,11 +157,12 @@ function drawEdge(edge: NeatDiagramEdge, layout: EdgeLayout): DrawnEdge {
 
 /**
  * The colour of an edge: its series' token (the charts' palette, 1 to 8, so a legend's swatch
- * matches it), else the muted colour. The one place a series becomes a token.
+ * matches it), else the muted colour. A ghost is muted whatever its series: it is a part that does
+ * not run here, and stays quiet beside the edges that do. The one place a series becomes a token.
  */
 function edgeColour(edge: NeatDiagramEdge): string {
   const { series } = edge;
-  if (series === undefined) return MUTED;
+  if (series === undefined || edge.line === 'ghost') return MUTED;
   if (Number.isInteger(series) && series >= 1 && series <= 8) return `var(--neat-series-${series})`;
   reportLeftOut(
     `edge "${edge.id}" is drawn in the muted colour: its series ${series} is not 1 to 8`,
