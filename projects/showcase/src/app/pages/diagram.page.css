@@ -31,3 +31,11 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
 }
+
+/* A block's live figure (the pipeline's Decode), below its label: small, quiet, steady digits. */
+.figure {
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

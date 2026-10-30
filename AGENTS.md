@@ -222,10 +222,10 @@ the whole in the kit's look.
   at the start, an arrow at the end), and its `label` a small mono chip at `labelAt` along it. A
   note is anchored to its `edges` (the mean of their points at `along`, 0.5 unset) or to an
   `anchor` point, placed at `x`/`y` or moved `dx`/`dy` from the anchor, and joined to it by a
-  dotted leader that meets the box's nearest point, or its centre with `leaderTo: 'centre'`.
-  `data` is the app's and never read. A part whose ids name nothing (an
-  edge's end, a node's parent, a block's `opens`, a note's edge) is left out and named once in dev
-  mode; the diagram never throws for it.
+  dotted leader that meets the box's nearest point, or its centre with `leaderTo: 'centre'`. A
+  node's, an edge's and a note's `data` is the app's and never read. A part whose ids name nothing
+  (an edge's end, a node's parent, a block's `opens`, a note's edge) is left out and named once in
+  dev mode; the diagram never throws for it.
 - **The drawing:** `neat-diagram` is a `figure` named by its `label`. Frames and bands are
   positioned HTML behind one SVG of edges; blocks, brackets, edge labels and notes are HTML in
   front of it; one container holds them all, which is what pan and zoom move. Every part is keyed
@@ -248,29 +248,34 @@ the whole in the kit's look.
 - **The app's content comes in through templates, one per kind, each given its part as
   `$implicit`:** `ng-template[neatDiagramBlock]` (a block's body below its label),
   `ng-template[neatDiagramNote]` (a note's content) and `ng-template[neatDiagramEdgeTip]` (the tip
-  of the edge under a mouse or a pen). The app matches parts inside the template, by id or by
-  `data` (`@if (note.id === 'rate') { … }`): one template per kind rather than one per id keeps
-  the diagram's input plain data. A block the template renders nothing for keeps its card as it
-  is, a note it renders nothing for is not drawn (nor its leader; without the template no note
-  is), and an edge it renders nothing for shows no tip. The tip sits by the pointer in the
-  popover's colours, kept inside the box, and is hidden from assistive technology, so it must hold
-  nothing a reader needs that the hidden list or a note does not say.
+  of the edge under a mouse or a pen). The app matches parts inside the template, by id or by `data`
+  (`@if (note.id === 'rate') { … }`): one template per kind rather than one per id keeps the
+  diagram's input plain data. A block's body sits in its card below the label, and the card keeps
+  the size the node gives it, so the app sizes `h` (and `w`) for the body it renders. A block the
+  template renders nothing for keeps its card as it is, a note it renders nothing for is not drawn
+  (nor its leader; without the template no note is), and an edge it renders nothing for shows no
+  tip. The tip sits by the pointer in the popover's colours, kept inside the box, and is hidden from
+  assistive technology, so it must hold nothing a reader needs that the hidden list or a note does
+  not say.
 - **Focus:** a block or an edge under the pointer, or a block whose open button has the keyboard's
   focus (`:focus-visible`; a press that focuses it does not count), stays as it is with what it is
   joined to (a block's edges, an edge's ends, the notes on those edges) while the rest but the
-  frames fades to 0.25 (`hover.ts`). Touch and a drag put nothing in focus.
+  frames fades to 0.25 (`hover.ts`). A note anchored by `anchor` alone belongs to no edge, so it
+  is never in focus with one and fades whenever anything is in focus. Touch and a drag put nothing
+  in focus.
 - **Levels and the path:** a block whose `opens` names a level is a button ("Open Stages") that
   opens it, and a level may open further levels. `[(level)]` is the path of open levels, `[]` for
-  the overview, which an app can bind to its route. A path is followed while each id names a level
-  a block of the level before opens; one that leads further nowhere (a stale route) is cut there
-  and the model set to it (`levels.ts`). So an app renders the diagram once its data is there:
-  the path is checked against the diagram it is given, and a routed path is cut while a
-  placeholder diagram is shown. While a level is open a bar top left over the drawing, unscaled
-  and first in the tab order, has a back button (an outlined small `neatButton` with the
-  registry's `previous` icon, named "Overview" or after the level before, by the block that opens
-  it) and the path as `neat-breadcrumbs`; a fit leaves the bar's height free above the level (and
-  fits again when the path wraps). A pressed control that leaves with its level leaves the focus
-  on the box, and a part the keyboard focuses is panned into view (the box clips with
+  the overview, which an app can bind to its route. A path is followed while each id names a level a
+  block of the level before opens; one that leads further nowhere (a stale route) is cut there and
+  the model set to it (`levels.ts`). So an app renders the diagram once its data is there: the path
+  is checked against the diagram it is given, and a routed path is cut while a placeholder diagram
+  is shown. While a level is open a bar top left over the drawing, unscaled and first in the tab
+  order, has a back button (an outlined small `neatButton` with the registry's `previous` icon,
+  named "Overview" or after the level before, by the block that opens it) and the path as
+  `neat-breadcrumbs`, each crumb named by the block that opens its level and the last, where the
+  user is, followed by that block's detail, muted; a fit leaves the bar's height free above the
+  level (and fits again when the path wraps). A pressed control that leaves with its level leaves
+  the focus on the box, and a part the keyboard focuses is panned into view (the box clips with
   `overflow: clip` and never scrolls). `neatDrillDownLevel(diagram, blockId)` places the level a
   block opens from a diagram that holds the block's insides, as the demo does: the block as the
   frame, what it holds inside as placed, the nodes it exchanges edges with in a column left

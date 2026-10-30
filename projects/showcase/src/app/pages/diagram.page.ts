@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, signal, viewChildren } from '@angular/core';
 import { NeatButton, NeatIcon, NeatPage, NeatPageToolbar } from '@sima/neat-ui';
 import {
+  NeatDiagramBlockTemplate,
   NeatDiagramEdgeTipTemplate,
   NeatDiagramLegend,
   NeatDiagramNoteTemplate,
@@ -24,6 +25,7 @@ import {
   selector: 'app-diagram-page',
   imports: [
     NeatButton,
+    NeatDiagramBlockTemplate,
     NeatDiagramEdgeTipTemplate,
     NeatDiagramLegend,
     NeatDiagramNoteTemplate,
@@ -61,12 +63,18 @@ import {
           <section class="example">
             <h3>Messaging pipeline</h3>
             <p class="showcase-muted">
-              Frames for the machines, a band for the cable. The Detector opens a level placed by
+              Frames for the machines, a band for the cable, and a figure line in Decode from the
+              app's <code>neatDiagramBlock</code>. The Detector opens a level placed by
               <code>neatDrillDownLevel</code>: its steps inside, what feeds it left, what it feeds
               right.
             </p>
             <neat-diagram-legend [items]="pipelineLegend" />
             <neat-diagram class="diagram" [diagram]="pipeline" label="A messaging pipeline">
+              <ng-template neatDiagramBlock let-node>
+                @if (node.id === 'decode') {
+                  <span class="figure">30.0 fps · 1080p</span>
+                }
+              </ng-template>
               <ng-template neatDiagramNote let-note>
                 @if (note.id === 'tracker-rate') {
                   <b>Tracker → Gateway</b><br />30.0 msg/s · 6 kB/s

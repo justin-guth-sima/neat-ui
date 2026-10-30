@@ -87,8 +87,10 @@ export interface NeatDiagramEdge {
 }
 
 /**
- * A box of the app's content (a template matched by the note's id), joined by a dotted leader to
- * its anchor: a point along its edges, or a point of its own.
+ * A box of the app's content (a template matched by the note's id or `data`), joined by a dotted
+ * leader to its anchor: a point along its edges, or a point of its own. A note anchored by
+ * `anchor` alone belongs to no edge, so it is never in focus with one: it dims whenever anything
+ * is in focus.
  */
 export interface NeatDiagramNote {
   readonly id: string;
@@ -111,6 +113,8 @@ export interface NeatDiagramNote {
    * or its centre, under the box (`centre`; a slanted leader then meets no rounded corner).
    */
   readonly leaderTo?: 'centre';
+  /** The app's, never read by the kit. */
+  readonly data?: unknown;
 }
 
 /** One level: nodes, the edges between them and the notes on them. */

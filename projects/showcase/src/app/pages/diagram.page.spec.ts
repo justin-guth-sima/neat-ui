@@ -63,6 +63,15 @@ describe('the diagram page', () => {
     );
   });
 
+  it('gives the pipeline’s Decode a body from the app’s neatDiagramBlock template', () => {
+    const pipeline = figure('A messaging pipeline');
+    expect(pipeline.querySelector('[data-node="decode"] .body')?.textContent?.trim()).toBe(
+      '30.0 fps · 1080p',
+    );
+    // A block the template renders nothing for keeps its card as it is.
+    expect(pipeline.querySelector('[data-node="camera"] .body')?.textContent?.trim()).toBe('');
+  });
+
   it('shows a ghost and a muted block and a note in the compile flow', () => {
     const flow = figure('A compile flow');
     expect(flow.querySelector('[data-node="accuracy"]')?.getAttribute('data-look')).toBe('ghost');

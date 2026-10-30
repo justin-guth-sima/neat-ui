@@ -113,8 +113,13 @@ export class NeatDiagramView {
   /** The level shown: the one at the end of the path. */
   private readonly shown = computed(() => this.walked().shown);
 
-  /** The block that opens each level of the path, which names it in the level bar. */
-  protected readonly crumbs = computed(() => this.walked().openers);
+  /**
+   * Each level of the path as a crumb, named by the block that opens it: its label, and on the
+   * last crumb (where the user is) its detail, muted.
+   */
+  protected readonly crumbs = computed(() =>
+    this.walked().openers.map((opener) => ({ label: opener.label, detail: opener.detail })),
+  );
 
   /** What the back button goes to: the level before this one, or the overview. */
   protected readonly backTo = computed(() => this.crumbs().at(-2)?.label ?? 'Overview');

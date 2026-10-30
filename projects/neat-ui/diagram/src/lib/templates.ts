@@ -32,7 +32,8 @@ export interface NeatDiagramNoteContext {
  * </ng-template>
  * ```
  *
- * A block it renders nothing for keeps its card as it is.
+ * The card keeps the node's size, so the app sizes the node's `h` (and `w`) for the body. A block
+ * it renders nothing for keeps its card as it is.
  */
 @Directive({ selector: 'ng-template[neatDiagramBlock]' })
 export class NeatDiagramBlockTemplate {
@@ -57,7 +58,8 @@ export class NeatDiagramBlockTemplate {
  * </ng-template>
  * ```
  *
- * A note it renders nothing for is not drawn, nor its leader; without the template no note is.
+ * A note it renders nothing for is not drawn, nor its leader; without the template no note is. A
+ * note anchored by `anchor` alone belongs to no edge, so it dims whenever anything is in focus.
  */
 @Directive({ selector: 'ng-template[neatDiagramNote]' })
 export class NeatDiagramNoteTemplate {

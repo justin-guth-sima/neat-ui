@@ -535,7 +535,7 @@ const LEVELS: NeatDiagramSet = {
   levels: {
     stages: {
       nodes: [
-        block('resize', 'Resize', 0, { opens: 'inner' }),
+        block('resize', 'Resize', 0, { opens: 'inner', detail: '640 × 640' }),
         block('yolox', 'YOLOX', 200, { chips: [{ label: 'MLA', tone: 'info' }] }),
       ],
       edges: [{ id: 'tensors', from: 'resize', to: 'yolox', label: 'image' }],
@@ -782,11 +782,13 @@ describe('NeatDiagramView’s hover, levels and words', () => {
       const crumbs = view.all('.bar nav li');
       expect(view.one('.bar nav').getAttribute('aria-label')).toBe('Levels');
       expect(
-        crumbs.map((li) => li.querySelector('button, [aria-current]')?.textContent?.trim()),
+        crumbs.map((li) => li.querySelector('button, [aria-current] > span')?.textContent?.trim()),
       ).toEqual(['Decode', 'Resize']);
       expect(crumbs[0].querySelector('button')).not.toBeNull();
       expect(crumbs[1].querySelector('button')).toBeNull();
       expect(crumbs[1].querySelector('[aria-current="location"]')).not.toBeNull();
+      // The last crumb is where the user is: its opener's label, then its detail (muted).
+      expect(crumbs[1].querySelector('[aria-current]')?.textContent).toBe('Resize 640 × 640');
 
       await view.click(crumbs[0].querySelector('button')!);
       expect(view.level()).toEqual(['stages']);
@@ -878,7 +880,7 @@ describe('NeatDiagramView’s hover, levels and words', () => {
       expect(items('Connections')).toEqual(['Camera to Decode, 1080p', 'Decode to Sink']);
 
       await view.click(view.node('decode'));
-      expect(items('Parts')).toEqual(['Resize', 'YOLOX, MLA']);
+      expect(items('Parts')).toEqual(['Resize, 640 × 640', 'YOLOX, MLA']);
       expect(items('Connections')).toEqual(['Resize to YOLOX, image']);
     });
   });
