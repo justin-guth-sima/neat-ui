@@ -19,6 +19,7 @@ import {
   NeatLiveDot,
   NeatNote,
   NeatPage,
+  NeatStale,
   type NeatTone,
   NeatTooltip,
   type NeatTooltipPosition,
@@ -223,6 +224,7 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     NeatLineEnd,
     NeatLineList,
     NeatLiveDot,
+    NeatStale,
     NeatNote,
     NeatNumberField,
     NeatNumeric,
@@ -377,6 +379,31 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <button neatButton type="button" variant="danger" size="small">
               <neat-icon name="stop" [size]="14" />
               Stop
+            </button>
+          </div>
+        </section>
+
+        <section class="showcase-section">
+          <h2>Stale</h2>
+          <p class="showcase-muted">
+            <code>[neatStale]</code> on any element: while true, what it shows is faded and grey, as
+            a figure from before a connection dropped; once fresh it is shown as it is, with no
+            transition. It is the look only, so the words beside it say why.
+          </p>
+          <div class="showcase-row">
+            <span [neatStale]="stale()">12.4 fps · 3 objects</span>
+            @if (stale()) {
+              <span class="showcase-muted">Connection lost</span>
+            }
+            <button
+              neatButton
+              type="button"
+              variant="outlined"
+              size="small"
+              [pressed]="stale()"
+              (click)="stale.set(!stale())"
+            >
+              Stale
             </button>
           </div>
         </section>
@@ -817,8 +844,8 @@ const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
             <span class="showcase-crowded-title">Stats for a stream with a long name</span>
           </div>
           <p class="showcase-muted">
-            It is never wider than its container, though: in a side panel dragged narrower than
-            its labels, the options shrink together and each label ends in an ellipsis.
+            It is never wider than its container, though: in a side panel dragged narrower than its
+            labels, the options shrink together and each label ends in an ellipsis.
           </p>
           <div class="segmented-narrow">
             <neat-segmented label="Source" [options]="sources" [(value)]="sourceForm" />
@@ -1813,6 +1840,7 @@ export class ComponentsPage {
   protected readonly narrowList = signal(false);
   protected readonly detailsOpen = signal(false);
   protected readonly meterRunning = signal(true);
+  protected readonly stale = signal(true);
   /** Swings from -50 to 0 dBFS and back about every four seconds, as the meter's demo signal. */
   protected readonly sineLevel = () => -25 + 25 * Math.sin(performance.now() / 600);
   protected readonly boardOpen = signal(false);

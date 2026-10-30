@@ -52,6 +52,14 @@ describe('App', () => {
     expect(router.url).toBe('/theme');
   });
 
+  it('titles the document with the app name and the page', async () => {
+    expect(document.title).toBe('neat-ui showcase · Theme');
+
+    await navigate('/page/details');
+
+    expect(document.title).toBe('neat-ui showcase · Page details');
+  });
+
   it.each(PAGES)('renders $path as a page inside the shell', async ({ path, link, heading }) => {
     await navigate(path);
 

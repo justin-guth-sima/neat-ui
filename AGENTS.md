@@ -24,7 +24,10 @@ look happens in one place. Every rule here protects that.
     red dot for something live, still or, with `pulse`, beating with a ring that grows out of it;
     its red is `--neat-live`, not `--destructive`, held to 3:1 on the page and on the video scrim
     over black to mid-grey video, so a "Live" badge over a picture can use it)
-    and `neatSecondsAgo` (the kit's one relative-time style, "just now", "12 s ago", "3 min ago").
+    and `neatSecondsAgo` (the kit's one relative-time style, "just now", "12 s ago", "3 min ago"),
+    `NeatStale` (`[neatStale]`: what its host shows is stale, faded to 0.55 and grey, with no
+    transition; the words beside it say why) and `provideNeatTitles(appName)` (the document's
+    title, `<appName> · <route title>`, or the app name alone on an untitled route).
     Public API is
     `projects/neat-ui/src/public-api.ts`.
   - one secondary entry point per other component, `@sima/neat-ui/<name>`: `switch`, `slider`,

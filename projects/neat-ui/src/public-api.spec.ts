@@ -91,6 +91,12 @@ describe('the public API', () => {
     );
   });
 
+  it('exports the document titles and the stale look, which every app’s shell and pages need', () => {
+    expect(Object.keys(primary)).toEqual(
+      expect.arrayContaining(['provideNeatTitles', 'NeatStale']),
+    );
+  });
+
   it('keeps the rail’s state and the shell’s slots internal', () => {
     for (const name of ['RailState', 'AsideToggleSlot', 'PageToolbarSlot']) {
       expect(name in primary, name).toBe(false);
