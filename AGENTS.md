@@ -72,47 +72,10 @@ look happens in one place. Every rule here protects that.
     metric charts, drawn as SVG but for the heatmap: `NeatSparkline`, `NeatTimeChart`,
     `NeatStackedChart` and `NeatHeatmap`, `NeatChartCard`, the card they sit on, and
     `NeatSeriesSwatch`, a series' colour beside a label outside the chart; with `diagram`, the
-    only code that imports d3), `diagram` (hand-placed diagrams: their model, `NeatDiagramSet`, an
-    overview and its drill-down levels, each a `NeatDiagram` of nodes by role and look, edges and
-    notes, positions relative to the parent node; `NeatDiagramView` (`neat-diagram`, a `figure`
-    named by its `label`), which draws a level: frames and bands as positioned HTML behind one SVG
-    of edges (series colour, line, tips, mono labels), blocks (the kit's status chips for their
-    chips), brackets and notes in front of it, all in one container, every part keyed by its id so
-    an equal diagram recomputed on every poll changes nothing in the DOM; its templates,
-    `ng-template[neatDiagramBlock]` (a block's body below its label), `ng-template[neatDiagramNote]`
-    (a note's content; a note it renders nothing for is not drawn) and
-    `ng-template[neatDiagramEdgeTip]` (the tip of the edge under a mouse or a pen, by the pointer in
-    the popover's colours and kept inside the box; hidden from assistive technology, so it must hold
-    nothing a reader needs that the hidden list or a note does not say), each given its part as
-    `$implicit`; a block or an edge under the pointer, or a block whose open button has the
-    keyboard's focus (`:focus-visible`; a press that focuses it does not count), stays as it is with
-    what it is joined to (a block's edges, an edge's ends, the notes on those edges) while the rest
-    but the frames fades to 0.25 (`hover.ts`); a block whose `opens` names a level is a button
-    ("Open Stages") that opens it, and `[(level)]` is the path of open levels, `[]` for the
-    overview, which an app can bind to its route: a path is followed while each id names a level a
-    block of the level before opens, and one that leads further nowhere (a stale route) is cut there
-    and the model set to it (`levels.ts`), so an app renders the diagram once its data is there: the
-    path is checked against the diagram it is given, and a routed path is cut while a placeholder
-    diagram is shown; while a level is open a bar top left over the drawing, unscaled and first in
-    the tab order, has a back button (an outlined small `neatButton` with the registry's `previous`
-    icon, named "Overview" or after the level before, by the block that opens it) and the path as
-    `neat-breadcrumbs`, and a fit leaves the bar's height free above the level (and fits again when
-    the path wraps); a pressed control that leaves with its level leaves the focus on the box, and a
-    part the keyboard focuses is panned into view (the box clips with `overflow: clip` and never
-    scrolls); a visually hidden list after the drawing says the level's nodes (label, detail, chips)
-    and edges ("Camera to Decode, image") in words; the user pans and zooms it (d3-zoom on the box:
-    drag, wheel, pinch, double-click; the box is a tab stop whose arrow keys pan 48 px, `+`/`=` and
-    `-` zoom 1.25× about its centre and `0` fits; zoom 0.2 to 3), and it fits its level to its box
-    by itself (on its first size, a resize, a new extent or level) until the user pans or zooms, as
-    the demo does (a press that moves 3 px or less is a click, not a pan); its `fit()` (for an app's
-    Fit button) fits again, over 250 ms or at once under reduced motion, and hands the view back; it
-    takes the wheel and touch over its box (`touch-action: none`), so an app gives it a bounded box,
-    not a long stretch of a scrolling page; an edge's hit path stays 12 px wide on screen at any
-    zoom; and `neatDrillDownLevel`, which places the level a block opens from the diagram the block
-    sits in, as the demo does: the block as the frame, what it holds inside, the nodes it exchanges
-    edges with in a column left (senders) and right (receivers); the edge routing, the port layout,
-    the notes' placement and measurement and the fit maths and the pan and zoom (`zoom.ts`), ported
-    from the Autoware demo's System page, stay internal),
+    only code that imports d3), `diagram` (hand-placed diagrams: their
+    model, `NeatDiagramView` (`neat-diagram`) with its templates, `NeatDiagramLegend`
+    (`neat-diagram-legend`) and `neatDrillDownLevel`; how it draws is under "How the diagram is
+    drawn" below),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
@@ -234,6 +197,91 @@ A time chart's `size="fill"` is labelled as `medium` and takes the height its ho
 host is a flex column and the plot takes what the title, legend and axis leave, never under
 medium's 6 rem. The app gives the host that height (a grid item its row stretches), so it needs no
 `::ng-deep` to make the plot grow.
+
+**How the diagram is drawn.** `diagram` draws diagrams the app places by hand (no automatic
+layout, no editing): the app places every node, the kit routes the edges between them and draws
+the whole in the kit's look.
+
+- **The model** (`model.ts`) is plain data an app may recompute on every poll. A `NeatDiagramSet`
+  is an overview and its drill-down levels, each a `NeatDiagram` of nodes, edges and notes.
+  Coordinates are diagram units (px at zoom 1), and a node's `x` and `y` are relative to its
+  `parent`. A node's `role` is `frame` (holds nodes, behind the edges), `block` (a card), `band` (a
+  cable or a bus) or `bracket` (a brace under a row of siblings); its `look` is `default`,
+  `accent`, `dashed`, `ghost` (a part not running) or `muted`. Its `chips` are the kit's status
+  chips. **Where a part runs is said by a chip in one convention**, documented here rather than
+  enforced, so every demo reads alike: the hardware decoder `HW` in `success`, `EV74` in
+  `highlight`, `MLA` in `info`, `A65` in `neutral`. An edge's `series` is 1 to 8, the charts'
+  `--neat-series-1` to `-8` (counted from 1, unlike `NeatSeriesSwatch`'s index from 0); unset, or
+  on a `ghost` line, it is muted. Its `line` is `solid`, `dashed` or `ghost`, its tips `none`,
+  `arrow` or `dot` (unset: none at the start, an arrow at the end), and its `label` a small mono
+  chip at `labelAt` along it. `data` is the app's and never read. A part whose ids name nothing (an
+  edge's end, a node's parent, a block's `opens`, a note's edge) is left out and named once in dev
+  mode; the diagram never throws for it.
+- **The drawing:** `neat-diagram` is a `figure` named by its `label`. Frames and bands are
+  positioned HTML behind one SVG of edges; blocks, brackets, edge labels and notes are HTML in
+  front of it; one container holds them all, which is what pan and zoom move. Every part is keyed
+  by its id, so an equal diagram recomputed on every poll changes nothing in the DOM and a moved
+  node is the same element, moved. The routing (port sides and order so fans do not cross, Z
+  routes sharing a corridor spread apart, stubs when the target lies behind) is the Autoware
+  demo's, ported with its specs; an edge between a frame and a node inside it runs inside the
+  frame, from the frame's border nearest the node. An edge's colour comes from `lineColour` in
+  `drawing.ts`, the one place a series becomes a token, and each line look is stated once in
+  `lines.css`, which the edges and the legend's samples both read. A visually hidden list after
+  the drawing says the level's nodes (label, detail, chips) and edges ("Camera to Decode, image")
+  in words.
+- **The app gives it its size.** The host has no height of its own (what it draws is positioned
+  inside it), so without one from the app it is zero high and shows nothing; it fits its level
+  once it has a size, so a hidden tab is fine. Give it a bounded box: a height, an
+  `aspect-ratio` with a `max-height` (the showcase's), or a grid cell. It takes the wheel and touch
+  over that box (`touch-action: none`), so it should not be a long stretch of a scrolling page,
+  where it would catch the wheel meant for the page.
+- **The app's content comes in through templates, one per kind, each given its part as
+  `$implicit`:** `ng-template[neatDiagramBlock]` (a block's body below its label),
+  `ng-template[neatDiagramNote]` (a note's content) and `ng-template[neatDiagramEdgeTip]` (the tip
+  of the edge under a mouse or a pen). The app matches parts inside the template, by id or by
+  `data` (`@if (note.id === 'rate') { … }`): one template per kind rather than one per id keeps
+  the diagram's input plain data. A block the template renders nothing for keeps its card as it
+  is, a note it renders nothing for is not drawn (nor its leader; without the template no note
+  is), and an edge it renders nothing for shows no tip. The tip sits by the pointer in the
+  popover's colours, kept inside the box, and is hidden from assistive technology, so it must hold
+  nothing a reader needs that the hidden list or a note does not say.
+- **Focus:** a block or an edge under the pointer, or a block whose open button has the keyboard's
+  focus (`:focus-visible`; a press that focuses it does not count), stays as it is with what it is
+  joined to (a block's edges, an edge's ends, the notes on those edges) while the rest but the
+  frames fades to 0.25 (`hover.ts`). Touch and a drag put nothing in focus.
+- **Levels and the path:** a block whose `opens` names a level is a button ("Open Stages") that
+  opens it, and a level may open further levels. `[(level)]` is the path of open levels, `[]` for
+  the overview, which an app can bind to its route. A path is followed while each id names a level
+  a block of the level before opens; one that leads further nowhere (a stale route) is cut there
+  and the model set to it (`levels.ts`). So an app renders the diagram once its data is there:
+  the path is checked against the diagram it is given, and a routed path is cut while a
+  placeholder diagram is shown. While a level is open a bar top left over the drawing, unscaled
+  and first in the tab order, has a back button (an outlined small `neatButton` with the
+  registry's `previous` icon, named "Overview" or after the level before, by the block that opens
+  it) and the path as `neat-breadcrumbs`; a fit leaves the bar's height free above the level (and
+  fits again when the path wraps). A pressed control that leaves with its level leaves the focus
+  on the box, and a part the keyboard focuses is panned into view (the box clips with
+  `overflow: clip` and never scrolls). `neatDrillDownLevel(diagram, blockId)` places the level a
+  block opens from a diagram that holds the block's insides, as the demo does: the block as the
+  frame, what it holds inside as placed, the nodes it exchanges edges with in a column left
+  (senders) and right (receivers), at the demo's sizes; an app may use it or place a level by hand
+  (the showcase's Detector uses it, from a copy of the pipeline that has the Detector's steps).
+- **Pan, zoom and fit** (`zoom.ts`, d3-zoom on the box): drag, wheel, pinch and double-click; the
+  box is a tab stop whose arrow keys pan 48 px, `+`/`=` and `-` zoom 1.25× about its centre and `0`
+  fits; zoom 0.2 to 3. It fits its level to its box by itself (on its first size, a resize, a new
+  extent or level) until the user pans or zooms, as the demo does (a press that moves 3 px or less
+  is a click, not a pan). Its `fit()`, for an app's Fit button, fits again, over 250 ms or at once
+  under reduced motion, and hands the view back to fitting by itself. An edge's hit path stays 12 px
+  wide on screen at any zoom.
+- **The legend:** `neat-diagram-legend` takes `items` (`NeatDiagramLegendItem`: `series?`,
+  `line?`, `label`) and shows them as the demo's legend chip, a list named "Legend". An item with a
+  `line` shows a short sample of that line in its colour, drawn by the edges' own rules; one
+  without shows its series' swatch, `NeatSeriesSwatch`'s look. The swatch is restated in
+  `legend.css` rather than imported: importing it from `@sima/neat-ui/charts` would bring the
+  charts' module, and d3-scale and d3-shape with it, into this entry's chunk, so the two are kept
+  the same by hand. The app places the legend (above the diagram, or over it).
+- What stays internal: the routing, the port layout, the notes' placement and measurement, the fit
+  maths, the pan and zoom, the hover and the level path.
 
 **What entries share goes through the primary under a `ɵ` prefix.** The vendored helm code
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,

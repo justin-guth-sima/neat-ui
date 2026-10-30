@@ -31,6 +31,7 @@ export const SECONDARY_ENTRIES = {
   details: ['dl[neatDetails]'],
   diagram: [
     'neat-diagram',
+    'neat-diagram-legend',
     'ng-template[neatDiagramBlock]',
     'ng-template[neatDiagramEdgeTip]',
     'ng-template[neatDiagramNote]',

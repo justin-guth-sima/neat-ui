@@ -1,8 +1,8 @@
 /*
  * The diagram's box and layers, its edges, edge labels and notes, from the reference sheet and the
  * Autoware demo's System page, in the theme's tokens; the nodes' look is in frames.css and
- * blocks.css. Sizes in px are diagram units (px at zoom 1), the space the app places its nodes
- * in. Each line is stated once, as the custom properties the edge's rule reads.
+ * blocks.css, the edges' lines (which the legend draws too) in lines.css. Sizes in px are diagram
+ * units (px at zoom 1), the space the app places its nodes in.
  */
 
 /*
@@ -67,36 +67,9 @@
   pointer-events: stroke;
 }
 
-.line {
-  fill: none;
-  stroke: var(--edge);
-  stroke-width: var(--edge-width);
-  stroke-dasharray: var(--edge-dash);
-  stroke-opacity: var(--edge-opacity);
-}
-
 .tip {
   fill: var(--edge);
   fill-opacity: 0.85;
-}
-
-.edge[data-line='solid'] {
-  --edge-width: 1.5;
-  --edge-dash: none;
-  --edge-opacity: 0.75;
-}
-
-.edge[data-line='dashed'] {
-  --edge-width: 1.5;
-  --edge-dash: 4 4;
-  --edge-opacity: 0.75;
-}
-
-/* What would run but does not here: secondary yet clearly visible, in either theme. */
-.edge[data-line='ghost'] {
-  --edge-width: 2;
-  --edge-dash: 8 6;
-  --edge-opacity: 0.9;
 }
 
 /* A note's leader: dotted, from a dot on its anchor. */

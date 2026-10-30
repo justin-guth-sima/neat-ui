@@ -1,0 +1,48 @@
+/*
+ * The Autoware demo's legend chip: a pill of entries in small muted type, on a veil of the card so
+ * it reads where an app lays it over a drawing. Its lines are lines.css's.
+ */
+:host {
+  display: flex;
+}
+
+ul {
+  margin: 0;
+  padding: calc(var(--neat-space-2) / 2) var(--neat-space-3);
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--neat-space-2) / 2) var(--neat-space-4);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--card) 85%, transparent);
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+}
+
+li {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+}
+
+/* A line as the diagram draws it, 1.5rem long: three dashes of a dashed line, two of a ghost. */
+.sample {
+  flex: none;
+  width: 1.5rem;
+  height: 0.25rem;
+  overflow: visible;
+}
+
+/*
+ * The charts' `NeatSeriesSwatch` (series-swatch.css), restated: importing it from
+ * `@sima/neat-ui/charts` would bring the charts' module, and d3-scale and d3-shape with it, into
+ * this entry's chunk. Keep the two the same.
+ */
+.swatch {
+  flex: none;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 2px;
+  background: var(--edge);
+}

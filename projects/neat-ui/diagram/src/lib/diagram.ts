@@ -74,7 +74,7 @@ import { DiagramZoom } from './zoom';
   providers: [NoteSizes],
   host: { role: 'figure', '[attr.aria-label]': 'label()', tabindex: '0' },
   templateUrl: './diagram.html',
-  styleUrls: ['./frames.css', './blocks.css', './diagram.css'],
+  styleUrls: ['./frames.css', './blocks.css', './lines.css', './diagram.css'],
 })
 export class NeatDiagramView {
   /** The overview and its drill-down levels. */

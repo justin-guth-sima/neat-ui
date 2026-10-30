@@ -1,10 +1,11 @@
 import * as diagram from './public-api';
 
 describe('the diagram entry', () => {
-  it('exports the diagram, its templates and the drill-down helper; the rest stays internal', () => {
+  it('exports the diagram, its templates, its legend and the drill-down helper, nothing else', () => {
     expect(Object.keys(diagram).sort()).toEqual([
       'NeatDiagramBlockTemplate',
       'NeatDiagramEdgeTipTemplate',
+      'NeatDiagramLegend',
       'NeatDiagramNoteTemplate',
       'NeatDiagramView',
       'neatDrillDownLevel',
@@ -18,6 +19,7 @@ export type ExportedTypes = [
   diagram.NeatDiagram,
   diagram.NeatDiagramChip,
   diagram.NeatDiagramEdge,
+  diagram.NeatDiagramLegendItem,
   diagram.NeatDiagramLine,
   diagram.NeatDiagramLook,
   diagram.NeatDiagramNode,

@@ -1,0 +1,33 @@
+/*
+ * An edge's line, for the diagram's edges and the legend's samples of them, so a legend line and
+ * the edges it names cannot differ. Each look is stated once, as the custom properties the line's
+ * rule reads, on the element that carries `data-line`; `--edge` is the colour (drawing.ts's
+ * `lineColour`). Widths and dashes are diagram units: they scale with the diagram's zoom, and the
+ * legend draws them as at zoom 1.
+ */
+.line {
+  fill: none;
+  stroke: var(--edge);
+  stroke-width: var(--edge-width);
+  stroke-dasharray: var(--edge-dash);
+  stroke-opacity: var(--edge-opacity);
+}
+
+[data-line='solid'] {
+  --edge-width: 1.5;
+  --edge-dash: none;
+  --edge-opacity: 0.75;
+}
+
+[data-line='dashed'] {
+  --edge-width: 1.5;
+  --edge-dash: 4 4;
+  --edge-opacity: 0.75;
+}
+
+/* What would run but does not here: secondary yet clearly visible, in either theme. */
+[data-line='ghost'] {
+  --edge-width: 2;
+  --edge-dash: 8 6;
+  --edge-opacity: 0.9;
+}
