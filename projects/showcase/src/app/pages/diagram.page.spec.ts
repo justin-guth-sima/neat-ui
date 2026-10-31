@@ -140,6 +140,21 @@ describe('the diagram page', () => {
     expect(crumbs(pipeline)).toEqual(['Detector']);
   });
 
+  it('shows a step’s rate card with its stage time in the Detector’s level', async () => {
+    const pipeline = figure('A messaging pipeline');
+    await press(pipeline, 'Open Detector');
+    // The feed's first batch (99 ms after the page rendered) sets the stage time shown.
+    await vi.waitFor(async () => {
+      await fixture.whenStable();
+      expect(pipeline.querySelector('[data-note="yolox-rate"] .stage')).not.toBeNull();
+    });
+    const card = pipeline.querySelector('[data-note="yolox-rate"] neat-diagram-rate-card');
+    expect(card?.querySelector('.label')?.textContent).toBe('YOLOX → NMS');
+    expect(card?.querySelector('.stage')?.textContent).toMatch(/Stage\s+1[4-6]\.\d\s+ms/);
+    expect(card?.querySelector('.numbers')?.textContent).toMatch(/\d+ msg\/s/);
+    expect(card?.querySelector('neat-sparkline')).toBeNull();
+  });
+
   it('fits every example again from the toolbar’s Fit', () => {
     const fit = vi.spyOn(NeatDiagramView.prototype, 'fit');
     const button = Array.from(root().querySelectorAll<HTMLButtonElement>('header button')).find(

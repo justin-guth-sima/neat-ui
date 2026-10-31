@@ -27,7 +27,7 @@ export type {
 export { NeatDiagramView } from './lib/diagram';
 export { NeatDiagramLegend, type NeatDiagramLegendItem } from './lib/legend';
 export { neatDrillDownLevel } from './lib/drill-down';
-export type { NeatDiagramMessageStep } from './lib/messages/dot-model';
+export { neatBatchTimes, type NeatDiagramMessageStep } from './lib/messages/dot-model';
 export {
   NEAT_DIAGRAM_MESSAGE_DEFAULTS,
   type NeatDiagramEdgeRate,
@@ -36,7 +36,7 @@ export {
 } from './lib/messages/messages';
 export {
   NeatDiagramAnimationSettings,
-  neatDiagramMessageSettings,
+  neatParseMessageSettings,
 } from './lib/messages/animation-settings';
 export { NeatDiagramRateCard } from './lib/messages/rate-card';
 export {

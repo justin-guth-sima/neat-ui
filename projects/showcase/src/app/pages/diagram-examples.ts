@@ -160,7 +160,14 @@ export const PIPELINE: NeatDiagramSet = {
       { id: 'tracker-rate', edges: ['tracker-gateway'], x: 330, y: 410 },
     ],
   },
-  levels: { detector: neatDrillDownLevel(PIPELINE_STEPS, 'detector') },
+  levels: {
+    detector: {
+      ...neatDrillDownLevel(PIPELINE_STEPS, 'detector'),
+      // The card of a step: its stage time in place of the megabytes. Below the level's frame
+      // (which ends at y 152), under the edge it is about.
+      notes: [{ id: 'yolox-rate', edges: ['yolox-nms'], x: 340, y: 235 }],
+    },
+  },
 };
 
 /**

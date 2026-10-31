@@ -12,8 +12,9 @@ describe('the diagram entry', () => {
       'NeatDiagramNoteTemplate',
       'NeatDiagramRateCard',
       'NeatDiagramView',
-      'neatDiagramMessageSettings',
+      'neatBatchTimes',
       'neatDrillDownLevel',
+      'neatParseMessageSettings',
     ]);
   });
 });

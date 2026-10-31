@@ -21,10 +21,10 @@ type NumberKey = keyof typeof LIMITS;
  *
  * ```ts
  * readonly settings = neatStoredSignal('app.dots', NEAT_DIAGRAM_MESSAGE_DEFAULTS,
- *   neatDiagramMessageSettings);
+ *   neatParseMessageSettings);
  * ```
  */
-export function neatDiagramMessageSettings(raw: unknown): NeatDiagramMessageSettings {
+export function neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettings {
   if (typeof raw !== 'object' || raw === null) return NEAT_DIAGRAM_MESSAGE_DEFAULTS;
   const record = raw as Record<string, unknown>;
   const pick = (key: NumberKey): number => {
@@ -56,7 +56,7 @@ export function neatDiagramMessageSettings(raw: unknown): NeatDiagramMessageSett
  *
  * `settings` is the model both ways, and changes apply as the sliders move. The panel keeps
  * nothing: an app that remembers the choice per browser makes the model a `neatStoredSignal`
- * (parsed by `neatDiagramMessageSettings`). Place it in a toolbar or beside the diagram.
+ * (parsed by `neatParseMessageSettings`). Place it in a toolbar or beside the diagram.
  */
 @Component({
   selector: 'neat-diagram-animation-settings',

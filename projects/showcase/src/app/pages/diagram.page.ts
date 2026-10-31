@@ -12,12 +12,13 @@ import {
 import { NeatButton, NeatIcon, NeatPage, NeatPageToolbar, neatStoredSignal } from '@sima/neat-ui';
 import {
   NEAT_DIAGRAM_MESSAGE_DEFAULTS,
+  neatBatchTimes,
   NeatDiagramAnimationSettings,
   NeatDiagramBlockTemplate,
   NeatDiagramEdgeTipTemplate,
   NeatDiagramLegend,
   NeatDiagramMessages,
-  neatDiagramMessageSettings,
+  neatParseMessageSettings,
   NeatDiagramNoteTemplate,
   NeatDiagramRateCard,
   NeatDiagramView,
@@ -33,9 +34,16 @@ import {
   PIPELINE_MESSAGE_STEPS,
 } from './diagram-examples';
 
-/** The pipeline's feed: a camera frame every 33 ms (30 Hz) and a result every third (10 Hz). */
+/**
+ * The pipeline's feed: a camera frame every 33 ms (30 Hz) and a result for every third (10 Hz),
+ * delivered as a transport would, in a batch of three frames every 99 ms.
+ */
 const FRAME_MS = 33;
-const RESULT_EVERY = 3;
+const BATCH_FRAMES = 3;
+/** When each frame of a batch was made, relative to the first: what `neatBatchTimes` spreads by. */
+const FRAME_OFFSETS_MS = Array.from({ length: BATCH_FRAMES }, (_, i) => i * FRAME_MS);
+/** The Detector's stage time shown on its card, refreshed once a second so it reads. */
+const STAGE_SHOWN_EVERY = 10;
 /** The edges each kind of message travels, on the overview and in the Detector's level. */
 const FRAME_EDGES = ['camera-decode', 'decode-detector', 'decode-resize'];
 const RESULT_EDGES = ['detector-tracker', 'nms-tracker', 'tracker-gateway', 'gateway-browser'];
@@ -98,12 +106,13 @@ const BURST_MESSAGES = 10_000;
               app's <code>neatDiagramBlock</code>. The Detector opens a level placed by
               <code>neatDrillDownLevel</code>: its steps inside, what feeds it left, what it feeds
               right. A timer feeds <code>neat-diagram-messages</code> camera frames at 30 Hz and
-              results at 10 Hz; inside the Detector, the dots wait out its stage times. The two
-              notes are <code>neat-diagram-rate-card</code>s of an edge's <code>rate()</code>, and
-              the toolbar's Animation panel (<code>neat-diagram-animation-settings</code>) tunes the
-              dots; this page keeps its choice with <code>neatStoredSignal</code>. Burst pushes
-              10 000 messages in one tick: the layer keeps its dot cap, and the rates count them
-              all.
+              results at 10 Hz, in batches that <code>neatBatchTimes</code> spreads; inside the
+              Detector, the dots wait out its stage times. The notes are
+              <code>neat-diagram-rate-card</code>s of an edge's <code>rate()</code>, the Detector's
+              with its stage time in place of the megabytes (<code>stageMs</code>), and the
+              toolbar's Animation panel (<code>neat-diagram-animation-settings</code>) tunes the
+              dots; this page keeps its choice with <code>neatStoredSignal</code>. Burst pushes 10
+              000 messages in one tick: the layer keeps its dot cap, and the rates count them all.
             </p>
             <neat-diagram-legend [items]="pipelineLegend" />
             <neat-diagram class="diagram" [diagram]="pipeline" label="A messaging pipeline">
@@ -119,6 +128,13 @@ const BURST_MESSAGES = 10_000;
                     <neat-diagram-rate-card
                       label="Tracker → Gateway"
                       [rate]="messages.rate('tracker-gateway')()"
+                    />
+                  }
+                  @case ('yolox-rate') {
+                    <neat-diagram-rate-card
+                      label="YOLOX → NMS"
+                      [rate]="messages.rate('yolox-nms')()"
+                      [stageMs]="yoloxMs()"
                     />
                   }
                   @case ('camera-rate') {
@@ -187,12 +203,14 @@ export class DiagramPage {
   protected readonly modelLegend = MODEL_LEGEND;
   protected readonly edgeTips = MODEL_EDGE_TIPS;
   protected readonly level = signal<string[]>([]);
-  /** The dots' tuning, kept per browser: what `neatDiagramMessageSettings` reads back clamped. */
+  /** The dots' tuning, kept per browser: what `neatParseMessageSettings` reads back clamped. */
   protected readonly dots = neatStoredSignal(
     'showcase.diagram.dots',
     NEAT_DIAGRAM_MESSAGE_DEFAULTS,
-    neatDiagramMessageSettings,
+    neatParseMessageSettings,
   );
+  /** The YOLOX stage time the Detector's card shows, in ms. */
+  protected readonly yoloxMs = signal<number | undefined>(undefined);
   protected readonly levelText = computed(() => JSON.stringify(this.level()));
   private readonly diagrams = viewChildren(NeatDiagramView);
   private readonly messages = viewChild.required(NeatDiagramMessages);
@@ -200,17 +218,23 @@ export class DiagramPage {
   constructor() {
     const destroyRef = inject(DestroyRef);
     afterNextRender(() => {
-      let tick = 0;
+      let batch = 0;
       const feed = setInterval(() => {
         const messages = this.messages();
-        // A frame of about 150 kB, a result of about 2 kB, give or take, as a real feed varies.
-        for (const edge of FRAME_EDGES) messages.push(edge, 140_000 + Math.random() * 20_000);
-        if (tick++ % RESULT_EVERY === 0) {
-          for (const edge of RESULT_EDGES) messages.push(edge, 1_500 + Math.random() * 1_000);
+        // The batch arrives now; its frames start as far apart as they were made.
+        const starts = neatBatchTimes(FRAME_OFFSETS_MS, performance.now());
+        for (const atMs of starts) {
+          // A frame of about 150 kB, a result of about 2 kB, give or take, as a real feed varies.
+          for (const edge of FRAME_EDGES) {
+            messages.push(edge, 140_000 + Math.random() * 20_000, atMs);
+          }
         }
+        for (const edge of RESULT_EDGES) messages.push(edge, 1_500 + Math.random() * 1_000);
+        const yolox = 14 + 2 * Math.random();
         messages.stageMs('detector', 'resize', 3 + Math.random());
-        messages.stageMs('detector', 'yolox', 14 + 2 * Math.random());
-      }, FRAME_MS);
+        messages.stageMs('detector', 'yolox', yolox);
+        if (batch++ % STAGE_SHOWN_EVERY === 0) this.yoloxMs.set(yolox);
+      }, FRAME_MS * BATCH_FRAMES);
       destroyRef.onDestroy(() => clearInterval(feed));
     });
   }

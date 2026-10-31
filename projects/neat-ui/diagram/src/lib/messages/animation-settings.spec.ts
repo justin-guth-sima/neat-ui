@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NEAT_DIAGRAM_MESSAGE_DEFAULTS, type NeatDiagramMessageSettings } from './messages';
-import { NeatDiagramAnimationSettings, neatDiagramMessageSettings } from './animation-settings';
+import { NeatDiagramAnimationSettings, neatParseMessageSettings } from './animation-settings';
 
 @Component({
   imports: [NeatDiagramAnimationSettings],
@@ -115,22 +115,22 @@ describe('NeatDiagramAnimationSettings', () => {
   });
 });
 
-describe('neatDiagramMessageSettings', () => {
+describe('neatParseMessageSettings', () => {
   it('gives the defaults for anything that is no object', () => {
     for (const raw of [undefined, null, 'x', 3, []]) {
-      expect(neatDiagramMessageSettings(raw)).toEqual(NEAT_DIAGRAM_MESSAGE_DEFAULTS);
+      expect(neatParseMessageSettings(raw)).toEqual(NEAT_DIAGRAM_MESSAGE_DEFAULTS);
     }
   });
 
   it('keeps known keys of the right type, clamped, and rounds the whole-number one', () => {
     expect(
-      neatDiagramMessageSettings({ speed: 5000, size: 0.1, every: 2.6, steps: false, old: 1 }),
+      neatParseMessageSettings({ speed: 5000, size: 0.1, every: 2.6, steps: false, old: 1 }),
     ).toEqual({ speed: 1000, size: 0.5, every: 3, steps: false });
   });
 
   it('takes the default for a value of the wrong type or not finite', () => {
     expect(
-      neatDiagramMessageSettings({ speed: '300', size: Number.NaN, every: Infinity, steps: 1 }),
+      neatParseMessageSettings({ speed: '300', size: Number.NaN, every: Infinity, steps: 1 }),
     ).toEqual(NEAT_DIAGRAM_MESSAGE_DEFAULTS);
   });
 });
