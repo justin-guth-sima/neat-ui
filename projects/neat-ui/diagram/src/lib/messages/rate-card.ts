@@ -21,9 +21,9 @@ const perSecond = (value: number) => `${Math.round(value)} msg/s`;
  * app wants between the label and the numbers (the latest image of a camera, say) goes in the
  * `[neatRateCardThumbnails]` slot, which the app lays out itself.
  *
- * The note supplies the card's box (its border, fill and padding), so the card has none; its content
- * is 11.5 rem wide, or as wide as its stage line needs when it shows one. The stage line says
- * "Stage"; an app that wants the stage's name in it puts the name in `label`.
+ * The note supplies the card's box (its border, fill and padding), so the card has none; its
+ * content is 11.5 rem wide, or as wide as its stage line needs when it shows one. The stage line
+ * says "Stage"; an app that wants the stage's name in it puts the name in `label`.
  */
 @Component({
   selector: 'neat-diagram-rate-card',

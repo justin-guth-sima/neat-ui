@@ -84,8 +84,8 @@ look happens in one place. Every rule here protects that.
     (hand-placed diagrams: their model, `NeatDiagramView` (`neat-diagram`) with its templates,
     `NeatDiagramLegend` (`neat-diagram-legend`), `NeatDiagramMessages` (`neat-diagram-messages`)
     with its `NeatDiagramRateCard` (`neat-diagram-rate-card`) and `NeatDiagramAnimationSettings`
-    (`neat-diagram-animation-settings`), and `neatDrillDownLevel`; how it draws is under "How the
-    diagram is drawn" below),
+    (`neat-diagram-animation-settings`), `neatDrillDownLevel`, `neatBatchTimes` and
+    `neatParseMessageSettings`; how it draws is under "How the diagram is drawn" below),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
@@ -311,19 +311,22 @@ the whole in the kit's look.
   drawn edge is a dot along it, radius by bytes, travel time by the edge's length at `speed`
   (`NeatDiagramMessageSettings { speed, size, every, steps }`, the demo's 270 units/s, every Nth
   message with `every`), in its edge's colour or the series `colours` names. `steps` (keyed by edge
-  id, `NeatDiagramMessageStep { from, stage, shares?, passive? }`) are edges inside a block no
-  message feeds: a dot arriving at a step's start goes on once the stage's time has passed, along
-  the chain; a `passive` edge's messages start no steps. `rate(edgeId)` is a signal of messages and
-  bytes per second and a 60 s history, refreshed at 12 Hz while something reads it. Every edge of
-  every level counts, so a level opens with its numbers; an id that is no edge of the diagram is
-  ignored, which keeps the rates' memory bounded by the diagram. The performance rules: one canvas
+  id, `NeatDiagramMessageStep { from, stage, shares? }`) are edges inside a block no message feeds:
+  a dot arriving at a step's start goes on once the stage's time has passed, along the chain, and
+  a message places at most `MAX_CHAIN` (32) dots in all, so steps that loop or fan out cannot grow
+  without bound. `passive` (edge ids, fed edges and steps alike) names the edges whose messages
+  start no steps. `rate(edgeId)` is a signal of messages and bytes per second and a 60 s history,
+  refreshed at 12 Hz while something reads it. A push counts on any edge of any level, drawn or
+  not, so a level opens with its numbers; the step edges count only while their level is drawn and
+  the page is visible, as their dots place them. An id that is no edge of the diagram is ignored,
+  which keeps the rates' memory bounded by the diagram. The performance rules: one canvas
   over the drawing, sized to the layer's own box at the device pixel ratio, sprites per colour, edge
   shapes sampled once per layout and mapped to the screen once per pan or zoom, nothing allocated
   and no signal written per dot or per frame, at most `MAX_DOTS` (16 384) dots with the oldest
-  dropped, frames only while a dot moves and never while the page is hidden. Dots go behind the
-  blocks and notes, fade with the hover (`--diagram-dim`), scale with the zoom and recolour with
-  the scheme (`neatThemeColors`); under reduced motion each message is a brief mark at its edge's
-  end. `neat-diagram-rate-card` (`label`, `rate` the signal's value, `stageMs?`, a
+  dropped, frames only while a visible dot moves (messages that get no dot, see `every`, run none)
+  and never while the page is hidden. Dots go behind the blocks and notes, fade with the hover
+  (`--diagram-dim`), scale with the zoom and recolour with the scheme (`neatThemeColors`); under
+  reduced motion each message is a brief mark at its edge's end. `neat-diagram-rate-card` (`label`, `rate` the signal's value, `stageMs?`, a
   `[neatRateCardThumbnails]` slot the app lays out) is the demo's card for a note's content: the
   label, whole msg/s, MB/s in hundredths from units of 10 kB, and a `NeatSparkline` of the history,
   or a step's stage time in ms to a tenth in place of the MB/s and the sparkline; it draws no box,
@@ -331,15 +334,17 @@ the whole in the kit's look.
   `neat-popover` with `neat-slider`s for speed 50 to 1000, dot size 0.5 to 2 and messages per dot 1
   to 10, a switch for the steps, a reset) over a two-way `settings` model; it keeps nothing. An app
   that remembers the choice per browser makes the model a `neatStoredSignal` with
-  `NEAT_DIAGRAM_MESSAGE_DEFAULTS` as its initial value and `neatDiagramMessageSettings` (clamps,
+  `NEAT_DIAGRAM_MESSAGE_DEFAULTS` as its initial value and `neatParseMessageSettings` (clamps,
   rounds and defaults what an older version stored) as its parse. The layer reaches the diagram
   only through an internal context token (the drawn level's edges, the covers, the focus, the
   transform and a hook for its changes), so a benchmark can provide it over another renderer, with
   an internal per-frame probe; neither is public.
   **Feeding it:** call `push` straight from the transport's handler (a timer, a WebSocket
   message, a poll's reply) per message, with no signal and no batching of your own: it is cheap,
-  safe outside the zone and safe to call from anywhere, and a push for an unknown edge or a level
-  not drawn only counts. Pass `atMs` to spread a batch that arrived together; call `stageMs`
+  safe outside the zone and safe to call from anywhere, and a push for a level not drawn only
+  counts; an unknown id is ignored. To spread a batch that arrived together, pass each message's
+  time from `neatBatchTimes(offsetsMs, arrivalMs)` (the messages' own times from the first, at
+  most 200 ms apart, from the batch's `performance.now()`) as its `atMs`; call `stageMs`
   whenever a stage's time changes. A burst (10 000 pushes in one tick, or what piles up while a
   tab is hidden, when pushes only count) costs the cap's worth of dots, not the burst's; do not
   sample or drop messages in the app to protect the page. The showcase's messaging example is the
