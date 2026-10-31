@@ -238,6 +238,7 @@ describe('calibrateRefresh', () => {
     [1000 / 75.2, 75],
     [1000 / 119.9, 120],
     [1000 / 143.2, 144],
+    [1000 / 239.8, 240],
   ])('snaps a median of %f ms to %i Hz', (ms, hz) => {
     const refresh = calibrateRefresh(calm(120, ms));
 

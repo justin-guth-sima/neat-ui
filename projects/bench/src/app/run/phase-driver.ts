@@ -86,8 +86,8 @@ export interface DriverOptions {
 
 /** About two seconds at 60 Hz: a view that is not back by then will not come. */
 const SETTLE_FRAMES = 120;
-/** The fastest display the bench plans for, for the recorder's buffer. */
-const MAX_HZ = 144;
+/** The fastest display the bench plans for (240 Hz), for the recorder's buffer. */
+const MAX_HZ = 240;
 /** The step machine aborts a step at three times its planned time. */
 const ABORT_FACTOR = 3;
 
@@ -95,6 +95,11 @@ const ABORT_FACTOR = 3;
 export function frameCapacity(plan: LadderPlan): number {
   const plannedMs = plan.warmupMs + plan.phases.reduce((sum, phase) => sum + phase.ms, 0);
   return Math.ceil((ABORT_FACTOR * plannedMs * MAX_HZ) / 1000) + 1024;
+}
+
+/** A stage as the page and the result name it: `phase:pan`, `build`, `done`. */
+function stageName(stage: Stage): string {
+  return stage.kind === 'phase' ? `phase:${stage.phase.name}` : stage.kind;
 }
 
 export type Gesture = 'idle' | 'pan' | 'zoom' | 'zoomed-out';
@@ -160,8 +165,7 @@ export class PhaseDriver {
 
   /** Where the climb is, for the page and the specs: `phase:pan`, `build`, `done`. */
   get stage(): string {
-    const stage = this.machine.stage;
-    return stage.kind === 'phase' ? `phase:${stage.phase.name}` : stage.kind;
+    return stageName(this.machine.stage);
   }
 
   /** Begins the climb; its first step is applied on the next frame. */
@@ -189,7 +193,7 @@ export class PhaseDriver {
   private afterMachine(before: Stage, recorded: number, t: number): void {
     // A step the machine gave up on adds a record that says so; a judged step adds one too.
     if (this.machine.records.length > recorded && this.machine.records.at(-1)?.aborted) {
-      this.abort();
+      this.abort(before, t);
     } else if (this.machine.stage !== before) {
       if (before.kind === 'phase') this.endPhase(before.phase, t);
       const stage = this.machine.stage;
@@ -246,19 +250,26 @@ export class PhaseDriver {
   }
 
   private endPhase(phase: PhaseSpec, t: number): void {
-    const { recorder, loaf, probe, maxDots, refresh } = this.options;
+    const { probe, maxDots } = this.options;
     const open = this.open;
     this.open = null;
     this.player?.end();
     if (!open) return;
+    const { frames, result } = this.measure(open, t);
+    this.phases[phase.name] = result;
+    this.frameSets.push(frames);
+    this.dotStats.push(probe.summarySince(open.probe, maxDots));
+  }
+
+  /** The open phase's frames, statistics and long frames, up to the frame at `t`. */
+  private measure(open: { from: number; at: number }, t: number) {
+    const { recorder, loaf, refresh } = this.options;
     // The window is the real span between the phase's first and last frame: a long frame
     // stretches a phase, and the planned time would flatter it.
     const frames = recorder.between(open.from, recorder.mark());
     const stats = frameStats(frames.deltas, frames.windowMs, refresh.intervalMs);
     const long = loaf.source === 'none' ? undefined : loaf.summarize(open.at, t);
-    this.phases[phase.name] = phaseResult(stats, long);
-    this.frameSets.push(frames);
-    this.dotStats.push(probe.summarySince(open.probe, maxDots));
+    return { frames, result: phaseResult(stats, long) };
   }
 
   /** The last phase is over: bring the view back before the next step builds. */
@@ -291,10 +302,21 @@ export class PhaseDriver {
     this.step(() => this.machine.judged(outcome, t), t);
   }
 
-  /** A step the machine gave up on: what it measured before is kept, and the climb goes on. */
-  private abort(): void {
+  /**
+   * A step the machine gave up on, in the stage `froze`: what it measured before is kept, with
+   * the part of the phase it froze in (flagged partial), and the view is put back at its start,
+   * so a refinement step that follows builds from a fit and not from the middle of a gesture.
+   */
+  private abort(froze: Stage, t: number): void {
+    const { recorder, host } = this.options;
     this.player?.end();
+    const open = this.open;
     this.open = null;
+    // The phase's first frame alone has no window to measure.
+    if (froze.kind === 'phase' && open && recorder.mark() > open.from) {
+      this.phases[froze.phase.name] = { ...this.measure(open, t).result, partial: true };
+    }
+    host.fit();
     const record = this.machine.records[this.machine.records.length - 1];
     this.results.push({
       ...this.header(record.step.index, record.step.level, record.step.refining),
@@ -302,6 +324,7 @@ export class PhaseDriver {
       startTransform: this.startTransform,
       phases: this.phases,
       aborted: 'unresponsive',
+      abortedIn: stageName(froze),
     });
   }
 

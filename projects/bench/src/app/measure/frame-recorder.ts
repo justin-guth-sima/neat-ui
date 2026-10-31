@@ -33,13 +33,14 @@ export interface FrameRecorderOptions {
 }
 
 /**
- * About seven minutes at 144 Hz: a step is some 13 s planned, and the step machine aborts one
- * at three times that, so a step cannot fill it unless something else is wrong.
+ * About seven minutes at 144 Hz: a step is some 13 s planned, and the step machine aborts one at
+ * three times that, so a step cannot fill it unless something else is wrong. (A run sizes its own
+ * buffer for 240 Hz: `frameCapacity`.)
  */
 const DEFAULT_CAPACITY = 65536;
 
 /** The refresh rates displays commonly run at, to snap a measured interval to. */
-const COMMON_HZ: readonly number[] = [30, 50, 60, 75, 90, 120, 144];
+const COMMON_HZ: readonly number[] = [30, 50, 60, 75, 90, 120, 144, 240];
 /** Two seconds of an empty page give at least 60 frames; fewer means rAF was throttled. */
 const MIN_CALIBRATION_FRAMES = 20;
 

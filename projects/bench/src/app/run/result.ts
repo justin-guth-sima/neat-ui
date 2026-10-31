@@ -32,6 +32,8 @@ export interface LoafResult {
 
 export interface PhaseResult extends FrameStats {
   readonly loaf?: LoafResult;
+  /** Addition: the phase was cut short by an aborted step, so its numbers cover part of it. */
+  readonly partial?: true;
 }
 
 export interface DotsResult {
@@ -69,6 +71,8 @@ export interface StepResult {
   readonly dots?: DotsResult;
   readonly dom?: { readonly nodes: number };
   readonly aborted?: 'unresponsive';
+  /** Addition: the stage the aborted step froze in (`build`, `warmup`, `phase:<name>`). */
+  readonly abortedIn?: string;
 }
 
 export interface BenchRun {
@@ -282,7 +286,10 @@ export function compileRun(input: CompileInput): BenchRun {
       warnings.push(`step ${step.step}: the dot layer hit its cap, so the load was cut short.`);
     }
     if (step.aborted) {
-      warnings.push(`step ${step.step}: aborted as ${step.aborted}; its phases are partial.`);
+      warnings.push(
+        `step ${step.step}: aborted as ${step.aborted}` +
+          `${step.abortedIn ? ` in ${step.abortedIn}` : ''}; its last phase is partial.`,
+      );
     }
   }
   warnings.push(...input.driverWarnings);

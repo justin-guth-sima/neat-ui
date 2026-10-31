@@ -326,14 +326,14 @@ describe('compileRun', () => {
               capped: true,
             },
           }),
-          step({ step: 1, level: 100, aborted: 'unresponsive' }),
+          step({ step: 1, level: 100, aborted: 'unresponsive', abortedIn: 'phase:pan' }),
         ],
         driverWarnings: ['step 0: the view was not back'],
       }),
     );
     const warnings = run.warnings.join('\n');
     expect(warnings).toMatch(/step 0.*cap/i);
-    expect(warnings).toMatch(/step 1.*unresponsive/i);
+    expect(warnings).toMatch(/step 1.*unresponsive.*phase:pan/i);
     expect(warnings).toMatch(/step 0: the view was not back/);
   });
 });

@@ -271,8 +271,91 @@ describe('PhaseDriver', () => {
 
     expect(driver.end).toBe('unresponsive');
     expect(driver.steps).toHaveLength(1);
-    expect(driver.steps[0]).toMatchObject({ aborted: 'unresponsive', phases: {} });
+    expect(driver.steps[0]).toMatchObject({
+      aborted: 'unresponsive',
+      abortedIn: 'build',
+      phases: {},
+    });
     expect(driver.steps[0].buildMs).toBeUndefined();
+  });
+
+  it('brings the view back when it aborts a step, as a judged step does', () => {
+    const { start, finish, host, log } = rig();
+    host.atStart = () => false;
+    start();
+    finish();
+    expect(log).toContain('fit');
+  });
+
+  /**
+   * Frames at the plan's pace until the driver is in `stage` of the step after `judged` steps,
+   * then `more` frames inside it.
+   */
+  function runInto(r: ReturnType<typeof rig>, stage: string, judged = 0, more = 3) {
+    r.start();
+    for (let i = 0; i < 20000; i++) {
+      if (r.driver.stage === stage && r.driver.steps.length === judged) break;
+      r.frames.frame(HZ60);
+    }
+    for (let i = 0; i < more; i++) r.frames.frame(HZ60);
+  }
+
+  it('records the stage a step froze in, and the part of the phase it measured, flagged', () => {
+    const r = rig();
+    runInto(r, 'phase:pan');
+    // One frame of two seconds: past three times the step's planned time, in the middle of `pan`.
+    r.frames.frame(2000);
+
+    const aborted = r.driver.steps[0];
+    expect(aborted).toMatchObject({ aborted: 'unresponsive', abortedIn: 'phase:pan' });
+    expect(aborted.phases['idle'].partial).toBeUndefined();
+    expect(aborted.phases['pan']).toMatchObject({ partial: true });
+    expect(aborted.phases['pan'].frames).toBeGreaterThan(0);
+    // The frame it froze on is in the partial phase: the stall is the finding.
+    expect(aborted.phases['pan'].worst).toBeCloseTo(2000, 6);
+  });
+
+  it('records a step that froze in its warm-up with no phase and says where', () => {
+    const r = rig();
+    runInto(r, 'warmup');
+    r.frames.frame(2000);
+    expect(r.driver.steps[0]).toMatchObject({ aborted: 'unresponsive', abortedIn: 'warmup' });
+    expect(r.driver.steps[0].phases).toEqual({});
+  });
+
+  it('measures the refinement step that follows an abort, from a view put back at its start', () => {
+    const r = rig({ ...PLAN, refine: true });
+    // A gesture leaves the view away from its start until the host is asked to fit.
+    let away = false;
+    const atStart = r.host.atStart;
+    const fit = r.host.fit;
+    const player = r.host.player();
+    r.host.atStart = () => !away && atStart();
+    r.host.fit = () => {
+      away = false;
+      fit();
+    };
+    r.host.player = () => ({
+      ...player,
+      begin: (phase, now, ms) => {
+        away = phase !== 'idle';
+        player.begin(phase, now, ms);
+      },
+    });
+    runInto(r, 'phase:pan', 1);
+    r.frames.frame(2000);
+    r.finish();
+
+    const [first, froze, ...refined] = r.driver.steps;
+    expect(first.outcome?.tier).toBe('smooth');
+    expect(froze.aborted).toBe('unresponsive');
+    expect(refined.length).toBeGreaterThan(0);
+    for (const step of refined) {
+      expect(step).toMatchObject({ refining: true });
+      expect(step.aborted).toBeUndefined();
+      expect(step.outcome).toBeDefined();
+      expect(Object.keys(step.phases)).toEqual(['idle', 'pan']);
+    }
   });
 
   it('goes on after a step’s view fails to come back, with a warning, and does not wait forever', () => {
@@ -300,10 +383,10 @@ describe('PhaseDriver', () => {
   });
 
   it('holds a step’s frames in a buffer sized for the step and its abort limit', () => {
-    // 13 s planned, aborted at 3×, at the fastest displays: far under the recorder's default.
-    expect(frameCapacity(PLAN)).toBeGreaterThan((3 * 500 * 144) / 1000);
+    // 13 s planned, aborted at 3×, at 240 Hz: far under the recorder's default.
+    expect(frameCapacity(PLAN)).toBeGreaterThan((3 * 500 * 240) / 1000);
     const soak: LadderPlan = { ...PLAN, phases: [{ name: 'soak-1', ms: 600_000 }] };
-    expect(frameCapacity(soak)).toBeGreaterThan(3 * 600 * 144);
+    expect(frameCapacity(soak)).toBeGreaterThan(3 * 600 * 240);
   });
 
   it('is told once to start, and says when it is done', () => {
