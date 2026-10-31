@@ -29,7 +29,8 @@ export interface GestureTarget {
   press(x: number, y: number): void;
   drag(x: number, y: number): void;
   release(x: number, y: number): void;
-  wheel(x: number, y: number, deltaY: number): void;
+  /** `box` is the zoom box as it was when the gesture began, for a target that needs it. */
+  wheel(x: number, y: number, deltaY: number, box: Box): void;
 }
 
 /** d3-zoom's wheel delta for a wheel in pixels: log2 of the scale factor per px of `deltaY`. */
@@ -121,8 +122,9 @@ export function reducerGestures(
       last = { x, y };
     },
     release: () => (last = null),
-    wheel: (x, y, deltaY) => {
-      const { left, top } = rect();
+    // The player measured the box when the gesture began: a rect per wheel event would be layout
+    // work that the floor is there to exclude.
+    wheel: (x, y, deltaY, { left, top }) => {
       write(zoomedAbout(read(), { x: x - left, y: y - top }, deltaY));
     },
   };
@@ -144,8 +146,13 @@ type Plan =
   | { readonly kind: 'idle' }
   /** A drag from `from` along a 1:2 Lissajous of the box's size, back at `from` at the end. */
   | { readonly kind: 'pan'; readonly from: Point; readonly w: number; readonly h: number }
-  /** A wheel at `at`: the zoom's log2 at a point in the phase, from 0 at its start. */
-  | { readonly kind: 'wheel'; readonly at: Point; readonly log2At: (u: number) => number };
+  /** A wheel at `at` in `box` (as it was at the start): the zoom's log2 in the phase, from 0. */
+  | {
+      readonly kind: 'wheel';
+      readonly at: Point;
+      readonly box: Box;
+      readonly log2At: (u: number) => number;
+    };
 
 /**
  * Plays one phase's gesture, a frame at a time: `begin` at the phase's start, `frame` on each
@@ -189,7 +196,12 @@ export class GesturePlayer {
       case 'zoom': {
         // In to 2.5× the start (the limit at most), then back out: the start again at the end.
         const peak = Math.log2(Math.min(t.k * ZOOM_IN, ZOOM_LIMITS[1]) / t.k);
-        this.plan = { kind: 'wheel', at: centre, log2At: (u) => peak * (1 - Math.abs(2 * u - 1)) };
+        this.plan = {
+          kind: 'wheel',
+          at: centre,
+          box,
+          log2At: (u) => peak * (1 - Math.abs(2 * u - 1)),
+        };
         break;
       }
       case 'zoomed-out': {
@@ -199,6 +211,7 @@ export class GesturePlayer {
         this.plan = {
           kind: 'wheel',
           at: centre,
+          box,
           log2At: (u) => to * Math.min(1, u / ZOOM_OUT_RAMP),
         };
         break;
@@ -237,7 +250,12 @@ export class GesturePlayer {
     } else if (plan.kind === 'wheel') {
       const log2 = plan.log2At(u);
       if (log2 !== this.wheeled) {
-        this.target.wheel(plan.at.x, plan.at.y, -(log2 - this.wheeled) / WHEEL_LOG2_PER_PX);
+        this.target.wheel(
+          plan.at.x,
+          plan.at.y,
+          -(log2 - this.wheeled) / WHEEL_LOG2_PER_PX,
+          plan.box,
+        );
         this.wheeled = log2;
       }
     }

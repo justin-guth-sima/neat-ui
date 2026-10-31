@@ -240,6 +240,21 @@ describe('GesturePlayer', () => {
     });
   });
 
+  describe('the zoom box', () => {
+    it('is measured once per gesture, at its begin, and handed to each wheel event', () => {
+      const { target, calls } = recording();
+      const rect = vi.spyOn(target, 'rect');
+      const wheel = vi.spyOn(target, 'wheel');
+      const player = new GesturePlayer(target, FREE_SPOT);
+      play(player, 'zoom', 2000);
+
+      expect(calls.filter(([name]) => name === 'wheel').length).toBeGreaterThan(10);
+      // Reading a box's rect per event is layout work the floor must not pay for.
+      expect(rect).toHaveBeenCalledTimes(1);
+      for (const call of wheel.mock.calls) expect(call[3]).toBe(BOX);
+    });
+  });
+
   describe('zoomed-out', () => {
     it('wheels out to the zoom limit and stays there', () => {
       const { target, transform } = recording();
@@ -285,11 +300,27 @@ describe('the two kinds of target', () => {
     target.press(500, 400);
     target.drag(530, 390);
     target.release(530, 390);
-    target.wheel(BOX.left + 10, BOX.top + 20, -100);
+    target.wheel(BOX.left + 10, BOX.top + 20, -100, BOX);
 
     expect(written[0]).toEqual({ k: START.k, x: START.x + 30, y: START.y - 10 });
     expect(written).toHaveLength(2);
     expect(written[1].k).toBeCloseTo(START.k * 2 ** 0.2, 12);
+  });
+
+  it('reducerGestures turn a wheel with the box they are given, and never measure one', () => {
+    const rect = vi.fn(() => BOX);
+    let at = START;
+    const target = reducerGestures(
+      rect,
+      () => at,
+      (t) => (at = t),
+    );
+    const moved = { left: 400, top: 300, width: 800, height: 600 };
+    target.wheel(moved.left + 10, moved.top + 20, -100, moved);
+
+    expect(rect).not.toHaveBeenCalled();
+    // The cursor is 10 and 20 px into the box it was given, not into `BOX`.
+    expect(at).toEqual(zoomedAbout(START, { x: 10, y: 20 }, -100));
   });
 
   it('ignore a drag with no press, as a pointer that is not down moves nothing', () => {
@@ -369,7 +400,7 @@ describe('the two kinds of target', () => {
       target.press(10, 20);
       target.drag(11, 21);
       target.release(11, 21);
-      target.wheel(5, 5, -10);
+      target.wheel(5, 5, -10, { left: 0, top: 0, width: 10, height: 10 });
     } finally {
       window.removeEventListener('mousemove', seen);
       window.removeEventListener('mouseup', seen);

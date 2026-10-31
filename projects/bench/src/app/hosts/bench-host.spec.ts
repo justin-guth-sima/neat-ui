@@ -175,7 +175,7 @@ describe('the hosts register themselves for the run', () => {
       const context = layer.injector.get(DIAGRAM_MESSAGES_CONTEXT);
       const { gestures } = registered as BenchHost;
 
-      gestures.wheel(960, 540, 100_000);
+      gestures.wheel(960, 540, 100_000, gestures.rect());
       expect(context.transform().k).toBe(ZOOM_LIMITS[0]);
       registered?.fit();
       expect(context.transform()).toEqual(registered?.startTransform());
