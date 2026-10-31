@@ -4,6 +4,7 @@
 // each as it ended), flagged `failedRun`, with its error in `runs`; a warning from several runs is
 // said once with the runs it came from. Pure.
 import { join } from 'node:path';
+import { describeCheckout } from './build-stamp.mjs';
 
 /** Design 2.3: the harness flags a step whose start transforms differ by more than this. */
 const SCALE_TOLERANCE = 0.01;
@@ -39,7 +40,8 @@ export function compareStartTransforms(steps) {
     if (problems.length > 0) {
       warnings.push(
         `ladder ${v.ladder} level ${v.level} repeat ${v.repeat}: the kit and vflow started at ` +
-          `different transforms (${problems.join(', ')}), so their frames do not draw the same view.`,
+          `different transforms (${problems.join(', ')}), so their frames do not draw the same ` +
+          'view.',
       );
     }
   }
@@ -157,9 +159,11 @@ export function mergeRuns({
 }
 
 /**
- * What the page cannot know about the build (design 4.2, `bench`): the commit (marked `-dirty`
- * where tracked files changed, since such a run is not the commit's), the kit's version and the
- * vflow version installed. `git(args)` gives a command's output; each failing read says unknown.
+ * What the page cannot know about the build (design 4.2, `bench`): the checkout's commit (marked
+ * `-dirty` where tracked files changed or a new file sits under the bench or the kit, since such
+ * a run is not the commit's; `build-stamp.mjs`), the kit's version and the vflow version
+ * installed. `git(args)` gives a command's output; each failing read says unknown. The commit of
+ * the build that was measured is the page's own stamp, which the campaign sets over this one.
  */
 export async function benchInfo({ root, git, readFile }) {
   const version = async (...path) => {
@@ -169,16 +173,8 @@ export async function benchInfo({ root, git, readFile }) {
       return 'unknown';
     }
   };
-  let gitSha = 'unknown';
-  try {
-    const sha = (await git(['rev-parse', 'HEAD'])).trim();
-    const changed = (await git(['status', '--porcelain', '--untracked-files=no'])).trim();
-    if (sha) gitSha = changed ? `${sha}-dirty` : sha;
-  } catch {
-    // Not a checkout, or no git: the result says unknown.
-  }
   return {
-    gitSha,
+    gitSha: await describeCheckout(git),
     kitVersion: await version('projects', 'neat-ui', 'package.json'),
     vflowVersion: await version('node_modules', 'ngx-vflow', 'package.json'),
   };

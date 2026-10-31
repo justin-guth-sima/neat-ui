@@ -70,8 +70,9 @@ export interface StepResult {
   readonly outcome?: StepOutcome;
   readonly dots?: DotsResult;
   readonly dom?: { readonly nodes: number };
-  readonly aborted?: 'unresponsive';
-  /** Addition: the stage the aborted step froze in (`build`, `warmup`, `phase:<name>`). */
+  readonly aborted?: 'unresponsive' | 'watchdog';
+  /** Addition: the stage the aborted step froze in (`build`, `warmup`, `phase:<name>`). The
+   *  harness's own record of a step its watchdog gave up on (`aborted: 'watchdog'`) has none. */
   readonly abortedIn?: string;
 }
 
@@ -79,7 +80,7 @@ export interface BenchRun {
   readonly schema: 1;
   readonly runId: string;
   readonly startedAt: string;
-  /** The page knows none of these but the build: the harness fills in the rest (Task 5). */
+  /** The page knows the build and the commit stamped into it: the harness fills in the rest. */
   readonly bench: {
     readonly gitSha: string;
     readonly kitVersion: string;
@@ -266,6 +267,8 @@ export interface CompileInput {
   readonly driverWarnings: readonly string[];
   /** The page's own build (`isDevMode()`): the one thing about the build the page can tell. */
   readonly build: BenchRun['bench']['build'];
+  /** The commit stamped into the bundle at build time (`build-info.ts`), or `unknown`. */
+  readonly gitSha: string;
   /** Who played the gestures: the page, or the harness through the browser's input. */
   readonly input: BenchRun['config']['input'];
 }
@@ -309,7 +312,7 @@ export function compileRun(input: CompileInput): BenchRun {
     runId: input.runId,
     startedAt: input.startedAt,
     bench: {
-      gitSha: 'unknown',
+      gitSha: input.gitSha,
       kitVersion: 'unknown',
       vflowVersion: 'unknown',
       build: input.build,

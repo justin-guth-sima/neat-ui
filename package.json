@@ -13,7 +13,7 @@
     "build:styles": "tailwindcss -i projects/neat-ui/src/styles/neat-ui.tailwind.css -o dist/neat-ui/styles/neat-ui.tailwind.css --minify",
     "build:showcase": "ng build showcase",
     "bench": "ng serve bench",
-    "bench:build": "ng build bench",
+    "bench:build": "node projects/bench/harness/bench-build.mjs",
     "bench:run": "node projects/bench/harness/run.mjs",
     "test": "ng test",
     "test:tools": "node --test 'tools/*.test.mjs' 'projects/bench/harness/*.test.mjs'",

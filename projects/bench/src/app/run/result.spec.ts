@@ -115,10 +115,7 @@ describe('dotsResult', () => {
 
   it('is each statistic’s maximum over the phases, which need not come from the same phase', () => {
     expect(
-      dotsResult([
-        draws({ drawP50Ms: 3, dotsMax: 400 }),
-        draws({ drawP50Ms: 1, dotsMax: 900 }),
-      ]),
+      dotsResult([draws({ drawP50Ms: 3, dotsMax: 400 }), draws({ drawP50Ms: 1, dotsMax: 900 })]),
     ).toMatchObject({ drawP50: 3, drawnMax: 900 });
   });
 
@@ -259,6 +256,7 @@ describe('compileRun', () => {
     refineSkipped: null,
     driverWarnings: [],
     build: 'production',
+    gitSha: 'unknown',
     input: 'page',
     ...over,
   });
@@ -293,6 +291,11 @@ describe('compileRun', () => {
     expect(run.measurement.refresh).toEqual({ measuredMs: 16.7, hz: 60, intervalMs: 1000 / 60 });
     expect(run.notComparable).toBe(NOT_COMPARABLE);
     expect(run.warnings).toEqual([]);
+  });
+
+  it('reports the commit the bundle was built from, for the harness to check', () => {
+    expect(compileRun(input()).bench.gitSha).toBe('unknown');
+    expect(compileRun(input({ gitSha: 'abc123-dirty' })).bench.gitSha).toBe('abc123-dirty');
   });
 
   it('records the build the page runs as, and warns of a development build', () => {

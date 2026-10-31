@@ -339,6 +339,15 @@ test('reads the commit, marking a tree with changes, and the versions of the kit
     readFile: async (path) => files[path],
   });
   assert.equal(clean.gitSha, 'abc1234567');
+
+  // A file nobody added to git yet is part of the build when it sits under the bench or the kit.
+  const fresh = await benchInfo({
+    root: '/repo',
+    git: async (args) =>
+      args[0] === 'rev-parse' ? 'abc1234567\n' : '?? projects/bench/src/x.ts\n',
+    readFile: async (path) => files[path],
+  });
+  assert.equal(fresh.gitSha, 'abc1234567-dirty');
 });
 
 test('says unknown, not nothing, where the commit or a version cannot be read', async () => {

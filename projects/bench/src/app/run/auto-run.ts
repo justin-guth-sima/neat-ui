@@ -1,6 +1,7 @@
 import { inject, Injectable, isDevMode, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MAX_DOTS } from '@bench/diagram-seam';
+import { BUILT_FROM } from '../build-info';
 import { type BenchHost, BenchHosts } from '../hosts/bench-host';
 import { BenchLoad } from '../hosts/bench-load';
 import { DotProbeBuffer } from '../measure/dot-probe';
@@ -136,6 +137,7 @@ export async function runAuto(deps: AutoDeps): Promise<BenchRun> {
       refineSkipped: climb.refineSkipped,
       driverWarnings: climb.warnings,
       build: isDevMode() ? 'development' : 'production',
+      gitSha: BUILT_FROM,
       input: params.input,
     });
   } finally {
