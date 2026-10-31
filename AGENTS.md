@@ -217,6 +217,16 @@ is a failed run in it. A step the harness's watchdog gave up on is a step record
 changes, or untracked files under `projects/bench` or `projects/neat-ui`) into the bundle; the
 page reports it as `bench.gitSha`, the checkout's is `bench.checkoutSha`, and the harness warns
 where they differ or the build (also one served with `--url`) carries no stamp.
+A traced run (`--trace`) is checked against its own trace (`harness/trace-check.mjs`): the
+recorder's fps in the pan and zoom phases against the display compositor's draws in the same
+window, within 3 %, else a warning on the campaign (the `none` host is left out: no gesture moves
+a pixel there). On the laptop it holds for the kit and not for vflow, whose recorded fps reads
+above what the display draws; `projects/bench/VALIDATION.md` has the numbers and the other checks.
+The results view (`/#/results`, `src/app/results/`) reads result files dropped on it, with the
+screenshots beside them, and shows per machine the capacities in the two tiers, the fallback
+verdict (the kit clearly slower than vflow: its smooth capacity a doubling step or more below in 2
+of 3 repeats, the 85 % fps rule as supporting evidence), the steps and phases at the median of the
+repeats, the warnings and the not-comparable notes, with a markdown summary to copy.
 
 **How the charts are drawn.** Every chart in `charts` but the heatmap is an SVG with
 `viewBox="0 0 600 100"`, `preserveAspectRatio="none"` and `overflow: visible`, so it fills
