@@ -1,0 +1,7 @@
+/* Over the host, in a corner, so a finished run can be read and downloaded where it ran. */
+.result {
+  position: fixed;
+  right: var(--neat-space-6);
+  bottom: var(--neat-space-6);
+  max-width: 28rem;
+}

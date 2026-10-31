@@ -59,4 +59,30 @@ describe('App', () => {
   it('hands the dot layer the bench’s probe buffer as its frame probe', () => {
     expect(TestBed.inject(DOT_FRAME_PROBE)).toBe(TestBed.inject(DotProbeBuffer).record);
   });
+
+  describe('the query string', () => {
+    afterEach(() => {
+      history.replaceState(null, '', '/');
+      delete window.benchResult;
+    });
+
+    it('says why a run cannot start, on the page and where the harness reads the result', async () => {
+      history.replaceState(null, '', '/?auto=1&ladder=Q');
+      vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: appConfig.providers });
+      fixture = TestBed.createComponent(App);
+      await fixture.whenStable();
+
+      const text = (fixture.nativeElement as HTMLElement).textContent;
+      expect(text).toContain('Run failed');
+      expect(text).toMatch(/ladder is one of/);
+      expect(window.benchResult).toEqual({ error: expect.stringMatching(/ladder is one of/) });
+    });
+
+    it('shows no result panel on a page nobody asked a run of', () => {
+      expect((fixture.nativeElement as HTMLElement).querySelector('neat-callout')).toBeNull();
+      expect(window.benchResult).toBeUndefined();
+    });
+  });
 });

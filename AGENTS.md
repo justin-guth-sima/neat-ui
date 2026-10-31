@@ -179,6 +179,14 @@ puts the same diagram and the same messages on every machine; a spec pins each, 
 means results from before no longer compare with those after. It routes by hash (`/#/kit`)
 because the board serves the built bench from a plain static server. Run files go to
 `projects/bench/results/`, which is gitignored; each campaign's summary is published as a page.
+The page measures itself (`src/app/run/`): `/?auto=1&host=kit|vflow|none&ladder=A..E&seed=1&steps=3`
+calibrates the display's refresh on the empty start page, climbs the ladder (step machine, phase
+driver, `GesturePlayer`) and leaves the result on `window.benchResult` and as a JSON download, so a
+board without a harness can run it. The gestures are synthetic events through d3-zoom for the kit
+and vflow; the `none` floor plays the same path through a pure reducer and a non-reactive
+`setTransform`, so its frames hold no change detection. `window.benchFairness()` reads a host's
+boxes and edge paths in diagram units and `window.benchCompare(kit, vflow)` judges two of them;
+each result lists what the two renderers do not share (`NOT_COMPARABLE`).
 
 **How the charts are drawn.** Every chart in `charts` but the heatmap is an SVG with
 `viewBox="0 0 600 100"`, `preserveAspectRatio="none"` and `overflow: visible`, so it fills
