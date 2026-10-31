@@ -80,8 +80,9 @@ export async function runCampaign(options, { log, cleanups }) {
       headless: options.headless || !options.remote.display,
       serverPort: options.url ? undefined : server.port,
       log,
+      // Registered by `startRemote` itself, before it launches anything.
+      cleanups,
     });
-    cleanups.push(() => remote.stop());
     target = { kind: 'cdp', endpoint: remote.endpoint };
     base = options.url ?? remote.pageBase;
     log(`the board's browser loads the bench from ${base}`);

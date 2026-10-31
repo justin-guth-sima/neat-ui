@@ -113,26 +113,36 @@ test('idles 20 s between runs on a board, none on a laptop, unless told', () => 
   assert.equal(parseArgs([...BASE, '--ssh', 'sima@board', '--cooldown', '5']).cooldownMs, 5000);
 });
 
-test('has the board’s ports and browser as options, with defaults that avoid the dev ports', () => {
+test('has the board’s serve port, browser and display as options, defaults away from the dev ports', () => {
   const o = parseArgs([...BASE, '--target', 'remote', '--ssh', 'sima@board']);
-  assert.equal(o.remote.debugPort, 9333);
   assert.equal(o.remote.servePort, 4390);
+  assert.equal(o.remote.xauthority, undefined);
   assert.equal(o.remote.chromium, 'chromium');
   assert.equal(o.remote.display, undefined);
   const custom = parseArgs([
     ...BASE,
     '--target=remote',
     '--ssh=sima@board',
-    '--remote-debug-port=9444',
     '--remote-serve-port=4391',
     '--remote-chromium=/usr/bin/chromium',
     '--remote-display=:0',
+    '--remote-xauthority=/run/user/1000/gdm/Xauthority',
   ]);
-  assert.equal(custom.remote.debugPort, 9444);
+  assert.equal(custom.remote.servePort, 4391);
   assert.equal(custom.remote.display, ':0');
+  assert.equal(custom.remote.xauthority, '/run/user/1000/gdm/Xauthority');
   for (const port of [4200, 9900]) {
-    assert.throws(() => parseArgs([...BASE, `--remote-debug-port=${port}`]), /port/);
     assert.throws(() => parseArgs([...BASE, `--remote-serve-port=${port}`]), /port/);
+  }
+});
+
+test('no longer takes a debugging port: the browser chooses its own', () => {
+  assert.throws(() => parseArgs([...BASE, '--remote-debug-port=9444']), /remote-debug-port/);
+});
+
+test('takes the Xauthority file as an absolute path only, since the board’s shell reads it', () => {
+  for (const file of ['relative/x', '/a b', '/a;id', '/$(id)', '']) {
+    assert.throws(() => parseArgs([...BASE, `--remote-xauthority=${file}`]), /xauthority/, file);
   }
 });
 
@@ -157,7 +167,7 @@ test('documents every option it reads', () => {
     '--cooldown',
     '--allow-unfair',
     '--no-screenshots',
-    '--remote-debug-port',
+    '--remote-xauthority',
   ]) {
     assert.ok(USAGE.includes(name), name);
   }

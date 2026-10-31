@@ -37,10 +37,13 @@ Which browser
   --cooldown <s>             idle between runs (default 20 with --ssh or a CDP target, else 0)
 
 Remote browser (--target remote)
-  --remote-debug-port 9333   the browser's debugging port, on the board's loopback
   --remote-serve-port 4390   where the board's browser reaches this laptop's server (reverse tunnel)
   --remote-chromium chromium the browser's name or path on the board
-  --remote-display :0        run headed on that X display (kiosk) instead of headless
+  --remote-display :0        run headed on that X display (kiosk) instead of headless; the page
+                             then has the display's own size, whatever --viewport says
+  --remote-xauthority <path> the X authority file of that display on the board (absolute path;
+                             default: the board user's $HOME/.Xauthority)
+  (the browser takes a free debugging port itself and the harness reads which)
 
 Output
   --out projects/bench/results   run files, screenshots and traces (gitignored)
@@ -77,10 +80,10 @@ const OPTIONS = {
   cooldown: { type: 'string' },
   'allow-unfair': { type: 'boolean' },
   'no-screenshots': { type: 'boolean' },
-  'remote-debug-port': { type: 'string' },
   'remote-serve-port': { type: 'string' },
   'remote-chromium': { type: 'string' },
   'remote-display': { type: 'string' },
+  'remote-xauthority': { type: 'string' },
 };
 
 function whole(value, name, least, fallback) {
@@ -123,6 +126,15 @@ function target(value) {
     return { kind: 'cdp', endpoint: value.slice('cdp:'.length) };
   }
   throw new UsageError(`--target is local, remote or cdp:<endpoint>, not "${value}"`);
+}
+
+/** The board's shell reads it, so: an absolute path of plain characters, or nothing. */
+function xauthority(value) {
+  if (value === undefined) return undefined;
+  if (!/^\/[\w./+-]+$/.test(value)) {
+    throw new UsageError(`--remote-xauthority is an absolute path on the board, not "${value}"`);
+  }
+  return value;
 }
 
 function viewport(value) {
@@ -188,10 +200,10 @@ export function parseArgs(argv) {
     allowUnfair: v['allow-unfair'] ?? false,
     screenshots: !v['no-screenshots'],
     remote: {
-      debugPort: port(v['remote-debug-port'], 'remote-debug-port', 9333),
       servePort: port(v['remote-serve-port'], 'remote-serve-port', 4390),
       chromium: v['remote-chromium'] ?? 'chromium',
       display: v['remote-display'],
+      xauthority: xauthority(v['remote-xauthority']),
     },
   };
 }

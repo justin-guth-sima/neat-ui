@@ -1,7 +1,9 @@
 // A Chromium started on the board for the harness to drive (design 4.1, "Board display" and the
-// board recon): `--remote-debugging-port` on the board's 127.0.0.1 with a profile of its own
-// (Chrome 136 ignores the port on the default profile), reached through an ssh tunnel, and stopped
-// and deleted afterwards. The harness changes the board in two ways only: this browser and one
+// board recon): `--remote-debugging-port=0` on the board's 127.0.0.1 with a profile of its own
+// (Chrome 136 ignores the port on the default profile; port 0 lets the browser take a free one,
+// which it writes to `DevToolsActivePort` in that profile, so a browser somebody else left on a
+// fixed port is never the one driven), reached through an ssh tunnel, and stopped and deleted
+// afterwards. The harness changes the board in two ways only: this browser and one
 // directory, `/tmp/neat-bench-<run>/`, holding its profile, log and pid file. The stop is by
 // the pid file, checked against that pid's command line (so a recycled pid is never killed) and
 // then by the browser's own process group, which is exactly its children. No `pkill`, no pattern
@@ -14,6 +16,7 @@ import { sshArgs, sshRun } from './ssh.mjs';
 
 const DEFAULT_PARENTS = ['/tmp', '/var/tmp'];
 const DEV_PORTS = [4200, 9900];
+const DEVTOOLS_MS = 30_000;
 
 export function remoteDirFor(runId) {
   if (!/^[A-Za-z0-9][A-Za-z0-9-]{0,63}$/.test(runId)) {
@@ -32,9 +35,9 @@ export function assertRemoteDir(dir, parents = DEFAULT_PARENTS) {
 }
 
 /** The browser's arguments: loopback debugging, its own profile, and headless or kiosk. */
-export function browserFlags(dir, { port, headless, display }) {
+export function browserFlags(dir, { headless, display }) {
   const flags = [
-    `--remote-debugging-port=${port}`,
+    '--remote-debugging-port=0',
     '--remote-debugging-address=127.0.0.1',
     `--user-data-dir=${dir}/profile`,
     '--no-first-run',
@@ -57,18 +60,20 @@ export function browserFlags(dir, { port, headless, display }) {
 /** Starts the browser detached in its own session, writing its pid; fails if `dir` exists. */
 export function launchScript(
   dir,
-  { port, chromium, headless, display, parents = DEFAULT_PARENTS },
+  { chromium, headless, display, xauthority, parents = DEFAULT_PARENTS },
 ) {
   assertRemoteDir(dir, parents);
-  if (!Number.isInteger(port) || port < 1024 || port > 65535) {
-    throw new Error(`port ${port} is not a debugging port`);
-  }
   if (!/^[\w./+-]+$/.test(chromium)) throw new Error(`browser "${chromium}" is not a name or path`);
   if (display !== undefined && !/^:\d{1,3}(\.\d{1,2})?$/.test(display)) {
     throw new Error(`display "${display}" is not an X display such as :0`);
   }
-  const env = display ? `DISPLAY=${display} XAUTHORITY="$HOME/.Xauthority" ` : '';
-  const flags = browserFlags(dir, { port, headless, display }).join(' ');
+  if (xauthority !== undefined && !/^\/[\w./+-]+$/.test(xauthority)) {
+    throw new Error(`Xauthority file "${xauthority}" is not an absolute path`);
+  }
+  // The board user's own file unless told otherwise: the board's `$HOME` is the board's.
+  const auth = xauthority === undefined ? '"$HOME/.Xauthority"' : `'${xauthority}'`;
+  const env = display ? `DISPLAY=${display} XAUTHORITY=${auth} ` : '';
+  const flags = browserFlags(dir, { headless, display }).join(' ');
   return `set -e
 dir='${dir}'
 mkdir -m 700 "$dir"
@@ -130,6 +135,25 @@ export function parseStopReport(text) {
   };
 }
 
+/** The script that prints the port the browser chose (nothing yet, if it has not written it). */
+export function readPortScript(dir, parents = DEFAULT_PARENTS) {
+  assertRemoteDir(dir, parents);
+  return `cat '${dir}/profile/DevToolsActivePort' 2>/dev/null || true\n`;
+}
+
+/** The port on the first line of Chromium's `DevToolsActivePort`, or null while it is not there. */
+export function parseDevToolsPort(text) {
+  const first = text.split('\n')[0].trim();
+  const port = /^\d+$/.test(first) ? Number(first) : 0;
+  return port >= 1024 && port <= 65535 ? port : null;
+}
+
+/** The browser's pid from the launch script's `pid N` line, or null. */
+export function launchedPid(text) {
+  const match = /^pid (\d+)$/m.exec(text);
+  return match ? Number(match[1]) : null;
+}
+
 /** A free local port, never a dev server's. */
 function freePort() {
   return new Promise((resolve, reject) => {
@@ -147,6 +171,12 @@ function freePort() {
  * given, is a local port the board's browser reaches through a reverse tunnel on `servePort`.
  * Resolves with the DevTools endpoint on this machine, the address the board's browser loads the
  * bench from (when served from here) and `stop()`, which is safe to call twice.
+ *
+ * The stop is pushed on `cleanups` before anything is launched, so a signal at any point after
+ * that (the browser may take 30 s to answer) still removes the browser and its directory; a stop
+ * that arrives while the launch is in flight waits for it, and ends the start. `stop()` rejects,
+ * after saying what is left and how to remove it by hand, where the board is not clean.
+ * `io` swaps the ssh, tunnel and DevTools calls for the specs.
  */
 export async function startRemote({
   ssh,
@@ -155,46 +185,100 @@ export async function startRemote({
   headless,
   serverPort,
   log = () => undefined,
+  cleanups = [],
+  devtoolsMs = DEVTOOLS_MS,
+  io = {},
 }) {
+  const run = io.sshRun ?? sshRun;
+  const start = io.spawn ?? spawn;
+  const get = io.fetch ?? fetch;
+  const pickPort = io.freePort ?? freePort;
+  const wait = io.sleep ?? sleep;
   const dir = remoteDirFor(runId);
-  const options = {
-    port: remote.debugPort,
-    chromium: remote.chromium,
-    headless,
-    display: remote.display,
-  };
-  const launched = await sshRun(ssh, launchScript(dir, options));
-  if (launched.code !== 0) {
-    throw new Error(
-      `could not start the browser on ${ssh}: ${launched.stderr.trim() || launched.stdout.trim()}`,
-    );
-  }
-  log(`board: browser started (${launched.stdout.trim()}), profile in ${dir}`);
 
+  let launching = null;
+  let pid = null;
   let tunnel = null;
   let stopped = null;
-  const stop = async () => {
+  let stopRequested = false;
+  const manualCleanup = () => `ssh ${ssh} '${pid ? `kill -TERM -- -${pid}; ` : ''}rm -rf ${dir}'`;
+  const stop = () => {
+    stopRequested = true;
     stopped ??= (async () => {
       if (tunnel && tunnel.exitCode === null) tunnel.kill('SIGTERM');
-      const result = await sshRun(ssh, stopScript(dir));
-      const report = parseStopReport(result.stdout);
+      // The launch may still be on its way: stopping ahead of it would leave its browser behind.
+      if (launching) await launching.catch(() => undefined);
+      let report;
+      try {
+        report = parseStopReport((await run(ssh, stopScript(dir))).stdout);
+      } catch (error) {
+        log(`board: could not stop the browser: ${error.message}`);
+        log(
+          `board: ${dir}${pid ? ` and the browser (pid ${pid})` : ''} may be left; remove by hand: ${manualCleanup()}`,
+        );
+        throw new Error(`the board was not cleaned up (${dir}): ${error.message}`);
+      }
       log(
         `board: browser ${report.stopped ? 'stopped' : 'not stopped'}, ` +
           `files ${report.removed ? 'removed' : 'NOT removed'}, ${report.leftover} processes left` +
           (report.notes.length ? ` (${report.notes.join('; ')})` : ''),
       );
+      if (!report.removed || report.leftover > 0) {
+        log(
+          `board: ${dir}${pid ? ` and the browser (pid ${pid})` : ''} are left; remove by hand: ${manualCleanup()}`,
+        );
+        throw new Error(`the board was not cleaned up (${dir}): ${manualCleanup()}`);
+      }
       return report;
     })();
     return stopped;
   };
+  cleanups.push(stop);
+
+  const aborted = () => {
+    if (stopRequested) throw new Error('stopped before the board’s browser was ready');
+  };
 
   try {
-    const local = await freePort();
-    const forwards = ['-L', `127.0.0.1:${local}:127.0.0.1:${remote.debugPort}`];
+    launching = run(
+      ssh,
+      launchScript(dir, {
+        chromium: remote.chromium,
+        headless,
+        display: remote.display,
+        xauthority: remote.xauthority,
+      }),
+    );
+    const launched = await launching;
+    pid = launchedPid(launched.stdout);
+    if (launched.code !== 0) {
+      throw new Error(
+        `could not start the browser on ${ssh}: ${launched.stderr.trim() || launched.stdout.trim()}`,
+      );
+    }
+    aborted();
+    log(`board: browser started (${launched.stdout.trim()}), profile in ${dir}`);
+
+    // The browser says which port it took, in its profile.
+    const began = Date.now();
+    let debugPort = null;
+    while (debugPort === null) {
+      aborted();
+      debugPort = parseDevToolsPort((await run(ssh, readPortScript(dir))).stdout);
+      if (debugPort !== null) break;
+      if (Date.now() - began >= devtoolsMs) {
+        throw new Error(`the board’s browser did not open DevTools in ${devtoolsMs / 1000} s`);
+      }
+      await wait(250);
+    }
+    aborted();
+
+    const local = await pickPort();
+    const forwards = ['-L', `127.0.0.1:${local}:127.0.0.1:${debugPort}`];
     if (serverPort !== undefined) {
       forwards.push('-R', `127.0.0.1:${remote.servePort}:127.0.0.1:${serverPort}`);
     }
-    tunnel = spawn(
+    tunnel = start(
       'ssh',
       [...sshArgs(ssh, ['-N', '-o', 'ExitOnForwardFailure=yes', ...forwards])],
       {
@@ -204,11 +288,12 @@ export async function startRemote({
     let tunnelError = '';
     tunnel.stderr.on('data', (chunk) => (tunnelError += chunk));
     const endpoint = `http://127.0.0.1:${local}`;
-    for (let waited = 0; ; waited += 250) {
+    for (;;) {
+      aborted();
       if (tunnel.exitCode !== null)
         throw new Error(`the tunnel to ${ssh} ended: ${tunnelError.trim()}`);
       try {
-        const response = await fetch(`${endpoint}/json/version`, {
+        const response = await get(`${endpoint}/json/version`, {
           signal: AbortSignal.timeout(2000),
         });
         if (response.ok) {
@@ -219,8 +304,10 @@ export async function startRemote({
       } catch {
         // Not up yet.
       }
-      if (waited >= 30_000) throw new Error('the board’s browser did not answer in 30 s');
-      await sleep(250);
+      if (Date.now() - began >= devtoolsMs) {
+        throw new Error(`the board’s browser did not answer in ${devtoolsMs / 1000} s`);
+      }
+      await wait(250);
     }
     return {
       endpoint,
@@ -228,7 +315,8 @@ export async function startRemote({
       stop,
     };
   } catch (error) {
-    await stop();
+    // The cleanup list has the stop too: a failed stop is reported there, not in place of this.
+    await stop().catch(() => undefined);
     throw error;
   }
 }

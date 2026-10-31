@@ -4,6 +4,7 @@
 // signal too.
 import { parseArgs, USAGE, UsageError } from './args.mjs';
 import { runCampaign } from './campaign.mjs';
+import { runCleanups } from './cleanup.mjs';
 
 const log = (line) => console.error(`[bench ${new Date().toISOString().slice(11, 19)}] ${line}`);
 
@@ -22,17 +23,10 @@ if (options.help) {
 
 const cleanups = [];
 let cleaned = null;
+let cleanupFailures = 0;
 const cleanup = () => {
-  cleaned ??= (async () => {
-    // Last started, first stopped: the browser before the board's tunnel and the server.
-    for (const undo of cleanups.splice(0).reverse()) {
-      try {
-        await undo();
-      } catch (error) {
-        log(`cleanup failed: ${error.message}`);
-      }
-    }
-  })();
+  // Last started, first stopped: the browser before the board's tunnel and the server.
+  cleaned ??= runCleanups(cleanups, log).then((failed) => (cleanupFailures += failed));
   return cleaned;
 };
 for (const signal of ['SIGINT', 'SIGTERM']) {
@@ -59,4 +53,6 @@ try {
 } finally {
   await cleanup();
 }
+// A board left unclean is a failed run, whatever the measurements said.
+if (cleanupFailures > 0 && code === 0) code = 1;
 process.exit(code);
