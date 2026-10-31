@@ -258,6 +258,7 @@ describe('compileRun', () => {
     end: 'cap',
     refineSkipped: null,
     driverWarnings: [],
+    build: 'production',
     ...over,
   });
 
@@ -291,6 +292,15 @@ describe('compileRun', () => {
     expect(run.measurement.refresh).toEqual({ measuredMs: 16.7, hz: 60, intervalMs: 1000 / 60 });
     expect(run.notComparable).toBe(NOT_COMPARABLE);
     expect(run.warnings).toEqual([]);
+  });
+
+  it('records the build the page runs as, and warns of a development build', () => {
+    expect(compileRun(input()).bench.build).toBe('production');
+    expect(compileRun(input()).warnings).toEqual([]);
+
+    const dev = compileRun(input({ build: 'development' }));
+    expect(dev.bench.build).toBe('development');
+    expect(dev.warnings.join('\n')).toMatch(/development build.*not comparable|not.*production/i);
   });
 
   it('survives JSON, which is how it leaves the page', () => {

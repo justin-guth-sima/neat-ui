@@ -84,7 +84,7 @@ export interface BenchRun {
     readonly gitSha: string;
     readonly kitVersion: string;
     readonly vflowVersion: string;
-    readonly build: 'production';
+    readonly build: 'production' | 'development';
   };
   readonly machine: MachineInfo;
   readonly config: {
@@ -264,6 +264,8 @@ export interface CompileInput {
   readonly refineSkipped: RefineSkipped | null;
   /** What the driver noted: a view that did not come back. */
   readonly driverWarnings: readonly string[];
+  /** The page's own build (`isDevMode()`): the one thing about the build the page can tell. */
+  readonly build: BenchRun['bench']['build'];
 }
 
 /** The run's JSON: what the driver measured, with how it was measured and what to read it by. */
@@ -272,6 +274,13 @@ export function compileRun(input: CompileInput): BenchRun {
   const warnings: string[] = [];
   const snapped = refreshWarning(refresh);
   if (snapped) warnings.push(snapped);
+  if (input.build === 'development') {
+    warnings.push(
+      'This is a development build (Angular dev mode runs extra change-detection checks on both ' +
+        'renderers): its numbers are not comparable with a production build’s. Measure with ' +
+        '`ng build bench` or `ng serve bench -c production`.',
+    );
+  }
   if (loaf.source === 'none') {
     warnings.push('The browser offers no long-frame source: no phase has long-frame data.');
   }
@@ -301,7 +310,7 @@ export function compileRun(input: CompileInput): BenchRun {
       gitSha: 'unknown',
       kitVersion: 'unknown',
       vflowVersion: 'unknown',
-      build: 'production',
+      build: input.build,
     },
     machine: input.machine,
     config: {

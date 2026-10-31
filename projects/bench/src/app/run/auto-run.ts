@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, isDevMode, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MAX_DOTS } from '@bench/diagram-seam';
 import { type BenchHost, BenchHosts } from '../hosts/bench-host';
@@ -107,6 +107,7 @@ export async function runAuto(deps: AutoDeps): Promise<BenchRun> {
       end: climb.end,
       refineSkipped: climb.refineSkipped,
       driverWarnings: climb.warnings,
+      build: isDevMode() ? 'development' : 'production',
     });
   } finally {
     recorder.stop();

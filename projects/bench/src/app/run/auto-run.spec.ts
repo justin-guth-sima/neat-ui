@@ -117,6 +117,13 @@ describe('runAuto', () => {
     }
   });
 
+  it('says it ran as a development build, which is what the specs are, and warns of it', async () => {
+    const { all, frames } = deps();
+    const run = await drive(frames, runAuto(all));
+    expect(run.bench.build).toBe('development');
+    expect(run.warnings.join('\n')).toMatch(/development build/);
+  });
+
   it('has a result that is JSON as it stands', async () => {
     const { all, frames } = deps();
     const run = await drive(frames, runAuto(all));
