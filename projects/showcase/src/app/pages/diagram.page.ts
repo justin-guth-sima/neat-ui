@@ -42,8 +42,8 @@ const RESULT_EDGES = ['detector-tracker', 'nms-tracker', 'tracker-gateway', 'gat
 
 /**
  * The diagram entry: the reference sheet's three examples, each with its legend, and the
- * toolbar's Fit, which fits them all again and
- * the Animation panel for the messaging example's dots.
+ * toolbar's Fit, which fits them all again, and the Animation panel for the messaging example's
+ * dots.
  */
 @Component({
   selector: 'app-diagram-page',

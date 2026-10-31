@@ -137,8 +137,9 @@ and nothing else imports d3. ESLint (`@typescript-eslint/no-restricted-imports` 
 `d3` or `d3-*`; `tools/lint-boundaries.test.mjs` runs the real configs over sample code to prove it
 fires and that the entry-direction rules above still do. Why: d3 reaches an app's bundle only
 through the entry its lazy route imports, and the apps draw through the kit's components, never
-through d3. A page that imports `diagram` therefore loads `charts` too (and its two d3 packages):
-the rate card draws its history with `NeatSparkline`, imported by package name as any entry may.
+through d3. The diagram's rate card draws its history with `NeatSparkline`, imported from `charts`
+by package name as any entry may: in a production build only a page that uses the rate card carries
+`charts` and its two d3 packages (about 16 kB minified); an unoptimized build loads the whole entry.
 Licences: `d3-scale`, `d3-shape`, `d3-zoom` and `d3-selection` are ISC licensed runtime
 `dependencies` of the package, listed in `allowedNonPeerDependencies`; what `d3-zoom` brings with it
 is ISC too (`d3-dispatch`, `d3-drag`, `d3-interpolate`, `d3-timer`, `d3-transition`) but for
