@@ -336,6 +336,14 @@ the whole in the kit's look.
   only through an internal context token (the drawn level's edges, the covers, the focus, the
   transform and a hook for its changes), so a benchmark can provide it over another renderer, with
   an internal per-frame probe; neither is public.
+  **Feeding it:** call `push` straight from the transport's handler (a timer, a WebSocket
+  message, a poll's reply) per message, with no signal and no batching of your own: it is cheap,
+  safe outside the zone and safe to call from anywhere, and a push for an unknown edge or a level
+  not drawn only counts. Pass `atMs` to spread a batch that arrived together; call `stageMs`
+  whenever a stage's time changes. A burst (10 000 pushes in one tick, or what piles up while a
+  tab is hidden, when pushes only count) costs the cap's worth of dots, not the burst's; do not
+  sample or drop messages in the app to protect the page. The showcase's messaging example is the
+  reference feed, and its Burst button is the check.
 - What stays internal: the routing, the port layout, the notes' placement and measurement, the fit
   maths, the pan and zoom, the hover, the level path, and the messaging layer's models, canvas,
   context token and frame probe.

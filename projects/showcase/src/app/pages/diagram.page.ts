@@ -39,11 +39,13 @@ const RESULT_EVERY = 3;
 /** The edges each kind of message travels, on the overview and in the Detector's level. */
 const FRAME_EDGES = ['camera-decode', 'decode-detector', 'decode-resize'];
 const RESULT_EDGES = ['detector-tracker', 'nms-tracker', 'tracker-gateway', 'gateway-browser'];
+/** The Burst button's messages, in one tick: far past the dots' cap, to show the page holds. */
+const BURST_MESSAGES = 10_000;
 
 /**
  * The diagram entry: the reference sheet's three examples, each with its legend, and the
- * toolbar's Fit, which fits them all again, and the Animation panel for the messaging example's
- * dots.
+ * toolbar's Fit, which fits them all again, and the Animation panel and the Burst button for the
+ * messaging example's dots.
  */
 @Component({
   selector: 'app-diagram-page',
@@ -68,6 +70,7 @@ const RESULT_EDGES = ['detector-tracker', 'nms-tracker', 'tracker-gateway', 'gat
         <neat-icon name="fit-all" [size]="16" />
         Fit
       </button>
+      <button neatButton type="button" variant="text" size="small" (click)="burst()">Burst</button>
       <neat-diagram-animation-settings [(settings)]="dots" />
     </div>
     <neat-page>
@@ -98,7 +101,9 @@ const RESULT_EDGES = ['detector-tracker', 'nms-tracker', 'tracker-gateway', 'gat
               results at 10 Hz; inside the Detector, the dots wait out its stage times. The two
               notes are <code>neat-diagram-rate-card</code>s of an edge's <code>rate()</code>, and
               the toolbar's Animation panel (<code>neat-diagram-animation-settings</code>) tunes the
-              dots; this page keeps its choice with <code>neatStoredSignal</code>.
+              dots; this page keeps its choice with <code>neatStoredSignal</code>. Burst pushes
+              10 000 messages in one tick: the layer keeps its dot cap, and the rates count them
+              all.
             </p>
             <neat-diagram-legend [items]="pipelineLegend" />
             <neat-diagram class="diagram" [diagram]="pipeline" label="A messaging pipeline">
@@ -208,6 +213,15 @@ export class DiagramPage {
       }, FRAME_MS);
       destroyRef.onDestroy(() => clearInterval(feed));
     });
+  }
+
+  /** Pushes a burst of messages at once, as a tab returning from the background would. */
+  protected burst(): void {
+    const messages = this.messages();
+    const edges = [...FRAME_EDGES, ...RESULT_EDGES];
+    for (let i = 0; i < BURST_MESSAGES; i++) {
+      messages.push(edges[i % edges.length], 1_500 + Math.random() * 150_000);
+    }
   }
 
   protected fit(): void {

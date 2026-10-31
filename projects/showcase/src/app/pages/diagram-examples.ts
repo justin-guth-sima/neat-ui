@@ -153,10 +153,11 @@ export const PIPELINE: NeatDiagramSet = {
       { id: 'detector-tracker', from: 'detector', to: 'tracker', series: 4 },
     ],
     notes: [
-      // Above the frames, clear of the Camera's edge.
+      // Above the frames (they start at y 0; the card is about 85 high), clear of the Camera.
       { id: 'camera-rate', edges: ['camera-decode'], x: 215, y: -50 },
-      // Below the Tracker, so its leader runs clear of the card.
-      { id: 'tracker-rate', edges: ['tracker-gateway'], x: 330, y: 320 },
+      // A note's x and y are its centre: below the Modalix frame (which ends at y 360), so the card
+      // straddles no border, and its leader runs clear of it.
+      { id: 'tracker-rate', edges: ['tracker-gateway'], x: 330, y: 410 },
     ],
   },
   levels: { detector: neatDrillDownLevel(PIPELINE_STEPS, 'detector') },

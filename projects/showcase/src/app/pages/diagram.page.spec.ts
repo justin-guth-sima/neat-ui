@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { NeatDiagramView } from '@sima/neat-ui/diagram';
+import { NeatDiagramMessages, NeatDiagramView } from '@sima/neat-ui/diagram';
 import { App } from '../app';
 import { appConfig } from '../app.config';
 
@@ -97,6 +97,17 @@ describe('the diagram page', () => {
     trigger!.click();
     await fixture.whenStable();
     expect(document.querySelector('[role="dialog"][aria-label="Animation"]')).not.toBeNull();
+  });
+
+  it('pushes ten thousand messages in one tick from the toolbar’s Burst', () => {
+    const push = vi.spyOn(NeatDiagramMessages.prototype, 'push');
+    const button = Array.from(root().querySelectorAll<HTMLButtonElement>('header button')).find(
+      (b) => b.textContent?.trim() === 'Burst',
+    ) as HTMLButtonElement;
+    expect(button).toBeDefined();
+    push.mockClear();
+    button.click();
+    expect(push.mock.calls.length).toBeGreaterThanOrEqual(10_000);
   });
 
   it('shows a ghost and a muted block and a note in the compile flow', () => {
