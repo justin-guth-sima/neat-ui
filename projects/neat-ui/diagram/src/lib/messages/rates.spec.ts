@@ -36,6 +36,29 @@ describe('EdgeRates', () => {
     expect(rates.history('never', 5000)).toEqual([]);
   });
 
+  it('starts an edge with a small ring and doubles it on demand, up to its capacity', () => {
+    const rates = new EdgeRates(100);
+    expect(rates.ringLength('a')).toBe(0);
+    rates.count('a', 1, 0);
+    expect(rates.ringLength('a')).toBe(32);
+    for (let i = 1; i < 33; i++) rates.count('a', 1, i);
+    expect(rates.ringLength('a')).toBe(64);
+    // Every message is still there after the ring grew.
+    expect(rates.snapshot('a', 100).msgsPerSec).toBe(33);
+    for (let i = 33; i < 300; i++) rates.count('a', 2, i);
+    expect(rates.ringLength('a')).toBe(100);
+    // Full at its capacity: the latest 100, all of 2 bytes.
+    expect(rates.snapshot('a', 300)).toEqual({ msgsPerSec: 100, bytesPerSec: 200 });
+  });
+
+  it('does not count a message without a finite time', () => {
+    const rates = new EdgeRates();
+    rates.count('a', 5, NaN);
+    rates.count('a', 5, Infinity);
+    expect(rates.ringLength('a')).toBe(0);
+    expect(rates.history('a', 5000)).toEqual([]);
+  });
+
   it('writes a snapshot into the object it is given', () => {
     const rates = new EdgeRates();
     rates.count('a', 5, 0);

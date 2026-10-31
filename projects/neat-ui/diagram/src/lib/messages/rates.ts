@@ -19,6 +19,12 @@ export const HISTORY_SECONDS = 60;
  */
 const BUCKETS = 256;
 
+/**
+ * How many messages a new edge's ring holds at first. The ring doubles while it is full, up to the
+ * capacity, so a rare or idle id costs a few kB (mostly its history buckets), not a full ring.
+ */
+const FIRST_RING = 32;
+
 /** An edge's rate over the last second. */
 export interface EdgeRate {
   msgsPerSec: number;
@@ -29,7 +35,7 @@ const NO_HISTORY: readonly number[] = Object.freeze([]);
 
 /** What is kept of one edge. */
 interface Track {
-  /** The ring of its latest messages: when each starts and its bytes. */
+  /** The ring of its latest messages: when each starts and its bytes (as long as each other). */
   at: Float64Array;
   bytes: Float64Array;
   next: number;
@@ -54,6 +60,8 @@ interface Track {
  * travel ahead (24 s at 4 s travel), so a step at 72 msg/s holds 72 · 25 ≈ 1800; 4096 keeps every
  * edge of the demo exact.
  *
+ * A message whose time is not a finite number is not counted: no window or second holds it.
+ *
  * Any id counts, an edge on no level drawn as much as one on screen: the rates are the app's
  * numbers, and a card on another level should read right the moment it opens.
  */
@@ -64,11 +72,13 @@ export class EdgeRates {
 
   /** A message of `bytes` on `edge` that starts at `atMs`. */
   count(edge: string, bytes: number, atMs: number): void {
+    if (!Number.isFinite(atMs)) return;
     const track = this.tracks.get(edge) ?? this.track(edge);
+    if (track.size === track.at.length && track.size < this.capacity) grow(track, this.capacity);
     track.at[track.next] = atMs;
     track.bytes[track.next] = bytes;
-    track.next = (track.next + 1) % this.capacity;
-    track.size = Math.min(track.size + 1, this.capacity);
+    track.next = (track.next + 1) % track.at.length;
+    track.size = Math.min(track.size + 1, track.at.length);
 
     const second = Math.floor(atMs / 1000);
     const bucket = bucketOf(second);
@@ -132,14 +142,19 @@ export class EdgeRates {
     return values;
   }
 
+  /** How many messages `edge`'s ring holds now (0 for an edge never counted): for the specs. */
+  ringLength(edge: string): number {
+    return this.tracks.get(edge)?.at.length ?? 0;
+  }
+
   clear(): void {
     this.tracks.clear();
   }
 
   private track(edge: string): Track {
     const track: Track = {
-      at: new Float64Array(this.capacity),
-      bytes: new Float64Array(this.capacity),
+      at: new Float64Array(Math.min(FIRST_RING, this.capacity)),
+      bytes: new Float64Array(Math.min(FIRST_RING, this.capacity)),
       next: 0,
       size: 0,
       counts: new Float64Array(BUCKETS),
@@ -151,6 +166,21 @@ export class EdgeRates {
     this.tracks.set(edge, track);
     return track;
   }
+}
+
+/**
+ * A full ring doubled, at most to `capacity`. Full and below capacity means it has just wrapped
+ * (`next` is 0), so its messages keep their places and the next goes after them.
+ */
+function grow(track: Track, capacity: number): void {
+  const length = Math.min(2 * track.at.length, capacity);
+  const at = new Float64Array(length);
+  const bytes = new Float64Array(length);
+  at.set(track.at);
+  bytes.set(track.bytes);
+  track.next = track.at.length;
+  track.at = at;
+  track.bytes = bytes;
 }
 
 /** The bucket of a second, negative seconds included. */

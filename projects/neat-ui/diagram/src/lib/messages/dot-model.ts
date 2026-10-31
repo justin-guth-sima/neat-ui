@@ -43,7 +43,10 @@ export interface Dot {
   t: number;
   /** Its radius in diagram units. */
   r: number;
-  /** The caller's colour, passed on to the step dots it starts. */
+  /**
+   * The caller's colour, passed on to the step dots it starts: a whole number from 0 to 255, since
+   * the pool keeps it in a byte (the layer's series 1 to 8 fit).
+   */
   colour: number;
 }
 
@@ -128,9 +131,11 @@ export class DotModel {
   }
 
   /**
-   * A message on `edge` that starts at `atMs`. With `visible` false (a message that gets no dot,
-   * see `DotEvery`) it is placed all the same, with its step dots, so the listener counts it, but
-   * `advance` does not return it.
+   * A message on `edge` that starts at `atMs`. A message whose time is not a finite number gets
+   * no dot and is not told to the listener: it could never arrive, so it would hold a slot until
+   * the pool dropped it, and no rate window holds it. With `visible` false (a message that gets
+   * no dot, see `DotEvery`) it is placed all the same, with its step dots, so the listener counts
+   * it, but `advance` does not return it.
    */
   spawn(edge: string, atMs: number, bytes: number, colour = 0, visible = true): void {
     this.place(edge, atMs, dotRadius(bytes), colour, bytes, 0, visible);
@@ -143,13 +148,16 @@ export class DotModel {
    */
   advance(nowMs: number): readonly Dot[] {
     const frame = this.frame;
-    frame.length = 0;
+    // Writing by index and trimming once at the end, not `length = 0` and `push`: emptying an
+    // array drops its backing store in V8, so every frame would grow it again.
+    let n = 0;
     // One pass: the dots still to come move down over the arrived ones, keeping their order.
     let kept = 0;
     for (let k = 0; k < this.count; k++) {
       const i = this.slot(k);
       const t = (nowMs - this.starts[i]) / this.travelOf(this.edges[i]);
-      if (t >= 1) continue;
+      // Arrived, or never will (a travel time that is not a number): either way, forgotten.
+      if (!(t < 1)) continue;
       const to = this.slot(kept);
       if (to !== i) {
         this.edges[to] = this.edges[i];
@@ -159,16 +167,17 @@ export class DotModel {
         this.shown[to] = this.shown[i];
       }
       if (t >= 0 && this.shown[to]) {
-        const dot = this.dotAt(frame.length);
+        const dot = this.dotAt(n);
         dot.edge = this.edges[to];
         dot.t = t;
         dot.r = this.radii[to];
         dot.colour = this.colours[to];
-        frame.push(dot);
+        frame[n++] = dot;
       }
       kept++;
     }
     this.count = kept;
+    if (frame.length !== n) frame.length = n;
     return frame;
   }
 
@@ -202,6 +211,8 @@ export class DotModel {
     depth: number,
     visible: boolean,
   ): void {
+    // A step's start is its input's plus times (travel, stage) that could be non-finite too.
+    if (!Number.isFinite(atMs)) return;
     if (this.count === this.capacity) {
       this.head = this.slot(1);
       this.count--;
@@ -280,12 +291,15 @@ export const BATCH_SPREAD_MS = 200;
 /**
  * The start times of a batch's messages: the batch's arrival (`arrivalMs`) for its earliest
  * message, and the others after it as far apart as their own times (`offsetsMs`, on any clock in
- * ms) say, at most `BATCH_SPREAD_MS`.
+ * ms) say, at most `BATCH_SPREAD_MS`. A message without a finite time of its own starts at the
+ * arrival.
  */
 export function batchTimes(offsetsMs: readonly number[], arrivalMs: number): number[] {
   let first = Infinity;
   for (const ms of offsetsMs) if (ms < first) first = ms;
-  return offsetsMs.map((ms) => arrivalMs + Math.min(BATCH_SPREAD_MS, ms - first));
+  return offsetsMs.map((ms) =>
+    Number.isFinite(ms) ? arrivalMs + Math.min(BATCH_SPREAD_MS, ms - first) : arrivalMs,
+  );
 }
 
 /**

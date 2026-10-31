@@ -133,6 +133,40 @@ describe('DotModel', () => {
     expect(again).toBe(first);
   });
 
+  it('returns the same array every frame, as long as the dots on their way', () => {
+    const model = new DotModel();
+    model.spawn('a', 0, 1);
+    model.spawn('b', 0, 1);
+    model.spawn('c', 600, 1);
+    const frame = model.advance(700);
+    expect(frame.map((d) => d.edge)).toEqual(['a', 'b', 'c']);
+    expect(model.advance(1300)).toBe(frame);
+    expect(frame.map((d) => d.edge)).toEqual(['c']);
+    model.spawn('d', 1300, 1);
+    expect(model.advance(1400)).toBe(frame);
+    expect(frame.map((d) => d.edge)).toEqual(['c', 'd']);
+    expect(model.advance(5000)).toBe(frame);
+    expect(frame).toHaveLength(0);
+  });
+
+  it('gives a message without a finite time no dot, no step dots and no listener call', () => {
+    const told: string[] = [];
+    const model = new DotModel(4, (edge) => told.push(edge));
+    model.setChain(new Map([['in', ['s']]]), () => 0);
+    model.spawn('a', 0, 1);
+    for (const at of [NaN, Infinity, -Infinity]) model.spawn('in', at, 1);
+    expect(model.size).toBe(1);
+    expect(told).toEqual(['a']);
+    // A step whose travel is not finite starts no dot after it either.
+    model.setTravel(new Map([['in', NaN]]));
+    model.spawn('in', 0, 1);
+    expect(told).toEqual(['a', 'in']);
+    expect(model.size).toBe(2);
+    // And that dot, which could never arrive, is forgotten at once rather than kept.
+    expect(model.advance(0).map((d) => d.edge)).toEqual(['a']);
+    expect(model.size).toBe(1);
+  });
+
   it('tells each spawn, step dots included, to its listener', () => {
     const seen: [string, number, number][] = [];
     const model = new DotModel(16, (edge, atMs, bytes) => seen.push([edge, atMs, bytes]));
@@ -208,6 +242,11 @@ describe('batchTimes', () => {
   it('keeps a stalled batch within its window', () => {
     expect(BATCH_SPREAD_MS).toBe(200);
     expect(batchTimes([0, 5000], 0)).toEqual([0, 200]);
+  });
+
+  it('starts a message without a finite time of its own at the arrival', () => {
+    expect(batchTimes([1000, NaN, 1050], 500)).toEqual([500, 500, 550]);
+    expect(batchTimes([NaN, Infinity], 500)).toEqual([500, 500]);
   });
 
   it('gives an empty batch no times', () => {
