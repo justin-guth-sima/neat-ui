@@ -1,0 +1,28 @@
+/* The trigger takes part in the surrounding toolbar's row, as `neat-popover`'s does. */
+:host {
+  display: contents;
+}
+
+/* The panel's content: a slider under each name and value, then the switch and the reset. */
+.tuning {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  font-size: var(--neat-text-sm);
+}
+
+.heading {
+  font-weight: var(--font-weight-semibold);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--neat-space-2);
+  color: var(--muted-foreground);
+}
+
+.value {
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}

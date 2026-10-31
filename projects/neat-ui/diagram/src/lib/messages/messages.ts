@@ -47,7 +47,7 @@ export interface NeatDiagramMessageSettings {
 }
 
 /** The demo's settings: its median overview edge takes about 1.2 s at this speed. */
-export const MESSAGE_DEFAULTS: NeatDiagramMessageSettings = Object.freeze({
+export const NEAT_DIAGRAM_MESSAGE_DEFAULTS: NeatDiagramMessageSettings = Object.freeze({
   speed: 270,
   size: 1,
   every: 1,
@@ -139,7 +139,7 @@ export class NeatDiagramMessages {
   readonly passive = input<readonly string[]>([]);
   /** A series (1 to 8) per edge id for its dots, in place of the edge's own colour. */
   readonly colours = input<Readonly<Record<string, number>>>({});
-  readonly settings = input<NeatDiagramMessageSettings>(MESSAGE_DEFAULTS);
+  readonly settings = input<NeatDiagramMessageSettings>(NEAT_DIAGRAM_MESSAGE_DEFAULTS);
 
   private readonly diagram = inject(DIAGRAM_MESSAGES_CONTEXT);
   private readonly probe = inject(DOT_FRAME_PROBE, { optional: true });

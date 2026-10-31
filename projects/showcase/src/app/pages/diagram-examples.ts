@@ -152,8 +152,12 @@ export const PIPELINE: NeatDiagramSet = {
       { id: 'decode-detector', from: 'decode', to: 'detector', series: 1 },
       { id: 'detector-tracker', from: 'detector', to: 'tracker', series: 4 },
     ],
-    // Below the Tracker, so its leader runs clear of the card.
-    notes: [{ id: 'tracker-rate', edges: ['tracker-gateway'], x: 330, y: 320 }],
+    notes: [
+      // Above the frames, clear of the Camera's edge.
+      { id: 'camera-rate', edges: ['camera-decode'], x: 215, y: -50 },
+      // Below the Tracker, so its leader runs clear of the card.
+      { id: 'tracker-rate', edges: ['tracker-gateway'], x: 330, y: 320 },
+    ],
   },
   levels: { detector: neatDrillDownLevel(PIPELINE_STEPS, 'detector') },
 };

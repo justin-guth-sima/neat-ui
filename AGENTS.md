@@ -83,7 +83,9 @@ look happens in one place. Every rule here protects that.
     primary's `NeatSeriesSwatch` again; with `diagram`, the only code that imports d3), `diagram`
     (hand-placed diagrams: their model, `NeatDiagramView` (`neat-diagram`) with its templates,
     `NeatDiagramLegend` (`neat-diagram-legend`), `NeatDiagramMessages` (`neat-diagram-messages`)
-    and `neatDrillDownLevel`; how it draws is under "How the diagram is drawn" below),
+    with its `NeatDiagramRateCard` (`neat-diagram-rate-card`) and `NeatDiagramAnimationSettings`
+    (`neat-diagram-animation-settings`), and `neatDrillDownLevel`; how it draws is under "How the
+    diagram is drawn" below),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
@@ -135,7 +137,9 @@ and nothing else imports d3. ESLint (`@typescript-eslint/no-restricted-imports` 
 `d3` or `d3-*`; `tools/lint-boundaries.test.mjs` runs the real configs over sample code to prove it
 fires and that the entry-direction rules above still do. Why: d3 reaches an app's bundle only
 through the entry its lazy route imports, and the apps draw through the kit's components, never
-through d3. Licences: `d3-scale`, `d3-shape`, `d3-zoom` and `d3-selection` are ISC licensed runtime
+through d3. A page that imports `diagram` therefore loads `charts` too (and its two d3 packages):
+the rate card draws its history with `NeatSparkline`, imported by package name as any entry may.
+Licences: `d3-scale`, `d3-shape`, `d3-zoom` and `d3-selection` are ISC licensed runtime
 `dependencies` of the package, listed in `allowedNonPeerDependencies`; what `d3-zoom` brings with it
 is ISC too (`d3-dispatch`, `d3-drag`, `d3-interpolate`, `d3-timer`, `d3-transition`) but for
 `d3-ease`, which is BSD-3-Clause. A new d3 package is a new dependency: check its licence and its
@@ -318,9 +322,19 @@ the whole in the kit's look.
   dropped, frames only while a dot moves and never while the page is hidden. Dots go behind the
   blocks and notes, fade with the hover (`--diagram-dim`), scale with the zoom and recolour with
   the scheme (`neatThemeColors`); under reduced motion each message is a brief mark at its edge's
-  end. The layer reaches the diagram only through an internal context token (the drawn level's
-  edges, the covers, the focus, the transform and a hook for its changes), so a benchmark can
-  provide it over another renderer, with an internal per-frame probe; neither is public.
+  end. `neat-diagram-rate-card` (`label`, `rate` the signal's value, `stageMs?`, a
+  `[neatRateCardThumbnails]` slot the app lays out) is the demo's card for a note's content: the
+  label, whole msg/s, MB/s in hundredths from units of 10 kB, and a `NeatSparkline` of the history,
+  or a step's stage time in ms to a tenth in place of the MB/s and the sparkline; it draws no box,
+  the note does. `neat-diagram-animation-settings` is the demo's Animation popover (an icon button,
+  `neat-popover` with `neat-slider`s for speed 50 to 1000, dot size 0.5 to 2 and messages per dot 1
+  to 10, a switch for the steps, a reset) over a two-way `settings` model; it keeps nothing. An app
+  that remembers the choice per browser makes the model a `neatStoredSignal` with
+  `NEAT_DIAGRAM_MESSAGE_DEFAULTS` as its initial value and `neatDiagramMessageSettings` (clamps,
+  rounds and defaults what an older version stored) as its parse. The layer reaches the diagram
+  only through an internal context token (the drawn level's edges, the covers, the focus, the
+  transform and a hook for its changes), so a benchmark can provide it over another renderer, with
+  an internal per-frame probe; neither is public.
 - What stays internal: the routing, the port layout, the notes' placement and measurement, the fit
   maths, the pan and zoom, the hover, the level path, and the messaging layer's models, canvas,
   context token and frame probe.

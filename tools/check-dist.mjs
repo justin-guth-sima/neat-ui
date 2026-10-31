@@ -31,6 +31,9 @@ export const SECONDARY_ENTRIES = {
   diagram: [
     'neat-diagram',
     'neat-diagram-legend',
+    'neat-diagram-messages',
+    'neat-diagram-rate-card',
+    'neat-diagram-animation-settings',
     'ng-template[neatDiagramBlock]',
     'ng-template[neatDiagramEdgeTip]',
     'ng-template[neatDiagramNote]',

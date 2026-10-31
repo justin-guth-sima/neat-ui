@@ -1,14 +1,18 @@
 import * as diagram from './public-api';
 
 describe('the diagram entry', () => {
-  it('exports the diagram, its templates, legend and messages, and the drill-down helper', () => {
+  it('exports the diagram, its templates, legend, messages, rate card and animation panel', () => {
     expect(Object.keys(diagram).sort()).toEqual([
+      'NEAT_DIAGRAM_MESSAGE_DEFAULTS',
+      'NeatDiagramAnimationSettings',
       'NeatDiagramBlockTemplate',
       'NeatDiagramEdgeTipTemplate',
       'NeatDiagramLegend',
       'NeatDiagramMessages',
       'NeatDiagramNoteTemplate',
+      'NeatDiagramRateCard',
       'NeatDiagramView',
+      'neatDiagramMessageSettings',
       'neatDrillDownLevel',
     ]);
   });

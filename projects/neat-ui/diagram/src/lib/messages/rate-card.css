@@ -1,0 +1,42 @@
+/*
+ * The card's content only: the note it stands in draws the box (border, fill, padding, shadow) and
+ * its type size. The width is the demo's card; a step's stage line needs its own width.
+ */
+:host {
+  box-sizing: border-box;
+  width: 11.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--neat-space-2) / 2);
+}
+
+:host(.timed) {
+  width: max-content;
+  min-width: 8.5rem;
+}
+
+.label {
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.numbers {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--neat-space-2);
+  color: var(--muted-foreground);
+}
+
+.value {
+  color: var(--foreground);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.stage {
+  white-space: nowrap;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}

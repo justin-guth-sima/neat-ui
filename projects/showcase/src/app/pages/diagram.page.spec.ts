@@ -40,6 +40,7 @@ describe('the diagram page', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
+    document.querySelectorAll('.cdk-overlay-container').forEach((container) => container.remove());
   });
 
   it('draws the reference sheet’s three examples, each with its legend', () => {
@@ -75,9 +76,27 @@ describe('the diagram page', () => {
   it('moves the pipeline’s messages, its note reading an edge’s rate', () => {
     const pipeline = figure('A messaging pipeline');
     expect(pipeline.querySelector('neat-diagram-messages canvas')).not.toBeNull();
-    expect(pipeline.querySelector('[data-note="tracker-rate"]')?.textContent).toMatch(
-      /Tracker → Gateway\s*[\d.]+ msg\/s · [\d,]+ kB\/s/,
+    for (const [note, label] of [
+      ['tracker-rate', 'Tracker → Gateway'],
+      ['camera-rate', 'Camera → Decode'],
+    ]) {
+      const card = pipeline.querySelector(`[data-note="${note}"] neat-diagram-rate-card`);
+      expect(card?.querySelector('.label')?.textContent, note).toBe(label);
+      expect(card?.querySelector('.numbers')?.textContent, note).toMatch(
+        /\d+ msg\/s\s*[\d.]+ MB\/s/,
+      );
+      expect(card?.querySelector('neat-sparkline'), note).not.toBeNull();
+    }
+  });
+
+  it('tunes the pipeline’s dots from the toolbar’s Animation panel', async () => {
+    const trigger = root().querySelector<HTMLButtonElement>(
+      'header button[aria-label="Animation"]',
     );
+    expect(trigger).not.toBeNull();
+    trigger!.click();
+    await fixture.whenStable();
+    expect(document.querySelector('[role="dialog"][aria-label="Animation"]')).not.toBeNull();
   });
 
   it('shows a ghost and a muted block and a note in the compile flow', () => {
