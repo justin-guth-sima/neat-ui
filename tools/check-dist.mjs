@@ -3,7 +3,8 @@
 // the alias as an external package, which no app can resolve), and `ng build neat-ui` alone leaves
 // out the compiled stylesheet that styles/neat-ui.css imports. It also cannot tell that the code of
 // a secondary entry point (video, switch, ...) leaked back into the primary, which would put it in
-// every page's bundle again. Run after `npm run build`.
+// every page's bundle again, or that something reached for one of the rendering bench's dev
+// dependencies, which no app installs. Run after `npm run build`.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -72,6 +73,15 @@ export const SECONDARY_ENTRIES = {
   toast: ['neat-toast-host'],
   video: ['neat-video-tile', 'neat-tile-grid', 'neat-roi-editor', 'neat-roi-swatch'],
 };
+/**
+ * The rendering bench's dev dependencies (AGENTS.md "The rendering bench"), which the lint rules
+ * keep under projects/bench/. A quoted specifier of one (an import, an export, a dynamic import, a
+ * manifest's dependency) anywhere in the package means it would reach apps that never install it.
+ * `playwright-core` is what `playwright` wraps.
+ */
+export const BENCH_ONLY = ['ngx-vflow', 'd3-drag', 'playwright', 'playwright-core', 'source-map'];
+const BENCH_SPECIFIER = new RegExp(`['"](${BENCH_ONLY.join('|')})(/[^'"]*)?['"]`, 'g');
+
 /** Packed tarballs are compressed; their contents are the files checked here. */
 const SKIPPED = /\.tgz$/;
 
@@ -116,7 +126,12 @@ export function findProblems(dist) {
   }
 
   for (const file of files(dist)) {
-    if (readFileSync(file, 'utf8').includes(ALIAS)) problems.push(`${file} references ${ALIAS}`);
+    const source = readFileSync(file, 'utf8');
+    if (source.includes(ALIAS)) problems.push(`${file} references ${ALIAS}`);
+    const benchOnly = new Set(Array.from(source.matchAll(BENCH_SPECIFIER), (match) => match[1]));
+    for (const name of benchOnly) {
+      problems.push(`${file} references ${name}, a bench-only dev dependency no app installs`);
+    }
   }
   return problems;
 }
@@ -128,6 +143,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(1);
   }
   console.log(
-    'dist/neat-ui: every entry point built, no secondary entry code in the primary, no helm alias imports, compiled stylesheet present.',
+    'dist/neat-ui: every entry point built, no secondary entry code in the primary, no helm alias or bench-only imports, compiled stylesheet present.',
   );
 }

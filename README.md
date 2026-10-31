@@ -11,6 +11,8 @@ kit's `neat-*` API and its prebuilt stylesheet; they need no Tailwind of their o
   main bundle carries only the entries its shell imports. AGENTS.md lists them.
 - `projects/showcase`: a gallery of every component in both themes. Look here before building
   something new.
+- `projects/bench`: the rendering bench, which measures how much diagram a machine draws smoothly
+  with the kit and with ngx-vflow. Never published.
 
 Contributors, human or agent: read [AGENTS.md](AGENTS.md) first.
 

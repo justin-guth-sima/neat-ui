@@ -61,6 +61,12 @@
     },
     {
       "path": "./projects/showcase/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/bench/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/bench/tsconfig.spec.json"
     }
   ]
 }

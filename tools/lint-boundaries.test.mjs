@@ -11,6 +11,7 @@ import { ESLint } from 'eslint';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const KIT_CONFIG = 'projects/neat-ui/eslint.config.js';
 const SHOWCASE_CONFIG = 'projects/showcase/eslint.config.js';
+const BENCH_CONFIG = 'projects/bench/eslint.config.js';
 
 const linters = new Map();
 /** The messages ESLint gives `code` as if it were the file at `filePath` (relative to the repo). */
@@ -116,4 +117,62 @@ test('the direction rules still fire beside the d3 rule, in the d3 entries too',
   const messages = await boundaryMessages(KIT_CONFIG, 'projects/neat-ui/src/lib/x.ts', intoEntry);
   assert.equal(messages.length, 1);
   assert.match(messages[0].message, /primary entry point/);
+});
+
+/** The bench's dev dependencies as its code and harness would import them. */
+const BENCH_ONLY = [
+  "import { Vflow } from 'ngx-vflow';\nexport const flow = Vflow;\n",
+  "import type { Node } from 'ngx-vflow';\nexport type N = Node;\n",
+  "import { chromium } from 'playwright';\nexport const browser = chromium;\n",
+  importOf('playwright-core'),
+  importOf('playwright/test'),
+  "import { SourceMapConsumer } from 'source-map';\nexport const maps = SourceMapConsumer;\n",
+  importOf('source-map/lib/util.js'),
+];
+const D3_DRAG = "import { drag } from 'd3-drag';\nexport const behaviour = drag;\n";
+
+test('the bench’s dev dependencies are importable under projects/bench/ only', async () => {
+  for (const [config, filePath] of [
+    [KIT_CONFIG, 'projects/neat-ui/src/lib/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/level-meter/src/lib/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/charts/src/lib/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/diagram/src/lib/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/diagram/src/lib/x.spec.ts'],
+    [SHOWCASE_CONFIG, 'projects/showcase/src/app/x.ts'],
+  ]) {
+    for (const code of BENCH_ONLY) {
+      const messages = await boundaryMessages(config, filePath, code);
+      assert.equal(messages.length, 1, `${filePath}: ${code}`);
+      assert.match(messages[0].message, /projects\/bench/, `${filePath}: ${code}`);
+    }
+    // d3-drag is d3, which the d3 rule already fails, once, outside the bench.
+    const messages = await boundaryMessages(config, filePath, D3_DRAG);
+    assert.equal(messages.length, 1, filePath);
+    assert.match(messages[0].message, /charts.*diagram/, filePath);
+  }
+  for (const filePath of ['projects/bench/src/app/x.ts', 'projects/bench/src/app/x.spec.ts']) {
+    for (const code of [...BENCH_ONLY, D3_DRAG]) {
+      assert.deepEqual(await boundaryMessages(BENCH_CONFIG, filePath, code), [], code);
+    }
+  }
+});
+
+test('the bench, like any app, imports no d3 but vflow’s d3-drag', async () => {
+  await expectD3Rule(
+    BENCH_CONFIG,
+    'projects/bench/src/app/x.ts',
+    [...CHARTS_D3, ...DIAGRAM_D3, ...OTHER_D3],
+    true,
+  );
+});
+
+test('a package that only starts with a bench-only name is not bench-only', async () => {
+  for (const specifier of ['source-map-js', 'ngx-vflowery', 'playwrights']) {
+    const messages = await boundaryMessages(
+      KIT_CONFIG,
+      'projects/neat-ui/src/lib/x.ts',
+      importOf(specifier),
+    );
+    assert.deepEqual(messages, [], specifier);
+  }
 });

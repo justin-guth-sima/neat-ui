@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, test } from 'node:test';
-import { findProblems, SECONDARY_ENTRIES } from './check-dist.mjs';
+import { BENCH_ONLY, findProblems, SECONDARY_ENTRIES } from './check-dist.mjs';
 
 const PRIMARY = 'fesm2022/sima-neat-ui.mjs';
 const SEGMENTED = 'fesm2022/sima-neat-ui-segmented.mjs';
@@ -105,6 +105,40 @@ test('check-dist fails when any file references the helm alias', () => {
   );
   assert.equal(problems.length, 1);
   assert.match(problems[0], /sima-neat-ui-segmented\.mjs references @neat-ui\/helm/);
+});
+
+test('check-dist fails when any file imports a bench-only package', () => {
+  assert.deepEqual(BENCH_ONLY, [
+    'ngx-vflow',
+    'd3-drag',
+    'playwright',
+    'playwright-core',
+    'source-map',
+  ]);
+  const imports = [
+    (name) => `import { x } from '${name}';\n`,
+    (name) => `export * from "${name}/sub/path.js";\n`,
+    (name) => `const x = await import('${name}');\n`,
+    (name) => `{ "dependencies": { "${name}": "^1.0.0" } }\n`,
+  ];
+  for (const name of BENCH_ONLY) {
+    for (const source of imports) {
+      const problems = findProblems(distWith({ ...SHIPPABLE, [SEGMENTED]: source(name) }));
+      assert.equal(problems.length, 1, source(name));
+      assert.match(problems[0], new RegExp(`sima-neat-ui-segmented\\.mjs references ${name},`));
+      assert.match(problems[0], /bench-only/);
+    }
+  }
+});
+
+test('check-dist leaves alone names that only start with a bench-only one', () => {
+  const source = [
+    "import { x } from 'source-map-js';",
+    "import { y } from 'd3-dragging';",
+    '//# sourceMappingURL=sima-neat-ui.mjs.map',
+    '// a source-map comment, not an import',
+  ].join('\n');
+  assert.deepEqual(findProblems(distWith({ ...SHIPPABLE, [SEGMENTED]: source })), []);
 });
 
 test('check-dist fails when the dist directory does not exist', () => {

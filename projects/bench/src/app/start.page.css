@@ -1,0 +1,4 @@
+main {
+  padding: var(--neat-space-6);
+  color: var(--foreground);
+}

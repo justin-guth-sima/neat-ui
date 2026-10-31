@@ -5,21 +5,29 @@ const tseslint = require('typescript-eslint');
 const angular = require('angular-eslint');
 
 /** Fails an import of d3 or a d3 package other than `allowed` (each by its exact name). */
-function d3Rule(allowed) {
+function d3Pattern(allowed) {
   const except = allowed.length ? `(?!(${allowed.join('|')})$)` : '';
-  return [
-    'error',
-    {
-      patterns: [
-        {
-          regex: `^${except}d3(-|/|$)`,
-          message:
-            'Only the charts entry (d3-scale, d3-shape) and the diagram entry (d3-zoom, d3-selection) import d3; draw through the components of @sima/neat-ui/charts and @sima/neat-ui/diagram.',
-        },
-      ],
-    },
-  ];
+  return {
+    regex: `^${except}d3(-|/|$)`,
+    message:
+      'Only the charts entry (d3-scale, d3-shape) and the diagram entry (d3-zoom, d3-selection) import d3; draw through the components of @sima/neat-ui/charts and @sima/neat-ui/diagram.',
+  };
 }
+
+/**
+ * The bench's own dev dependencies (AGENTS.md "The rendering bench"): ngx-vflow, the renderer it
+ * compares with, and Playwright and source-map, which its harness runs on. `playwright-core` is
+ * what `playwright` wraps, so importing it directly would step around the rule. `d3-drag` (vflow's
+ * peer) is bench-only too, but it is d3, which `d3Pattern` already fails outside the bench.
+ */
+const BENCH_ONLY = {
+  regex: '^(ngx-vflow|playwright(-core)?|source-map)(/|$)',
+  message:
+    "ngx-vflow, Playwright and source-map are the rendering bench's dev dependencies, importable only under projects/bench/; the kit and its apps never ship them.",
+};
+
+/** The import rule for files outside the bench: d3 but `allowed`, and nothing bench-only. */
+const kitImports = (allowed) => ['error', { patterns: [d3Pattern(allowed), BENCH_ONLY] }];
 
 module.exports = defineConfig([
   {
@@ -60,23 +68,31 @@ module.exports = defineConfig([
   // d3 belongs to two entries, each to its own packages (AGENTS.md "d3 belongs to two entries"):
   // `charts` to d3-scale and d3-shape, `diagram` to d3-zoom and d3-selection; every other part of
   // the kit, and every app that takes the kit's config, draws through those entries' components.
-  // It is the typescript-eslint rule, not core `no-restricted-imports`, on purpose: ESLint replaces
-  // a rule's options wholesale when a later block sets the same rule for a file, so these blocks
-  // would silently switch off the kit's entry-direction rules in
-  // `projects/neat-ui/eslint.config.js` (tools/lint-boundaries.test.mjs checks that both still
-  // fire). The three blocks match disjoint files for the same reason.
+  // The bench's dev dependencies are importable under projects/bench/ only, where d3-drag is the
+  // one d3 package allowed (vflow's peer). It is the typescript-eslint rule, not core
+  // `no-restricted-imports`, on purpose: ESLint replaces a rule's options wholesale when a later
+  // block sets the same rule for a file, so these blocks would silently switch off the kit's
+  // entry-direction rules in `projects/neat-ui/eslint.config.js` (tools/lint-boundaries.test.mjs
+  // checks that all of them still fire). The four blocks match disjoint files for the same reason,
+  // which is also why each states both boundaries in one rule.
   {
     files: ['**/*.ts'],
-    ignores: ['projects/neat-ui/charts/**', 'projects/neat-ui/diagram/**'],
-    rules: { '@typescript-eslint/no-restricted-imports': d3Rule([]) },
+    ignores: ['projects/neat-ui/charts/**', 'projects/neat-ui/diagram/**', 'projects/bench/**'],
+    rules: { '@typescript-eslint/no-restricted-imports': kitImports([]) },
   },
   {
     files: ['projects/neat-ui/charts/**/*.ts'],
-    rules: { '@typescript-eslint/no-restricted-imports': d3Rule(['d3-scale', 'd3-shape']) },
+    rules: { '@typescript-eslint/no-restricted-imports': kitImports(['d3-scale', 'd3-shape']) },
   },
   {
     files: ['projects/neat-ui/diagram/**/*.ts'],
-    rules: { '@typescript-eslint/no-restricted-imports': d3Rule(['d3-zoom', 'd3-selection']) },
+    rules: { '@typescript-eslint/no-restricted-imports': kitImports(['d3-zoom', 'd3-selection']) },
+  },
+  {
+    files: ['projects/bench/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': ['error', { patterns: [d3Pattern(['d3-drag'])] }],
+    },
   },
   {
     files: ['**/*.html'],

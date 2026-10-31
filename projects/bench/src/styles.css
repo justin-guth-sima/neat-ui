@@ -1,0 +1,17 @@
+/*
+ * The bench fills the window: a host's diagram takes the whole viewport (1920×1080 CSS px in a
+ * measured run), so no page chrome competes with it for the frame.
+ */
+html,
+body,
+bench-root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+bench-root {
+  display: block;
+}

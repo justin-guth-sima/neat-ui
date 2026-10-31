@@ -102,6 +102,8 @@ look happens in one place. Every rule here protects that.
     stylesheet's scan skips `video`, which styles itself with component CSS only: a Tailwind utility
     in video code needs that exclusion lifted in `neat-ui.tailwind.css`, with the reason there.
 - `projects/showcase`: the component gallery.
+- `projects/bench`: the rendering bench, an app that measures the diagram's drawing and is never
+  published (below).
 
 **The toast host is rendered by the app, once, beside the shell.** `<neat-toast-host />` goes next
 to `<neat-shell>` in the app's root template (as the showcase's `app.ts` does); `NeatToasts` shows
@@ -145,6 +147,22 @@ Licences: `d3-scale`, `d3-shape`, `d3-zoom` and `d3-selection` are ISC licensed 
 is ISC too (`d3-dispatch`, `d3-drag`, `d3-interpolate`, `d3-timer`, `d3-transition`) but for
 `d3-ease`, which is BSD-3-Clause. A new d3 package is a new dependency: check its licence and its
 own dependencies' before adding it here and to the rule.
+
+**The rendering bench (`projects/bench`) is measured, never published.** It finds how much diagram
+(blocks, edges, notes, moving dots) a machine draws smoothly, with the kit's renderer and with
+ngx-vflow under the same load, on a laptop and on the Modalix board (the design is insight-next's
+`docs/superpowers/specs/2026-10-31-bench-design.md`). Its dev dependencies sit in the root
+`package.json`, the workspace's one manifest, and never in `projects/neat-ui/package.json`, the
+published one. Licences, all bench-only: `ngx-vflow` MIT, `d3-drag` ISC (vflow's peer),
+`@types/d3-drag` MIT, `playwright` and the `playwright-core` it wraps Apache-2.0, `source-map`
+BSD-3-Clause. ESLint (`BENCH_ONLY` in the root `eslint.config.js`) fails an import of any of them
+outside `projects/bench/`, where `d3-drag` is the one d3 package allowed, and `npm run check:dist`
+fails a built package that names one. Why: apps install the kit, never the bench's tools.
+Its load comes from a seed, through integer-exact arithmetic only (`src/app/synth/`), so a seed
+puts the same diagram and the same messages on every machine; a spec pins each, and re-pinning
+means results from before no longer compare with those after. It routes by hash (`/#/kit`)
+because the board serves the built bench from a plain static server. Run files go to
+`projects/bench/results/`, which is gitignored; each campaign's summary is published as a page.
 
 **How the charts are drawn.** Every chart in `charts` but the heatmap is an SVG with
 `viewBox="0 0 600 100"`, `preserveAspectRatio="none"` and `overflow: visible`, so it fills
@@ -823,14 +841,18 @@ Node 24 is required (`.node-version`; Angular 22 supports `^22.22.3 || ^24.15.0`
 | `npm test`               | Unit tests for all projects (`npm test -- --watch=false` runs once and exits)   |
 | `npm run lint`           | ESLint (angular-eslint) and Stylelint                                           |
 | `npm run build`          | Build the library and its compiled stylesheet into `dist/neat-ui`               |
-| `npm run check:dist`     | Check the built package (every entry point, no helm alias imports, stylesheet)  |
+| `npm run check:dist`     | Check the built package (entry points, stylesheet, no helm or bench imports)    |
 | `npm run test:tools`     | Tests for the repo tools (`tools/*.test.mjs`)                                   |
 | `npm run theme:emit`     | Regenerate `lib/theme/tokens.generated.css` from the theme sources              |
 | `npm run helm:add`       | Add a Spartan helm component to `lib/ui/` (`-- <name>`), the only way in        |
 | `npm run build:showcase` | Build the showcase app                                                          |
+| `npm run bench`          | Rendering bench dev server, on port 4300                                        |
+| `npm run bench:build`    | Build the bench for measuring (production, source maps, named chunks)           |
+| `npm run bench:run`      | The bench's harness (`projects/bench/harness/run.mjs`; `-- --help` for usage)   |
 | `npm run pack`           | Build, then write `dist/neat-ui/sima-neat-ui-<version>.tgz` for apps to install |
 
-Run lint, tests and both builds before opening a PR; CI runs the same.
+Run lint, tests and the three builds (library, showcase, bench) before opening a PR; CI runs the
+same.
 
 ## Quality bar
 

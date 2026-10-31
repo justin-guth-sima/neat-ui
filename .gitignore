@@ -43,5 +43,9 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 
+# The rendering bench's run files, screenshots and traces: large and machine-specific; each
+# campaign's summary is published as a page instead (AGENTS.md "The rendering bench")
+/projects/bench/results/
+
 # Nx cache, created by the Spartan generator (npm run helm:add)
 /.nx

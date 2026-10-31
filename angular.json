@@ -112,6 +112,66 @@
           }
         }
       }
+    },
+    "bench": {
+      // The rendering bench (AGENTS.md "The rendering bench"): measured, never published.
+      "projectType": "application",
+      "schematics": {},
+      "root": "projects/bench",
+      "sourceRoot": "projects/bench/src",
+      "prefix": "bench",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/bench/src/main.ts",
+            "tsConfig": "projects/bench/tsconfig.app.json",
+            "styles": ["projects/neat-ui/src/styles/neat-ui.css", "projects/bench/src/styles.css"]
+          },
+          "configurations": {
+            "production": {
+              // Measured as an app ships (dev mode's extra change detection would skew both
+              // renderers), with source maps and named chunks so the harness can map a long
+              // frame's script back to the kit host or the vflow host.
+              "sourceMap": true,
+              "namedChunks": true,
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            // The bench's own port, the one the board serves the built bench on too.
+            "port": 4300
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "bench:build:production"
+            },
+            "development": {
+              "buildTarget": "bench:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/bench/**/*.ts", "projects/bench/**/*.html"],
+            "eslintConfig": "projects/bench/eslint.config.js"
+          }
+        }
+      }
     }
   }
 }
