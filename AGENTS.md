@@ -152,7 +152,8 @@ heatmap's `color-mix` in `fillOf` aside), and reach the CSS as a custom property
 fill reads (`--series`, `--level`, `--tone`, `--cell`, `--sparkline-stroke`), so a variant (a
 tone) is stated once. A series' swatch is the primary's `NeatSeriesSwatch` (its `index` from 0,
 through `seriesToken`, the kit's one rule from a series to its token, which the primary keeps
-beside the swatch and shares with `charts` and `diagram` as `ɵseriesToken`; `line-token.ts`
+beside the swatch and shares with `charts` and `diagram` as `ɵseriesToken`, and its custom
+property's name for code that resolves colours itself as `ɵseriesTokenName`; `line-token.ts`
 re-exports it), which the legends and readouts render and an app shows beside its own labels (a
 run's chip), so a label outside the chart matches its line by the same rule and its look is
 stated once. The paths come from `charts/src/lib/geometry.ts` (d3-shape's `line` and

@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { NeatSeriesSwatch, seriesToken } from './series-swatch';
+import { NeatSeriesSwatch, seriesToken, seriesTokenName } from './series-swatch';
 import swatchStyles from './series-swatch.css' with { loader: 'text' };
 
 @Component({
@@ -36,6 +36,10 @@ describe('seriesToken', () => {
       'var(--neat-series-2)',
       'var(--neat-series-8)',
     ]);
+  });
+
+  it('wraps the custom property seriesTokenName names, which canvas code resolves itself', () => {
+    expect([0, 7].map(seriesTokenName)).toEqual(['--neat-series-1', '--neat-series-8']);
   });
 });
 

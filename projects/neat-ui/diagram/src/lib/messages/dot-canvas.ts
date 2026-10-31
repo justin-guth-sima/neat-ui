@@ -136,13 +136,13 @@ export class DotCanvas {
     focus: ReadonlySet<string> | null,
     covers: readonly Rect[],
   ): number {
-    const context = this.clip(covers);
+    const context = this.start();
     const scale = (size * this.k) / REFERENCE_ZOOM;
     let drawn = 0;
     for (const dot of dots) {
       if (this.sprite(context, dot.edge, dot.t, dot.r * scale, dot.colour, focus)) drawn++;
     }
-    context.restore();
+    this.erase(context, covers);
     return drawn;
   }
 
@@ -151,14 +151,14 @@ export class DotCanvas {
    * short of the end: the end is on the card the edge enters, which would hide half of it.
    */
   drawMarks(
-    marks: Iterable<DotMark>,
+    marks: readonly DotMark[],
     since: number,
     now: number,
     size: number,
     focus: ReadonlySet<string> | null,
     covers: readonly Rect[],
   ): number {
-    const context = this.clip(covers);
+    const context = this.start();
     const scale = (size * this.k) / REFERENCE_ZOOM;
     let drawn = 0;
     for (const mark of marks) {
@@ -167,26 +167,35 @@ export class DotCanvas {
       const t = length > 0 ? 1 - (mark.r * scale) / this.k / length : 1;
       if (this.sprite(context, mark.edge, t, mark.r * scale, mark.colour, focus)) drawn++;
     }
-    context.restore();
+    this.erase(context, covers);
     return drawn;
   }
 
-  /**
-   * Clips what is drawn next to outside the cards (diagram units, mapped here: there are few),
-   * until the context is restored: the dots pass behind the cards they run into and come out of.
-   */
-  private clip(covers: readonly Rect[]): CanvasRenderingContext2D {
+  /** The context, at full strength, for this frame's sprites. */
+  private start(): CanvasRenderingContext2D {
     const context = this.context as CanvasRenderingContext2D;
-    context.save();
     context.globalAlpha = this.alpha = 1;
-    if (covers.length === 0) return context;
-    const { k, x, y } = this;
-    context.beginPath();
-    context.rect(0, 0, this.width, this.height);
-    for (const c of covers)
-      context.roundRect(c.x * k + x, c.y * k + y, c.w * k, c.h * k, this.radius * k);
-    context.clip('evenodd');
     return context;
+  }
+
+  /**
+   * Erases the cards (diagram units, mapped here: there are few) from what was drawn, so the dots
+   * pass behind the cards they run into and come out of. The canvas holds only the dots, so
+   * erasing after drawing is the same as drawing around the cards, and one path of all of them,
+   * filled by the nonzero rule, is their union: where two cards overlap stays erased, which a clip
+   * to outside them with the even-odd rule would paint again.
+   */
+  private erase(context: CanvasRenderingContext2D, covers: readonly Rect[]): void {
+    if (covers.length === 0) return;
+    const { k, x, y } = this;
+    context.globalAlpha = this.alpha = 1;
+    context.globalCompositeOperation = 'destination-out';
+    context.beginPath();
+    for (const c of covers) {
+      context.roundRect(c.x * k + x, c.y * k + y, c.w * k, c.h * k, this.radius * k);
+    }
+    context.fill();
+    context.globalCompositeOperation = 'source-over';
   }
 
   /** One dot of radius `r` (CSS px) at `t` along `edge`; false for an edge not drawn. */

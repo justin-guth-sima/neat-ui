@@ -67,8 +67,11 @@ interface Drawn {
 class FakeContext {
   readonly drawn: Drawn[] = [];
   readonly fills: string[] = [];
+  /** Each path filled: its rule, the composite operation it was filled with, its round rects. */
+  readonly filled: { rule: string; composite: string; rects: number }[] = [];
   globalAlpha = 1;
-  clips = 0;
+  globalCompositeOperation = 'source-over';
+  private rects = 0;
   private style = '#000000';
   private pixel: Pixel = [0, 0, 0];
 
@@ -97,19 +100,24 @@ class FakeContext {
     return { data: new Uint8ClampedArray([...this.pixel, 255]) };
   }
 
-  clip(): void {
-    this.clips++;
+  beginPath(): void {
+    this.rects = 0;
+  }
+
+  roundRect(): void {
+    this.rects++;
+  }
+
+  fill(rule = 'nonzero'): void {
+    this.filled.push({ rule, composite: this.globalCompositeOperation, rects: this.rects });
   }
 
   // What the layer draws besides its sprites: nothing these specs look at.
   readonly setTransform = ignore;
   readonly save = ignore;
   readonly restore = ignore;
-  readonly beginPath = ignore;
   readonly rect = ignore;
-  readonly roundRect = ignore;
   readonly arc = ignore;
-  readonly fill = ignore;
   readonly scale = ignore;
 }
 
@@ -480,12 +488,18 @@ describe('NeatDiagramMessages', () => {
     expect(onStep.alpha).toBe(1);
   });
 
-  it('keeps its dots behind the cards they enter', async () => {
+  it('keeps its dots behind the cards they enter, overlapping cards too', async () => {
     const { canvas, layer, frame } = await renderLayer();
-    diagram.covers.set([{ x: 300, y: -20, w: 120, h: 40 }]);
+    diagram.covers.set([
+      { x: 300, y: -20, w: 120, h: 40 },
+      { x: 400, y: -10, w: 120, h: 40 },
+    ]);
     layer.push('in', 1000, 0);
     frame(500);
-    expect(fakeOf(canvas).clips).toBe(1);
+    // Erased after the dots, as one union of the cards: where two overlap stays erased.
+    const erased = fakeOf(canvas).filled.filter((f) => f.composite === 'destination-out');
+    expect(erased).toEqual([{ rule: 'nonzero', composite: 'destination-out', rects: 2 }]);
+    expect(fakeOf(canvas).globalCompositeOperation).toBe('source-over');
   });
 
   it('recolours its dots in the frame after the colour scheme changes', async () => {
@@ -557,6 +571,15 @@ describe('NeatDiagramMessages', () => {
     expect(probed).toEqual([]);
   });
 
+  it('cancels no frame it has not asked for, hidden or destroyed while idle', async () => {
+    vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+    const { fixture } = await renderLayer();
+    document.dispatchEvent(new Event('visibilitychange'));
+    fixture.componentInstance.shown.set(false);
+    await fixture.whenStable();
+    expect(frames.cancelled).not.toContain(0);
+  });
+
   it('draws no travelling dots under reduced motion, a brief mark at the end instead', async () => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'performance'] });
     reduced = true;
@@ -575,6 +598,11 @@ describe('NeatDiagramMessages', () => {
     expect(frame(MARK_MS + 50)).toEqual([]);
     vi.advanceTimersByTime(80);
     expect(rate().msgsPerSec).toBe(1);
+
+    // Its dot and its step's are still due in the model, but nothing draws them: no more frames.
+    const drawnFrames = probed.length;
+    frames.run(MARK_MS + 100);
+    expect(probed).toHaveLength(drawnFrames);
   });
 
   it('keeps at most MAX_DOTS through a burst, dropping the oldest, and counts every message', async () => {
@@ -746,6 +774,10 @@ describe('NeatDiagramMessages in neat-diagram', () => {
     const { element, layer, frame } = await renderDiagram();
     layer.push('frames', 1000, 0);
     frame(100);
-    expect(fakeOf(element.querySelector('canvas')!).clips).toBe(1);
+    // The level's two blocks, erased from the dots in one union.
+    const erased = fakeOf(element.querySelector('canvas')!).filled.filter(
+      (f) => f.composite === 'destination-out',
+    );
+    expect(erased.map((f) => f.rects)).toEqual([2]);
   });
 });

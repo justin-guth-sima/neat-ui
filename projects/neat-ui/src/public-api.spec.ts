@@ -152,6 +152,7 @@ describe('the public API', () => {
       'ɵhlm',
       'ɵlistVariants',
       'ɵseriesToken',
+      'ɵseriesTokenName',
     ]);
   });
 });

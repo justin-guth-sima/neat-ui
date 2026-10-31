@@ -76,8 +76,12 @@ const ARROW_HALF_WIDTH = 3;
 /** A dot tip's radius (diagram units). */
 const DOT_RADIUS = 3;
 
-/** An edge without a series, or with one the palette lacks. */
-const MUTED = 'var(--muted-foreground)';
+/**
+ * The colour of an edge without a series, or with one the palette lacks: its custom property's
+ * name, which the messaging layer's dots resolve too, and the same for CSS.
+ */
+export const MUTED_TOKEN = '--muted-foreground';
+const MUTED = `var(${MUTED_TOKEN})`;
 
 /**
  * The level as drawn. `levels` are the ids of the levels that exist, which a block's `opens`

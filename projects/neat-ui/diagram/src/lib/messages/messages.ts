@@ -14,11 +14,13 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { neatThemeColors } from '@sima/neat-ui';
+import { neatThemeColors, ɵseriesTokenName } from '@sima/neat-ui';
+import { MUTED_TOKEN } from '../drawing';
 import { DIAGRAM_MESSAGES_CONTEXT, DOT_FRAME_PROBE, type MessagesEdge } from './context';
 import { DotCanvas, type DotMark } from './dot-canvas';
 import {
   chainOf,
+  type Dot,
   DotEvery,
   DotModel,
   dotRadius,
@@ -70,15 +72,15 @@ const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 
 /**
  * The dots' colours, by colour number (0 the muted colour of an edge without a series, 1 to 8 the
- * series): the tokens `lineColour` in drawing.ts draws the edges in, so a dot is its edge's colour.
+ * series): the tokens `lineColour` in drawing.ts draws the edges in, named where those are, so a
+ * dot is its edge's colour.
  */
-const PALETTE_TOKENS = {
-  muted: '--muted-foreground',
-  ...Object.fromEntries(
-    Array.from({ length: 8 }, (_, i) => [`series${i + 1}`, `--neat-series-${i + 1}`]),
-  ),
-} as Record<string, string>;
 const PALETTE_ORDER = ['muted', ...Array.from({ length: 8 }, (_, i) => `series${i + 1}`)];
+const PALETTE_TOKENS: Record<string, string> = Object.fromEntries(
+  PALETTE_ORDER.map((name, i) => [name, i === 0 ? MUTED_TOKEN : ɵseriesTokenName(i - 1)]),
+);
+
+const NO_DOTS: readonly Dot[] = [];
 
 const NO_CHAIN: ReadonlyMap<string, readonly string[]> = new Map();
 
@@ -162,8 +164,13 @@ export class NeatDiagramMessages {
   private readonly every = new DotEvery();
   /** The latest stage times, by node and stage. */
   private readonly stages = new Map<string, Map<string, number>>();
-  /** Under reduced motion, each drawn edge's latest message, shown at its end. */
+  /**
+   * Under reduced motion, each drawn edge's latest message, shown at its end: by edge, and in a
+   * list for the frames (an array's for-of is optimised away; a Map's iterator would be an object
+   * per frame).
+   */
   private readonly marks = new Map<string, DotMark>();
+  private readonly markList: DotMark[] = [];
   private marksUntil = -Infinity;
   /** Its `matches` is read at each frame, so a setting changed on an open page applies. */
   private readonly motion: MediaQueryList | null =
@@ -240,8 +247,7 @@ export class NeatDiagramMessages {
     );
     inject(DestroyRef).onDestroy(() => {
       this.destroyed = true;
-      cancelAnimationFrame(this.frame);
-      this.frame = 0;
+      this.cancel();
       stopTransform();
       observer?.disconnect();
       this.document.removeEventListener('visibilitychange', this.visibility);
@@ -270,7 +276,7 @@ export class NeatDiagramMessages {
       this.every.set(this.settings().every);
       const colour = this.edgeColours().get(edgeId) ?? 0;
       this.model.spawn(edgeId, atMs, size, colour, this.every.take(edgeId));
-      if (this.motion?.matches) this.mark(edgeId, atMs, size, colour);
+      if (this.reduced()) this.mark(edgeId, atMs, size, colour);
       this.request();
     });
   }
@@ -364,7 +370,11 @@ export class NeatDiagramMessages {
 
   private mark(edge: string, at: number, bytes: number, colour: number): void {
     let mark = this.marks.get(edge);
-    if (!mark) this.marks.set(edge, (mark = { edge, at, r: 0, colour }));
+    if (!mark) {
+      mark = { edge, at, r: 0, colour };
+      this.marks.set(edge, mark);
+      this.markList.push(mark);
+    }
     mark.at = at;
     mark.r = dotRadius(bytes);
     mark.colour = colour;
@@ -374,12 +384,28 @@ export class NeatDiagramMessages {
   private clear(): void {
     this.model.clear();
     this.marks.clear();
+    this.markList.length = 0;
     this.marksUntil = -Infinity;
   }
 
-  /** Whether a dot or a mark still has to be drawn after `now`. */
+  /** Read at each push and frame, so a setting changed on an open page applies. */
+  private reduced(): boolean {
+    return this.motion?.matches ?? false;
+  }
+
+  /**
+   * Whether a dot or a mark still has to be drawn after `now`. Under reduced motion only marks
+   * are: the model's dots are placed all the same (the rates hear them, step dots included), but
+   * nothing draws them, so they keep no frames running; the first frame with motion again
+   * forgets those that have arrived since.
+   */
   private busy(now: number): boolean {
-    return this.model.size > 0 || this.marksUntil > now;
+    return this.marksUntil > now || (!this.reduced() && this.model.size > 0);
+  }
+
+  private cancel(): void {
+    if (this.frame !== 0) cancelAnimationFrame(this.frame);
+    this.frame = 0;
   }
 
   /** A frame, unless one is coming, the page is hidden or the layer is gone. */
@@ -395,8 +421,7 @@ export class NeatDiagramMessages {
 
   private readonly visibility = (): void => {
     if (this.document.hidden) {
-      cancelAnimationFrame(this.frame);
-      this.frame = 0;
+      this.cancel();
       // What was on its way while the page was away would all come at once, long after.
       this.clear();
     } else {
@@ -419,7 +444,8 @@ export class NeatDiagramMessages {
     const now = Math.max(time, this.lastNow);
     this.lastNow = now;
     const geometry = this.sync();
-    const dots = this.model.advance(now);
+    const reduced = this.reduced();
+    const dots = reduced ? NO_DOTS : this.model.advance(now);
     const ratio =
       typeof devicePixelRatio === 'number' && devicePixelRatio > 0 ? devicePixelRatio : 1;
     const canvas = this.canvas;
@@ -428,8 +454,8 @@ export class NeatDiagramMessages {
     const scale = Number.isFinite(size) && size > 0 ? size : 1;
     const focus = this.diagram.focus();
     const covers = this.diagram.covers();
-    return this.motion?.matches
-      ? canvas.drawMarks(this.marks.values(), now - MARK_MS, now, scale, focus, covers)
+    return reduced
+      ? canvas.drawMarks(this.markList, now - MARK_MS, now, scale, focus, covers)
       : canvas.drawDots(dots, scale, focus, covers);
   }
 }

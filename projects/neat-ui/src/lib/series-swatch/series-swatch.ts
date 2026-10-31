@@ -1,13 +1,21 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 /**
- * The palette colour of the series at `index` (from 0): `--neat-series-1` to `-8`. The kit's one
- * rule from a series to its token: the charts colour their lines and bands by it and the diagram
- * its edges (whose `series` counts from 1, converted in one place there), so a swatch matches
- * what it names.
+ * The name of the custom property that holds the series at `index` (from 0): `--neat-series-1`
+ * to `-8`. The kit's one rule from a series to its token: `seriesToken` wraps it for CSS, and code
+ * that resolves colours itself (`neatThemeColors`, the diagram's dots on a canvas) takes the name.
+ */
+export function seriesTokenName(index: number): string {
+  return `--neat-series-${index + 1}`;
+}
+
+/**
+ * The palette colour of the series at `index` (from 0), for CSS. The charts colour their lines and
+ * bands by it and the diagram its edges (whose `series` counts from 1, converted in one place
+ * there), so a swatch matches what it names.
  */
 export function seriesToken(index: number): string {
-  return `var(--neat-series-${index + 1})`;
+  return `var(${seriesTokenName(index)})`;
 }
 
 /**
