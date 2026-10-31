@@ -714,3 +714,20 @@ test('a run that never got to stop LightDM is clean without a word on the displa
   const report = await remote.stop();
   assert.equal(report.display, undefined);
 });
+
+test('adds the extra flags after its own, and refuses one that could carry a command', () => {
+  const flags = browserFlags('/tmp/neat-bench-x', {
+    ...OPTIONS,
+    extraFlags: ['--disable-gpu', '--num-raster-threads=4'],
+  });
+  assert.deepEqual(flags.slice(-2), ['--disable-gpu', '--num-raster-threads=4']);
+  assert.match(
+    launchScript('/tmp/neat-bench-x', { ...OPTIONS, extraFlags: ['--disable-gpu'] }),
+    / --disable-gpu about:blank/,
+  );
+  assert.throws(
+    () => launchScript('/tmp/neat-bench-x', { ...OPTIONS, extraFlags: ['--a=b;id'] }),
+    /browser flag/,
+  );
+  assert.ok(browserFlags('/tmp/neat-bench-x', OPTIONS).every((f) => f !== '--disable-gpu'));
+});

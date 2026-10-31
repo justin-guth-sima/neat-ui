@@ -390,3 +390,21 @@ test('tells the caller the board’s guard once it is up', async () => {
   assert.equal(board.guard, 4242);
   await runCleanups(r.cleanups, () => undefined);
 });
+
+test('records the extra browser flags in the machine and hands them to both browsers', async () => {
+  const r = rig({ headless: false });
+  const flags = '--disable-gpu --num-raster-threads=4';
+  const done = await go(r, options('--browser-flags', flags, '--repeats', '1'));
+  assert.deepEqual(done.run.machine.browserFlags, ['--disable-gpu', '--num-raster-threads=4']);
+  assert.deepEqual(r.seen.opens[0].browserFlags, ['--disable-gpu', '--num-raster-threads=4']);
+
+  const remote = rig({ headless: false });
+  await go(
+    remote,
+    options('--browser-flags', '--disable-gpu', '--target', 'remote', '--ssh', 'sima@board'),
+  );
+  assert.deepEqual(remote.seen.remotes[0].browserFlags, ['--disable-gpu']);
+
+  const plain = await go(rig(), options('--repeats', '1'));
+  assert.deepEqual(plain.run.machine.browserFlags, []);
+});

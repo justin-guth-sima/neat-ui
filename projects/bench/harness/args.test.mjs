@@ -275,3 +275,23 @@ test('documents every option it reads', () => {
     assert.ok(USAGE.includes(name), name);
   }
 });
+
+test('reads --browser-flags as a list, and has none by default', () => {
+  assert.deepEqual(parseArgs(BASE).browserFlags, []);
+  assert.deepEqual(parseArgs([...BASE, '--browser-flags', '--disable-gpu']).browserFlags, [
+    '--disable-gpu',
+  ]);
+  assert.deepEqual(
+    parseArgs([...BASE, '--browser-flags=--num-raster-threads=4 --disable-gpu']).browserFlags,
+    ['--num-raster-threads=4', '--disable-gpu'],
+  );
+});
+
+test('refuses --browser-flags that are not flags, as a usage error', () => {
+  assert.throws(() => parseArgs([...BASE, '--browser-flags', 'x;id']), UsageError);
+  assert.throws(() => parseArgs([...BASE, '--browser-flags', '--kiosk']), UsageError);
+});
+
+test('says what --browser-flags is in the usage', () => {
+  assert.match(USAGE, /--browser-flags/);
+});

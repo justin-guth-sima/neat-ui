@@ -133,6 +133,23 @@ describe('summaryMarkdown', () => {
     expect(text).toContain('buildMs runs from the input change to the first frame.');
   });
 
+  it('says which extra flags the browser was started with, and says nothing without any', () => {
+    const base = campaign(climb('kit', 0, ['smooth']));
+    const flagged = campaign(climb('kit', 0, ['smooth']), {
+      machine: { ...base.machine, browserFlags: ['--disable-gpu', '--num-raster-threads=4'] },
+    });
+
+    expect(markdown(flagged)).toContain(
+      'The browser was started with extra flags: --disable-gpu --num-raster-threads=4.',
+    );
+    expect(markdown(base)).not.toContain('extra flags');
+    expect(
+      markdown(
+        campaign(climb('kit', 0, ['smooth']), { machine: { ...base.machine, browserFlags: [] } }),
+      ),
+    ).not.toContain('extra flags');
+  });
+
   it('says what each traced run’s recorder check found, and where it was not made', () => {
     const file = campaign(climb('kit', 0, ['smooth']), {
       runs: [

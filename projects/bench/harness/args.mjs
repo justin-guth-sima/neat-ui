@@ -1,6 +1,7 @@
 // The harness's command line (design 4.1): parsed and judged before anything is launched, so a
 // campaign of an hour does not start with an option it cannot honour. Pure.
 import { parseArgs as parseNodeArgs } from 'node:util';
+import { parseBrowserFlags } from './browser-flags.mjs';
 
 export class UsageError extends Error {}
 
@@ -31,6 +32,9 @@ Which browser
   --headless                 headless Chromium (local, or remote without --remote-display); a
                              function test only: headless paces frames differently
   --viewport 1920x1080|native  the page's size (default 1920x1080; native: the window's own)
+  --browser-flags "<flags>"   extra Chromium flags for the browser this harness starts (local or
+                             remote), a flag variant: "--disable-gpu", "--num-raster-threads=4";
+                             --name or --name=value of plain characters, recorded in the result
   --dpr 1|native             the laptop profile: device pixel ratio 1, or the screen's own
   --ssh user@board           read the board's load, temperatures and CPU frequencies before and
                              after each run, and start the browser there for --target remote
@@ -96,6 +100,7 @@ const OPTIONS = {
   headless: { type: 'boolean' },
   viewport: { type: 'string' },
   dpr: { type: 'string' },
+  'browser-flags': { type: 'string' },
   cooldown: { type: 'string' },
   'allow-unfair': { type: 'boolean' },
   'no-screenshots': { type: 'boolean' },
@@ -206,11 +211,39 @@ function viewport(value) {
   return { w: Number(match[1]), h: Number(match[2]) };
 }
 
+/**
+ * `--browser-flags "--disable-gpu"` as the usage shows it: node's parser takes a value that
+ * starts with a dash for another option and refuses it, so the pair is joined into the
+ * `--browser-flags=<flags>` it does take.
+ */
+function joinBrowserFlags(argv) {
+  const out = [];
+  for (let i = 0; i < argv.length; i += 1) {
+    if (argv[i] === '--browser-flags' && i + 1 < argv.length) {
+      out.push(`--browser-flags=${argv[i + 1]}`);
+      i += 1;
+    } else out.push(argv[i]);
+  }
+  return out;
+}
+
+function browserFlags(value) {
+  try {
+    return parseBrowserFlags(value);
+  } catch (error) {
+    throw new UsageError(error.message);
+  }
+}
+
 /** The options as the harness uses them; throws `UsageError` saying which one is wrong. */
 export function parseArgs(argv) {
   let parsed;
   try {
-    parsed = parseNodeArgs({ args: argv, options: OPTIONS, allowPositionals: false });
+    parsed = parseNodeArgs({
+      args: joinBrowserFlags(argv),
+      options: OPTIONS,
+      allowPositionals: false,
+    });
   } catch (error) {
     throw new UsageError(error.message);
   }
@@ -289,6 +322,7 @@ export function parseArgs(argv) {
     headless: v.headless ?? false,
     viewport: viewport(v.viewport),
     dpr,
+    browserFlags: browserFlags(v['browser-flags']),
     cooldownMs: whole(v.cooldown, 'cooldown', 0, onBoard ? 20 : 0) * 1000,
     allowUnfair: v['allow-unfair'] ?? false,
     screenshots: !v['no-screenshots'],

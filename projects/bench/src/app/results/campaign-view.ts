@@ -35,6 +35,7 @@ import {
 import { copyText } from './clipboard';
 import type { CampaignResult } from './result-file';
 import {
+  browserFlagsLine,
   browserName,
   presentedLines,
   recorderLine,
@@ -502,6 +503,9 @@ interface Shot {
           <ul>
             <li>{{ m.build }}</li>
             <li>{{ m.loaf.limits }}</li>
+            @if (browserFlags(); as flags) {
+              <li>{{ flags }}</li>
+            }
             @for (line of presented(); track $index) {
               <li>{{ line }}</li>
             }
@@ -619,6 +623,8 @@ export class CampaignView {
   protected readonly traces = computed(() =>
     (this.campaign().runs ?? []).flatMap((run) => (run.trace ? [run.trace] : [])),
   );
+
+  protected readonly browserFlags = computed(() => browserFlagsLine(this.campaign()));
 
   protected readonly presented = computed(() => presentedLines(this.campaign(), this.analysis()));
 

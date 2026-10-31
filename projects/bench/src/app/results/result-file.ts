@@ -1,4 +1,4 @@
-import type { BenchRun, PhaseResult, StepResult } from '../run/result';
+import type { BenchRun, MachineInfo, PhaseResult, StepResult } from '../run/result';
 
 /*
  * What the harness writes for a campaign (`harness/merge.mjs`): the page's result schema
@@ -86,10 +86,17 @@ export interface HarnessInfo {
   readonly complete?: boolean;
 }
 
+/** The page's machine with what the harness adds (`harness/campaign.mjs`). */
+export interface RecordedMachine extends MachineInfo {
+  /** The extra browser flags the campaign was started with (`--browser-flags`); none: absent. */
+  readonly browserFlags?: readonly string[];
+}
+
 export interface CampaignResult extends Omit<
   BenchRun,
-  'steps' | 'measurement' | 'end' | 'refineSkipped'
+  'steps' | 'measurement' | 'end' | 'refineSkipped' | 'machine'
 > {
+  readonly machine: RecordedMachine;
   readonly steps: readonly RecordedStep[];
   /** Absent where no page load finished: the display's own rate is then all there is. */
   readonly measurement: BenchRun['measurement'] | null;

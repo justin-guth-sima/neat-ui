@@ -21,6 +21,7 @@ import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { DEFAULT_MODE, parseXStart, xStartScript } from './board-x.mjs';
+import { browserFlagProblem } from './browser-flags.mjs';
 import {
   copySite,
   parseServerStart,
@@ -60,9 +61,9 @@ const STEP_WAIT_MS = 75_000;
 
 /**
  * The browser's arguments: loopback debugging, its own profile, headless or kiosk, and where
- * `window` ({ w, h }) is given, its position and size.
+ * `window` ({ w, h }) is given, its position and size, then the campaign's `extraFlags`.
  */
-export function browserFlags(dir, { headless, display, window }) {
+export function browserFlags(dir, { headless, display, window, extraFlags = [] }) {
   const flags = [
     '--remote-debugging-port=0',
     '--remote-debugging-address=127.0.0.1',
@@ -85,7 +86,8 @@ export function browserFlags(dir, { headless, display, window }) {
   if (window) {
     flags.push('--window-position=0,0', `--window-size=${window.w},${window.h}`);
   }
-  return flags;
+  // Last, so that a variant's flag is the one the browser reads where it repeats one of ours.
+  return [...flags, ...extraFlags];
 }
 
 /**
@@ -101,6 +103,7 @@ export function launchScript(
     display,
     xauthority,
     window,
+    extraFlags = [],
     existing,
     guarded = false,
     parents = DEFAULT_PARENTS,
@@ -114,10 +117,15 @@ export function launchScript(
   if (xauthority !== undefined && !/^\/[\w./+-]+$/.test(xauthority)) {
     throw new Error(`Xauthority file "${xauthority}" is not an absolute path`);
   }
+  // This script runs on the board in a shell: a flag is plain characters or it does not start.
+  for (const flag of extraFlags) {
+    const problem = browserFlagProblem(flag);
+    if (problem) throw new Error(`browser flag ${problem}`);
+  }
   // The board user's own file unless told otherwise: the board's `$HOME` is the board's.
   const auth = xauthority === undefined ? '"$HOME/.Xauthority"' : `'${xauthority}'`;
   const env = display ? `DISPLAY=${display} XAUTHORITY=${auth} ` : '';
-  const flags = browserFlags(dir, { headless, display, window }).join(' ');
+  const flags = browserFlags(dir, { headless, display, window, extraFlags }).join(' ');
   const make = existing ? '[ -d "$dir" ]' : 'mkdir -m 700 "$dir"';
   return `set -e
 dir='${dir}'
@@ -243,6 +251,7 @@ export async function startRemote({
   runId,
   remote,
   headless,
+  browserFlags: extraFlags = [],
   browser = true,
   serve,
   serverPort,
@@ -505,6 +514,7 @@ export async function startRemote({
           display: bare ? display.name : remote.display,
           xauthority: bare ? `${dir}/Xauthority` : remote.xauthority,
           window: bare ? display.mode : undefined,
+          extraFlags,
           existing: bare || Boolean(serve),
           guarded: bare,
         }),

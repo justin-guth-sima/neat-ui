@@ -161,6 +161,7 @@ export async function runCampaign(options, { log, cleanups, deps = {}, signal, b
       runId,
       remote: options.remote,
       headless: options.headless || !options.remote.display,
+      browserFlags: options.browserFlags,
       // A laptop browser loading what the board serves has no browser on the board to start.
       browser: target.kind === 'remote',
       serve: options.serve && { bind: options.serve.bind, dist },
@@ -184,6 +185,7 @@ export async function runCampaign(options, { log, cleanups, deps = {}, signal, b
     headless: options.headless,
     viewport: options.viewport,
     dpr: options.dpr,
+    browserFlags: options.browserFlags,
   });
   cleanups.push(() => opened.close());
   const facts = await opened.facts();
@@ -196,7 +198,13 @@ export async function runCampaign(options, { log, cleanups, deps = {}, signal, b
       `GPU compositing ${facts.gpu.featureStatus.gpu_compositing ?? 'unknown'}`,
   );
 
-  const machineExtra = { gpu: facts.gpu, launchArgs: facts.launchArgs };
+  // What was asked beside what the browser reports of its own command line (`launchArgs`): the
+  // report is the browser's word, this is the campaign's variant, and a CDP target has no say.
+  const machineExtra = {
+    gpu: facts.gpu,
+    launchArgs: facts.launchArgs,
+    browserFlags: options.browserFlags,
+  };
   let probe = null;
   if (options.ssh) {
     try {

@@ -169,6 +169,19 @@ describe('ResultsView', () => {
     expect(view.textContent).toContain('The recorder’s rate alone decided: kit on ladder A at ×2');
   });
 
+  it('lists the extra browser flags among how the numbers were taken', async () => {
+    const base = campaign(climb('kit', 0, ['smooth']));
+    await drop(
+      json(
+        'flags.json',
+        JSON.stringify({ ...base, machine: { ...base.machine, browserFlags: ['--disable-gpu'] } }),
+      ),
+    );
+
+    const view = root().querySelector('bench-campaign-view')!;
+    expect(view.textContent).toContain('The browser was started with extra flags: --disable-gpu.');
+  });
+
   it('says what a soak did over its phases, the heap too', async () => {
     const phases = Object.fromEntries(
       [13, 15, 17, 19].map((mb, i) => [

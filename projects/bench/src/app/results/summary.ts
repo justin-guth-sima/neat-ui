@@ -37,6 +37,14 @@ export function browserName(campaign: CampaignResult): string {
   return major ? `Chromium ${major}` : campaign.machine.ua;
 }
 
+/** The extra flags the browser was started with, for a line of its own; null where none. */
+export function browserFlagsLine(campaign: CampaignResult): string | null {
+  const flags = campaign.machine.browserFlags ?? [];
+  return flags.length === 0
+    ? null
+    : `The browser was started with extra flags: ${flags.join(' ')}.`;
+}
+
 function setup(campaign: CampaignResult, analysis: CampaignAnalysis): string[] {
   const { machine, bench, config, harness } = campaign;
   const memory = machine.deviceMemory ? `, ${machine.deviceMemory} GB` : '';
@@ -262,6 +270,8 @@ export function summaryMarkdown(campaign: CampaignResult, analysis: CampaignAnal
   if (campaign.measurement) {
     out.push(`- ${campaign.measurement.build}`, `- ${campaign.measurement.loaf.limits}`);
   }
+  const flags = browserFlagsLine(campaign);
+  if (flags) out.push(`- ${flags}`);
   out.push(...presentedLines(campaign, analysis).map((line) => `- ${line}`));
   for (const run of campaign.runs ?? []) {
     const check = run.recorderCheck;

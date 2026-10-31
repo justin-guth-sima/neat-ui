@@ -21,11 +21,12 @@ async function nativeDpr(browser) {
 }
 
 /**
- * Opens the browser for `target` ({ kind: 'local' } or { kind: 'cdp', endpoint }). Resolves with
- * `session(options)`, which gives a run its context and page (and `release` to give them back),
- * `facts()` for the result's machine and `close()`.
+ * Opens the browser for `target` ({ kind: 'local' } or { kind: 'cdp', endpoint }); `browserFlags`
+ * are extra flags for a browser launched here (one on the board got them from `remote.mjs`).
+ * Resolves with `session(options)`, which gives a run its context and page (and `release` to give
+ * them back), `facts()` for the result's machine and `close()`.
  */
-export async function openBrowser({ target, headless, viewport, dpr }) {
+export async function openBrowser({ target, headless, viewport, dpr, browserFlags = [] }) {
   const local = target.kind === 'local';
   const browser = local
     ? await chromium.launch({
@@ -33,7 +34,7 @@ export async function openBrowser({ target, headless, viewport, dpr }) {
         // uses; its `chromium` channel is the new headless, the nearest to a headed run.
         headless,
         channel: headless ? 'chromium' : undefined,
-        args: LAUNCH_ARGS,
+        args: [...LAUNCH_ARGS, ...browserFlags],
       })
     : await chromium.connectOverCDP(target.endpoint, { timeout: 30_000 });
   const browserSession = await browser.newBrowserCDPSession();

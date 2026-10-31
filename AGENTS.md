@@ -239,6 +239,9 @@ order alternating per repeat. The page reports its boundaries through `window.be
 harness reads CDP `Performance.getMetrics` there, keeps every step the page ended even if the run
 dies later, bounds each step and run with its own watchdog, and stops before measuring when the
 kit-against-vflow fairness check fails (`--allow-unfair` goes on, the problems in the warnings).
+`--browser-flags "--disable-gpu"` adds Chromium flags to the browser the harness starts, a flag
+variant (`--name` or `--name=value` of plain characters, never one the harness sets itself); the
+result's `machine.browserFlags` and the summary's "how the numbers were taken" say so.
 `--input=cdp` replays the page's gesture path through `page.mouse`. Long frames' script keys are
 mapped back to source through the build's maps. One result file per campaign goes to
 `projects/bench/results/`, with screenshots (and `--trace` runs) beside it; it is rewritten after
