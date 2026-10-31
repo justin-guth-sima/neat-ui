@@ -34,7 +34,7 @@ export const STOP_P50_MS = 100;
 /** A step taking over this many times its planned time is aborted as unresponsive. */
 const UNRESPONSIVE_FACTOR = 3;
 /** Bisections between the last smooth step and the first that is not. */
-const REFINE_STEPS = 2;
+export const REFINE_STEPS = 2;
 
 export interface LadderPlan {
   /** The load of each step, rising: a scale, messages per second or a number of notes. */

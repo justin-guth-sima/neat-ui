@@ -259,6 +259,7 @@ describe('compileRun', () => {
     refineSkipped: null,
     driverWarnings: [],
     build: 'production',
+    input: 'page',
     ...over,
   });
 

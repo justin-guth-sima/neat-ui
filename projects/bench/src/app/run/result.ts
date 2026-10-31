@@ -266,6 +266,8 @@ export interface CompileInput {
   readonly driverWarnings: readonly string[];
   /** The page's own build (`isDevMode()`): the one thing about the build the page can tell. */
   readonly build: BenchRun['bench']['build'];
+  /** Who played the gestures: the page, or the harness through the browser's input. */
+  readonly input: BenchRun['config']['input'];
 }
 
 /** The run's JSON: what the driver measured, with how it was measured and what to read it by. */
@@ -320,7 +322,7 @@ export function compileRun(input: CompileInput): BenchRun {
       repeats: 1,
       warmupMs: plan.warmupMs,
       phases: plan.phases.map(({ name, ms }) => ({ name, ms })),
-      input: 'page',
+      input: input.input,
     },
     steps: input.steps,
     warnings,

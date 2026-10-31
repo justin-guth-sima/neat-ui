@@ -6,9 +6,19 @@ import { BenchLoad } from '../hosts/bench-load';
 import { DotProbeBuffer } from '../measure/dot-probe';
 import { calibrateRefresh, FrameRecorder, type FrameScheduler } from '../measure/frame-recorder';
 import { LoafCollector } from '../measure/loaf-collector';
+import {
+  type BenchEventSink,
+  bridgeGestures,
+  type InputSink,
+  maxSteps,
+  plannedStepMs,
+  windowEventSink,
+  windowInputSink,
+} from './bench-bridge';
 import { type AutoHost, type AutoParams, assertHostRuns } from './auto-params';
 import { ladderPlan } from './ladders';
 import { readMachine } from './machine-info';
+import type { GestureTarget } from './gesture-player';
 import { pageDriverHost } from './page-host';
 import { frameCapacity, type LoafPort, PhaseDriver } from './phase-driver';
 import { type BenchRun, compileRun, type MachineInfo } from './result';
@@ -37,12 +47,18 @@ export interface AutoDeps {
   readonly machine: (refreshHz: number) => Promise<MachineInfo>;
   readonly clock?: () => number;
   readonly now?: () => Date;
+  /** Told the run's boundaries (`bench-bridge.ts`); nothing where no harness listens. */
+  readonly events?: BenchEventSink;
+  /** Where a gesture's pointer goes when the harness plays it (`input=cdp`). */
+  readonly input?: InputSink;
 }
 
 /** Calibrates, climbs and compiles. Rejects where the page cannot be measured (a hidden tab). */
 export async function runAuto(deps: AutoDeps): Promise<BenchRun> {
   const { params, loaf } = deps;
   assertHostRuns(params.ladder, params.host);
+  const send = deps.input;
+  if (params.input === 'cdp' && !send) throw new Error('input=cdp needs the harness’s input');
   const clock = deps.clock ?? (() => performance.now());
   const now = deps.now ?? (() => new Date());
   const plan = ladderPlan(params.ladder, { steps: params.steps, refine: params.refine });
@@ -57,6 +73,14 @@ export async function runAuto(deps: AutoDeps): Promise<BenchRun> {
     onFrame: (t) => onFrame(t),
   });
 
+  deps.events?.({
+    type: 'run-begin',
+    host: params.host,
+    ladder: params.ladder,
+    repeat: params.repeat,
+    plannedStepMs: plannedStepMs(plan),
+    maxSteps: maxSteps(plan),
+  });
   loaf.start();
   recorder.start();
   try {
@@ -70,6 +94,8 @@ export async function runAuto(deps: AutoDeps): Promise<BenchRun> {
     const refresh = calibrateRefresh(recorder.between(0, recorder.mark()));
 
     onFrame = () => undefined;
+    const shape =
+      params.input === 'cdp' && send ? (t: GestureTarget) => bridgeGestures(t, send) : undefined;
     const host = await deps.showHost(params.host);
     const finished = new Promise<void>((resolve) => {
       onFrame = (t) => {
@@ -81,21 +107,22 @@ export async function runAuto(deps: AutoDeps): Promise<BenchRun> {
       plan,
       ladder: params.ladder,
       renderer: params.host,
-      repeat: 0,
+      repeat: params.repeat,
       recorder,
       loaf,
       probe: deps.probe,
       maxDots: deps.maxDots,
       refresh,
-      host: pageDriverHost(host, deps.load, params.ladder, params.seed),
+      host: pageDriverHost(host, deps.load, params.ladder, params.seed, shape),
       clock,
+      events: deps.events,
     });
     driver = climb;
     climb.start(clock());
     await finished;
 
     return compileRun({
-      runId: `${startedAt.getTime().toString(36)}-${params.host}-${params.ladder}`,
+      runId: `${startedAt.getTime().toString(36)}-${params.host}-${params.ladder}-r${params.repeat}`,
       startedAt: startedAt.toISOString(),
       machine: await deps.machine(refresh.hz),
       seed: params.seed,
@@ -109,6 +136,7 @@ export async function runAuto(deps: AutoDeps): Promise<BenchRun> {
       refineSkipped: climb.refineSkipped,
       driverWarnings: climb.warnings,
       build: isDevMode() ? 'development' : 'production',
+      input: params.input,
     });
   } finally {
     recorder.stop();
@@ -154,10 +182,13 @@ export class AutoRun {
           return this.hosts.whenHost();
         },
         machine: (hz) => readMachine(params.machine, hz),
+        events: windowEventSink(window),
+        input: windowInputSink(window),
       });
       window.benchResult = run;
       this.save(run);
       this.status.set('done');
+      windowEventSink(window)({ type: 'run-end' });
     } catch (error) {
       this.fail(error instanceof Error ? error.message : String(error));
     }
@@ -169,6 +200,7 @@ export class AutoRun {
     window.benchResult = { error: message };
     this.message.set(message);
     this.status.set('failed');
+    windowEventSink(window)({ type: 'run-failed', message });
   }
 
   /** The JSON as a download: started at once, and left as a link for a browser that asks first. */

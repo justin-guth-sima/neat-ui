@@ -5,6 +5,7 @@ import { BenchLoad } from '../hosts/bench-load';
 import { DotProbeBuffer } from '../measure/dot-probe';
 import { FakeFrames } from '../measure/fake-frames.testing';
 import { type AutoDeps, runAuto } from './auto-run';
+import type { BenchEvent } from './bench-bridge';
 import type { LoafPort } from './phase-driver';
 import { readMachine } from './machine-info';
 
@@ -54,6 +55,8 @@ function deps(over: Partial<AutoDeps> = {}) {
       steps: 2,
       machine: 'test-rig',
       refine: false,
+      input: 'page',
+      repeat: 0,
     },
     scheduler: frames,
     loaf,
@@ -115,6 +118,46 @@ describe('runAuto', () => {
       expect(step.outcome?.tier).toBe('smooth');
       expect(step.phases['idle'].fps).toBeCloseTo(60, 0);
     }
+  });
+
+  it('tells the harness what it will climb before it calibrates, then each boundary', async () => {
+    const events: BenchEvent[] = [];
+    const { all, frames } = deps({ events: (event) => events.push(event) });
+    await drive(frames, runAuto(all));
+
+    expect(events[0]).toEqual({
+      type: 'run-begin',
+      host: 'kit',
+      ladder: 'B',
+      repeat: 0,
+      plannedStepMs: 13000,
+      maxSteps: 2,
+    });
+    expect(events.filter((event) => event.type === 'step-end')).toHaveLength(2);
+    expect(events.at(-1)?.type).toBe('step-end');
+  });
+
+  it('files the run under its repeat and the input that played its gestures', async () => {
+    const { all, frames } = deps();
+    const run = await drive(
+      frames,
+      runAuto({
+        ...all,
+        input: () => undefined,
+        params: { ...all.params, repeat: 2, input: 'cdp' },
+      }),
+    );
+    expect(run.config.input).toBe('cdp');
+    expect(run.runId).toMatch(/kit-B-r2$/);
+    expect(new Set(run.steps.map((step) => step.repeat))).toEqual(new Set([2]));
+  });
+
+  it('refuses input=cdp where nothing listens for the input, before it touches the page', async () => {
+    const { all, log } = deps();
+    await expect(runAuto({ ...all, params: { ...all.params, input: 'cdp' } })).rejects.toThrow(
+      /needs the harness/,
+    );
+    expect(log).toEqual([]);
   });
 
   it('says it ran as a development build, which is what the specs are, and warns of it', async () => {

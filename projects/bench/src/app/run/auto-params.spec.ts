@@ -17,6 +17,8 @@ describe('autoParams', () => {
       steps: 3,
       machine: 'laptop',
       refine: true,
+      input: 'page',
+      repeat: 0,
     });
   });
 
@@ -28,7 +30,19 @@ describe('autoParams', () => {
       steps: undefined,
       machine: 'unlabelled',
       refine: false,
+      input: 'page',
+      repeat: 0,
     });
+  });
+
+  it('reads which repeat this is and whether the harness replays the gestures', () => {
+    expect(autoParams('?auto=1&repeat=2&input=cdp')).toMatchObject({ repeat: 2, input: 'cdp' });
+  });
+
+  it('refuses an input that is not one, and the browser’s input on the host with no zoom box', () => {
+    expect(() => autoParams('?auto=1&input=touch')).toThrow(/input is one of page, cdp/);
+    expect(() => autoParams('?auto=1&host=none&input=cdp')).toThrow(/none/);
+    expect(() => autoParams('?auto=1&repeat=-1')).toThrow(/repeat/);
   });
 
   it('takes the ladder in either case', () => {

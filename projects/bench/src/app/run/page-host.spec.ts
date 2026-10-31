@@ -78,6 +78,19 @@ describe('pageDriverHost', () => {
     expect(calls).toEqual([`press ${Math.round(freeSpot.x)} ${Math.round(freeSpot.y)}`]);
   });
 
+  it('shapes the gestures it plays when asked to: the harness’s input, not synthetic events', () => {
+    const load = TestBed.inject(BenchLoad);
+    const shaped: string[] = [];
+    const driver = pageDriverHost(host(), load, 'A', 1, (target) => ({
+      ...target,
+      press: (x, y) => shaped.push(`bridged ${Math.round(x)} ${Math.round(y)}`),
+    }));
+    driver.apply(1);
+    driver.player().begin('pan', 0, 3000);
+    expect(shaped).toHaveLength(1);
+    expect(calls).toEqual([]);
+  });
+
   it('describes a level’s load for the result', () => {
     const driver = pageDriverHost(host(), TestBed.inject(BenchLoad), 'D', 1);
     expect(driver.params(2)).toEqual({

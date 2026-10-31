@@ -2,6 +2,7 @@ import type { DotProbeBuffer, DotProbeStats } from '../measure/dot-probe';
 import type { FrameRecorder, Refresh } from '../measure/frame-recorder';
 import type { LoafCollector } from '../measure/loaf-collector';
 import { frameStats, type PhaseFrames, stepOutcome } from '../measure/stats';
+import type { BenchEventSink } from './bench-bridge';
 import {
   dotsResult,
   type PhaseResult,
@@ -26,6 +27,10 @@ import {
  * (its `onFrame` is `frame`); everything it does to the page goes through `DriverHost`, so the
  * specs run it on a fake rAF and a fake host. A raw-browser-API unit's sibling (AGENTS.md): no
  * Angular, no signals.
+ *
+ * It tells `events` where a harness can read the browser's own counters: a step's start, each
+ * phase's start and end, a step's end (judged or aborted, with its result, so a run that dies
+ * later keeps it). A phase an abort cut short has no end event: the step's end closes it.
  *
  * Per step: on the first frame it applies the step's load (the clock is read first: the build
  * starts there), then waits for the view to show the step's start transform. The build ends on
@@ -82,6 +87,8 @@ export interface DriverOptions {
   readonly clock?: () => number;
   /** Frames a step may wait for its view to return to the start, before it goes on. */
   readonly settleFrames?: number;
+  /** Told each step and phase boundary (`bench-bridge.ts`): a harness reads its counters there. */
+  readonly events?: BenchEventSink;
 }
 
 /** About two seconds at 60 Hz: a view that is not back by then will not come. */
@@ -195,9 +202,9 @@ export class PhaseDriver {
     if (this.machine.records.length > recorded && this.machine.records.at(-1)?.aborted) {
       this.abort(before, t);
     } else if (this.machine.stage !== before) {
-      if (before.kind === 'phase') this.endPhase(before.phase, t);
+      if (before.kind === 'phase') this.endPhase(before.step.index, before.phase, t);
       const stage = this.machine.stage;
-      if (stage.kind === 'phase') this.beginPhase(stage.phase, t);
+      if (stage.kind === 'phase') this.beginPhase(stage.step.index, stage.phase, t);
       else if (stage.kind === 'judge') this.beginSettle();
     }
   }
@@ -224,6 +231,11 @@ export class PhaseDriver {
       this.buildStartedAt = this.clock();
       host.apply(stage.step.level);
       this.applied = true;
+      this.options.events?.({
+        type: 'step-begin',
+        step: stage.step.index,
+        level: stage.step.level,
+      });
     } else if (this.seenStart) {
       // The frame after the one that saw the start transform: that one has painted it.
       this.buildMs = t - this.buildStartedAt;
@@ -243,17 +255,19 @@ export class PhaseDriver {
     this.afterMachine(before, recorded, t);
   }
 
-  private beginPhase(phase: PhaseSpec, t: number): void {
-    const { recorder, probe } = this.options;
+  private beginPhase(step: number, phase: PhaseSpec, t: number): void {
+    const { recorder, probe, events } = this.options;
     this.open = { from: recorder.mark(), at: t, probe: probe.mark() };
     this.player?.begin(gestureFor(phase.name), t, phase.ms);
+    events?.({ type: 'phase-begin', step, phase: phase.name });
   }
 
-  private endPhase(phase: PhaseSpec, t: number): void {
-    const { probe, maxDots } = this.options;
+  private endPhase(step: number, phase: PhaseSpec, t: number): void {
+    const { probe, maxDots, events } = this.options;
     const open = this.open;
     this.open = null;
     this.player?.end();
+    events?.({ type: 'phase-end', step, phase: phase.name });
     if (!open) return;
     const { frames, result } = this.measure(open, t);
     this.phases[phase.name] = result;
@@ -290,7 +304,7 @@ export class PhaseDriver {
       );
     }
     const outcome = stepOutcome(this.frameSets, refresh.intervalMs);
-    this.results.push({
+    this.record({
       ...this.header(stage.step.index, stage.step.level, stage.step.refining),
       buildMs: this.buildMs,
       startTransform: this.startTransform,
@@ -318,7 +332,7 @@ export class PhaseDriver {
     }
     host.fit();
     const record = this.machine.records[this.machine.records.length - 1];
-    this.results.push({
+    this.record({
       ...this.header(record.step.index, record.step.level, record.step.refining),
       buildMs: this.buildMs,
       startTransform: this.startTransform,
@@ -326,6 +340,12 @@ export class PhaseDriver {
       aborted: 'unresponsive',
       abortedIn: stageName(froze),
     });
+  }
+
+  /** Keeps a step's result and tells the harness, which keeps it too if the run dies later. */
+  private record(result: StepResult): void {
+    this.results.push(result);
+    this.options.events?.({ type: 'step-end', step: result.step, result });
   }
 
   private header(index: number, level: number, refining: boolean) {

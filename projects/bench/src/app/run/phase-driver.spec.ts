@@ -11,6 +11,7 @@ import {
   type LoafPort,
   PhaseDriver,
 } from './phase-driver';
+import type { BenchEvent } from './bench-bridge';
 import type { LadderPlan } from './step-machine';
 
 const HZ60 = 1000 / 60;
@@ -47,6 +48,7 @@ const NO_LOAF: LoafSummary = {
 function rig(plan: LadderPlan = PLAN, options: { buildFrames?: number; fitFrames?: number } = {}) {
   const frames = new FakeFrames();
   const log: string[] = [];
+  const events: BenchEvent[] = [];
   /** The clock time from which the fake view shows its start transform. */
   let startAt = 0;
   const buildDelay = (options.buildFrames ?? 2) * HZ60;
@@ -100,6 +102,7 @@ function rig(plan: LadderPlan = PLAN, options: { buildFrames?: number; fitFrames
     host,
     clock: () => frames.now,
     settleFrames: 30,
+    events: (event) => events.push(event),
   });
   const start = () => {
     recorder.start();
@@ -109,7 +112,7 @@ function rig(plan: LadderPlan = PLAN, options: { buildFrames?: number; fitFrames
   const finish = (ms = HZ60, limit = 20000) => {
     for (let i = 0; i < limit && !driver.finished; i++) frames.frame(ms);
   };
-  return { frames, log, recorder, driver, probe, start, finish, host };
+  return { frames, log, events, recorder, driver, probe, start, finish, host };
 }
 
 describe('PhaseDriver', () => {
@@ -285,6 +288,45 @@ describe('PhaseDriver', () => {
     start();
     finish();
     expect(log).toContain('fit');
+  });
+
+  it('tells the harness each step and phase boundary, in order, with the judged step’s result', () => {
+    const { driver, start, finish, events } = rig({ ...PLAN, levels: [1] });
+    start();
+    finish();
+
+    expect(events.map((event) => event.type)).toEqual([
+      'step-begin',
+      'phase-begin',
+      'phase-end',
+      'phase-begin',
+      'phase-end',
+      'step-end',
+    ]);
+    expect(events[0]).toEqual({ type: 'step-begin', step: 0, level: 1 });
+    expect(events[1]).toEqual({ type: 'phase-begin', step: 0, phase: 'idle' });
+    expect(events[4]).toEqual({ type: 'phase-end', step: 0, phase: 'pan' });
+    expect(events[5]).toEqual({ type: 'step-end', step: 0, result: driver.steps[0] });
+  });
+
+  it('tells the harness of an aborted step with the step as it was recorded, after its open phase', () => {
+    const r = rig();
+    r.host.atStart = () => false;
+    r.start();
+    r.finish();
+    expect(r.events.map((event) => event.type)).toEqual(['step-begin', 'step-end']);
+    expect(r.events[1]).toMatchObject({ type: 'step-end', result: { aborted: 'unresponsive' } });
+  });
+
+  it('closes no phase it did not open: the abort ends the open one by its step-end', () => {
+    const r = rig();
+    r.start();
+    for (let i = 0; i < 20000 && r.driver.stage !== 'phase:pan'; i++) r.frames.frame(HZ60);
+    r.frames.frame(2000);
+    const types = r.events.map((event) => event.type);
+    expect(types.filter((type) => type === 'phase-begin')).toHaveLength(2);
+    expect(types.filter((type) => type === 'phase-end')).toHaveLength(1);
+    expect(types.at(-1)).toBe('step-end');
   });
 
   /**

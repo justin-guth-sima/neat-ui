@@ -20,7 +20,18 @@ export interface AutoParams {
   readonly machine: string;
   /** Bisect the knee after the climb (design 2.4, `--refine`). */
   readonly refine: boolean;
+  /**
+   * Who plays the gestures: the page (synthetic events, the default) or the harness through the
+   * browser's input pipeline (`input=cdp`; `window.benchInput`, design 2.3's cross-check).
+   */
+  readonly input: AutoInput;
+  /** Which repeat of the ladder and renderer this page load is, filed in every step's result. */
+  readonly repeat: number;
 }
+
+export type AutoInput = 'page' | 'cdp';
+
+const INPUTS: readonly AutoInput[] = ['page', 'cdp'];
 
 const HOSTS: readonly AutoHost[] = ['kit', 'vflow', 'none'];
 
@@ -63,6 +74,14 @@ export function autoParams(search: string): AutoParams | null {
     throw new RangeError(`ladder is one of ${Object.keys(LADDERS).join(', ')}, not "${ladder}"`);
   }
   assertHostRuns(ladder as LadderId, host as AutoHost);
+  const input = query.get('input') ?? 'page';
+  if (!(INPUTS as readonly string[]).includes(input)) {
+    throw new RangeError(`input is one of ${INPUTS.join(', ')}, not "${input}"`);
+  }
+  if (input === 'cdp' && host === 'none') {
+    // The floor has no zoom box for a real pointer to land on: it moves through a reducer.
+    throw new RangeError('input=cdp needs a renderer with a zoom box: not the none host');
+  }
   const refine = query.get('refine');
   return {
     host: host as AutoHost,
@@ -71,5 +90,7 @@ export function autoParams(search: string): AutoParams | null {
     steps: whole(query.get('steps'), 'steps', 1),
     machine: query.get('machine') ?? 'unlabelled',
     refine: refine === '1' || refine === 'true',
+    input: input as AutoInput,
+    repeat: whole(query.get('repeat'), 'repeat', 0) ?? 0,
   };
 }
