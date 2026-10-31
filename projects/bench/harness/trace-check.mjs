@@ -113,8 +113,34 @@ export function readTraceEvents(raw) {
   return events;
 }
 
-/** The check of a traced run: its raw trace against its phases (`tracedPhases`). */
-export function checkRecorderAgainstTrace(raw, phases, tolerance = CHECK_TOLERANCE) {
+/**
+ * The renderers whose gestures move nothing the display draws: the `none` host is an empty box,
+ * so a pan or a zoom changes no pixel and the display draws no frame to count (its dots, where
+ * the ladder has messages, move on their own).
+ */
+const UNMOVED = new Set(['none']);
+
+/**
+ * The check of a traced run of `renderer`: its raw trace against its phases (`tracedPhases`). A
+ * renderer the gestures move nothing in is left out, saying why in `skipped`.
+ */
+export function checkRecorderAgainstTrace(
+  raw,
+  phases,
+  { renderer, tolerance = CHECK_TOLERANCE } = {},
+) {
+  if (UNMOVED.has(renderer)) {
+    return {
+      ok: null,
+      tolerance,
+      compared: 0,
+      worstPct: 0,
+      rows: [],
+      skipped:
+        `the ${renderer} host draws nothing the gestures move, so the display draws no frame ` +
+        'to count',
+    };
+  }
   return compareRecorder(drawTimes(readTraceEvents(raw)), phases, tolerance);
 }
 
@@ -123,7 +149,7 @@ export function checkRecorderAgainstTrace(raw, phases, tolerance = CHECK_TOLERAN
  * are then to be read with it (design 1.4). Said once per traced run.
  */
 export function recorderCheckWarning(label, check) {
-  if (check.ok === true) return null;
+  if (check.ok === true || check.skipped) return null;
   if (check.ok === null) {
     return (
       `${label}: the recorder could not be checked against the trace (no pan or zoom phase with ` +

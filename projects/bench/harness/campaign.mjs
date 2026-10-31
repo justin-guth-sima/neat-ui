@@ -35,7 +35,8 @@ const run = promisify(execFile);
 const SESSION_MS = 30_000;
 
 /** The recorder check's outcome in a line of the log. */
-function checkSummary({ ok, worstPct, compared }) {
+function checkSummary({ ok, worstPct, compared, skipped }) {
+  if (skipped) return `recorder against trace: not checked (${skipped})`;
   if (ok === null) return 'recorder against trace: nothing to compare';
   return (
     `recorder against trace: ${ok ? 'within' : 'OUTSIDE'} 3 % over ${compared} phases ` +

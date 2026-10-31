@@ -239,7 +239,9 @@ export async function runOnePage({
         // The recorder against what the browser says it drew (design 1.4): a disagreement is the
         // run's warning, never its failure, and a trace that cannot be read is a note.
         try {
-          run.recorderCheck = checkRecorderAgainstTrace(raw, tracedPhases(run.steps ?? []));
+          run.recorderCheck = checkRecorderAgainstTrace(raw, tracedPhases(run.steps ?? []), {
+            renderer: schedule.renderer,
+          });
         } catch (error) {
           run.notes.push(`recorder check not made: ${error.message}`);
         }

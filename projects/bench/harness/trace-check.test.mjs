@@ -151,3 +151,24 @@ test('calls a check that compared nothing unvalidated, not passed', () => {
   const none = compareRecorder(drawTimes([]), []);
   assert.match(recorderCheckWarning('kit A r0', none), /could not be checked.*unvalidated/);
 });
+
+test('does not check the none host: it draws nothing the gestures move', () => {
+  const trace = JSON.stringify({ traceEvents: [] });
+
+  const check = checkRecorderAgainstTrace(trace, [phase()], { renderer: 'none' });
+
+  assert.equal(check.ok, null);
+  assert.equal(check.compared, 0);
+  assert.match(check.skipped, /none host.*draws nothing/);
+  assert.equal(recorderCheckWarning('none A r0', check), null);
+});
+
+test('checks the renderers that draw, with a tolerance if one is given', () => {
+  const trace = JSON.stringify({ traceEvents: draws(100, 103, 176) });
+
+  assert.equal(checkRecorderAgainstTrace(trace, [phase()], { renderer: 'kit' }).ok, true);
+  assert.equal(
+    checkRecorderAgainstTrace(trace, [phase()], { renderer: 'vflow', tolerance: 0.01 }).ok,
+    false,
+  );
+});

@@ -318,6 +318,23 @@ test('checks a traced run’s recorder against its own trace', async () => {
   }
 });
 
+test('leaves the none host’s trace unchecked, and says so without a warning of its own', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'bench-trace-'));
+  try {
+    const out = await run(traced(0), {
+      trace: true,
+      schedule: { ladder: 'A', renderer: 'none', repeat: 0 },
+      files: { trace: join(dir, 'x.gz'), traceName: 'x.gz' },
+    });
+    assert.equal(out.ok, true);
+    assert.equal(out.recorderCheck.ok, null);
+    assert.match(out.recorderCheck.skipped, /none host/);
+    assert.deepEqual(out.notes, []);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('notes a trace it cannot read instead of failing the run', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'bench-trace-'));
   try {
