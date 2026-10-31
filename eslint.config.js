@@ -19,6 +19,8 @@ function d3Pattern(allowed) {
  * compares with, and Playwright and source-map, which its harness runs on. `playwright-core` is
  * what `playwright` wraps, so importing it directly would step around the rule. `d3-drag` (vflow's
  * peer) is bench-only too, but it is d3, which `d3Pattern` already fails outside the bench.
+ * ESLint sees static imports only: a dynamic `import()` is not caught here, and `check:dist` (which
+ * reads the built package) is the only guard against one.
  */
 const BENCH_ONLY = {
   regex: '^(ngx-vflow|playwright(-core)?|source-map)(/|$)',

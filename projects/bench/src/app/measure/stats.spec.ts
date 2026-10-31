@@ -69,6 +69,38 @@ describe('frameStats', () => {
     expect(stats.stalls).toBe(2);
   });
 
+  it('describes a single frame by itself', () => {
+    const stats = frameStats(Float64Array.of(HZ60), HZ60, HZ60);
+
+    expect(stats.frames).toBe(1);
+    expect(stats.fps).toBeCloseTo(60, 9);
+    for (const value of [stats.p50, stats.p95, stats.p99, stats.worst]) {
+      expect(value).toBe(HZ60);
+    }
+    expect([stats.dropped, stats.droppedPct, stats.janks, stats.stalls]).toEqual([0, 0, 0, 0]);
+  });
+
+  it('rounds half an interval up, so 1.5 intervals drop one refresh and 1.49 none', () => {
+    // An interval of 10 ms keeps the ratios exact in floating point.
+    expect(frameStats(Float64Array.of(15), 15, 10).dropped).toBe(1);
+    expect(frameStats(Float64Array.of(14.9), 15, 10).dropped).toBe(0);
+    expect(frameStats(Float64Array.of(25), 25, 10).dropped).toBe(2);
+  });
+
+  it.each([2, 3, 6])('drops k - 1 refreshes for a frame of exactly k = %i intervals', (k) => {
+    expect(frameStats(Float64Array.of(10 * k), 10 * k, 10).dropped).toBe(k - 1);
+  });
+
+  it('takes fps from the window it is given, so a stretched phase is not flattered', () => {
+    // A phase planned for 1000 ms whose last frame came 200 ms late ends at 1200 ms: the window
+    // is the real span (see FrameRecorder.between), not the plan.
+    const deltas = steady(59);
+    deltas[58] = 1200 - 58 * HZ60;
+
+    expect(frameStats(deltas, 1200, HZ60).fps).toBeCloseTo(59 / 1.2, 9);
+    expect(frameStats(deltas, 1000, HZ60).fps).toBeCloseTo(59, 9);
+  });
+
   it('sorts a copy and leaves the recorder’s buffer as it was', () => {
     const deltas = Float64Array.of(30, 10, 20);
 

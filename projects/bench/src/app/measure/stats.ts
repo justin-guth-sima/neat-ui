@@ -41,7 +41,12 @@ export interface StepOutcome {
   readonly tier: Tier;
 }
 
-/** A phase's frame deltas and the window they were measured over. */
+/**
+ * A phase's frame deltas and the window they were measured over. The window is the real span
+ * between the phase's first and last frame, never its planned `ms`: a phase ends on the first frame
+ * past its time, so a long frame stretches it. `FrameRecorder.between` hands both over together,
+ * and the page's driver (Task 4) must pass them on as they are.
+ */
 export interface PhaseFrames {
   readonly deltas: ArrayLike<number>;
   readonly windowMs: number;

@@ -157,7 +157,8 @@ published one. Licences, all bench-only: `ngx-vflow` MIT, `d3-drag` ISC (vflow's
 `@types/d3-drag` MIT, `playwright` and the `playwright-core` it wraps Apache-2.0, `source-map`
 BSD-3-Clause. ESLint (`BENCH_ONLY` in the root `eslint.config.js`) fails an import of any of them
 outside `projects/bench/`, where `d3-drag` is the one d3 package allowed, and `npm run check:dist`
-fails a built package that names one. Why: apps install the kit, never the bench's tools.
+fails a built package that names one. ESLint catches static imports only; a dynamic `import()`
+is covered by `check:dist` alone. Why: apps install the kit, never the bench's tools.
 Its load comes from a seed, through integer-exact arithmetic only (`src/app/synth/`), so a seed
 puts the same diagram and the same messages on every machine; a spec pins each, and re-pinning
 means results from before no longer compare with those after. It routes by hash (`/#/kit`)

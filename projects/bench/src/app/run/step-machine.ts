@@ -8,7 +8,9 @@ import type { StepOutcome } from '../measure/stats';
  * it runs at most the ladder's levels plus two refinement steps, and a step that takes over three
  * times its planned time is aborted. It skips nothing: a phase starts on the frame that ends the
  * one before, so a long frame stretches a phase instead of jumping past the next, and the climb
- * records every level it reaches, in order.
+ * records every level it reaches, in order. A stretched phase ends at the next stage's start, so
+ * its statistics take their window from the recorder's marks on those two frames, not from the
+ * phase's `ms` (`FrameRecorder.between`; see `PhaseFrames`).
  */
 
 /** A measured phase: its name in the result and its planned time. */
