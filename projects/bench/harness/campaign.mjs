@@ -34,6 +34,15 @@ const run = promisify(execFile);
 /** A page for a run: a context's page opening is a browser call that may never answer. */
 const SESSION_MS = 30_000;
 
+/** The recorder check's outcome in a line of the log. */
+function checkSummary({ ok, worstPct, compared }) {
+  if (ok === null) return 'recorder against trace: nothing to compare';
+  return (
+    `recorder against trace: ${ok ? 'within' : 'OUTSIDE'} 3 % over ${compared} phases ` +
+    `(worst ${worstPct.toFixed(1)} %)`
+  );
+}
+
 const label = ({ ladder, renderer, repeat }) => `${renderer} ${ladder} r${repeat}`;
 
 /** Safe in a file name: the machine label as typed, minus anything a path could mean. */
@@ -215,7 +224,8 @@ export async function runCampaign(options, { log, cleanups, deps = {} }) {
       log(
         `${result.ok ? 'ok    ' : 'FAILED'} ${label(entry)}${extra.trace ? ' (traced)' : ''}: ` +
           `${result.steps.length} steps, ${((Date.now() - started) / 1000).toFixed(0)} s` +
-          (result.ok ? `, ended ${result.result.end}` : ` - ${result.error}`),
+          (result.ok ? `, ended ${result.result.end}` : ` - ${result.error}`) +
+          (result.recorderCheck ? `; ${checkSummary(result.recorderCheck)}` : ''),
       );
       return result;
     } finally {

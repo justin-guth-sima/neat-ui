@@ -20,6 +20,10 @@ export function diffMetrics(before, after) {
   const wallS = after.Timestamp - before.Timestamp;
   const taskS = after.TaskDuration - before.TaskDuration;
   return {
+    // The browser's clock at both samples, in seconds: the clock of a trace's timestamps, which is
+    // how a traced run's frames are laid against the phase they belong to.
+    fromS: before.Timestamp,
+    toS: after.Timestamp,
     wallMs: wallS * 1000,
     taskMs: taskS * 1000,
     scriptMs: (after.ScriptDuration - before.ScriptDuration) * 1000,

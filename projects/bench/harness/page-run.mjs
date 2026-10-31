@@ -8,6 +8,7 @@ import { dirname } from 'node:path';
 import { createInputBridge } from './input-bridge.mjs';
 import { createBoundaryRecorder, toMap } from './metrics.mjs';
 import { pageUrl } from './schedule.mjs';
+import { checkRecorderAgainstTrace, tracedPhases } from './trace-check.mjs';
 import { createWatchdog, runLimitMs, stepLimitMs, withTimeout } from './watchdog.mjs';
 
 /** Loading the page, calibrating and routing to the host, before the page says it will climb. */
@@ -235,6 +236,13 @@ export async function runOnePage({
         await mkdir(dirname(files.trace), { recursive: true });
         await writeFile(files.trace, gzipSync(raw));
         run.trace = files.traceName;
+        // The recorder against what the browser says it drew (design 1.4): a disagreement is the
+        // run's warning, never its failure, and a trace that cannot be read is a note.
+        try {
+          run.recorderCheck = checkRecorderAgainstTrace(raw, tracedPhases(run.steps ?? []));
+        } catch (error) {
+          run.notes.push(`recorder check not made: ${error.message}`);
+        }
       } catch (error) {
         run.notes.push(`trace not saved: ${error.message}`);
       }

@@ -236,6 +236,34 @@ test('lists a traced run but keeps its steps out of the measurements: tracing co
   assert.ok(!run.warnings.some((w) => w.includes('only in the traced run')));
 });
 
+test('keeps a traced run’s recorder check and warns where it failed', () => {
+  const failed = {
+    ok: false,
+    tolerance: 0.03,
+    compared: 2,
+    worstPct: -9,
+    rows: [
+      { step: 1, level: 2, phase: 'pan', recorderFps: 60, traceFps: 54.6, diffPct: -9, ok: false },
+      { step: 1, level: 2, phase: 'zoom', recorderFps: 60, traceFps: 60, diffPct: 0, ok: true },
+    ],
+  };
+  const traced = ok(
+    { ladder: 'A', renderer: 'kit', repeat: 0 },
+    { purpose: 'trace', trace: 'kit-A.trace.json.gz', recorderCheck: failed },
+  );
+  const run = mergeRuns({ ...INPUT, pageRuns: [ok(K0), traced] });
+  assert.equal(run.runs[1].recorderCheck, failed);
+  assert.ok(run.warnings.some((w) => /^kit A r0: the recorder and the trace disagree/.test(w)));
+
+  const good = ok(
+    { ladder: 'A', renderer: 'kit', repeat: 0 },
+    { purpose: 'trace', recorderCheck: { ...failed, ok: true } },
+  );
+  assert.ok(
+    !mergeRuns({ ...INPUT, pageRuns: [ok(K0), good] }).warnings.some((w) => /recorder/.test(w)),
+  );
+});
+
 test('carries the harness’s own warnings first, unprefixed', () => {
   const run = mergeRuns({ ...INPUT, warnings: ['headless run'], pageRuns: [ok(K0)] });
   assert.equal(run.warnings[0], 'headless run');

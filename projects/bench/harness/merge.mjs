@@ -5,6 +5,7 @@
 // said once with the runs it came from. Pure.
 import { join } from 'node:path';
 import { describeCheckout } from './build-stamp.mjs';
+import { recorderCheckWarning } from './trace-check.mjs';
 
 /** Design 2.3: the harness flags a step whose start transforms differ by more than this. */
 const SCALE_TOLERANCE = 0.01;
@@ -91,7 +92,15 @@ export function mergeRuns({
     } else {
       Object.assign(entry, { status: 'failed', error: run.error, steps: run.steps.length });
     }
-    for (const key of ['purpose', 'thermal', 'screenshot', 'trace', 'input', 'wallMs']) {
+    for (const key of [
+      'purpose',
+      'recorderCheck',
+      'thermal',
+      'screenshot',
+      'trace',
+      'input',
+      'wallMs',
+    ]) {
       if (run[key] !== undefined) entry[key] = run[key];
     }
     return entry;
@@ -107,6 +116,8 @@ export function mergeRuns({
   for (const run of pageRuns) {
     if (!run.ok) warnings.push(`${label(run.schedule)} failed: ${run.error}`);
     if (run.throttleWarning) warnings.push(run.throttleWarning);
+    const check = run.recorderCheck && recorderCheckWarning(label(run.schedule), run.recorderCheck);
+    if (check) warnings.push(check);
     for (const note of run.notes ?? []) warnings.push(`${label(run.schedule)}: ${note}`);
   }
   const byText = new Map();

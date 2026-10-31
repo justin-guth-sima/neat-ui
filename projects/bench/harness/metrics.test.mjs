@@ -49,6 +49,12 @@ test('diffs two samples into a phase’s script, style, layout and busy share', 
   assert.equal(cdp.layoutCount, 30);
 });
 
+test('keeps the browser clock at both ends, where a trace places the window', () => {
+  const cdp = diffMetrics(sample({ Timestamp: 100.25 }), sample({ Timestamp: 103.5 }));
+  assert.equal(cdp.fromS, 100.25);
+  assert.equal(cdp.toS, 103.5);
+});
+
 test('has no busy share where no time passed between the samples', () => {
   assert.equal(diffMetrics(sample(), sample()).busyShare, null);
 });

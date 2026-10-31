@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { test } from 'node:test';
 import { runOnePage } from './page-run.mjs';
 
@@ -31,7 +34,7 @@ const BEGIN = {
  * A session over a fake page. `script(emit, session)` runs when the page is opened at its address
  * and says what the page does; `benchResult` is what `window.benchResult` holds then.
  */
-function fake({ script, benchResult, sample = 0, newCDPSession, startTracing }) {
+function fake({ script, benchResult, sample = 0, newCDPSession, startTracing, stopTracing }) {
   const page = new EventEmitter();
   page.close = async () => undefined;
   page.mouse = {
@@ -44,7 +47,7 @@ function fake({ script, benchResult, sample = 0, newCDPSession, startTracing }) 
   page.screenshot = async () => undefined;
   const session = {
     page,
-    browser: { startTracing, stopTracing: async () => '{}' },
+    browser: { startTracing, stopTracing: stopTracing ?? (async () => '{}') },
     listener: { current: null },
     context: {
       newCDPSession:
@@ -266,6 +269,73 @@ test('fails a traced run whose tracing never starts', async () => {
   );
   assert.equal(out.ok, false);
   assert.match(out.error, /start tracing: no answer in 60 ms/);
+});
+
+/** A traced run of one step whose pan phase the page recorded at 60 fps. */
+function traced(draws) {
+  const result = {
+    steps: [stepResult(0, { phases: { pan: { fps: 60, frames: 60 } } })],
+    warnings: [],
+    runId: 'p1',
+  };
+  return fake({
+    benchResult: result,
+    startTracing: async () => undefined,
+    // The fake browser's clock counts a second per sample: the pan phase is seconds 1 to 2.
+    stopTracing: async () =>
+      JSON.stringify({
+        traceEvents: Array.from({ length: draws }, (_, i) => ({
+          name: 'Display::DrawAndSwap',
+          ph: 'X',
+          ts: 1e6 + (i * 1e6) / draws,
+        })),
+      }),
+    script: async (emit) => {
+      emit(BEGIN);
+      emit({ type: 'step-begin', step: 0, level: 1 });
+      emit({ type: 'phase-begin', step: 0, phase: 'pan' });
+      emit({ type: 'phase-end', step: 0, phase: 'pan' });
+      emit({ type: 'step-end', step: 0, result: result.steps[0] });
+      emit({ type: 'run-end' });
+    },
+  });
+}
+
+test('checks a traced run’s recorder against its own trace', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'bench-trace-'));
+  try {
+    const files = { trace: join(dir, 'x.gz'), traceName: 'x.gz' };
+    const good = await run(traced(60), { trace: true, files });
+    assert.equal(good.ok, true);
+    assert.equal(good.recorderCheck.ok, true);
+    assert.equal(good.recorderCheck.compared, 1);
+
+    const bad = await run(traced(45), { trace: true, files });
+    assert.equal(bad.recorderCheck.ok, false);
+    assert.equal(bad.ok, true, 'a disagreement is a warning, not a failed run');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('notes a trace it cannot read instead of failing the run', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'bench-trace-'));
+  try {
+    const rig = traced(60);
+    rig.session.browser.stopTracing = async () => 'not json';
+    const out = await run(rig, {
+      trace: true,
+      files: { trace: join(dir, 'x.gz'), traceName: 'x.gz' },
+    });
+    assert.equal(out.ok, true);
+    assert.equal(out.recorderCheck, undefined);
+    assert.ok(
+      out.notes.some((note) => /recorder check.*not JSON/.test(note)),
+      out.notes.join('|'),
+    );
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });
 
 test('fails a run whose page cannot be inspected, instead of waiting for ever', async () => {
