@@ -60,12 +60,16 @@ export type SpawnListener = (edge: string, atMs: number, bytes: number) => void;
  */
 export const MAX_DOTS = 16384;
 
-/** How deep a chain of step dots may go: a guard against steps that loop. */
-const MAX_CHAIN = 32;
+/**
+ * How many dots one message may place, itself and its step dots together: a guard against steps
+ * that loop, and against steps that fan out and loop, whose placements grow with every round. A
+ * chain of the demo's size (six steps) is far inside it.
+ */
+export const MAX_CHAIN = 32;
 
 /**
  * A fixed pool of dots. `spawn` places a dot that starts at `atMs` (now, or soon: a batch spreads
- * its messages, see `batchTimes`), `advance` gives the dots on their way at a time and forgets
+ * its messages, see `neatBatchTimes`), `advance` gives the dots on their way at a time and forgets
  * those that arrived. A full pool drops its oldest dot and counts it in `dropped`: the newest
  * messages are the ones worth showing, and the listener still hears every spawn, so the rates
  * stay exact however many dots are dropped.
@@ -89,6 +93,10 @@ export class DotModel {
   /** Where the oldest dot is in the ring. */
   private head = 0;
   private count = 0;
+  /** How many of those are `shown` (placed with `visible`). */
+  private shownCount = 0;
+  /** What the message being placed may still place, step dots included. */
+  private budget = 0;
   private next: ReadonlyMap<string, readonly string[]> = new Map();
   private delayOf: (edge: string) => number = () => 0;
   private travel: ReadonlyMap<string, number> = new Map();
@@ -117,6 +125,14 @@ export class DotModel {
   }
 
   /**
+   * Dots placed with `visible` and not yet arrived, those still to start included: what a frame
+   * is for. Dots placed hidden (`DotEvery`) are in `size` and not here.
+   */
+  get visibleSize(): number {
+    return this.shownCount;
+  }
+
+  /**
    * The step dots: `next` maps an edge id to the steps that follow it (`chainOf`), `delayMs` gives
    * a step's stage time, read when the dot before it is spawned.
    */
@@ -138,7 +154,8 @@ export class DotModel {
    * it, but `advance` does not return it.
    */
   spawn(edge: string, atMs: number, bytes: number, colour = 0, visible = true): void {
-    this.place(edge, atMs, dotRadius(bytes), colour, bytes, 0, visible);
+    this.budget = MAX_CHAIN;
+    this.place(edge, atMs, dotRadius(bytes), colour, bytes, visible);
   }
 
   /**
@@ -157,7 +174,10 @@ export class DotModel {
       const i = this.slot(k);
       const t = (nowMs - this.starts[i]) / this.travelOf(this.edges[i]);
       // Arrived, or never will (a travel time that is not a number): either way, forgotten.
-      if (!(t < 1)) continue;
+      if (!(t < 1)) {
+        this.shownCount -= this.shown[i];
+        continue;
+      }
       const to = this.slot(kept);
       if (to !== i) {
         this.edges[to] = this.edges[i];
@@ -183,6 +203,7 @@ export class DotModel {
 
   clear(): void {
     this.count = 0;
+    this.shownCount = 0;
     this.head = 0;
   }
 
@@ -208,12 +229,13 @@ export class DotModel {
     r: number,
     colour: number,
     bytes: number,
-    depth: number,
     visible: boolean,
   ): void {
     // A step's start is its input's plus times (travel, stage) that could be non-finite too.
-    if (!Number.isFinite(atMs)) return;
+    if (!Number.isFinite(atMs) || this.budget === 0) return;
+    this.budget--;
     if (this.count === this.capacity) {
+      this.shownCount -= this.shown[this.head];
       this.head = this.slot(1);
       this.count--;
       this.dropped++;
@@ -224,15 +246,18 @@ export class DotModel {
     this.radii[i] = r;
     this.colours[i] = colour;
     this.shown[i] = visible ? 1 : 0;
-    if (visible) this.spawned++;
+    if (visible) {
+      this.spawned++;
+      this.shownCount++;
+    }
     this.onSpawn?.(edge, atMs, bytes);
     const following = this.next.get(edge);
-    if (!following || depth >= MAX_CHAIN) return;
+    if (!following) return;
     const arrival = atMs + this.travelOf(edge);
     for (const step of following) {
       const delay = this.delayOf(step);
       const start = arrival + (Number.isFinite(delay) ? delay : 0);
-      this.place(step, start, r, colour, bytes, depth + 1, visible);
+      this.place(step, start, r, colour, bytes, visible);
     }
   }
 }
@@ -252,13 +277,11 @@ export interface NeatDiagramMessageStep {
    * several steps one after another. Unset: this step takes the whole stage.
    */
   readonly shares?: number;
-  /** Its dots end where it enters, starting no steps after it (a side branch, a sink). */
-  readonly passive?: boolean;
 }
 
 /**
- * Which steps follow each edge, by edge id: an edge (fed or a step, unless a `passive` step) is
- * followed by the steps that leave the node it enters. Edges that lead to no step are not in the
+ * Which steps follow each edge, by edge id: an edge (fed or a step) is followed by the steps that
+ * leave the node it enters. Edges that lead to no step are not in the
  * map; a step whose id is not among `edges` (a stale config) is not followed.
  */
 export function chainOf(
@@ -274,7 +297,6 @@ export function chainOf(
   }
   const next = new Map<string, string[]>();
   for (const edge of edges) {
-    if (Object.hasOwn(steps, edge.id) && steps[edge.id].passive) continue;
     const following = leaving.get(edge.to);
     if (following) next.set(edge.id, following);
   }
@@ -291,10 +313,16 @@ export const BATCH_SPREAD_MS = 200;
 /**
  * The start times of a batch's messages: the batch's arrival (`arrivalMs`) for its earliest
  * message, and the others after it as far apart as their own times (`offsetsMs`, on any clock in
- * ms) say, at most `BATCH_SPREAD_MS`. A message without a finite time of its own starts at the
- * arrival.
+ * ms) say, at most `BATCH_SPREAD_MS` (200 ms). A message without a finite time of its own starts
+ * at the arrival. For an app whose transport delivers messages in batches: pass each time as the
+ * `atMs` of its `push`, with `performance.now()` as the arrival:
+ *
+ * ```ts
+ * const at = neatBatchTimes(batch.map((m) => m.sourceMs), performance.now());
+ * batch.forEach((m, i) => messages.push(m.edge, m.bytes, at[i]));
+ * ```
  */
-export function batchTimes(offsetsMs: readonly number[], arrivalMs: number): number[] {
+export function neatBatchTimes(offsetsMs: readonly number[], arrivalMs: number): number[] {
   let first = Infinity;
   for (const ms of offsetsMs) if (ms < first) first = ms;
   return offsetsMs.map((ms) =>

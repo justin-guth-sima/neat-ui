@@ -20,8 +20,10 @@ export const HISTORY_SECONDS = 60;
 const BUCKETS = 256;
 
 /**
- * How many messages a new edge's ring holds at first. The ring doubles while it is full, up to the
- * capacity, so a rare or idle id costs a few kB (mostly its history buckets), not a full ring.
+ * How many messages a new edge's ring holds at first. The ring doubles when it is full and the
+ * message it would overwrite could still be in a rate window, up to the capacity: a rare or idle
+ * id costs a few kB (mostly its history buckets), and a steady edge stays at the size of its
+ * window, not a full ring.
  */
 const FIRST_RING = 32;
 
@@ -57,8 +59,9 @@ interface Track {
  *
  * The ring limits what a rate counts: an edge counts short once more than `capacity` messages are
  * newer than the window's start. Step dots are counted when they are placed, up to six steps of
- * travel ahead (24 s at 4 s travel), so a step at 72 msg/s holds 72 · 25 ≈ 1800; 4096 keeps every
- * edge of the demo exact.
+ * travel ahead (24 s at 4 s travel), so a step at 72 msg/s holds 72 · 25 ≈ 1800; 4096 keeps
+ * every edge of the demo exact. The ring only grows that far while its messages are still ahead
+ * of, or inside, the window (see `count`): a steady edge keeps about a window's worth.
  *
  * A message whose time is not a finite number is not counted: no window or second holds it.
  *
@@ -70,11 +73,22 @@ export class EdgeRates {
 
   constructor(private readonly capacity = 4096) {}
 
-  /** A message of `bytes` on `edge` that starts at `atMs`. */
-  count(edge: string, bytes: number, atMs: number): void {
+  /**
+   * A message of `bytes` on `edge` that starts at `atMs`, counted at `nowMs` (the clock's time
+   * now, which is `atMs` unless the message starts ahead, as a step dot does). A full ring grows
+   * only while the message it would overwrite is newer than the window that ends at `nowMs`: an
+   * older one is out of every rate to come, as `nowMs` only goes forward.
+   */
+  count(edge: string, bytes: number, atMs: number, nowMs: number = atMs): void {
     if (!Number.isFinite(atMs)) return;
     const track = this.tracks.get(edge) ?? this.track(edge);
-    if (track.size === track.at.length && track.size < this.capacity) grow(track, this.capacity);
+    if (
+      track.size === track.at.length &&
+      track.size < this.capacity &&
+      track.at[track.next] > nowMs - RATE_WINDOW_MS
+    ) {
+      grow(track, this.capacity);
+    }
     track.at[track.next] = atMs;
     track.bytes[track.next] = bytes;
     track.next = (track.next + 1) % track.at.length;
@@ -169,15 +183,18 @@ export class EdgeRates {
 }
 
 /**
- * A full ring doubled, at most to `capacity`. Full and below capacity means it has just wrapped
- * (`next` is 0), so its messages keep their places and the next goes after them.
+ * A full ring doubled, at most to `capacity`. It may have wrapped before, so its messages are
+ * copied oldest first (from `next`, where the oldest is) and the next goes after them.
  */
 function grow(track: Track, capacity: number): void {
   const length = Math.min(2 * track.at.length, capacity);
   const at = new Float64Array(length);
   const bytes = new Float64Array(length);
-  at.set(track.at);
-  bytes.set(track.bytes);
+  const { next } = track;
+  at.set(track.at.subarray(next));
+  at.set(track.at.subarray(0, next), track.at.length - next);
+  bytes.set(track.bytes.subarray(next));
+  bytes.set(track.bytes.subarray(0, next), track.bytes.length - next);
   track.next = track.at.length;
   track.at = at;
   track.bytes = bytes;

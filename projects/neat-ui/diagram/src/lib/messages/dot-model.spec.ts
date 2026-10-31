@@ -1,7 +1,6 @@
 import type { NeatDiagramEdge } from '../model';
 import {
   BATCH_SPREAD_MS,
-  batchTimes,
   chainOf,
   DotEvery,
   DotModel,
@@ -9,6 +8,8 @@ import {
   MAX_DOTS,
   MAX_TRAVEL_MS,
   MIN_TRAVEL_MS,
+  MAX_CHAIN,
+  neatBatchTimes,
   type NeatDiagramMessageStep,
   TRAVEL_MS,
   travelTime,
@@ -90,11 +91,11 @@ describe('DotModel', () => {
     expect(model.advance(100).map((d) => d.edge)).toEqual(['s']);
   });
 
-  it('stops a chain that loops after 32 steps', () => {
+  it('stops a chain that loops at the budget of one message', () => {
     const model = new DotModel();
     model.setChain(new Map([['loop', ['loop']]]), () => 0);
     model.spawn('loop', 0, 1);
-    expect(model.size).toBe(33);
+    expect(model.size).toBe(MAX_CHAIN);
   });
 
   it('drops the oldest dot when the pool is full, and counts it', () => {
@@ -186,6 +187,67 @@ describe('DotModel', () => {
     expect(seen).toEqual(['a', 'b']);
   });
 
+  it('places at most MAX_CHAIN dots for one message, however its steps fan out and loop', () => {
+    const told: string[] = [];
+    const model = new DotModel(1024, (edge) => told.push(edge));
+    // Every edge leads into the other two: a loop with fan-out, which doubles with each round
+    // without a budget.
+    model.setChain(
+      new Map([
+        ['a', ['b', 'c']],
+        ['b', ['a', 'c']],
+        ['c', ['a', 'b']],
+      ]),
+      () => 1,
+    );
+    model.spawn('a', 0, 1);
+    expect(told).toHaveLength(MAX_CHAIN);
+    expect(model.size).toBe(MAX_CHAIN);
+    // The budget is per spawn: the next message gets its own.
+    model.spawn('a', 0, 1);
+    expect(told).toHaveLength(2 * MAX_CHAIN);
+  });
+
+  it('counts the visible dots in flight, step dots and those still to start included', () => {
+    const model = new DotModel();
+    model.setChain(new Map([['in', ['s']]]), () => 0);
+    expect(model.visibleSize).toBe(0);
+    model.spawn('in', 0, 1);
+    expect(model.visibleSize).toBe(2);
+    // A message with no dot of its own places its step dots hidden too: they are counted in
+    // `size`, and no frame is wanted for them.
+    model.spawn('in', 0, 1, 0, false);
+    expect(model.size).toBe(4);
+    expect(model.visibleSize).toBe(2);
+    // `in` arrives at 1200 and `s` starts then; the hidden pair leaves with them.
+    model.advance(1300);
+    expect(model.visibleSize).toBe(1);
+    model.advance(2400);
+    expect(model.size).toBe(0);
+    expect(model.visibleSize).toBe(0);
+  });
+
+  it('stops counting a visible dot the pool drops, and a hidden one it keeps', () => {
+    const model = new DotModel(2);
+    model.spawn('a', 0, 1);
+    model.spawn('b', 0, 1, 0, false);
+    expect(model.visibleSize).toBe(1);
+    // `a` is the oldest: its slot goes to `c`.
+    model.spawn('c', 0, 1);
+    expect(model.visibleSize).toBe(1);
+    // Now `b`, hidden, is dropped: the visible count stays.
+    model.spawn('d', 0, 1);
+    expect(model.visibleSize).toBe(2);
+    expect(model.size).toBe(2);
+  });
+
+  it('counts no visible dot after clear', () => {
+    const model = new DotModel();
+    model.spawn('a', 0, 1);
+    model.clear();
+    expect(model.visibleSize).toBe(0);
+  });
+
   it('forgets every dot on clear', () => {
     const model = new DotModel();
     model.spawn('a', 0, 1);
@@ -208,7 +270,7 @@ describe('chainOf', () => {
   const steps: Record<string, NeatDiagramMessageStep> = {
     'slots>dec': { from: 'board', stage: 'queue' },
     'dec>pub': { from: 'board', stage: 'neat', shares: 2 },
-    'dec>log': { from: 'board', stage: 'neat', shares: 2, passive: true },
+    'dec>log': { from: 'board', stage: 'neat', shares: 2 },
     'log>pub': { from: 'board', stage: 'log' },
   };
 
@@ -219,9 +281,8 @@ describe('chainOf', () => {
     expect(next.get('slots>dec')).toEqual(['dec>pub', 'dec>log']);
   });
 
-  it('ends a chain at a passive step and where no step leaves', () => {
+  it('ends a chain where no step leaves', () => {
     const next = chainOf(edges, steps);
-    expect(next.has('dec>log')).toBe(false);
     expect(next.has('dec>pub')).toBe(false);
     expect(next.has('pub>host')).toBe(false);
   });
@@ -233,24 +294,24 @@ describe('chainOf', () => {
   });
 });
 
-describe('batchTimes', () => {
+describe('neatBatchTimes', () => {
   it('spreads a batch over its own rhythm from its arrival', () => {
-    expect(batchTimes([1000, 1010, 1045], 500)).toEqual([500, 510, 545]);
-    expect(batchTimes([1045, 1000], 500)).toEqual([545, 500]);
+    expect(neatBatchTimes([1000, 1010, 1045], 500)).toEqual([500, 510, 545]);
+    expect(neatBatchTimes([1045, 1000], 500)).toEqual([545, 500]);
   });
 
   it('keeps a stalled batch within its window', () => {
     expect(BATCH_SPREAD_MS).toBe(200);
-    expect(batchTimes([0, 5000], 0)).toEqual([0, 200]);
+    expect(neatBatchTimes([0, 5000], 0)).toEqual([0, 200]);
   });
 
   it('starts a message without a finite time of its own at the arrival', () => {
-    expect(batchTimes([1000, NaN, 1050], 500)).toEqual([500, 500, 550]);
-    expect(batchTimes([NaN, Infinity], 500)).toEqual([500, 500]);
+    expect(neatBatchTimes([1000, NaN, 1050], 500)).toEqual([500, 500, 550]);
+    expect(neatBatchTimes([NaN, Infinity], 500)).toEqual([500, 500]);
   });
 
   it('gives an empty batch no times', () => {
-    expect(batchTimes([], 0)).toEqual([]);
+    expect(neatBatchTimes([], 0)).toEqual([]);
   });
 });
 

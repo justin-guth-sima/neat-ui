@@ -51,6 +51,40 @@ describe('EdgeRates', () => {
     expect(rates.snapshot('a', 300)).toEqual({ msgsPerSec: 100, bytesPerSec: 200 });
   });
 
+  it('keeps a ring small for a steady 30 Hz edge, however long it runs', () => {
+    const rates = new EdgeRates();
+    // Three simulated minutes, each message counted as it starts: only the last second can be in
+    // a rate, so a ring that holds a little over a second's messages is all it needs.
+    for (let i = 0; i < 30 * 180; i++) rates.count('a', 1, (i * 1000) / 30);
+    expect(rates.ringLength('a')).toBeLessThan(256);
+    expect(rates.snapshot('a', (5399 * 1000) / 30).msgsPerSec).toBe(30);
+  });
+
+  it('grows for a burst, so every message of the window is counted', () => {
+    const rates = new EdgeRates();
+    for (let i = 0; i < 1500; i++) rates.count('a', 2, 5000 + (i % 10));
+    expect(rates.snapshot('a', 5100)).toEqual({ msgsPerSec: 1500, bytesPerSec: 3000 });
+  });
+
+  it('grows for messages counted ahead of their start, judged by the time it is now', () => {
+    const rates = new EdgeRates();
+    // A step dot is counted when it is placed, starting seconds ahead: none has left the window
+    // by the time `nowMs` says, so every one stays counted.
+    for (let i = 0; i < 200; i++) rates.count('a', 1, 10_000 + i * 10, 0);
+    expect(rates.ringLength('a')).toBeGreaterThanOrEqual(200);
+    expect(rates.snapshot('a', 11_000).msgsPerSec).toBe(100);
+  });
+
+  it('keeps its messages in order when a ring that wrapped without growing grows later', () => {
+    const rates = new EdgeRates();
+    // Old messages first: the ring wraps over them, in place.
+    for (let i = 0; i < 40; i++) rates.count('a', 1, i * 100);
+    expect(rates.ringLength('a')).toBe(32);
+    // Then a burst in one window: the ring grows, and loses none of it.
+    for (let i = 0; i < 100; i++) rates.count('a', 1, 10_000 + i);
+    expect(rates.snapshot('a', 10_100).msgsPerSec).toBe(100);
+  });
+
   it('does not count a message without a finite time', () => {
     const rates = new EdgeRates();
     rates.count('a', 5, NaN);

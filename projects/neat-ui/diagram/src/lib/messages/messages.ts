@@ -111,13 +111,14 @@ const sameRate = (a: NeatDiagramEdgeRate, b: NeatDiagramEdgeRate) =>
  * (every Nth message with `every`); its colour is its edge's (`colours` picks another series). A
  * step (`steps`, keyed by edge id) is an edge inside a block that no message feeds: a dot arriving
  * at its start goes on along it once the stage's time has passed, and so on along the chain, so the
- * dots inside a block follow its real input and its measured stages. A `passive` edge's messages
- * end where it enters, starting no steps.
+ * dots inside a block follow its real input and its measured stages. The edges in `passive` (a
+ * fed edge or a step) end their messages where they enter, starting no steps.
  *
  * `rate(edgeId)` is the edge's messages and bytes per second and its history, for the notes an app
- * fills, refreshed at 12 Hz while something reads it. Every edge of every level counts, so a level
- * opens with its numbers; an id that is no edge of the diagram is not counted at all, so the rates'
- * memory stays bounded by the diagram's edges.
+ * fills, refreshed at 12 Hz while something reads it. A push counts on any edge of any level, drawn
+ * or not, so a level opens with its numbers; the step edges are the exception, counted only while
+ * their level is drawn and the page is visible, as it is their dots that count them. An id that is
+ * no edge of the diagram is ignored, so the rates' memory stays bounded by the diagram's edges.
  *
  * All dots are drawn on one canvas over the drawing, sized to this element's box (it fills the
  * diagram's), at the device's pixel ratio, scaled with the zoom and behind the cards; dots of
@@ -135,7 +136,10 @@ const sameRate = (a: NeatDiagramEdgeRate, b: NeatDiagramEdgeRate) =>
 export class NeatDiagramMessages {
   /** The steps, keyed by edge id: whose stage times each and what follows it. */
   readonly steps = input<Readonly<Record<string, NeatDiagramMessageStep>>>({});
-  /** Edges whose messages end where they enter, starting no step dots (a side input). */
+  /**
+   * Edges whose messages end where they enter, starting no step dots (a side input): fed edges
+   * and steps alike.
+   */
   readonly passive = input<readonly string[]>([]);
   /** A series (1 to 8) per edge id for its dots, in place of the edge's own colour. */
   readonly colours = input<Readonly<Record<string, number>>>({});
@@ -159,8 +163,10 @@ export class NeatDiagramMessages {
   private readonly rates = new EdgeRates();
   /** The rates hear every dot placed, step dots and dots the pool drops included. */
   private readonly model = new DotModel(MAX_DOTS, (edge, atMs, bytes) =>
-    this.rates.count(edge, bytes, atMs),
+    this.rates.count(edge, bytes, atMs, this.pushedAt),
   );
+  /** When the push under way was made, for the rates: its step dots start later than that. */
+  private pushedAt = 0;
   private readonly every = new DotEvery();
   /** The latest stage times, by node and stage. */
   private readonly stages = new Map<string, Map<string, number>>();
@@ -260,8 +266,9 @@ export class NeatDiagramMessages {
   /**
    * A message of `bytes` on `edgeId`, starting at `atMs` (on the `performance.now()` clock; now
    * by default, or a little later to spread a batch received together). Counted in the edge's
-   * rate, and drawn as a dot while the edge is drawn. A size that is not a number counts as no
-   * bytes; an id that is no edge of the diagram is ignored.
+   * rate, and drawn as a dot while the edge is drawn (a push for a level not drawn only counts).
+   * A size that is not a number counts as no bytes; an id that is no edge of the diagram is
+   * ignored.
    */
   push(edgeId: string, bytes: number, atMs: number = performance.now()): void {
     if (this.destroyed) return;
@@ -269,8 +276,9 @@ export class NeatDiagramMessages {
       if (!this.diagram.edgeIds().has(edgeId)) return;
       const size = Number.isFinite(bytes) && bytes > 0 ? bytes : 0;
       const drawn = this.sync().has(edgeId);
+      this.pushedAt = performance.now();
       if (!drawn || this.document.hidden) {
-        this.rates.count(edgeId, size, atMs);
+        this.rates.count(edgeId, size, atMs, this.pushedAt);
         return;
       }
       this.every.set(this.settings().every);
@@ -394,13 +402,14 @@ export class NeatDiagramMessages {
   }
 
   /**
-   * Whether a dot or a mark still has to be drawn after `now`. Under reduced motion only marks
-   * are: the model's dots are placed all the same (the rates hear them, step dots included), but
-   * nothing draws them, so they keep no frames running; the first frame with motion again
-   * forgets those that have arrived since.
+   * Whether a dot or a mark still has to be drawn after `now`. Dots the model holds for the rates
+   * only (messages without a dot, see `every`) draw nothing, so only its visible ones count. Under
+   * reduced motion only marks are: the model's dots are placed all the same (the rates hear them,
+   * step dots included), but nothing draws them, so they keep no frames running; the first frame
+   * with motion again forgets those that have arrived since.
    */
   private busy(now: number): boolean {
-    return this.marksUntil > now || (!this.reduced() && this.model.size > 0);
+    return this.marksUntil > now || (!this.reduced() && this.model.visibleSize > 0);
   }
 
   private cancel(): void {

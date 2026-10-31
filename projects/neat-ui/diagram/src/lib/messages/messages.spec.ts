@@ -529,6 +529,22 @@ describe('NeatDiagramMessages', () => {
     expect(probed.every(([ms]) => ms >= 0)).toBe(true);
   });
 
+  it('runs no frame for the messages that get no dot (messages per dot above 1)', async () => {
+    const { fixture, layer, frame } = await renderLayer();
+    fixture.componentInstance.steps.set({});
+    fixture.componentInstance.settings.set({ ...SETTINGS, every: 2 });
+    await fixture.whenStable();
+    // The first message gets a dot; the second, 900 ms on, does not and arrives at 1900.
+    layer.push('in', 1000, 0);
+    layer.push('in', 1000, 900);
+    frame(500);
+    expect(frames.callbacks.size).toBe(1);
+    // The dot has arrived: the hidden one is still on its way, but nothing is left to draw.
+    frame(1100);
+    expect(frames.callbacks.size).toBe(0);
+    expect(probed.map(([, dots]) => dots)).toEqual([1, 0]);
+  });
+
   it('stops while the page is hidden, counting its messages without dots', async () => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'performance'] });
     let hidden = false;
