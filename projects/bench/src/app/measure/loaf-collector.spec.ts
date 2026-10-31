@@ -301,8 +301,20 @@ describe('LoafCollector', () => {
 
     collector.reset();
 
-    expect(collector.lost).toBe(0);
     expect(collector.summarize(0, 1000).frames).toBe(0);
+  });
+
+  it('keeps the count of entries it let go across resets, so a run reads every step’s losses', () => {
+    const Observer = fakeObserver(['long-animation-frame']);
+    const collector = new LoafCollector(Observer, 3);
+    collector.start();
+    Observer.instances[0].deliver([0, 1, 2, 3, 4].map((i) => frame(i * 100, 60)));
+    collector.reset();
+    Observer.instances[0].deliver([0, 1, 2, 3].map((i) => frame(i * 100, 60)));
+    collector.reset();
+
+    // Two lost in the first step and one in the second: the last reset must not hide the first.
+    expect(collector.lost).toBe(3);
   });
 
   it('disconnects when stopped, and keeps what it saw', () => {

@@ -112,7 +112,10 @@ export class LoafCollector {
     return this.refused ? 'none' : this.offered;
   }
 
-  /** Entries let go because `maxEntries` were held: a window's counts are then a lower bound. */
+  /**
+   * Entries let go because `maxEntries` were held, over the whole run: `reset` keeps the count, so
+   * a step's loss is not forgotten by the next step. A window's counts are then a lower bound.
+   */
   get lost(): number {
     return this.dropped;
   }
@@ -137,11 +140,10 @@ export class LoafCollector {
     this.observer = null;
   }
 
-  /** Forgets the entries kept so far, keeps observing. */
+  /** Forgets the entries kept so far, keeps observing and keeps counting what was lost. */
   reset(): void {
     this.drain();
     this.entries = [];
-    this.dropped = 0;
   }
 
   /** The long frames that started in `[fromMs, toMs)`, on the clock rAF timestamps use. */

@@ -7,7 +7,7 @@ import {
   compileRun,
   type CompileInput,
   dotsResult,
-  LOAF_LIMITS,
+  loafLimits,
   loafResult,
   NOT_COMPARABLE,
   phaseResult,
@@ -113,7 +113,16 @@ describe('dotsResult', () => {
     ...over,
   });
 
-  it('is the busiest phase’s values, so quiet phases do not flatter a step', () => {
+  it('is each statistic’s maximum over the phases, which need not come from the same phase', () => {
+    expect(
+      dotsResult([
+        draws({ drawP50Ms: 3, dotsMax: 400 }),
+        draws({ drawP50Ms: 1, dotsMax: 900 }),
+      ]),
+    ).toMatchObject({ drawP50: 3, drawnMax: 900 });
+  });
+
+  it('takes the busiest values, so quiet phases do not flatter a step', () => {
     expect(
       dotsResult([
         draws({}),
@@ -170,9 +179,23 @@ describe('the notes a result carries', () => {
     expect(BUILD_DEFINITION).toMatch(/first frame after the start transform/);
   });
 
-  it('states the long-frame limits: a 50 ms floor and scripts over 5 ms', () => {
-    expect(LOAF_LIMITS).toMatch(/50 ms/);
-    expect(LOAF_LIMITS).toMatch(/5 ms/);
+  it('states the long-frame limits of the source the browser gave: long animation frames', () => {
+    const text = loafLimits('long-animation-frame');
+    expect(text).toMatch(/long animation frames/i);
+    expect(text).toMatch(/50 ms/);
+    expect(text).toMatch(/5 ms/);
+    expect(text).not.toMatch(/longtask/i);
+  });
+
+  it('states them as long tasks where that is all the browser gave: no scripts, no split', () => {
+    const text = loafLimits('longtask');
+    expect(text).toMatch(/long tasks/i);
+    expect(text).toMatch(/50 ms/);
+    expect(text).toMatch(/no script/i);
+  });
+
+  it('says there is no long-frame data where the browser gave neither', () => {
+    expect(loafLimits('none')).toMatch(/neither/i);
   });
 
   it('lists what the two renderers do not share, each item once', () => {
@@ -263,7 +286,7 @@ describe('compileRun', () => {
     expect(run.measurement.loaf).toEqual({
       source: 'long-animation-frame',
       lost: 0,
-      limits: LOAF_LIMITS,
+      limits: loafLimits('long-animation-frame'),
     });
     expect(run.measurement.refresh).toEqual({ measuredMs: 16.7, hz: 60, intervalMs: 1000 / 60 });
     expect(run.notComparable).toBe(NOT_COMPARABLE);
@@ -285,6 +308,7 @@ describe('compileRun', () => {
     const warnings = run.warnings.join('\n');
     expect(warnings).toMatch(/45\.0 Hz/);
     expect(warnings).toMatch(/12 long-frame entries/);
+    expect(warnings).toMatch(/some phases/);
     expect(warnings).toMatch(/no long-frame source/i);
   });
 

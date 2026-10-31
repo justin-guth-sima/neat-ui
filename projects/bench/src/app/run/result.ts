@@ -132,11 +132,33 @@ export const BUILD_DEFINITION =
   'the box. It includes the first route and measure, and ends at a frame, not at a paint ' +
   'timestamp.';
 
-/** The long-frame source's limits, written into every run so a quiet result is read right. */
-export const LOAF_LIMITS =
-  'Long animation frames are reported from 50 ms up, and a script is listed only where it ran ' +
-  'over 5 ms. A phase with none has no frame over 50 ms, not no hitches: the 17 to 50 ms frames ' +
-  'of a slow board are in the frame times, never here.';
+/**
+ * The long-frame source's limits, written into every run so a quiet result is read right. They
+ * differ by source: long animation frames list the scripts of a frame and its style and layout,
+ * long tasks (older browsers) have a duration and nothing else.
+ */
+export function loafLimits(source: LoafSource): string {
+  switch (source) {
+    case 'long-animation-frame':
+      return (
+        'Long animation frames are reported from 50 ms up, and a script is listed only where it ' +
+        'ran over 5 ms. A phase with none has no frame over 50 ms, not no hitches: the 17 to ' +
+        '50 ms frames of a slow board are in the frame times, never here.'
+      );
+    case 'longtask':
+      return (
+        'This browser has no long animation frames, so long tasks are reported instead: from ' +
+        '50 ms up, as a duration and nothing else (no script, no style and layout share). A ' +
+        'phase with none has no task over 50 ms, not no hitches: the 17 to 50 ms frames of a ' +
+        'slow board are in the frame times, never here.'
+      );
+    case 'none':
+      return (
+        'This browser reports neither long animation frames nor long tasks: no phase has ' +
+        'long-frame data, and the frame times are all there is to read hitches from.'
+      );
+  }
+}
 
 /** What the two renderers do not share, and what favours which (design 3.3 and the reviews). */
 export const NOT_COMPARABLE: readonly string[] = [
@@ -182,7 +204,8 @@ export function loafResult(summary: LoafSummary): LoafResult {
 }
 
 /**
- * A step's dot-layer numbers from its phases': each the busiest phase's, so a quiet idle phase
+ * A step's dot-layer numbers from its phases': each statistic's own maximum over the phases that
+ * drew (so the draw time and the dot count may come from different phases), so a quiet idle phase
  * cannot flatter the step. Undefined where no phase drew (no messages, or the layer was not there).
  */
 export function dotsResult(phases: readonly DotProbeStats[]): DotsResult | undefined {
@@ -251,7 +274,7 @@ export function compileRun(input: CompileInput): BenchRun {
   if (loaf.lost > 0) {
     warnings.push(
       `${loaf.lost} long-frame entries were dropped (the collector's limit): the counts of the ` +
-        'last phases are lower bounds.',
+        'some phases are lower bounds.',
     );
   }
   for (const step of input.steps) {
@@ -289,7 +312,7 @@ export function compileRun(input: CompileInput): BenchRun {
     refineSkipped: input.refineSkipped,
     measurement: {
       refresh: { measuredMs: refresh.measuredMs, hz: refresh.hz, intervalMs: refresh.intervalMs },
-      loaf: { source: loaf.source, lost: loaf.lost, limits: LOAF_LIMITS },
+      loaf: { source: loaf.source, lost: loaf.lost, limits: loafLimits(loaf.source) },
       build: BUILD_DEFINITION,
     },
     notComparable: NOT_COMPARABLE,
