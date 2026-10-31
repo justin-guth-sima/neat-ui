@@ -216,6 +216,39 @@ describe('summaryMarkdown', () => {
     expect(agreed).toContain('decided no tier');
   });
 
+  it('says which levels the recorder alone decided, where a traced one has no rate', () => {
+    const rated = (presentedFps: number) =>
+      climb('kit', 0, ['smooth', 'smooth', 'smooth']).map((s) =>
+        s.level < 4
+          ? withPhases(s, {
+              pan: phase('smooth', { presentedFps }),
+              zoom: phase('smooth', { presentedFps }),
+            })
+          : s,
+      );
+    const traced = {
+      runs: [{ ladder: 'A', renderer: 'kit', repeat: 0, status: 'ok', purpose: 'trace' }],
+    };
+
+    const text = markdown(campaign(rated(59.9), traced as never));
+
+    expect(text).toContain('The recorder’s rate alone decided: kit on ladder A at ×4');
+    expect(text).toContain('no presented rate');
+  });
+
+  it('does not list levels for the recorder where every level has a presented rate', () => {
+    const file = campaign(
+      climb('kit', 0, ['smooth', 'smooth']).map((s) =>
+        withPhases(s, {
+          pan: phase('smooth', { presentedFps: 59.9 }),
+          zoom: phase('smooth', { presentedFps: 59.9 }),
+        }),
+      ),
+    );
+
+    expect(markdown(file)).not.toContain('alone decided:');
+  });
+
   it('says what a soak did over its phases, the heap with the frame rate', () => {
     const phases = Object.fromEntries(
       [13.1, 13.3, 13.2].map((mb, i) => [
@@ -243,6 +276,26 @@ describe('summaryMarkdown', () => {
     const file = campaign([step('smooth', 1, { ladder: 'E', phases })]);
 
     expect(markdown(file)).toMatch(/heap grew from 13\.0 MB to 19\.0 MB/);
+  });
+
+  it('says a heap that ended lower or moved without a trend did not grow', () => {
+    const soak = (heaps: number[]) => {
+      const phases = Object.fromEntries(
+        heaps.map((mb, i) => [
+          `soak-${i + 1}`,
+          phase('smooth', { cdp: { heapBytes: mb * 1e6 } as never }),
+        ]),
+      );
+      return markdown(campaign([step('smooth', 1, { ladder: 'E', phases })]));
+    };
+
+    const fell = soak([9.3, 8, 7, 6.1]);
+    const varied = soak([9, 13, 8.5, 9.2]);
+
+    expect(fell).toMatch(/heap ended lower.*9\.3 MB.*6\.1 MB/);
+    expect(fell).not.toContain('grew');
+    expect(varied).toMatch(/heap moved without a trend.*9\.0 MB.*9\.2 MB/);
+    expect(varied).not.toContain('grew');
   });
 
   it('gives the levels of the 85 % rows in words and counts one step as one', () => {

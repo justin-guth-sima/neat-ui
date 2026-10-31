@@ -184,8 +184,11 @@ Campaign 1, in-page input, three repeats per step. Spread = (max - min) / median
   dots move). The step's tier for such a phase uses the lower of the recorder's fps and the
   presented fps; the refreshes that showed nothing new (`1 - presented / refresh rate`) count as
   dropped. The recorder's value stays in the result and in the phases table, the presented one
-  beside it; the steps table shows the effective fps and marks the steps whose tier the presented
-  rate decided; the summary and "how the numbers were taken" say which value decided. Why: the
+  beside it; the steps and phases tables show the effective fps and dropped share (the recorder's
+  dropped share in the cell's title) and the steps table marks the steps whose tier the presented
+  rate decided; the summary and "how the numbers were taken" say which value decided, and where
+  a traced renderer has no presented rate at a level (a refined level, or one the traced run did
+  not reach) that the recorder alone decided it, marked "recorder" in the steps table. Why: the
   recorder overstates vflow and not the kit (1b), so a verdict on rAF ticks alone is biased
   towards vflow. If the presented rate undercounts, vflow reads low and the kit is favoured; the
   two columns are kept beside each other so that either can be read.
@@ -199,8 +202,10 @@ Campaign 1, in-page input, three repeats per step. Spread = (max - min) / median
   rate. The bound is the larger of 3 % and one draw over the phase's window: a count over a
   window is only good to a draw, and one is 4 % of a 2 s phase at 12 fps.
 - **Heap at every phase end** (`cdp.heapBytes`, the heap in use where the phase ended), shown in
-  the phases table. The soak's flat check covers it: the heap is flat where it moves by less than
-  a tenth of its median over the phases (the collector's sawtooth), else it grew.
+  the phases table. The soak's flat check covers it: the heap held where it moves by less than a
+  tenth of its median over the phases (the collector's sawtooth); it grew only where the last
+  reading is more than that above the first, and a heap that ended lower or swung without a net
+  rise is said to have done that, not to have grown.
 - **`--input=page` is the measurement.** `--input=cdp` stays a per-event cross-check.
 
 ## Changes this validation made

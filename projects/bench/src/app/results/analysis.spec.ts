@@ -3,6 +3,7 @@ import {
   capacityOf,
   flatTrend,
   median,
+  recorderDecisions,
   soakTrend,
   phaseRows,
   SPREAD_FLAG_PCT,
@@ -375,6 +376,81 @@ describe('analyseCampaign', () => {
   });
 });
 
+describe('the dropped share where the presented rate decided', () => {
+  /** Level 1 presented at 54.7 of 60 in the pan, as vflow's recorder overstates it. */
+  const traced = () =>
+    climb('kit', 0, ['smooth']).map((s) =>
+      withPhases(s, { pan: phase('smooth', { presentedFps: 54.7 }) }),
+    );
+  const shortfall = (1 - 54.7 / 60) * 100;
+
+  it('shows a step’s effective dropped share, the recorder’s beside it', () => {
+    const cell = analyseCampaign(campaign(traced())).ladders[0].renderers[0].cells[0];
+
+    expect(cell.droppedPct).toBeCloseTo(shortfall, 6);
+    expect(cell.recorderDroppedPct).toBe(0);
+  });
+
+  it('shows a phase’s effective dropped share, the recorder’s beside it', () => {
+    const kit = analyseCampaign(campaign(traced())).ladders[0].renderers[0];
+
+    const rows = phaseRows(kit.climbs, INTERVAL_MS);
+
+    expect(rows.find((r) => r.phase === 'pan')).toMatchObject({ recorderDroppedPct: 0 });
+    expect(rows.find((r) => r.phase === 'pan')?.droppedPct).toBeCloseTo(shortfall, 6);
+    expect(rows.find((r) => r.phase === 'idle')).toMatchObject({
+      droppedPct: 0,
+      recorderDroppedPct: 0,
+    });
+  });
+});
+
+describe('recorderDecisions (levels of a traced renderer with no presented rate)', () => {
+  const kitSteps = () => climb('kit', 0, ['smooth', 'smooth', 'smooth']);
+  const presented = (s: ReturnType<typeof step>) =>
+    withPhases(s, {
+      pan: phase('smooth', { presentedFps: 59 }),
+      zoom: phase('smooth', { presentedFps: 59 }),
+    });
+  const withRate = (s: ReturnType<typeof step>, level: number) =>
+    s.level === level ? presented(s) : s;
+
+  it('names a level the traced run did not reach, where it reached others', () => {
+    const steps = kitSteps().map((s) => withRate(withRate(s, 1), 2));
+
+    const analysis = analyseCampaign(campaign(steps));
+
+    expect(recorderDecisions(analysis)).toEqual([{ ladder: 'A', renderer: 'kit', levels: [4] }]);
+    expect(analysis.ladders[0].renderers[0].cells.map((c) => c.recorderDecided)).toEqual([
+      false,
+      false,
+      true,
+    ]);
+  });
+
+  it('does not expect a rate from an idle phase, or from a renderer that was not traced', () => {
+    const untraced = analyseCampaign(campaign(kitSteps()));
+    const panned = analyseCampaign(campaign(kitSteps().map(presented)));
+
+    expect(recorderDecisions(untraced)).toEqual([]);
+    expect(recorderDecisions(panned)).toEqual([]);
+  });
+
+  it('expects a rate from every phase of a step with messages in flight', () => {
+    const moving = (s: ReturnType<typeof step>) => ({
+      ...s,
+      params: { ...s.params, msgsPerSec: 500 },
+    });
+    const steps = kitSteps().map((s) =>
+      moving(s.level === 1 ? withPhases(s, { idle: phase('smooth', { presentedFps: 59 }) }) : s),
+    );
+
+    expect(recorderDecisions(analyseCampaign(campaign(steps)))).toEqual([
+      { ladder: 'A', renderer: 'kit', levels: [1, 2, 4] },
+    ]);
+  });
+});
+
 describe('phaseRows', () => {
   it('lists each level’s phases at the median of the repeats, each with its tier', () => {
     const steps = [
@@ -453,7 +529,7 @@ describe('soakTrend (the soak’s flat check, fps and heap)', () => {
   it('calls a soak flat where the frame rate and the heap hold over its phases', () => {
     const trend = soakTrend(rows([60, 60, 59.9, 60], [13.1, 13.4, 12.9, 13.2]));
 
-    expect(trend).toMatchObject({ phases: 4, fpsFlat: true, heapFlat: true });
+    expect(trend).toMatchObject({ phases: 4, fpsFlat: true, heap: 'held' });
     expect(trend?.heapFirstBytes).toBe(13.1e6);
     expect(trend?.heapLastBytes).toBe(13.2e6);
   });
@@ -462,19 +538,31 @@ describe('soakTrend (the soak’s flat check, fps and heap)', () => {
     const trend = soakTrend(rows([60, 60, 60, 60], [13, 15, 17, 19]));
 
     expect(trend?.fpsFlat).toBe(true);
-    expect(trend?.heapFlat).toBe(false);
+    expect(trend?.heap).toBe('grew');
+  });
+
+  it('says the heap fell, not grew, where it ends more than a tenth below where it began', () => {
+    const trend = soakTrend(rows([60, 60, 60, 60], [9.3, 8, 7, 6.1]));
+
+    expect(trend?.heap).toBe('fell');
+  });
+
+  it('says the heap varied where it swings by more than a tenth and ends where it began', () => {
+    const trend = soakTrend(rows([60, 60, 60, 60], [9, 13, 8.5, 9.2]));
+
+    expect(trend?.heap).toBe('varied');
   });
 
   it('says the frame rate fell where it does, with a flat heap', () => {
     const trend = soakTrend(rows([60, 58, 52, 45], [13, 13, 13, 13]));
 
-    expect(trend).toMatchObject({ fpsFlat: false, heapFlat: true });
+    expect(trend).toMatchObject({ fpsFlat: false, heap: 'held' });
   });
 
   it('has no heap verdict where the heap was read at fewer than two phases', () => {
     const trend = soakTrend(rows([60, 60, 60], [null, 13, null]));
 
-    expect(trend?.heapFlat).toBeNull();
+    expect(trend?.heap).toBeNull();
   });
 
   it('has nothing without phases', () => {

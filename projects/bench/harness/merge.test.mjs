@@ -275,6 +275,42 @@ test('lays a traced run’s presented rates over the measured steps of the same 
   assert.equal(run.steps.length, 4, 'the traced run’s own steps stay out of the measurements');
 });
 
+test('lays a traced rate over its own renderer and ladder only, not over others', () => {
+  // Every step moves in the pan phase at level 1, so only the renderer or the ladder can tell the
+  // traced kit's rate from the others': a key that lost either would lay 51.5 over all three.
+  const pan = (over) => step({ level: 1, phases: { pan: { fps: 60 } }, ...over });
+  const measured = (schedule) =>
+    ok(schedule, {
+      steps: [pan({ renderer: schedule.renderer, ladder: schedule.ladder })],
+    });
+  const traced = ok(
+    { ladder: 'A', renderer: 'kit', repeat: 0 },
+    {
+      purpose: 'trace',
+      steps: [pan({ phases: { pan: { fps: 60, presentedFps: 51.5 } } })],
+    },
+  );
+
+  const run = mergeRuns({
+    ...INPUT,
+    pageRuns: [
+      measured(K0),
+      measured(V0),
+      measured({ ladder: 'B', renderer: 'kit', repeat: 0 }),
+      traced,
+    ],
+  });
+
+  assert.deepEqual(
+    run.steps.map((s) => [s.renderer, s.ladder, s.phases.pan.presentedFps]),
+    [
+      ['kit', 'A', 51.5],
+      ['vflow', 'A', undefined],
+      ['kit', 'B', undefined],
+    ],
+  );
+});
+
 test('keeps a traced run’s recorder check and warns where it failed', () => {
   const failed = {
     ok: false,

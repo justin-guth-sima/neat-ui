@@ -5,6 +5,7 @@ import {
   type LadderAnalysis,
   levelText,
   presentedDecisions,
+  recorderDecisions,
   type SoakTrend,
 } from './analysis';
 import type { CampaignResult, RecorderCheck } from './result-file';
@@ -146,6 +147,7 @@ export function presentedLines(campaign: CampaignResult, analysis: CampaignAnaly
       : ['No run was traced, so the recorder’s rate alone decided every tier.'];
   }
   const decisions = presentedDecisions(analysis);
+  const recorderOnly = recorderDecisions(analysis);
   return [
     'A phase whose view changes in every frame (a pan, a zoom, any phase of a step with messages ' +
       'in flight) is judged at the lower of the recorder’s rate and the display’s presented rate: ' +
@@ -162,6 +164,20 @@ export function presentedLines(campaign: CampaignResult, analysis: CampaignAnaly
           )
           .join('; ') +
         '.',
+    ...(recorderOnly.length === 0
+      ? []
+      : [
+          'The recorder’s rate alone decided: ' +
+            recorderOnly
+              .map(
+                (d) =>
+                  `${d.renderer} on ladder ${d.ladder} at ` +
+                  d.levels.map((level) => levelText(d.ladder, level)).join(', '),
+              )
+              .join('; ') +
+            ', which have no presented rate (a refined level, or one the traced run did not ' +
+            'reach); a renderer whose recorder overstates it reads better there than it was.',
+        ]),
   ];
 }
 
@@ -171,11 +187,15 @@ const megabytes = (bytes: number): string => `${(bytes / 1e6).toFixed(1)} MB`;
 export function soakText(soak: SoakTrend): string {
   const fps = soak.fpsFlat ? 'the frame rate held' : 'the frame rate did not hold';
   let heap = 'the heap was not read at enough phases to say';
-  if (soak.heapFlat !== null && soak.heapFirstBytes !== null && soak.heapLastBytes !== null) {
+  if (soak.heap !== null && soak.heapFirstBytes !== null && soak.heapLastBytes !== null) {
     const [first, last] = [megabytes(soak.heapFirstBytes), megabytes(soak.heapLastBytes)];
-    heap = soak.heapFlat
-      ? `the heap held (${first} at the first phase’s end, ${last} at the last)`
-      : `the heap grew from ${first} to ${last}`;
+    const ends = `${first} at the first phase’s end, ${last} at the last`;
+    heap = {
+      held: `the heap held (${ends})`,
+      grew: `the heap grew from ${first} to ${last}`,
+      fell: `the heap ended lower (${ends})`,
+      varied: `the heap moved without a trend (${ends})`,
+    }[soak.heap];
   }
   return `Over ${soak.phases} phases: ${fps}, ${heap}.`;
 }

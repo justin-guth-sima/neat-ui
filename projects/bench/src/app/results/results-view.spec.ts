@@ -121,6 +121,54 @@ describe('ResultsView', () => {
     expect(view.textContent).toContain('The presented rate decided the tier of: kit on ladder A');
   });
 
+  it('shows the dropped share the tier used, the recorder’s in the title', async () => {
+    const steps = climb('kit', 0, ['smooth', 'smooth']).map((s) =>
+      s.level === 2 ? withPhases(s, { pan: phase('smooth', { presentedFps: 54.7 }) }) : s,
+    );
+    await drop(
+      json(
+        'traced.json',
+        JSON.stringify(campaign(steps, { config: { ...campaign([]).config, repeats: 1 } })),
+      ),
+    );
+
+    const view = root().querySelector('bench-campaign-view')!;
+    const stepRow = view.querySelectorAll('table[aria-label^="Steps"] tbody tr')[1];
+    const dropped = stepRow.querySelectorAll('td')[2];
+    expect(dropped.textContent?.trim()).toBe('8.8');
+    expect(dropped.getAttribute('title')).toBe('recorder: 0.0 %');
+    const pan = Array.from(view.querySelectorAll('table[aria-label^="Phases"] tbody tr')).find(
+      (tr) => tr.textContent?.includes('×2') && tr.textContent?.includes('pan'),
+    )!;
+    expect(pan.querySelectorAll('td')[7].textContent?.trim()).toBe('8.8');
+    expect(pan.querySelectorAll('td')[7].getAttribute('title')).toBe('recorder: 0.0 %');
+    const idle = Array.from(view.querySelectorAll('table[aria-label^="Phases"] tbody tr')).find(
+      (tr) => tr.textContent?.includes('×2') && tr.textContent?.includes('idle'),
+    )!;
+    expect(idle.querySelectorAll('td')[7].hasAttribute('title')).toBe(false);
+  });
+
+  it('marks a level the recorder alone decided, and says so in the notes', async () => {
+    const rate = (s: ReturnType<typeof step>) =>
+      withPhases(s, {
+        pan: phase('smooth', { presentedFps: 59.9 }),
+        zoom: phase('smooth', { presentedFps: 59.9 }),
+      });
+    const steps = climb('kit', 0, ['smooth', 'smooth']).map((s) => (s.level === 1 ? rate(s) : s));
+    await drop(
+      json(
+        'refined.json',
+        JSON.stringify(campaign(steps, { config: { ...campaign([]).config, repeats: 1 } })),
+      ),
+    );
+
+    const view = root().querySelector('bench-campaign-view')!;
+    const stepRows = view.querySelectorAll('table[aria-label^="Steps"] tbody tr');
+    expect(stepRows[0].textContent).not.toContain('recorder');
+    expect(stepRows[1].textContent).toContain('recorder');
+    expect(view.textContent).toContain('The recorder’s rate alone decided: kit on ladder A at ×2');
+  });
+
   it('says what a soak did over its phases, the heap too', async () => {
     const phases = Object.fromEntries(
       [13, 15, 17, 19].map((mb, i) => [
@@ -133,6 +181,21 @@ describe('ResultsView', () => {
     );
 
     expect(text()).toContain('Soak, kit: Over 4 phases: the frame rate held, the heap grew');
+  });
+
+  it('does not say a soak’s heap grew where it ended lower', async () => {
+    const phases = Object.fromEntries(
+      [9.3, 8, 7, 6.1].map((mb, i) => [
+        `soak-${i + 1}`,
+        phase('smooth', { cdp: { heapBytes: mb * 1e6 } as never }),
+      ]),
+    );
+    await drop(
+      json('soak.json', JSON.stringify(campaign([step('smooth', 1, { ladder: 'E', phases })]))),
+    );
+
+    expect(text()).toContain('the heap ended lower');
+    expect(text()).not.toContain('the heap grew');
   });
 
   it('shows a ladder one renderer could not start, and still judges the verdict', async () => {

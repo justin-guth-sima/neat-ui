@@ -342,8 +342,10 @@ interface Shot {
             Median of the repeats per step; each fps is the mean over the step's phases, the other
             figures are the worst phase's (the busy share, the busiest). Ranges and spreads over 10
             % are flagged. A phase counts at the lower of the recorder's rate and the display's
-            presented rate where a traced run gave one (the phases table has both); “presented”
-            marks a step whose tier that rate decided.
+            presented rate where a traced run gave one (the phases table has both, and the dropped
+            share's title has the recorder's); “presented” marks a step whose tier that rate
+            decided, “recorder” a level of a traced renderer with no presented rate, which the
+            recorder alone judged.
           </p>
           <div class="scroll">
             <table neatTable [attr.aria-label]="'Steps of ladder ' + current.ladder">
@@ -377,6 +379,9 @@ interface Shot {
                           @if (cell.presentedDecided) {
                             <neat-status-chip variant="tinted">presented</neat-status-chip>
                           }
+                          @if (cell.recorderDecided) {
+                            <neat-status-chip variant="tinted">recorder</neat-status-chip>
+                          }
                           {{ fmt(cell.fps.median, 1, 1) }}
                           @if (cell.repeats > 1) {
                             <span class="range"
@@ -390,7 +395,9 @@ interface Shot {
                           }
                         </td>
                         <td neatNumeric>{{ fmt(cell.p95Ms, 1, 1) }}</td>
-                        <td neatNumeric>{{ fmt(cell.droppedPct) }}</td>
+                        <td neatNumeric [attr.title]="recorderDropped(cell)">
+                          {{ fmt(cell.droppedPct) }}
+                        </td>
                         <td neatNumeric>{{ percent(cell.busyShare) }}</td>
                         <td neatNumeric>{{ fmt(cell.buildMs, 0) }}</td>
                       } @else {
@@ -461,7 +468,9 @@ interface Shot {
                       <td neatNumeric>{{ fmt(row.p50, 1, 1) }}</td>
                       <td neatNumeric>{{ fmt(row.p95, 1, 1) }}</td>
                       <td neatNumeric>{{ fmt(row.p99, 1, 1) }}</td>
-                      <td neatNumeric>{{ fmt(row.droppedPct) }}</td>
+                      <td neatNumeric [attr.title]="recorderDropped(row)">
+                        {{ fmt(row.droppedPct) }}
+                      </td>
                       <td neatNumeric>{{ row.janks }}</td>
                       <td neatNumeric>{{ row.stalls }}</td>
                       <td neatNumeric>{{ percent(row.busyShare) }}</td>
@@ -654,6 +663,19 @@ export class CampaignView {
   }
 
   protected readonly soakSentence = soakText;
+
+  /**
+   * The recorder's dropped share for a cell's title, where the tier's is not the same: the one
+   * shown is the share the tier used, and the recorder's stays readable beside it as the fps does.
+   */
+  protected recorderDropped(share: {
+    droppedPct: number | null;
+    recorderDroppedPct: number | null;
+  }): string | null {
+    return share.recorderDroppedPct === share.droppedPct
+      ? null
+      : `recorder: ${this.fmt(share.recorderDroppedPct, 1, 1)} %`;
+  }
 
   /** A share from 0 to 1 as whole percent. */
   protected percent(share: number | null): string {

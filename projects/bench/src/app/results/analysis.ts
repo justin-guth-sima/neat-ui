@@ -43,6 +43,9 @@ const FLAT_FPS = 1;
  */
 const FLAT_HEAP_SHARE = 0.1;
 
+/** The gestures whose phases move the view in every frame, whatever the load. */
+const MOVING_PHASES: ReadonlySet<string> = new Set(['pan', 'zoom']);
+
 const RENDERER_ORDER = ['kit', 'vflow', 'vflow-virt', 'none'];
 
 const meets = (tier: Tier, goal: TierGoal): boolean =>
@@ -247,8 +250,15 @@ export interface StepCell {
   readonly fps: Stat;
   /** The worst phase's p95 frame time, ms; null for a step with no phase. */
   readonly p95Ms: number | null;
-  /** The worst phase's dropped share, percent. */
+  /** The worst phase's dropped share, percent, as the tier saw it (`withPresented`). */
   readonly droppedPct: number | null;
+  /** The same share as the recorder counted it, which the presented rate may have raised. */
+  readonly recorderDroppedPct: number | null;
+  /**
+   * The renderer was traced yet this level has no presented rate for a phase that moves (a level
+   * the traced run did not reach, a refined level), so the recorder alone judged it.
+   */
+  readonly recorderDecided: boolean;
   /** The busiest phase's main-thread share, 0 to 1, where the harness had the counters. */
   readonly busyShare: number | null;
   readonly buildMs: number | null;
@@ -312,7 +322,17 @@ function worstOf(
   return medianOrNull(worst);
 }
 
-function cellOf(steps: readonly ClimbStep[]): StepCell {
+/** Whether `step`'s phase `name` changes the view in every frame, so a trace speaks of it. */
+const moves = (step: RecordedStep, name: string): boolean =>
+  step.renderer !== 'none' && (MOVING_PHASES.has(name) || step.params.msgsPerSec > 0);
+
+/** Whether a phase that moves has no presented rate. */
+const lacksPresented = (step: RecordedStep): boolean =>
+  Object.entries(step.phases).some(
+    ([name, phase]) => moves(step, name) && phase.presentedFps === undefined,
+  );
+
+function cellOf(steps: readonly ClimbStep[], intervalMs: number, traced: boolean): StepCell {
   const raw = steps.map((s) => s.step);
   const fps = stat(steps.map((s) => s.meanFps)) as Stat;
   const tier = medianTier(steps.map((s) => s.tier));
@@ -325,7 +345,9 @@ function cellOf(steps: readonly ClimbStep[]): StepCell {
     presentedDecided: tier !== medianTier(steps.map((s) => s.recorderTier)),
     fps,
     p95Ms: worstOf(raw, (phase) => phase.p95),
-    droppedPct: worstOf(raw, (phase) => phase.droppedPct),
+    droppedPct: worstOf(raw, (phase) => seen(phase, intervalMs).droppedPct),
+    recorderDroppedPct: worstOf(raw, (phase) => phase.droppedPct),
+    recorderDecided: traced && raw.some(lacksPresented),
     busyShare: worstOf(raw, (phase) => phase.cdp?.busyShare),
     buildMs: medianOrNull(raw.flatMap((s) => (s.buildMs === undefined ? [] : [s.buildMs]))),
     spreadFlag: steps.length > 1 && fps.spreadPct > SPREAD_FLAG_PCT,
@@ -400,14 +422,25 @@ const pick = ({
   repeat,
 });
 
-function rendererLadder(renderer: string, climbs: readonly Climb[]): RendererLadder {
+function rendererLadder(
+  renderer: string,
+  climbs: readonly Climb[],
+  intervalMs: number,
+): RendererLadder {
   const byLevel = new Map<number, ClimbStep[]>();
   for (const climb of climbs) {
     for (const step of climb.steps) {
       byLevel.set(step.level, [...(byLevel.get(step.level) ?? []), step]);
     }
   }
-  const cells = [...byLevel].sort(([a], [b]) => a - b).map(([, steps]) => cellOf(steps));
+  // A renderer the harness did not trace has no presented rate anywhere, which is not a level's
+  // fault: only a traced renderer can lack one at a level.
+  const traced = [...byLevel.values()].some((steps) =>
+    steps.some((s) => Object.values(s.step.phases).some((p) => p.presentedFps !== undefined)),
+  );
+  const cells = [...byLevel]
+    .sort(([a], [b]) => a - b)
+    .map(([, steps]) => cellOf(steps, intervalMs, traced));
   return {
     renderer,
     climbs,
@@ -436,6 +469,7 @@ export function analyseCampaign(campaign: CampaignResult): CampaignAnalysis {
       rendererLadder(
         name,
         ofLadder.filter((c) => c.renderer === name),
+        intervalMs,
       ),
     );
     const kit = renderers.find((r) => r.renderer === 'kit');
@@ -476,7 +510,10 @@ export interface PhaseRow {
   readonly p50: number;
   readonly p95: number;
   readonly p99: number;
+  /** As the tier saw it: the recorder's, or the refreshes the display showed nothing new in. */
   readonly droppedPct: number;
+  /** The recorder's own count, which `droppedPct` is at least. */
+  readonly recorderDroppedPct: number;
   readonly janks: number;
   readonly stalls: number;
   readonly busyShare: number | null;
@@ -525,10 +562,8 @@ export function phaseRows(climbs: readonly Climb[], intervalMs: number): PhaseRo
       const presentedFps = medianOrNull(
         phases.flatMap((p) => (p.presentedFps === undefined ? [] : [p.presentedFps])),
       );
-      const tier = tierOf(
-        withPresented(medians, presentedFps ?? undefined, intervalMs),
-        intervalMs,
-      );
+      const judged = withPresented(medians, presentedFps ?? undefined, intervalMs);
+      const tier = tierOf(judged, intervalMs);
       rows.push({
         level,
         refining: steps.some((s) => s.refining),
@@ -537,7 +572,8 @@ export function phaseRows(climbs: readonly Climb[], intervalMs: number): PhaseRo
         p50: medians.p50,
         p95: medians.p95,
         p99: medians.p99,
-        droppedPct: medians.droppedPct,
+        droppedPct: judged.droppedPct,
+        recorderDroppedPct: medians.droppedPct,
         janks: medians.janks,
         stalls: medians.stalls,
         busyShare: medianOrNull(
@@ -564,6 +600,23 @@ export function presentedDecisions(
   return analysis.ladders.flatMap((ladder) =>
     ladder.renderers.flatMap((renderer) => {
       const levels = renderer.cells.filter((cell) => cell.presentedDecided).map((c) => c.level);
+      return levels.length > 0
+        ? [{ ladder: ladder.ladder, renderer: renderer.renderer, levels }]
+        : [];
+    }),
+  );
+}
+
+/**
+ * The levels the recorder alone judged although the renderer was traced, by ladder: no presented
+ * rate for a phase that moves (a level the traced run did not reach, a refined level).
+ */
+export function recorderDecisions(
+  analysis: CampaignAnalysis,
+): { ladder: string; renderer: string; levels: number[] }[] {
+  return analysis.ladders.flatMap((ladder) =>
+    ladder.renderers.flatMap((renderer) => {
+      const levels = renderer.cells.filter((cell) => cell.recorderDecided).map((c) => c.level);
       return levels.length > 0
         ? [{ ladder: ladder.ladder, renderer: renderer.renderer, levels }]
         : [];
@@ -630,20 +683,37 @@ export function flatTrend(values: readonly number[], within = FLAT_FPS): boolean
   return values.length === 0 || Math.max(...values) - Math.min(...values) < within;
 }
 
+/** How a heap went from the first phase's end to the last (`SoakTrend.heap`). */
+export type HeapTrend = 'held' | 'grew' | 'fell' | 'varied';
+
+/** The trend of a heap read at two or more phase ends. */
+function heapTrend(heap: readonly number[]): HeapTrend {
+  const bound = FLAT_HEAP_SHARE * median(heap);
+  if (flatTrend(heap, bound)) return 'held';
+  const net = heap[heap.length - 1] - heap[0];
+  if (net > bound) return 'grew';
+  return net < -bound ? 'fell' : 'varied';
+}
+
 /** What a soak's phases say of whether anything wears: the frame rate and the heap over them. */
 export interface SoakTrend {
   readonly phases: number;
   readonly fpsFlat: boolean;
-  /** Null where the heap was read at fewer than two phases: there is no trend to judge. */
-  readonly heapFlat: boolean | null;
+  /**
+   * How the heap went from the first phase's end to the last: held, grew or fell by more than
+   * a tenth of its median, or varied by that much and ended near where it began. Null where it
+   * was read at fewer than two phases: there is no trend to judge.
+   */
+  readonly heap: HeapTrend | null;
   readonly heapFirstBytes: number | null;
   readonly heapLastBytes: number | null;
 }
 
 /**
  * The soak's flat check over its phases in order (`phaseRows`): the frame rate must not fall and
- * the heap must not grow. The heap is flat where it moves by less than a tenth of its median,
- * which is the collector's sawtooth. Null without phases.
+ * the heap must not grow. The heap held where it moves by less than a tenth of its median, which
+ * is the collector's sawtooth; only a net rise of more than that is growth, since a heap read at
+ * a phase's end can as well end lower than it began. Null without phases.
  */
 export function soakTrend(
   rows: readonly { readonly fps: number; readonly heapBytes: number | null }[],
@@ -653,7 +723,7 @@ export function soakTrend(
   return {
     phases: rows.length,
     fpsFlat: flatTrend(rows.map((row) => row.fps)),
-    heapFlat: heap.length < 2 ? null : flatTrend(heap, FLAT_HEAP_SHARE * median(heap)),
+    heap: heap.length < 2 ? null : heapTrend(heap),
     heapFirstBytes: heap[0] ?? null,
     heapLastBytes: heap.at(-1) ?? null,
   };
