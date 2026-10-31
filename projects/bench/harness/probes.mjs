@@ -18,15 +18,26 @@ echo '--governor'; cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/
 echo '--end'
 `;
 
-export const HOST_SCRIPT = `
+/**
+ * The machine's identity, once. `display` ({ name, xauthority }) is the bare X server the harness
+ * started: it is asked for the mode with its own cookie; else the board's `:0` as the user sees it.
+ */
+export function hostScript(display) {
+  const env = display
+    ? `DISPLAY=${display.name} XAUTHORITY='${display.xauthority}'`
+    : 'DISPLAY=${DISPLAY:-:0}';
+  return `
 echo '--uname'; uname -a
 echo '--cpu'; grep -m1 -i 'model name' /proc/cpuinfo; lscpu 2>/dev/null | grep -i -m1 'model name'
 echo '--board'; tr -d '\\0' < /proc/device-tree/model 2>/dev/null; echo
 echo '--nproc'; nproc
 echo '--mem'; free -m | awk '/^Mem:/ {print $2}'
-echo '--display'; DISPLAY=\${DISPLAY:-:0} xrandr --current 2>/dev/null | head -4
+echo '--display'; ${env} xrandr --current 2>/dev/null | head -4
 echo '--end'
 `;
+}
+
+export const HOST_SCRIPT = hostScript();
 
 /** The text between `--name` lines, by name. */
 function sections(text) {

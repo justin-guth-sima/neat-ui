@@ -202,7 +202,23 @@ prints the manual cleanup line and exits non-zero). A headed board run needs `--
 (kiosk; the page has the display's own size, no viewport emulation) and, where the board user's
 `$HOME/.Xauthority` is not the display's, `--remote-xauthority <path>`; without a display the
 browser is headless, which the result's warnings and `harness.headless` say (read from the
-browser's user agent and command line, so a CDP target is judged too). Each (ladder, repeat, renderer) is a fresh page load, the renderer
+browser's user agent and command line, so a CDP target is judged too). Two options keep a board
+campaign off the board's desktop and off the tunnel, and **board campaigns use them both, with
+`--trace`: `--remote-display bare --serve board --trace`** (ladder E in its own untraced
+campaign). `--remote-display bare` (needs `--target remote`; `--remote-xauthority` is refused)
+stops LightDM (`systemctl stop`, never `disable`, so a reboot alone also brings the login screen
+back), starts an Xorg of its own with a cookie in the run's directory (no window manager: the
+browser gets `--window-position=0,0 --window-size=<the X screen's mode>`, recorded in
+`harness.display`), and the one teardown (signal, error, watchdog, end; a second is harmless)
+stops Chromium, the server and that Xorg by pid file after checking each pid's command line, removes
+`/tmp/neat-bench-<run>/`, and starts LightDM again only if it was active before, saying
+`display restored` (or why not) in the log and in `harness.display.restore`; a display that does not
+come back makes the run exit non-zero. `--serve board[:<bind>]` copies the built bench into the
+run's `site/` folder (checked file by file) and serves it there with `python3 -m http.server` on a
+free board port (never 4200 or 9900), bound to 127.0.0.1 or to the address given:
+`--serve board:10.42.0.68` with `--target local` is the "board serves laptop" mode. Without them
+the display is the board's `:0` and the laptop serves through a reverse tunnel, as before.
+Each (ladder, repeat, renderer) is a fresh page load, the renderer
 order alternating per repeat. The page reports its boundaries through `window.benchEvent`; the
 harness reads CDP `Performance.getMetrics` there, keeps every step the page ended even if the run
 dies later, bounds each step and run with its own watchdog, and stops before measuring when the

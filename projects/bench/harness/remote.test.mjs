@@ -220,29 +220,58 @@ test('reads a stop report, and says unclean where the files or processes remain'
 });
 
 // startRemote over stand-ins for ssh, the tunnel and the board's DevTools.
+const X_OUT = 'lightdm active\ndisplay :0\nvt 7\nmode 1920x1080\nxpid 777\n';
+const SERVER_OUT = 'port 40213\npid 888\nurl http://127.0.0.1:40213/\n';
+const BARE_STOP = 'stopped\nleftover 0\nserver stopped\nxorg stopped\nremoved\ndisplay restored\n';
+
 function rig({
   port = '41234\n/devtools/browser/x\n',
   stopOut = 'stopped\nleftover 0\nremoved\n',
+  xOut = { code: 0, stdout: X_OUT },
+  serverOut = { code: 0, stdout: SERVER_OUT },
 } = {}) {
   const calls = [];
+  const scripts = {};
   const gate = {};
   gate.launch = new Promise((resolve) => (gate.release = resolve));
   const tunnels = [];
   const io = {
     sshRun: async (host, script) => {
-      if (script.includes('mkdir -m 700')) {
-        calls.push('launch');
-        await gate.launch;
-        return { code: 0, stdout: 'pid 4242\n', stderr: '' };
+      if (script.includes('rm -rf')) {
+        calls.push('stop');
+        scripts.stop = script;
+        if (stopOut instanceof Error) throw stopOut;
+        return { code: 0, stdout: stopOut, stderr: '' };
       }
       if (script.includes('DevToolsActivePort')) {
         calls.push('read-port');
         return { code: 0, stdout: port, stderr: '' };
       }
-      calls.push('stop');
-      if (stopOut instanceof Error) throw stopOut;
-      return { code: 0, stdout: stopOut, stderr: '' };
+      if (script.includes('>"$dir/chromium.pid"')) {
+        calls.push('launch');
+        scripts.launch = script;
+        await gate.launch;
+        return { code: 0, stdout: 'pid 4242\n', stderr: '' };
+      }
+      if (script.includes('mkdir "$dir/site"')) {
+        calls.push('prepare');
+        return { code: 0, stdout: '', stderr: '' };
+      }
+      if (script.includes('http.server')) {
+        calls.push('server');
+        return { stderr: '', ...serverOut };
+      }
+      if (script.includes('xset q')) {
+        calls.push('x');
+        return { stderr: '', ...xOut };
+      }
+      throw new Error(`unexpected script: ${script.slice(0, 60)}`);
     },
+    copySite: async () => {
+      calls.push('copy');
+      return 3;
+    },
+    siteManifest: async () => [{ path: 'index.html', size: 1 }],
     spawn: (command, args) => {
       const tunnel = { args, exitCode: null, stderr: { on: () => undefined } };
       tunnel.kill = () => {
@@ -266,7 +295,7 @@ function rig({
     log: (line) => lines.push(line),
     io,
   };
-  return { calls, gate, tunnels, lines, base };
+  return { calls, scripts, gate, tunnels, lines, base };
 }
 
 test('has its stop registered before the browser is launched, and a stop then waits for the launch', async () => {
@@ -331,4 +360,193 @@ test('gives up, and stops the browser, when the browser never writes its port', 
     /did not (open|answer)/,
   );
   assert.ok(r.calls.includes('stop'));
+});
+
+test('puts a window on the screen where no window manager sizes it, and not otherwise', () => {
+  const flags = browserFlags('/tmp/neat-bench-x', {
+    ...OPTIONS,
+    headless: false,
+    display: ':0',
+    window: { w: 3840, h: 2160 },
+  });
+  assert.ok(flags.includes('--window-position=0,0'));
+  assert.ok(flags.includes('--window-size=3840,2160'));
+  assert.ok(!browserFlags('/tmp/neat-bench-x', OPTIONS).some((f) => f.startsWith('--window-')));
+});
+
+test('launches into a directory another script of the run made, and not into a foreign one', () => {
+  const made = launchScript('/tmp/neat-bench-x', { ...OPTIONS, existing: true });
+  assert.match(made, /\[ -d "\$dir" \]/);
+  assert.doesNotMatch(made, /mkdir -m 700/);
+  assert.match(made, /mkdir "\$dir\/profile"/, 'still refuses a profile that is already there');
+});
+
+const BARE = { chromium: 'chromium', servePort: 4390, display: 'bare' };
+
+test('runs headed on the bare X server it started: its display, its cookie, the screen’s size', async () => {
+  const r = rig({ stopOut: BARE_STOP });
+  r.gate.release();
+  const remote = await startRemote({
+    ...r.base,
+    remote: BARE,
+    headless: false,
+    serverPort: undefined,
+    cleanups: [],
+  });
+  assert.deepEqual(r.calls.slice(0, 3), ['prepare', 'x', 'launch']);
+  assert.match(r.scripts.launch, /DISPLAY=:0 XAUTHORITY='\/tmp\/neat-bench-r1\/Xauthority' /);
+  assert.match(r.scripts.launch, /--window-position=0,0 --window-size=1920,1080/);
+  assert.match(r.scripts.launch, /--kiosk/);
+  assert.doesNotMatch(r.scripts.launch, /--headless/);
+  assert.deepEqual(remote.display, {
+    kind: 'bare',
+    name: ':0',
+    vt: 7,
+    mode: { w: 1920, h: 1080 },
+    lightdm: 'active',
+  });
+  assert.match(r.lines.join('\n'), /bare X server :0 on vt7, mode 1920x1080/);
+});
+
+test('serves from the board: copy, then the server, and the browser loads the board’s address', async () => {
+  const r = rig({ stopOut: BARE_STOP });
+  r.gate.release();
+  const remote = await startRemote({
+    ...r.base,
+    remote: BARE,
+    headless: false,
+    serve: { bind: '127.0.0.1', dist: '/x/dist' },
+    serverPort: undefined,
+    cleanups: [],
+  });
+  assert.deepEqual(r.calls.slice(0, 5), ['prepare', 'copy', 'server', 'x', 'launch']);
+  assert.equal(remote.pageBase, 'http://127.0.0.1:40213/');
+  assert.ok(!r.tunnels[0].args.includes('-R'), 'no reverse tunnel: the laptop serves nothing');
+  await remote.stop();
+  assert.match(r.scripts.stop, /http\.server/, 'its stop knows the server');
+  assert.match(r.scripts.stop, /systemctl start lightdm/, 'and the display');
+});
+
+test('keeps the laptop’s reverse tunnel when the board does not serve', async () => {
+  const r = rig();
+  r.gate.release();
+  const remote = await startRemote({ ...r.base, cleanups: [] });
+  assert.ok(r.tunnels[0].args.includes('127.0.0.1:4390:127.0.0.1:4300'));
+  assert.deepEqual(r.calls.slice(0, 2), ['launch', 'read-port'], 'no prepare, no server, no X');
+  await remote.stop();
+  assert.doesNotMatch(r.scripts.stop, /sudo|systemctl|http\.server/);
+});
+
+test('serves a laptop browser from the board with no browser of its own on the board', async () => {
+  const r = rig({
+    stopOut: 'removed\nserver stopped\nleftover 0\n',
+    serverOut: { code: 0, stdout: 'port 40213\npid 888\nurl http://10.42.0.68:40213/\n' },
+  });
+  const remote = await startRemote({
+    ...r.base,
+    remote: { chromium: 'chromium', servePort: 4390 },
+    browser: false,
+    serve: { bind: '10.42.0.68', dist: '/x/dist' },
+    serverPort: undefined,
+    cleanups: [],
+  });
+  assert.deepEqual(r.calls, ['prepare', 'copy', 'server']);
+  assert.equal(remote.pageBase, 'http://10.42.0.68:40213/');
+  assert.equal(r.tunnels.length, 0);
+  await remote.stop();
+});
+
+test('registers the stop before the board is touched, and a stop during the X start waits for it', async () => {
+  const r = rig({ stopOut: BARE_STOP });
+  let release;
+  const held = new Promise((resolve) => (release = resolve));
+  const slow = r.base.io.sshRun;
+  r.base.io.sshRun = async (host, script) => {
+    if (script.includes('xset q')) {
+      r.calls.push('x');
+      await held;
+      return { code: 0, stdout: X_OUT, stderr: '' };
+    }
+    return slow(host, script);
+  };
+  const cleanups = [];
+  const starting = startRemote({
+    ...r.base,
+    remote: BARE,
+    headless: false,
+    serverPort: undefined,
+    cleanups,
+  }).catch((error) => error);
+  assert.equal(cleanups.length, 1, 'registered synchronously, ahead of the first script');
+  await sleepMs(20);
+  assert.deepEqual(r.calls, ['prepare', 'x']);
+  const stopping = cleanups[0]();
+  await sleepMs(20);
+  assert.ok(!r.calls.includes('stop'), 'the stop waits for the X start');
+  release();
+  await stopping;
+  assert.deepEqual(r.calls, ['prepare', 'x', 'stop']);
+  assert.match((await starting).message, /stopped before/);
+  assert.ok(!r.calls.includes('launch'), 'no browser starts after the stop was asked for');
+});
+
+test('stops, and says why, when the bare X server did not come up', async () => {
+  const r = rig({
+    stopOut: 'removed\ndisplay restored\nleftover 0\n',
+    xOut: { code: 1, stdout: 'lightdm active\nnote Xorg did not answer in 20 s\n' },
+  });
+  await assert.rejects(
+    startRemote({ ...r.base, remote: BARE, headless: false, cleanups: [] }),
+    /bare X server.*Xorg did not answer/,
+  );
+  assert.ok(r.calls.includes('stop'), 'LightDM is put back after a failed start');
+  assert.ok(!r.calls.includes('launch'));
+});
+
+test('is not clean until LightDM is back: the stop rejects, tells how, and reports what it saw', async () => {
+  const r = rig({
+    stopOut:
+      'stopped\nleftover 0\nxorg stopped\nremoved\ndisplay not restored: lightdm is failed\n',
+  });
+  r.gate.release();
+  const stopped = [];
+  const remote = await startRemote({
+    ...r.base,
+    remote: BARE,
+    headless: false,
+    onStopped: (what) => stopped.push(what),
+    cleanups: [],
+  });
+  await assert.rejects(remote.stop(), /display was not restored.*systemctl start lightdm/);
+  assert.match(r.lines.join('\n'), /display not restored: lightdm is failed/);
+  assert.equal(stopped[0].report.display.state, 'not-restored');
+});
+
+test('is not clean where the Xorg or the server it started is still there', async () => {
+  for (const left of ['xorg left', 'server left']) {
+    const r = rig({
+      stopOut: `stopped\nleftover 0\n${left}\nremoved\ndisplay restored\n`,
+    });
+    r.gate.release();
+    const remote = await startRemote({ ...r.base, remote: BARE, headless: false, cleanups: [] });
+    await assert.rejects(remote.stop(), /not cleaned up/, left);
+  }
+});
+
+test('hears the report of a clean stop, restored display included', async () => {
+  const r = rig({ stopOut: BARE_STOP });
+  r.gate.release();
+  const stopped = [];
+  const remote = await startRemote({
+    ...r.base,
+    remote: BARE,
+    headless: false,
+    onStopped: (what) => stopped.push(what),
+    cleanups: [],
+  });
+  await remote.stop();
+  await remote.stop();
+  assert.equal(stopped.length, 1);
+  assert.equal(stopped[0].report.display.state, 'restored');
+  assert.match(r.lines.join('\n'), /board: display restored/);
 });

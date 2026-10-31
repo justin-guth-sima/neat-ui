@@ -41,9 +41,20 @@ Remote browser (--target remote)
   --remote-chromium chromium the browser's name or path on the board
   --remote-display :0        run headed on that X display (kiosk) instead of headless; the page
                              then has the display's own size, whatever --viewport says
+  --remote-display bare      run headed on a bare X server the harness starts for the run, with
+                             the browser alone and no desktop: it stops LightDM (never disables
+                             it), starts Xorg with a cookie of its own, and on the way out stops
+                             Xorg and starts LightDM again, saying whether the display is
+                             restored. Needs --target remote; --remote-xauthority is refused
   --remote-xauthority <path> the X authority file of that display on the board (absolute path;
                              default: the board user's $HOME/.Xauthority)
   (the browser takes a free debugging port itself and the harness reads which)
+
+Where the board's page is served from (default: this laptop, through a reverse tunnel)
+  --serve board[:<bind>]     copy the built bench to the board and serve it there with a static
+                             server (python3), so no tunnel latency enters a run; bind 127.0.0.1
+                             unless given. --serve board:10.42.0.68 binds the USB link, so a
+                             laptop browser (--target local) can load the board's page
 
 Output
   --out projects/bench/results   run files, screenshots and traces (gitignored)
@@ -86,6 +97,7 @@ const OPTIONS = {
   'remote-chromium': { type: 'string' },
   'remote-display': { type: 'string' },
   'remote-xauthority': { type: 'string' },
+  serve: { type: 'string' },
 };
 
 function whole(value, name, least, fallback) {
@@ -145,6 +157,19 @@ function xauthority(value) {
   return value;
 }
 
+const LOOPBACK = /^127\./;
+
+/** `board` or `board:<ipv4>`: where the bench is served from, judged before any ssh. */
+function serve(value) {
+  if (value === undefined) return undefined;
+  const match = /^board(?::(\d{1,3}(?:\.\d{1,3}){3}))?$/.exec(value);
+  const bind = match?.[1] ?? (match ? '127.0.0.1' : undefined);
+  if (!match || bind.split('.').some((part) => Number(part) > 255)) {
+    throw new UsageError(`--serve is board or board:<ipv4 address to bind>, not "${value}"`);
+  }
+  return { where: 'board', bind };
+}
+
 function viewport(value) {
   if (value === undefined) return { w: 1920, h: 1080 };
   if (value === 'native') return 'native';
@@ -183,6 +208,37 @@ export function parseArgs(argv) {
   if (where.kind === 'remote' && v.ssh === undefined) {
     throw new UsageError('--target remote starts a browser on the board over --ssh user@host');
   }
+  const bare = v['remote-display'] === 'bare';
+  if (bare && where.kind !== 'remote') {
+    throw new UsageError(
+      '--remote-display bare starts an X server on the board: needs --target remote',
+    );
+  }
+  if (bare && v.headless) {
+    throw new UsageError('--remote-display bare is a headed run: it cannot be --headless');
+  }
+  if (bare && v['remote-xauthority'] !== undefined) {
+    throw new UsageError(
+      '--remote-xauthority is not allowed with --remote-display bare: the harness makes the cookie',
+    );
+  }
+  const serving = serve(v.serve);
+  if (serving) {
+    if (v.ssh === undefined)
+      throw new UsageError('--serve board copies the bench over --ssh user@host');
+    if (v.url !== undefined) {
+      throw new UsageError('--serve board makes the page address itself: not with --url');
+    }
+    if (where.kind === 'cdp') {
+      throw new UsageError('--serve board is for --target local or remote, not a CDP target');
+    }
+    if (where.kind === 'local' && LOOPBACK.test(serving.bind)) {
+      throw new UsageError(
+        '--serve board for a browser here needs a bind address this laptop can reach ' +
+          '(board:10.42.0.68), not a loopback one',
+      );
+    }
+  }
   const onBoard = v.ssh !== undefined || where.kind !== 'local';
   return {
     help: false,
@@ -200,6 +256,7 @@ export function parseArgs(argv) {
     traceSteps: traceSteps(v['trace-steps']),
     input,
     ssh: v.ssh,
+    serve: serving,
     out: v.out ?? 'projects/bench/results',
     headless: v.headless ?? false,
     viewport: viewport(v.viewport),

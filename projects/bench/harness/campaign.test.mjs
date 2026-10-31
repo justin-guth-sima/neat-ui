@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 import { parseArgs } from './args.mjs';
-import { runCampaign } from './campaign.mjs';
+import { displayRestore, runCampaign } from './campaign.mjs';
 import { runCleanups } from './cleanup.mjs';
 
 const out = mkdtempSync(join(tmpdir(), 'bench-campaign-'));
@@ -67,7 +67,7 @@ function rig({ headless = false, viewport = 'native', runOnePage, session } = {}
     session: session ?? (async () => ({ release: async () => undefined })),
     close: async () => undefined,
   };
-  const seen = { opens: [], remotes: [] };
+  const seen = { opens: [], remotes: [], served: 0, stopWith: null, hosts: [] };
   const deps = {
     openBrowser: async (args) => {
       seen.opens.push(args);
@@ -75,16 +75,29 @@ function rig({ headless = false, viewport = 'native', runOnePage, session } = {}
     },
     startRemote: async (args) => {
       seen.remotes.push(args);
-      args.cleanups.push(async () => seen.remotes.push('stopped'));
+      args.cleanups.push(async () => {
+        seen.remotes.push('stopped');
+        if (seen.stopWith) args.onStopped(seen.stopWith);
+      });
       return {
-        endpoint: 'http://127.0.0.1:55555',
-        pageBase: 'http://127.0.0.1:4390/',
+        endpoint: args.browser === false ? undefined : 'http://127.0.0.1:55555',
+        pageBase: args.serve ? 'http://10.42.0.68:40213/' : 'http://127.0.0.1:4390/',
+        display:
+          args.remote.display === 'bare'
+            ? { kind: 'bare', name: ':0', vt: 7, mode: { w: 1920, h: 1080 }, lightdm: 'active' }
+            : null,
         stop: async () => undefined,
       };
     },
-    serveDist: async () => ({ url: 'http://127.0.0.1:2/', port: 2, close: async () => undefined }),
+    serveDist: async () => {
+      seen.served += 1;
+      return { url: 'http://127.0.0.1:2/', port: 2, close: async () => undefined };
+    },
     runOnePage: runOnePage ?? (async ({ schedule }) => goodRun(schedule)),
-    sshRun: async () => ({ code: 0, stdout: '', stderr: '' }),
+    sshRun: async (host, script) => {
+      seen.hosts.push(script);
+      return { code: 0, stdout: '', stderr: '' };
+    },
     sessionMs: 60,
   };
   return { deps, seen, cleanups: [], logs: [] };
@@ -223,4 +236,114 @@ test('warns where the page loads came from different builds', async () => {
   const done = await go(r, options('--repeats', '2'));
   assert.match(done.run.warnings.join('\n'), /different commits/);
   assert.equal(done.run.bench.gitSha, 'unknown');
+});
+
+// A board-served campaign has no --url: the build to copy is a folder with an index.html.
+const built = join(out, 'dist');
+mkdirSync(built, { recursive: true });
+writeFileSync(join(built, 'index.html'), '<!doctype html>');
+const boardOptions = (...args) =>
+  parseArgs([
+    '--machine',
+    'rig',
+    '--ssh',
+    'sima@board',
+    '--dist',
+    built,
+    '--renderers',
+    'kit',
+    '--repeats',
+    '1',
+    '--cooldown',
+    '0',
+    '--no-screenshots',
+    '--out',
+    mkdtempSync(join(out, 'run-')),
+    ...args,
+  ]);
+
+test('serves from the board: no server here, and the page loads from the board’s address', async () => {
+  const r = rig();
+  const done = await go(
+    r,
+    boardOptions('--target', 'remote', '--remote-display', 'bare', '--serve', 'board'),
+  );
+  assert.equal(r.seen.served, 0);
+  assert.deepEqual(r.seen.remotes[0].serve, { bind: '127.0.0.1', dist: built });
+  assert.equal(r.seen.remotes[0].serverPort, undefined, 'no reverse tunnel to a server here');
+  assert.equal(r.seen.remotes[0].browser, true);
+  assert.equal(done.run.harness.pageBase, 'http://10.42.0.68:40213/');
+  assert.equal(done.run.harness.servedFrom, 'board 127.0.0.1');
+});
+
+test('has the board serve a browser here, and starts no browser on the board', async () => {
+  const r = rig();
+  const done = await go(r, boardOptions('--serve', 'board:10.42.0.68'));
+  assert.equal(r.seen.remotes[0].browser, false);
+  assert.equal(r.seen.opens[0].target.kind, 'local');
+  assert.equal(done.run.harness.pageBase, 'http://10.42.0.68:40213/');
+  await runCleanups(r.cleanups, () => undefined);
+});
+
+test('serves from this laptop, as before, where --serve is not given', async () => {
+  const r = rig();
+  await go(r, boardOptions('--target', 'remote'));
+  assert.equal(r.seen.served, 1);
+  assert.equal(r.seen.remotes[0].serve, undefined);
+  assert.equal(r.seen.remotes[0].serverPort, 2);
+});
+
+test('records the bare display and reads its mode with its own cookie', async () => {
+  const r = rig();
+  const done = await go(r, boardOptions('--target', 'remote', '--remote-display', 'bare'));
+  assert.equal(r.seen.remotes[0].headless, false);
+  assert.equal(done.run.harness.display.name, ':0');
+  assert.deepEqual(done.run.harness.display.mode, { w: 1920, h: 1080 });
+  assert.match(
+    r.seen.hosts[0],
+    /DISPLAY=:0 XAUTHORITY='\/tmp\/neat-bench-[\w-]+\/Xauthority' xrandr/,
+  );
+  await runCleanups(r.cleanups, () => undefined);
+});
+
+test('says in the result that the display was restored, after the board’s teardown', async () => {
+  const r = rig();
+  r.seen.stopWith = { report: { display: { state: 'restored' } } };
+  const opts = boardOptions('--target', 'remote', '--remote-display', 'bare');
+  const done = await go(r, opts);
+  assert.match(read(done.file).harness.display.restore, /not yet restored/);
+  await runCleanups(r.cleanups, () => undefined);
+  const after = read(done.file);
+  assert.equal(after.harness.display.restore, 'display restored');
+  assert.doesNotMatch(after.warnings.join('\n'), /display was not put back/);
+});
+
+test('says why in the result and a warning when the display was not restored', async () => {
+  const r = rig();
+  r.seen.stopWith = {
+    report: {
+      display: { state: 'not-restored', why: 'lightdm is failed (sudo systemctl start lightdm)' },
+    },
+  };
+  const done = await go(r, boardOptions('--target', 'remote', '--remote-display', 'bare'));
+  await runCleanups(r.cleanups, () => undefined);
+  const after = read(done.file);
+  assert.match(after.harness.display.restore, /display not restored: lightdm is failed/);
+  assert.match(after.warnings.join('\n'), /display was not put back/);
+});
+
+test('judges the teardown’s word on the display', () => {
+  assert.equal(displayRestore(null), null);
+  assert.deepEqual(displayRestore({ report: { display: { state: 'restored' } } }), {
+    ok: true,
+    text: 'display restored',
+  });
+  assert.equal(
+    displayRestore({ report: { display: { state: 'unchanged', why: 'lightdm was inactive' } } }).ok,
+    true,
+  );
+  assert.equal(displayRestore({ report: {} }).ok, false);
+  const failed = displayRestore({ error: new Error('ssh: no answer') });
+  assert.equal(failed.ok, false);
+  assert.match(failed.text, /display not restored.*no answer/);
 });

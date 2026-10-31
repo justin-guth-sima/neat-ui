@@ -15,14 +15,14 @@ import { benchInfo, mergeRuns } from './merge.mjs';
 import { modeWarnings } from './mode.mjs';
 import { runOnePage } from './page-run.mjs';
 import {
-  HOST_SCRIPT,
+  hostScript,
   parseHost,
   parseProbe,
   PROBE_SCRIPT,
   summarizeProbes,
   throttleWarning,
 } from './probes.mjs';
-import { startRemote } from './remote.mjs';
+import { remoteDirFor, startRemote } from './remote.mjs';
 import { buildSchedule, traceSchedule } from './schedule.mjs';
 import { serveDist } from './serve.mjs';
 import { createMapper, mapSteps } from './sourcemaps.mjs';
@@ -43,6 +43,27 @@ function checkSummary({ ok, worstPct, compared, skipped, unreadable = 0 }) {
     `recorder against trace: ${ok ? 'within' : 'OUTSIDE'} 3 % over ${compared} phases ` +
     `(worst ${worstPct.toFixed(1)} %)${unread}`
   );
+}
+
+/**
+ * What the board's teardown says of the bare display, for the result and the log: `{ ok, text }`,
+ * or null where the run had no bare display (nothing to say) or the stop has not ended.
+ */
+export function displayRestore(stopped) {
+  if (!stopped) return null;
+  if (stopped.error) {
+    return {
+      ok: false,
+      text: `display not restored: the board's teardown could not run (${stopped.error.message})`,
+    };
+  }
+  const shown = stopped.report?.display;
+  if (!shown) return { ok: false, text: 'display not restored: the teardown reported nothing' };
+  if (shown.state === 'restored') return { ok: true, text: 'display restored' };
+  return {
+    ok: shown.state === 'unchanged',
+    text: `display ${shown.state.replace('-', ' ')}${shown.why ? `: ${shown.why}` : ''}`,
+  };
 }
 
 const label = ({ ladder, renderer, repeat }) => `${renderer} ${ladder} r${repeat}`;
@@ -92,7 +113,15 @@ export async function runCampaign(options, { log, cleanups, deps = {} }) {
     log(`skipped ${entry.renderer} on ladder ${entry.ladder}: ${entry.reason}`);
   if (schedule.length === 0) throw new Error('nothing to run');
 
-  // Where the page comes from: a server of ours, or an address the user gave.
+  // How the board's teardown ended, for the result: it runs after the file's last write on a
+  // normal end, so a cleanup registered first (run last) rewrites the file with it.
+  let boardStopped = null;
+  let rewrite = null;
+  cleanups.push(async () => {
+    if (boardStopped && rewrite) await rewrite();
+  });
+
+  // Where the page comes from: a server of ours, the board's, or an address the user gave.
   const dist = resolve(ROOT, options.dist);
   let server = null;
   if (!options.url) {
@@ -108,27 +137,35 @@ export async function runCampaign(options, { log, cleanups, deps = {} }) {
         `no built bench in ${dist}: run \`npm run bench:build\` first (or pass --url)`,
       );
     }
-    server = await d.serveDist(dist);
-    cleanups.push(() => server.close());
-    log(`serving ${dist} at ${server.url}`);
+    if (!options.serve) {
+      server = await d.serveDist(dist);
+      cleanups.push(() => server.close());
+      log(`serving ${dist} at ${server.url}`);
+    }
   }
 
   let target = options.target;
   let base = options.url ?? server?.url;
-  if (target.kind === 'remote') {
+  let display = null;
+  if (target.kind === 'remote' || options.serve) {
     const remote = await d.startRemote({
       ssh: options.ssh,
       runId,
       remote: options.remote,
       headless: options.headless || !options.remote.display,
-      serverPort: options.url ? undefined : server.port,
+      // A laptop browser loading what the board serves has no browser on the board to start.
+      browser: target.kind === 'remote',
+      serve: options.serve && { bind: options.serve.bind, dist },
+      serverPort: options.url || options.serve ? undefined : server.port,
       log,
+      onStopped: (stopped) => (boardStopped = stopped),
       // Registered by `startRemote` itself, before it launches anything.
       cleanups,
     });
-    target = { kind: 'cdp', endpoint: remote.endpoint };
+    display = remote.display ?? null;
+    if (target.kind === 'remote') target = { kind: 'cdp', endpoint: remote.endpoint };
     base = options.url ?? remote.pageBase;
-    log(`the board's browser loads the bench from ${base}`);
+    log(`the browser loads the bench from ${base}`);
   }
 
   const opened = await d.openBrowser({
@@ -152,7 +189,12 @@ export async function runCampaign(options, { log, cleanups, deps = {} }) {
   let probe = null;
   if (options.ssh) {
     try {
-      const host = await d.sshRun(options.ssh, HOST_SCRIPT);
+      const host = await d.sshRun(
+        options.ssh,
+        hostScript(
+          display && { name: display.name, xauthority: `${remoteDirFor(runId)}/Xauthority` },
+        ),
+      );
       machineExtra.host = parseHost(host.stdout);
     } catch (error) {
       warnings.push(`The host's identity could not be read over ssh: ${error.message}`);
@@ -290,6 +332,10 @@ export async function runCampaign(options, { log, cleanups, deps = {} }) {
           `are in this file${inProgress ? `, and ${inProgress} was under way and is not` : ''}.`,
       );
     }
+    const restore = display ? displayRestore(boardStopped) : null;
+    if (restore && !restore.ok) {
+      incomplete.push(`The board's display was not put back: ${restore.text}.`);
+    }
     const built = builtFrom(pageRuns);
     const checkout = bench.gitSha;
     const verification = [];
@@ -322,6 +368,13 @@ export async function runCampaign(options, { log, cleanups, deps = {} }) {
           cooldownMs: options.cooldownMs,
           browserVersion: facts.version,
           pageBase: base,
+          ...(options.serve && { servedFrom: `board ${options.serve.bind}` }),
+          ...(display && {
+            display: {
+              ...display,
+              restore: restore?.text ?? 'LightDM stopped for the run; not yet restored',
+            },
+          }),
           complete: unfinished === null,
         },
       },
@@ -339,6 +392,7 @@ export async function runCampaign(options, { log, cleanups, deps = {} }) {
     });
     return writing;
   };
+  rewrite = write;
   // A signal gets what there is so far into the file before the browser is closed.
   let done = false;
   cleanups.push(async () => {

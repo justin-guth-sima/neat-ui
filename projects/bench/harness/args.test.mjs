@@ -156,6 +156,71 @@ test('takes the Xauthority file as an absolute path only, since the board’s sh
   }
 });
 
+const BOARD = [...BASE, '--target', 'remote', '--ssh', 'sima@board'];
+
+test('takes --remote-display bare for a headed run on a bare X server, on the board only', () => {
+  const o = parseArgs([...BOARD, '--remote-display', 'bare']);
+  assert.equal(o.remote.display, 'bare');
+  assert.equal(o.headless, false);
+  assert.throws(() => parseArgs([...BASE, '--remote-display=bare']), /--target remote/);
+  assert.throws(
+    () => parseArgs([...BASE, '--ssh', 'sima@board', '--remote-display=bare']),
+    /--target remote/,
+  );
+  assert.throws(() => parseArgs([...BOARD, '--remote-display=bare', '--headless']), /headed/);
+});
+
+test('refuses --remote-xauthority with --remote-display bare: the harness makes the cookie', () => {
+  assert.throws(
+    () =>
+      parseArgs([...BOARD, '--remote-display=bare', '--remote-xauthority=/home/sima/.Xauthority']),
+    /xauthority.*bare|bare.*xauthority/i,
+  );
+});
+
+test('serves the bench from the board with --serve board, loopback unless a bind is given', () => {
+  assert.equal(parseArgs(BOARD).serve, undefined);
+  assert.deepEqual(parseArgs([...BOARD, '--serve', 'board']).serve, {
+    where: 'board',
+    bind: '127.0.0.1',
+  });
+  assert.deepEqual(parseArgs([...BOARD, '--serve=board:10.42.0.68']).serve, {
+    where: 'board',
+    bind: '10.42.0.68',
+  });
+});
+
+test('judges --serve before anything runs: value, host, target and page address', () => {
+  for (const value of [
+    'laptop',
+    'board:',
+    'board:host',
+    'board:1.2.3',
+    'board:1.2.3.4.5',
+    'board:999.1.1.1',
+    'board:1.2.3.4;id',
+    'x',
+  ]) {
+    assert.throws(() => parseArgs([...BOARD, `--serve=${value}`]), /--serve/, value);
+  }
+  assert.throws(() => parseArgs([...BASE, '--serve=board']), /--ssh/);
+  assert.throws(() => parseArgs([...BOARD, '--serve=board', '--url=http://x:4300/']), /--url/);
+  assert.throws(
+    () =>
+      parseArgs([
+        ...BASE,
+        '--ssh=sima@board',
+        '--target=cdp:http://127.0.0.1:9222',
+        '--serve=board',
+      ]),
+    /--target/,
+  );
+  // A laptop browser cannot reach the board's loopback.
+  assert.throws(() => parseArgs([...BASE, '--ssh=sima@board', '--serve=board']), /loopback|bind/);
+  const laptop = parseArgs([...BASE, '--ssh=sima@board', '--serve=board:10.42.0.68']);
+  assert.equal(laptop.serve.bind, '10.42.0.68');
+});
+
 test('documents every option it reads', () => {
   for (const name of [
     '--url',
@@ -178,6 +243,8 @@ test('documents every option it reads', () => {
     '--allow-unfair',
     '--no-screenshots',
     '--remote-xauthority',
+    '--serve',
+    'bare',
   ]) {
     assert.ok(USAGE.includes(name), name);
   }
