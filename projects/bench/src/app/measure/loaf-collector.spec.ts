@@ -109,6 +109,21 @@ describe('LoafCollector', () => {
     expect(summary).toMatchObject({ source: 'none', frames: 0, scripts: [] });
   });
 
+  it('says "none" and keeps going when the browser refuses to observe the type', () => {
+    const Observer = fakeObserver(['long-animation-frame']);
+    Observer.prototype.observe = () => {
+      throw new TypeError('the entry type is not supported');
+    };
+
+    const collector = new LoafCollector(Observer);
+    expect(() => collector.start()).not.toThrow();
+
+    expect(collector.source).toBe('none');
+    expect(collector.summarize(0, 1000)).toMatchObject({ source: 'none', frames: 0 });
+    // Nothing was left observing, so there is nothing to disconnect either.
+    expect(() => collector.stop()).not.toThrow();
+  });
+
   it('works without a PerformanceObserver at all', () => {
     const collector = new LoafCollector(undefined);
 

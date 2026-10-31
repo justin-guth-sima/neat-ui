@@ -87,7 +87,9 @@ const pageObserver = (): ObserverConstructor | undefined =>
     : (PerformanceObserver as unknown as ObserverConstructor);
 
 export class LoafCollector {
-  readonly source: LoafSource;
+  /** What the browser offers; `source` says "none" instead once observing it has failed. */
+  private readonly offered: LoafSource;
+  private refused = false;
   private observer: ObserverLike | null = null;
   private entries: unknown[] = [];
   private dropped = 0;
@@ -98,11 +100,16 @@ export class LoafCollector {
     private readonly maxEntries = DEFAULT_MAX_ENTRIES,
   ) {
     const supported = Observer?.supportedEntryTypes ?? [];
-    this.source = supported.includes('long-animation-frame')
+    this.offered = supported.includes('long-animation-frame')
       ? 'long-animation-frame'
       : supported.includes('longtask')
         ? 'longtask'
         : 'none';
+  }
+
+  /** The entries this run has: what was offered, or none once the browser refused to observe. */
+  get source(): LoafSource {
+    return this.refused ? 'none' : this.offered;
   }
 
   /** Entries let go because `maxEntries` were held: a window's counts are then a lower bound. */
@@ -111,9 +118,17 @@ export class LoafCollector {
   }
 
   start(): void {
-    if (this.source === 'none' || this.observer || !this.Observer) return;
-    this.observer = new this.Observer((list) => this.keep(list.getEntries()));
-    this.observer.observe({ type: this.source });
+    if (this.offered === 'none' || this.observer || !this.Observer) return;
+    const observer = new this.Observer((list) => this.keep(list.getEntries()));
+    try {
+      observer.observe({ type: this.offered });
+    } catch {
+      // A browser may list a type and still refuse it: the run then has no long frames, which the
+      // result says ("none"), and measures on.
+      this.refused = true;
+      return;
+    }
+    this.observer = observer;
   }
 
   stop(): void {
