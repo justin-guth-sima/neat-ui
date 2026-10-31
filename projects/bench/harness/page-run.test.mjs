@@ -6,7 +6,7 @@ import { runOnePage } from './page-run.mjs';
 const SCHEDULE = { ladder: 'A', renderer: 'kit', repeat: 0 };
 const OPTIONS = { machine: 'rig', seed: 1, refine: false, input: 'page', screenshots: false };
 // A run with a step that may take 60 ms and a start that may take 60 ms, so a hang is found fast.
-const LIMITS = { startMs: 60, stepMs: () => 60, runMs: () => 5000 };
+const LIMITS = { startMs: 60, stepMs: () => 60, runMs: () => 5000, setupMs: 60 };
 
 const stepResult = (step, over = {}) => ({
   renderer: 'kit',
@@ -31,7 +31,7 @@ const BEGIN = {
  * A session over a fake page. `script(emit, session)` runs when the page is opened at its address
  * and says what the page does; `benchResult` is what `window.benchResult` holds then.
  */
-function fake({ script, benchResult, sample = 0 }) {
+function fake({ script, benchResult, sample = 0, newCDPSession, startTracing }) {
   const page = new EventEmitter();
   page.close = async () => undefined;
   page.mouse = {
@@ -44,24 +44,26 @@ function fake({ script, benchResult, sample = 0 }) {
   page.screenshot = async () => undefined;
   const session = {
     page,
-    browser: {},
+    browser: { startTracing, stopTracing: async () => '{}' },
     listener: { current: null },
     context: {
-      newCDPSession: async () => ({
-        send: async (method) => {
-          if (method === 'Performance.getMetrics') {
-            sample += 1;
-            return {
-              metrics: [
-                { name: 'Timestamp', value: sample },
-                { name: 'TaskDuration', value: sample * 0.25 },
-              ],
-            };
-          }
-          if (method === 'Memory.getDOMCounters') return { nodes: 9, jsEventListeners: 3 };
-          return {};
-        },
-      }),
+      newCDPSession:
+        newCDPSession ??
+        (async () => ({
+          send: async (method) => {
+            if (method === 'Performance.getMetrics') {
+              sample += 1;
+              return {
+                metrics: [
+                  { name: 'Timestamp', value: sample },
+                  { name: 'TaskDuration', value: sample * 0.25 },
+                ],
+              };
+            }
+            if (method === 'Memory.getDOMCounters') return { nodes: 9, jsEventListeners: 3 };
+            return {};
+          },
+        })),
     },
   };
   const urls = [];
@@ -122,9 +124,10 @@ test('fails a step that never ends, naming it, and keeps the steps that did end'
   const out = await run(rig);
   assert.equal(out.ok, false);
   assert.match(out.error, /watchdog: step 1 \(level 2\) did not finish in 60 ms/);
+  // The step that ended, and the one the watchdog gave up on (below).
   assert.deepEqual(
     out.steps.map((s) => s.step),
-    [0],
+    [0, 1],
   );
 });
 
@@ -228,4 +231,134 @@ test('replays the page’s pointer actions through the browser’s mouse when as
   assert.equal(out.ok, true);
   assert.deepEqual(log, ['move 5 6', 'down', 'move 5 6', 'up']);
   assert.equal(out.input.played, 2);
+});
+
+const never = () => new Promise(() => undefined);
+
+test('fails a run whose CDP session never opens, recording it instead of waiting for ever', async () => {
+  const out = await run(
+    fake({ benchResult: undefined, newCDPSession: never, script: () => undefined }),
+  );
+  assert.equal(out.ok, false);
+  assert.match(out.error, /CDP session: no answer in 60 ms/);
+  assert.deepEqual(out.steps, []);
+});
+
+test('fails a run whose Performance domain never enables', async () => {
+  const out = await run(
+    fake({
+      benchResult: undefined,
+      newCDPSession: async () => ({ send: never }),
+      script: () => undefined,
+    }),
+  );
+  assert.equal(out.ok, false);
+  assert.match(out.error, /Performance\.enable: no answer in 60 ms/);
+});
+
+test('fails a traced run whose tracing never starts', async () => {
+  const out = await run(
+    fake({ benchResult: undefined, startTracing: never, script: () => undefined }),
+    {
+      trace: true,
+      files: { trace: '/nonexistent/x.gz', traceName: 'x.gz' },
+    },
+  );
+  assert.equal(out.ok, false);
+  assert.match(out.error, /start tracing: no answer in 60 ms/);
+});
+
+test('fails a run whose page cannot be inspected, instead of waiting for ever', async () => {
+  const rig = fake({
+    benchResult: { steps: [], warnings: [], runId: 'p' },
+    script: async (emit) => {
+      emit(BEGIN);
+      emit({ type: 'run-end' });
+    },
+  });
+  const out = await run(rig, { inspect: never });
+  assert.equal(out.ok, false);
+  assert.match(out.error, /inspect page: no answer in 60 ms/);
+});
+
+test('says why a page that ends before it began a run did, at once and not after the start limit', async () => {
+  const rig = fake({
+    benchResult: { error: 'ladder X is not a ladder' },
+    script: async (emit) => emit({ type: 'run-failed', message: 'ladder X is not a ladder' }),
+  });
+  const began = Date.now();
+  const out = await run(rig, { limits: { ...LIMITS, startMs: 5000 } });
+  assert.equal(out.ok, false);
+  assert.match(out.error, /ladder X is not a ladder/);
+  assert.ok(Date.now() - began < 2000, 'did not wait out the 5 s start limit');
+});
+
+test('records the step the watchdog killed, so the level it was at is not lost', async () => {
+  const rig = fake({
+    benchResult: undefined,
+    script: async (emit) => {
+      emit(BEGIN);
+      emit({ type: 'step-begin', step: 0, level: 1 });
+      emit({ type: 'step-end', step: 0, result: stepResult(0) });
+      emit({ type: 'step-begin', step: 1, level: 2 });
+    },
+  });
+  const out = await run(rig);
+  assert.equal(out.ok, false);
+  assert.deepEqual(
+    out.steps.map((s) => [s.step, s.level, s.aborted]),
+    [
+      [0, 1, undefined],
+      [1, 2, 'watchdog'],
+    ],
+  );
+  const killed = out.steps[1];
+  assert.equal(killed.renderer, 'kit');
+  assert.equal(killed.ladder, 'A');
+  assert.equal(killed.repeat, 0);
+  assert.deepEqual(killed.phases, {});
+});
+
+test('records the step in flight when the run limit, not the step limit, ran out', async () => {
+  const rig = fake({
+    benchResult: undefined,
+    script: async (emit) => {
+      emit(BEGIN);
+      emit({ type: 'step-begin', step: 0, level: 1 });
+    },
+  });
+  const out = await run(rig, { limits: { ...LIMITS, stepMs: () => 5000, runMs: () => 80 } });
+  assert.match(out.error, /the run did not finish/);
+  assert.equal(out.steps[0].aborted, 'watchdog');
+});
+
+test('does not invent a step where the page crashed between steps', async () => {
+  const rig = fake({
+    benchResult: undefined,
+    script: async (emit, page) => {
+      emit(BEGIN);
+      emit({ type: 'step-begin', step: 0, level: 1 });
+      emit({ type: 'step-end', step: 0, result: stepResult(0) });
+      page.emit('crash');
+    },
+  });
+  const out = await run(rig);
+  assert.deepEqual(
+    out.steps.map((s) => s.aborted),
+    [undefined],
+  );
+});
+
+test('names the page it listens to, so another page’s events are not this run’s', async () => {
+  let listening;
+  const rig = fake({
+    benchResult: { steps: [], warnings: [], runId: 'p' },
+    script: async (emit) => {
+      listening = rig.session.listener.current;
+      emit(BEGIN);
+      emit({ type: 'run-end' });
+    },
+  });
+  await run(rig);
+  assert.equal(listening.page, rig.page);
 });

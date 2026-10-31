@@ -12,8 +12,10 @@ import { createWatchdog, runLimitMs, stepLimitMs, withTimeout } from './watchdog
 
 /** Loading the page, calibrating and routing to the host, before the page says it will climb. */
 const START_MS = 60_000;
-const LIMITS = { startMs: START_MS, stepMs: stepLimitMs, runMs: runLimitMs };
 const CDP_MS = 15_000;
+/** Opening the CDP session, enabling its domain, starting a trace, reading the inspection. */
+const SETUP_MS = CDP_MS;
+const LIMITS = { startMs: START_MS, stepMs: stepLimitMs, runMs: runLimitMs, setupMs: SETUP_MS };
 const TRACE_CATEGORIES = [
   'devtools.timeline',
   'disabled-by-default-devtools.timeline',
@@ -22,7 +24,10 @@ const TRACE_CATEGORIES = [
   'viz',
 ];
 
-/** A promise that resolves with `value` after `ms`, and a way to stop its timer (a pending one would keep the process up). */
+/**
+ * A promise that resolves with `value` after `ms`, and a way to stop its timer (a pending one
+ * would keep the process up).
+ */
 function after(ms, value) {
   let timer;
   const promise = new Promise((resolve) => (timer = setTimeout(() => resolve(value), ms)));
@@ -33,7 +38,8 @@ function after(ms, value) {
  * Runs `schedule` ({ ladder, renderer, repeat }) on `session` (`browser.mjs`), at `base`. Options:
  * the campaign's (`machine`, `seed`, `refine`, `input`, `screenshots`), `steps`, and `files`
  * (where a screenshot or trace is saved, or null), `trace`, `inspect(page)` (read something from
- * the page before it closes), `probe()` (the board's counters; may be null), and `limits` (the watchdog's, for the specs).
+ * the page before it closes), `probe()` (the board's counters; may be null), and `limits` (the
+ * watchdog's, for the specs).
  */
 export async function runOnePage({
   session,
@@ -59,8 +65,8 @@ export async function runOnePage({
     if (message.type() === 'error' && pageErrors.length < 5) pageErrors.push(message.text());
   });
 
-  const cdp = await context.newCDPSession(page);
-  await cdp.send('Performance.enable');
+  // Opened inside the run's own try below: a browser that does not answer is that run's failure.
+  let cdp = null;
   const recorder = createBoundaryRecorder({
     sample: async () =>
       toMap(
@@ -74,6 +80,9 @@ export async function runOnePage({
   // The page's events: counters at the boundary, the watchdog's clock, and where a run ends.
   let begin = null;
   let dog = null;
+  // The step the page began and has not ended, and whether the watchdog ran out on it.
+  let inFlight = null;
+  let watchdogFired = false;
   const stepResults = new Map();
   let resolveBegin;
   let resolveEnd;
@@ -88,9 +97,11 @@ export async function runOnePage({
         resolveBegin(event);
         break;
       case 'step-begin':
+        inFlight = { step: event.step, level: event.level };
         dog?.step(limits.stepMs(begin.plannedStepMs), `step ${event.step} (level ${event.level})`);
         break;
       case 'step-end':
+        inFlight = null;
         dog?.stepDone();
         stepResults.set(event.step, event.result);
         break;
@@ -104,7 +115,8 @@ export async function runOnePage({
         break;
     }
   };
-  session.listener.current = { onEvent, onInput: null };
+  // `page` is who may speak: the harness's bindings serve every page of the context.
+  session.listener.current = { page, onEvent, onInput: null };
 
   let bridge = null;
   if (options.input === 'cdp') {
@@ -115,8 +127,14 @@ export async function runOnePage({
   const started = Date.now();
   let tracing = false;
   try {
+    cdp = await withTimeout(context.newCDPSession(page), limits.setupMs, 'open CDP session');
+    await withTimeout(cdp.send('Performance.enable'), limits.setupMs, 'Performance.enable');
     if (trace && files) {
-      await session.browser.startTracing(page, { categories: TRACE_CATEGORIES });
+      await withTimeout(
+        session.browser.startTracing(page, { categories: TRACE_CATEGORIES }),
+        limits.setupMs,
+        'start tracing',
+      );
       tracing = true;
     }
     if (probe) run.before = await probe();
@@ -133,16 +151,29 @@ export async function runOnePage({
     await page.goto(url, { waitUntil: 'load', timeout: limits.startMs });
 
     const late = after(limits.startMs, `the page did not start a run in ${limits.startMs} ms`);
-    const startup = await Promise.race([began.then(() => null), dead, late.promise]);
+    // A page that ends before it began (a query it refuses) says why at once.
+    const startup = await Promise.race([
+      began.then(() => null),
+      dead,
+      late.promise,
+      ended.then((outcome) =>
+        outcome.ok ? 'the page ended without starting a run' : outcome.error,
+      ),
+    ]);
     late.cancel();
-    if (startup) throw new Error(startup);
+    if (startup && !begin) throw new Error(startup);
 
     const outcome = await Promise.race([
       ended,
-      dog.expired.then((e) => ({
-        ok: false,
-        error: `watchdog: ${e.scope === 'run' ? 'the run' : e.label} did not finish in ${e.ms} ms`,
-      })),
+      dog.expired.then((e) => {
+        watchdogFired = true;
+        return {
+          ok: false,
+          error:
+            `watchdog: ${e.scope === 'run' ? 'the run' : e.label} ` +
+            `did not finish in ${e.ms} ms`,
+        };
+      }),
       dead.then((error) => ({ ok: false, error })),
     ]);
     if (!outcome.ok) throw new Error(outcome.error);
@@ -159,12 +190,13 @@ export async function runOnePage({
       run.notes.push(e.message),
     );
     if (probe) run.after = await probe();
-    if (inspect) run.inspected = await inspect(page);
+    if (inspect) run.inspected = await withTimeout(inspect(page), limits.setupMs, 'inspect page');
     run.steps = recorder.applyTo(result.steps);
 
     if (files?.screenshot && run.steps.length > 0) {
       await mkdir(dirname(files.screenshot), { recursive: true });
-      // After the last step, never between: the result panel is hidden so the picture is the diagram.
+      // After the last step, never between: the result panel is hidden so the picture is the
+      // diagram.
       await page.screenshot({
         path: files.screenshot,
         style: '.result { display: none !important }',
@@ -179,7 +211,21 @@ export async function runOnePage({
     run.error =
       error.message + (pageErrors.length ? ` (page errors: ${pageErrors.join(' | ')})` : '');
     await withTimeout(recorder.settle(), CDP_MS, 'counters').catch(() => undefined);
-    run.steps = recorder.applyTo([...stepResults.values()].sort((a, b) => a.step - b.step));
+    const kept = [...stepResults.values()].sort((a, b) => a.step - b.step);
+    // The step the watchdog gave up on never ended on the page: it is recorded here, so the level
+    // it was climbing to is not missing from the run.
+    if (watchdogFired && inFlight) {
+      kept.push({
+        renderer: schedule.renderer,
+        ladder: schedule.ladder,
+        step: inFlight.step,
+        level: inFlight.level,
+        repeat: schedule.repeat,
+        phases: {},
+        aborted: 'watchdog',
+      });
+    }
+    run.steps = recorder.applyTo(kept);
     if (probe && !run.after) run.after = await probe().catch(() => undefined);
   } finally {
     dog?.stop();
@@ -197,7 +243,8 @@ export async function runOnePage({
     if (bridge) {
       if (bridge.errors.length > 0) {
         run.notes.push(
-          `${bridge.errors.length} pointer actions were refused by the browser (${bridge.errors[0]})`,
+          `${bridge.errors.length} pointer actions were refused by the browser ` +
+            `(${bridge.errors[0]})`,
         );
       }
       run.input = { played: bridge.played, coalesced: bridge.coalesced };
