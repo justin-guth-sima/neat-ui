@@ -1,0 +1,482 @@
+# Bench campaigns, 2026-11 summary
+
+Numbers only; the write-up is Task 7c. One section per campaign, in the order run. Each campaign's
+own summary (the results view's markdown, with its not-comparable and how-the-numbers-were-taken
+sections) and result file are kept beside the runs, not here. The result files are gitignored.
+
+- Capacity: the largest load that held in every phase of every smaller step too, as the median
+  of the repeats (range where they differ). Smooth: p95 frame within 1.25 refresh intervals and at
+  most 5 % dropped. Usable: 30 fps or more and p99 within 100 ms. "none" for a renderer is no
+  step of the ladder (not even its first) reaching the tier.
+- Verdict rule: the kit is clearly slower where its smooth capacity is at least one doubling step
+  below vflow's in 2 of 3 repeats.
+- Tiers are judged at the lower of the recorder's rate and the display's presented rate where a
+  trace gave one (see each campaign's summary).
+- The GPU-blocklist variant was skipped: the board has no render node, and its browser already
+  composites in software (`gpu_compositing: disabled_software`).
+
+## Campaigns
+
+| Campaign | Result file | Page loads | Failed | Harness exit |
+| --- | --- | --- | --- | --- |
+| board-headline | `2026-10-31-modalix-devkit-mvwcx2cc.json` | 48 | 4 | 1 |
+| board-soak | `2026-10-31-modalix-devkit-mvwg0oi3.json` | 1 | 0 | 0 |
+| board-flags-disable-gpu | `2026-10-31-modalix-devkit-mvwgektd.json` | 4 | 2 | 1 |
+| board-flags-raster4 | `2026-10-31-modalix-devkit-mvwgrcgr.json` | 4 | 2 | 1 |
+| board-serves-laptop-dpr1 | `2026-10-31-laptop-mvwh4ym4.json` | 48 | 0 | 0 |
+| board-serves-laptop-dprnative | `2026-10-31-laptop-mvwkhkyu.json` | 48 | 0 | 0 |
+| laptop-alone-dpr1 | `2026-10-31-laptop-mvwnus6d.json` | 48 | 0 | 0 |
+| laptop-alone-dprnative | `2026-10-31-laptop-mvwr6l9p.json` | 48 | 0 | 0 |
+
+## 1. Board display, headline
+
+Command: `npm run bench:run -- --input=page --target remote --ssh sima@10.42.0.68 --remote-display bare --serve board --machine modalix-devkit --ladders A,B,C,D --renderers kit,vflow,none --repeats 3 --trace --cooldown 20`
+
+- Machine: Chromium 151.0.7922.137, 16 cores, 4 GB
+- Display: the window’s own size, 60 Hz measured, headed
+- Build: production build, commit 108e3b4, kit 0.23.0, ngx-vflow 2.7.0
+- Run: 3 repeats, in-page gestures, seed 1, ladders A, B, C, D
+- 3 page loads did not finish
+
+- Machine label `modalix-devkit`, run id `mvwcx2cc`, started 2026-10-31T12:07:58.236Z
+- Page served from: board 127.0.0.1
+- Board display: HDMI-1 1920x1080 at 60 Hz, display restored
+- Build sha (as measured): 108e3b48e783fba8b177300fbe1c1f1207b89570; checkout
+  108e3b48e783fba8b177300fbe1c1f1207b89570
+- GPU compositing: disabled_software; rasterization: disabled_software
+- Screen 1920x1080, page 1919x1079 at DPR 1, 16 cores
+- Board: Cortex-A65 (SiMa.ai Modalix SoM 16Gig Board), 16 cores, 5898 MB
+- Recorder against trace (8 traced runs checked): 5 within 3 %, 3 outside (worst 20.1 %)
+- Board temperature (max per run): 56.3 to 58.6 C over 48 runs; the board exposes no CPU frequency,
+  so throttling is judged by temperature only
+- Runs flagged as throttled by the harness: none; repeated: none needed
+- Failed page loads: vflow A r0, vflow A r1, vflow A r2, vflow A r0 (traced): watchdog: step 4
+  (level 16) did not finish in 69000 ms
+
+### Capacity
+
+| Ladder | Renderer | Smooth | Usable |
+| --- | --- | --- | --- |
+| A: diagram size | kit | none | none |
+| A: diagram size | vflow | none | none |
+| A: diagram size | none | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
+| B: messages per second | kit | none | none |
+| B: messages per second | vflow | none | none |
+| B: messages per second | none | 200 msg/s (100 msg/s to 200 msg/s) | 400 msg/s |
+| C: notes with live rate cards | kit | none | none |
+| C: notes with live rate cards | vflow | none | none |
+| C: notes with live rate cards | none | none | at least 128 notes (4 notes to at least 128 notes) |
+| D: size, messages and notes together | kit | none | none |
+| D: size, messages and notes together | vflow | none | none |
+| D: size, messages and notes together | none | none | ×1 (30 blocks, 400 msg/s) |
+
+### Verdict per ladder
+
+| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
+| --- | --- | --- | --- | --- |
+| A: diagram size | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| B: messages per second | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| C: notes with live rate cards | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| D: size, messages and notes together | Not clearly slower | 0 of 3 | Not clearly slower | no |
+
+### Warnings
+
+- The browser is headed, so the page has its display’s own size: --viewport 1920x1080 is ignored.
+- The board exposes no CPU frequency (no cpufreq files): throttling can be judged by temperature
+  only, which is recorded per run.
+- vflow A r0 failed: watchdog: step 4 (level 16) did not finish in 69000 ms
+- vflow A r1 failed: watchdog: step 4 (level 16) did not finish in 69000 ms
+- vflow A r2 failed: watchdog: step 4 (level 16) did not finish in 69000 ms
+- kit A r0: the recorder and the trace disagree by more than 3 % (and one draw, in a short phase; 4
+  of 12 gesture phases; worst: step 0 zoom, 19.5 fps recorded against 18.3 drawn). Read the
+  recorder's numbers for this machine with care.
+- vflow A r0 failed: watchdog: step 4 (level 16) did not finish in 69000 ms
+- vflow A r0: the recorder and the trace disagree by more than 3 % (and one draw, in a short phase;
+  8 of 8 gesture phases; worst: step 3 pan, 6.3 fps recorded against 5.0 drawn). Read the recorder's
+  numbers for this machine with care.
+- kit B r0: the recorder and the trace disagree by more than 3 % (and one draw, in a short phase; 1
+  of 12 gesture phases; worst: step 1 zoom, 14.8 fps recorded against 14.1 drawn). Read the
+  recorder's numbers for this machine with care.
+
+## 2. Board display, soak (ladder E, untraced)
+
+Command: `npm run bench:run -- --input=page --target remote --ssh sima@10.42.0.68 --remote-display bare --serve board --machine modalix-devkit --ladders E --renderers kit --repeats 1 --cooldown 20`
+
+- Machine: Chromium 151.0.7922.137, 16 cores, 4 GB
+- Display: the window’s own size, 60 Hz measured, headed
+- Build: production build, commit 108e3b4, kit 0.23.0, ngx-vflow 2.7.0
+- Run: 1 repeats, in-page gestures, seed 1, ladders E
+
+- Machine label `modalix-devkit`, run id `mvwg0oi3`, started 2026-10-31T13:34:45.771Z
+- Page served from: board 127.0.0.1
+- Board display: HDMI-1 1920x1080 at 60 Hz, display restored
+- Build sha (as measured): 108e3b48e783fba8b177300fbe1c1f1207b89570; checkout
+  108e3b48e783fba8b177300fbe1c1f1207b89570
+- GPU compositing: disabled_software; rasterization: disabled_software
+- Screen 1920x1080, page 1919x1079 at DPR 1, 16 cores
+- Board: Cortex-A65 (SiMa.ai Modalix SoM 16Gig Board), 16 cores, 5898 MB
+- Board temperature (max per run): 58.9 to 58.9 C over 1 runs; the board exposes no CPU frequency,
+  so throttling is judged by temperature only
+- Runs flagged as throttled by the harness: none; repeated: none needed
+
+### Capacity
+
+| Ladder | Renderer | Smooth | Usable |
+| --- | --- | --- | --- |
+| E: soak | kit | none | none |
+
+### Soak
+
+- kit: Over 10 phases: the frame rate held, the heap grew from 7.0 MB to 12.7 MB.
+
+### Verdict per ladder
+
+Needs the kit and vflow on the same ladder; this file has none.
+
+### Warnings
+
+- The browser is headed, so the page has its display’s own size: --viewport 1920x1080 is ignored.
+- The board exposes no CPU frequency (no cpufreq files): throttling can be judged by temperature
+  only, which is recorded per run.
+- The board was busy before the campaign (1 min load average 1.12): stop what else runs on it for a
+  measurement.
+
+## 3a. Board display, flag variant --disable-gpu (ladder A)
+
+Command: `npm run bench:run -- --input=page --target remote --ssh sima@10.42.0.68 --remote-display bare --serve board --machine modalix-devkit --ladders A --renderers kit,vflow --repeats 1 --trace --cooldown 20 --browser-flags "--disable-gpu"`
+
+- Machine: Chromium 151.0.7922.137, 16 cores, 4 GB
+- Display: the window’s own size, 60 Hz measured, headed
+- Build: production build, commit 108e3b4, kit 0.23.0, ngx-vflow 2.7.0
+- Run: 1 repeats, in-page gestures, seed 1, ladders A
+- 1 page loads did not finish
+
+- Machine label `modalix-devkit`, run id `mvwgektd`, started 2026-10-31T13:45:34.177Z
+- Extra browser flags: --disable-gpu
+- Page served from: board 127.0.0.1
+- Board display: HDMI-1 1920x1080 at 60 Hz, display restored
+- Build sha (as measured): 108e3b48e783fba8b177300fbe1c1f1207b89570; checkout
+  108e3b48e783fba8b177300fbe1c1f1207b89570
+- GPU compositing: disabled_software; rasterization: disabled_software
+- Screen 1920x1080, page 1919x1079 at DPR 1, 16 cores
+- Board: Cortex-A65 (SiMa.ai Modalix SoM 16Gig Board), 16 cores, 5898 MB
+- Recorder against trace (2 traced runs checked): 0 within 3 %, 2 outside (worst 20.3 %)
+- Board temperature (max per run): 57.0 to 58.3 C over 4 runs; the board exposes no CPU frequency,
+  so throttling is judged by temperature only
+- Runs flagged as throttled by the harness: none; repeated: none needed
+- Failed page loads: vflow A r0, vflow A r0 (traced): watchdog: step 4 (level 16) did not finish in
+  69000 ms
+
+### Capacity
+
+| Ladder | Renderer | Smooth | Usable |
+| --- | --- | --- | --- |
+| A: diagram size | kit | none | none |
+| A: diagram size | vflow | none | none |
+
+### Verdict per ladder
+
+| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
+| --- | --- | --- | --- | --- |
+| A: diagram size | Inconclusive (1 of 3 repeats run) | 0 of 1 | Inconclusive | no |
+
+### Warnings
+
+- The browser is headed, so the page has its display’s own size: --viewport 1920x1080 is ignored.
+- The board exposes no CPU frequency (no cpufreq files): throttling can be judged by temperature
+  only, which is recorded per run.
+- The board was busy before the campaign (1 min load average 1.97): stop what else runs on it for a
+  measurement.
+- vflow A r0 failed: watchdog: step 4 (level 16) did not finish in 69000 ms
+- kit A r0: the recorder and the trace disagree by more than 3 % (and one draw, in a short phase; 4
+  of 12 gesture phases; worst: step 5 pan, 10.5 fps recorded against 9.9 drawn). Read the recorder's
+  numbers for this machine with care.
+- vflow A r0 failed: watchdog: step 4 (level 16) did not finish in 69000 ms
+- vflow A r0: the recorder and the trace disagree by more than 3 % (and one draw, in a short phase;
+  8 of 8 gesture phases; worst: step 1 pan, 13.1 fps recorded against 10.5 drawn). Read the
+  recorder's numbers for this machine with care.
+
+## 3b. Board display, flag variant --num-raster-threads=4 (ladder A)
+
+Command: `npm run bench:run -- --input=page --target remote --ssh sima@10.42.0.68 --remote-display bare --serve board --machine modalix-devkit --ladders A --renderers kit,vflow --repeats 1 --trace --cooldown 20 --browser-flags "--num-raster-threads=4"`
+
+- Machine: Chromium 151.0.7922.137, 16 cores, 4 GB
+- Display: the window’s own size, 60 Hz measured, headed
+- Build: production build, commit 108e3b4, kit 0.23.0, ngx-vflow 2.7.0
+- Run: 1 repeats, in-page gestures, seed 1, ladders A
+- 1 page loads did not finish
+
+- Machine label `modalix-devkit`, run id `mvwgrcgr`, started 2026-10-31T13:55:29.883Z
+- Extra browser flags: --num-raster-threads=4
+- Page served from: board 127.0.0.1
+- Board display: HDMI-1 1920x1080 at 60 Hz, display restored
+- Build sha (as measured): 108e3b48e783fba8b177300fbe1c1f1207b89570; checkout
+  108e3b48e783fba8b177300fbe1c1f1207b89570
+- GPU compositing: disabled_software; rasterization: disabled_software
+- Screen 1920x1080, page 1919x1079 at DPR 1, 16 cores
+- Board: Cortex-A65 (SiMa.ai Modalix SoM 16Gig Board), 16 cores, 5898 MB
+- Recorder against trace (2 traced runs checked): 0 within 3 %, 2 outside (worst 18.8 %)
+- Board temperature (max per run): 56.6 to 57.4 C over 4 runs; the board exposes no CPU frequency,
+  so throttling is judged by temperature only
+- Runs flagged as throttled by the harness: none; repeated: none needed
+- Failed page loads: vflow A r0, vflow A r0 (traced): watchdog: step 4 (level 16) did not finish in
+  69000 ms
+
+### Capacity
+
+| Ladder | Renderer | Smooth | Usable |
+| --- | --- | --- | --- |
+| A: diagram size | kit | none | none |
+| A: diagram size | vflow | none | none |
+
+### Verdict per ladder
+
+| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
+| --- | --- | --- | --- | --- |
+| A: diagram size | Inconclusive (1 of 3 repeats run) | 0 of 1 | Inconclusive | no |
+
+### Warnings
+
+- The browser is headed, so the page has its display’s own size: --viewport 1920x1080 is ignored.
+- The board exposes no CPU frequency (no cpufreq files): throttling can be judged by temperature
+  only, which is recorded per run.
+- The board was busy before the campaign (1 min load average 1.89): stop what else runs on it for a
+  measurement.
+- vflow A r0 failed: watchdog: step 4 (level 16) did not finish in 69000 ms
+- kit A r0: the recorder and the trace disagree by more than 3 % (and one draw, in a short phase; 2
+  of 12 gesture phases; worst: step 5 pan, 10.7 fps recorded against 9.8 drawn). Read the recorder's
+  numbers for this machine with care.
+- vflow A r0 failed: watchdog: step 4 (level 16) did not finish in 69000 ms
+- vflow A r0: the recorder and the trace disagree by more than 3 % (and one draw, in a short phase;
+  6 of 8 gesture phases; worst: step 0 pan, 32.6 fps recorded against 26.5 drawn). Read the
+  recorder's numbers for this machine with care.
+
+## 4a. Board serves the laptop, DPR 1
+
+Command: `npm run bench:run -- --input=page --ladders A,B,C,D --renderers kit,vflow,none --repeats 3 --trace --cooldown 20 --target local --serve board:10.42.0.68 --ssh sima@10.42.0.68 --machine laptop --dpr 1`
+
+- Machine: Chromium 156.0.8078.4, 8 cores, ANGLE (Intel, Mesa Intel(R) Graphics (LNL), OpenGL ES
+  3.2)
+- Display: 1920×1080 at DPR 1, 60 Hz measured, headed
+- Build: production build, commit 108e3b4, kit 0.23.0, ngx-vflow 2.7.0
+- Run: 3 repeats, in-page gestures, seed 1, ladders A, B, C, D
+
+- Machine label `laptop`, run id `mvwh4ym4`, started 2026-10-31T14:06:05.116Z
+- Page served from: board 10.42.0.68
+- Build sha (as measured): 108e3b48e783fba8b177300fbe1c1f1207b89570; checkout
+  108e3b48e783fba8b177300fbe1c1f1207b89570
+- GPU compositing: enabled; rasterization: enabled
+- Screen 1920x1080, page 1920x1080 at DPR 1, 8 cores
+- Board (probed over ssh, serving the page): Cortex-A65 (SiMa.ai Modalix SoM 16Gig Board), 16 cores,
+  5898 MB
+- Recorder against trace (8 traced runs checked): 7 within 3 %, 1 outside (worst 22.3 %)
+- Board temperature (max per run): 53.9 to 56.1 C over 48 runs; the board exposes no CPU frequency,
+  so throttling is judged by temperature only
+- Laptop during the campaign (561 samples, 10 s apart): CPU frequency, mean over cores per sample:
+  lowest 2220 MHz, mean 3594 MHz, highest 4000 MHz; hottest zone max 86 C; load average at the start
+  3.52, during 2.4 to 5.5
+- Runs flagged as throttled by the harness: none; repeated: none needed
+
+### Capacity
+
+| Ladder | Renderer | Smooth | Usable |
+| --- | --- | --- | --- |
+| A: diagram size | kit | ×8 (240 blocks) | at least ×32 (960 blocks) |
+| A: diagram size | vflow | none | ×16 (480 blocks) |
+| A: diagram size | none | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
+| B: messages per second | kit | 3,200 msg/s | at least 25,600 msg/s |
+| B: messages per second | vflow | 3,200 msg/s | at least 25,600 msg/s |
+| B: messages per second | none | 6,400 msg/s | at least 25,600 msg/s |
+| C: notes with live rate cards | kit | at least 128 notes | at least 128 notes |
+| C: notes with live rate cards | vflow | at least 128 notes | at least 128 notes |
+| C: notes with live rate cards | none | at least 128 notes | at least 128 notes |
+| D: size, messages and notes together | kit | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
+| D: size, messages and notes together | vflow | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
+| D: size, messages and notes together | none | ×8 (240 blocks, 3,200 msg/s) | at least ×16 (480 blocks, 6,400 msg/s) |
+
+### Verdict per ladder
+
+| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
+| --- | --- | --- | --- | --- |
+| A: diagram size | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| B: messages per second | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| C: notes with live rate cards | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| D: size, messages and notes together | Not clearly slower | 0 of 3 | Not clearly slower | no |
+
+### Warnings
+
+- The board exposes no CPU frequency (no cpufreq files): throttling can be judged by temperature
+  only, which is recorded per run.
+- The board was busy before the campaign (1 min load average 1.13): stop what else runs on it for a
+  measurement.
+- vflow A r0: the recorder and the trace disagree by more than 3 % (and one draw, in a short phase;
+  12 of 12 gesture phases; worst: step 5 pan, 35.8 fps recorded against 27.8 drawn). Read the
+  recorder's numbers for this machine with care.
+
+## 4b. Board serves the laptop, DPR native
+
+Command: `npm run bench:run -- --input=page --ladders A,B,C,D --renderers kit,vflow,none --repeats 3 --trace --cooldown 20 --target local --serve board:10.42.0.68 --ssh sima@10.42.0.68 --machine laptop --dpr native`
+
+- Machine: Chromium 156.0.8078.4, 8 cores, ANGLE (Intel, Mesa Intel(R) Graphics (LNL), OpenGL ES
+  3.2)
+- Display: 1920×1080 at DPR 1, 60 Hz measured, headed
+- Build: production build, commit 108e3b4, kit 0.23.0, ngx-vflow 2.7.0
+- Run: 3 repeats, in-page gestures, seed 1, ladders A, B, C, D
+
+- Machine label `laptop`, run id `mvwkhkyu`, started 2026-10-31T15:39:52.806Z
+- Page served from: board 10.42.0.68
+- Build sha (as measured): 108e3b48e783fba8b177300fbe1c1f1207b89570; checkout
+  108e3b48e783fba8b177300fbe1c1f1207b89570
+- GPU compositing: enabled; rasterization: enabled
+- Screen 1920x1080, page 1920x1080 at DPR 1, 8 cores
+- Board (probed over ssh, serving the page): Cortex-A65 (SiMa.ai Modalix SoM 16Gig Board), 16 cores,
+  5898 MB
+- Recorder against trace (8 traced runs checked): 7 within 3 %, 1 outside (worst 23.9 %)
+- Board temperature (max per run): 54.4 to 54.9 C over 48 runs; the board exposes no CPU frequency,
+  so throttling is judged by temperature only
+- Laptop during the campaign (562 samples, 10 s apart): CPU frequency, mean over cores per sample:
+  lowest 2801 MHz, mean 3589 MHz, highest 4021 MHz; hottest zone max 81 C; load average at the start
+  4.11, during 2.3 to 5.6
+- Runs flagged as throttled by the harness: none; repeated: none needed
+
+### Capacity
+
+| Ladder | Renderer | Smooth | Usable |
+| --- | --- | --- | --- |
+| A: diagram size | kit | ×8 (240 blocks) | at least ×32 (960 blocks) (×16 to at least ×32) |
+| A: diagram size | vflow | ×1 (30 blocks) | ×16 (480 blocks) |
+| A: diagram size | none | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
+| B: messages per second | kit | 3,200 msg/s | at least 25,600 msg/s |
+| B: messages per second | vflow | 3,200 msg/s | at least 25,600 msg/s |
+| B: messages per second | none | 6,400 msg/s | at least 25,600 msg/s |
+| C: notes with live rate cards | kit | at least 128 notes | at least 128 notes |
+| C: notes with live rate cards | vflow | at least 128 notes | at least 128 notes |
+| C: notes with live rate cards | none | at least 128 notes | at least 128 notes |
+| D: size, messages and notes together | kit | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
+| D: size, messages and notes together | vflow | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
+| D: size, messages and notes together | none | ×8 (240 blocks, 3,200 msg/s) | at least ×16 (480 blocks, 6,400 msg/s) |
+
+### Verdict per ladder
+
+| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
+| --- | --- | --- | --- | --- |
+| A: diagram size | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| B: messages per second | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| C: notes with live rate cards | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| D: size, messages and notes together | Not clearly slower | 0 of 3 | Not clearly slower | no |
+
+### Warnings
+
+- The board exposes no CPU frequency (no cpufreq files): throttling can be judged by temperature
+  only, which is recorded per run.
+- vflow A r0: the recorder and the trace disagree by more than 3 % (and one draw, in a short phase;
+  12 of 12 gesture phases; worst: step 5 zoom, 24.6 fps recorded against 18.7 drawn). Read the
+  recorder's numbers for this machine with care.
+
+## 5a. Laptop alone, DPR 1
+
+Command: `npm run bench:run -- --input=page --ladders A,B,C,D --renderers kit,vflow,none --repeats 3 --trace --cooldown 20 --target local --machine laptop --dpr 1`
+
+- Machine: Chromium 156.0.8078.4, 8 cores, 32 GB, ANGLE (Intel, Mesa Intel(R) Graphics (LNL), OpenGL
+  ES 3.2)
+- Display: 1920×1080 at DPR 1, 60 Hz measured, headed
+- Build: production build, commit 108e3b4, kit 0.23.0, ngx-vflow 2.7.0
+- Run: 3 repeats, in-page gestures, seed 1, ladders A, B, C, D
+
+- Machine label `laptop`, run id `mvwnus6d`, started 2026-10-31T17:14:07.525Z
+- Build sha (as measured): 108e3b48e783fba8b177300fbe1c1f1207b89570; checkout
+  108e3b48e783fba8b177300fbe1c1f1207b89570
+- GPU compositing: enabled; rasterization: enabled
+- Screen 1920x1080, page 1920x1080 at DPR 1, 8 cores
+- Recorder against trace (8 traced runs checked): 7 within 3 %, 1 outside (worst 27.4 %)
+- Laptop during the campaign (558 samples, 10 s apart): CPU frequency, mean over cores per sample:
+  lowest 2840 MHz, mean 3614 MHz, highest 3982 MHz; hottest zone max 84 C; load average at the start
+  4.20, during 2.5 to 6.1
+- Throttling: the harness has no probe without --ssh, so none was flagged; the laptop samples above
+  are the only evidence
+
+### Capacity
+
+| Ladder | Renderer | Smooth | Usable |
+| --- | --- | --- | --- |
+| A: diagram size | kit | ×8 (240 blocks) | at least ×32 (960 blocks) |
+| A: diagram size | vflow | none | ×16 (480 blocks) |
+| A: diagram size | none | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
+| B: messages per second | kit | 3,200 msg/s | at least 25,600 msg/s |
+| B: messages per second | vflow | 3,200 msg/s | at least 25,600 msg/s |
+| B: messages per second | none | 6,400 msg/s | at least 25,600 msg/s |
+| C: notes with live rate cards | kit | at least 128 notes | at least 128 notes |
+| C: notes with live rate cards | vflow | at least 128 notes | at least 128 notes |
+| C: notes with live rate cards | none | at least 128 notes | at least 128 notes |
+| D: size, messages and notes together | kit | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
+| D: size, messages and notes together | vflow | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
+| D: size, messages and notes together | none | ×8 (240 blocks, 3,200 msg/s) | at least ×16 (480 blocks, 6,400 msg/s) |
+
+### Verdict per ladder
+
+| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
+| --- | --- | --- | --- | --- |
+| A: diagram size | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| B: messages per second | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| C: notes with live rate cards | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| D: size, messages and notes together | Not clearly slower | 0 of 3 | Not clearly slower | no |
+
+### Warnings
+
+- vflow A r0: the recorder and the trace disagree by more than 3 % (and one draw, in a short phase;
+  12 of 12 gesture phases; worst: step 5 zoom, 31.7 fps recorded against 23.0 drawn). Read the
+  recorder's numbers for this machine with care.
+
+## 5b. Laptop alone, DPR native
+
+Command: `npm run bench:run -- --input=page --ladders A,B,C,D --renderers kit,vflow,none --repeats 3 --trace --cooldown 20 --target local --machine laptop --dpr native`
+
+- Machine: Chromium 156.0.8078.4, 8 cores, 32 GB, ANGLE (Intel, Mesa Intel(R) Graphics (LNL), OpenGL
+  ES 3.2)
+- Display: 1920×1080 at DPR 1, 60 Hz measured, headed
+- Build: production build, commit 108e3b4, kit 0.23.0, ngx-vflow 2.7.0
+- Run: 3 repeats, in-page gestures, seed 1, ladders A, B, C, D
+
+- Machine label `laptop`, run id `mvwr6l9p`, started 2026-10-31T18:47:17.293Z
+- Build sha (as measured): 108e3b48e783fba8b177300fbe1c1f1207b89570; checkout
+  108e3b48e783fba8b177300fbe1c1f1207b89570
+- GPU compositing: enabled; rasterization: enabled
+- Screen 1920x1080, page 1920x1080 at DPR 1, 8 cores
+- Recorder against trace (8 traced runs checked): 7 within 3 %, 1 outside (worst 25.0 %)
+- Laptop during the campaign (558 samples, 10 s apart): CPU frequency, mean over cores per sample:
+  lowest 2371 MHz, mean 3602 MHz, highest 3992 MHz; hottest zone max 86 C; load average at the start
+  4.91, during 2.6 to 6.3
+- Throttling: the harness has no probe without --ssh, so none was flagged; the laptop samples above
+  are the only evidence
+
+### Capacity
+
+| Ladder | Renderer | Smooth | Usable |
+| --- | --- | --- | --- |
+| A: diagram size | kit | ×8 (240 blocks) | at least ×32 (960 blocks) |
+| A: diagram size | vflow | none | ×16 (480 blocks) |
+| A: diagram size | none | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
+| B: messages per second | kit | 3,200 msg/s | at least 25,600 msg/s |
+| B: messages per second | vflow | 3,200 msg/s | at least 25,600 msg/s |
+| B: messages per second | none | 6,400 msg/s | at least 25,600 msg/s |
+| C: notes with live rate cards | kit | at least 128 notes | at least 128 notes |
+| C: notes with live rate cards | vflow | at least 128 notes | at least 128 notes |
+| C: notes with live rate cards | none | at least 128 notes | at least 128 notes |
+| D: size, messages and notes together | kit | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
+| D: size, messages and notes together | vflow | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
+| D: size, messages and notes together | none | ×8 (240 blocks, 3,200 msg/s) | at least ×16 (480 blocks, 6,400 msg/s) |
+
+### Verdict per ladder
+
+| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
+| --- | --- | --- | --- | --- |
+| A: diagram size | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| B: messages per second | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| C: notes with live rate cards | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| D: size, messages and notes together | Not clearly slower | 0 of 3 | Not clearly slower | no |
+
+### Warnings
+
+- vflow A r0: the recorder and the trace disagree by more than 3 % (and one draw, in a short phase;
+  12 of 12 gesture phases; worst: step 5 pan, 37.1 fps recorded against 27.8 drawn). Read the
+  recorder's numbers for this machine with care.

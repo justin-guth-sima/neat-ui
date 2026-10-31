@@ -44,8 +44,10 @@ __screenshots__/
 Thumbs.db
 
 # The rendering bench's run files, screenshots and traces: large and machine-specific; each
-# campaign's summary is published as a page instead (AGENTS.md "The rendering bench")
-/projects/bench/results/
+# campaign's summary is published as a page instead (AGENTS.md "The rendering bench"); the
+# campaigns' own summary file is the one thing kept, as the numbers the write-up is made from
+/projects/bench/results/*
+!/projects/bench/results/SUMMARY-*.md
 
 # Nx cache, created by the Spartan generator (npm run helm:add)
 /.nx
