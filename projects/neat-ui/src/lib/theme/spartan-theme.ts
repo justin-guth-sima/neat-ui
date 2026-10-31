@@ -86,13 +86,16 @@ const ROW_TINT_SHARE: Record<NeatColorScheme, number> = { light: 0.1, dark: 0.14
 const ROW_TINT_ACCENT_STEP = 0.02;
 
 /**
- * The surface steps searched for the neutral chip's fill, from `--muted`'s step away from the
- * background: dark `--muted` is the card's own step, so a chip on it vanished on a card.
+ * The neutral chip's fill is mixed from the accent step toward the next step away from the
+ * background: dark `--muted` is the card's own step, so a chip on it vanished on a card, and the
+ * accent step alone vanishes on a hovered or selected list row, whose fill is `--accent`.
  */
-const NEUTRAL_CHIP_WALK: Record<NeatColorScheme, readonly ColorStep[]> = {
-  light: [50, 100, 200, 300],
-  dark: [900, 800, 700, 600],
+const NEUTRAL_CHIP_STEPS: Record<NeatColorScheme, readonly [from: ColorStep, to: ColorStep]> = {
+  light: [100, 200],
+  dark: [800, 700],
 };
+/** How finely the neutral chip's share of the step past `--accent` is searched, least first. */
+const NEUTRAL_CHIP_SHARE_STEP = 0.1;
 /** How finely the share of `--foreground` in warning's text colour is searched, least first. */
 const WARNING_TEXT_STEP = 0.05;
 
@@ -248,19 +251,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     'neat-live': liveToken(),
     ...segmentedTokens(scheme, surface, primary),
     ...tints,
-    // The neutral chip's fill: the first step from `--muted` on that shows on the card and the
-    // page, with muted text on it (the theme spec holds that text to 4.5:1).
-    'neat-chip-neutral':
-      surface[
-        NEUTRAL_CHIP_WALK[scheme][
-          firstReadable(
-            surface,
-            NEUTRAL_CHIP_WALK[scheme],
-            [raised, background],
-            MIN_CHIP_FILL_CONTRAST,
-          )
-        ]
-      ],
+    'neat-chip-neutral': neutralChipFill(scheme, surface, [raised, background], accent),
     'neat-warning-text': warningText(charts['neat-line-warning'], text, [
       tints['neat-tint-warning'],
       tints['neat-tint-warning-accent'],
@@ -408,9 +399,32 @@ function tintAccent(base: string, share: number, tint: string, background: strin
 }
 
 /**
- * Warning-coloured text (a tinted warning chip's), which `--warning`, a fill, cannot be: the warning
- * line mixed toward `--foreground` by the least share that reads on the warning tints. Dark's line
- * already does, so there it is the line itself; light's needs some of the text colour.
+ * The neutral chip's fill: the least mix of the step past `--accent` over the accent step that
+ * shows on the card and the page (MIN_CHIP_FILL_CONTRAST) and on a hovered or selected row's
+ * `--accent` (MIN_FILL_CONTRAST). Muted text sits on it; the theme spec holds that to 4.5:1.
+ */
+function neutralChipFill(
+  scheme: NeatColorScheme,
+  surface: SurfaceScale,
+  surfaces: readonly string[],
+  accent: string,
+): string {
+  const [from, to] = NEUTRAL_CHIP_STEPS[scheme].map((step) => surface[step]);
+  const steps = Math.round(1 / NEUTRAL_CHIP_SHARE_STEP);
+  for (let step = 1; step <= steps; step++) {
+    const fill = mixOklab(to, step * NEUTRAL_CHIP_SHARE_STEP, from);
+    const shows =
+      surfaces.every((under) => contrastRatio(fill, under) >= MIN_CHIP_FILL_CONTRAST) &&
+      contrastRatio(fill, accent) >= MIN_FILL_CONTRAST;
+    if (shows) return fill;
+  }
+  throw new Error(`No mix of ${to} over ${from} shows on the card, the page and --accent`);
+}
+
+/**
+ * Warning-coloured text (a tinted warning chip's), which `--warning`, a fill, cannot be: the
+ * warning line mixed toward `--foreground` by the least share that reads on the warning tints.
+ * Dark's line already does, so there it is the line itself; light's needs some of the text colour.
  */
 function warningText(line: string, foreground: string, tints: readonly string[]): string {
   for (let step = 0; step * WARNING_TEXT_STEP <= 1; step++) {

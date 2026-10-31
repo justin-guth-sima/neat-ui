@@ -61,9 +61,11 @@ look happens in one place. Every rule here protects that.
     (`NeatStatusChip`, a short status on a status fill, and `NeatStatusChipButton`, the same as a
     button; their `NeatTone` is the primary's, since a select list's `rowTone` takes the same
     tones; `variant="tinted"` puts the tone's colour on its `--neat-tint-<tone>-accent`, for chips
-    that label a card's parts such as a diagram block's, `solid` staying the default; warning's
-    tinted text is `--neat-warning-text`, and neutral is muted text on `--neat-chip-neutral` in
-    both, a grey that shows on the card and the page in both schemes), `details` (`NeatDetails`, the
+    that label a card's parts such as a diagram block's, `solid` staying the default; a tinted
+    chip belongs on a card or the page, not on a toned list row, whose selected fill is the same
+    tint; warning's tinted text is `--neat-warning-text`, and neutral is muted text on
+    `--neat-chip-neutral` in both, a grey that shows on the card, the page and a hovered or
+    selected row's `--accent` in both schemes), `details` (`NeatDetails`, the
     key/value list of a side panel; `--neat-details-term-width` on an ancestor lines several up, and
     a term wider than a fixed column breaks inside the word),
     `table` (`NeatTable`, the data table's look on a `table`: cells, rules, column headings; and

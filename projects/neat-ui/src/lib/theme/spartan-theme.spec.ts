@@ -384,23 +384,30 @@ describe('buildSpartanThemeCss', () => {
     }
   });
 
-  it(`gives the neutral chip the first surface step past --muted that shows on --card and --background (${MIN_CHIP_FILL_CONTRAST}:1): light #e8e9eb, dark #2e2e2e`, () => {
-    // Dark --muted is the card's own #1e1e1e, so a neutral chip on --muted vanished on a card.
-    const walks = { light: [50, 100, 200, 300], dark: [900, 800, 700, 600] } as const;
+  it(`mixes the neutral chip's fill a step further from the background than --accent, as little as shows on --card and --background (${MIN_CHIP_FILL_CONTRAST}:1) and on --accent (${MIN_FILL_CONTRAST}:1): light #d8dadc, dark #383838`, () => {
+    // Dark --muted is the card's own #1e1e1e, so a neutral chip on --muted vanished on a card; the
+    // accent step alone would vanish on a hovered or selected list row, whose fill is --accent.
+    const steps = { light: [100, 200], dark: [800, 700] } as const;
+    const shareStep = 0.1;
     for (const scheme of ['light', 'dark'] as const) {
       const tokens = schemes[scheme];
+      const [from, to] = steps[scheme].map((step) => SURFACE_SCALES[scheme][step]);
+      expect(from.toLowerCase(), `${scheme}: mixed from the accent step`).toBe(
+        tokens.get('--accent'),
+      );
       const shows = (color: string) =>
         ['--card', '--background'].every(
           (surface) => contrastRatio(color, tokens.get(surface)!) >= MIN_CHIP_FILL_CONTRAST,
-        );
-      const step = walks[scheme].find((candidate) => shows(SURFACE_SCALES[scheme][candidate]));
-      expect(step, scheme).toBeDefined();
+        ) && contrastRatio(color, tokens.get('--accent')!) >= MIN_FILL_CONTRAST;
+      const shares = Array.from({ length: 1 / shareStep }, (_, i) => (i + 1) * shareStep);
+      const share = shares.find((candidate) => shows(mixOklab(to, candidate, from)));
+      expect(share, scheme).toBeDefined();
       expect(tokens.get('--neat-chip-neutral'), scheme).toBe(
-        SURFACE_SCALES[scheme][step!].toLowerCase(),
+        mixOklab(to, share!, from).toLowerCase(),
       );
     }
-    expect(schemes.light.get('--neat-chip-neutral')).toBe('#e8e9eb');
-    expect(schemes.dark.get('--neat-chip-neutral')).toBe('#2e2e2e');
+    expect(schemes.light.get('--neat-chip-neutral')).toBe('#d8dadc');
+    expect(schemes.dark.get('--neat-chip-neutral')).toBe('#383838');
   });
 
   it('gives warning a text colour: its line mixed toward --foreground by the least 5% step that reads at 4.5:1 on the warning tints', () => {

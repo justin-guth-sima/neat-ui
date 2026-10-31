@@ -27,8 +27,9 @@ const CHIP_CLASSES =
  * text the theme pairs with it. Tinted: the tone's row-tint accent (`--neat-tint-<tone>-accent`,
  * opaque) under the tone's own colour; warning's own colour is a fill, so its text is
  * `--neat-warning-text`, the warning line mixed toward `--foreground` as far as reads on its tint.
- * Neutral is the same in both: muted text on `--neat-chip-neutral`, a grey that shows on the card
- * and the page in both schemes (dark `--muted` is the card's own grey).
+ * Neutral is the same in both: muted text on `--neat-chip-neutral`, a grey that shows on the card,
+ * the page and a hovered or selected row's `--accent` in both schemes (dark `--muted` is the
+ * card's own grey).
  */
 const TONE_CLASSES: Record<NeatStatusChipVariant, Record<NeatTone, string>> = {
   solid: {

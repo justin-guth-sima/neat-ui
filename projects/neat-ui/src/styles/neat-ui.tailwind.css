@@ -71,9 +71,9 @@
   --neat-transition-duration: 150ms;
   --neat-focus-ring-width: 2px;
   /*
-   * The layout vocabulary for app and kit stylesheets: spacing (gaps, insets) and type sizes
-   * up to the base, taken from Tailwind's scale so they match the kit's components. A short set on purpose;
-   * a layout these cannot express is a kit change.
+   * The layout vocabulary for app and kit stylesheets: spacing (gaps, insets) and type sizes up
+   * to the base, taken from Tailwind's scale so they match the kit's components. A short set on
+   * purpose; a layout these cannot express is a kit change.
    */
   --neat-space-2: --spacing(2);
   --neat-space-3: --spacing(3);

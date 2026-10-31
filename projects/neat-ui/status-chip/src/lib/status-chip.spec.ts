@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { contrastRatio, type NeatColorScheme, type NeatTone } from '@sima/neat-ui';
-import { MIN_CHIP_FILL_CONTRAST } from '../../../src/lib/theme/contrast-rules';
+import { MIN_CHIP_FILL_CONTRAST, MIN_FILL_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
 import { NeatStatusChip, NeatStatusChipButton, type NeatStatusChipVariant } from './status-chip';
@@ -213,19 +213,24 @@ describe('NeatStatusChip', () => {
         }
       });
 
-      it(`${scheme}: the neutral chip’s fill shows on the card and the page (${MIN_CHIP_FILL_CONTRAST}:1), solid and tinted`, async () => {
+      it(`${scheme}: the neutral chip’s fill shows on the card and the page (${MIN_CHIP_FILL_CONTRAST}:1) and on a hovered or selected row’s --accent (${MIN_FILL_CONTRAST}:1), solid and tinted`, async () => {
         const { fixture, host, chip } = await render();
         host.tone.set('neutral');
+        const minimum = {
+          card: MIN_CHIP_FILL_CONTRAST,
+          background: MIN_CHIP_FILL_CONTRAST,
+          accent: MIN_FILL_CONTRAST,
+        };
         for (const variant of VARIANTS) {
           host.variant.set(variant);
           await fixture.whenStable();
           const query = { tokens, vocabulary: VOCABULARY, on };
-          for (const surface of ['card', 'background']) {
+          for (const [surface, ratio] of Object.entries(minimum)) {
             const fill = stateColor(classesOf(chip), 'bg', query, tokens[surface]);
             expect(
               contrastRatio(fill, tokens[surface]),
               `${variant}: ${fill} on --${surface} ${tokens[surface]}`,
-            ).toBeGreaterThanOrEqual(MIN_CHIP_FILL_CONTRAST);
+            ).toBeGreaterThanOrEqual(ratio);
           }
         }
       });
