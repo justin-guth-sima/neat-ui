@@ -166,6 +166,51 @@ test('the bench, like any app, imports no d3 but vflow’s d3-drag', async () =>
   );
 });
 
+/** The diagram's bench seam, by its alias and by the relative paths code would reach it by. */
+const SEAM_ALIAS =
+  "import { MAX_DOTS } from '@bench/diagram-seam';\nexport const cap = MAX_DOTS;\n";
+const SEAM_RELATIVE = [
+  "export * from './bench-seam';\n",
+  "import { MAX_DOTS } from '../bench-seam';\nexport const cap = MAX_DOTS;\n",
+  "import type { Rect } from '../../neat-ui/diagram/src/bench-seam.ts';\nexport type R = Rect;\n",
+];
+
+test('the diagram’s bench seam is importable under projects/bench/ only, by its alias', async () => {
+  for (const [config, filePath] of [
+    [KIT_CONFIG, 'projects/neat-ui/diagram/src/public-api.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/diagram/src/lib/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/diagram/src/lib/x.spec.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/src/lib/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/charts/src/lib/x.ts'],
+    [SHOWCASE_CONFIG, 'projects/showcase/src/app/x.ts'],
+  ]) {
+    for (const code of [SEAM_ALIAS, ...SEAM_RELATIVE]) {
+      const messages = await boundaryMessages(config, filePath, code);
+      assert.equal(messages.length, 1, `${filePath}: ${code}`);
+      assert.match(messages[0].message, /bench seam.*projects\/bench/, `${filePath}: ${code}`);
+    }
+  }
+  for (const filePath of ['projects/bench/src/app/x.ts', 'projects/bench/src/app/x.spec.ts']) {
+    assert.deepEqual(await boundaryMessages(BENCH_CONFIG, filePath, SEAM_ALIAS), [], filePath);
+    for (const code of SEAM_RELATIVE) {
+      const messages = await boundaryMessages(BENCH_CONFIG, filePath, code);
+      assert.equal(messages.length, 1, `${filePath}: ${code}`);
+      assert.match(messages[0].message, /@bench\/diagram-seam/, `${filePath}: ${code}`);
+    }
+  }
+});
+
+test('a module that only ends like the seam is not the seam', async () => {
+  for (const specifier of ['./my-bench-seam', '@bench/diagram-seams', 'bench-seam-x']) {
+    const messages = await boundaryMessages(
+      KIT_CONFIG,
+      'projects/neat-ui/diagram/src/lib/x.ts',
+      importOf(specifier),
+    );
+    assert.deepEqual(messages, [], specifier);
+  }
+});
+
 test('a package that only starts with a bench-only name is not bench-only', async () => {
   for (const specifier of ['source-map-js', 'ngx-vflowery', 'playwrights']) {
     const messages = await boundaryMessages(

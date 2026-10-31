@@ -1,3 +1,4 @@
+import type { DotFrameProbe } from '@bench/diagram-seam';
 import { percentile } from './stats';
 
 /*
@@ -8,9 +9,6 @@ import { percentile } from './stats';
  * only; with a software canvas some rasterising happens after it, so the frame time is what counts.
  * A raw-browser-API unit's sibling (AGENTS.md): no Angular, with specs.
  */
-
-/** The probe's signature, as the kit's seam declares it (Task 3). */
-export type DotFrameProbe = (drawMs: number, dotsDrawn: number) => void;
 
 /** A phase's draws; every number is null where nothing was drawn, so it never reads as 0 ms. */
 export interface DotProbeStats {

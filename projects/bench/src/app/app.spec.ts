@@ -1,13 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { DOT_FRAME_PROBE } from '@bench/diagram-seam';
 import { App } from './app';
 import { appConfig } from './app.config';
+import { stubLayout } from './hosts/browser.testing';
+import { DotProbeBuffer } from './measure/dot-probe';
 
+/** Each route, the view it shows and its title. */
 const VIEWS = [
-  { path: '/kit', heading: 'Kit' },
-  { path: '/vflow', heading: 'vflow' },
-  { path: '/none', heading: 'None' },
-  { path: '/results', heading: 'Results' },
+  { path: '/kit', view: 'bench-kit-host', title: 'Kit' },
+  { path: '/vflow', view: 'bench-vflow-host', title: 'vflow' },
+  { path: '/none', view: 'bench-none-host', title: 'None' },
+  { path: '/results', view: 'bench-results-view', title: 'Results' },
 ];
 
 describe('App', () => {
@@ -23,10 +27,18 @@ describe('App', () => {
   }
 
   beforeEach(async () => {
+    stubLayout();
     TestBed.configureTestingModule({ providers: appConfig.providers });
     router = TestBed.inject(Router);
     fixture = TestBed.createComponent(App);
     await navigate('/');
+  });
+
+  afterEach(() => {
+    // The routed host goes first, so nothing it scheduled outlives the stand-ins.
+    TestBed.resetTestingModule();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it('starts on a page that links each renderer and the results', () => {
@@ -37,10 +49,14 @@ describe('App', () => {
     expect(links).toEqual(['#/kit', '#/vflow', '#/none', '#/results']);
   });
 
-  it.each(VIEWS)('routes $path to its own view', async ({ path, heading: expected }) => {
+  it.each(VIEWS)('routes $path to its own view', async ({ path, view, title }) => {
     await navigate(path);
 
-    expect(heading()).toBe(expected);
-    expect(document.title).toBe(`neat-ui bench · ${expected}`);
+    expect((fixture.nativeElement as HTMLElement).querySelector(view)).not.toBeNull();
+    expect(document.title).toBe(`neat-ui bench · ${title}`);
+  });
+
+  it('hands the dot layer the bench’s probe buffer as its frame probe', () => {
+    expect(TestBed.inject(DOT_FRAME_PROBE)).toBe(TestBed.inject(DotProbeBuffer).record);
   });
 });

@@ -1,7 +1,9 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, inject, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, withHashLocation } from '@angular/router';
+import { DOT_FRAME_PROBE } from '@bench/diagram-seam';
 import { provideNeatTitles, provideNeatUi } from '@sima/neat-ui';
 import { routes } from './app.routes';
+import { DotProbeBuffer } from './measure/dot-probe';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -11,5 +13,9 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withHashLocation()),
     provideNeatTitles('neat-ui bench'),
     provideNeatUi(),
+    // One buffer for the whole run, which the dot layer of whichever host is drawn calls once per
+    // frame (design 1.3); the run reads it at each phase's end.
+    { provide: DotProbeBuffer, useFactory: () => new DotProbeBuffer() },
+    { provide: DOT_FRAME_PROBE, useFactory: () => inject(DotProbeBuffer).record },
   ],
 };

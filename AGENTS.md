@@ -95,9 +95,10 @@ look happens in one place. Every rule here protects that.
     and a lazy route can keep a component (video's canvas, frame-loop and overlay code most of all)
     out of the main bundle only if it is a different import.
   - To add an entry point: create `projects/neat-ui/<name>/` with `ng-package.json` and
-    `src/public-api.ts` as the existing ones have, add its path to `tsconfig.json`, and add its
-    selectors to `SECONDARY_ENTRIES` in `tools/check-dist.mjs` and its public API to the list in
-    `src/public-api.spec.ts`. `npm run test:tools` fails until the table matches the entry folders;
+    `src/public-api.ts` as the existing ones have, add its path to `tsconfig.json` and to
+    `projects/bench/tsconfig.app.json` (below), and add its selectors to `SECONDARY_ENTRIES` in
+    `tools/check-dist.mjs` and its public API to the list in `src/public-api.spec.ts`.
+    `npm run test:tools` fails until the table matches the entry folders and the bench has the path;
     the lint direction rules and the stylesheet's `@source` glob find a new entry by themselves. The
     stylesheet's scan skips `video`, which styles itself with component CSS only: a Tailwind utility
     in video code needs that exclusion lifted in `neat-ui.tailwind.css`, with the reason there.
@@ -159,6 +160,20 @@ BSD-3-Clause. ESLint (`BENCH_ONLY` in the root `eslint.config.js`) fails an impo
 outside `projects/bench/`, where `d3-drag` is the one d3 package allowed, and `npm run check:dist`
 fails a built package that names one. ESLint catches static imports only; a dynamic `import()`
 is covered by `check:dist` alone. Why: apps install the kit, never the bench's tools.
+**The diagram's bench seam is an agreed exception** to exporting only what an app needs.
+`projects/neat-ui/diagram/src/bench-seam.ts` re-exports, for the bench alone, the internals it
+needs to draw the kit's picture with vflow and put the kit's own dot layer over it: `drawLevel`
+(the routes, tips and colours), `placeNotes`, `levelExtent`, `fitTransform` and `ZOOM_LIMITS` (the
+same notes and the same start), the messaging layer's context token and its types, `DOT_FRAME_PROBE`
+and `MAX_DOTS`. Why not public: a testing entry would be a promise to every app, and bench copies
+of the routing or the painter would measure different code. It is not in `public-api.ts`, so
+ng-packagr never ships it. Only `projects/bench/tsconfig.app.json` declares its alias,
+`@bench/diagram-seam`, beside a copy of the workspace's entry paths (a tsconfig's own `paths`
+replace those it extends; `tools/bench-tsconfig.test.mjs` keeps the two in step). ESLint (`SEAM`
+in the root config) fails an import of it outside `projects/bench/`, and a relative one inside;
+`npm run check:dist` fails a package that names the file or exports a name the seam exports. A new
+name in it is a new reach into the kit: add one only for what the bench measures, saying why in
+the seam's header.
 Its load comes from a seed, through integer-exact arithmetic only (`src/app/synth/`), so a seed
 puts the same diagram and the same messages on every machine; a spec pins each, and re-pinning
 means results from before no longer compare with those after. It routes by hash (`/#/kit`)
@@ -370,7 +385,7 @@ the whole in the kit's look.
   reference feed, and its Burst button is the check.
 - What stays internal: the routing, the port layout, the notes' placement and measurement, the fit
   maths, the pan and zoom, the hover, the level path, and the messaging layer's models, canvas,
-  context token and frame probe.
+  context token and frame probe (the bench reaches some of these through its seam, above).
 
 **What entries share goes through the primary under a `ɵ` prefix.** The vendored helm code
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,

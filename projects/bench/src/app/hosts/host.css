@@ -1,0 +1,15 @@
+/*
+ * A host fills the bench's window (1920×1080 CSS px in a measured run): its drawing's box is the
+ * whole viewport, the same in every host. The box is positioned, so the dot layer over it
+ * (absolute, inset 0) takes its size.
+ */
+:host {
+  display: block;
+  height: 100%;
+}
+
+neat-diagram,
+.box {
+  position: relative;
+  height: 100%;
+}

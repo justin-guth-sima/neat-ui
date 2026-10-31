@@ -3,8 +3,9 @@
 // the alias as an external package, which no app can resolve), and `ng build neat-ui` alone leaves
 // out the compiled stylesheet that styles/neat-ui.css imports. It also cannot tell that the code of
 // a secondary entry point (video, switch, ...) leaked back into the primary, which would put it in
-// every page's bundle again, or that something reached for one of the rendering bench's dev
-// dependencies, which no app installs. Run after `npm run build`.
+// every page's bundle again, that something reached for one of the rendering bench's dev
+// dependencies, which no app installs, or that the diagram's bench seam was shipped. Run after
+// `npm run build`.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -82,6 +83,50 @@ export const SECONDARY_ENTRIES = {
 export const BENCH_ONLY = ['ngx-vflow', 'd3-drag', 'playwright', 'playwright-core', 'source-map'];
 const BENCH_SPECIFIER = new RegExp(`['"](${BENCH_ONLY.join('|')})(/[^'"]*)?['"]`, 'g');
 
+/**
+ * The diagram entry's bench seam (AGENTS.md "The rendering bench"): internals the bench alone may
+ * import, never in `public-api.ts`. The package's code uses the same internals, so their names are
+ * in it; what must not be there is any of them exported, or the seam's file named (a source map
+ * lists every file a bundle was built from). The names are read from the seam itself, so it can
+ * change without this list falling behind.
+ */
+const SEAM_FILE = fileURLToPath(
+  new URL('../projects/neat-ui/diagram/src/bench-seam.ts', import.meta.url),
+);
+const SEAM_BASENAME = 'bench-seam';
+
+/** The entries of every `export { … }` and `export type { … }` list, `a as b` as written. */
+function exportListEntries(source) {
+  return Array.from(source.matchAll(/export\s+(?:type\s+)?\{([^}]*)\}/g)).flatMap((match) =>
+    match[1]
+      .split(',')
+      .map((part) => part.trim().replace(/^type\s+/, ''))
+      .filter(Boolean),
+  );
+}
+
+/** The names the seam's `export { … } from` lists make public, in order. */
+export function seamNames(source) {
+  return exportListEntries(source).map((entry) => entry.split(/\s+as\s+/).at(-1));
+}
+
+export const SEAM_NAMES = seamNames(readFileSync(SEAM_FILE, 'utf8'));
+
+/**
+ * The names a built module or declaration file exports, with the local name of an `a as b` too,
+ * so a seam name exported under another one is still found.
+ */
+function exportedNames(source) {
+  const declared = Array.from(
+    source.matchAll(
+      /export\s+(?:declare\s+)?(?:abstract\s+)?(?:class|function|const|let|var|type|interface|enum)\s+([\w$\u0275]+)/g,
+    ),
+    (match) => match[1],
+  );
+  const listed = exportListEntries(source).flatMap((entry) => entry.split(/\s+as\s+/));
+  return new Set([...declared, ...listed]);
+}
+
 /** Packed tarballs are compressed; their contents are the files checked here. */
 const SKIPPED = /\.tgz$/;
 
@@ -132,6 +177,15 @@ export function findProblems(dist) {
     for (const name of benchOnly) {
       problems.push(`${file} references ${name}, a bench-only dev dependency no app installs`);
     }
+    if (source.includes(SEAM_BASENAME)) {
+      problems.push(`${file} names ${SEAM_BASENAME}; the diagram's bench seam is never shipped`);
+    }
+    if (/\.(mjs|d\.ts)$/.test(file)) {
+      const exported = exportedNames(source);
+      for (const name of SEAM_NAMES.filter((candidate) => exported.has(candidate))) {
+        problems.push(`${file} exports ${name}, which only the diagram's bench seam may expose`);
+      }
+    }
   }
   return problems;
 }
@@ -143,6 +197,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(1);
   }
   console.log(
-    'dist/neat-ui: every entry point built, no secondary entry code in the primary, no helm alias or bench-only imports, compiled stylesheet present.',
+    'dist/neat-ui: every entry point built, no secondary entry code in the primary, no helm alias, bench-only imports or bench seam, compiled stylesheet present.',
   );
 }

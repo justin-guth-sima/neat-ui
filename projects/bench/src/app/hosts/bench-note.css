@@ -1,0 +1,5 @@
+/* A fixed height, so the note's box is NOTE_BOX in every host whatever its numbers. */
+:host {
+  display: block;
+  height: 4.25rem;
+}

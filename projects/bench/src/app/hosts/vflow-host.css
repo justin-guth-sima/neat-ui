@@ -1,0 +1,147 @@
+/*
+ * The kit's paint on vflow's elements (design 3.2: the same picture, so only the renderer
+ * differs): the diagram's default-look frame, block, note, edge label and leader, and its edge
+ * lines and tips, from projects/neat-ui/diagram/src/lib/ (frames.css, blocks.css, lines.css,
+ * diagram.css), in the same theme tokens. The kit keeps them private to `neat-diagram`, so they
+ * are repeated here; the fairness check compares a block's computed styles in both hosts. The
+ * synthetic diagram uses the default look only, so only it is repeated.
+ */
+
+/* The dot layer's box: vflow fills it, the layer lies over both. */
+vflow {
+  position: absolute;
+  inset: 0;
+}
+
+/* A frame as an SVG rect: its 1 px border drawn inside the box, as an HTML border is. */
+.frame {
+  x: 0.5px;
+  y: 0.5px;
+  rx: var(--radius);
+  fill: color-mix(in oklab, var(--muted) 35%, transparent);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.title {
+  font-size: var(--neat-text-base);
+  font-weight: 600;
+  fill: var(--foreground);
+}
+
+/* The demo's card, at its node's size (bound in the template). */
+.block {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+  padding: var(--neat-space-2) var(--neat-space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+
+/* vflow's invisible handles: out of the card's flow, so they take no gap from its contents. */
+handle {
+  position: absolute;
+}
+
+.block .text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: calc(var(--neat-space-2) / 2);
+  justify-items: start;
+}
+
+.block .label {
+  font-size: var(--neat-text-sm);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.block .detail {
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+  line-height: 1.25;
+}
+
+.note {
+  box-sizing: border-box;
+  padding: var(--neat-space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+  font-size: var(--neat-text-xs);
+  line-height: 1.3;
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+
+.line {
+  fill: none;
+  stroke: var(--edge);
+  stroke-width: var(--edge-width);
+  stroke-dasharray: var(--edge-dash);
+  stroke-opacity: var(--edge-opacity);
+}
+
+[data-line='solid'] {
+  --edge-width: 1.5;
+  --edge-dash: none;
+  --edge-opacity: 0.75;
+}
+
+[data-line='dashed'] {
+  --edge-width: 1.5;
+  --edge-dash: 4 4;
+  --edge-opacity: 0.75;
+}
+
+[data-line='ghost'] {
+  --edge-width: 2;
+  --edge-dash: 8 6;
+  --edge-opacity: 0.9;
+}
+
+/*
+ * 12 px wide on screen at any zoom, as the demo drew it: in vflow's SVG transform,
+ * `non-scaling-stroke` holds the width, which the kit's CSS transform cannot (it divides by the
+ * zoom instead).
+ */
+.hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 12px;
+  vector-effect: non-scaling-stroke;
+  pointer-events: stroke;
+}
+
+.tip {
+  fill: var(--edge);
+  fill-opacity: 0.85;
+}
+
+.leader line {
+  stroke: var(--muted-foreground);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+
+.leader circle {
+  fill: var(--muted-foreground);
+}
+
+.edge-label {
+  display: block;
+  padding: 0 calc(var(--neat-space-2) / 2);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) / 2);
+  background: var(--card);
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-xs);
+  line-height: 1.4;
+  white-space: nowrap;
+}

@@ -28,8 +28,27 @@ const BENCH_ONLY = {
     "ngx-vflow, Playwright and source-map are the rendering bench's dev dependencies, importable only under projects/bench/; the kit and its apps never ship them.",
 };
 
-/** The import rule for files outside the bench: d3 but `allowed`, and nothing bench-only. */
-const kitImports = (allowed) => ['error', { patterns: [d3Pattern(allowed), BENCH_ONLY] }];
+/**
+ * The diagram entry's bench seam (`projects/neat-ui/diagram/src/bench-seam.ts`, AGENTS.md "The
+ * rendering bench"): its internals as the bench needs them, an agreed exception that only the bench
+ * may use, through the alias its tsconfig declares. Matched by the alias and by any relative path
+ * ending in the file's name (with or without its extension), so the diagram's own public API cannot
+ * re-export it either.
+ */
+const SEAM_FILE = '(^|/)bench-seam(\\.[jt]s)?$';
+const SEAM = {
+  regex: `^@bench/diagram-seam$|${SEAM_FILE}`,
+  message:
+    "The diagram's bench seam exposes its internals to the rendering bench alone: importable only under projects/bench/, and never exported by the kit.",
+};
+/** Inside the bench: through the alias only, so there is one way in to look for. */
+const SEAM_BY_ALIAS = {
+  regex: SEAM_FILE,
+  message: "Import the diagram's bench seam through its alias, '@bench/diagram-seam'.",
+};
+
+/** The import rule for files outside the bench: d3 but `allowed`, nothing bench-only, no seam. */
+const kitImports = (allowed) => ['error', { patterns: [d3Pattern(allowed), BENCH_ONLY, SEAM] }];
 
 module.exports = defineConfig([
   {
@@ -70,13 +89,13 @@ module.exports = defineConfig([
   // d3 belongs to two entries, each to its own packages (AGENTS.md "d3 belongs to two entries"):
   // `charts` to d3-scale and d3-shape, `diagram` to d3-zoom and d3-selection; every other part of
   // the kit, and every app that takes the kit's config, draws through those entries' components.
-  // The bench's dev dependencies are importable under projects/bench/ only, where d3-drag is the
-  // one d3 package allowed (vflow's peer). It is the typescript-eslint rule, not core
-  // `no-restricted-imports`, on purpose: ESLint replaces a rule's options wholesale when a later
-  // block sets the same rule for a file, so these blocks would silently switch off the kit's
-  // entry-direction rules in `projects/neat-ui/eslint.config.js` (tools/lint-boundaries.test.mjs
-  // checks that all of them still fire). The four blocks match disjoint files for the same reason,
-  // which is also why each states both boundaries in one rule.
+  // The bench's dev dependencies and the diagram's bench seam are importable under projects/bench/
+  // only, where d3-drag is the one d3 package allowed (vflow's peer). It is the typescript-eslint
+  // rule, not core `no-restricted-imports`, on purpose: ESLint replaces a rule's options wholesale
+  // when a later block sets the same rule for a file, so these blocks would silently switch off the
+  // kit's entry-direction rules in `projects/neat-ui/eslint.config.js`
+  // (tools/lint-boundaries.test.mjs checks that all of them still fire). The four blocks match
+  // disjoint files for the same reason, which is also why each states both boundaries in one rule.
   {
     files: ['**/*.ts'],
     ignores: ['projects/neat-ui/charts/**', 'projects/neat-ui/diagram/**', 'projects/bench/**'],
@@ -93,7 +112,10 @@ module.exports = defineConfig([
   {
     files: ['projects/bench/**/*.ts'],
     rules: {
-      '@typescript-eslint/no-restricted-imports': ['error', { patterns: [d3Pattern(['d3-drag'])] }],
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        { patterns: [d3Pattern(['d3-drag']), SEAM_BY_ALIAS] },
+      ],
     },
   },
   {

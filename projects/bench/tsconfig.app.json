@@ -3,7 +3,40 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "types": []
+    "types": [],
+    // The workspace's paths, which a config that sets its own replaces, and the diagram's bench
+    // seam (AGENTS.md "The rendering bench"), which only the bench may import. Keep them in step
+    // with the root tsconfig.json's; tools/bench-tsconfig.test.mjs fails until they are.
+    "paths": {
+      "@bench/diagram-seam": ["../neat-ui/diagram/src/bench-seam.ts"],
+      "@sima/neat-ui/callout": ["../neat-ui/callout/src/public-api.ts"],
+      "@sima/neat-ui/charts": ["../neat-ui/charts/src/public-api.ts"],
+      "@sima/neat-ui/collapsible": ["../neat-ui/collapsible/src/public-api.ts"],
+      "@sima/neat-ui/confirm": ["../neat-ui/confirm/src/public-api.ts"],
+      "@sima/neat-ui/details": ["../neat-ui/details/src/public-api.ts"],
+      "@sima/neat-ui/diagram": ["../neat-ui/diagram/src/public-api.ts"],
+      "@sima/neat-ui/dialog": ["../neat-ui/dialog/src/public-api.ts"],
+      "@sima/neat-ui/drop-zone": ["../neat-ui/drop-zone/src/public-api.ts"],
+      "@sima/neat-ui/field": ["../neat-ui/field/src/public-api.ts"],
+      "@sima/neat-ui/file-browser": ["../neat-ui/file-browser/src/public-api.ts"],
+      "@sima/neat-ui/input": ["../neat-ui/input/src/public-api.ts"],
+      "@sima/neat-ui/level-meter": ["../neat-ui/level-meter/src/public-api.ts"],
+      "@sima/neat-ui/line-list": ["../neat-ui/line-list/src/public-api.ts"],
+      "@sima/neat-ui/number-field": ["../neat-ui/number-field/src/public-api.ts"],
+      "@sima/neat-ui/popover": ["../neat-ui/popover/src/public-api.ts"],
+      "@sima/neat-ui/progress": ["../neat-ui/progress/src/public-api.ts"],
+      "@sima/neat-ui/segmented": ["../neat-ui/segmented/src/public-api.ts"],
+      "@sima/neat-ui/select": ["../neat-ui/select/src/public-api.ts"],
+      "@sima/neat-ui/select-list": ["../neat-ui/select-list/src/public-api.ts"],
+      "@sima/neat-ui/slider": ["../neat-ui/slider/src/public-api.ts"],
+      "@sima/neat-ui/status-chip": ["../neat-ui/status-chip/src/public-api.ts"],
+      "@sima/neat-ui/switch": ["../neat-ui/switch/src/public-api.ts"],
+      "@sima/neat-ui/table": ["../neat-ui/table/src/public-api.ts"],
+      "@sima/neat-ui/tabs": ["../neat-ui/tabs/src/public-api.ts"],
+      "@sima/neat-ui/toast": ["../neat-ui/toast/src/public-api.ts"],
+      "@sima/neat-ui/video": ["../neat-ui/video/src/public-api.ts"],
+      "@sima/neat-ui": ["../neat-ui/src/public-api.ts"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.spec.ts", "src/**/*.testing.ts"]
