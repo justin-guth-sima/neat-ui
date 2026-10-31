@@ -43,12 +43,14 @@ describe('BenchDiagramContext', () => {
   let fixture: ComponentFixture<Host>;
   let host: Host;
   let context: DiagramMessagesContext;
+  let benchContext: BenchDiagramContext;
 
   beforeEach(async () => {
     fixture = TestBed.createComponent(Host);
     host = fixture.componentInstance;
     await fixture.whenStable();
     context = fixture.debugElement.children[0].children[0].injector.get(LayerProbe).context;
+    benchContext = fixture.debugElement.children[0].injector.get(BenchDiagramContext);
   });
 
   it('gives the layer under it the level, covers and edge ids its host binds', () => {
@@ -73,5 +75,36 @@ describe('BenchDiagramContext', () => {
     await fixture.whenStable();
 
     expect(heard).toEqual([{ k: 2, x: 0, y: 0 }]);
+  });
+
+  describe('setTransform', () => {
+    it('is the transform now, and tells the listeners at once, with no change detection', () => {
+      const heard: DiagramTransform[] = [];
+      context.onTransform(() => heard.push(context.transform()));
+
+      benchContext.setTransform({ k: 2, x: 5, y: 6 });
+
+      expect(context.transform()).toEqual({ k: 2, x: 5, y: 6 });
+      expect(heard).toEqual([{ k: 2, x: 5, y: 6 }]);
+    });
+
+    it('writes no signal: the bound transform is untouched and nothing is scheduled', async () => {
+      benchContext.setTransform({ k: 2, x: 5, y: 6 });
+
+      expect(benchContext.viewTransform()).toEqual({ k: 0.5, x: 10, y: 20 });
+      expect(fixture.isStable()).toBe(true);
+    });
+
+    it('gives way to the host’s binding when that changes', async () => {
+      const heard: DiagramTransform[] = [];
+      context.onTransform(() => heard.push(context.transform()));
+      benchContext.setTransform({ k: 2, x: 5, y: 6 });
+
+      host.view.set({ k: 0.25, x: 1, y: 2 });
+      await fixture.whenStable();
+
+      expect(context.transform()).toEqual({ k: 0.25, x: 1, y: 2 });
+      expect(heard[heard.length - 1]).toEqual({ k: 0.25, x: 1, y: 2 });
+    });
   });
 });

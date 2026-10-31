@@ -3,7 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  type ElementRef,
+  ElementRef,
   inject,
   untracked,
   viewChild,
@@ -20,7 +20,9 @@ import {
   type Optimization,
   VflowComponent,
 } from 'ngx-vflow';
+import { domGestures } from '../run/gesture-player';
 import { BenchDiagramContext } from './bench-diagram-context';
+import { readTransform, registerBenchHost } from './bench-host';
 import { BenchLoad, feedMessages } from './bench-load';
 import { BenchNote, NOTE_BOX } from './bench-note';
 import { startTransform } from './scene';
@@ -83,7 +85,12 @@ const OPTIMIZATION: Optimization = { detachedGroupsLayer: true };
         [maxZoom]="ZOOM_LIMITS[1]"
       >
         <ng-template let-ctx groupNode>
-          <svg:rect class="frame" [attr.width]="ctx.width() - 1" [attr.height]="ctx.height() - 1" />
+          <svg:rect
+            class="frame"
+            [attr.data-node]="ctx.data().node.id"
+            [attr.width]="ctx.width() - 1"
+            [attr.height]="ctx.height() - 1"
+          />
           <svg:text class="title" x="13" y="24">{{ ctx.data().node.label }}</svg:text>
         </ng-template>
 
@@ -173,6 +180,7 @@ export class VflowHost {
   );
   private readonly flow = viewChild(VflowComponent);
   private readonly box = viewChild.required<ElementRef<HTMLElement>>('box');
+  private readonly flowElement = viewChild(VflowComponent, { read: ElementRef });
   private readonly messages = viewChild(NeatDiagramMessages);
 
   /** vflow's viewport as the dot layer reads a transform. */
@@ -195,5 +203,27 @@ export class VflowHost {
         if (start) flow.viewportTo({ zoom: start.k, x: start.x, y: start.y });
       });
     });
+    registerBenchHost(() => {
+      // d3-zoom is on vflow's root SVG (its filter lets a press on the SVG itself through).
+      const svg = this.flowElement()?.nativeElement.querySelector('svg.root-svg');
+      if (!svg) throw new Error('vflow has drawn no root SVG to zoom');
+      return {
+        id: 'vflow',
+        // d3-zoom's transform, as vflow draws it on the viewport group.
+        gestures: domGestures(svg, () =>
+          readTransform(svg.querySelector(':scope > g[transform]')?.getAttribute('transform')),
+        ),
+        startTransform: () => this.start(),
+        fit: () => {
+          const start = this.start();
+          if (start) this.flow()?.viewportTo({ zoom: start.k, x: start.x, y: start.y });
+        },
+      };
+    });
+  }
+
+  private start(): DiagramTransform | null {
+    const { clientWidth: w, clientHeight: h } = this.box().nativeElement;
+    return startTransform(this.load.scene(), { w, h });
   }
 }

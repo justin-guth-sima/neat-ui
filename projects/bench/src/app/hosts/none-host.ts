@@ -1,18 +1,21 @@
 import {
-  afterNextRender,
+  afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
   type ElementRef,
   inject,
-  signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import type { DiagramTransform } from '@bench/diagram-seam';
 import { NeatDiagramMessages } from '@sima/neat-ui/diagram';
+import { reducerGestures } from '../run/gesture-player';
 import { BenchDiagramContext } from './bench-diagram-context';
+import { registerBenchHost } from './bench-host';
 import { BenchLoad, feedMessages } from './bench-load';
 import { startTransform } from './scene';
 
+/** What the context is bound to: the transform moves through `setTransform` instead. */
 const IDENTITY: DiagramTransform = { k: 1, x: 0, y: 0 };
 
 /**
@@ -36,7 +39,7 @@ const IDENTITY: DiagramTransform = { k: 1, x: 0, y: 0 };
       [level]="scene.level"
       [covers]="scene.covers"
       [edgeIds]="scene.edgeIds"
-      [viewTransform]="view()"
+      [viewTransform]="IDENTITY"
     >
       <neat-diagram-messages />
     </div>
@@ -44,16 +47,39 @@ const IDENTITY: DiagramTransform = { k: 1, x: 0, y: 0 };
 })
 export class NoneHost {
   protected readonly load = inject(BenchLoad);
-  protected readonly view = signal(IDENTITY);
+  protected readonly IDENTITY = IDENTITY;
   private readonly box = viewChild.required<ElementRef<HTMLElement>>('box');
+  private readonly context = viewChild.required(BenchDiagramContext);
   private readonly messages = viewChild(NeatDiagramMessages);
 
   constructor() {
     feedMessages(this.messages);
-    // Fitted once laid out; a measured run's window keeps its size.
-    afterNextRender(() => {
-      const { clientWidth: w, clientHeight: h } = this.box().nativeElement;
-      this.view.set(startTransform(this.load.scene(), { w, h }) ?? IDENTITY);
+    // The kit's fit, once laid out and for each new scene; a measured run's window keeps its size.
+    // Every move of the transform, this one and the gestures', goes through `setTransform`: the
+    // floor has no change detection of its own to add to a frame.
+    afterRenderEffect(() => {
+      const scene = this.load.scene();
+      untracked(() => this.fit(scene));
     });
+    registerBenchHost(() => ({
+      id: 'none',
+      // No zoom box takes events here: the gestures are the reducers, d3-zoom's own rule.
+      gestures: reducerGestures(
+        () => this.box().nativeElement.getBoundingClientRect(),
+        () => this.context().transform(),
+        (t) => this.context().setTransform(t),
+      ),
+      startTransform: () => this.start(this.load.scene()),
+      fit: () => this.fit(this.load.scene()),
+    }));
+  }
+
+  private start(scene: ReturnType<BenchLoad['scene']>): DiagramTransform | null {
+    const { clientWidth: w, clientHeight: h } = this.box().nativeElement;
+    return startTransform(scene, { w, h });
+  }
+
+  private fit(scene: ReturnType<BenchLoad['scene']>): void {
+    this.context().setTransform(this.start(scene) ?? IDENTITY);
   }
 }

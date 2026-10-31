@@ -17,7 +17,9 @@ import {
  *
  * Nothing is ever in focus: the bench exercises no hover (design 3.3). A new `viewTransform`
  * reaches the listeners when the host's change detection binds it, the pass in which vflow writes
- * its own viewport to the DOM.
+ * its own viewport to the DOM. A host with no zoom of its own (`none`) moves its transform with
+ * `setTransform` instead, which skips that pass: no signal, no change detection, so its frames
+ * hold nothing but the dots.
  */
 @Directive({
   selector: '[benchDiagramContext]',
@@ -31,17 +33,32 @@ export class BenchDiagramContext implements DiagramMessagesContext {
   readonly viewTransform = input.required<DiagramTransform>();
   readonly focus = signal<ReadonlySet<string> | null>(null).asReadonly();
   private readonly listeners = new Set<() => void>();
+  /** What `setTransform` last stored, until the host's binding changes. */
+  private direct: DiagramTransform | null = null;
 
   constructor() {
     effect(() => {
       this.viewTransform();
-      untracked(() => this.listeners.forEach((listener) => listener()));
+      untracked(() => {
+        // The host's own binding is the newer word.
+        this.direct = null;
+        this.listeners.forEach((listener) => listener());
+      });
     });
   }
 
   /** A plain read, as the layer reads it per frame: no signal dependency is made. */
   transform(): DiagramTransform {
-    return untracked(this.viewTransform);
+    return this.direct ?? untracked(this.viewTransform);
+  }
+
+  /**
+   * Shows `t` from now on and tells the listeners at once. Not reactive on purpose: it stores the
+   * value and calls the listeners, so nothing in the host's change detection runs for it.
+   */
+  setTransform(t: DiagramTransform): void {
+    this.direct = t;
+    this.listeners.forEach((listener) => listener());
   }
 
   onTransform(listener: () => void): () => void {
