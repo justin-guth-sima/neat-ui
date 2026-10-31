@@ -89,6 +89,39 @@ describe('ResultsView', () => {
     expect(root().querySelectorAll('bench-campaign-view')).toHaveLength(1);
   });
 
+  it('says by name which file is no result when it is dropped with ones that are', async () => {
+    const zone = fixture.debugElement.query(By.directive(NeatDropZone));
+    // As the drop zone reports a drop of a result and a text file: refused first, in one task.
+    zone.triggerEventHandler('rejected', [new File(['x'], 'notes.txt', { type: 'text/plain' })]);
+    zone.triggerEventHandler('files', [json('result.json', FILE)]);
+    await vi.waitFor(() => expect(fixture.componentInstance.pending()).toBe(0));
+    await fixture.whenStable();
+
+    expect(text()).toContain('notes.txt');
+    expect(root().querySelectorAll('bench-campaign-view')).toHaveLength(1);
+  });
+
+  it('forgets the problems of an earlier drop when the next one comes', async () => {
+    await drop(json('notes.json', '{"not":"a result"}'));
+    expect(text()).toContain('notes.json');
+
+    await drop(json('result.json', FILE));
+
+    expect(text()).not.toContain('notes.json');
+  });
+
+  it('names a file it cannot read, and goes on with the files after it', async () => {
+    // Whatever throws while a file is read or laid out is that file's problem, not the page's.
+    const unreadable = json('first.json', FILE);
+    vi.spyOn(unreadable, 'text').mockRejectedValue(new TypeError('the disk went away'));
+
+    await drop(unreadable, json('second.json', FILE));
+
+    expect(text()).toContain('first.json');
+    expect(text()).toContain('the disk went away');
+    expect(root().querySelectorAll('bench-campaign-view')).toHaveLength(1);
+  });
+
   it('keeps several results, each its own, and lets one go', async () => {
     await drop(json('a.json', FILE), json('b.json', FILE));
     expect(root().querySelectorAll('bench-campaign-view')).toHaveLength(2);
