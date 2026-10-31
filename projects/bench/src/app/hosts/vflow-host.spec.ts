@@ -1,12 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { DIAGRAM_MESSAGES_CONTEXT } from '@bench/diagram-seam';
+import { DIAGRAM_MESSAGES_CONTEXT, type Rect } from '@bench/diagram-seam';
 import { NeatDiagramMessages } from '@sima/neat-ui/diagram';
 import { VflowComponent } from 'ngx-vflow';
 import { D1 } from '../synth/synth-diagram';
 import { BenchLoad } from './bench-load';
 import { stubLayout } from './browser.testing';
 import { VflowHost } from './vflow-host';
+import type { VflowGraph } from './vflow-graph';
 
 describe('VflowHost', () => {
   beforeEach(() => {
@@ -28,7 +29,7 @@ describe('VflowHost', () => {
     await fixture.whenStable();
     const flow = fixture.debugElement.query(By.directive(VflowComponent));
     const layer = fixture.debugElement.query(By.directive(NeatDiagramMessages));
-    return { flow, layer };
+    return { fixture, flow, layer };
   }
 
   it('draws the scene with ngx-vflow: frames as SVG, blocks and notes as HTML', async () => {
@@ -39,6 +40,17 @@ describe('VflowHost', () => {
     expect(element.querySelectorAll('foreignObject .block')).toHaveLength(D1.blocks);
     expect(element.querySelectorAll('foreignObject .note bench-note')).toHaveLength(D1.notes);
     expect(element.querySelectorAll('g.edge path.line')).toHaveLength(D1.edges);
+  });
+
+  it('names every frame by its id, as the kit does, for the fairness check', async () => {
+    const { flow } = await render();
+    const element = flow.nativeElement as HTMLElement;
+    const { nodes } = TestBed.inject(BenchLoad).synth().diagram.overview;
+
+    const frames = Array.from(element.querySelectorAll('rect.frame')).map((frame) =>
+      frame.getAttribute('data-node'),
+    );
+    expect(frames).toEqual(nodes.filter((node) => node.role === 'frame').map((node) => node.id));
   });
 
   it('draws each edge on the kit’s route, in its colour and line', async () => {
@@ -65,6 +77,30 @@ describe('VflowHost', () => {
     expect(context.covers()).toBe(scene.covers);
     expect(context.edgeIds()).toBe(scene.edgeIds);
     expect(context.transform()).toEqual({ k: viewport.zoom, x: viewport.x, y: viewport.y });
+  });
+
+  it('has the dots pass behind exactly the nodes vflow places: covers are their absolute rects', async () => {
+    const { fixture, layer } = await render();
+    // The nodes the host hands vflow: its `graph`, which the template binds.
+    const { nodes } = (fixture.componentInstance as unknown as { graph(): VflowGraph }).graph();
+    const byId = new Map(nodes.map((node) => [node.id, node]));
+    // vflow places a node at its point plus its parents' points: the absolute rect it draws at.
+    const absolute = (node: (typeof nodes)[number]): Rect => {
+      let x = node.point().x;
+      let y = node.point().y;
+      for (let parent = node.parentId?.(); parent; parent = byId.get(parent)?.parentId?.()) {
+        const at = byId.get(parent)?.point();
+        x += at?.x ?? 0;
+        y += at?.y ?? 0;
+      }
+      const sized = node as { width?: () => number; height?: () => number };
+      return { x, y, w: sized.width?.() ?? 0, h: sized.height?.() ?? 0 };
+    };
+    const placed = nodes.filter((node) => node.type === 'html-template').map(absolute);
+
+    const covers = layer.injector.get(DIAGRAM_MESSAGES_CONTEXT).covers();
+    expect(placed.length).toBe(D1.blocks + D1.notes);
+    expect(covers).toEqual(placed);
   });
 
   it('feeds its layer the step’s messages', async () => {
