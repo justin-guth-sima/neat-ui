@@ -6,7 +6,7 @@ import { BenchLoad } from '../hosts/bench-load';
 import { DotProbeBuffer } from '../measure/dot-probe';
 import { calibrateRefresh, FrameRecorder, type FrameScheduler } from '../measure/frame-recorder';
 import { LoafCollector } from '../measure/loaf-collector';
-import type { AutoHost, AutoParams } from './auto-params';
+import { type AutoHost, type AutoParams, assertHostRuns } from './auto-params';
 import { ladderPlan } from './ladders';
 import { readMachine } from './machine-info';
 import { pageDriverHost } from './page-host';
@@ -42,6 +42,7 @@ export interface AutoDeps {
 /** Calibrates, climbs and compiles. Rejects where the page cannot be measured (a hidden tab). */
 export async function runAuto(deps: AutoDeps): Promise<BenchRun> {
   const { params, loaf } = deps;
+  assertHostRuns(params.ladder, params.host);
   const clock = deps.clock ?? (() => performance.now());
   const now = deps.now ?? (() => new Date());
   const plan = ladderPlan(params.ladder, { steps: params.steps, refine: params.refine });

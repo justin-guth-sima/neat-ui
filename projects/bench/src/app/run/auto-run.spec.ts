@@ -139,6 +139,14 @@ describe('runAuto', () => {
     expect(run.steps[0].outcome?.tier).toBe('smooth');
   });
 
+  it('refuses ladder E on a host other than the kit, before it touches the page', async () => {
+    const { all, log } = deps();
+    await expect(
+      runAuto({ ...all, params: { ...all.params, ladder: 'E', host: 'vflow' } }),
+    ).rejects.toThrow(/kit only/);
+    expect(log).toEqual([]);
+  });
+
   it('refuses to measure a page whose frames are too few to calibrate on', async () => {
     const { all, frames } = deps();
     // One long frame covers the whole calibration window: the tab is throttled or hidden.

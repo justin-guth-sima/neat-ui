@@ -182,10 +182,13 @@ because the board serves the built bench from a plain static server. Run files g
 The page measures itself (`src/app/run/`): `/?auto=1&host=kit|vflow|none&ladder=A..E&seed=1&steps=3`
 calibrates the display's refresh on the empty start page, climbs the ladder (step machine, phase
 driver, `GesturePlayer`) and leaves the result on `window.benchResult` and as a JSON download, so a
-board without a harness can run it. The gestures are synthetic events through d3-zoom for the kit
+board without a harness can run it (ladder E, the soak, on the kit only; a development build
+says so in the result's warnings). The gestures are synthetic events through d3-zoom for the kit
 and vflow; the `none` floor plays the same path through a pure reducer and a non-reactive
 `setTransform`, so its frames hold no change detection. `window.benchFairness()` reads a host's
-boxes and edge paths in diagram units and `window.benchCompare(kit, vflow)` judges two of them;
+boxes and edge paths in diagram units, with the computed style (box-shadow, radius, font,
+padding) of a sample of its blocks and notes, and `window.benchCompare(kit, vflow)` judges two of
+them (a host that draws no node or edge fails it);
 each result lists what the two renderers do not share (`NOT_COMPARABLE`).
 
 **How the charts are drawn.** Every chart in `charts` but the heatmap is an SVG with

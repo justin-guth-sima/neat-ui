@@ -1,4 +1,4 @@
-import { autoParams } from './auto-params';
+import { assertHostRuns, autoParams } from './auto-params';
 
 describe('autoParams', () => {
   it('is null without `auto=1`: a person opening the page gets the page', () => {
@@ -35,6 +35,21 @@ describe('autoParams', () => {
     expect(autoParams('?auto=1&ladder=c')?.ladder).toBe('C');
   });
 
+  it('says vflow-virt is not built yet, without pointing at a plan task', () => {
+    expect(() => autoParams('?auto=1&host=vflow-virt')).toThrow(/not built yet/);
+    expect(() => autoParams('?auto=1&host=vflow-virt')).not.toThrow(/Task/);
+  });
+
+  it('runs ladder E, the soak, on the kit only', () => {
+    expect(autoParams('?auto=1&ladder=E&host=kit')?.ladder).toBe('E');
+    expect(autoParams('?auto=1&ladder=E')?.host).toBe('kit');
+    for (const host of ['vflow', 'none']) {
+      expect(() => autoParams(`?auto=1&ladder=E&host=${host}`)).toThrow(
+        new RegExp(`ladder E.*kit only.*${host}`),
+      );
+    }
+  });
+
   it.each([
     ['host=chrome', /host/],
     ['host=vflow-virt', /vflow-virt/],
@@ -45,5 +60,13 @@ describe('autoParams', () => {
     ['steps=2.5', /steps/],
   ])('refuses %s, saying which parameter', (query, message) => {
     expect(() => autoParams(`?auto=1&${query}`)).toThrow(message);
+  });
+});
+
+describe('assertHostRuns', () => {
+  it('refuses a host the ladder is not for, and lets the others through', () => {
+    expect(() => assertHostRuns('E', 'vflow')).toThrow(/kit only/);
+    expect(() => assertHostRuns('E', 'kit')).not.toThrow();
+    expect(() => assertHostRuns('A', 'none')).not.toThrow();
   });
 });

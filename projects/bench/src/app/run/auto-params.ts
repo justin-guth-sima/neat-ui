@@ -24,6 +24,16 @@ export interface AutoParams {
 
 const HOSTS: readonly AutoHost[] = ['kit', 'vflow', 'none'];
 
+/**
+ * Ladder E is the ten-minute soak, kept to the renderer the product ships: the kit. A soak of
+ * another host would be ten minutes of a comparison nobody asked for, so it is refused, saying why.
+ */
+export function assertHostRuns(ladder: LadderId, host: AutoHost): void {
+  if (ladder === 'E' && host !== 'kit') {
+    throw new RangeError(`ladder E, the soak, runs on the kit only, not on ${host}`);
+  }
+}
+
 function whole(value: string | null, name: string, least: number): number | undefined {
   if (value === null) return undefined;
   const number = Number(value);
@@ -41,7 +51,9 @@ export function autoParams(search: string): AutoParams | null {
 
   const host = query.get('host') ?? 'kit';
   if (host === 'vflow-virt') {
-    throw new RangeError('host vflow-virt is not built yet: it comes with the harness (Task 5)');
+    throw new RangeError(
+      'host vflow-virt is not built yet: it is planned with the harness and the runs',
+    );
   }
   if (!(HOSTS as readonly string[]).includes(host)) {
     throw new RangeError(`host is one of ${HOSTS.join(', ')}, not "${host}"`);
@@ -50,6 +62,7 @@ export function autoParams(search: string): AutoParams | null {
   if (!(ladder in LADDERS)) {
     throw new RangeError(`ladder is one of ${Object.keys(LADDERS).join(', ')}, not "${ladder}"`);
   }
+  assertHostRuns(ladder as LadderId, host as AutoHost);
   const refine = query.get('refine');
   return {
     host: host as AutoHost,
