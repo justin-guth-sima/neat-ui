@@ -1,0 +1,3 @@
+# Written by `npm run docs:emit` as JSON-style literals, and compared with its output byte for byte
+# by `--check`: formatting them would make them stale.
+projects/showcase/src/app/docs/generated/

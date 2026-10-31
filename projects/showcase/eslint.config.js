@@ -4,6 +4,8 @@ const rootConfig = require('../../eslint.config.js');
 
 module.exports = defineConfig([
   ...rootConfig,
+  // Written by `npm run docs:emit`, not by hand, and checked by its `--check` instead.
+  { ignores: ['projects/showcase/src/app/docs/generated/'] },
   {
     files: ['**/*.ts'],
     rules: {

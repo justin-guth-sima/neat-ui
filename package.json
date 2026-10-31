@@ -8,7 +8,7 @@
   },
   "scripts": {
     "ng": "ng",
-    "start": "ng serve showcase",
+    "start": "node tools/docs-emit.mjs && ng serve showcase",
     "build": "ng build neat-ui && npm run build:styles",
     "build:styles": "tailwindcss -i projects/neat-ui/src/styles/neat-ui.tailwind.css -o dist/neat-ui/styles/neat-ui.tailwind.css --minify",
     "build:showcase": "ng build showcase",
@@ -19,6 +19,7 @@
     "test:tools": "node --test 'tools/*.test.mjs' 'projects/bench/harness/*.test.mjs'",
     "lint": "ng lint && stylelint \"projects/**/*.{css,scss}\" --allow-empty-input",
     "theme:emit": "tsx tools/emit-theme-css.ts",
+    "docs:emit": "node tools/docs-emit.mjs",
     "helm:add": "node tools/helm-add.mjs",
     "check:dist": "node tools/check-dist.mjs",
     "pack": "npm run build && npm run check:dist && npm pack ./dist/neat-ui --pack-destination ./dist/neat-ui"
