@@ -16,7 +16,7 @@
     "bench:build": "ng build bench",
     "bench:run": "node projects/bench/harness/run.mjs",
     "test": "ng test",
-    "test:tools": "node --test 'tools/*.test.mjs'",
+    "test:tools": "node --test 'tools/*.test.mjs' 'projects/bench/harness/*.test.mjs'",
     "lint": "ng lint && stylelint \"projects/**/*.{css,scss}\" --allow-empty-input",
     "theme:emit": "tsx tools/emit-theme-css.ts",
     "helm:add": "node tools/helm-add.mjs",

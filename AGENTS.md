@@ -190,6 +190,20 @@ boxes and edge paths in diagram units, with the computed style (box-shadow, radi
 padding) of a sample of its blocks and notes, and `window.benchCompare(kit, vflow)` judges two of
 them (a host that draws no node or edge fails it);
 each result lists what the two renderers do not share (`NOT_COMPARABLE`).
+The harness (`projects/bench/harness/`, `npm run bench:run -- --help`) drives that page; its pure
+parts have `node --test` specs (`npm run test:tools`). It serves `dist/bench/browser` itself (or
+takes `--url`), launches Playwright's Chromium (`--target local`, headed unless `--headless`) or
+connects over CDP, either to a browser you tunnelled to (`cdp:<endpoint>`) or to one it starts on
+the board over `--ssh` (`--target remote`: `--remote-debugging-port` on the board's loopback with a
+profile of its own under `/tmp/neat-bench-<run>/`, stopped by pid file and process group, never
+`pkill`, and deleted afterwards). Each (ladder, repeat, renderer) is a fresh page load, the renderer
+order alternating per repeat. The page reports its boundaries through `window.benchEvent`; the
+harness reads CDP `Performance.getMetrics` there, keeps every step the page ended even if the run
+dies later, bounds each step and run with its own watchdog, and stops before measuring when the
+kit-against-vflow fairness check fails (`--allow-unfair` goes on, the problems in the warnings).
+`--input=cdp` replays the page's gesture path through `page.mouse`. Long frames' script keys are
+mapped back to source through the build's maps. One result file per campaign goes to
+`projects/bench/results/`, with screenshots (and `--trace` runs) beside it.
 
 **How the charts are drawn.** Every chart in `charts` but the heatmap is an SVG with
 `viewBox="0 0 600 100"`, `preserveAspectRatio="none"` and `overflow: visible`, so it fills

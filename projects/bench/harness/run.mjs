@@ -1,17 +1,62 @@
 // `npm run bench:run`: the harness that drives the bench in a browser and collects its results
-// (AGENTS.md "The rendering bench"). Until it is built, it only says how it will be called.
-const USAGE = `Usage: npm run bench:run -- --url http://<host>:4300/
-  --target local|cdp:http://127.0.0.1:9222   launch a browser here, or drive one over CDP
-  --machine <label>                          the machine profile the run is filed under
-  --ladders A,B,C,D,E                        the load ladders to climb
-  --renderers kit,vflow,vflow-virt,none      the renderers to measure
-  --repeats 3                                runs per ladder and renderer
-  [--refine] [--trace] [--input=page|cdp] [--ssh user@board] [--out projects/bench/results]`;
+// (AGENTS.md "The rendering bench", design 4.1). `args.mjs` has the options; `campaign.mjs` is the
+// flow. Whatever it starts (a server, a browser on the board) is stopped on the way out, on a
+// signal too.
+import { parseArgs, USAGE, UsageError } from './args.mjs';
+import { runCampaign } from './campaign.mjs';
 
-const args = process.argv.slice(2);
-if (args.includes('--help') || args.includes('-h')) {
-  console.log(USAGE);
-} else {
-  console.error(`The bench harness is not built yet.\n\n${USAGE}`);
-  process.exit(1);
+const log = (line) => console.error(`[bench ${new Date().toISOString().slice(11, 19)}] ${line}`);
+
+let options;
+try {
+  options = parseArgs(process.argv.slice(2));
+} catch (error) {
+  if (!(error instanceof UsageError)) throw error;
+  console.error(`${error.message}\n\n${USAGE}`);
+  process.exit(2);
 }
+if (options.help) {
+  console.log(USAGE);
+  process.exit(0);
+}
+
+const cleanups = [];
+let cleaned = null;
+const cleanup = () => {
+  cleaned ??= (async () => {
+    // Last started, first stopped: the browser before the board's tunnel and the server.
+    for (const undo of cleanups.splice(0).reverse()) {
+      try {
+        await undo();
+      } catch (error) {
+        log(`cleanup failed: ${error.message}`);
+      }
+    }
+  })();
+  return cleaned;
+};
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.on(signal, () => {
+    log(`${signal}: stopping what was started`);
+    cleanup().finally(() => process.exit(130));
+  });
+}
+
+let code = 0;
+try {
+  const outcome = await runCampaign(options, { log, cleanups });
+  if (outcome.unfair) code = 3;
+  else {
+    log(`wrote ${outcome.file}`);
+    if (outcome.failed > 0) {
+      log(`${outcome.failed} run(s) failed; they are recorded in the file`);
+      code = 1;
+    }
+  }
+} catch (error) {
+  log(`failed: ${error.stack ?? error.message}`);
+  code = 1;
+} finally {
+  await cleanup();
+}
+process.exit(code);
