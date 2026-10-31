@@ -1,4 +1,11 @@
-import { type FrameStats, frameStats, percentile, stepOutcome, tierOf } from './stats';
+import {
+  type FrameStats,
+  frameStats,
+  percentile,
+  stepOutcome,
+  tierOf,
+  withPresented,
+} from './stats';
 
 const HZ60 = 1000 / 60;
 const HZ30 = 1000 / 30;
@@ -136,6 +143,44 @@ describe('tierOf', () => {
     expect(tierOf(at({ ...rough, fps: 30, p99: 100 }), HZ60)).toBe('usable');
     expect(tierOf(at({ ...rough, fps: 29.9, p99: 50 }), HZ60)).toBe('failing');
     expect(tierOf(at({ ...rough, fps: 45, p99: 100.1 }), HZ60)).toBe('failing');
+  });
+});
+
+describe('withPresented', () => {
+  const smooth = frameStats(steady(180), 3000, HZ60);
+
+  it('keeps the recorder’s statistics where nothing was presented or the display kept up', () => {
+    expect(withPresented(smooth, undefined, HZ60)).toBe(smooth);
+    expect(withPresented(smooth, 60, HZ60)).toBe(smooth);
+    expect(withPresented(smooth, 61.2, HZ60)).toBe(smooth);
+  });
+
+  it('takes the display’s lower rate, and the refreshes that showed nothing new as dropped', () => {
+    // 54 of 60 refreshes drew a frame: 10 % showed nothing new.
+    const seen = withPresented(smooth, 54, HZ60);
+
+    expect(seen.fps).toBe(54);
+    expect(seen.droppedPct).toBeCloseTo(10, 9);
+    expect(tierOf(smooth, HZ60)).toBe('smooth');
+    expect(tierOf(seen, HZ60)).toBe('usable');
+  });
+
+  it('keeps the larger of the recorder’s dropped share and the display’s', () => {
+    const rough = { ...smooth, droppedPct: 20 };
+
+    expect(withPresented(rough, 57, HZ60).droppedPct).toBe(20);
+  });
+
+  it('fails a phase the display showed under 30 times a second, whatever the recorder saw', () => {
+    expect(tierOf(withPresented(smooth, 29, HZ60), HZ60)).toBe('failing');
+    expect(tierOf(withPresented(smooth, 30, HZ60), HZ60)).toBe('usable');
+  });
+
+  it('measures the shortfall against the run’s own refresh rate', () => {
+    const at30 = frameStats(steady(90, HZ30), 3000, HZ30);
+
+    expect(withPresented(at30, 27, HZ30).droppedPct).toBeCloseTo(10, 9);
+    expect(tierOf(withPresented(at30, 29.5, HZ30), HZ30)).toBe('smooth');
   });
 });
 

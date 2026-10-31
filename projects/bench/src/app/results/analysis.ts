@@ -1,5 +1,5 @@
-import { type FrameStats, tierOf, type Tier } from '../measure/stats';
-import type { CampaignResult, RecordedStep } from './result-file';
+import { type FrameStats, tierOf, type Tier, withPresented } from '../measure/stats';
+import type { CampaignResult, RecordedPhase, RecordedStep } from './result-file';
 import {
   type Evidence,
   fallbackVerdict,
@@ -37,33 +37,76 @@ export const LADDER_NAMES: Readonly<Record<string, string>> = {
  */
 const FLAT_FPS = 1;
 
+/**
+ * A heap that moves by less than this share of its median over a soak is garbage collection's
+ * sawtooth, not growth: the heap in use is read at a phase's end, wherever the collector was.
+ */
+const FLAT_HEAP_SHARE = 0.1;
+
 const RENDERER_ORDER = ['kit', 'vflow', 'vflow-virt', 'none'];
 
 const meets = (tier: Tier, goal: TierGoal): boolean =>
   goal === 'smooth' ? tier === 'smooth' : tier !== 'failing';
 
 /**
- * A step's tier: its worst phase's, judged against the run's refresh `intervalMs`, so a smooth
- * idle phase cannot hide a rough pan. A step that was aborted, or has no phase, fails.
+ * A phase as a user saw it: the recorder's numbers, with the display's presented rate where a
+ * traced run measured one and it is the lower (`withPresented`).
  */
-export function stepTier(step: RecordedStep, intervalMs: number): Tier {
+const seen = (phase: RecordedPhase, intervalMs: number): FrameStats =>
+  withPresented(phase, phase.presentedFps, intervalMs);
+
+/**
+ * A step's tier from the phases `judge` gives the numbers of: its worst phase's, so a smooth idle
+ * phase cannot hide a rough pan. A step that was aborted, or has no phase, fails.
+ */
+function worstTierAt(
+  step: RecordedStep,
+  intervalMs: number,
+  judge: (phase: RecordedPhase) => FrameStats,
+): Tier {
   const phases = Object.values(step.phases);
   if (step.aborted || phases.length === 0) return 'failing';
   let worst = 0;
   for (const phase of phases) {
-    worst = Math.max(worst, TIER_ORDER.indexOf(tierOf(phase, intervalMs)));
+    worst = Math.max(worst, TIER_ORDER.indexOf(tierOf(judge(phase), intervalMs)));
   }
   return TIER_ORDER[worst];
 }
 
-/** Mean fps over all of a step's phases: frames over the time they ran for, zero with none. */
+/**
+ * A step's tier, judged against the run's refresh `intervalMs` on what the user saw: the lower of
+ * the recorder's rate and the display's presented rate wherever a trace gave one.
+ */
+export function stepTier(step: RecordedStep, intervalMs: number): Tier {
+  return worstTierAt(step, intervalMs, (phase) => seen(phase, intervalMs));
+}
+
+/** The tier on the recorder's numbers alone: what the step would have been without a trace. */
+export function recorderTier(step: RecordedStep, intervalMs: number): Tier {
+  return worstTierAt(step, intervalMs, (phase) => phase);
+}
+
+/**
+ * Mean fps over all of a step's phases: frames over the time they ran for, zero with none. Each
+ * phase counts at the lower of its recorder's rate and its presented rate, so this is the rate the
+ * tier was judged by; `recorderMeanFps` is the recorder's alone.
+ */
 export function stepMeanFps(step: RecordedStep): number {
+  return meanFps(step, (phase) => Math.min(phase.fps, phase.presentedFps ?? Infinity));
+}
+
+export function recorderMeanFps(step: RecordedStep): number {
+  return meanFps(step, (phase) => phase.fps);
+}
+
+function meanFps(step: RecordedStep, rateOf: (phase: RecordedPhase) => number): number {
   let frames = 0;
   let seconds = 0;
   for (const phase of Object.values(step.phases)) {
     if (!(phase.fps > 0)) continue;
-    frames += phase.frames;
-    seconds += phase.frames / phase.fps;
+    const window = phase.frames / phase.fps;
+    frames += rateOf(phase) * window;
+    seconds += window;
   }
   return seconds > 0 ? frames / seconds : 0;
 }
@@ -95,8 +138,19 @@ export function capacityOf(
   return { level, atCap: level !== null };
 }
 
-/** A climb's capacities, ordered: none below every level, then by level, a cap above a miss. */
-const capacityKey = (cap: Capacity): number => (cap.level ?? -Infinity) + (cap.atCap ? 0.25 : 0);
+/**
+ * A climb's capacities, ordered: none below every level, then by level, and at one level a climb
+ * that never missed above one that did. Level first, as a pair: a refined level a hair above a
+ * ladder level (a bisection's rounding) is still the larger load.
+ */
+function compareCapacity(a: Capacity, b: Capacity): number {
+  if (a.level !== b.level) {
+    if (a.level === null) return -1;
+    if (b.level === null) return 1;
+    return a.level - b.level;
+  }
+  return Number(a.atCap) - Number(b.atCap);
+}
 
 export interface CapacitySummary {
   readonly median: Capacity;
@@ -111,7 +165,7 @@ export interface CapacitySummary {
  */
 export function summariseCapacity(caps: readonly Capacity[]): CapacitySummary | null {
   if (caps.length === 0) return null;
-  const sorted = [...caps].sort((a, b) => capacityKey(a) - capacityKey(b));
+  const sorted = [...caps].sort(compareCapacity);
   return {
     median: sorted[Math.ceil(sorted.length / 2) - 1],
     min: sorted[0],
@@ -158,7 +212,10 @@ const medianTier = (tiers: readonly Tier[]): Tier => {
 export interface ClimbStep {
   readonly level: number;
   readonly refining: boolean;
+  /** On what the user saw: the lower of the recorder's and the presented rate. */
   readonly tier: Tier;
+  /** What the recorder alone would have said, to tell where the presented rate decided. */
+  readonly recorderTier: Tier;
   readonly meanFps: number;
   readonly step: RecordedStep;
 }
@@ -184,7 +241,9 @@ export interface StepCell {
   readonly params: StepParams;
   readonly repeats: number;
   readonly tier: Tier;
-  /** Mean fps over all phases. */
+  /** The presented rate, not the recorder's, put this level's tier below what the recorder said. */
+  readonly presentedDecided: boolean;
+  /** Mean fps over all phases, each at the lower of its recorder's and its presented rate. */
   readonly fps: Stat;
   /** The worst phase's p95 frame time, ms; null for a step with no phase. */
   readonly p95Ms: number | null;
@@ -218,6 +277,8 @@ export interface LadderAnalysis {
   /** The same rule on the usable tier, shown beside it. */
   readonly usableVerdict: FallbackVerdict | null;
   readonly evidence: Evidence | null;
+  /** The soak's flat check, on the first renderer that ran it; null on any other ladder. */
+  readonly soak: SoakTrend | null;
 }
 
 export interface CampaignAnalysis {
@@ -254,12 +315,14 @@ function worstOf(
 function cellOf(steps: readonly ClimbStep[]): StepCell {
   const raw = steps.map((s) => s.step);
   const fps = stat(steps.map((s) => s.meanFps)) as Stat;
+  const tier = medianTier(steps.map((s) => s.tier));
   return {
     level: steps[0].level,
     refining: steps.some((s) => s.refining),
     params: steps[0].step.params,
     repeats: steps.length,
-    tier: medianTier(steps.map((s) => s.tier)),
+    tier,
+    presentedDecided: tier !== medianTier(steps.map((s) => s.recorderTier)),
     fps,
     p95Ms: worstOf(raw, (phase) => phase.p95),
     droppedPct: worstOf(raw, (phase) => phase.droppedPct),
@@ -271,23 +334,36 @@ function cellOf(steps: readonly ClimbStep[]): StepCell {
 }
 
 function climbsOf(campaign: CampaignResult, intervalMs: number): Climb[] {
-  const failedKeys = new Set(
-    (campaign.runs ?? [])
-      .filter((run) => run.status === 'failed' && run.purpose !== 'trace')
-      .map((run) => `${run.ladder}|${run.renderer}|${run.repeat}`),
+  const keyOf = (x: { ladder: string; renderer: string; repeat: number }): string =>
+    `${x.ladder}|${x.renderer}|${x.repeat}`;
+  const failedRuns = (campaign.runs ?? []).filter(
+    (run) => run.status === 'failed' && run.purpose !== 'trace',
   );
-  const groups = new Map<string, RecordedStep[]>();
+  const failedKeys = new Set(failedRuns.map(keyOf));
+  const groups = new Map<
+    string,
+    { ladder: string; renderer: string; repeat: number; steps: RecordedStep[] }
+  >();
   for (const step of campaign.steps) {
-    const key = `${step.ladder}|${step.renderer}|${step.repeat}`;
-    groups.set(key, [...(groups.get(key) ?? []), step]);
+    const group = groups.get(keyOf(step));
+    if (group) group.steps.push(step);
+    else groups.set(keyOf(step), { ...pick(step), steps: [step] });
   }
-  return [...groups].map(([key, steps]) => {
-    const failed = steps.some((s) => s.failedRun) || failedKeys.has(key);
+  // A page load that died before its first step left no step to group, and is a climb with no
+  // capacity all the same: leaving it out would have the verdict wait for a repeat that will not
+  // come.
+  for (const run of failedRuns) {
+    if (!groups.has(keyOf(run))) groups.set(keyOf(run), { ...pick(run), steps: [] });
+  }
+  return [...groups.values()].map(({ ladder, renderer, repeat, steps }) => {
+    const failed =
+      steps.some((s) => s.failedRun) || failedKeys.has(keyOf({ ladder, renderer, repeat }));
     const climbSteps: ClimbStep[] = steps
       .map((step) => ({
         level: step.level,
         refining: step.refining,
         tier: stepTier(step, intervalMs),
+        recorderTier: recorderTier(step, intervalMs),
         meanFps: stepMeanFps(step),
         step,
       }))
@@ -298,9 +374,9 @@ function climbsOf(campaign: CampaignResult, intervalMs: number): Climb[] {
       return failed ? { ...cap, atCap: false } : cap;
     };
     return {
-      ladder: steps[0].ladder,
-      renderer: steps[0].renderer,
-      repeat: steps[0].repeat,
+      ladder,
+      renderer,
+      repeat,
       failed,
       steps: climbSteps,
       smooth: capacity('smooth'),
@@ -308,6 +384,21 @@ function climbsOf(campaign: CampaignResult, intervalMs: number): Climb[] {
     };
   });
 }
+
+/** What names a page load, from a step or a run entry. */
+const pick = ({
+  ladder,
+  renderer,
+  repeat,
+}: {
+  ladder: string;
+  renderer: string;
+  repeat: number;
+}) => ({
+  ladder,
+  renderer,
+  repeat,
+});
 
 function rendererLadder(renderer: string, climbs: readonly Climb[]): RendererLadder {
   const byLevel = new Map<number, ClimbStep[]>();
@@ -329,6 +420,8 @@ function rendererLadder(renderer: string, climbs: readonly Climb[]): RendererLad
 
 /** Everything the results view shows of `campaign`. */
 export function analyseCampaign(campaign: CampaignResult): CampaignAnalysis {
+  // One interval for the whole file: the first finished run's (`merge.mjs` takes `measurement`
+  // from it, and warns where the runs' rates differ, saying this).
   const intervalMs = campaign.measurement?.refresh.intervalMs ?? 1000 / campaign.machine.refreshHz;
   const climbs = climbsOf(campaign, intervalMs);
   const letters = [...new Set(climbs.map((c) => c.ladder))].sort();
@@ -360,6 +453,7 @@ export function analyseCampaign(campaign: CampaignResult): CampaignAnalysis {
       verdict: kit && vflow ? fallbackVerdict(kit.climbs, vflow.climbs, 'smooth') : null,
       usableVerdict: kit && vflow ? fallbackVerdict(kit.climbs, vflow.climbs, 'usable') : null,
       evidence: kit && vflow ? supportingEvidence(kit.cells, vflow.cells) : null,
+      soak: ladder === 'E' && renderers[0] ? soakOf(renderers[0], intervalMs) : null,
     };
   });
   const failed = new Set(
@@ -388,7 +482,14 @@ export interface PhaseRow {
   readonly busyShare: number | null;
   /** Long animation frames (or long tasks) in the phase; null where none was collected. */
   readonly loafCount: number | null;
+  /** What the display presented per second (from a trace); null where none was measured. */
+  readonly presentedFps: number | null;
+  /** The heap in use where the phase ended, bytes; null where the harness did not read it. */
+  readonly heapBytes: number | null;
+  /** The tier, on the lower of `fps` and `presentedFps`. */
   readonly tier: Tier;
+  /** `presentedFps` put the tier below what `fps` alone gives. */
+  readonly presentedDecided: boolean;
   readonly spreadFlag: boolean;
 }
 
@@ -421,6 +522,13 @@ export function phaseRows(climbs: readonly Climb[], intervalMs: number): PhaseRo
         FRAME_FIELDS.map((field) => [field, median(phases.map((p) => p[field]))]),
       ) as unknown as FrameStats;
       const fps = stat(phases.map((p) => p.fps)) as Stat;
+      const presentedFps = medianOrNull(
+        phases.flatMap((p) => (p.presentedFps === undefined ? [] : [p.presentedFps])),
+      );
+      const tier = tierOf(
+        withPresented(medians, presentedFps ?? undefined, intervalMs),
+        intervalMs,
+      );
       rows.push({
         level,
         refining: steps.some((s) => s.refining),
@@ -436,12 +544,31 @@ export function phaseRows(climbs: readonly Climb[], intervalMs: number): PhaseRo
           phases.flatMap((p) => (p.cdp?.busyShare == null ? [] : [p.cdp.busyShare])),
         ),
         loafCount: medianOrNull(phases.flatMap((p) => (p.loaf ? [p.loaf.count] : []))),
-        tier: tierOf(medians, intervalMs),
+        presentedFps,
+        heapBytes: medianOrNull(
+          phases.flatMap((p) => (p.cdp?.heapBytes == null ? [] : [p.cdp.heapBytes])),
+        ),
+        tier,
+        presentedDecided: tier !== tierOf(medians, intervalMs),
         spreadFlag: phases.length > 1 && fps.spreadPct > SPREAD_FLAG_PCT,
       });
     }
   }
   return rows;
+}
+
+/** The levels at which the display's presented rate set a renderer's tier, by ladder. */
+export function presentedDecisions(
+  analysis: CampaignAnalysis,
+): { ladder: string; renderer: string; levels: number[] }[] {
+  return analysis.ladders.flatMap((ladder) =>
+    ladder.renderers.flatMap((renderer) => {
+      const levels = renderer.cells.filter((cell) => cell.presentedDecided).map((c) => c.level);
+      return levels.length > 0
+        ? [{ ladder: ladder.ladder, renderer: renderer.renderer, levels }]
+        : [];
+    }),
+  );
 }
 
 /** The load of a level in words, as the ladder varies it (`params` from a step at that level). */
@@ -495,7 +622,44 @@ export function capacitySummaryText(
   return differ ? `${text} (${short(summary.min)} to ${short(summary.max)})` : text;
 }
 
-/** Whether a trend (`RendererLadder.trend`) moves too little for its shape to mean anything. */
-export function flatTrend(values: readonly number[]): boolean {
-  return values.length === 0 || Math.max(...values) - Math.min(...values) < FLAT_FPS;
+/**
+ * Whether a trend (`RendererLadder.trend`) moves too little for its shape to mean anything: its
+ * values differ by less than `within`, a frame a second unless the caller knows its unit.
+ */
+export function flatTrend(values: readonly number[], within = FLAT_FPS): boolean {
+  return values.length === 0 || Math.max(...values) - Math.min(...values) < within;
+}
+
+/** What a soak's phases say of whether anything wears: the frame rate and the heap over them. */
+export interface SoakTrend {
+  readonly phases: number;
+  readonly fpsFlat: boolean;
+  /** Null where the heap was read at fewer than two phases: there is no trend to judge. */
+  readonly heapFlat: boolean | null;
+  readonly heapFirstBytes: number | null;
+  readonly heapLastBytes: number | null;
+}
+
+/**
+ * The soak's flat check over its phases in order (`phaseRows`): the frame rate must not fall and
+ * the heap must not grow. The heap is flat where it moves by less than a tenth of its median,
+ * which is the collector's sawtooth. Null without phases.
+ */
+export function soakTrend(
+  rows: readonly { readonly fps: number; readonly heapBytes: number | null }[],
+): SoakTrend | null {
+  if (rows.length === 0) return null;
+  const heap = rows.flatMap((row) => (row.heapBytes === null ? [] : [row.heapBytes]));
+  return {
+    phases: rows.length,
+    fpsFlat: flatTrend(rows.map((row) => row.fps)),
+    heapFlat: heap.length < 2 ? null : flatTrend(heap, FLAT_HEAP_SHARE * median(heap)),
+    heapFirstBytes: heap[0] ?? null,
+    heapLastBytes: heap.at(-1) ?? null,
+  };
+}
+
+/** The soak of a renderer's climb: its one step's phases, in the order they ran. */
+function soakOf(renderer: RendererLadder, intervalMs: number): SoakTrend | null {
+  return soakTrend(phaseRows(renderer.climbs, intervalMs));
 }

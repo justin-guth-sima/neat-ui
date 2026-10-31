@@ -20,10 +20,19 @@ export interface PhaseCdp {
   readonly busyShare: number | null;
   readonly styleCount: number;
   readonly layoutCount: number;
+  /** The heap in use where the phase ended (not a difference): a soak's trend over its phases. */
+  readonly heapBytes?: number;
 }
 
 export interface RecordedPhase extends PhaseResult {
   readonly cdp?: PhaseCdp;
+  /**
+   * What the display presented per second in the phase, from the traced run of the same load
+   * (`harness/trace-check.mjs`): only where the view changes in every frame (a pan, a zoom, a step
+   * with messages in flight) and only where a trace was taken. The tier uses the lower of this
+   * and `fps`, the recorder's.
+   */
+  readonly presentedFps?: number;
 }
 
 export interface RecordedStep extends Omit<StepResult, 'phases' | 'dom'> {
@@ -45,6 +54,8 @@ export interface RecorderCheck {
   readonly tolerance: number;
   readonly compared: number;
   readonly worstPct: number;
+  /** Gesture phases in which the trace shows no display draw: not checked, not a failure. */
+  readonly unreadable?: number;
   /** Why it was not made, for a renderer the gestures move nothing in. */
   readonly skipped?: string;
 }

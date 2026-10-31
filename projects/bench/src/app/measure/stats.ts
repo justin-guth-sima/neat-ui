@@ -109,6 +109,29 @@ export function tierOf(stats: FrameStats, intervalMs: number): Tier {
   return stats.fps >= USABLE_FPS && stats.p99 <= USABLE_P99_MS ? 'usable' : 'failing';
 }
 
+/**
+ * A phase's statistics as a user saw them, where the display's own count of what it presented
+ * (`presentedFps`, from a trace) is below the recorder's rate: the page produced those frames and
+ * the display never drew them, so they were not seen. The rate is the presented one, and the
+ * dropped share is at least the refreshes that showed nothing new, `1 - presented / refresh rate`
+ * (what `dropped` counts from the frame times). Anything else about the frames stays the
+ * recorder's: a trace gives a count, not their spacing. A phase with no presented rate, or one
+ * the recorder agrees with or is below, is returned as it is.
+ */
+export function withPresented(
+  stats: FrameStats,
+  presentedFps: number | undefined,
+  intervalMs: number,
+): FrameStats {
+  if (presentedFps === undefined || !(presentedFps < stats.fps)) return stats;
+  const shortfallPct = (1 - (presentedFps * intervalMs) / 1000) * 100;
+  return {
+    ...stats,
+    fps: presentedFps,
+    droppedPct: Math.max(stats.droppedPct, shortfallPct),
+  };
+}
+
 /** What a step's `phases` add up to, judged against `intervalMs`. */
 export function stepOutcome(phases: readonly PhaseFrames[], intervalMs: number): StepOutcome {
   if (phases.length === 0) throw new RangeError('a step without a phase has no outcome');

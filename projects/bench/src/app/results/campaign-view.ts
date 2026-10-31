@@ -34,7 +34,14 @@ import {
 } from './analysis';
 import { copyText } from './clipboard';
 import type { CampaignResult } from './result-file';
-import { browserName, recorderLine, shortSha, summaryMarkdown } from './summary';
+import {
+  browserName,
+  presentedLines,
+  recorderLine,
+  shortSha,
+  soakText,
+  summaryMarkdown,
+} from './summary';
 import { RULE, type VerdictKind } from './verdict';
 
 const TIER_TONE: Record<Tier, NeatTone> = {
@@ -123,7 +130,7 @@ interface Shot {
           >
             Remove
           </button>
-          <span class="visually-hidden" role="status">{{ copyAnnouncement() }}</span>
+          <span class="sr-only" role="status">{{ copyAnnouncement() }}</span>
         </div>
       </header>
 
@@ -201,7 +208,9 @@ interface Shot {
                     <td>{{ summary(ladder, renderer.smooth) }}</td>
                     <td>{{ summary(ladder, renderer.usable) }}</td>
                     <td class="trend">
-                      @if (flat(renderer.trend)) {
+                      @if (renderer.trend.length === 0) {
+                        <span class="range">no step ran</span>
+                      } @else if (flat(renderer.trend)) {
                         <span class="range">{{ fmt(renderer.trend[0], 0) }} fps at every step</span>
                       } @else {
                         <neat-sparkline
@@ -242,6 +251,13 @@ interface Shot {
                   }
                 </span>
               </div>
+              @if (verdict.kind === 'inconclusive' && c.harness?.complete === true) {
+                <p neatNote>
+                  The campaign is finished with {{ verdict.pairs.length }} of the rule's
+                  {{ rule.of }} repeats, so no more will come: run it with
+                  <code>--repeats {{ rule.of }}</code> for a verdict.
+                </p>
+              }
               <div class="scroll">
                 <table neatTable [attr.aria-label]="'Repeats of ladder ' + ladder.ladder">
                   <thead>
@@ -325,7 +341,9 @@ interface Shot {
           <p neatNote>
             Median of the repeats per step; each fps is the mean over the step's phases, the other
             figures are the worst phase's (the busy share, the busiest). Ranges and spreads over 10
-            % are flagged.
+            % are flagged. A phase counts at the lower of the recorder's rate and the display's
+            presented rate where a traced run gave one (the phases table has both); “presented”
+            marks a step whose tier that rate decided.
           </p>
           <div class="scroll">
             <table neatTable [attr.aria-label]="'Steps of ladder ' + current.ladder">
@@ -356,6 +374,9 @@ interface Shot {
                           <neat-status-chip [tone]="tierTone[cell.tier]">{{
                             cell.aborted ? 'aborted' : cell.tier
                           }}</neat-status-chip>
+                          @if (cell.presentedDecided) {
+                            <neat-status-chip variant="tinted">presented</neat-status-chip>
+                          }
                           {{ fmt(cell.fps.median, 1, 1) }}
                           @if (cell.repeats > 1) {
                             <span class="range"
@@ -382,6 +403,10 @@ interface Shot {
             </table>
           </div>
 
+          @if (current.soak; as soak) {
+            <p neatNote>Soak, {{ current.renderers[0].renderer }}: {{ soakSentence(soak) }}</p>
+          }
+
           <neat-collapsible label="Phases" summary="each phase of each step, median of the repeats">
             @if (current.renderers.length > 1) {
               <neat-segmented
@@ -400,7 +425,8 @@ interface Shot {
                     <th scope="col">Load</th>
                     <th scope="col">Phase</th>
                     <th scope="col">Tier</th>
-                    <th scope="col" neatNumeric>fps</th>
+                    <th scope="col" neatNumeric>recorder fps</th>
+                    <th scope="col" neatNumeric>presented fps</th>
                     <th scope="col" neatNumeric>p50 ms</th>
                     <th scope="col" neatNumeric>p95 ms</th>
                     <th scope="col" neatNumeric>p99 ms</th>
@@ -409,6 +435,7 @@ interface Shot {
                     <th scope="col" neatNumeric>stalls</th>
                     <th scope="col" neatNumeric>busy %</th>
                     <th scope="col" neatNumeric>long frames</th>
+                    <th scope="col" neatNumeric>heap MB</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -420,6 +447,9 @@ interface Shot {
                         <neat-status-chip [tone]="tierTone[row.tier]">{{
                           row.tier
                         }}</neat-status-chip>
+                        @if (row.presentedDecided) {
+                          <neat-status-chip variant="tinted">presented</neat-status-chip>
+                        }
                         @if (row.spreadFlag) {
                           <neat-status-chip tone="warning" variant="tinted"
                             >spread</neat-status-chip
@@ -427,6 +457,7 @@ interface Shot {
                         }
                       </td>
                       <td neatNumeric>{{ fmt(row.fps, 1, 1) }}</td>
+                      <td neatNumeric>{{ fmt(row.presentedFps, 1, 1) }}</td>
                       <td neatNumeric>{{ fmt(row.p50, 1, 1) }}</td>
                       <td neatNumeric>{{ fmt(row.p95, 1, 1) }}</td>
                       <td neatNumeric>{{ fmt(row.p99, 1, 1) }}</td>
@@ -435,6 +466,7 @@ interface Shot {
                       <td neatNumeric>{{ row.stalls }}</td>
                       <td neatNumeric>{{ percent(row.busyShare) }}</td>
                       <td neatNumeric>{{ fmt(row.loafCount, 0) }}</td>
+                      <td neatNumeric>{{ megabytes(row.heapBytes) }}</td>
                     </tr>
                   }
                 </tbody>
@@ -461,6 +493,9 @@ interface Shot {
           <ul>
             <li>{{ m.build }}</li>
             <li>{{ m.loaf.limits }}</li>
+            @for (line of presented(); track $index) {
+              <li>{{ line }}</li>
+            }
             @for (note of recorderNotes(); track $index) {
               <li>{{ note }}</li>
             }
@@ -576,6 +611,8 @@ export class CampaignView {
     (this.campaign().runs ?? []).flatMap((run) => (run.trace ? [run.trace] : [])),
   );
 
+  protected readonly presented = computed(() => presentedLines(this.campaign(), this.analysis()));
+
   protected readonly recorderNotes = computed(() =>
     (this.campaign().runs ?? []).flatMap((run) =>
       run.recorderCheck
@@ -610,6 +647,13 @@ export class CampaignView {
       ? '–'
       : value.toLocaleString('en', { minimumFractionDigits: least, maximumFractionDigits: digits });
   }
+
+  /** A heap size in bytes as megabytes, a dash where it was not read. */
+  protected megabytes(bytes: number | null): string {
+    return this.fmt(bytes === null ? null : bytes / 1e6, 1, 1);
+  }
+
+  protected readonly soakSentence = soakText;
 
   /** A share from 0 to 1 as whole percent. */
   protected percent(share: number | null): string {

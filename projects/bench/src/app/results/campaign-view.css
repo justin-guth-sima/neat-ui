@@ -51,8 +51,13 @@ ul {
   gap: var(--neat-space-2);
 }
 
-/* Pushes the buttons to the end of the header's row. */
+/*
+ * Pushes the buttons to the end of the header's row. It is also the containing block of the copy
+ * announcement beside them (`sr-only` is absolute): without it the span would fall back to the
+ * viewport and escape the page's scroll box.
+ */
 .actions {
+  position: relative;
   margin-inline-start: auto;
 }
 
@@ -116,13 +121,4 @@ img {
   height: auto;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-}
-
-.visually-hidden {
-  position: absolute;
-  inline-size: 1px;
-  block-size: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
 }

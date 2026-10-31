@@ -3,6 +3,7 @@ import {
   capacityOf,
   flatTrend,
   median,
+  soakTrend,
   phaseRows,
   SPREAD_FLAG_PCT,
   stat,
@@ -38,7 +39,40 @@ describe('stepTier', () => {
   });
 });
 
+describe('stepTier with the display’s presented rate', () => {
+  const panPresented = (presentedFps: number | undefined) =>
+    withPhases(step('smooth', 1), { pan: phase('smooth', { presentedFps }) });
+
+  it('uses the lower of the recorder’s rate and the presented one, so what was seen decides', () => {
+    // The recorder counted 60 fps in the pan, the display drew 54 of them: 10 % showed nothing new.
+    expect(stepTier(panPresented(54), INTERVAL_MS)).toBe('usable');
+    expect(stepTier(panPresented(29), INTERVAL_MS)).toBe('failing');
+  });
+
+  it('falls back to the recorder where no presented rate was measured', () => {
+    expect(stepTier(panPresented(undefined), INTERVAL_MS)).toBe('smooth');
+  });
+
+  it('never lifts a tier: a presented rate above the recorder’s changes nothing', () => {
+    const rough = withPhases(step('smooth', 1), { pan: phase('usable', { presentedFps: 60 }) });
+
+    expect(stepTier(rough, INTERVAL_MS)).toBe('usable');
+  });
+});
+
 describe('stepMeanFps', () => {
+  it('takes the lower of the recorder’s and the presented rate in each phase', () => {
+    // 3 s at 60 fps, of which the display presented 30 fps (90 frames), and 1 s at 60: 150 over 4 s.
+    const seen = step('smooth', 1, {
+      phases: {
+        a: phase('smooth', { frames: 180, fps: 60, presentedFps: 30 }),
+        b: phase('smooth', { frames: 60, fps: 60 }),
+      },
+    });
+
+    expect(stepMeanFps(seen)).toBeCloseTo(37.5, 9);
+  });
+
   it('weights each phase by the time it ran for, not by how many phases there are', () => {
     // 3 s at 60 fps (180 frames) and 1 s at 30 fps (30 frames): 210 frames in 4 s.
     const mixed = step('smooth', 1, {
@@ -53,6 +87,50 @@ describe('stepMeanFps', () => {
 
   it('is zero for a step with no frames', () => {
     expect(stepMeanFps(step('smooth', 1, { phases: {} }))).toBe(0);
+  });
+});
+
+describe('a step the presented rate decided', () => {
+  const decided = (repeat: number, presentedFps: number | undefined) =>
+    climb('kit', repeat, ['smooth']).map((s) =>
+      withPhases(s, { pan: phase('smooth', { presentedFps }) }),
+    );
+
+  it('shows the effective fps and says the presented rate decided the tier', () => {
+    const steps = [0, 1, 2].flatMap((repeat) => decided(repeat, 54));
+
+    const cell = analyseCampaign(campaign(steps)).ladders[0].renderers[0].cells[0];
+
+    expect(cell.tier).toBe('usable');
+    expect(cell.presentedDecided).toBe(true);
+    expect(cell.fps.median).toBeLessThan(60);
+  });
+
+  it('does not say so where the recorder’s tier was the same', () => {
+    // 59.6 of 60: the display kept up as far as a count over a window can tell.
+    const steps = [0, 1, 2].flatMap((repeat) => decided(repeat, 59.6));
+
+    const cell = analyseCampaign(campaign(steps)).ladders[0].renderers[0].cells[0];
+
+    expect(cell.tier).toBe('smooth');
+    expect(cell.presentedDecided).toBe(false);
+  });
+
+  it('says nothing where no run was traced', () => {
+    const cell = analyseCampaign(campaign(decided(0, undefined))).ladders[0].renderers[0].cells[0];
+
+    expect(cell.presentedDecided).toBe(false);
+  });
+
+  it('lowers the capacity: the knee is where the display stopped keeping up', () => {
+    const traced = climb('vflow', 0, ['smooth', 'smooth', 'smooth']).map((s, index) =>
+      index === 2 ? withPhases(s, { pan: phase('smooth', { presentedFps: 45 }) }) : s,
+    );
+
+    const vflow = analyseCampaign(campaign(traced)).ladders[0].renderers[0];
+
+    expect(vflow.smooth?.median).toEqual({ level: 2, atCap: false });
+    expect(vflow.usable?.median).toEqual({ level: 4, atCap: true });
   });
 });
 
@@ -113,6 +191,14 @@ describe('summariseCapacity', () => {
     expect(summary?.min).toEqual(cap(null));
     expect(summary?.median).toEqual(cap(4));
     expect(summary?.max).toEqual(cap(4, true));
+  });
+
+  it('ranks a refined level above the ladder level it refines, whatever its cap', () => {
+    // A refined knee just above a ladder level, against a climb that held the level below it.
+    const summary = summariseCapacity([cap(4.1), cap(4, true)]);
+
+    expect(summary?.min).toEqual(cap(4, true));
+    expect(summary?.max).toEqual(cap(4.1));
   });
 
   it('has nothing without repeats', () => {
@@ -260,6 +346,28 @@ describe('analyseCampaign', () => {
     expect(analyseCampaign(file).failedRuns).toBe(1);
   });
 
+  it('counts a repeat whose page load died before any step as a climb with no capacity', () => {
+    const steps = [
+      ...climb('vflow', 0, ['smooth', 'smooth', 'smooth', 'smooth']),
+      ...climb('vflow', 1, ['smooth', 'smooth', 'smooth', 'smooth']),
+      ...climb('vflow', 2, ['smooth', 'smooth', 'smooth', 'smooth']),
+      ...climb('kit', 0, ['smooth', 'usable']),
+      ...climb('kit', 1, ['smooth', 'usable']),
+    ];
+    const file = campaign(steps, {
+      runs: [
+        { ladder: 'A', renderer: 'kit', repeat: 2, status: 'failed', error: 'the page crashed' },
+      ],
+    });
+
+    const a = analyseCampaign(file).ladders[0];
+
+    expect(a.renderers.find((r) => r.renderer === 'kit')?.climbs).toHaveLength(3);
+    expect(a.verdict?.pairs).toHaveLength(3);
+    expect(a.verdict?.kind).toBe('slower');
+    expect(a.verdict?.pairs[2]).toMatchObject({ failed: true, slower: true });
+  });
+
   it('lists the trend of median fps by level, for the capacity table’s sparkline', () => {
     const steps = climb('kit', 0, ['smooth', 'usable', 'failing']);
 
@@ -296,6 +404,81 @@ describe('phaseRows', () => {
     const kit = analyseCampaign(campaign(steps)).ladders[0].renderers[0];
 
     expect(new Set(phaseRows(kit.climbs, INTERVAL_MS).map((r) => r.level))).toEqual(new Set([1]));
+  });
+});
+
+describe('phaseRows with the presented rate and the heap', () => {
+  it('shows the median presented rate beside the recorder’s, and the tier it decides', () => {
+    const steps = [0, 1, 2].flatMap((repeat) =>
+      climb('kit', repeat, ['smooth']).map((s) =>
+        withPhases(s, { pan: phase('smooth', { presentedFps: [50, 54, 58][repeat] }) }),
+      ),
+    );
+    const kit = analyseCampaign(campaign(steps)).ladders[0].renderers[0];
+
+    const rows = phaseRows(kit.climbs, INTERVAL_MS);
+
+    const pan = rows.find((r) => r.phase === 'pan')!;
+    const idle = rows.find((r) => r.phase === 'idle')!;
+    expect(pan).toMatchObject({
+      fps: 60,
+      presentedFps: 54,
+      tier: 'usable',
+      presentedDecided: true,
+    });
+    expect(idle).toMatchObject({ presentedFps: null, tier: 'smooth', presentedDecided: false });
+  });
+
+  it('shows the median heap at the phase’s end, nothing where it was not read', () => {
+    const steps = [0, 1, 2].flatMap((repeat) =>
+      climb('kit', repeat, ['smooth']).map((s) =>
+        withPhases(s, {
+          idle: phase('smooth', { cdp: { heapBytes: [10, 12, 11][repeat] * 1e6 } as never }),
+        }),
+      ),
+    );
+    const kit = analyseCampaign(campaign(steps)).ladders[0].renderers[0];
+
+    const rows = phaseRows(kit.climbs, INTERVAL_MS);
+
+    expect(rows.find((r) => r.phase === 'idle')?.heapBytes).toBe(11e6);
+    expect(rows.find((r) => r.phase === 'pan')?.heapBytes).toBeNull();
+  });
+});
+
+describe('soakTrend (the soak’s flat check, fps and heap)', () => {
+  const rows = (fps: number[], heapMb: (number | null)[]) =>
+    fps.map((f, i) => ({ fps: f, heapBytes: heapMb[i] === null ? null : heapMb[i]! * 1e6 }));
+
+  it('calls a soak flat where the frame rate and the heap hold over its phases', () => {
+    const trend = soakTrend(rows([60, 60, 59.9, 60], [13.1, 13.4, 12.9, 13.2]));
+
+    expect(trend).toMatchObject({ phases: 4, fpsFlat: true, heapFlat: true });
+    expect(trend?.heapFirstBytes).toBe(13.1e6);
+    expect(trend?.heapLastBytes).toBe(13.2e6);
+  });
+
+  it('says the heap grew where it climbs by more than a tenth over the phases', () => {
+    const trend = soakTrend(rows([60, 60, 60, 60], [13, 15, 17, 19]));
+
+    expect(trend?.fpsFlat).toBe(true);
+    expect(trend?.heapFlat).toBe(false);
+  });
+
+  it('says the frame rate fell where it does, with a flat heap', () => {
+    const trend = soakTrend(rows([60, 58, 52, 45], [13, 13, 13, 13]));
+
+    expect(trend).toMatchObject({ fpsFlat: false, heapFlat: true });
+  });
+
+  it('has no heap verdict where the heap was read at fewer than two phases', () => {
+    const trend = soakTrend(rows([60, 60, 60], [null, 13, null]));
+
+    expect(trend?.heapFlat).toBeNull();
+  });
+
+  it('has nothing without phases', () => {
+    expect(soakTrend([])).toBeNull();
   });
 });
 

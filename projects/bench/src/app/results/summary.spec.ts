@@ -1,5 +1,5 @@
 import { analyseCampaign } from './analysis';
-import { campaign, climb } from './results.testing';
+import { campaign, climb, phase, step, withPhases } from './results.testing';
 import { summaryMarkdown } from './summary';
 
 /** The kit a step short of vflow's capacity in all three repeats, the way a slow renderer looks. */
@@ -180,6 +180,96 @@ describe('summaryMarkdown', () => {
     expect(text).toContain(
       '- Recorder against trace, none A r0: not checked (the none host draws nothing',
     );
+  });
+
+  it('says no run was traced, so the recorder’s rate alone decided every tier', () => {
+    expect(markdown()).toContain('No run was traced');
+  });
+
+  it('says the traces gave no presented rate, where they were taken and showed none', () => {
+    const file = campaign(climb('kit', 0, ['smooth']), {
+      runs: [{ ladder: 'A', renderer: 'kit', repeat: 0, status: 'ok', purpose: 'trace' }],
+    });
+
+    expect(markdown(file)).toContain('gave no presented rate');
+  });
+
+  it('says which value decided: where the presented rate set a tier, and where it set none', () => {
+    const traced = (presentedFps: number) =>
+      campaign(
+        [
+          ...climb('kit', 0, ['smooth', 'smooth']).map((s) =>
+            s.level === 2 ? withPhases(s, { pan: phase('smooth', { presentedFps }) }) : s,
+          ),
+        ],
+        {
+          runs: [{ ladder: 'A', renderer: 'kit', repeat: 0, status: 'ok', purpose: 'trace' }],
+        },
+      );
+
+    const decided = markdown(traced(50));
+    const agreed = markdown(traced(59.8));
+
+    expect(decided).toContain('lower of the recorder’s rate and the display’s presented rate');
+    expect(decided).toContain('decided the tier of: kit on ladder A at ×2');
+    expect(agreed).toContain('lower of the recorder’s rate and the display’s presented rate');
+    expect(agreed).toContain('decided no tier');
+  });
+
+  it('says what a soak did over its phases, the heap with the frame rate', () => {
+    const phases = Object.fromEntries(
+      [13.1, 13.3, 13.2].map((mb, i) => [
+        `soak-${i + 1}`,
+        phase('smooth', { cdp: { heapBytes: mb * 1e6 } as never }),
+      ]),
+    );
+    const file = campaign([step('smooth', 1, { ladder: 'E', phases })], {
+      config: { ...campaign([]).config, ladders: ['E'], renderers: ['kit'] },
+    });
+
+    const text = markdown(file);
+
+    expect(text).toContain('## Soak');
+    expect(text).toMatch(/3 phases.*frame rate held.*heap held.*13\.1 MB.*13\.2 MB/);
+  });
+
+  it('says the heap grew where a soak’s heap did', () => {
+    const phases = Object.fromEntries(
+      [13, 15, 17, 19].map((mb, i) => [
+        `soak-${i + 1}`,
+        phase('smooth', { cdp: { heapBytes: mb * 1e6 } as never }),
+      ]),
+    );
+    const file = campaign([step('smooth', 1, { ladder: 'E', phases })]);
+
+    expect(markdown(file)).toMatch(/heap grew from 13\.0 MB to 19\.0 MB/);
+  });
+
+  it('gives the levels of the 85 % rows in words and counts one step as one', () => {
+    const file = campaign([
+      ...climb('kit', 0, ['smooth', 'usable', 'smooth']),
+      ...climb('vflow', 0, ['smooth', 'smooth', 'smooth']),
+    ]);
+
+    expect(markdown(file)).toContain('at 1 step, not consecutive');
+    expect(markdown()).toContain('in consecutive steps (×2, ×4)');
+  });
+
+  it('says a trace showed no display draw where the check could not read it', () => {
+    const file = campaign(climb('kit', 0, ['smooth']), {
+      runs: [
+        {
+          ladder: 'A',
+          renderer: 'kit',
+          repeat: 0,
+          status: 'ok',
+          purpose: 'trace',
+          recorderCheck: { ok: true, tolerance: 0.03, compared: 10, worstPct: -1, unreadable: 2 },
+        },
+      ],
+    });
+
+    expect(markdown(file)).toContain('Trace unreadable for 2 phases');
   });
 
   it('warns first that a campaign that did not finish is not the whole of it', () => {

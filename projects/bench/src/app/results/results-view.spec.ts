@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NeatDropZone } from '@sima/neat-ui/drop-zone';
-import { campaign, climb } from './results.testing';
+import { campaign, climb, phase, step, withPhases } from './results.testing';
 import { ResultsView } from './results-view';
 
 /** Both renderers, three repeats: the kit a step and a half behind, vflow past it. */
@@ -87,6 +87,80 @@ describe('ResultsView', () => {
     expect(text()).toContain('notes.json');
     expect(text()).toMatch(/schema/);
     expect(root().querySelectorAll('bench-campaign-view')).toHaveLength(1);
+  });
+
+  it('marks a step the presented rate decided, with both rates in the phases table', async () => {
+    const steps = climb('kit', 0, ['smooth', 'smooth']).map((s) =>
+      s.level === 2
+        ? withPhases(s, {
+            pan: phase('smooth', { presentedFps: 50, cdp: { heapBytes: 14.25e6 } as never }),
+          })
+        : s,
+    );
+    await drop(
+      json(
+        'traced.json',
+        JSON.stringify(campaign(steps, { config: { ...campaign([]).config, repeats: 1 } })),
+      ),
+    );
+
+    const view = root().querySelector('bench-campaign-view')!;
+    const stepRows = view.querySelectorAll('table[aria-label^="Steps"] tbody tr');
+    expect(stepRows[0].textContent).not.toContain('presented');
+    expect(stepRows[1].textContent).toContain('presented');
+    const heads = Array.from(view.querySelectorAll('table[aria-label^="Phases"] thead th'), (th) =>
+      th.textContent?.trim(),
+    );
+    expect(heads).toEqual(expect.arrayContaining(['recorder fps', 'presented fps', 'heap MB']));
+    const pan = Array.from(view.querySelectorAll('table[aria-label^="Phases"] tbody tr')).find(
+      (tr) => tr.textContent?.includes('×2') && tr.textContent?.includes('pan'),
+    )!;
+    expect(pan.textContent).toContain('60.0');
+    expect(pan.textContent).toContain('50.0');
+    expect(pan.textContent).toContain('14.3');
+    expect(view.textContent).toContain('The presented rate decided the tier of: kit on ladder A');
+  });
+
+  it('says what a soak did over its phases, the heap too', async () => {
+    const phases = Object.fromEntries(
+      [13, 15, 17, 19].map((mb, i) => [
+        `soak-${i + 1}`,
+        phase('smooth', { cdp: { heapBytes: mb * 1e6 } as never }),
+      ]),
+    );
+    await drop(
+      json('soak.json', JSON.stringify(campaign([step('smooth', 1, { ladder: 'E', phases })]))),
+    );
+
+    expect(text()).toContain('Soak, kit: Over 4 phases: the frame rate held, the heap grew');
+  });
+
+  it('shows a ladder one renderer could not start, and still judges the verdict', async () => {
+    const file = campaign(
+      [
+        ...[0, 1, 2].flatMap((repeat) => climb('vflow', repeat, ['smooth', 'smooth', 'smooth'])),
+        ...[0, 1].flatMap((repeat) => climb('kit', repeat, ['smooth', 'usable', 'usable'])),
+      ],
+      {
+        runs: [{ ladder: 'A', renderer: 'kit', repeat: 2, status: 'failed', error: 'crashed' }],
+      },
+    );
+    await drop(json('died.json', JSON.stringify(file)));
+
+    expect(root().querySelector('[data-slot="verdict"]')?.textContent).toContain('3 of 3');
+    expect(text()).toContain('run failed');
+  });
+
+  it('says that a finished campaign of fewer repeats than the rule’s cannot reach a verdict', async () => {
+    const file = campaign(
+      [...climb('kit', 0, ['smooth', 'failing']), ...climb('vflow', 0, ['smooth', 'smooth'])],
+      { config: { ...campaign([]).config, repeats: 1 } },
+    );
+    await drop(json('one.json', JSON.stringify(file)));
+
+    const verdict = root().querySelector('[data-slot="verdict"]')!.textContent!;
+    expect(verdict).toContain('Inconclusive');
+    expect(verdict).toMatch(/finished with 1 of the rule's 3 repeats.*--repeats 3/s);
   });
 
   it('says by name which file is no result when it is dropped with ones that are', async () => {
