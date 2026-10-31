@@ -688,6 +688,8 @@ function along(): number {
  *   @if (node.id === 'decode') { <span>fps</span> }
  *   @for (chip of node.chips; track chip) { {{ chip }} }
  * </ng-template>
+ * @if (ready) { <p>Ready</p> }
+ * @for (row of rows; track row) { {{ row }} }
  * \`\`\`
  *
  * - **Filter.** Typing filters,
@@ -744,6 +746,9 @@ test('Angular control flow inside a fenced example survives, and tags after the 
       "  @if (node.id === 'decode') { <span>fps</span> }",
       '  @for (chip of node.chips; track chip) { {{ chip }} }',
       '</ng-template>',
+      // At column 0 these would read as tags if the fence were not tracked.
+      '@if (ready) { <p>Ready</p> }',
+      '@for (row of rows; track row) { {{ row }} }',
     ].join('\n'),
   });
   assert.equal(view().doc.length, 4);
@@ -810,10 +815,10 @@ test('a deprecated member carries its text as blocks', () => {
 // `along` is also an internal function's name, but here it is the view's own public input.
 test('doc problems: a part or own input without a doc, and a code span or code-shaped word naming an internal', () => {
   assert.deepEqual(docs().problems, [
-    'projects/neat-ui/src/lib/view.ts:27: NeatView mentions `TONE_CLASSES`, which is not public',
-    'projects/neat-ui/src/lib/view.ts:31: NeatView.size mentions `SIZE_STEPS`, which is not public',
-    'projects/neat-ui/src/lib/view.ts:34: NeatView.bare has no doc comment',
-    'projects/neat-ui/src/lib/view.ts:57: NeatBare has no doc comment',
+    'projects/neat-ui/src/lib/view.ts:29: NeatView mentions `TONE_CLASSES`, which is not public',
+    'projects/neat-ui/src/lib/view.ts:33: NeatView.size mentions `SIZE_STEPS`, which is not public',
+    'projects/neat-ui/src/lib/view.ts:36: NeatView.bare has no doc comment',
+    'projects/neat-ui/src/lib/view.ts:59: NeatBare has no doc comment',
   ]);
 });
 
