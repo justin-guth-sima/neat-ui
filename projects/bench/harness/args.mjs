@@ -45,7 +45,12 @@ Remote browser (--target remote)
                              the browser alone and no desktop: it stops LightDM (never disables
                              it), starts Xorg with a cookie of its own, and on the way out stops
                              Xorg and starts LightDM again, saying whether the display is
-                             restored. Needs --target remote; --remote-xauthority is refused
+                             restored. A guard on the board does that teardown itself if this
+                             laptop goes quiet (killed, link lost) for 20 s. Needs --target
+                             remote; --remote-xauthority is refused
+  --remote-mode 1920x1080    the bare display's mode, set at 60 Hz on its connected output before
+                             the browser starts (default 1920x1080); a mode the output does not
+                             offer at 60 Hz stops the campaign before it measures anything
   --remote-xauthority <path> the X authority file of that display on the board (absolute path;
                              default: the board user's $HOME/.Xauthority)
   (the browser takes a free debugging port itself and the harness reads which)
@@ -53,7 +58,8 @@ Remote browser (--target remote)
 Where the board's page is served from (default: this laptop, through a reverse tunnel)
   --serve board[:<bind>]     copy the built bench to the board and serve it there with a static
                              server (python3), so no tunnel latency enters a run; bind 127.0.0.1
-                             unless given. --serve board:10.42.0.68 binds the USB link, so a
+                             unless given, else one of the board's own addresses (never
+                             0.0.0.0). --serve board:10.42.0.68 binds the USB link, so a
                              laptop browser (--target local) can load the board's page
 
 Output
@@ -97,6 +103,7 @@ const OPTIONS = {
   'remote-chromium': { type: 'string' },
   'remote-display': { type: 'string' },
   'remote-xauthority': { type: 'string' },
+  'remote-mode': { type: 'string' },
   serve: { type: 'string' },
 };
 
@@ -159,7 +166,10 @@ function xauthority(value) {
 
 const LOOPBACK = /^127\./;
 
-/** `board` or `board:<ipv4>`: where the bench is served from, judged before any ssh. */
+/**
+ * `board` or `board:<ipv4>`: where the bench is served from, judged before any ssh (the board
+ * checks that the address is one of its own when the server starts).
+ */
 function serve(value) {
   if (value === undefined) return undefined;
   const match = /^board(?::(\d{1,3}(?:\.\d{1,3}){3}))?$/.exec(value);
@@ -167,7 +177,25 @@ function serve(value) {
   if (!match || bind.split('.').some((part) => Number(part) > 255)) {
     throw new UsageError(`--serve is board or board:<ipv4 address to bind>, not "${value}"`);
   }
+  // Every interface, the board's LAN included: the bench is for this laptop's link at most.
+  if (/^0+\.0+\.0+\.0+$/.test(bind)) {
+    throw new UsageError(
+      `--serve board:${bind} would serve on every interface of the board: bind loopback or ` +
+        'the address of the link to this laptop (board:10.42.0.68)',
+    );
+  }
   return { where: 'board', bind };
+}
+
+/** The bare display's mode, `WxH`; set at 60 Hz (the spec's 1080p/60 unless told otherwise). */
+function remoteMode(value, bare) {
+  if (value === undefined) return bare ? { w: 1920, h: 1080 } : undefined;
+  if (!bare) {
+    throw new UsageError('--remote-mode sets the bare display: it needs --remote-display bare');
+  }
+  const match = /^(\d{3,5})x(\d{3,5})$/.exec(value);
+  if (!match) throw new UsageError(`--remote-mode is WxH (1920x1080), not "${value}"`);
+  return { w: Number(match[1]), h: Number(match[2]) };
 }
 
 function viewport(value) {
@@ -269,6 +297,7 @@ export function parseArgs(argv) {
       chromium: v['remote-chromium'] ?? 'chromium',
       display: v['remote-display'],
       xauthority: xauthority(v['remote-xauthority']),
+      mode: remoteMode(v['remote-mode'], bare),
     },
   };
 }

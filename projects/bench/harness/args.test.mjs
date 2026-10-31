@@ -178,6 +178,30 @@ test('refuses --remote-xauthority with --remote-display bare: the harness makes 
   );
 });
 
+test('sets the bare display to 1920x1080 unless --remote-mode says otherwise, and only that one', () => {
+  assert.deepEqual(parseArgs([...BOARD, '--remote-display=bare']).remote.mode, {
+    w: 1920,
+    h: 1080,
+  });
+  assert.deepEqual(
+    parseArgs([...BOARD, '--remote-display=bare', '--remote-mode=1280x720']).remote.mode,
+    { w: 1280, h: 720 },
+  );
+  assert.equal(parseArgs(BOARD).remote.mode, undefined);
+  assert.throws(() => parseArgs([...BOARD, '--remote-mode=1280x720']), /--remote-display bare/);
+  for (const mode of ['4k', '1920', '1920x1080@60', '1920x1080;id']) {
+    assert.throws(
+      () => parseArgs([...BOARD, '--remote-display=bare', `--remote-mode=${mode}`]),
+      /--remote-mode is WxH/,
+      mode,
+    );
+  }
+});
+
+test('never serves on every interface of the board', () => {
+  assert.throws(() => parseArgs([...BOARD, '--serve=board:0.0.0.0']), /every interface/);
+});
+
 test('serves the bench from the board with --serve board, loopback unless a bind is given', () => {
   assert.equal(parseArgs(BOARD).serve, undefined);
   assert.deepEqual(parseArgs([...BOARD, '--serve', 'board']).serve, {
@@ -199,6 +223,7 @@ test('judges --serve before anything runs: value, host, target and page address'
     'board:1.2.3.4.5',
     'board:999.1.1.1',
     'board:1.2.3.4;id',
+    'board:0.0.0.0',
     'x',
   ]) {
     assert.throws(() => parseArgs([...BOARD, `--serve=${value}`]), /--serve/, value);
@@ -244,6 +269,7 @@ test('documents every option it reads', () => {
     '--no-screenshots',
     '--remote-xauthority',
     '--serve',
+    '--remote-mode',
     'bare',
   ]) {
     assert.ok(USAGE.includes(name), name);

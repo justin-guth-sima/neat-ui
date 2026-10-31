@@ -7,12 +7,21 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  statSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
-import { lightdmRestoreFragment, parseXStart, xStartScript, xStopFragment } from './board-x.mjs';
+import { stubEnv, writeStubs } from './board-stubs.mjs';
+import {
+  DEFAULT_MODE,
+  lightdmRestoreFragment,
+  parseXStart,
+  xStartScript,
+  xStopFragment,
+} from './board-x.mjs';
 import { parseStopReport, stopScript } from './remote.mjs';
 
 const work = mkdtempSync(join(tmpdir(), 'bench-x-'));
@@ -22,6 +31,16 @@ after(() => {
   for (const child of spare) child.kill('SIGKILL');
   rmSync(work, { recursive: true, force: true });
 });
+const stubs = writeStubs(join(work, 'stubs'));
+const sleepMs = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const alive = (pid) => {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 test('starts Xorg privately: no TCP, its own cookie, no reset, the screen kept awake', () => {
   const script = xStartScript('/tmp/neat-bench-x');
@@ -36,10 +55,7 @@ test('starts Xorg privately: no TCP, its own cookie, no reset, the screen kept a
 });
 
 test('only stops LightDM, never disables it, and leaves /etc and the process table alone', () => {
-  const scripts = [
-    xStartScript('/tmp/neat-bench-x'),
-    stopScript('/tmp/neat-bench-x', undefined, { x: true, server: true }),
-  ];
+  const scripts = [xStartScript('/tmp/neat-bench-x'), xStopFragment(), lightdmRestoreFragment()];
   for (const script of scripts) {
     assert.doesNotMatch(script, /\b(disable|mask|enable|pkill|killall|reboot|apt)\b/);
     assert.doesNotMatch(script, /\/etc\b/);
@@ -47,43 +63,56 @@ test('only stops LightDM, never disables it, and leaves /etc and the process tab
   assert.match(scripts[0], /sudo -n systemctl stop lightdm/);
 });
 
-test('records whether LightDM was active before it stops it', () => {
+test('records whether LightDM was active, and checks it can start at all, before it stops it', () => {
   const script = xStartScript('/tmp/neat-bench-x');
-  const recorded = script.indexOf('lightdm.state');
-  assert.ok(recorded > 0 && recorded < script.indexOf('systemctl stop lightdm'));
+  const stop = script.indexOf('systemctl stop lightdm');
+  for (const before of ['lightdm.state', 'command -v fuser', 'sudo -n true', 'start.lock']) {
+    const at = script.indexOf(before);
+    assert.ok(at > 0 && at < stop, before);
+  }
 });
 
-test('refuses a directory that is not a run’s', () => {
+test('refuses a directory that is not a run’s, and a mode or lock folder that is not one', () => {
   assert.throws(() => xStartScript('/tmp'), /directory/);
   assert.throws(() => xStartScript('/home/sima/neat-bench-x'), /directory/);
+  assert.throws(() => xStartScript('/tmp/neat-bench-x', { mode: { w: '1;id', h: 1 } }), /mode/);
+  assert.throws(() => xStartScript('/tmp/neat-bench-x', { lockDir: "/tmp'; id" }), /lock/);
+  assert.throws(() => xStopFragment({ lockDir: '$(id)' }), /lock/);
 });
 
-test('reads what the start printed, and not a display or mode that is not one', () => {
-  assert.deepEqual(parseXStart('lightdm active\ndisplay :0\nvt 7\nmode 1920x1080\nxpid 4242\n'), {
-    lightdm: 'active',
-    display: ':0',
-    vt: 7,
-    mode: { w: 1920, h: 1080 },
-    xpid: 4242,
-  });
-  const odd = parseXStart('display ;id\nmode big\nxpid x\n');
+test('reads what the start printed, and not a display, output or mode that is not one', () => {
+  assert.deepEqual(
+    parseXStart(
+      'lightdm active\ndisplay :0\nvt 7\noutput HDMI-1\nmode 1920x1080\nrate 60.00\nxpid 4242\n',
+    ),
+    {
+      lightdm: 'active',
+      display: ':0',
+      vt: 7,
+      output: 'HDMI-1',
+      mode: { w: 1920, h: 1080 },
+      rateHz: 60,
+      xpid: 4242,
+    },
+  );
+  const odd = parseXStart('display ;id\noutput a;b\nmode big\nrate x\nxpid x\n');
   assert.equal(odd.display, null);
+  assert.equal(odd.output, null);
   assert.equal(odd.mode, null);
+  assert.equal(odd.rateHz, null);
   assert.equal(odd.xpid, null);
   assert.equal(odd.lightdm, 'unknown');
 });
 
-test('kills Xorg only after checking the pid’s command line, in both fragments of its stop', () => {
+test('every sudo kill of Xorg is behind the command-line check, in the same command', () => {
   const fragment = xStopFragment();
-  const check = fragment.indexOf('if is_our_xorg; then');
-  for (const match of fragment.matchAll(/sudo -n kill/g)) {
-    assert.ok(match.index > check, 'every kill comes after the check');
+  const kills = [...fragment.matchAll(/sudo -n kill/g)];
+  assert.equal(kills.length, 2);
+  for (const line of fragment.split('\n').filter((l) => l.includes('sudo -n kill'))) {
+    assert.match(line, /^\s*is_our_xorg && sudo -n kill -(TERM|KILL) "\$xpid"/, line);
   }
   assert.match(fragment, /-auth \$dir\/Xauthority/);
-  // LightDM is started again only on the recorded state, after the directory is gone.
-  const stop = stopScript('/tmp/neat-bench-x', undefined, { x: true });
-  assert.ok(stop.indexOf('rm -rf') < stop.indexOf(lightdmRestoreFragment().split('\n')[0]));
-  assert.match(lightdmRestoreFragment(), /if \[ "\$was" = active \]/);
+  assert.match(lightdmRestoreFragment(), /if \[ "\$was" = active \] && \[ -n "\$xleft" \]/);
 });
 
 test('has no sudo, systemctl or Xorg in the stop of a run that did not ask for the bare display', () => {
@@ -91,37 +120,159 @@ test('has no sudo, systemctl or Xorg in the stop of a run that did not ask for t
   assert.doesNotMatch(stop, /\b(sudo|systemctl|Xorg|lightdm)\b/);
 });
 
-// The stop, run for real with stand-ins for sudo and systemctl, and a process that looks like the
-// run's Xorg to the command-line check.
-const stubs = join(work, 'stubs');
-mkdirSync(stubs);
-writeFileSync(
-  join(stubs, 'sudo'),
-  '#!/bin/sh\n[ "$1" = -n ] && shift\necho "sudo $*" >>"$STUB_LOG"\nexec "$@"\n',
-);
-writeFileSync(
-  join(stubs, 'systemctl'),
-  `#!/bin/sh
-echo "systemctl $*" >>"$STUB_LOG"
-case "$1 $2" in
-  "is-active lightdm") cat "$STUB_STATE" ;;
-  "start lightdm") [ -z "$STUB_START_FAILS" ] && echo active >"$STUB_STATE" ;;
-esac
-exit 0
-`,
-);
-chmodSync(join(stubs, 'sudo'), 0o755);
-chmodSync(join(stubs, 'systemctl'), 0o755);
+test('makes the cookie private, the pid file readable, and no pid file means no Xorg', () => {
+  const script = xStartScript('/tmp/neat-bench-x');
+  assert.match(script, /\(umask 077; xauth -f/);
+  assert.match(script, /sh -c 'umask 022; echo \$\$ >"\$1" \|\| exit 1; shift; exec "\$@"'/);
+});
 
+test('sets the mode at 60 Hz on the connected output, 1920x1080 unless told otherwise', () => {
+  assert.deepEqual(DEFAULT_MODE, { w: 1920, h: 1080 });
+  const script = xStartScript('/tmp/neat-bench-x');
+  assert.match(script, /want='1920x1080'/);
+  assert.match(script, /xrandr --output "\$output" --mode "\$want" --rate 60/);
+  assert.match(xStartScript('/tmp/neat-bench-x', { mode: { w: 1280, h: 720 } }), /want='1280x720'/);
+});
+
+// The start, run for real on the stand-in board.
 let counter = 0;
-function board({ was, xorg = 'ours', startFails = false, lightdmNow = 'inactive' }) {
+function startBoard({ lightdm = 'active', mode, omit = [], umask = '022' } = {}) {
   counter += 1;
+  const root = join(work, `start${counter}`);
+  const dir = join(work, `neat-bench-s${counter}`);
+  mkdirSync(root);
+  mkdirSync(dir, { mode: 0o700 });
+  const own = omit.length ? writeStubs(join(root, 'stubs'), { omit }) : stubs;
+  const env = stubEnv({ stubs: own, root });
+  // Only the stand-ins (and rm, for the start lock's trap) on the PATH where a tool must be
+  // missing: `fuser` is installed here.
+  if (omit.length) {
+    const rm = spawnSync('sh', ['-c', 'command -v rm'], { encoding: 'utf8' }).stdout.trim();
+    symlinkSync(rm, join(own, 'rm'));
+    env.PATH = own;
+  }
+  writeFileSync(env.STUB_STATE, `${lightdm}\n`);
+  writeFileSync(env.STUB_LOG, '');
+  // LightDM's own server on :0, as on the board, until LightDM is stopped.
+  if (lightdm === 'active') writeFileSync(join(env.STUB_LOCKS, '.X0-lock'), '      1234\n');
+  const script = xStartScript(dir, { parents, mode, lockDir: env.STUB_LOCKS });
+  const run = () =>
+    spawnSync('/bin/sh', ['-c', `umask ${umask}; exec /bin/sh -s`], {
+      input: script,
+      encoding: 'utf8',
+      env,
+      timeout: 30_000,
+    });
+  const xorgPid = () => Number(readFileSync(join(dir, 'xorg.pid'), 'utf8'));
+  return { dir, env, run, xorgPid, calls: () => readFileSync(env.STUB_LOG, 'utf8') };
+}
+
+test('starts: stops LightDM, Xorg on the freed display, 1920x1080 at 60 Hz, all said', async () => {
+  // umask 077 as the board's root shell had it: the pid file must still be readable.
+  const b = startBoard({ umask: '077' });
+  const out = b.run();
+  assert.equal(out.status, 0, out.stdout + out.stderr);
+  const x = parseXStart(out.stdout);
+  spare.push({ kill: () => alive(x.xpid) && process.kill(x.xpid, 'SIGKILL') });
+  assert.deepEqual(
+    { ...x, xpid: undefined },
+    {
+      lightdm: 'active',
+      display: ':0',
+      vt: 7,
+      output: 'HDMI-1',
+      mode: { w: 1920, h: 1080 },
+      rateHz: 60,
+      xpid: undefined,
+    },
+  );
+  assert.equal(x.xpid, b.xorgPid(), 'the pid file holds the pid it printed');
+  assert.ok(alive(x.xpid), 'that pid is the running Xorg, not a shell that exited');
+  assert.equal(statSync(join(b.dir, 'xorg.pid')).mode & 0o777, 0o644);
+  assert.equal(statSync(join(b.dir, 'Xauthority')).mode & 0o777, 0o600);
+  assert.equal(readFileSync(join(b.dir, 'lightdm.state'), 'utf8'), 'active\n');
+  assert.equal(existsSync(join(b.dir, 'start.lock')), false, 'the start lock goes with the script');
+  const calls = b.calls();
+  assert.ok(calls.indexOf('systemctl stop lightdm') < calls.indexOf('Xorg :0 vt7'));
+  assert.match(calls, /Xorg :0 vt7 -nolisten tcp -auth .*\/Xauthority -noreset/);
+  assert.match(calls, /xset s off -dpms s noblank/);
+  assert.match(calls, /xrandr --output HDMI-1 --mode 1920x1080 --rate 60/);
+  process.kill(x.xpid, 'SIGTERM');
+  await sleepMs(300);
+});
+
+test('stops before anything is measured where the output does not offer the mode at 60 Hz', async () => {
+  const b = startBoard({ mode: { w: 3840, h: 2160 } });
+  const out = b.run();
+  assert.equal(out.status, 1);
+  assert.match(
+    out.stdout,
+    /note HDMI-1 does not offer 3840x2160 at 60 Hz; it offers 1024x768 1920x1080/,
+  );
+  assert.doesNotMatch(b.calls(), /xrandr --output/);
+  process.kill(b.xorgPid(), 'SIGTERM');
+  await sleepMs(300);
+});
+
+test('does not touch LightDM where fuser is missing: every VT would look free', () => {
+  const b = startBoard({ omit: ['fuser'] });
+  const out = b.run();
+  assert.equal(out.status, 1);
+  assert.match(out.stdout, /note fuser is missing/);
+  assert.doesNotMatch(b.calls(), /systemctl/);
+  assert.equal(existsSync(join(b.dir, 'lightdm.state')), false);
+});
+
+test('starts no Xorg where its pid file cannot be written', () => {
+  const b = startBoard({ lightdm: 'inactive' });
+  // A directory where the pid file goes: the root shell's write fails, as on a full /tmp.
+  mkdirSync(join(b.dir, 'xorg.pid'));
+  const out = spawnSync('sh', ['-s'], {
+    input: xStartScript(b.dir, { parents, lockDir: b.env.STUB_LOCKS }).replace(
+      'n=0\nuntil xset q',
+      // The answer wait is not what this spec is about: stop right after the launch.
+      'sleep 0.5\nexit 0\nuntil xset q',
+    ),
+    encoding: 'utf8',
+    env: b.env,
+  });
+  assert.equal(out.status, 0, out.stderr);
+  assert.doesNotMatch(b.calls(), /^Xorg /m, 'Xorg was never executed');
+});
+
+test('refuses to start once the teardown has asked for a stop', () => {
+  const b = startBoard();
+  writeFileSync(join(b.dir, 'stop'), '');
+  const out = b.run();
+  assert.equal(out.status, 1);
+  assert.match(out.stdout, /note the run is being torn down/);
+  assert.doesNotMatch(b.calls(), /systemctl stop/);
+});
+
+// The stop and the restore, run for real with the stand-ins and processes that look like the
+// run's Xorg and LightDM's to the command-line checks.
+function teardownBoard({ was, xorg = 'ours', startFails = false, lightdmX = true }) {
+  counter += 1;
+  const root = join(work, `stop${counter}`);
   const dir = join(work, `neat-bench-x${counter}`);
+  mkdirSync(root);
   mkdirSync(dir);
-  const log = join(work, `log${counter}`);
-  const state = join(work, `state${counter}`);
-  writeFileSync(log, '');
-  writeFileSync(state, lightdmNow);
+  const extra = {};
+  if (startFails) extra.STUB_START_FAILS = '1';
+  if (lightdmX) {
+    const lightdm = spawn(
+      'sh',
+      ['-c', 'sleep 300', 'Xorg', ':0', '-auth', '/var/run/lightdm/root/:0'],
+      {
+        stdio: 'ignore',
+      },
+    );
+    spare.push(lightdm);
+    extra.STUB_LIGHTDM_XPID = String(lightdm.pid);
+  }
+  const env = stubEnv({ stubs, root, extra });
+  writeFileSync(env.STUB_LOG, '');
+  writeFileSync(env.STUB_STATE, 'inactive\n');
   if (was !== undefined) writeFileSync(join(dir, 'lightdm.state'), `${was}\n`);
   let child = null;
   if (xorg) {
@@ -132,62 +283,53 @@ function board({ was, xorg = 'ours', startFails = false, lightdmNow = 'inactive'
     spare.push(child);
     writeFileSync(join(dir, 'xorg.pid'), `${child.pid}\n`);
   }
-  const run = () =>
-    spawnSync('sh', ['-s'], {
-      input: stopScript(dir, parents, { x: true }),
-      encoding: 'utf8',
-      env: {
-        ...process.env,
-        PATH: `${stubs}:${process.env.PATH}`,
-        STUB_LOG: log,
-        STUB_STATE: state,
-        ...(startFails && { STUB_START_FAILS: '1' }),
-      },
-    });
-  return { dir, child, run, calls: () => readFileSync(log, 'utf8') };
+  const script = `dir='${dir}'
+${xStopFragment({ lockDir: env.STUB_LOCKS })}${lightdmRestoreFragment({ lockDir: env.STUB_LOCKS, restoreS: 1 })}echo "xleft=$xleft dn=$dn"
+`;
+  const run = () => spawnSync('sh', ['-s'], { input: script, encoding: 'utf8', env });
+  return { dir, env, child, run, calls: () => readFileSync(env.STUB_LOG, 'utf8') };
 }
-const alive = (pid) => {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch {
-    return false;
-  }
-};
 
-test('stops its Xorg, removes the directory and starts LightDM again when it had been active', async () => {
-  const b = board({ was: 'active' });
+test('stops its Xorg and starts LightDM again when it had been active: restored once its Xorg runs', async () => {
+  const b = teardownBoard({ was: 'active' });
   const out = b.run();
   assert.equal(out.status, 0, out.stderr);
   const report = parseStopReport(out.stdout);
   assert.equal(report.xorg, 'stopped');
-  assert.equal(report.removed, true);
   assert.deepEqual(report.display, { state: 'restored', why: undefined });
-  // The stand-in is this process's child: let the event loop reap it before asking.
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  assert.match(out.stdout, /xleft= dn=$/m);
+  await sleepMs(100);
   assert.equal(alive(b.child.pid), false);
-  assert.equal(existsSync(b.dir), false);
-  assert.match(b.calls(), /systemctl start lightdm/);
-  assert.ok(b.calls().indexOf('sudo kill') < b.calls().indexOf('systemctl start lightdm'));
+  assert.match(b.calls(), /systemctl --no-block start lightdm/);
+  assert.ok(b.calls().indexOf('sudo kill') < b.calls().indexOf('systemctl --no-block start'));
 });
 
 test('does not start LightDM when it was not active before the run', () => {
-  const b = board({ was: 'inactive' });
+  const b = teardownBoard({ was: 'inactive' });
   const report = parseStopReport(b.run().stdout);
   assert.equal(report.display.state, 'unchanged');
-  assert.doesNotMatch(b.calls(), /systemctl start/);
+  assert.doesNotMatch(b.calls(), /systemctl .*start/);
   assert.equal(report.xorg, 'stopped');
 });
 
 test('says the display is not restored when LightDM does not come back', () => {
-  const b = board({ was: 'active', startFails: true });
+  const b = teardownBoard({ was: 'active', startFails: true });
+  const out = b.run();
+  const report = parseStopReport(out.stdout);
+  assert.equal(report.display.state, 'not-restored');
+  assert.match(report.display.why, /lightdm is inactive and its Xorg is not running/);
+  assert.match(out.stdout, /dn=1$/m);
+});
+
+test('is not fooled by a LightDM that says active while its Xorg never came up', () => {
+  const b = teardownBoard({ was: 'active', lightdmX: false });
   const report = parseStopReport(b.run().stdout);
   assert.equal(report.display.state, 'not-restored');
-  assert.match(report.display.why, /lightdm is inactive/);
+  assert.match(report.display.why, /lightdm is active and its Xorg is not running/);
 });
 
 test('leaves a pid alone that is not its Xorg, and still puts LightDM back', () => {
-  const b = board({ was: 'active', xorg: 'another' });
+  const b = teardownBoard({ was: 'active', xorg: 'another' });
   const report = parseStopReport(b.run().stdout);
   assert.equal(report.xorg, undefined);
   assert.match(report.notes.join(' '), /not this run's Xorg/);
@@ -196,43 +338,32 @@ test('leaves a pid alone that is not its Xorg, and still puts LightDM back', () 
   assert.doesNotMatch(b.calls(), /sudo kill/);
 });
 
-test('a start that never got as far as recording LightDM starts nothing, and a second stop is harmless', () => {
-  const b = board({ was: undefined, xorg: null });
+test('a start that never got as far as recording LightDM starts nothing and says nothing', () => {
+  const b = teardownBoard({ was: undefined, xorg: null });
   const out = b.run();
-  const report = parseStopReport(out.stdout);
-  assert.equal(report.removed, true);
-  assert.equal(report.display, undefined);
-  assert.doesNotMatch(b.calls(), /systemctl start/);
-  const again = b.run();
-  assert.equal(again.status, 0, again.stderr);
-  assert.equal(parseStopReport(again.stdout).removed, true);
+  assert.equal(parseStopReport(out.stdout).display, undefined);
+  assert.doesNotMatch(b.calls(), /systemctl/);
 });
 
-test('a second stop after a restore does nothing more: the record went with the directory', () => {
-  const b = board({ was: 'active' });
-  b.run();
-  const first = b.calls();
-  const again = parseStopReport(b.run().stdout);
-  assert.equal(again.display, undefined);
-  assert.equal(b.calls(), first);
-});
-
-test('finds its Xorg by the display’s lock file where the pid file cannot be read, still checking it', async () => {
-  const b = board({ was: 'active' });
-  const lockDir = join(work, `locks${counter}`);
-  mkdirSync(lockDir);
-  writeFileSync(join(b.dir, 'display'), '9\n');
-  writeFileSync(join(lockDir, '.X9-lock'), `${String(b.child.pid).padStart(10)}\n`);
-  rmSync(join(b.dir, 'xorg.pid'));
-  const out = spawnSync('sh', ['-s'], {
-    input: `dir='${b.dir}'\n${xStopFragment({ lockDir })}echo "was=$was"\n`,
-    encoding: 'utf8',
-    env: { ...process.env, PATH: `${stubs}:${process.env.PATH}`, STUB_LOG: join(work, 'x') },
-  });
+test('finds its Xorg by the lock files where the pid file cannot be read, still checking it', async () => {
+  const b = teardownBoard({ was: 'active' });
+  // As in the first board smoke: a pid file sima cannot read. And its Xorg on another display.
+  writeFileSync(join(b.env.STUB_LOCKS, '.X3-lock'), `${String(b.child.pid).padStart(10)}\n`);
+  chmodSync(join(b.dir, 'xorg.pid'), 0o000);
+  const out = b.run();
   assert.match(out.stdout, /^xorg stopped$/m, out.stderr);
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  await sleepMs(100);
   assert.equal(alive(b.child.pid), false);
-  rmSync(b.dir, { recursive: true });
+});
+
+test('finds its Xorg by the lock files where the pid file was never written', async () => {
+  const b = teardownBoard({ was: 'active' });
+  rmSync(join(b.dir, 'xorg.pid'));
+  writeFileSync(join(b.env.STUB_LOCKS, '.X5-lock'), `${String(b.child.pid).padStart(10)}\n`);
+  const out = b.run();
+  assert.match(out.stdout, /^xorg stopped$/m);
+  await sleepMs(100);
+  assert.equal(alive(b.child.pid), false);
 });
 
 test('does not start LightDM under an Xorg it could not stop, and says so', () => {
@@ -240,10 +371,4 @@ test('does not start LightDM under an Xorg it could not stop, and says so', () =
   const out = spawnSync('sh', ['-s'], { input: script, encoding: 'utf8' });
   assert.match(out.stdout, /display not restored: Xorg \(pid 4242\) is still running/);
   assert.equal(parseStopReport(out.stdout).display.state, 'not-restored');
-});
-
-test('makes the cookie private but not the pid file Xorg’s shell writes as root', () => {
-  const script = xStartScript('/tmp/neat-bench-x');
-  assert.match(script, /\(umask 077; xauth -f/);
-  assert.match(script, /sh -c 'umask 022; echo \$\$ >"\$1"/);
 });

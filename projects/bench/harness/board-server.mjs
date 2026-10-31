@@ -8,8 +8,8 @@
 import { spawn } from 'node:child_process';
 import { readdir, stat } from 'node:fs/promises';
 import { join, posix } from 'node:path';
-import { assertRemoteDir } from './remote-dir.mjs';
-import { sshArgs, sshRun } from './ssh.mjs';
+import { assertRemoteDir, startLockFragment } from './remote-dir.mjs';
+import { spawnSsh, sshRun } from './ssh.mjs';
 
 const BIND = /^\d{1,3}(?:\.\d{1,3}){3}$/;
 /** What a file under the build may be called, for it goes into a shell script. */
@@ -21,14 +21,18 @@ function assertBind(bind) {
   }
 }
 
-/** Makes the run's directory and its `site` folder: the first thing the board is changed by. */
-export function prepareScript(dir, parents) {
+/**
+ * Makes the run's directory and its `site` folder: the first thing the board is changed by.
+ * `then` is more of the same script, run once the directory is there (the guard's install, for a
+ * run with a bare display: `board-teardown.mjs`).
+ */
+export function prepareScript(dir, parents, { then = '' } = {}) {
   assertRemoteDir(dir, parents);
   return `set -e
 dir='${dir}'
 mkdir -m 700 "$dir"
 mkdir "$dir/site"
-`;
+${then}`;
 }
 
 /**
@@ -81,15 +85,25 @@ echo "site ok ${entries.length} files"
 /**
  * Starts the static server detached, with a pid file, on a free port of `bind` (a port bound and
  * released again on the board, so one in use is never taken, and never 4200 or 9900), and waits
- * until it answers. Prints `port N`, `pid N` and `url http://<bind>:N/`.
+ * until it answers. Prints `port N`, `pid N` and `url http://<bind>:N/`. The bind must be loopback
+ * or one of the board's own addresses (checked there): the bench is served to this laptop over the
+ * USB link at most, never on every interface. `guarded` takes the guard's start lock.
  */
-export function serverStartScript(dir, { bind }, parents) {
+export function serverStartScript(dir, { bind, guarded = false }, parents) {
   assertRemoteDir(dir, parents);
   assertBind(bind);
   return `set -e
 dir='${dir}'
 bind='${bind}'
 [ -f "$dir/site/index.html" ] || { echo "note no site in $dir"; exit 1; }
+${guarded ? startLockFragment() : ''}case "$bind" in
+  127.*) ;;
+  *)
+    ip -o -4 addr show 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | grep -qxF -- "$bind" || {
+      echo "note $bind is not an address of this board: bind loopback or one of its own addresses"
+      exit 1
+    };;
+esac
 port=$(python3 -c 'import socket, sys
 for _ in range(50):
     s = socket.socket()
@@ -100,6 +114,7 @@ for _ in range(50):
         print(port)
         break' "$bind")
 case "$port" in ''|*[!0-9]*) echo "note no free port on $bind"; exit 1;; esac
+${guarded ? 'not_stopping' : ''}
 setsid python3 -m http.server "$port" --bind "$bind" --directory "$dir/site" \\
   >"$dir/server.log" 2>&1 </dev/null &
 echo $! >"$dir/server.pid"
@@ -127,11 +142,12 @@ export function parseServerStart(text) {
 
 /**
  * The part of the stop script that stops the server: by its pid file, and only where that pid's
- * command line serves this run's `site` folder. Prints `server stopped`, `server left` or a
- * `note`.
+ * command line serves this run's `site` folder. Prints `server stopped`, `server left` (and sets
+ * `$sleft`) or a `note`.
  */
 export function serverStopFragment() {
   return `spid=''
+sleft=''
 if [ -r "$dir/server.pid" ]; then
   spid=$(cat "$dir/server.pid")
   case "$spid" in ''|*[!0-9]*) echo "note bad server pid file"; spid='';; esac
@@ -146,8 +162,10 @@ if [ -n "$spid" ]; then
     kill -TERM "$spid" 2>/dev/null
     n=0
     while is_our_server && [ "$n" -lt 25 ]; do sleep 0.2; n=$((n+1)); done
-    if is_our_server; then kill -KILL "$spid" 2>/dev/null; echo "note had to kill the server"; sleep 0.5; fi
-    if is_our_server; then echo "server left"; else echo "server stopped"; fi
+    if is_our_server; then
+      kill -KILL "$spid" 2>/dev/null; echo "note had to kill the server"; sleep 0.5
+    fi
+    if is_our_server; then echo "server left"; sleft=1; else echo "server stopped"; fi
   else
     echo "note pid $spid is not this run's server: left alone"
   fi
@@ -178,9 +196,7 @@ export async function copySite({ ssh, dist, dir, entries, parents, io = {} }) {
 function tarOverSsh({ ssh, dist, command }) {
   return new Promise((resolve, reject) => {
     const pack = spawn('tar', ['-C', dist, '-cf', '-', '.'], { stdio: ['ignore', 'pipe', 'pipe'] });
-    const unpack = spawn('ssh', [...sshArgs(ssh), command], {
-      stdio: ['pipe', 'ignore', 'pipe'],
-    });
+    const unpack = spawnSsh(ssh, { command, stdio: ['pipe', 'ignore', 'pipe'] });
     let errors = '';
     for (const child of [pack, unpack]) child.stderr.on('data', (chunk) => (errors += chunk));
     // An ssh that ends early closes the pipe; its own exit says why.

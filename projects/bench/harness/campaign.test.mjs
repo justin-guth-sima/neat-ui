@@ -342,8 +342,51 @@ test('judges the teardown’s word on the display', () => {
     displayRestore({ report: { display: { state: 'unchanged', why: 'lightdm was inactive' } } }).ok,
     true,
   );
-  assert.equal(displayRestore({ report: {} }).ok, false);
-  const failed = displayRestore({ error: new Error('ssh: no answer') });
+  // No word on the display: the run never recorded LightDM, so it never stopped it.
+  assert.deepEqual(displayRestore({ report: {} }), {
+    ok: true,
+    text: 'display untouched: the run ended before LightDM was stopped',
+  });
+  const failed = displayRestore({ error: new Error('ssh: no answer'), guard: 999 });
   assert.equal(failed.ok, false);
-  assert.match(failed.text, /display not restored.*no answer/);
+  assert.match(failed.text, /display not confirmed: ssh: no answer; .*guard \(pid 999\) restores/);
+});
+
+test('says complete: false when the user stopped it, even where the run under way ended', async () => {
+  const controller = new AbortController();
+  const r = rig({
+    runOnePage: async ({ schedule }) => {
+      controller.abort('SIGINT');
+      return goodRun(schedule);
+    },
+  });
+  const done = await runCampaign(boardOptions('--target', 'remote', '--repeats', '3'), {
+    log: (line) => r.logs.push(line),
+    cleanups: r.cleanups,
+    deps: r.deps,
+    signal: controller.signal,
+  });
+  const result = read(done.file);
+  assert.equal(result.harness.complete, false);
+  assert.equal(result.runs.length, 1, 'no run starts after the stop');
+  assert.match(result.warnings.join('\n'), /did not finish \(interrupted by SIGINT\)/);
+  await runCleanups(r.cleanups, () => undefined);
+});
+
+test('tells the caller the board’s guard once it is up', async () => {
+  const r = rig();
+  const board = { guard: null };
+  const start = r.deps.startRemote;
+  r.deps.startRemote = async (args) => {
+    args.onGuard(4242);
+    return start(args);
+  };
+  await runCampaign(boardOptions('--target', 'remote', '--remote-display', 'bare'), {
+    log: () => undefined,
+    cleanups: r.cleanups,
+    deps: r.deps,
+    board,
+  });
+  assert.equal(board.guard, 4242);
+  await runCleanups(r.cleanups, () => undefined);
 });

@@ -10,14 +10,17 @@
 // matching over the process table. The scripts are built here and run with `sh -s` over ssh; their
 // parts are validated first, because they are shell.
 //
-// Two options add to what the board is changed by, and to the one teardown: `--remote-display
-// bare` (a bare X server in place of LightDM for the run, `board-x.mjs`) and `--serve board` (the
-// bench's files and a static server in the run's directory, `board-server.mjs`). The teardown
-// stops what was started, removes the directory and puts LightDM back, in that order.
+// Two options add to what the board is changed by: `--remote-display bare` (a bare X server in
+// place of LightDM for the run, `board-x.mjs`) and `--serve board` (the bench's files and a static
+// server in the run's directory, `board-server.mjs`). A run with a bare display is torn down by
+// the board's guard (`board-teardown.mjs`), which this side only asks and waits for, since the
+// board must get its login screen back even when this side cannot finish; other runs keep the
+// plain stop script. Either way nothing is started on the board while a stop is under way, and a
+// stop waits for a start script that is still running there.
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { setTimeout as sleep } from 'node:timers/promises';
-import { lightdmRestoreFragment, parseXStart, xStartScript, xStopFragment } from './board-x.mjs';
+import { DEFAULT_MODE, parseXStart, xStartScript } from './board-x.mjs';
 import {
   copySite,
   parseServerStart,
@@ -26,13 +29,34 @@ import {
   serverStopFragment,
   siteManifest,
 } from './board-server.mjs';
-import { DEFAULT_PARENTS, assertRemoteDir, remoteDirFor } from './remote-dir.mjs';
-import { sshArgs, sshRun } from './ssh.mjs';
+import {
+  browserStopFragment,
+  dirGuard,
+  GUARD,
+  guardInstallFragment,
+  parseGuard,
+  startHeartbeat,
+  TEARDOWN_SSH_MS,
+  teardownWaitScript,
+} from './board-teardown.mjs';
+import {
+  DEFAULT_PARENTS,
+  assertRemoteDir,
+  remoteDirFor,
+  startLockFragment,
+} from './remote-dir.mjs';
+import { spawnSsh, sshRun } from './ssh.mjs';
 
 export { assertRemoteDir, remoteDirFor };
 
 const DEV_PORTS = [4200, 9900];
 const DEVTOOLS_MS = 30_000;
+/** The plain stop's waits (the browser 12 s, the server 5.5 s) and the connect, with room. */
+const PLAIN_STOP_MS = 60_000;
+/** The bare X start's ssh timeout: stopping LightDM, a free display, Xorg's answer, the mode. */
+const X_START_MS = 60_000;
+/** How long a stop waits for a start step still on its way (above the longest step's timeout). */
+const STEP_WAIT_MS = 75_000;
 
 /**
  * The browser's arguments: loopback debugging, its own profile, headless or kiosk, and where
@@ -67,10 +91,20 @@ export function browserFlags(dir, { headless, display, window }) {
 /**
  * Starts the browser detached in its own session, writing its pid; fails if `dir` exists, unless
  * `existing` says another script of this run made it (then it must be there, without a profile).
+ * `guarded` takes the guard's start lock (a run with a bare display).
  */
 export function launchScript(
   dir,
-  { chromium, headless, display, xauthority, window, existing, parents = DEFAULT_PARENTS },
+  {
+    chromium,
+    headless,
+    display,
+    xauthority,
+    window,
+    existing,
+    guarded = false,
+    parents = DEFAULT_PARENTS,
+  },
 ) {
   assertRemoteDir(dir, parents);
   if (!/^[\w./+-]+$/.test(chromium)) throw new Error(`browser "${chromium}" is not a name or path`);
@@ -88,7 +122,7 @@ export function launchScript(
   return `set -e
 dir='${dir}'
 ${make}
-mkdir "$dir/profile"
+${guarded ? startLockFragment() : ''}mkdir "$dir/profile"
 ${env}setsid '${chromium}' ${flags} about:blank >"$dir/chromium.log" 2>&1 </dev/null &
 echo $! >"$dir/chromium.pid"
 echo "pid $!"
@@ -96,54 +130,31 @@ echo "pid $!"
 }
 
 /**
- * Stops what \`launchScript\` started and deletes its directory. It prints: \`stopped\` once the
+ * Stops what \`launchScript\` started and deletes its directory: the stop of a run without a bare
+ * display (that one is the guard's, \`board-teardown.mjs\`). It prints: \`stopped\` once the
  * browser's pid is gone (not printed where the pid file is missing or is not this browser's),
  * \`leftover N\` for processes of its group that survived, \`removed\`, and \`note ...\` lines.
- * With \`server\` it also stops the board's static server (\`server stopped\`), with \`x\` the bare
- * X server (\`xorg stopped\`) and, once the directory is gone, starts LightDM again if it was
- * active before the run (\`display restored\`, or \`display not restored: ...\`).
+ * With \`server\` it also stops the board's static server (\`server stopped\`). Where a process of
+ * the run survived, the directory and its pid files are kept for another attempt.
  */
-export function stopScript(dir, parents = DEFAULT_PARENTS, { server = false, x = false } = {}) {
+export function stopScript(dir, parents = DEFAULT_PARENTS, { server = false } = {}) {
   assertRemoteDir(dir, parents);
-  const guard = parents.map((parent) => `'${parent}'/neat-bench-*`).join('|');
   return `dir='${dir}'
-case "$dir" in ${guard}) ;; *) echo "note refused $dir"; exit 2;; esac
-pid=''
-if [ -r "$dir/chromium.pid" ]; then
-  pid=$(cat "$dir/chromium.pid")
-  case "$pid" in ''|*[!0-9]*) echo "note bad pid file"; pid='';; esac
+${dirGuard(parents)}${browserStopFragment()}${server ? serverStopFragment() : ''}\
+if [ -z "$bleft$sleft" ]; then
+  rm -rf -- "$dir"
+  if [ ! -e "$dir" ]; then echo removed; fi
 else
-  echo "note no pid file"
+  echo "note kept $dir: a process of the run is still running"
 fi
-if [ -n "$pid" ]; then
-  if [ -r "/proc/$pid/cmdline" ] &&
-     tr '\\0' ' ' <"/proc/$pid/cmdline" | grep -qF -- "--user-data-dir=$dir/profile"; then
-    kill -TERM "$pid" 2>/dev/null
-    n=0
-    while kill -0 "$pid" 2>/dev/null && [ "$n" -lt 50 ]; do sleep 0.2; n=$((n+1)); done
-    if kill -0 "$pid" 2>/dev/null; then
-      kill -KILL "$pid" 2>/dev/null; echo "note had to kill"; sleep 0.5
-    fi
-    echo stopped
-    # Whatever of its process group is left: its children, and only they.
-    left=$(ps -eo pid=,pgid= | awk -v g="$pid" '$2==g {print $1}')
-    if [ -n "$left" ]; then kill -TERM $left 2>/dev/null; sleep 1; fi
-    left=$(ps -eo pid=,pgid= | awk -v g="$pid" '$2==g {print $1}')
-    if [ -n "$left" ]; then kill -KILL $left 2>/dev/null; sleep 0.5; fi
-    echo "leftover $(ps -eo pid=,pgid= | awk -v g="$pid" '$2==g {n++} END {print n+0}')"
-  else
-    echo "note pid $pid is not this run's browser: left alone"
-  fi
-fi
-${server ? serverStopFragment() : ''}${x ? xStopFragment() : ''}rm -rf -- "$dir"
-if [ ! -e "$dir" ]; then echo removed; fi
-${x ? lightdmRestoreFragment() : ''}`;
+`;
 }
 
 /**
- * The stop script's printout as `{ stopped, removed, leftover, notes }`, with `server` and `xorg`
- * (`stopped` or `left`) and `display` (`{ state: 'restored' | 'not-restored' | 'unchanged', why }`)
- * where the script says them.
+ * The stop script's or the guard's printout as `{ stopped, removed, leftover, notes }`, with
+ * `server` and `xorg` (`stopped` or `left`) and `display` (`{ state: 'restored' | 'not-restored'
+ * | 'unchanged', why }`) where the script says them, and `gone: true` where the guard had already
+ * removed the run's directory.
  */
 export function parseStopReport(text) {
   const lines = text.split('\n').map((line) => line.trim());
@@ -162,6 +173,7 @@ export function parseStopReport(text) {
     ...(word('server') && { server: word('server') }),
     ...(word('xorg') && { xorg: word('xorg') }),
     ...(shown && { display: { state: shown[1].replace(' ', '-'), why: shown[2] } }),
+    ...(lines.includes('gone') && { gone: true }),
   };
 }
 
@@ -196,22 +208,35 @@ function freePort() {
   });
 }
 
+/** `promise`, or nothing after `ms`: whichever comes first; the timer never outlives it. */
+async function within(promise, ms) {
+  let timer;
+  const late = new Promise((resolve) => (timer = setTimeout(resolve, ms)));
+  try {
+    await Promise.race([promise.catch(() => undefined), late]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /**
  * Starts what a campaign needs on the board and waits until it is ready: the browser and the
  * tunnel to it (unless `browser` is false: a laptop browser loading a page the board serves),
  * the board's static server (`serve: { bind, dist }`, else `serverPort` is a local port the
  * board's browser reaches through a reverse tunnel on `servePort`) and, for \`remote.display ===
- * 'bare'\`, a bare X server in place of LightDM. Resolves with the DevTools endpoint on this
- * machine, the address the board's browser loads the bench from, the display it got (\`{ name,
- * mode, ... }\`) and \`stop()\`, which is safe to call twice.
+ * 'bare'\`, the guard and its heartbeat, then a bare X server in place of LightDM, set to
+ * \`remote.mode\` at 60 Hz. Resolves with the DevTools endpoint on this machine, the address the
+ * board's browser loads the bench from, the display it got (\`{ name, mode, rateHz, ... }\`) and
+ * \`stop()\`, which is safe to call twice. \`onGuard(pid)\` hears that the guard is up.
  *
  * The stop is pushed on `cleanups` before anything is launched, so a signal at any point after
  * that (the browser may take 30 s to answer) still removes what was started and puts LightDM
- * back; a stop that arrives while a step is in flight waits for it, and ends the start. `stop()`
- * rejects, after saying what is left and how to remove it by hand, where the board is not clean
- * (a process left, files left, LightDM not back). `onStopped({ report, error })` hears how the
- * stop ended, for the result file. `io` swaps the ssh, tunnel, copy and DevTools calls for the
- * specs.
+ * back. A stop that arrives while a step is on its way waits for that step's ssh (at most
+ * `stepWaitMs`; every ssh is detached from the terminal, so a Ctrl-C does not end it early) and
+ * ends the start. `stop()` rejects, after saying what is left and what to do, where the board is
+ * not clean (a process left, files left, LightDM not back); it never prints a kill of a pid it
+ * has not checked. `onStopped({ report, error, guard })` hears how the stop ended, for the result
+ * file. `io` swaps the ssh, tunnel, heartbeat, copy and DevTools calls for the specs.
  */
 export async function startRemote({
   ssh,
@@ -224,7 +249,9 @@ export async function startRemote({
   log = () => undefined,
   cleanups = [],
   onStopped = () => undefined,
+  onGuard = () => undefined,
   devtoolsMs = DEVTOOLS_MS,
+  stepWaitMs = STEP_WAIT_MS,
   io = {},
 }) {
   const run = io.sshRun ?? sshRun;
@@ -234,6 +261,7 @@ export async function startRemote({
   const wait = io.sleep ?? sleep;
   const copy = io.copySite ?? copySite;
   const manifest = io.siteManifest ?? siteManifest;
+  const beat = io.startHeartbeat ?? startHeartbeat;
   const dir = remoteDirFor(runId);
   const bare = remote.display === 'bare';
 
@@ -242,61 +270,136 @@ export async function startRemote({
   let tunnel = null;
   let stopped = null;
   let stopRequested = false;
-  let xpid = null;
   let display = null;
-  const leftover = () =>
-    `${dir}${pid ? ` and the browser (pid ${pid})` : ''}${xpid ? ` and Xorg (pid ${xpid})` : ''}`;
-  const manualCleanup = () => `ssh ${ssh} '${pid ? `kill -TERM -- -${pid}; ` : ''}rm -rf ${dir}'`;
-  const manualDisplay = () =>
-    `ssh ${ssh} 'sudo -n kill ${xpid ?? '<Xorg pid>'}; sudo -n systemctl start lightdm'`;
+  let guardPid = null;
+  let heartbeat = null;
+  // A kill only behind the check that the pid is still this run's browser: a pid printed in a
+  // log may belong to anything by the time somebody acts on it.
+  const manualCleanup = () => {
+    const kill = pid
+      ? `grep -qF -- --user-data-dir=${dir}/profile /proc/${pid}/cmdline && kill -TERM -- -${pid}; `
+      : '';
+    return `ssh ${ssh} '${kill}rm -rf ${dir}'`;
+  };
+  const rerun = `ssh ${ssh} sh ${dir}/guard.sh`;
+  const selfHeal = () =>
+    `the board restores its display by itself within ~30 s (guard pid ${guardPid ?? 'unknown'}); ` +
+    `check with \`ssh ${ssh} systemctl is-active lightdm\``;
+
+  /** What the stop printed, said in the log, the same for both kinds of stop. */
+  const say = (report) => {
+    log(
+      `board: browser ${report.stopped ? 'stopped' : 'not stopped'}, ` +
+        `files ${report.removed ? 'removed' : 'NOT removed'}, ${report.leftover} processes left` +
+        (report.notes.length ? ` (${report.notes.join('; ')})` : ''),
+    );
+    if (report.server) log(`board: static server ${report.server}`);
+    if (report.xorg) log(`board: Xorg ${report.xorg}`);
+    if (report.display) {
+      log(
+        `board: display ${report.display.state.replace('-', ' ')}` +
+          (report.display.why ? `: ${report.display.why}` : ''),
+      );
+    }
+  };
+  const unclean = (report) =>
+    !report.removed || report.leftover > 0 || report.server === 'left' || report.xorg === 'left';
+
+  /** The plain stop: one script over ssh, which this side must see through. */
+  const stopPlain = async () => {
+    let result;
+    try {
+      result = await run(ssh, stopScript(dir, undefined, { server: Boolean(serve) }), {
+        timeoutMs: PLAIN_STOP_MS,
+      });
+    } catch (error) {
+      log(`board: could not stop what was started: ${error.message}`);
+      log(`board: ${dir} and what it started may be left; remove by hand: ${manualCleanup()}`);
+      onStopped({ error });
+      throw new Error(`the board was not cleaned up (${dir}): ${error.message}`);
+    }
+    const report = parseStopReport(result.stdout);
+    if (result.code !== 0) {
+      // ssh's own failure (255) or a script cut short: what it printed is not the whole story.
+      const why = result.stderr.trim() || `exit ${result.code}`;
+      log(`board: the stop did not finish on ${ssh}: ${why}`);
+      log(`board: ${dir} and what it started may be left; remove by hand: ${manualCleanup()}`);
+      const error = new Error(`the board's stop did not finish (${why})`);
+      onStopped({ error });
+      throw error;
+    }
+    onStopped({ report });
+    say(report);
+    if (unclean(report)) {
+      log(`board: ${dir} and what it started are left; remove by hand: ${manualCleanup()}`);
+      throw new Error(`the board was not cleaned up (${dir}): ${manualCleanup()}`);
+    }
+    return report;
+  };
+
+  /** The guarded stop: ask the board's guard, wait for its word, and say it. */
+  const stopGuarded = async () => {
+    let result;
+    let failure = null;
+    try {
+      result = await run(ssh, teardownWaitScript(dir), { timeoutMs: TEARDOWN_SSH_MS });
+      if (result.code === 255) failure = result.stderr.trim() || 'ssh exit 255';
+    } catch (error) {
+      failure = error.message;
+    }
+    // Whatever happened, the heartbeat ends here: a guard that did not hear the stop hears this.
+    heartbeat?.stop();
+    if (failure !== null) {
+      log(`board: the teardown could not reach ${ssh}: ${failure}`);
+      log(`board: ${selfHeal()}`);
+      const error = new Error(`the board's teardown was not confirmed (${failure})`);
+      onStopped({ error, guard: guardPid });
+      throw error;
+    }
+    const report = parseStopReport(result.stdout);
+    if (report.gone && guardPid !== null) {
+      // Torn down before this stop: the guard removes the directory only once the display is back.
+      report.removed = true;
+      report.display ??= {
+        state: 'restored',
+        why: 'by the board’s guard, before this teardown (it heard no heartbeat)',
+      };
+    } else if (report.gone) {
+      report.removed = true;
+    }
+    if (result.code !== 0) {
+      const why = report.notes.join('; ') || result.stderr.trim() || `exit ${result.code}`;
+      log(`board: the guard did not report: ${why}`);
+      log(`board: ${selfHeal()}; or run its teardown again: ${rerun}`);
+      const error = new Error(`the board's teardown was not confirmed (${why})`);
+      onStopped({ error, guard: guardPid });
+      throw error;
+    }
+    onStopped({ report, guard: guardPid });
+    say(report);
+    const notBack = report.display?.state === 'not-restored';
+    if (unclean(report) || notBack) {
+      log(
+        `board: ${dir} is kept with its pid files; run its teardown again: ${rerun} ` +
+          '(a reboot also brings the login screen back: LightDM is stopped, never disabled)',
+      );
+      throw new Error(
+        notBack
+          ? `the board's display was not restored: ${report.display.why ?? ''} (${rerun})`
+          : `the board was not cleaned up (${dir}): ${rerun}`,
+      );
+    }
+    return report;
+  };
+
   const stop = () => {
     stopRequested = true;
     stopped ??= (async () => {
       if (tunnel && tunnel.exitCode === null) tunnel.kill('SIGTERM');
       // A step may still be on its way: stopping ahead of it would leave what it starts behind.
-      if (launching) await launching.catch(() => undefined);
-      let report;
-      try {
-        report = parseStopReport(
-          (await run(ssh, stopScript(dir, undefined, { server: Boolean(serve), x: bare }))).stdout,
-        );
-      } catch (error) {
-        log(`board: could not stop what was started: ${error.message}`);
-        log(`board: ${leftover()} may be left; remove by hand: ${manualCleanup()}`);
-        if (bare) log(`board: the display may not be restored; by hand: ${manualDisplay()}`);
-        onStopped({ error });
-        throw new Error(`the board was not cleaned up (${dir}): ${error.message}`);
-      }
-      onStopped({ report });
-      log(
-        `board: browser ${report.stopped ? 'stopped' : 'not stopped'}, ` +
-          `files ${report.removed ? 'removed' : 'NOT removed'}, ${report.leftover} processes left` +
-          (report.notes.length ? ` (${report.notes.join('; ')})` : ''),
-      );
-      if (report.server) log(`board: static server ${report.server}`);
-      if (report.xorg) log(`board: Xorg ${report.xorg}`);
-      if (report.display) {
-        log(
-          `board: display ${report.display.state.replace('-', ' ')}` +
-            (report.display.why ? `: ${report.display.why}` : ''),
-        );
-      }
-      const restored =
-        !bare || report.display?.state === 'restored' || report.display?.state === 'unchanged';
-      if (
-        !report.removed ||
-        report.leftover > 0 ||
-        report.server === 'left' ||
-        report.xorg === 'left'
-      ) {
-        log(`board: ${leftover()} are left; remove by hand: ${manualCleanup()}`);
-        throw new Error(`the board was not cleaned up (${dir}): ${manualCleanup()}`);
-      }
-      if (!restored) {
-        log(`board: the display is not back; by hand: ${manualDisplay()}`);
-        throw new Error(`the board's display was not restored: ${manualDisplay()}`);
-      }
-      return report;
+      // Its ssh lives as long as its script on the board, so waiting for it is waiting for that.
+      if (launching) await within(launching, stepWaitMs);
+      return bare ? stopGuarded() : stopPlain();
     })();
     return stopped;
   };
@@ -322,7 +425,30 @@ export async function startRemote({
     let pageBase = serverPort !== undefined ? `http://127.0.0.1:${remote.servePort}/` : undefined;
     if (bare || serve) {
       aborted();
-      fails('could not make the run directory', await step(run(ssh, prepareScript(dir))));
+      // With a bare display the guard is installed and started by this first script, before
+      // anything else is started, and the heartbeat follows at once.
+      // Read inside the step, so a stop waiting for it knows the guard (and starts no heartbeat
+      // after it asked the guard to finish).
+      const prepared = await step(
+        run(
+          ssh,
+          prepareScript(dir, undefined, { then: bare ? guardInstallFragment(dir) : '' }),
+        ).then((result) => {
+          guardPid = bare ? parseGuard(result.stdout) : null;
+          if (guardPid !== null) {
+            onGuard(guardPid);
+            if (!stopRequested) heartbeat = beat({ ssh, dir, log, spawn: io.heartbeatSpawn });
+          }
+          return result;
+        }),
+      );
+      if (guardPid !== null) {
+        log(
+          `board: guard ${guardPid} watches the run: it restores the display by itself if this ` +
+            `laptop goes quiet for ${GUARD.staleS} s`,
+        );
+      }
+      fails('could not make the run directory', prepared);
     }
     if (serve) {
       aborted();
@@ -330,7 +456,9 @@ export async function startRemote({
       aborted();
       await step(copy({ ssh, dist: serve.dist, dir, entries, io: io.copyIo }));
       aborted();
-      const started = await step(run(ssh, serverStartScript(dir, { bind: serve.bind })));
+      const started = await step(
+        run(ssh, serverStartScript(dir, { bind: serve.bind, guarded: bare })),
+      );
       fails('could not start the static server', started);
       const served = parseServerStart(started.stdout);
       if (!served)
@@ -340,17 +468,28 @@ export async function startRemote({
     }
     if (bare) {
       aborted();
-      const started = await step(run(ssh, xStartScript(dir), { timeoutMs: 60_000 }));
+      const started = await step(
+        run(ssh, xStartScript(dir, { mode: remote.mode ?? DEFAULT_MODE }), {
+          timeoutMs: X_START_MS,
+        }),
+      );
       const x = parseXStart(started.stdout);
-      xpid = x.xpid;
       fails('could not start the bare X server', started);
       if (!x.display || !x.mode) {
         throw new Error(`the bare X server reported no display or mode: ${started.stdout}`);
       }
-      display = { kind: 'bare', name: x.display, vt: x.vt, mode: x.mode, lightdm: x.lightdm };
+      display = {
+        kind: 'bare',
+        name: x.display,
+        vt: x.vt,
+        output: x.output,
+        mode: x.mode,
+        rateHz: x.rateHz,
+        lightdm: x.lightdm,
+      };
       log(
-        `board: bare X server ${x.display} on vt${x.vt}, mode ${x.mode.w}x${x.mode.h} ` +
-          `(LightDM was ${x.lightdm}; it is stopped for the run)`,
+        `board: bare X server ${x.display} on vt${x.vt}, ${x.output} at ${x.mode.w}x${x.mode.h} ` +
+          `${x.rateHz} Hz (LightDM was ${x.lightdm}; it is stopped for the run)`,
       );
     }
     if (!browser) return { pageBase, display, stop };
@@ -367,6 +506,7 @@ export async function startRemote({
           xauthority: bare ? `${dir}/Xauthority` : remote.xauthority,
           window: bare ? display.mode : undefined,
           existing: bare || Boolean(serve),
+          guarded: bare,
         }),
       ),
     );
@@ -398,14 +538,16 @@ export async function startRemote({
     if (serverPort !== undefined && !serve) {
       forwards.push('-R', `127.0.0.1:${remote.servePort}:127.0.0.1:${serverPort}`);
     }
-    tunnel = start(
-      'ssh',
-      [...sshArgs(ssh, ['-N', '-o', 'ExitOnForwardFailure=yes', ...forwards])],
-      {
-        stdio: ['ignore', 'ignore', 'pipe'],
-      },
-    );
+    // The tunnel's remote side reads its stdin until it closes, so a tunnel whose node is gone
+    // (killed, or quit by a third Ctrl-C: it is detached, nothing else ends it) ends by itself.
+    tunnel = spawnSsh(ssh, {
+      extra: ['-o', 'ExitOnForwardFailure=yes', ...forwards],
+      command: 'cat >/dev/null',
+      stdio: ['pipe', 'ignore', 'pipe'],
+      spawn: start,
+    });
     let tunnelError = '';
+    tunnel.stdin?.on('error', () => undefined);
     tunnel.stderr.on('data', (chunk) => (tunnelError += chunk));
     const endpoint = `http://127.0.0.1:${local}`;
     for (;;) {

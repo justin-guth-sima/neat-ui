@@ -52,13 +52,19 @@ function checkSummary({ ok, worstPct, compared, skipped, unreadable = 0 }) {
 export function displayRestore(stopped) {
   if (!stopped) return null;
   if (stopped.error) {
+    const guard = stopped.guard
+      ? `; the board's guard (pid ${stopped.guard}) restores it by itself`
+      : '';
     return {
       ok: false,
-      text: `display not restored: the board's teardown could not run (${stopped.error.message})`,
+      text: `display not confirmed: ${stopped.error.message}${guard}`,
     };
   }
   const shown = stopped.report?.display;
-  if (!shown) return { ok: false, text: 'display not restored: the teardown reported nothing' };
+  // The guard says nothing of the display only where the run never recorded LightDM's state,
+  // which it does before it stops it: LightDM was never touched.
+  if (!shown)
+    return { ok: true, text: 'display untouched: the run ended before LightDM was stopped' };
   if (shown.state === 'restored') return { ok: true, text: 'display restored' };
   return {
     ok: shown.state === 'unchanged',
@@ -91,9 +97,11 @@ function builtFrom(pageRuns) {
  *
  * The result file is written after every run and again however the campaign ends (an error, a
  * signal), saying in its warnings that it is not complete; a run that fails for any reason is a
- * failed run in it, never the end of the campaign.
+ * failed run in it, never the end of the campaign. `signal` (an AbortSignal) is the user's stop:
+ * no run starts after it, and the file says `complete: false` even where the run under way
+ * ended. `board.guard` is set to the board's guard's pid once it is up.
  */
-export async function runCampaign(options, { log, cleanups, deps = {} }) {
+export async function runCampaign(options, { log, cleanups, deps = {}, signal, board }) {
   const d = {
     openBrowser,
     startRemote,
@@ -159,6 +167,9 @@ export async function runCampaign(options, { log, cleanups, deps = {} }) {
       serverPort: options.url || options.serve ? undefined : server.port,
       log,
       onStopped: (stopped) => (boardStopped = stopped),
+      onGuard: (pid) => {
+        if (board) board.guard = pid;
+      },
       // Registered by `startRemote` itself, before it launches anything.
       cleanups,
     });
@@ -326,9 +337,11 @@ export async function runCampaign(options, { log, cleanups, deps = {} }) {
   let writing = Promise.resolve();
   const compose = () => {
     const incomplete = [];
-    if (unfinished) {
+    // A stop by the user ends the campaign even where the run under way ended "normally".
+    const cut = signal?.aborted ? `interrupted by ${signal.reason}` : unfinished;
+    if (cut) {
       incomplete.push(
-        `The campaign did not finish (${unfinished}): ${pageRuns.length} of ${all.length} runs ` +
+        `The campaign did not finish (${cut}): ${pageRuns.length} of ${all.length} runs ` +
           `are in this file${inProgress ? `, and ${inProgress} was under way and is not` : ''}.`,
       );
     }
@@ -375,7 +388,7 @@ export async function runCampaign(options, { log, cleanups, deps = {} }) {
               restore: restore?.text ?? 'LightDM stopped for the run; not yet restored',
             },
           }),
-          complete: unfinished === null,
+          complete: !cut,
         },
       },
     });
@@ -403,6 +416,7 @@ export async function runCampaign(options, { log, cleanups, deps = {} }) {
   try {
     let first = true;
     for (const { entry, trace } of all) {
+      if (signal?.aborted) break;
       if (!first && options.cooldownMs > 0) {
         log(`idle ${options.cooldownMs / 1000} s`);
         await sleep(options.cooldownMs);

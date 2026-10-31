@@ -193,3 +193,39 @@ test('reads the server’s address from the start’s printout, and nothing odd'
     assert.equal(parseServerStart(text), null, text);
   }
 });
+
+test('binds loopback or an address of the board itself, checked there, never a foreign one', async () => {
+  const dir = join(work, 'neat-bench-b1');
+  sh(prepareScript(dir, parents));
+  await copySite({ ssh: 'x', dist, dir, entries: await siteManifest(dist), parents, io: here });
+  // 192.0.2.1 is TEST-NET-1: no machine has it.
+  const foreign = sh(serverStartScript(dir, { bind: '192.0.2.1' }, parents));
+  assert.equal(foreign.status, 1);
+  assert.match(foreign.stdout, /note 192\.0\.2\.1 is not an address of this board/);
+  assert.equal(existsSync(join(dir, 'server.pid')), false, 'nothing was started');
+  sh(stopScript(dir, parents, { server: true }));
+});
+
+test('keeps the directory and its pid files where a process of the run survived its stop', () => {
+  const dir = join(work, 'neat-bench-k1');
+  const browser = spawn('sh', ['-c', 'sleep 300', 'x', `--user-data-dir=${dir}/profile`], {
+    stdio: 'ignore',
+  });
+  spare.push(browser);
+  sh(`mkdir -m 700 '${dir}' && echo ${browser.pid} >'${dir}/chromium.pid'`);
+  // A ps that always shows one more member of the browser's group: one that would not die.
+  const bin = join(work, 'ps-bin');
+  mkdirSync(bin, { recursive: true });
+  writeFileSync(join(bin, 'ps'), `#!/bin/sh\necho "99999 ${browser.pid}"\n`, { mode: 0o755 });
+  const out = spawnSync('sh', ['-s'], {
+    input: stopScript(dir, parents, { server: true }),
+    encoding: 'utf8',
+    env: { ...process.env, PATH: `${bin}:${process.env.PATH}` },
+  });
+  const report = parseStopReport(out.stdout);
+  assert.equal(report.leftover, 1);
+  assert.equal(report.removed, false);
+  assert.match(report.notes.join(' '), /kept .*: a process of the run is still running/);
+  assert.ok(existsSync(join(dir, 'chromium.pid')));
+  rmSync(dir, { recursive: true, force: true });
+});

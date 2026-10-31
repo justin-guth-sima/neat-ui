@@ -207,16 +207,32 @@ campaign off the board's desktop and off the tunnel, and **board campaigns use t
 `--trace`: `--remote-display bare --serve board --trace`** (ladder E in its own untraced
 campaign). `--remote-display bare` (needs `--target remote`; `--remote-xauthority` is refused)
 stops LightDM (`systemctl stop`, never `disable`, so a reboot alone also brings the login screen
-back), starts an Xorg of its own with a cookie in the run's directory (no window manager: the
-browser gets `--window-position=0,0 --window-size=<the X screen's mode>`, recorded in
-`harness.display`), and the one teardown (signal, error, watchdog, end; a second is harmless)
-stops Chromium, the server and that Xorg by pid file after checking each pid's command line, removes
-`/tmp/neat-bench-<run>/`, and starts LightDM again only if it was active before, saying
-`display restored` (or why not) in the log and in `harness.display.restore`; a display that does not
-come back makes the run exit non-zero. `--serve board[:<bind>]` copies the built bench into the
+back), starts an Xorg of its own with a cookie in the run's directory, and sets
+`--remote-mode` (default 1920x1080) at 60 Hz with `xrandr` on its connected output (a mode the
+output does not offer stops the campaign before it measures; no window manager: the browser gets
+`--window-position=0,0 --window-size=<that mode>`, recorded in `harness.display`). **The board
+restores itself** (`harness/board-teardown.mjs`): before LightDM is stopped, the run's first
+script installs `guard.sh` in the run's directory and starts it detached on the board. The guard
+tears the run down when the laptop asks (a `stop` file) or goes quiet (the heartbeat the harness
+touches every 5 s over its own ssh is older than 20 s: node killed, laptop asleep, link lost):
+Chromium, the server and that Xorg by pid file after checking each pid's command line, then
+LightDM if it was active before, judged restored only once it is active and its own Xorg holds a
+display (15 s at most), then `restore.txt`. It alone removes `/tmp/neat-bench-<run>/`, and only
+after a confirmed restore; otherwise the directory and its pid files stay and the log says to run
+`ssh <board> sh /tmp/neat-bench-<run>/guard.sh` again. Start scripts hold `start.lock`, which the
+guard waits for, and start nothing once `stop` is there. The laptop's teardown (signal, error,
+watchdog, end; a second is harmless) creates `stop`, waits for the guard's report and says
+`display restored` (or why not) in the log and in `harness.display.restore`; a display that does
+not come back makes the run exit non-zero, and a teardown that cannot reach the board says that
+the board restores its display by itself within ~30 s. No manual command it prints kills a pid it
+has not checked. Every ssh runs detached from the terminal's process group, so Ctrl-C reaches node
+only: the first starts the teardown, the second says it is in progress, the third quits (the
+guard finishes); SIGTERM and SIGHUP count the same, and an interrupted campaign's result says
+`harness.complete: false`. `--serve board[:<bind>]` copies the built bench into the
 run's `site/` folder (checked file by file) and serves it there with `python3 -m http.server` on a
-free board port (never 4200 or 9900), bound to 127.0.0.1 or to the address given:
-`--serve board:10.42.0.68` with `--target local` is the "board serves laptop" mode. Without them
+free board port (never 4200 or 9900), bound to 127.0.0.1 or to one of the board's own addresses
+(checked there; never `0.0.0.0`): `--serve board:10.42.0.68` with `--target local` is the "board
+serves laptop" mode. Without them
 the display is the board's `:0` and the laptop serves through a reverse tunnel, as before.
 Each (ladder, repeat, renderer) is a fresh page load, the renderer
 order alternating per repeat. The page reports its boundaries through `window.benchEvent`; the
