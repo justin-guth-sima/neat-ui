@@ -57,8 +57,9 @@
   --frame-weight: 600;
 }
 
+/* A frame's title is a step above its blocks' labels, so the group reads before its parts. */
 .frame .title {
-  font-size: var(--neat-text-sm);
+  font-size: var(--neat-text-base);
   font-weight: var(--frame-weight);
   color: var(--frame-ink);
 }

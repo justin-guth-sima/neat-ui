@@ -50,7 +50,7 @@ import {
             <code>neat-diagram</code> draws a hand-placed level: frames and bands behind one SVG of
             routed edges, blocks, brackets, edge labels and notes in front of it. Edges take the
             charts' series colours, which <code>neat-diagram-legend</code> names; chips are the
-            kit's status chips (where a part runs: HW success, EV74 highlight, MLA info, A65
+            kit's status chips, tinted (where a part runs: HW success, EV74 highlight, MLA info, A65
             neutral); a note's content is the app's template. Drag, wheel, pinch or double-click to
             pan and zoom, or focus a diagram and use the arrow keys, <kbd>+</kbd>, <kbd>-</kbd> and
             <kbd>0</kbd>; each fits itself to its box until you do, and the toolbar's Fit (their

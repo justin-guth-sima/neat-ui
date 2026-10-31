@@ -5,6 +5,7 @@ import { By } from '@angular/platform-browser';
 import { zoomTransform } from 'd3-zoom';
 import { NeatDiagramView } from './diagram';
 import diagramStyles from './diagram.css' with { loader: 'text' };
+import frameStyles from './frames.css' with { loader: 'text' };
 import { fitTransform } from './fit';
 import { layoutEdges } from './layout';
 import { TIP_GAP } from './hover';
@@ -208,9 +209,18 @@ describe('NeatDiagramView', () => {
     expect(node('decode').querySelector('.detail')?.textContent?.trim()).toBe('H.264');
     const chips = Array.from(node('decode').querySelectorAll('neat-status-chip'));
     expect(chips.map((chip) => chip.textContent?.trim())).toEqual(['HW']);
-    // The success tone's fill (NeatStatusChip's own classes).
-    expect(chips[0].classList).toContain('bg-success');
+    // The success tone's tint (NeatStatusChip's own classes): a block's chips are tinted, so a
+    // card of several reads as labels rather than as a row of solid badges.
+    expect(chips[0].classList).toContain('bg-neat-tint-success-accent');
+    expect(chips[0].classList).toContain('text-success');
     expect(node('detect').querySelector('neat-status-chip')).toBeNull();
+  });
+
+  it('titles a frame in the base text size, a step above the blocks’ labels', async () => {
+    const { node } = await render();
+    expect(node('board').querySelector('.title')).not.toBeNull();
+    const rule = /\n\.frame \.title \{([^}]*)\}/.exec(frameStyles)?.[1] ?? '';
+    expect(rule).toMatch(/font-size:\s*var\(--neat-text-base\);/);
   });
 
   it('marks a block that opens a level, with "›"; one naming no level is drawn plain', async () => {

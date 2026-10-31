@@ -71,8 +71,8 @@
   --neat-transition-duration: 150ms;
   --neat-focus-ring-width: 2px;
   /*
-   * The layout vocabulary for app and kit stylesheets: spacing (gaps, insets) and small type
-   * sizes, taken from Tailwind's scale so they match the kit's components. A short set on purpose;
+   * The layout vocabulary for app and kit stylesheets: spacing (gaps, insets) and type sizes
+   * up to the base, taken from Tailwind's scale so they match the kit's components. A short set on purpose;
    * a layout these cannot express is a kit change.
    */
   --neat-space-2: --spacing(2);
@@ -89,6 +89,7 @@
   --neat-surface: var(--background);
   --neat-text-xs: --theme(--text-xs inline);
   --neat-text-sm: --theme(--text-sm inline);
+  --neat-text-base: --theme(--text-base inline);
 }
 
 @layer base {

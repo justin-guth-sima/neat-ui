@@ -213,22 +213,22 @@ the whole in the kit's look.
 - **The model** (`model.ts`) is plain data an app may recompute on every poll. A `NeatDiagramSet`
   is an overview and its drill-down levels, each a `NeatDiagram` of nodes, edges and notes.
   Coordinates are diagram units (px at zoom 1), and a node's `x` and `y` are relative to its
-  `parent`. A node's `role` is `frame` (holds nodes, behind the edges), `block` (a card), `band` (a
-  cable or a bus) or `bracket` (a brace under a row of siblings); its `look` is `default`,
-  `accent`, `dashed`, `ghost` (a part not running) or `muted`. Its `chips` are the kit's status
-  chips. **Where a part runs is said by a chip in one convention**, documented here rather than
-  enforced, so every demo reads alike: the hardware decoder `HW` in `success`, `EV74` in
-  `highlight`, `MLA` in `info`, `A65` in `neutral`. An edge's `series` is 1 to 8, the charts'
-  `--neat-series-1` to `-8` (counted from 1, unlike `NeatSeriesSwatch`'s index from 0, and
-  converted in one place, `seriesIndex` in `drawing.ts`); unset, or on a `ghost` line, it is
-  muted. Its `line` is `solid`, `dashed` or `ghost`, its tips `none`, `arrow` or `dot` (unset: none
-  at the start, an arrow at the end), and its `label` a small mono chip at `labelAt` along it. A
-  note is anchored to its `edges` (the mean of their points at `along`, 0.5 unset) or to an
-  `anchor` point, placed at `x`/`y` or moved `dx`/`dy` from the anchor, and joined to it by a
-  dotted leader that meets the box's nearest point, or its centre with `leaderTo: 'centre'`. A
-  node's, an edge's and a note's `data` is the app's and never read. A part whose ids name nothing
-  (an edge's end, a node's parent, a block's `opens`, a note's edge) is left out and named once in
-  dev mode; the diagram never throws for it.
+  `parent`. A node's `role` is `frame` (holds nodes, behind the edges, its title a size above a
+  block's label), `block` (a card), `band` (a cable or a bus) or `bracket` (a brace under a row of
+  siblings); its `look` is `default`, `accent`, `dashed`, `ghost` (a part not running) or `muted`.
+  Its `chips` are the kit's status chips, drawn tinted. **Where a part runs is said by a chip in
+  one convention**, documented here rather than enforced, so every demo reads alike: the hardware
+  decoder `HW` in `success`, `EV74` in `highlight`, `MLA` in `info`, `A65` in `neutral`. An edge's
+  `series` is 1 to 8, the charts' `--neat-series-1` to `-8` (counted from 1, unlike
+  `NeatSeriesSwatch`'s index from 0, and converted in one place, `seriesIndex` in `drawing.ts`);
+  unset, or on a `ghost` line, it is muted. Its `line` is `solid`, `dashed` or `ghost`, its tips
+  `none`, `arrow` or `dot` (unset: none at the start, an arrow at the end), and its `label` a small
+  mono chip at `labelAt` along it. A note is anchored to its `edges` (the mean of their points at
+  `along`, 0.5 unset) or to an `anchor` point, placed at `x`/`y` or moved `dx`/`dy` from the anchor,
+  and joined to it by a dotted leader that meets the box's nearest point, or its centre with
+  `leaderTo: 'centre'`. A node's, an edge's and a note's `data` is the app's and never read. A part
+  whose ids name nothing (an edge's end, a node's parent, a block's `opens`, a note's edge) is left
+  out and named once in dev mode; the diagram never throws for it.
 - **The drawing:** `neat-diagram` is a `figure` named by its `label`. Frames and bands are
   positioned HTML behind one SVG of edges; blocks, brackets, edge labels and notes are HTML in
   front of it; one container holds them all, which is what pan and zoom move. Every part is keyed
@@ -565,20 +565,20 @@ Why: tokens are what make light/dark and later rebranding work. Overrides (deep 
 The tokens are the theme's colours (Spartan's variables such as `--primary`, `--muted-foreground`,
 `--border`), `--radius`, and a short layout set from Tailwind's scale, defined once in the kit
 stylesheet: `--neat-space-2`, `--neat-space-3`, `--neat-space-4`, `--neat-space-6` (0.5, 0.75, 1
-and 1.5rem, for gaps and insets), `--neat-text-xs`, `--neat-text-sm` (0.75 and 0.875rem),
-`--neat-aside-width` (22rem, the width of a page's side panel) and `--neat-surface` (the fill of
-the surface a component sits on, for a part that covers what scrolls under it: `--background`, set
-to `--popover` by a dialog panel and a popover, and to its fill by an app's own surface such as a
-card). Charts draw with `--neat-series-1` to `--neat-series-8` (four hues, blue, purple, orange and
-teal, then a darker blue and the lighter purple, orange and blue), `--neat-line` (a single metric's
-line), `--neat-line-warning` and `--neat-line-danger` (threshold lines), and `--neat-heat-low` and
-`--neat-heat-high` (the ends of the heatmap ramp). `--neat-live` is the live dot's red, one value in
-both schemes since it also sits on video. Green, amber and red are left out of the series
-so that they keep meaning status. Light series 6 to 8 are below 3:1 on white: use them as fills
-whose values the legend carries as text. Page insets come from `neat-page` (`padding="page"` by
-default, `padding="none"` for full-bleed content such as a video grid), never from a page's own
-stylesheet. Escape hatch: if a look cannot be reached through tokens and inputs, that is a kit gap.
-Treat it as a proposal under the previous rule, not as a reason to override.
+and 1.5rem, for gaps and insets), `--neat-text-xs`, `--neat-text-sm`, `--neat-text-base` (0.75,
+0.875 and 1rem), `--neat-aside-width` (22rem, the width of a page's side panel) and `--neat-surface`
+(the fill of the surface a component sits on, for a part that covers what scrolls under it:
+`--background`, set to `--popover` by a dialog panel and a popover, and to its fill by an app's own
+surface such as a card). Charts draw with `--neat-series-1` to `--neat-series-8` (four hues, blue,
+purple, orange and teal, then a darker blue and the lighter purple, orange and blue), `--neat-line`
+(a single metric's line), `--neat-line-warning` and `--neat-line-danger` (threshold lines), and
+`--neat-heat-low` and `--neat-heat-high` (the ends of the heatmap ramp). `--neat-live` is the live
+dot's red, one value in both schemes since it also sits on video. Green, amber and red are left out
+of the series so that they keep meaning status. Light series 6 to 8 are below 3:1 on white: use them
+as fills whose values the legend carries as text. Page insets come from `neat-page`
+(`padding="page"` by default, `padding="none"` for full-bleed content such as a video grid), never
+from a page's own stylesheet. Escape hatch: if a look cannot be reached through tokens and inputs,
+that is a kit gap. Treat it as a proposal under the previous rule, not as a reason to override.
 
 **No colour literals outside the theme directories: `projects/neat-ui/src/lib/theme/`, and
 `projects/neat-ui/video/src/lib/theme/` for the video overlay palette.**

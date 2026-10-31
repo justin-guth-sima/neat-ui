@@ -29,6 +29,11 @@ describe('the kit stylesheet', () => {
     expect(stylesheet).toMatch(/:root\s*\{[^}]*--neat-surface:\s*var\(--background\);/);
   });
 
+  it('defines --neat-text-base, Tailwind’s base size, beside the small ones', () => {
+    // The diagram's frame titles take it; it is the kit's step above --neat-text-sm.
+    expect(stylesheet).toMatch(/--neat-text-base:\s*--theme\(--text-base inline\);/);
+  });
+
   it('maps the highlight tone, every row tint and the chips’ colours to a Tailwind colour, so their utilities exist', () => {
     // Spartan's preset maps its own variables; the kit's extensions need a mapping each, or a
     // class such as `bg-neat-tint-success` compiles to nothing.

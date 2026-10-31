@@ -221,7 +221,7 @@
     }
   </span>
   @for (chip of node.chips ?? []; track $index) {
-    <neat-status-chip [tone]="chip.tone">{{ chip.label }}</neat-status-chip>
+    <neat-status-chip [tone]="chip.tone" variant="tinted">{{ chip.label }}</neat-status-chip>
   }
 </ng-template>
 
