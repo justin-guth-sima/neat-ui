@@ -1,0 +1,204 @@
+import type { Climb } from './analysis';
+import { isClearlySlower, fallbackVerdict, supportingEvidence } from './verdict';
+import type { Capacity } from './analysis';
+
+const cap = (level: number | null, atCap = false): Capacity => ({ level, atCap });
+
+describe('isClearlySlower', () => {
+  it.each([
+    ['one doubling step below', cap(4), cap(8), true],
+    ['more than one step below', cap(2), cap(16), true],
+    ['less than a doubling below (a refined knee)', cap(6), cap(8), false],
+    ['equal', cap(8), cap(8), false],
+    ['above', cap(16), cap(8), false],
+    ['unable to meet the first level, where vflow can', cap(null), cap(1), true],
+    ['unable to meet the first level, as vflow is', cap(null), cap(null), false],
+    ['vflow unable to meet the first level, the kit able', cap(1), cap(null), false],
+    ['zero notes against four (ladder C)', cap(0), cap(4), true],
+    ['zero against zero (ladder C)', cap(0), cap(0), false],
+    ['the kit never failing, vflow at its top too', cap(32, true), cap(32, true), false],
+    ['the kit never failing, whatever vflow reached', cap(8, true), cap(32), false],
+  ])('%s', (_, kit, vflow, expected) => {
+    expect(isClearlySlower(kit, vflow)).toBe(expected);
+  });
+});
+
+/** A climb with only what the verdict reads: its repeat and its capacities. */
+function climbOf(
+  renderer: string,
+  repeat: number,
+  smooth: Capacity,
+  options: { failed?: boolean } = {},
+): Climb {
+  return {
+    ladder: 'A',
+    renderer,
+    repeat,
+    failed: options.failed ?? false,
+    steps: [],
+    smooth,
+    usable: smooth,
+  };
+}
+
+describe('fallbackVerdict (the kit is clearly slower where it is, in 2 of 3 repeats)', () => {
+  const kit = (...levels: number[]): Climb[] =>
+    levels.map((level, repeat) => climbOf('kit', repeat, cap(level)));
+  const vflow = (...levels: number[]): Climb[] =>
+    levels.map((level, repeat) => climbOf('vflow', repeat, cap(level)));
+
+  it('says clearly slower when two of three repeats are a step or more below', () => {
+    const verdict = fallbackVerdict(kit(4, 4, 8), vflow(8, 8, 8), 'smooth');
+
+    expect(verdict.kind).toBe('slower');
+    expect(verdict.slowerCount).toBe(2);
+    expect(verdict.pairs.map((pair) => pair.slower)).toEqual([true, true, false]);
+  });
+
+  it('says not clearly slower when only one of three repeats is', () => {
+    const verdict = fallbackVerdict(kit(4, 8, 8), vflow(8, 8, 8), 'smooth');
+
+    expect(verdict.kind).toBe('not-slower');
+    expect(verdict.slowerCount).toBe(1);
+  });
+
+  it('pairs the repeats by their number, not by their order in the file', () => {
+    const verdict = fallbackVerdict(kit(4, 8, 4).reverse(), vflow(8, 8, 8), 'smooth');
+
+    expect(verdict.pairs.map((pair) => [pair.repeat, pair.slower])).toEqual([
+      [0, true],
+      [1, false],
+      [2, true],
+    ]);
+  });
+
+  it('keeps asking for the third repeat while two of three is still possible', () => {
+    // One repeat in, one slower: the other two could still make two of three.
+    expect(fallbackVerdict(kit(4), vflow(8), 'smooth').kind).toBe('inconclusive');
+    // Two in, one slower and one not: the third decides.
+    expect(fallbackVerdict(kit(4, 8), vflow(8, 8), 'smooth').kind).toBe('inconclusive');
+  });
+
+  it('decides early where two repeats already settle it', () => {
+    expect(fallbackVerdict(kit(4, 4), vflow(8, 8), 'smooth').kind).toBe('slower');
+    // Two in, neither slower: at most one of three could be.
+    expect(fallbackVerdict(kit(8, 8), vflow(8, 8), 'smooth').kind).toBe('not-slower');
+  });
+
+  it('is inconclusive with nothing to compare', () => {
+    expect(fallbackVerdict(kit(4), [], 'smooth').kind).toBe('inconclusive');
+    expect(fallbackVerdict([], vflow(8), 'smooth').pairs).toEqual([]);
+  });
+
+  it('judges the tier it is asked about', () => {
+    const climbs = {
+      kit: [{ ...climbOf('kit', 0, cap(1)), usable: cap(8) }],
+      vflow: [{ ...climbOf('vflow', 0, cap(8)), usable: cap(8) }],
+    };
+
+    expect(fallbackVerdict(climbs.kit, climbs.vflow, 'smooth').slowerCount).toBe(1);
+    expect(fallbackVerdict(climbs.kit, climbs.vflow, 'usable').slowerCount).toBe(0);
+  });
+
+  it('marks a pair in which a run failed, and still counts it', () => {
+    const verdict = fallbackVerdict(
+      [climbOf('kit', 0, cap(1), { failed: true })],
+      vflow(8),
+      'smooth',
+    );
+
+    expect(verdict.pairs[0]).toMatchObject({ slower: true, failed: true });
+  });
+});
+
+describe('supportingEvidence (kit under 85 % of vflow’s fps, two steps running)', () => {
+  const cell = (level: number, median: number) => ({ level, fps: { median } });
+  const evidence = (kit: [number, number][], vflow: [number, number][]) =>
+    supportingEvidence(
+      kit.map(([level, fps]) => cell(level, fps)),
+      vflow.map(([level, fps]) => cell(level, fps)),
+    );
+
+  it('finds two consecutive steps below 85 %', () => {
+    const found = evidence(
+      [
+        [1, 60],
+        [2, 50],
+        [4, 40],
+      ],
+      [
+        [1, 60],
+        [2, 60],
+        [4, 60],
+      ],
+    );
+
+    expect(found.consecutive).toBe(true);
+    expect(found.below.map((row) => row.level)).toEqual([2, 4]);
+    expect(found.below[0].ratio).toBeCloseTo(50 / 60, 9);
+  });
+
+  it('does not count one step, or two that are not neighbours', () => {
+    const lone = evidence(
+      [
+        [1, 60],
+        [2, 50],
+        [4, 60],
+      ],
+      [
+        [1, 60],
+        [2, 60],
+        [4, 60],
+      ],
+    );
+    const apart = evidence(
+      [
+        [1, 50],
+        [2, 60],
+        [4, 50],
+      ],
+      [
+        [1, 60],
+        [2, 60],
+        [4, 60],
+      ],
+    );
+
+    expect(lone.consecutive).toBe(false);
+    expect(apart.consecutive).toBe(false);
+    expect(apart.below.map((row) => row.level)).toEqual([1, 4]);
+  });
+
+  it('compares only the levels both ran, neighbours among those', () => {
+    const found = evidence(
+      [
+        [1, 50],
+        [4, 50],
+        [8, 60],
+      ],
+      [
+        [1, 60],
+        [2, 60],
+        [4, 60],
+      ],
+    );
+
+    expect(found.compared).toBe(2);
+    expect(found.consecutive).toBe(true);
+  });
+
+  it('finds nothing where the kit holds 85 % exactly', () => {
+    expect(
+      evidence(
+        [
+          [1, 51],
+          [2, 51],
+        ],
+        [
+          [1, 60],
+          [2, 60],
+        ],
+      ).below,
+    ).toEqual([]);
+  });
+});

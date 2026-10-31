@@ -1,0 +1,26 @@
+/*
+ * The kit's base styles stop the document scrolling ("the shell and pages own scrolling"), so the
+ * page is its own scroll box: a result is longer than a window.
+ */
+:host {
+  display: block;
+  block-size: 100%;
+  overflow-y: auto;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-4);
+  max-inline-size: 90rem;
+  margin-inline: auto;
+  padding: var(--neat-space-6);
+}
+
+h1 {
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
