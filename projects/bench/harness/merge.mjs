@@ -168,7 +168,8 @@ export function mergeRuns({
     warnings.push(
       'The refresh rates differ between runs: ' +
         [...rates].map(([hz, labels]) => `${hz} Hz (${runsText(labels)})`).join(', ') +
-        '. Frame statistics are judged at each run’s own rate, but compare them with care.',
+        '. Each page judged its own run at its own rate, but the results page judges every step ' +
+        'at the first run’s rate: compare them with care.',
     );
   }
   warnings.push(...compareStartTransforms(steps));

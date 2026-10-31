@@ -217,11 +217,19 @@ is a failed run in it. A step the harness's watchdog gave up on is a step record
 changes, or untracked files under `projects/bench` or `projects/neat-ui`) into the bundle; the
 page reports it as `bench.gitSha`, the checkout's is `bench.checkoutSha`, and the harness warns
 where they differ or the build (also one served with `--url`) carries no stamp.
-A traced run (`--trace`) is checked against its own trace (`harness/trace-check.mjs`): the
-recorder's fps in the pan and zoom phases against the display compositor's draws in the same
-window, within 3 %, else a warning on the campaign (the `none` host is left out: no gesture moves
-a pixel there). On the laptop it holds for the kit and not for vflow, whose recorded fps reads
-above what the display draws; `projects/bench/VALIDATION.md` has the numbers and the other checks.
+A traced run (`--trace`, every step unless `--trace-steps N`: every step is the board default) is
+checked against its own trace (`harness/trace-check.mjs`): the recorder's fps in the pan and zoom
+phases against the display compositor's draws in the same window, within 3 % or one draw of a
+short phase, else a warning on the campaign (the `none` host is left out: no gesture moves a pixel
+there; a phase with no draw in the trace is "unreadable", not a failure). On the laptop it holds
+for the kit and not for vflow, whose recorded fps reads above what the display draws. So what the
+user sees decides: the same draws give each phase whose view changes in every frame (a pan, a
+zoom, any phase of a step with messages in flight) its presented rate, laid over every repeat of
+that load, and the step's tier uses the lower of it and the recorder's fps; the results view shows
+both and marks the steps the presented rate decided. The heap is read at every phase end (a
+soak's flat check covers it). `--input=page` is the measurement (decided): `--input=cdp` is a
+per-event cross-check only, since its bridge is closed-loop and delivers fewer events at the knee.
+`projects/bench/VALIDATION.md` has the numbers, the rulings and the other checks.
 The results view (`/#/results`, `src/app/results/`) reads result files dropped on it, with the
 screenshots beside them, and shows per machine the capacities in the two tiers, the fallback
 verdict (the kit clearly slower than vflow: its smooth capacity a doubling step or more below in 2

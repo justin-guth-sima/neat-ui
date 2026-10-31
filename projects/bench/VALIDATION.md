@@ -39,8 +39,9 @@ Design: insight-next `docs/superpowers/specs/2026-10-31-bench-design.md`, sectio
 | 3 Repeat spread under 10 % | **Pass**: fps spread at most 4.4 %; capacities agree to a step |
 | 4 Smoke of every ladder on every host | **Pass** (ladders B to D for two steps; E in full) |
 
-Two findings change how results are read (1b and 2); both are for Justin to rule on before the
-board runs.
+Two findings changed how results are read (1b and 2). Both are ruled on, and the harness and the
+results page follow the rulings (see "Rulings" below): the display's presented rate decides where
+a trace has one, and `--input=page` is the measurement.
 
 ## 1. Recorder against a trace (design 1.4: within 3 %)
 
@@ -118,8 +119,8 @@ Campaigns 1 and 2: kit and vflow, ladder A, three repeats each, mean fps over th
 | ×16 | 58.8 → 59.8 (+1.7 %) | 97 → 51 % | 56.4 → 59.2 (+4.9 %) | 97 → 67 % |
 | ×32 | 53.6 → 57.5 (+7.2 %) | 99 → 61 % | 46.2 → 53.3 (+15.5 %) | 100 → 83 % |
 
-At ×32 the pan reads 57.7 → 55.4 (kit) and 34.6 → 48.7 (vflow), the zoom 31.2 → 55.0 (kit) and
-31.0 → 45.6 (vflow).
+At ×32 the pan reads 57.7 → 55.4 (kit) and 34.6 → 48.7 (vflow), the zoom 31.2 → 55.0 (kit)
+and 31.0 → 45.6 (vflow).
 
 **Fail by the design's bar** (same frame statistics within noise; the repeats' own spread is
 under 5 %): fps agree wherever both are pinned at 60, and part from ×16 on, with CDP input the
@@ -146,8 +147,8 @@ what the page does with one:
 
 Campaign 1, in-page input, three repeats per step. Spread = (max - min) / median.
 
-- **Mean fps: at most 4.4 %** (vflow ×16; kit ×32 3.3 %, vflow ×32 2.0 %), 0 % at every step below
-  the knee. **Pass.**
+- **Mean fps: at most 4.4 %** (vflow ×16; kit ×32 3.3 %, vflow ×32 2.0 %), 0 % at every step
+  below the knee. **Pass.**
 - **Capacities.** Smooth: ×8 for the kit and for vflow in all three repeats; `none` never failed
   (at least ×32). Usable: vflow ×32 (at least) in all three; the kit ×32 in two repeats and ×16
   in one (its zoom phase fell to 26 fps there). So the capacity spread is one doubling step at
@@ -174,6 +175,34 @@ Campaign 1, in-page input, three repeats per step. Spread = (max - min) / median
 - Not exercised: the upper steps of B, C and D (to 25 600 msg/s, 128 notes, ×16), `--refine`,
   `vflow-virt` (deferred: the harness refuses it), `--dpr native`, and any run on the board.
 
+## Rulings
+
+- **User-visible frames decide, not rAF ticks.** A traced run records, per phase, the display's
+  presented rate: `Display::DrawAndSwap` per second in the phase's window (`presentedFps` in the
+  phase result), where the view changes in every frame: the pan and zoom phases (not of the `none`
+  host, which no gesture moves) and every phase of a step whose load has messages in flight (the
+  dots move). The step's tier for such a phase uses the lower of the recorder's fps and the
+  presented fps; the refreshes that showed nothing new (`1 - presented / refresh rate`) count as
+  dropped. The recorder's value stays in the result and in the phases table, the presented one
+  beside it; the steps table shows the effective fps and marks the steps whose tier the presented
+  rate decided; the summary and "how the numbers were taken" say which value decided. Why: the
+  recorder overstates vflow and not the kit (1b), so a verdict on rAF ticks alone is biased
+  towards vflow. If the presented rate undercounts, vflow reads low and the kit is favoured; the
+  two columns are kept beside each other so that either can be read.
+- **One trace stands for every repeat of its load.** A traced run is one per renderer and ladder
+  and is never measured (tracing costs), so its presented rate is laid over the measured steps of
+  the same renderer, ladder, load and phase, in every repeat; where the trace gave none (a step it
+  did not reach, a phase in which it shows no draw) the recorder's rate alone decides.
+- **The recorder check stays a warning**, with two corrections. A phase in which the trace shows
+  no display draw is "trace unreadable for this phase" (a renamed event or a missing category
+  would otherwise read as a recorder that is 100 % wrong), not a failure, and gets no presented
+  rate. The bound is the larger of 3 % and one draw over the phase's window: a count over a
+  window is only good to a draw, and one is 4 % of a 2 s phase at 12 fps.
+- **Heap at every phase end** (`cdp.heapBytes`, the heap in use where the phase ended), shown in
+  the phases table. The soak's flat check covers it: the heap is flat where it moves by less than
+  a tenth of its median over the phases (the collector's sawtooth), else it grew.
+- **`--input=page` is the measurement.** `--input=cdp` stays a per-event cross-check.
+
 ## Changes this validation made
 
 - `harness/trace-check.mjs`: the recorder check (above), run for each traced run, its result kept
@@ -184,10 +213,14 @@ Campaign 1, in-page input, three repeats per step. Spread = (max - min) / median
 
 ## For the board runs
 
-- Run `--trace` (`--trace-steps 6` or more, so the heavy steps are in it) on every campaign: the
-  check is what says whether the recorder can be trusted on that machine, and vflow's numbers need
-  it most. Read a vflow capacity beside its warning.
-- Decide whether the results should also carry the trace's presented rate per phase (a column
-  next to the recorder's fps for traced runs), so the vflow gap is shown instead of warned about.
-- Record the heap at each phase end, not only at a step's end, before the soak is run on the board.
-- Keep `--input=page`; see 2.
+- Run `--trace` on every campaign. With no `--trace-steps` it traces every step (`--trace-steps N`
+  stops at N levels, which would leave the heavier steps to the recorder alone, so it is not
+  the board default). The trace gives the presented rate that decides the tier, and the check of
+  the recorder against it says whether the recorder can be trusted on that machine; vflow's
+  numbers need it most. The traces are narrow on purpose (the `viz` category, which holds the
+  display's draws), so a full-climb trace stays small enough to keep; a trace to read in a
+  DevTools Performance panel is a run of its own with more categories.
+- The soak (ladder E) traced in full is ten minutes of draws; leave ladder E out of a traced
+  campaign if the trace's size matters more than its check.
+- The heap is read at each phase end now, so the soak on the board shows growth.
+- `--input=page` is the measurement; see 2.

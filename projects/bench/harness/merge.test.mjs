@@ -321,6 +321,8 @@ test('warns of a throttled run, naming it, and of runs at different refresh rate
   const run = mergeRuns({ ...INPUT, pageRuns: [slow, other] });
   assert.match(run.warnings.join('\n'), /CPU fell from 3600 MHz/);
   assert.match(run.warnings.join('\n'), /refresh rates differ.*60.*30/);
+  // What the results page does, said as it is: one rate for every step, the first run's.
+  assert.match(run.warnings.join('\n'), /results page judges every step at the first run.s rate/);
 });
 
 test('writes down the fairness report and warns with each problem where the run went on', () => {
