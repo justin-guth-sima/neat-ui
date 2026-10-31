@@ -11,6 +11,7 @@ import {
   along,
   CONTRAST_RULES,
   firstReadable,
+  MIN_CHIP_FILL_CONTRAST,
   MIN_CONTRAST,
   MIN_FILL_CONTRAST,
   MIN_NON_TEXT_CONTRAST,
@@ -83,6 +84,17 @@ const ROW_TINT_SHARE: Record<NeatColorScheme, number> = { light: 0.1, dark: 0.14
  * tone gets about the least that shows, as a plain row's `--accent` does on the page.
  */
 const ROW_TINT_ACCENT_STEP = 0.02;
+
+/**
+ * The surface steps searched for the neutral chip's fill, from `--muted`'s step away from the
+ * background: dark `--muted` is the card's own step, so a chip on it vanished on a card.
+ */
+const NEUTRAL_CHIP_WALK: Record<NeatColorScheme, readonly ColorStep[]> = {
+  light: [50, 100, 200, 300],
+  dark: [900, 800, 700, 600],
+};
+/** How finely the share of `--foreground` in warning's text colour is searched, least first. */
+const WARNING_TEXT_STEP = 0.05;
 
 /**
  * Dark segmented track: this share of the accent step over the card step. The accent step alone
@@ -178,6 +190,8 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
   const background = surface[rules.background];
   const raised = surface[roles.raised];
   const border = surface[roles.border];
+  const tints = rowTints(ROW_TINT_SHARE[scheme], background);
+  const charts = chartTokens(scheme, status(scales.destructive));
 
   return {
     background,
@@ -204,8 +218,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     // Warning is a fill only, in both schemes: the scale's base with the scheme's darkest surface
     // on it (the palette text in light, the near-black in dark; about 9:1). Derived like the
     // others, as text on the page, it darkened to brown under white text. It is not readable as
-    // text on the page or on its own tint; add a text variant when something needs
-    // warning-coloured text.
+    // text on the page or on its own tint; warning-coloured text is `neat-warning-text`.
     warning: scales.warning[500],
     'warning-foreground': surface[950],
     info: status(scales.info),
@@ -234,8 +247,25 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     'neat-video-scrim-foreground': SIMA_PALETTE.white,
     'neat-live': liveToken(),
     ...segmentedTokens(scheme, surface, primary),
-    ...rowTints(ROW_TINT_SHARE[scheme], background),
-    ...chartTokens(scheme, status(scales.destructive)),
+    ...tints,
+    // The neutral chip's fill: the first step from `--muted` on that shows on the card and the
+    // page, with muted text on it (the theme spec holds that text to 4.5:1).
+    'neat-chip-neutral':
+      surface[
+        NEUTRAL_CHIP_WALK[scheme][
+          firstReadable(
+            surface,
+            NEUTRAL_CHIP_WALK[scheme],
+            [raised, background],
+            MIN_CHIP_FILL_CONTRAST,
+          )
+        ]
+      ],
+    'neat-warning-text': warningText(charts['neat-line-warning'], text, [
+      tints['neat-tint-warning'],
+      tints['neat-tint-warning-accent'],
+    ]),
+    ...charts,
   };
 }
 
@@ -375,6 +405,19 @@ function tintAccent(base: string, share: number, tint: string, background: strin
     if (contrastRatio(accent, tint) >= MIN_FILL_CONTRAST) return accent;
   }
   throw new Error(`No mix of ${base} over ${background} shows on its tint ${tint}`);
+}
+
+/**
+ * Warning-coloured text (a tinted warning chip's), which `--warning`, a fill, cannot be: the warning
+ * line mixed toward `--foreground` by the least share that reads on the warning tints. Dark's line
+ * already does, so there it is the line itself; light's needs some of the text colour.
+ */
+function warningText(line: string, foreground: string, tints: readonly string[]): string {
+  for (let step = 0; step * WARNING_TEXT_STEP <= 1; step++) {
+    const color = mixOklab(foreground, step * WARNING_TEXT_STEP, line);
+    if (tints.every((tint) => contrastRatio(color, tint) >= MIN_CONTRAST)) return color;
+  }
+  throw new Error(`No mix of ${line} toward ${foreground} reads on the warning tints`);
 }
 
 /** A rule with one declaration per line, hex in lower case, as Prettier formats CSS. */

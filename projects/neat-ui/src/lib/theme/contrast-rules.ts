@@ -20,6 +20,13 @@ export const MIN_NON_TEXT_CONTRAST = 3;
  */
 export const MIN_FILL_CONTRAST = 1.15;
 
+/**
+ * The minimum contrast a chip's own fill must have against the card and the page it sits on, so
+ * the chip shows as a shape and not as loose words; not a WCAG figure. The theme picks the neutral
+ * chip's fill (`--neat-chip-neutral`) by it, and the status chip spec holds the chip to it.
+ */
+export const MIN_CHIP_FILL_CONTRAST = 1.2;
+
 type ScaleStep = keyof ColorScale;
 
 /** Where a colour scheme puts text, and in which order it searches scales for a readable step. */

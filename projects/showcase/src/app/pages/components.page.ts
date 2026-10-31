@@ -57,7 +57,11 @@ import { NeatSegmented, type NeatSegmentedOption } from '@sima/neat-ui/segmented
 import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
 import { NeatColumn, NeatSelectList, type NeatSelectListGroup } from '@sima/neat-ui/select-list';
 import { NeatSlider } from '@sima/neat-ui/slider';
-import { NeatStatusChip, NeatStatusChipButton } from '@sima/neat-ui/status-chip';
+import {
+  NeatStatusChip,
+  NeatStatusChipButton,
+  type NeatStatusChipVariant,
+} from '@sima/neat-ui/status-chip';
 import { NeatSwitch } from '@sima/neat-ui/switch';
 import { NeatFigure, NeatNumeric, NeatTable } from '@sima/neat-ui/table';
 import { NeatTab, NeatTabs } from '@sima/neat-ui/tabs';
@@ -105,6 +109,7 @@ const DEMO_CHANNELS: readonly DemoChannel[] = Array.from({ length: 24 }, (_, ind
   state: index % 5 === 1 ? 'Live' : 'Idle',
 }));
 const TONES: NeatTone[] = ['neutral', 'success', 'warning', 'danger', 'info', 'highlight'];
+const CHIP_VARIANTS: NeatStatusChipVariant[] = ['solid', 'tinted'];
 /** What each tone says in the demo, as Streaming's slot states do. */
 const TONE_LABELS: Record<NeatTone, string> = {
   neutral: 'Idle',
@@ -468,22 +473,29 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
             the brand purple, is for a state that is none of the statuses but should stand out. As
             <code>button[neatStatusChip]</code> it is a button that looks the same, for a status
             that opens more about itself (a video tile's "Metadata late"). The words carry the
-            state; the colour repeats it.
+            state; the colour repeats it. <code>variant="tinted"</code> puts the tone's colour on a
+            tint of itself, for chips that label the parts of a card, as a diagram block's do (the
+            second pair of rows); neutral is the same grey in both.
           </p>
-          @for (surface of surfaces; track surface) {
-            <div class="showcase-row" [class.card]="surface === 'card'">
-              @for (tone of tones; track tone) {
-                <neat-status-chip [tone]="tone">{{ toneLabels[tone] }}</neat-status-chip>
-              }
-              <button
-                neatStatusChip
-                type="button"
-                tone="warning"
-                (click)="toasts.status('The late notice would open here.')"
-              >
-                Metadata late
-              </button>
-            </div>
+          @for (variant of chipVariants; track variant) {
+            @for (surface of surfaces; track surface) {
+              <div class="showcase-row" [class.card]="surface === 'card'">
+                @for (tone of tones; track tone) {
+                  <neat-status-chip [tone]="tone" [variant]="variant">{{
+                    toneLabels[tone]
+                  }}</neat-status-chip>
+                }
+                <button
+                  neatStatusChip
+                  type="button"
+                  tone="warning"
+                  [variant]="variant"
+                  (click)="toasts.status('The late notice would open here.')"
+                >
+                  Metadata late
+                </button>
+              </div>
+            }
           }
           <div class="chip-cell">
             <neat-status-chip tone="highlight"
@@ -1920,6 +1932,7 @@ export class ComponentsPage {
   protected readonly shapes = SHAPES;
   protected readonly tones = TONES;
   protected readonly toneLabels = TONE_LABELS;
+  protected readonly chipVariants = CHIP_VARIANTS;
   protected readonly fieldSizes = ['small', 'medium'] as const;
   protected readonly clipLengths = CLIP_LENGTHS;
   /** A server's diagnostics, on two lines. */

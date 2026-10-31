@@ -1,25 +1,36 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { contrastRatio, type NeatColorScheme, type NeatTone } from '@sima/neat-ui';
+import { MIN_CHIP_FILL_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
-import { NeatStatusChip, NeatStatusChipButton } from './status-chip';
+import { NeatStatusChip, NeatStatusChipButton, type NeatStatusChipVariant } from './status-chip';
 
 const TONES: NeatTone[] = ['neutral', 'success', 'warning', 'danger', 'info', 'highlight'];
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
+const VARIANTS: NeatStatusChipVariant[] = ['solid', 'tinted'];
 
 @Component({
   imports: [NeatStatusChip, NeatStatusChipButton],
   template: `
-    <neat-status-chip class="host-class" [tone]="tone()">Live</neat-status-chip>
+    <neat-status-chip class="host-class" [tone]="tone()" [variant]="variant()"
+      >Live</neat-status-chip
+    >
     <neat-status-chip>Idle</neat-status-chip>
-    <button neatStatusChip type="button" [tone]="tone()" (click)="presses = presses + 1">
+    <button
+      neatStatusChip
+      type="button"
+      [tone]="tone()"
+      [variant]="variant()"
+      (click)="presses = presses + 1"
+    >
       Metadata late
     </button>
   `,
 })
 class ChipHost {
   readonly tone = signal<NeatTone>('success');
+  readonly variant = signal<NeatStatusChipVariant>('solid');
   presses = 0;
 }
 
@@ -47,7 +58,9 @@ describe('NeatStatusChip', () => {
     expect(classesOf(chip)).toEqual(
       expect.arrayContaining(['bg-success', 'text-success-foreground']),
     );
-    expect(classesOf(plain)).toEqual(expect.arrayContaining(['bg-muted', 'text-muted-foreground']));
+    expect(classesOf(plain)).toEqual(
+      expect.arrayContaining(['bg-neat-chip-neutral', 'text-muted-foreground']),
+    );
   });
 
   it('follows a change of tone', async () => {
@@ -91,6 +104,49 @@ describe('NeatStatusChip', () => {
     const { chip } = await render();
 
     expect(classesOf(chip)).toEqual(expect.arrayContaining(['host-class', 'bg-success']));
+  });
+
+  describe('tinted', () => {
+    /** Each tone's tinted fill and text, as the chip states them. */
+    const TINTED: Record<NeatTone, [fill: string, text: string]> = {
+      neutral: ['bg-neat-chip-neutral', 'text-muted-foreground'],
+      success: ['bg-neat-tint-success-accent', 'text-success'],
+      warning: ['bg-neat-tint-warning-accent', 'text-neat-warning-text'],
+      danger: ['bg-neat-tint-danger-accent', 'text-destructive'],
+      info: ['bg-neat-tint-info-accent', 'text-info'],
+      highlight: ['bg-neat-tint-highlight-accent', 'text-highlight'],
+    };
+
+    it('puts each tone’s text in its colour on its tint, neutral on the neutral fill', async () => {
+      const { fixture, host, chip, button } = await render();
+      host.variant.set('tinted');
+      for (const tone of TONES) {
+        host.tone.set(tone);
+        await fixture.whenStable();
+        for (const element of [chip, button]) {
+          expect(classesOf(element), tone).toEqual(expect.arrayContaining(TINTED[tone]));
+        }
+      }
+    });
+
+    it('keeps the chip’s shape and size: only the colours change', async () => {
+      const { fixture, host, chip } = await render();
+      const solid = classesOf(chip);
+      host.variant.set('tinted');
+      await fixture.whenStable();
+      const colour = /^(bg|text)-(?!\()/;
+      expect(classesOf(chip).filter((name) => !colour.test(name))).toEqual(
+        solid.filter((name) => !colour.test(name)),
+      );
+    });
+
+    it('is not the default: a chip that does not ask for it stays solid', async () => {
+      const { chip } = await render();
+      expect(classesOf(chip)).toEqual(
+        expect.arrayContaining(['bg-success', 'text-success-foreground']),
+      );
+      expect(classesOf(chip)).not.toContain('bg-neat-tint-success-accent');
+    });
   });
 
   describe('as a button', () => {
@@ -139,17 +195,38 @@ describe('NeatStatusChip', () => {
       const tokens = spartanThemeTokens(scheme);
       const on = scheme === 'dark' ? ['dark'] : [];
 
-      it(`${scheme}: each tone’s text reaches 4.5:1 on its fill`, async () => {
+      it(`${scheme}: each tone’s text reaches 4.5:1 on its fill, solid and tinted`, async () => {
         const { fixture, host, chip } = await render();
-        for (const tone of TONES) {
-          host.tone.set(tone);
+        for (const variant of VARIANTS) {
+          host.variant.set(variant);
+          for (const tone of TONES) {
+            host.tone.set(tone);
+            await fixture.whenStable();
+            const query = { tokens, vocabulary: VOCABULARY, on };
+            const fill = stateColor(classesOf(chip), 'bg', query, tokens['background']);
+            const text = stateColor(classesOf(chip), 'text', query, fill, tokens['foreground']);
+            expect(
+              contrastRatio(text, fill),
+              `${variant} ${tone}: ${text} on ${fill}`,
+            ).toBeGreaterThanOrEqual(4.5);
+          }
+        }
+      });
+
+      it(`${scheme}: the neutral chip’s fill shows on the card and the page (${MIN_CHIP_FILL_CONTRAST}:1), solid and tinted`, async () => {
+        const { fixture, host, chip } = await render();
+        host.tone.set('neutral');
+        for (const variant of VARIANTS) {
+          host.variant.set(variant);
           await fixture.whenStable();
           const query = { tokens, vocabulary: VOCABULARY, on };
-          const fill = stateColor(classesOf(chip), 'bg', query, tokens['background']);
-          const text = stateColor(classesOf(chip), 'text', query, fill, tokens['foreground']);
-          expect(contrastRatio(text, fill), `${tone}: ${text} on ${fill}`).toBeGreaterThanOrEqual(
-            4.5,
-          );
+          for (const surface of ['card', 'background']) {
+            const fill = stateColor(classesOf(chip), 'bg', query, tokens[surface]);
+            expect(
+              contrastRatio(fill, tokens[surface]),
+              `${variant}: ${fill} on --${surface} ${tokens[surface]}`,
+            ).toBeGreaterThanOrEqual(MIN_CHIP_FILL_CONTRAST);
+          }
         }
       });
 
@@ -157,17 +234,20 @@ describe('NeatStatusChip', () => {
         const { fixture, host, chip } = await render();
         const tints = Object.keys(tokens).filter((name) => name.startsWith('neat-tint-'));
         expect(tints.length).toBeGreaterThan(0);
-        for (const tone of TONES) {
-          host.tone.set(tone);
-          await fixture.whenStable();
-          const query = { tokens, vocabulary: VOCABULARY, on };
-          for (const tint of tints) {
-            const fill = stateColor(classesOf(chip), 'bg', query, tokens[tint]);
-            const text = stateColor(classesOf(chip), 'text', query, fill, tokens['foreground']);
-            expect(
-              contrastRatio(text, fill),
-              `${tone} over --${tint}: ${text} on ${fill}`,
-            ).toBeGreaterThanOrEqual(4.5);
+        for (const variant of VARIANTS) {
+          host.variant.set(variant);
+          for (const tone of TONES) {
+            host.tone.set(tone);
+            await fixture.whenStable();
+            const query = { tokens, vocabulary: VOCABULARY, on };
+            for (const tint of tints) {
+              const fill = stateColor(classesOf(chip), 'bg', query, tokens[tint]);
+              const text = stateColor(classesOf(chip), 'text', query, fill, tokens['foreground']);
+              expect(
+                contrastRatio(text, fill),
+                `${variant} ${tone} over --${tint}: ${text} on ${fill}`,
+              ).toBeGreaterThanOrEqual(4.5);
+            }
           }
         }
       });

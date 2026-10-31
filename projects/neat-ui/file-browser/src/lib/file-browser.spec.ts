@@ -226,7 +226,7 @@ describe('NeatFileBrowser', () => {
       expect(tag.textContent!.trim()).toBe('NOT STREAMABLE');
       // The kit's chip for a fact beside a value, in its neutral tone (status-chip.spec holds it).
       expect([...tag.classList]).toEqual(
-        expect.arrayContaining(['bg-muted', 'text-muted-foreground']),
+        expect.arrayContaining(['bg-neat-chip-neutral', 'text-muted-foreground']),
       );
       expect(row('video.mp4').querySelector('neat-status-chip')).toBeNull();
 

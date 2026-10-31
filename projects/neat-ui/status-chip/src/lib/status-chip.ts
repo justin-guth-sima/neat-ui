@@ -4,8 +4,15 @@ import type { NeatTone } from '@sima/neat-ui';
 /*
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
  * them. Colours are the theme's tokens only; status-chip.spec holds each tone's text to 4.5:1 on
- * its fill in both schemes.
+ * its fill in both schemes and both variants.
  */
+
+/**
+ * How a chip carries its tone: `solid`, the default, on the tone's status fill; `tinted`, the
+ * tone's colour on a light tint of itself, for chips that label parts of a card (a diagram
+ * block's) rather than state a status beside a value.
+ */
+export type NeatStatusChipVariant = 'solid' | 'tinted';
 
 /**
  * A small label in the small text size that truncates rather than widen the column or bar it
@@ -15,14 +22,31 @@ import type { NeatTone } from '@sima/neat-ui';
 const CHIP_CLASSES =
   'inline-block max-w-full truncate rounded-(--radius) px-(--neat-space-2) align-middle text-(length:--neat-text-xs) leading-normal font-medium';
 
-/** Each tone is a fill and the text colour the theme pairs with it. */
-const TONE_CLASSES: Record<NeatTone, string> = {
-  neutral: 'bg-muted text-muted-foreground',
-  success: 'bg-success text-success-foreground',
-  warning: 'bg-warning text-warning-foreground',
-  danger: 'bg-destructive text-destructive-foreground',
-  info: 'bg-info text-info-foreground',
-  highlight: 'bg-highlight text-highlight-foreground',
+/**
+ * Each variant gives each tone a fill and a text colour. Solid: the tone's status fill and the
+ * text the theme pairs with it. Tinted: the tone's row-tint accent (`--neat-tint-<tone>-accent`,
+ * opaque) under the tone's own colour; warning's own colour is a fill, so its text is
+ * `--neat-warning-text`, the warning line mixed toward `--foreground` as far as reads on its tint.
+ * Neutral is the same in both: muted text on `--neat-chip-neutral`, a grey that shows on the card
+ * and the page in both schemes (dark `--muted` is the card's own grey).
+ */
+const TONE_CLASSES: Record<NeatStatusChipVariant, Record<NeatTone, string>> = {
+  solid: {
+    neutral: 'bg-neat-chip-neutral text-muted-foreground',
+    success: 'bg-success text-success-foreground',
+    warning: 'bg-warning text-warning-foreground',
+    danger: 'bg-destructive text-destructive-foreground',
+    info: 'bg-info text-info-foreground',
+    highlight: 'bg-highlight text-highlight-foreground',
+  },
+  tinted: {
+    neutral: 'bg-neat-chip-neutral text-muted-foreground',
+    success: 'bg-neat-tint-success-accent text-success',
+    warning: 'bg-neat-tint-warning-accent text-neat-warning-text',
+    danger: 'bg-neat-tint-danger-accent text-destructive',
+    info: 'bg-neat-tint-info-accent text-info',
+    highlight: 'bg-neat-tint-highlight-accent text-highlight',
+  },
 };
 
 /**
@@ -43,7 +67,9 @@ const BUTTON_CLASSES =
  * decoded). `highlight` is for a state that is none of the statuses but should stand out (a stream
  * that someone else publishes); a `neat-select-list` row can take the same tone as its chip
  * (`rowTone`). The words are the app's; the colour repeats them and is never the only way a state is
- * told.
+ * told. `variant="tinted"` softens the chip to its tone's colour on a tint (see TONE_CLASSES); a
+ * tinted chip belongs on the card or the page, not on a toned list row, whose selected fill is the
+ * same tint.
  */
 @Component({
   selector: 'neat-status-chip',
@@ -53,8 +79,11 @@ const BUTTON_CLASSES =
 })
 export class NeatStatusChip {
   readonly tone = input<NeatTone>('neutral');
+  readonly variant = input<NeatStatusChipVariant>('solid');
 
-  protected readonly classes = computed(() => `${CHIP_CLASSES} ${TONE_CLASSES[this.tone()]}`);
+  protected readonly classes = computed(
+    () => `${CHIP_CLASSES} ${TONE_CLASSES[this.variant()][this.tone()]}`,
+  );
 }
 
 /**
@@ -69,8 +98,9 @@ export class NeatStatusChip {
 })
 export class NeatStatusChipButton {
   readonly tone = input<NeatTone>('neutral');
+  readonly variant = input<NeatStatusChipVariant>('solid');
 
   protected readonly classes = computed(
-    () => `${CHIP_CLASSES} ${TONE_CLASSES[this.tone()]} ${BUTTON_CLASSES}`,
+    () => `${CHIP_CLASSES} ${TONE_CLASSES[this.variant()][this.tone()]} ${BUTTON_CLASSES}`,
   );
 }

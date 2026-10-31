@@ -29,13 +29,17 @@ describe('the kit stylesheet', () => {
     expect(stylesheet).toMatch(/:root\s*\{[^}]*--neat-surface:\s*var\(--background\);/);
   });
 
-  it('maps the highlight tone and every row tint to a Tailwind colour, so their utilities exist', () => {
+  it('maps the highlight tone, every row tint and the chips’ colours to a Tailwind colour, so their utilities exist', () => {
     // Spartan's preset maps its own variables; the kit's extensions need a mapping each, or a
     // class such as `bg-neat-tint-success` compiles to nothing.
+    const chipColours = ['neat-chip-neutral', 'neat-warning-text'];
     const names = Object.keys(spartanThemeTokens('light')).filter(
-      (name) => name.startsWith('highlight') || name.startsWith('neat-tint-'),
+      (name) =>
+        name.startsWith('highlight') || name.startsWith('neat-tint-') || chipColours.includes(name),
     );
-    expect(names).toEqual(expect.arrayContaining(['highlight', 'neat-tint-success-accent']));
+    expect(names).toEqual(
+      expect.arrayContaining(['highlight', 'neat-tint-success-accent', ...chipColours]),
+    );
     for (const name of names) {
       expect(stylesheet, name).toContain(`--color-${name}: var(--${name});`);
     }

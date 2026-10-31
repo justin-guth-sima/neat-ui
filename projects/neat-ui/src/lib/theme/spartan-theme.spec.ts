@@ -6,7 +6,13 @@ import {
   buildSurfaceScale,
   type ColorScale,
 } from './color-scale';
-import { along, CONTRAST_RULES, MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from './contrast-rules';
+import {
+  along,
+  CONTRAST_RULES,
+  MIN_CHIP_FILL_CONTRAST,
+  MIN_FILL_CONTRAST,
+  MIN_NON_TEXT_CONTRAST,
+} from './contrast-rules';
 import {
   NEAT_DANGER_BASE,
   NEAT_HIGHLIGHT_BASE,
@@ -40,9 +46,17 @@ const schemes = { light: rules.get(':root')!, dark: rules.get(DARK_SELECTOR)! };
 
 /**
  * Coloured text that sits directly on the page's surfaces rather than on its own fill. Warning is
- * not here: it is a fill-only colour (amber with dark text), so it need not be readable as text.
+ * a fill-only colour (amber with dark text); its text is `neat-warning-text`.
  */
-const COLORED_TEXT = ['muted-foreground', 'primary', 'destructive', 'success', 'info', 'highlight'];
+const COLORED_TEXT = [
+  'muted-foreground',
+  'primary',
+  'destructive',
+  'success',
+  'info',
+  'highlight',
+  'neat-warning-text',
+];
 /** The surfaces text sits on. */
 const TEXT_SURFACES = ['background', 'card', 'popover', 'muted'];
 /**
@@ -58,7 +72,7 @@ const TINTS = {
  * Muted text also sits on the hover and selection fill: a hovered or selected list row keeps its
  * muted cells.
  */
-const MUTED_ON_FILLS = ['accent'];
+const MUTED_ON_FILLS = ['accent', 'neat-chip-neutral'];
 /** Each tinted tone's own colour, the scale base its row tint is mixed from. */
 const ROW_TINT_BASES = {
   success: SIMA_PALETTE.green,
@@ -340,6 +354,8 @@ describe('buildSpartanThemeCss', () => {
       }
       expect(labels).toContain(`${scheme}: --primary-foreground on --primary-hover`);
       expect(labels).toContain(`${scheme}: --muted-foreground on --accent`);
+      expect(labels).toContain(`${scheme}: --muted-foreground on --neat-chip-neutral`);
+      expect(labels).toContain(`${scheme}: --neat-warning-text on --card`);
       for (const tone of Object.keys(ROW_TINT_BASES)) {
         for (const text of TEXT_ON_ROW_TINTS) {
           expect(labels).toContain(`${scheme}: --${text} on --neat-tint-${tone}`);
@@ -366,6 +382,46 @@ describe('buildSpartanThemeCss', () => {
         scheme,
       ).toBeGreaterThanOrEqual(4.5);
     }
+  });
+
+  it(`gives the neutral chip the first surface step past --muted that shows on --card and --background (${MIN_CHIP_FILL_CONTRAST}:1): light #e8e9eb, dark #2e2e2e`, () => {
+    // Dark --muted is the card's own #1e1e1e, so a neutral chip on --muted vanished on a card.
+    const walks = { light: [50, 100, 200, 300], dark: [900, 800, 700, 600] } as const;
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      const shows = (color: string) =>
+        ['--card', '--background'].every(
+          (surface) => contrastRatio(color, tokens.get(surface)!) >= MIN_CHIP_FILL_CONTRAST,
+        );
+      const step = walks[scheme].find((candidate) => shows(SURFACE_SCALES[scheme][candidate]));
+      expect(step, scheme).toBeDefined();
+      expect(tokens.get('--neat-chip-neutral'), scheme).toBe(
+        SURFACE_SCALES[scheme][step!].toLowerCase(),
+      );
+    }
+    expect(schemes.light.get('--neat-chip-neutral')).toBe('#e8e9eb');
+    expect(schemes.dark.get('--neat-chip-neutral')).toBe('#2e2e2e');
+  });
+
+  it('gives warning a text colour: its line mixed toward --foreground by the least 5% step that reads at 4.5:1 on the warning tints', () => {
+    const shareStep = 0.05;
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      const line = tokens.get('--neat-line-warning')!;
+      const foreground = tokens.get('--foreground')!;
+      const tints = ['--neat-tint-warning', '--neat-tint-warning-accent'].map((name) =>
+        tokens.get(name)!,
+      );
+      const reads = (color: string) => tints.every((tint) => contrastRatio(color, tint) >= 4.5);
+      const shares = Array.from({ length: 1 / shareStep + 1 }, (_, i) => i * shareStep);
+      const share = shares.find((candidate) => reads(mixOklab(foreground, candidate, line)));
+      expect(share, scheme).toBeDefined();
+      expect(tokens.get('--neat-warning-text'), scheme).toBe(
+        mixOklab(foreground, share!, line).toLowerCase(),
+      );
+    }
+    // Dark's line already reads on its tints, so dark's text is the line itself.
+    expect(schemes.dark.get('--neat-warning-text')).toBe(schemes.dark.get('--neat-line-warning'));
   });
 
   it('steps the primary hover one place further from the background than the primary', () => {

@@ -55,6 +55,9 @@
   --color-neat-tint-info-accent: var(--neat-tint-info-accent);
   --color-neat-tint-highlight: var(--neat-tint-highlight);
   --color-neat-tint-highlight-accent: var(--neat-tint-highlight-accent);
+  /* The neutral status chip's fill, and the tinted warning chip's text. */
+  --color-neat-chip-neutral: var(--neat-chip-neutral);
+  --color-neat-warning-text: var(--neat-warning-text);
   /* The segmented control's track, the raised thumb that slides under the chosen label, its edge. */
   --color-neat-segmented-track: var(--neat-segmented-track);
   --color-neat-segmented-thumb: var(--neat-segmented-thumb);
