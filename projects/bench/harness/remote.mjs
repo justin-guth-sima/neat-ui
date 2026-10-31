@@ -102,11 +102,14 @@ else
   echo "note no pid file"
 fi
 if [ -n "$pid" ]; then
-  if [ -r "/proc/$pid/cmdline" ] && tr '\\0' ' ' <"/proc/$pid/cmdline" | grep -qF -- "--user-data-dir=$dir/profile"; then
+  if [ -r "/proc/$pid/cmdline" ] &&
+     tr '\\0' ' ' <"/proc/$pid/cmdline" | grep -qF -- "--user-data-dir=$dir/profile"; then
     kill -TERM "$pid" 2>/dev/null
     n=0
     while kill -0 "$pid" 2>/dev/null && [ "$n" -lt 50 ]; do sleep 0.2; n=$((n+1)); done
-    if kill -0 "$pid" 2>/dev/null; then kill -KILL "$pid" 2>/dev/null; echo "note had to kill"; sleep 0.5; fi
+    if kill -0 "$pid" 2>/dev/null; then
+      kill -KILL "$pid" 2>/dev/null; echo "note had to kill"; sleep 0.5
+    fi
     echo stopped
     # Whatever of its process group is left: its children, and only they.
     left=$(ps -eo pid=,pgid= | awk -v g="$pid" '$2==g {print $1}')
@@ -201,6 +204,7 @@ export async function startRemote({
   let tunnel = null;
   let stopped = null;
   let stopRequested = false;
+  const leftover = () => `${dir}${pid ? ` and the browser (pid ${pid})` : ''}`;
   const manualCleanup = () => `ssh ${ssh} '${pid ? `kill -TERM -- -${pid}; ` : ''}rm -rf ${dir}'`;
   const stop = () => {
     stopRequested = true;
@@ -213,9 +217,7 @@ export async function startRemote({
         report = parseStopReport((await run(ssh, stopScript(dir))).stdout);
       } catch (error) {
         log(`board: could not stop the browser: ${error.message}`);
-        log(
-          `board: ${dir}${pid ? ` and the browser (pid ${pid})` : ''} may be left; remove by hand: ${manualCleanup()}`,
-        );
+        log(`board: ${leftover()} may be left; remove by hand: ${manualCleanup()}`);
         throw new Error(`the board was not cleaned up (${dir}): ${error.message}`);
       }
       log(
@@ -224,9 +226,7 @@ export async function startRemote({
           (report.notes.length ? ` (${report.notes.join('; ')})` : ''),
       );
       if (!report.removed || report.leftover > 0) {
-        log(
-          `board: ${dir}${pid ? ` and the browser (pid ${pid})` : ''} are left; remove by hand: ${manualCleanup()}`,
-        );
+        log(`board: ${leftover()} are left; remove by hand: ${manualCleanup()}`);
         throw new Error(`the board was not cleaned up (${dir}): ${manualCleanup()}`);
       }
       return report;
@@ -253,7 +253,8 @@ export async function startRemote({
     pid = launchedPid(launched.stdout);
     if (launched.code !== 0) {
       throw new Error(
-        `could not start the browser on ${ssh}: ${launched.stderr.trim() || launched.stdout.trim()}`,
+        `could not start the browser on ${ssh}: ` +
+          (launched.stderr.trim() || launched.stdout.trim()),
       );
     }
     aborted();

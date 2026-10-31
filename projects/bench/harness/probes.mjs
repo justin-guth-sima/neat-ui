@@ -6,8 +6,14 @@
 
 export const PROBE_SCRIPT = `
 echo '--loadavg'; cat /proc/loadavg
-echo '--thermal'; for z in /sys/class/thermal/thermal_zone*; do [ -r "$z/temp" ] && echo "$(cat "$z/type" 2>/dev/null) $(cat "$z/temp" 2>/dev/null)"; done
-echo '--freq'; for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq; do [ -r "$f" ] && cat "$f"; done
+echo '--thermal'
+for z in /sys/class/thermal/thermal_zone*; do
+  [ -r "$z/temp" ] && echo "$(cat "$z/type" 2>/dev/null) $(cat "$z/temp" 2>/dev/null)"
+done
+echo '--freq'
+for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq; do
+  [ -r "$f" ] && cat "$f"
+done
 echo '--governor'; cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null
 echo '--end'
 `;

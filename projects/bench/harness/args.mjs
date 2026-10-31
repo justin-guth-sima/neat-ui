@@ -99,7 +99,8 @@ function port(value, name, fallback) {
   const number = whole(value, name, 1024, fallback);
   if (number > 65535 || DEV_PORTS.includes(number)) {
     throw new UsageError(
-      `--${name}: ${number} is not a port this harness may use (4200 and 9900 are for the dev servers)`,
+      `--${name}: ${number} is not a port this harness may use ` +
+        '(4200 and 9900 are for the dev servers)',
     );
   }
   return number;

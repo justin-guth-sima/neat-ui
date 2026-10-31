@@ -3,8 +3,8 @@
 
 /**
  * The renderer order of one repeat: forward on even repeats, reversed on odd ones, so over three
- * repeats of two renderers it is K V, V K, K V and neither is always the one that follows a cool-down
- * or the one that runs on a warmer board.
+ * repeats of two renderers it is K V, V K, K V and neither is always the one that follows a
+ * cool-down or the one that runs on a warmer board.
  */
 export function runOrder(renderers, repeat) {
   return repeat % 2 === 0 ? [...renderers] : [...renderers].reverse();

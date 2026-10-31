@@ -13,7 +13,8 @@ export function toMap(metrics) {
 /**
  * A phase's cost from the samples at its two ends. `busyShare` is the main thread's task time over
  * the browser's own clock between them (`Timestamp`, seconds), so the harness's delay in asking
- * does not enter it; below the refresh limit every renderer shows full fps and this tells them apart.
+ * does not enter it; below the refresh limit every renderer shows full fps and this tells them
+ * apart.
  */
 export function diffMetrics(before, after) {
   const wallS = after.Timestamp - before.Timestamp;
