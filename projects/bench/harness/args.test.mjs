@@ -60,6 +60,16 @@ test('reads lists, numbers, flags and both spellings of a value', () => {
   assert.equal(o.screenshots, false);
 });
 
+test('traces every step with --trace alone, which is the board default', () => {
+  // No count means the whole climb (as far as --steps goes): the presented rate decides tiers, so
+  // a step the trace does not cover is judged by the recorder alone.
+  assert.equal(parseArgs([...BASE, '--trace']).traceSteps, undefined);
+  assert.equal(parseArgs([...BASE, '--trace', '--trace-steps', 'all']).traceSteps, undefined);
+  assert.equal(parseArgs([...BASE, '--trace', '--trace-steps', '4']).traceSteps, 4);
+  assert.throws(() => parseArgs([...BASE, '--trace', '--trace-steps', 'most']), /trace-steps/);
+  assert.throws(() => parseArgs([...BASE, '--trace', '--trace-steps', '0']), /trace-steps/);
+});
+
 test('refuses a ladder, renderer, input or number that is not one, saying which', () => {
   assert.throws(() => parseArgs([...BASE, '--ladders', 'A,F']), /ladder.*F/);
   assert.throws(() => parseArgs([...BASE, '--renderers', 'kit,svelte']), /renderer.*svelte/);

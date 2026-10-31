@@ -56,6 +56,35 @@ function runsText(labels) {
     : `${labels.slice(0, 3).join(', ')} and ${labels.length - 3} more`;
 }
 
+/**
+ * `steps` with the display's presented rate (`trace-check.mjs`) where a traced run has one for the
+ * same renderer, ladder, load and phase. The traced run is one per renderer and ladder and is
+ * never measured (tracing costs), so its rate stands for every repeat of that load: what the
+ * display showed is a property of the load on the renderer, and the recorder's rate it is read
+ * beside is the repeat's own.
+ */
+function withPresentedRates(steps, tracedRuns) {
+  const rates = new Map();
+  for (const run of tracedRuns) {
+    for (const step of run.steps ?? []) {
+      for (const [name, phase] of Object.entries(step.phases)) {
+        if (!Number.isFinite(phase.presentedFps)) continue;
+        rates.set(`${step.renderer}|${step.ladder}|${step.level}|${name}`, phase.presentedFps);
+      }
+    }
+  }
+  if (rates.size === 0) return steps;
+  return steps.map((step) => ({
+    ...step,
+    phases: Object.fromEntries(
+      Object.entries(step.phases).map(([name, phase]) => {
+        const presentedFps = rates.get(`${step.renderer}|${step.ladder}|${step.level}|${name}`);
+        return [name, presentedFps === undefined ? phase : { ...phase, presentedFps }];
+      }),
+    ),
+  }));
+}
+
 export function mergeRuns({
   runId,
   startedAt,
@@ -73,8 +102,11 @@ export function mergeRuns({
   const okRuns = measured.filter((run) => run.ok);
   const first = okRuns[0]?.result;
 
-  const steps = measured.flatMap((run) =>
-    run.ok ? run.steps : run.steps.map((s) => ({ ...s, failedRun: true })),
+  const steps = withPresentedRates(
+    measured.flatMap((run) =>
+      run.ok ? run.steps : run.steps.map((s) => ({ ...s, failedRun: true })),
+    ),
+    pageRuns.filter((run) => run.purpose === 'trace'),
   );
 
   const runs = pageRuns.map((run) => {

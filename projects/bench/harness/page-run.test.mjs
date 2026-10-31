@@ -271,10 +271,12 @@ test('fails a traced run whose tracing never starts', async () => {
   assert.match(out.error, /start tracing: no answer in 60 ms/);
 });
 
-/** A traced run of one step whose pan phase the page recorded at 60 fps. */
-function traced(draws) {
+/** A traced run of one step whose `phase` (pan) the page recorded at 60 fps. */
+function traced(draws, { phase = 'pan', msgsPerSec = 0 } = {}) {
   const result = {
-    steps: [stepResult(0, { phases: { pan: { fps: 60, frames: 60 } } })],
+    steps: [
+      stepResult(0, { params: { msgsPerSec }, phases: { [phase]: { fps: 60, frames: 60 } } }),
+    ],
     warnings: [],
     runId: 'p1',
   };
@@ -293,8 +295,8 @@ function traced(draws) {
     script: async (emit) => {
       emit(BEGIN);
       emit({ type: 'step-begin', step: 0, level: 1 });
-      emit({ type: 'phase-begin', step: 0, phase: 'pan' });
-      emit({ type: 'phase-end', step: 0, phase: 'pan' });
+      emit({ type: 'phase-begin', step: 0, phase });
+      emit({ type: 'phase-end', step: 0, phase });
       emit({ type: 'step-end', step: 0, result: result.steps[0] });
       emit({ type: 'run-end' });
     },
@@ -313,6 +315,47 @@ test('checks a traced run’s recorder against its own trace', async () => {
     const bad = await run(traced(45), { trace: true, files });
     assert.equal(bad.recorderCheck.ok, false);
     assert.equal(bad.ok, true, 'a disagreement is a warning, not a failed run');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('records the display’s presented rate in the phases whose view changes every frame', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'bench-trace-'));
+  try {
+    const files = { trace: join(dir, 'x.gz'), traceName: 'x.gz' };
+    const pan = await run(traced(54), { trace: true, files });
+    assert.equal(pan.steps[0].phases.pan.presentedFps, 54);
+    assert.equal(pan.steps[0].phases.pan.fps, 60, 'the recorder’s rate stays beside it');
+
+    // Messages in flight move the dots in a phase with no gesture, so it is counted too.
+    const moving = await run(traced(48, { phase: 'idle', msgsPerSec: 800 }), {
+      trace: true,
+      files,
+    });
+    assert.equal(moving.steps[0].phases.idle.presentedFps, 48);
+
+    // An idle phase of a step with nothing in flight may rightly draw nothing: no rate.
+    const still = await run(traced(48, { phase: 'idle' }), { trace: true, files });
+    assert.equal(still.steps[0].phases.idle.presentedFps, undefined);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('gives no presented rate, and says so, where a trace shows no draw in a moving phase', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'bench-trace-'));
+  try {
+    const out = await run(traced(0, { phase: 'idle', msgsPerSec: 800 }), {
+      trace: true,
+      files: { trace: join(dir, 'x.gz'), traceName: 'x.gz' },
+    });
+    assert.equal(out.ok, true);
+    assert.equal(out.steps[0].phases.idle.presentedFps, undefined);
+    assert.ok(
+      out.notes.some((note) => /no presented rate.*1 phase/.test(note)),
+      out.notes.join('|'),
+    );
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

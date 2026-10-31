@@ -35,12 +35,13 @@ const run = promisify(execFile);
 const SESSION_MS = 30_000;
 
 /** The recorder check's outcome in a line of the log. */
-function checkSummary({ ok, worstPct, compared, skipped }) {
+function checkSummary({ ok, worstPct, compared, skipped, unreadable = 0 }) {
   if (skipped) return `recorder against trace: not checked (${skipped})`;
-  if (ok === null) return 'recorder against trace: nothing to compare';
+  const unread = unreadable > 0 ? `; trace unreadable for ${unreadable} phases` : '';
+  if (ok === null) return `recorder against trace: nothing to compare${unread}`;
   return (
     `recorder against trace: ${ok ? 'within' : 'OUTSIDE'} 3 % over ${compared} phases ` +
-    `(worst ${worstPct.toFixed(1)} %)`
+    `(worst ${worstPct.toFixed(1)} %)${unread}`
   );
 }
 

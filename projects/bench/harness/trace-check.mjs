@@ -11,6 +11,10 @@
 // changed, and in an idle or held phase a page may change nothing for many frames, so fewer draws
 // than rAF frames would say nothing about the recorder. A pan or a zoom changes the view in every
 // frame, so there each rAF frame must have been drawn.
+//
+// The same draws give the presented rate: what the display showed per second in such a phase,
+// which is what a user sees. The results take the lower of it and the recorder's rate, since a
+// frame the page produced and the display never drew was not seen.
 
 /** The design's bound: the two rates may differ by this share of the recorder's. */
 export const CHECK_TOLERANCE = 0.03;
@@ -55,49 +59,108 @@ export function tracedPhases(steps) {
       fps: result.fps,
       fromS: result.cdp?.fromS,
       toS: result.cdp?.toS,
+      // Messages in flight move their dots in every frame of every phase of the step.
+      moving: (step.params?.msgsPerSec ?? 0) > 0,
       ...(result.partial ? { partial: true } : {}),
     })),
   );
 }
 
+/** Whether `phase` has a window the trace can be laid against. */
+const hasWindow = ({ fromS, toS, partial }) =>
+  !partial && Number.isFinite(fromS) && Number.isFinite(toS) && toS > fromS;
+
+/** The draws in a phase's window. */
+const drawsIn = (drawsS, { fromS, toS }) => lowerBound(drawsS, toS) - lowerBound(drawsS, fromS);
+
 /**
  * The recorder's rate against the display's, per compared phase: `drawsS` from `drawTimes`,
- * `phases` from `tracedPhases`. `ok` is true when every compared phase is within `tolerance`, false
+ * `phases` from `tracedPhases`. `ok` is true when every compared phase is within its bound, false
  * when one is not, and null when none could be compared (nothing was checked, which is not a pass).
- * `diffPct` is the display's rate over the recorder's, minus one, as a percentage.
+ * `diffPct` is the display's rate over the recorder's, minus one, as a percentage. The bound is
+ * `tolerance` or one draw over the phase's window, whichever is larger: the count over a window
+ * is only good to a draw, and one is more than 3 % of a short phase at a low rate. A phase in
+ * which the display drew nothing is `unreadable`: a trace without the event (another Chromium, a
+ * missing category) would read as a recorder that is 100 % wrong, which says nothing about the
+ * recorder.
  */
 export function compareRecorder(drawsS, phases, tolerance = CHECK_TOLERANCE) {
   const rows = [];
   for (const phase of phases) {
-    const { fromS, toS } = phase;
     // A phase cut short by an aborted step covers part of its window; one without a window had its
     // counters missing. Neither can be laid against the trace.
-    if (!COMPARED_PHASES.has(phase.phase) || phase.partial) continue;
-    if (!(Number.isFinite(fromS) && Number.isFinite(toS) && toS > fromS)) continue;
-    const draws = lowerBound(drawsS, toS) - lowerBound(drawsS, fromS);
-    const traceFps = draws / (toS - fromS);
-    const diffPct = (traceFps / phase.fps - 1) * 100;
-    rows.push({
+    if (!COMPARED_PHASES.has(phase.phase) || !hasWindow(phase)) continue;
+    const { fromS, toS } = phase;
+    const draws = drawsIn(drawsS, phase);
+    const row = {
       step: phase.step,
       level: phase.level,
       phase: phase.phase,
       recorderFps: phase.fps,
-      traceFps,
-      diffPct,
-      ok: Math.abs(diffPct) <= tolerance * 100,
-    });
+    };
+    if (draws === 0) {
+      rows.push({ ...row, unreadable: true });
+      continue;
+    }
+    const traceFps = draws / (toS - fromS);
+    const diffPct = (traceFps / phase.fps - 1) * 100;
+    const allowedPct = Math.max(tolerance * 100, 100 / (toS - fromS) / phase.fps);
+    rows.push({ ...row, traceFps, diffPct, allowedPct, ok: Math.abs(diffPct) <= allowedPct });
   }
-  const worstPct = rows.reduce(
+  const readable = rows.filter((row) => !row.unreadable);
+  const worstPct = readable.reduce(
     (worst, row) => (Math.abs(row.diffPct) > Math.abs(worst) ? row.diffPct : worst),
     0,
   );
   return {
-    ok: rows.length === 0 ? null : rows.every((row) => row.ok),
+    ok: readable.length === 0 ? null : readable.every((row) => row.ok),
     tolerance,
-    compared: rows.length,
+    compared: readable.length,
+    unreadable: rows.length - readable.length,
     worstPct,
     rows,
   };
+}
+
+/**
+ * The display's presented rate in each phase whose view changes in every frame: a pan or a zoom
+ * (not of the `none` host, which an empty box no gesture moves) and every phase of a step with
+ * messages in flight. `rates` is `[{ step, phase, presentedFps }]` for the phases the trace can
+ * speak of; `unreadable` counts the ones that should have drawn and show no draw, which get no
+ * rate (the recorder's alone judges them, with the check saying why).
+ */
+export function presentedRates(drawsS, phases, { renderer } = {}) {
+  const rates = [];
+  let unreadable = 0;
+  for (const phase of phases) {
+    const gesture = COMPARED_PHASES.has(phase.phase) && !UNMOVED.has(renderer);
+    if (!(gesture || phase.moving) || !hasWindow(phase)) continue;
+    const draws = drawsIn(drawsS, phase);
+    if (draws === 0) {
+      unreadable++;
+      continue;
+    }
+    rates.push({
+      step: phase.step,
+      phase: phase.phase,
+      presentedFps: draws / (phase.toS - phase.fromS),
+    });
+  }
+  return { rates, unreadable };
+}
+
+/** `steps` with each phase's `presentedFps` from `rates` (`presentedRates`); the input is kept. */
+export function withPresentedFps(steps, rates) {
+  const byPhase = new Map(rates.map((rate) => [`${rate.step}/${rate.phase}`, rate.presentedFps]));
+  return steps.map((step) => ({
+    ...step,
+    phases: Object.fromEntries(
+      Object.entries(step.phases).map(([name, result]) => {
+        const presentedFps = byPhase.get(`${step.step}/${name}`);
+        return [name, presentedFps === undefined ? result : { ...result, presentedFps }];
+      }),
+    ),
+  }));
 }
 
 /** A trace as `Tracing` returns it: JSON text, or a buffer of it, with `traceEvents` or bare. */
@@ -124,16 +187,18 @@ const UNMOVED = new Set(['none']);
  * The check of a traced run of `renderer`: its raw trace against its phases (`tracedPhases`). A
  * renderer the gestures move nothing in is left out, saying why in `skipped`.
  */
-export function checkRecorderAgainstTrace(
-  raw,
-  phases,
-  { renderer, tolerance = CHECK_TOLERANCE } = {},
-) {
+export function checkRecorderAgainstTrace(raw, phases, options = {}) {
+  return checkDraws(drawTimes(readTraceEvents(raw)), phases, options);
+}
+
+/** `checkRecorderAgainstTrace` for a trace already read (`drawTimes`). */
+export function checkDraws(drawsS, phases, { renderer, tolerance = CHECK_TOLERANCE } = {}) {
   if (UNMOVED.has(renderer)) {
     return {
       ok: null,
       tolerance,
       compared: 0,
+      unreadable: 0,
       worstPct: 0,
       rows: [],
       skipped:
@@ -141,7 +206,7 @@ export function checkRecorderAgainstTrace(
         'to count',
     };
   }
-  return compareRecorder(drawTimes(readTraceEvents(raw)), phases, tolerance);
+  return compareRecorder(drawsS, phases, tolerance);
 }
 
 /**
@@ -149,18 +214,27 @@ export function checkRecorderAgainstTrace(
  * are then to be read with it (design 1.4). Said once per traced run.
  */
 export function recorderCheckWarning(label, check) {
-  if (check.ok === true || check.skipped) return null;
+  if (check.skipped) return null;
+  const unreadable =
+    check.unreadable > 0
+      ? `the trace holds no display draws in ${check.unreadable} gesture phases, which are ` +
+        'therefore not checked (trace unreadable for them)'
+      : null;
+  if (check.ok === true) return unreadable && `${label}: ${unreadable}.`;
   if (check.ok === null) {
-    return (
-      `${label}: the recorder could not be checked against the trace (no pan or zoom phase with ` +
-      'a window), so its numbers on this machine are unvalidated.'
-    );
+    return unreadable
+      ? `${label}: the recorder could not be checked: ${unreadable}, so its numbers on this ` +
+          'machine are unvalidated.'
+      : `${label}: the recorder could not be checked against the trace (no pan or zoom phase ` +
+          'with a window), so its numbers on this machine are unvalidated.';
   }
-  const worst = check.rows.reduce((a, b) => (Math.abs(b.diffPct) > Math.abs(a.diffPct) ? b : a));
+  const failed = check.rows.filter((row) => row.ok === false);
+  const worst = failed.reduce((a, b) => (Math.abs(b.diffPct) > Math.abs(a.diffPct) ? b : a));
   return (
     `${label}: the recorder and the trace disagree by more than ${check.tolerance * 100} % ` +
-    `(${check.rows.filter((row) => !row.ok).length} of ${check.compared} gesture phases; worst: ` +
-    `step ${worst.step} ${worst.phase}, ${worst.recorderFps.toFixed(1)} fps recorded against ` +
-    `${worst.traceFps.toFixed(1)} drawn). Read the recorder's numbers for this machine with care.`
+    `(and one draw, in a short phase; ${failed.length} of ${check.compared} gesture phases; ` +
+    `worst: step ${worst.step} ${worst.phase}, ${worst.recorderFps.toFixed(1)} fps recorded ` +
+    `against ${worst.traceFps.toFixed(1)} drawn). Read the recorder's numbers for this machine ` +
+    `with care.${unreadable ? ` Also: ${unreadable}.` : ''}`
   );
 }

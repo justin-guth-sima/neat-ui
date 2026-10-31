@@ -8,7 +8,14 @@ import { dirname } from 'node:path';
 import { createInputBridge } from './input-bridge.mjs';
 import { createBoundaryRecorder, toMap } from './metrics.mjs';
 import { pageUrl } from './schedule.mjs';
-import { checkRecorderAgainstTrace, tracedPhases } from './trace-check.mjs';
+import {
+  checkDraws,
+  drawTimes,
+  presentedRates,
+  readTraceEvents,
+  tracedPhases,
+  withPresentedFps,
+} from './trace-check.mjs';
 import { createWatchdog, runLimitMs, stepLimitMs, withTimeout } from './watchdog.mjs';
 
 /** Loading the page, calibrating and routing to the host, before the page says it will climb. */
@@ -17,13 +24,11 @@ const CDP_MS = 15_000;
 /** Opening the CDP session, enabling its domain, starting a trace, reading the inspection. */
 const SETUP_MS = CDP_MS;
 const LIMITS = { startMs: START_MS, stepMs: stepLimitMs, runMs: runLimitMs, setupMs: SETUP_MS };
-const TRACE_CATEGORIES = [
-  'devtools.timeline',
-  'disabled-by-default-devtools.timeline',
-  'disabled-by-default-devtools.timeline.frame',
-  'blink.user_timing',
-  'viz',
-];
+// Only what the check reads: the display compositor's draws (`Display::DrawAndSwap`) are in `viz`.
+// A board campaign traces every step, so a trace must stay as small as its use allows; the
+// timeline categories a DevTools Performance panel needs are left out on purpose (a trace for
+// reading by eye is a run of its own with them added).
+const TRACE_CATEGORIES = ['viz'];
 
 /**
  * A promise that resolves with `value` after `ms`, and a way to stop its timer (a pending one
@@ -237,11 +242,22 @@ export async function runOnePage({
         await writeFile(files.trace, gzipSync(raw));
         run.trace = files.traceName;
         // The recorder against what the browser says it drew (design 1.4): a disagreement is the
-        // run's warning, never its failure, and a trace that cannot be read is a note.
+        // run's warning, never its failure, and a trace that cannot be read is a note. The same
+        // draws give the presented rate of the phases whose view changes in every frame.
         try {
-          run.recorderCheck = checkRecorderAgainstTrace(raw, tracedPhases(run.steps ?? []), {
+          const drawsS = drawTimes(readTraceEvents(raw));
+          const phases = tracedPhases(run.steps ?? []);
+          run.recorderCheck = checkDraws(drawsS, phases, { renderer: schedule.renderer });
+          const { rates, unreadable } = presentedRates(drawsS, phases, {
             renderer: schedule.renderer,
           });
+          run.steps = withPresentedFps(run.steps ?? [], rates);
+          if (unreadable > 0) {
+            run.notes.push(
+              `no presented rate for ${unreadable} ${unreadable === 1 ? 'phase' : 'phases'} in ` +
+                'which the trace shows no display draw: the recorder’s rate alone judges them',
+            );
+          }
         } catch (error) {
           run.notes.push(`recorder check not made: ${error.message}`);
         }

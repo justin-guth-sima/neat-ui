@@ -1,9 +1,9 @@
 // The browser's own counters at the page's boundaries (design 1.4): `Performance.getMetrics` at
 // each phase's start and end, diffed, gives every phase's script, style and layout cost for every
-// frame, not only the long ones; at a step's end the DOM counters and heap. The page reports each
-// boundary (`benchEvent`, `bench-bridge.ts`); the recorder samples there, one sample at a time and
-// in the order the events came, so a slow answer never reorders the windows. A sample that
-// fails costs that phase its numbers and a warning, never the run.
+// frame, not only the long ones, and the heap where it ended; at a step's end the DOM counters.
+// The page reports each boundary (`benchEvent`, `bench-bridge.ts`); the recorder samples there,
+// one sample at a time and in the order the events came, so a slow answer never reorders the
+// windows. A sample that fails costs that phase its numbers and a warning, never the run.
 
 /** CDP's `[{ name, value }]` as a map. */
 export function toMap(metrics) {
@@ -30,6 +30,9 @@ export function diffMetrics(before, after) {
     styleMs: (after.RecalcStyleDuration - before.RecalcStyleDuration) * 1000,
     layoutMs: (after.LayoutDuration - before.LayoutDuration) * 1000,
     busyShare: wallS > 0 ? taskS / wallS : null,
+    // The heap in use where the phase ended, not a difference: over a soak's phases it is the
+    // trend that says whether anything grows (the step's own reading, at its end, is one point).
+    heapBytes: after.JSHeapUsedSize,
     styleCount: after.RecalcStyleCount - before.RecalcStyleCount,
     layoutCount: after.LayoutCount - before.LayoutCount,
   };

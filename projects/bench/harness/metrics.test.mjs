@@ -55,6 +55,14 @@ test('keeps the browser clock at both ends, where a trace places the window', ()
   assert.equal(cdp.toS, 103.5);
 });
 
+test('keeps the heap in use at the phase’s end, so a soak shows growth phase by phase', () => {
+  const cdp = diffMetrics(
+    sample({ JSHeapUsedSize: 5_000_000 }),
+    sample({ Timestamp: 103, JSHeapUsedSize: 6_250_000 }),
+  );
+  assert.equal(cdp.heapBytes, 6_250_000);
+});
+
 test('has no busy share where no time passed between the samples', () => {
   assert.equal(diffMetrics(sample(), sample()).busyShare, null);
 });

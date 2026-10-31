@@ -236,6 +236,45 @@ test('lists a traced run but keeps its steps out of the measurements: tracing co
   assert.ok(!run.warnings.some((w) => w.includes('only in the traced run')));
 });
 
+test('lays a traced run’s presented rates over the measured steps of the same load', () => {
+  const kit = (repeat, level = 1) =>
+    ok(
+      { ladder: 'A', renderer: 'kit', repeat },
+      {
+        steps: [step({ level, repeat, phases: { idle: { fps: 60 }, pan: { fps: 60 } } })],
+      },
+    );
+  const traced = ok(
+    { ladder: 'A', renderer: 'kit', repeat: 0 },
+    {
+      purpose: 'trace',
+      steps: [
+        step({
+          level: 1,
+          phases: { idle: { fps: 60 }, pan: { fps: 60, presentedFps: 51.5 } },
+        }),
+        step({ level: 2, step: 1, phases: { pan: { fps: 60, presentedFps: 40 } } }),
+      ],
+    },
+  );
+  const vflow = ok(V0);
+
+  const run = mergeRuns({
+    ...INPUT,
+    pageRuns: [kit(0), kit(1), kit(2, 4), vflow, traced],
+  });
+
+  const kitSteps = run.steps.filter((s) => s.renderer === 'kit');
+  // Every repeat of the load the trace covered gets its rate, where the trace measured one.
+  assert.deepEqual(
+    kitSteps.map((s) => s.phases.pan.presentedFps),
+    [51.5, 51.5, undefined],
+  );
+  assert.equal(kitSteps[0].phases.idle.presentedFps, undefined);
+  assert.equal(run.steps.find((s) => s.renderer === 'vflow').phases.idle.presentedFps, undefined);
+  assert.equal(run.steps.length, 4, 'the traced run’s own steps stay out of the measurements');
+});
+
 test('keeps a traced run’s recorder check and warns where it failed', () => {
   const failed = {
     ok: false,

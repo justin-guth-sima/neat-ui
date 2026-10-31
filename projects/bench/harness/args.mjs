@@ -47,7 +47,9 @@ Remote browser (--target remote)
 
 Output
   --out projects/bench/results   run files, screenshots and traces (gitignored)
-  --trace                    one extra run per renderer and ladder, traced (--trace-steps N levels)
+  --trace                    one extra run per renderer and ladder, traced: the display's draws give
+                             the presented rate that decides the tier (all steps, the board default)
+  --trace-steps N|all        trace only the first N levels (default all, as far as --steps goes)
   --no-screenshots           no screenshot of the last step of each run
   --allow-unfair             go on, with a warning in every result, when the fairness check
                              between the kit and vflow fails (otherwise the run stops)`;
@@ -93,6 +95,11 @@ function whole(value, name, least, fallback) {
     throw new UsageError(`--${name} is a whole number from ${least}, not "${value}"`);
   }
   return number;
+}
+
+/** How many levels a traced run climbs: a count, or every one (undefined: as far as --steps). */
+function traceSteps(value) {
+  return value === 'all' ? undefined : whole(value, 'trace-steps', 1, undefined);
 }
 
 function port(value, name, fallback) {
@@ -190,7 +197,7 @@ export function parseArgs(argv) {
     seed: whole(v.seed, 'seed', 0, 1),
     refine: v.refine ?? false,
     trace: v.trace ?? false,
-    traceSteps: whole(v['trace-steps'], 'trace-steps', 1, 1),
+    traceSteps: traceSteps(v['trace-steps']),
     input,
     ssh: v.ssh,
     out: v.out ?? 'projects/bench/results',
