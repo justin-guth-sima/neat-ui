@@ -639,8 +639,11 @@ describe('NeatDiagramView’s hover, levels and words', () => {
 
       await view.pointer('pointerleave', view.host);
       expect(view.dimmed()).toEqual([]);
+      // At the diagram's dim, which the messaging layer's dots take too.
       const rule = /\n\.dim \{([^}]*)\}/.exec(diagramStyles)?.[1] ?? '';
-      expect(rule).toMatch(/opacity: 0\.25;/);
+      expect(rule).toMatch(/opacity: var\(--diagram-dim\);/);
+      const host = /\n:host \{([^}]*)\}/.exec(diagramStyles)?.[1] ?? '';
+      expect(host).toMatch(/--diagram-dim: 0\.25;/);
     });
 
     it('puts an edge in focus with its ends and its notes, by its hit path', async () => {

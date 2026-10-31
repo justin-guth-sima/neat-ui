@@ -47,6 +47,8 @@ export interface DrawnEdge {
   /** The app's edge, for its tip's template and its words. */
   readonly edge: NeatDiagramEdge;
   readonly path: string;
+  /** Its route's corners, ends included (`EdgeLayout.points`): what the messages sample. */
+  readonly points: readonly Point[];
   /** The CSS colour its line and tips take. */
   readonly colour: string;
   readonly line: NeatDiagramLine;
@@ -149,6 +151,7 @@ function drawEdge(edge: NeatDiagramEdge, layout: EdgeLayout): DrawnEdge {
     id: edge.id,
     edge,
     path: layout.path,
+    points: layout.points,
     colour: lineColour(edge.series, edge.line, `edge "${edge.id}"`),
     line: edge.line ?? 'solid',
     tips,

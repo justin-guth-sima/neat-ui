@@ -1,9 +1,21 @@
-import { ChangeDetectionStrategy, Component, computed, signal, viewChildren } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+  viewChild,
+  viewChildren,
+} from '@angular/core';
 import { NeatButton, NeatIcon, NeatPage, NeatPageToolbar } from '@sima/neat-ui';
 import {
   NeatDiagramBlockTemplate,
   NeatDiagramEdgeTipTemplate,
   NeatDiagramLegend,
+  NeatDiagramMessages,
   NeatDiagramNoteTemplate,
   NeatDiagramView,
 } from '@sima/neat-ui/diagram';
@@ -15,7 +27,15 @@ import {
   MODEL_LEGEND,
   PIPELINE,
   PIPELINE_LEGEND,
+  PIPELINE_MESSAGE_STEPS,
 } from './diagram-examples';
+
+/** The pipeline's feed: a camera frame every 33 ms (30 Hz) and a result every third (10 Hz). */
+const FRAME_MS = 33;
+const RESULT_EVERY = 3;
+/** The edges each kind of message travels, on the overview and in the Detector's level. */
+const FRAME_EDGES = ['camera-decode', 'decode-detector', 'decode-resize'];
+const RESULT_EDGES = ['detector-tracker', 'nms-tracker', 'tracker-gateway', 'gateway-browser'];
 
 /**
  * The diagram entry: the reference sheet's three examples, each with its legend, and the
@@ -24,10 +44,12 @@ import {
 @Component({
   selector: 'app-diagram-page',
   imports: [
+    DecimalPipe,
     NeatButton,
     NeatDiagramBlockTemplate,
     NeatDiagramEdgeTipTemplate,
     NeatDiagramLegend,
+    NeatDiagramMessages,
     NeatDiagramNoteTemplate,
     NeatDiagramView,
     NeatIcon,
@@ -66,10 +88,12 @@ import {
               Frames for the machines, a band for the cable, and a figure line in Decode from the
               app's <code>neatDiagramBlock</code>. The Detector opens a level placed by
               <code>neatDrillDownLevel</code>: its steps inside, what feeds it left, what it feeds
-              right.
+              right. A timer feeds <code>neat-diagram-messages</code> camera frames at 30 Hz and
+              results at 10 Hz; inside the Detector, the dots wait out its stage times.
             </p>
             <neat-diagram-legend [items]="pipelineLegend" />
             <neat-diagram class="diagram" [diagram]="pipeline" label="A messaging pipeline">
+              <neat-diagram-messages #messages [steps]="pipelineSteps" />
               <ng-template neatDiagramBlock let-node>
                 @if (node.id === 'decode') {
                   <span class="figure">30.0 fps · 1080p</span>
@@ -77,7 +101,9 @@ import {
               </ng-template>
               <ng-template neatDiagramNote let-note>
                 @if (note.id === 'tracker-rate') {
-                  <b>Tracker → Gateway</b><br />30.0 msg/s · 6 kB/s
+                  @let rate = messages.rate('tracker-gateway')();
+                  <b>Tracker → Gateway</b><br />{{ rate.msgsPerSec | number: '1.1-1' }} msg/s ·
+                  {{ rate.bytesPerSec / 1000 | number: '1.0-0' }} kB/s
                 }
               </ng-template>
             </neat-diagram>
@@ -131,6 +157,7 @@ import {
 export class DiagramPage {
   protected readonly pipeline = PIPELINE;
   protected readonly pipelineLegend = PIPELINE_LEGEND;
+  protected readonly pipelineSteps = PIPELINE_MESSAGE_STEPS;
   protected readonly compileFlow = COMPILE_FLOW;
   protected readonly compileLegend = COMPILE_LEGEND;
   protected readonly modelGraph = MODEL_GRAPH;
@@ -139,6 +166,25 @@ export class DiagramPage {
   protected readonly level = signal<string[]>([]);
   protected readonly levelText = computed(() => JSON.stringify(this.level()));
   private readonly diagrams = viewChildren(NeatDiagramView);
+  private readonly messages = viewChild.required(NeatDiagramMessages);
+
+  constructor() {
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      let tick = 0;
+      const feed = setInterval(() => {
+        const messages = this.messages();
+        // A frame of about 150 kB, a result of about 2 kB, give or take, as a real feed varies.
+        for (const edge of FRAME_EDGES) messages.push(edge, 140_000 + Math.random() * 20_000);
+        if (tick++ % RESULT_EVERY === 0) {
+          for (const edge of RESULT_EDGES) messages.push(edge, 1_500 + Math.random() * 1_000);
+        }
+        messages.stageMs('detector', 'resize', 3 + Math.random());
+        messages.stageMs('detector', 'yolox', 14 + 2 * Math.random());
+      }, FRAME_MS);
+      destroyRef.onDestroy(() => clearInterval(feed));
+    });
+  }
 
   protected fit(): void {
     for (const diagram of this.diagrams()) diagram.fit();

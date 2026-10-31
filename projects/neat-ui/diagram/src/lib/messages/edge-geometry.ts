@@ -38,9 +38,12 @@ export class EdgeGeometry {
   /**
    * The point `t` of the way along the shape by length (0 at its start, 1 at its end, clamped),
    * written into `into` and returned, so a caller moving dots every frame allocates nothing.
+   * `xy` is the same samples in other coordinates (the layer's, mapped to the screen once per pan
+   * or zoom): a transform that scales both axes alike keeps the shares of the length, so the table
+   * measured in diagram units finds the point there too.
    */
-  at(t: number, into: Point): Point {
-    const { lut, xy } = this;
+  at(t: number, into: Point, xy: Float32Array = this.xy): Point {
+    const { lut } = this;
     const last = lut.length - 1;
     const target = (t > 0 ? Math.min(t, 1) : 0) * this.length;
     if (last < 1 || target <= 0) {

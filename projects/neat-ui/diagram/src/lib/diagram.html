@@ -205,6 +205,12 @@
 </div>
 
 <!--
+  The messaging layer, over the whole drawing in the box's own coordinates (it maps through the
+  transform itself), under the bar and the tip.
+-->
+<ng-content select="neat-diagram-messages" />
+
+<!--
   A block's card: its label, detail, the app's body and its chips. Spans only, since an open
   block's card is a button, which holds phrasing content.
 -->

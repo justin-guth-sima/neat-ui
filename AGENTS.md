@@ -82,8 +82,8 @@ look happens in one place. Every rule here protects that.
     `NeatStackedChart` and `NeatHeatmap`, `NeatChartCard`, the card they sit on, and the
     primary's `NeatSeriesSwatch` again; with `diagram`, the only code that imports d3), `diagram`
     (hand-placed diagrams: their model, `NeatDiagramView` (`neat-diagram`) with its templates,
-    `NeatDiagramLegend` (`neat-diagram-legend`) and `neatDrillDownLevel`; how it draws is under
-    "How the diagram is drawn" below),
+    `NeatDiagramLegend` (`neat-diagram-legend`), `NeatDiagramMessages` (`neat-diagram-messages`)
+    and `neatDrillDownLevel`; how it draws is under "How the diagram is drawn" below),
     each exporting that component and its types; and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
@@ -299,8 +299,30 @@ the whole in the kit's look.
   any other item shows a short sample of its line (solid when unset) drawn by the edges' own rules
   in the colour its edges take, muted for a ghost, without a series or for a series not 1 to 8.
   The app places the legend (above the diagram, or over it).
+- **The messages** (`messages/`): `neat-diagram-messages`, projected into `neat-diagram`, draws the
+  messages an app feeds by id: `push(edgeId, bytes, atMs?)` per message (`atMs` on the
+  `performance.now()` clock) and `stageMs(nodeId, stage, ms)` for the stage times. A message on a
+  drawn edge is a dot along it, radius by bytes, travel time by the edge's length at `speed`
+  (`NeatDiagramMessageSettings { speed, size, every, steps }`, the demo's 270 units/s, every Nth
+  message with `every`), in its edge's colour or the series `colours` names. `steps` (keyed by edge
+  id, `NeatDiagramMessageStep { from, stage, shares?, passive? }`) are edges inside a block no
+  message feeds: a dot arriving at a step's start goes on once the stage's time has passed, along
+  the chain; a `passive` edge's messages start no steps. `rate(edgeId)` is a signal of messages and
+  bytes per second and a 60 s history, refreshed at 12 Hz while something reads it. Every edge of
+  every level counts, so a level opens with its numbers; an id that is no edge of the diagram is
+  ignored, which keeps the rates' memory bounded by the diagram. The performance rules: one canvas
+  over the drawing, sized to the layer's own box at the device pixel ratio, sprites per colour, edge
+  shapes sampled once per layout and mapped to the screen once per pan or zoom, nothing allocated
+  and no signal written per dot or per frame, at most `MAX_DOTS` (16 384) dots with the oldest
+  dropped, frames only while a dot moves and never while the page is hidden. Dots go behind the
+  blocks and notes, fade with the hover (`--diagram-dim`), scale with the zoom and recolour with
+  the scheme (`neatThemeColors`); under reduced motion each message is a brief mark at its edge's
+  end. The layer reaches the diagram only through an internal context token (the drawn level's
+  edges, the covers, the focus, the transform and a hook for its changes), so a benchmark can
+  provide it over another renderer, with an internal per-frame probe; neither is public.
 - What stays internal: the routing, the port layout, the notes' placement and measurement, the fit
-  maths, the pan and zoom, the hover and the level path.
+  maths, the pan and zoom, the hover, the level path, and the messaging layer's models, canvas,
+  context token and frame probe.
 
 **What entries share goes through the primary under a `ɵ` prefix.** The vendored helm code
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,

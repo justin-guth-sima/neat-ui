@@ -63,4 +63,14 @@ describe('EdgeGeometry', () => {
     expect(lone.length).toBe(0);
     expect(lone.at(0.5, at)).toEqual({ x: 7, y: 8 });
   });
+
+  it('finds the point in samples mapped to other coordinates by the same table', () => {
+    const geometry = EdgeGeometry.fromPoints([
+      { x: 0, y: 10 },
+      { x: 400, y: 10 },
+    ]);
+    // Scaled by 2 and moved by (5, 7), as the layer maps the samples to the screen.
+    const screen = geometry.xy.map((v, i) => 2 * v + (i % 2 === 0 ? 5 : 7));
+    expect(geometry.at(0.25, { x: 0, y: 0 }, screen)).toEqual({ x: 205, y: 27 });
+  });
 });

@@ -72,6 +72,14 @@ describe('the diagram page', () => {
     expect(pipeline.querySelector('[data-node="camera"] .body')?.textContent?.trim()).toBe('');
   });
 
+  it('moves the pipeline’s messages, its note reading an edge’s rate', () => {
+    const pipeline = figure('A messaging pipeline');
+    expect(pipeline.querySelector('neat-diagram-messages canvas')).not.toBeNull();
+    expect(pipeline.querySelector('[data-note="tracker-rate"]')?.textContent).toMatch(
+      /Tracker → Gateway\s*[\d.]+ msg\/s · [\d,]+ kB\/s/,
+    );
+  });
+
   it('shows a ghost and a muted block and a note in the compile flow', () => {
     const flow = figure('A compile flow');
     expect(flow.querySelector('[data-node="accuracy"]')?.getAttribute('data-look')).toBe('ghost');

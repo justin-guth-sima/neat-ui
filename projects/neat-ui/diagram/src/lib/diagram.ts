@@ -23,6 +23,12 @@ import { BRACE_HEIGHT, describeLevel, drawLevel } from './drawing';
 import { levelExtent } from './fit';
 import { DiagramHover, focusedParts } from './hover';
 import { samePath, walkLevels } from './levels';
+import {
+  type DiagramMessagesContext,
+  DiagramMessagesSlot,
+  IDENTITY_TRANSFORM,
+  provideDiagramMessagesContext,
+} from './messages/context';
 import type { NeatDiagramNode, NeatDiagramSet } from './model';
 import { NoteBox, NoteSizes } from './note-sizes';
 import { placeNotes } from './notes';
@@ -66,12 +72,15 @@ import { DiagramZoom } from './zoom';
  * keys, `+`, `-` and `0`); it fits its level to the box by itself until they do, and `fit()` fits
  * it again (`DiagramZoom`). It takes the wheel and touch over its box (`touch-action: none`), so
  * give it a bounded box, not a long stretch of a scrolling page.
+ *
+ * A `neat-diagram-messages` projected into it draws the messages moving along its edges, over the
+ * drawing; the diagram gives it what it draws by (`DiagramMessagesContext`).
  */
 @Component({
   selector: 'neat-diagram',
   imports: [NeatBreadcrumbs, NeatButton, NeatIcon, NeatStatusChip, NgTemplateOutlet, NoteBox],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [NoteSizes],
+  providers: [NoteSizes, provideDiagramMessagesContext()],
   host: { role: 'figure', '[attr.aria-label]': 'label()', tabindex: '0' },
   templateUrl: './diagram.html',
   styleUrls: ['./frames.css', './blocks.css', './lines.css', './diagram.css'],
@@ -99,6 +108,8 @@ export class NeatDiagramView {
   private readonly injector = inject(Injector);
   private readonly zone = inject(NgZone);
   private zoom: DiagramZoom | null = null;
+  /** The messaging layer's listeners for a new transform (`DiagramMessagesContext`). */
+  private readonly transformListeners = new Set<() => void>();
   private readonly hover = this.zone.runOutsideAngular(
     () => new DiagramHover(this.host, () => this.tipBox()?.nativeElement),
   );
@@ -159,6 +170,8 @@ export class NeatDiagramView {
   protected readonly described = computed(() => describeLevel(this.drawn()));
 
   constructor() {
+    inject(DiagramMessagesSlot).context = this.messagesContext();
+
     // A path cut to where it leads goes back to the app (a stale route is corrected).
     effect(() => {
       const path = this.path();
@@ -174,7 +187,12 @@ export class NeatDiagramView {
       untracked(() => {
         this.zoom ??= this.zone.runOutsideAngular(
           () =>
-            new DiagramZoom(this.host, this.content().nativeElement, this.edges().nativeElement),
+            new DiagramZoom(
+              this.host,
+              this.content().nativeElement,
+              this.edges().nativeElement,
+              () => this.transformListeners.forEach((listener) => listener()),
+            ),
         );
         // A fit leaves the bar's height free, so the level does not start under it.
         this.zoom.setTopInset(bar);
@@ -204,6 +222,44 @@ export class NeatDiagramView {
   fit(): void {
     // Outside the zone, so its animation frames run no change detection in a zone.js app.
     this.zone.runOutsideAngular(() => this.zoom?.fit());
+  }
+
+  /**
+   * What a messaging layer projected into the diagram draws by: the level shown (another path is
+   * another level), its blocks and placed notes as the cards dots pass behind, every edge id of
+   * the set, the edges in focus, and the transform with a hook for each change of it.
+   */
+  private messagesContext(): DiagramMessagesContext {
+    return {
+      level: computed(() => ({
+        key: JSON.stringify(this.path()),
+        edges: this.drawn().edges.map(({ id, edge, line, points }) => ({
+          id,
+          from: edge.from,
+          to: edge.to,
+          series: edge.series,
+          line,
+          points,
+        })),
+      })),
+      covers: computed(() => [
+        ...this.drawn()
+          .front.filter(({ node }) => node.role === 'block')
+          .map(({ rect }) => rect),
+        ...[...this.placements().values()].map(({ box }) => box),
+      ]),
+      edgeIds: computed(() => {
+        const { overview, levels } = this.diagram();
+        const all = [overview, ...Object.values(levels ?? {})];
+        return new Set(all.flatMap((level) => level.edges.map((edge) => edge.id)));
+      }),
+      focus: computed(() => this.focused()?.edges ?? null),
+      transform: () => this.zoom?.transform ?? IDENTITY_TRANSFORM,
+      onTransform: (listener) => {
+        this.transformListeners.add(listener);
+        return () => this.transformListeners.delete(listener);
+      },
+    };
   }
 
   /** Opens the level `block` opens, one deeper than the level shown. */

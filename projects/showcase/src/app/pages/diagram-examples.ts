@@ -3,6 +3,7 @@ import {
   type NeatDiagramChip,
   type NeatDiagramEdge,
   type NeatDiagramLegendItem,
+  type NeatDiagramMessageStep,
   type NeatDiagramNode,
   type NeatDiagramSet,
   neatDrillDownLevel,
@@ -21,7 +22,7 @@ const EV74 = { label: 'EV74', tone: 'highlight' } as const;
 const MLA = { label: 'MLA', tone: 'info' } as const;
 const A65 = { label: 'A65', tone: 'neutral' } as const;
 
-// --- (a) a messaging pipeline: laptop, cable, board (the moving dots come with a later release)
+// --- (a) a messaging pipeline: laptop, cable, board, with its messages moving
 
 const PIPELINE_NODES: readonly NeatDiagramNode[] = [
   { id: 'laptop', role: 'frame', label: 'Laptop', x: 0, y: 0, w: 170, h: 360 },
@@ -155,6 +156,15 @@ export const PIPELINE: NeatDiagramSet = {
     notes: [{ id: 'tracker-rate', edges: ['tracker-gateway'], x: 330, y: 320 }],
   },
   levels: { detector: neatDrillDownLevel(PIPELINE_STEPS, 'detector') },
+};
+
+/**
+ * The Detector's steps for the messaging layer: a frame that reaches Resize goes on to YOLOX once
+ * Resize's stage time has passed, and on to NMS after YOLOX's.
+ */
+export const PIPELINE_MESSAGE_STEPS: Readonly<Record<string, NeatDiagramMessageStep>> = {
+  'resize-yolox': { from: 'detector', stage: 'resize' },
+  'yolox-nms': { from: 'detector', stage: 'yolox' },
 };
 
 export const PIPELINE_LEGEND: readonly NeatDiagramLegendItem[] = [

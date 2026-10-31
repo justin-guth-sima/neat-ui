@@ -1,0 +1,19 @@
+/*
+ * Over the diagram's drawing and the size of its box (absolute in neat-diagram, which is
+ * positioned), so the canvas is sized to this element's own box and the layer can sit over any
+ * positioned box. It never catches the pointer: the drawing below keeps its hover, pan and zoom.
+ */
+:host {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+
+canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}

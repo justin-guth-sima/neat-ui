@@ -109,6 +109,8 @@ export class DiagramZoom {
     private readonly box: HTMLElement,
     private readonly content: HTMLElement,
     private readonly edges: SVGElement,
+    /** Called after each new transform is written (the messaging layer redraws by it). */
+    private readonly onDraw: () => void = () => undefined,
   ) {
     this.behavior = zoom<HTMLElement, unknown>()
       .scaleExtent([ZOOM_LIMITS[0], ZOOM_LIMITS[1]])
@@ -134,6 +136,11 @@ export class DiagramZoom {
     // watches the top inset too (`setTopInset`).
     this.observer = new ResizeObserver(() => this.autoFit());
     this.observer.observe(box);
+  }
+
+  /** The transform now: d3-zoom's, kept on the box, read without a signal. */
+  get transform(): ZoomTransform {
+    return zoomTransform(this.box);
   }
 
   /** The drawn level's extent (`levelExtent`); a change fits, unless the user moved the view. */
@@ -245,6 +252,7 @@ export class DiagramZoom {
   private draw({ k, x, y }: ZoomTransform): void {
     this.content.style.transform = `translate(${x}px, ${y}px) scale(${k})`;
     this.edges.style.setProperty('--diagram-zoom', String(k));
+    this.onDraw();
   }
 
   /** Sets the transform at once; d3-zoom keeps it and draws it through `draw`. */

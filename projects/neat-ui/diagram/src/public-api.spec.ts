@@ -1,11 +1,12 @@
 import * as diagram from './public-api';
 
 describe('the diagram entry', () => {
-  it('exports the diagram, its templates, its legend and the drill-down helper, nothing else', () => {
+  it('exports the diagram, its templates, legend and messages, and the drill-down helper', () => {
     expect(Object.keys(diagram).sort()).toEqual([
       'NeatDiagramBlockTemplate',
       'NeatDiagramEdgeTipTemplate',
       'NeatDiagramLegend',
+      'NeatDiagramMessages',
       'NeatDiagramNoteTemplate',
       'NeatDiagramView',
       'neatDrillDownLevel',
@@ -19,9 +20,12 @@ export type ExportedTypes = [
   diagram.NeatDiagram,
   diagram.NeatDiagramChip,
   diagram.NeatDiagramEdge,
+  diagram.NeatDiagramEdgeRate,
   diagram.NeatDiagramLegendItem,
   diagram.NeatDiagramLine,
   diagram.NeatDiagramLook,
+  diagram.NeatDiagramMessageSettings,
+  diagram.NeatDiagramMessageStep,
   diagram.NeatDiagramNode,
   diagram.NeatDiagramNote,
   diagram.NeatDiagramRole,
