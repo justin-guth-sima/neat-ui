@@ -194,16 +194,29 @@ The harness (`projects/bench/harness/`, `npm run bench:run -- --help`) drives th
 parts have `node --test` specs (`npm run test:tools`). It serves `dist/bench/browser` itself (or
 takes `--url`), launches Playwright's Chromium (`--target local`, headed unless `--headless`) or
 connects over CDP, either to a browser you tunnelled to (`cdp:<endpoint>`) or to one it starts on
-the board over `--ssh` (`--target remote`: `--remote-debugging-port` on the board's loopback with a
-profile of its own under `/tmp/neat-bench-<run>/`, stopped by pid file and process group, never
-`pkill`, and deleted afterwards). Each (ladder, repeat, renderer) is a fresh page load, the renderer
+the board over `--ssh` (`--target remote`: `--remote-debugging-port=0` on the board's loopback, the
+chosen port read from `DevToolsActivePort` in a profile of its own under `/tmp/neat-bench-<run>/`,
+stopped by pid file and process group, never `pkill`, and deleted afterwards; its stop is
+registered before the launch, so a signal at any time removes it, and a stop that leaves anything
+prints the manual cleanup line and exits non-zero). A headed board run needs `--remote-display :0`
+(kiosk; the page has the display's own size, no viewport emulation) and, where the board user's
+`$HOME/.Xauthority` is not the display's, `--remote-xauthority <path>`; without a display the
+browser is headless, which the result's warnings and `harness.headless` say (read from the
+browser's user agent and command line, so a CDP target is judged too). Each (ladder, repeat, renderer) is a fresh page load, the renderer
 order alternating per repeat. The page reports its boundaries through `window.benchEvent`; the
 harness reads CDP `Performance.getMetrics` there, keeps every step the page ended even if the run
 dies later, bounds each step and run with its own watchdog, and stops before measuring when the
 kit-against-vflow fairness check fails (`--allow-unfair` goes on, the problems in the warnings).
 `--input=cdp` replays the page's gesture path through `page.mouse`. Long frames' script keys are
 mapped back to source through the build's maps. One result file per campaign goes to
-`projects/bench/results/`, with screenshots (and `--trace` runs) beside it.
+`projects/bench/results/`, with screenshots (and `--trace` runs) beside it; it is rewritten after
+every run and when the campaign ends any way (an error, a signal), with
+`harness.complete: false` and a warning where it is not the whole campaign, and a run that throws
+is a failed run in it. A step the harness's watchdog gave up on is a step record with
+`aborted: 'watchdog'`. `npm run bench:build` stamps the commit (marked `-dirty` for tracked
+changes, or untracked files under `projects/bench` or `projects/neat-ui`) into the bundle; the
+page reports it as `bench.gitSha`, the checkout's is `bench.checkoutSha`, and the harness warns
+where they differ or the build (also one served with `--url`) carries no stamp.
 
 **How the charts are drawn.** Every chart in `charts` but the heatmap is an SVG with
 `viewBox="0 0 600 100"`, `preserveAspectRatio="none"` and `overflow: visible`, so it fills
@@ -888,7 +901,7 @@ Node 24 is required (`.node-version`; Angular 22 supports `^22.22.3 || ^24.15.0`
 | `npm run helm:add`       | Add a Spartan helm component to `lib/ui/` (`-- <name>`), the only way in        |
 | `npm run build:showcase` | Build the showcase app                                                          |
 | `npm run bench`          | Rendering bench dev server, on port 4300                                        |
-| `npm run bench:build`    | Build the bench for measuring (production, source maps, named chunks)           |
+| `npm run bench:build`    | Build the bench for measuring (production, source maps, named chunks, commit)   |
 | `npm run bench:run`      | The bench's harness (`projects/bench/harness/run.mjs`; `-- --help` for usage)   |
 | `npm run pack`           | Build, then write `dist/neat-ui/sima-neat-ui-<version>.tgz` for apps to install |
 

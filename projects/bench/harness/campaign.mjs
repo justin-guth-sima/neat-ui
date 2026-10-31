@@ -9,8 +9,10 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { openBrowser } from './browser.mjs';
+import { verifyBuild } from './build-stamp.mjs';
 import { fairnessReport, fairnessVerdict } from './fairness.mjs';
 import { benchInfo, mergeRuns } from './merge.mjs';
+import { modeWarnings } from './mode.mjs';
 import { runOnePage } from './page-run.mjs';
 import {
   HOST_SCRIPT,
@@ -25,20 +27,50 @@ import { buildSchedule, traceSchedule } from './schedule.mjs';
 import { serveDist } from './serve.mjs';
 import { createMapper, mapSteps } from './sourcemaps.mjs';
 import { sshRun } from './ssh.mjs';
+import { withTimeout } from './watchdog.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const run = promisify(execFile);
+/** A page for a run: a context's page opening is a browser call that may never answer. */
+const SESSION_MS = 30_000;
 
 const label = ({ ladder, renderer, repeat }) => `${renderer} ${ladder} r${repeat}`;
 
 /** Safe in a file name: the machine label as typed, minus anything a path could mean. */
 const slug = (text) => text.replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || 'run';
 
+/** What the page loads of the campaign say they were built from: one commit, a mix, or nothing. */
+function builtFrom(pageRuns) {
+  const stamps = new Set(
+    pageRuns.filter((r) => r.ok && r.purpose !== 'trace').map((r) => r.result.bench?.gitSha),
+  );
+  stamps.delete(undefined);
+  if (stamps.size === 0) return { sha: null, mixed: [] };
+  return stamps.size === 1
+    ? { sha: [...stamps][0], mixed: [] }
+    : { sha: 'unknown', mixed: [...stamps] };
+}
+
 /**
  * Runs the campaign `options` (`args.mjs`). Resolves with `{ file, run, failed, unfair }`;
- * `cleanups` collects what a signal handler must undo (the server, the board's browser).
+ * `cleanups` collects what a signal handler must undo (the server, the board's browser, and the
+ * writing of what the campaign has so far). `deps` swaps the browser, the page run and the
+ * server for the specs.
+ *
+ * The result file is written after every run and again however the campaign ends (an error, a
+ * signal), saying in its warnings that it is not complete; a run that fails for any reason is a
+ * failed run in it, never the end of the campaign.
  */
-export async function runCampaign(options, { log, cleanups }) {
+export async function runCampaign(options, { log, cleanups, deps = {} }) {
+  const d = {
+    openBrowser,
+    startRemote,
+    runOnePage,
+    serveDist,
+    sshRun,
+    sessionMs: SESSION_MS,
+    ...deps,
+  };
   const runId = Date.now().toString(36);
   const startedAt = new Date().toISOString();
   const outDir = resolve(ROOT, options.out);
@@ -65,7 +97,7 @@ export async function runCampaign(options, { log, cleanups }) {
         `no built bench in ${dist}: run \`npm run bench:build\` first (or pass --url)`,
       );
     }
-    server = await serveDist(dist);
+    server = await d.serveDist(dist);
     cleanups.push(() => server.close());
     log(`serving ${dist} at ${server.url}`);
   }
@@ -73,7 +105,7 @@ export async function runCampaign(options, { log, cleanups }) {
   let target = options.target;
   let base = options.url ?? server?.url;
   if (target.kind === 'remote') {
-    const remote = await startRemote({
+    const remote = await d.startRemote({
       ssh: options.ssh,
       runId,
       remote: options.remote,
@@ -87,14 +119,8 @@ export async function runCampaign(options, { log, cleanups }) {
     base = options.url ?? remote.pageBase;
     log(`the board's browser loads the bench from ${base}`);
   }
-  if (options.headless) {
-    warnings.push(
-      'Headless run: Chromium composites and paces frames differently without a window, so these ' +
-        'numbers show that the harness works, not how the renderers perform (design 4.1: headed only).',
-    );
-  }
 
-  const opened = await openBrowser({
+  const opened = await d.openBrowser({
     target,
     headless: options.headless,
     viewport: options.viewport,
@@ -102,20 +128,25 @@ export async function runCampaign(options, { log, cleanups }) {
   });
   cleanups.push(() => opened.close());
   const facts = await opened.facts();
+  // What the browser is, not what was asked: a remote start without a display is headless, and
+  // so is a CDP target somebody left that way.
+  const mode = opened.mode;
+  warnings.push(...modeWarnings({ headless: mode.headless, target: options.target, options }));
   log(
-    `browser ${facts.version}; GPU compositing ${facts.gpu.featureStatus.gpu_compositing ?? 'unknown'}`,
+    `browser ${facts.version}; ` +
+      `GPU compositing ${facts.gpu.featureStatus.gpu_compositing ?? 'unknown'}`,
   );
 
   const machineExtra = { gpu: facts.gpu, launchArgs: facts.launchArgs };
   let probe = null;
   if (options.ssh) {
     try {
-      const host = await sshRun(options.ssh, HOST_SCRIPT);
+      const host = await d.sshRun(options.ssh, HOST_SCRIPT);
       machineExtra.host = parseHost(host.stdout);
     } catch (error) {
       warnings.push(`The host's identity could not be read over ssh: ${error.message}`);
     }
-    probe = async () => parseProbe((await sshRun(options.ssh, PROBE_SCRIPT)).stdout);
+    probe = async () => parseProbe((await d.sshRun(options.ssh, PROBE_SCRIPT)).stdout);
     const first = await probe();
     if (first.freqMhz.length === 0) {
       warnings.push(
@@ -137,19 +168,30 @@ export async function runCampaign(options, { log, cleanups }) {
     readFile: (path) => readFile(path, 'utf8'),
   });
 
+  const failedRun = (entry, message) => {
+    log(`FAILED ${label(entry)}: ${message}`);
+    return { ok: false, schedule: entry, error: message, steps: [], notes: [] };
+  };
+
+  // The run on its page. Anything that goes wrong in it, even what was not foreseen, is that
+  // run's failure, recorded like any other: no page to run on, a browser that stopped answering.
+  let inProgress = null;
   const attempt = async (entry, extra = {}) => {
-    let session;
+    inProgress = label(entry);
     try {
-      session = await opened.session();
+      return await attemptOnce(entry, extra);
     } catch (error) {
-      // No page to run on is that run's failure, recorded like any other, not the campaign's end.
-      log(`FAILED ${label(entry)}: ${error.message}`);
-      return { ok: false, schedule: entry, error: error.message, steps: [], notes: [] };
+      return failedRun(entry, error.message);
+    } finally {
+      inProgress = null;
     }
+  };
+  const attemptOnce = async (entry, extra) => {
+    const session = await withTimeout(opened.session(), d.sessionMs, 'open a page');
     try {
       const files = fileNames(outDir, baseName, entry, extra.trace);
       const started = Date.now();
-      const result = await runOnePage({
+      const result = await d.runOnePage({
         session,
         base,
         schedule: entry,
@@ -220,49 +262,105 @@ export async function runCampaign(options, { log, cleanups }) {
     ...schedule.map((entry) => ({ entry })),
     ...(options.trace ? traceSchedule(options).map((entry) => ({ entry, trace: true })) : []),
   ];
-  let first = true;
-  for (const { entry, trace } of all) {
-    if (!first && options.cooldownMs > 0) {
-      log(`idle ${options.cooldownMs / 1000} s`);
-      await sleep(options.cooldownMs);
-    }
-    first = false;
-    pageRuns.push(await attempt(entry, trace ? { trace: true, steps: options.traceSteps } : {}));
-  }
-
-  // Map the long frames' scripts to source, where the build's maps are at hand.
   const mapper = await createMapper({ distDir: dist, readFile: (path) => readFile(path, 'utf8') });
-  for (const pageRun of pageRuns) {
-    pageRun.steps = await mapSteps(pageRun.steps, mapper);
-  }
-  mapper.close();
-
-  const merged = mergeRuns({
-    runId,
-    startedAt,
-    bench,
-    options,
-    machineExtra,
-    fairness,
-    skipped,
-    warnings,
-    pageRuns,
-    extra: {
-      harness: {
-        node: process.version,
-        target: options.target.kind,
-        headless: options.headless,
-        viewport: options.viewport,
-        dpr: options.dpr,
-        cooldownMs: options.cooldownMs,
-        browserVersion: facts.version,
-        pageBase: base,
-      },
-    },
-  });
   const file = join(outDir, `${baseName}.json`);
-  await mkdir(outDir, { recursive: true });
-  await writeFile(file, JSON.stringify(merged, null, 2));
+
+  // What the file says when the campaign did not reach its end, and the one write at a time.
+  // Until the loop says otherwise, a file that is written is of a campaign that was cut off.
+  let unfinished = 'interrupted';
+  let merged = null;
+  let writing = Promise.resolve();
+  const compose = () => {
+    const incomplete = [];
+    if (unfinished) {
+      incomplete.push(
+        `The campaign did not finish (${unfinished}): ${pageRuns.length} of ${all.length} runs ` +
+          `are in this file${inProgress ? `, and ${inProgress} was under way and is not` : ''}.`,
+      );
+    }
+    const built = builtFrom(pageRuns);
+    const checkout = bench.gitSha;
+    const verification = [];
+    if (built.mixed.length > 0) {
+      verification.push(
+        'The page loads of this campaign were built from different commits ' +
+          `(${built.mixed.join(', ')}).`,
+      );
+    } else if (built.sha !== null) {
+      verification.push(...verifyBuild({ built: built.sha, checkout, url: options.url }));
+    }
+    return mergeRuns({
+      runId,
+      startedAt,
+      // The measured build's own commit where the page says it; the checkout's is kept beside it.
+      bench: { ...bench, gitSha: built.sha ?? 'unknown', checkoutSha: checkout },
+      options,
+      machineExtra,
+      fairness,
+      skipped,
+      warnings: [...incomplete, ...warnings, ...verification],
+      pageRuns,
+      extra: {
+        harness: {
+          node: process.version,
+          target: options.target.kind,
+          headless: mode.headless,
+          viewport: mode.viewport,
+          dpr: options.dpr,
+          cooldownMs: options.cooldownMs,
+          browserVersion: facts.version,
+          pageBase: base,
+          complete: unfinished === null,
+        },
+      },
+    });
+  };
+  const write = () => {
+    writing = writing.then(async () => {
+      try {
+        merged = compose();
+        await mkdir(outDir, { recursive: true });
+        await writeFile(file, JSON.stringify(merged, null, 2));
+      } catch (error) {
+        log(`could not write ${file}: ${error.message}`);
+      }
+    });
+    return writing;
+  };
+  // A signal gets what there is so far into the file before the browser is closed.
+  let done = false;
+  cleanups.push(async () => {
+    if (done) return;
+    await write();
+  });
+
+  try {
+    let first = true;
+    for (const { entry, trace } of all) {
+      if (!first && options.cooldownMs > 0) {
+        log(`idle ${options.cooldownMs / 1000} s`);
+        await sleep(options.cooldownMs);
+      }
+      first = false;
+      const pageRun = await attempt(entry, trace ? { trace: true, steps: options.traceSteps } : {});
+      // The long frames' scripts to source, where the build's maps are at hand.
+      try {
+        pageRun.steps = await mapSteps(pageRun.steps, mapper);
+      } catch (error) {
+        pageRun.notes.push(`source mapping failed: ${error.message}`);
+      }
+      pageRuns.push(pageRun);
+      await write();
+    }
+    unfinished = null;
+  } catch (error) {
+    unfinished = `stopped by an error: ${error.message}`;
+    throw error;
+  } finally {
+    done = true;
+    mapper.close();
+    await write();
+  }
   return {
     file,
     run: merged,
