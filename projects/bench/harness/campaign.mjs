@@ -33,6 +33,8 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const run = promisify(execFile);
 /** A page for a run: a context's page opening is a browser call that may never answer. */
 const SESSION_MS = 30_000;
+/** Ladder A's levels up to ×1: where the fairness check compares the kit and vflow. */
+const FAIRNESS_STEPS = 4;
 
 /** The recorder check's outcome in a line of the log. */
 function checkSummary({ ok, worstPct, compared, skipped, unreadable = 0 }) {
@@ -297,18 +299,24 @@ export async function runCampaign(options, { log, cleanups, deps = {}, signal, b
   };
 
   // The kit and vflow must draw the same picture before their frames are compared (design 3.2).
+  // They are compared at ×1, ladder A's fourth level (after ×1/8, ×1/4 and ×1/2): a climb of that
+  // many steps ends there, and the check reads the page at the climb's last step.
   let fairness = null;
   if (options.renderers.includes('kit') && options.renderers.includes('vflow')) {
     log('fairness check: the first step of ladder A on the kit and on vflow');
     const kit = await attempt(
       { ladder: 'A', renderer: 'kit', repeat: 0 },
-      { steps: 1, inspect: (page) => page.evaluate(() => window.benchFairness()), preflight: true },
+      {
+        steps: FAIRNESS_STEPS,
+        inspect: (page) => page.evaluate(() => window.benchFairness()),
+        preflight: true,
+      },
     );
     const vflow = kit.ok
       ? await attempt(
           { ladder: 'A', renderer: 'vflow', repeat: 0 },
           {
-            steps: 1,
+            steps: FAIRNESS_STEPS,
             inspect: (page) =>
               page.evaluate(
                 (fingerprint) => window.benchCompare(fingerprint, window.benchFairness()),

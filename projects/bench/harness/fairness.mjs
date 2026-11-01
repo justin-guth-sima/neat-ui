@@ -1,5 +1,5 @@
 // Acting on the fairness check (design 3.2): before any frames are compared the kit and vflow
-// draw the first step of ladder A, and the page judges the two fingerprints (`benchCompare`). An
+// draw ladder A up to ×1, and the page judges the two fingerprints (`benchCompare`). An
 // unfair pair stops the campaign, loudly, before an hour of numbers that cannot be compared;
 // `--allow-unfair` goes on, and the report and every problem stay in the result's warnings.
 

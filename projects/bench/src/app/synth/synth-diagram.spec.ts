@@ -271,6 +271,8 @@ describe('scaledParams', () => {
   it('rounds half up, the same on every machine: counts times a power of two are exact', () => {
     // D1's 36 edges at 1/8 are 4.5, and 12 labels 1.5: both round up.
     expect(scaledParams(D1, 1 / 8)).toMatchObject({ edges: 5, labels: 2 });
-    expect(scaledParams(D1, 1 / 8)).toEqual(scaledParams(D1, 0.125));
+    // The halves are exact in binary, so no machine can land just below one.
+    expect(D1.edges * (1 / 8)).toBe(4.5);
+    expect(D1.labels * (1 / 8)).toBe(1.5);
   });
 });

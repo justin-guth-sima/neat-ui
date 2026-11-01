@@ -418,3 +418,23 @@ test('records the trace categories in the harness info', async () => {
   );
   assert.deepEqual(wide.run.harness.traceCategories, ['viz', 'cc']);
 });
+
+test('compares the kit and vflow at ×1 of ladder A, the ladder’s fourth level', async () => {
+  const opts = options('--renderers', 'kit,vflow', '--repeats', '1');
+  const preflights = [];
+  const r = rig({
+    runOnePage: async ({ schedule, steps, inspect }) => {
+      if (inspect) preflights.push({ renderer: schedule.renderer, ladder: schedule.ladder, steps });
+      const run = goodRun(schedule);
+      return inspect
+        ? { ...run, inspected: { ok: true, drawn: { kit: { nodes: 1, edges: 1 } } } }
+        : run;
+    },
+  });
+  await go(r, opts);
+  // Levels 1/8, 1/4, 1/2 and 1 on ladder A: a climb of four steps ends at ×1, where the check reads.
+  assert.deepEqual(preflights, [
+    { renderer: 'kit', ladder: 'A', steps: 4 },
+    { renderer: 'vflow', ladder: 'A', steps: 4 },
+  ]);
+});

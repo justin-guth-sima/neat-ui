@@ -12,7 +12,8 @@ What to run
   --ladders A,B,C,D,E        the load ladders to climb (default A); E runs on the kit only
   --renderers kit,vflow,none the renderers to measure (default kit,vflow)
   --repeats 3                runs per ladder and renderer, the renderer order alternating
-  --steps N                  climb only each ladder's first N levels (smoke runs)
+  --steps N                  climb only each ladder's first N levels (smoke runs); A and D start at
+                             ×1/8, so their ×1 is the 4th level
   --seed 1                   seeds the diagram and its messages
   --refine                   bisect the knee after each climb (two steps)
   --input=page|cdp           who plays the gestures: the page, or this harness through the
@@ -70,7 +71,8 @@ Output
   --out projects/bench/results   run files, screenshots and traces (gitignored)
   --trace                    one extra run per renderer and ladder, traced: the display's draws give
                              the presented rate that decides the tier (all steps, the board default)
-  --trace-steps N|all        trace only the first N levels (default all, as far as --steps goes)
+  --trace-steps N|all        trace only the first N levels (default all, as far as --steps goes);
+                             counted as --steps is: ×1 is the 4th level of A and D
   --trace-categories viz,cc  the traced runs' categories (default viz, the display's draws, which
                              the presented rate needs, so the list must hold it); more categories
                              make a trace to read thread by thread, at a cost on the board
