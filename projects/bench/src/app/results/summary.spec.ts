@@ -104,6 +104,20 @@ describe('summaryMarkdown', () => {
     expect(markdown(file)).toMatch(/\| A: diagram size \| Not clearly slower \| 0 of 3 \|/);
   });
 
+  it('says neither meets the tier where vflow meets none, on both tiers', () => {
+    const file = campaign([
+      ...[0, 1, 2].flatMap((repeat) => climb('kit', repeat, ['failing'])),
+      ...[0, 1, 2].flatMap((repeat) => climb('vflow', repeat, ['failing'])),
+    ]);
+
+    const text = markdown(file);
+
+    expect(text).toMatch(
+      /\| A: diagram size \| Neither meets the tier \| 0 of 3 \| Neither meets the tier \|/,
+    );
+    expect(text).not.toContain('Not clearly slower');
+  });
+
   it('says a verdict that waits for more repeats', () => {
     const file = campaign([
       ...climb('kit', 0, ['smooth', 'failing']),

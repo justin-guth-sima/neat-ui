@@ -11,7 +11,7 @@ export const RULE = { needed: 2, of: 3 } as const;
 /** The supporting evidence's bound (open question 2, option b). */
 const EVIDENCE_RATIO = 0.85;
 
-export type VerdictKind = 'slower' | 'not-slower' | 'inconclusive';
+export type VerdictKind = 'slower' | 'not-slower' | 'neither' | 'inconclusive';
 
 /** One repeat's kit and vflow climbs, side by side. */
 export interface RepeatPair {
@@ -19,6 +19,11 @@ export interface RepeatPair {
   readonly kit: Capacity;
   readonly vflow: Capacity;
   readonly slower: boolean;
+  /**
+   * Whether the pair compares anything: vflow met the tier at some level. Where it met none, the
+   * kit has nothing to be slower than, and nothing to be not slower than either.
+   */
+  readonly comparable: boolean;
   /** A page load of the pair did not finish: its capacity is what it reached before it died. */
   readonly failed: boolean;
 }
@@ -28,6 +33,8 @@ export interface FallbackVerdict {
   readonly goal: TierGoal;
   readonly pairs: readonly RepeatPair[];
   readonly slowerCount: number;
+  /** The pairs in which vflow met the tier. */
+  readonly comparableCount: number;
 }
 
 /**
@@ -45,7 +52,7 @@ export function isClearlySlower(kit: Capacity, vflow: Capacity): boolean {
 /**
  * The rule on one ladder, from the kit's and vflow's climbs: their repeats are paired by number.
  * With fewer than three repeats the verdict waits while the repeats still to come could change it:
- * it is `slower` or `not-slower` only once the pairs run so far settle it.
+ * it is `slower`, `not-slower` or `neither` only once the pairs run so far settle it.
  */
 export function fallbackVerdict(
   kit: readonly Climb[],
@@ -62,17 +69,23 @@ export function fallbackVerdict(
       kit: k[goal],
       vflow: v[goal],
       slower: isClearlySlower(k[goal], v[goal]),
+      comparable: v[goal].level !== null,
       failed: k.failed || v.failed,
     });
   }
   const slowerCount = pairs.filter((pair) => pair.slower).length;
+  const comparableCount = pairs.filter((pair) => pair.comparable).length;
   // More repeats than the rule names scale it: two thirds of them.
   const total = Math.max(pairs.length, RULE.of);
   const needed = Math.ceil((RULE.needed * total) / RULE.of);
   let kind: VerdictKind = 'inconclusive';
   if (slowerCount >= needed) kind = 'slower';
+  // Only pairs in which vflow met the tier can be slower. Where even all the repeats still to come
+  // could not make `needed` of them, the rule has nothing to decide: "not slower" would be a
+  // pass for a comparison that measured nothing.
+  else if (total - (pairs.length - comparableCount) < needed) kind = 'neither';
   else if (slowerCount + (total - pairs.length) < needed) kind = 'not-slower';
-  return { kind, goal, pairs, slowerCount };
+  return { kind, goal, pairs, slowerCount, comparableCount };
 }
 
 /** A level's median fps for one renderer, as the supporting evidence reads it. */

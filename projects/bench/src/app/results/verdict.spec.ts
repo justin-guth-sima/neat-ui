@@ -113,6 +113,72 @@ describe('fallbackVerdict (the kit is clearly slower where it is, in 2 of 3 repe
     expect(fallbackVerdict(climbs.kit, climbs.vflow, 'usable').slowerCount).toBe(0);
   });
 
+  describe('where vflow meets no level (nothing to compare)', () => {
+    const none = (n: number): Climb[] =>
+      Array.from({ length: n }, (_, repeat) => climbOf('vflow', repeat, cap(null)));
+    const kitNone = (n: number): Climb[] =>
+      Array.from({ length: n }, (_, repeat) => climbOf('kit', repeat, cap(null)));
+
+    it('says neither meets the tier, not "not slower", when no repeat compares', () => {
+      const verdict = fallbackVerdict(kitNone(3), none(3), 'smooth');
+
+      expect(verdict.kind).toBe('neither');
+      expect(verdict.comparableCount).toBe(0);
+      expect(verdict.pairs.map((pair) => pair.comparable)).toEqual([false, false, false]);
+    });
+
+    it('says it whether the kit meets a level or not, as vflow has none', () => {
+      expect(fallbackVerdict(kit(1, 1, 1), none(3), 'smooth').kind).toBe('neither');
+    });
+
+    it('says it for the usable tier too, the smooth tier being met', () => {
+      const climbs = {
+        kit: [0, 1, 2].map((r) => ({ ...climbOf('kit', r, cap(4)), usable: cap(null) })),
+        vflow: [0, 1, 2].map((r) => ({ ...climbOf('vflow', r, cap(4)), usable: cap(null) })),
+      };
+
+      expect(fallbackVerdict(climbs.kit, climbs.vflow, 'smooth').kind).toBe('not-slower');
+      expect(fallbackVerdict(climbs.kit, climbs.vflow, 'usable').kind).toBe('neither');
+    });
+
+    it('decides as soon as too few repeats can still compare: two of three', () => {
+      expect(fallbackVerdict(kitNone(2), none(2), 'smooth').kind).toBe('neither');
+      // One repeat without a comparison leaves two that could still make two of three.
+      expect(fallbackVerdict(kitNone(1), none(1), 'smooth').kind).toBe('inconclusive');
+    });
+
+    it('keeps "not slower" while two of three repeats compare and the kit is not slower', () => {
+      const verdict = fallbackVerdict(
+        kit(8, 8, 8),
+        [...vflow(8, 8), ...none(3).slice(2)],
+        'smooth',
+      );
+
+      expect(verdict.kind).toBe('not-slower');
+      expect(verdict.comparableCount).toBe(2);
+    });
+
+    it('lets two comparable slower repeats stand against one without a comparison', () => {
+      const verdict = fallbackVerdict(
+        kit(4, 4, 4),
+        [...vflow(8, 8), ...none(3).slice(2)],
+        'smooth',
+      );
+
+      expect(verdict.kind).toBe('slower');
+    });
+
+    it('scales the two thirds with more repeats: four of six', () => {
+      // Three of six have no comparison: three comparable cannot make four.
+      const vflowSix = [...vflow(8, 8, 8), ...none(6).slice(3)];
+
+      expect(fallbackVerdict(kit(8, 8, 8, 8, 8, 8), vflowSix, 'smooth').kind).toBe('neither');
+      // Two of six: four comparable can still make four, and the kit is not slower.
+      const vflowFour = [...vflow(8, 8, 8, 8), ...none(6).slice(4)];
+      expect(fallbackVerdict(kit(8, 8, 8, 8, 8, 8), vflowFour, 'smooth').kind).toBe('not-slower');
+    });
+  });
+
   it('marks a pair in which a run failed, and still counts it', () => {
     const verdict = fallbackVerdict(
       [climbOf('kit', 0, cap(1), { failed: true })],

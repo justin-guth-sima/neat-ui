@@ -53,11 +53,13 @@ const TIER_TONE: Record<Tier, NeatTone> = {
 const VERDICT_TONE: Record<VerdictKind, NeatTone> = {
   slower: 'danger',
   'not-slower': 'success',
+  neither: 'neutral',
   inconclusive: 'neutral',
 };
 const VERDICT_LABEL: Record<VerdictKind, string> = {
   slower: 'Clearly slower',
   'not-slower': 'Not clearly slower',
+  neither: 'Neither meets the tier',
   inconclusive: 'Inconclusive',
 };
 
@@ -245,8 +247,13 @@ interface Shot {
                   {{ verdictLabel[verdict.kind] }}
                 </neat-status-chip>
                 <span>
-                  {{ verdict.slowerCount }} of {{ verdict.pairs.length }} repeats a doubling step or
-                  more below vflow
+                  @if (verdict.kind === 'neither') {
+                    vflow met the tier in {{ verdict.comparableCount }} of
+                    {{ verdict.pairs.length }} repeats, so there is nothing to compare
+                  } @else {
+                    {{ verdict.slowerCount }} of {{ verdict.pairs.length }} repeats a doubling step
+                    or more below vflow
+                  }
                   @if (verdict.kind === 'inconclusive') {
                     (the rule asks for {{ rule.needed }} of {{ rule.of }})
                   }
@@ -276,7 +283,7 @@ interface Shot {
                         <td>{{ capacity(ladder, pair.kit) }}</td>
                         <td>{{ capacity(ladder, pair.vflow) }}</td>
                         <td>
-                          {{ pair.slower ? 'yes' : 'no' }}
+                          {{ !pair.comparable ? 'no comparison' : pair.slower ? 'yes' : 'no' }}
                           @if (pair.failed) {
                             <neat-status-chip tone="warning" variant="tinted"
                               >run failed</neat-status-chip

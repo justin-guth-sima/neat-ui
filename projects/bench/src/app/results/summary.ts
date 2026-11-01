@@ -89,6 +89,8 @@ function verdictLabel(verdict: FallbackVerdict, long: boolean): string {
       return 'Clearly slower';
     case 'not-slower':
       return 'Not clearly slower';
+    case 'neither':
+      return 'Neither meets the tier';
     case 'inconclusive':
       return long
         ? `Inconclusive (${verdict.pairs.length} of ${RULE.of} repeats run)`
