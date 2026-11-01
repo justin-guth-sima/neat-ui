@@ -15,6 +15,8 @@ import { fileURLToPath } from 'node:url';
 import { after, test } from 'node:test';
 import ts from 'typescript';
 import {
+  changesExamples,
+  changesKit,
   checkDocs,
   checkReport,
   EXAMPLES_DIR,
@@ -836,6 +838,125 @@ test('doc problems: a part or own input without a doc, and a code span or code-s
   ]);
 });
 
+// A tag on the comment's own opening line (`/** @internal x */`) is a tag, not body text.
+const ONE_LINE = kitWith({
+  'vendor/index.ts': `import { Directive, input } from '@angular/core';
+
+@Directive({ selector: '[brnOne]' })
+export class BrnOne {
+  readonly size = input(1);
+}
+`,
+  'src/public-api.ts': "export * from './lib/one';\n",
+  'src/lib/one.ts': `import { Component, Directive, inject, input, TemplateRef } from '@angular/core';
+import { BrnOne } from 'vendor';
+
+/**
+ * The prose of a one-line tag's class, indented @ text:
+ *
+ *   @if (x) { y }
+ *
+ * @input size Steps, from the class's own tag lines.
+ */
+@Directive({ selector: '[neatTagged]', hostDirectives: [{ directive: BrnOne, inputs: ['size'] }] })
+export class NeatTagged {}
+
+/** A view. */
+@Component({ selector: 'neat-one', template: '' })
+export class NeatOne {
+  /** @internal Read by the host only. */
+  readonly template = inject(TemplateRef);
+  /** @deprecated Use \`tone\`. */
+  readonly colour = input('neutral');
+  /** The tone. */
+  readonly tone = input('neutral');
+  /** @unknown Not a tag the docs know. */
+  readonly odd = input(0);
+}
+`,
+});
+const oneLine = once(() => extractKit(ONE_LINE));
+const one = () => partOf(oneLine(), 'primary', 'NeatOne');
+
+test('a tag alone on a one-line doc comment is read as a tag: @internal hides the member', () => {
+  assert.equal(
+    one().properties?.some((m) => m.name === 'template'),
+    undefined,
+  );
+  assert.equal(
+    JSON.stringify(one()).includes('Read by the host only'),
+    false,
+    'its text must not become body text',
+  );
+});
+
+test('a one-line @deprecated is the deprecation, not the body; an unknown one-line tag is a problem', () => {
+  const colour = one().inputs.find((m) => m.name === 'colour');
+  assert.deepEqual(colour.doc, []);
+  assert.deepEqual(colour.deprecated, [
+    {
+      kind: 'paragraph',
+      spans: [
+        { kind: 'text', text: 'Use ' },
+        { kind: 'code', text: 'tone' },
+        { kind: 'text', text: '.' },
+      ],
+    },
+  ]);
+  assert.ok(
+    oneLine().problems.some((p) =>
+      /one\.ts:\d+: NeatOne\.odd has the unknown tag @unknown/.test(p),
+    ),
+    oneLine().problems.join('\n'),
+  );
+});
+
+test('only the opening line is stripped: an indented @ line further down stays prose', () => {
+  const tagged = partOf(oneLine(), 'primary', 'NeatTagged');
+  assert.equal(JSON.stringify(tagged.doc).includes('@if (x) { y }'), true);
+  assert.deepEqual(tagged.inputs[0].doc, plain("Steps, from the class's own tag lines."));
+});
+
+test('a one-line @input tag documents the forwarded input', () => {
+  const kit = kitWith({
+    'vendor/index.ts': `import { Directive, input } from '@angular/core';
+
+@Directive({ selector: '[brnOne]' })
+export class BrnOne {
+  readonly size = input(1);
+}
+`,
+    'src/public-api.ts': "export * from './lib/one';\n",
+    'src/lib/one.ts': `import { Directive } from '@angular/core';
+import { BrnOne } from 'vendor';
+
+/** @input size Steps. */
+@Directive({ selector: '[neatOne]', hostDirectives: [{ directive: BrnOne, inputs: ['size'] }] })
+export class NeatOne {}
+`,
+  });
+  const result = extractKit(kit);
+  assert.deepEqual(partOf(result, 'primary', 'NeatOne').inputs[0].doc, plain('Steps.'));
+  assert.ok(
+    !result.problems.some((p) => /no `@input size` tag/.test(p)),
+    result.problems.join('\n'),
+  );
+});
+
+// --- what --watch reacts to ---------------------------------------------------------------------
+
+test('the watch reacts to the kit and example sources, and to example stylesheets', () => {
+  assert.equal(changesKit('collapsible/src/lib/collapsible.ts'), true);
+  assert.equal(changesKit('collapsible/src/lib/collapsible.spec.ts'), false);
+  assert.equal(changesKit('collapsible/src/lib/collapsible.html'), false);
+  assert.equal(changesExamples('examples/time-chart/chart-card.css'), true);
+  assert.equal(changesExamples('examples/time-chart/data.ts'), true);
+  assert.equal(changesExamples('examples/time-chart/data.spec.ts'), false);
+  // Not the generated modules beside the examples, nor a stylesheet of the app.
+  assert.equal(changesExamples('docs/generated/examples/time-chart.ts'), false);
+  assert.equal(changesExamples('styles.css'), false);
+});
+
 // --- generated modules, --check and determinism (review focus 4) ------------------------------
 
 test('the generated modules are deterministic and type-check against the showcase schema', () => {
@@ -1028,6 +1149,22 @@ test('an example is its file: id without the numeric prefix, in file-name order,
   assert.deepEqual(
     chipExamples().map((e) => e.files[0].name),
     ['1-tones.example.ts', '2-sizes.example.ts'],
+  );
+});
+
+test('a numeric prefix orders the examples as a number: 2 before 10', () => {
+  const kit = kitWithExamples({
+    'roi/10-last.example.ts': component('Last'),
+    'roi/2-second.example.ts': component('Second'),
+    'roi/1-first.example.ts': component('First'),
+    'roi/b-plain.example.ts': component('Plain'),
+    'roi/a-plain.example.ts': component('Other'),
+  });
+  const { topics, problems } = extractExamples(kit);
+  assert.deepEqual(problems, []);
+  assert.deepEqual(
+    topics[0].examples.map((e) => e.id),
+    ['first', 'second', 'last', 'a-plain', 'b-plain'],
   );
 });
 

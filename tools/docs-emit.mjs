@@ -55,13 +55,27 @@ const importPath = (entry) => (entry === 'primary' ? '@sima/neat-ui' : `@sima/ne
 /** Source text on one line: a parameter or type that wraps reads the same unwrapped. */
 const oneLine = (text) => text.replace(/\s*\n\s*/g, ' ');
 /** A code-point order, so the output does not depend on the machine's locale. */
+const byCodePoint = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+const byName = (a, b) => byCodePoint(a.name, b.name);
+/** A path with `/` as its separator on every platform. */
+const posix = (path) => path.split(sep).join('/');
+
+/**
+ * A problem at `node`: its file (relative to `root`, with `/`), its line and the message. The line
+ * is that of the node's name where it has one, which is where an editor should land.
+ */
+function problemAt(root, node, message) {
+  const file = node.getSourceFile();
+  const at = (node.name ?? node).getStart();
+  const line = file.getLineAndCharacterOfPosition(at).line + 1;
+  return { file: posix(relative(root, file.fileName)), line, message };
+}
+
 /** Problems as `file:line: message`, sorted by file and line. */
 const formatProblems = (problems) =>
   problems
-    .toSorted((a, b) => (a.file !== b.file ? (a.file < b.file ? -1 : 1) : a.line - b.line))
+    .toSorted((a, b) => byCodePoint(a.file, b.file) || a.line - b.line)
     .map(({ file, line, message }) => `${file}:${line}: ${message}`);
-
-const byName = (a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
 
 /** `primary`, then the secondary entries: the folders beside `src` with an ng-package.json. */
 function entryNames(root) {
@@ -98,6 +112,8 @@ function createProgram(root) {
  * The doc comment right above `node`, from its raw text: its body lines and its tags. Not from
  * TypeScript's JSDoc parse, which starts a tag at any line-leading `@` and so cuts a comment short
  * at an Angular `@if` or `@for` inside a fenced example. Here a tag starts only outside a fence.
+ * A tag on the line of the opening slash-star-star (a one-line comment) starts that line once it
+ * is trimmed; later lines keep their indent, so an indented `@` stays prose.
  */
 function rawDoc(node) {
   const comment = ts.getJSDocCommentsAndTags(node).filter(ts.isJSDoc).at(-1);
@@ -107,7 +123,7 @@ function rawDoc(node) {
     .replace(/^\/\*\*/, '')
     .replace(/\*\/$/, '')
     .split('\n')
-    .map((line) => line.replace(/^\s*\* ?/, ''));
+    .map((line, i) => (i === 0 ? line.trim() : line.replace(/^\s*\* ?/, '')));
   const body = [];
   const tags = [];
   let fenced = false;
@@ -398,15 +414,8 @@ class KitReader {
     return null;
   }
 
-  relative(fileName) {
-    return relative(this.root, fileName).split(sep).join('/');
-  }
-
   problem(node, message) {
-    const file = node.getSourceFile();
-    const at = (node.name ?? node).getStart();
-    const line = file.getLineAndCharacterOfPosition(at).line + 1;
-    this.problems.push({ file: this.relative(file.fileName), line, message });
+    this.problems.push(problemAt(this.root, node, message));
   }
 
   problemList() {
@@ -474,7 +483,7 @@ class KitReader {
   part(symbol, name) {
     const declarations = symbol.declarations ?? [];
     const declaration = declarations[0];
-    const source = this.relative(declaration.getSourceFile().fileName);
+    const source = posix(relative(this.root, declaration.getSourceFile().fileName));
     if (ts.isClassDeclaration(declaration)) return { ...this.classPart(declaration, name), source };
 
     if (ts.isFunctionDeclaration(declaration)) {
@@ -832,8 +841,18 @@ class KitReader {
 
 // --- examples ------------------------------------------------------------------------------------
 
-const byCodePoint = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
-const posix = (path) => path.split(sep).join('/');
+/**
+ * Example files in the order the page shows them: a numeric prefix (`2-`, `10-`) orders as a
+ * number, so `2-` comes before `10-` with no zero padding; a file without one comes after those
+ * that have one, in code-point order.
+ */
+const byExampleName = (a, b) => {
+  const prefix = (name) => name.match(/^(\d+)-/)?.[1];
+  const [first, second] = [prefix(a), prefix(b)];
+  if (first && second) return Number(first) - Number(second) || byCodePoint(a, b);
+  if (first || second) return first ? -1 : 1;
+  return byCodePoint(a, b);
+};
 const indent = (text, spaces) => text.replace(/\n/g, `\n${' '.repeat(spaces)}`);
 
 /**
@@ -969,8 +988,8 @@ function showsOf(sourceFile) {
  * folder being the topic. Each is one standalone component. Its class doc is its caption, which the
  * page shows as prose and the snippet leaves out; its other source is the snippet, as the file
  * has it, plus the files of its topic folder that it imports (a data file, say) and the stylesheets
- * it names (`styleUrl`) as extras. So what the page renders and what it shows are one file. Returns the topics, each with its examples in
- * file-name order, and the problems (a caption missing, a bad class, an import that is no file of
+ * it names (`styleUrl`) as extras. So what the page renders and what it shows are one file. Returns
+ * the topics, each with its examples in file-name order, and the problems (a caption missing, a bad class, an import that is no file of
  * the topic folder); an example that cannot be read is left out.
  */
 export function extractExamples(root, kit = extractKit(root)) {
@@ -998,12 +1017,7 @@ function readTopic({ root, topic, publicNames, found }) {
   const dir = join(root, EXAMPLES_DIR, topic);
   const parse = (file) =>
     ts.createSourceFile(file, readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true);
-  const report = (node, message) => {
-    const file = node.getSourceFile();
-    const at = (node.name ?? node).getStart();
-    const line = file.getLineAndCharacterOfPosition(at).line + 1;
-    found.push({ file: posix(relative(root, file.fileName)), line, message });
-  };
+  const report = (node, message) => found.push(problemAt(root, node, message));
 
   /** The topic-folder files `sourceFile` imports, transitively, appended to `files` once each. */
   const addImports = (sourceFile, files) => {
@@ -1058,7 +1072,7 @@ function readTopic({ root, topic, publicNames, found }) {
   const classes = new Map();
   const names = readdirSync(dir)
     .filter((name) => name.endsWith('.example.ts'))
-    .sort(byCodePoint);
+    .sort(byExampleName);
   for (const name of names) {
     const path = join(dir, name);
     const sourceFile = parse(path);
@@ -1257,6 +1271,17 @@ function emit(root) {
   if (problems.length) console.warn(checkReport({ stale: [], problems }).join('\n'));
 }
 
+/** Whether a change to `file`, relative to the library folder, can alter the API: a source file. */
+export const changesKit = (file) => file.endsWith('.ts') && !file.endsWith('.spec.ts');
+
+/**
+ * Whether a change to `file`, relative to the showcase's app folder, can alter an example's
+ * snippet: a source file of the examples folder or a stylesheet there (`styleUrl` files are
+ * snippet extras). The generated modules, beside it in docs/, must not set the watch off again.
+ */
+export const changesExamples = (file) =>
+  file.split(/[\\/]/)[0] === 'examples' && (changesKit(file) || file.endsWith('.css'));
+
 /** Writes now and after every change to the kit's source or the examples, until stopped. */
 function watchKit(root) {
   const run = () => {
@@ -1270,16 +1295,15 @@ function watchKit(root) {
   let timer;
   const watchFolder = (folder, relevant) => {
     watch(join(root, folder), { recursive: true }, (_event, file) => {
-      // Specs are in no program the docs read; stylesheets and templates hold no API or snippet.
-      if (!file?.endsWith('.ts') || file.endsWith('.spec.ts') || !relevant(file)) return;
+      // Specs are in no program the docs read; a kit's stylesheets and templates hold no API.
+      if (!file || !relevant(file)) return;
       clearTimeout(timer);
       timer = setTimeout(run, 100); // an editor's save is often several events
     });
   };
-  watchFolder(LIBRARY, () => true);
-  // The app folder, not the examples folder: that one may not exist yet, and it is the generated
-  // modules (beside it, in docs/) that must not set the watch off again.
-  watchFolder(SHOWCASE_APP, (file) => file.split(/[\\/]/)[0] === 'examples');
+  watchFolder(LIBRARY, changesKit);
+  // The app folder, not the examples folder: that one may not exist yet.
+  watchFolder(SHOWCASE_APP, changesExamples);
   console.log(`Watching ${LIBRARY} and ${EXAMPLES_DIR} for changes (Ctrl+C stops).`);
 }
 
