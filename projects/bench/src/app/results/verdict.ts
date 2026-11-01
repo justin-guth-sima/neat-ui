@@ -20,8 +20,8 @@ export interface RepeatPair {
   readonly vflow: Capacity;
   readonly slower: boolean;
   /**
-   * Whether the pair compares anything: vflow met the tier at some level. Where it met none, the
-   * kit has nothing to be slower than, and nothing to be not slower than either.
+   * Whether the pair compares anything: the kit or vflow met the tier at some level. Where
+   * neither met one, the kit has nothing to be slower than, and nothing to be not slower than.
    */
   readonly comparable: boolean;
   /** A page load of the pair did not finish: its capacity is what it reached before it died. */
@@ -33,7 +33,7 @@ export interface FallbackVerdict {
   readonly goal: TierGoal;
   readonly pairs: readonly RepeatPair[];
   readonly slowerCount: number;
-  /** The pairs in which vflow met the tier. */
+  /** The pairs in which the kit or vflow met the tier. */
   readonly comparableCount: number;
 }
 
@@ -69,7 +69,7 @@ export function fallbackVerdict(
       kit: k[goal],
       vflow: v[goal],
       slower: isClearlySlower(k[goal], v[goal]),
-      comparable: v[goal].level !== null,
+      comparable: k[goal].level !== null || v[goal].level !== null,
       failed: k.failed || v.failed,
     });
   }
@@ -80,9 +80,9 @@ export function fallbackVerdict(
   const needed = Math.ceil((RULE.needed * total) / RULE.of);
   let kind: VerdictKind = 'inconclusive';
   if (slowerCount >= needed) kind = 'slower';
-  // Only pairs in which vflow met the tier can be slower. Where even all the repeats still to come
-  // could not make `needed` of them, the rule has nothing to decide: "not slower" would be a
-  // pass for a comparison that measured nothing.
+  // Only pairs in which a renderer met the tier compare anything. Where even all the repeats still
+  // to come could not make `needed` of them, the rule has nothing to decide: "not slower" would be
+  // a pass for a comparison that measured nothing.
   else if (total - (pairs.length - comparableCount) < needed) kind = 'neither';
   else if (slowerCount + (total - pairs.length) < needed) kind = 'not-slower';
   return { kind, goal, pairs, slowerCount, comparableCount };

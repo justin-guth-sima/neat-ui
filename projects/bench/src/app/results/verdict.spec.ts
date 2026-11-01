@@ -127,8 +127,11 @@ describe('fallbackVerdict (the kit is clearly slower where it is, in 2 of 3 repe
       expect(verdict.pairs.map((pair) => pair.comparable)).toEqual([false, false, false]);
     });
 
-    it('says it whether the kit meets a level or not, as vflow has none', () => {
-      expect(fallbackVerdict(kit(1, 1, 1), none(3), 'smooth').kind).toBe('neither');
+    it('says not slower, not "neither", where the kit meets a level and vflow none', () => {
+      const verdict = fallbackVerdict(kit(1, 1, 1), none(3), 'smooth');
+
+      expect(verdict.kind).toBe('not-slower');
+      expect(verdict.comparableCount).toBe(3);
     });
 
     it('says it for the usable tier too, the smooth tier being met', () => {
@@ -149,7 +152,7 @@ describe('fallbackVerdict (the kit is clearly slower where it is, in 2 of 3 repe
 
     it('keeps "not slower" while two of three repeats compare and the kit is not slower', () => {
       const verdict = fallbackVerdict(
-        kit(8, 8, 8),
+        [...kit(8, 8), ...kitNone(3).slice(2)],
         [...vflow(8, 8), ...none(3).slice(2)],
         'smooth',
       );
@@ -172,10 +175,12 @@ describe('fallbackVerdict (the kit is clearly slower where it is, in 2 of 3 repe
       // Three of six have no comparison: three comparable cannot make four.
       const vflowSix = [...vflow(8, 8, 8), ...none(6).slice(3)];
 
-      expect(fallbackVerdict(kit(8, 8, 8, 8, 8, 8), vflowSix, 'smooth').kind).toBe('neither');
+      const kitSix = [...kit(8, 8, 8), ...kitNone(6).slice(3)];
+      expect(fallbackVerdict(kitSix, vflowSix, 'smooth').kind).toBe('neither');
       // Two of six: four comparable can still make four, and the kit is not slower.
       const vflowFour = [...vflow(8, 8, 8, 8), ...none(6).slice(4)];
-      expect(fallbackVerdict(kit(8, 8, 8, 8, 8, 8), vflowFour, 'smooth').kind).toBe('not-slower');
+      const kitFour = [...kit(8, 8, 8, 8), ...kitNone(6).slice(4)];
+      expect(fallbackVerdict(kitFour, vflowFour, 'smooth').kind).toBe('not-slower');
     });
   });
 

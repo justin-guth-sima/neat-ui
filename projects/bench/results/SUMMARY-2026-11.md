@@ -9,7 +9,9 @@ sections) and result file are kept beside the runs, not here. The result files a
   most 5 % dropped. Usable: 30 fps or more and p99 within 100 ms. "none" for a renderer is no
   step of the ladder (not even its first) reaching the tier.
 - Verdict rule: the kit is clearly slower where its smooth capacity is at least one doubling step
-  below vflow's in 2 of 3 repeats.
+  below vflow's in 2 of 3 repeats. "Neither meets the tier" where too few repeats have either
+  renderer meeting the tier for the rule to decide (the board campaigns' rows read so since the
+  final review; they were first published as "Not clearly slower").
 - Tiers are judged at the lower of the recorder's rate and the display's presented rate where a
   trace gave one (see each campaign's summary).
 - The GPU-blocklist variant was skipped: the board has no render node, and its browser already
@@ -74,10 +76,10 @@ Command: `npm run bench:run -- --input=page --target remote --ssh sima@10.42.0.6
 
 | Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
 | --- | --- | --- | --- | --- |
-| A: diagram size | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| B: messages per second | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| C: notes with live rate cards | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| D: size, messages and notes together | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| A: diagram size | Neither meets the tier | 0 of 3 | Neither meets the tier | no |
+| B: messages per second | Neither meets the tier | 0 of 3 | Neither meets the tier | no |
+| C: notes with live rate cards | Neither meets the tier | 0 of 3 | Neither meets the tier | no |
+| D: size, messages and notes together | Neither meets the tier | 0 of 3 | Neither meets the tier | no |
 
 ### Warnings
 
@@ -514,8 +516,8 @@ phase); the fairness check compares the kit and vflow at ×1.
 
 | Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow's fps |
 | --- | --- | --- | --- | --- |
-| A: diagram size | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| D: size, messages and notes together | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| A: diagram size | Neither meets the tier | 0 of 3 | Neither meets the tier | no |
+| D: size, messages and notes together | Neither meets the tier | 0 of 3 | Neither meets the tier | no |
 
 ### Median fps by level (recorder / presented where a trace gave one, over 3 repeats)
 

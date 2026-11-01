@@ -227,7 +227,7 @@ describe('ResultsView', () => {
     expect(text()).toContain('run failed');
   });
 
-  it('says neither meets the tier, in a neutral chip, where vflow meets none', async () => {
+  it('says neither meets the tier, in a neutral chip, where neither renderer meets one', async () => {
     const file = campaign([
       ...[0, 1, 2].flatMap((repeat) => climb('kit', repeat, ['failing'])),
       ...[0, 1, 2].flatMap((repeat) => climb('vflow', repeat, ['failing'])),
@@ -236,7 +236,7 @@ describe('ResultsView', () => {
 
     const verdict = root().querySelector('[data-slot="verdict"]')!;
     expect(verdict.textContent).toContain('Neither meets the tier');
-    expect(verdict.textContent).toContain('vflow met the tier in 0 of 3 repeats');
+    expect(verdict.textContent).toContain('the kit or vflow met the tier in 0 of 3 repeats');
     expect(verdict.textContent).toContain('no comparison');
     expect(verdict.textContent).not.toContain('Not clearly slower');
     const chip = verdict.querySelector('[data-slot="status-chip"]')!;

@@ -248,7 +248,7 @@ interface Shot {
                 </neat-status-chip>
                 <span>
                   @if (verdict.kind === 'neither') {
-                    vflow met the tier in {{ verdict.comparableCount }} of
+                    the kit or vflow met the tier in {{ verdict.comparableCount }} of
                     {{ verdict.pairs.length }} repeats, so there is nothing to compare
                   } @else {
                     {{ verdict.slowerCount }} of {{ verdict.pairs.length }} repeats a doubling step
