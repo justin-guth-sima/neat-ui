@@ -94,7 +94,7 @@ test('the guard writes its pid before anything, and removes the directory only w
   );
   assert.ok(script.indexOf('guard.pid') < script.indexOf('while :'));
   const keep = script.indexOf('[ -z "$keep" ] || exit 1');
-  assert.ok(keep > 0 && keep < script.indexOf('rm -rf -- "$dir"'));
+  assert.ok(keep > 0 && keep < script.indexOf('rm -rf -- "$dir.removing"'));
   assert.equal(script.match(/rm -rf/g).length, 1);
   assert.match(script, /case "\$dir" in '\/tmp'\/neat-bench-\*\|'\/var\/tmp'\/neat-bench-\*\) ;;/);
   assert.doesNotMatch(script, /\b(disable|mask|pkill|killall|reboot)\b|\/etc\b/);
@@ -200,6 +200,7 @@ test('tears down by itself when the heartbeat goes quiet: all stopped, LightDM b
   assert.equal(alive(b.browser), false);
   assert.equal(alive(b.xorg), false);
   assert.equal(alive(b.guard), false, 'the guard exits when done');
+  assert.equal(existsSync(`${b.dir}.removing`), false, 'and leaves nothing of the rename');
   assert.match(b.calls(), /sudo kill -TERM/);
   assert.match(b.calls(), /systemctl --no-block start lightdm/);
 });
@@ -297,6 +298,27 @@ test('says gone where the guard already tore the run down, and removes a directo
   assert.match(out.stdout, /note no guard in .*: nothing had been started/);
   assert.equal(parseStopReport(out.stdout).removed, true);
   assert.equal(existsSync(bare), false);
+});
+
+test('the guard renames the directory before it removes it, so a teardown sees it whole or gone', () => {
+  const script = guardScript('/tmp/neat-bench-x');
+  const rename = script.indexOf('mv -- "$dir" "$dir.removing"');
+  assert.ok(rename > script.indexOf('[ -z "$keep" ] || exit 1'));
+  assert.ok(rename > 0 && rename < script.indexOf('rm -rf -- "$dir.removing"'));
+  assert.match(script, /mv -- "\$dir" "\$dir\.removing" && rm -rf -- "\$dir\.removing"/);
+});
+
+test('a teardown that lands while the guard removes the directory says gone, not "nothing started"', async () => {
+  // The rename done, the removal under way: the directory is gone, `.removing` is what is left.
+  const dir = join(work, 'neat-bench-removing');
+  mkdirSync(`${dir}.removing`);
+  writeFileSync(join(`${dir}.removing`, 'lightdm.state'), 'active\n');
+  const out = await sh(teardownWaitScript(dir, { parents }), process.env);
+  assert.equal(out.status, 0, out.stderr);
+  assert.doesNotMatch(out.stdout, /nothing had been started/);
+  const report = parseStopReport(out.stdout);
+  assert.equal(report.gone, true);
+  assert.equal(report.display, undefined, 'it says nothing of the display itself');
 });
 
 test('the heartbeat touches the file once per line and ends with its input', async () => {

@@ -3,7 +3,11 @@
 // output stops it, starts Xorg with a cookie of its own and puts LightDM back afterwards. What the
 // harness changes is therefore three things: LightDM's running state (stop and start, never
 // `disable`, so a reboot alone also brings the login screen back), one Xorg it started, and files
-// under the run's own `/tmp/neat-bench-<run>/`. Nothing under `/etc`.
+// under the run's own `/tmp/neat-bench-<run>/`. Nothing under `/etc`. What Xorg and Chromium write
+// by themselves is theirs, and neither made nor removed here: Xorg's `/tmp/.X<d>-lock` and
+// `/tmp/.X11-unix/X<d>` (left behind only where it needed the KILL; the next Xorg clears a stale
+// lock), Chromium's `~/.pki/nssdb` and font caches whatever `--user-data-dir` says, and `sudo`'s
+// line in the journal.
 //
 // Xorg runs as root through sudo, so its pid file is written by the script itself, as root, from
 // the shell that then becomes Xorg (`exec` keeps the pid): the pid in the file is Xorg's, not

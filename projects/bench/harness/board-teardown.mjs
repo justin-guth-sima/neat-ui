@@ -10,8 +10,9 @@
 // when the laptop goes quiet (the heartbeat file it touches every 5 s is older than 20 s):
 // Chromium, the static server and the Xorg of this run, each by checked pid, then LightDM if it
 // was active, then `restore.txt` with what happened. It is the only thing that removes the run's
-// directory, and only after a confirmed restore; otherwise the directory and its pid files stay,
-// for a later teardown (`sh <dir>/guard.sh` runs it again) or a person.
+// directory (by renaming it to `<dir>.removing` first, so a teardown never sees it half removed),
+// and only after a confirmed restore; otherwise the directory and its pid files stay, for a later
+// teardown (`sh <dir>/guard.sh` runs it again) or a person.
 //
 // The laptop's side of a teardown is `teardownWaitScript`: create `stop`, wait (longer than the
 // guard can take) for `restore.txt`, print it. Runs without a bare display keep the plain stop
@@ -34,7 +35,12 @@ export const GUARD = Object.freeze({
   staleS: 20,
   /** How often the guard looks. */
   tickS: 1,
-  /** How long it waits for a start script still on the board (above that script's ssh timeout). */
+  /**
+   * How long it waits for a start script still on the board: above that script's own longest
+   * waits (LightDM's stop, 5 s for its X server to let go, 20 s for Xorg to answer, the mode).
+   * Its ssh timeout does not end it: a script read by `sh -s` dies only at its next write, and
+   * this one writes nothing between `lightdm <state>` and its last lines.
+   */
   startWaitS: 70,
   /** How long LightDM and its Xorg get to come back. */
   restoreS: LIGHTDM_RESTORE_S,
@@ -157,7 +163,10 @@ if [ "$why" = stop ]; then
   n=0
   while [ ! -e "$dir/ack" ] && [ "$n" -lt ${t.ackS * 5} ]; do sleep 0.2; n=$((n+1)); done
 fi
-rm -rf -- "$dir"
+# Renamed first, so a laptop's teardown that lands now finds the directory whole (with its
+# restore.txt) or gone, never half removed: a half removed one has no guard.sh any more, and
+# would read as a run that had been started on nothing.
+mv -- "$dir" "$dir.removing" && rm -rf -- "$dir.removing"
 `;
 }
 

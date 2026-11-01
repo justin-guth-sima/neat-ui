@@ -4,7 +4,9 @@
 // which it writes to `DevToolsActivePort` in that profile, so a browser somebody else left on a
 // fixed port is never the one driven), reached through an ssh tunnel, and stopped and deleted
 // afterwards. The harness changes the board in two ways only: this browser and one
-// directory, `/tmp/neat-bench-<run>/`, holding its profile, log and pid file. The stop is by
+// directory, `/tmp/neat-bench-<run>/`, holding its profile, log and pid file. (What Chromium
+// writes by itself, `~/.pki/nssdb` and font caches in the board user's home, is its own and not
+// removed here; `board-x.mjs` says the same of Xorg.) The stop is by
 // the pid file, checked against that pid's command line (so a recycled pid is never killed) and
 // then by the browser's own process group, which is exactly its children. No `pkill`, no pattern
 // matching over the process table. The scripts are built here and run with `sh -s` over ssh; their
@@ -15,8 +17,10 @@
 // server in the run's directory, `board-server.mjs`). A run with a bare display is torn down by
 // the board's guard (`board-teardown.mjs`), which this side only asks and waits for, since the
 // board must get its login screen back even when this side cannot finish; other runs keep the
-// plain stop script. Either way nothing is started on the board while a stop is under way, and a
-// stop waits for a start script that is still running there.
+// plain stop script. Only `bare` runs heal themselves, then: a run with `--remote-display :0` or
+// `--serve board` alone is cleaned up by this laptop's stop and nothing else, so a killed node, a
+// closed lid or a dropped link leaves its browser, server and directory on the board. Either way nothing is started on the board while
+// a stop is under way, and a stop waits for a start script that is still running there.
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { setTimeout as sleep } from 'node:timers/promises';
@@ -57,7 +61,11 @@ const DEVTOOLS_MS = 30_000;
 const PLAIN_STOP_MS = 60_000;
 /** The bare X start's ssh timeout: stopping LightDM, a free display, Xorg's answer, the mode. */
 const X_START_MS = 60_000;
-/** How long a stop waits for a start step still on its way (above the longest step's timeout). */
+/**
+ * How long a stop waits for a start step's ssh still on its way: above the longest step's
+ * timeout, which ends that ssh. The step's script on the board may outlive it; the guard's wait
+ * for `start.lock` covers that.
+ */
 const STEP_WAIT_MS = 75_000;
 
 /**
@@ -407,7 +415,7 @@ export async function startRemote({
     stopped ??= (async () => {
       if (tunnel && tunnel.exitCode === null) tunnel.kill('SIGTERM');
       // A step may still be on its way: stopping ahead of it would leave what it starts behind.
-      // Its ssh lives as long as its script on the board, so waiting for it is waiting for that.
+      // Waiting for its ssh (which its timeout ends) is as far as this side can wait.
       if (launching) await within(launching, stepWaitMs);
       return bare ? stopGuarded() : stopPlain();
     })();
