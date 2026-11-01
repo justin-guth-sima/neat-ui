@@ -9,13 +9,8 @@ import {
   signal,
   TemplateRef,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import {
-  type NeatBreadcrumb,
-  NeatBreadcrumbs,
   NeatButton,
-  type NeatButtonSize,
-  type NeatButtonVariant,
   NeatEasedNumber,
   NeatIcon,
   NeatInlineButton,
@@ -25,19 +20,11 @@ import {
   NeatStale,
   type NeatTone,
   neatStoredSignal,
-  NeatTooltip,
-  type NeatTooltipPosition,
 } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
 import { NeatCollapsible } from '@sima/neat-ui/collapsible';
-import { NeatConfirm } from '@sima/neat-ui/confirm';
 import { NeatDetails } from '@sima/neat-ui/details';
-import {
-  NeatDialog,
-  NeatDialogActions,
-  NeatDialogBody,
-  type NeatDialogRef,
-} from '@sima/neat-ui/dialog';
+import { NeatDialog, NeatDialogActions, NeatDialogBody } from '@sima/neat-ui/dialog';
 import { NeatDropZone } from '@sima/neat-ui/drop-zone';
 import { NeatErrorNote, NeatField } from '@sima/neat-ui/field';
 import { NeatFileBrowser } from '@sima/neat-ui/file-browser';
@@ -45,13 +32,6 @@ import { NeatInput } from '@sima/neat-ui/input';
 import { NeatLevelMeter } from '@sima/neat-ui/level-meter';
 import { NeatLine, NeatLineEnd, NeatLineList } from '@sima/neat-ui/line-list';
 import { NeatNumberField } from '@sima/neat-ui/number-field';
-import {
-  NeatPopover,
-  NeatPopoverContent,
-  NeatPopoverDivider,
-  NeatPopoverItem,
-  NeatPopoverTrigger,
-} from '@sima/neat-ui/popover';
 import { NeatProgress } from '@sima/neat-ui/progress';
 import { NeatSegmented, type NeatSegmentedOption } from '@sima/neat-ui/segmented';
 import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
@@ -78,22 +58,10 @@ import {
   NeatVideoTile,
 } from '@sima/neat-ui/video';
 import { DEMO_TREE, demoSize } from './demo-tree';
-import { SourceDialog, type SourceKind } from './source-dialog';
 import { TestPatternSource } from './test-pattern-source';
 
-const VARIANTS: NeatButtonVariant[] = [
-  'primary',
-  'secondary',
-  'outlined',
-  'text',
-  'danger',
-  'danger-text',
-  'success',
-];
 /** The surfaces a button sits on, as the contrast tests have it: the page and a card. */
 const SURFACES = ['page', 'card'] as const;
-const SIZES: NeatButtonSize[] = ['small', 'medium', 'large', 'touch'];
-const TOOLTIP_POSITIONS: NeatTooltipPosition[] = ['top', 'right', 'bottom', 'left'];
 const TILE_COUNT = 48;
 const PLACEHOLDER_TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);
 /** A channel of the select list's demo. */
@@ -214,7 +182,6 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
 @Component({
   selector: 'app-components-page',
   imports: [
-    NeatBreadcrumbs,
     NeatButton,
     NeatCallout,
     NeatCollapsible,
@@ -241,11 +208,6 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
     NeatNumberField,
     NeatNumeric,
     NeatPage,
-    NeatPopover,
-    NeatPopoverContent,
-    NeatPopoverDivider,
-    NeatPopoverItem,
-    NeatPopoverTrigger,
     NeatProgress,
     NeatSegmented,
     NeatSelect,
@@ -258,104 +220,14 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
     NeatTable,
     NeatTabs,
     NeatTileGrid,
-    NeatTooltip,
     NeatRoiEditor,
     NeatRoiSwatch,
     NeatVideoTile,
-    RouterLink,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-page>
       <div class="showcase-page">
-        <section class="showcase-section">
-          <h2>Button</h2>
-          <p class="showcase-muted">
-            <code>neatButton</code> on a <code>button</code> or <code>a</code>: seven variants in
-            four sizes, then icon-only and rounded. Primary is the app's accent; secondary is the
-            neutral choice; success is a solid green for the action that starts something (Start
-            recording), with a filled play icon; danger is its solid red counterpart for the action
-            that stops or discards something (Stop recording), with a filled stop icon; danger-text
-            is the quiet red, the text variant in the danger colour, hovering quietly as its
-            neighbours do with its label kept red and focusing with danger's red ring, for a
-            destructive action among text buttons; touch is a 48 px target for kiosk and touch
-            screens.
-          </p>
-          <div class="showcase-row">
-            <button neatButton type="button" variant="text">Rename</button>
-            <button neatButton type="button" variant="text">Duplicate</button>
-            <button neatButton type="button" variant="danger-text">Delete</button>
-          </div>
-          <div class="showcase-row">
-            <button neatButton type="button" variant="success">
-              <neat-icon name="play" [size]="16" />
-              Start
-            </button>
-            <button neatButton type="button" variant="danger">
-              <neat-icon name="stop" [size]="16" />
-              Stop
-            </button>
-          </div>
-          @for (variant of variants; track variant) {
-            <h3>{{ variant }}</h3>
-            <div class="showcase-row">
-              @for (size of sizes; track size) {
-                <button neatButton type="button" [variant]="variant" [size]="size">
-                  {{ size }}
-                </button>
-              }
-              @for (size of sizes; track size) {
-                <button
-                  neatButton
-                  type="button"
-                  [variant]="variant"
-                  [size]="size"
-                  iconOnly
-                  [attr.aria-label]="'Stream, ' + size"
-                >
-                  <neat-icon name="streaming" />
-                </button>
-              }
-              <button neatButton type="button" [variant]="variant" rounded>rounded</button>
-              <button
-                neatButton
-                type="button"
-                [variant]="variant"
-                rounded
-                iconOnly
-                aria-label="Stream, rounded"
-              >
-                <neat-icon name="streaming" />
-              </button>
-            </div>
-          }
-        </section>
-
-        <section class="showcase-section">
-          <h2>Button states</h2>
-          <p class="showcase-muted">
-            With a <code>neat-icon</code> before the label, disabled, waiting and as a link, per
-            variant. Waiting is <code>aria-disabled="true"</code>: it looks disabled with a
-            not-allowed cursor, keeps the focus (Tab reaches it) and its hover, so a tooltip on it
-            still opens, for a button that waits without dropping the focus; a click, Enter and
-            Space still fire its click handler, which the app ignores while it waits.
-          </p>
-          @for (variant of variants; track variant) {
-            <div class="showcase-row">
-              <button neatButton type="button" [variant]="variant">
-                <neat-icon name="streaming" [size]="16" />
-                With icon
-              </button>
-              <button neatButton type="button" [variant]="variant" disabled>Disabled</button>
-              <button neatButton type="button" [variant]="variant" aria-disabled="true">
-                Waiting
-              </button>
-              <!-- Links back to this page, so trying it navigates nowhere. -->
-              <a neatButton [variant]="variant" routerLink="/components">Link</a>
-            </div>
-          }
-        </section>
-
         <section class="showcase-section">
           <h2>Note</h2>
           <p class="showcase-muted">
@@ -710,65 +582,6 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
         </section>
 
         <section class="showcase-section">
-          <h2>Inline button</h2>
-          <p class="showcase-muted">
-            <code>neatInlineButton</code> on a <code>button</code> or <code>a</code>: a text action
-            set into a line, as tall as its text, in the line's size and colour, underlined on
-            hover. For dense lists where a <code>neatButton</code> would set the line height. The
-            actions here do nothing; the third is disabled, and the link leads back to this page.
-          </p>
-          <div class="card inline-demo">
-            <p neatNote>
-              Overridden on 2 channels ·
-              <button neatInlineButton type="button">Show</button>
-            </p>
-            <ul neatLineList>
-              <li neatLine>
-                Channel 3 <span class="showcase-muted">900 ms</span>
-                <button neatInlineButton neatLineEnd type="button">Use global</button>
-              </li>
-              <li neatLine>
-                Channel 7 <span class="showcase-muted">600 ms</span>
-                <button neatInlineButton neatLineEnd type="button">Use global</button>
-              </li>
-              <li neatLine>
-                <button neatInlineButton type="button" disabled>Reset on 2 channels…</button>
-              </li>
-              <li neatLine>
-                <a neatInlineButton routerLink="/components">All components</a>
-              </li>
-            </ul>
-          </div>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Breadcrumbs</h2>
-          <p class="showcase-muted">
-            <code>neat-breadcrumbs</code>: where you are and the way back, a <code>nav</code> named
-            by its <code>label</code>. Each crumb but the last is an inline button whose index
-            <code>go</code> emits; the last is the location, with its detail muted. The file browser
-            and the diagram's level bar use it. Go back and press Deeper to walk the path.
-          </p>
-          <div class="card inline-demo">
-            <neat-breadcrumbs
-              label="Example path"
-              [crumbs]="crumbPath()"
-              (go)="crumbDepth.set($event + 1)"
-            />
-            <p neatNote>
-              <button
-                neatInlineButton
-                type="button"
-                [disabled]="crumbDepth() === crumbPlaces.length"
-                (click)="crumbDepth.set(crumbDepth() + 1)"
-              >
-                Deeper
-              </button>
-            </p>
-          </div>
-        </section>
-
-        <section class="showcase-section">
           <h2>Line list</h2>
           <p class="showcase-muted">
             <code>neatLineList</code> on a <code>ul</code> or <code>ol</code>, with
@@ -809,76 +622,6 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
             >
               Restore regions
             </button>
-          </div>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Pressed buttons</h2>
-          <p class="showcase-muted">
-            <code>[pressed]</code> on a toggle: it sets <code>aria-pressed</code> and inverts the
-            fill, so the state does not rest on colour alone. Click each one. Leave the input unset
-            on a button that is not a toggle. Primary and success are solid fills already, so their
-            pressed look is the least distinct: toggles belong on the other variants. The last
-            button uses the <code>close</code> icon.
-          </p>
-          @for (surface of surfaces; track surface) {
-            <div class="showcase-row" [class.card]="surface === 'card'">
-              @for (variant of variants; track variant) {
-                <button
-                  neatButton
-                  type="button"
-                  [variant]="variant"
-                  [pressed]="pressedVariants().has(variant)"
-                  (click)="togglePressed(variant)"
-                >
-                  {{ variant }}
-                </button>
-              }
-              <button
-                neatButton
-                type="button"
-                variant="outlined"
-                iconOnly
-                aria-label="Close"
-                neatTooltip="Close"
-              >
-                <neat-icon name="close" />
-              </button>
-            </div>
-          }
-        </section>
-
-        <section class="showcase-section">
-          <h2>Buttons on a card</h2>
-          <p class="showcase-muted">
-            On the card surface, which differs from the page background in dark mode. Hover each
-            one: the fill must stay visible.
-          </p>
-          <div class="card showcase-row">
-            @for (variant of variants; track variant) {
-              <button neatButton type="button" [variant]="variant">{{ variant }}</button>
-            }
-          </div>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Tooltip</h2>
-          <p class="showcase-muted">
-            <code>neatTooltip</code>: on mouse hover and on keyboard focus, never on touch, so it
-            repeats the control's accessible name rather than adding to it. In all four positions.
-          </p>
-          <div class="showcase-row">
-            @for (position of tooltipPositions; track position) {
-              <button
-                neatButton
-                type="button"
-                variant="outlined"
-                [neatTooltip]="'Tooltip on the ' + position"
-                [neatTooltipPosition]="position"
-              >
-                {{ position }}
-              </button>
-            }
           </div>
         </section>
 
@@ -1000,259 +743,6 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
               <ng-template><p class="showcase-muted">Regions of interest.</p></ng-template>
             </neat-tab>
           </neat-tabs>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Popover</h2>
-          <p class="showcase-muted">
-            <code>neat-popover</code>: a panel of controls below a
-            <code>neatPopoverTrigger</code> button, open while they are used. A non-modal dialog
-            named by <code>label</code>; focus moves into it, and Escape, a click outside or the
-            trigger close it and give focus back to the trigger; Tab out of it closes it and focus
-            goes on to the element after the trigger; Shift+Tab out goes back to the trigger.
-            <code>align</code> lines it up with the trigger's start, centre or end. The content is
-            an <code>ng-template</code>, so its values live in the page. A menu's items are
-            <code>button[neatPopoverItem]</code>: full-width rows with no gap between them, and
-            <code>hr[neatPopoverDivider]</code> sets groups of them apart.
-          </p>
-          <div class="showcase-row">
-            <neat-popover label="View options" [(open)]="viewOptionsOpen">
-              <button
-                neatButton
-                neatPopoverTrigger
-                type="button"
-                variant="text"
-                iconOnly
-                aria-label="View options"
-                neatTooltip="View options"
-              >
-                <neat-icon name="more" />
-              </button>
-              <ng-template neatPopoverContent>
-                <div class="popover-fields">
-                  <button neatSwitch [(checked)]="bars">Bars</button>
-                  <button neatSwitch [(checked)]="hideEmpty">Hide empty slots</button>
-                </div>
-              </ng-template>
-            </neat-popover>
-            <neat-popover label="Go to channel" align="end" [(open)]="channelOpen">
-              <button
-                neatButton
-                neatPopoverTrigger
-                type="button"
-                variant="text"
-                iconOnly
-                aria-label="Go to channel"
-                neatTooltip="Go to channel"
-              >
-                <neat-icon name="search" />
-              </button>
-              <ng-template neatPopoverContent>
-                <div class="popover-fields">
-                  <label class="popover-fields">
-                    <span>Channel</span>
-                    <input
-                      #channelField
-                      neatInput
-                      size="small"
-                      type="number"
-                      inputmode="numeric"
-                      min="0"
-                      max="15"
-                      placeholder="0–15"
-                      aria-describedby="channel-hint"
-                      [value]="channel()"
-                      (input)="channel.set(channelField.value)"
-                    />
-                  </label>
-                  <span id="channel-hint" class="showcase-muted">
-                    Aligned to the trigger's end edge.
-                  </span>
-                </div>
-              </ng-template>
-            </neat-popover>
-            <neat-popover label="Channel actions" align="end">
-              <button
-                neatButton
-                neatPopoverTrigger
-                type="button"
-                variant="text"
-                iconOnly
-                aria-label="Channel actions"
-                neatTooltip="Channel actions"
-              >
-                <neat-icon name="more" />
-              </button>
-              <ng-template neatPopoverContent>
-                <button neatPopoverItem type="button">Rename</button>
-                <button neatPopoverItem type="button">Duplicate</button>
-                <button neatPopoverItem type="button" disabled>Move…</button>
-                <hr neatPopoverDivider />
-                <button neatPopoverItem type="button">Delete</button>
-              </ng-template>
-            </neat-popover>
-          </div>
-          <p class="showcase-code showcase-muted">
-            View options {{ viewOptionsOpen() ? 'open' : 'closed' }}, go to channel
-            {{ channelOpen() ? 'open' : 'closed' }}; bars {{ bars() ? 'on' : 'off' }}, channel
-            {{ channel() || 'none' }}
-          </p>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Confirm</h2>
-          <p class="showcase-muted">
-            <code>NeatConfirm.ask(options)</code> asks before an action and resolves
-            <code>true</code> for the confirm button, <code>false</code> for cancel or Escape. A
-            modal alert dialog: focus starts on cancel and stays inside, a click on the backdrop
-            does nothing, and focus goes back to the button that asked. <code>tone: 'danger'</code>
-            is for actions that destroy or cannot be undone.
-          </p>
-          <div class="showcase-row">
-            <button neatButton type="button" variant="outlined" (click)="askResetAll()">
-              Reset all channels to global…
-            </button>
-            <button neatButton type="button" variant="outlined" (click)="askApplyToAll()">
-              Apply to all channels…
-            </button>
-          </div>
-          <p class="showcase-code showcase-muted" aria-live="polite">{{ confirmAnswer() }}</p>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Dialog</h2>
-          <p class="showcase-muted">
-            <code>NeatDialog.open(content, options)</code> opens a modal dialog around your own
-            content, a template or a component, named by <code>title</code>. Build the content from
-            <code>neat-dialog-body</code> (the part that scrolls) and
-            <code>neat-dialog-actions</code>. Focus stays inside, Escape and the backdrop close it
-            while it is dismissible, and focus goes back to the button that opened it. The
-            <code>NeatDialogRef</code> closes it with a result and, while the dialog is busy,
-            <code>setDismissible(false)</code> blocks Escape, the backdrop and the close button. A
-            component takes values for its inputs from the opener (<code>inputs</code>, typed by the
-            component): "Change source of src3…" opens one on the Camera kind. For a yes/no question
-            use Confirm.
-          </p>
-          <div class="showcase-row">
-            <button neatButton type="button" variant="outlined" (click)="openRename(renameDialog)">
-              Rename source…
-            </button>
-            <button neatButton type="button" variant="outlined" (click)="openLong(longDialog)">
-              Large dialog with long content…
-            </button>
-            <button neatButton type="button" variant="outlined" (click)="openSource()">
-              Change source of src3…
-            </button>
-          </div>
-          <p class="showcase-code showcase-muted" aria-live="polite">{{ dialogResult() }}</p>
-
-          <ng-template #renameDialog let-dialog>
-            <neat-dialog-body>
-              <div class="dialog-form">
-                <label class="dialog-field">
-                  <span>Name</span>
-                  <input neatInput #name value="Front door" [readOnly]="saving()" />
-                </label>
-                <button
-                  neatSwitch
-                  [disabled]="saving()"
-                  [checked]="dialog.dismissible()"
-                  (checkedChange)="dialog.setDismissible($event)"
-                >
-                  Escape and the backdrop close this dialog
-                </button>
-              </div>
-            </neat-dialog-body>
-            <neat-dialog-actions>
-              <button
-                neatButton
-                type="button"
-                variant="outlined"
-                [attr.aria-disabled]="saving() || null"
-                (click)="saving() || dialog.close()"
-              >
-                Cancel
-              </button>
-              <button
-                neatButton
-                type="button"
-                [attr.aria-disabled]="saving() || null"
-                (click)="saving() || save(dialog, name.value)"
-              >
-                {{ saving() ? 'Saving…' : 'Save' }}
-              </button>
-            </neat-dialog-actions>
-          </ng-template>
-
-          <ng-template #longDialog let-dialog>
-            <neat-dialog-body>
-              <ul class="dialog-list">
-                @for (line of longContent; track line) {
-                  <li>{{ line }}</li>
-                }
-              </ul>
-            </neat-dialog-body>
-            <neat-dialog-actions>
-              <button neatButton type="button" (click)="dialog.close()">Done</button>
-            </neat-dialog-actions>
-          </ng-template>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Toast</h2>
-          <p class="showcase-muted">
-            <code>NeatToasts</code> shows short messages without taking the user's attention:
-            <code>error</code> and <code>warning</code> (each led by its kind's icon) clear after
-            4.6 s, <code>status</code> after 3.2 s, and <code>progress</code> stays until
-            <code>done</code> or <code>fail</code>, so work that outlives its page keeps reporting,
-            or until <code>dismiss</code> removes it with no outcome (work a dialog took back). The
-            app renders one <code>neat-toast-host</code> beside the shell; it shows the newest three
-            in the bottom-right corner and announces them politely. A new toast comes to the front,
-            above an open dialog; one that was already showing when a dialog opened stays under it.
-            Clicks pass through toasts.
-          </p>
-          <div class="showcase-row">
-            <button
-              neatButton
-              type="button"
-              variant="outlined"
-              (click)="
-                toasts.error('Could not start src3: the stream is held by another publisher.')
-              "
-            >
-              Error
-            </button>
-            <button
-              neatButton
-              type="button"
-              variant="outlined"
-              (click)="toasts.status('Stopped 2 sources.')"
-            >
-              Status
-            </button>
-            <button
-              neatButton
-              type="button"
-              variant="outlined"
-              (click)="
-                toasts.warning('Uploaded clip.mp4, but could not restart src2: it is in use.')
-              "
-            >
-              Warning
-            </button>
-            <button neatButton type="button" variant="outlined" (click)="runProgress('done')">
-              Progress, succeeding
-            </button>
-            <button neatButton type="button" variant="outlined" (click)="runProgress('fail')">
-              Progress, failing
-            </button>
-            <button neatButton type="button" variant="outlined" (click)="runProgress('unknown')">
-              Progress, unknown length
-            </button>
-            <button neatButton type="button" variant="outlined" (click)="runProgress('dismiss')">
-              Progress, dismissed
-            </button>
-          </div>
         </section>
 
         <section class="showcase-section">
@@ -1926,19 +1416,7 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
   styleUrl: './components.page.css',
 })
 export class ComponentsPage {
-  protected readonly variants = VARIANTS;
-  /** The breadcrumbs' demo: a model's levels, and how deep the path goes. */
-  protected readonly crumbPlaces: readonly NeatBreadcrumb[] = [
-    { label: 'Overview' },
-    { label: 'Detector', detail: 'YOLOX' },
-    { label: 'Backbone', detail: 'CSPDarknet' },
-    { label: 'Stages', detail: 'four stages' },
-  ];
-  protected readonly crumbDepth = signal(3);
-  protected readonly crumbPath = computed(() => this.crumbPlaces.slice(0, this.crumbDepth()));
   protected readonly surfaces = SURFACES;
-  protected readonly sizes = SIZES;
-  protected readonly tooltipPositions = TOOLTIP_POSITIONS;
   protected readonly shapes = SHAPES;
   protected readonly tones = TONES;
   protected readonly toneLabels = TONE_LABELS;
@@ -1990,16 +1468,10 @@ export class ComponentsPage {
   protected readonly hideEmpty = signal(false);
   protected readonly opacity = signal(60);
   protected readonly gain = signal(30);
-  protected readonly pressedVariants = signal<ReadonlySet<NeatButtonVariant>>(
-    new Set(['secondary', 'outlined']),
-  );
   protected readonly shape = signal<Shape>('16:9');
   protected readonly overlay = signal('boxes');
   protected readonly sourceForm = signal('url');
   protected readonly tab = signal('metadata');
-  protected readonly viewOptionsOpen = signal(false);
-  protected readonly channelOpen = signal(false);
-  protected readonly channel = signal('');
   protected readonly regions = signal(INITIAL_REGIONS);
   protected readonly pageCount = 9;
   protected readonly page = signal(3);
@@ -2028,16 +1500,8 @@ export class ComponentsPage {
     `${count} ${count === 1 ? 'video' : 'videos'}`;
   protected readonly fileType = (name: string) => name.split('.').pop()!.toUpperCase();
   protected readonly fileSize = demoSize;
-  protected readonly confirmAnswer = signal('Not asked yet');
-  private readonly confirm = inject(NeatConfirm);
   private readonly dialogs = inject(NeatDialog);
   protected readonly toasts = inject(NeatToasts);
-  protected readonly dialogResult = signal('Not opened yet');
-  protected readonly saving = signal(false);
-  protected readonly longContent = Array.from(
-    { length: 40 },
-    (_, index) => `Source src${index + 1}: assigned, waiting to start`,
-  );
 
   protected readonly tileWidth = signal(240);
   protected readonly layout = signal<NeatTileLayout | null>(null);
@@ -2081,45 +1545,12 @@ export class ComponentsPage {
     );
   }
 
-  protected async askResetAll(): Promise<void> {
-    const reset = await this.confirm.ask({
-      title: 'Reset all channels to global?',
-      message: "4 settings on 3 channels go back to the global values. This can't be undone.",
-      confirmLabel: 'Reset',
-      tone: 'danger',
-    });
-    this.confirmAnswer.set(`Reset all: ${reset ? 'confirmed' : 'cancelled'}`);
-  }
-
-  protected async askApplyToAll(): Promise<void> {
-    const apply = await this.confirm.ask({
-      title: 'Apply to all channels?',
-      message: 'Every channel takes the global overlay settings.',
-      confirmLabel: 'Apply',
-      cancelLabel: 'Not now',
-    });
-    this.confirmAnswer.set(`Apply to all: ${apply ? 'confirmed' : 'cancelled'}`);
-  }
-
-  protected async openRename(content: TemplateRef<unknown>): Promise<void> {
-    const name = await this.dialogs.open<string>(content, { title: 'Rename source' }).closed;
-    this.dialogResult.set(name === undefined ? 'Rename: dismissed' : `Rename: saved "${name}"`);
-  }
-
   protected async openAssign(content: TemplateRef<unknown>): Promise<void> {
     const source = await this.dialogs.open<string | null>(content, { title: 'Assign a source' })
       .closed;
     this.assignResult.set(
       source === undefined ? 'dialog dismissed' : `dialog assigned ${source ?? 'nothing'}`,
     );
-  }
-
-  protected async openSource(): Promise<void> {
-    const kind = await this.dialogs.open<SourceDialog, SourceKind>(SourceDialog, {
-      title: 'Change source',
-      inputs: { slot: 3, startOn: 'camera' },
-    }).closed;
-    this.dialogResult.set(kind === undefined ? 'Source: dismissed' : `Source: ${kind}`);
   }
 
   protected addLogLine(): void {
@@ -2137,53 +1568,6 @@ export class ComponentsPage {
     this.dropLog.update((log) => [`${what}: ${names}`, ...log].slice(0, 4));
   }
 
-  protected async openLong(content: TemplateRef<unknown>): Promise<void> {
-    await this.dialogs.open(content, { title: 'Sources', size: 'large' }).closed;
-    this.dialogResult.set('Sources: closed');
-  }
-
-  /**
-   * Saving takes a moment, during which the dialog may not be dismissed. The buttons are marked
-   * `aria-disabled` rather than `disabled`: the button that was pressed has focus, and a disabled
-   * control loses it, which would leave the keyboard outside the dialog.
-   */
-  protected save(dialog: NeatDialogRef<string>, name: string): void {
-    this.saving.set(true);
-    dialog.setDismissible(false);
-    setTimeout(() => {
-      this.saving.set(false);
-      dialog.close(name);
-    }, 1500);
-  }
-
-  /**
-   * Simulates work: it reports for a few seconds and then settles, or, for `dismiss`, is taken
-   * away halfway. It runs on its own, as an upload does, so leaving the page does not stop the
-   * toast from reporting the outcome.
-   */
-  protected runProgress(outcome: 'done' | 'fail' | 'unknown' | 'dismiss'): void {
-    const toast = this.toasts.progress('Uploading 3 files');
-    const known = outcome !== 'unknown';
-    let percent = 0;
-    const timer = setInterval(() => {
-      percent += 8;
-      if (outcome === 'dismiss' && percent >= 48) {
-        // As when a dialog takes the work back: the toast goes, with no outcome.
-        clearInterval(timer);
-        toast.dismiss();
-        return;
-      }
-      if (percent < 100) {
-        const file = Math.min(3, Math.floor(percent / 34) + 1);
-        toast.update(`clip-${file}.mp4 · file ${file} of 3`, known ? percent : null);
-        return;
-      }
-      clearInterval(timer);
-      if (outcome === 'fail') toast.fail('Upload failed: no space left on the device.');
-      else toast.done('Uploaded 3 files.');
-    }, 250);
-  }
-
   protected deleteRegion(region: string): void {
     this.regions.update((regions) => regions.filter((name) => name !== region));
   }
@@ -2195,14 +1579,6 @@ export class ComponentsPage {
   protected commitPage(page: number): void {
     this.page.set(page);
     this.pageCommits.update((count) => count + 1);
-  }
-
-  protected togglePressed(variant: NeatButtonVariant): void {
-    this.pressedVariants.update((pressed) => {
-      const next = new Set(pressed);
-      if (!next.delete(variant)) next.add(variant);
-      return next;
-    });
   }
 
   constructor() {

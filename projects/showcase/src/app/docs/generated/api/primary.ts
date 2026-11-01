@@ -1262,7 +1262,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " the page's main action, "
+              "text": " the page's main action (the app's accent), "
             },
             {
               "kind": "code",
@@ -1270,7 +1270,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " a quieter filled one, "
+              "text": " a quieter filled one and the neutral choice, "
             },
             {
               "kind": "code",
@@ -1294,7 +1294,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " a solid red for what stops or discards something, "
+              "text": " a solid red for what stops or discards something (Stop recording), "
             },
             {
               "kind": "code",
@@ -1310,7 +1310,52 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " a solid green for what starts something."
+              "text": " a solid green for what starts something (Start recording)."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "success"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "danger"
+            },
+            {
+              "kind": "text",
+              "text": " pair with the filled "
+            },
+            {
+              "kind": "code",
+              "text": "play"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "stop"
+            },
+            {
+              "kind": "text",
+              "text": " icons. "
+            },
+            {
+              "kind": "code",
+              "text": "danger-text"
+            },
+            {
+              "kind": "text",
+              "text": " hovers as the text buttons beside it do, its label kept red, and focuses with danger's red ring."
             }
           ]
         }

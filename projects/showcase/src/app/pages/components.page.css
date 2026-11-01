@@ -9,20 +9,12 @@
   color: var(--card-foreground);
 }
 
-/* Inline buttons take their line's size and colour: a note, then the kit's list lines. */
+/* An inline button takes its line's size and colour: here a note's. */
 .note-demo {
   display: flex;
   flex-direction: column;
   gap: var(--neat-space-2);
   width: 18rem;
-}
-
-.inline-demo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--neat-space-2);
-  width: 18rem;
-  font-size: var(--neat-text-xs);
 }
 
 /* The list sets its own size; this one sizes the "No regions." line that replaces it. */
@@ -59,14 +51,6 @@
 
 .card-field {
   width: 10rem;
-}
-
-/* A popover's content is the page's to lay out: here a column of fields. */
-.popover-fields {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--neat-space-3);
 }
 
 /* The grid fills its parent, so the demo gives it a box of a fixed height to fill. */
@@ -110,28 +94,6 @@
   display: inline-flex;
   align-items: center;
   gap: var(--neat-space-2);
-  font-size: var(--neat-text-sm);
-}
-
-/* A dialog's content is the app's to lay out: here a field above a switch. */
-.dialog-form {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--neat-space-4);
-}
-
-.dialog-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--neat-space-2);
-  align-self: stretch;
-  font-size: var(--neat-text-sm);
-}
-
-.dialog-list {
-  margin: 0;
-  padding-inline-start: var(--neat-space-4);
   font-size: var(--neat-text-sm);
 }
 

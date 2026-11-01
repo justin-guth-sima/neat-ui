@@ -1,0 +1,34 @@
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { NeatButton, NeatIcon } from '@sima/neat-ui';
+import { VARIANTS } from './variants';
+
+/**
+ * Per variant: with a `neat-icon` before the label, `disabled`, waiting and as a link. Waiting is
+ * `aria-disabled="true"`: it is dimmed with a not-allowed cursor but keeps the focus (Tab reaches
+ * it) and its hover, so a tooltip on it would still open, and a click, Enter and Space still fire
+ * its click handler, which the app ignores while it waits. The link leads back to this page, so
+ * trying it goes nowhere.
+ */
+@Component({
+  selector: 'app-states',
+  imports: [NeatButton, NeatIcon, RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    @for (variant of variants; track variant) {
+      <div class="showcase-row">
+        <button neatButton type="button" [variant]="variant">
+          <neat-icon name="streaming" [size]="16" />
+          With icon
+        </button>
+        <button neatButton type="button" [variant]="variant" disabled>Disabled</button>
+        <button neatButton type="button" [variant]="variant" aria-disabled="true">Waiting</button>
+        <a neatButton [variant]="variant" routerLink="/actions/button">Link</a>
+      </div>
+    }
+  `,
+  styleUrl: './states.example.css',
+})
+export class States {
+  protected readonly variants = VARIANTS;
+}

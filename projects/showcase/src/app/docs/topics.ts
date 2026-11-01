@@ -193,6 +193,133 @@ export const GROUPS: readonly TopicGroup[] = [
     ],
   },
   {
+    id: 'actions',
+    label: 'Actions',
+    icon: 'shapes',
+    topics: [
+      {
+        id: 'button',
+        label: 'Button',
+        parts: ['NeatButton', 'NeatButtonVariant', 'NeatButtonSize'],
+        leads: ['NeatButton'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/button'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'inline-button',
+        label: 'Inline button',
+        parts: ['NeatInlineButton'],
+        leads: ['NeatInlineButton'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/inline-button'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'breadcrumbs',
+        label: 'Breadcrumbs',
+        parts: ['NeatBreadcrumbs', 'NeatBreadcrumb'],
+        leads: ['NeatBreadcrumbs'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/breadcrumbs'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'tooltip',
+        label: 'Tooltip',
+        parts: ['NeatTooltip', 'NeatTooltipPosition'],
+        leads: ['NeatTooltip'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/tooltip'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'popover',
+        label: 'Popover',
+        parts: [
+          'NeatPopover',
+          'NeatPopoverTrigger',
+          'NeatPopoverContent',
+          'NeatPopoverItem',
+          'NeatPopoverDivider',
+          'NeatPopoverAlign',
+        ],
+        leads: ['NeatPopover', 'NeatPopoverTrigger'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/popover'),
+            import('./generated/examples/popover'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'confirm',
+        label: 'Confirm',
+        parts: ['NeatConfirm', 'NeatConfirmOptions'],
+        leads: ['NeatConfirm'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/confirm'),
+            import('./generated/examples/confirm'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'dialog',
+        label: 'Dialog',
+        parts: [
+          'NeatDialog',
+          'NeatDialogBody',
+          'NeatDialogActions',
+          'NeatDialogRef',
+          'NeatDialogOptions',
+          'NeatDialogComponentOptions',
+          'NeatDialogInputs',
+          'NeatDialogSize',
+        ],
+        leads: ['NeatDialog'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/dialog'),
+            import('./generated/examples/dialog'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'toast',
+        label: 'Toast',
+        parts: ['NeatToasts', 'NeatToastHost', 'NeatProgressToast'],
+        leads: ['NeatToasts', 'NeatToastHost'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/toast'),
+            import('./generated/examples/toast'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+    ],
+  },
+  {
     id: 'status',
     label: 'Status',
     icon: 'info',

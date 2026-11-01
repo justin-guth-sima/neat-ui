@@ -32,11 +32,11 @@ export interface NeatProgressToast {
  * upload.done('Uploaded 3 files.');
  * ```
  *
- * An error or warning toast clears after 4.6 seconds and a status toast after 3.2. A progress toast
- * stays until `done` or `fail` turns it into an error or a status, so work that outlives the page
- * or dialog that started it keeps reporting, or until `dismiss` removes it. They show in the
- * `<neat-toast-host>` the app renders once. There is no toast without a host: the app must render
- * one, or nothing is shown.
+ * An error or warning toast, each led by the icon of its kind, clears after 4.6 seconds and a
+ * status toast after 3.2. A progress toast stays until `done` or `fail` turns it into an error or a
+ * status, so work that outlives the page or dialog that started it keeps reporting, or until
+ * `dismiss` removes it. They show in the `<neat-toast-host>` the app renders once. There is no
+ * toast without a host: the app must render one, or nothing is shown.
  *
  * Toasts do not hold the kiosk toolbar: they are not part of the floating chrome, and they
  * clear on their own.

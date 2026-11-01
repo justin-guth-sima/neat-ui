@@ -26,12 +26,18 @@ const NEEDS_EXAMPLE: ReadonlySet<DocsDeclaredPart['kind']> = new Set([
 ]);
 
 /**
- * Functions that configure an app once, in its `app.config.ts`, before anything renders. No
- * example can show them without faking their use: a component cannot provide them to the app
- * around it, and the showcase's own call is the app's, not an example. Their doc comments and API
- * entries carry what they do, and the showcase's `app.config.ts` is the call itself.
+ * Parts that belong to the app's own root, once, and not to a page: `provideNeatUi` and
+ * `provideNeatTitles` configure the app in its `app.config.ts`, before anything renders, and
+ * `NeatToastHost` is rendered once beside the shell in the root template. No example can show them
+ * without faking their use: a component cannot provide them to the app around it, and a second
+ * host would show every toast twice. Their doc comments and API entries carry what they do, and
+ * the showcase's `app.config.ts` and `app.ts` (the shell topic's last example) are the uses.
  */
-const CONFIGURES_THE_APP: ReadonlySet<string> = new Set(['provideNeatUi', 'provideNeatTitles']);
+const BELONGS_TO_THE_APP: ReadonlySet<string> = new Set([
+  'provideNeatUi',
+  'provideNeatTitles',
+  'NeatToastHost',
+]);
 
 const topics = GROUPS.flatMap((group) => group.topics.map((topic) => ({ group, topic })));
 /**
@@ -89,7 +95,7 @@ describe('the docs topics', () => {
           part &&
           NEEDS_EXAMPLE.has(part.kind) &&
           !part.deprecated &&
-          !CONFIGURES_THE_APP.has(name) &&
+          !BELONGS_TO_THE_APP.has(name) &&
           !shown.has(name)
         );
       });

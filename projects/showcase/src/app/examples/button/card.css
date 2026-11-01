@@ -1,0 +1,13 @@
+/*
+ * A card as an app draws one: its own surface, which differs from the page's in dark mode, so a
+ * fill that is visible on the page is checked on it too.
+ */
+.card {
+  --neat-surface: var(--card);
+
+  padding: var(--neat-space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+}

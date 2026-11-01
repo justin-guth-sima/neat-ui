@@ -10,10 +10,11 @@ const PAGES = [
   { path: '/layout/shell', link: 'Layout', heading: 'NeatShell' },
   { path: '/layout/page', link: 'Layout', heading: 'NeatPage' },
   { path: '/layout/side-panel', link: 'Layout', heading: 'NeatAsidePanel' },
+  { path: '/actions/button', link: 'Actions', heading: 'NeatButton' },
   { path: '/status/status-chip', link: 'Status', heading: 'NeatStatusChip' },
   { path: '/charts/time-chart', link: 'Charts', heading: 'NeatTimeChart' },
   { path: '/diagram/diagram', link: 'Diagram', heading: 'NeatDiagramView' },
-  { path: '/components', link: 'Components', heading: 'Button' },
+  { path: '/components', link: 'Components', heading: 'Note' },
   { path: '/legacy/charts', link: 'Charts (old)', heading: 'Sparkline' },
   { path: '/legacy/diagram', link: 'Diagram (old)', heading: 'Diagram' },
 ];
@@ -62,6 +63,7 @@ describe('App', () => {
     expect(labels).toEqual([
       'Theme',
       'Layout',
+      'Actions',
       'Status',
       'Charts',
       'Diagram',

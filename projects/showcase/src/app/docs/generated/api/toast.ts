@@ -241,7 +241,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "An error or warning toast clears after 4.6 seconds and a status toast after 3.2. A progress toast stays until "
+              "text": "An error or warning toast, each led by the icon of its kind, clears after 4.6 seconds and a status toast after 3.2. A progress toast stays until "
             },
             {
               "kind": "code",

@@ -4,11 +4,14 @@ import { buttonVariants, type ButtonVariants } from '../ui/button/src';
 import { hlm } from '../ui/utils/src';
 
 /**
- * The button's look, by what the action does: `primary` the page's main action, `secondary` a
- * quieter filled one, `outlined` a bordered one, `text` no fill and no border (for actions among
- * others), `danger` a solid red for what stops or discards something, `danger-text` that red as
- * text for a destructive action among text buttons, and `success` a solid green for what starts
- * something.
+ * The button's look, by what the action does: `primary` the page's main action (the app's
+ * accent), `secondary` a quieter filled one and the neutral choice, `outlined` a bordered one,
+ * `text` no fill and no border (for actions among others), `danger` a solid red for what stops or
+ * discards something (Stop recording), `danger-text` that red as text for a destructive action
+ * among text buttons, and `success` a solid green for what starts something (Start recording).
+ *
+ * `success` and `danger` pair with the filled `play` and `stop` icons. `danger-text` hovers as the
+ * text buttons beside it do, its label kept red, and focuses with danger's red ring.
  */
 export type NeatButtonVariant =
   'primary' | 'secondary' | 'outlined' | 'text' | 'danger' | 'danger-text' | 'success';
