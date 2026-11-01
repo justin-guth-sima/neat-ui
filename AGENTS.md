@@ -503,8 +503,9 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   Elements marked `neatCollapsibleEnd` sit at the end of the trigger's row, outside the button and
   its heading, for the section's own controls (the docs' file choice and Copy over an example's
   code): a control inside the trigger would be a button in a button. The row wraps, so they drop
-  to a line of their own before they take the label's room, and a close that removes the one with
-  the focus (shown only while open) puts the focus on the trigger, as for the content.
+  to a line of their own before they take the room of the label and summary (the trigger's width is
+  both in full, so a long summary wraps them before it truncates), and a close that removes the
+  one with the focus (shown only while open) puts the focus on the trigger, as for the content.
   `NeatCallout` hosts no brain primitive (brain has none); it is the kit's own box over the theme's
   tints, one look for the banners, problems and guides of every app. Its heading is a real heading
   (`role="heading"`, `headingLevel`, 3 by default), and with `region` (a landmark, which needs a

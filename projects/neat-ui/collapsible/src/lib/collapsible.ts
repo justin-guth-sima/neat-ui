@@ -82,8 +82,9 @@ const CONTENT_CLASSES = 'pt-(--neat-space-2) data-closed:hidden';
  * Elements marked `neatCollapsibleEnd` sit at the end of the trigger's row, outside the trigger
  * and its heading: the section's own controls (a copy button over a code sample, a file choice),
  * which act without opening or closing it. The trigger takes the rest of the row, and the
- * controls drop to a second line where they would leave the label no room. They show whether the
- * section is open or closed; an app shows them only while open with an `@if`.
+ * controls drop to a second line where they would leave the label and summary no room: the
+ * trigger's width is both in full, so a long summary wraps the controls before it truncates. They
+ * show whether the section is open or closed; an app shows them only while open with an `@if`.
  *
  * Brain's collapsible is the host directive and its trigger and content directives sit in the
  * template; `open` is brain's `expanded` under the kit's name.
@@ -179,7 +180,13 @@ export class NeatCollapsible {
       untracked(() => {
         // The app's own view is refreshed first, so an end control the close removed is gone.
         const endRemoved = this.endFocus !== null && !this.endFocus.isConnected;
-        if (endRemoved || this.content()?.nativeElement.contains(document.activeElement)) {
+        // A removed control gives the focus up to the page, so only a focus that is lost is
+        // rescued: one the user has since moved elsewhere (a click on the blank page) stays.
+        const lost = document.activeElement === null || document.activeElement === document.body;
+        if (
+          (endRemoved && lost) ||
+          this.content()?.nativeElement.contains(document.activeElement)
+        ) {
           this.trigger()?.nativeElement.focus();
         }
         this.endFocus = null;
@@ -192,8 +199,12 @@ export class NeatCollapsible {
     this.endFocus = target === this.trigger()?.nativeElement ? null : target;
   }
 
-  /** A move of the focus elsewhere; a removed control keeps its note, for the close to see. */
+  /**
+   * A move of the focus to another element. A focusout with no `relatedTarget` is the focus
+   * leaving the page or, in Chrome, an element being removed while it still has the focus (still
+   * connected, so `isConnected` cannot tell): the note stays, for the close to see.
+   */
   protected forgetFocus(event: FocusEvent): void {
-    if ((event.target as HTMLElement).isConnected) this.endFocus = null;
+    if (event.relatedTarget) this.endFocus = null;
   }
 }

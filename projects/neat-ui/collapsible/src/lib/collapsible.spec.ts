@@ -184,8 +184,12 @@ describe('NeatCollapsible', () => {
   it('moves the focus to the trigger when a close from code removes the end control it was on', async () => {
     const { fixture, host, element, trigger } = await render((host) => host.open.set(true));
     document.body.append(element);
-    element.querySelector<HTMLElement>('.end-open')!.focus();
+    const control = element.querySelector<HTMLElement>('.end-open')!;
+    control.focus();
 
+    // Chrome fires focusout on the focused element while it is removed, still connected and with
+    // no relatedTarget; jsdom fires nothing, so the spec says it, as the app's `@if` would cause.
+    control.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
     host.open.set(false);
     await fixture.whenStable();
 

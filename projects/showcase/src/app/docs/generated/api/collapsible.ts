@@ -143,7 +143,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " sit at the end of the trigger's row, outside the trigger and its heading: the section's own controls (a copy button over a code sample, a file choice), which act without opening or closing it. The trigger takes the rest of the row, and the controls drop to a second line where they would leave the label no room. They show whether the section is open or closed; an app shows them only while open with an "
+              "text": " sit at the end of the trigger's row, outside the trigger and its heading: the section's own controls (a copy button over a code sample, a file choice), which act without opening or closing it. The trigger takes the rest of the row, and the controls drop to a second line where they would leave the label and summary no room: the trigger's width is both in full, so a long summary wraps the controls before it truncates. They show whether the section is open or closed; an app shows them only while open with an "
             },
             {
               "kind": "code",
