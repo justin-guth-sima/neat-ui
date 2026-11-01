@@ -97,6 +97,13 @@ describe('the docs topics', () => {
     expect(new Set(paths).size).toBe(paths.length);
     expect(new Set(groups).size).toBe(groups.length);
   });
+
+  // The id is also the examples folder and the `/demo/<id>` path, whichever group the topic is in.
+  it('has unique topic ids across groups', () => {
+    const ids = topics.map(({ topic }) => topic.id);
+
+    expect(new Set(ids).size).toBe(ids.length);
+  });
 });
 
 /** jsdom has no ResizeObserver; the pages' sizes are not what these specs check. */

@@ -4,7 +4,10 @@
   gap: var(--neat-space-3);
 }
 
-/* A card as an app draws one: its own surface, so each chip is seen on it as well as on the page. */
+/*
+ * A card as an app draws one: its own surface, so each chip is seen on it as well as on the
+ * page.
+ */
 .card {
   --neat-surface: var(--card);
 

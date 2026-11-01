@@ -18,7 +18,10 @@ export function withGap(values: number[], from: number, gap: number): (number | 
   return values.map((value, index) => (index >= from && index < from + gap ? null : value));
 }
 
-/** Eight minutes of samples four seconds apart, ending at a fixed instant so the demo stands still. */
+/**
+ * Eight minutes of samples four seconds apart, ending at a fixed instant so the demo stands
+ * still.
+ */
 export const SAMPLES = 120;
 export const TIMES: readonly number[] = Array.from(
   { length: SAMPLES },

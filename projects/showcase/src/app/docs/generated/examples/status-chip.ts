@@ -87,7 +87,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "surfaces.css",
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
-          ["comment","/* A card as an app draws one: its own surface, so each chip is seen on it as well as on the page. */"],["text","\n.card {\n  --neat-surface: var(--card);\n\n  padding: var(--neat-space-4);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n  color: var(--card-foreground);\n}\n"]
+          ["comment","/*\n * A card as an app draws one: its own surface, so each chip is seen on it as well as on the\n * page.\n */"],
+          ["text","\n.card {\n  --neat-surface: var(--card);\n\n  padding: var(--neat-space-4);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n  color: var(--card-foreground);\n}\n"]
         ]
       }
     ]
@@ -159,7 +160,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "surfaces.css",
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
-          ["comment","/* A card as an app draws one: its own surface, so each chip is seen on it as well as on the page. */"],["text","\n.card {\n  --neat-surface: var(--card);\n\n  padding: var(--neat-space-4);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n  color: var(--card-foreground);\n}\n"]
+          ["comment","/*\n * A card as an app draws one: its own surface, so each chip is seen on it as well as on the\n * page.\n */"],
+          ["text","\n.card {\n  --neat-surface: var(--card);\n\n  padding: var(--neat-space-4);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n  color: var(--card-foreground);\n}\n"]
         ]
       }
     ]

@@ -16,7 +16,10 @@ export interface TopicConfig {
   readonly leads: readonly string[];
   /** The top bar's Fit button, for examples that have a `fit()` (`DocsTopic.fit`). */
   readonly fit?: true;
-  /** The examples need a whole page: each is routed at `/demo/<id>/<example>` (`DocsTopic.openBase`). */
+  /**
+   * The examples need a whole page: each is routed at `/demo/<id>/<example>`
+   * (`DocsTopic.openBase`).
+   */
   readonly fullPage?: true;
   /** The generated API modules of the entries that declare the parts, and the examples module. */
   readonly load: () => Promise<{
