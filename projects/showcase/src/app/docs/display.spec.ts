@@ -114,12 +114,10 @@ describe('docs display rules', () => {
 
   it('counts the paragraphs the cut leaves for later', () => {
     expect(moreLabel([paragraph, fence, paragraph, paragraph, fence, paragraph])).toBe(
-      'Show the whole description (2 more paragraphs)',
+      'Show 2 more paragraphs',
     );
-    expect(moreLabel([paragraph, paragraph, paragraph])).toBe(
-      'Show the whole description (1 more paragraph)',
-    );
-    expect(moreLabel([paragraph, paragraph, fence])).toBe('Show the whole description');
+    expect(moreLabel([paragraph, paragraph, paragraph])).toBe('Show 1 more paragraph');
+    expect(moreLabel([paragraph, paragraph, fence])).toBe('Show the rest');
   });
 
   it("cuts an example's shows entry to the part's name", () => {

@@ -3,9 +3,13 @@
   min-width: 0;
 }
 
-/* The trigger's row, after "Code": the file shown, the other files, Copy. */
+/*
+ * The trigger's row, after "Code": the file shown, the other files, Copy, at the row's end, also
+ * when a narrow card puts them on a line of their own.
+ */
 .files {
   display: flex;
+  flex-grow: 1;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;

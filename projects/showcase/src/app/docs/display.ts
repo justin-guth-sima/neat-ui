@@ -140,13 +140,13 @@ export function introCut(blocks: readonly DocBlock[]): number {
   return blocks.length;
 }
 
-/** What the body's "more" offers: the paragraphs the cut leaves for later, counted. */
+/**
+ * What the body's "more" offers: the paragraphs the cut leaves for later, counted. A few words, as
+ * an inline button keeps its label on one line (it fits a phone).
+ */
 export function moreLabel(blocks: readonly DocBlock[]): string {
-  const paragraphs = blocks.slice(introCut(blocks)).filter((block) => block.kind === 'paragraph');
-  const count = paragraphs.length;
-  return count
-    ? `Show the whole description (${count} more ${count === 1 ? 'paragraph' : 'paragraphs'})`
-    : 'Show the whole description';
+  const count = blocks.slice(introCut(blocks)).filter((block) => block.kind === 'paragraph').length;
+  return count ? `Show ${count} more ${count === 1 ? 'paragraph' : 'paragraphs'}` : 'Show the rest';
 }
 
 /** The part an example's `shows` entry names: `@sima/neat-ui/status-chip#NeatStatusChip`. */

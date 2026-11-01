@@ -50,7 +50,7 @@ describe('PartIntro', () => {
 
     expect(host.querySelectorAll('app-doc-text p')).toHaveLength(2);
     expect(host.querySelector('app-doc-text pre')?.textContent).toBe('<neat-diagram />');
-    expect(more.textContent?.trim()).toBe('Show the whole description (2 more paragraphs)');
+    expect(more.textContent?.trim()).toBe('Show 2 more paragraphs');
     expect(more.getAttribute('aria-expanded')).toBe('false');
     expect(more.getAttribute('aria-controls')).toBe(host.querySelector('app-doc-text')?.id);
 
