@@ -94,7 +94,7 @@ describe('the live pipeline example', () => {
 
   it('tunes the dots from the Animation panel', async () => {
     const trigger = button('Animation');
-    expect(trigger).toBeDefined();
+    expect(trigger).toBeTruthy();
 
     trigger.click();
     await settle();

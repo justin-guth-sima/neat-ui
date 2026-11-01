@@ -22,7 +22,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " spreads. Inside the Detector, the dots wait out its stage times. The notes are rate cards of an edge's "
+            "text": " spreads. Decode's figure line comes from the example's "
+          },
+          {
+            "kind": "ref",
+            "text": "NeatDiagramBlockTemplate",
+            "name": "NeatDiagramBlockTemplate"
+          },
+          {
+            "kind": "text",
+            "text": ". Open the Detector: inside it, the dots wait out its stage times. The notes are rate cards of an edge's "
           },
           {
             "kind": "code",

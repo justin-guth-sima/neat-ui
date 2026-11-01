@@ -44,4 +44,24 @@ describe('the ROI editor examples', () => {
     expect(setPaused).toHaveBeenLastCalledWith(true);
     vi.restoreAllMocks();
   });
+
+  it('count the regions by type and name the highlighted one as Delete does', async () => {
+    const { fixture, summary } = await render();
+    const example = fixture.componentInstance;
+    const square = [
+      { x: 0.1, y: 0.1 },
+      { x: 0.4, y: 0.1 },
+      { x: 0.4, y: 0.4 },
+    ];
+
+    example['regions'].set([
+      { type: 'inclusion', points: square },
+      { type: 'exclusion', points: square },
+      { type: 'exclusion', points: square },
+    ]);
+    example['highlighted'].set(2);
+    await fixture.whenStable();
+
+    expect(summary()).toBe('Regions: 3 (1 inclusion, 2 exclusion) · highlighted: Exclusion 2');
+  });
 });

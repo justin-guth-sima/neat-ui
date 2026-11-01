@@ -14,15 +14,15 @@ const BAR_COLORS = [
   SIMA_PALETTE.lime,
 ];
 const BOX = { width: 120, height: 90 };
-/** Detections come every other frame, as from a model slower than the video; the tile holds them. */
+/** Detections come every other frame, as from a model slower than the video; held between. */
 const DETECTION_EVERY = 2;
 
 /**
- * A `NeatTileSource` for the showcase, so the tile plays without vf: a canvas test pattern streamed
- * with `captureStream()`, and object-detection metadata for the box moving across it. A canvas
- * stream has no RTP timestamps, so the tile matches metadata by arrival, which takes only the latest
- * message: hence one type. Pausing stops painting, so the stream presents no frames and the tile
- * goes stopped.
+ * A `NeatTileSource` for the showcase, so the tile plays without vf: a canvas test pattern
+ * streamed with `captureStream()`, and object-detection metadata for the box moving across it. A
+ * canvas stream has no RTP timestamps, so the tile matches metadata by arrival, which takes only
+ * the latest message: hence one type. Pausing stops painting, so the stream presents no frames
+ * and the tile goes stopped.
  */
 export class TestPatternSource implements NeatTileSource {
   readonly stream = signal<MediaStream | null>(null);

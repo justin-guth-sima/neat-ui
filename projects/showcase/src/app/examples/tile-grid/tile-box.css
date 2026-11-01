@@ -11,7 +11,7 @@
   gap: var(--neat-space-3);
 }
 
-.width neat-slider {
+neat-slider {
   width: 16rem;
 }
 
