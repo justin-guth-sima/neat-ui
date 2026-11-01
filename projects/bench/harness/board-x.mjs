@@ -34,14 +34,16 @@ function assertLockDir(lockDir) {
  * Stopping LightDM takes that session's X server down with it, and its clients and unsaved work
  * with them: the one effect of a bare run that cannot be undone, and one on processes the harness
  * did not start. LightDM's own greeter (class `greeter`) and sessions on a tty or over ssh (class
- * `user`, no seat) are not in the way. Without `loginctl` there is no telling, so it refuses
- * too. Run before LightDM is touched, and again at the stop itself, as copying the site to the
- * board takes a while in which somebody could log in.
+ * `user`, no seat) are not in the way. Without a working `loginctl` (missing, or logind down)
+ * there is no telling, so it refuses too. Run before LightDM is touched, and again at the stop
+ * itself, as copying the site to the board takes a while in which somebody could log in.
  */
 export function graphicalSessionFragment() {
   return `command -v loginctl >/dev/null 2>&1 ||
   { echo "note loginctl is missing: no way to tell whether somebody is logged in on the display"; exit 1; }
-for session in $(loginctl list-sessions --no-legend 2>/dev/null | awk '{print $1}'); do
+sessions=$(loginctl list-sessions --no-legend 2>/dev/null) ||
+  { echo "note loginctl list-sessions failed: no way to tell whether somebody is logged in on the display"; exit 1; }
+for session in $(printf '%s\\n' "$sessions" | awk '{print $1}'); do
   who=$(loginctl show-session "$session" -p Name -p Class -p Type -p Seat 2>/dev/null | awk -F= '
     $1 == "Name" { name = $2 }
     $1 == "Class" { class = $2 }
@@ -58,12 +60,13 @@ done
 
 /**
  * Starts the bare X server in the run's directory (which must exist and be watched by the guard).
- * It checks it can (`fuser`, passwordless sudo, nobody logged in) before LightDM is touched, records whether LightDM
- * was active, stops it, makes the cookie, starts Xorg on a free display and VT, waits for it to
- * answer, turns the screen saver and DPMS off on it and sets `mode` at 60 Hz on its connected
- * output. Prints `lightdm <state>`, `display :N`, `vt K`, `output NAME`, `mode WxH`, `rate R` and
- * `xpid N`. Where it fails (a mode the output does not offer, say) it prints `note ...` lines and
- * exits non-zero, before anything is measured; the teardown copes with whatever it got to.
+ * It checks it can (`fuser`, passwordless sudo, nobody logged in) before LightDM is touched,
+ * records whether LightDM was active, stops it, makes the cookie, starts Xorg on a free display
+ * and VT, waits for it to answer, turns the screen saver and DPMS off on it and sets `mode` at
+ * 60 Hz on its connected output. Prints `lightdm <state>`, `display :N`, `vt K`, `output NAME`,
+ * `mode WxH`, `rate R` and `xpid N`. Where it fails (a mode the output does not offer, say) it
+ * prints `note ...` lines and exits non-zero, before anything is measured; the teardown copes with
+ * whatever it got to.
  * `lockDir` is where X keeps its lock files (`/tmp`; the specs point it elsewhere).
  */
 export function xStartScript(dir, { parents, mode = DEFAULT_MODE, lockDir = '/tmp' } = {}) {

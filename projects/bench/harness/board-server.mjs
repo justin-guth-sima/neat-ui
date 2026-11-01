@@ -6,7 +6,8 @@
 // rule as the browser's), and the one teardown in `remote.mjs` stops it before the directory is
 // removed. The server binds 127.0.0.1 or one of the board's own addresses (checked there, never
 // `0.0.0.0`): `--serve board:<bind>` with `--target local` is the mode where the board serves the
-// laptop's browser. Scripts are built here and run with `sh -s` over ssh; their parts are validated first.
+// laptop's browser. Scripts are built here and run with `sh -s` over ssh; their parts are
+// validated first.
 import { spawn } from 'node:child_process';
 import { readdir, stat } from 'node:fs/promises';
 import { join, posix } from 'node:path';

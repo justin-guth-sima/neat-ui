@@ -36,7 +36,8 @@ esac
   // list-sessions prints systemd's columns (session, uid, user, seat, tty); show-session prints
   // each property in an order of its own, whichever were asked for, as systemd does.
   loginctl: `case "$1" in
-  list-sessions) awk '{ print $1, 1000, $2, ($5 == "-" ? "" : $5), "-" }' "$STUB_SESSIONS" ;;
+  list-sessions) [ -z "$STUB_LOGIND_DOWN" ] || { echo 'Failed to connect to bus' >&2; exit 1; }
+    awk '{ print $1, 1000, $2, ($5 == "-" ? "" : $5), "-" }' "$STUB_SESSIONS" ;;
   show-session)
     awk -v id="$2" '$1 == id {
       print "Type=" $4; print "Class=" $3; print "Name=" $2; print "Seat=" ($5 == "-" ? "" : $5)

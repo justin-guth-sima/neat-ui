@@ -753,7 +753,7 @@ test('asks the guard to tear down after a failed first script, too', async () =>
     prepareOut: { code: 1, stdout: 'guard 999\n' },
     waitOut: { code: 0, stdout: 'note no pid file\nremoved\n' },
   });
-  await assert.rejects(bareRun(r), /could not make the run directory/);
+  await assert.rejects(bareRun(r), /could not prepare the board/);
   assert.ok(r.calls.includes('wait'));
 });
 

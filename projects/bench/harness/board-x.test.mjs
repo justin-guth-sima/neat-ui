@@ -252,7 +252,7 @@ test('does not touch LightDM where fuser is missing: every VT would look free', 
 
 // The check for a graphical login, run for real on the stand-in board's loginctl. The board
 // today has LightDM's greeter on seat0 and a tty login with no seat: both must pass.
-const sessionCheck = (sessions, { omit } = {}) => {
+const sessionCheck = (sessions, { omit, logindDown } = {}) => {
   counter += 1;
   const root = join(work, `session${counter}`);
   mkdirSync(root);
@@ -265,6 +265,7 @@ const sessionCheck = (sessions, { omit } = {}) => {
     env.PATH = own;
   }
   if (sessions) writeFileSync(env.STUB_SESSIONS, `${sessions.join('\n')}\n`);
+  if (logindDown) env.STUB_LOGIND_DOWN = '1';
   return spawnSync('/bin/sh', ['-s'], {
     input: `${graphicalSessionFragment()}echo passed\n`,
     encoding: 'utf8',
@@ -313,6 +314,13 @@ test('refuses where it cannot tell, as loginctl is missing', LINUX_ONLY, () => {
   const out = sessionCheck(undefined, { omit: ['loginctl'] });
   assert.equal(out.status, 1);
   assert.match(out.stdout, /^note loginctl is missing/m);
+});
+
+test('refuses where it cannot tell, as loginctl fails (logind down)', LINUX_ONLY, () => {
+  const out = sessionCheck(undefined, { logindDown: true });
+  assert.equal(out.status, 1);
+  assert.match(out.stdout, /^note loginctl list-sessions failed/m);
+  assert.doesNotMatch(out.stdout, /passed/);
 });
 
 test(

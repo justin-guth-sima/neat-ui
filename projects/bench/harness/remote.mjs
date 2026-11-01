@@ -19,8 +19,9 @@
 // board must get its login screen back even when this side cannot finish; other runs keep the
 // plain stop script. Only `bare` runs heal themselves, then: a run with `--remote-display :0` or
 // `--serve board` alone is cleaned up by this laptop's stop and nothing else, so a killed node, a
-// closed lid or a dropped link leaves its browser, server and directory on the board. Either way nothing is started on the board while
-// a stop is under way, and a stop waits for a start script that is still running there.
+// closed lid or a dropped link leaves its browser, server and directory on the board. Either way
+// nothing is started on the board while a stop is under way, and a stop waits for a start script
+// that is still running there.
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { setTimeout as sleep } from 'node:timers/promises';
@@ -469,7 +470,7 @@ export async function startRemote({
             `laptop goes quiet for ${GUARD.staleS} s`,
         );
       }
-      fails('could not make the run directory', prepared);
+      fails('could not prepare the board', prepared);
     }
     if (serve) {
       aborted();

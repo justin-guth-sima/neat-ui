@@ -86,9 +86,9 @@ const BENCH_SPECIFIER = new RegExp(`['"](${BENCH_ONLY.join('|')})(/[^'"]*)?['"]`
 /**
  * The diagram entry's bench seam (AGENTS.md "The rendering bench"): internals the bench alone may
  * import, never in `public-api.ts`. The package's code uses the same internals, so their names are
- * in it; what must not be there is any of them exported by the diagram entry, or the seam's file named (a source map
- * lists every file a bundle was built from). The names are read from the seam itself, so it can
- * change without this list falling behind.
+ * in it; what must not be there is any of them exported by the diagram entry, or the seam's file
+ * named (a source map lists every file a bundle was built from). The names are read from the seam
+ * itself, so it can change without this list falling behind.
  */
 const SEAM_FILE = fileURLToPath(
   new URL('../projects/neat-ui/diagram/src/bench-seam.ts', import.meta.url),
