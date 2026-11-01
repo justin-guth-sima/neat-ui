@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { docsRoutes } from './docs/docs-routes';
+import { GROUPS } from './docs/topics';
 
 // Each page's title goes into the document's (`provideNeatTitles` in app.config.ts).
 export const routes: Routes = [
@@ -8,6 +10,8 @@ export const routes: Routes = [
     title: 'Theme',
     loadComponent: () => import('./pages/theme.page').then((m) => m.ThemePage),
   },
+  // The generated docs: a page per topic of each group, which replace the old pages one by one.
+  ...docsRoutes(GROUPS),
   {
     path: 'icons',
     title: 'Icons',
@@ -18,14 +22,15 @@ export const routes: Routes = [
     title: 'Components',
     loadComponent: () => import('./pages/components.page').then((m) => m.ComponentsPage),
   },
+  // The old pages whose names a group of the docs has taken, kept while topics move off them.
   {
-    path: 'charts',
-    title: 'Charts',
+    path: 'legacy/charts',
+    title: 'Charts (old)',
     loadComponent: () => import('./pages/charts.page').then((m) => m.ChartsPage),
   },
   {
-    path: 'diagram',
-    title: 'Diagram',
+    path: 'legacy/diagram',
+    title: 'Diagram (old)',
     loadComponent: () => import('./pages/diagram.page').then((m) => m.DiagramPage),
   },
   {

@@ -23,16 +23,10 @@ import {
   NeatDiagramRateCard,
   NeatDiagramView,
 } from '@sima/neat-ui/diagram';
-import {
-  COMPILE_FLOW,
-  COMPILE_LEGEND,
-  MODEL_EDGE_TIPS,
-  MODEL_GRAPH,
-  MODEL_LEGEND,
-  PIPELINE,
-  PIPELINE_LEGEND,
-  PIPELINE_MESSAGE_STEPS,
-} from './diagram-examples';
+import { COMPILE_FLOW, COMPILE_LEGEND } from '../examples/diagram/compile-flow-data';
+import { MODEL_EDGE_TIPS, MODEL_GRAPH, MODEL_LEGEND } from '../examples/diagram/model-graph-data';
+import { PIPELINE, PIPELINE_LEGEND } from '../examples/diagram/pipeline-data';
+import { PIPELINE_MESSAGE_STEPS } from './diagram-message-steps';
 
 /**
  * The pipeline's feed: a camera frame every 33 ms (30 Hz) and a result for every third (10 Hz),

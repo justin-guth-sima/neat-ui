@@ -18,16 +18,6 @@ export const KIND_LABEL: Record<DocsDeclaredPart['kind'], string> = {
   type: 'type',
 };
 
-/**
- * Kinds an app reads rather than renders: they need no example, so the page introduces none in
- * its body and the panel alone documents them.
- */
-const TYPE_KINDS: ReadonlySet<DocsDeclaredPart['kind']> = new Set(['interface', 'type', 'const']);
-
-export function isTypeKind(part: DocsDeclaredPart): boolean {
-  return TYPE_KINDS.has(part.kind);
-}
-
 /** `<neat-diagram>` for an element selector; any other selector as written. */
 export function selectorText(selector: string): string {
   return /^[a-z][\w-]*$/.test(selector) ? `<${selector}>` : selector;

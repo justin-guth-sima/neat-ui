@@ -47,7 +47,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "). The words are the app's; the colour repeats them and is never the only way a state is told. "
+              "text": "). The words are the app's; the colour repeats them and is never the only way a state is told. A chip truncates rather than widen the cell or bar that holds it. "
             },
             {
               "kind": "code",

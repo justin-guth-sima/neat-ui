@@ -8,10 +8,27 @@ import type { DocsDeclaredPart, DocsEntry, DocsExample } from './model';
 export interface DocsTopic {
   /** Export names, in the order the topic reads; each documented in exactly one topic. */
   readonly parts: readonly string[];
+  /**
+   * The topic's main parts: the body introduces each, and the panel lists them first. Names from
+   * `parts`; the rest are reached from the panel's jump list.
+   */
+  readonly leads: readonly string[];
   /** The generated API modules (`generated/api/<entry>.ts`) that declare those parts. */
   readonly entries: readonly DocsEntry[];
   /** The topic's examples module's `EXAMPLES`, in file-name order. */
   readonly examples: readonly DocsExample[];
+  /**
+   * The top bar gets a Fit button, which calls `fit()` on each example that has one. The topic's
+   * tools go here and not in an example, since a page has one toolbar and an example may not
+   * declare it (a second `*neatPageToolbar` throws).
+   */
+  readonly fit?: true;
+  /**
+   * Where the topic's full-page examples are routed (`/demo/page`), for examples that need the
+   * whole page (a toolbar, tabs, a panel of their own) and so cannot sit in a card: each card then
+   * links to `<openBase>/<id>` and shows the code, instead of rendering the example.
+   */
+  readonly openBase?: string;
 }
 
 /** A topic of the page's group, as one of its page tabs. */

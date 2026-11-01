@@ -1,35 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { ApiPart } from './api-part';
 import { typeParameters } from './display';
-import { API as CALLOUT } from './generated/api/callout';
-import { API as CHARTS } from './generated/api/charts';
-import { API as COLLAPSIBLE } from './generated/api/collapsible';
-import { API as CONFIRM } from './generated/api/confirm';
-import { API as DETAILS } from './generated/api/details';
-import { API as DIAGRAM } from './generated/api/diagram';
-import { API as DIALOG } from './generated/api/dialog';
-import { API as DROP_ZONE } from './generated/api/drop-zone';
-import { API as FIELD } from './generated/api/field';
-import { API as FILE_BROWSER } from './generated/api/file-browser';
-import { API as INPUT } from './generated/api/input';
-import { API as LEVEL_METER } from './generated/api/level-meter';
-import { API as LINE_LIST } from './generated/api/line-list';
-import { API as NUMBER_FIELD } from './generated/api/number-field';
-import { API as POPOVER } from './generated/api/popover';
-import { API as PRIMARY } from './generated/api/primary';
-import { API as PROGRESS } from './generated/api/progress';
-import { API as SEGMENTED } from './generated/api/segmented';
-import { API as SELECT_LIST } from './generated/api/select-list';
-import { API as SELECT } from './generated/api/select';
-import { API as SLIDER } from './generated/api/slider';
-import { API as STATUS_CHIP } from './generated/api/status-chip';
-import { API as SWITCH } from './generated/api/switch';
-import { API as TABLE } from './generated/api/table';
-import { API as TABS } from './generated/api/tabs';
-import { API as TOAST } from './generated/api/toast';
-import { API as VIDEO } from './generated/api/video';
-import type { DocBlock, DocsDeclaredPart, DocsEntry, DocsMember } from './model';
-import { FakeDocs, provideFakeDocs } from './docs.testing';
+import type { DocBlock, DocsDeclaredPart, DocsMember } from './model';
+import { FakeDocs, KIT_ENTRIES, provideFakeDocs } from './docs.testing';
 
 const words = (text: string): DocBlock[] => [
   { kind: 'paragraph', spans: [{ kind: 'text', text }] },
@@ -286,37 +259,7 @@ describe('ApiPart', () => {
     expect(text(host.querySelector('p[neatNote] + app-doc-text'))).toBe('Apps imported it there.');
   });
 
-  // Every generated API module: `tools/docs-emit.test.mjs` fails when one on disk is missing here.
-  const ENTRIES: DocsEntry[] = [
-    CALLOUT,
-    CHARTS,
-    COLLAPSIBLE,
-    CONFIRM,
-    DETAILS,
-    DIAGRAM,
-    DIALOG,
-    DROP_ZONE,
-    FIELD,
-    FILE_BROWSER,
-    INPUT,
-    LEVEL_METER,
-    LINE_LIST,
-    NUMBER_FIELD,
-    POPOVER,
-    PRIMARY,
-    PROGRESS,
-    SEGMENTED,
-    SELECT_LIST,
-    SELECT,
-    SLIDER,
-    STATUS_CHIP,
-    SWITCH,
-    TABLE,
-    TABS,
-    TOAST,
-    VIDEO,
-  ];
-  const PARTS = ENTRIES.flatMap((entry) =>
+  const PARTS = KIT_ENTRIES.flatMap((entry) =>
     entry.parts.flatMap((part) => (part.kind === 'reexport' ? [] : [part])),
   );
 

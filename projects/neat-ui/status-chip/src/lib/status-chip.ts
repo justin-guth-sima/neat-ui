@@ -67,9 +67,10 @@ const BUTTON_CLASSES =
  * a panel (Live, Idle, External), or a fact to note beside a value (a codec that cannot be
  * decoded). `highlight` is for a state that is none of the statuses but should stand out (a stream
  * that someone else publishes); a `neat-select-list` row can take the same tone as its chip
- * (`rowTone`). The words are the app's; the colour repeats them and is never the only way a state is
- * told. `variant="tinted"` softens the chip to its tone's colour on a tint; a tinted chip belongs
- * on the card or the page, not on a toned list row, whose selected fill is the same tint.
+ * (`rowTone`). The words are the app's; the colour repeats them and is never the only way a state
+ * is told. A chip truncates rather than widen the cell or bar that holds it. `variant="tinted"`
+ * softens the chip to its tone's colour on a tint; a tinted chip belongs on the card or the page,
+ * not on a toned list row, whose selected fill is the same tint.
  */
 @Component({
   selector: 'neat-status-chip',

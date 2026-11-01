@@ -102,9 +102,44 @@ look happens in one place. Every rule here protects that.
     the lint direction rules and the stylesheet's `@source` glob find a new entry by themselves. The
     stylesheet's scan skips `video`, which styles itself with component CSS only: a Tailwind utility
     in video code needs that exclusion lifted in `neat-ui.tailwind.css`, with the reason there.
-- `projects/showcase`: the component gallery.
+    The docs need their part too: a topic for the entry's parts in
+    `projects/showcase/src/app/docs/topics.ts`, its examples folder (below), and
+    `npm run docs:emit`.
+- `projects/showcase`: the component gallery, which is the kit's docs (below).
 - `projects/bench`: the rendering bench, an app that measures the diagram's drawing and is never
   published (below).
+
+**The showcase is the kit's docs, generated from the kit's source and its own examples.**
+`npm run docs:emit` reads the public API of every entry point (selectors, inputs, outputs, models,
+types, defaults, doc comments) with the TypeScript compiler API, and every `*.example.ts` under
+`projects/showcase/src/app/examples/<topic>/`, and writes typed modules into
+`projects/showcase/src/app/docs/generated/`. They are committed, as `tokens.generated.css` is, so a
+change to the public API or to an example shows in review as a diff and a fresh checkout needs no
+pre-step; never edit them. Why generated: hand-written docs drift from the code. Here the API panel
+is the doc comment, and the snippet under an example is the file that renders it.
+
+- A topic is one page, `/<group>/<topic>`: its examples, each live with its code, and the API
+  panel of its parts beside them. A group is a rail item and its topics are its page tabs. The
+  groups, the topics, each topic's parts (each part in exactly one topic), its lead parts (the ones
+  the body introduces) and its lazy loader are `docs/topics.ts`, written by hand. A topic with
+  `fit: true` gets a Fit button in the top bar that calls `fit()` on each of its examples that has
+  one; `fullPage: true` routes its examples at `/demo/<topic>/<example>` instead of in a card, for
+  one that needs the whole page (its own toolbar, tabs or panel, which a docs page keeps for
+  itself).
+- An example is a standalone component in `examples/<topic>/<id>.example.ts` (a numeric prefix
+  orders the examples and is not part of the id). Its class doc is its caption: prose shown above
+  it and left out of the snippet. Its title is the class name in words (`CPUUsage` is "CPU usage"),
+  and the kit parts it imports are the "Shows" links. The data files it imports and the
+  stylesheets it names (`styleUrl`) must be files of the topic folder, and are shown as further
+  files of the snippet. It is real code: built, linted, and given a spec where it has behaviour.
+- `npm run docs:emit -- --check` (which `npm run test:tools` runs, so CI does) fails on a stale,
+  missing or extra module and on doc problems: a part or an own input, model or output without a
+  doc, an example without a caption. `docs:emit -- --watch` keeps the modules live while editing;
+  `npm start` writes them once first. `docs/docs.spec.ts` fails a part in two topics and a
+  component, directive, service or function of a topic that none of its examples shows.
+- While the old pages (`pages/components.page.ts`, `charts.page.ts`, `diagram.page.ts`,
+  `icons.page.ts`, `page.page.ts`) are being moved onto topics, a part that is still only on one
+  may be in no topic; only Status chip, Time chart and Diagram are moved so far.
 
 **The toast host is rendered by the app, once, beside the shell.** `<neat-toast-host />` goes next
 to `<neat-shell>` in the app's root template (as the showcase's `app.ts` does); `NeatToasts` shows
@@ -857,10 +892,20 @@ Keep it in a small, separate unit that runs outside the Angular zone/signals gra
 interface, and has its own tests. Escape hatch: if the isolation costs too much for a case, say so
 in the PR and agree the exception before merging.
 
-**Every component appears in the showcase in both themes.**
-Why: the showcase is how people and agents discover what exists (rule one) and how both themes are
-checked by eye. A component missing from it will be reinvented. Escape hatch: none for components;
-internal building blocks that are not exported need no page.
+**Every public part has a doc comment, and appears in the docs.**
+Why: the docs are generated from the comments, so an undocumented part is an empty entry, and a
+part missing from the docs will be reinvented. Every public part and every own input, model and
+output has a doc comment; the docs show it as Markdown, of which they know paragraphs, fenced code
+(`@if` and `@for` inside a fence stay intact), one level of `-` lists, `**strong**` and code spans.
+A code span that is exactly a public part's name (`NeatTone`), or `Name.member`, becomes a link; one
+naming a kit identifier that is not public (a private constant) fails `docs:emit -- --check`, since
+no reader could follow it. The tags are `@deprecated <what to use instead>`, `@internal` (leaves a
+member out, as a template directive's `template`) and, in a class's doc, `@input <name> <text>` and
+`@output <name> <text>` for what it forwards from a primitive it hosts, which has no declaration of
+its own to carry a comment. Every component, directive, service and function also has an example
+(types, interfaces and consts need only their entry in the API panel), and the examples are how
+both themes are checked by eye. Escape hatch: none for public parts; code that is not exported
+needs no entry.
 
 ## Commands
 
@@ -868,13 +913,14 @@ Node 24 is required (`.node-version`; Angular 22 supports `^22.22.3 || ^24.15.0`
 
 | Command                  | What it does                                                                    |
 | ------------------------ | ------------------------------------------------------------------------------- |
-| `npm start`              | Showcase dev server                                                             |
+| `npm start`              | Showcase dev server (after one `docs:emit`)                                     |
 | `npm test`               | Unit tests for all projects (`npm test -- --watch=false` runs once and exits)   |
 | `npm run lint`           | ESLint (angular-eslint) and Stylelint                                           |
 | `npm run build`          | Build the library and its compiled stylesheet into `dist/neat-ui`               |
 | `npm run check:dist`     | Check the built package (entry points, stylesheet, no helm or bench imports)    |
 | `npm run test:tools`     | Tests for the repo tools (`tools/*.test.mjs`)                                   |
 | `npm run theme:emit`     | Regenerate `lib/theme/tokens.generated.css` from the theme sources              |
+| `npm run docs:emit`      | Regenerate the docs (`-- --check` only checks, `-- --watch` follows)            |
 | `npm run helm:add`       | Add a Spartan helm component to `lib/ui/` (`-- <name>`), the only way in        |
 | `npm run build:showcase` | Build the showcase app                                                          |
 | `npm run bench`          | Rendering bench dev server, on port 4300                                        |

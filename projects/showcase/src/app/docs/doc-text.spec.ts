@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { CodeBox } from './code-box';
 import { DocText } from './doc-text';
 import type { DocBlock } from './model';
@@ -15,7 +16,7 @@ async function render<T>(component: new () => T, inputs: Record<string, unknown>
 }
 
 describe('PartRef', () => {
-  it('links a part of the page to its section and reveals it there', async () => {
+  it('links a part of the page to its section, which the page reveals as the URL changes', async () => {
     const docs = new FakeDocs(['NeatDiagramView']);
     const host = await render(PartRef, { name: 'NeatDiagramView' }, docs);
     const link = host.querySelector('a') as HTMLAnchorElement;
@@ -24,6 +25,20 @@ describe('PartRef', () => {
     expect(link.getAttribute('href')).toBe('/#api-NeatDiagramView');
 
     link.click();
+
+    // The fragment the click writes reveals the part, so the link does not as well.
+    expect(docs.revealed).toEqual([]);
+  });
+
+  it('reveals the part itself when the URL already has its fragment, which the router ignores', async () => {
+    const docs = new FakeDocs(['NeatDiagramView']);
+    TestBed.configureTestingModule({ providers: provideFakeDocs(docs) });
+    await TestBed.inject(Router).navigateByUrl('/#api-NeatDiagramView');
+    const fixture = TestBed.createComponent(PartRef);
+    fixture.componentRef.setInput('name', 'NeatDiagramView');
+    await fixture.whenStable();
+
+    (fixture.nativeElement.querySelector('a') as HTMLAnchorElement).click();
 
     expect(docs.revealed).toEqual(['NeatDiagramView']);
   });

@@ -2,7 +2,6 @@ import {
   contextLabel,
   implicitName,
   introCut,
-  isTypeKind,
   memberLabel,
   memberValue,
   moreLabel,
@@ -103,13 +102,9 @@ describe('docs display rules', () => {
     expect(introCut([])).toBe(0);
   });
 
-  it('writes type parameters and tells the kinds that need no example', () => {
+  it('writes type parameters', () => {
     expect(typeParameters(part({ typeParameters: ['T', 'K = unknown'] }))).toBe('<T, K = unknown>');
     expect(typeParameters(part({}))).toBe('');
-    expect(isTypeKind({ ...part({}), kind: 'component' })).toBe(false);
-    expect(
-      isTypeKind({ name: 'NeatTone', kind: 'type', definition: "'info'", doc: [], source: 'x' }),
-    ).toBe(true);
   });
 
   it('counts the paragraphs the cut leaves for later', () => {

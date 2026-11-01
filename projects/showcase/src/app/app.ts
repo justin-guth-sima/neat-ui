@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NeatIcon, NeatNavItem, NeatRailDivider, NeatRailItem, NeatShell } from '@sima/neat-ui';
 import { NeatToastHost, NeatToasts } from '@sima/neat-ui/toast';
+import { groupNavItems } from './docs/docs-routes';
+import { GROUPS } from './docs/topics';
 
 @Component({
   imports: [NeatIcon, NeatRailDivider, NeatRailItem, NeatShell, NeatToastHost, RouterOutlet],
@@ -80,12 +82,14 @@ import { NeatToastHost, NeatToasts } from '@sima/neat-ui/toast';
 })
 export class App {
   protected readonly toasts = inject(NeatToasts);
+  /** The groups of the generated docs come after Theme, the old pages after them. */
   protected readonly navItems: NeatNavItem[] = [
     { label: 'Theme', icon: 'palette', path: '/theme' },
+    ...groupNavItems(GROUPS),
     { label: 'Icons', icon: 'shapes', path: '/icons' },
     { label: 'Components', icon: 'blocks', path: '/components' },
-    { label: 'Charts', icon: 'stats', path: '/charts' },
-    { label: 'Diagram', icon: 'device', path: '/diagram' },
     { label: 'Page', icon: 'document', path: '/page' },
+    { label: 'Charts (old)', icon: 'stats', path: '/legacy/charts' },
+    { label: 'Diagram (old)', icon: 'device', path: '/legacy/diagram' },
   ];
 }

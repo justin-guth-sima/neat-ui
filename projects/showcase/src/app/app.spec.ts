@@ -5,10 +5,13 @@ import { appConfig } from './app.config';
 
 const PAGES = [
   { path: '/theme', link: 'Theme', heading: 'Palette' },
+  { path: '/status/status-chip', link: 'Status', heading: 'NeatStatusChip' },
+  { path: '/charts/time-chart', link: 'Charts', heading: 'NeatTimeChart' },
+  { path: '/diagram/diagram', link: 'Diagram', heading: 'NeatDiagramView' },
   { path: '/icons', link: 'Icons', heading: 'Icons' },
   { path: '/components', link: 'Components', heading: 'Button' },
-  { path: '/charts', link: 'Charts', heading: 'Sparkline' },
-  { path: '/diagram', link: 'Diagram', heading: 'Diagram' },
+  { path: '/legacy/charts', link: 'Charts (old)', heading: 'Sparkline' },
+  { path: '/legacy/diagram', link: 'Diagram (old)', heading: 'Diagram' },
   { path: '/page', link: 'Page', heading: 'Page' },
 ];
 
@@ -49,9 +52,26 @@ describe('App', () => {
     vi.restoreAllMocks();
   });
 
-  it('lists the six pages in the shell navigation', () => {
+  it('lists the docs groups, then the pages that have not moved, in the shell navigation', () => {
     const labels = Array.from(root().querySelectorAll('nav a'), (a) => a.textContent?.trim());
-    expect(labels).toEqual(['Theme', 'Icons', 'Components', 'Charts', 'Diagram', 'Page']);
+    expect(labels).toEqual([
+      'Theme',
+      'Status',
+      'Charts',
+      'Diagram',
+      'Icons',
+      'Components',
+      'Page',
+      'Charts (old)',
+      'Diagram (old)',
+    ]);
+  });
+
+  it('opens a group on its first topic, the rail item staying open on the group’s topics', async () => {
+    await navigate('/charts');
+
+    expect(router.url).toBe('/charts/time-chart');
+    expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe('Charts');
   });
 
   it('redirects the root to the theme page', () => {

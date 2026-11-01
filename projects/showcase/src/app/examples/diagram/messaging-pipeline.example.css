@@ -1,0 +1,7 @@
+/* A block's live figure (Decode's), below its label: small, quiet, steady digits. */
+.figure {
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

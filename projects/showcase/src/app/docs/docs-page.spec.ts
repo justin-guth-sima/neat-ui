@@ -1,6 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import {
+  type ActivatedRouteSnapshot,
+  provideRouter,
+  withComponentInputBinding,
+} from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { NeatViewport } from '@sima/neat-ui';
 import { DOCS_TOPIC_OF, type DocsTab, type DocsTopic } from './docs-context';
@@ -62,6 +66,7 @@ class Pipeline {}
 
 const TOPIC: DocsTopic = {
   parts: ['NeatDiagramView', 'NeatDiagramBlockTemplate', 'NeatDiagramRole', 'NeatDiagramSet'],
+  leads: ['NeatDiagramView'],
   entries: [DIAGRAM],
   examples: [
     {
@@ -77,6 +82,10 @@ const TOPIC: DocsTopic = {
       files: [{ name: 'pipeline.example.ts', code: [['text', 'export class Pipeline {}\n']] }],
     },
   ],
+};
+const TOPICS: Record<string, DocsTopic> = {
+  short: { ...TOPIC, parts: ['NeatDiagramView'] },
+  full: TOPIC,
 };
 const TABS: DocsTab[] = [
   { label: 'Diagram', path: '/diagram' },
@@ -104,6 +113,11 @@ describe('DocsPage', () => {
               data: { topic: TOPIC, tabs: TABS, tabsLabel: 'Diagram topics' },
             },
             { path: 'legend', children: [] },
+            {
+              path: 'pages',
+              component: DocsPage,
+              data: { topic: { ...TOPIC, openBase: '/demo/pipeline' }, tabs: [] },
+            },
           ],
           withComponentInputBinding(),
         ),
@@ -147,7 +161,7 @@ describe('DocsPage', () => {
     ]);
   });
 
-  it('introduces the parts the examples show, then the examples', async () => {
+  it('introduces the topic’s lead parts, then the examples', async () => {
     const { host } = await open();
 
     expect(
@@ -163,12 +177,12 @@ describe('DocsPage', () => {
 
     expect(sections.map((section) => section.id)).toEqual([
       'api-NeatDiagramView',
-      'api-NeatDiagramRole',
       'api-NeatDiagramBlockTemplate',
+      'api-NeatDiagramRole',
       'api-NeatDiagramSet',
     ]);
     expect(sections[0].textContent).not.toContain('A hand-placed diagram');
-    expect(sections[1].textContent).toContain('What a node is.');
+    expect(sections[2].textContent).toContain('What a node is.');
   });
 
   it('links its parts to the panel, others to their topic, the rest not at all', async () => {
@@ -220,6 +234,88 @@ describe('DocsPage', () => {
     expect(section).not.toBeNull();
     expect(scrolled.at(-1)).toBe(section);
     expect(document.activeElement).toBe(section.querySelector('h3'));
+  });
+
+  it('scrolls to the example the URL names, and to none that the topic lacks', async () => {
+    const { harness, host } = await open('/diagram#example-pipeline');
+
+    expect(scrolled).toEqual([host.querySelector('#example-pipeline')]);
+    expect(document.activeElement).toBe(document.body);
+
+    await harness.navigateByUrl('/diagram#example-missing');
+    await harness.fixture.whenStable();
+
+    expect(scrolled).toHaveLength(1);
+  });
+
+  it('reveals a part again each time the fragment changes, back and forward included', async () => {
+    const { harness, host } = await open('/diagram#api-NeatDiagramSet');
+    const section = (name: string) => host.querySelector(`#api-${name}`) as HTMLElement;
+    expect(scrolled).toEqual([section('NeatDiagramSet')]);
+
+    await harness.navigateByUrl('/diagram#api-NeatDiagramRole');
+    await harness.fixture.whenStable();
+
+    expect(scrolled.at(-1)).toBe(section('NeatDiagramRole'));
+    expect(document.activeElement).toBe(section('NeatDiagramRole').querySelector('h3'));
+
+    // Back is the same navigation as any other, to the earlier fragment.
+    await harness.navigateByUrl('/diagram#api-NeatDiagramSet');
+    await harness.fixture.whenStable();
+
+    expect(scrolled.at(-1)).toBe(section('NeatDiagramSet'));
+    expect(scrolled).toHaveLength(3);
+  });
+
+  it('reveals the part a link from another topic names when the route reuses the page', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        // One route for several topics: the page is the same instance, with another topic.
+        provideRouter(
+          [
+            {
+              path: 'topic/:id',
+              component: DocsPage,
+              data: { tabs: [] },
+              resolve: { topic: (route: ActivatedRouteSnapshot) => TOPICS[route.params['id']] },
+            },
+          ],
+          withComponentInputBinding(),
+        ),
+        { provide: NeatViewport, useValue: { narrow: signal(false) } },
+      ],
+    });
+    const harness = await RouterTestingHarness.create();
+    const page = await harness.navigateByUrl('/topic/short', DocsPage);
+    await harness.fixture.whenStable();
+    expect(harness.routeNativeElement?.querySelector('#api-NeatDiagramRole')).toBeNull();
+
+    expect(await harness.navigateByUrl('/topic/full#api-NeatDiagramRole', DocsPage)).toBe(page);
+    await harness.fixture.whenStable();
+
+    const section = harness.routeNativeElement?.querySelector('#api-NeatDiagramRole');
+    expect(section).not.toBeNull();
+    expect(scrolled.at(-1)).toBe(section);
+  });
+
+  it('reveals a part itself when the link is to the fragment the URL has, after scrolling away', async () => {
+    const { harness, host } = await open('/diagram#api-NeatDiagramSet');
+    scrolled.length = 0;
+
+    (host.querySelector('app-part-intro p a') as HTMLElement).click();
+    await harness.fixture.whenStable();
+
+    expect(scrolled).toEqual([host.querySelector('#api-NeatDiagramSet')]);
+  });
+
+  it('shows the code and a link, not the example, for a topic of full-page examples', async () => {
+    const { host } = await open('/pages');
+
+    expect(host.querySelector('.pipeline')).toBeNull();
+    expect(host.querySelector('app-example-card a[neatButton]')?.getAttribute('href')).toBe(
+      '/demo/pipeline/pipeline',
+    );
+    expect(host.querySelector('app-snippet')).not.toBeNull();
   });
 
   it('reveals a part once on a click of a link of the page, the panel open already', async () => {

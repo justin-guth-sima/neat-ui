@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DocsContext } from './docs-context';
 
 /**
@@ -26,13 +26,19 @@ export class PartRef {
   readonly label = input('');
 
   private readonly docs = inject(DocsContext);
+  private readonly route = inject(ActivatedRoute);
   protected readonly target = computed(() => this.docs.target(this.name()));
 
   /**
-   * The page reveals its own parts on the click, not on the fragment the link also writes: the
-   * same section again, after scrolling away, changes nothing in the URL.
+   * The page reveals a part when the URL's fragment becomes its anchor, so a click, and back and
+   * forward, all work through the router. The one click it cannot see is on the fragment the URL
+   * already has (the same section again, after scrolling away): the router ignores a navigation to
+   * the URL it is at, so the link reveals it itself.
    */
   protected follow(): void {
-    if (this.target()?.here) this.docs.reveal(this.name());
+    const target = this.target();
+    if (target?.here && this.route.snapshot.fragment === target.fragment) {
+      this.docs.reveal(this.name());
+    }
   }
 }

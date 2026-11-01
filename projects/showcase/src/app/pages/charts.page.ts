@@ -6,38 +6,31 @@ import {
   NeatChartTone,
   NeatHeatmap,
   NeatHeatmapRow,
-  NeatReference,
   NeatSeries,
   NeatSparkline,
   NeatStackedChart,
-  NeatThreshold,
   NeatTimeChart,
 } from '@sima/neat-ui/charts';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
-
-/** A sine wave of `count` samples, the demo data of every chart: a plausible, smooth metric. */
-function sine(count: number, cycles: number, low: number, high: number): number[] {
-  return Array.from({ length: count }, (_, index) => {
-    const wave = (Math.sin((index / count) * cycles * 2 * Math.PI) + 1) / 2;
-    return Number((low + wave * (high - low)).toFixed(2));
-  });
-}
-
-/** The same with `gap` samples missing from `from`: a daemon that did not answer for a while. */
-function withGap(values: number[], from: number, gap: number): (number | null)[] {
-  return values.map((value, index) => (index >= from && index < from + gap ? null : value));
-}
-
-/** Eight minutes of samples four seconds apart, ending at a fixed instant so the demo stands still. */
-const SAMPLES = 120;
-const TIMES: readonly number[] = Array.from(
-  { length: SAMPLES },
-  (_, index) => Date.UTC(2026, 9, 24, 12, 0, 0) + index * 4000,
-);
-
-const percent: NeatChartFormat = (value) => `${value.toFixed(0)}%`;
-const celsius: NeatChartFormat = (value) => `${value.toFixed(1)} °C`;
-const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
+import {
+  celsius,
+  CLUSTERS,
+  CORES,
+  CPU,
+  CPU_THRESHOLDS,
+  MLA,
+  percent,
+  POWER,
+  POWER_AVERAGE,
+  ROWS,
+  SAMPLES,
+  sine,
+  TEMPERATURE,
+  TEMPERATURE_THRESHOLDS,
+  TIMES,
+  watts,
+  withGap,
+} from '../examples/time-chart/data';
 
 @Component({
   selector: 'app-charts-page',
@@ -361,37 +354,15 @@ export class ChartsPage {
   protected readonly celsius = celsius;
   protected readonly watts = watts;
 
-  protected readonly cpu: readonly NeatSeries[] = [
-    { key: 'cpu', label: 'CPU', values: sine(SAMPLES, 3, 20, 62) },
-  ];
-  protected readonly cpuThresholds: readonly NeatThreshold[] = [
-    { value: 70, tone: 'warning', label: 'Warning 70%' },
-    { value: 90, tone: 'danger', label: 'Critical 90%' },
-  ];
-  protected readonly temperature: readonly NeatSeries[] = [
-    { key: 'mla', label: 'MLA', values: withGap(sine(SAMPLES, 2, 62, 80), 50, 14) },
-  ];
-  protected readonly temperatureThresholds: readonly NeatThreshold[] = [
-    { value: 70, tone: 'warning', label: 'Warning 70 °C' },
-    { value: 85, tone: 'danger', label: 'Critical 85 °C' },
-  ];
-  protected readonly clusters: readonly NeatSeries[] = [
-    { key: 'a', label: 'Cluster A', values: sine(SAMPLES, 2, 30, 70) },
-    { key: 'b', label: 'Cluster B', values: sine(SAMPLES, 3, 10, 50) },
-    { key: 'c', label: 'Cluster C', values: sine(SAMPLES, 1.5, 40, 90) },
-  ];
-  protected readonly mla: readonly NeatSeries[] = [
-    { key: 'mla', label: 'MLA', values: sine(SAMPLES, 3, 30, 90) },
-  ];
-  protected readonly power: readonly NeatSeries[] = [
-    { key: 'power', label: 'Power', values: sine(SAMPLES, 2.5, 8, 13) },
-  ];
-  protected readonly powerAverage: NeatReference = { value: 10.5, label: 'Session average 10.5 W' };
-  protected readonly cores: readonly NeatSeries[] = Array.from({ length: 10 }, (_, index) => ({
-    key: `core${index}`,
-    label: `Core ${index}`,
-    values: sine(SAMPLES, 1 + index / 4, 5 + index * 3, 25 + index * 6),
-  }));
+  protected readonly cpu = CPU;
+  protected readonly cpuThresholds = CPU_THRESHOLDS;
+  protected readonly temperature = TEMPERATURE;
+  protected readonly temperatureThresholds = TEMPERATURE_THRESHOLDS;
+  protected readonly clusters = CLUSTERS;
+  protected readonly mla = MLA;
+  protected readonly power = POWER;
+  protected readonly powerAverage = POWER_AVERAGE;
+  protected readonly cores = CORES;
   /** Eight rails that sum to about 11 W: the stacked chart uses all eight series colours. */
   protected readonly rails: readonly NeatSeries[] = [
     { key: 'core', label: 'Core', low: 3.2, high: 4.6 },
@@ -424,32 +395,7 @@ export class ChartsPage {
     },
   );
 
-  /** A list of metrics, one compact chart a row: two that fill the window and one just started. */
-  protected readonly rows = [
-    {
-      label: 'Core 0',
-      series: [{ key: 'core0', label: 'Core 0', values: sine(SAMPLES, 2, 20, 60) }],
-      times: TIMES,
-      value: '42%',
-    },
-    {
-      label: 'Core 1',
-      series: [{ key: 'core1', label: 'Core 1', values: sine(SAMPLES, 3, 30, 70) }],
-      times: TIMES,
-      value: '57%',
-    },
-    {
-      label: 'One sample',
-      series: [{ key: 'lone', label: 'One sample', values: [48] }],
-      times: [TIMES[0]],
-      value: '48%',
-    },
-  ] satisfies readonly {
-    label: string;
-    series: readonly NeatSeries[];
-    times: readonly number[];
-    value: string;
-  }[];
+  protected readonly rows = ROWS;
 
   protected readonly demos: readonly {
     readonly title: string;

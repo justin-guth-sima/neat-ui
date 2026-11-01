@@ -1,0 +1,20 @@
+:host {
+  display: block;
+}
+
+/* The chart's labels carry a halo in the fill of the surface they sit on, so a card says which. */
+.chart-card {
+  --neat-surface: var(--card);
+
+  padding: var(--neat-space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--neat-space-4);
+}

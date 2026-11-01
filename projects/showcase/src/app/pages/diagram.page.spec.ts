@@ -33,7 +33,7 @@ describe('the diagram page', () => {
     vi.stubGlobal('ResizeObserver', NoopResizeObserver);
     TestBed.configureTestingModule({ providers: appConfig.providers });
     fixture = TestBed.createComponent(App);
-    await TestBed.inject(Router).navigateByUrl('/diagram');
+    await TestBed.inject(Router).navigateByUrl('/legacy/diagram');
     await fixture.whenStable();
   });
 

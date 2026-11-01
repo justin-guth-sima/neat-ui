@@ -1,0 +1,19 @@
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+
+/* The rows of a list of metrics: a name, a compact chart that takes what is left, a value. */
+.row {
+  display: grid;
+  grid-template-columns: 6rem 1fr 3rem;
+  align-items: center;
+  gap: var(--neat-space-3);
+  font-size: var(--neat-text-sm);
+}
+
+.row span:last-child {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}

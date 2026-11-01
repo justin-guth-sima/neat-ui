@@ -1,6 +1,7 @@
 import { NgComponentOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { NeatCode, NeatNote } from '@sima/neat-ui';
+import { ChangeDetectionStrategy, Component, computed, input, viewChild } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { NeatButton, NeatCode, NeatNote } from '@sima/neat-ui';
 import { shownName } from './display';
 import { DocText } from './doc-text';
 import type { DocsExample } from './model';
@@ -13,7 +14,16 @@ import { Snippet } from './snippet';
  */
 @Component({
   selector: 'app-example-card',
-  imports: [DocText, NeatCode, NeatNote, NgComponentOutlet, PartRef, Snippet],
+  imports: [
+    DocText,
+    NeatButton,
+    NeatCode,
+    NeatNote,
+    NgComponentOutlet,
+    PartRef,
+    RouterLink,
+    Snippet,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <article [attr.aria-labelledby]="headingId()">
@@ -27,9 +37,15 @@ import { Snippet } from './snippet';
           }
         </p>
       }
-      <div class="live">
-        <ng-container *ngComponentOutlet="example().component" />
-      </div>
+      @if (open(); as path) {
+        <p>
+          <a neatButton variant="outlined" size="small" [routerLink]="path">Open the example</a>
+        </p>
+      } @else {
+        <div class="live">
+          <ng-container *ngComponentOutlet="example().component" />
+        </div>
+      }
       <app-snippet [files]="example().files" />
     </article>
   `,
@@ -37,6 +53,18 @@ import { Snippet } from './snippet';
 })
 export class ExampleCard {
   readonly example = input.required<DocsExample>();
+  /**
+   * The route of the example on a page of its own, for one that needs the whole page: the card
+   * then links to it, with the code below, instead of rendering it.
+   */
+  readonly open = input<string | null>(null);
+
+  private readonly outlet = viewChild(NgComponentOutlet);
+
+  /** The rendered example's component, once rendered; null when the card only links to it. */
+  instance(): unknown {
+    return this.outlet()?.componentInstance ?? null;
+  }
 
   /** Also the example's anchor, `#example-<id>`. */
   protected readonly headingId = computed(() => `example-${this.example().id}`);

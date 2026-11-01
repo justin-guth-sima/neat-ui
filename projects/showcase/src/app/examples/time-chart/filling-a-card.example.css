@@ -1,0 +1,9 @@
+/* The card gives its chart the height it has, which `size="fill"` turns into a taller plot. */
+.fill {
+  display: flex;
+  flex-direction: column;
+}
+
+.fill neat-time-chart {
+  flex: 1;
+}
