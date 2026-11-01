@@ -480,3 +480,72 @@ Command: `npm run bench:run -- --input=page --ladders A,B,C,D --renderers kit,vf
 - vflow A r0: the recorder and the trace disagree by more than 3 % (and one draw, in a short phase;
   12 of 12 gesture phases; worst: step 5 pan, 37.1 fps recorded against 27.8 drawn). Read the
   recorder's numbers for this machine with care.
+
+## 6. Board display with lighter rungs (ladders A and D, ×1/8 to ×1/2 added)
+
+Command: `npm run bench:run -- --input=page --target remote --ssh sima@10.42.0.68 --remote-display bare --serve board --machine modalix-devkit --cooldown 20 --ladders A,D --renderers kit,vflow,none --repeats 3 --trace --out projects/bench/results`
+
+Changes against campaign 1: ladders A (×1/8 to ×32) and D (×1/8 to ×16) start at ×1/8; no host draws
+a load before the climb's first step (the default load's dots no longer run into the first idle
+phase); the fairness check compares the kit and vflow at ×1.
+
+- Result file `2026-11-01-modalix-devkit-mvxfbsb7.json`, run id `mvxfbsb7`, started
+  2026-11-01T06:03:10Z; 24 page loads (18 plus 6 traced), 4 failed, harness exit 1
+- Build sha (as measured and checkout): `df0e6a77749727ecd1223aed8f584c05aeaa20ea`, production
+  build, kit 0.23.0, ngx-vflow 2.7.0
+- Machine: Chromium 151.0.7922.137, Cortex-A65 x16, bare X 1920x1080 at 60 Hz, display restored,
+  no `/tmp/neat-bench-*` left, lightdm active
+- Fairness check at ×1: passed, 34 blocks and 36 edges drawn alike (DOM nodes: kit 532, vflow 803)
+- Board temperature (max per run): 55.5 to 58.0 C over 24 runs; no CPU frequency exposed; runs
+  flagged as throttled: none
+
+### Capacity
+
+| Ladder | Renderer | Smooth | Usable |
+| --- | --- | --- | --- |
+| A: diagram size | kit | none | none |
+| A: diagram size | vflow | none | none |
+| A: diagram size | none | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
+| D: size, messages and notes together | kit | none | none |
+| D: size, messages and notes together | vflow | none | none |
+| D: size, messages and notes together | none | none | ×1 (30 blocks, 400 msg/s) |
+
+### Verdict per ladder
+
+| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow's fps |
+| --- | --- | --- | --- | --- |
+| A: diagram size | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| D: size, messages and notes together | Not clearly slower | 0 of 3 | Not clearly slower | no |
+
+### Median fps by level (recorder / presented where a trace gave one, over 3 repeats)
+
+Ladder A, kit and vflow (the kit's idle is 59 to 60 at every level up to ×16):
+
+| Level | kit pan | kit zoom | kit tier | vflow pan | vflow zoom | vflow tier |
+| --- | --- | --- | --- | --- | --- | --- |
+| ×1/8 (4 blocks) | 43 / 41 | 19 / 18 | failing | 43 / 40 | 19 / 18 | failing |
+| ×1/4 (8 blocks) | 52 / 51 | 33 / 31 | usable | 52 / 48 | 33 / 30 | usable |
+| ×1/2 (15 blocks) | 51 / 49 | 30 / 28 | failing | 48 / 19 | 30 / 27 | usable, failing, failing |
+| ×1 (30 blocks) | 50 / 49 | 20 / 19 | failing | 39 / 31 | 22 / 19 | failing |
+
+Ladder D (idle / pan / zoom):
+
+| Level | kit | vflow | none |
+| --- | --- | --- | --- |
+| ×1/8 (4 blocks, 50 msg/s) | 17 / 26 / 15 | 17 / 26 / 15 | 60 / 60 / 60 (usable) |
+| ×1/4 (8 blocks, 100 msg/s) | 24 / 33 / 25 | 24 / 32 / 24 | 60 / 60 / 60 (smooth) |
+| ×1/2 (15 blocks, 200 msg/s) | 24 / 31 / 22 | 24 / 30 / 22 | 60 / 60 / 60 (smooth) |
+| ×1 (30 blocks, 400 msg/s) | 24 / 27 / 14 | 23 / 21 / 14 | 45 / 53 / 43 (usable) |
+
+The start view's scale (fit) at A and D: k 1.36 at ×1/8 and ×1/4, 0.94 at ×1/2, 0.60 at ×1 and ×2.
+
+### Warnings
+
+- vflow A r0, r1, r2 and the traced r0 failed: watchdog: step 7 (level 16) did not finish in
+  69000 ms (the 7b ×16 freeze, again).
+- kit A r0 (traced): recorder and trace disagree by more than 3 % (1 of 18 gesture phases; worst:
+  step 8 pan, 11.4 fps recorded against 10.8 drawn).
+- vflow A r0 (traced): recorder and trace disagree by more than 3 % (13 of 14 gesture phases;
+  worst: step 3 pan, 37.5 fps recorded against 31.1 drawn).
+- Kit D r0 and vflow D r0: within 3 % (worst 5.0 % and -2.8 %); the none host is not checked.
+- The presented rate decided the tier of: vflow on ladder A at ×1/4.

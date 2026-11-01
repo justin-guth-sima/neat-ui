@@ -303,7 +303,7 @@ export async function runCampaign(options, { log, cleanups, deps = {}, signal, b
   // many steps ends there, and the check reads the page at the climb's last step.
   let fairness = null;
   if (options.renderers.includes('kit') && options.renderers.includes('vflow')) {
-    log('fairness check: the first step of ladder A on the kit and on vflow');
+    log('fairness check: ladder A up to ×1 on the kit and on vflow');
     const kit = await attempt(
       { ladder: 'A', renderer: 'kit', repeat: 0 },
       {
