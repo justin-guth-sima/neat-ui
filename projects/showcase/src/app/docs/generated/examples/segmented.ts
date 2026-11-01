@@ -51,12 +51,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'masks'"],["text",", label: "],["string","'Masks'"],["text"," },\n];\n\n@Component({\n  selector: "],
           ["string","'app-choices'"],["text",",\n  imports: [NeatButton, NeatSegmented],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    <div class=\"showcase-row\">\n      <neat-segmented #shapeControl label=\"Tile shape\" [options]=\"shapes\" [(value)]=\"shape\" />\n      <neat-segmented label=\"Overlays\" [options]=\"overlays\" [(value)]=\"overlay\" />\n      <neat-segmented label=\"Tile shape, disabled\" [options]=\"shapes\" value=\"1:1\" disabled />\n      <button\n        neatButton\n        type=\"button\"\n        variant=\"outlined\"\n        size=\"small\"\n        (click)=\"shapeControl.focus()\"\n      >\n        Focus the tile shape\n      </button>\n    </div>\n    <p class=\"showcase-code showcase-muted\">Shape {{ shape() }}, overlays {{ overlay() }}</p>\n  `"],
-          ["text",",\n})\n"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./choices.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Choices {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," shapes = SHAPES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," overlays = OVERLAYS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," shape = signal<Shape>("],["string","'16:9'"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," overlay = signal("],["string","'boxes'"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "choices.example.css",
+        "code": [
+          ["comment","/* The example's rows one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
         ]
       }
     ]
@@ -71,7 +78,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A row too narrow for everything in it, as a crowded toolbar is: the control keeps its labels whole and the title beside it gives way with an ellipsis."
+            "text": "A 13rem row, as a crowded toolbar is, with a long title beside the control."
           }
         ]
       }
@@ -115,7 +122,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A container 16rem wide, the content width of a side panel at its narrowest and narrower than these labels: the options shrink together and each label ends in an ellipsis."
+            "text": "A container 16rem wide, the content width of a side panel at its narrowest: look at the clipped \"Stream URL\"."
           }
         ]
       }

@@ -6,10 +6,7 @@ const VIEWS: NeatSegmentedOption<string>[] = [
   { value: 'runs', label: 'Runs' },
 ];
 
-/**
- * A row too narrow for everything in it, as a crowded toolbar is: the control keeps its labels
- * whole and the title beside it gives way with an ellipsis.
- */
+/** A 13rem row, as a crowded toolbar is, with a long title beside the control. */
 @Component({
   selector: 'app-in-a-crowded-row',
   imports: [NeatSegmented],

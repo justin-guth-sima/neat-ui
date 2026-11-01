@@ -41,7 +41,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," PAGE_COUNT = 9;\n\n@Component({\n  selector: "],
           ["string","'app-page-with-a-limit'"],["text",",\n  imports: [NeatButton, NeatNumberField],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    <div class=\"showcase-row\">\n      <neat-number-field\n        #pageField\n        label=\"Page\"\n        [value]=\"page()\"\n        [accept]=\"acceptPage\"\n        (commit)=\"commit($event)\"\n      >\n        <span neatNumberFieldSuffix>of {{ pageCount }}</span>\n      </neat-number-field>\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"pageField.focus()\">\n        Focus the page field\n      </button>\n    </div>\n    <p class=\"showcase-code showcase-muted\">Page {{ page() }}, commits so far {{ commits() }}</p>\n  `"],
-          ["text",",\n})\n"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./stack.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," PageWithALimit {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pageCount = PAGE_COUNT;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," page = signal(3);\n  "],
@@ -50,6 +51,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","protected"],["text"," commit(page: "],["keyword","number"],["text","): "],["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".page.set(page);\n    "],
           ["keyword","this"],["text",".commits.update((count) => count + 1);\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "stack.css",
+        "code": [
+          ["comment","/* The example's rows one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
         ]
       }
     ]
@@ -88,9 +95,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatNumberField } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/number-field'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-any-whole-number'"],["text",",\n  imports: [NeatNumberField],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    <neat-number-field label=\"Draw on channel\" [value]=\"channel()\" (commit)=\"channel.set($event)\" />\n    <p class=\"showcase-code showcase-muted\">Channel {{ channel() }}</p>\n  `"],
-          ["text",",\n})\n"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./stack.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," AnyWholeNumber {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," channel = signal(2);\n}\n"]
+        ]
+      },
+      {
+        "name": "stack.css",
+        "code": [
+          ["comment","/* The example's rows one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
         ]
       }
     ]

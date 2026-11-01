@@ -105,7 +105,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n}\n\n"],
           ["comment","/* Fields, selects, a number field and a button in a row, level at their bottom edge. */"],["text","\n.row {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: flex-end;\n  gap: var(--neat-space-3);\n}\n\n"],
-          ["comment","/* A field and a select fill their container's width, so the row gives each one. */"],["text","\n.narrow {\n  width: 10rem;\n}\n\n.wide {\n  width: 14rem;\n}\n"]
+          ["comment","/* A field and a select fill their container's width, so the row gives each one. */"],["text","\n.narrow {\n  width: 9rem;\n}\n\n.wide {\n  width: 13rem;\n}\n"]
         ]
       }
     ]

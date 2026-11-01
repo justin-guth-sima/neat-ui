@@ -24,7 +24,7 @@ import { NeatSlider } from '@sima/neat-ui/slider';
       <neat-slider label="Disabled" [min]="0" [max]="100" [step]="5" [value]="40" disabled />
     </div>
   `,
-  styleUrl: './slider-field.css',
+  styleUrls: ['./slider-field.css', './described-and-disabled.example.css'],
 })
 export class DescribedAndDisabled {
   protected readonly gain = signal(30);

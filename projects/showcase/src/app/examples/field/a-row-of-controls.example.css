@@ -14,9 +14,9 @@
 
 /* A field and a select fill their container's width, so the row gives each one. */
 .narrow {
-  width: 10rem;
+  width: 9rem;
 }
 
 .wide {
-  width: 14rem;
+  width: 13rem;
 }

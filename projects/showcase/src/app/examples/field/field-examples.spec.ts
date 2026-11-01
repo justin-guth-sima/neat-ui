@@ -10,7 +10,7 @@ async function render<T>(component: new () => T): Promise<HTMLElement> {
 }
 
 describe('the field examples', () => {
-  it('describe the first control by its hint and mark the second invalid by its error', async () => {
+  it('describe a control by its hint, or by its error and mark it invalid', async () => {
     const host = await render(HintAndError);
     const [url, startTime] = Array.from(host.querySelectorAll('input'));
     const describedBy = (control: HTMLElement) =>
@@ -23,7 +23,7 @@ describe('the field examples', () => {
     expect(startTime.getAttribute('aria-invalid')).toBe('true');
   });
 
-  it('line up a row of each size, the number field in the small one only', async () => {
+  it('give each size a row of controls, the number field in the small one only', async () => {
     const host = await render(ARowOfControls);
     const rows = Array.from(host.querySelectorAll('.row'));
 

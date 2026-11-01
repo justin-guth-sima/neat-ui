@@ -37,10 +37,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-on-and-off'"],["text",",\n  imports: [NeatSwitch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    <div class=\"showcase-row\">\n      <button neatSwitch [(checked)]=\"bars\">Bars</button>\n      <button neatSwitch [(checked)]=\"hideEmpty\">Hide empty</button>\n      <button neatSwitch aria-label=\"Bars, without a visible label\" [(checked)]=\"bars\"></button>\n      <button neatSwitch disabled>Disabled</button>\n      <button neatSwitch disabled [checked]=\"true\">Disabled, on</button>\n    </div>\n    <p class=\"showcase-code showcase-muted\">\n      Bars {{ bars() ? 'on' : 'off' }}, hide empty {{ hideEmpty() ? 'on' : 'off' }}\n    </p>\n  `"],
-          ["text",",\n})\n"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./on-and-off.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," OnAndOff {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," bars = signal("],["keyword","true"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," hideEmpty = signal("],["keyword","false"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "on-and-off.example.css",
+        "code": [
+          ["comment","/* The example's rows one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
         ]
       }
     ]

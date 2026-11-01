@@ -9,8 +9,8 @@ const SOURCES: NeatSegmentedOption<string>[] = [
 ];
 
 /**
- * A container 16rem wide, the content width of a side panel at its narrowest and narrower than
- * these labels: the options shrink together and each label ends in an ellipsis.
+ * A container 16rem wide, the content width of a side panel at its narrowest: look at the clipped
+ * "Stream URL".
  */
 @Component({
   selector: 'app-in-a-narrow-panel',

@@ -39,7 +39,6 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "slider-field.css",
         "code": [
-          ["comment","/* The sliders' rows one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
           ["comment","/* A slider fills its container's width, so the demos give it one. */"],["text","\n.field {\n  display: flex;\n  align-items: center;\n  gap: var(--neat-space-3);\n}\n\nneat-slider {\n  width: 16rem;\n}\n"]
         ]
       }
@@ -71,8 +70,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatSlider } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/slider'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-described-and-disabled'"],["text",",\n  imports: [NeatSlider],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    <div class=\"field\">\n      <span>Described</span>\n      <neat-slider\n        label=\"Gain\"\n        describedBy=\"gain-note\"\n        [min]=\"0\"\n        [max]=\"100\"\n        [step]=\"5\"\n        [(value)]=\"gain\"\n      />\n      <span id=\"gain-note\" class=\"showcase-muted\"> <code>describedBy</code> names this note. </span>\n    </div>\n    <div class=\"field\">\n      <span>Disabled</span>\n      <neat-slider label=\"Disabled\" [min]=\"0\" [max]=\"100\" [step]=\"5\" [value]=\"40\" disabled />\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
-          ["string","'./slider-field.css'"],["text",",\n})\n"],
+          ["text",",\n  styleUrls: ["],
+          ["string","'./slider-field.css'"],["text",", "],["string","'./described-and-disabled.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," DescribedAndDisabled {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," gain = signal(30);\n}\n"]
         ]
@@ -80,8 +79,13 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "slider-field.css",
         "code": [
-          ["comment","/* The sliders' rows one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
           ["comment","/* A slider fills its container's width, so the demos give it one. */"],["text","\n.field {\n  display: flex;\n  align-items: center;\n  gap: var(--neat-space-3);\n}\n\nneat-slider {\n  width: 16rem;\n}\n"]
+        ]
+      },
+      {
+        "name": "described-and-disabled.example.css",
+        "code": [
+          ["comment","/* The sliders' rows one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
         ]
       }
     ]

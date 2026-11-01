@@ -42,6 +42,7 @@ import { SOURCES } from './sources';
       </neat-dialog-actions>
     </ng-template>
   `,
+  styleUrl: './stack.css',
 })
 export class InADialog {
   private readonly dialogs = inject(NeatDialog);

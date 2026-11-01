@@ -41,6 +41,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "accepted-files.example.css",
         "code": [
+          ["comment","/* The zones and the log one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
           ["comment","/* A drop zone fills its container's width, so the columns give each one. */"],["text","\n.zones {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(14rem, 18rem));\n  gap: var(--neat-space-4);\n}\n"]
         ]
       }

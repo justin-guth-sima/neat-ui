@@ -10,6 +10,7 @@ import { NeatNumberField } from '@sima/neat-ui/number-field';
     <neat-number-field label="Draw on channel" [value]="channel()" (commit)="channel.set($event)" />
     <p class="showcase-code showcase-muted">Channel {{ channel() }}</p>
   `,
+  styleUrl: './stack.css',
 })
 export class AnyWholeNumber {
   protected readonly channel = signal(2);

@@ -39,7 +39,7 @@ import { SOURCES } from './sources';
       Selected: {{ source() ?? 'none' }}
     </p>
   `,
-  styleUrl: './label-positions.example.css',
+  styleUrls: ['./stack.css', './label-positions.example.css'],
 })
 export class LabelPositions {
   protected readonly sources = SOURCES;

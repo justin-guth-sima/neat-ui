@@ -40,6 +40,7 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
     </div>
     <p class="showcase-code showcase-muted">Shape {{ shape() }}, overlays {{ overlay() }}</p>
   `,
+  styleUrl: './choices.example.css',
 })
 export class Choices {
   protected readonly shapes = SHAPES;

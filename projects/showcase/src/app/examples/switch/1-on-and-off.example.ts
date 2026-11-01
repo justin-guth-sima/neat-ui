@@ -21,6 +21,7 @@ import { NeatSwitch } from '@sima/neat-ui/switch';
       Bars {{ bars() ? 'on' : 'off' }}, hide empty {{ hideEmpty() ? 'on' : 'off' }}
     </p>
   `,
+  styleUrl: './on-and-off.example.css',
 })
 export class OnAndOff {
   protected readonly bars = signal(true);

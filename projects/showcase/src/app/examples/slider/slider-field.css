@@ -1,10 +1,3 @@
-/* The sliders' rows one gap apart. */
-:host {
-  display: flex;
-  flex-direction: column;
-  gap: var(--neat-space-3);
-}
-
 /* A slider fills its container's width, so the demos give it one. */
 .field {
   display: flex;

@@ -3,14 +3,17 @@ import { Choices } from './1-choices.example';
 import { InACrowdedRow } from './2-in-a-crowded-row.example';
 import { InANarrowPanel } from './3-in-a-narrow-panel.example';
 
-/** An option's label as it is drawn: the second copy, which reserves width, is not the name. */
+/**
+ * An option's label as it is drawn. The kit puts `title` on that copy only, not on the invisible
+ * one that reserves width, which makes it the one place the two are told apart.
+ */
 const labelOf = (radio: Element) => radio.querySelector('[title]')?.textContent?.trim();
 
 const radios = (group: Element) =>
   Array.from(group.querySelectorAll<HTMLElement>('[role="radio"]'));
 
 describe('the segmented examples', () => {
-  it('move a choice with the arrow keys, share nothing between groups, and disable one', async () => {
+  it('move a choice with the arrow keys and disable a whole group at once', async () => {
     const fixture = TestBed.createComponent(Choices);
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;
@@ -49,7 +52,7 @@ describe('the segmented examples', () => {
     expect(document.activeElement).toBe(radios(host.querySelector('neat-segmented')!)[0]);
   });
 
-  it('keep both labels whole in a crowded row, beside the title that gives way', async () => {
+  it('list both labels of the crowded row beside its title (layout is not measured)', async () => {
     const fixture = TestBed.createComponent(InACrowdedRow);
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;
@@ -58,7 +61,7 @@ describe('the segmented examples', () => {
     expect(host.querySelector('.crowded')?.textContent).toContain('Stats for a stream');
   });
 
-  it('give the narrow panel three options, the long label with its full text as a title', async () => {
+  it('give the narrow panel three options, the long label titled with its full text', async () => {
     const fixture = TestBed.createComponent(InANarrowPanel);
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;

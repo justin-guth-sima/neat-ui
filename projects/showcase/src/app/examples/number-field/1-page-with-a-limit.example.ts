@@ -30,6 +30,7 @@ const PAGE_COUNT = 9;
     </div>
     <p class="showcase-code showcase-muted">Page {{ page() }}, commits so far {{ commits() }}</p>
   `,
+  styleUrl: './stack.css',
 })
 export class PageWithALimit {
   protected readonly pageCount = PAGE_COUNT;

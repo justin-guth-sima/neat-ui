@@ -1,3 +1,10 @@
+/* The zones and the log one gap apart. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+
 /* A drop zone fills its container's width, so the columns give each one. */
 .zones {
   display: grid;
