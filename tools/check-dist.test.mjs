@@ -188,11 +188,35 @@ test('check-dist fails when the package exports a name of the bench seam', () =>
   }
 });
 
+test('check-dist leaves another entry alone that exports a name the seam also has', () => {
+  // The video entry may well export its own `Rect` one day: not the diagram's seam.
+  const video = 'fesm2022/sima-neat-ui-video.mjs';
+  const videoTypes = 'types/sima-neat-ui-video.d.ts';
+  assert.ok(SEAM_NAMES.includes('Rect'));
+  const exports = {
+    [video]: 'class Rect {}\nexport { Rect, DrawnEdge };\n',
+    [videoTypes]: 'export interface Rect { x: number }\nexport declare const MAX_DOTS = 1;\n',
+  };
+  assert.deepEqual(findProblems(distWith({ ...SHIPPABLE, ...exports })), []);
+  // The same names are refused in the diagram's files.
+  const problems = findProblems(
+    distWith({ ...SHIPPABLE, [DIAGRAM_TYPES]: 'export interface Rect { x: number }\n' }),
+  );
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /exports Rect, .*bench seam/);
+});
+
 test('check-dist fails when the package names the bench seam’s file', () => {
   const map = '{"sources":["../../projects/neat-ui/diagram/src/bench-seam.ts"]}';
   const problems = findProblems(distWith({ ...SHIPPABLE, [`${DIAGRAM}.map`]: map }));
   assert.equal(problems.length, 1);
   assert.match(problems[0], /sima-neat-ui-diagram\.mjs\.map names bench-seam/);
+  // Package-wide: another entry's map is no exception.
+  const other = findProblems(
+    distWith({ ...SHIPPABLE, 'fesm2022/sima-neat-ui-video.mjs.map': map }),
+  );
+  assert.equal(other.length, 1);
+  assert.match(other[0], /sima-neat-ui-video\.mjs\.map names bench-seam/);
 });
 
 test('check-dist leaves alone the seam’s names where the package uses them without exporting', () => {

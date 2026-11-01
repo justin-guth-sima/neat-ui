@@ -7,7 +7,7 @@
 // dependencies, which no app installs, or that the diagram's bench seam was shipped. Run after
 // `npm run build`.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const DIST = fileURLToPath(new URL('../dist/neat-ui', import.meta.url));
@@ -86,7 +86,7 @@ const BENCH_SPECIFIER = new RegExp(`['"](${BENCH_ONLY.join('|')})(/[^'"]*)?['"]`
 /**
  * The diagram entry's bench seam (AGENTS.md "The rendering bench"): internals the bench alone may
  * import, never in `public-api.ts`. The package's code uses the same internals, so their names are
- * in it; what must not be there is any of them exported, or the seam's file named (a source map
+ * in it; what must not be there is any of them exported by the diagram entry, or the seam's file named (a source map
  * lists every file a bundle was built from). The names are read from the seam itself, so it can
  * change without this list falling behind.
  */
@@ -94,6 +94,13 @@ const SEAM_FILE = fileURLToPath(
   new URL('../projects/neat-ui/diagram/src/bench-seam.ts', import.meta.url),
 );
 const SEAM_BASENAME = 'bench-seam';
+/**
+ * The files that make up the diagram entry, where the seam's names must not be exported. Other
+ * entries may export a name of their own that is also one of the seam's (a `Rect` of the video
+ * ROI editor, say): the seam's file name is checked package-wide, its names only here.
+ */
+const DIAGRAM_ENTRY_FILES =
+  /^(?:fesm2022\/sima-neat-ui-diagram\.mjs|types\/sima-neat-ui-diagram\.d\.ts|diagram\/.*\.d\.ts)$/;
 
 /** The entries of every `export { … }` and `export type { … }` list, `a as b` as written. */
 function exportListEntries(source) {
@@ -180,7 +187,7 @@ export function findProblems(dist) {
     if (source.includes(SEAM_BASENAME)) {
       problems.push(`${file} names ${SEAM_BASENAME}; the diagram's bench seam is never shipped`);
     }
-    if (/\.(mjs|d\.ts)$/.test(file)) {
+    if (DIAGRAM_ENTRY_FILES.test(relative(dist, file).split(sep).join('/'))) {
       const exported = exportedNames(source);
       for (const name of SEAM_NAMES.filter((candidate) => exported.has(candidate))) {
         problems.push(`${file} exports ${name}, which only the diagram's bench seam may expose`);
