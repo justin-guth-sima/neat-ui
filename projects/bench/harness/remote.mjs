@@ -31,6 +31,7 @@ import {
   siteManifest,
 } from './board-server.mjs';
 import {
+  bareStartChecksFragment,
   browserStopFragment,
   dirGuard,
   GUARD,
@@ -434,14 +435,17 @@ export async function startRemote({
     let pageBase = serverPort !== undefined ? `http://127.0.0.1:${remote.servePort}/` : undefined;
     if (bare || serve) {
       aborted();
-      // With a bare display the guard is installed and started by this first script, before
-      // anything else is started, and the heartbeat follows at once.
+      // With a bare display this first script checks that the board is free to take (no other
+      // run, nobody logged in on it), then installs and starts the guard, before anything else is
+      // started, and the heartbeat follows at once.
       // Read inside the step, so a stop waiting for it knows the guard (and starts no heartbeat
       // after it asked the guard to finish).
       const prepared = await step(
         run(
           ssh,
-          prepareScript(dir, undefined, { then: bare ? guardInstallFragment(dir) : '' }),
+          prepareScript(dir, undefined, {
+            then: bare ? bareStartChecksFragment() + guardInstallFragment(dir) : '',
+          }),
         ).then((result) => {
           guardPid = bare ? parseGuard(result.stdout) : null;
           if (guardPid !== null) {

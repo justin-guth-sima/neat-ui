@@ -479,6 +479,34 @@ test('installs the guard first, beats for it, then the X server: its display, it
   assert.match(r.lines.join('\n'), /guard 999 watches the run/);
 });
 
+test('checks the board is free before it starts the guard: no other run, nobody logged in', async () => {
+  const r = rig();
+  r.gate.release();
+  await bareRun(r);
+  const first = r.scripts.prepare;
+  const install = first.indexOf('setsid nohup');
+  for (const check of ['neat-bench-*/guard.pid', 'loginctl list-sessions']) {
+    const at = first.indexOf(check);
+    assert.ok(at > first.indexOf('mkdir "$dir/site"') && at < install, check);
+  }
+});
+
+test('a board that is not free is refused with the note, nothing else is started, and it is cleaned up', async () => {
+  const r = rig({
+    prepareOut: {
+      code: 1,
+      stdout: 'note session 7 of maria (x11) is logged in on seat0: log it out first\n',
+    },
+    waitOut: {
+      code: 0,
+      stdout: 'note no guard in /tmp/neat-bench-r1: nothing had been started\nremoved\n',
+    },
+  });
+  await assert.rejects(bareRun(r), /session 7 of maria \(x11\) is logged in on seat0/);
+  assert.deepEqual(r.calls, ['prepare', 'wait']);
+  assert.equal(r.beats.length, 0, 'no heartbeat for a guard that never started');
+});
+
 test('asks the guard to tear down and reports its word; the heartbeat ends with it', async () => {
   const r = rig();
   r.gate.release();

@@ -26,8 +26,35 @@ function assertLockDir(lockDir) {
 }
 
 /**
+ * Refuses (`note ...`, exit 1) where somebody is logged in to a graphical session on seat0.
+ * Stopping LightDM takes that session's X server down with it, and its clients and unsaved work
+ * with them: the one effect of a bare run that cannot be undone, and one on processes the harness
+ * did not start. LightDM's own greeter (class `greeter`) and sessions on a tty or over ssh (class
+ * `user`, no seat) are not in the way. Without `loginctl` there is no telling, so it refuses
+ * too. Run before LightDM is touched, and again at the stop itself, as copying the site to the
+ * board takes a while in which somebody could log in.
+ */
+export function graphicalSessionFragment() {
+  return `command -v loginctl >/dev/null 2>&1 ||
+  { echo "note loginctl is missing: no way to tell whether somebody is logged in on the display"; exit 1; }
+for session in $(loginctl list-sessions --no-legend 2>/dev/null | awk '{print $1}'); do
+  who=$(loginctl show-session "$session" -p Name -p Class -p Type -p Seat 2>/dev/null | awk -F= '
+    $1 == "Name" { name = $2 }
+    $1 == "Class" { class = $2 }
+    $1 == "Type" { type = $2 }
+    $1 == "Seat" { seat = $2 }
+    END { if (class == "user" && seat == "seat0" && (type == "x11" || type == "wayland")) print name " (" type ")" }')
+  [ -z "$who" ] || {
+    echo "note session $session of $who is logged in on seat0: log it out first, or a bare run would end it"
+    exit 1
+  }
+done
+`;
+}
+
+/**
  * Starts the bare X server in the run's directory (which must exist and be watched by the guard).
- * It checks it can (`fuser`, passwordless sudo) before LightDM is touched, records whether LightDM
+ * It checks it can (`fuser`, passwordless sudo, nobody logged in) before LightDM is touched, records whether LightDM
  * was active, stops it, makes the cookie, starts Xorg on a free display and VT, waits for it to
  * answer, turns the screen saver and DPMS off on it and sets `mode` at 60 Hz on its connected
  * output. Prints `lightdm <state>`, `display :N`, `vt K`, `output NAME`, `mode WxH`, `rate R` and
@@ -53,7 +80,7 @@ command -v fuser >/dev/null 2>&1 ||
   { echo "note fuser is missing (psmisc): no way to tell a free VT"; exit 1; }
 sudo -n true 2>/dev/null ||
   { echo "note sudo asks for a password: the bare display needs it"; exit 1; }
-# Written before LightDM is touched: the teardown starts it again only if it was active.
+${graphicalSessionFragment()}# Written before LightDM is touched: the teardown starts it again only if it was active.
 state=$(systemctl is-active lightdm 2>/dev/null || true)
 echo "$state" >"$dir/lightdm.state"
 echo "lightdm \${state:-unknown}"

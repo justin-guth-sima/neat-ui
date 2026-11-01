@@ -17,6 +17,7 @@ import { after, test } from 'node:test';
 import { stubEnv, writeStubs } from './board-stubs.mjs';
 import {
   DEFAULT_MODE,
+  graphicalSessionFragment,
   lightdmRestoreFragment,
   parseXStart,
   xStartScript,
@@ -66,7 +67,13 @@ test('only stops LightDM, never disables it, and leaves /etc and the process tab
 test('records whether LightDM was active, and checks it can start at all, before it stops it', () => {
   const script = xStartScript('/tmp/neat-bench-x');
   const stop = script.indexOf('systemctl stop lightdm');
-  for (const before of ['lightdm.state', 'command -v fuser', 'sudo -n true', 'start.lock']) {
+  for (const before of [
+    'lightdm.state',
+    'command -v fuser',
+    'sudo -n true',
+    'loginctl list-sessions',
+    'start.lock',
+  ]) {
     const at = script.indexOf(before);
     assert.ok(at > 0 && at < stop, before);
   }
@@ -136,7 +143,7 @@ test('sets the mode at 60 Hz on the connected output, 1920x1080 unless told othe
 
 // The start, run for real on the stand-in board.
 let counter = 0;
-function startBoard({ lightdm = 'active', mode, omit = [], umask = '022' } = {}) {
+function startBoard({ lightdm = 'active', mode, omit = [], umask = '022', sessions } = {}) {
   counter += 1;
   const root = join(work, `start${counter}`);
   const dir = join(work, `neat-bench-s${counter}`);
@@ -153,6 +160,7 @@ function startBoard({ lightdm = 'active', mode, omit = [], umask = '022' } = {})
   }
   writeFileSync(env.STUB_STATE, `${lightdm}\n`);
   writeFileSync(env.STUB_LOG, '');
+  if (sessions) writeFileSync(env.STUB_SESSIONS, `${sessions.join('\n')}\n`);
   // LightDM's own server on :0, as on the board, until LightDM is stopped.
   if (lightdm === 'active') writeFileSync(join(env.STUB_LOCKS, '.X0-lock'), '      1234\n');
   const script = xStartScript(dir, { parents, mode, lockDir: env.STUB_LOCKS });
@@ -220,6 +228,72 @@ test('does not touch LightDM where fuser is missing: every VT would look free', 
   assert.equal(out.status, 1);
   assert.match(out.stdout, /note fuser is missing/);
   assert.doesNotMatch(b.calls(), /systemctl/);
+  assert.equal(existsSync(join(b.dir, 'lightdm.state')), false);
+});
+
+// The check for a graphical login, run for real on the stand-in board's loginctl. The board
+// today has LightDM's greeter on seat0 and a tty login with no seat: both must pass.
+const sessionCheck = (sessions, { omit } = {}) => {
+  counter += 1;
+  const root = join(work, `session${counter}`);
+  mkdirSync(root);
+  const own = omit ? writeStubs(join(root, 'stubs'), { omit }) : stubs;
+  const env = stubEnv({ stubs: own, root });
+  // Where loginctl must be missing, only the stand-ins and awk are on the PATH.
+  if (omit) {
+    const awk = spawnSync('sh', ['-c', 'command -v awk'], { encoding: 'utf8' }).stdout.trim();
+    symlinkSync(awk, join(own, 'awk'));
+    env.PATH = own;
+  }
+  if (sessions) writeFileSync(env.STUB_SESSIONS, `${sessions.join('\n')}\n`);
+  return spawnSync('/bin/sh', ['-s'], {
+    input: `${graphicalSessionFragment()}echo passed\n`,
+    encoding: 'utf8',
+    env,
+  });
+};
+
+test('lets the board as it is today through: a greeter on seat0, a tty login with no seat', () => {
+  const out = sessionCheck();
+  assert.equal(out.status, 0, out.stdout + out.stderr);
+  assert.match(out.stdout, /^passed$/m);
+});
+
+test('lets a user session through that is not on seat0, or not graphical', () => {
+  const out = sessionCheck([
+    'c1 lightdm greeter x11 seat0',
+    '4 sima user x11 -',
+    '5 sima user tty seat0',
+    '6 sima manager unspecified -',
+  ]);
+  assert.equal(out.status, 0, out.stdout + out.stderr);
+});
+
+for (const type of ['x11', 'wayland']) {
+  test(`refuses where a user is logged in on seat0 under ${type}, naming the session and the user`, () => {
+    const out = sessionCheck(['c1 lightdm greeter x11 seat0', `7 maria user ${type} seat0`]);
+    assert.equal(out.status, 1);
+    assert.match(
+      out.stdout,
+      new RegExp(`^note session 7 of maria \\(${type}\\) is logged in`, 'm'),
+    );
+    assert.match(out.stdout, /log it out first/);
+    assert.doesNotMatch(out.stdout, /passed/);
+  });
+}
+
+test('refuses where it cannot tell, as loginctl is missing', () => {
+  const out = sessionCheck(undefined, { omit: ['loginctl'] });
+  assert.equal(out.status, 1);
+  assert.match(out.stdout, /^note loginctl is missing/m);
+});
+
+test('a start over a graphical login touches nothing: LightDM keeps running, nothing is made', () => {
+  const b = startBoard({ sessions: ['c2 maria user x11 seat0'] });
+  const out = b.run();
+  assert.equal(out.status, 1);
+  assert.match(out.stdout, /note session c2 of maria \(x11\) is logged in on seat0/);
+  assert.doesNotMatch(b.calls(), /systemctl stop|Xorg|xauth/);
   assert.equal(existsSync(join(b.dir, 'lightdm.state')), false);
 });
 

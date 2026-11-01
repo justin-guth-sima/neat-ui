@@ -16,7 +16,12 @@
 // The laptop's side of a teardown is `teardownWaitScript`: create `stop`, wait (longer than the
 // guard can take) for `restore.txt`, print it. Runs without a bare display keep the plain stop
 // script in `remote.mjs`, built from the same fragments.
-import { lightdmRestoreFragment, LIGHTDM_RESTORE_S, xStopFragment } from './board-x.mjs';
+import {
+  graphicalSessionFragment,
+  lightdmRestoreFragment,
+  LIGHTDM_RESTORE_S,
+  xStopFragment,
+} from './board-x.mjs';
 import { serverStopFragment } from './board-server.mjs';
 import { assertRemoteDir, DEFAULT_PARENTS } from './remote-dir.mjs';
 import { spawnSsh } from './ssh.mjs';
@@ -156,13 +161,48 @@ rm -rf -- "$dir"
 `;
 }
 
-/** Whether `$gpid` is this run's guard, by its command line. Needs `$dir`. */
+/**
+ * Whether `$gpid` is the guard of the run in the directory given as `$1`, by its command line
+ * (`guard_in`), and of this run (`is_guard`, which needs `$dir`).
+ */
 function isGuardFragment() {
-  return `is_guard() {
+  return `guard_in() {
   case "$gpid" in ''|*[!0-9]*) return 1;; esac
-  [ -r "/proc/$gpid/cmdline" ] && tr '\\0' ' ' <"/proc/$gpid/cmdline" | grep -qF -- "$dir/guard.sh"
+  [ -r "/proc/$gpid/cmdline" ] && tr '\\0' ' ' <"/proc/$gpid/cmdline" | grep -qF -- "$1/guard.sh"
 }
+is_guard() { guard_in "$dir"; }
 `;
+}
+
+/**
+ * Refuses (`note ...`, exit 1) where another run's guard is alive in one of `parents`: two bare
+ * runs would fight over LightDM (the second records it as stopped and never restores it, and
+ * the first's restore starts it on a VT the second's X server is not on), so the second one's
+ * frames would be meaningless and it would not be told. A directory whose guard is gone (a kept
+ * one, for a person) does not count. Needs `$dir`.
+ */
+function otherGuardFragment(parents) {
+  const guards = parents.map((parent) => `'${parent}'/neat-bench-*/guard.pid`).join(' ');
+  return `${isGuardFragment()}for other in ${guards}; do
+  [ -r "$other" ] || continue
+  odir=\${other%/guard.pid}
+  [ "$odir" = "$dir" ] && continue
+  gpid=$(cat "$other" 2>/dev/null || true)
+  if guard_in "$odir"; then
+    echo "note another bench run is live on this board ($odir, guard $gpid): wait for it to end"
+    exit 1
+  fi
+done
+`;
+}
+
+/**
+ * What a bare run's first script checks before it starts the guard, and so before anything else
+ * is started or LightDM is touched: no other run's live guard, nobody logged in on the display.
+ * A refusal leaves only the run's empty directory, which the laptop's teardown removes.
+ */
+export function bareStartChecksFragment(parents = DEFAULT_PARENTS) {
+  return otherGuardFragment(parents) + graphicalSessionFragment();
 }
 
 /** Starts `$dir/guard.sh` detached (its own session, hang-ups ignored) and reads its pid. */

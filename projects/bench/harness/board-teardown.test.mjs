@@ -1,13 +1,22 @@
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 import { stubEnv, writeStubs } from './board-stubs.mjs';
 import { prepareScript, serverStartScript } from './board-server.mjs';
 import {
+  bareStartChecksFragment,
   GUARD,
   GUARD_WORST_S,
   guardInstallFragment,
@@ -358,4 +367,70 @@ test('the laptop beats every interval over a detached ssh, opens it again when i
   f.calls[1].child.emit('close', 0);
   await sleepMs(40);
   assert.equal(f.calls.length, 2, 'and not opened again');
+});
+
+// A second bare run on one board would record LightDM as stopped and never restore it. The
+// checks run for real, in a parent folder of their own (the other specs leave guards about),
+// against processes that look like another run's guard by their command line.
+const parentFolder = () => mkdtempSync(join(work, 'parent-'));
+const otherRun = (parent, id, { cmdline = 'guard' } = {}) => {
+  const dir = join(parent, `neat-bench-${id}`);
+  mkdirSync(dir);
+  const named = cmdline === 'guard' ? `${dir}/guard.sh` : '/elsewhere/guard.sh.not';
+  const other = spawn('sh', ['-c', 'sleep 300', 'sh', named], { stdio: 'ignore' });
+  spare.push(other.pid);
+  writeFileSync(join(dir, 'guard.pid'), `${other.pid}\n`);
+  return { dir, pid: other.pid };
+};
+const checks = (parent, dir) => {
+  counter += 1;
+  const env = stubEnv({ stubs, root: join(work, `checks${counter}`) });
+  return sh(`dir='${dir}'\n${bareStartChecksFragment([parent])}echo passed\n`, env);
+};
+
+test('refuses to start while another run’s guard is alive, naming its directory and pid', async () => {
+  const parent = parentFolder();
+  const other = otherRun(parent, 'o1');
+  const out = await checks(parent, join(parent, 'neat-bench-mine'));
+  assert.equal(out.status, 1);
+  assert.ok(
+    out.stdout.includes(
+      `note another bench run is live on this board (${other.dir}, guard ${other.pid})`,
+    ),
+    out.stdout,
+  );
+  assert.doesNotMatch(out.stdout, /passed/);
+});
+
+test('starts where another run’s guard is gone, was never written, or is a recycled pid', async () => {
+  const parent = parentFolder();
+  const dead = otherRun(parent, 'o2');
+  process.kill(dead.pid, 'SIGKILL');
+  await until(() => !alive(dead.pid), 2000, 'the stand-in guard to end');
+  mkdirSync(join(parent, 'neat-bench-o3'));
+  otherRun(parent, 'o4', { cmdline: 'recycled' });
+  const out = await checks(parent, join(parent, 'neat-bench-mine'));
+  assert.equal(out.status, 0, out.stdout + out.stderr);
+  assert.match(out.stdout, /^passed$/m);
+});
+
+test('does not count the run’s own guard: a rerun of its teardown is not refused by it', async () => {
+  const parent = parentFolder();
+  const own = otherRun(parent, 'o5');
+  const out = await checks(parent, own.dir);
+  assert.equal(out.status, 0, out.stdout + out.stderr);
+});
+
+test('refuses over a graphical login too, the same fragment as the start’s', async () => {
+  const parent = parentFolder();
+  counter += 1;
+  const root = join(work, `checks${counter}`);
+  const env = stubEnv({ stubs, root });
+  writeFileSync(env.STUB_SESSIONS, 'c2 maria user wayland seat0\n');
+  const out = await sh(
+    `dir='${join(parent, 'neat-bench-mine')}'\n${bareStartChecksFragment([parent])}echo passed\n`,
+    env,
+  );
+  assert.equal(out.status, 1);
+  assert.match(out.stdout, /^note session c2 of maria \(wayland\) is logged in on seat0/m);
 });

@@ -25,6 +25,17 @@ case "$args" in
       printf '%10d\\n' "$STUB_LIGHTDM_XPID" >"$STUB_LOCKS/.X0-lock" ;;
 esac
 `,
+  // The sessions are the lines of `$STUB_SESSIONS` (`id name class type seat`, `-` for no seat).
+  // list-sessions prints systemd's columns (session, uid, user, seat, tty); show-session prints
+  // each property in an order of its own, whichever were asked for, as systemd does.
+  loginctl: `case "$1" in
+  list-sessions) awk '{ print $1, 1000, $2, ($5 == "-" ? "" : $5), "-" }' "$STUB_SESSIONS" ;;
+  show-session)
+    awk -v id="$2" '$1 == id {
+      print "Type=" $4; print "Class=" $3; print "Name=" $2; print "Seat=" ($5 == "-" ? "" : $5)
+    }' "$STUB_SESSIONS" ;;
+esac
+`,
   fuser: `echo "fuser $*" >>"$STUB_LOG"
 exit 1
 `,
@@ -78,12 +89,17 @@ export function writeStubs(dir, { omit = [] } = {}) {
   return dir;
 }
 
+/** The sessions of the board as of 2026-10-31: LightDM's greeter on seat0, a tty login, no seat. */
+export const BOARD_SESSIONS = ['c1 lightdm greeter x11 seat0', '3 sima user tty -'];
+
 /**
  * The environment a script runs in on the stand-in board: the stand-ins first on the PATH, and
- * their files in `root` (`log`, `state` holding LightDM's state, `locks` for X lock files).
+ * their files in `root` (`log`, `state` holding LightDM's state, `locks` for X lock files,
+ * `sessions` for logins, the board's own to begin with).
  */
 export function stubEnv({ stubs, root, extra = {} }) {
   mkdirSync(join(root, 'locks'), { recursive: true });
+  writeFileSync(join(root, 'sessions'), `${BOARD_SESSIONS.join('\n')}\n`);
   return {
     ...process.env,
     PATH: `${stubs}:${process.env.PATH}`,
@@ -92,6 +108,7 @@ export function stubEnv({ stubs, root, extra = {} }) {
     STUB_LOCKS: join(root, 'locks'),
     STUB_XUP: join(root, 'xorg-up'),
     STUB_MODE: join(root, 'mode'),
+    STUB_SESSIONS: join(root, 'sessions'),
     ...extra,
   };
 }
