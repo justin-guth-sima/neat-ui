@@ -320,6 +320,25 @@ test('checks a traced run’s recorder against its own trace', async () => {
   }
 });
 
+test('starts the trace with the campaign’s categories', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'bench-trace-'));
+  try {
+    const files = { trace: join(dir, 'x.gz'), traceName: 'x.gz' };
+    const rig = traced(60);
+    const asked = [];
+    rig.session.browser.startTracing = async (_page, how) => asked.push(how.categories);
+    await run(rig, { trace: true, files });
+    await run(rig, {
+      trace: true,
+      files,
+      options: { ...OPTIONS, traceCategories: ['viz', 'cc'] },
+    });
+    assert.deepEqual(asked, [['viz'], ['viz', 'cc']]);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('records the display’s presented rate in the phases whose view changes every frame', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'bench-trace-'));
   try {

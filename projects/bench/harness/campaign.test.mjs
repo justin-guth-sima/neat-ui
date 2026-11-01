@@ -408,3 +408,13 @@ test('records the extra browser flags in the machine and hands them to both brow
   const plain = await go(rig(), options('--repeats', '1'));
   assert.deepEqual(plain.run.machine.browserFlags, []);
 });
+
+test('records the trace categories in the harness info', async () => {
+  const plain = await go(rig(), options('--repeats', '1'));
+  assert.deepEqual(plain.run.harness.traceCategories, ['viz']);
+  const wide = await go(
+    rig(),
+    options('--repeats', '1', '--trace', '--trace-categories', 'viz,cc'),
+  );
+  assert.deepEqual(wide.run.harness.traceCategories, ['viz', 'cc']);
+});

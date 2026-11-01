@@ -387,6 +387,7 @@ export async function runCampaign(options, { log, cleanups, deps = {}, signal, b
           viewport: mode.viewport,
           dpr: options.dpr,
           cooldownMs: options.cooldownMs,
+          traceCategories: options.traceCategories,
           browserVersion: facts.version,
           pageBase: base,
           ...(options.serve && { servedFrom: `board ${options.serve.bind}` }),

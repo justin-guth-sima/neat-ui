@@ -27,7 +27,7 @@ const LIMITS = { startMs: START_MS, stepMs: stepLimitMs, runMs: runLimitMs, setu
 // Only what the check reads: the display compositor's draws (`Display::DrawAndSwap`) are in `viz`.
 // A board campaign traces every step, so a trace must stay as small as its use allows; the
 // timeline categories a DevTools Performance panel needs are left out on purpose (a trace for
-// reading by eye is a run of its own with them added).
+// reading by eye is a campaign of its own with `--trace-categories`).
 const TRACE_CATEGORIES = ['viz'];
 
 /**
@@ -137,7 +137,9 @@ export async function runOnePage({
     await withTimeout(cdp.send('Performance.enable'), limits.setupMs, 'Performance.enable');
     if (trace && files) {
       await withTimeout(
-        session.browser.startTracing(page, { categories: TRACE_CATEGORIES }),
+        session.browser.startTracing(page, {
+          categories: options.traceCategories ?? TRACE_CATEGORIES,
+        }),
         limits.setupMs,
         'start tracing',
       );

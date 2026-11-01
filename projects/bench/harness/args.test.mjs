@@ -295,3 +295,31 @@ test('refuses --browser-flags that are not flags, as a usage error', () => {
 test('says what --browser-flags is in the usage', () => {
   assert.match(USAGE, /--browser-flags/);
 });
+
+test('traces the viz category alone by default, and reads --trace-categories as a list', () => {
+  assert.deepEqual(parseArgs(BASE).traceCategories, ['viz']);
+  assert.deepEqual(
+    parseArgs([
+      ...BASE,
+      '--trace',
+      '--trace-categories',
+      'toplevel,cc,viz,disabled-by-default-devtools.timeline',
+    ]).traceCategories,
+    ['toplevel', 'cc', 'viz', 'disabled-by-default-devtools.timeline'],
+  );
+});
+
+test('refuses --trace-categories without viz, without --trace, or with odd characters', () => {
+  // The presented rate that decides a tier is read from viz's display draws.
+  assert.throws(
+    () => parseArgs([...BASE, '--trace', '--trace-categories', 'cc,blink']),
+    /needs viz/,
+  );
+  assert.throws(() => parseArgs([...BASE, '--trace-categories', 'viz,cc']), /--trace/);
+  assert.throws(
+    () => parseArgs([...BASE, '--trace', '--trace-categories', 'viz,c c']),
+    /--trace-categories/,
+  );
+  assert.throws(() => parseArgs([...BASE, '--trace', '--trace-categories', 'viz,,cc']), UsageError);
+  assert.match(USAGE, /--trace-categories/);
+});

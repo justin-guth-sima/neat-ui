@@ -71,6 +71,9 @@ Output
   --trace                    one extra run per renderer and ladder, traced: the display's draws give
                              the presented rate that decides the tier (all steps, the board default)
   --trace-steps N|all        trace only the first N levels (default all, as far as --steps goes)
+  --trace-categories viz,cc  the traced runs' categories (default viz, the display's draws, which
+                             the presented rate needs, so the list must hold it); more categories
+                             make a trace to read thread by thread, at a cost on the board
   --no-screenshots           no screenshot of the last step of each run
   --allow-unfair             go on, with a warning in every result, when the fairness check
                              between the kit and vflow fails (otherwise the run stops)`;
@@ -94,6 +97,7 @@ const OPTIONS = {
   refine: { type: 'boolean' },
   trace: { type: 'boolean' },
   'trace-steps': { type: 'string' },
+  'trace-categories': { type: 'string' },
   input: { type: 'string' },
   ssh: { type: 'string' },
   out: { type: 'string' },
@@ -124,6 +128,30 @@ function whole(value, name, least, fallback) {
 /** How many levels a traced run climbs: a count, or every one (undefined: as far as --steps). */
 function traceSteps(value) {
   return value === 'all' ? undefined : whole(value, 'trace-steps', 1, undefined);
+}
+
+/**
+ * The categories a traced run records: `viz` alone unless told, and never without it, since the
+ * presented rate that decides a tier is read from its display draws. Names as Chromium spells
+ * them (`disabled-by-default-devtools.timeline`); a category Chromium does not know records
+ * nothing, it does not fail.
+ */
+function traceCategories(value, trace) {
+  if (value === undefined) return ['viz'];
+  if (!trace)
+    throw new UsageError('--trace-categories sets what a traced run records: needs --trace');
+  const items = value.split(',').map((item) => item.trim());
+  for (const item of items) {
+    if (!/^[\w.*-]+$/.test(item)) {
+      throw new UsageError(`--trace-categories is a comma-separated list of names, not "${value}"`);
+    }
+  }
+  if (!items.includes('viz')) {
+    throw new UsageError(
+      '--trace-categories needs viz: the presented rate is read from its display draws',
+    );
+  }
+  return items;
 }
 
 function port(value, name, fallback) {
@@ -315,6 +343,7 @@ export function parseArgs(argv) {
     refine: v.refine ?? false,
     trace: v.trace ?? false,
     traceSteps: traceSteps(v['trace-steps']),
+    traceCategories: traceCategories(v['trace-categories'], v.trace ?? false),
     input,
     ssh: v.ssh,
     serve: serving,

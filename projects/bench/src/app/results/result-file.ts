@@ -81,6 +81,8 @@ export interface HarnessInfo {
   readonly viewport?: { readonly w: number; readonly h: number } | 'native';
   readonly dpr?: string;
   readonly cooldownMs?: number;
+  /** What the traced runs recorded (`--trace-categories`); absent in files of older harnesses. */
+  readonly traceCategories?: readonly string[];
   readonly browserVersion?: string;
   /** False where the file is the part of a campaign that was done when it stopped. */
   readonly complete?: boolean;
