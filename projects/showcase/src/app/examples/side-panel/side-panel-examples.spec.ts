@@ -45,7 +45,7 @@ describe('the side panel examples, each routed on a page of its own', () => {
     vi.restoreAllMocks();
   });
 
-  it('open and close the panel from the top bar’s toggle, and say the width is the default', async () => {
+  it('open and close the panel from the top bar toggle, saying the width is default', async () => {
     await open('/demo/side-panel/source-panel');
 
     expect(toggle().getAttribute('aria-pressed')).toBe('true');
@@ -71,7 +71,7 @@ describe('the side panel examples, each routed on a page of its own', () => {
     expect(reset.getAttribute('aria-disabled')).toBe('true');
   });
 
-  it('remember the panel on a wide screen: closing it is stored, and it comes back closed', async () => {
+  it('remember the panel on a wide screen: closing is stored and comes back closed', async () => {
     await open('/demo/side-panel/remembered-panel');
     expect(aside()).not.toBeNull();
 

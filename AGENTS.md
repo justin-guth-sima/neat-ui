@@ -916,8 +916,9 @@ member out, as a template directive's `template`) and, in a class's doc, `@input
 `@output <name> <text>` for what it forwards from a primitive it hosts, which has no declaration of
 its own to carry a comment. Every public part has a docs entry, and every component, directive,
 service and function also has an example (types, interfaces and consts need only their entry in
-the API panel); the examples are how both themes are checked by eye. Escape hatch: none for public
-parts; code that is not exported needs no entry.
+the API panel); the examples are how both themes are checked by eye. Escape hatch: none for the docs
+entry; the example rule names its exemptions in `docs.spec.ts` (`BELONGS_TO_THE_APP`), for parts
+only an app's root can use. Code that is not exported needs no entry.
 
 ## Commands
 

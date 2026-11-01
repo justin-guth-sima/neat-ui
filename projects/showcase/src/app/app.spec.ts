@@ -89,6 +89,15 @@ describe('App', () => {
     expect(router.url).toBe('/theme/tokens');
   });
 
+  it.each(['/components', '/legacy/charts', '/nowhere/at/all'])(
+    'sends the old or unknown address %s to the first topic',
+    async (path) => {
+      await navigate(path);
+
+      expect(router.url).toBe('/theme/tokens');
+    },
+  );
+
   it('titles the document with the app name and the page', async () => {
     expect(document.title).toBe('neat-ui showcase · Tokens');
 

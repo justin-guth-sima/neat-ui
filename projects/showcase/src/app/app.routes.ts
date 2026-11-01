@@ -8,4 +8,6 @@ export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: topicPath(GROUPS[0], GROUPS[0].topics[0]) },
   // The docs: a page per topic of each group, the theme's among them.
   ...docsRoutes(GROUPS),
+  // An address of the old pages, or a mistyped one, lands on the docs' first page, not a blank one.
+  { path: '**', redirectTo: topicPath(GROUPS[0], GROUPS[0].topics[0]) },
 ];

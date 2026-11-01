@@ -55,7 +55,7 @@ describe('the colour examples', () => {
     document.documentElement.removeAttribute('style');
   });
 
-  it('switch the scheme and store the choice, or show the other one for this visit only', async () => {
+  it('switch the scheme and store the choice, or show the other for this visit only', async () => {
     const theme = TestBed.inject(ThemeService);
     const fixture = await render(ColourScheme);
     const host = fixture.nativeElement as HTMLElement;

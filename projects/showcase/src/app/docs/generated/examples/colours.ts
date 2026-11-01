@@ -311,7 +311,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " answers, each red, green and blue from 0 to 1, as code that draws outside CSS takes a colour. The signal reads them again when the scheme changes: switch it in the top bar and the numbers follow."
+            "text": " answers, each red, green and blue from 0 to 1, as code that draws outside CSS takes a colour. The signal reads them again when the scheme changes: switch the theme at the bottom of the rail and the numbers follow."
           }
         ]
       }

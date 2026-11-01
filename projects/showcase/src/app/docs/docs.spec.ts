@@ -192,7 +192,8 @@ describe('every docs topic in the app', () => {
     },
   );
 
-  // The smoke test: every topic's page renders in jsdom with its examples live and its API panel.
+  // The smoke test: every topic's page renders in jsdom with its examples live and its API panel,
+  // and each full-page example's own route renders.
   // No example is left out: the stubs above (no `ResizeObserver`, no canvas context) are all the
   // canvas charts, the video tile and the ROI editor need to mount, and what they draw is checked
   // by eye and in their own specs.
@@ -235,6 +236,18 @@ describe('every docs topic in the app', () => {
       expect(
         Array.from(content().querySelectorAll('aside app-api-part'), (part) => part.id).sort(),
       ).toEqual(topic.parts.map((name) => `api-${name}`).sort());
+      // A full-page example is a page of its own, which only its route renders.
+      if (topic.fullPage) {
+        for (const example of examples.filter((candidate) => candidate.component)) {
+          await router.navigateByUrl(`/demo/${topic.id}/${example.id}`);
+          await fixture.whenStable();
+
+          expect(
+            content().querySelector('neat-page'),
+            `${example.id} did not render`,
+          ).not.toBeNull();
+        }
+      }
     },
   );
 

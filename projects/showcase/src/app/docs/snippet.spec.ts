@@ -1,3 +1,4 @@
+import { ApplicationRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { DocsExampleFile } from './model';
 import { Snippet } from './snippet';
@@ -98,6 +99,25 @@ describe('Snippet', () => {
     expect(document.activeElement).toBe(other);
     expect(other.getAttribute('aria-label')).toBe('Show messaging-pipeline.example.ts');
     host.remove();
+  });
+
+  it('names where the showcase classes are defined, only for a file that uses one', async () => {
+    const LAYOUT: DocsExampleFile = {
+      name: 'layout.example.ts',
+      code: [['string', '`<div class="showcase-row"></div>`']],
+    };
+    const { host, open } = await render([LAYOUT, MAIN]);
+    await open();
+
+    expect(host.querySelector('[neatNote]')?.textContent).toContain(
+      'projects/showcase/src/styles.css',
+    );
+
+    (host.querySelector('.files button') as HTMLButtonElement).click();
+    await TestBed.inject(ApplicationRef).whenStable();
+
+    expect(host.querySelector('pre')?.textContent).toBe(text(MAIN));
+    expect(host.querySelector('[neatNote]')).toBeNull();
   });
 
   it("copies the shown file's text", async () => {

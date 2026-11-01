@@ -6,7 +6,7 @@ import {
   linkedSignal,
   signal,
 } from '@angular/core';
-import { NeatButton, NeatCode } from '@sima/neat-ui';
+import { NeatButton, NeatCode, NeatNote } from '@sima/neat-ui';
 import { NeatCollapsible } from '@sima/neat-ui/collapsible';
 import { CodeBox } from './code-box';
 import { CopyButton } from './copy-button';
@@ -15,11 +15,12 @@ import type { DocsExampleFile } from './model';
 /**
  * An example's code, closed until asked for: the live example comes first, and a closed snippet
  * renders none of its runs. Open, the trigger's row names the file shown, offers the example's
- * other files as small buttons and copies the one shown; below it is that one file.
+ * other files as small buttons and copies the one shown; below it is that one file, and a line
+ * naming where the `showcase-*` classes it uses are defined, since no snippet carries them.
  */
 @Component({
   selector: 'app-snippet',
-  imports: [CodeBox, CopyButton, NeatButton, NeatCode, NeatCollapsible],
+  imports: [CodeBox, CopyButton, NeatButton, NeatCode, NeatCollapsible, NeatNote],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-collapsible label="Code" [summary]="summary()" [(open)]="open">
@@ -45,6 +46,12 @@ import type { DocsExampleFile } from './model';
       }
       @if (open()) {
         <app-code-box [runs]="file().code" overflow="scroll" />
+        @if (usesShowcaseClasses()) {
+          <p neatNote class="classes">
+            <code neatCode>showcase-*</code> classes are the showcase's own layout helpers, in
+            <code neatCode>projects/showcase/src/styles.css</code>.
+          </p>
+        }
       }
     </neat-collapsible>
   `,
@@ -72,4 +79,6 @@ export class Snippet {
       .code.map(([, run]) => run)
       .join(''),
   );
+  /** The shown file uses a class of the showcase's stylesheet, which a copy would not bring. */
+  protected readonly usesShowcaseClasses = computed(() => /\bshowcase-[a-z]/.test(this.text()));
 }

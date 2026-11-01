@@ -330,7 +330,7 @@ describe('DocsPage', () => {
     expect(host.querySelector('app-snippet')).not.toBeNull();
   });
 
-  it('links no example without a component, whatever the topic: it says it is code only', async () => {
+  it('links no example without a component, whatever the topic: it is code only', async () => {
     const { host } = await open('/code-only');
     const card = host.querySelector('app-example-card') as HTMLElement;
 

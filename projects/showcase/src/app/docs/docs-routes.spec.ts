@@ -142,7 +142,7 @@ describe('the docs routes', () => {
     expect(page.tabs().map((tab) => tab.path)).toEqual(['/things/thing', '/things/pages']);
   });
 
-  it('routes a hand-made topic’s component with its group’s tabs, and no docs page', async () => {
+  it('routes a hand-made topic’s component with the group’s tabs, not a docs page', async () => {
     const harness = await RouterTestingHarness.create();
     const page = await harness.navigateByUrl('/hand/made', MadePage);
     await harness.fixture.whenStable();

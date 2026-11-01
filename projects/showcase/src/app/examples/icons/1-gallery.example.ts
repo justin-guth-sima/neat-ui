@@ -19,7 +19,7 @@ import { NEAT_ICON_NAMES, NeatIcon } from '@sima/neat-ui';
       }
     </div>
   `,
-  styleUrl: './icon-card.css',
+  styleUrl: './gallery.example.css',
 })
 export class Gallery {
   protected readonly names = NEAT_ICON_NAMES;

@@ -16,3 +16,8 @@
   gap: var(--neat-space-2);
   min-width: 0;
 }
+
+/* The line under the code, set off from it. */
+.classes {
+  margin-block-start: var(--neat-space-2);
+}

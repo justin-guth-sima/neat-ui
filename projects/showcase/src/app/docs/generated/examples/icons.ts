@@ -49,13 +49,13 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'app-gallery'"],["text",",\n  imports: [NeatIcon],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    <div class=\"showcase-grid\">\n      @for (name of names; track name) {\n        <div class=\"icon-card\">\n          <neat-icon [name]=\"name\" [size]=\"24\" />\n          <span class=\"showcase-code\">{{ name }}</span>\n        </div>\n      }\n    </div>\n  `"],
           ["text",",\n  styleUrl: "],
-          ["string","'./icon-card.css'"],["text",",\n})\n"],
+          ["string","'./gallery.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Gallery {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," names = NEAT_ICON_NAMES;\n}\n"]
         ]
       },
       {
-        "name": "icon-card.css",
+        "name": "gallery.example.css",
         "code": [
           ["text",".icon-card {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: var(--neat-space-2);\n  padding: var(--neat-space-4) var(--neat-space-2);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n"]
         ]

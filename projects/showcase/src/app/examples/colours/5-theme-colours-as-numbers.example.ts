@@ -17,7 +17,7 @@ const format = (rgb: NeatRgb | null): string =>
 /**
  * Six tokens as the numbers `neatThemeColors` answers, each red, green and blue from 0 to 1, as
  * code that draws outside CSS takes a colour. The signal reads them again when the scheme changes:
- * switch it in the top bar and the numbers follow.
+ * switch the theme at the bottom of the rail and the numbers follow.
  */
 @Component({
   selector: 'app-theme-colours-as-numbers',
