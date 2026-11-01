@@ -54,7 +54,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A bar whose width is "
+            "text": "A progress bar whose value is "
           },
           {
             "kind": "ref",
@@ -70,24 +70,26 @@ export const EXAMPLES: readonly DocsExample[] = [
     ],
     "shows": [
       "@sima/neat-ui#NeatButton",
-      "@sima/neat-ui#neatEased"
+      "@sima/neat-ui#neatEased",
+      "@sima/neat-ui/progress#NeatProgress"
     ],
     "files": [
       {
         "name": "2-eased-signal.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, computed, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatButton, neatEased } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n"],
-          ["comment","/** The shares the bar moves through, in turn, as a percent of the track. */"],["text","\n"],
+          ["keyword","import"],["text"," { NeatButton, neatEased } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatProgress } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/progress'"],["text",";\n\n"],
+          ["comment","/** The shares the bar moves through, in turn, in percent. */"],["text","\n"],
           ["keyword","const"],["text"," SHARES = [20, 85, 40, 100];\n\n@Component({\n  selector: "],
-          ["string","'app-eased-signal'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"track\"><div class=\"fill\" [style.width.%]=\"width()\"></div></div>\n    <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"next()\">\n      Next share\n    </button>\n  `"],
+          ["string","'app-eased-signal'"],["text",",\n  imports: [NeatButton, NeatProgress],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <neat-progress label=\"Share\" [value]=\"value()\" />\n    <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"next()\">\n      Next share\n    </button>\n  `"],
           ["text",",\n  styleUrl: "],
           ["string","'./eased-signal.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," EasedSignal {\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," share = signal(SHARES[0]);\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," eased = neatEased("],["keyword","this"],["text",".share);\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," width = computed(() => "],["keyword","this"],["text",".eased() ?? 0);\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," value = computed(() => "],["keyword","this"],["text",".eased() ?? 0);\n  "],
           ["keyword","private"],["text"," index = 0;\n\n  "],
           ["keyword","protected"],["text"," next(): "],["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".index = ("],["keyword","this"],["text",".index + 1) % SHARES.length;\n    "],
@@ -97,7 +99,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "eased-signal.example.css",
         "code": [
-          ["text",":host {\n  display: grid;\n  grid-template-columns: minmax(0, 1fr) auto;\n  align-items: center;\n  gap: var(--neat-space-3);\n  max-width: 28rem;\n}\n\n.track {\n  height: var(--neat-space-2);\n  border-radius: var(--radius);\n  background: var(--border);\n}\n\n.fill {\n  height: 100%;\n  border-radius: var(--radius);\n  background: var(--primary);\n}\n"]
+          ["comment","/* The bar takes the row's width beside its button. */"],["text","\n:host {\n  display: grid;\n  grid-template-columns: minmax(0, 1fr) auto;\n  align-items: center;\n  gap: var(--neat-space-3);\n  max-width: 28rem;\n}\n"]
         ]
       }
     ]

@@ -1,19 +1,8 @@
+/* The bar takes the row's width beside its button. */
 :host {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--neat-space-3);
   max-width: 28rem;
-}
-
-.track {
-  height: var(--neat-space-2);
-  border-radius: var(--radius);
-  background: var(--border);
-}
-
-.fill {
-  height: 100%;
-  border-radius: var(--radius);
-  background: var(--primary);
 }

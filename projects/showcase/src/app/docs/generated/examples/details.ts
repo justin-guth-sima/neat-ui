@@ -14,7 +14,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The facts of a source in a panel's width. The URL's value holds a code span and an inline button, which wrap together when the panel is narrow."
+            "text": "The facts of a source in a panel's width. The URL's value holds a code span and an inline button."
           }
         ]
       }

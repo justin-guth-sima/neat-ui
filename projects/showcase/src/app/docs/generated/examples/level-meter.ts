@@ -21,7 +21,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ": it goes dark."
+            "text": " and the meter goes dark."
           }
         ]
       }

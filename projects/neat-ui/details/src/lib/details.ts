@@ -37,6 +37,11 @@ const DETAILS_CLASSES =
  * It sets the look only; the pairs, their words and what a value holds (a code span, an inline
  * button beside a URL) are the app's. Write each `dt` and `dd` as a direct child of the list, one
  * value per term: the two columns are the list's grid.
+ *
+ * The terms are muted and as wide as the widest; the values take the rest of the width, wrap
+ * anywhere when long and keep their figures aligned. Several lists line up on one term column when
+ * an ancestor sets `--neat-details-term-width` (a length, say `7rem`); a term wider than that
+ * column breaks inside the word.
  */
 @Directive({
   selector: 'dl[neatDetails]',

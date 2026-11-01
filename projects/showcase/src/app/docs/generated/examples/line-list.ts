@@ -35,7 +35,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatLine, NeatLineEnd, NeatLineList } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/line-list'"],["text",";\n\n"],
           ["keyword","const"],["text"," REGIONS = ["],["string","'Inclusion 1'"],["text",", "],["string","'Exclusion 1'"],["text",", "],["string","'Exclusion 2'"],["text","];\n\n@Component({\n  selector: "],
           ["string","'app-regions'"],["text",",\n  imports: [NeatButton, NeatInlineButton, NeatLine, NeatLineEnd, NeatLineList, NeatNote],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"list\">\n      @if (regions().length === 0) {\n        <p neatNote>No regions.</p>\n      } @else {\n        <ul neatLineList>\n          @for (region of regions(); track region) {\n            <li neatLine>\n              <span>{{ region }}</span>\n              <button\n                neatInlineButton\n                neatLineEnd\n                type=\"button\"\n                [attr.aria-label]=\"'Delete ' + region\"\n                (click)=\"remove(region)\"\n              >\n                Delete\n              </button>\n            </li>\n          }\n        </ul>\n      }\n    </div>\n    <div class=\"showcase-row\">\n      <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"regions.set(all)\">\n        Restore regions\n      </button>\n    </div>\n  `"],
+          ["string","`\n    @if (regions().length === 0) {\n      <p neatNote>No regions.</p>\n    } @else {\n      <ul neatLineList>\n        @for (region of regions(); track region) {\n          <li neatLine>\n            <span>{{ region }}</span>\n            <button\n              neatInlineButton\n              neatLineEnd\n              type=\"button\"\n              [attr.aria-label]=\"'Delete ' + region\"\n              (click)=\"remove(region)\"\n            >\n              Delete\n            </button>\n          </li>\n        }\n      </ul>\n    }\n    <div class=\"showcase-row\">\n      <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"regions.set(all)\">\n        Restore regions\n      </button>\n    </div>\n  `"],
           ["text",",\n  styleUrl: "],
           ["string","'./regions.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Regions {\n  "],
@@ -48,7 +48,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "regions.example.css",
         "code": [
-          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n  width: 18rem;\n}\n"]
+          ["comment","/* The example's parts one gap apart, in a column the width of a side panel's list. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n  width: 18rem;\n}\n"]
         ]
       }
     ]

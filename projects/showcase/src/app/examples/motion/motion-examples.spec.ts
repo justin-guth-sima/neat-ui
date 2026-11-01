@@ -38,21 +38,25 @@ describe('the motion examples', () => {
     expect(figure()).toBe('–');
   });
 
-  it('ease the width of the bar to each share', async () => {
+  it('ease the value of the bar to each share', async () => {
     const fixture = TestBed.createComponent(EasedSignal);
     const host = fixture.nativeElement as HTMLElement;
-    const fill = host.querySelector<HTMLElement>('.fill')!;
+    const value = () =>
+      Number(
+        host
+          .querySelector('[role="progressbar"][aria-label="Share"]')!
+          .getAttribute('aria-valuenow'),
+      );
     await settle(fixture, 0);
 
-    expect(fill.style.width).toBe('20%');
+    expect(value()).toBe(20);
 
     button(host, 'Next share').click();
     await settle(fixture, 200);
-    const midway = parseFloat(fill.style.width);
-    expect(midway).toBeGreaterThan(20);
-    expect(midway).toBeLessThan(85);
+    expect(value()).toBeGreaterThan(20);
+    expect(value()).toBeLessThan(85);
 
     await settle(fixture, 300);
-    expect(fill.style.width).toBe('85%');
+    expect(value()).toBe(85);
   });
 });

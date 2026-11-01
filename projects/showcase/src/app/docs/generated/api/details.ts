@@ -48,6 +48,31 @@ export const API: DocsEntry = {
               "text": " as a direct child of the list, one value per term: the two columns are the list's grid."
             }
           ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The terms are muted and as wide as the widest; the values take the rest of the width, wrap anywhere when long and keep their figures aligned. Several lists line up on one term column when an ancestor sets "
+            },
+            {
+              "kind": "code",
+              "text": "--neat-details-term-width"
+            },
+            {
+              "kind": "text",
+              "text": " (a length, say "
+            },
+            {
+              "kind": "code",
+              "text": "7rem"
+            },
+            {
+              "kind": "text",
+              "text": "); a term wider than that column breaks inside the word."
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/details/src/lib/details.ts"

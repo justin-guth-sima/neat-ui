@@ -3,8 +3,8 @@ import { NeatInlineButton } from '@sima/neat-ui';
 import { NeatDetails } from '@sima/neat-ui/details';
 
 /**
- * The facts of a source in a panel's width. The URL's value holds a code span and an inline button,
- * which wrap together when the panel is narrow.
+ * The facts of a source in a panel's width. The URL's value holds a code span and an inline
+ * button.
  */
 @Component({
   selector: 'app-source-facts',

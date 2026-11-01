@@ -1,7 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NeatLiveDot } from '@sima/neat-ui';
 
-/** A still dot, a pulsing one before "Recording 0:34", and a pulsing one in a badge over video. */
+/**
+ * A still dot, a pulsing one before "Recording 0:34", and a pulsing one in a badge on the video
+ * scrim.
+ */
 @Component({
   selector: 'app-badges',
   imports: [NeatLiveDot],

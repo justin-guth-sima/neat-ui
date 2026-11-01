@@ -97,7 +97,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A data table's look, on a native "
+              "text": "A data table's look (full width, a rule under every row, the column headings muted and small), on a native "
             },
             {
               "kind": "code",

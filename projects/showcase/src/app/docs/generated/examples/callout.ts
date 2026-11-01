@@ -14,7 +14,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A banner as it stands over a page: a heading, a line of text and one action."
+            "text": "A banner with a heading, a line of text and one action."
           }
         ]
       }

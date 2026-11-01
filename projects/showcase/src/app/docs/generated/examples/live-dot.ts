@@ -13,7 +13,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A still dot, a pulsing one before \"Recording 0:34\", and a pulsing one in a badge over video."
+            "text": "A still dot, a pulsing one before \"Recording 0:34\", and a pulsing one in a badge on the video scrim."
           }
         ]
       }

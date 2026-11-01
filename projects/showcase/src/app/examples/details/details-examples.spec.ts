@@ -34,12 +34,16 @@ describe('the details examples', () => {
     expect(url?.querySelector('button')?.textContent?.trim()).toBe('Copy');
   });
 
-  it('put two lists under one ancestor, which is where the term column is set', async () => {
+  it('set the term column on the lists common ancestor, which both lists inherit', async () => {
     const host = await render(AlignedLists);
     const lists = Array.from(host.querySelectorAll('dl'));
+    const termWidth = (element: Element) =>
+      getComputedStyle(element).getPropertyValue('--neat-details-term-width').trim();
 
     expect(lists).toHaveLength(2);
     expect(lists[0].parentElement).toBe(lists[1].parentElement);
+    expect(termWidth(lists[0].parentElement!)).toBe('7rem');
+    expect(lists.map(termWidth)).toEqual(['7rem', '7rem']);
     expect(lists.map((list) => pairs(list)[0][0])).toEqual(['Model', 'Receiver']);
   });
 });

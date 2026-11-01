@@ -15,7 +15,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A live audio level as a bar of segments, from -50 dBFS (dark) to full scale (all lit), green to 70 % of the bar, amber to 90 %, red above:"
+              "text": "A live audio level as a bar of 28 segments, from -50 dBFS (dark) to full scale (all lit), green to 70 % of the bar, amber to 90 %, red above; the segments not lit are in the border colour:"
             }
           ]
         },

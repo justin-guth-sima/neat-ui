@@ -2,7 +2,10 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { NeatButton } from '@sima/neat-ui';
 import { NeatLevelMeter } from '@sima/neat-ui/level-meter';
 
-/** A meter fed a sine wave, as a microphone test is fed a level. Stop passes `null`: it goes dark. */
+/**
+ * A meter fed a sine wave, as a microphone test is fed a level. Stop passes `null` and the meter
+ * goes dark.
+ */
 @Component({
   selector: 'app-sine-wave',
   imports: [NeatButton, NeatLevelMeter],
