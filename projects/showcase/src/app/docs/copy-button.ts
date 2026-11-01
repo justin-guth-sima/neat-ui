@@ -7,7 +7,7 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { NeatButton } from '@sima/neat-ui';
+import { NeatButton, NeatIcon } from '@sima/neat-ui';
 
 /** How long the button says what happened before it offers to copy again. */
 const SETTLE_MS = 2500;
@@ -28,12 +28,13 @@ const ANNOUNCEMENT: Record<CopyState, string> = {
 
 /**
  * A small text button that copies `text` and says, on itself and in a polite live region, whether
- * it did. A browser gives the clipboard to a secure context only (https, localhost), so a page
- * served over plain http says it could not copy.
+ * it did. It needs a secure context: a browser gives the clipboard to https and localhost only, so
+ * it has no fallback and, on a page served over plain http, says it could not copy. The showcase
+ * runs on localhost (`npm start`).
  */
 @Component({
   selector: 'app-copy-button',
-  imports: [NeatButton],
+  imports: [NeatButton, NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button
@@ -44,6 +45,7 @@ const ANNOUNCEMENT: Record<CopyState, string> = {
       [attr.aria-label]="name()"
       (click)="copy()"
     >
+      <neat-icon [name]="icon()" [size]="16" />
       {{ caption() }}
     </button>
     <span class="announcement" role="status">{{ announcement() }}</span>
@@ -57,6 +59,7 @@ export class CopyButton {
 
   private readonly state = signal<CopyState>('idle');
   protected readonly caption = computed(() => CAPTION[this.state()]);
+  protected readonly icon = computed(() => (this.state() === 'copied' ? 'check' : 'copy'));
   // The visible caption starts the name, so a voice user can say what they see.
   protected readonly name = computed(() =>
     this.state() === 'idle' ? `Copy ${this.what()}` : this.caption(),

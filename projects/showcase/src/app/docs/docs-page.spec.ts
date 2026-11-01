@@ -221,6 +221,18 @@ describe('DocsPage', () => {
     expect(scrolled.at(-1)).toBe(section);
     expect(document.activeElement).toBe(section.querySelector('h3'));
   });
+
+  it('reveals a part once on a click of a link of the page, the panel open already', async () => {
+    const { harness, host } = await open();
+    expect(host.querySelector('aside')).not.toBeNull();
+
+    (host.querySelector('app-part-intro p a') as HTMLElement).click();
+    await harness.fixture.whenStable();
+
+    const section = host.querySelector('#api-NeatDiagramSet') as HTMLElement;
+    expect(scrolled).toEqual([section]);
+    expect(document.activeElement).toBe(section.querySelector('h3'));
+  });
 });
 
 describe('topicParts', () => {

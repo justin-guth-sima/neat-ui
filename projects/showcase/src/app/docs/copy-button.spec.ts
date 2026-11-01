@@ -31,6 +31,7 @@ describe('CopyButton', () => {
     const { fixture, button, status } = await render();
 
     expect(button.textContent?.trim()).toBe('Copy');
+    expect(button.querySelector('neat-icon')?.getAttribute('data-icon')).toBe('copy');
     expect(button.getAttribute('aria-label')).toBe('Copy import line');
     expect(status.textContent?.trim()).toBe('');
 
@@ -39,6 +40,7 @@ describe('CopyButton', () => {
 
     expect(writeText).toHaveBeenCalledWith("import { NeatX } from '@sima/neat-ui';");
     expect(button.textContent?.trim()).toBe('Copied');
+    expect(button.querySelector('neat-icon')?.getAttribute('data-icon')).toBe('check');
     expect(status.textContent?.trim()).toBe('Copied to the clipboard.');
   });
 

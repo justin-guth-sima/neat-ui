@@ -5,7 +5,6 @@
 section {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: var(--neat-space-3);
 }
 
@@ -16,32 +15,8 @@ section {
   gap: var(--neat-space-3);
 }
 
-h2 {
-  margin: 0;
-}
-
-.usage {
-  color: var(--muted-foreground);
-  font-size: var(--neat-text-xs);
-}
-
-/* The line to copy, on the muted fill the code boxes have. */
-.import {
-  display: flex;
-  align-items: center;
-  gap: var(--neat-space-2);
-  align-self: stretch;
-  padding: var(--neat-space-2) var(--neat-space-2) var(--neat-space-2) var(--neat-space-3);
-  border-radius: var(--radius);
-  background: var(--muted);
-  font-size: var(--neat-text-xs);
-}
-
-.import code {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-app-copy-button {
-  margin-inline-start: auto;
+/* In the description's size, in the links' colour. */
+.more {
+  color: var(--primary);
+  font-size: var(--neat-text-sm);
 }

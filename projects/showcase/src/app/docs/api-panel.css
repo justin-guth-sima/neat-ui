@@ -6,15 +6,6 @@
   gap: var(--neat-space-2);
 }
 
-.title code,
-.jump {
-  font-size: var(--neat-text-xs);
-}
-
-.title code {
-  color: var(--muted-foreground);
-}
-
 .jump {
   display: flex;
   flex-wrap: wrap;

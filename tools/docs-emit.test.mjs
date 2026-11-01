@@ -3,6 +3,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   symlinkSync,
@@ -1298,4 +1299,19 @@ test('the committed docs match the kit and the examples (run `npm run docs:emit`
 
 test('every public part and own input, model and output of the kit has a doc', () => {
   assert.deepEqual(checkDocs(ROOT).problems, []);
+});
+
+// A spec is bundled statically, so the showcase's smoke test lists the modules it renders by hand;
+// this keeps that list to the modules on disk, a new entry's included.
+test("the showcase's all-parts smoke test imports every generated API module", () => {
+  const dir = join(ROOT, 'projects/showcase/src/app/docs/generated/api');
+  const onDisk = readdirSync(dir)
+    .filter((file) => file.endsWith('.ts'))
+    .map((file) => file.slice(0, -'.ts'.length))
+    .sort();
+  const spec = readFileSync(join(ROOT, 'projects/showcase/src/app/docs/api-part.spec.ts'), 'utf8');
+  const imported = [...spec.matchAll(/from '\.\/generated\/api\/([\w-]+)'/g)]
+    .map((match) => match[1])
+    .sort();
+  assert.deepEqual(imported, onDisk);
 });

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { NeatCode } from '@sima/neat-ui';
 import { CodeBox } from './code-box';
 import type { DocBlock, DocSpan } from './model';
 import { PartRef } from './part-ref';
@@ -9,7 +10,7 @@ import { PartRef } from './part-ref';
  */
 @Component({
   selector: 'app-doc-spans',
-  imports: [PartRef],
+  imports: [NeatCode, PartRef],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @for (span of spans(); track $index) {
@@ -24,19 +25,19 @@ import { PartRef } from './part-ref';
         @case ('code') {
           @if (span.strong) {
             <strong
-              ><code>{{ span.text }}</code></strong
+              ><code neatCode>{{ span.text }}</code></strong
             >
           } @else {
-            <code>{{ span.text }}</code>
+            <code neatCode>{{ span.text }}</code>
           }
         }
         @case ('ref') {
           @if (span.strong) {
             <strong
-              ><code><app-part-ref [name]="span.name" [label]="span.text" /></code
+              ><code neatCode><app-part-ref [name]="span.name" [label]="span.text" /></code
             ></strong>
           } @else {
-            <code><app-part-ref [name]="span.name" [label]="span.text" /></code>
+            <code neatCode><app-part-ref [name]="span.name" [label]="span.text" /></code>
           }
         }
       }

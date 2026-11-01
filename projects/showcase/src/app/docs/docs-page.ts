@@ -3,15 +3,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   ElementRef,
   inject,
   Injector,
   input,
   isDevMode,
-  untracked,
+  type OnInit,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   NeatAsidePanel,
@@ -31,7 +29,7 @@ import {
   type DocsTopic,
   type DocsTopicPart,
 } from './docs-context';
-import { isTypeKind } from './display';
+import { isTypeKind, shownName } from './display';
 import { ExampleCard } from './example-card';
 import { PartIntro } from './part-intro';
 
@@ -66,8 +64,8 @@ export function topicParts(topic: DocsTopic): DocsTopicPart[] {
  * default on a wide screen, resizable, both remembered for every topic. It leaves the top bar's
  * toolbar to the topic's examples (one may have tools there, as the diagram's Fit).
  *
- * A link to a part of the page, from anywhere on it or from the URL's `#api-<Name>`, opens the
- * panel on the part's section.
+ * A link to a part of the page, from anywhere on it, or the URL's `#api-<Name>` as the page opens,
+ * opens the panel on the part's section.
  */
 @Component({
   selector: 'app-docs-page',
@@ -121,7 +119,7 @@ export function topicParts(topic: DocsTopic): DocsTopicPart[] {
   `,
   styleUrl: './docs-page.css',
 })
-export class DocsPage extends DocsContext {
+export class DocsPage extends DocsContext implements OnInit {
   readonly topic = input.required<DocsTopic>();
   /** The topics of the page's group, as page tabs; none shows no row. */
   readonly tabs = input<readonly DocsTab[]>([]);
@@ -131,6 +129,7 @@ export class DocsPage extends DocsContext {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
   private readonly topicOf = inject(DOCS_TOPIC_OF);
+  private readonly route = inject(ActivatedRoute);
 
   private readonly openStored = neatStoredSignal(DOCS_ASIDE_OPEN_KEY, true, (stored) =>
     typeof stored === 'boolean' ? stored : undefined,
@@ -148,12 +147,7 @@ export class DocsPage extends DocsContext {
   private readonly names = computed(() => new Set(this.parts().map((item) => item.part.name)));
   /** The parts some example shows. */
   private readonly leads = computed(
-    () =>
-      new Set(
-        this.topic().examples.flatMap((example) =>
-          example.shows.map((shown) => shown.slice(shown.indexOf('#') + 1)),
-        ),
-      ),
+    () => new Set(this.topic().examples.flatMap((example) => example.shows.map(shownName))),
   );
   protected readonly panelParts = computed(() => {
     const leads = this.leads();
@@ -171,15 +165,13 @@ export class DocsPage extends DocsContext {
     () => new Set(this.intros().map((item) => item.part.name)),
   );
 
-  constructor() {
-    super();
-    // On the first visit and on every navigation that changes the fragment (a link from another
-    // topic, back and forward); a click on a link of this page reveals the part itself.
-    const fragment = toSignal(inject(ActivatedRoute).fragment);
-    effect(() => {
-      const name = /^api-(.+)$/.exec(fragment() ?? '')?.[1];
-      if (name && untracked(this.names).has(name)) untracked(() => this.reveal(name));
-    });
+  /**
+   * A part the URL names when the page opens (a link from another topic, a shared link). On the
+   * page itself a link reveals its part on click (`PartRef`), the one path for that.
+   */
+  ngOnInit(): void {
+    const name = /^api-(.+)$/.exec(this.route.snapshot.fragment ?? '')?.[1];
+    if (name && this.names().has(name)) this.reveal(name);
   }
 
   target(name: string): DocsTarget | null {

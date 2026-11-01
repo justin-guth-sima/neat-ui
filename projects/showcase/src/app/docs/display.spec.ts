@@ -5,7 +5,9 @@ import {
   isTypeKind,
   memberLabel,
   memberValue,
+  moreLabel,
   selectorText,
+  shownName,
   transformNote,
   typeParameters,
   usageLine,
@@ -108,5 +110,19 @@ describe('docs display rules', () => {
     expect(
       isTypeKind({ name: 'NeatTone', kind: 'type', definition: "'info'", doc: [], source: 'x' }),
     ).toBe(true);
+  });
+
+  it('counts the paragraphs the cut leaves for later', () => {
+    expect(moreLabel([paragraph, fence, paragraph, paragraph, fence, paragraph])).toBe(
+      'Show the whole description (2 more paragraphs)',
+    );
+    expect(moreLabel([paragraph, paragraph, paragraph])).toBe(
+      'Show the whole description (1 more paragraph)',
+    );
+    expect(moreLabel([paragraph, paragraph, fence])).toBe('Show the whole description');
+  });
+
+  it("cuts an example's shows entry to the part's name", () => {
+    expect(shownName('@sima/neat-ui/status-chip#NeatStatusChip')).toBe('NeatStatusChip');
   });
 });

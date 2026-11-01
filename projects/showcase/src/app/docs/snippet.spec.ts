@@ -60,26 +60,44 @@ describe('Snippet', () => {
     ]);
     expect(host.querySelectorAll('pre .string')).toHaveLength(2);
     expect(host.querySelector('pre .comment')?.textContent).toBe('// The figure line.');
-    expect(host.querySelector('neat-segmented')).toBeNull();
-    expect(host.textContent).toContain('messaging-pipeline.example.ts');
   });
 
-  it('shows one file at a time, the example first, the files it imports on choice', async () => {
-    const { fixture, host, open } = await render([MAIN, DATA]);
+  it("names the file, the other files and Copy in the trigger's row", async () => {
+    const { host, open } = await render([MAIN, DATA]);
+    await open();
+    const row = host.querySelector('[data-slot="collapsible-row"]') as HTMLElement;
+    const trigger = row.querySelector('[data-slot="collapsible-trigger"]') as HTMLElement;
+
+    expect(trigger.textContent?.trim()).toBe('Code');
+    expect(row.querySelector('.files code')?.textContent).toBe('messaging-pipeline.example.ts');
+    expect(
+      Array.from(row.querySelectorAll('.files button'), (b) => b.getAttribute('aria-label')),
+    ).toEqual(['Show pipeline-data.ts', 'Copy messaging-pipeline.example.ts']);
+    expect(host.querySelector('[data-slot="collapsible-content"] .files')).toBeNull();
+  });
+
+  it('offers no other file for an example of one file', async () => {
+    const { host, open } = await render([MAIN]);
     await open();
 
-    const files = Array.from(host.querySelectorAll<HTMLElement>('[role="radio"]'));
-    expect(host.querySelector('[role="radiogroup"]')?.getAttribute('aria-label')).toBe('File');
-    expect(files.map((file) => file.getAttribute('aria-checked'))).toEqual(['true', 'false']);
-    expect(host.querySelector('pre')?.textContent).toBe(text(MAIN));
+    expect(host.querySelectorAll('.files button')).toHaveLength(1);
+  });
 
-    files[1].click();
+  it('shows another file on its button, which stays focused as the files swap', async () => {
+    const { fixture, host, open } = await render([MAIN, DATA]);
+    document.body.append(host);
+    await open();
+    const other = host.querySelector('.files button') as HTMLButtonElement;
+    other.focus();
+
+    other.click();
     await fixture.whenStable();
 
     expect(host.querySelector('pre')?.textContent).toBe(text(DATA));
-    expect(host.querySelector('app-copy-button button')?.getAttribute('aria-label')).toBe(
-      'Copy pipeline-data.ts',
-    );
+    expect(host.querySelector('.files code')?.textContent).toBe('pipeline-data.ts');
+    expect(document.activeElement).toBe(other);
+    expect(other.getAttribute('aria-label')).toBe('Show messaging-pipeline.example.ts');
+    host.remove();
   });
 
   it("copies the shown file's text", async () => {

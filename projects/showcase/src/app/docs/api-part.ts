@@ -1,5 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { NeatCode, NeatNote } from '@sima/neat-ui';
 import { NeatCollapsible } from '@sima/neat-ui/collapsible';
 import { NeatCallout } from '@sima/neat-ui/callout';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
@@ -26,12 +27,12 @@ type RowGroup = MemberGroup | 'methods';
  */
 @Component({
   selector: 'app-api-member',
-  imports: [DocText, NeatCallout, NeatStatusChip, NgTemplateOutlet, TypeText],
+  imports: [DocText, NeatCallout, NeatCode, NeatNote, NeatStatusChip, NgTemplateOutlet, TypeText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="line">
       <!-- Its text in an element of its own, so the template adds no space around it. -->
-      <code class="name">
+      <code neatCode class="name">
         @if (member().deprecated) {
           <s><ng-container *ngTemplateOutlet="name" /></s>
         } @else {
@@ -46,14 +47,14 @@ type RowGroup = MemberGroup | 'methods';
         }
       </ng-template>
       @if (type(); as type) {
-        <code class="type"><app-type-text [text]="type" /></code>
+        <code neatCode class="type"><app-type-text [text]="type" /></code>
       }
       @if (transform(); as transform) {
-        <span class="note">{{ transform }}</span>
+        <span neatNote>{{ transform }}</span>
       }
       @if (accepts(); as accepts) {
-        <span class="note"
-          >accepts <code><app-type-text [text]="accepts" /></code
+        <span neatNote
+          >accepts <code neatCode><app-type-text [text]="accepts" /></code
         ></span>
       }
       @if (value(); as value) {
@@ -64,12 +65,12 @@ type RowGroup = MemberGroup | 'methods';
             >
           }
           @case ('default') {
-            <span class="value note"
-              >default <code>{{ value.value }}</code></span
+            <span class="value" neatNote
+              >default <code neatCode>{{ value.value }}</code></span
             >
           }
           @default {
-            <span class="value note">{{ value.kind }}</span>
+            <span class="value" neatNote>{{ value.kind }}</span>
           }
         }
       }
@@ -166,7 +167,9 @@ const FOLD_MEMBERS = 6;
     CodeBox,
     DocText,
     NeatCallout,
+    NeatCode,
     NeatCollapsible,
+    NeatNote,
     NeatStatusChip,
     NgTemplateOutlet,
     TypeText,
@@ -189,19 +192,19 @@ const FOLD_MEMBERS = 6;
       <neat-status-chip>{{ kind() }}</neat-status-chip>
     </div>
     @if (usage(); as usage) {
-      <code class="usage">{{ usage }}</code>
+      <code neatCode class="showcase-muted" data-slot="usage">{{ usage }}</code>
     }
     @if (view().exportAs; as exportAs) {
-      <code class="usage">#x="{{ exportAs }}"</code>
+      <code neatCode class="showcase-muted" data-slot="usage">#x="{{ exportAs }}"</code>
     }
     @if (view().extends; as extended) {
-      <p class="note">
-        Extends <code><app-type-text [text]="extended" /></code>
+      <p neatNote>
+        Extends <code neatCode><app-type-text [text]="extended" /></code>
       </p>
     }
     @for (also of part().alsoExportedFrom ?? []; track also.import) {
-      <p class="note">
-        Also exported from <code>{{ also.import }}</code>
+      <p neatNote>
+        Also exported from <code neatCode>{{ also.import }}</code>
       </p>
       <app-doc-text [blocks]="also.note" />
     }

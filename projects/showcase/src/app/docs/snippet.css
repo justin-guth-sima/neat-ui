@@ -3,34 +3,12 @@
   min-width: 0;
 }
 
-.bar {
+/* The trigger's row, after "Code": the file shown, the other files, Copy. */
+.files {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--neat-space-2);
-  margin-block-end: var(--neat-space-2);
-}
-
-.name {
   min-width: 0;
-  overflow-wrap: anywhere;
-  color: var(--muted-foreground);
-  font-size: var(--neat-text-xs);
-}
-
-app-copy-button {
-  margin-inline-start: auto;
-}
-
-/*
- * A whole file keeps its lines, so a long one scrolls sideways inside the box instead of wrapping
- * out of shape (the short code of the doc comments wraps instead, in the code box).
- */
-pre {
-  margin: 0;
-  padding: var(--neat-space-3) var(--neat-space-4);
-  overflow-x: auto;
-  border-radius: var(--radius);
-  background: var(--muted);
-  font-size: var(--neat-text-xs);
-  line-height: 1.6;
 }

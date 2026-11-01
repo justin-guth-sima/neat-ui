@@ -29,8 +29,8 @@ export class PartRef {
   protected readonly target = computed(() => this.docs.target(this.name()));
 
   /**
-   * Also on a click that changes nothing in the URL (the same section again, after scrolling
-   * away), which the page's fragment alone would miss.
+   * The page reveals its own parts on the click, not on the fragment the link also writes: the
+   * same section again, after scrolling away, changes nothing in the URL.
    */
   protected follow(): void {
     if (this.target()?.here) this.docs.reveal(this.name());

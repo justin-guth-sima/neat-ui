@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
-import { NeatInlineButton } from '@sima/neat-ui';
+import { NeatCode, NeatInlineButton } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { CodeBox } from './code-box';
 import { CopyButton } from './copy-button';
-import { introCut, KIND_LABEL, usageLine } from './display';
+import { introCut, KIND_LABEL, moreLabel, usageLine } from './display';
 import { DocText } from './doc-text';
 import type { DocsDeclaredPart } from './model';
 
@@ -14,7 +15,7 @@ import type { DocsDeclaredPart } from './model';
  */
 @Component({
   selector: 'app-part-intro',
-  imports: [CopyButton, DocText, NeatCallout, NeatInlineButton, NeatStatusChip],
+  imports: [CodeBox, CopyButton, DocText, NeatCallout, NeatCode, NeatInlineButton, NeatStatusChip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section [attr.aria-labelledby]="ids().heading">
@@ -23,18 +24,17 @@ import type { DocsDeclaredPart } from './model';
           @if (part().deprecated) {
             <s>{{ part().name }}</s>
           } @else {
-            {{ part().name }}
+            <ng-container>{{ part().name }}</ng-container>
           }
         </h2>
         <neat-status-chip>{{ kind() }}</neat-status-chip>
         @if (usage(); as usage) {
-          <code class="usage">{{ usage }}</code>
+          <code neatCode class="showcase-muted" data-slot="usage">{{ usage }}</code>
         }
       </div>
-      <div class="import">
-        <code>{{ importLine() }}</code>
-        <app-copy-button [text]="importLine()" what="import line" />
-      </div>
+      <app-code-box [code]="importLine()">
+        <app-copy-button codeBoxEnd [text]="importLine()" what="import line" />
+      </app-code-box>
       @if (part().deprecated; as deprecated) {
         <neat-callout tone="warning" heading="Deprecated">
           <app-doc-text [blocks]="deprecated" />
@@ -42,15 +42,18 @@ import type { DocsDeclaredPart } from './model';
       }
       <app-doc-text [id]="ids().doc" [blocks]="shown()" />
       @if (cut() < part().doc.length) {
-        <button
-          neatInlineButton
-          type="button"
-          [attr.aria-expanded]="whole()"
-          [attr.aria-controls]="ids().doc"
-          (click)="whole.set(!whole())"
-        >
-          {{ whole() ? 'Show less' : 'Show the whole description' }}
-        </button>
+        <!-- The button takes the paragraph's colour, the links' (an inline button inherits it). -->
+        <p class="more">
+          <button
+            neatInlineButton
+            type="button"
+            [attr.aria-expanded]="whole()"
+            [attr.aria-controls]="ids().doc"
+            (click)="whole.set(!whole())"
+          >
+            {{ whole() ? 'Show less' : more() }}
+          </button>
+        </p>
       }
     </section>
   `,
@@ -73,6 +76,7 @@ export class PartIntro {
     () => `import { ${this.part().name} } from '${this.import()}';`,
   );
   protected readonly cut = computed(() => introCut(this.part().doc));
+  protected readonly more = computed(() => moreLabel(this.part().doc));
   protected readonly shown = computed(() =>
     this.whole() ? this.part().doc : this.part().doc.slice(0, this.cut()),
   );

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
-import { NeatAsideTitle, NeatInlineButton } from '@sima/neat-ui';
+import { NeatAsideTitle, NeatCode, NeatInlineButton, NeatNote } from '@sima/neat-ui';
 import { ApiPart } from './api-part';
 import type { DocsTopicPart } from './docs-context';
 import { PartRef } from './part-ref';
@@ -13,18 +13,18 @@ const JUMP_LINKS = 8;
  */
 @Component({
   selector: 'app-api-panel',
-  imports: [ApiPart, NeatAsideTitle, NeatInlineButton, PartRef],
+  imports: [ApiPart, NeatAsideTitle, NeatCode, NeatInlineButton, NeatNote, PartRef],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="title">
       <h2 neatAsideTitle>API</h2>
       @if (entry(); as entry) {
-        <code>{{ entry }}</code>
+        <code neatCode class="showcase-muted">{{ entry }}</code>
       }
     </div>
-    <nav class="jump" aria-label="Parts">
+    <nav class="jump" neatNote aria-label="Parts">
       @for (item of jump(); track item.part.name) {
-        <code><app-part-ref [name]="item.part.name" /></code>
+        <code neatCode><app-part-ref [name]="item.part.name" /></code>
       }
       @if (folded() > 0) {
         <button

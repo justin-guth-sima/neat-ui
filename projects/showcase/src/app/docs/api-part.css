@@ -14,21 +14,8 @@
 }
 
 h3 {
-  margin: 0;
   font-size: var(--neat-text-sm);
   font-weight: 600;
-}
-
-.usage {
-  color: var(--muted-foreground);
-  font-size: var(--neat-text-xs);
-  overflow-wrap: anywhere;
-}
-
-.note {
-  margin: 0;
-  color: var(--muted-foreground);
-  font-size: var(--neat-text-xs);
 }
 
 /* Rows are set apart by a rule; the group's heading sets the first one apart. */

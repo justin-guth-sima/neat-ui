@@ -106,7 +106,7 @@ describe('ApiPart', () => {
     expect(host.querySelector('h3')?.textContent?.trim()).toBe('NeatSelect<T>');
     expect(host.querySelector('h3')?.getAttribute('tabindex')).toBe('-1');
     expect(text(host.querySelector('neat-status-chip'))).toBe('component');
-    expect(Array.from(host.querySelectorAll('.usage'), (u) => u.textContent)).toEqual([
+    expect(Array.from(host.querySelectorAll('[data-slot="usage"]'), (u) => u.textContent)).toEqual([
       '<neat-select>',
       '#x="neatSelect"',
     ]);
@@ -161,7 +161,7 @@ describe('ApiPart', () => {
       source: SOURCE,
     });
 
-    expect(host.querySelector('.usage')?.textContent).toBe(
+    expect(host.querySelector('[data-slot="usage"]')?.textContent).toBe(
       '<ng-template neatDiagramBlock let-node>',
     );
     expect(rows('Context')).toEqual(['let-node NeatDiagramNode implicit']);
@@ -177,11 +177,15 @@ describe('ApiPart', () => {
       doc: [],
       source: SOURCE,
     });
-    expect(structural.host.querySelector('.usage')?.textContent).toBe('*neatPageToolbar');
+    expect(structural.host.querySelector('[data-slot="usage"]')?.textContent).toBe(
+      '*neatPageToolbar',
+    );
     TestBed.resetTestingModule();
 
     const service = await render({ name: 'NeatToasts', kind: 'service', doc: [], source: SOURCE });
-    expect(service.host.querySelector('.usage')?.textContent).toBe('inject(NeatToasts)');
+    expect(service.host.querySelector('[data-slot="usage"]')?.textContent).toBe(
+      'inject(NeatToasts)',
+    );
   });
 
   it("boxes a function's signature, a type's definition and a const's type, linked", async () => {
@@ -235,7 +239,7 @@ describe('ApiPart', () => {
       'overview NeatDiagram',
       'levels? string',
     ]);
-    expect(text(short.host.querySelector('p.note'))).toBe('Extends NeatBase');
+    expect(text(short.host.querySelector('p[neatNote]'))).toBe('Extends NeatBase');
     expect(short.host.querySelector('neat-collapsible')).toBeNull();
     TestBed.resetTestingModule();
 
@@ -278,10 +282,11 @@ describe('ApiPart', () => {
       ],
     });
 
-    expect(text(host.querySelector('p.note'))).toBe('Also exported from @sima/neat-ui/charts');
-    expect(text(host.querySelector('p.note + app-doc-text'))).toBe('Apps imported it there.');
+    expect(text(host.querySelector('p[neatNote]'))).toBe('Also exported from @sima/neat-ui/charts');
+    expect(text(host.querySelector('p[neatNote] + app-doc-text'))).toBe('Apps imported it there.');
   });
 
+  // Every generated API module: `tools/docs-emit.test.mjs` fails when one on disk is missing here.
   const ENTRIES: DocsEntry[] = [
     CALLOUT,
     CHARTS,

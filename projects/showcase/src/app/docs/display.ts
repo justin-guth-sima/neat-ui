@@ -139,3 +139,17 @@ export function introCut(blocks: readonly DocBlock[]): number {
   }
   return blocks.length;
 }
+
+/** What the body's "more" offers: the paragraphs the cut leaves for later, counted. */
+export function moreLabel(blocks: readonly DocBlock[]): string {
+  const paragraphs = blocks.slice(introCut(blocks)).filter((block) => block.kind === 'paragraph');
+  const count = paragraphs.length;
+  return count
+    ? `Show the whole description (${count} more ${count === 1 ? 'paragraph' : 'paragraphs'})`
+    : 'Show the whole description';
+}
+
+/** The part an example's `shows` entry names: `@sima/neat-ui/status-chip#NeatStatusChip`. */
+export function shownName(shown: string): string {
+  return shown.slice(shown.indexOf('#') + 1);
+}

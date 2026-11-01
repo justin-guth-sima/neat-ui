@@ -6,55 +6,45 @@ import {
   linkedSignal,
   signal,
 } from '@angular/core';
+import { NeatButton, NeatCode } from '@sima/neat-ui';
 import { NeatCollapsible } from '@sima/neat-ui/collapsible';
-import { NeatSegmented } from '@sima/neat-ui/segmented';
+import { CodeBox } from './code-box';
 import { CopyButton } from './copy-button';
-import type { DocsExampleFile, DocsToken } from './model';
-
-/**
- * Source as the generator's runs, each coloured by its kind; they spell the file again, so they
- * can sit in a pre. Every text is its own node, so the template adds no space between runs.
- */
-@Component({
-  selector: 'app-runs',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (run of runs(); track $index) {
-      @if (run[0] === 'text') {
-        <ng-container>{{ run[1] }}</ng-container>
-      } @else {
-        <span [class]="run[0]">{{ run[1] }}</span>
-      }
-    }
-  `,
-  styleUrl: './runs.css',
-})
-export class Runs {
-  readonly runs = input.required<readonly DocsToken[]>();
-}
+import type { DocsExampleFile } from './model';
 
 /**
  * An example's code, closed until asked for: the live example comes first, and a closed snippet
- * renders none of its runs. One file shows at a time, coloured by the generator's runs: the
- * example's own, or a file it imports, chosen in the bar beside the copy button.
+ * renders none of its runs. Open, the trigger's row names the file shown, offers the example's
+ * other files as small buttons and copies the one shown; below it is that one file.
  */
 @Component({
   selector: 'app-snippet',
-  imports: [CopyButton, NeatCollapsible, NeatSegmented, Runs],
+  imports: [CodeBox, CopyButton, NeatButton, NeatCode, NeatCollapsible],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // Nothing but the code inside the pre, whose whitespace is shown.
   template: `
     <neat-collapsible label="Code" [summary]="summary()" [(open)]="open">
+      <!-- Two blocks of one element each: each is projected by its element's selector. -->
       @if (open()) {
-        <div class="bar">
-          @if (choices().length > 1) {
-            <neat-segmented label="File" [options]="choices()" [(value)]="chosen" />
-          } @else {
-            <code class="name">{{ file().name }}</code>
+        <div class="files" neatCollapsibleEnd>
+          <code neatCode class="showcase-muted">{{ file().name }}</code>
+          <!-- By place, so a pressed button stays focused while its file and label swap. -->
+          @for (other of others(); track $index) {
+            <button
+              neatButton
+              type="button"
+              variant="text"
+              size="small"
+              [attr.aria-label]="'Show ' + other.name"
+              (click)="chosen.set(other.name)"
+            >
+              {{ other.name }}
+            </button>
           }
           <app-copy-button [text]="text()" [what]="file().name" />
         </div>
-        <pre><code><app-runs [runs]="file().code" /></code></pre>
+      }
+      @if (open()) {
+        <app-code-box [runs]="file().code" overflow="scroll" />
       }
     </neat-collapsible>
   `,
@@ -70,14 +60,12 @@ export class Snippet {
       .map((file) => file.name)
       .join(', '),
   );
-  protected readonly choices = computed(() =>
-    this.files().map((file) => ({ value: file.name, label: file.name })),
-  );
   /** The example's own file until the reader chooses another. */
   protected readonly chosen = linkedSignal(() => this.files()[0].name);
   protected readonly file = computed(
     () => this.files().find((file) => file.name === this.chosen()) ?? this.files()[0],
   );
+  protected readonly others = computed(() => this.files().filter((file) => file !== this.file()));
   /** The file as written: the runs spell it again. */
   protected readonly text = computed(() =>
     this.file()
