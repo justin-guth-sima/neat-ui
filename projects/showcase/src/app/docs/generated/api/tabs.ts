@@ -119,31 +119,6 @@ export const API: DocsEntry = {
           ]
         }
       ],
-      "properties": [
-        {
-          "name": "content",
-          "type": "Signal<TemplateRef<any>>",
-          "doc": [
-            {
-              "kind": "paragraph",
-              "spans": [
-                {
-                  "kind": "text",
-                  "text": "The panel template, which "
-                },
-                {
-                  "kind": "code",
-                  "text": "neat-tabs"
-                },
-                {
-                  "kind": "text",
-                  "text": " renders while this tab is open."
-                }
-              ]
-            }
-          ]
-        }
-      ],
       "source": "projects/neat-ui/tabs/src/lib/tabs.ts"
     },
     {

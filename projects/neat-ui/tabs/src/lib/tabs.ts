@@ -82,7 +82,10 @@ export class NeatTab {
   readonly value = input.required<string>();
   /** Turns the tab off: it is shown dimmed and cannot be opened, and the arrow keys skip it. */
   readonly disabled = input(false, { transform: booleanAttribute });
-  /** The panel template, which `neat-tabs` renders while this tab is open. */
+  /**
+   * @internal The panel template, which `neat-tabs` renders while this tab is open; apps never
+   * read it.
+   */
   readonly content = contentChild.required(TemplateRef);
 }
 

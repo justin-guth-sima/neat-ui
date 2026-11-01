@@ -112,6 +112,10 @@ export class NeatPopoverContent {
 })
 export class NeatPopoverTrigger {
   protected readonly popover = inject(NeatPopover);
+  /**
+   * @internal The button, which `neat-popover` anchors its panel to and returns the focus to;
+   * apps never read it.
+   */
   readonly element: HTMLButtonElement = inject(ElementRef).nativeElement;
 }
 
@@ -206,6 +210,9 @@ export class NeatPopover {
   /** The panel's accessible name. */
   readonly label = input.required<string>();
 
+  /**
+   * @internal The panel's id, which the trigger's `aria-controls` names; apps never read it.
+   */
   readonly panelId = `neat-popover-${++nextPopoverId}`;
   protected readonly panelClasses: string = PANEL_CLASSES;
   protected readonly brain = inject(BrnPopover);

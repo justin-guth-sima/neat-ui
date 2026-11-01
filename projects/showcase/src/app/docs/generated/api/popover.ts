@@ -196,13 +196,6 @@ export const API: DocsEntry = {
           ]
         }
       ],
-      "properties": [
-        {
-          "name": "panelId",
-          "type": "string",
-          "doc": []
-        }
-      ],
       "methods": [
         {
           "name": "toggle",
@@ -432,13 +425,6 @@ export const API: DocsEntry = {
               "text": " at the panel while it is closed too, when no element has that id."
             }
           ]
-        }
-      ],
-      "properties": [
-        {
-          "name": "element",
-          "type": "HTMLButtonElement",
-          "doc": []
         }
       ],
       "source": "projects/neat-ui/popover/src/lib/popover.ts"

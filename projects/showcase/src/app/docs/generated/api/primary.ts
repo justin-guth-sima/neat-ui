@@ -3151,7 +3151,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The app's name, shown in the top bar beside the logo."
+                  "text": "The app's name, shown in the top bar beside the logo on a wide screen; on a narrow one it is read out only."
                 }
               ]
             }
