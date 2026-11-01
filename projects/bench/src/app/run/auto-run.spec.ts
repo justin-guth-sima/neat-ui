@@ -1,10 +1,12 @@
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { DiagramTransform } from '@bench/diagram-seam';
 import type { BenchHost } from '../hosts/bench-host';
-import { BenchLoad } from '../hosts/bench-load';
+import { BenchLoad, feedMessages, type MessageLayer } from '../hosts/bench-load';
 import { DotProbeBuffer } from '../measure/dot-probe';
 import { FakeFrames } from '../measure/fake-frames.testing';
 import { type AutoDeps, runAuto } from './auto-run';
+import { ladderStep } from './ladders';
 import type { BenchEvent } from './bench-bridge';
 import type { LoafPort } from './phase-driver';
 import { readMachine } from './machine-info';
@@ -86,6 +88,22 @@ async function drive<T>(frames: FakeFrames, run: Promise<T>, ms = HZ60): Promise
     await Promise.resolve();
   }
   return watched;
+}
+
+/** Counts what the host's dot layer is asked to draw. */
+class CountingLayer implements MessageLayer {
+  pushed = 0;
+  push(): void {
+    this.pushed++;
+  }
+}
+
+@Component({ template: '' })
+class Feeding {
+  readonly layer = signal<MessageLayer | undefined>(undefined);
+  constructor() {
+    feedMessages(this.layer);
+  }
 }
 
 describe('runAuto', () => {
@@ -202,5 +220,65 @@ describe('runAuto', () => {
     frames.frame(2500);
     for (let i = 0; i < 10; i++) await Promise.resolve();
     await expect(settled).resolves.toMatch(/cannot calibrate/);
+  });
+
+  describe('the start load (no host renders a load before the first step is applied)', () => {
+    // Only the feed's interval is faked, as in the feed's own specs.
+    beforeEach(() => vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] }));
+    afterEach(() => vi.useRealTimers());
+
+    /**
+     * Runs a climb with a real message feed behind a counting dot layer, created when the host is
+     * shown as the page does; the feed's timer runs a second and a half at every boundary event.
+     */
+    async function runFed(ladder: 'A' | 'D', steps: number) {
+      const { all, frames } = deps();
+      const layer = new CountingLayer();
+      const seen: { first: unknown; pushedAtShow: number }[] = [];
+      let fixture: ReturnType<typeof TestBed.createComponent<Feeding>> | undefined;
+      const run = await drive(
+        frames,
+        runAuto({
+          ...all,
+          params: { ...all.params, ladder, steps },
+          showHost: async () => {
+            fixture = TestBed.createComponent(Feeding);
+            fixture.componentInstance.layer.set(layer);
+            fixture.detectChanges();
+            seen.push({ first: all.load.step(), pushedAtShow: layer.pushed });
+            return (await all.showHost('kit')) as BenchHost;
+          },
+          events: () => {
+            fixture?.detectChanges();
+            vi.advanceTimersByTime(1500);
+          },
+        }),
+      );
+      fixture?.detectChanges();
+      return { run, seen: seen[0], layer, load: all.load };
+    }
+
+    it('shows the host at the run’s first step, not at the default load', async () => {
+      const { seen, run } = await runFed('A', 2);
+
+      expect(seen.first).toEqual(ladderStep('A', run.steps[0].level, 3));
+      expect(seen.first).toMatchObject({ msgsPerSec: 0 });
+      expect(run.steps[0].level).toBe(0.125);
+    });
+
+    it('spawns no dot before or during the idle phase of a run whose first step has 0 msg/s', async () => {
+      const { seen, layer, run } = await runFed('A', 2);
+
+      expect(seen.pushedAtShow).toBe(0);
+      expect(layer.pushed).toBe(0);
+      expect(run.steps).toHaveLength(2);
+    });
+
+    it('does draw dots where the first step has messages (the feed is live in this test)', async () => {
+      const { seen, layer } = await runFed('D', 1);
+
+      expect(seen.first).toMatchObject({ msgsPerSec: 50 });
+      expect(layer.pushed).toBeGreaterThan(0);
+    });
   });
 });

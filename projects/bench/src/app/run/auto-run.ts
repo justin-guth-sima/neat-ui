@@ -17,7 +17,7 @@ import {
   windowInputSink,
 } from './bench-bridge';
 import { type AutoHost, type AutoParams, assertHostRuns } from './auto-params';
-import { ladderPlan } from './ladders';
+import { ladderPlan, ladderStep } from './ladders';
 import { readMachine } from './machine-info';
 import type { GestureTarget } from './gesture-player';
 import { pageDriverHost } from './page-host';
@@ -97,6 +97,9 @@ export async function runAuto(deps: AutoDeps): Promise<BenchRun> {
     onFrame = () => undefined;
     const shape =
       params.input === 'cdp' && send ? (t: GestureTarget) => bridgeGestures(t, send) : undefined;
+    // The host's first picture is the climb's first step: it never draws the default load (D1 at
+    // 400 msg/s) whose dots would run on into the first idle phase.
+    deps.load.step.set(ladderStep(params.ladder, plan.levels[0], params.seed));
     const host = await deps.showHost(params.host);
     const finished = new Promise<void>((resolve) => {
       onFrame = (t) => {
