@@ -671,6 +671,19 @@ export const GROUPS: readonly TopicGroup[] = [
     icon: 'stats',
     topics: [
       {
+        id: 'sparkline',
+        label: 'Sparkline',
+        parts: ['NeatSparkline'],
+        leads: ['NeatSparkline'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/charts'),
+            import('./generated/examples/sparkline'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
         id: 'time-chart',
         label: 'Time chart',
         parts: [
@@ -691,6 +704,58 @@ export const GROUPS: readonly TopicGroup[] = [
           return { entries: [api.API], examples: examples.EXAMPLES };
         },
       },
+      {
+        id: 'stacked-chart',
+        label: 'Stacked chart',
+        parts: ['NeatStackedChart'],
+        leads: ['NeatStackedChart'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/charts'),
+            import('./generated/examples/stacked-chart'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'heatmap',
+        label: 'Heatmap',
+        parts: ['NeatHeatmap', 'NeatHeatmapRow'],
+        leads: ['NeatHeatmap'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/charts'),
+            import('./generated/examples/heatmap'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'chart-card',
+        label: 'Chart card',
+        parts: ['NeatChartCard'],
+        leads: ['NeatChartCard'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/charts'),
+            import('./generated/examples/chart-card'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'series-swatch',
+        label: 'Series swatch',
+        parts: ['NeatSeriesSwatch'],
+        leads: ['NeatSeriesSwatch'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/series-swatch'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
     ],
   },
   {
@@ -701,14 +766,11 @@ export const GROUPS: readonly TopicGroup[] = [
       {
         id: 'diagram',
         label: 'Diagram',
-        // The legend is the diagram's until it has a tab of its own.
         parts: [
           'NeatDiagramView',
           'NeatDiagramBlockTemplate',
           'NeatDiagramNoteTemplate',
           'NeatDiagramEdgeTipTemplate',
-          'NeatDiagramLegend',
-          'NeatDiagramLegendItem',
           'NeatDiagramSet',
           'NeatDiagram',
           'NeatDiagramNode',
@@ -727,6 +789,150 @@ export const GROUPS: readonly TopicGroup[] = [
           const [api, examples] = await Promise.all([
             import('./generated/api/diagram'),
             import('./generated/examples/diagram'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'messaging',
+        label: 'Messaging',
+        parts: [
+          'NeatDiagramMessages',
+          'NeatDiagramRateCard',
+          'NeatDiagramAnimationSettings',
+          'NeatDiagramMessageSettings',
+          'NeatDiagramMessageStep',
+          'NeatDiagramEdgeRate',
+          'NEAT_DIAGRAM_MESSAGE_DEFAULTS',
+          'neatParseMessageSettings',
+          'neatBatchTimes',
+        ],
+        leads: ['NeatDiagramMessages', 'NeatDiagramRateCard'],
+        fit: true,
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/diagram'),
+            import('./generated/examples/messaging'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'legend',
+        label: 'Legend',
+        parts: ['NeatDiagramLegend', 'NeatDiagramLegendItem'],
+        leads: ['NeatDiagramLegend'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/diagram'),
+            import('./generated/examples/legend'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'drill-down',
+        label: 'Drill-down',
+        parts: ['neatDrillDownLevel'],
+        leads: ['neatDrillDownLevel'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/diagram'),
+            import('./generated/examples/drill-down'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+    ],
+  },
+  {
+    id: 'video',
+    label: 'Video',
+    icon: 'viewer',
+    topics: [
+      {
+        id: 'video-tile',
+        label: 'Video tile',
+        parts: [
+          'NeatVideoTile',
+          'NeatVideoBox',
+          'NeatTileSource',
+          'NeatTileState',
+          'NeatFrameStats',
+          'NeatOverlaySettings',
+          'NeatOverlayClassStyle',
+          'NeatOverlayLineStyle',
+          'NEAT_OVERLAY_DEFAULTS',
+          'NEAT_OVERLAY_STYLE_FALLBACK_COLOR',
+        ],
+        leads: ['NeatVideoTile'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/video'),
+            import('./generated/examples/video-tile'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'tile-grid',
+        label: 'Tile grid',
+        parts: [
+          'NeatTileGrid',
+          'NeatTileLayout',
+          'NeatTilePack',
+          'NeatTileArea',
+          'NEAT_MIN_TILE_WIDTH',
+          'fitAllTileWidth',
+        ],
+        leads: ['NeatTileGrid'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/video'),
+            import('./generated/examples/tile-grid'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'roi-editor',
+        label: 'ROI editor',
+        parts: [
+          'NeatRoiEditor',
+          'NeatRoiSwatch',
+          'NeatRoiPolygon',
+          'NeatRoiDrawMode',
+          'neatRoiNames',
+        ],
+        leads: ['NeatRoiEditor'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/video'),
+            import('./generated/examples/roi-editor'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'metadata-sync',
+        label: 'Metadata sync',
+        parts: [
+          'lateNoticeDetails',
+          'nextWarningActive',
+          'bufferSettleMs',
+          'NeatMetadataMessage',
+          'NeatMetadataSnapshot',
+          'NeatMetadataQueueStats',
+          'NeatLatenessSnapshot',
+          'NeatLateNoticeDetails',
+          'NeatLateNoticeBlocker',
+          'NeatGlobalBufferAction',
+        ],
+        leads: ['lateNoticeDetails'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/video'),
+            import('./generated/examples/metadata-sync'),
           ]);
           return { entries: [api.API], examples: examples.EXAMPLES };
         },

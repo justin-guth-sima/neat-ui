@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+
+/* The chart draws on the card's fill, so the card says which: for its labels' halos. */
+.card {
+  --neat-surface: var(--card);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+  padding: var(--neat-space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+}
+
+/* A run's chip, as an app would draw it: the swatch and the run's name. */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--neat-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+  padding: 0.125rem var(--neat-space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--neat-text-sm);
+}

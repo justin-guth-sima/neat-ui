@@ -120,6 +120,11 @@ const sameRate = (a: NeatDiagramEdgeRate, b: NeatDiagramEdgeRate) =>
  * their level is drawn and the page is visible, as it is their dots that count them. An id that is
  * no edge of the diagram is ignored, so the rates' memory stays bounded by the diagram's edges.
  *
+ * At most 16 384 dots exist at once and the oldest are dropped past that, while the rates still
+ * count every message: a burst (10 000 pushes in one tick) costs the cap's worth of dots, not
+ * the burst's, so an app pushes each message as it arrives and does not sample or drop any to
+ * protect the page.
+ *
  * All dots are drawn on one canvas over the drawing, sized to this element's box (it fills the
  * diagram's), at the device's pixel ratio, scaled with the zoom and behind the cards; dots of
  * edges out of focus fade with them. The frames run only while a dot is on its way and stop while

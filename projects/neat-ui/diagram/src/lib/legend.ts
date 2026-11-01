@@ -25,7 +25,7 @@ export interface NeatDiagramLegendItem {
  *
  * A series without a `line` shows the kit's `NeatSeriesSwatch` for it, as the charts' legends do.
  * Any other item shows a short sample of its line (solid when unset), drawn by the edges' own
- * rules (lines.css) in the colour its edges take: muted for a ghost, without a series, or for a
+ * rules in the colour its edges take: muted for a ghost, without a series, or for a
  * series that is not 1 to 8. Samples and swatches are `aria-hidden`: the label
  * names what they stand for, and a colour alone is not a name.
  */

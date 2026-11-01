@@ -147,9 +147,9 @@ is the doc comment, and the snippet under an example is the file that renders it
   `docs:emit -- --watch` keeps the modules live while editing; `npm start` writes them once first.
   `docs/docs.spec.ts` fails a part in two topics and a component, directive, service or function
   of a topic that none of its examples shows.
-- While the old pages (`pages/components.page.ts`, `charts.page.ts`, `diagram.page.ts`) are being
-  moved onto topics, a part that is still only on one may be in no topic; so far the Theme,
-  Layout, Actions, Forms, Status and Data groups, Time chart and Diagram are moved.
+- The old pages are moved onto topics: the Theme, Layout, Actions, Forms, Status, Data, Charts,
+  Diagram and Video groups hold every part they documented. The `/legacy/charts` and
+  `/legacy/diagram` routes stay for now, each only a note that the page moved.
 - `provideNeatUi` and `provideNeatTitles` configure an app once, in its `app.config.ts`, and
   `NeatToastHost` is rendered once, in its root template, so no example can show them without
   faking their use (a second host would show every toast twice); `docs.spec.ts` names them as

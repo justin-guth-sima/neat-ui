@@ -15,14 +15,15 @@ const PAGES = [
   { path: '/status/status-chip', link: 'Status', heading: 'NeatStatusChip' },
   { path: '/data/table', link: 'Data', heading: 'NeatTable' },
   { path: '/charts/time-chart', link: 'Charts', heading: 'NeatTimeChart' },
+  { path: '/charts/sparkline', link: 'Charts', heading: 'NeatSparkline' },
   { path: '/diagram/diagram', link: 'Diagram', heading: 'NeatDiagramView' },
-  { path: '/components', link: 'Components', heading: 'Tile grid' },
-  { path: '/legacy/charts', link: 'Charts (old)', heading: 'Sparkline' },
-  { path: '/legacy/diagram', link: 'Diagram (old)', heading: 'Diagram' },
+  { path: '/video/video-tile', link: 'Video', heading: 'NeatVideoTile' },
+  { path: '/legacy/charts', link: 'Charts (old)', heading: 'Moved' },
+  { path: '/legacy/diagram', link: 'Diagram (old)', heading: 'Moved' },
 ];
 
 /**
- * The components page sizes its slider, tile grid and video tile through ResizeObserver, which
+ * The docs pages size their sliders, tile grid and video tile through ResizeObserver, which
  * jsdom lacks; these specs check routing and page content, not sizes.
  */
 class NoopResizeObserver {
@@ -58,7 +59,7 @@ describe('App', () => {
     vi.restoreAllMocks();
   });
 
-  it('lists the docs groups, then the pages that have not moved, in the shell navigation', () => {
+  it('lists the docs groups, then the old pages’ notes, in the shell navigation', () => {
     // The rail is the shell's first nav; the page's tabs, a nav of the page, come after it.
     const rail = root().querySelector('nav') as HTMLElement;
     const labels = Array.from(rail.querySelectorAll('a'), (a) => a.textContent?.trim());
@@ -71,7 +72,7 @@ describe('App', () => {
       'Data',
       'Charts',
       'Diagram',
-      'Components',
+      'Video',
       'Charts (old)',
       'Diagram (old)',
     ]);
@@ -80,7 +81,7 @@ describe('App', () => {
   it('opens a group on its first topic, the rail item staying open on the group’s topics', async () => {
     await navigate('/charts');
 
-    expect(router.url).toBe('/charts/time-chart');
+    expect(router.url).toBe('/charts/sparkline');
     expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe('Charts');
   });
 

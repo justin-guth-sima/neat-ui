@@ -9,20 +9,15 @@ export const routes: Routes = [
   // The docs: a page per topic of each group, the theme's among them, which replace the old pages
   // one by one.
   ...docsRoutes(GROUPS),
-  {
-    path: 'components',
-    title: 'Components',
-    loadComponent: () => import('./pages/components.page').then((m) => m.ComponentsPage),
-  },
-  // The old pages whose names a group of the docs has taken, kept while topics move off them.
+  // The old pages whose names a group of the docs has taken, kept as a note until they go.
   {
     path: 'legacy/charts',
     title: 'Charts (old)',
-    loadComponent: () => import('./pages/charts.page').then((m) => m.ChartsPage),
+    loadComponent: () => import('./pages/moved.page').then((m) => m.MovedPage),
   },
   {
     path: 'legacy/diagram',
     title: 'Diagram (old)',
-    loadComponent: () => import('./pages/diagram.page').then((m) => m.DiagramPage),
+    loadComponent: () => import('./pages/moved.page').then((m) => m.MovedPage),
   },
 ];

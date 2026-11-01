@@ -1,0 +1,14 @@
+:host {
+  display: block;
+}
+
+/* The chart draws on the card's fill, so the card says which: for its halos and band hairlines. */
+.card {
+  --neat-surface: var(--card);
+
+  padding: var(--neat-space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+}

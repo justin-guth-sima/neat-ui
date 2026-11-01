@@ -1,0 +1,28 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-3);
+}
+
+/*
+ * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 28rem, so a
+ * phone's narrow box does not stand tall and empty around a drawing its width shrinks.
+ */
+.diagram {
+  aspect-ratio: 4 / 3;
+  max-height: 28rem;
+}
+
+/* A block's live figure (Decode's), below its label: small, quiet, steady digits. */
+.figure {
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

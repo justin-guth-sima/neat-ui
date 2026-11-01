@@ -218,7 +218,71 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A short fact on a block, drawn as the kit's status chip in its tone."
+              "text": "A short fact on a block, drawn as the kit's status chip in its tone. Where a part runs is said in one convention, so every diagram reads alike: "
+            },
+            {
+              "kind": "code",
+              "text": "HW"
+            },
+            {
+              "kind": "text",
+              "text": " (the hardware decoder) in "
+            },
+            {
+              "kind": "code",
+              "text": "success"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "EV74"
+            },
+            {
+              "kind": "text",
+              "text": " in "
+            },
+            {
+              "kind": "code",
+              "text": "highlight"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "MLA"
+            },
+            {
+              "kind": "text",
+              "text": " in "
+            },
+            {
+              "kind": "code",
+              "text": "info"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "A65"
+            },
+            {
+              "kind": "text",
+              "text": " in "
+            },
+            {
+              "kind": "code",
+              "text": "neutral"
+            },
+            {
+              "kind": "text",
+              "text": "."
             }
           ]
         }
@@ -632,7 +696,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " for it, as the charts' legends do. Any other item shows a short sample of its line (solid when unset), drawn by the edges' own rules (lines.css) in the colour its edges take: muted for a ghost, without a series, or for a series that is not 1 to 8. Samples and swatches are "
+              "text": " for it, as the charts' legends do. Any other item shows a short sample of its line (solid when unset), drawn by the edges' own rules in the colour its edges take: muted for a ghost, without a series, or for a series that is not 1 to 8. Samples and swatches are "
             },
             {
               "kind": "code",
@@ -1086,6 +1150,15 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": " is the edge's messages and bytes per second and its history, for the notes an app fills, refreshed at 12 Hz while something reads it. A push counts on any edge of any level, drawn or not, so a level opens with its numbers; the step edges are the exception, counted only while their level is drawn and the page is visible, as it is their dots that count them. An id that is no edge of the diagram is ignored, so the rates' memory stays bounded by the diagram's edges."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "At most 16 384 dots exist at once and the oldest are dropped past that, while the rates still count every message: a burst (10 000 pushes in one tick) costs the cap's worth of dots, not the burst's, so an app pushes each message as it arrives and does not sample or drop any to protect the page."
             }
           ]
         },

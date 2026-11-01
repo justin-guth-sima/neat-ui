@@ -1,0 +1,19 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+
+/* The tile fills its cell, so the cell gives it a size: a 16:9 box up to 24rem wide. */
+.cell {
+  width: min(100%, 24rem);
+  aspect-ratio: 16 / 9;
+}
+
+/* A swatch and its type's name, as a legend for the editor's colours. */
+.key {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+  font-size: var(--neat-text-sm);
+}

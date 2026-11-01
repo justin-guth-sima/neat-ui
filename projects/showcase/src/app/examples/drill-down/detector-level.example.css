@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+
+/*
+ * A diagram has no height of its own: the app gives it a bounded box, here 2:1 up to 20rem, wide
+ * for the level's row of columns, so a phone's narrow box does not stand tall and empty around a
+ * drawing its width shrinks.
+ */
+.diagram {
+  aspect-ratio: 2 / 1;
+  max-height: 20rem;
+}

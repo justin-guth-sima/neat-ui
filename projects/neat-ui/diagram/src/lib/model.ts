@@ -31,7 +31,11 @@ export type NeatDiagramTip = 'none' | 'arrow' | 'dot';
 /** How an edge's line is drawn. */
 export type NeatDiagramLine = 'solid' | 'dashed' | 'ghost';
 
-/** A short fact on a block, drawn as the kit's status chip in its tone. */
+/**
+ * A short fact on a block, drawn as the kit's status chip in its tone. Where a part runs is said
+ * in one convention, so every diagram reads alike: `HW` (the hardware decoder) in `success`,
+ * `EV74` in `highlight`, `MLA` in `info` and `A65` in `neutral`.
+ */
 export interface NeatDiagramChip {
   readonly label: string;
   readonly tone: NeatTone;

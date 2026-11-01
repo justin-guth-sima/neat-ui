@@ -1,0 +1,23 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 24rem));
+  gap: var(--neat-space-4);
+}
+
+/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */
+.cell {
+  aspect-ratio: 16 / 9;
+}
+
+.chip {
+  padding: 0 var(--neat-space-2);
+  border-radius: var(--radius);
+  background: var(--info);
+  color: var(--info-foreground);
+}

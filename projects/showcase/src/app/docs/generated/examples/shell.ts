@@ -188,9 +188,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," App {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," toasts = inject(NeatToasts);\n  "],
-          ["comment","/** The groups of the docs, the theme first, then the old pages not yet moved. */"],["text","\n  "],
+          ["comment","/** The groups of the docs, the theme first, then the old pages' routes, which only say so. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," navItems: NeatNavItem[] = [\n    ...groupNavItems(GROUPS),\n    { label: "],
-          ["string","'Components'"],["text",", icon: "],["string","'blocks'"],["text",", path: "],["string","'/components'"],["text"," },\n    { label: "],
           ["string","'Charts (old)'"],["text",", icon: "],["string","'stats'"],["text",", path: "],["string","'/legacy/charts'"],["text"," },\n    { label: "],
           ["string","'Diagram (old)'"],["text",", icon: "],["string","'device'"],["text",", path: "],["string","'/legacy/diagram'"],["text"," },\n  ];\n}\n"]
         ]
