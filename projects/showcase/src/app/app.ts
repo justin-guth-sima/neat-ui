@@ -5,6 +5,12 @@ import { NeatToastHost, NeatToasts } from '@sima/neat-ui/toast';
 import { groupNavItems } from './docs/docs-routes';
 import { GROUPS } from './docs/topics';
 
+/**
+ * The showcase's own root. `NeatShell` takes the app's name and its navigation (`navItems`), here
+ * one rail item per group of the docs. The app's own items go at the bottom of the rail with
+ * `neatRailEnd` (`NeatRailItem`, and `NeatRailDivider` between groups of them), above the kit's
+ * theme switch, and `NeatToastHost` is rendered once, beside the shell.
+ */
 @Component({
   imports: [NeatIcon, NeatRailDivider, NeatRailItem, NeatShell, NeatToastHost, RouterOutlet],
   selector: 'app-root',
@@ -82,9 +88,8 @@ import { GROUPS } from './docs/topics';
 })
 export class App {
   protected readonly toasts = inject(NeatToasts);
-  /** The groups of the generated docs come after Theme, the old pages after them. */
+  /** The groups of the docs, the theme first, then the old pages. */
   protected readonly navItems: NeatNavItem[] = [
-    { label: 'Theme', icon: 'palette', path: '/theme' },
     ...groupNavItems(GROUPS),
     { label: 'Icons', icon: 'shapes', path: '/icons' },
     { label: 'Components', icon: 'blocks', path: '/components' },

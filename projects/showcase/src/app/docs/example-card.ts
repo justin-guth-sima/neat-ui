@@ -10,7 +10,8 @@ import { Snippet } from './snippet';
 
 /**
  * One example of a topic: its title and caption, the parts it shows, the example itself, live,
- * and its code, which is the file that renders above it.
+ * and its code, which is the file that renders above it. An example with no component (the
+ * showcase's shell, which the page sits in) is a line saying so and its code.
  */
 @Component({
   selector: 'app-example-card',
@@ -41,10 +42,12 @@ import { Snippet } from './snippet';
         <p>
           <a neatButton variant="outlined" size="small" [routerLink]="path">Open the example</a>
         </p>
-      } @else {
+      } @else if (example().component; as component) {
         <div class="live">
-          <ng-container *ngComponentOutlet="example().component" />
+          <ng-container *ngComponentOutlet="component" />
         </div>
+      } @else {
+        <p neatNote>Not rendered here: this page already sits in it.</p>
       }
       <app-snippet [files]="example().files" />
     </article>

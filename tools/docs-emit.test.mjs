@@ -27,6 +27,7 @@ import {
   highlight,
   highlightCss,
   OUTPUT_DIR,
+  SHELL_EXTRA,
   writeDocs,
 } from './docs-emit.mjs';
 
@@ -951,6 +952,9 @@ test('the watch reacts to the kit and example sources, and to example stylesheet
   assert.equal(changesKit('collapsible/src/lib/collapsible.html'), false);
   assert.equal(changesExamples('examples/time-chart/chart-card.css'), true);
   assert.equal(changesExamples('examples/time-chart/data.ts'), true);
+  // The shell's own source is one more example of its topic.
+  assert.equal(changesExamples('app.ts'), true);
+  assert.equal(changesExamples('app.config.ts'), false);
   assert.equal(changesExamples('examples/time-chart/data.spec.ts'), false);
   // Not the generated modules beside the examples, nor a stylesheet of the app.
   assert.equal(changesExamples('docs/generated/examples/time-chart.ts'), false);
@@ -1355,6 +1359,185 @@ test('an example with no caption, a bad class or a bad relative import is a prob
   ]);
 });
 
+// --- the caption check ----------------------------------------------------------------------
+
+test('a caption that names a non-public kit name, as a code span or a bare word, is a problem', () => {
+  const kit = kitWith({
+    ...EXAMPLE_KIT,
+    'src/lib/tone.ts': source(
+      '/** A tone. */',
+      "export type NeatTone = 'neutral' | 'danger';",
+      '/** Shared with the entries. */',
+      'export const ɵshared = 1;',
+      'const TONE_CLASSES = {};',
+      'function packTiles() {}',
+    ),
+  });
+  write(
+    kit,
+    `${EXAMPLES_DIR}/a/leaky.example.ts`,
+    source(
+      '/**',
+      ' * Reads `TONE_CLASSES` and `ɵshared`, and calls packTiles on the way.',
+      ' * - A list item names `TONE_CLASSES.neutral` too.',
+      ' */',
+      "@Component({ selector: 'app-leaky', template: '' })",
+      'export class Leaky {}',
+    ),
+  );
+  write(
+    kit,
+    `${EXAMPLES_DIR}/a/clean.example.ts`,
+    source(
+      '/** Takes `tone`, the `NeatTone` and `NeatStatusChip.tone`, which are public, and a plain word. */',
+      "@Component({ selector: 'app-clean', template: '' })",
+      'export class Clean {}',
+    ),
+  );
+  assert.deepEqual(extractExamples(kit).problems, [
+    `${EXAMPLES_DIR}/a/leaky.example.ts:6: Leaky's caption mentions \`TONE_CLASSES\`, which is not public`,
+    `${EXAMPLES_DIR}/a/leaky.example.ts:6: Leaky's caption mentions \`ɵshared\`, which is not public`,
+    `${EXAMPLES_DIR}/a/leaky.example.ts:6: Leaky's caption mentions \`packTiles\`, which is not public`,
+    `${EXAMPLES_DIR}/a/leaky.example.ts:6: Leaky's caption mentions \`TONE_CLASSES.neutral\`, which is not public`,
+  ]);
+});
+
+test('a caption naming a member of a public part passes, as a part doc does', () => {
+  // `along` is also an internal function's name, but the note's own public input here.
+  const kit = kitWith({
+    ...EXAMPLE_KIT,
+    'src/lib/tone.ts': source(
+      '/** A tone. */',
+      "export type NeatTone = 'neutral' | 'danger';",
+      'function along() {}',
+    ),
+    'status-chip/src/lib/chip.ts': source(
+      "import { Component, input } from '@angular/core';",
+      '',
+      '/** A chip. */',
+      "@Component({ selector: 'neat-status-chip', template: '' })",
+      'export class NeatStatusChip {',
+      '  /** Where it sits. */',
+      "  readonly along = input('x');",
+      '}',
+    ),
+  });
+  write(kit, `${EXAMPLES_DIR}/a/x.example.ts`, component('X', 'Sets `along`.'));
+  assert.deepEqual(extractExamples(kit).problems, []);
+});
+
+// --- the shell's extra example ------------------------------------------------------------------
+
+const APP_SOURCE = source(
+  "import { Component } from '@angular/core';",
+  "import { RouterOutlet } from '@angular/router';",
+  "import { NeatShell } from '@sima/neat-ui';",
+  "import { NeatStatusChip } from '@sima/neat-ui/status-chip';",
+  "import { GROUPS } from './docs/topics';",
+  '',
+  '/**',
+  ' * The root: `NeatShell` with the docs in its rail.',
+  ' */',
+  "@Component({ selector: 'app-root', imports: [NeatShell, NeatStatusChip, RouterOutlet], template: '' })",
+  'export class App {',
+  '  protected readonly groups = GROUPS;',
+  '}',
+);
+const SHELL_APP = `projects/showcase/src/app/${SHELL_EXTRA.file}`;
+
+/** The fixture kit with the shell topic's folder, and the showcase's app.ts. */
+function kitWithShell(app = APP_SOURCE, topics = { 'shell/1-rail.example.ts': component('Rail') }) {
+  const kit = kitWithExamples(topics);
+  if (app !== null) write(kit, SHELL_APP, app);
+  return kit;
+}
+
+test("the showcase's app.ts is one more example of the shell topic: code only, no component", () => {
+  const { topics, problems } = extractExamples(kitWithShell());
+  assert.deepEqual(problems, []);
+  const shell = topics.find((t) => t.topic === SHELL_EXTRA.topic);
+  assert.deepEqual(
+    shell.examples.map((e) => [e.id, e.title]),
+    [
+      ['rail', 'Rail'],
+      [SHELL_EXTRA.id, "The showcase's shell"],
+    ],
+  );
+  const app = shell.examples[1];
+  // The class doc is the caption, as an example's is, and the file the snippet less it.
+  assert.deepEqual(app.caption, [
+    {
+      kind: 'paragraph',
+      spans: [
+        { kind: 'text', text: 'The root: ' },
+        { kind: 'code', text: 'NeatShell' },
+        { kind: 'text', text: ' with the docs in its rail.' },
+      ],
+    },
+  ]);
+  assert.deepEqual(app.shows, [
+    '@sima/neat-ui#NeatShell',
+    '@sima/neat-ui/status-chip#NeatStatusChip',
+  ]);
+  assert.equal(app.component, undefined);
+  // Only app.ts: its relative imports are the showcase's own, not files of a topic folder.
+  assert.deepEqual(
+    app.files.map((f) => f.name),
+    ['app.ts'],
+  );
+  assert.equal(
+    spelled(app.files[0].code),
+    APP_SOURCE.replace(/\/\*\*\n \* The root.*\n \*\/\n/, ''),
+  );
+});
+
+test('the shell module renders the extra with no component and no import of app.ts', () => {
+  const { files } = generate(kitWithShell());
+  const text = files.get(`${EXAMPLES_OUTPUT_DIR}/shell.ts`);
+  assert.match(
+    text,
+    /^import \{ Rail \} from '\.\.\/\.\.\/\.\.\/examples\/shell\/1-rail\.example';$/m,
+  );
+  assert.doesNotMatch(text, /app'/);
+  assert.match(text, /"id": "app"/);
+  assert.equal(text.match(/"component":/g).length, 1);
+  assert.ok(text.indexOf('"id": "rail"') < text.indexOf('"id": "app"'));
+});
+
+test('without an examples folder for the shell topic the extra writes no module and no problem', () => {
+  const kit = kitWithShell(APP_SOURCE, { 'status-chip/x.example.ts': component('X') });
+  const { files, problems } = generate(kit);
+  assert.deepEqual(problems, []);
+  assert.deepEqual(
+    [...files.keys()].filter((p) => p.startsWith(EXAMPLES_OUTPUT_DIR)),
+    [`${EXAMPLES_OUTPUT_DIR}/status-chip.ts`],
+  );
+  // No examples at all: as before.
+  const bare = kitWith({ ...EXAMPLE_KIT });
+  write(bare, SHELL_APP, APP_SOURCE);
+  assert.deepEqual(extractExamples(bare), { topics: [], problems: [] });
+});
+
+test('the extra is held to what an example is: one component with a caption, public names only', () => {
+  const noCaption = APP_SOURCE.replace(/\/\*\*\n \* The root.*\n \*\/\n/, '');
+  assert.deepEqual(extractExamples(kitWithShell(noCaption)).problems, [
+    `${SHELL_APP}:8: App has no caption: write its doc comment`,
+  ]);
+  const hidden = kitWith({
+    ...EXAMPLE_KIT,
+    'src/lib/tone.ts': "/** A tone. */\nexport type NeatTone = 'a';\nconst SHELL_GAP = 1;\n",
+  });
+  write(hidden, `${EXAMPLES_DIR}/shell/x.example.ts`, component('X'));
+  write(hidden, SHELL_APP, APP_SOURCE.replace('with the docs', 'with `SHELL_GAP`'));
+  assert.deepEqual(extractExamples(hidden).problems, [
+    `${SHELL_APP}:11: App's caption mentions \`SHELL_GAP\`, which is not public`,
+  ]);
+  // The topic is there and its extra is not: a renamed file must not drop out unnoticed.
+  assert.deepEqual(extractExamples(kitWithShell(null)).problems, [
+    `${SHELL_APP}:1: is the ${SHELL_EXTRA.topic} topic's extra example and does not exist`,
+  ]);
+});
+
 test('highlighting is lossless: keywords, strings, comments, and a template string as one run', () => {
   const tokens = highlight(TONES);
   assert.equal(spelled(tokens), TONES);
@@ -1423,12 +1606,16 @@ test('every example module type-checks against the schema, its component a Type'
     'status-chip/sizes-data.ts': SIZES_DATA,
     'status-chip/shapes.ts': SHAPES,
     'other/x.example.ts': component('X'),
+    'shell/x.example.ts': component('Rail'),
   });
+  write(root, SHELL_APP, APP_SOURCE);
   write(root, MODEL, readFileSync(join(ROOT, MODEL), 'utf8'));
   writeDocs(root);
   const read = ts.readConfigFile(join(root, 'tsconfig.json'), ts.sys.readFile);
   const options = ts.parseJsonConfigFileContent(read.config, ts.sys, root).options;
-  const generated = ['status-chip', 'other'].map((t) => join(root, EXAMPLES_OUTPUT_DIR, `${t}.ts`));
+  const generated = ['status-chip', 'other', 'shell'].map((t) =>
+    join(root, EXAMPLES_OUTPUT_DIR, `${t}.ts`),
+  );
   const program = ts.createProgram(generated, {
     ...options,
     noEmit: true,

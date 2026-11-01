@@ -4,7 +4,7 @@ import { App } from './app';
 import { appConfig } from './app.config';
 
 const PAGES = [
-  { path: '/theme', link: 'Theme', heading: 'Palette' },
+  { path: '/theme/tokens', link: 'Theme', heading: 'Palette' },
   { path: '/status/status-chip', link: 'Status', heading: 'NeatStatusChip' },
   { path: '/charts/time-chart', link: 'Charts', heading: 'NeatTimeChart' },
   { path: '/diagram/diagram', link: 'Diagram', heading: 'NeatDiagramView' },
@@ -53,7 +53,9 @@ describe('App', () => {
   });
 
   it('lists the docs groups, then the pages that have not moved, in the shell navigation', () => {
-    const labels = Array.from(root().querySelectorAll('nav a'), (a) => a.textContent?.trim());
+    // The rail is the shell's first nav; the page's tabs, a nav of the page, come after it.
+    const rail = root().querySelector('nav') as HTMLElement;
+    const labels = Array.from(rail.querySelectorAll('a'), (a) => a.textContent?.trim());
     expect(labels).toEqual([
       'Theme',
       'Status',
@@ -74,12 +76,16 @@ describe('App', () => {
     expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe('Charts');
   });
 
-  it('redirects the root to the theme page', () => {
-    expect(router.url).toBe('/theme');
+  it('redirects the root to the theme page, and the theme group to its first topic', async () => {
+    expect(router.url).toBe('/theme/tokens');
+
+    await navigate('/theme');
+
+    expect(router.url).toBe('/theme/tokens');
   });
 
   it('titles the document with the app name and the page', async () => {
-    expect(document.title).toBe('neat-ui showcase · Theme');
+    expect(document.title).toBe('neat-ui showcase · Tokens');
 
     await navigate('/page/details');
 

@@ -26,6 +26,11 @@ const NEEDS_EXAMPLE: ReadonlySet<DocsDeclaredPart['kind']> = new Set([
 ]);
 
 const topics = GROUPS.flatMap((group) => group.topics.map((topic) => ({ group, topic })));
+/**
+ * The topics generated from the kit. A hand-made one (`page`) has no examples module and no part,
+ * so the rules about examples are not its.
+ */
+const generated = topics.filter(({ topic }) => topic.load);
 const declared = new Map(
   KIT_ENTRIES.flatMap((entry) =>
     entry.parts.flatMap((part) => (part.kind === 'reexport' ? [] : [[part.name, part] as const])),
@@ -36,7 +41,7 @@ describe('the docs topics', () => {
   const loaded = new Map<TopicConfig, readonly DocsExample[]>();
 
   beforeAll(async () => {
-    for (const { topic } of topics) loaded.set(topic, (await topic.load()).examples);
+    for (const { topic } of generated) loaded.set(topic, (await topic.load!()).examples);
   });
 
   it('puts no public part in more than one topic', () => {
@@ -68,7 +73,7 @@ describe('the docs topics', () => {
   });
 
   it('shows each component, directive, service and function of a topic in one of its examples', () => {
-    for (const { topic } of topics) {
+    for (const { topic } of generated) {
       const shown = new Set(loaded.get(topic)?.flatMap((example) => example.shows.map(shownName)));
       const unshown = topic.parts.filter((name) => {
         const part = declared.get(name);
@@ -80,7 +85,7 @@ describe('the docs topics', () => {
   });
 
   it('has a topic an examples module and no example of a private or deprecated part', () => {
-    for (const { topic } of topics) {
+    for (const { topic } of generated) {
       const examples = loaded.get(topic) ?? [];
       expect(examples.length, `${topic.id} has no examples`).toBeGreaterThan(0);
       for (const name of examples.flatMap((example) => example.shows.map(shownName))) {
@@ -88,6 +93,17 @@ describe('the docs topics', () => {
         expect(declared.get(name)?.deprecated, `${topic.id} shows ${name}`).toBeUndefined();
       }
     }
+  });
+
+  it('has a hand-made topic a page and no part, and a generated one a loader and no page', () => {
+    const handMade = topics.filter(({ topic }) => topic.page);
+
+    expect(handMade.map(({ topic }) => topic.id)).toContain('tokens');
+    for (const { topic } of handMade) {
+      expect(topic.load, `${topic.id} has a page and a loader`).toBeUndefined();
+      expect([...topic.parts, ...topic.leads], `${topic.id} documents parts`).toEqual([]);
+    }
+    for (const { topic } of generated) expect(topic.page).toBeUndefined();
   });
 
   it('has unique group and topic routes', () => {
@@ -135,11 +151,10 @@ describe('every docs topic in the app', () => {
   });
 
   it.each(topics.map(({ group, topic }) => [topicPath(group, topic), group, topic] as const))(
-    'renders %s with its group in the rail, its tabs, intros and examples',
+    'renders %s with its group in the rail and its group’s topics as tabs',
     async (path, group, topic) => {
       await router.navigateByUrl(path);
       await fixture.whenStable();
-      const examples = (await topic.load()).examples;
 
       expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe(group.label);
       const tabs = Array.from(content().querySelectorAll('neat-page > nav a'));
@@ -149,6 +164,19 @@ describe('every docs topic in the app', () => {
       expect(
         tabs.filter((tab) => tab.getAttribute('aria-current') === 'page').map((t) => t.textContent),
       ).toEqual([topic.label]);
+      expect(content().querySelector('neat-page > nav')?.getAttribute('aria-label')).toBe(
+        `${group.label} topics`,
+      );
+    },
+  );
+
+  it.each(generated.map(({ group, topic }) => [topicPath(group, topic), topic] as const))(
+    'renders %s with its intros, examples and API panel',
+    async (path, topic) => {
+      await router.navigateByUrl(path);
+      await fixture.whenStable();
+      const examples = (await topic.load!()).examples;
+
       expect(
         Array.from(content().querySelectorAll('app-part-intro h2'), (h) => h.textContent?.trim()),
       ).toEqual(topic.parts.filter((name) => topic.leads.includes(name)));

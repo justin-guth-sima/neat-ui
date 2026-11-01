@@ -167,8 +167,11 @@ export interface DocsExample {
   readonly id: string;
   /** The component's class name in words: `MessagingPipeline` is "Messaging pipeline". */
   readonly title: string;
-  /** What the page renders. */
-  readonly component: Type<unknown>;
+  /**
+   * What the page renders. Absent for an example the page cannot render because it already sits
+   * in it (the showcase's own shell): the card says so and shows the code.
+   */
+  readonly component?: Type<unknown>;
   /** The component's doc comment: prose for the page, left out of the snippet. */
   readonly caption: readonly DocBlock[];
   /**

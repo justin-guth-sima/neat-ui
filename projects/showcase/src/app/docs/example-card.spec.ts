@@ -36,6 +36,19 @@ describe('ExampleCard', () => {
     expect(card.querySelector('app-snippet')).not.toBeNull();
   });
 
+  it('says a code-only example is not rendered, and still shows its code', async () => {
+    TestBed.configureTestingModule({ providers: provideFakeDocs(new FakeDocs()) });
+    const fixture = TestBed.createComponent(ExampleCard);
+    fixture.componentRef.setInput('example', { ...EXAMPLE, component: undefined });
+    await fixture.whenStable();
+    const card = (fixture.nativeElement as HTMLElement).querySelector('article') as HTMLElement;
+
+    expect(card.querySelector('.live')).toBeNull();
+    expect(card.textContent).toContain('Not rendered here');
+    expect(card.querySelector('app-snippet')).not.toBeNull();
+    expect(fixture.componentInstance.instance()).toBeNull();
+  });
+
   it('links the parts it shows, wherever each is documented', async () => {
     const host = await render(new FakeDocs(['NeatStatusChip'], { NeatTone: '/theme/colours' }));
     const links = Array.from(host.querySelectorAll<HTMLAnchorElement>('.shows a'));

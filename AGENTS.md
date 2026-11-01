@@ -126,12 +126,21 @@ is the doc comment, and the snippet under an example is the file that renders it
   one; `fullPage: true` routes its examples at `/demo/<topic>/<example>` instead of in a card, for
   one that needs the whole page (its own toolbar, tabs or panel, which a docs page keeps for
   itself).
+  A topic that is no part's docs (the theme's tokens) is hand-made: `page` (a lazy component)
+  instead of `load`, with `parts: []` and `leads: []`. It is routed with the group's tabs as its
+  `tabs` and `tabsLabel` inputs, as a docs page is, shows them as `DocsPage` does, and has no
+  examples module, so the examples rules of `docs.spec.ts` leave it out.
 - An example is a standalone component in `examples/<topic>/<id>.example.ts` (a numeric prefix
   orders the examples and is not part of the id). Its class doc is its caption: prose shown above
   it and left out of the snippet. Its title is the class name in words (`CPUUsage` is "CPU usage"),
   and the kit parts it imports are the "Shows" links. The data files it imports and the
   stylesheets it names (`styleUrl`) must be files of the topic folder, and are shown as further
   files of the snippet. It is real code: built, linted, and given a spec where it has behaviour.
+  A caption names only what an app can import: a code span or an identifier-shaped word in it
+  that names something the kit declares but does not export (or a `ɵ` name) is a doc problem, as
+  in a part's doc comment. The showcase's own `app.ts` is one more example of the `shell` topic
+  (`SHELL_EXTRA` in `tools/docs-emit.mjs`), shown as code only because the page already sits in
+  it; it needs a class doc like any example, and counts once the topic has an examples folder.
 - `npm run docs:emit -- --check` (which `npm run test:tools` runs, so CI does) fails on a stale,
   missing or extra module and on doc problems: a part or an own input, model or output without a
   doc, an example without a caption. `docs:emit -- --watch` keeps the modules live while editing;

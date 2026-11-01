@@ -6,7 +6,8 @@
 // tokens.generated.css is, so a change to the public API or to an example shows in review as a
 // diff, and a fresh checkout needs no pre-step.
 //   --check  writes nothing; exits 1 while a module is stale, missing or extra, or while a public
-//            part or its own input, model or output has no doc, or an example has a problem
+//            part or its own input, model or output has no doc, or an example has a problem (a
+//            caption naming a name the kit does not export is one)
 //            (tools/docs-emit.test.mjs, which `npm run test:tools` and CI run, checks the same)
 //   --watch  writes, then writes again on every change to the kit's source or the examples
 //            (`npm start` writes once; run this in a second terminal to keep the docs live while
@@ -57,6 +58,18 @@ const oneLine = (text) => text.replace(/\s*\n\s*/g, ' ');
 /** A code-point order, so the output does not depend on the machine's locale. */
 const byCodePoint = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 const byName = (a, b) => byCodePoint(a.name, b.name);
+/**
+ * The showcase's own shell is the one source that is no example file: `app.ts`, read as one more
+ * example of the `shell` topic (a topic with an examples folder, which may come later than this).
+ * It is code only, as the page already sits in it, and has no folder to import from.
+ */
+export const SHELL_EXTRA = {
+  topic: 'shell',
+  /** Under the showcase's app folder. */
+  file: 'app.ts',
+  id: 'app',
+  title: "The showcase's shell",
+};
 /** A path with `/` as its separator on every platform. */
 const posix = (path) => path.split(sep).join('/');
 
@@ -239,6 +252,29 @@ function mentions(blocks) {
   );
 }
 
+/**
+ * The kit identifiers `blocks` names, as `{ code, name }`: the code as written (`Name.member`) and
+ * the name in it, for those the kit declares anywhere (`declared`).
+ */
+function kitMentions(blocks, declared) {
+  const found = [];
+  for (const code of new Set(mentions(blocks))) {
+    const name = code.match(/^([\w$ɵ]+)(?:\.[\w$]+)?$/)?.[1];
+    if (name && declared.has(name)) found.push({ code, name });
+  }
+  return found;
+}
+
+/**
+ * Whether a kit name the docs mention is one they must not: declared by the kit but exported by no
+ * entry (a `ɵ` name is never exported), and no member of a public part either (a note's `along`).
+ * One rule for the doc comments of parts and for the captions of examples.
+ */
+const isHidden = (name, { public: exported, members }) => !exported.has(name) && !members.has(name);
+
+/** The problem text for a doc of `owner` that names `code`. */
+const hiddenMention = (owner, code) => `${owner} mentions \`${code}\`, which is not public`;
+
 /** The names the members of `parts` are bound or called by. */
 function memberNames(parts) {
   const groups = ['inputs', 'models', 'outputs', 'context', 'properties', 'methods', 'members'];
@@ -363,12 +399,11 @@ class KitReader {
 
     // A name that is also a public part's member (a note's `along`) is that member.
     const members = new Set(memberNames(entries.flatMap((entry) => entry.parts)));
+    const names = { declared: this.kitNames, public: this.publicNames, members };
     for (const { node, owner, code, name } of this.mentions) {
-      if (!this.publicNames.has(name) && !members.has(name)) {
-        this.problem(node, `${owner} mentions \`${code}\`, which is not public`);
-      }
+      if (isHidden(name, names)) this.problem(node, hiddenMention(owner, code));
     }
-    return { entries, problems: this.problemList() };
+    return { entries, names, problems: this.problemList() };
   }
 
   entryFile(entry) {
@@ -461,9 +496,8 @@ class KitReader {
   /** Doc text as blocks; what it names of the kit's own identifiers is kept to be judged. */
   blocks(lines, node, owner) {
     const blocks = blocksOf(lines, this.publicNames);
-    for (const code of new Set(mentions(blocks))) {
-      const name = code.match(/^([\w$ɵ]+)(?:\.[\w$]+)?$/)?.[1];
-      if (name && this.kitNames.has(name)) this.mentions.push({ node, owner, code, name });
+    for (const { code, name } of kitMentions(blocks, this.kitNames)) {
+      this.mentions.push({ node, owner, code, name });
     }
     return blocks;
   }
@@ -991,10 +1025,9 @@ function showsOf(sourceFile) {
  * it names (`styleUrl`) as extras. So what the page renders and what it shows are one file. Returns
  * the topics, each with its examples in file-name order, and the problems (a caption missing, a
  * bad class, an import that is no file of the topic folder); an example that cannot be read is
- * left out.
+ * left out. The showcase's `app.ts` is appended to the examples of its topic (`SHELL_EXTRA`).
  */
 export function extractExamples(root, kit = extractKit(root)) {
-  const publicNames = new Set(kit.entries.flatMap((e) => e.parts.map((p) => p.name)));
   const base = join(root, EXAMPLES_DIR);
   const found = [];
   const topics = [];
@@ -1004,17 +1037,96 @@ export function extractExamples(root, kit = extractKit(root)) {
       .map((entry) => entry.name)
       .sort(byCodePoint);
     for (const topic of folders) {
-      const examples = readTopic({ root, topic, publicNames, found });
+      const examples = readTopic({ root, topic, kit, found });
       if (examples.length) topics.push({ topic, examples });
     }
+  }
+  // The shell's source joins its topic's examples when the topic has some, and is nothing else.
+  const shell = topics.find((entry) => entry.topic === SHELL_EXTRA.topic);
+  if (shell) {
+    const example = readShellExtra({ root, kit, found });
+    if (example) shell.examples.push(example);
   }
   // Two examples that both import a data file report its problems twice.
   const problems = formatProblems([...new Map(found.map((p) => [JSON.stringify(p), p])).values()]);
   return { topics, problems };
 }
 
+/**
+ * The one exported component of an example file, or undefined with the problem reported: an
+ * example is one component.
+ */
+function exportedComponent(sourceFile, report) {
+  const exported = sourceFile.statements.filter((s) => ts.isClassDeclaration(s) && isExported(s));
+  if (exported.length !== 1) {
+    const message = `has ${exported.length ? 'more than one' : 'no'} exported class; an example is one component`;
+    report(exported[1] ?? sourceFile.statements[0] ?? sourceFile, message);
+    return undefined;
+  }
+  const [cls] = exported;
+  if (!ts.getDecorators(cls)?.some(isComponentDecorator)) {
+    report(cls, `${cls.name.text} is not a component`);
+    return undefined;
+  }
+  return cls;
+}
+
+/**
+ * An example's caption (its class doc, which is prose and nothing else) and the file's text less
+ * that doc, since the page shows the caption above the example and the snippet is what is left.
+ * A caption names only what an app can import: the kit's hidden names are a problem here as in the
+ * doc comments of parts (`isHidden`), so prose moved onto a page cannot leak internals.
+ */
+function readCaption({ cls, sourceFile, kit, report }) {
+  const className = cls.name.text;
+  const { body, tags } = rawDoc(cls);
+  for (const tag of tags) {
+    report(cls, `${className}'s doc has the tag @${tag.name}; an example's doc is its caption`);
+  }
+  const caption = blocksOf(body, kit.names.public);
+  if (!caption.length) report(cls, `${className} has no caption: write its doc comment`);
+  for (const { code, name } of kitMentions(caption, kit.names.declared)) {
+    if (isHidden(name, kit.names)) report(cls, hiddenMention(`${className}'s caption`, code));
+  }
+  const comment = ts.getJSDocCommentsAndTags(cls).filter(ts.isJSDoc).at(-1);
+  let text = sourceFile.text;
+  if (comment) {
+    const end = comment.end + (text[comment.end] === '\n' ? 1 : 0);
+    text = text.slice(0, comment.getStart()) + text.slice(end);
+  }
+  return { caption, text };
+}
+
+/** The shell's source as an example (`SHELL_EXTRA`): code only, with no component to render. */
+function readShellExtra({ root, kit, found }) {
+  const path = join(root, SHOWCASE_APP, SHELL_EXTRA.file);
+  if (!existsSync(path)) {
+    const file = posix(relative(root, path));
+    const message = `is the ${SHELL_EXTRA.topic} topic's extra example and does not exist`;
+    found.push({ file, line: 1, message });
+    return undefined;
+  }
+  const sourceFile = ts.createSourceFile(
+    path,
+    readFileSync(path, 'utf8'),
+    ts.ScriptTarget.Latest,
+    true,
+  );
+  const report = (node, message) => found.push(problemAt(root, node, message));
+  const cls = exportedComponent(sourceFile, report);
+  if (!cls) return undefined;
+  const { caption, text } = readCaption({ cls, sourceFile, kit, report });
+  return {
+    id: SHELL_EXTRA.id,
+    title: SHELL_EXTRA.title,
+    caption,
+    shows: showsOf(sourceFile),
+    files: [{ name: SHELL_EXTRA.file, code: highlight(text) }],
+  };
+}
+
 /** The topic's examples; its problems go into `found`. */
-function readTopic({ root, topic, publicNames, found }) {
+function readTopic({ root, topic, kit, found }) {
   const dir = join(root, EXAMPLES_DIR, topic);
   const parse = (file) =>
     ts.createSourceFile(file, readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true);
@@ -1077,18 +1189,9 @@ function readTopic({ root, topic, publicNames, found }) {
   for (const name of names) {
     const path = join(dir, name);
     const sourceFile = parse(path);
-    const exported = sourceFile.statements.filter((s) => ts.isClassDeclaration(s) && isExported(s));
-    if (exported.length !== 1) {
-      const message = `has ${exported.length ? 'more than one' : 'no'} exported class; an example is one component`;
-      report(exported[1] ?? sourceFile.statements[0] ?? sourceFile, message);
-      continue;
-    }
-    const [cls] = exported;
+    const cls = exportedComponent(sourceFile, report);
+    if (!cls) continue;
     const className = cls.name.text;
-    if (!ts.getDecorators(cls)?.some(isComponentDecorator)) {
-      report(cls, `${className} is not a component`);
-      continue;
-    }
     const id = name.replace(/\.example\.ts$/, '').replace(/^\d+-/, '');
     if (ids.has(id) || classes.has(className)) {
       const same = ids.has(id) ? ids.get(id) : classes.get(className);
@@ -1103,20 +1206,7 @@ function readTopic({ root, topic, publicNames, found }) {
     ids.set(id, name);
     classes.set(className, name);
 
-    const { body, tags } = rawDoc(cls);
-    for (const tag of tags) {
-      report(cls, `${className}'s doc has the tag @${tag.name}; an example's doc is its caption`);
-    }
-    const caption = blocksOf(body, publicNames);
-    if (!caption.length) report(cls, `${className} has no caption: write its doc comment`);
-
-    // The caption is the page's prose above the example, so the snippet leaves its comment out.
-    const comment = ts.getJSDocCommentsAndTags(cls).filter(ts.isJSDoc).at(-1);
-    let text = sourceFile.text;
-    if (comment) {
-      const end = comment.end + (text[comment.end] === '\n' ? 1 : 0);
-      text = text.slice(0, comment.getStart()) + text.slice(end);
-    }
+    const { caption, text } = readCaption({ cls, sourceFile, kit, report });
     const files = [{ path, name, text }];
     addImports(sourceFile, files);
     addStyles(cls, files);
@@ -1138,13 +1228,16 @@ function readTopic({ root, topic, publicNames, found }) {
 
 /** The examples of one topic as its generated module. */
 function renderExamples(topic, examples) {
-  const imports = examples.map((example) => {
-    const from = pathPosix.relative(
-      EXAMPLES_OUTPUT_DIR,
-      `${EXAMPLES_DIR}/${topic}/${example.files[0].name.replace(/\.ts$/, '')}`,
-    );
-    return `import { ${example.component} } from '${from}';`;
-  });
+  // An example with no component (the shell's) is code only: nothing to import.
+  const imports = examples
+    .filter((example) => example.component)
+    .map((example) => {
+      const from = pathPosix.relative(
+        EXAMPLES_OUTPUT_DIR,
+        `${EXAMPLES_DIR}/${topic}/${example.files[0].name.replace(/\.ts$/, '')}`,
+      );
+      return `import { ${example.component} } from '${from}';`;
+    });
   const literal = (example) => {
     const json = (value) => indent(JSON.stringify(value, null, 2), 4);
     const files = example.files.map((file) => {
@@ -1171,7 +1264,7 @@ function renderExamples(topic, examples) {
       '  {',
       `    "id": ${JSON.stringify(example.id)},`,
       `    "title": ${JSON.stringify(example.title)},`,
-      `    "component": ${example.component},`,
+      ...(example.component ? [`    "component": ${example.component},`] : []),
       `    "caption": ${json(example.caption)},`,
       `    "shows": ${json(example.shows)},`,
       `    "files": [\n${files.join(',\n')}\n    ]`,
@@ -1278,10 +1371,12 @@ export const changesKit = (file) => file.endsWith('.ts') && !file.endsWith('.spe
 /**
  * Whether a change to `file`, relative to the showcase's app folder, can alter an example's
  * snippet: a source file of the examples folder or a stylesheet there (`styleUrl` files are
- * snippet extras). The generated modules, beside it in docs/, must not set the watch off again.
+ * snippet extras), or the shell's own source (`SHELL_EXTRA`). The generated modules, beside it in
+ * docs/, must not set the watch off again.
  */
 export const changesExamples = (file) =>
-  file.split(/[\\/]/)[0] === 'examples' && (changesKit(file) || file.endsWith('.css'));
+  file === SHELL_EXTRA.file ||
+  (file.split(/[\\/]/)[0] === 'examples' && (changesKit(file) || file.endsWith('.css')));
 
 /** Writes now and after every change to the kit's source or the examples, until stopped. */
 function watchKit(root) {

@@ -1,32 +1,53 @@
+import type { Type } from '@angular/core';
 import type { NeatIconName } from '@sima/neat-ui';
 import type { DocsEntry, DocsExample } from './model';
 
+/** What a topic generated from the kit loads: its API modules and its examples module. */
+type LoadTopic = () => Promise<{
+  readonly entries: readonly DocsEntry[];
+  readonly examples: readonly DocsExample[];
+}>;
+
 /**
- * One page of the docs: the parts it documents and where its generated data comes from. The data
- * is loaded when the page is opened, so the main bundle carries none of it.
+ * One page of the docs, and what it is made of: either generated from the kit (`load`: the parts
+ * it documents, its examples) or a hand-made page of the showcase's own (`page`), never both. The
+ * data of a generated page is loaded when the page is opened, so the main bundle carries none of
+ * it; a hand-made page is a lazy component.
  */
-export interface TopicConfig {
+export type TopicConfig = {
   /** The route's last segment, and the name of the topic's folder under `examples/`. */
   readonly id: string;
   /** The page tab's text, and the document's title. */
   readonly label: string;
-  /** Export names in the order the topic reads, each in exactly one topic. */
+  /** Export names in the order the topic reads, each in exactly one topic; none for a `page`. */
   readonly parts: readonly string[];
-  /** The main parts, which the body introduces and the panel lists first. */
+  /** The main parts, which the body introduces and the panel lists first; none for a `page`. */
   readonly leads: readonly string[];
-  /** The top bar's Fit button, for examples that have a `fit()` (`DocsTopic.fit`). */
-  readonly fit?: true;
-  /**
-   * The examples need a whole page: each is routed at `/demo/<id>/<example>`
-   * (`DocsTopic.openBase`).
-   */
-  readonly fullPage?: true;
-  /** The generated API modules of the entries that declare the parts, and the examples module. */
-  readonly load: () => Promise<{
-    readonly entries: readonly DocsEntry[];
-    readonly examples: readonly DocsExample[];
-  }>;
-}
+} & (
+  | {
+      /** The generated API modules of the entries that declare the parts, and the examples. */
+      readonly load: LoadTopic;
+      /** The top bar's Fit button, for examples that have a `fit()` (`DocsTopic.fit`). */
+      readonly fit?: true;
+      /**
+       * The examples need a whole page: each is routed at `/demo/<id>/<example>`
+       * (`DocsTopic.openBase`).
+       */
+      readonly fullPage?: true;
+      readonly page?: never;
+    }
+  | {
+      /**
+       * The page's component, for a topic that is no part's docs (the theme's tokens). It is
+       * routed with the group's tabs as its `tabs` and `tabsLabel` inputs, as a docs page is, and
+       * has no examples module, so the examples rules of `docs.spec.ts` leave it out.
+       */
+      readonly page: () => Promise<Type<unknown>>;
+      readonly load?: never;
+      readonly fit?: never;
+      readonly fullPage?: never;
+    }
+);
 
 /** A rail item and the topics it opens, which its pages show as tabs. */
 export interface TopicGroup {
@@ -44,6 +65,20 @@ export interface TopicGroup {
  * the old pages, whose parts no topic documents until they move (`docs.spec.ts`).
  */
 export const GROUPS: readonly TopicGroup[] = [
+  {
+    id: 'theme',
+    label: 'Theme',
+    icon: 'palette',
+    topics: [
+      {
+        id: 'tokens',
+        label: 'Tokens',
+        parts: [],
+        leads: [],
+        page: () => import('../pages/theme.page').then((m) => m.ThemePage),
+      },
+    ],
+  },
   {
     id: 'status',
     label: 'Status',

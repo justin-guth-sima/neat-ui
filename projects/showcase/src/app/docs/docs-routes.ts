@@ -29,9 +29,12 @@ export function partTopicPath(groups: readonly TopicGroup[]): (name: string) => 
   return (name) => paths.get(name) ?? null;
 }
 
+/** What a generated topic loads (`TopicConfig.load`). */
+type Load = NonNullable<TopicConfig['load']>;
+
 /** What a topic's route hands the docs page (`withComponentInputBinding` binds it to inputs). */
-async function resolveTopic(topic: TopicConfig): Promise<DocsTopic> {
-  const { entries, examples } = await topic.load();
+async function resolveTopic(topic: TopicConfig, load: Load): Promise<DocsTopic> {
+  const { entries, examples } = await load();
   return {
     parts: topic.parts,
     leads: topic.leads,
@@ -51,25 +54,41 @@ async function resolveTopic(topic: TopicConfig): Promise<DocsTopic> {
 export function docsRoutes(groups: readonly TopicGroup[]): Routes {
   return groups.flatMap((group): Route[] => [
     { path: group.id, pathMatch: 'full', redirectTo: `${group.id}/${group.topics[0].id}` },
-    ...group.topics.map((topic): Route => ({
-      path: `${group.id}/${topic.id}`,
-      title: topic.label,
-      loadComponent: () => import('./docs-page').then((m) => m.DocsPage),
-      data: { tabs: groupTabs(group), tabsLabel: `${group.label} topics` },
-      resolve: { topic: () => resolveTopic(topic) },
-    })),
-    ...group.topics.filter((topic) => topic.fullPage).map(demoRoute),
+    ...group.topics.map((topic) => topicRoute(group, topic)),
+    ...group.topics.flatMap((topic) =>
+      topic.load && topic.fullPage ? [demoRoute(topic.id, topic.load)] : [],
+    ),
   ]);
 }
 
-function demoRoute(topic: TopicConfig): Route {
+/** A topic's page: the docs page with the topic resolved, or the topic's own component. */
+function topicRoute(group: TopicGroup, topic: TopicConfig): Route {
+  const route = {
+    path: `${group.id}/${topic.id}`,
+    title: topic.label,
+    // A page of either kind shows the group's topics as its page tabs.
+    data: { tabs: groupTabs(group), tabsLabel: `${group.label} topics` },
+  };
+  const { page, load } = topic;
+  return page
+    ? { ...route, loadComponent: page }
+    : {
+        ...route,
+        loadComponent: () => import('./docs-page').then((m) => m.DocsPage),
+        resolve: { topic: () => resolveTopic(topic, load) },
+      };
+}
+
+/** The examples of a full-page topic, each routed at `/demo/<topic>/<example>`. */
+function demoRoute(id: string, load: Load): Route {
   return {
-    path: `demo/${topic.id}`,
+    path: `demo/${id}`,
     loadChildren: async () =>
-      (await topic.load()).examples.map((example): Route => ({
-        path: example.id,
-        title: example.title,
-        component: example.component,
-      })),
+      (await load()).examples.flatMap((example): Route[] =>
+        // One with no component is code only (the shell's), which a page of its own cannot show.
+        example.component
+          ? [{ path: example.id, title: example.title, component: example.component }]
+          : [],
+      ),
   };
 }
