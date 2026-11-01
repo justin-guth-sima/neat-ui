@@ -91,8 +91,10 @@ export async function openBrowser({ target, headless, viewport, dpr, browserFlag
         });
         ownsContext = true;
       } else {
-        context = browser.contexts()[0] ?? (await browser.newContext());
-        ownsContext = browser.contexts()[0] === undefined;
+        // Decided before one is made: a made context is in `contexts()` from then on.
+        const existing = browser.contexts()[0];
+        ownsContext = existing === undefined;
+        context = existing ?? (await browser.newContext());
       }
       await bind(context);
       const page = await context.newPage();
