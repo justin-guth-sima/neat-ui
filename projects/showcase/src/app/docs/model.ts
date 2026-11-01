@@ -1,9 +1,11 @@
 /*
- * The shape of the kit's API docs, which `npm run docs:emit` (tools/docs-emit.mjs) reads from the
- * kit's source and writes into `generated/api/`, one module per entry point. Each generated module
- * is typed with `DocsEntry`, so a generator change that breaks the shape fails the build instead
- * of a page. Written by hand; the generator follows it.
+ * The shape of the kit's API docs and of the showcase's examples, which `npm run docs:emit`
+ * (tools/docs-emit.mjs) writes into `generated/api/` (from the kit's source, one module per entry
+ * point) and `generated/examples/` (from the examples' files, one module per topic). Each
+ * generated module is typed with `DocsEntry` or `DocsExample`, so a generator change that breaks
+ * the shape fails the build instead of a page. Written by hand; the generator follows it.
  */
+import type { Type } from '@angular/core';
 
 /** One entry point's public API. */
 export interface DocsEntry {
@@ -151,3 +153,36 @@ export type DocSpan =
       readonly member?: string;
       readonly strong?: true;
     };
+
+/**
+ * One example of a topic: a standalone component in `examples/<topic>/<id>.example.ts`, which the
+ * page renders, and its own source, which the page shows. The source is what the file says, so the
+ * two cannot drift apart; the generated module is checked against the files.
+ */
+export interface DocsExample {
+  /** The file name less `.example.ts` and a numeric prefix (`1-basics` is `basics`). */
+  readonly id: string;
+  /** The component's class name in words: `MessagingPipeline` is "Messaging pipeline". */
+  readonly title: string;
+  /** What the page renders. */
+  readonly component: Type<unknown>;
+  /** The component's doc comment: prose for the page, left out of the snippet. */
+  readonly caption: readonly DocBlock[];
+  /**
+   * The kit parts the file imports, as `<import path>#<name>`:
+   * `@sima/neat-ui/status-chip#NeatStatusChip`.
+   */
+  readonly shows: readonly string[];
+  /** The example's file first, then the files of its topic folder that it imports. */
+  readonly files: readonly DocsExampleFile[];
+}
+
+/** A source file of an example, as highlighted runs that spell the file again. */
+export interface DocsExampleFile {
+  /** From the topic folder: `tones.example.ts`, `data/pipeline.ts`. */
+  readonly name: string;
+  readonly code: readonly DocsToken[];
+}
+
+/** A run of source of one kind; a template string is one `string` run. */
+export type DocsToken = readonly [kind: 'keyword' | 'string' | 'comment' | 'text', text: string];

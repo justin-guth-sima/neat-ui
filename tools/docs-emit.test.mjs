@@ -1,5 +1,13 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,8 +16,12 @@ import ts from 'typescript';
 import {
   checkDocs,
   checkReport,
+  EXAMPLES_DIR,
+  EXAMPLES_OUTPUT_DIR,
+  extractExamples,
   extractKit,
   generate,
+  highlight,
   OUTPUT_DIR,
   writeDocs,
 } from './docs-emit.mjs';
@@ -838,6 +850,8 @@ test('the generated modules are deterministic and type-check against the showcas
   const root = mkdtempSync(join(tmpdir(), 'docs-emit-types-'));
   roots.push(root);
   write(root, MODEL, readFileSync(join(ROOT, MODEL), 'utf8'));
+  // The schema imports Angular's `Type`.
+  symlinkSync(join(ROOT, 'node_modules'), join(root, 'node_modules'), 'dir');
   const files = [];
   for (const kit of [SIGNALS, FORWARDED, KINDS, REEXPORTS, DOCS]) {
     for (const [path, content] of generate(kit).files) {
@@ -887,7 +901,7 @@ test('--check lists files that differ, are missing or are extra, and doc problem
     problems: [],
   });
   assert.deepEqual(checkReport(result), [
-    'The committed API docs are stale; run `npm run docs:emit`:',
+    'The committed docs are stale; run `npm run docs:emit`:',
     `  - ${OUTPUT_DIR}/primary.ts differs`,
     `  - ${OUTPUT_DIR}/video.ts is not generated`,
   ]);
@@ -896,14 +910,389 @@ test('--check lists files that differ, are missing or are extra, and doc problem
   assert.deepEqual(checkDocs(kit), { stale: [], problems: [] });
   assert.deepEqual(checkReport({ stale: [], problems: [] }), []);
   assert.deepEqual(checkReport({ stale: [], problems: ['x.ts:1: NEAT_B has no doc comment'] }), [
-    'Doc problems in the public API:',
+    'Doc problems:',
     '  - x.ts:1: NEAT_B has no doc comment',
   ]);
 });
 
+// --- examples and their snippets (review focus 5) --------------------------------------------
+
+/** Source text from lines, with the final newline a file has. */
+const source = (...lines) => `${lines.join('\n')}\n`;
+/** What a snippet's tokens spell. */
+const spelled = (tokens) => tokens.map(([, text]) => text).join('');
+/** A component file the examples tests need no more of than its class and caption. */
+const component = (name, caption = 'A caption.') =>
+  source(
+    `/** ${caption} */`,
+    "@Component({ selector: 'app-x', template: '' })",
+    `export class ${name} {}`,
+  );
+
+const CAPTION = [
+  '/**',
+  ' * The six tones, the words carrying the state. `NeatStatusChip` takes `tone`, and',
+  ' * **`NeatTone`** names them.',
+  ' */',
+];
+const TONES = source(
+  "import { ChangeDetectionStrategy, Component } from '@angular/core';",
+  "import type { NeatTone } from '@sima/neat-ui';",
+  "import { NeatStatusChip } from '@sima/neat-ui/status-chip';",
+  '',
+  ...CAPTION,
+  '@Component({',
+  "  selector: 'app-status-chip-tones',",
+  '  imports: [NeatStatusChip],',
+  '  changeDetection: ChangeDetectionStrategy.OnPush,',
+  '  template: `',
+  '    @for (tone of tones; track tone) {',
+  '      <neat-status-chip [tone]="tone">{{ tone }}</neat-status-chip>',
+  '    }',
+  '  `,',
+  '})',
+  'export class StatusChipTones {',
+  "  // The order is the design's.",
+  "  protected readonly tones: readonly NeatTone[] = ['neutral', 'danger'];",
+  '}',
+);
+const SIZES = source(
+  "import { Component } from '@angular/core';",
+  "import { NeatStatusChip as Chip } from '@sima/neat-ui/status-chip';",
+  "import { SIZES } from './sizes-data';",
+  '',
+  '/** Both sizes. */',
+  "@Component({ selector: 'app-sizes', imports: [Chip], template: '' })",
+  'export class Sizes {',
+  '  protected readonly sizes = SIZES;',
+  '}',
+);
+const SIZES_DATA = source(
+  "import type { Size } from './shapes';",
+  '',
+  "export const SIZES: readonly Size[] = ['sm', 'md'];",
+);
+const SHAPES = source("export type Size = 'sm' | 'md';");
+
+const EXAMPLE_KIT = {
+  'src/public-api.ts': "export * from './lib/tone';\n",
+  'src/lib/tone.ts': "/** A tone. */\nexport type NeatTone = 'neutral' | 'danger';\n",
+  'status-chip/src/public-api.ts': "export * from './lib/chip';\n",
+  'status-chip/src/lib/chip.ts': source(
+    "import { Component, input } from '@angular/core';",
+    '',
+    '/** A chip. */',
+    "@Component({ selector: 'neat-status-chip', template: '' })",
+    'export class NeatStatusChip {',
+    '  /** The tone. */',
+    "  readonly tone = input('neutral');",
+    '}',
+  ),
+};
+
+/** The fixture kit with `examples` (paths under the showcase's examples folder) beside it. */
+function kitWithExamples(examples) {
+  const root = kitWith(EXAMPLE_KIT);
+  for (const [path, content] of Object.entries(examples)) {
+    write(root, `${EXAMPLES_DIR}/${path}`, content);
+  }
+  return root;
+}
+
+const EXAMPLES = kitWithExamples({
+  'status-chip/2-sizes.example.ts': SIZES,
+  'status-chip/1-tones.example.ts': TONES,
+  'status-chip/sizes-data.ts': SIZES_DATA,
+  'status-chip/shapes.ts': SHAPES,
+  'status-chip/notes.txt': 'not a source',
+});
+const examples = once(() => extractExamples(EXAMPLES));
+const chipExamples = () => examples().topics.find((t) => t.topic === 'status-chip').examples;
+const example = (id) => chipExamples().find((e) => e.id === id);
+
+test('an example is its file: id without the numeric prefix, in file-name order, with its title', () => {
+  assert.deepEqual(examples().problems, []);
+  assert.deepEqual(
+    examples().topics.map((t) => t.topic),
+    ['status-chip'],
+  );
+  assert.deepEqual(
+    chipExamples().map((e) => [e.id, e.component, e.title]),
+    [
+      ['tones', 'StatusChipTones', 'Status chip tones'],
+      ['sizes', 'Sizes', 'Sizes'],
+    ],
+  );
+  assert.deepEqual(
+    chipExamples().map((e) => e.files[0].name),
+    ['1-tones.example.ts', '2-sizes.example.ts'],
+  );
+});
+
+test('the title is the class name in words, an acronym kept', () => {
+  const kit = kitWithExamples({
+    'roi/a.example.ts': component('ROIEditorBasics'),
+    'roi/b.example.ts': component('MessagingPipeline'),
+    'roi/c.example.ts': component('Grid2x2Layout'),
+  });
+  const { topics, problems } = extractExamples(kit);
+  assert.deepEqual(problems, []);
+  assert.deepEqual(
+    topics[0].examples.map((e) => e.title),
+    ['ROI editor basics', 'Messaging pipeline', 'Grid2x2 layout'],
+  );
+});
+
+test("the class's doc is the caption as blocks, references resolved, and not in the snippet", () => {
+  assert.deepEqual(example('tones').caption, [
+    {
+      kind: 'paragraph',
+      spans: [
+        { kind: 'text', text: 'The six tones, the words carrying the state. ' },
+        { kind: 'ref', text: 'NeatStatusChip', name: 'NeatStatusChip' },
+        { kind: 'text', text: ' takes ' },
+        { kind: 'code', text: 'tone' },
+        { kind: 'text', text: ', and ' },
+        { kind: 'ref', text: 'NeatTone', name: 'NeatTone', strong: true },
+        { kind: 'text', text: ' names them.' },
+      ],
+    },
+  ]);
+  assert.deepEqual(example('sizes').caption, plain('Both sizes.'));
+});
+
+test('`shows` lists what the file imports from the kit, as import path and name', () => {
+  assert.deepEqual(example('tones').shows, [
+    '@sima/neat-ui#NeatTone',
+    '@sima/neat-ui/status-chip#NeatStatusChip',
+  ]);
+  // The name is the kit's, not the file's alias; Angular and side-effect imports show nothing.
+  assert.deepEqual(example('sizes').shows, ['@sima/neat-ui/status-chip#NeatStatusChip']);
+});
+
+test('the snippet is the file as written, less the caption comment', () => {
+  const [file] = example('tones').files;
+  const caption = `${CAPTION.join('\n')}\n`;
+  assert.ok(TONES.includes(`\n${caption}@Component`));
+  // Nothing else differs: put the caption back and the file is the file, byte for byte.
+  assert.equal(spelled(file.code).replace('\n@Component', `\n${caption}@Component`), TONES);
+  assert.doesNotMatch(spelled(file.code), /six tones/);
+});
+
+test('a file that imports a data file of its folder carries it, and what it imports, as extras', () => {
+  const sizes = example('sizes');
+  assert.deepEqual(
+    sizes.files.map((f) => f.name),
+    ['2-sizes.example.ts', 'sizes-data.ts', 'shapes.ts'],
+  );
+  // The extras are exactly their files.
+  assert.equal(spelled(sizes.files[1].code), SIZES_DATA);
+  assert.equal(spelled(sizes.files[2].code), SHAPES);
+  // An example that imports nothing relative has no extras.
+  assert.deepEqual(
+    example('tones').files.map((f) => f.name),
+    ['1-tones.example.ts'],
+  );
+});
+
+test('an example with no caption, a bad class or a bad relative import is a problem', () => {
+  const kit = kitWithExamples({
+    'a/none.example.ts': source('@Component({})', 'export class None {}'),
+    'a/two.example.ts': source(
+      '/** Two. */',
+      '@Component({})',
+      'export class One {}',
+      'export class Two {}',
+    ),
+    'a/zero.example.ts': source('/** Zero. */', 'class Hidden {}'),
+    'a/plain.example.ts': source('/** Plain. */', 'export class Plain {}'),
+    'a/tagged.example.ts': source(
+      '/**',
+      ' * Tagged.',
+      ' * @internal',
+      ' */',
+      '@Component({})',
+      'export class Tagged {}',
+    ),
+    'a/lost.example.ts': source("import { x } from './missing';", component('Lost')),
+    'a/out.example.ts': source("import { y } from '../b/data';", component('Out')),
+    'a/other.example.ts': source("import { Fine } from './fine.example';", component('Other')),
+    'a/fine.example.ts': component('Fine'),
+    'a/data.ts': source("import { z } from './gone';", 'export const d = 1;'),
+    'a/uses-data.example.ts': source("import { d } from './data';", component('UsesData')),
+    'b/data.ts': 'export const y = 1;\n',
+    'b/b.example.ts': component('Same'),
+    'b/c.example.ts': component('Same'),
+    'b/1-d.example.ts': component('D1'),
+    'b/d.example.ts': component('D2'),
+  });
+  const { problems } = extractExamples(kit);
+  const base = EXAMPLES_DIR;
+  assert.deepEqual(problems, [
+    `${base}/a/data.ts:1: imports './gone', which is no file of its topic folder`,
+    `${base}/a/lost.example.ts:1: imports './missing', which is no file of its topic folder`,
+    `${base}/a/none.example.ts:2: None has no caption: write its doc comment`,
+    `${base}/a/other.example.ts:1: imports './fine.example', which is another example`,
+    `${base}/a/out.example.ts:1: imports '../b/data', which is no file of its topic folder`,
+    `${base}/a/plain.example.ts:2: Plain is not a component`,
+    `${base}/a/tagged.example.ts:6: Tagged's doc has the tag @internal; an example's doc is its caption`,
+    `${base}/a/two.example.ts:4: has more than one exported class; an example is one component`,
+    `${base}/a/zero.example.ts:2: has no exported class; an example is one component`,
+    `${base}/b/c.example.ts:3: Same is already an example of this topic (b.example.ts)`,
+    `${base}/b/d.example.ts:3: the id d is already an example of this topic (1-d.example.ts)`,
+  ]);
+});
+
+test('highlighting is lossless: keywords, strings, comments, and a template string as one run', () => {
+  const tokens = highlight(TONES);
+  assert.equal(spelled(tokens), TONES);
+  const of = (kind) => tokens.filter(([k]) => k === kind).map(([, t]) => t);
+  assert.ok(of('keyword').includes('import'));
+  assert.ok(of('keyword').includes('readonly'));
+  assert.ok(of('string').includes("'@angular/core'"));
+  assert.deepEqual(of('comment'), [CAPTION.join('\n'), "// The order is the design's."]);
+  // The Angular template, control flow and bindings included, is a single run.
+  const template = of('string').find((t) => t.startsWith('`'));
+  assert.match(
+    template,
+    /^`\n {4}@for \(tone of tones; track tone\) \{\n[\s\S]*\{\{ tone \}\}[\s\S]*\n {2}`$/,
+  );
+  // Neighbours never share a kind, so runs are as long as they can be.
+  tokens.slice(1).forEach(([kind], i) => assert.notEqual(kind, tokens[i][0]));
+});
+
+test('highlighting keeps nested template strings and braces in one run, and names after a dot plain', () => {
+  const text = source(
+    'const row = `a ${ items.map((i) => `<${i}>`).join("") } b ${ { k: 1 }.k } c`;',
+    'const t = obj.type;',
+    'const o = { type: 1, from: 2 };',
+    '/* block',
+    '   comment */ let last = 1; // tail',
+  );
+  const tokens = highlight(text);
+  assert.equal(spelled(tokens), text);
+  assert.deepEqual(
+    tokens.filter(([k]) => k === 'string').map(([, t]) => t),
+    ['`a ${ items.map((i) => `<${i}>`).join("") } b ${ { k: 1 }.k } c`'],
+  );
+  const keywords = tokens.filter(([k]) => k === 'keyword').map(([, t]) => t);
+  assert.deepEqual(keywords, ['const', 'const', 'const', 'let']);
+  assert.deepEqual(
+    tokens.filter(([k]) => k === 'comment').map(([, t]) => t),
+    ['/* block\n   comment */', '// tail'],
+  );
+});
+
+test('the examples module imports each component beside its data, in order, and is deterministic', () => {
+  const { files } = generate(EXAMPLES);
+  const path = `${EXAMPLES_OUTPUT_DIR}/status-chip.ts`;
+  assert.deepEqual(
+    [...files.keys()].filter((p) => p.startsWith(EXAMPLES_OUTPUT_DIR)),
+    [path],
+  );
+  assert.deepEqual(files, generate(EXAMPLES).files);
+  const text = files.get(path);
+  assert.match(text, /^\/\/ Generated by `npm run docs:emit`\. Do not edit\.\n/);
+  assert.match(text, /^import type \{ DocsExample \} from '\.\.\/\.\.\/model';$/m);
+  assert.match(
+    text,
+    /^import \{ StatusChipTones \} from '\.\.\/\.\.\/\.\.\/examples\/status-chip\/1-tones\.example';$/m,
+  );
+  assert.match(text, /^export const EXAMPLES: readonly DocsExample\[\] = \[$/m);
+  assert.ok(text.indexOf('"id": "tones"') < text.indexOf('"id": "sizes"'));
+  assert.match(text, /^ {4}"component": StatusChipTones,$/m);
+  assert.doesNotMatch(text, /\r|20\d\d-\d\d-\d\d/);
+});
+
+test('every example module type-checks against the schema, its component a Type', () => {
+  const root = kitWithExamples({
+    'status-chip/1-tones.example.ts': TONES,
+    'status-chip/2-sizes.example.ts': SIZES,
+    'status-chip/sizes-data.ts': SIZES_DATA,
+    'status-chip/shapes.ts': SHAPES,
+    'other/x.example.ts': component('X'),
+  });
+  write(root, MODEL, readFileSync(join(ROOT, MODEL), 'utf8'));
+  writeDocs(root);
+  const read = ts.readConfigFile(join(root, 'tsconfig.json'), ts.sys.readFile);
+  const options = ts.parseJsonConfigFileContent(read.config, ts.sys, root).options;
+  const generated = ['status-chip', 'other'].map((t) => join(root, EXAMPLES_OUTPUT_DIR, `${t}.ts`));
+  const program = ts.createProgram(generated, {
+    ...options,
+    noEmit: true,
+    noPropertyAccessFromIndexSignature: true,
+    exactOptionalPropertyTypes: true,
+  });
+  // The examples' own files are the showcase build's to check; the modules are what is ours.
+  const own = ts
+    .getPreEmitDiagnostics(program)
+    .filter((d) => d.file && d.file.fileName.includes(`${EXAMPLES_OUTPUT_DIR}/`));
+  assert.deepEqual(
+    own.map((d) => ts.flattenDiagnosticMessageText(d.messageText, '\n')),
+    [],
+  );
+  assert.ok(generated.every((file) => program.getSourceFile(file)));
+});
+
+test('--check finds a stale, missing or extra examples module, and an edited example', () => {
+  const kit = kitWithExamples({
+    'status-chip/1-tones.example.ts': TONES,
+    'other/x.example.ts': component('X'),
+  });
+  const module = (topic) => `${EXAMPLES_OUTPUT_DIR}/${topic}.ts`;
+  assert.deepEqual(checkDocs(kit).stale, [
+    `${OUTPUT_DIR}/primary.ts is missing`,
+    `${OUTPUT_DIR}/status-chip.ts is missing`,
+    `${module('other')} is missing`,
+    `${module('status-chip')} is missing`,
+  ]);
+
+  writeDocs(kit);
+  assert.deepEqual(checkDocs(kit), { stale: [], problems: [] });
+
+  // The drift this guards: the example changes, the committed snippet does not.
+  write(kit, `${EXAMPLES_DIR}/status-chip/1-tones.example.ts`, `${TONES}// edited\n`);
+  assert.deepEqual(checkDocs(kit).stale, [`${module('status-chip')} differs`]);
+  writeDocs(kit);
+
+  // A removed topic leaves its module behind, extra.
+  rmSync(join(kit, EXAMPLES_DIR, 'other'), { recursive: true });
+  assert.deepEqual(checkDocs(kit).stale, [`${module('other')} is not generated`]);
+  const { removed } = writeDocs(kit);
+  assert.deepEqual(removed, [module('other')]);
+  assert.deepEqual(checkDocs(kit).stale, []);
+
+  // An example's problems are listed with the doc problems, and `--check` fails on them.
+  const bare = `${EXAMPLES_DIR}/status-chip/2-bare.example.ts`;
+  write(kit, bare, source('@Component({})', 'export class Bare {}'));
+  const result = checkDocs(kit);
+  assert.deepEqual(result.problems, [`${bare}:2: Bare has no caption: write its doc comment`]);
+  assert.deepEqual(checkReport({ stale: [], problems: result.problems }), [
+    'Doc problems:',
+    `  - ${result.problems[0]}`,
+  ]);
+});
+
+test('a kit with no examples folder writes no examples modules', () => {
+  const kit = kitWith(EXAMPLE_KIT);
+  assert.deepEqual(
+    [...generate(kit).files.keys()].filter((p) => p.startsWith(EXAMPLES_OUTPUT_DIR)),
+    [],
+  );
+  assert.deepEqual(extractExamples(kit), { topics: [], problems: [] });
+
+  // The last topic gone, its folder of modules goes too, so the tree is as a fresh checkout's.
+  write(kit, `${EXAMPLES_DIR}/a/x.example.ts`, component('X'));
+  writeDocs(kit);
+  assert.ok(existsSync(join(kit, EXAMPLES_OUTPUT_DIR)));
+  rmSync(join(kit, EXAMPLES_DIR), { recursive: true });
+  writeDocs(kit);
+  assert.ok(!existsSync(join(kit, EXAMPLES_OUTPUT_DIR)));
+});
+
 // --- the kit itself ---------------------------------------------------------------------------
 
-test('the committed API docs match the kit (run `npm run docs:emit` on failure)', () => {
+test('the committed docs match the kit and the examples (run `npm run docs:emit` on failure)', () => {
   assert.deepEqual(checkDocs(ROOT).stale, []);
 });
 
