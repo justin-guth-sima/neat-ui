@@ -1532,6 +1532,15 @@ test('the extra is held to what an example is: one component with a caption, pub
   assert.deepEqual(extractExamples(hidden).problems, [
     `${SHELL_APP}:11: App's caption mentions \`SHELL_GAP\`, which is not public`,
   ]);
+  // The extra's id is the topic's anchor and key: an example of the topic may not take it.
+  const clash = kitWithShell(APP_SOURCE, { 'shell/app.example.ts': component('Other') });
+  assert.deepEqual(extractExamples(clash).problems, [
+    `${SHELL_APP}:11: the id app is already an example of this topic (app.example.ts)`,
+  ]);
+  assert.deepEqual(
+    extractExamples(clash).topics[0].examples.map((e) => e.id),
+    ['app'],
+  );
   // The topic is there and its extra is not: a renamed file must not drop out unnoticed.
   assert.deepEqual(extractExamples(kitWithShell(null)).problems, [
     `${SHELL_APP}:1: is the ${SHELL_EXTRA.topic} topic's extra example and does not exist`,

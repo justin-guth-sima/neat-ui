@@ -1,7 +1,7 @@
 import type { Route, Routes } from '@angular/router';
 import type { NeatNavItem } from '@sima/neat-ui';
 import type { DocsTab, DocsTopic } from './docs-context';
-import type { TopicConfig, TopicGroup } from './topics';
+import type { LoadTopic, TopicConfig, TopicGroup } from './topics';
 
 /** Where a topic is routed: `/<group>/<topic>`. */
 export const topicPath = (group: TopicGroup, topic: TopicConfig): string =>
@@ -29,12 +29,9 @@ export function partTopicPath(groups: readonly TopicGroup[]): (name: string) => 
   return (name) => paths.get(name) ?? null;
 }
 
-/** What a generated topic loads (`TopicConfig.load`). */
-type Load = NonNullable<TopicConfig['load']>;
-
 /** What a topic's route hands the docs page (`withComponentInputBinding` binds it to inputs). */
-async function resolveTopic(topic: TopicConfig, load: Load): Promise<DocsTopic> {
-  const { entries, examples } = await load();
+async function resolveTopic(topic: TopicConfig & { load: LoadTopic }): Promise<DocsTopic> {
+  const { entries, examples } = await topic.load();
   return {
     parts: topic.parts,
     leads: topic.leads,
@@ -69,18 +66,16 @@ function topicRoute(group: TopicGroup, topic: TopicConfig): Route {
     // A page of either kind shows the group's topics as its page tabs.
     data: { tabs: groupTabs(group), tabsLabel: `${group.label} topics` },
   };
-  const { page, load } = topic;
-  return page
-    ? { ...route, loadComponent: page }
-    : {
-        ...route,
-        loadComponent: () => import('./docs-page').then((m) => m.DocsPage),
-        resolve: { topic: () => resolveTopic(topic, load) },
-      };
+  if (topic.page) return { ...route, loadComponent: topic.page };
+  return {
+    ...route,
+    loadComponent: () => import('./docs-page').then((m) => m.DocsPage),
+    resolve: { topic: () => resolveTopic(topic) },
+  };
 }
 
 /** The examples of a full-page topic, each routed at `/demo/<topic>/<example>`. */
-function demoRoute(id: string, load: Load): Route {
+function demoRoute(id: string, load: LoadTopic): Route {
   return {
     path: `demo/${id}`,
     loadChildren: async () =>

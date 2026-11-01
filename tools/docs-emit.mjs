@@ -1044,7 +1044,7 @@ export function extractExamples(root, kit = extractKit(root)) {
   // The shell's source joins its topic's examples when the topic has some, and is nothing else.
   const shell = topics.find((entry) => entry.topic === SHELL_EXTRA.topic);
   if (shell) {
-    const example = readShellExtra({ root, kit, found });
+    const example = readShellExtra({ root, kit, found, taken: shell.examples });
     if (example) shell.examples.push(example);
   }
   // Two examples that both import a data file report its problems twice.
@@ -1097,8 +1097,11 @@ function readCaption({ cls, sourceFile, kit, report }) {
   return { caption, text };
 }
 
-/** The shell's source as an example (`SHELL_EXTRA`): code only, with no component to render. */
-function readShellExtra({ root, kit, found }) {
+/**
+ * The shell's source as an example (`SHELL_EXTRA`): code only, with no component to render.
+ * `taken` are the topic's own examples, whose ids it must not repeat.
+ */
+function readShellExtra({ root, kit, found, taken }) {
   const path = join(root, SHOWCASE_APP, SHELL_EXTRA.file);
   if (!existsSync(path)) {
     const file = posix(relative(root, path));
@@ -1115,6 +1118,15 @@ function readShellExtra({ root, kit, found }) {
   const report = (node, message) => found.push(problemAt(root, node, message));
   const cls = exportedComponent(sourceFile, report);
   if (!cls) return undefined;
+  // The id is the example's anchor and key, so the topic's own examples may not use it.
+  const same = taken.find((example) => example.id === SHELL_EXTRA.id);
+  if (same) {
+    report(
+      cls,
+      `the id ${SHELL_EXTRA.id} is already an example of this topic (${same.files[0].name})`,
+    );
+    return undefined;
+  }
   const { caption, text } = readCaption({ cls, sourceFile, kit, report });
   return {
     id: SHELL_EXTRA.id,

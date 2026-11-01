@@ -118,6 +118,18 @@ describe('DocsPage', () => {
               component: DocsPage,
               data: { topic: { ...TOPIC, openBase: '/demo/pipeline' }, tabs: [] },
             },
+            {
+              path: 'code-only',
+              component: DocsPage,
+              data: {
+                topic: {
+                  ...TOPIC,
+                  openBase: '/demo/shell',
+                  examples: [{ ...TOPIC.examples[0], id: 'app', component: undefined }],
+                },
+                tabs: [],
+              },
+            },
           ],
           withComponentInputBinding(),
         ),
@@ -316,6 +328,15 @@ describe('DocsPage', () => {
       '/demo/pipeline/pipeline',
     );
     expect(host.querySelector('app-snippet')).not.toBeNull();
+  });
+
+  it('links no example without a component, whatever the topic: it says it is code only', async () => {
+    const { host } = await open('/code-only');
+    const card = host.querySelector('app-example-card') as HTMLElement;
+
+    expect(card.querySelector('a[neatButton]')).toBeNull();
+    expect(card.textContent).toContain('Not rendered here');
+    expect(card.querySelector('app-snippet')).not.toBeNull();
   });
 
   it('reveals a part once on a click of a link of the page, the panel open already', async () => {

@@ -3,7 +3,7 @@ import type { NeatIconName } from '@sima/neat-ui';
 import type { DocsEntry, DocsExample } from './model';
 
 /** What a topic generated from the kit loads: its API modules and its examples module. */
-type LoadTopic = () => Promise<{
+export type LoadTopic = () => Promise<{
   readonly entries: readonly DocsEntry[];
   readonly examples: readonly DocsExample[];
 }>;

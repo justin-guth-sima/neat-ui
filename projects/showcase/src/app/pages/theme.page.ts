@@ -148,6 +148,8 @@ const SIZES = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-page>
+      <!-- DocsPage's tab row, restated: NeatPage projects [neatPageTabs] only from a direct
+           child, so a component holding the row could not be shared. -->
       @if (tabs().length) {
         <nav neatPageTabs [attr.aria-label]="tabsLabel()">
           @for (tab of tabs(); track tab.path) {
