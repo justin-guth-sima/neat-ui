@@ -6,6 +6,23 @@ export const API: DocsEntry = {
   "import": "@sima/neat-ui/diagram",
   "parts": [
     {
+      "name": "NEAT_DIAGRAM_MESSAGE_DEFAULTS",
+      "kind": "const",
+      "type": "NeatDiagramMessageSettings",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The demo's settings: its median overview edge takes about 1.2 s at this speed."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/messages/messages.ts"
+    },
+    {
       "name": "NeatDiagram",
       "kind": "interface",
       "members": [
@@ -38,6 +55,93 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/diagram/src/lib/model.ts"
+    },
+    {
+      "name": "NeatDiagramAnimationSettings",
+      "kind": "component",
+      "selector": "neat-diagram-animation-settings",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The Animation panel for "
+            },
+            {
+              "kind": "code",
+              "text": "neat-diagram-messages"
+            },
+            {
+              "kind": "text",
+              "text": ": an icon button that opens sliders for the dots' speed, size and messages per dot, a switch for the dots through the blocks' steps, and a reset to the defaults:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-diagram-animation-settings [(settings)]=\"dots\" />\n<neat-diagram-messages [settings]=\"dots()\" />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "settings"
+            },
+            {
+              "kind": "text",
+              "text": " is the model both ways, and changes apply as the sliders move. The panel keeps nothing: an app that remembers the choice per browser makes the model a "
+            },
+            {
+              "kind": "ref",
+              "text": "neatStoredSignal",
+              "name": "neatStoredSignal"
+            },
+            {
+              "kind": "text",
+              "text": " (parsed by "
+            },
+            {
+              "kind": "ref",
+              "text": "neatParseMessageSettings",
+              "name": "neatParseMessageSettings"
+            },
+            {
+              "kind": "text",
+              "text": "). Place it in a toolbar or beside the diagram."
+            }
+          ]
+        }
+      ],
+      "models": [
+        {
+          "name": "settings",
+          "type": "NeatDiagramMessageSettings",
+          "default": "NEAT_DIAGRAM_MESSAGE_DEFAULTS",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The dots' tuning; what the sliders and the switch write, and the layer's "
+                },
+                {
+                  "kind": "code",
+                  "text": "settings"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/messages/animation-settings.ts"
     },
     {
       "name": "NeatDiagramBlockTemplate",
@@ -356,6 +460,49 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/diagram/src/lib/model.ts"
     },
     {
+      "name": "NeatDiagramEdgeRate",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "msgsPerSec",
+          "type": "number",
+          "doc": []
+        },
+        {
+          "name": "bytesPerSec",
+          "type": "number",
+          "doc": []
+        },
+        {
+          "name": "history",
+          "type": "readonly number[]",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Messages in each whole second before this one, oldest first, at most the last 60."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An edge's messages and bytes per second over the last second, and its messages per second."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/messages/messages.ts"
+    },
+    {
       "name": "NeatDiagramEdgeTipTemplate",
       "kind": "template",
       "selector": "ng-template[neatDiagramEdgeTip]",
@@ -626,6 +773,460 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/diagram/src/lib/model.ts"
+    },
+    {
+      "name": "NeatDiagramMessageSettings",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "speed",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How fast a dot moves along any edge, in diagram units per second: a long edge takes longer."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "size",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A factor on each dot's radius (which grows with its message's size)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "every",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Messages per dot, a whole number: each edge shows a dot for every Nth message on it (1: every message), so a busy edge shows gaps instead of a solid band."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "steps",
+          "type": "boolean",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether dots go on through the blocks' steps (the layer's "
+                },
+                {
+                  "kind": "code",
+                  "text": "steps"
+                },
+                {
+                  "kind": "text",
+                  "text": ")."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How the layer animates its dots: tuning only, the numbers count every message regardless."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/messages/messages.ts"
+    },
+    {
+      "name": "NeatDiagramMessageStep",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "from",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The node whose stage times this step (the id the app passes to "
+                },
+                {
+                  "kind": "code",
+                  "text": "stageMs"
+                },
+                {
+                  "kind": "text",
+                  "text": ")."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "stage",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The stage of "
+                },
+                {
+                  "kind": "code",
+                  "text": "from"
+                },
+                {
+                  "kind": "text",
+                  "text": " whose time a dot waits before it starts along this step."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "shares",
+          "type": "number",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How many steps share the stage's time, each taking an even part, when one measured stage spans several steps one after another. Unset: this step takes the whole stage."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An edge drawn inside a block's drill-down whose dots no message feeds: they follow the dots that enter the step's "
+            },
+            {
+              "kind": "code",
+              "text": "from"
+            },
+            {
+              "kind": "text",
+              "text": " side, timed by a measured stage. The layer's "
+            },
+            {
+              "kind": "code",
+              "text": "steps"
+            },
+            {
+              "kind": "text",
+              "text": " input maps an edge id to one of these."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/messages/dot-model.ts"
+    },
+    {
+      "name": "NeatDiagramMessages",
+      "kind": "component",
+      "selector": "neat-diagram-messages",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The messages moving through a diagram, projected into it:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-diagram [diagram]=\"system\" label=\"The demo's system\">\n  <neat-diagram-messages [steps]=\"steps\" [settings]=\"settings()\" />\n</neat-diagram>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The app feeds it by id: "
+            },
+            {
+              "kind": "code",
+              "text": "push(edgeId, bytes)"
+            },
+            {
+              "kind": "text",
+              "text": " for each message on an edge, and "
+            },
+            {
+              "kind": "code",
+              "text": "stageMs(nodeId, stage, ms)"
+            },
+            {
+              "kind": "text",
+              "text": " for the stage times its step dots take. A message on an edge drawn now is a dot along it, sized by its bytes, as long on its way as the edge's length at "
+            },
+            {
+              "kind": "code",
+              "text": "speed"
+            },
+            {
+              "kind": "text",
+              "text": " (every Nth message with "
+            },
+            {
+              "kind": "code",
+              "text": "every"
+            },
+            {
+              "kind": "text",
+              "text": "); its colour is its edge's ("
+            },
+            {
+              "kind": "code",
+              "text": "colours"
+            },
+            {
+              "kind": "text",
+              "text": " picks another series). A step ("
+            },
+            {
+              "kind": "code",
+              "text": "steps"
+            },
+            {
+              "kind": "text",
+              "text": ", keyed by edge id) is an edge inside a block that no message feeds: a dot arriving at its start goes on along it once the stage's time has passed, and so on along the chain, so the dots inside a block follow its real input and its measured stages. The edges in "
+            },
+            {
+              "kind": "code",
+              "text": "passive"
+            },
+            {
+              "kind": "text",
+              "text": " (a fed edge or a step) end their messages where they enter, starting no steps."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "rate(edgeId)"
+            },
+            {
+              "kind": "text",
+              "text": " is the edge's messages and bytes per second and its history, for the notes an app fills, refreshed at 12 Hz while something reads it. A push counts on any edge of any level, drawn or not, so a level opens with its numbers; the step edges are the exception, counted only while their level is drawn and the page is visible, as it is their dots that count them. An id that is no edge of the diagram is ignored, so the rates' memory stays bounded by the diagram's edges."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "All dots are drawn on one canvas over the drawing, sized to this element's box (it fills the diagram's), at the device's pixel ratio, scaled with the zoom and behind the cards; dots of edges out of focus fade with them. The frames run only while a dot is on its way and stop while the page is hidden (its messages then still count, without dots). Under reduced motion no dot travels: each message shows as a brief mark at its edge's end."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "steps",
+          "type": "Readonly<Record<string, NeatDiagramMessageStep>>",
+          "default": "{}",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The steps, keyed by edge id: whose stage times each and what follows it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "passive",
+          "type": "readonly string[]",
+          "default": "[]",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Edges whose messages end where they enter, starting no step dots (a side input): fed edges and steps alike."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "colours",
+          "type": "Readonly<Record<string, number>>",
+          "default": "{}",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A series (1 to 8) per edge id for its dots, in place of the edge's own colour."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "settings",
+          "type": "NeatDiagramMessageSettings",
+          "default": "NEAT_DIAGRAM_MESSAGE_DEFAULTS",
+          "doc": []
+        }
+      ],
+      "methods": [
+        {
+          "name": "push",
+          "signature": "push(edgeId: string, bytes: number, atMs: number = performance.now()): void",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A message of "
+                },
+                {
+                  "kind": "code",
+                  "text": "bytes"
+                },
+                {
+                  "kind": "text",
+                  "text": " on "
+                },
+                {
+                  "kind": "code",
+                  "text": "edgeId"
+                },
+                {
+                  "kind": "text",
+                  "text": ", starting at "
+                },
+                {
+                  "kind": "code",
+                  "text": "atMs"
+                },
+                {
+                  "kind": "text",
+                  "text": " (on the "
+                },
+                {
+                  "kind": "code",
+                  "text": "performance.now()"
+                },
+                {
+                  "kind": "text",
+                  "text": " clock; now by default, or a little later to spread a batch received together). Counted in the edge's rate, and drawn as a dot while the edge is drawn (a push for a level not drawn only counts). A size that is not a number counts as no bytes; an id that is no edge of the diagram is ignored."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "stageMs",
+          "signature": "stageMs(nodeId: string, stage: string, ms: number): void",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The time "
+                },
+                {
+                  "kind": "code",
+                  "text": "stage"
+                },
+                {
+                  "kind": "text",
+                  "text": " of "
+                },
+                {
+                  "kind": "code",
+                  "text": "nodeId"
+                },
+                {
+                  "kind": "text",
+                  "text": " takes now, in ms: what a step dot timed by it waits before it starts ("
+                },
+                {
+                  "kind": "code",
+                  "text": "steps"
+                },
+                {
+                  "kind": "text",
+                  "text": "). A time that is not a number, or below 0, forgets the stage's time."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "rate",
+          "signature": "rate(edgeId: string): Signal<NeatDiagramEdgeRate>",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "code",
+                  "text": "edgeId"
+                },
+                {
+                  "kind": "text",
+                  "text": "'s messages and bytes per second over the last second and its history, refreshed at 12 Hz while something reads it (a template, an effect); the same signal for the same id."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/messages/messages.ts"
     },
     {
       "name": "NeatDiagramNode",
@@ -1075,6 +1676,128 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/diagram/src/lib/templates.ts"
     },
     {
+      "name": "NeatDiagramRateCard",
+      "kind": "component",
+      "selector": "neat-diagram-rate-card",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An edge's live numbers, for a note of the diagram:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<ng-template neatDiagramNote let-note>\n  <neat-diagram-rate-card label=\"Tracker → Gateway\" [rate]=\"messages.rate('tracker-gateway')()\"\n  />\n</ng-template>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It shows the label, the messages per second (whole) and the megabytes per second (two decimals, from the bytes in units of 10 kB), and the history as a sparkline named for its messages per second. "
+            },
+            {
+              "kind": "code",
+              "text": "stageMs"
+            },
+            {
+              "kind": "text",
+              "text": ", a block step's stage time, swaps the megabytes and the sparkline for the time in milliseconds to a tenth: the dots of a step are made up, so they have no sizes. Anything an app wants between the label and the numbers (the latest image of a camera, say) goes in the "
+            },
+            {
+              "kind": "code",
+              "text": "[neatRateCardThumbnails]"
+            },
+            {
+              "kind": "text",
+              "text": " slot, which the app lays out itself."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The note supplies the card's box (its border, fill and padding), so the card has none; its content is 11.5 rem wide, or as wide as its stage line needs when it shows one. The stage line says \"Stage\"; an app that wants the stage's name in it puts the name in "
+            },
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "label",
+          "type": "string",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What the numbers are of: the edge's or the step's name."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "rate",
+          "type": "NeatDiagramEdgeRate",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The edge's rate: "
+                },
+                {
+                  "kind": "code",
+                  "text": "NeatDiagramMessages.rate(edgeId)"
+                },
+                {
+                  "kind": "text",
+                  "text": "'s value."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "stageMs",
+          "type": "number | undefined",
+          "default": "undefined",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The stage time of a step, in ms: the card then shows it in place of the megabytes and the sparkline. A value that is not a number, or below 0, is no stage time."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/messages/rate-card.ts"
+    },
+    {
       "name": "NeatDiagramRole",
       "kind": "type",
       "definition": "'frame' | 'block' | 'band' | 'bracket'",
@@ -1344,6 +2067,31 @@ export const API: DocsEntry = {
               "text": "), so give it a bounded box, not a long stretch of a scrolling page."
             }
           ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A "
+            },
+            {
+              "kind": "code",
+              "text": "neat-diagram-messages"
+            },
+            {
+              "kind": "text",
+              "text": " projected into it draws the messages moving along its edges, over the drawing; the diagram gives it what it draws by ("
+            },
+            {
+              "kind": "code",
+              "text": "DiagramMessagesContext"
+            },
+            {
+              "kind": "text",
+              "text": ")."
+            }
+          ]
         }
       ],
       "inputs": [
@@ -1434,6 +2182,76 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/diagram/src/lib/diagram.ts"
     },
     {
+      "name": "neatBatchTimes",
+      "kind": "function",
+      "signature": "neatBatchTimes(offsetsMs: readonly number[], arrivalMs: number): number[]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The start times of a batch's messages: the batch's arrival ("
+            },
+            {
+              "kind": "code",
+              "text": "arrivalMs"
+            },
+            {
+              "kind": "text",
+              "text": ") for its earliest message, and the others after it as far apart as their own times ("
+            },
+            {
+              "kind": "code",
+              "text": "offsetsMs"
+            },
+            {
+              "kind": "text",
+              "text": ", on any clock in ms) say, at most "
+            },
+            {
+              "kind": "code",
+              "text": "BATCH_SPREAD_MS"
+            },
+            {
+              "kind": "text",
+              "text": " (200 ms). A message without a finite time of its own starts at the arrival. For an app whose transport delivers messages in batches: pass each time as the "
+            },
+            {
+              "kind": "code",
+              "text": "atMs"
+            },
+            {
+              "kind": "text",
+              "text": " of its "
+            },
+            {
+              "kind": "code",
+              "text": "push"
+            },
+            {
+              "kind": "text",
+              "text": ", with "
+            },
+            {
+              "kind": "code",
+              "text": "performance.now()"
+            },
+            {
+              "kind": "text",
+              "text": " as the arrival:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "const at = neatBatchTimes(batch.map((m) => m.sourceMs), performance.now());\nbatch.forEach((m, i) => messages.push(m.edge, m.bytes, at[i]));"
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/messages/dot-model.ts"
+    },
+    {
       "name": "neatDrillDownLevel",
       "kind": "function",
       "signature": "neatDrillDownLevel(diagram: NeatDiagram, blockId: string): NeatDiagram",
@@ -1473,6 +2291,49 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/diagram/src/lib/drill-down.ts"
+    },
+    {
+      "name": "neatParseMessageSettings",
+      "kind": "function",
+      "signature": "neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettings",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "raw"
+            },
+            {
+              "kind": "text",
+              "text": " as settings: the known keys of the right type, the numbers clamped to the sliders' range ("
+            },
+            {
+              "kind": "code",
+              "text": "every"
+            },
+            {
+              "kind": "text",
+              "text": " rounded to a whole number), and the defaults for the rest. For the parse of an app's "
+            },
+            {
+              "kind": "ref",
+              "text": "neatStoredSignal",
+              "name": "neatStoredSignal"
+            },
+            {
+              "kind": "text",
+              "text": ", which gets whatever an older version wrote:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "readonly settings = neatStoredSignal('app.dots', NEAT_DIAGRAM_MESSAGE_DEFAULTS,\n  neatParseMessageSettings);"
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/messages/animation-settings.ts"
     }
   ]
 };
