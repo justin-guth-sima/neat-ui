@@ -1,6 +1,8 @@
 // Extra Chromium flags for a flag-variant campaign (`--browser-flags`): judged before anything is
 // launched, and again where the board's shell would read them, because the board runs a script
-// with them in it. Pure.
+// with them in it. A flag is `--name` or `--name=value` of plain characters and never one the
+// harness sets itself; the result's `machine.browserFlags` and the summary's "how the numbers
+// were taken" record them. Pure.
 
 /** `--name` or `--name=value`; a value is plain characters, so no shell can read one as syntax. */
 const FLAG = /^--[A-Za-z][\w-]*(?:=[\w.,:+/@%=-]*)?$/;

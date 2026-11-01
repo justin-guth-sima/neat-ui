@@ -2,7 +2,9 @@
 // as a function of time and hands each pointer action to the harness (`window.benchInput`), which
 // plays it through Playwright's `page.mouse`: the browser's real input pipeline (CDP
 // `Input.dispatchMouseEvent`), the event path a person's mouse takes. Both drivers should give
-// the same frame statistics within noise; if they do not, the in-page driver is wrong.
+// the same frame statistics within noise; if they do not, the in-page driver is wrong. The
+// in-page driver (`--input=page`) is the measurement, decided: this bridge is closed-loop, so it
+// delivers fewer events at the knee and is a per-event cross-check only (VALIDATION.md, 2).
 //
 // The browser takes one action at a time, over a link that may be a tunnel. Where it falls behind,
 // a drag that waited is replaced by the newer one and wheel turns that waited are added up, as a

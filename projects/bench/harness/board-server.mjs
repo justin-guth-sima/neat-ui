@@ -4,7 +4,9 @@
 // never a dev server's 4200 or 9900. Everything stays inside the run's directory, the server is
 // stopped by its pid file and only where that pid's command line is this run's server (the same
 // rule as the browser's), and the one teardown in `remote.mjs` stops it before the directory is
-// removed. Scripts are built here and run with `sh -s` over ssh; their parts are validated first.
+// removed. The server binds 127.0.0.1 or one of the board's own addresses (checked there, never
+// `0.0.0.0`): `--serve board:<bind>` with `--target local` is the mode where the board serves the
+// laptop's browser. Scripts are built here and run with `sh -s` over ssh; their parts are validated first.
 import { spawn } from 'node:child_process';
 import { readdir, stat } from 'node:fs/promises';
 import { join, posix } from 'node:path';

@@ -1,7 +1,9 @@
 import { Routes } from '@angular/router';
 
 // Each renderer is a lazy route of its own, so its code is a chunk of its own: the harness tells
-// the kit host's long frames from the vflow host's by the chunk a script came from.
+// the kit host's long frames from the vflow host's by the chunk a script came from. The app routes
+// by hash (`/#/kit`) because the board serves the built bench from a plain static server, which
+// has no fallback to index.html.
 export const routes: Routes = [
   {
     path: '',

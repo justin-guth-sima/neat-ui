@@ -14,7 +14,10 @@
 //
 // The same draws give the presented rate: what the display showed per second in such a phase,
 // which is what a user sees. The results take the lower of it and the recorder's rate, since a
-// frame the page produced and the display never drew was not seen.
+// frame the page produced and the display never drew was not seen. It is laid over every repeat of
+// the same load, and the results view shows both rates and marks the steps it decided. On the
+// laptop the check holds for the kit and not for vflow, whose recorded fps reads above what the
+// display draws, which is why what the user sees decides.
 
 /** The design's bound: the two rates may differ by this share of the recorder's. */
 export const CHECK_TOLERANCE = 0.03;

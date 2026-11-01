@@ -174,102 +174,21 @@ in the root config) fails an import of it outside `projects/bench/`, and a relat
 `npm run check:dist` fails a package that names the file or exports a name the seam exports. A new
 name in it is a new reach into the kit: add one only for what the bench measures, saying why in
 the seam's header.
-Its load comes from a seed, through integer-exact arithmetic only (`src/app/synth/`), so a seed
-puts the same diagram and the same messages on every machine; a spec pins each, and re-pinning
-means results from before no longer compare with those after. It routes by hash (`/#/kit`)
-because the board serves the built bench from a plain static server. Run files go to
-`projects/bench/results/`, which is gitignored; each campaign's summary is published as a page.
-The page measures itself (`src/app/run/`): `/?auto=1&host=kit|vflow|none&ladder=A..E&seed=1&steps=3`
-calibrates the display's refresh on the empty start page, climbs the ladder (step machine, phase
-driver, `GesturePlayer`) and leaves the result on `window.benchResult` and as a JSON download, so a
-board without a harness can run it (ladder E, the soak, on the kit only; a development build
-says so in the result's warnings). The gestures are synthetic events through d3-zoom for the kit
-and vflow; the `none` floor plays the same path through a pure reducer and a non-reactive
-`setTransform`, so its frames hold no change detection. `window.benchFairness()` reads a host's
-boxes and edge paths in diagram units, with the computed style (box-shadow, radius, font,
-padding) of a sample of its blocks and notes, and `window.benchCompare(kit, vflow)` judges two of
-them (a host that draws no node or edge fails it);
-each result lists what the two renderers do not share (`NOT_COMPARABLE`).
-The harness (`projects/bench/harness/`, `npm run bench:run -- --help`) drives that page; its pure
-parts have `node --test` specs (`npm run test:tools`). It serves `dist/bench/browser` itself (or
-takes `--url`), launches Playwright's Chromium (`--target local`, headed unless `--headless`) or
-connects over CDP, either to a browser you tunnelled to (`cdp:<endpoint>`) or to one it starts on
-the board over `--ssh` (`--target remote`: `--remote-debugging-port=0` on the board's loopback, the
-chosen port read from `DevToolsActivePort` in a profile of its own under `/tmp/neat-bench-<run>/`,
-stopped by pid file and process group, never `pkill`, and deleted afterwards; its stop is
-registered before the launch, so a signal at any time removes it, and a stop that leaves anything
-prints the manual cleanup line and exits non-zero). A headed board run needs `--remote-display :0`
-(kiosk; the page has the display's own size, no viewport emulation) and, where the board user's
-`$HOME/.Xauthority` is not the display's, `--remote-xauthority <path>`; without a display the
-browser is headless, which the result's warnings and `harness.headless` say (read from the
-browser's user agent and command line, so a CDP target is judged too). Two options keep a board
-campaign off the board's desktop and off the tunnel, and **board campaigns use them both, with
-`--trace`: `--remote-display bare --serve board --trace`** (ladder E in its own untraced
-campaign). `--remote-display bare` (needs `--target remote`; `--remote-xauthority` is refused)
-stops LightDM (`systemctl stop`, never `disable`, so a reboot alone also brings the login screen
-back), starts an Xorg of its own with a cookie in the run's directory, and sets
-`--remote-mode` (default 1920x1080) at 60 Hz with `xrandr` on its connected output (a mode the
-output does not offer stops the campaign before it measures; no window manager: the browser gets
-`--window-position=0,0 --window-size=<that mode>`, recorded in `harness.display`). **The board
-restores itself** (`harness/board-teardown.mjs`): before LightDM is stopped, the run's first
-script installs `guard.sh` in the run's directory and starts it detached on the board. The guard
-tears the run down when the laptop asks (a `stop` file) or goes quiet (the heartbeat the harness
-touches every 5 s over its own ssh is older than 20 s: node killed, laptop asleep, link lost):
-Chromium, the server and that Xorg by pid file after checking each pid's command line, then
-LightDM if it was active before, judged restored only once it is active and its own Xorg holds a
-display (15 s at most), then `restore.txt`. It alone removes `/tmp/neat-bench-<run>/`, and only
-after a confirmed restore; otherwise the directory and its pid files stay and the log says to run
-`ssh <board> sh /tmp/neat-bench-<run>/guard.sh` again. Start scripts hold `start.lock`, which the
-guard waits for, and start nothing once `stop` is there. The laptop's teardown (signal, error,
-watchdog, end; a second is harmless) creates `stop`, waits for the guard's report and says
-`display restored` (or why not) in the log and in `harness.display.restore`; a display that does
-not come back makes the run exit non-zero, and a teardown that cannot reach the board says that
-the board restores its display by itself within ~30 s. No manual command it prints kills a pid it
-has not checked. Every ssh runs detached from the terminal's process group, so Ctrl-C reaches node
-only: the first starts the teardown, the second says it is in progress, the third quits (the
-guard finishes); SIGTERM and SIGHUP count the same, and an interrupted campaign's result says
-`harness.complete: false`. `--serve board[:<bind>]` copies the built bench into the
-run's `site/` folder (checked file by file) and serves it there with `python3 -m http.server` on a
-free board port (never 4200 or 9900), bound to 127.0.0.1 or to one of the board's own addresses
-(checked there; never `0.0.0.0`): `--serve board:10.42.0.68` with `--target local` is the "board
-serves laptop" mode. Without them
-the display is the board's `:0` and the laptop serves through a reverse tunnel, as before.
-Each (ladder, repeat, renderer) is a fresh page load, the renderer
-order alternating per repeat. The page reports its boundaries through `window.benchEvent`; the
-harness reads CDP `Performance.getMetrics` there, keeps every step the page ended even if the run
-dies later, bounds each step and run with its own watchdog, and stops before measuring when the
-kit-against-vflow fairness check fails (`--allow-unfair` goes on, the problems in the warnings).
-`--browser-flags "--disable-gpu"` adds Chromium flags to the browser the harness starts, a flag
-variant (`--name` or `--name=value` of plain characters, never one the harness sets itself); the
-result's `machine.browserFlags` and the summary's "how the numbers were taken" say so.
-`--input=cdp` replays the page's gesture path through `page.mouse`. Long frames' script keys are
-mapped back to source through the build's maps. One result file per campaign goes to
-`projects/bench/results/`, with screenshots (and `--trace` runs) beside it; it is rewritten after
-every run and when the campaign ends any way (an error, a signal), with
-`harness.complete: false` and a warning where it is not the whole campaign, and a run that throws
-is a failed run in it. A step the harness's watchdog gave up on is a step record with
-`aborted: 'watchdog'`. `npm run bench:build` stamps the commit (marked `-dirty` for tracked
-changes, or untracked files under `projects/bench` or `projects/neat-ui`) into the bundle; the
-page reports it as `bench.gitSha`, the checkout's is `bench.checkoutSha`, and the harness warns
-where they differ or the build (also one served with `--url`) carries no stamp.
-A traced run (`--trace`, every step unless `--trace-steps N`: every step is the board default) is
-checked against its own trace (`harness/trace-check.mjs`): the recorder's fps in the pan and zoom
-phases against the display compositor's draws in the same window, within 3 % or one draw of a
-short phase, else a warning on the campaign (the `none` host is left out: no gesture moves a pixel
-there; a phase with no draw in the trace is "unreadable", not a failure). On the laptop it holds
-for the kit and not for vflow, whose recorded fps reads above what the display draws. So what the
-user sees decides: the same draws give each phase whose view changes in every frame (a pan, a
-zoom, any phase of a step with messages in flight) its presented rate, laid over every repeat of
-that load, and the step's tier uses the lower of it and the recorder's fps; the results view shows
-both and marks the steps the presented rate decided. The heap is read at every phase end (a
-soak's flat check covers it). `--input=page` is the measurement (decided): `--input=cdp` is a
-per-event cross-check only, since its bridge is closed-loop and delivers fewer events at the knee.
-`projects/bench/VALIDATION.md` has the numbers, the rulings and the other checks.
-The results view (`/#/results`, `src/app/results/`) reads result files dropped on it, with the
-screenshots beside them, and shows per machine the capacities in the two tiers, the fallback
-verdict (the kit clearly slower than vflow: its smooth capacity a doubling step or more below in 2
-of 3 repeats, the 85 % fps rule as supporting evidence), the steps and phases at the median of the
-repeats, the warnings and the not-comparable notes, with a markdown summary to copy.
+Run files go to `projects/bench/results/`, which is gitignored; each campaign's summary is
+published as a page. **A board campaign is one command shape:** `npm run bench:build`, then
+`npm run bench:run -- --target remote --ssh <user@board> --remote-display bare --serve board
+--trace ...` (ladder E, the soak, in its own untraced campaign). Only `bare` runs heal themselves:
+the board's guard puts LightDM back even when the laptop is gone, while a run without it (a
+`--remote-display :0` run, `--serve board` alone) is cleaned up by the laptop's stop and nothing
+else. The harness's specs are `npm run test:tools`; the ones that run board scripts need GNU/Linux
+and skip elsewhere.
+
+Operations live where the code is, not here: the harness headers (`harness/remote.mjs`,
+`board-x.mjs`, `board-teardown.mjs`, `board-server.mjs`, `signals.mjs`, `trace-check.mjs`,
+`campaign.mjs`) and `npm run bench:run -- --help` for the board, the guard, Ctrl-C, the serve
+rules and the trace check; the page's own headers (`src/app/run/`, `synth/`, `hosts/`) for the
+auto mode, the seeded load and the fairness check; `src/app/results/` for the results view and
+the verdict rule; `projects/bench/VALIDATION.md` for the numbers, the rulings and the other checks.
 
 **How the charts are drawn.** Every chart in `charts` but the heatmap is an SVG with
 `viewBox="0 0 600 100"`, `preserveAspectRatio="none"` and `overflow: visible`, so it fills

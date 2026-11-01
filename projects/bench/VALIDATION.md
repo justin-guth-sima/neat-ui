@@ -19,6 +19,9 @@ Design: insight-next `docs/superpowers/specs/2026-10-31-bench-design.md`, sectio
 - Builds: `npm run bench:build` from a clean tree, commit `1243aea` (campaigns 1 to 4) and `675c97f`
   (the confirmation run). The harness code of each campaign is that commit's, except that `fa464da`
   (the `none` host left out of the recorder check) came in after campaign 1.
+- Long-frame attribution relies on the source-map mapping, not on chunk names: the kit's diagram
+  code sits in the bench's main chunk (the seam's `MAX_DOTS` is imported eagerly), so the raw key
+  of a long frame there does not tell the kit's renderer from the page's own code.
 
 | Campaign | Command (all with `--cooldown 5` to `10`) | File |
 | --- | --- | --- |

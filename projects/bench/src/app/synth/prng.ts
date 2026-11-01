@@ -3,7 +3,8 @@
  * same load on the renderer, so every draw comes from a seed. mulberry32 uses only 32-bit integer
  * arithmetic (`Math.imul`, shifts), which every JavaScript engine computes the same: never mix in
  * `Math.random`, and never `Math.sin`, `exp` or `log`, whose precision the language leaves to the
- * engine.
+ * engine. A spec pins what each stream draws (the diagram's and the messages'); re-pinning one
+ * means results from before no longer compare with those after.
  */
 
 /** Draws numbers in [0, 1). */
