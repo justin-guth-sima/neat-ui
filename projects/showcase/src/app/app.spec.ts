@@ -18,8 +18,6 @@ const PAGES = [
   { path: '/charts/sparkline', link: 'Charts', heading: 'NeatSparkline' },
   { path: '/diagram/diagram', link: 'Diagram', heading: 'NeatDiagramView' },
   { path: '/video/video-tile', link: 'Video', heading: 'NeatVideoTile' },
-  { path: '/legacy/charts', link: 'Charts (old)', heading: 'Moved' },
-  { path: '/legacy/diagram', link: 'Diagram (old)', heading: 'Moved' },
 ];
 
 /**
@@ -59,7 +57,7 @@ describe('App', () => {
     vi.restoreAllMocks();
   });
 
-  it('lists the docs groups, then the old pages’ notes, in the shell navigation', () => {
+  it('lists the nine docs groups, in order, in the shell navigation', () => {
     // The rail is the shell's first nav; the page's tabs, a nav of the page, come after it.
     const rail = root().querySelector('nav') as HTMLElement;
     const labels = Array.from(rail.querySelectorAll('a'), (a) => a.textContent?.trim());
@@ -73,8 +71,6 @@ describe('App', () => {
       'Charts',
       'Diagram',
       'Video',
-      'Charts (old)',
-      'Diagram (old)',
     ]);
   });
 

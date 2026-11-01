@@ -69,9 +69,11 @@ describe('the docs topics', () => {
     expect([...owners].filter(([, paths]) => paths.length > 1)).toEqual([]);
   });
 
-  // Strict once every old page has moved (the second pull request): the parts of the pages that
-  // have not are in no topic yet.
-  it.todo('puts every public export in a topic');
+  it('puts every public export in a topic', () => {
+    const documented = new Set(topics.flatMap(({ topic }) => topic.parts));
+
+    expect([...declared.keys()].filter((name) => !documented.has(name))).toEqual([]);
+  });
 
   it('names only parts the kit declares, its leads among its parts', () => {
     for (const { topic } of topics) {
@@ -190,12 +192,23 @@ describe('every docs topic in the app', () => {
     },
   );
 
-  it.each(generated.map(({ group, topic }) => [topicPath(group, topic), topic] as const))(
+  // The smoke test: every topic's page renders in jsdom with its examples live and its API panel.
+  // No example is left out: the stubs above (no `ResizeObserver`, no canvas context) are all the
+  // canvas charts, the video tile and the ROI editor need to mount, and what they draw is checked
+  // by eye and in their own specs.
+  it.each(topics.map(({ group, topic }) => [topicPath(group, topic), topic] as const))(
     'renders %s with its intros, examples and API panel',
     async (path, topic) => {
       await router.navigateByUrl(path);
       await fixture.whenStable();
-      const examples = (await topic.load!()).examples;
+
+      if (!topic.load) {
+        // A hand-made page has no parts and no examples; it renders sections of its own.
+        expect(content().querySelector('h2')?.textContent?.trim()).toBeTruthy();
+        expect(content().querySelector('aside app-api-part')).toBeNull();
+        return;
+      }
+      const examples = (await topic.load()).examples;
 
       expect(
         Array.from(content().querySelectorAll('app-part-intro h2'), (h) => h.textContent?.trim()),
@@ -203,6 +216,21 @@ describe('every docs topic in the app', () => {
       expect(
         Array.from(content().querySelectorAll('app-example-card h3'), (h) => h.textContent),
       ).toEqual(examples.map((example) => example.title));
+      for (const example of examples) {
+        const card = content().querySelector(`article[aria-labelledby="example-${example.id}"]`);
+        if (topic.fullPage) {
+          // The examples of a full-page topic are routes of their own, which the card links to.
+          expect(
+            card?.querySelector('a[href^="/demo/"]'),
+            `${example.id} has no link`,
+          ).not.toBeNull();
+        } else if (example.component) {
+          expect(
+            card?.querySelector('.live')?.childElementCount,
+            `${example.id} did not render`,
+          ).toBeGreaterThan(0);
+        }
+      }
       // Each part of the topic has its section in the panel, whether or not it is introduced.
       expect(
         Array.from(content().querySelectorAll('aside app-api-part'), (part) => part.id).sort(),

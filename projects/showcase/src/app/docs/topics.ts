@@ -61,8 +61,8 @@ export interface TopicGroup {
 }
 
 /**
- * The docs by kind, in rail order. Only the topics that are migrated yet: the rest of the kit is on
- * the old pages, whose parts no topic documents until they move (`docs.spec.ts`).
+ * The docs by kind, in rail order. Every public export of the kit is a part of exactly one topic
+ * (`docs.spec.ts`).
  */
 export const GROUPS: readonly TopicGroup[] = [
   {

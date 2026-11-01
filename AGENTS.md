@@ -127,9 +127,7 @@ is the doc comment, and the snippet under an example is the file that renders it
   one that needs the whole page (its own toolbar, tabs or panel, which a docs page keeps for
   itself).
   A topic that is no part's docs (the theme's tokens) is hand-made: `page` (a lazy component)
-  instead of `load`, with `parts: []` and `leads: []`. It is routed with the group's tabs as its
-  `tabs` and `tabsLabel` inputs, as a docs page is, shows them as `DocsPage` does, and has no
-  examples module, so the examples rules of `docs.spec.ts` leave it out.
+  instead of `load`, with no parts, no examples module and the group's tabs as inputs.
 - An example is a standalone component in `examples/<topic>/<id>.example.ts` (a numeric prefix
   orders the examples and is not part of the id). Its class doc is its caption: prose shown above
   it and left out of the snippet. Its title is the class name in words (`CPUUsage` is "CPU usage"),
@@ -145,11 +143,9 @@ is the doc comment, and the snippet under an example is the file that renders it
   missing or extra module and on doc problems: a part or an own input, model or output without a
   doc, an example without a caption, a caption naming a name the kit does not export.
   `docs:emit -- --watch` keeps the modules live while editing; `npm start` writes them once first.
-  `docs/docs.spec.ts` fails a part in two topics and a component, directive, service or function
-  of a topic that none of its examples shows.
-- The old pages are moved onto topics: the Theme, Layout, Actions, Forms, Status, Data, Charts,
-  Diagram and Video groups hold every part they documented. The `/legacy/charts` and
-  `/legacy/diagram` routes stay for now, each only a note that the page moved.
+  `docs/docs.spec.ts` fails a public export in no topic or in two, a component, directive,
+  service or function of a topic that none of its examples shows, and a topic page that does not
+  render in jsdom with its examples and API panel.
 - `provideNeatUi` and `provideNeatTitles` configure an app once, in its `app.config.ts`, and
   `NeatToastHost` is rendered once, in its root template, so no example can show them without
   faking their use (a second host would show every toast twice); `docs.spec.ts` names them as
@@ -384,7 +380,8 @@ the whole in the kit's look.
   block opens from a diagram that holds the block's insides, as the demo does: the block as the
   frame, what it holds inside as placed, the nodes it exchanges edges with in a column left
   (senders) and right (receivers), at the demo's sizes; an app may use it or place a level by hand
-  (the showcase's Detector uses it, from a copy of the pipeline that has the Detector's steps).
+  (the drill-down example, `examples/drill-down/`, uses it, from a copy of the pipeline that has
+  the Detector's steps).
 - **Pan, zoom and fit** (`zoom.ts`, d3-zoom on the box): drag, wheel, pinch and double-click; the
   box is a tab stop whose arrow keys pan 48 px, `+`/`=` and `-` zoom 1.25× about its centre and `0`
   fits; zoom 0.2 to 3. It fits its level to its box by itself (on its first size, a resize, a new
@@ -440,8 +437,8 @@ the whole in the kit's look.
   most 200 ms apart, from the batch's `performance.now()`) as its `atMs`; call `stageMs`
   whenever a stage's time changes. A burst (10 000 pushes in one tick, or what piles up while a
   tab is hidden, when pushes only count) costs the cap's worth of dots, not the burst's; do not
-  sample or drop messages in the app to protect the page. The showcase's messaging example is the
-  reference feed, and its Burst button is the check.
+  sample or drop messages in the app to protect the page. The messaging example
+  (`examples/messaging/`) is the reference feed, and its Burst button is the check.
 - What stays internal: the routing, the port layout, the notes' placement and measurement, the fit
   maths, the pan and zoom, the hover, the level path, and the messaging layer's models, canvas,
   context token and frame probe (the bench reaches some of these through its seam, above).
@@ -917,10 +914,10 @@ naming a kit identifier that is not public (a private constant) fails `docs:emit
 no reader could follow it. The tags are `@deprecated <what to use instead>`, `@internal` (leaves a
 member out, as a template directive's `template`) and, in a class's doc, `@input <name> <text>` and
 `@output <name> <text>` for what it forwards from a primitive it hosts, which has no declaration of
-its own to carry a comment. Every component, directive, service and function also has an example
-(types, interfaces and consts need only their entry in the API panel), and the examples are how
-both themes are checked by eye. Escape hatch: none for public parts; code that is not exported
-needs no entry.
+its own to carry a comment. Every public part has a docs entry, and every component, directive,
+service and function also has an example (types, interfaces and consts need only their entry in
+the API panel); the examples are how both themes are checked by eye. Escape hatch: none for public
+parts; code that is not exported needs no entry.
 
 ## Commands
 
