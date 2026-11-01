@@ -1,0 +1,5 @@
+/* The list fills its container, so the example gives it a size; it sits on the page, not a card. */
+.box {
+  width: 28rem;
+  height: 20rem;
+}

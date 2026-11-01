@@ -1,0 +1,5 @@
+/* Tall enough for every group, the muted one at the end included. */
+.box {
+  width: 26rem;
+  height: 20rem;
+}

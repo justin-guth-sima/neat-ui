@@ -1,0 +1,13 @@
+/* A bar fills its container's width, so the examples give it a column; the slider has its own. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  width: 20rem;
+  font-size: var(--neat-text-sm);
+}
+
+.slider {
+  width: 16rem;
+  margin-bottom: var(--neat-space-3);
+}

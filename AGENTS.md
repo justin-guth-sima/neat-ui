@@ -149,7 +149,7 @@ is the doc comment, and the snippet under an example is the file that renders it
   of a topic that none of its examples shows.
 - While the old pages (`pages/components.page.ts`, `charts.page.ts`, `diagram.page.ts`) are being
   moved onto topics, a part that is still only on one may be in no topic; so far the Theme,
-  Layout, Actions and Forms groups, Status chip, Time chart and Diagram are moved.
+  Layout, Actions, Forms, Status and Data groups, Time chart and Diagram are moved.
 - `provideNeatUi` and `provideNeatTitles` configure an app once, in its `app.config.ts`, and
   `NeatToastHost` is rendered once, in its root template, so no example can show them without
   faking their use (a second host would show every toast twice); `docs.spec.ts` names them as

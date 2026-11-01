@@ -23,7 +23,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": a flex row, so its parts sit side by side."
+              "text": ": a flex row, so its parts sit side by side, at least 1.5rem high so that the buttons of neighbouring lines keep their distance."
             }
           ]
         }
@@ -48,7 +48,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " that sits at the line's end, such as its action."
+              "text": " that sits at the line's end, such as its action (usually a "
+            },
+            {
+              "kind": "code",
+              "text": "neatInlineButton"
+            },
+            {
+              "kind": "text",
+              "text": "): it is pushed there, whatever the text before it takes."
             }
           ]
         }

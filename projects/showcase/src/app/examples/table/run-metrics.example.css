@@ -1,0 +1,7 @@
+/* A cell's own layout: the figure and its status on one line, wrapping when the cell is narrow. */
+.max {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--neat-space-2);
+}

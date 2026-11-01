@@ -1,0 +1,6 @@
+/* The example's parts, a list and what reports on it, one gap apart. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}

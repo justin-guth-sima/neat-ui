@@ -1,0 +1,7 @@
+/* A badge over video, as an app draws one: the live dot on the video scrim. */
+.badge {
+  padding: var(--neat-space-2) var(--neat-space-3);
+  border-radius: 999px;
+  background: var(--neat-video-scrim);
+  color: var(--neat-video-scrim-foreground);
+}

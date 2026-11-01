@@ -1,0 +1,7 @@
+/* A column the width of a side panel's control, so the note wraps as it does under one. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  width: 18rem;
+}

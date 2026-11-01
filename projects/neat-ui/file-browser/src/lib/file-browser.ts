@@ -137,10 +137,12 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
  * - **`manage` mode** is the list's checked mode: a box on each file (not on folders), for the
  *   paths in `checked`, which hold files of other folders too. A click on the box toggles it and
  *   nothing else. From the keyboard, Space toggles the file the list is on; the boxes are not tab
- *   stops, so the arrow keys keep moving the selection. The listbox is multi-selectable and a file
- *   `aria-selected` while checked, which says what checking is; the browser adds no hint of its
- *   own. Paths that are no longer in `root` leave `checked`; `selected` is not pruned, since an
- *   app may select a file before the tree that holds it has loaded.
+ *   stops, so the arrow keys keep moving the selection. Ctrl-click or Cmd-click, Shift-click and
+ *   Ctrl+A or Cmd+A check as they do in the list, without opening a folder. The listbox is
+ *   multi-selectable and a file `aria-selected` while checked, which says what checking is; the
+ *   browser adds no hint of its own. Paths that are no longer in `root` leave `checked`;
+ *   `selected` is not pruned, since an app may select a file before the tree that holds it has
+ *   loaded.
  * - **Unavailable and tagged nodes**: an `unavailable` node is greyed, and a `tag` shows after
  *   the name as a neutral `neat-status-chip`; such nodes can still be selected, opened and
  *   checked.

@@ -170,7 +170,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": ", which hold files of other folders too. A click on the box toggles it and nothing else. From the keyboard, Space toggles the file the list is on; the boxes are not tab stops, so the arrow keys keep moving the selection. The listbox is multi-selectable and a file "
+                "text": ", which hold files of other folders too. A click on the box toggles it and nothing else. From the keyboard, Space toggles the file the list is on; the boxes are not tab stops, so the arrow keys keep moving the selection. Ctrl-click or Cmd-click, Shift-click and Ctrl+A or Cmd+A check as they do in the list, without opening a folder. The listbox is multi-selectable and a file "
               },
               {
                 "kind": "code",

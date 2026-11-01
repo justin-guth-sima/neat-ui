@@ -1,0 +1,5 @@
+/* A browser fills its container, so the examples give it a size. */
+.box {
+  width: 34rem;
+  height: 24rem;
+}

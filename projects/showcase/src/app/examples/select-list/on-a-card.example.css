@@ -1,0 +1,11 @@
+/* A card as an app draws one: its own surface, which the list's header fills with. */
+.card {
+  --neat-surface: var(--card);
+
+  box-sizing: border-box;
+  padding: var(--neat-space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+}

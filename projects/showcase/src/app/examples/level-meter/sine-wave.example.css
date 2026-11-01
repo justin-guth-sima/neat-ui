@@ -1,0 +1,8 @@
+/* The meter takes the row's width beside its button, as in a microphone test. */
+:host {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--neat-space-3);
+  max-width: 28rem;
+}

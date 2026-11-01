@@ -47,12 +47,14 @@ const DETAIL_CLASSES =
 /**
  * A horizontal progress bar: `<neat-progress label="Uploading clip.mp4" [value]="percent" />`.
  * `value` is 0 to 100, or `null` while the work cannot say how far along it is (the bar then
- * moves on its own). A value outside the range is held to it, and one that is not a number counts
- * as unknown, so a sloppy caller gets a bar, not an error.
+ * moves on its own; under a reduced-motion setting it is a still bar of stripes). A value outside
+ * the range is held to it, and one that is not a number counts as unknown, so a sloppy caller gets
+ * a bar, not an error.
  *
  * With a `heading` it is a titled readout, for work the user watches (an import, an encode, a
  * progress toast): the heading with the whole percent at its line's end, the `detail` under it
- * (one line, cut with its full text as a tooltip; left out while empty), then the bar:
+ * (one line, cut with its full text as a tooltip; left out while empty), then the bar; the
+ * progress toast of `NeatToasts` renders through it:
  *
  * ```html
  * <neat-progress heading="Uploading 3 files" [detail]="'clip.mp4 · file 1 of 3'" [value]="41" />

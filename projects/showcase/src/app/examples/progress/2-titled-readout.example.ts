@@ -1,0 +1,33 @@
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { NeatProgress } from '@sima/neat-ui/progress';
+import { NeatSlider } from '@sima/neat-ui/slider';
+
+/**
+ * The first readout follows the slider, and its detail is longer than the line: it is cut at the
+ * end, and hovering it shows the whole text. The second has no value, so it has no percent.
+ */
+@Component({
+  selector: 'app-titled-readout',
+  imports: [NeatProgress, NeatSlider],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <neat-progress
+      heading="Encoding clip.mp4"
+      detail="0:41 / 1:37 · h264_v4l2m2m, at 30 fps, a very long detail that cuts at the end"
+      [value]="progress()"
+    />
+    <neat-slider
+      class="slider"
+      label="Encoded share"
+      [min]="0"
+      [max]="100"
+      [step]="5"
+      [(value)]="progress"
+    />
+    <neat-progress heading="Preparing" detail="Probing the file" [value]="null" />
+  `,
+  styleUrl: './stack.css',
+})
+export class TitledReadout {
+  protected readonly progress = signal(40);
+}

@@ -1,0 +1,6 @@
+/* The callouts one gap apart, as banners stack over a page. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}

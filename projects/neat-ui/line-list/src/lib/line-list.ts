@@ -34,14 +34,20 @@ const END_CLASSES = 'ms-auto';
 })
 export class NeatLineList {}
 
-/** One line of a `neatLineList`: a flex row, so its parts sit side by side. */
+/**
+ * One line of a `neatLineList`: a flex row, so its parts sit side by side, at least 1.5rem high so
+ * that the buttons of neighbouring lines keep their distance.
+ */
 @Directive({
   selector: 'li[neatLine]',
   host: { class: LINE_CLASSES },
 })
 export class NeatLine {}
 
-/** Marks the element of a `neatLine` that sits at the line's end, such as its action. */
+/**
+ * Marks the element of a `neatLine` that sits at the line's end, such as its action (usually a
+ * `neatInlineButton`): it is pushed there, whatever the text before it takes.
+ */
 @Directive({
   selector: '[neatLineEnd]',
   host: { class: END_CLASSES },

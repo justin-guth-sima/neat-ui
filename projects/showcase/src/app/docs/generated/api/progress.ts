@@ -39,7 +39,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " while the work cannot say how far along it is (the bar then moves on its own). A value outside the range is held to it, and one that is not a number counts as unknown, so a sloppy caller gets a bar, not an error."
+              "text": " while the work cannot say how far along it is (the bar then moves on its own; under a reduced-motion setting it is a still bar of stripes). A value outside the range is held to it, and one that is not a number counts as unknown, so a sloppy caller gets a bar, not an error."
             }
           ]
         },
@@ -64,7 +64,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " under it (one line, cut with its full text as a tooltip; left out while empty), then the bar:"
+              "text": " under it (one line, cut with its full text as a tooltip; left out while empty), then the bar; the progress toast of "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatToasts",
+              "name": "NeatToasts"
+            },
+            {
+              "kind": "text",
+              "text": " renders through it:"
             }
           ]
         },

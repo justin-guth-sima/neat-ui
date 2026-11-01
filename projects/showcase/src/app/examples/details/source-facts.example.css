@@ -1,0 +1,7 @@
+/* The value's own layout: the URL and its Copy button, wrapping as one. */
+.url {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--neat-space-2);
+}

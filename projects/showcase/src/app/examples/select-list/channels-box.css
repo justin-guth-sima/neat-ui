@@ -1,0 +1,8 @@
+/* A list fills its container, so the examples give it a size. */
+.box {
+  height: 16rem;
+}
+
+.wide {
+  width: 22rem;
+}

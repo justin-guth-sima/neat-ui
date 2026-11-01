@@ -461,6 +461,208 @@ export const GROUPS: readonly TopicGroup[] = [
           return { entries: [api.API], examples: examples.EXAMPLES };
         },
       },
+      {
+        id: 'callout',
+        label: 'Callout',
+        parts: ['NeatCallout'],
+        leads: ['NeatCallout'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/callout'),
+            import('./generated/examples/callout'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'note',
+        label: 'Note',
+        parts: ['NeatNote'],
+        leads: ['NeatNote'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/note'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'live-dot',
+        label: 'Live dot',
+        parts: ['NeatLiveDot'],
+        leads: ['NeatLiveDot'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/live-dot'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'stale',
+        label: 'Stale',
+        parts: ['NeatStale'],
+        leads: ['NeatStale'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/stale'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'progress',
+        label: 'Progress',
+        parts: ['NeatProgress'],
+        leads: ['NeatProgress'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/progress'),
+            import('./generated/examples/progress'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'level-meter',
+        label: 'Level meter',
+        parts: ['NeatLevelMeter'],
+        leads: ['NeatLevelMeter'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/level-meter'),
+            import('./generated/examples/level-meter'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'motion',
+        label: 'Motion',
+        parts: ['neatEased', 'NeatEasedNumber'],
+        leads: ['neatEased', 'NeatEasedNumber'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/motion'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'time',
+        label: 'Time',
+        parts: ['neatSecondsAgo'],
+        leads: ['neatSecondsAgo'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/time'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+    ],
+  },
+  {
+    id: 'data',
+    label: 'Data',
+    icon: 'folder',
+    topics: [
+      {
+        id: 'table',
+        label: 'Table',
+        parts: ['NeatTable', 'NeatNumeric', 'NeatFigure'],
+        leads: ['NeatTable'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/table'),
+            import('./generated/examples/table'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'details',
+        label: 'Details',
+        parts: ['NeatDetails'],
+        leads: ['NeatDetails'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/details'),
+            import('./generated/examples/details'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'line-list',
+        label: 'Line list',
+        parts: ['NeatLineList', 'NeatLine', 'NeatLineEnd'],
+        leads: ['NeatLineList'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/line-list'),
+            import('./generated/examples/line-list'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'select-list',
+        label: 'Select list',
+        parts: ['NeatSelectList', 'NeatColumn', 'NeatSelectListGroup'],
+        leads: ['NeatSelectList'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/select-list'),
+            import('./generated/examples/select-list'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'file-browser',
+        label: 'File browser',
+        parts: ['NeatFileBrowser', 'NeatFileNode', 'NeatFileBrowserMode', 'NeatFileBrowserLabels'],
+        leads: ['NeatFileBrowser'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/file-browser'),
+            import('./generated/examples/file-browser'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'collapsible',
+        label: 'Collapsible',
+        parts: ['NeatCollapsible'],
+        leads: ['NeatCollapsible'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/collapsible'),
+            import('./generated/examples/collapsible'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'stored-signal',
+        label: 'Stored signal',
+        parts: ['neatStoredSignal'],
+        leads: ['neatStoredSignal'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/stored-signal'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
     ],
   },
   {

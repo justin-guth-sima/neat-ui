@@ -1,0 +1,4 @@
+/* A list's habitat is a side panel, so the examples give it a panel's width. */
+.panel {
+  max-width: 22rem;
+}
