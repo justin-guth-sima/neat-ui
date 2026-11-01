@@ -23,6 +23,7 @@ import {
   extractKit,
   generate,
   highlight,
+  highlightCss,
   OUTPUT_DIR,
   writeDocs,
 } from './docs-emit.mjs';
@@ -1096,6 +1097,79 @@ test('a file that imports a data file of its folder carries it, and what it impo
   );
 });
 
+test('the stylesheets a component names are extras after its imports, once each, as comments and text', () => {
+  const css = source('/* The card. */', '.card {', '  content: "in";', '}');
+  const kit = kitWithExamples({
+    'a/one.example.ts': source(
+      "import { d } from './data';",
+      '/** One. */',
+      "@Component({ selector: 'app-one', template: '', styleUrl: './one.example.css' })",
+      'export class One {}',
+    ),
+    'a/two.example.ts': source(
+      '/** Two. */',
+      "@Component({ selector: 'app-two', template: '', styleUrls: ['./shared/card.css', './one.example.css'] })",
+      'export class Two {}',
+    ),
+    'a/data.ts': 'export const d = 1;\n',
+    'a/one.example.css': 'p {}\n',
+    'a/shared/card.css': css,
+  });
+  const { topics, problems } = extractExamples(kit);
+  assert.deepEqual(problems, []);
+  const [one, two] = topics[0].examples;
+  assert.deepEqual(
+    one.files.map((f) => f.name),
+    ['one.example.ts', 'data.ts', 'one.example.css'],
+  );
+  assert.deepEqual(
+    two.files.map((f) => f.name),
+    ['two.example.ts', 'shared/card.css', 'one.example.css'],
+  );
+  assert.equal(spelled(two.files[1].code), css);
+  // A property named like a keyword is no keyword in a stylesheet.
+  assert.deepEqual(two.files[1].code, [
+    ['comment', '/* The card. */'],
+    ['text', '\n.card {\n  content: "in";\n}\n'],
+  ]);
+});
+
+test('a stylesheet that is no file of the topic folder is a problem', () => {
+  const kit = kitWithExamples({
+    'a/gone.example.ts': source(
+      '/** Gone. */',
+      "@Component({ selector: 'app-gone', template: '', styleUrl: './gone.css' })",
+      'export class Gone {}',
+    ),
+    'a/out.example.ts': source(
+      '/** Out. */',
+      "@Component({ selector: 'app-out', template: '', styleUrl: '../b/out.css' })",
+      'export class Out {}',
+    ),
+    'b/out.css': 'p {}\n',
+  });
+  assert.deepEqual(extractExamples(kit).problems, [
+    `${EXAMPLES_DIR}/a/gone.example.ts:2: names the stylesheet './gone.css', which is no file of its topic folder`,
+    `${EXAMPLES_DIR}/a/out.example.ts:2: names the stylesheet '../b/out.css', which is no file of its topic folder`,
+  ]);
+});
+
+test('stylesheet highlighting spells the text again, with no run empty', () => {
+  assert.deepEqual(highlightCss(''), []);
+  assert.deepEqual(highlightCss('/* a */'), [['comment', '/* a */']]);
+  const text = '/* a */\n/* b */\np { color: red; }\n/* c */';
+  assert.equal(
+    highlightCss(text)
+      .map(([, t]) => t)
+      .join(''),
+    text,
+  );
+  assert.deepEqual(
+    highlightCss(text).map(([k]) => k),
+    ['comment', 'text', 'comment', 'text', 'comment'],
+  );
+});
+
 test('an example with no caption, a bad class or a bad relative import is a problem', () => {
   const kit = kitWithExamples({
     'a/none.example.ts': source('@Component({})', 'export class None {}'),
@@ -1303,15 +1377,27 @@ test('every public part and own input, model and output of the kit has a doc', (
 
 // A spec is bundled statically, so the showcase's smoke test lists the modules it renders by hand;
 // this keeps that list to the modules on disk, a new entry's included.
-test("the showcase's all-parts smoke test imports every generated API module", () => {
+test("the showcase specs' list of API modules (docs.testing.ts) has every generated one", () => {
   const dir = join(ROOT, 'projects/showcase/src/app/docs/generated/api');
   const onDisk = readdirSync(dir)
     .filter((file) => file.endsWith('.ts'))
     .map((file) => file.slice(0, -'.ts'.length))
     .sort();
-  const spec = readFileSync(join(ROOT, 'projects/showcase/src/app/docs/api-part.spec.ts'), 'utf8');
+  const spec = readFileSync(join(ROOT, 'projects/showcase/src/app/docs/docs.testing.ts'), 'utf8');
   const imported = [...spec.matchAll(/from '\.\/generated\/api\/([\w-]+)'/g)]
     .map((match) => match[1])
     .sort();
   assert.deepEqual(imported, onDisk);
+});
+
+test('every generated examples module is loaded by a topic of the showcase, and every topic has one', () => {
+  const onDisk = readdirSync(join(ROOT, EXAMPLES_OUTPUT_DIR))
+    .filter((file) => file.endsWith('.ts'))
+    .map((file) => file.slice(0, -'.ts'.length))
+    .sort();
+  const topics = readFileSync(join(ROOT, 'projects/showcase/src/app/docs/topics.ts'), 'utf8');
+  const loaded = [...topics.matchAll(/import\('\.\/generated\/examples\/([\w-]+)'\)/g)]
+    .map((match) => match[1])
+    .sort();
+  assert.deepEqual(loaded, onDisk);
 });

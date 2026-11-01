@@ -887,6 +887,18 @@ export function highlight(text) {
   return runs;
 }
 
+/**
+ * A stylesheet as runs: its comments, and the rest as `text`. Not the TypeScript scanner's job:
+ * a CSS property named like a keyword (`content`, `in`) would be coloured as one.
+ */
+export function highlightCss(text) {
+  const runs = [];
+  text.split(/(\/\*[\s\S]*?\*\/)/).forEach((piece, i) => {
+    if (piece) runs.push([i % 2 ? 'comment' : 'text', piece]);
+  });
+  return runs;
+}
+
 /** What colour a token that is not inside a template string gets. */
 function kindOf(token, [before, after] = []) {
   if (
@@ -933,6 +945,10 @@ function titleOf(className) {
 const isExported = (statement) =>
   ts.getModifiers(statement)?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword) ?? false;
 
+const isComponentDecorator = (decorator) =>
+  ts.isCallExpression(decorator.expression) &&
+  decorator.expression.expression.getText() === 'Component';
+
 /** The kit parts a file imports, as `<import path>#<name>`, in the order written. */
 function showsOf(sourceFile) {
   const shown = new Set();
@@ -952,8 +968,8 @@ function showsOf(sourceFile) {
  * Reads the showcase's examples: every `*.example.ts` directly in a folder of `EXAMPLES_DIR`, the
  * folder being the topic. Each is one standalone component. Its class doc is its caption, which the
  * page shows as prose and the snippet leaves out; its other source is the snippet, as the file
- * has it, plus the files of its topic folder that it imports (a data file, say) as extras. So what
- * the page renders and what it shows are one file. Returns the topics, each with its examples in
+ * has it, plus the files of its topic folder that it imports (a data file, say) and the stylesheets
+ * it names (`styleUrl`) as extras. So what the page renders and what it shows are one file. Returns the topics, each with its examples in
  * file-name order, and the problems (a caption missing, a bad class, an import that is no file of
  * the topic folder); an example that cannot be read is left out.
  */
@@ -1010,6 +1026,33 @@ function readTopic({ root, topic, publicNames, found }) {
     }
   };
 
+  /**
+   * The stylesheets the component names (`styleUrl`, `styleUrls`), appended once each: an example's
+   * layout is part of what renders, so a copy without it would not look as shown.
+   */
+  const addStyles = (cls, files) => {
+    const decorator = ts.getDecorators(cls).find(isComponentDecorator);
+    const options = decorator.expression.arguments[0];
+    const urls = [
+      property(options, 'styleUrl'),
+      ...(property(options, 'styleUrls')?.elements ?? []),
+    ];
+    for (const url of urls.filter(Boolean)) {
+      const text = literal(url);
+      const file =
+        text === undefined ? undefined : resolve(dirname(cls.getSourceFile().fileName), text);
+      if (!file || !existsSync(file) || relative(dir, file).startsWith('..')) {
+        report(url, `names the stylesheet ${url.getText()}, which is no file of its topic folder`);
+      } else if (!files.some((entry) => entry.path === file)) {
+        files.push({
+          path: file,
+          name: posix(relative(dir, file)),
+          text: readFileSync(file, 'utf8'),
+        });
+      }
+    }
+  };
+
   const examples = [];
   const ids = new Map();
   const classes = new Map();
@@ -1027,11 +1070,7 @@ function readTopic({ root, topic, publicNames, found }) {
     }
     const [cls] = exported;
     const className = cls.name.text;
-    const decorated = ts.getDecorators(cls)?.some((d) => {
-      const call = d.expression;
-      return ts.isCallExpression(call) && call.expression.getText() === 'Component';
-    });
-    if (!decorated) {
+    if (!ts.getDecorators(cls)?.some(isComponentDecorator)) {
       report(cls, `${className} is not a component`);
       continue;
     }
@@ -1065,6 +1104,7 @@ function readTopic({ root, topic, publicNames, found }) {
     }
     const files = [{ path, name, text }];
     addImports(sourceFile, files);
+    addStyles(cls, files);
 
     examples.push({
       id,
@@ -1072,7 +1112,10 @@ function readTopic({ root, topic, publicNames, found }) {
       component: className,
       caption,
       shows: showsOf(sourceFile),
-      files: files.map((file) => ({ name: file.name, code: highlight(file.text) })),
+      files: files.map((file) => ({
+        name: file.name,
+        code: file.name.endsWith('.css') ? highlightCss(file.text) : highlight(file.text),
+      })),
     });
   }
   return examples;
