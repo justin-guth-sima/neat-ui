@@ -77,6 +77,119 @@ export const GROUPS: readonly TopicGroup[] = [
         leads: [],
         page: () => import('../pages/theme.page').then((m) => m.ThemePage),
       },
+      {
+        id: 'colours',
+        label: 'Colours',
+        parts: [
+          'ThemeService',
+          'provideNeatUi',
+          'NeatColorScheme',
+          'neatThemeColors',
+          'neatResolveColor',
+          'buildColorScale',
+          'buildSurfaceScale',
+          'buildNeutralSurfaceScale',
+          'contrastRatio',
+          'ColorScale',
+          'ColorStep',
+          'SurfaceScale',
+          'NeatRgb',
+          'NeatTone',
+          'SIMA_PALETTE',
+          'NEAT_PRIMARY_BASE',
+          'NEAT_DANGER_BASE',
+          'NEAT_HIGHLIGHT_BASE',
+          'NEAT_WARN_BASE',
+          'NEAT_SERIES_TEAL_BASE',
+          'NEAT_NEAR_BLACK',
+        ],
+        leads: ['ThemeService', 'provideNeatUi'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/colours'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'icons',
+        label: 'Icons',
+        parts: ['NeatIcon', 'NeatIconName', 'NEAT_ICON_NAMES'],
+        leads: ['NeatIcon'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/icons'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+    ],
+  },
+  {
+    id: 'layout',
+    label: 'Layout',
+    icon: 'document',
+    topics: [
+      {
+        id: 'shell',
+        label: 'Shell',
+        parts: [
+          'NeatShell',
+          'NeatRailItem',
+          'NeatRailDivider',
+          'NeatNavItem',
+          'provideNeatTitles',
+          'KioskService',
+          'KIOSK_POINTER_IDLE_MS',
+        ],
+        leads: ['NeatShell', 'NeatRailItem'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/shell'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'page',
+        label: 'Page',
+        parts: ['NeatPage', 'NeatPageToolbar', 'NeatPageTabs', 'NeatPageTab', 'NeatViewport'],
+        leads: ['NeatPage'],
+        fullPage: true,
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/page'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'side-panel',
+        label: 'Side panel',
+        parts: [
+          'NeatAsidePanel',
+          'NeatAsideHeading',
+          'NeatAsideTitle',
+          'NeatAsideActions',
+          'NeatAsideToggle',
+          'NeatAsideOpen',
+          'neatAsideOpen',
+          'NeatCode',
+        ],
+        leads: ['NeatAsidePanel'],
+        fullPage: true,
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/side-panel'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
     ],
   },
   {

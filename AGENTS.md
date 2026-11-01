@@ -147,9 +147,12 @@ is the doc comment, and the snippet under an example is the file that renders it
   `docs:emit -- --watch` keeps the modules live while editing; `npm start` writes them once first.
   `docs/docs.spec.ts` fails a part in two topics and a component, directive, service or function
   of a topic that none of its examples shows.
-- While the old pages (`pages/components.page.ts`, `charts.page.ts`, `diagram.page.ts`,
-  `icons.page.ts`, `page.page.ts`) are being moved onto topics, a part that is still only on one
-  may be in no topic; only Status chip, Time chart and Diagram are moved so far.
+- While the old pages (`pages/components.page.ts`, `charts.page.ts`, `diagram.page.ts`) are being
+  moved onto topics, a part that is still only on one may be in no topic; so far the Theme and
+  Layout groups, Status chip, Time chart and Diagram are moved.
+- `provideNeatUi` and `provideNeatTitles` configure an app once, in its `app.config.ts`, so no
+  example can show them without faking their use; `docs.spec.ts` names them as exempt from the
+  rule that a function has an example.
 
 **The toast host is rendered by the app, once, beside the shell.** `<neat-toast-host />` goes next
 to `<neat-shell>` in the app's root template (as the showcase's `app.ts` does); `NeatToasts` shows

@@ -151,7 +151,10 @@ export function relativeLuminance(hex: string): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-/** WCAG 2.x contrast ratio (1 to 21) between two `#RRGGBB` colours, in either order. */
+/**
+ * WCAG 2.x contrast ratio (1 to 21) between two `#RRGGBB` colours, in either order; AA for normal
+ * text asks for 4.5:1.
+ */
 export function contrastRatio(a: string, b: string): number {
   const [lighter, darker] = [relativeLuminance(a), relativeLuminance(b)].sort((x, y) => y - x);
   return (lighter + 0.05) / (darker + 0.05);

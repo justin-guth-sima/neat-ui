@@ -93,7 +93,6 @@ const VARIANTS: NeatButtonVariant[] = [
 /** The surfaces a button sits on, as the contrast tests have it: the page and a card. */
 const SURFACES = ['page', 'card'] as const;
 const SIZES: NeatButtonSize[] = ['small', 'medium', 'large', 'touch'];
-const ICON_SIZES = [16, 20, 24] as const;
 const TOOLTIP_POSITIONS: NeatTooltipPosition[] = ['top', 'right', 'bottom', 'left'];
 const TILE_COUNT = 48;
 const PLACEHOLDER_TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);
@@ -1816,30 +1815,6 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
         </section>
 
         <section class="showcase-section">
-          <h2>Icon</h2>
-          <p class="showcase-muted">
-            At 16, 20 and 24 px. Without a label an icon is decorative and hidden from assistive
-            technology; with one it is exposed as an image with that name.
-          </p>
-          <div class="showcase-row">
-            @for (size of iconSizes; track size) {
-              <div class="icon-sample">
-                <neat-icon name="board" [size]="size" />
-                <span class="showcase-code showcase-muted">{{ size }} px</span>
-              </div>
-            }
-          </div>
-          <div class="showcase-row">
-            @for (size of iconSizes; track size) {
-              <div class="icon-sample">
-                <neat-icon name="board" [size]="size" label="Board" />
-                <span class="showcase-code showcase-muted">{{ size }} px, label</span>
-              </div>
-            }
-          </div>
-        </section>
-
-        <section class="showcase-section">
           <h2>Tile grid</h2>
           <p class="showcase-muted">
             <code>neat-tile-grid</code> packs tiles of a chosen width into its own box with no
@@ -1963,7 +1938,6 @@ export class ComponentsPage {
   protected readonly crumbPath = computed(() => this.crumbPlaces.slice(0, this.crumbDepth()));
   protected readonly surfaces = SURFACES;
   protected readonly sizes = SIZES;
-  protected readonly iconSizes = ICON_SIZES;
   protected readonly tooltipPositions = TOOLTIP_POSITIONS;
   protected readonly shapes = SHAPES;
   protected readonly tones = TONES;

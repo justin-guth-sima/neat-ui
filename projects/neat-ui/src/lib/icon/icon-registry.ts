@@ -122,5 +122,9 @@ export const NEAT_ICONS = {
 /** The name of a glyph in the kit's curated icon set, what `neat-icon`'s `name` takes. */
 export type NeatIconName = keyof typeof NEAT_ICONS;
 
-/** Every name in the registry, in registry order, for galleries and pickers. */
+/**
+ * Every name in the registry, in registry order, for galleries and pickers. Play, pause and stop
+ * are the only filled glyphs, since media controls are solid by convention; every other name is an
+ * outline.
+ */
 export const NEAT_ICON_NAMES: readonly NeatIconName[] = Object.keys(NEAT_ICONS) as NeatIconName[];

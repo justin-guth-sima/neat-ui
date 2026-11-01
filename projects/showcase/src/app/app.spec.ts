@@ -4,15 +4,18 @@ import { App } from './app';
 import { appConfig } from './app.config';
 
 const PAGES = [
-  { path: '/theme/tokens', link: 'Theme', heading: 'Palette' },
+  { path: '/theme/tokens', link: 'Theme', heading: 'Theme variables' },
+  { path: '/theme/colours', link: 'Theme', heading: 'ThemeService' },
+  { path: '/theme/icons', link: 'Theme', heading: 'NeatIcon' },
+  { path: '/layout/shell', link: 'Layout', heading: 'NeatShell' },
+  { path: '/layout/page', link: 'Layout', heading: 'NeatPage' },
+  { path: '/layout/side-panel', link: 'Layout', heading: 'NeatAsidePanel' },
   { path: '/status/status-chip', link: 'Status', heading: 'NeatStatusChip' },
   { path: '/charts/time-chart', link: 'Charts', heading: 'NeatTimeChart' },
   { path: '/diagram/diagram', link: 'Diagram', heading: 'NeatDiagramView' },
-  { path: '/icons', link: 'Icons', heading: 'Icons' },
   { path: '/components', link: 'Components', heading: 'Button' },
   { path: '/legacy/charts', link: 'Charts (old)', heading: 'Sparkline' },
   { path: '/legacy/diagram', link: 'Diagram (old)', heading: 'Diagram' },
-  { path: '/page', link: 'Page', heading: 'Page' },
 ];
 
 /**
@@ -58,12 +61,11 @@ describe('App', () => {
     const labels = Array.from(rail.querySelectorAll('a'), (a) => a.textContent?.trim());
     expect(labels).toEqual([
       'Theme',
+      'Layout',
       'Status',
       'Charts',
       'Diagram',
-      'Icons',
       'Components',
-      'Page',
       'Charts (old)',
       'Diagram (old)',
     ]);
@@ -87,9 +89,9 @@ describe('App', () => {
   it('titles the document with the app name and the page', async () => {
     expect(document.title).toBe('neat-ui showcase · Tokens');
 
-    await navigate('/page/details');
+    await navigate('/demo/page/details');
 
-    expect(document.title).toBe('neat-ui showcase · Page details');
+    expect(document.title).toBe('neat-ui showcase · Details');
   });
 
   it.each(PAGES)('renders $path as a page inside the shell', async ({ path, link, heading }) => {
@@ -99,24 +101,6 @@ describe('App', () => {
     expect(content().querySelector('h2')?.textContent).toContain(heading);
     expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe(link);
     expect(root().querySelector('header h1')?.textContent?.trim()).toBe(link);
-  });
-
-  it('demonstrates the page toolbar and side panel on the page demo', async () => {
-    await navigate('/page');
-    // The page declares the toggle; the shell draws it at the top bar's right edge.
-    const toggle = root().querySelector(
-      'header .aside-edge button[aria-label="Side panel"]',
-    ) as HTMLButtonElement;
-    const aside = (): HTMLElement | null => content().querySelector('neat-page aside');
-
-    expect(toggle.getAttribute('aria-pressed')).toBe('true');
-    expect(aside()?.querySelector('h2')?.textContent).toBe('src3');
-
-    toggle.click();
-    await fixture.whenStable();
-
-    expect(toggle.getAttribute('aria-pressed')).toBe('false');
-    expect(aside()).toBeNull();
   });
 
   it('demonstrates the rail’s end slot: the app’s items, then the theme, then collapse', () => {
@@ -141,27 +125,5 @@ describe('App', () => {
     // A divider of the app's own sets the devices apart from the items below them.
     const last = end.querySelector('[label="Microphone, idle"]') as HTMLElement;
     expect(last.nextElementSibling?.matches('hr[neatRailDivider]')).toBe(true);
-  });
-
-  it('demonstrates page tabs on the page demo: route links, the open one marked', async () => {
-    await navigate('/page');
-    const tabs = (): HTMLAnchorElement[] =>
-      Array.from(content().querySelectorAll<HTMLAnchorElement>('neat-page > nav a'));
-    const open = (): string[] =>
-      tabs()
-        .filter((tab) => tab.getAttribute('aria-current') === 'page')
-        .map((tab) => tab.textContent?.trim() ?? '');
-
-    expect(content().querySelector('neat-page > nav')?.getAttribute('aria-label')).toBe(
-      'Page demo views',
-    );
-    expect(tabs().map((tab) => tab.getAttribute('href'))).toEqual(['/page', '/page/details']);
-    expect(open()).toEqual(['Overview']);
-
-    await navigate('/page/details');
-
-    expect(open()).toEqual(['Details']);
-    // The rail's item stays open under the nested route.
-    expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe('Page');
   });
 });

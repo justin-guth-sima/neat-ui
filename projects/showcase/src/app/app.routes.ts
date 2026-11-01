@@ -10,11 +10,6 @@ export const routes: Routes = [
   // one by one.
   ...docsRoutes(GROUPS),
   {
-    path: 'icons',
-    title: 'Icons',
-    loadComponent: () => import('./pages/icons.page').then((m) => m.IconsPage),
-  },
-  {
     path: 'components',
     title: 'Components',
     loadComponent: () => import('./pages/components.page').then((m) => m.ComponentsPage),
@@ -29,16 +24,5 @@ export const routes: Routes = [
     path: 'legacy/diagram',
     title: 'Diagram (old)',
     loadComponent: () => import('./pages/diagram.page').then((m) => m.DiagramPage),
-  },
-  {
-    path: 'page',
-    title: 'Page',
-    loadComponent: () => import('./pages/page.page').then((m) => m.PagePage),
-  },
-  // The same page on a second route, for the page tabs' demo to link to.
-  {
-    path: 'page/details',
-    title: 'Page details',
-    loadComponent: () => import('./pages/page.page').then((m) => m.PagePage),
   },
 ];

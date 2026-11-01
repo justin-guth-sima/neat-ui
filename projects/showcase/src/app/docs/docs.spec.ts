@@ -25,6 +25,14 @@ const NEEDS_EXAMPLE: ReadonlySet<DocsDeclaredPart['kind']> = new Set([
   'function',
 ]);
 
+/**
+ * Functions that configure an app once, in its `app.config.ts`, before anything renders. No
+ * example can show them without faking their use: a component cannot provide them to the app
+ * around it, and the showcase's own call is the app's, not an example. Their doc comments and API
+ * entries carry what they do, and the showcase's `app.config.ts` is the call itself.
+ */
+const CONFIGURES_THE_APP: ReadonlySet<string> = new Set(['provideNeatUi', 'provideNeatTitles']);
+
 const topics = GROUPS.flatMap((group) => group.topics.map((topic) => ({ group, topic })));
 /**
  * The topics generated from the kit. A hand-made one (`page`) has no examples module and no part,
@@ -77,7 +85,13 @@ describe('the docs topics', () => {
       const shown = new Set(loaded.get(topic)?.flatMap((example) => example.shows.map(shownName)));
       const unshown = topic.parts.filter((name) => {
         const part = declared.get(name);
-        return part && NEEDS_EXAMPLE.has(part.kind) && !part.deprecated && !shown.has(name);
+        return (
+          part &&
+          NEEDS_EXAMPLE.has(part.kind) &&
+          !part.deprecated &&
+          !CONFIGURES_THE_APP.has(name) &&
+          !shown.has(name)
+        );
       });
 
       expect(unshown, `${topic.id} has parts no example shows`).toEqual([]);

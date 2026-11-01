@@ -1,30 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  buildColorScale,
-  buildNeutralSurfaceScale,
-  buildSurfaceScale,
-  NEAT_NEAR_BLACK,
-  NEAT_PRIMARY_BASE,
-  NeatPage,
-  NeatPageTab,
-  NeatPageTabs,
-  type NeatRgb,
-  neatThemeColors,
-  SIMA_PALETTE,
-} from '@sima/neat-ui';
+import { NeatPage, NeatPageTab, NeatPageTabs } from '@sima/neat-ui';
 import type { DocsTab } from '../docs/docs-context';
 import { describeContrast } from './contrast';
 import { Swatch } from './swatch';
 import { injectThemeVariables } from './theme-variables';
-
-interface Chip {
-  name: string;
-  hex: string;
-}
-
-const toChips = (colors: Record<string, string>): Chip[] =>
-  Object.entries(colors).map(([name, hex]) => ({ name, hex }));
 
 /** Spartan's colour variables, as its components use them. */
 const SPARTAN_VARIABLES = [
@@ -116,19 +96,6 @@ const TEXT_PAIRS: [string, string][] = [
   ['muted-foreground', 'neat-tint-warning-accent'],
 ];
 
-/** Tokens a WebGL or canvas drawing might take, for the theme colours as numbers. */
-const DRAWING_TOKENS = {
-  background: '--background',
-  foreground: '--foreground',
-  primary: '--primary',
-  line: '--neat-line',
-  series1: '--neat-series-1',
-  success: '--success',
-} as const;
-
-const formatRgb = (rgb: NeatRgb | null): string =>
-  rgb ? rgb.map((channel) => channel.toFixed(3)).join(', ') : 'not a colour';
-
 const WEIGHTS = [400, 500, 700] as const;
 const SIZES = [
   { label: '14 px', value: '0.875rem' },
@@ -159,54 +126,6 @@ const SIZES = [
       }
       <div class="showcase-page">
         <section class="showcase-section">
-          <h2>Palette</h2>
-          <p class="showcase-muted">The fixed SiMa.ai brand palette, <code>SIMA_PALETTE</code>.</p>
-          <div class="showcase-grid">
-            @for (chip of palette; track chip.name) {
-              <app-swatch [name]="chip.name" [hex]="chip.hex" />
-            }
-          </div>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Primary scale</h2>
-          <p class="showcase-muted">
-            Derived from <code>NEAT_PRIMARY_BASE</code> ({{ primaryBase }}), which is step 500.
-          </p>
-          <div class="showcase-grid">
-            @for (chip of primary; track chip.name) {
-              <app-swatch [name]="chip.name" [hex]="chip.hex" />
-            }
-          </div>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Surface scale</h2>
-          <p class="showcase-muted">
-            White, the two palette backgrounds and the palette text, with the steps between them
-            interpolated. The light scheme's surfaces.
-          </p>
-          <div class="showcase-grid">
-            @for (chip of surface; track chip.name) {
-              <app-swatch [name]="chip.name" [hex]="chip.hex" />
-            }
-          </div>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Neutral surface scale</h2>
-          <p class="showcase-muted">
-            The same construction in greys only, down to the near-black
-            <code>NEAT_NEAR_BLACK</code> ({{ nearBlack }}). The dark scheme's surfaces.
-          </p>
-          <div class="showcase-grid">
-            @for (chip of neutral; track chip.name) {
-              <app-swatch [name]="chip.name" [hex]="chip.hex" />
-            }
-          </div>
-        </section>
-
-        <section class="showcase-section">
           <h2>Theme variables</h2>
           <p class="showcase-muted">
             The CSS variables the kit stylesheet sets, read from this page in the current colour
@@ -224,35 +143,6 @@ const SIZES = [
               <app-swatch [name]="chip.name" [hex]="chip.hex" />
             }
           </div>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Theme colours as numbers</h2>
-          <p class="showcase-muted">
-            <code>neatThemeColors</code> answers tokens as sRGB red, green and blue from 0 to 1, for
-            code that draws outside CSS (WebGL, a canvas), and reads them again when the scheme
-            changes. <code>neatResolveColor</code> resolves any one CSS colour the same way.
-          </p>
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Token</th>
-                <th scope="col">Sample</th>
-                <th scope="col">Red, green, blue</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of drawingColors(); track row.token) {
-                <tr>
-                  <th scope="row" class="showcase-code">{{ row.token }}</th>
-                  <td>
-                    <span class="rgb-sample" [style.background]="'var(' + row.token + ')'"></span>
-                  </td>
-                  <td class="showcase-code">{{ row.rgb }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
         </section>
 
         <section class="showcase-section">
@@ -315,12 +205,6 @@ export class ThemePage {
   /** The tabs' landmark name: "Theme topics". */
   readonly tabsLabel = input('Topics');
 
-  protected readonly palette = toChips(SIMA_PALETTE);
-  protected readonly primaryBase = NEAT_PRIMARY_BASE;
-  protected readonly primary = toChips(buildColorScale(NEAT_PRIMARY_BASE));
-  protected readonly surface = toChips(buildSurfaceScale());
-  protected readonly nearBlack = NEAT_NEAR_BLACK;
-  protected readonly neutral = toChips(buildNeutralSurfaceScale());
   protected readonly weights = WEIGHTS;
   protected readonly sizes = SIZES;
 
@@ -329,14 +213,6 @@ export class ThemePage {
     computed(() => names.map((name) => ({ name: `--${name}`, hex: this.variables()[name] })));
   protected readonly spartanChips = this.chipsOf(SPARTAN_VARIABLES);
   protected readonly kitChips = this.chipsOf(KIT_VARIABLES);
-  private readonly drawing = neatThemeColors(DRAWING_TOKENS);
-  protected readonly drawingColors = computed(() => {
-    const colors = this.drawing();
-    return Object.entries(DRAWING_TOKENS).map(([name, token]) => ({
-      token,
-      rgb: formatRgb(colors[name as keyof typeof DRAWING_TOKENS]),
-    }));
-  });
   protected readonly pairs = computed(() => {
     const values = this.variables();
     return TEXT_PAIRS.map(([foreground, background]) => ({

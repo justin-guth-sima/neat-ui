@@ -1,0 +1,26 @@
+table {
+  width: 100%;
+  max-width: 46rem;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: var(--neat-space-2) var(--neat-space-3) var(--neat-space-2) 0;
+  text-align: left;
+  font-weight: 400;
+  font-size: var(--neat-text-sm);
+}
+
+thead th {
+  color: var(--muted-foreground);
+}
+
+.sample {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  vertical-align: middle;
+}

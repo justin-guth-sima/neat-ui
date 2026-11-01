@@ -88,12 +88,10 @@ import { GROUPS } from './docs/topics';
 })
 export class App {
   protected readonly toasts = inject(NeatToasts);
-  /** The groups of the docs, the theme first, then the old pages. */
+  /** The groups of the docs, the theme first, then the old pages not yet moved. */
   protected readonly navItems: NeatNavItem[] = [
     ...groupNavItems(GROUPS),
-    { label: 'Icons', icon: 'shapes', path: '/icons' },
     { label: 'Components', icon: 'blocks', path: '/components' },
-    { label: 'Page', icon: 'document', path: '/page' },
     { label: 'Charts (old)', icon: 'stats', path: '/legacy/charts' },
     { label: 'Diagram (old)', icon: 'device', path: '/legacy/diagram' },
   ];

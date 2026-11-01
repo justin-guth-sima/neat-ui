@@ -9,13 +9,6 @@
   color: var(--card-foreground);
 }
 
-.icon-sample {
-  display: flex;
-  align-items: center;
-  gap: var(--neat-space-2);
-  min-width: 9rem;
-}
-
 /* Inline buttons take their line's size and colour: a note, then the kit's list lines. */
 .note-demo {
   display: flex;

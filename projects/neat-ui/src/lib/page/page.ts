@@ -41,9 +41,11 @@ const KEY_STEP = 16;
  * Elements marked `neatPageAside` form the page's side panel (an inspector, say), shown on the
  * right while `aside="open"`. The panel is `--neat-aside-width` wide and scrolls on its own; the
  * body narrows beside it rather than being covered, keeping its own scroll setting. The aside is
- * the one supported second scroll context of a page. Closed, the panel and its content are out
- * of the DOM, but projected content is still instantiated (content projection always creates
- * it): gate expensive content with an `@if` of your own.
+ * the one supported second scroll context of a page: a page that needs another region of its own
+ * that scrolls independently is a kit change, so that the layout becomes a supported component,
+ * not a workaround. Closed, the panel and its content are out of the DOM, but projected content
+ * is still instantiated (content projection always creates it): gate expensive content with an
+ * `@if` of your own.
  *
  * On a narrow screen (`NeatViewport`) the panel floats over the right of the page instead,
  * `--neat-aside-width` wide but never wider than the page, and the body keeps the whole width.

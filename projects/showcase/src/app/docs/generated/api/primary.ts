@@ -314,7 +314,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Every name in the registry, in registry order, for galleries and pickers."
+              "text": "Every name in the registry, in registry order, for galleries and pickers. Play, pause and stop are the only filled glyphs, since media controls are solid by convention; every other name is an outline."
             }
           ]
         }
@@ -1914,7 +1914,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " wide and scrolls on its own; the body narrows beside it rather than being covered, keeping its own scroll setting. The aside is the one supported second scroll context of a page. Closed, the panel and its content are out of the DOM, but projected content is still instantiated (content projection always creates it): gate expensive content with an "
+              "text": " wide and scrolls on its own; the body narrows beside it rather than being covered, keeping its own scroll setting. The aside is the one supported second scroll context of a page: a page that needs another region of its own that scrolls independently is a kit change, so that the layout becomes a supported component, not a workaround. Closed, the panel and its content are out of the DOM, but projected content is still instantiated (content projection always creates it): gate expensive content with an "
             },
             {
               "kind": "code",
@@ -3659,7 +3659,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " colours, in either order."
+              "text": " colours, in either order; AA for normal text asks for 4.5:1."
             }
           ]
         }
