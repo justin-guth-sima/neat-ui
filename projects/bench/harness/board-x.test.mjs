@@ -14,7 +14,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
-import { stubEnv, writeStubs } from './board-stubs.mjs';
+import { LINUX_ONLY, stubEnv, writeStubs } from './board-stubs.mjs';
 import {
   DEFAULT_MODE,
   graphicalSessionFragment,
@@ -133,13 +133,20 @@ test('makes the cookie private, the pid file readable, and no pid file means no 
   assert.match(script, /sh -c 'umask 022; echo \$\$ >"\$1" \|\| exit 1; shift; exec "\$@"'/);
 });
 
-test('sets the mode at 60 Hz on the connected output, 1920x1080 unless told otherwise', () => {
-  assert.deepEqual(DEFAULT_MODE, { w: 1920, h: 1080 });
-  const script = xStartScript('/tmp/neat-bench-x');
-  assert.match(script, /want='1920x1080'/);
-  assert.match(script, /xrandr --output "\$output" --mode "\$want" --rate 60/);
-  assert.match(xStartScript('/tmp/neat-bench-x', { mode: { w: 1280, h: 720 } }), /want='1280x720'/);
-});
+test(
+  'sets the mode at 60 Hz on the connected output, 1920x1080 unless told otherwise',
+  LINUX_ONLY,
+  () => {
+    assert.deepEqual(DEFAULT_MODE, { w: 1920, h: 1080 });
+    const script = xStartScript('/tmp/neat-bench-x');
+    assert.match(script, /want='1920x1080'/);
+    assert.match(script, /xrandr --output "\$output" --mode "\$want" --rate 60/);
+    assert.match(
+      xStartScript('/tmp/neat-bench-x', { mode: { w: 1280, h: 720 } }),
+      /want='1280x720'/,
+    );
+  },
+);
 
 // The start, run for real on the stand-in board.
 let counter = 0;
@@ -175,54 +182,66 @@ function startBoard({ lightdm = 'active', mode, omit = [], umask = '022', sessio
   return { dir, env, run, xorgPid, calls: () => readFileSync(env.STUB_LOG, 'utf8') };
 }
 
-test('starts: stops LightDM, Xorg on the freed display, 1920x1080 at 60 Hz, all said', async () => {
-  // umask 077 as the board's root shell had it: the pid file must still be readable.
-  const b = startBoard({ umask: '077' });
-  const out = b.run();
-  assert.equal(out.status, 0, out.stdout + out.stderr);
-  const x = parseXStart(out.stdout);
-  spare.push({ kill: () => alive(x.xpid) && process.kill(x.xpid, 'SIGKILL') });
-  assert.deepEqual(
-    { ...x, xpid: undefined },
-    {
-      lightdm: 'active',
-      display: ':0',
-      vt: 7,
-      output: 'HDMI-1',
-      mode: { w: 1920, h: 1080 },
-      rateHz: 60,
-      xpid: undefined,
-    },
-  );
-  assert.equal(x.xpid, b.xorgPid(), 'the pid file holds the pid it printed');
-  assert.ok(alive(x.xpid), 'that pid is the running Xorg, not a shell that exited');
-  assert.equal(statSync(join(b.dir, 'xorg.pid')).mode & 0o777, 0o644);
-  assert.equal(statSync(join(b.dir, 'Xauthority')).mode & 0o777, 0o600);
-  assert.equal(readFileSync(join(b.dir, 'lightdm.state'), 'utf8'), 'active\n');
-  assert.equal(existsSync(join(b.dir, 'start.lock')), false, 'the start lock goes with the script');
-  const calls = b.calls();
-  assert.ok(calls.indexOf('systemctl stop lightdm') < calls.indexOf('Xorg :0 vt7'));
-  assert.match(calls, /Xorg :0 vt7 -nolisten tcp -auth .*\/Xauthority -noreset/);
-  assert.match(calls, /xset s off -dpms s noblank/);
-  assert.match(calls, /xrandr --output HDMI-1 --mode 1920x1080 --rate 60/);
-  process.kill(x.xpid, 'SIGTERM');
-  await sleepMs(300);
-});
+test(
+  'starts: stops LightDM, Xorg on the freed display, 1920x1080 at 60 Hz, all said',
+  LINUX_ONLY,
+  async () => {
+    // umask 077 as the board's root shell had it: the pid file must still be readable.
+    const b = startBoard({ umask: '077' });
+    const out = b.run();
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    const x = parseXStart(out.stdout);
+    spare.push({ kill: () => alive(x.xpid) && process.kill(x.xpid, 'SIGKILL') });
+    assert.deepEqual(
+      { ...x, xpid: undefined },
+      {
+        lightdm: 'active',
+        display: ':0',
+        vt: 7,
+        output: 'HDMI-1',
+        mode: { w: 1920, h: 1080 },
+        rateHz: 60,
+        xpid: undefined,
+      },
+    );
+    assert.equal(x.xpid, b.xorgPid(), 'the pid file holds the pid it printed');
+    assert.ok(alive(x.xpid), 'that pid is the running Xorg, not a shell that exited');
+    assert.equal(statSync(join(b.dir, 'xorg.pid')).mode & 0o777, 0o644);
+    assert.equal(statSync(join(b.dir, 'Xauthority')).mode & 0o777, 0o600);
+    assert.equal(readFileSync(join(b.dir, 'lightdm.state'), 'utf8'), 'active\n');
+    assert.equal(
+      existsSync(join(b.dir, 'start.lock')),
+      false,
+      'the start lock goes with the script',
+    );
+    const calls = b.calls();
+    assert.ok(calls.indexOf('systemctl stop lightdm') < calls.indexOf('Xorg :0 vt7'));
+    assert.match(calls, /Xorg :0 vt7 -nolisten tcp -auth .*\/Xauthority -noreset/);
+    assert.match(calls, /xset s off -dpms s noblank/);
+    assert.match(calls, /xrandr --output HDMI-1 --mode 1920x1080 --rate 60/);
+    process.kill(x.xpid, 'SIGTERM');
+    await sleepMs(300);
+  },
+);
 
-test('stops before anything is measured where the output does not offer the mode at 60 Hz', async () => {
-  const b = startBoard({ mode: { w: 3840, h: 2160 } });
-  const out = b.run();
-  assert.equal(out.status, 1);
-  assert.match(
-    out.stdout,
-    /note HDMI-1 does not offer 3840x2160 at 60 Hz; it offers 1024x768 1920x1080/,
-  );
-  assert.doesNotMatch(b.calls(), /xrandr --output/);
-  process.kill(b.xorgPid(), 'SIGTERM');
-  await sleepMs(300);
-});
+test(
+  'stops before anything is measured where the output does not offer the mode at 60 Hz',
+  LINUX_ONLY,
+  async () => {
+    const b = startBoard({ mode: { w: 3840, h: 2160 } });
+    const out = b.run();
+    assert.equal(out.status, 1);
+    assert.match(
+      out.stdout,
+      /note HDMI-1 does not offer 3840x2160 at 60 Hz; it offers 1024x768 1920x1080/,
+    );
+    assert.doesNotMatch(b.calls(), /xrandr --output/);
+    process.kill(b.xorgPid(), 'SIGTERM');
+    await sleepMs(300);
+  },
+);
 
-test('does not touch LightDM where fuser is missing: every VT would look free', () => {
+test('does not touch LightDM where fuser is missing: every VT would look free', LINUX_ONLY, () => {
   const b = startBoard({ omit: ['fuser'] });
   const out = b.run();
   assert.equal(out.status, 1);
@@ -253,13 +272,17 @@ const sessionCheck = (sessions, { omit } = {}) => {
   });
 };
 
-test('lets the board as it is today through: a greeter on seat0, a tty login with no seat', () => {
-  const out = sessionCheck();
-  assert.equal(out.status, 0, out.stdout + out.stderr);
-  assert.match(out.stdout, /^passed$/m);
-});
+test(
+  'lets the board as it is today through: a greeter on seat0, a tty login with no seat',
+  LINUX_ONLY,
+  () => {
+    const out = sessionCheck();
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    assert.match(out.stdout, /^passed$/m);
+  },
+);
 
-test('lets a user session through that is not on seat0, or not graphical', () => {
+test('lets a user session through that is not on seat0, or not graphical', LINUX_ONLY, () => {
   const out = sessionCheck([
     'c1 lightdm greeter x11 seat0',
     '4 sima user x11 -',
@@ -270,34 +293,42 @@ test('lets a user session through that is not on seat0, or not graphical', () =>
 });
 
 for (const type of ['x11', 'wayland']) {
-  test(`refuses where a user is logged in on seat0 under ${type}, naming the session and the user`, () => {
-    const out = sessionCheck(['c1 lightdm greeter x11 seat0', `7 maria user ${type} seat0`]);
-    assert.equal(out.status, 1);
-    assert.match(
-      out.stdout,
-      new RegExp(`^note session 7 of maria \\(${type}\\) is logged in`, 'm'),
-    );
-    assert.match(out.stdout, /log it out first/);
-    assert.doesNotMatch(out.stdout, /passed/);
-  });
+  test(
+    `refuses where a user is logged in on seat0 under ${type}, naming the session and the user`,
+    LINUX_ONLY,
+    () => {
+      const out = sessionCheck(['c1 lightdm greeter x11 seat0', `7 maria user ${type} seat0`]);
+      assert.equal(out.status, 1);
+      assert.match(
+        out.stdout,
+        new RegExp(`^note session 7 of maria \\(${type}\\) is logged in`, 'm'),
+      );
+      assert.match(out.stdout, /log it out first/);
+      assert.doesNotMatch(out.stdout, /passed/);
+    },
+  );
 }
 
-test('refuses where it cannot tell, as loginctl is missing', () => {
+test('refuses where it cannot tell, as loginctl is missing', LINUX_ONLY, () => {
   const out = sessionCheck(undefined, { omit: ['loginctl'] });
   assert.equal(out.status, 1);
   assert.match(out.stdout, /^note loginctl is missing/m);
 });
 
-test('a start over a graphical login touches nothing: LightDM keeps running, nothing is made', () => {
-  const b = startBoard({ sessions: ['c2 maria user x11 seat0'] });
-  const out = b.run();
-  assert.equal(out.status, 1);
-  assert.match(out.stdout, /note session c2 of maria \(x11\) is logged in on seat0/);
-  assert.doesNotMatch(b.calls(), /systemctl stop|Xorg|xauth/);
-  assert.equal(existsSync(join(b.dir, 'lightdm.state')), false);
-});
+test(
+  'a start over a graphical login touches nothing: LightDM keeps running, nothing is made',
+  LINUX_ONLY,
+  () => {
+    const b = startBoard({ sessions: ['c2 maria user x11 seat0'] });
+    const out = b.run();
+    assert.equal(out.status, 1);
+    assert.match(out.stdout, /note session c2 of maria \(x11\) is logged in on seat0/);
+    assert.doesNotMatch(b.calls(), /systemctl stop|Xorg|xauth/);
+    assert.equal(existsSync(join(b.dir, 'lightdm.state')), false);
+  },
+);
 
-test('starts no Xorg where its pid file cannot be written', () => {
+test('starts no Xorg where its pid file cannot be written', LINUX_ONLY, () => {
   const b = startBoard({ lightdm: 'inactive' });
   // A directory where the pid file goes: the root shell's write fails, as on a full /tmp.
   mkdirSync(join(b.dir, 'xorg.pid'));
@@ -314,7 +345,7 @@ test('starts no Xorg where its pid file cannot be written', () => {
   assert.doesNotMatch(b.calls(), /^Xorg /m, 'Xorg was never executed');
 });
 
-test('refuses to start once the teardown has asked for a stop', () => {
+test('refuses to start once the teardown has asked for a stop', LINUX_ONLY, () => {
   const b = startBoard();
   writeFileSync(join(b.dir, 'stop'), '');
   const out = b.run();
@@ -364,21 +395,25 @@ ${xStopFragment({ lockDir: env.STUB_LOCKS })}${lightdmRestoreFragment({ lockDir:
   return { dir, env, child, run, calls: () => readFileSync(env.STUB_LOG, 'utf8') };
 }
 
-test('stops its Xorg and starts LightDM again when it had been active: restored once its Xorg runs', async () => {
-  const b = teardownBoard({ was: 'active' });
-  const out = b.run();
-  assert.equal(out.status, 0, out.stderr);
-  const report = parseStopReport(out.stdout);
-  assert.equal(report.xorg, 'stopped');
-  assert.deepEqual(report.display, { state: 'restored', why: undefined });
-  assert.match(out.stdout, /xleft= dn=$/m);
-  await sleepMs(100);
-  assert.equal(alive(b.child.pid), false);
-  assert.match(b.calls(), /systemctl --no-block start lightdm/);
-  assert.ok(b.calls().indexOf('sudo kill') < b.calls().indexOf('systemctl --no-block start'));
-});
+test(
+  'stops its Xorg and starts LightDM again when it had been active: restored once its Xorg runs',
+  LINUX_ONLY,
+  async () => {
+    const b = teardownBoard({ was: 'active' });
+    const out = b.run();
+    assert.equal(out.status, 0, out.stderr);
+    const report = parseStopReport(out.stdout);
+    assert.equal(report.xorg, 'stopped');
+    assert.deepEqual(report.display, { state: 'restored', why: undefined });
+    assert.match(out.stdout, /xleft= dn=$/m);
+    await sleepMs(100);
+    assert.equal(alive(b.child.pid), false);
+    assert.match(b.calls(), /systemctl --no-block start lightdm/);
+    assert.ok(b.calls().indexOf('sudo kill') < b.calls().indexOf('systemctl --no-block start'));
+  },
+);
 
-test('does not start LightDM when it was not active before the run', () => {
+test('does not start LightDM when it was not active before the run', LINUX_ONLY, () => {
   const b = teardownBoard({ was: 'inactive' });
   const report = parseStopReport(b.run().stdout);
   assert.equal(report.display.state, 'unchanged');
@@ -386,7 +421,7 @@ test('does not start LightDM when it was not active before the run', () => {
   assert.equal(report.xorg, 'stopped');
 });
 
-test('says the display is not restored when LightDM does not come back', () => {
+test('says the display is not restored when LightDM does not come back', LINUX_ONLY, () => {
   const b = teardownBoard({ was: 'active', startFails: true });
   const out = b.run();
   const report = parseStopReport(out.stdout);
@@ -395,14 +430,14 @@ test('says the display is not restored when LightDM does not come back', () => {
   assert.match(out.stdout, /dn=1$/m);
 });
 
-test('is not fooled by a LightDM that says active while its Xorg never came up', () => {
+test('is not fooled by a LightDM that says active while its Xorg never came up', LINUX_ONLY, () => {
   const b = teardownBoard({ was: 'active', lightdmX: false });
   const report = parseStopReport(b.run().stdout);
   assert.equal(report.display.state, 'not-restored');
   assert.match(report.display.why, /lightdm is active and its Xorg is not running/);
 });
 
-test('leaves a pid alone that is not its Xorg, and still puts LightDM back', () => {
+test('leaves a pid alone that is not its Xorg, and still puts LightDM back', LINUX_ONLY, () => {
   const b = teardownBoard({ was: 'active', xorg: 'another' });
   const report = parseStopReport(b.run().stdout);
   assert.equal(report.xorg, undefined);
@@ -412,35 +447,47 @@ test('leaves a pid alone that is not its Xorg, and still puts LightDM back', () 
   assert.doesNotMatch(b.calls(), /sudo kill/);
 });
 
-test('a start that never got as far as recording LightDM starts nothing and says nothing', () => {
-  const b = teardownBoard({ was: undefined, xorg: null });
-  const out = b.run();
-  assert.equal(parseStopReport(out.stdout).display, undefined);
-  assert.doesNotMatch(b.calls(), /systemctl/);
-});
+test(
+  'a start that never got as far as recording LightDM starts nothing and says nothing',
+  LINUX_ONLY,
+  () => {
+    const b = teardownBoard({ was: undefined, xorg: null });
+    const out = b.run();
+    assert.equal(parseStopReport(out.stdout).display, undefined);
+    assert.doesNotMatch(b.calls(), /systemctl/);
+  },
+);
 
-test('finds its Xorg by the lock files where the pid file cannot be read, still checking it', async () => {
-  const b = teardownBoard({ was: 'active' });
-  // As in the first board smoke: a pid file sima cannot read. And its Xorg on another display.
-  writeFileSync(join(b.env.STUB_LOCKS, '.X3-lock'), `${String(b.child.pid).padStart(10)}\n`);
-  chmodSync(join(b.dir, 'xorg.pid'), 0o000);
-  const out = b.run();
-  assert.match(out.stdout, /^xorg stopped$/m, out.stderr);
-  await sleepMs(100);
-  assert.equal(alive(b.child.pid), false);
-});
+test(
+  'finds its Xorg by the lock files where the pid file cannot be read, still checking it',
+  LINUX_ONLY,
+  async () => {
+    const b = teardownBoard({ was: 'active' });
+    // As in the first board smoke: a pid file sima cannot read. And its Xorg on another display.
+    writeFileSync(join(b.env.STUB_LOCKS, '.X3-lock'), `${String(b.child.pid).padStart(10)}\n`);
+    chmodSync(join(b.dir, 'xorg.pid'), 0o000);
+    const out = b.run();
+    assert.match(out.stdout, /^xorg stopped$/m, out.stderr);
+    await sleepMs(100);
+    assert.equal(alive(b.child.pid), false);
+  },
+);
 
-test('finds its Xorg by the lock files where the pid file was never written', async () => {
-  const b = teardownBoard({ was: 'active' });
-  rmSync(join(b.dir, 'xorg.pid'));
-  writeFileSync(join(b.env.STUB_LOCKS, '.X5-lock'), `${String(b.child.pid).padStart(10)}\n`);
-  const out = b.run();
-  assert.match(out.stdout, /^xorg stopped$/m);
-  await sleepMs(100);
-  assert.equal(alive(b.child.pid), false);
-});
+test(
+  'finds its Xorg by the lock files where the pid file was never written',
+  LINUX_ONLY,
+  async () => {
+    const b = teardownBoard({ was: 'active' });
+    rmSync(join(b.dir, 'xorg.pid'));
+    writeFileSync(join(b.env.STUB_LOCKS, '.X5-lock'), `${String(b.child.pid).padStart(10)}\n`);
+    const out = b.run();
+    assert.match(out.stdout, /^xorg stopped$/m);
+    await sleepMs(100);
+    assert.equal(alive(b.child.pid), false);
+  },
+);
 
-test('does not start LightDM under an Xorg it could not stop, and says so', () => {
+test('does not start LightDM under an Xorg it could not stop, and says so', LINUX_ONLY, () => {
   const script = `dir='/tmp/neat-bench-x'\nwas=active\nxleft=1\nxpid=4242\n${lightdmRestoreFragment()}`;
   const out = spawnSync('sh', ['-s'], { input: script, encoding: 'utf8' });
   assert.match(out.stdout, /display not restored: Xorg \(pid 4242\) is still running/);

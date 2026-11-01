@@ -13,7 +13,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
-import { stubEnv, writeStubs } from './board-stubs.mjs';
+import { LINUX_ONLY, stubEnv, writeStubs } from './board-stubs.mjs';
 import { prepareScript, serverStartScript } from './board-server.mjs';
 import {
   bareStartChecksFragment,
@@ -102,18 +102,22 @@ test('the guard writes its pid before anything, and removes the directory only w
   assert.match(script, /sudo -n systemctl --no-block start lightdm/);
 });
 
-test('installs and starts the guard detached, with a heartbeat, in the run’s first script', () => {
-  const install = guardInstallFragment('/tmp/neat-bench-x');
-  assert.match(
-    install,
-    /setsid nohup sh "\$dir\/guard\.sh" <\/dev\/null >>"\$dir\/guard\.log" 2>&1 &/,
-  );
-  assert.ok(install.indexOf(': >"$dir/heartbeat"') < install.indexOf('setsid nohup'));
-  assert.equal(parseGuard('guard 4242\n'), 4242);
-  assert.equal(parseGuard('note the guard did not start\n'), null);
-  assert.throws(() => guardScript('/tmp/other'), /directory/);
-  assert.throws(() => guardScript('/tmp/neat-bench-x', { staleS: '1; id' }), /seconds/);
-});
+test(
+  'installs and starts the guard detached, with a heartbeat, in the run’s first script',
+  LINUX_ONLY,
+  () => {
+    const install = guardInstallFragment('/tmp/neat-bench-x');
+    assert.match(
+      install,
+      /setsid nohup sh "\$dir\/guard\.sh" <\/dev\/null >>"\$dir\/guard\.log" 2>&1 &/,
+    );
+    assert.ok(install.indexOf(': >"$dir/heartbeat"') < install.indexOf('setsid nohup'));
+    assert.equal(parseGuard('guard 4242\n'), 4242);
+    assert.equal(parseGuard('note the guard did not start\n'), null);
+    assert.throws(() => guardScript('/tmp/other'), /directory/);
+    assert.throws(() => guardScript('/tmp/neat-bench-x', { staleS: '1; id' }), /seconds/);
+  },
+);
 
 // A run's directory on the stand-in board, as the start leaves it: the guard installed and
 // running, the browser, an Xorg of the run's, LightDM stopped after being active, and LightDM's
@@ -189,74 +193,93 @@ async function board({
   };
 }
 
-test('tears down by itself when the heartbeat goes quiet: all stopped, LightDM back, directory gone', async () => {
-  const b = await board();
-  assert.ok(alive(b.guard));
-  await sleepMs(3000);
-  assert.ok(existsSync(b.dir), 'a fresh heartbeat keeps the run going');
-  b.quiet();
-  await until(() => !existsSync(b.dir), 20_000, 'the guard to remove the directory');
-  await sleepMs(200);
-  assert.equal(alive(b.browser), false);
-  assert.equal(alive(b.xorg), false);
-  assert.equal(alive(b.guard), false, 'the guard exits when done');
-  assert.equal(existsSync(`${b.dir}.removing`), false, 'and leaves nothing of the rename');
-  assert.match(b.calls(), /sudo kill -TERM/);
-  assert.match(b.calls(), /systemctl --no-block start lightdm/);
-});
+test(
+  'tears down by itself when the heartbeat goes quiet: all stopped, LightDM back, directory gone',
+  LINUX_ONLY,
+  async () => {
+    const b = await board();
+    assert.ok(alive(b.guard));
+    await sleepMs(3000);
+    assert.ok(existsSync(b.dir), 'a fresh heartbeat keeps the run going');
+    b.quiet();
+    await until(() => !existsSync(b.dir), 20_000, 'the guard to remove the directory');
+    await sleepMs(200);
+    assert.equal(alive(b.browser), false);
+    assert.equal(alive(b.xorg), false);
+    assert.equal(alive(b.guard), false, 'the guard exits when done');
+    assert.equal(existsSync(`${b.dir}.removing`), false, 'and leaves nothing of the rename');
+    assert.match(b.calls(), /sudo kill -TERM/);
+    assert.match(b.calls(), /systemctl --no-block start lightdm/);
+  },
+);
 
-test('tears down when asked: the laptop’s wait hears the whole report, then the directory goes', async () => {
-  const b = await board({ timing: { ...FAST, staleS: 60 } });
-  const out = await b.wait();
-  b.quiet();
-  assert.equal(out.status, 0, out.stdout + out.stderr);
-  const report = parseStopReport(out.stdout);
-  assert.equal(report.stopped, true);
-  assert.equal(report.leftover, 0);
-  assert.equal(report.xorg, 'stopped');
-  assert.deepEqual(report.display, { state: 'restored', why: undefined });
-  assert.equal(report.removed, true);
-  assert.equal(existsSync(b.dir), false);
-  await sleepMs(200);
-  assert.equal(alive(b.browser), false);
-  assert.equal(alive(b.guard), false);
-});
+test(
+  'tears down when asked: the laptop’s wait hears the whole report, then the directory goes',
+  LINUX_ONLY,
+  async () => {
+    const b = await board({ timing: { ...FAST, staleS: 60 } });
+    const out = await b.wait();
+    b.quiet();
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    const report = parseStopReport(out.stdout);
+    assert.equal(report.stopped, true);
+    assert.equal(report.leftover, 0);
+    assert.equal(report.xorg, 'stopped');
+    assert.deepEqual(report.display, { state: 'restored', why: undefined });
+    assert.equal(report.removed, true);
+    assert.equal(existsSync(b.dir), false);
+    await sleepMs(200);
+    assert.equal(alive(b.browser), false);
+    assert.equal(alive(b.guard), false);
+  },
+);
 
-test('keeps the directory and its pid files when the display does not come back, for another try', async () => {
-  const b = await board({ timing: { ...FAST, staleS: 60 }, startFails: true });
-  const out = await b.wait();
-  b.quiet();
-  const report = parseStopReport(out.stdout);
-  assert.equal(report.display.state, 'not-restored');
-  assert.equal(report.removed, false);
-  assert.match(report.notes.join(' '), /kept .* for another teardown: sh .*\/guard\.sh/);
-  assert.ok(existsSync(join(b.dir, 'lightdm.state')), 'what a second attempt needs is still there');
-  assert.ok(existsSync(join(b.dir, 'chromium.pid')));
-  await sleepMs(200);
-  assert.equal(alive(b.guard), false, 'and the guard is done');
-  // The second attempt, as the log tells a person to run it, now that LightDM can start.
-  const again = spawnSync('sh', [join(b.dir, 'guard.sh')], {
-    encoding: 'utf8',
-    env: { ...b.env, STUB_START_FAILS: '' },
-    timeout: 30_000,
-  });
-  assert.match(again.stdout, /^display restored$/m, again.stdout + again.stderr);
-  assert.equal(existsSync(b.dir), false);
-});
+test(
+  'keeps the directory and its pid files when the display does not come back, for another try',
+  LINUX_ONLY,
+  async () => {
+    const b = await board({ timing: { ...FAST, staleS: 60 }, startFails: true });
+    const out = await b.wait();
+    b.quiet();
+    const report = parseStopReport(out.stdout);
+    assert.equal(report.display.state, 'not-restored');
+    assert.equal(report.removed, false);
+    assert.match(report.notes.join(' '), /kept .* for another teardown: sh .*\/guard\.sh/);
+    assert.ok(
+      existsSync(join(b.dir, 'lightdm.state')),
+      'what a second attempt needs is still there',
+    );
+    assert.ok(existsSync(join(b.dir, 'chromium.pid')));
+    await sleepMs(200);
+    assert.equal(alive(b.guard), false, 'and the guard is done');
+    // The second attempt, as the log tells a person to run it, now that LightDM can start.
+    const again = spawnSync('sh', [join(b.dir, 'guard.sh')], {
+      encoding: 'utf8',
+      env: { ...b.env, STUB_START_FAILS: '' },
+      timeout: 30_000,
+    });
+    assert.match(again.stdout, /^display restored$/m, again.stdout + again.stderr);
+    assert.equal(existsSync(b.dir), false);
+  },
+);
 
-test('starts the guard again where it is not running, and still tears down', async () => {
-  const b = await board({ timing: { ...FAST, staleS: 60 } });
-  process.kill(b.guard, 'SIGKILL');
-  await sleepMs(200);
-  const out = await b.wait();
-  b.quiet();
-  assert.match(out.stdout, /note the guard was not running: started it again/);
-  const report = parseStopReport(out.stdout);
-  assert.equal(report.display.state, 'restored');
-  assert.equal(report.removed, true);
-});
+test(
+  'starts the guard again where it is not running, and still tears down',
+  LINUX_ONLY,
+  async () => {
+    const b = await board({ timing: { ...FAST, staleS: 60 } });
+    process.kill(b.guard, 'SIGKILL');
+    await sleepMs(200);
+    const out = await b.wait();
+    b.quiet();
+    assert.match(out.stdout, /note the guard was not running: started it again/);
+    const report = parseStopReport(out.stdout);
+    assert.equal(report.display.state, 'restored');
+    assert.equal(report.removed, true);
+  },
+);
 
-test('waits for a start script still on the board before it tears down', async () => {
+test('waits for a start script still on the board before it tears down', LINUX_ONLY, async () => {
   const b = await board({ timing: { ...FAST, staleS: 60, startWaitS: 10 } });
   const start = spawn('sleep', ['2'], { stdio: 'ignore' });
   writeFileSync(join(b.dir, 'start.lock'), `${start.pid}\n`);
@@ -267,7 +290,7 @@ test('waits for a start script still on the board before it tears down', async (
   assert.equal(parseStopReport(out.stdout).removed, true);
 });
 
-test('starts nothing once the teardown has asked for a stop', async () => {
+test('starts nothing once the teardown has asked for a stop', LINUX_ONLY, async () => {
   const b = await board({ timing: { ...FAST, staleS: 60 } });
   writeFileSync(join(b.dir, 'site', 'index.html'), 'x');
   // Hold the guard off with a start lock of our own while the start scripts try.
@@ -286,19 +309,23 @@ test('starts nothing once the teardown has asked for a stop', async () => {
   assert.equal(parseStopReport(out.stdout).removed, true);
 });
 
-test('says gone where the guard already tore the run down, and removes a directory with no guard', async () => {
-  const gone = await sh(
-    teardownWaitScript(join(work, 'neat-bench-none'), { parents }),
-    process.env,
-  );
-  assert.equal(parseStopReport(gone.stdout).gone, true);
-  const bare = join(work, 'neat-bench-bare');
-  await sh(prepareScript(bare, parents), process.env);
-  const out = await sh(teardownWaitScript(bare, { parents }), process.env);
-  assert.match(out.stdout, /note no guard in .*: nothing had been started/);
-  assert.equal(parseStopReport(out.stdout).removed, true);
-  assert.equal(existsSync(bare), false);
-});
+test(
+  'says gone where the guard already tore the run down, and removes a directory with no guard',
+  LINUX_ONLY,
+  async () => {
+    const gone = await sh(
+      teardownWaitScript(join(work, 'neat-bench-none'), { parents }),
+      process.env,
+    );
+    assert.equal(parseStopReport(gone.stdout).gone, true);
+    const bare = join(work, 'neat-bench-bare');
+    await sh(prepareScript(bare, parents), process.env);
+    const out = await sh(teardownWaitScript(bare, { parents }), process.env);
+    assert.match(out.stdout, /note no guard in .*: nothing had been started/);
+    assert.equal(parseStopReport(out.stdout).removed, true);
+    assert.equal(existsSync(bare), false);
+  },
+);
 
 test('the guard renames the directory before it removes it, so a teardown sees it whole or gone', () => {
   const script = guardScript('/tmp/neat-bench-x');
@@ -308,36 +335,44 @@ test('the guard renames the directory before it removes it, so a teardown sees i
   assert.match(script, /mv -- "\$dir" "\$dir\.removing" && rm -rf -- "\$dir\.removing"/);
 });
 
-test('a teardown that lands while the guard removes the directory says gone, not "nothing started"', async () => {
-  // The rename done, the removal under way: the directory is gone, `.removing` is what is left.
-  const dir = join(work, 'neat-bench-removing');
-  mkdirSync(`${dir}.removing`);
-  writeFileSync(join(`${dir}.removing`, 'lightdm.state'), 'active\n');
-  const out = await sh(teardownWaitScript(dir, { parents }), process.env);
-  assert.equal(out.status, 0, out.stderr);
-  assert.doesNotMatch(out.stdout, /nothing had been started/);
-  const report = parseStopReport(out.stdout);
-  assert.equal(report.gone, true);
-  assert.equal(report.display, undefined, 'it says nothing of the display itself');
-});
+test(
+  'a teardown that lands while the guard removes the directory says gone, not "nothing started"',
+  LINUX_ONLY,
+  async () => {
+    // The rename done, the removal under way: the directory is gone, `.removing` is what is left.
+    const dir = join(work, 'neat-bench-removing');
+    mkdirSync(`${dir}.removing`);
+    writeFileSync(join(`${dir}.removing`, 'lightdm.state'), 'active\n');
+    const out = await sh(teardownWaitScript(dir, { parents }), process.env);
+    assert.equal(out.status, 0, out.stderr);
+    assert.doesNotMatch(out.stdout, /nothing had been started/);
+    const report = parseStopReport(out.stdout);
+    assert.equal(report.gone, true);
+    assert.equal(report.display, undefined, 'it says nothing of the display itself');
+  },
+);
 
-test('the heartbeat touches the file once per line and ends with its input', async () => {
-  const dir = join(work, 'neat-bench-hb');
-  await sh(prepareScript(dir, parents), process.env);
-  const hb = join(dir, 'heartbeat');
-  const loop = spawn('sh', ['-c', heartbeatCommand(dir, parents)], {
-    stdio: ['pipe', 'ignore', 'ignore'],
-  });
-  loop.stdin.write('\n');
-  await until(() => existsSync(hb), 2000, 'the first touch');
-  const first = statSync(hb).mtimeMs;
-  await sleepMs(50);
-  loop.stdin.write('\n');
-  await until(() => statSync(hb).mtimeMs > first, 2000, 'the second touch');
-  const ended = new Promise((resolve) => loop.on('close', resolve));
-  loop.stdin.end();
-  assert.equal(await ended, 0, 'the loop ends when the laptop’s side closes');
-});
+test(
+  'the heartbeat touches the file once per line and ends with its input',
+  LINUX_ONLY,
+  async () => {
+    const dir = join(work, 'neat-bench-hb');
+    await sh(prepareScript(dir, parents), process.env);
+    const hb = join(dir, 'heartbeat');
+    const loop = spawn('sh', ['-c', heartbeatCommand(dir, parents)], {
+      stdio: ['pipe', 'ignore', 'ignore'],
+    });
+    loop.stdin.write('\n');
+    await until(() => existsSync(hb), 2000, 'the first touch');
+    const first = statSync(hb).mtimeMs;
+    await sleepMs(50);
+    loop.stdin.write('\n');
+    await until(() => statSync(hb).mtimeMs > first, 2000, 'the second touch');
+    const ended = new Promise((resolve) => loop.on('close', resolve));
+    loop.stdin.end();
+    assert.equal(await ended, 0, 'the loop ends when the laptop’s side closes');
+  },
+);
 
 /** A stand-in for spawn that records its calls and hands out controllable children. */
 function fakeSpawn() {
@@ -361,35 +396,39 @@ function fakeSpawn() {
   return { calls, spawn: spawnFake };
 }
 
-test('the laptop beats every interval over a detached ssh, opens it again when it drops, and stops', async () => {
-  const f = fakeSpawn();
-  const lines = [];
-  const hb = startHeartbeat({
-    ssh: 'sima@board',
-    dir: '/tmp/neat-bench-x',
-    log: (line) => lines.push(line),
-    everyMs: 20,
-    retryMs: 20,
-    spawn: f.spawn,
-  });
-  assert.equal(f.calls[0].command, 'ssh');
-  assert.equal(f.calls[0].options.detached, true);
-  assert.match(f.calls[0].args.at(-1), /touch '\/tmp\/neat-bench-x\/heartbeat'/);
-  await sleepMs(70);
-  assert.ok(f.calls[0].child.writes.length >= 3, 'one line at once, then one per interval');
-  f.calls[0].child.emit('close', 255);
-  await sleepMs(50);
-  assert.equal(f.calls.length, 2, 'opened again');
-  assert.match(lines.join('\n'), /heartbeat link ended .* tears the run down after 20 s/);
-  hb.stop();
-  assert.equal(f.calls[1].child.ended, true);
-  const writes = f.calls[1].child.writes.length;
-  await sleepMs(60);
-  assert.equal(f.calls[1].child.writes.length, writes, 'no beat after the stop');
-  f.calls[1].child.emit('close', 0);
-  await sleepMs(40);
-  assert.equal(f.calls.length, 2, 'and not opened again');
-});
+test(
+  'the laptop beats every interval over a detached ssh, opens it again when it drops, and stops',
+  LINUX_ONLY,
+  async () => {
+    const f = fakeSpawn();
+    const lines = [];
+    const hb = startHeartbeat({
+      ssh: 'sima@board',
+      dir: '/tmp/neat-bench-x',
+      log: (line) => lines.push(line),
+      everyMs: 20,
+      retryMs: 20,
+      spawn: f.spawn,
+    });
+    assert.equal(f.calls[0].command, 'ssh');
+    assert.equal(f.calls[0].options.detached, true);
+    assert.match(f.calls[0].args.at(-1), /touch '\/tmp\/neat-bench-x\/heartbeat'/);
+    await sleepMs(70);
+    assert.ok(f.calls[0].child.writes.length >= 3, 'one line at once, then one per interval');
+    f.calls[0].child.emit('close', 255);
+    await sleepMs(50);
+    assert.equal(f.calls.length, 2, 'opened again');
+    assert.match(lines.join('\n'), /heartbeat link ended .* tears the run down after 20 s/);
+    hb.stop();
+    assert.equal(f.calls[1].child.ended, true);
+    const writes = f.calls[1].child.writes.length;
+    await sleepMs(60);
+    assert.equal(f.calls[1].child.writes.length, writes, 'no beat after the stop');
+    f.calls[1].child.emit('close', 0);
+    await sleepMs(40);
+    assert.equal(f.calls.length, 2, 'and not opened again');
+  },
+);
 
 // A second bare run on one board would record LightDM as stopped and never restore it. The
 // checks run for real, in a parent folder of their own (the other specs leave guards about),
@@ -410,49 +449,65 @@ const checks = (parent, dir) => {
   return sh(`dir='${dir}'\n${bareStartChecksFragment([parent])}echo passed\n`, env);
 };
 
-test('refuses to start while another run’s guard is alive, naming its directory and pid', async () => {
-  const parent = parentFolder();
-  const other = otherRun(parent, 'o1');
-  const out = await checks(parent, join(parent, 'neat-bench-mine'));
-  assert.equal(out.status, 1);
-  assert.ok(
-    out.stdout.includes(
-      `note another bench run is live on this board (${other.dir}, guard ${other.pid})`,
-    ),
-    out.stdout,
-  );
-  assert.doesNotMatch(out.stdout, /passed/);
-});
+test(
+  'refuses to start while another run’s guard is alive, naming its directory and pid',
+  LINUX_ONLY,
+  async () => {
+    const parent = parentFolder();
+    const other = otherRun(parent, 'o1');
+    const out = await checks(parent, join(parent, 'neat-bench-mine'));
+    assert.equal(out.status, 1);
+    assert.ok(
+      out.stdout.includes(
+        `note another bench run is live on this board (${other.dir}, guard ${other.pid})`,
+      ),
+      out.stdout,
+    );
+    assert.doesNotMatch(out.stdout, /passed/);
+  },
+);
 
-test('starts where another run’s guard is gone, was never written, or is a recycled pid', async () => {
-  const parent = parentFolder();
-  const dead = otherRun(parent, 'o2');
-  process.kill(dead.pid, 'SIGKILL');
-  await until(() => !alive(dead.pid), 2000, 'the stand-in guard to end');
-  mkdirSync(join(parent, 'neat-bench-o3'));
-  otherRun(parent, 'o4', { cmdline: 'recycled' });
-  const out = await checks(parent, join(parent, 'neat-bench-mine'));
-  assert.equal(out.status, 0, out.stdout + out.stderr);
-  assert.match(out.stdout, /^passed$/m);
-});
+test(
+  'starts where another run’s guard is gone, was never written, or is a recycled pid',
+  LINUX_ONLY,
+  async () => {
+    const parent = parentFolder();
+    const dead = otherRun(parent, 'o2');
+    process.kill(dead.pid, 'SIGKILL');
+    await until(() => !alive(dead.pid), 2000, 'the stand-in guard to end');
+    mkdirSync(join(parent, 'neat-bench-o3'));
+    otherRun(parent, 'o4', { cmdline: 'recycled' });
+    const out = await checks(parent, join(parent, 'neat-bench-mine'));
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    assert.match(out.stdout, /^passed$/m);
+  },
+);
 
-test('does not count the run’s own guard: a rerun of its teardown is not refused by it', async () => {
-  const parent = parentFolder();
-  const own = otherRun(parent, 'o5');
-  const out = await checks(parent, own.dir);
-  assert.equal(out.status, 0, out.stdout + out.stderr);
-});
+test(
+  'does not count the run’s own guard: a rerun of its teardown is not refused by it',
+  LINUX_ONLY,
+  async () => {
+    const parent = parentFolder();
+    const own = otherRun(parent, 'o5');
+    const out = await checks(parent, own.dir);
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+  },
+);
 
-test('refuses over a graphical login too, the same fragment as the start’s', async () => {
-  const parent = parentFolder();
-  counter += 1;
-  const root = join(work, `checks${counter}`);
-  const env = stubEnv({ stubs, root });
-  writeFileSync(env.STUB_SESSIONS, 'c2 maria user wayland seat0\n');
-  const out = await sh(
-    `dir='${join(parent, 'neat-bench-mine')}'\n${bareStartChecksFragment([parent])}echo passed\n`,
-    env,
-  );
-  assert.equal(out.status, 1);
-  assert.match(out.stdout, /^note session c2 of maria \(wayland\) is logged in on seat0/m);
-});
+test(
+  'refuses over a graphical login too, the same fragment as the start’s',
+  LINUX_ONLY,
+  async () => {
+    const parent = parentFolder();
+    counter += 1;
+    const root = join(work, `checks${counter}`);
+    const env = stubEnv({ stubs, root });
+    writeFileSync(env.STUB_SESSIONS, 'c2 maria user wayland seat0\n');
+    const out = await sh(
+      `dir='${join(parent, 'neat-bench-mine')}'\n${bareStartChecksFragment([parent])}echo passed\n`,
+      env,
+    );
+    assert.equal(out.status, 1);
+    assert.match(out.stdout, /^note session c2 of maria \(wayland\) is logged in on seat0/m);
+  },
+);

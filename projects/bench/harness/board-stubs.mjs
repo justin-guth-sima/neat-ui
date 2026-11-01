@@ -6,6 +6,13 @@
 import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+/**
+ * For the specs that run a board script for real. The scripts are the board's (GNU userland and
+ * `/proc`): `stat -c %Y`, `/proc/<pid>/cmdline`, `ps -eo pgid=` and a fractional `sleep` do not
+ * exist on macOS, where the guard would read every heartbeat as stale.
+ */
+export const LINUX_ONLY = { skip: process.platform !== 'linux' && 'board scripts need GNU/Linux' };
+
 const STUBS = {
   sudo: `[ "$1" = -n ] && shift
 echo "sudo $*" >>"$STUB_LOG"

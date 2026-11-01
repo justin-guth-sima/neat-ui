@@ -16,6 +16,7 @@ import {
   startRemote,
   stopScript,
 } from './remote.mjs';
+import { LINUX_ONLY } from './board-stubs.mjs';
 
 const OPTIONS = { chromium: 'chromium', headless: true, display: undefined };
 
@@ -104,14 +105,18 @@ test('reads the port the browser chose from its profile, and ignores half a file
   assert.match(readPortScript('/tmp/neat-bench-x'), /neat-bench-x\/profile\/DevToolsActivePort/);
 });
 
-test('starts nothing but the one browser: no other command, and no pattern kill, in its scripts', () => {
-  const launch = launchScript('/tmp/neat-bench-x', OPTIONS);
-  const stop = stopScript('/tmp/neat-bench-x');
-  for (const script of [launch, stop]) {
-    assert.doesNotMatch(script, /\b(pkill|killall|apt|systemctl|reboot|sudo)\b/);
-  }
-  assert.doesNotMatch(launch, /\b(python3?|node)\b/);
-});
+test(
+  'starts nothing but the one browser: no other command, and no pattern kill, in its scripts',
+  LINUX_ONLY,
+  () => {
+    const launch = launchScript('/tmp/neat-bench-x', OPTIONS);
+    const stop = stopScript('/tmp/neat-bench-x');
+    for (const script of [launch, stop]) {
+      assert.doesNotMatch(script, /\b(pkill|killall|apt|systemctl|reboot|sudo)\b/);
+    }
+    assert.doesNotMatch(launch, /\b(python3?|node)\b/);
+  },
+);
 
 // The scripts, run for real against a stand-in browser that keeps a child process, as Chromium's
 // renderers are.
@@ -140,35 +145,39 @@ const members = (pgid) =>
     .filter(Boolean)
     .map(Number);
 
-test('launches a detached browser with a pid file, and stops it, its children and its files', async () => {
-  const dir = join(work, 'neat-bench-test-a');
-  assertRemoteDir(dir, parents);
-  const launched = sh(launchScript(dir, { ...OPTIONS, chromium: fake, parents }));
-  assert.equal(launched.status, 0, launched.stderr);
-  const pid = Number(readPid(dir));
-  assert.ok(alive(pid));
-  await sleepMs(300);
-  assert.ok(members(pid).length >= 2, 'the browser and a child share one process group');
-  assert.ok(existsSync(join(dir, 'profile')));
+test(
+  'launches a detached browser with a pid file, and stops it, its children and its files',
+  LINUX_ONLY,
+  async () => {
+    const dir = join(work, 'neat-bench-test-a');
+    assertRemoteDir(dir, parents);
+    const launched = sh(launchScript(dir, { ...OPTIONS, chromium: fake, parents }));
+    assert.equal(launched.status, 0, launched.stderr);
+    const pid = Number(readPid(dir));
+    assert.ok(alive(pid));
+    await sleepMs(300);
+    assert.ok(members(pid).length >= 2, 'the browser and a child share one process group');
+    assert.ok(existsSync(join(dir, 'profile')));
 
-  const stopped = sh(stopScript(dir, parents));
-  assert.equal(stopped.status, 0, stopped.stderr);
-  assert.deepEqual(parseStopReport(stopped.stdout), {
-    stopped: true,
-    removed: true,
-    leftover: 0,
-    notes: [],
-  });
-  assert.equal(alive(pid), false);
-  assert.deepEqual(members(pid), []);
-  assert.equal(existsSync(dir), false);
-});
+    const stopped = sh(stopScript(dir, parents));
+    assert.equal(stopped.status, 0, stopped.stderr);
+    assert.deepEqual(parseStopReport(stopped.stdout), {
+      stopped: true,
+      removed: true,
+      leftover: 0,
+      notes: [],
+    });
+    assert.equal(alive(pid), false);
+    assert.deepEqual(members(pid), []);
+    assert.equal(existsSync(dir), false);
+  },
+);
 
 function readPid(dir) {
   return spawnSync('cat', [join(dir, 'chromium.pid')], { encoding: 'utf8' }).stdout.trim();
 }
 
-test('does not launch into a directory that exists: it is another run’s', () => {
+test('does not launch into a directory that exists: it is another run’s', LINUX_ONLY, () => {
   const dir = join(work, 'neat-bench-test-b');
   const first = sh(launchScript(dir, { ...OPTIONS, chromium: fake, parents }));
   assert.equal(first.status, 0, first.stderr);
@@ -177,29 +186,42 @@ test('does not launch into a directory that exists: it is another run’s', () =
   sh(stopScript(dir, parents));
 });
 
-test('leaves a process alone whose id is in the pid file but is not its browser, and still cleans up', async () => {
-  const dir = join(work, 'neat-bench-test-c');
-  const innocent = spawn('sleep', ['300'], { stdio: 'ignore' });
-  spare.push(innocent);
-  const made = sh(`mkdir -m 700 '${dir}' && echo ${innocent.pid} > '${dir}/chromium.pid'`);
-  assert.equal(made.status, 0, made.stderr);
+test(
+  'leaves a process alone whose id is in the pid file but is not its browser, and still cleans up',
+  LINUX_ONLY,
+  async () => {
+    const dir = join(work, 'neat-bench-test-c');
+    const innocent = spawn('sleep', ['300'], { stdio: 'ignore' });
+    spare.push(innocent);
+    const made = sh(`mkdir -m 700 '${dir}' && echo ${innocent.pid} > '${dir}/chromium.pid'`);
+    assert.equal(made.status, 0, made.stderr);
 
-  const stopped = sh(stopScript(dir, parents));
-  assert.equal(stopped.status, 0, stopped.stderr);
-  const report = parseStopReport(stopped.stdout);
-  assert.equal(report.stopped, false);
-  assert.equal(report.removed, true);
-  assert.match(report.notes.join(' '), /not this run's browser/);
-  assert.ok(alive(innocent.pid), 'the unrelated process is still running');
-  assert.equal(existsSync(dir), false);
-});
+    const stopped = sh(stopScript(dir, parents));
+    assert.equal(stopped.status, 0, stopped.stderr);
+    const report = parseStopReport(stopped.stdout);
+    assert.equal(report.stopped, false);
+    assert.equal(report.removed, true);
+    assert.match(report.notes.join(' '), /not this run's browser/);
+    assert.ok(alive(innocent.pid), 'the unrelated process is still running');
+    assert.equal(existsSync(dir), false);
+  },
+);
 
-test('cleans up after a browser that never started: no pid file, just the directory', () => {
-  const dir = join(work, 'neat-bench-test-d');
-  sh(`mkdir -m 700 '${dir}'`);
-  const report = parseStopReport(sh(stopScript(dir, parents)).stdout);
-  assert.deepEqual(report, { stopped: false, removed: true, leftover: 0, notes: ['no pid file'] });
-});
+test(
+  'cleans up after a browser that never started: no pid file, just the directory',
+  LINUX_ONLY,
+  () => {
+    const dir = join(work, 'neat-bench-test-d');
+    sh(`mkdir -m 700 '${dir}'`);
+    const report = parseStopReport(sh(stopScript(dir, parents)).stdout);
+    assert.deepEqual(report, {
+      stopped: false,
+      removed: true,
+      leftover: 0,
+      notes: ['no pid file'],
+    });
+  },
+);
 
 test('refuses to delete a directory that is not one of its own', () => {
   assert.throws(() => stopScript('/tmp'), /directory/);

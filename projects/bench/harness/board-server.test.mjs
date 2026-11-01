@@ -14,6 +14,7 @@ import {
   verifyScript,
 } from './board-server.mjs';
 import { parseStopReport, stopScript } from './remote.mjs';
+import { LINUX_ONLY } from './board-stubs.mjs';
 
 const work = mkdtempSync(join(tmpdir(), 'bench-server-'));
 const parents = [work];
@@ -84,7 +85,7 @@ test('never takes 4200 or 9900 and starts nothing but the one server', () => {
   assert.match(script, /--bind "\$bind" --directory "\$dir\/site"/);
 });
 
-test('copies the build into the run’s site folder and checks it arrived', async () => {
+test('copies the build into the run’s site folder and checks it arrived', LINUX_ONLY, async () => {
   const dir = join(work, 'neat-bench-c1');
   assert.equal(sh(prepareScript(dir, parents)).status, 0);
   const entries = await siteManifest(dist);
@@ -94,7 +95,7 @@ test('copies the build into the run’s site folder and checks it arrived', asyn
   sh(stopScript(dir, parents));
 });
 
-test('says so where a file of the copy is not the build’s', async () => {
+test('says so where a file of the copy is not the build’s', LINUX_ONLY, async () => {
   const dir = join(work, 'neat-bench-c2');
   sh(prepareScript(dir, parents));
   const entries = await siteManifest(dist);
@@ -106,7 +107,7 @@ test('says so where a file of the copy is not the build’s', async () => {
   sh(stopScript(dir, parents));
 });
 
-test('does not start a server where nothing was copied', () => {
+test('does not start a server where nothing was copied', LINUX_ONLY, () => {
   const dir = join(work, 'neat-bench-c3');
   sh(prepareScript(dir, parents));
   const started = sh(serverStartScript(dir, { bind: '127.0.0.1' }, parents));
@@ -123,56 +124,68 @@ const get = async (url) => {
   }
 };
 
-test('serves the copy on a free port, and the stop ends it, with the directory', async () => {
-  const dir = join(work, 'neat-bench-s1');
-  sh(prepareScript(dir, parents));
-  await copySite({ ssh: 'x', dist, dir, entries: await siteManifest(dist), parents, io: here });
-  const started = sh(serverStartScript(dir, { bind: '127.0.0.1' }, parents));
-  assert.equal(started.status, 0, started.stderr + started.stdout);
-  const served = parseServerStart(started.stdout);
-  assert.ok(served.port >= 1024 && ![4200, 9900].includes(served.port));
-  assert.equal(served.url, `http://127.0.0.1:${served.port}/`);
-  assert.equal(await get(served.url), 200);
-  assert.equal(await get(`${served.url}media/font.woff2`), 200);
+test(
+  'serves the copy on a free port, and the stop ends it, with the directory',
+  LINUX_ONLY,
+  async () => {
+    const dir = join(work, 'neat-bench-s1');
+    sh(prepareScript(dir, parents));
+    await copySite({ ssh: 'x', dist, dir, entries: await siteManifest(dist), parents, io: here });
+    const started = sh(serverStartScript(dir, { bind: '127.0.0.1' }, parents));
+    assert.equal(started.status, 0, started.stderr + started.stdout);
+    const served = parseServerStart(started.stdout);
+    assert.ok(served.port >= 1024 && ![4200, 9900].includes(served.port));
+    assert.equal(served.url, `http://127.0.0.1:${served.port}/`);
+    assert.equal(await get(served.url), 200);
+    assert.equal(await get(`${served.url}media/font.woff2`), 200);
 
-  const stopped = sh(stopScript(dir, parents, { server: true }));
-  assert.equal(stopped.status, 0, stopped.stderr);
-  const report = parseStopReport(stopped.stdout);
-  assert.equal(report.server, 'stopped');
-  assert.equal(report.removed, true);
-  assert.equal(existsSync(dir), false);
-  assert.equal(await get(served.url), null, 'nothing answers any more');
-});
+    const stopped = sh(stopScript(dir, parents, { server: true }));
+    assert.equal(stopped.status, 0, stopped.stderr);
+    const report = parseStopReport(stopped.stdout);
+    assert.equal(report.server, 'stopped');
+    assert.equal(report.removed, true);
+    assert.equal(existsSync(dir), false);
+    assert.equal(await get(served.url), null, 'nothing answers any more');
+  },
+);
 
-test('leaves a pid alone that is not its server, and still removes the directory', () => {
-  const dir = join(work, 'neat-bench-s2');
-  const innocent = spawn('sleep', ['300'], { stdio: 'ignore' });
-  spare.push(innocent);
-  sh(`mkdir -m 700 '${dir}' && echo ${innocent.pid} >'${dir}/server.pid'`);
-  const report = parseStopReport(sh(stopScript(dir, parents, { server: true })).stdout);
-  assert.equal(report.server, undefined);
-  assert.match(report.notes.join(' '), /not this run's server/);
-  assert.equal(report.removed, true);
-  assert.doesNotThrow(() => process.kill(innocent.pid, 0));
-});
+test(
+  'leaves a pid alone that is not its server, and still removes the directory',
+  LINUX_ONLY,
+  () => {
+    const dir = join(work, 'neat-bench-s2');
+    const innocent = spawn('sleep', ['300'], { stdio: 'ignore' });
+    spare.push(innocent);
+    sh(`mkdir -m 700 '${dir}' && echo ${innocent.pid} >'${dir}/server.pid'`);
+    const report = parseStopReport(sh(stopScript(dir, parents, { server: true })).stdout);
+    assert.equal(report.server, undefined);
+    assert.match(report.notes.join(' '), /not this run's server/);
+    assert.equal(report.removed, true);
+    assert.doesNotThrow(() => process.kill(innocent.pid, 0));
+  },
+);
 
-test('does not mistake a process of the same program for its server: the folder must be its own', () => {
-  const dir = join(work, 'neat-bench-s3');
-  const other = join(work, 'elsewhere');
-  mkdirSync(other);
-  const foreign = spawn(
-    'python3',
-    ['-m', 'http.server', '0', '--bind', '127.0.0.1', '--directory', other],
-    {
-      stdio: 'ignore',
-    },
-  );
-  spare.push(foreign);
-  sh(`mkdir -m 700 '${dir}' && echo ${foreign.pid} >'${dir}/server.pid'`);
-  const report = parseStopReport(sh(stopScript(dir, parents, { server: true })).stdout);
-  assert.match(report.notes.join(' '), /not this run's server/);
-  assert.doesNotThrow(() => process.kill(foreign.pid, 0));
-});
+test(
+  'does not mistake a process of the same program for its server: the folder must be its own',
+  LINUX_ONLY,
+  () => {
+    const dir = join(work, 'neat-bench-s3');
+    const other = join(work, 'elsewhere');
+    mkdirSync(other);
+    const foreign = spawn(
+      'python3',
+      ['-m', 'http.server', '0', '--bind', '127.0.0.1', '--directory', other],
+      {
+        stdio: 'ignore',
+      },
+    );
+    spare.push(foreign);
+    sh(`mkdir -m 700 '${dir}' && echo ${foreign.pid} >'${dir}/server.pid'`);
+    const report = parseStopReport(sh(stopScript(dir, parents, { server: true })).stdout);
+    assert.match(report.notes.join(' '), /not this run's server/);
+    assert.doesNotThrow(() => process.kill(foreign.pid, 0));
+  },
+);
 
 test('the stop only kills a pid after it has checked its command line', () => {
   const fragment = serverStopFragment();
@@ -194,38 +207,46 @@ test('reads the server’s address from the start’s printout, and nothing odd'
   }
 });
 
-test('binds loopback or an address of the board itself, checked there, never a foreign one', async () => {
-  const dir = join(work, 'neat-bench-b1');
-  sh(prepareScript(dir, parents));
-  await copySite({ ssh: 'x', dist, dir, entries: await siteManifest(dist), parents, io: here });
-  // 192.0.2.1 is TEST-NET-1: no machine has it.
-  const foreign = sh(serverStartScript(dir, { bind: '192.0.2.1' }, parents));
-  assert.equal(foreign.status, 1);
-  assert.match(foreign.stdout, /note 192\.0\.2\.1 is not an address of this board/);
-  assert.equal(existsSync(join(dir, 'server.pid')), false, 'nothing was started');
-  sh(stopScript(dir, parents, { server: true }));
-});
+test(
+  'binds loopback or an address of the board itself, checked there, never a foreign one',
+  LINUX_ONLY,
+  async () => {
+    const dir = join(work, 'neat-bench-b1');
+    sh(prepareScript(dir, parents));
+    await copySite({ ssh: 'x', dist, dir, entries: await siteManifest(dist), parents, io: here });
+    // 192.0.2.1 is TEST-NET-1: no machine has it.
+    const foreign = sh(serverStartScript(dir, { bind: '192.0.2.1' }, parents));
+    assert.equal(foreign.status, 1);
+    assert.match(foreign.stdout, /note 192\.0\.2\.1 is not an address of this board/);
+    assert.equal(existsSync(join(dir, 'server.pid')), false, 'nothing was started');
+    sh(stopScript(dir, parents, { server: true }));
+  },
+);
 
-test('keeps the directory and its pid files where a process of the run survived its stop', () => {
-  const dir = join(work, 'neat-bench-k1');
-  const browser = spawn('sh', ['-c', 'sleep 300', 'x', `--user-data-dir=${dir}/profile`], {
-    stdio: 'ignore',
-  });
-  spare.push(browser);
-  sh(`mkdir -m 700 '${dir}' && echo ${browser.pid} >'${dir}/chromium.pid'`);
-  // A ps that always shows one more member of the browser's group: one that would not die.
-  const bin = join(work, 'ps-bin');
-  mkdirSync(bin, { recursive: true });
-  writeFileSync(join(bin, 'ps'), `#!/bin/sh\necho "99999 ${browser.pid}"\n`, { mode: 0o755 });
-  const out = spawnSync('sh', ['-s'], {
-    input: stopScript(dir, parents, { server: true }),
-    encoding: 'utf8',
-    env: { ...process.env, PATH: `${bin}:${process.env.PATH}` },
-  });
-  const report = parseStopReport(out.stdout);
-  assert.equal(report.leftover, 1);
-  assert.equal(report.removed, false);
-  assert.match(report.notes.join(' '), /kept .*: a process of the run is still running/);
-  assert.ok(existsSync(join(dir, 'chromium.pid')));
-  rmSync(dir, { recursive: true, force: true });
-});
+test(
+  'keeps the directory and its pid files where a process of the run survived its stop',
+  LINUX_ONLY,
+  () => {
+    const dir = join(work, 'neat-bench-k1');
+    const browser = spawn('sh', ['-c', 'sleep 300', 'x', `--user-data-dir=${dir}/profile`], {
+      stdio: 'ignore',
+    });
+    spare.push(browser);
+    sh(`mkdir -m 700 '${dir}' && echo ${browser.pid} >'${dir}/chromium.pid'`);
+    // A ps that always shows one more member of the browser's group: one that would not die.
+    const bin = join(work, 'ps-bin');
+    mkdirSync(bin, { recursive: true });
+    writeFileSync(join(bin, 'ps'), `#!/bin/sh\necho "99999 ${browser.pid}"\n`, { mode: 0o755 });
+    const out = spawnSync('sh', ['-s'], {
+      input: stopScript(dir, parents, { server: true }),
+      encoding: 'utf8',
+      env: { ...process.env, PATH: `${bin}:${process.env.PATH}` },
+    });
+    const report = parseStopReport(out.stdout);
+    assert.equal(report.leftover, 1);
+    assert.equal(report.removed, false);
+    assert.match(report.notes.join(' '), /kept .*: a process of the run is still running/);
+    assert.ok(existsSync(join(dir, 'chromium.pid')));
+    rmSync(dir, { recursive: true, force: true });
+  },
+);
