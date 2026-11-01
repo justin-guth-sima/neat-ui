@@ -1,0 +1,23 @@
+/*
+ * Prose of the kit's doc comments wherever the docs show it: the body's descriptions, the
+ * examples' captions, the panel's entries, in the kit's small text as its panels and notes are.
+ * The measure keeps lines readable on a wide body.
+ */
+:host {
+  font-size: var(--neat-text-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  max-width: 46rem;
+  min-width: 0;
+}
+
+p,
+ul {
+  margin: 0;
+}
+
+ul {
+  padding-inline-start: var(--neat-space-6);
+  list-style: disc;
+}

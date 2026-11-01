@@ -1,0 +1,19 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+/*
+ * Lines wrap rather than scroll: these are short (a usage line, a signature, a union), and the
+ * panel they mostly sit in is narrow; a scrolling box in a scrolling panel would be one too many.
+ */
+pre {
+  margin: 0;
+  padding: var(--neat-space-2) var(--neat-space-3);
+  border-radius: var(--radius);
+  background: var(--muted);
+  font-size: var(--neat-text-xs);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

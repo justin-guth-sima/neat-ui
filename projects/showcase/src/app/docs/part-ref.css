@@ -1,0 +1,9 @@
+/* Only a link with a target looks like one; without, the name reads as the text around it. */
+a[href] {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+a[href]:hover {
+  text-decoration: underline;
+}

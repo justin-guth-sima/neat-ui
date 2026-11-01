@@ -1,0 +1,29 @@
+.title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--neat-space-2);
+}
+
+.title code,
+.jump {
+  font-size: var(--neat-text-xs);
+}
+
+.title code {
+  color: var(--muted-foreground);
+}
+
+.jump {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: calc(var(--neat-space-2) / 2) var(--neat-space-2);
+}
+
+/* Each part set apart by a rule, the first from the jump list. */
+app-api-part {
+  padding-block-start: var(--neat-space-4);
+  border-block-start: 1px solid var(--border);
+}

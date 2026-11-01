@@ -1,0 +1,49 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  /* Below the panel's own top when a link scrolls the section into view. */
+  scroll-margin-block-start: var(--neat-space-4);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--neat-space-2);
+}
+
+h3 {
+  margin: 0;
+  font-size: var(--neat-text-sm);
+  font-weight: 600;
+}
+
+.usage {
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-xs);
+  overflow-wrap: anywhere;
+}
+
+.note {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-xs);
+}
+
+/* Rows are set apart by a rule; the group's heading sets the first one apart. */
+app-api-member + app-api-member {
+  border-block-start: 1px solid var(--border);
+}
+
+/* A group of members: Inputs, Two-way, Outputs, Methods, Properties, Context. */
+h4 {
+  margin: var(--neat-space-2) 0 0;
+  padding-block-end: calc(var(--neat-space-2) / 2);
+  border-block-end: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}

@@ -20,6 +20,9 @@ export interface DocsEntry {
 export type DocsPart =
   DocsClass | DocsFunction | DocsConst | DocsTypeAlias | DocsInterface | DocsReexport;
 
+/** A part as its owner entry documents it: anything but a re-export stub. */
+export type DocsDeclaredPart = Exclude<DocsPart, DocsReexport>;
+
 /** What every part declared in its entry has. */
 interface DocsOwnPart {
   readonly name: string;

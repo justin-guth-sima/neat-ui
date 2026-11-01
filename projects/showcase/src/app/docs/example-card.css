@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+article {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+  padding: var(--neat-space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+
+h3 {
+  margin: 0;
+}
+
+.shows {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--neat-space-2);
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-xs);
+}
+
+/*
+ * The example on the page's own surface, inset from the card: what the app would draw it on. It
+ * gives the example the card's width; the example sizes its own height (a diagram's box).
+ */
+.live {
+  min-width: 0;
+  padding: var(--neat-space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--background);
+}

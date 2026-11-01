@@ -1,0 +1,38 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--neat-space-2) / 2);
+  padding-block: var(--neat-space-2);
+}
+
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--neat-space-2);
+}
+
+code {
+  font-size: var(--neat-text-xs);
+  overflow-wrap: anywhere;
+}
+
+/* A method's overloads are a line each. */
+.name {
+  font-weight: 600;
+  white-space: pre-wrap;
+}
+
+.type {
+  color: var(--info);
+}
+
+.note {
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-xs);
+}
+
+/* Where it starts, or that it must be bound: at the line's end, as a table's last column. */
+.value {
+  margin-inline-start: auto;
+}
