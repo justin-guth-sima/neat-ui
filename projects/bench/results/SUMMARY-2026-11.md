@@ -551,3 +551,99 @@ The start view's scale (fit) at A and D: k 1.36 at ×1/8 and ×1/4, 0.94 at ×1/
   worst: step 3 pan, 37.5 fps recorded against 31.1 drawn).
 - Kit D r0 and vflow D r0: within 3 % (worst 5.0 % and -2.8 %); the none host is not checked.
 - The presented rate decided the tier of: vflow on ladder A at ×1/4.
+
+## 7. Board display at 1280x720 (ladders A and D)
+
+Against section 6 (1920x1080, same ladders and rungs): A ×1 pan 50 / 49 to 60 / 59 for the kit and
+39 / 31 to 40 / 39 for vflow, zoom 20 / 19 to 33 / 34 (kit) and 22 / 19 to 29 / 29 (vflow); D at
+×1 idle 24 to 48 (kit) and 23 to 41 (vflow); capacities (smooth / usable): A kit none / none to
+×1/4 / ×1, A vflow none / none to none / ×1/2, D kit and vflow none / none to none / ×1/2, D
+none host ×1/2 / ×2 where it was none / ×1.
+
+Command: `npm run bench:run -- --input=page --target remote --ssh sima@10.42.0.68 --remote-display bare --remote-mode 1280x720 --serve board --machine modalix-devkit --cooldown 20 --ladders A,D --renderers kit,vflow,none --repeats 3 --trace --out projects/bench/results`
+
+Changes against campaign 6: only the bare display's mode (1280x720 at 60 Hz on HDMI-1, not
+1920x1080). The page and its ladders are the same, so a level puts the same blocks on the page;
+the start view's fit scale is smaller because the box is (k 0.89 at ×1/8 and ×1/4, 0.62 at ×1/2,
+0.40 at ×1 and ×2, against 1.36, 0.94 and 0.60), which keeps the diagram's share of the screen.
+
+- Result file `2026-11-01-modalix-devkit-mvxri23v.json`, run id `mvxri23v`, started
+  2026-11-01T11:43:58Z; 24 page loads (18 plus 6 traced), 4 failed, harness exit 1
+- Build sha (as measured and checkout): `c9523150003c61f5fa8dfccceca2656dbd05fb9f`, production
+  build, kit 0.23.0, ngx-vflow 2.7.0
+- Machine: Chromium 151.0.7922.137, Cortex-A65 x16, bare X 1280x720 at 60 Hz (HDMI-1), the page
+  saw a 1279x719 viewport on a 1280x720 screen (DPR 1), display restored, no `/tmp/neat-bench-*`
+  left, lightdm active
+- Fairness check at ×1: passed, 34 blocks and 36 edges drawn alike (DOM nodes: kit 532, vflow 803)
+- Board temperature (max per run): 55 to 57 C over 24 runs; no CPU frequency exposed; runs
+  flagged as throttled: none
+
+### Capacity
+
+| Ladder | Renderer | Smooth | Usable |
+| --- | --- | --- | --- |
+| A: diagram size | kit | ×1/4 (8 blocks) | ×1 (30 blocks) |
+| A: diagram size | vflow | none | ×1/2 (15 blocks) |
+| A: diagram size | none | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
+| D: size, messages and notes together | kit | none | ×1/2 (15 blocks, 200 msg/s) |
+| D: size, messages and notes together | vflow | none | ×1/2 (15 blocks, 200 msg/s) |
+| D: size, messages and notes together | none | ×1/2 (15 blocks, 200 msg/s) | ×2 (60 blocks, 800 msg/s) (×1 to ×2) |
+
+### Verdict per ladder
+
+| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow's fps |
+| --- | --- | --- | --- | --- |
+| A: diagram size | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| D: size, messages and notes together | Neither meets the tier | 0 of 3 | Not clearly slower | no |
+
+On A the kit meets the smooth tier (×1/4) and vflow does not, so the verdict is the rule's, with
+the kit ahead; on D neither meets smooth, and "not clearly slower" is the usable tier's.
+
+### Median fps by level (recorder / presented where a trace gave one, over 3 repeats)
+
+Ladder A, kit and vflow (idle is 60 at every level they reached; vflow stops at ×8, its ×16
+freezing in all four loads):
+
+| Level | kit pan | kit zoom | kit tier | vflow pan | vflow zoom | vflow tier |
+| --- | --- | --- | --- | --- | --- | --- |
+| ×1/8 (4 blocks) | 60 / 60 | 60 / 60 | smooth | 60 / 55 | 60 / 50 | usable |
+| ×1/4 (8 blocks) | 60 / 60 | 60 / 60 | smooth | 60 / 55 | 59 / 49 | usable |
+| ×1/2 (15 blocks) | 60 / 60 | 54 / 51 | usable | 58 / 48 | 49 / 44 | usable |
+| ×1 (30 blocks) | 60 / 59 | 33 / 34 | usable | 40 / 39 | 29 / 29 | failing |
+| ×2 (60 blocks) | 60 / 57 | 15 / 16 | failing | 23 / 21 | 18 / 18 | failing |
+| ×4 (120 blocks) | 60 / 57 | 8 / 7 | failing | 12 / 11 | 9 / 8 | failing |
+| ×8 (240 blocks) | 46 / 45 | 4 / 5 | failing | 6 / 5 | 5 / 4 | failing |
+| ×16 (480 blocks) | 27 / 26 | 2 / 2 | failing | no step | no step | failed |
+| ×32 (960 blocks) | 15 / 15 | 2 / 1 | failing | no step | no step | failed |
+
+The none host holds 60 / 60 / 60 (smooth) at every level to ×32.
+
+Ladder D (idle / pan / zoom):
+
+| Level | kit | vflow | none |
+| --- | --- | --- | --- |
+| ×1/8 (4 blocks, 50 msg/s) | 60 / 59 / 44 (usable) | 60 / 53 / 41 (usable) | 60 / 60 / 60 (smooth) |
+| ×1/4 (8 blocks, 100 msg/s) | 60 / 59 / 52 (usable) | 60 / 57 / 48 (usable) | 60 / 60 / 60 (smooth) |
+| ×1/2 (15 blocks, 200 msg/s) | 59 / 58 / 38 (usable) | 60 / 45 / 33 (usable) | 60 / 60 / 60 (smooth) |
+| ×1 (30 blocks, 400 msg/s) | 48 / 43 / 19 (failing) | 41 / 23 / 19 (failing) | 57 / 58 / 55 (usable) |
+| ×2 (60 blocks, 800 msg/s) | 25 / 21 / 10 (failing) | 20 / 13 / 11 (failing) | 31 / 40 / 36 (usable, usable, failing) |
+| ×4 (120 blocks, 1600 msg/s) | 10 / 10 / 4 (failing) | 8 / 6 / 5 (failing) | 12 / 15 / 13 (failing) |
+
+(Each figure is the lower of the recorder's and the presented median; D's idle has a presented
+rate because dots move. A cell's tier is the median of the repeats' tiers, or the repeats' own
+where they differ.)
+
+### Warnings
+
+- vflow A r0, r1, r2 and the traced r0 failed: watchdog: step 7 (level 16) did not finish in
+  69000 ms (the 7b ×16 freeze, again).
+- kit A r0 (traced): recorder and trace disagree by more than 3 % (2 of 18 gesture phases; worst:
+  step 5 zoom, 8.0 fps recorded against 7.2 drawn; step 8 zoom is the largest relative gap, -19.4
+  %, at 1.7 fps, inside its own allowance).
+- vflow A r0 (traced): recorder and trace disagree by more than 3 % (10 of 14 gesture phases;
+  worst: step 1 zoom, 60.0 fps recorded against 49.1 drawn).
+- kit D r0 (traced): outside 3 % in 1 of 12 gesture phases (worst: step 5 pan, 10.6 fps recorded
+  against 10.3 drawn). vflow D r0: within 3 % (worst -2.7 %); the none host is not checked.
+- The presented rate decided the tier of: vflow on ladder A at ×1/8 and ×1/4.
+- The page's viewport is the display's own size (1279x719): `--viewport 1920x1080` is ignored in a
+  headed run, as in section 6.
