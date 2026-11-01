@@ -17,6 +17,9 @@ import { NeatCollapsible } from './collapsible';
       [(open)]="open"
     >
       <button type="button" class="end" neatCollapsibleEnd>Copy</button>
+      @if (open()) {
+        <button type="button" class="end-open" neatCollapsibleEnd>Clear</button>
+      }
       <button type="button" class="inside">Save</button>
     </neat-collapsible>
   `,
@@ -162,6 +165,46 @@ describe('NeatCollapsible', () => {
     end.click();
     await fixture.whenStable();
     expect(host.open()).toBe(false);
+  });
+
+  // jsdom lays nothing out, so the row's flex rules stand in for a narrow container: a heading
+  // with a basis of 0 (`flex-1`) is what wide end controls shrank to nothing beside them.
+  it("wraps the end controls onto a line of their own before they take the label's room", async () => {
+    const { element } = await render();
+    const row = element.querySelector<HTMLElement>('[data-slot="collapsible-row"]')!;
+    const heading = element.querySelector<HTMLElement>('[data-slot="collapsible-heading"]')!;
+
+    expect(row.classList).toContain('flex-wrap');
+    expect(heading.classList).toContain('grow');
+    expect([...heading.classList].filter((name) => /^(flex-1|basis-|shrink-)/.test(name))).toEqual(
+      [],
+    );
+  });
+
+  it('moves the focus to the trigger when a close from code removes the end control it was on', async () => {
+    const { fixture, host, element, trigger } = await render((host) => host.open.set(true));
+    document.body.append(element);
+    element.querySelector<HTMLElement>('.end-open')!.focus();
+
+    host.open.set(false);
+    await fixture.whenStable();
+
+    expect(element.querySelector('.end-open')).toBeNull();
+    expect(document.activeElement).toBe(trigger);
+    element.remove();
+  });
+
+  it('leaves the focus on an end control that stays when the section closes', async () => {
+    const { fixture, host, element } = await render((host) => host.open.set(true));
+    document.body.append(element);
+    const end = element.querySelector<HTMLElement>('.end')!;
+    end.focus();
+
+    host.open.set(false);
+    await fixture.whenStable();
+
+    expect(document.activeElement).toBe(end);
+    element.remove();
   });
 
   it('leaves the focus where it is when it closes with the focus elsewhere', async () => {

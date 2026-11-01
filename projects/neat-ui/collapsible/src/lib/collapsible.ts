@@ -32,6 +32,19 @@ const TRIGGER_CLASSES =
   'group flex w-full min-w-0 cursor-pointer items-center gap-(--neat-space-2) rounded-(--radius) py-1 text-start text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring';
 
 /**
+ * The trigger's row, with the app's `neatCollapsibleEnd` controls after the trigger. It wraps: the
+ * controls drop to a line of their own before they take the label's room.
+ */
+const ROW_CLASSES = 'flex flex-wrap items-center gap-(--neat-space-2)';
+
+/**
+ * The heading around the trigger: its own width as its basis (the chevron, the label and the
+ * summary), never a basis of 0 that the controls beside it could shrink to nothing, and growing
+ * into the rest of its line. Alone on its line it may still shrink, which truncates the summary.
+ */
+const HEADING_CLASSES = 'min-w-0 grow';
+
+/**
  * The chevron: turned a quarter while open, by a transform the kit's transition duration times and
  * that a reduced-motion setting turns into a jump, as the kit's other motion is.
  */
@@ -62,12 +75,15 @@ const CONTENT_CLASSES = 'pt-(--neat-space-2) data-closed:hidden';
  * The content stays instantiated while closed (hidden and `inert`), so its state survives a close;
  * gate expensive content (a live preview) on `open` with an `@if` of your own. When the section
  * closes with the focus inside it (a Save that closes it, the app setting `open` to false), the
- * focus moves to the trigger: inert content would otherwise drop it to the page.
+ * focus moves to the trigger: inert content would otherwise drop it to the page. So it does when
+ * the focus was on an end control that the close removed (one shown only while open); an end
+ * control that stays keeps the focus.
  *
  * Elements marked `neatCollapsibleEnd` sit at the end of the trigger's row, outside the trigger
  * and its heading: the section's own controls (a copy button over a code sample, a file choice),
- * which act without opening or closing it. The trigger takes the rest of the row. They show
- * whether the section is open or closed; an app shows them only while open with an `@if`.
+ * which act without opening or closing it. The trigger takes the rest of the row, and the
+ * controls drop to a second line where they would leave the label no room. They show whether the
+ * section is open or closed; an app shows them only while open with an `@if`.
  *
  * Brain's collapsible is the host directive and its trigger and content directives sit in the
  * template; `open` is brain's `expanded` under the kit's name.
@@ -88,12 +104,16 @@ const CONTENT_CLASSES = 'pt-(--neat-space-2) data-closed:hidden';
   ],
   host: { class: 'block' },
   template: `
-    <!-- The trigger's row: the trigger takes what the app's controls beside it leave. -->
-    <div data-slot="collapsible-row" class="flex items-center gap-(--neat-space-2)">
+    <div
+      data-slot="collapsible-row"
+      [class]="rowClasses"
+      (focusin)="noteFocus($event)"
+      (focusout)="forgetFocus($event)"
+    >
       <!-- A heading only at a level the app sets; otherwise a plain wrapper. -->
       <div
         data-slot="collapsible-heading"
-        class="min-w-0 flex-1"
+        [class]="headingClasses"
         [attr.role]="headingLevel() ? 'heading' : null"
         [attr.aria-level]="headingLevel()"
       >
@@ -140,6 +160,11 @@ export class NeatCollapsible {
   protected readonly triggerClasses = TRIGGER_CLASSES;
   protected readonly chevronClasses = CHEVRON_CLASSES;
   protected readonly contentClasses = CONTENT_CLASSES;
+  protected readonly rowClasses = ROW_CLASSES;
+  protected readonly headingClasses = HEADING_CLASSES;
+
+  /** The end control that has the focus, kept to tell whether a close removed it. */
+  private endFocus: HTMLElement | null = null;
 
   // Optional: the first run of the effect below comes before the view exists.
   private readonly trigger = viewChild<ElementRef<HTMLButtonElement>>('trigger');
@@ -152,10 +177,23 @@ export class NeatCollapsible {
     effect(() => {
       if (this.brain.expanded()) return;
       untracked(() => {
-        if (this.content()?.nativeElement.contains(document.activeElement)) {
+        // The app's own view is refreshed first, so an end control the close removed is gone.
+        const endRemoved = this.endFocus !== null && !this.endFocus.isConnected;
+        if (endRemoved || this.content()?.nativeElement.contains(document.activeElement)) {
           this.trigger()?.nativeElement.focus();
         }
+        this.endFocus = null;
       });
     });
+  }
+
+  protected noteFocus(event: FocusEvent): void {
+    const target = event.target as HTMLElement;
+    this.endFocus = target === this.trigger()?.nativeElement ? null : target;
+  }
+
+  /** A move of the focus elsewhere; a removed control keeps its note, for the close to see. */
+  protected forgetFocus(event: FocusEvent): void {
+    if ((event.target as HTMLElement).isConnected) this.endFocus = null;
   }
 }

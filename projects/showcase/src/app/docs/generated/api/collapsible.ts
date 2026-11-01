@@ -126,7 +126,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " to false), the focus moves to the trigger: inert content would otherwise drop it to the page."
+              "text": " to false), the focus moves to the trigger: inert content would otherwise drop it to the page. So it does when the focus was on an end control that the close removed (one shown only while open); an end control that stays keeps the focus."
             }
           ]
         },
@@ -143,7 +143,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " sit at the end of the trigger's row, outside the trigger and its heading: the section's own controls (a copy button over a code sample, a file choice), which act without opening or closing it. The trigger takes the rest of the row. They show whether the section is open or closed; an app shows them only while open with an "
+              "text": " sit at the end of the trigger's row, outside the trigger and its heading: the section's own controls (a copy button over a code sample, a file choice), which act without opening or closing it. The trigger takes the rest of the row, and the controls drop to a second line where they would leave the label no room. They show whether the section is open or closed; an app shows them only while open with an "
             },
             {
               "kind": "code",

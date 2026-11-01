@@ -607,7 +607,10 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
             <code>neat-collapsible</code>: a section that a full-width button opens and closes, for
             what is not needed every day. While closed, <code>summary</code> says what it holds. The
             content stays instantiated while closed, so gate an expensive one on <code>open</code>.
-            Closing it from inside (Save below) puts the focus on its button.
+            Closing it from inside (Save below) puts the focus on its button. Controls marked
+            <code>neatCollapsibleEnd</code> sit at the end of its button's row, outside the button
+            (the log's Add line, and its Clear, shown only while open); where they would leave the
+            label no room they drop to a line of their own.
           </p>
           <div class="card details-demo">
             <neat-collapsible
@@ -627,6 +630,39 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
                 <input neatInput type="text" value="192.168.1.20" aria-label="Board address" />
                 <button neatButton type="button" (click)="boardOpen.set(false)">Save</button>
               </div>
+            </neat-collapsible>
+            <neat-collapsible
+              label="Log"
+              [summary]="logLines().length + ' lines'"
+              [(open)]="logOpen"
+            >
+              <button
+                neatCollapsibleEnd
+                neatButton
+                type="button"
+                variant="text"
+                size="small"
+                (click)="addLogLine()"
+              >
+                Add line
+              </button>
+              @if (logOpen()) {
+                <button
+                  neatCollapsibleEnd
+                  neatButton
+                  type="button"
+                  variant="text"
+                  size="small"
+                  (click)="logLines.set([])"
+                >
+                  Clear
+                </button>
+              }
+              @for (line of logLines(); track $index) {
+                <p neatNote>{{ line }}</p>
+              } @empty {
+                <p neatNote>No lines.</p>
+              }
             </neat-collapsible>
           </div>
         </section>
@@ -1950,6 +1986,8 @@ export class ComponentsPage {
   /** Swings from -50 to 0 dBFS and back about every four seconds, as the meter's demo signal. */
   protected readonly sineLevel = () => -25 + 25 * Math.sin(performance.now() / 600);
   protected readonly boardOpen = signal(false);
+  protected readonly logOpen = signal(false);
+  protected readonly logLines = signal(['Pipeline started', 'Frame 1 decoded', 'Frame 2 decoded']);
   protected readonly demoTypes = DEMO_TYPES;
   protected readonly demoDevices = DEMO_DEVICES;
   protected readonly deviceGroups = DEVICE_GROUPS;
@@ -2108,6 +2146,10 @@ export class ComponentsPage {
       inputs: { slot: 3, startOn: 'camera' },
     }).closed;
     this.dialogResult.set(kind === undefined ? 'Source: dismissed' : `Source: ${kind}`);
+  }
+
+  protected addLogLine(): void {
+    this.logLines.update((lines) => [...lines, `Frame ${lines.length} decoded`]);
   }
 
   protected nextFps(): void {
