@@ -33,7 +33,7 @@ export interface SynthParams {
 }
 
 /** Why an edge exists, in its `data`, for the specs and for reading a generated diagram. */
-export type SynthEdgeKind = 'fan-out' | 'cross' | 'chain' | 'skip';
+export type SynthEdgeKind = 'fan-out' | 'cross' | 'chain' | 'skip' | 'fill';
 
 export interface SynthDiagram {
   readonly diagram: NeatDiagramSet;
@@ -60,19 +60,34 @@ export const D1: SynthParams = {
   notes: 8,
 };
 
-/** `params` scaled by `s` (rounded): a fan-out's width is a shape, not a size, so it stays. */
+/**
+ * `params` scaled by `s`, which may be a fraction (the ladders' lighter rungs): every count is
+ * rounded to a whole one, halves up, so the same scale gives the same counts on every machine (the
+ * ladders' scales are powers of two, whose products with a count are exact). A fan-out's width is
+ * a shape, not a size, so it stays. However small the scale, the diagram keeps its structure: the
+ * generator's two frames, two blocks in each, an edge for each frame and for each fan-out's
+ * targets, and no more labels than edges.
+ */
 export function scaledParams(params: SynthParams, s: number): SynthParams {
   const scale = (count: number): number => Math.round(count * s);
+  const frames = Math.max(MIN_FRAMES, scale(params.frames));
+  const blocks = Math.max(MIN_BLOCKS_PER_FRAME * frames, scale(params.blocks));
+  const fanOuts = Math.min(blocks, scale(params.fanOuts));
+  const edges = Math.max(frames, fanOuts * params.fanOut, scale(params.edges));
   return {
-    frames: scale(params.frames),
-    blocks: scale(params.blocks),
-    edges: scale(params.edges),
-    fanOuts: scale(params.fanOuts),
+    frames,
+    blocks,
+    edges,
+    fanOuts,
     fanOut: params.fanOut,
-    labels: scale(params.labels),
+    labels: Math.min(edges, scale(params.labels)),
     notes: scale(params.notes),
   };
 }
+
+/** The fewest frames the generator draws, and the fewest blocks a scaled frame keeps. */
+const MIN_FRAMES = 2;
+const MIN_BLOCKS_PER_FRAME = 2;
 
 // The showcase's block, wide enough for a label beside three chips, and taller with a detail.
 const BLOCK_W = 230;
@@ -243,7 +258,8 @@ interface RawEdge {
  * The edges, in rounds until `params.edges` are placed: the fan-outs first (they are asked for
  * exactly), then one edge per pair of neighbouring frames, then chains inside the frames and then
  * skips over one block, each round a step at a time through every frame so a partial round is
- * spread evenly, and last the neighbouring frames' further pairs. Throws when they run out first.
+ * spread evenly, the neighbouring frames' further pairs, and last, only for a diagram too small
+ * for those, every pair left. Throws when they run out first.
  */
 function placeEdges(
   params: SynthParams,
@@ -327,6 +343,20 @@ function placeEdges(
   }
   for (let line = 1; line < columns; line++) {
     for (const lines of facing) add(lines[line]?.[0], lines[line]?.[1], 'cross');
+  }
+
+  // Where the rounds above fall short, a diagram too small for their structure (the lightest
+  // rungs: two frames that do not face each other), every pair left fills the count, in a fixed
+  // order and with no draw from `rand`: across frames first, then back along each frame's blocks.
+  for (let a = 0; a < frameBlocks.length && edges.length < params.edges; a++) {
+    for (const from of frameBlocks[a]) {
+      for (const to of frameBlocks.slice(a + 1).flat()) add(from, to, 'fill');
+    }
+  }
+  for (const ids of frameBlocks) {
+    for (let i = 1; i < ids.length; i++) {
+      for (let j = 0; j < i; j++) add(ids[i], ids[j], 'fill');
+    }
   }
 
   if (edges.length < params.edges) {

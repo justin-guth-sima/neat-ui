@@ -624,12 +624,21 @@ export function recorderDecisions(
   );
 }
 
+/**
+ * A scale in words: a whole one as it is, a fraction of a doubling rung as a fraction (`1/8`), and
+ * a level between rungs (a refined knee) as a decimal of at most three places (`0.375`, `1.5`).
+ */
+export function scaleText(scale: number): string {
+  if (scale > 0 && scale < 1 && Number.isInteger(1 / scale)) return `1/${1 / scale}`;
+  return String(Number(scale.toFixed(3)));
+}
+
 /** The load of a level in words, as the ladder varies it (`params` from a step at that level). */
 export function levelText(ladder: string, level: number): string {
   switch (ladder) {
     case 'A':
     case 'D':
-      return `×${level}`;
+      return `×${scaleText(level)}`;
     case 'B':
       return `${level.toLocaleString('en')} msg/s`;
     case 'C':

@@ -10,7 +10,8 @@ import {
 
 /*
  * The load ladders (design 2.4): what each level of a ladder puts on the page. A level is a scale
- * (A, D), messages per second (B) or a number of notes (C); E is one level, held. Pure.
+ * (A, D: from ×1/8 up), messages per second (B) or a number of notes (C); E is one level, held.
+ * Pure.
  */
 
 export type LadderId = 'A' | 'B' | 'C' | 'D' | 'E';
@@ -30,10 +31,13 @@ const SOAK_MSGS_PER_SEC = 800;
 const doubling = (from: number, count: number): number[] =>
   Array.from({ length: count }, (_, i) => from * 2 ** i);
 
+/** The lightest rung of A and D: an eighth of D1, which is 4 blocks. */
+const LIGHTEST = 1 / 8;
+
 export const LADDERS: Readonly<Record<LadderId, Ladder>> = {
   A: {
     varies: 'diagram size, D1 × s',
-    levels: doubling(1, 6),
+    levels: doubling(LIGHTEST, 9),
     load: (s, seed) => ({
       params: scaledParams(D1, s),
       msgsPerSec: 0,
@@ -58,10 +62,10 @@ export const LADDERS: Readonly<Record<LadderId, Ladder>> = {
   },
   D: {
     varies: 'size, messages and notes together, × s',
-    levels: doubling(1, 5),
+    levels: doubling(LIGHTEST, 8),
     load: (s, seed) => ({
       params: scaledParams(D1, s),
-      msgsPerSec: BASE_MSGS_PER_SEC * s,
+      msgsPerSec: Math.max(1, Math.round(BASE_MSGS_PER_SEC * s)),
       profile: 'demo-like',
       seed,
     }),

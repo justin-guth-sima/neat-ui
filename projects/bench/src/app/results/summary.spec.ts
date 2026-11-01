@@ -52,6 +52,18 @@ describe('summaryMarkdown', () => {
     );
   });
 
+  it('prints the lighter rungs as fractions, with their blocks', () => {
+    const lighter = climb('kit', 0, ['smooth', 'smooth', 'usable', 'failing'], {
+      levels: [1 / 8, 1 / 4, 1 / 2, 1],
+    }).map((s) => ({ ...s, params: { ...s.params, blocks: Math.round(s.params.blocks) } }));
+
+    const text = markdown(campaign(lighter));
+
+    expect(text).toMatch(
+      /\| A: diagram size \| kit \| ×1\/4 \(8 blocks\) \| ×1\/2 \(15 blocks\) \|/,
+    );
+  });
+
   it('says where the repeats did not agree on a capacity', () => {
     const file = campaign([
       ...climb('kit', 0, ['smooth', 'smooth', 'failing']),

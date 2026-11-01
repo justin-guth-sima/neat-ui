@@ -35,6 +35,9 @@ describe('synthDiagram', () => {
   it.each([
     ['D1', D1],
     ['D1 × 4', scaledParams(D1, 4)],
+    ['D1 × 1/8', scaledParams(D1, 1 / 8)],
+    ['D1 × 1/4', scaledParams(D1, 1 / 4)],
+    ['D1 × 1/2', scaledParams(D1, 1 / 2)],
     ['a frame per block row', { ...D1, frames: 10, blocks: 23, edges: 25, notes: 40 }],
   ])('draws the counts asked for (%s)', (_, params: SynthParams) => {
     const { diagram } = synthDiagram(params, 1);
@@ -70,6 +73,17 @@ describe('synthDiagram', () => {
     // Changing the generator changes every run's load: re-pin only on purpose, and say so in the
     // commit, since results from before and after no longer compare.
     expect(fingerprint(synthDiagram(D1, 1))).toBe('586c271f');
+  });
+
+  it.each([
+    [1 / 8, '073e6c5a'],
+    [1 / 4, '822cd28e'],
+    [1 / 2, 'e58140ea'],
+  ])('gives the pinned diagram for D1 × %s and seed 1, on every machine', (scale, pinned) => {
+    expect(fingerprint(synthDiagram(scaledParams(D1, scale), 1))).toBe(pinned);
+    expect(synthDiagram(scaledParams(D1, scale), 1)).toEqual(
+      synthDiagram(scaledParams(D1, scale), 1),
+    );
   });
 
   it('places the blocks of a frame inside it without overlapping one another', () => {
@@ -208,5 +222,55 @@ describe('scaledParams', () => {
       labels: 18,
       notes: 12,
     });
+  });
+
+  it('rounds the lighter rungs to whole counts, with a diagram that still has structure', () => {
+    expect(scaledParams(D1, 1 / 8)).toEqual({
+      frames: 2,
+      blocks: 4,
+      edges: 5,
+      fanOuts: 1,
+      fanOut: 3,
+      labels: 2,
+      notes: 1,
+    });
+    expect(scaledParams(D1, 1 / 4)).toEqual({
+      frames: 2,
+      blocks: 8,
+      edges: 9,
+      fanOuts: 2,
+      fanOut: 3,
+      labels: 3,
+      notes: 2,
+    });
+    expect(scaledParams(D1, 1 / 2)).toEqual({
+      frames: 2,
+      blocks: 15,
+      edges: 18,
+      fanOuts: 3,
+      fanOut: 3,
+      labels: 6,
+      notes: 4,
+    });
+  });
+
+  it('keeps a frame, two blocks and an edge for each frame, whatever the scale', () => {
+    for (const s of [0.001, 0.03, 0.1, 0.125, 0.2, 0.3, 1 / 3, 0.45, 0.6, 0.75, 1.1]) {
+      const params = scaledParams(D1, s);
+      const label = `scale ${s}`;
+      expect(params.frames, label).toBeGreaterThanOrEqual(2);
+      expect(params.blocks, label).toBeGreaterThanOrEqual(2 * params.frames);
+      expect(params.edges, label).toBeGreaterThanOrEqual(params.frames);
+      expect(params.edges, label).toBeGreaterThanOrEqual(params.fanOuts * params.fanOut);
+      expect(params.labels, label).toBeLessThanOrEqual(params.edges);
+      for (const count of Object.values(params)) expect(Number.isInteger(count), label).toBe(true);
+      expect(() => synthDiagram(params, 1), label).not.toThrow();
+    }
+  });
+
+  it('rounds half up, the same on every machine: counts times a power of two are exact', () => {
+    // D1's 36 edges at 1/8 are 4.5, and 12 labels 1.5: both round up.
+    expect(scaledParams(D1, 1 / 8)).toMatchObject({ edges: 5, labels: 2 });
+    expect(scaledParams(D1, 1 / 8)).toEqual(scaledParams(D1, 0.125));
   });
 });

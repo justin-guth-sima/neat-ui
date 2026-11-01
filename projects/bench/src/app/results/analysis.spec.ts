@@ -3,7 +3,10 @@ import {
   capacityOf,
   flatTrend,
   median,
+  levelText,
+  loadText,
   recorderDecisions,
+  scaleText,
   soakTrend,
   phaseRows,
   SPREAD_FLAG_PCT,
@@ -144,6 +147,19 @@ describe('capacityOf (the largest load held, with every smaller one held too)', 
 
     expect(capacityOf(climbed, 'smooth')).toEqual({ level: 2, atCap: false });
     expect(capacityOf(climbed, 'usable')).toEqual({ level: 4, atCap: false });
+  });
+
+  it('holds at the lighter rungs: the capacity at ×1/4 is a fraction, not rounded away', () => {
+    const climbed = [
+      { level: 0.125, tier: 'smooth' as const },
+      { level: 0.25, tier: 'smooth' as const },
+      { level: 0.5, tier: 'usable' as const },
+      { level: 1, tier: 'failing' as const },
+    ];
+
+    expect(capacityOf(climbed, 'smooth')).toEqual({ level: 0.25, atCap: false });
+    expect(capacityOf(climbed, 'usable')).toEqual({ level: 0.5, atCap: false });
+    expect(capacityOf([...climbed].reverse(), 'smooth')).toEqual({ level: 0.25, atCap: false });
   });
 
   it('is at least the top level where no step missed: the climb ended at its cap', () => {
@@ -580,5 +596,28 @@ describe('flatTrend', () => {
   it('calls a line that falls or rises by a frame a second or more a trend', () => {
     expect(flatTrend([60, 60, 58.8, 53.6])).toBe(false);
     expect(flatTrend([40, 41])).toBe(false);
+  });
+});
+
+describe('scaleText and the level texts, at the lighter rungs', () => {
+  it.each([
+    [1 / 8, '1/8'],
+    [1 / 4, '1/4'],
+    [1 / 2, '1/2'],
+    [1, '1'],
+    [32, '32'],
+    [0.375, '0.375'],
+    [1.5, '1.5'],
+    [0.1875, '0.188'],
+  ])('writes %s as %s', (scale, text) => {
+    expect(scaleText(scale)).toBe(text);
+  });
+
+  it('writes a scale level with its blocks, and with its messages where they scale too', () => {
+    const params = { blocks: 4, edges: 5, notes: 1, msgsPerSec: 50 };
+
+    expect(levelText('A', 1 / 8)).toBe('×1/8');
+    expect(loadText('A', 1 / 8, params)).toBe('×1/8 (4 blocks)');
+    expect(loadText('D', 1 / 8, params)).toBe('×1/8 (4 blocks, 50 msg/s)');
   });
 });

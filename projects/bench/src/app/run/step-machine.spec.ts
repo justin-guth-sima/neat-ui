@@ -185,6 +185,15 @@ describe('StepMachine', () => {
       expect(machine.ended).toBe('cap');
     });
 
+    it('bisects between the lighter rungs: the midpoints are fractions, exactly', () => {
+      const machine = new StepMachine(plan({ refine: true, levels: [0.125, 0.25, 0.5, 1] }));
+
+      drive(machine, tierAt(0.3));
+
+      // Smooth to 1/4, not at 1/2 or 1: then 3/8 (not smooth), then 5/16 (not smooth).
+      expect(levelsOf(machine)).toEqual([0.125, 0.25, 0.5, 1, 0.375, 0.3125]);
+    });
+
     it('moves up from a smooth midpoint', () => {
       const machine = new StepMachine(plan({ refine: true }));
 

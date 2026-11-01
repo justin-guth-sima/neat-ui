@@ -3,12 +3,12 @@ import { LADDERS, ladderPlan, ladderStep } from './ladders';
 
 describe('ladders', () => {
   it('climb the design’s levels (2.4)', () => {
-    expect(LADDERS.A.levels).toEqual([1, 2, 4, 8, 16, 32]);
+    expect(LADDERS.A.levels).toEqual([1 / 8, 1 / 4, 1 / 2, 1, 2, 4, 8, 16, 32]);
     expect(LADDERS.B.levels[0]).toBe(50);
     expect(LADDERS.B.levels[LADDERS.B.levels.length - 1]).toBe(25600);
     expect(LADDERS.B.levels).toHaveLength(10);
     expect(LADDERS.C.levels).toEqual([0, 4, 8, 16, 32, 64, 128]);
-    expect(LADDERS.D.levels).toEqual([1, 2, 4, 8, 16]);
+    expect(LADDERS.D.levels).toEqual([1 / 8, 1 / 4, 1 / 2, 1, 2, 4, 8, 16]);
     expect(LADDERS.E.levels).toEqual([1]);
   });
 
@@ -45,6 +45,22 @@ describe('ladders', () => {
     expect(step.msgsPerSec).toBe(400 * 8);
   });
 
+  it('D keeps its messages above zero at the lighter rungs, in whole messages', () => {
+    expect([1 / 8, 1 / 4, 1 / 2].map((s) => ladderStep('D', s, 1).msgsPerSec)).toEqual([
+      50, 100, 200,
+    ]);
+    // Even a level far below the first never sends nothing, or a fraction of a message.
+    expect(ladderStep('D', 0.001, 1).msgsPerSec).toBe(1);
+    expect(ladderStep('D', 0.1234, 1).msgsPerSec).toBe(49);
+  });
+
+  it('A and D put the same diagram on the page at a lighter rung', () => {
+    for (const s of [1 / 8, 1 / 4, 1 / 2]) {
+      expect(ladderStep('A', s, 1).params).toEqual(scaledParams(D1, s));
+      expect(ladderStep('D', s, 1).params).toEqual(scaledParams(D1, s));
+    }
+  });
+
   it('E holds D1 at 800 messages per second', () => {
     const step = ladderStep('E', 1, 1);
     expect(step.params).toEqual(D1);
@@ -72,12 +88,12 @@ describe('ladders', () => {
     });
 
     it('takes the first `steps` levels', () => {
-      expect(ladderPlan('A', { steps: 3 }).levels).toEqual([1, 2, 4]);
+      expect(ladderPlan('A', { steps: 4 }).levels).toEqual([0.125, 0.25, 0.5, 1]);
     });
 
     it('refuses no step, and more steps than the ladder has', () => {
       expect(() => ladderPlan('A', { steps: 0 })).toThrow(RangeError);
-      expect(() => ladderPlan('A', { steps: 7 })).toThrow(/6/);
+      expect(() => ladderPlan('A', { steps: 10 })).toThrow(/9/);
     });
 
     it('soaks for ten minutes in one-minute phases, so no phase outgrows the probe’s ring', () => {
