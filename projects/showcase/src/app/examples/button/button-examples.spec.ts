@@ -20,7 +20,7 @@ const buttons = (fixture: ComponentFixture<unknown>, selector = 'button'): HTMLB
 describe('the button examples', () => {
   beforeEach(() => TestBed.configureTestingModule({ providers: [provideRouter([])] }));
 
-  it('show every variant in four sizes, icon-only in four, and rounded as a pill and a circle', async () => {
+  it('show every variant in four sizes, icon-only, and rounded as a pill and a circle', async () => {
     const fixture = await render(Variants);
     const host = fixture.nativeElement as HTMLElement;
     const sections = Array.from(host.querySelectorAll('section'));
@@ -75,7 +75,7 @@ describe('the button examples', () => {
     ]);
   });
 
-  it('show a disabled button, a waiting one that keeps focus, and a link, per variant', async () => {
+  it('show a disabled button, a waiting one that keeps focus, and a link per variant', async () => {
     const fixture = await render(States);
     const rows = Array.from(
       (fixture.nativeElement as HTMLElement).querySelectorAll('.showcase-row'),

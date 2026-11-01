@@ -14,7 +14,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "One toast of each short kind. They show in the host the showcase renders once, beside its shell (see the shell topic's last example); a new toast comes to the front, above a dialog that is open."
+            "text": "One toast of each short kind. They show in the host the showcase renders once, beside its shell (see the shell topic's last example)."
           }
         ]
       }

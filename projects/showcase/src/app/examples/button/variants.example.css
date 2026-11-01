@@ -3,9 +3,3 @@ h4 {
   margin: 0 0 var(--neat-space-2);
   font-weight: 500;
 }
-
-:host {
-  display: flex;
-  flex-direction: column;
-  gap: var(--neat-space-3);
-}

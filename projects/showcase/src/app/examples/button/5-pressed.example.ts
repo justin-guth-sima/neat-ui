@@ -3,11 +3,9 @@ import { NeatButton, type NeatButtonVariant, NeatIcon, NeatTooltip } from '@sima
 import { VARIANTS } from './variants';
 
 /**
- * `[pressed]` on a toggle, on the page and on a card: it sets `aria-pressed` and inverts the fill,
- * so the state does not rest on colour alone. Click each one. Primary and success are solid fills
- * already, so their pressed look is the least distinct; toggles belong on the other variants. The
- * last button leaves `pressed` unset, as a button that is not a toggle does, and is an icon-only
- * `close` button with a tooltip.
+ * `[pressed]` on a toggle, on the page and on a card: click each one. Primary and success are
+ * solid fills, so look at their pressed state first. The last button leaves `pressed` unset, as a
+ * button that is not a toggle does: an icon-only `close` button with a tooltip.
  */
 @Component({
   selector: 'app-pressed',
@@ -40,7 +38,7 @@ import { VARIANTS } from './variants';
       </div>
     }
   `,
-  styleUrls: ['./card.css', './pressed.example.css'],
+  styleUrls: ['./card.css', './stack.css'],
 })
 export class Pressed {
   protected readonly variants = VARIANTS;

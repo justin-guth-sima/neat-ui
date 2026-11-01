@@ -4,11 +4,9 @@ import { NeatButton, NeatIcon } from '@sima/neat-ui';
 import { VARIANTS } from './variants';
 
 /**
- * Per variant: with a `neat-icon` before the label, `disabled`, waiting and as a link. Waiting is
- * `aria-disabled="true"`: it is dimmed with a not-allowed cursor but keeps the focus (Tab reaches
- * it) and its hover, so a tooltip on it would still open, and a click, Enter and Space still fire
- * its click handler, which the app ignores while it waits. The link leads back to this page, so
- * trying it goes nowhere.
+ * Per variant: with a `neat-icon` before the label, `disabled`, waiting and as a link. Look at the
+ * Waiting column: it is dimmed like Disabled, but Tab still reaches it and hover still works. The
+ * link leads back to this page, so trying it goes nowhere.
  */
 @Component({
   selector: 'app-states',
@@ -27,7 +25,7 @@ import { VARIANTS } from './variants';
       </div>
     }
   `,
-  styleUrl: './states.example.css',
+  styleUrl: './stack.css',
 })
 export class States {
   protected readonly variants = VARIANTS;

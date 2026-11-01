@@ -47,7 +47,7 @@ const SIZES: NeatButtonSize[] = ['small', 'medium', 'large', 'touch'];
       </section>
     }
   `,
-  styleUrl: './variants.example.css',
+  styleUrls: ['./stack.css', './variants.example.css'],
 })
 export class Variants {
   protected readonly variants = VARIANTS;

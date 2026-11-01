@@ -54,6 +54,8 @@ describe('the popover examples', () => {
     await settle();
 
     expect(status(fixture)).toBe('View options closed; bars off, empty slots hidden');
+    // Focus goes back to the trigger.
+    expect(document.activeElement).toBe(trigger);
 
     // The content was destroyed with the panel; the switches come back as the page kept them.
     trigger.click();

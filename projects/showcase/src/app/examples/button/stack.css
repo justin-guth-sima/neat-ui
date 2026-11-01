@@ -1,3 +1,4 @@
+/* The example's rows one gap apart. */
 :host {
   display: flex;
   flex-direction: column;

@@ -30,6 +30,7 @@ describe('the confirm examples', () => {
     const { buttons, settle, answer } = await setup();
     expect(answer()).toBe('Not asked yet');
 
+    buttons[0].focus();
     buttons[0].click();
     await settle();
 
@@ -38,11 +39,14 @@ describe('the confirm examples', () => {
     await settle();
 
     expect(answer()).toBe('Reset all: confirmed');
+    // Focus is back on the button that asked.
+    expect(document.activeElement).toBe(buttons[0]);
   });
 
   it('word the second question’s cancel button, and answer false for it', async () => {
     const { buttons, settle, answer } = await setup();
 
+    buttons[1].focus();
     buttons[1].click();
     await settle();
 
@@ -54,11 +58,13 @@ describe('the confirm examples', () => {
     await settle();
 
     expect(answer()).toBe('Apply to all: cancelled');
+    expect(document.activeElement).toBe(buttons[1]);
   });
 
   it('answer false when Escape closes the question', async () => {
     const { buttons, settle, answer } = await setup();
 
+    buttons[0].focus();
     buttons[0].click();
     await settle();
     document.activeElement?.dispatchEvent(
@@ -67,5 +73,6 @@ describe('the confirm examples', () => {
     await settle();
 
     expect(answer()).toBe('Reset all: cancelled');
+    expect(document.activeElement).toBe(buttons[0]);
   });
 });

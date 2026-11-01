@@ -54,8 +54,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," SIZES: NeatButtonSize[] = ["],["string","'small'"],["text",", "],["string","'medium'"],["text",", "],["string","'large'"],["text",", "],["string","'touch'"],["text","];\n\n@Component({\n  selector: "],
           ["string","'app-variants'"],["text",",\n  imports: [NeatButton, NeatIcon],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    @for (variant of variants; track variant) {\n      <section>\n        <h4>{{ variant }}</h4>\n        <div class=\"showcase-row\">\n          @for (size of sizes; track size) {\n            <button neatButton type=\"button\" [variant]=\"variant\" [size]=\"size\">{{ size }}</button>\n          }\n          @for (size of sizes; track size) {\n            <button\n              neatButton\n              type=\"button\"\n              [variant]=\"variant\"\n              [size]=\"size\"\n              iconOnly\n              [attr.aria-label]=\"'Stream, ' + size\"\n            >\n              <neat-icon name=\"streaming\" />\n            </button>\n          }\n          <button neatButton type=\"button\" [variant]=\"variant\" rounded>rounded</button>\n          <button\n            neatButton\n            type=\"button\"\n            [variant]=\"variant\"\n            rounded\n            iconOnly\n            aria-label=\"Stream, rounded\"\n          >\n            <neat-icon name=\"streaming\" />\n          </button>\n        </div>\n      </section>\n    }\n  `"],
-          ["text",",\n  styleUrl: "],
-          ["string","'./variants.example.css'"],["text",",\n})\n"],
+          ["text",",\n  styleUrls: ["],
+          ["string","'./stack.css'"],["text",", "],["string","'./variants.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Variants {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," variants = VARIANTS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sizes = SIZES;\n}\n"]
@@ -77,9 +77,15 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
+        "name": "stack.css",
+        "code": [
+          ["comment","/* The example's rows one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
+        ]
+      },
+      {
         "name": "variants.example.css",
         "code": [
-          ["comment","/* A variant's name above its row of sizes. */"],["text","\nh4 {\n  margin: 0 0 var(--neat-space-2);\n  font-weight: 500;\n}\n\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
+          ["comment","/* A variant's name above its row of sizes. */"],["text","\nh4 {\n  margin: 0 0 var(--neat-space-2);\n  font-weight: 500;\n}\n"]
         ]
       }
     ]
@@ -215,15 +221,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", waiting and as a link. Waiting is "
-          },
-          {
-            "kind": "code",
-            "text": "aria-disabled=\"true\""
-          },
-          {
-            "kind": "text",
-            "text": ": it is dimmed with a not-allowed cursor but keeps the focus (Tab reaches it) and its hover, so a tooltip on it would still open, and a click, Enter and Space still fire its click handler, which the app ignores while it waits. The link leads back to this page, so trying it goes nowhere."
+            "text": ", waiting and as a link. Look at the Waiting column: it is dimmed like Disabled, but Tab still reaches it and hover still works. The link leads back to this page, so trying it goes nowhere."
           }
         ]
       }
@@ -243,7 +241,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'app-states'"],["text",",\n  imports: [NeatButton, NeatIcon, RouterLink],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    @for (variant of variants; track variant) {\n      <div class=\"showcase-row\">\n        <button neatButton type=\"button\" [variant]=\"variant\">\n          <neat-icon name=\"streaming\" [size]=\"16\" />\n          With icon\n        </button>\n        <button neatButton type=\"button\" [variant]=\"variant\" disabled>Disabled</button>\n        <button neatButton type=\"button\" [variant]=\"variant\" aria-disabled=\"true\">Waiting</button>\n        <a neatButton [variant]=\"variant\" routerLink=\"/actions/button\">Link</a>\n      </div>\n    }\n  `"],
           ["text",",\n  styleUrl: "],
-          ["string","'./states.example.css'"],["text",",\n})\n"],
+          ["string","'./stack.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," States {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," variants = VARIANTS;\n}\n"]
         ]
@@ -264,9 +262,9 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "states.example.css",
+        "name": "stack.css",
         "code": [
-          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
+          ["comment","/* The example's rows one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
         ]
       }
     ]
@@ -285,15 +283,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " on a toggle, on the page and on a card: it sets "
-          },
-          {
-            "kind": "code",
-            "text": "aria-pressed"
-          },
-          {
-            "kind": "text",
-            "text": " and inverts the fill, so the state does not rest on colour alone. Click each one. Primary and success are solid fills already, so their pressed look is the least distinct; toggles belong on the other variants. The last button leaves "
+            "text": " on a toggle, on the page and on a card: click each one. Primary and success are solid fills, so look at their pressed state first. The last button leaves "
           },
           {
             "kind": "code",
@@ -301,7 +291,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " unset, as a button that is not a toggle does, and is an icon-only "
+            "text": " unset, as a button that is not a toggle does: an icon-only "
           },
           {
             "kind": "code",
@@ -330,7 +320,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'app-pressed'"],["text",",\n  imports: [NeatButton, NeatIcon, NeatTooltip],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    @for (surface of surfaces; track surface) {\n      <div class=\"showcase-row\" [class.card]=\"surface === 'card'\">\n        @for (variant of variants; track variant) {\n          <button\n            neatButton\n            type=\"button\"\n            [variant]=\"variant\"\n            [pressed]=\"pressedVariants().has(variant)\"\n            (click)=\"toggle(variant)\"\n          >\n            {{ variant }}\n          </button>\n        }\n        <button\n          neatButton\n          type=\"button\"\n          variant=\"outlined\"\n          iconOnly\n          aria-label=\"Close\"\n          neatTooltip=\"Close\"\n        >\n          <neat-icon name=\"close\" />\n        </button>\n      </div>\n    }\n  `"],
           ["text",",\n  styleUrls: ["],
-          ["string","'./card.css'"],["text",", "],["string","'./pressed.example.css'"],["text","],\n})\n"],
+          ["string","'./card.css'"],["text",", "],["string","'./stack.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Pressed {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," variants = VARIANTS;\n  "],
           ["comment","/** The surfaces a button sits on, as the contrast tests have it: the page and a card. */"],["text","\n  "],
@@ -367,9 +357,9 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "pressed.example.css",
+        "name": "stack.css",
         "code": [
-          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
+          ["comment","/* The example's rows one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
         ]
       }
     ]
