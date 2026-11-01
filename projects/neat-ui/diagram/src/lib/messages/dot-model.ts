@@ -313,7 +313,7 @@ export const BATCH_SPREAD_MS = 200;
 /**
  * The start times of a batch's messages: the batch's arrival (`arrivalMs`) for its earliest
  * message, and the others after it as far apart as their own times (`offsetsMs`, on any clock in
- * ms) say, at most `BATCH_SPREAD_MS` (200 ms). A message without a finite time of its own starts
+ * ms) say, at most 200 ms. A message without a finite time of its own starts
  * at the arrival. For an app whose transport delivers messages in batches: pass each time as the
  * `atMs` of its `push`, with `performance.now()` as the arrival:
  *

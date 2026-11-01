@@ -37,6 +37,9 @@ export interface NeatDiagramNoteContext {
  */
 @Directive({ selector: 'ng-template[neatDiagramBlock]' })
 export class NeatDiagramBlockTemplate {
+  /**
+   * @internal The template the diagram renders; apps never read it.
+   */
   readonly template = inject<TemplateRef<NeatDiagramBlockContext>>(TemplateRef);
 
   static ngTemplateContextGuard(
@@ -63,6 +66,9 @@ export class NeatDiagramBlockTemplate {
  */
 @Directive({ selector: 'ng-template[neatDiagramNote]' })
 export class NeatDiagramNoteTemplate {
+  /**
+   * @internal The template the diagram renders; apps never read it.
+   */
   readonly template = inject<TemplateRef<NeatDiagramNoteContext>>(TemplateRef);
 
   static ngTemplateContextGuard(
@@ -92,6 +98,9 @@ export class NeatDiagramNoteTemplate {
  */
 @Directive({ selector: 'ng-template[neatDiagramEdgeTip]' })
 export class NeatDiagramEdgeTipTemplate {
+  /**
+   * @internal The template the diagram renders; apps never read it.
+   */
   readonly template = inject<TemplateRef<NeatDiagramEdgeTipContext>>(TemplateRef);
 
   static ngTemplateContextGuard(

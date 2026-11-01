@@ -66,6 +66,9 @@ const CONTENT_CLASSES = 'pt-(--neat-space-2) data-closed:hidden';
  *
  * Brain's collapsible is the host directive and its trigger and content directives sit in the
  * template; `open` is brain's `expanded` under the kit's name.
+ *
+ * @input open Whether the section is open; closed by default. Bind it two-way, `[(open)]`, to
+ * keep the state in the page or to open or close the section from code.
  */
 @Component({
   selector: 'neat-collapsible',

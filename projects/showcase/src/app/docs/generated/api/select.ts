@@ -209,7 +209,17 @@ export const API: DocsEntry = {
           "name": "options",
           "type": "readonly NeatSelectOption<T>[]",
           "required": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The choices in the order listed, each a value with the label it shows; one may be disabled."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "placeholder",
@@ -305,7 +315,17 @@ export const API: DocsEntry = {
           "type": "boolean",
           "default": "false",
           "transform": "booleanAttribute",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Turns the whole select off: it cannot be opened or changed."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "size",

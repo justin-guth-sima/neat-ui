@@ -211,7 +211,25 @@ export const API: DocsEntry = {
           "name": "open",
           "type": "boolean",
           "forwarded": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the section is open; closed by default. Bind it two-way, "
+                },
+                {
+                  "kind": "code",
+                  "text": "[(open)]"
+                },
+                {
+                  "kind": "text",
+                  "text": ", to keep the state in the page or to open or close the section from code."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/collapsible/src/lib/collapsible.ts"

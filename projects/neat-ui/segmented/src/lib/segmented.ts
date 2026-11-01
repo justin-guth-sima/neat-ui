@@ -135,10 +135,16 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
   `,
 })
 export class NeatSegmented<T> {
+  /**
+   * The checked option's value, matched with `===`; bind it two-way, `[(value)]`. A value that is
+   * none of the options leaves nothing checked.
+   */
   readonly value = model.required<T>();
+  /** The segments in the order shown, each a value with the label (and icon) it carries. */
   readonly options = input.required<readonly NeatSegmentedOption<T>[]>();
   /** The group's accessible name; each option is named by its own label. */
   readonly label = input.required<string>();
+  /** Turns every segment off at once; there is no per-option disabling. */
   readonly disabled = input(false, { transform: booleanAttribute });
 
   protected readonly groupClasses = GROUP_CLASSES;

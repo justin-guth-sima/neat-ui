@@ -26,6 +26,7 @@ import { NEAT_ICONS, NeatIconName } from './icon-registry';
   styleUrl: './icon.css',
 })
 export class NeatIcon {
+  /** Which glyph of the kit's set to draw; `NEAT_ICON_NAMES` lists them all. */
   readonly name = input.required<NeatIconName>();
   /** Edge length in pixels. */
   readonly size = input(20);

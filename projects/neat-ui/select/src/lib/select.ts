@@ -211,6 +211,7 @@ export class NeatSelect<T> {
    * `labelPosition` is `inline`.
    */
   readonly label = input.required<string>();
+  /** The choices in the order listed, each a value with the label it shows; one may be disabled. */
   readonly options = input.required<readonly NeatSelectOption<T>[]>();
   /** The selected option's value; `null` while there is none. Options are matched with `Object.is`. */
   readonly value = model<T | null>(null);
@@ -224,6 +225,7 @@ export class NeatSelect<T> {
    * element, for the trigger, either way.
    */
   readonly labelPosition = input<NeatSelectLabelPosition>('above');
+  /** Turns the whole select off: it cannot be opened or changed. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /** The trigger's height: `medium` (2.25rem) or `small` (2rem), as the kit's input and button. */
   readonly size = input<NeatSelectSize>('medium');

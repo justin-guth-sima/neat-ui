@@ -1,8 +1,10 @@
+/** The box tiles are laid out in, in CSS pixels (`NeatTileGrid` measures it from its host). */
 export interface NeatTileArea {
   readonly width: number;
   readonly height: number;
 }
 
+/** How tiles of one size fill an area: the grid they form and the size each tile gets. */
 export interface NeatTilePack {
   readonly columns: number;
   readonly rows: number;
@@ -68,8 +70,8 @@ export function packTiles(area: NeatTileArea, tileWidth: number, gap: number): N
  * The widest tile, in whole CSS pixels, at which `count` tiles fit into `area` on one page. For
  * each column count from 1 to `count` the rows follow (`ceil(count / columns)`), and the tile is
  * bounded by both the width and the height of the area; the column count with the widest tile
- * wins. Whole pixels, rounded down, so a floating-point edge can never make `packTiles` drop a
- * row that this function counted on.
+ * wins. Whole pixels, rounded down, so a floating-point edge can never make the grid drop a row
+ * that this function counted on.
  *
  * Never below `NEAT_MIN_TILE_WIDTH`: when `count` tiles would need narrower ones, the result is
  * the minimum and the caller pages. A count that is not a finite number of at least 1 is one tile;

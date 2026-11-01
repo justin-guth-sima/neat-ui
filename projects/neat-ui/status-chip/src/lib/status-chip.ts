@@ -68,9 +68,8 @@ const BUTTON_CLASSES =
  * decoded). `highlight` is for a state that is none of the statuses but should stand out (a stream
  * that someone else publishes); a `neat-select-list` row can take the same tone as its chip
  * (`rowTone`). The words are the app's; the colour repeats them and is never the only way a state is
- * told. `variant="tinted"` softens the chip to its tone's colour on a tint (see TONE_CLASSES); a
- * tinted chip belongs on the card or the page, not on a toned list row, whose selected fill is the
- * same tint.
+ * told. `variant="tinted"` softens the chip to its tone's colour on a tint; a tinted chip belongs
+ * on the card or the page, not on a toned list row, whose selected fill is the same tint.
  */
 @Component({
   selector: 'neat-status-chip',
@@ -79,7 +78,9 @@ const BUTTON_CLASSES =
   template: '<ng-content />',
 })
 export class NeatStatusChip {
+  /** The status the chip states, which sets its colours; `neutral` for a plain label. */
   readonly tone = input<NeatTone>('neutral');
+  /** `solid` (the default) fills the chip with the tone; `tinted` shows it on a light tint. */
   readonly variant = input<NeatStatusChipVariant>('solid');
 
   protected readonly classes = computed(
@@ -98,7 +99,9 @@ export class NeatStatusChip {
   host: { 'data-slot': 'status-chip', '[class]': 'classes()' },
 })
 export class NeatStatusChipButton {
+  /** The status the chip states, which sets its colours; `neutral` for a plain label. */
   readonly tone = input<NeatTone>('neutral');
+  /** `solid` (the default) fills the chip with the tone; `tinted` shows it on a light tint. */
   readonly variant = input<NeatStatusChipVariant>('solid');
 
   protected readonly classes = computed(

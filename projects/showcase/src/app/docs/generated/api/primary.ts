@@ -9,14 +9,43 @@ export const API: DocsEntry = {
       "name": "ColorScale",
       "kind": "type",
       "definition": "Record<Exclude<ColorStep, 0>, string>",
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A colour ramp: a hex colour for each step from 50 to 950, as "
+            },
+            {
+              "kind": "ref",
+              "text": "buildColorScale",
+              "name": "buildColorScale"
+            },
+            {
+              "kind": "text",
+              "text": " makes it."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/src/lib/theme/color-scale.ts"
     },
     {
       "name": "ColorStep",
       "kind": "type",
       "definition": "0 | 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950",
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A step of a ramp, named as Tailwind names its shades: 50 the lightest through 950 the darkest. Step 0 exists only in a surface ramp, where it is white."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/src/lib/theme/color-scale.ts"
     },
     {
@@ -993,13 +1022,73 @@ export const API: DocsEntry = {
           "name": "variant",
           "type": "NeatButtonVariant",
           "default": "'primary'",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The look of the button, by the kind of action it starts; "
+                },
+                {
+                  "kind": "code",
+                  "text": "primary"
+                },
+                {
+                  "kind": "text",
+                  "text": " is the main one."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "size",
           "type": "NeatButtonSize",
           "default": "'medium'",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The button's height: "
+                },
+                {
+                  "kind": "code",
+                  "text": "small"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "medium"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "large"
+                },
+                {
+                  "kind": "text",
+                  "text": " or "
+                },
+                {
+                  "kind": "code",
+                  "text": "touch"
+                },
+                {
+                  "kind": "text",
+                  "text": " (3rem), for touch screens."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "iconOnly",
@@ -1095,7 +1184,41 @@ export const API: DocsEntry = {
           "name": "disabled",
           "type": "string | boolean | null | undefined",
           "forwarded": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Turns the button off: dimmed, out of the Tab order and not clickable (a link gets no "
+                },
+                {
+                  "kind": "code",
+                  "text": "disabled"
+                },
+                {
+                  "kind": "text",
+                  "text": " attribute but the same look and "
+                },
+                {
+                  "kind": "code",
+                  "text": "tabindex=\"-1\""
+                },
+                {
+                  "kind": "text",
+                  "text": "). It loses the focus; use "
+                },
+                {
+                  "kind": "code",
+                  "text": "aria-disabled"
+                },
+                {
+                  "kind": "text",
+                  "text": " for a button that waits."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/src/lib/button/button.ts"
@@ -1125,7 +1248,73 @@ export const API: DocsEntry = {
       "name": "NeatButtonVariant",
       "kind": "type",
       "definition": "'primary' | 'secondary' | 'outlined' | 'text' | 'danger' | 'danger-text' | 'success'",
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The button's look, by what the action does: "
+            },
+            {
+              "kind": "code",
+              "text": "primary"
+            },
+            {
+              "kind": "text",
+              "text": " the page's main action, "
+            },
+            {
+              "kind": "code",
+              "text": "secondary"
+            },
+            {
+              "kind": "text",
+              "text": " a quieter filled one, "
+            },
+            {
+              "kind": "code",
+              "text": "outlined"
+            },
+            {
+              "kind": "text",
+              "text": " a bordered one, "
+            },
+            {
+              "kind": "code",
+              "text": "text"
+            },
+            {
+              "kind": "text",
+              "text": " no fill and no border (for actions among others), "
+            },
+            {
+              "kind": "code",
+              "text": "danger"
+            },
+            {
+              "kind": "text",
+              "text": " a solid red for what stops or discards something, "
+            },
+            {
+              "kind": "code",
+              "text": "danger-text"
+            },
+            {
+              "kind": "text",
+              "text": " that red as text for a destructive action among text buttons, and "
+            },
+            {
+              "kind": "code",
+              "text": "success"
+            },
+            {
+              "kind": "text",
+              "text": " a solid green for what starts something."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/src/lib/button/button.ts"
     },
     {
@@ -1157,7 +1346,26 @@ export const API: DocsEntry = {
       "name": "NeatColorScheme",
       "kind": "type",
       "definition": "'light' | 'dark'",
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The two colour schemes the kit has, which "
+            },
+            {
+              "kind": "ref",
+              "text": "ThemeService",
+              "name": "ThemeService"
+            },
+            {
+              "kind": "text",
+              "text": " switches between."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/src/lib/theme/theme.service.ts"
     },
     {
@@ -1279,7 +1487,26 @@ export const API: DocsEntry = {
           "name": "name",
           "type": "NeatIconName",
           "required": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Which glyph of the kit's set to draw; "
+                },
+                {
+                  "kind": "ref",
+                  "text": "NEAT_ICON_NAMES",
+                  "name": "NEAT_ICON_NAMES"
+                },
+                {
+                  "kind": "text",
+                  "text": " lists them all."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "size",
@@ -1319,7 +1546,33 @@ export const API: DocsEntry = {
       "name": "NeatIconName",
       "kind": "type",
       "definition": "keyof typeof NEAT_ICONS",
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The name of a glyph in the kit's curated icon set, what "
+            },
+            {
+              "kind": "code",
+              "text": "neat-icon"
+            },
+            {
+              "kind": "text",
+              "text": "'s "
+            },
+            {
+              "kind": "code",
+              "text": "name"
+            },
+            {
+              "kind": "text",
+              "text": " takes."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/src/lib/icon/icon-registry.ts"
     },
     {
@@ -1366,7 +1619,33 @@ export const API: DocsEntry = {
           "name": "disabled",
           "type": "string | boolean | null | undefined",
           "forwarded": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Turns the action off: dimmed, out of the Tab order and not clickable (a link gets no "
+                },
+                {
+                  "kind": "code",
+                  "text": "disabled"
+                },
+                {
+                  "kind": "text",
+                  "text": " attribute but the same look and "
+                },
+                {
+                  "kind": "code",
+                  "text": "tabindex=\"-1\""
+                },
+                {
+                  "kind": "text",
+                  "text": ")."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/src/lib/button/inline-button.ts"
@@ -1737,19 +2016,114 @@ export const API: DocsEntry = {
           "name": "scroll",
           "type": "'body' | 'none'",
           "default": "'body'",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Which part scrolls: "
+                },
+                {
+                  "kind": "code",
+                  "text": "body"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the default) makes the body the page's one scroll container; "
+                },
+                {
+                  "kind": "code",
+                  "text": "none"
+                },
+                {
+                  "kind": "text",
+                  "text": " clips it, for content that sizes itself to the page."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "padding",
           "type": "'page' | 'none'",
           "default": "'page'",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The inset around the content: "
+                },
+                {
+                  "kind": "code",
+                  "text": "page"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the default) keeps the kit's page padding, which scrolls with the content; "
+                },
+                {
+                  "kind": "code",
+                  "text": "none"
+                },
+                {
+                  "kind": "text",
+                  "text": " lets full-bleed content reach the edges."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "aside",
           "type": "'open' | 'closed'",
           "default": "'closed'",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the side panel (the elements marked "
+                },
+                {
+                  "kind": "code",
+                  "text": "neatPageAside"
+                },
+                {
+                  "kind": "text",
+                  "text": ") is shown: "
+                },
+                {
+                  "kind": "code",
+                  "text": "closed"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the default) or "
+                },
+                {
+                  "kind": "code",
+                  "text": "open"
+                },
+                {
+                  "kind": "text",
+                  "text": ". The page owns no state: bind it to yours, or to "
+                },
+                {
+                  "kind": "ref",
+                  "text": "neatAsideOpen",
+                  "name": "neatAsideOpen"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
         }
       ],
       "models": [
@@ -2495,14 +2869,6 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", through "
-            },
-            {
-              "kind": "code",
-              "text": "seriesToken"
-            },
-            {
-              "kind": "text",
               "text": "), so a label and its line match in either theme. A chart folds a ninth series and beyond into \"Other\" (index 7), so an index past 7 names no colour. A chart's lone series is drawn in its tone's colour instead and needs no swatch."
             }
           ]
@@ -2779,13 +3145,33 @@ export const API: DocsEntry = {
           "name": "appName",
           "type": "string",
           "required": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The app's name, shown in the top bar beside the logo."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "navItems",
           "type": "NeatNavItem[]",
           "required": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The pages the rail links to, in order: each an icon, a label and an absolute path."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/src/lib/shell/shell.ts"
@@ -2924,19 +3310,65 @@ export const API: DocsEntry = {
           "name": "neatTooltip",
           "type": "string | TemplateRef<void> | null",
           "forwarded": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The text to show, which also names the directive: "
+                },
+                {
+                  "kind": "code",
+                  "text": "neatTooltip=\"Delete\""
+                },
+                {
+                  "kind": "text",
+                  "text": ". A string only; empty shows nothing."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "neatTooltipPosition",
           "type": "'top' | 'bottom' | 'left' | 'right'",
           "forwarded": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The side of the host the tooltip prefers, "
+                },
+                {
+                  "kind": "code",
+                  "text": "top"
+                },
+                {
+                  "kind": "text",
+                  "text": " by default; it goes to another side when it has no room there."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "neatTooltipDisabled",
           "type": "boolean",
           "forwarded": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Turns the tooltip off, for a host that needs none at the moment. An attribute alone means true."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/src/lib/tooltip/tooltip.ts"
@@ -2945,7 +3377,17 @@ export const API: DocsEntry = {
       "name": "NeatTooltipPosition",
       "kind": "type",
       "definition": "'top' | 'right' | 'bottom' | 'left'",
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The side of its host a tooltip opens on."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/src/lib/tooltip/tooltip.ts"
     },
     {
@@ -3047,7 +3489,17 @@ export const API: DocsEntry = {
       "name": "SurfaceScale",
       "kind": "type",
       "definition": "Record<ColorStep, string>",
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A ramp of surface colours, white at step 0 to the darkest at 950, from the surface builders."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/src/lib/theme/color-scale.ts"
     },
     {
@@ -3106,7 +3558,17 @@ export const API: DocsEntry = {
         {
           "name": "toggle",
           "signature": "toggle(): void",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Switches to the other scheme and stores the choice, as the shell's theme item does."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/src/lib/theme/theme.service.ts"

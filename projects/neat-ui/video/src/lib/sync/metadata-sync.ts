@@ -33,6 +33,12 @@ export interface NeatMetadataQueueStats {
   late: number;
 }
 
+/**
+ * What a tile's metadata queue holds and how late it has been, from `NeatVideoTile.snapshot`: the
+ * cumulative counters and the messages still waiting for a frame, then the lateness of the last
+ * five seconds, which the app's lateness notice reads. The `recent` figures are `null` while the
+ * window has too little to say.
+ */
 export interface NeatMetadataSnapshot extends NeatMetadataQueueStats {
   timestampedPending: number;
   arrivalPending: number;

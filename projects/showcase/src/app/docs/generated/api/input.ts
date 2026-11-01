@@ -95,13 +95,65 @@ export const API: DocsEntry = {
           "name": "size",
           "type": "NeatInputSize",
           "default": "'medium'",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The field's height, the kit's "
+                },
+                {
+                  "kind": "code",
+                  "text": "medium"
+                },
+                {
+                  "kind": "text",
+                  "text": " (2.25rem) or "
+                },
+                {
+                  "kind": "code",
+                  "text": "small"
+                },
+                {
+                  "kind": "text",
+                  "text": " (2rem); not a character width."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "id",
           "type": "string | undefined",
           "forwarded": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The field's "
+                },
+                {
+                  "kind": "code",
+                  "text": "id"
+                },
+                {
+                  "kind": "text",
+                  "text": ", for a "
+                },
+                {
+                  "kind": "code",
+                  "text": "<label for>"
+                },
+                {
+                  "kind": "text",
+                  "text": " to point at; without one the field gets an id of its own."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/input/src/lib/input.ts"

@@ -67,6 +67,8 @@ const THUMB_CLASSES = hlm(SLIDER_HELM_CLASSES.thumb, 'bg-background focus-visibl
  * Brain's slider is the host directive; its track, range and thumb directives draw it with helm's
  * classes. Brain holds a list of values (it also does ranges), so the kit's single number is kept
  * in step with it here.
+ *
+ * @input disabled Turns the slider off: it ignores the pointer and the keys and is dimmed.
  */
 @Component({
   selector: 'neat-slider',
@@ -96,9 +98,13 @@ const THUMB_CLASSES = hlm(SLIDER_HELM_CLASSES.thumb, 'bg-background focus-visibl
   `,
 })
 export class NeatSlider {
+  /** The number, 0 until set; bind it two-way, `[(value)]`. Changes while a drag is under way. */
   readonly value = model(0);
+  /** The smallest value, at the start of the track. */
   readonly min = input.required<number>();
+  /** The largest value, at the end of the track. */
   readonly max = input.required<number>();
+  /** The distance between values: an arrow key moves by one step, Page Up and Down by ten. */
   readonly step = input.required<number>();
   /** The accessible name, announced with the value. */
   readonly label = input.required<string>();

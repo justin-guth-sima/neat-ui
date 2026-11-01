@@ -149,19 +149,73 @@ export const API: DocsEntry = {
           "property": "key",
           "type": "string",
           "required": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The column's name, written as the directive's own attribute: "
+                },
+                {
+                  "kind": "code",
+                  "text": "neatColumn=\"state\""
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "header",
           "type": "string",
           "default": "''",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The label over the column; empty by default, and no header row while no column has one."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "width",
           "type": "string",
           "default": "'1fr'",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The column's track size in the list's grid, any CSS grid track size ("
+                },
+                {
+                  "kind": "code",
+                  "text": "6rem"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "auto"
+                },
+                {
+                  "kind": "text",
+                  "text": ")."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "align",
@@ -193,13 +247,6 @@ export const API: DocsEntry = {
               ]
             }
           ]
-        }
-      ],
-      "properties": [
-        {
-          "name": "template",
-          "type": "TemplateRef<unknown>",
-          "doc": []
         }
       ],
       "source": "projects/neat-ui/select-list/src/lib/select-list.ts"
@@ -619,7 +666,25 @@ export const API: DocsEntry = {
           "name": "items",
           "type": "readonly T[]",
           "required": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The items, one row each, in the order given (within its group, with "
+                },
+                {
+                  "kind": "code",
+                  "text": "groups"
+                },
+                {
+                  "kind": "text",
+                  "text": ")."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "trackBy",

@@ -270,12 +270,22 @@ export class NeatFileBrowser {
   readonly folder = model('');
   /** The selected file's path. */
   readonly selected = model<string | null>(null);
+  /**
+   * `pick` chooses one file (`selected`); `manage` adds a checkbox on each file, for the paths in
+   * `checked`.
+   */
   readonly mode = input<NeatFileBrowserMode>('pick');
   /** The checked files' paths, in `manage` mode. */
   readonly checked = model<readonly string[]>([]);
+  /** The hint inside the empty filter field; none by default. Its name is `labels.filter`. */
   readonly filterPlaceholder = input('');
   /** Words the count under the breadcrumb: the current folder's name, and its available files. */
   readonly countLabel = input<(folder: string, count: number) => string>(defaultCountLabel);
+  /**
+   * The words the browser says itself (names for assistive technology, the empty and no-match
+   * messages, the count texts), as far as you replace them, e.g. to translate: any you leave out
+   * keep the English default.
+   */
   readonly labels = input<Partial<NeatFileBrowserLabels>>({});
   /**
    * The filter field's text. Two-way, so an app can tell whether a filter is active (a note about

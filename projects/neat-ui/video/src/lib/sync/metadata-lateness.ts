@@ -30,6 +30,11 @@ export interface NeatGlobalBufferAction {
   valueMs: number;
 }
 
+/**
+ * What an app's "metadata late" notice shows and offers, from `lateNoticeDetails`: how late the
+ * metadata is (median ms, share of messages in percent), the video sync buffer in use, the
+ * suggested one, why none is suggested if so, and the action for the global setting.
+ */
 export interface NeatLateNoticeDetails {
   latenessMs: number | null;
   latePercent: number | null;
@@ -39,7 +44,12 @@ export interface NeatLateNoticeDetails {
   globalAction: NeatGlobalBufferAction | null;
 }
 
-// Two thresholds, so a share hovering around one value does not make the chip blink.
+/**
+ * Whether the late-metadata warning is on after this sample, from whether it was on before and
+ * the recent late share (0 to 1, `null` when unknown, which changes nothing). It turns on at half
+ * the messages late and off below a tenth; in between it stays as it was, so a share hovering
+ * around one value does not make the chip blink.
+ */
 export function nextWarningActive(active: boolean, recentLateShare: number | null): boolean {
   if (recentLateShare == null) return active;
   if (recentLateShare >= LATE_SHARE_ON) return true;
@@ -58,8 +68,12 @@ export function suggestedBufferMs(
   return suggested > BUFFER_MAX_MS ? null : suggested;
 }
 
-// A browser moves to a raised jitter buffer target gradually, roughly 100 ms per
-// second of video. What is measured until it has arrived describes the old buffer.
+/**
+ * How long, in ms, to keep the late warning off after the video sync buffer changes from
+ * `previousBufferMs` to `nextBufferMs`: a browser moves to a raised jitter buffer target
+ * gradually, roughly 100 ms per second of video, and what is measured until it has arrived still
+ * describes the old buffer. A second, plus ten times the raise (a lowered buffer: a second).
+ */
 export function bufferSettleMs(previousBufferMs: number, nextBufferMs: number): number {
   const raisedBy = Math.max(0, nextBufferMs - previousBufferMs);
   if (!Number.isFinite(raisedBy)) return SETTLE_BASE_MS;
@@ -82,6 +96,14 @@ function globalActionFor(
   return { kind: 'raise', valueMs: suggested };
 }
 
+/**
+ * What the "metadata late" notice says and offers for `snapshot`, the lateness window
+ * (`NeatMetadataSnapshot`'s `recent` figures), when the video sync buffer is `currentBufferMs`.
+ * `bufferSupported` is whether the browser can set a buffer at all, and `followedBufferMs` the
+ * value the app's channels follow, if it has one, which decides whether the second button raises
+ * it or only lets this channel adopt it. The suggested buffer covers the slowest tenth of the
+ * messages (the 90th percentile) plus a margin, in steps of 50 ms, up to the 4000 ms maximum.
+ */
 export function lateNoticeDetails(
   snapshot: NeatLatenessSnapshot,
   currentBufferMs: number,

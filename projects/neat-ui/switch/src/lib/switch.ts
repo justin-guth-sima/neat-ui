@@ -71,7 +71,9 @@ const HOST_CLASSES =
   `,
 })
 export class NeatSwitch {
+  /** Whether the switch is on; off by default. Bind it two-way, `[(checked)]`. */
   readonly checked = model(false);
+  /** Turns the switch off: dimmed, out of the Tab order and not toggled by a click. */
   readonly disabled = input(false, { transform: booleanAttribute });
 
   protected readonly hostClasses: string = HOST_CLASSES;

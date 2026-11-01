@@ -1296,14 +1296,6 @@ test('the committed docs match the kit and the examples (run `npm run docs:emit`
   assert.deepEqual(checkDocs(ROOT).stale, []);
 });
 
-// Turns strict once the kit's doc pass has written the missing docs; until then it reports them
-// without failing the run, so the list is visible in every test run.
-test(
-  'every public part and own input, model and output of the kit has a doc',
-  {
-    todo: 'the kit doc pass writes the docs still missing',
-  },
-  () => {
-    assert.deepEqual(checkDocs(ROOT).problems, []);
-  },
-);
+test('every public part and own input, model and output of the kit has a doc', () => {
+  assert.deepEqual(checkDocs(ROOT).problems, []);
+});

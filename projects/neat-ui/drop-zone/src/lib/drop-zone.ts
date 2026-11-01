@@ -112,6 +112,7 @@ export class NeatDropZone {
   readonly multiple = input(false, { transform: booleanAttribute });
   /** The kinds of file to take, as the native `accept` attribute has it. */
   readonly accept = input<string>();
+  /** Turns the zone off: it takes neither a drop nor a click to choose files. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /** The files that were dropped or chosen and taken, once per drop or choice. */
   readonly files = output<File[]>();

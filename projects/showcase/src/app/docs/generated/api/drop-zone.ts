@@ -214,7 +214,17 @@ export const API: DocsEntry = {
           "type": "boolean",
           "default": "false",
           "transform": "booleanAttribute",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Turns the zone off: it takes neither a drop nor a click to choose files."
+                }
+              ]
+            }
+          ]
         }
       ],
       "outputs": [

@@ -123,7 +123,9 @@ function routeTitle(root: ActivatedRouteSnapshot): string {
   styleUrl: './shell.css',
 })
 export class NeatShell {
+  /** The app's name, shown in the top bar beside the logo. */
   readonly appName = input.required<string>();
+  /** The pages the rail links to, in order: each an icon, a label and an absolute path. */
   readonly navItems = input.required<NeatNavItem[]>();
 
   protected readonly theme = inject(ThemeService);

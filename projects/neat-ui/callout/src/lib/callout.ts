@@ -116,6 +116,7 @@ const ICONS: Record<NeatTone, NeatIconName> = {
   `,
 })
 export class NeatCallout {
+  /** The kind of note: sets the fill, the start border and the icon. */
   readonly tone = input<NeatTone>('info');
   /** A short heading over the body; none if empty. */
   readonly heading = input('');

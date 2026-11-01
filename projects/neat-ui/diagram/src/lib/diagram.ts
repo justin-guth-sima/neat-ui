@@ -70,11 +70,11 @@ import { DiagramZoom } from './zoom';
  *
  * The user pans and zooms it (drag, wheel, pinch, double-click; with the box focused, the arrow
  * keys, `+`, `-` and `0`); it fits its level to the box by itself until they do, and `fit()` fits
- * it again (`DiagramZoom`). It takes the wheel and touch over its box (`touch-action: none`), so
+ * it again. It takes the wheel and touch over its box (`touch-action: none`), so
  * give it a bounded box, not a long stretch of a scrolling page.
  *
  * A `neat-diagram-messages` projected into it draws the messages moving along its edges, over the
- * drawing; the diagram gives it what it draws by (`DiagramMessagesContext`).
+ * drawing; the diagram gives it the level, its edges and the pan and zoom it draws by.
  */
 @Component({
   selector: 'neat-diagram',

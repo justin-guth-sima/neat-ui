@@ -199,7 +199,17 @@ export const API: DocsEntry = {
           "name": "tone",
           "type": "NeatTone",
           "default": "'info'",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The kind of note: sets the fill, the start border and the icon."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "heading",

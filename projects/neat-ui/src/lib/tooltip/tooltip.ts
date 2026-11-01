@@ -11,6 +11,7 @@ import {
 } from '../ui/tooltip/src';
 import { hlm } from '../ui/utils/src';
 
+/** The side of its host a tooltip opens on. */
 export type NeatTooltipPosition = 'top' | 'right' | 'bottom' | 'left';
 
 /**
@@ -40,6 +41,13 @@ export function provideNeatTooltipOptions(position?: NeatTooltipPosition) {
  * Built like helm's tooltip (brain primitive plus helm's classes) rather than on top of it: a host
  * directive cannot re-expose inputs of its own host directives, and every host directive of a
  * public directive becomes public API.
+ *
+ * @input neatTooltip The text to show, which also names the directive: `neatTooltip="Delete"`. A
+ * string only; empty shows nothing.
+ * @input neatTooltipPosition The side of the host the tooltip prefers, `top` by default; it goes
+ * to another side when it has no room there.
+ * @input neatTooltipDisabled Turns the tooltip off, for a host that needs none at the moment. An
+ * attribute alone means true.
  */
 @Directive({
   selector: '[neatTooltip]',

@@ -398,13 +398,69 @@ export const API: DocsEntry = {
           "name": "mode",
           "type": "NeatFileBrowserMode",
           "default": "'pick'",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "code",
+                  "text": "pick"
+                },
+                {
+                  "kind": "text",
+                  "text": " chooses one file ("
+                },
+                {
+                  "kind": "code",
+                  "text": "selected"
+                },
+                {
+                  "kind": "text",
+                  "text": "); "
+                },
+                {
+                  "kind": "code",
+                  "text": "manage"
+                },
+                {
+                  "kind": "text",
+                  "text": " adds a checkbox on each file, for the paths in "
+                },
+                {
+                  "kind": "code",
+                  "text": "checked"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "filterPlaceholder",
           "type": "string",
           "default": "''",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The hint inside the empty filter field; none by default. Its name is "
+                },
+                {
+                  "kind": "code",
+                  "text": "labels.filter"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "countLabel",
@@ -426,7 +482,17 @@ export const API: DocsEntry = {
           "name": "labels",
           "type": "Partial<NeatFileBrowserLabels>",
           "default": "{}",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The words the browser says itself (names for assistive technology, the empty and no-match messages, the count texts), as far as you replace them, e.g. to translate: any you leave out keep the English default."
+                }
+              ]
+            }
+          ]
         }
       ],
       "models": [

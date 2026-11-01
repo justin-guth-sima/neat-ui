@@ -195,13 +195,6 @@ export const API: DocsEntry = {
           "doc": []
         }
       ],
-      "properties": [
-        {
-          "name": "template",
-          "type": "TemplateRef<NeatDiagramBlockContext>",
-          "doc": []
-        }
-      ],
       "source": "projects/neat-ui/diagram/src/lib/templates.ts"
     },
     {
@@ -456,7 +449,65 @@ export const API: DocsEntry = {
           ]
         }
       ],
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A line between two nodes of a level, which the kit routes: its colour is a charts series ("
+            },
+            {
+              "kind": "code",
+              "text": "series"
+            },
+            {
+              "kind": "text",
+              "text": "), its look "
+            },
+            {
+              "kind": "code",
+              "text": "line"
+            },
+            {
+              "kind": "text",
+              "text": ", its ends "
+            },
+            {
+              "kind": "code",
+              "text": "start"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "end"
+            },
+            {
+              "kind": "text",
+              "text": ", with an optional "
+            },
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": " on it. The app does not place it, only names the nodes it joins. The kit never reads "
+            },
+            {
+              "kind": "code",
+              "text": "data"
+            },
+            {
+              "kind": "text",
+              "text": ": it is the app's."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/diagram/src/lib/model.ts"
     },
     {
@@ -538,13 +589,6 @@ export const API: DocsEntry = {
           "doc": []
         }
       ],
-      "properties": [
-        {
-          "name": "template",
-          "type": "TemplateRef<NeatDiagramEdgeTipContext>",
-          "doc": []
-        }
-      ],
       "source": "projects/neat-ui/diagram/src/lib/templates.ts"
     },
     {
@@ -588,15 +632,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " for it, as the charts' legends do. Any other item shows a short sample of its line (solid when unset), drawn by the edges' own rules (lines.css) in the colour its edges take ("
-            },
-            {
-              "kind": "code",
-              "text": "lineColour"
-            },
-            {
-              "kind": "text",
-              "text": "): muted for a ghost, without a series, or for a series that is not 1 to 8. Samples and swatches are "
+              "text": " for it, as the charts' legends do. Any other item shows a short sample of its line (solid when unset), drawn by the edges' own rules (lines.css) in the colour its edges take: muted for a ghost, without a series, or for a series that is not 1 to 8. Samples and swatches are "
             },
             {
               "kind": "code",
@@ -1116,7 +1152,34 @@ export const API: DocsEntry = {
           "name": "settings",
           "type": "NeatDiagramMessageSettings",
           "default": "NEAT_DIAGRAM_MESSAGE_DEFAULTS",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How the dots animate: speed, size, messages per dot and whether they follow the steps. The rates and counts do not depend on it. Defaults to "
+                },
+                {
+                  "kind": "ref",
+                  "text": "NEAT_DIAGRAM_MESSAGE_DEFAULTS",
+                  "name": "NEAT_DIAGRAM_MESSAGE_DEFAULTS"
+                },
+                {
+                  "kind": "text",
+                  "text": "; give the "
+                },
+                {
+                  "kind": "code",
+                  "text": "neat-diagram-animation-settings"
+                },
+                {
+                  "kind": "text",
+                  "text": " panel's model to let the user tune it."
+                }
+              ]
+            }
+          ]
         }
       ],
       "methods": [
@@ -1426,7 +1489,81 @@ export const API: DocsEntry = {
           ]
         }
       ],
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "One node of a diagram level: a frame, block, band or bracket ("
+            },
+            {
+              "kind": "code",
+              "text": "role"
+            },
+            {
+              "kind": "text",
+              "text": "), placed by hand at "
+            },
+            {
+              "kind": "code",
+              "text": "x"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "y"
+            },
+            {
+              "kind": "text",
+              "text": " with the size "
+            },
+            {
+              "kind": "code",
+              "text": "w"
+            },
+            {
+              "kind": "text",
+              "text": " by "
+            },
+            {
+              "kind": "code",
+              "text": "h"
+            },
+            {
+              "kind": "text",
+              "text": ", in diagram units. A node with a "
+            },
+            {
+              "kind": "code",
+              "text": "parent"
+            },
+            {
+              "kind": "text",
+              "text": " sits inside it and is placed relative to it; a block with "
+            },
+            {
+              "kind": "code",
+              "text": "opens"
+            },
+            {
+              "kind": "text",
+              "text": " is a button that opens that level. The kit never reads "
+            },
+            {
+              "kind": "code",
+              "text": "data"
+            },
+            {
+              "kind": "text",
+              "text": ": it is the app's, handed back to the app's templates."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/diagram/src/lib/model.ts"
     },
     {
@@ -1663,13 +1800,6 @@ export const API: DocsEntry = {
         {
           "name": "$implicit",
           "type": "NeatDiagramNote",
-          "doc": []
-        }
-      ],
-      "properties": [
-        {
-          "name": "template",
-          "type": "TemplateRef<NeatDiagramNoteContext>",
           "doc": []
         }
       ],
@@ -2048,15 +2178,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " fits it again ("
-            },
-            {
-              "kind": "code",
-              "text": "DiagramZoom"
-            },
-            {
-              "kind": "text",
-              "text": "). It takes the wheel and touch over its box ("
+              "text": " fits it again. It takes the wheel and touch over its box ("
             },
             {
               "kind": "code",
@@ -2081,15 +2203,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " projected into it draws the messages moving along its edges, over the drawing; the diagram gives it what it draws by ("
-            },
-            {
-              "kind": "code",
-              "text": "DiagramMessagesContext"
-            },
-            {
-              "kind": "text",
-              "text": ")."
+              "text": " projected into it draws the messages moving along its edges, over the drawing; the diagram gives it the level, its edges and the pan and zoom it draws by."
             }
           ]
         }
@@ -2207,15 +2321,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", on any clock in ms) say, at most "
-            },
-            {
-              "kind": "code",
-              "text": "BATCH_SPREAD_MS"
-            },
-            {
-              "kind": "text",
-              "text": " (200 ms). A message without a finite time of its own starts at the arrival. For an app whose transport delivers messages in batches: pass each time as the "
+              "text": ", on any clock in ms) say, at most 200 ms. A message without a finite time of its own starts at the arrival. For an app whose transport delivers messages in batches: pass each time as the "
             },
             {
               "kind": "code",

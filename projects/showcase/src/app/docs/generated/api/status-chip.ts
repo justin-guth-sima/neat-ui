@@ -55,7 +55,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " softens the chip to its tone's colour on a tint (see TONE_CLASSES); a tinted chip belongs on the card or the page, not on a toned list row, whose selected fill is the same tint."
+              "text": " softens the chip to its tone's colour on a tint; a tinted chip belongs on the card or the page, not on a toned list row, whose selected fill is the same tint."
             }
           ]
         }
@@ -65,13 +65,53 @@ export const API: DocsEntry = {
           "name": "tone",
           "type": "NeatTone",
           "default": "'neutral'",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The status the chip states, which sets its colours; "
+                },
+                {
+                  "kind": "code",
+                  "text": "neutral"
+                },
+                {
+                  "kind": "text",
+                  "text": " for a plain label."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "variant",
           "type": "NeatStatusChipVariant",
           "default": "'solid'",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "code",
+                  "text": "solid"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the default) fills the chip with the tone; "
+                },
+                {
+                  "kind": "code",
+                  "text": "tinted"
+                },
+                {
+                  "kind": "text",
+                  "text": " shows it on a light tint."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/status-chip/src/lib/status-chip.ts"
@@ -112,13 +152,53 @@ export const API: DocsEntry = {
           "name": "tone",
           "type": "NeatTone",
           "default": "'neutral'",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The status the chip states, which sets its colours; "
+                },
+                {
+                  "kind": "code",
+                  "text": "neutral"
+                },
+                {
+                  "kind": "text",
+                  "text": " for a plain label."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "variant",
           "type": "NeatStatusChipVariant",
           "default": "'solid'",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "code",
+                  "text": "solid"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the default) fills the chip with the tone; "
+                },
+                {
+                  "kind": "code",
+                  "text": "tinted"
+                },
+                {
+                  "kind": "text",
+                  "text": " shows it on a light tint."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/status-chip/src/lib/status-chip.ts"

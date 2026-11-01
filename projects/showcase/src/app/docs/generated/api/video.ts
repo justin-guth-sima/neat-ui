@@ -239,7 +239,26 @@ export const API: DocsEntry = {
           "doc": []
         }
       ],
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What an app's \"metadata late\" notice shows and offers, from "
+            },
+            {
+              "kind": "ref",
+              "text": "lateNoticeDetails",
+              "name": "lateNoticeDetails"
+            },
+            {
+              "kind": "text",
+              "text": ": how late the metadata is (median ms, share of messages in percent), the video sync buffer in use, the suggested one, why none is suggested if so, and the action for the global setting."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/video/src/lib/sync/metadata-lateness.ts"
     },
     {
@@ -433,7 +452,43 @@ export const API: DocsEntry = {
           "doc": []
         }
       ],
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What a tile's metadata queue holds and how late it has been, from "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatVideoTile.snapshot",
+              "name": "NeatVideoTile",
+              "member": "snapshot"
+            },
+            {
+              "kind": "text",
+              "text": ": the cumulative counters and the messages still waiting for a frame, then the lateness of the last five seconds, which the app's lateness notice reads. The "
+            },
+            {
+              "kind": "code",
+              "text": "recent"
+            },
+            {
+              "kind": "text",
+              "text": " figures are "
+            },
+            {
+              "kind": "code",
+              "text": "null"
+            },
+            {
+              "kind": "text",
+              "text": " while the window has too little to say."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/video/src/lib/sync/metadata-sync.ts"
     },
     {
@@ -975,7 +1030,33 @@ export const API: DocsEntry = {
           "name": "type",
           "type": "NeatRoiPolygon['type']",
           "required": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The region type whose outline colour the dot takes: "
+                },
+                {
+                  "kind": "code",
+                  "text": "inclusion"
+                },
+                {
+                  "kind": "text",
+                  "text": " or "
+                },
+                {
+                  "kind": "code",
+                  "text": "exclusion"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/video/src/lib/roi-editor/roi-swatch.ts"
@@ -995,7 +1076,26 @@ export const API: DocsEntry = {
           "doc": []
         }
       ],
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The box tiles are laid out in, in CSS pixels ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatTileGrid",
+              "name": "NeatTileGrid"
+            },
+            {
+              "kind": "text",
+              "text": " measures it from its host)."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/video/src/lib/grid/pack.ts"
     },
     {
@@ -1145,7 +1245,25 @@ export const API: DocsEntry = {
         {
           "name": "layout",
           "type": "NeatTileLayout",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The packed grid: columns, rows, tiles per page and the tile size. Emitted once the box is measured and again whenever a value of it changes; slice your items to "
+                },
+                {
+                  "kind": "code",
+                  "text": "perPage"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/video/src/lib/grid/tile-grid.ts"
@@ -1254,7 +1372,17 @@ export const API: DocsEntry = {
           "doc": []
         }
       ],
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How tiles of one size fill an area: the grid they form and the size each tile gets."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/video/src/lib/grid/pack.ts"
     },
     {
@@ -1533,7 +1661,33 @@ export const API: DocsEntry = {
           "name": "source",
           "type": "NeatTileSource | null",
           "default": "null",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Where the video and its metadata come from; "
+                },
+                {
+                  "kind": "code",
+                  "text": "null"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the default) leaves the tile "
+                },
+                {
+                  "kind": "code",
+                  "text": "empty"
+                },
+                {
+                  "kind": "text",
+                  "text": ". Give it the channel's source once it has one: the tile plays its stream and draws its metadata."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "settings",
@@ -1619,20 +1773,90 @@ export const API: DocsEntry = {
           "name": "bars",
           "type": "boolean",
           "default": "true",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the bar along the bottom ("
+                },
+                {
+                  "kind": "code",
+                  "text": "label"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "status"
+                },
+                {
+                  "kind": "text",
+                  "text": ", chips) and the no-video note show."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "selected",
           "type": "boolean",
           "default": "false",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Draws the kit's focus ring around the tile, for the tile the app has chosen."
+                }
+              ]
+            }
+          ]
         }
       ],
       "outputs": [
         {
           "name": "stateChange",
           "type": "NeatTileState",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The tile's state each time it changes: "
+                },
+                {
+                  "kind": "code",
+                  "text": "empty"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "playing"
+                },
+                {
+                  "kind": "text",
+                  "text": " or "
+                },
+                {
+                  "kind": "code",
+                  "text": "stopped"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "frameStats",
@@ -1721,7 +1945,33 @@ export const API: DocsEntry = {
       "name": "bufferSettleMs",
       "kind": "function",
       "signature": "bufferSettleMs(previousBufferMs: number, nextBufferMs: number): number",
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How long, in ms, to keep the late warning off after the video sync buffer changes from "
+            },
+            {
+              "kind": "code",
+              "text": "previousBufferMs"
+            },
+            {
+              "kind": "text",
+              "text": " to "
+            },
+            {
+              "kind": "code",
+              "text": "nextBufferMs"
+            },
+            {
+              "kind": "text",
+              "text": ": a browser moves to a raised jitter buffer target gradually, roughly 100 ms per second of video, and what is measured until it has arrived still describes the old buffer. A second, plus ten times the raise (a lowered buffer: a second)."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/video/src/lib/sync/metadata-lateness.ts"
     },
     {
@@ -1766,15 +2016,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), and the tile is bounded by both the width and the height of the area; the column count with the widest tile wins. Whole pixels, rounded down, so a floating-point edge can never make "
-            },
-            {
-              "kind": "code",
-              "text": "packTiles"
-            },
-            {
-              "kind": "text",
-              "text": " drop a row that this function counted on."
+              "text": "), and the tile is bounded by both the width and the height of the area; the column count with the widest tile wins. Whole pixels, rounded down, so a floating-point edge can never make the grid drop a row that this function counted on."
             }
           ]
         },
@@ -1811,7 +2053,66 @@ export const API: DocsEntry = {
       "name": "lateNoticeDetails",
       "kind": "function",
       "signature": "lateNoticeDetails(snapshot: NeatLatenessSnapshot, currentBufferMs: number, bufferSupported: boolean, followedBufferMs?: number | null): NeatLateNoticeDetails",
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What the \"metadata late\" notice says and offers for "
+            },
+            {
+              "kind": "code",
+              "text": "snapshot"
+            },
+            {
+              "kind": "text",
+              "text": ", the lateness window ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatMetadataSnapshot",
+              "name": "NeatMetadataSnapshot"
+            },
+            {
+              "kind": "text",
+              "text": "'s "
+            },
+            {
+              "kind": "code",
+              "text": "recent"
+            },
+            {
+              "kind": "text",
+              "text": " figures), when the video sync buffer is "
+            },
+            {
+              "kind": "code",
+              "text": "currentBufferMs"
+            },
+            {
+              "kind": "text",
+              "text": ". "
+            },
+            {
+              "kind": "code",
+              "text": "bufferSupported"
+            },
+            {
+              "kind": "text",
+              "text": " is whether the browser can set a buffer at all, and "
+            },
+            {
+              "kind": "code",
+              "text": "followedBufferMs"
+            },
+            {
+              "kind": "text",
+              "text": " the value the app's channels follow, if it has one, which decides whether the second button raises it or only lets this channel adopt it. The suggested buffer covers the slowest tenth of the messages (the 90th percentile) plus a margin, in steps of 50 ms, up to the 4000 ms maximum."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/video/src/lib/sync/metadata-lateness.ts"
     },
     {
@@ -1843,7 +2144,25 @@ export const API: DocsEntry = {
       "name": "nextWarningActive",
       "kind": "function",
       "signature": "nextWarningActive(active: boolean, recentLateShare: number | null): boolean",
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Whether the late-metadata warning is on after this sample, from whether it was on before and the recent late share (0 to 1, "
+            },
+            {
+              "kind": "code",
+              "text": "null"
+            },
+            {
+              "kind": "text",
+              "text": " when unknown, which changes nothing). It turns on at half the messages late and off below a tenth; in between it stays as it was, so a share hovering around one value does not make the chip blink."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/video/src/lib/sync/metadata-lateness.ts"
     }
   ]

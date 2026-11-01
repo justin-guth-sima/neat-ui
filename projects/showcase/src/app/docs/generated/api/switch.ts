@@ -59,7 +59,17 @@ export const API: DocsEntry = {
           "type": "boolean",
           "default": "false",
           "transform": "booleanAttribute",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Turns the switch off: dimmed, out of the Tab order and not toggled by a click."
+                }
+              ]
+            }
+          ]
         }
       ],
       "models": [
@@ -67,7 +77,25 @@ export const API: DocsEntry = {
           "name": "checked",
           "type": "boolean",
           "default": "false",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the switch is on; off by default. Bind it two-way, "
+                },
+                {
+                  "kind": "code",
+                  "text": "[(checked)]"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/switch/src/lib/switch.ts"

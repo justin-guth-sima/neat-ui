@@ -114,8 +114,20 @@ const KEY_STEP = 16;
 export class NeatPage {
   protected readonly viewport = inject(NeatViewport);
 
+  /**
+   * Which part scrolls: `body` (the default) makes the body the page's one scroll container;
+   * `none` clips it, for content that sizes itself to the page.
+   */
   readonly scroll = input<'body' | 'none'>('body');
+  /**
+   * The inset around the content: `page` (the default) keeps the kit's page padding, which scrolls
+   * with the content; `none` lets full-bleed content reach the edges.
+   */
   readonly padding = input<'page' | 'none'>('page');
+  /**
+   * Whether the side panel (the elements marked `neatPageAside`) is shown: `closed` (the default)
+   * or `open`. The page owns no state: bind it to yours, or to `neatAsideOpen`.
+   */
   readonly aside = input<'open' | 'closed'>('closed');
   /** The panel's width in pixels, `null` for the default `--neat-aside-width`. */
   readonly asideWidth = model<number | null>(null);

@@ -142,6 +142,10 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
   styleUrl: './video-tile.css',
 })
 export class NeatVideoTile {
+  /**
+   * Where the video and its metadata come from; `null` (the default) leaves the tile `empty`.
+   * Give it the channel's source once it has one: the tile plays its stream and draws its metadata.
+   */
   readonly source = input<NeatTileSource | null>(null);
   /** The channel's resolved overlay settings; a new object for each change. */
   readonly settings = input<NeatOverlaySettings>(NEAT_OVERLAY_DEFAULTS);
@@ -153,9 +157,12 @@ export class NeatVideoTile {
   readonly label = input('');
   /** The bar's status text. */
   readonly status = input<string | null>(null);
+  /** Whether the bar along the bottom (`label`, `status`, chips) and the no-video note show. */
   readonly bars = input(true);
+  /** Draws the kit's focus ring around the tile, for the tile the app has chosen. */
   readonly selected = input(false);
 
+  /** The tile's state each time it changes: `empty`, `playing` or `stopped`. */
   readonly stateChange = output<NeatTileState>();
   /** The frame-sync counters, once a second while there is a stream. */
   readonly frameStats = output<NeatFrameStats>();

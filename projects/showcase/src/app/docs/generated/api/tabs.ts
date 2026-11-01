@@ -49,7 +49,17 @@ export const API: DocsEntry = {
           "name": "label",
           "type": "string",
           "required": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The text on the tab's trigger, which names the tab."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "value",
@@ -96,7 +106,17 @@ export const API: DocsEntry = {
           "type": "boolean",
           "default": "false",
           "transform": "booleanAttribute",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Turns the tab off: it is shown dimmed and cannot be opened, and the arrow keys skip it."
+                }
+              ]
+            }
+          ]
         }
       ],
       "properties": [

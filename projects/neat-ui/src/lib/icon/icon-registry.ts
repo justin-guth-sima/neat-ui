@@ -117,6 +117,7 @@ export const NEAT_ICONS = {
   stop: filled('stop', Square),
 } satisfies Record<string, LucideIconData>;
 
+/** The name of a glyph in the kit's curated icon set, what `neat-icon`'s `name` takes. */
 export type NeatIconName = keyof typeof NEAT_ICONS;
 
 /** Every name in the registry, in registry order, for galleries and pickers. */

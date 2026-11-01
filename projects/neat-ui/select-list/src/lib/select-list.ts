@@ -212,13 +212,19 @@ const isSelectAll = (event: KeyboardEvent): boolean =>
  */
 @Directive({ selector: 'ng-template[neatColumn]' })
 export class NeatColumn {
+  /** The column's name, written as the directive's own attribute: `neatColumn="state"`. */
   readonly key = input.required<string>({ alias: 'neatColumn' });
+  /** The label over the column; empty by default, and no header row while no column has one. */
   readonly header = input('');
+  /** The column's track size in the list's grid, any CSS grid track size (`6rem`, `auto`). */
   readonly width = input('1fr');
   /** Where the label and the cells' text sit in the column. */
   readonly align = input<'start' | 'end'>('start');
   /** The list's width in CSS pixels below which the column is not shown; always shown if unset. */
   readonly hideBelow = input<number>();
+  /**
+   * @internal The template the list renders in each row; apps never read it.
+   */
   readonly template = inject<TemplateRef<unknown>>(TemplateRef);
 }
 
@@ -516,6 +522,7 @@ let nextListId = 0;
 export class NeatSelectList<T, K = unknown> {
   /** The accessible name of the list. */
   readonly label = input.required<string>();
+  /** The items, one row each, in the order given (within its group, with `groups`). */
   readonly items = input.required<readonly T[]>();
   /** An item's identity, unique in the list. */
   readonly trackBy = input.required<(item: T) => K>();

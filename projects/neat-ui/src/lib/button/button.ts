@@ -3,6 +3,13 @@ import { BrnButton } from '@spartan-ng/brain/button';
 import { buttonVariants, type ButtonVariants } from '../ui/button/src';
 import { hlm } from '../ui/utils/src';
 
+/**
+ * The button's look, by what the action does: `primary` the page's main action, `secondary` a
+ * quieter filled one, `outlined` a bordered one, `text` no fill and no border (for actions among
+ * others), `danger` a solid red for what stops or discards something, `danger-text` that red as
+ * text for a destructive action among text buttons, and `success` a solid green for what starts
+ * something.
+ */
 export type NeatButtonVariant =
   'primary' | 'secondary' | 'outlined' | 'text' | 'danger' | 'danger-text' | 'success';
 /** `touch` is a 3rem (48px) target, above the 44px minimum, for kiosk and touch screens. */
@@ -152,6 +159,10 @@ const HELD = 'aria-disabled:cursor-not-allowed aria-disabled:opacity-50';
  * and its tooltip still opens on hover, for a button that waits and must not drop the focus. The
  * kit only styles it: a click, Enter and Space all still fire `click`, so the handler ignores
  * presses while it waits.
+ *
+ * @input disabled Turns the button off: dimmed, out of the Tab order and not clickable (a link
+ * gets no `disabled` attribute but the same look and `tabindex="-1"`). It loses the focus; use
+ * `aria-disabled` for a button that waits.
  */
 @Directive({
   selector: 'button[neatButton], a[neatButton]',
@@ -163,7 +174,9 @@ const HELD = 'aria-disabled:cursor-not-allowed aria-disabled:opacity-50';
   },
 })
 export class NeatButton {
+  /** The look of the button, by the kind of action it starts; `primary` is the main one. */
   readonly variant = input<NeatButtonVariant>('primary');
+  /** The button's height: `small`, `medium`, `large` or `touch` (3rem), for touch screens. */
   readonly size = input<NeatButtonSize>('medium');
   /** Square (or, with `rounded`, circular) and sized for a single icon. */
   readonly iconOnly = input(false, { transform: booleanAttribute });

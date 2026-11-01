@@ -9,8 +9,14 @@ import {
 } from './color';
 import { NEAT_NEAR_BLACK, SIMA_PALETTE } from './palette';
 
+/**
+ * A step of a ramp, named as Tailwind names its shades: 50 the lightest through 950 the darkest.
+ * Step 0 exists only in a surface ramp, where it is white.
+ */
 export type ColorStep = 0 | 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950;
+/** A colour ramp: a hex colour for each step from 50 to 950, as `buildColorScale` makes it. */
 export type ColorScale = Record<Exclude<ColorStep, 0>, string>;
+/** A ramp of surface colours, white at step 0 to the darkest at 950, from the surface builders. */
 export type SurfaceScale = Record<ColorStep, string>;
 
 type LighterStep = 50 | 100 | 200 | 300 | 400;

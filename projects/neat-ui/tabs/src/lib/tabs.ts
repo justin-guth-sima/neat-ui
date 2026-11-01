@@ -76,9 +76,11 @@ const TRIGGER_CLASSES = hlm(
   template: '',
 })
 export class NeatTab {
+  /** The text on the tab's trigger, which names the tab. */
   readonly label = input.required<string>();
   /** Identifies the tab in `neat-tabs`' `value`; unique within one `neat-tabs`. */
   readonly value = input.required<string>();
+  /** Turns the tab off: it is shown dimmed and cannot be opened, and the arrow keys skip it. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /** The panel template, which `neat-tabs` renders while this tab is open. */
   readonly content = contentChild.required(TemplateRef);

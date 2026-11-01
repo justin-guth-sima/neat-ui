@@ -133,7 +133,49 @@ export const API: DocsEntry = {
           "name": "align",
           "type": "'start' | 'center' | 'end'",
           "forwarded": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Which edge of the trigger the panel lines up with: "
+                },
+                {
+                  "kind": "code",
+                  "text": "start"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "center"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the default) or "
+                },
+                {
+                  "kind": "code",
+                  "text": "end"
+                },
+                {
+                  "kind": "text",
+                  "text": ". Use "
+                },
+                {
+                  "kind": "code",
+                  "text": "end"
+                },
+                {
+                  "kind": "text",
+                  "text": " for a trigger at the right edge of a toolbar, so the panel opens inward."
+                }
+              ]
+            }
+          ]
         }
       ],
       "models": [
@@ -184,7 +226,41 @@ export const API: DocsEntry = {
       "name": "NeatPopoverAlign",
       "kind": "type",
       "definition": "'start' | 'center' | 'end'",
-      "doc": [],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Which edge of the trigger the panel lines up with: its "
+            },
+            {
+              "kind": "code",
+              "text": "start"
+            },
+            {
+              "kind": "text",
+              "text": ", its "
+            },
+            {
+              "kind": "code",
+              "text": "center"
+            },
+            {
+              "kind": "text",
+              "text": " or its "
+            },
+            {
+              "kind": "code",
+              "text": "end"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/popover/src/lib/popover.ts"
     },
     {
@@ -216,13 +292,6 @@ export const API: DocsEntry = {
               "text": "."
             }
           ]
-        }
-      ],
-      "properties": [
-        {
-          "name": "template",
-          "type": "TemplateRef<any>",
-          "doc": []
         }
       ],
       "source": "projects/neat-ui/popover/src/lib/popover.ts"
@@ -278,15 +347,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " inside the content. It fills the panel's width, text at the start, and touches the next row; see "
-            },
-            {
-              "kind": "code",
-              "text": "ITEM_CLASSES"
-            },
-            {
-              "kind": "text",
-              "text": ". Rows are plain buttons in the order they are written, which is their Tab order."
+              "text": " inside the content. It fills the panel's width, text at the start, and touches the next row. Rows are plain buttons in the order they are written, which is their Tab order."
             }
           ]
         }

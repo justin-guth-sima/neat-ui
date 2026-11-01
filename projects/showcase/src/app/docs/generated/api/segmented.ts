@@ -69,7 +69,17 @@ export const API: DocsEntry = {
           "name": "options",
           "type": "readonly NeatSegmentedOption<T>[]",
           "required": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The segments in the order shown, each a value with the label (and icon) it carries."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "label",
@@ -92,7 +102,17 @@ export const API: DocsEntry = {
           "type": "boolean",
           "default": "false",
           "transform": "booleanAttribute",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Turns every segment off at once; there is no per-option disabling."
+                }
+              ]
+            }
+          ]
         }
       ],
       "models": [
@@ -100,7 +120,33 @@ export const API: DocsEntry = {
           "name": "value",
           "type": "T",
           "required": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The checked option's value, matched with "
+                },
+                {
+                  "kind": "code",
+                  "text": "==="
+                },
+                {
+                  "kind": "text",
+                  "text": "; bind it two-way, "
+                },
+                {
+                  "kind": "code",
+                  "text": "[(value)]"
+                },
+                {
+                  "kind": "text",
+                  "text": ". A value that is none of the options leaves nothing checked."
+                }
+              ]
+            }
+          ]
         }
       ],
       "methods": [

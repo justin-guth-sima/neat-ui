@@ -85,6 +85,10 @@ export class NeatTileGrid {
   /** The number of projected items. */
   readonly count = input.required<number>();
 
+  /**
+   * The packed grid: columns, rows, tiles per page and the tile size. Emitted once the box is
+   * measured and again whenever a value of it changes; slice your items to `perPage`.
+   */
   readonly layout = output<NeatTileLayout>();
 
   private readonly gridElement = viewChild.required<ElementRef<HTMLElement>>('grid');

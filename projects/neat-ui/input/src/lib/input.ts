@@ -39,6 +39,9 @@ const SIZES: Record<NeatInputSize, string> = {
  * Brain's input is the host directive. Its `id` input is exposed so that an `id` the app sets
  * stays on the element (brain would otherwise replace it with its own) and a label can point at
  * it.
+ *
+ * @input id The field's `id`, for a `<label for>` to point at; without one the field gets an id
+ * of its own.
  */
 @Directive({
   selector: 'input[neatInput]',
@@ -46,6 +49,7 @@ const SIZES: Record<NeatInputSize, string> = {
   host: { 'data-slot': 'input', '[class]': 'classes()' },
 })
 export class NeatInput {
+  /** The field's height, the kit's `medium` (2.25rem) or `small` (2rem); not a character width. */
   readonly size = input<NeatInputSize>('medium');
 
   protected readonly classes = computed(() =>

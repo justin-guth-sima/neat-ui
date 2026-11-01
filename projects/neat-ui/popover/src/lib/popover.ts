@@ -24,6 +24,7 @@ import {
 } from '@spartan-ng/brain/popover';
 import { KioskService, ɵhlm as hlm, ɵIN_PAGE_TOOLBAR as IN_PAGE_TOOLBAR } from '@sima/neat-ui';
 
+/** Which edge of the trigger the panel lines up with: its `start`, its `center` or its `end`. */
 export type NeatPopoverAlign = 'start' | 'center' | 'end';
 
 /**
@@ -85,6 +86,9 @@ let nextPopoverId = 0;
 /** The panel's content: `<ng-template neatPopoverContent>…</ng-template>` inside `neat-popover`. */
 @Directive({ selector: 'ng-template[neatPopoverContent]' })
 export class NeatPopoverContent {
+  /**
+   * @internal The template `neat-popover` renders; apps never read it.
+   */
   readonly template = inject(TemplateRef);
 }
 
@@ -113,8 +117,8 @@ export class NeatPopoverTrigger {
 
 /**
  * A menu row of a `neat-popover`'s panel (the ⋯ menu): `<button neatPopoverItem>` inside the
- * content. It fills the panel's width, text at the start, and touches the next row; see
- * `ITEM_CLASSES`. Rows are plain buttons in the order they are written, which is their Tab order.
+ * content. It fills the panel's width, text at the start, and touches the next row. Rows are
+ * plain buttons in the order they are written, which is their Tab order.
  */
 @Directive({ selector: 'button[neatPopoverItem]', host: { '[class]': 'itemClasses' } })
 export class NeatPopoverItem {
@@ -162,6 +166,9 @@ export class NeatPopoverDivider {
  * Brain's popover is the host directive: it places the panel, closes it on Escape and outside
  * clicks and moves focus in and out. The kit renders the dialog element itself, so that it can
  * name it, and gives the overlay pane around it no role.
+ *
+ * @input align Which edge of the trigger the panel lines up with: `start`, `center` (the default)
+ * or `end`. Use `end` for a trigger at the right edge of a toolbar, so the panel opens inward.
  */
 @Component({
   selector: 'neat-popover',

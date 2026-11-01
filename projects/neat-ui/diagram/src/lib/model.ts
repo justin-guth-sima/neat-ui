@@ -37,6 +37,12 @@ export interface NeatDiagramChip {
   readonly tone: NeatTone;
 }
 
+/**
+ * One node of a diagram level: a frame, block, band or bracket (`role`), placed by hand at `x`,
+ * `y` with the size `w` by `h`, in diagram units. A node with a `parent` sits inside it and is
+ * placed relative to it; a block with `opens` is a button that opens that level. The kit never
+ * reads `data`: it is the app's, handed back to the app's templates.
+ */
 export interface NeatDiagramNode {
   readonly id: string;
   readonly label: string;
@@ -64,6 +70,11 @@ export interface NeatDiagramNode {
   readonly data?: unknown;
 }
 
+/**
+ * A line between two nodes of a level, which the kit routes: its colour is a charts series
+ * (`series`), its look `line`, its ends `start` and `end`, with an optional `label` on it. The app
+ * does not place it, only names the nodes it joins. The kit never reads `data`: it is the app's.
+ */
 export interface NeatDiagramEdge {
   readonly id: string;
   /** The node it leaves. */

@@ -27,8 +27,8 @@ export function seriesToken(index: number): string {
  * ```
  *
  * `index` is the series' place in the chart's `series`, from 0, and the swatch takes the colour
- * that series is drawn in (`--neat-series-1` to `-8`, through `seriesToken`), so a label and its
- * line match in either theme. A chart folds a ninth series and beyond into "Other" (index 7), so
+ * that series is drawn in (`--neat-series-1` to `-8`), so a label and its line match in either
+ * theme. A chart folds a ninth series and beyond into "Other" (index 7), so
  * an index past 7 names no colour. A chart's lone series is drawn in its tone's colour instead and
  * needs no swatch.
  *

@@ -26,6 +26,9 @@ const CLASSES = hlm(
  * their own; this one is for dense lines where a `neatButton`'s 2rem height would set the line
  * height. Keep lines at least 1.5rem high (`min-block-size`) when several sit in a column, so the
  * targets stay apart (WCAG 2.5.8).
+ *
+ * @input disabled Turns the action off: dimmed, out of the Tab order and not clickable (a link
+ * gets no `disabled` attribute but the same look and `tabindex="-1"`).
  */
 @Directive({
   selector: 'button[neatInlineButton], a[neatInlineButton]',

@@ -19,6 +19,7 @@ import { OVERLAY_ROI_COLORS } from '../theme/overlay-palette';
   styleUrl: './roi-swatch.css',
 })
 export class NeatRoiSwatch {
+  /** The region type whose outline colour the dot takes: `inclusion` or `exclusion`. */
   readonly type = input.required<NeatRoiPolygon['type']>();
 
   protected readonly color = computed(() => OVERLAY_ROI_COLORS[this.type()].stroke);

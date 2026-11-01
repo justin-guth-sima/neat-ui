@@ -143,6 +143,11 @@ export class NeatDiagramMessages {
   readonly passive = input<readonly string[]>([]);
   /** A series (1 to 8) per edge id for its dots, in place of the edge's own colour. */
   readonly colours = input<Readonly<Record<string, number>>>({});
+  /**
+   * How the dots animate: speed, size, messages per dot and whether they follow the steps. The
+   * rates and counts do not depend on it. Defaults to `NEAT_DIAGRAM_MESSAGE_DEFAULTS`; give the
+   * `neat-diagram-animation-settings` panel's model to let the user tune it.
+   */
   readonly settings = input<NeatDiagramMessageSettings>(NEAT_DIAGRAM_MESSAGE_DEFAULTS);
 
   private readonly diagram = inject(DIAGRAM_MESSAGES_CONTEXT);

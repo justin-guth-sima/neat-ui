@@ -100,19 +100,49 @@ export const API: DocsEntry = {
           "name": "min",
           "type": "number",
           "required": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The smallest value, at the start of the track."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "max",
           "type": "number",
           "required": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The largest value, at the end of the track."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "step",
           "type": "number",
           "required": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The distance between values: an arrow key moves by one step, Page Up and Down by ten."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "label",
@@ -149,7 +179,17 @@ export const API: DocsEntry = {
           "name": "disabled",
           "type": "string | boolean | null | undefined",
           "forwarded": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Turns the slider off: it ignores the pointer and the keys and is dimmed."
+                }
+              ]
+            }
+          ]
         }
       ],
       "models": [
@@ -157,7 +197,25 @@ export const API: DocsEntry = {
           "name": "value",
           "type": "number",
           "default": "0",
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The number, 0 until set; bind it two-way, "
+                },
+                {
+                  "kind": "code",
+                  "text": "[(value)]"
+                },
+                {
+                  "kind": "text",
+                  "text": ". Changes while a drag is under way."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/slider/src/lib/slider.ts"
