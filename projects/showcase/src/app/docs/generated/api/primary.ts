@@ -1830,7 +1830,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " nothing scrolls and the content sizes itself to the page (for example a grid that fits the screen)."
+              "text": " nothing scrolls and the content sizes itself to the page (for example a grid that fits the screen). The content takes its size from the page and neither measures the shell nor sets a height, so the same page works in a small window, on a wall display and in kiosk mode, where the rail and the top bar are gone and the page gets the whole viewport."
             }
           ]
         },

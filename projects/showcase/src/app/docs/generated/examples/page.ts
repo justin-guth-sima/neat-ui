@@ -74,7 +74,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", which keeps it open under routes nested below its own; the other keeps the default, its own path only."
+            "text": ", which keeps it open under routes nested below its own; the other keeps the default, its own path only. The row stays where it is when the view changes, under the top bar and above the body."
           }
         ]
       }
@@ -92,7 +92,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { RouterLink } "],["keyword","from"],["text"," "],["string","'@angular/router'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatPage, NeatPageTab, NeatPageTabs } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-details'"],["text",",\n  imports: [NeatPage, NeatPageTab, NeatPageTabs, RouterLink],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-page>\n      <nav neatPageTabs aria-label=\"Page example views\">\n        <a neatPageTab routerLink=\"/demo/page/overview\">Overview</a>\n        <a neatPageTab routerLink=\"/demo/page/details\" activeMatch=\"subset\">Details</a>\n      </nav>\n      <div class=\"showcase-page\">\n        <section class=\"showcase-section\">\n          <h2>Details</h2>\n          <p>\n            The row stays where it is when the view changes, under the top bar and above the body.\n          </p>\n        </section>\n      </div>\n    </neat-page>\n  `"],
+          ["string","`\n    <neat-page>\n      <nav neatPageTabs aria-label=\"Page example views\">\n        <a neatPageTab routerLink=\"/demo/page/overview\">Overview</a>\n        <a neatPageTab routerLink=\"/demo/page/details\" activeMatch=\"subset\">Details</a>\n      </nav>\n      <div class=\"showcase-page\">\n        <section class=\"showcase-section\">\n          <h2>Details</h2>\n          <p>The same row as the overview's, on a route of its own.</p>\n        </section>\n      </div>\n    </neat-page>\n  `"],
           ["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Details {}\n"]
         ]

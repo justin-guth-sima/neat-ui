@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import {
   buildColorScale,
-  type ColorScale,
   NEAT_DANGER_BASE,
   NEAT_HIGHLIGHT_BASE,
   NEAT_PRIMARY_BASE,
@@ -51,11 +50,12 @@ const BASES = [
       </section>
     }
   `,
-  styleUrl: './swatches.css',
+  styleUrls: ['./swatches.css', './ramp-title.css'],
 })
 export class ColourScales {
-  protected readonly ramps: readonly Ramp[] = BASES.map(([name, base]) => {
-    const scale: ColorScale = buildColorScale(base);
-    return { name, base, steps: Object.entries(scale) };
-  });
+  protected readonly ramps: readonly Ramp[] = BASES.map(([name, base]) => ({
+    name,
+    base,
+    steps: Object.entries(buildColorScale(base)),
+  }));
 }

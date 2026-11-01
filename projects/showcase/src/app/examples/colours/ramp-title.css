@@ -1,0 +1,9 @@
+/* A ramp's title: what it is built from, and the value. */
+h4 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--neat-space-3);
+  margin: 0 0 var(--neat-space-3);
+  font-weight: 500;
+}

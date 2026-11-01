@@ -1,0 +1,6 @@
+/* The pair typed, drawn as text on its background. */
+.sample {
+  padding: var(--neat-space-2) var(--neat-space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}

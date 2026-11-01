@@ -33,7 +33,7 @@ const AA = 4.5;
       <span class="showcase-code">{{ result() }}</span>
     </div>
   `,
-  styleUrl: './colour-fields.css',
+  styleUrls: ['./colour-field.css', './contrast.example.css'],
 })
 export class Contrast {
   protected readonly foreground = signal<string>(SIMA_PALETTE.text);

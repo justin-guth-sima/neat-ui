@@ -50,7 +50,7 @@ const ramp = (name: string, darkest: Ramp['darkest'], scale: SurfaceScale): Ramp
       </section>
     }
   `,
-  styleUrl: './swatches.css',
+  styleUrls: ['./swatches.css', './ramp-title.css'],
 })
 export class SurfaceScales {
   protected readonly ramps: readonly Ramp[] = [

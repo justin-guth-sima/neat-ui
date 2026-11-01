@@ -42,7 +42,7 @@ const format = (rgb: NeatRgb | null): string =>
       </tbody>
     </table>
   `,
-  styleUrl: './numbers.css',
+  styleUrl: './theme-colours-as-numbers.example.css',
 })
 export class ThemeColoursAsNumbers {
   private readonly colours = neatThemeColors(TOKENS);

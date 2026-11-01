@@ -125,8 +125,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "swatches.css",
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n}\n\n"],
-          ["comment","/* One ramp: a chip per step, each labelled by text, so no label depends on the colour. */"],["text","\n.ramp {\n  display: grid;\n  gap: var(--neat-space-3);\n  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));\n}\n\n.chip {\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n\n.name {\n  margin-top: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n\n"],
-          ["comment","/* A ramp's title: what it is built from, and the value. */"],["text","\nh4 {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: baseline;\n  gap: var(--neat-space-3);\n  margin: 0 0 var(--neat-space-3);\n  font-weight: 500;\n}\n"]
+          ["comment","/* One ramp: a chip per step, each labelled by text, so no label depends on the colour. */"],["text","\n.ramp {\n  display: grid;\n  gap: var(--neat-space-3);\n  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));\n}\n\n.chip {\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n\n.name {\n  margin-top: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
         ]
       }
     ]
@@ -157,7 +156,6 @@ export const EXAMPLES: readonly DocsExample[] = [
     ],
     "shows": [
       "@sima/neat-ui#buildColorScale",
-      "@sima/neat-ui#ColorScale",
       "@sima/neat-ui#NEAT_DANGER_BASE",
       "@sima/neat-ui#NEAT_HIGHLIGHT_BASE",
       "@sima/neat-ui#NEAT_PRIMARY_BASE",
@@ -169,8 +167,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "3-colour-scales.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," {\n  buildColorScale,\n  "],
-          ["keyword","type"],["text"," ColorScale,\n  NEAT_DANGER_BASE,\n  NEAT_HIGHLIGHT_BASE,\n  NEAT_PRIMARY_BASE,\n  NEAT_SERIES_TEAL_BASE,\n  NEAT_WARN_BASE,\n} "],
+          ["keyword","import"],["text"," {\n  buildColorScale,\n  NEAT_DANGER_BASE,\n  NEAT_HIGHLIGHT_BASE,\n  NEAT_PRIMARY_BASE,\n  NEAT_SERIES_TEAL_BASE,\n  NEAT_WARN_BASE,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n"],
           ["keyword","interface"],["text"," Ramp {\n  "],
           ["keyword","readonly"],["text"," name: "],["keyword","string"],["text",";\n  "],
@@ -185,19 +182,22 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","as"],["text"," "],["keyword","const"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-colour-scales'"],["text",",\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    @for (ramp of ramps; track ramp.name) {\n      <section>\n        <h4>\n          <span class=\"showcase-code\">{{ ramp.name }}</span>\n          <span class=\"showcase-code showcase-muted\">{{ ramp.base }}</span>\n        </h4>\n        <div class=\"ramp\">\n          @for (step of ramp.steps; track step[0]) {\n            <div>\n              <div class=\"chip\" [style.background]=\"step[1]\"></div>\n              <div class=\"name\">{{ step[0] }}</div>\n              <div class=\"showcase-code showcase-muted\">{{ step[1] }}</div>\n            </div>\n          }\n        </div>\n      </section>\n    }\n  `"],
-          ["text",",\n  styleUrl: "],
-          ["string","'./swatches.css'"],["text",",\n})\n"],
+          ["text",",\n  styleUrls: ["],
+          ["string","'./swatches.css'"],["text",", "],["string","'./ramp-title.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ColourScales {\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," ramps: "],["keyword","readonly"],["text"," Ramp[] = BASES.map(([name, base]) => {\n    "],
-          ["keyword","const"],["text"," scale: ColorScale = buildColorScale(base);\n    "],
-          ["keyword","return"],["text"," { name, base, steps: Object.entries(scale) };\n  });\n}\n"]
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," ramps: "],["keyword","readonly"],["text"," Ramp[] = BASES.map(([name, base]) => ({\n    name,\n    base,\n    steps: Object.entries(buildColorScale(base)),\n  }));\n}\n"]
         ]
       },
       {
         "name": "swatches.css",
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n}\n\n"],
-          ["comment","/* One ramp: a chip per step, each labelled by text, so no label depends on the colour. */"],["text","\n.ramp {\n  display: grid;\n  gap: var(--neat-space-3);\n  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));\n}\n\n.chip {\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n\n.name {\n  margin-top: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n\n"],
+          ["comment","/* One ramp: a chip per step, each labelled by text, so no label depends on the colour. */"],["text","\n.ramp {\n  display: grid;\n  gap: var(--neat-space-3);\n  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));\n}\n\n.chip {\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n\n.name {\n  margin-top: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
+        ]
+      },
+      {
+        "name": "ramp-title.css",
+        "code": [
           ["comment","/* A ramp's title: what it is built from, and the value. */"],["text","\nh4 {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: baseline;\n  gap: var(--neat-space-3);\n  margin: 0 0 var(--neat-space-3);\n  font-weight: 500;\n}\n"]
         ]
       }
@@ -268,8 +268,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," ramp = (name: "],["keyword","string"],["text",", darkest: Ramp["],["string","'darkest'"],["text","], scale: SurfaceScale): Ramp => ({\n  name,\n  darkest,\n  steps: Object.entries(scale),\n});\n\n@Component({\n  selector: "],
           ["string","'app-surface-scales'"],["text",",\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    @for (ramp of ramps; track ramp.name) {\n      <section>\n        <h4>\n          <span class=\"showcase-code\">{{ ramp.name }}</span>\n          <span class=\"showcase-code showcase-muted\">\n            ends at {{ ramp.darkest[0] }}, {{ ramp.darkest[1] }}\n          </span>\n        </h4>\n        <div class=\"ramp\">\n          @for (step of ramp.steps; track step[0]) {\n            <div>\n              <div class=\"chip\" [style.background]=\"step[1]\"></div>\n              <div class=\"name\">{{ step[0] }}</div>\n              <div class=\"showcase-code showcase-muted\">{{ step[1] }}</div>\n            </div>\n          }\n        </div>\n      </section>\n    }\n  `"],
-          ["text",",\n  styleUrl: "],
-          ["string","'./swatches.css'"],["text",",\n})\n"],
+          ["text",",\n  styleUrls: ["],
+          ["string","'./swatches.css'"],["text",", "],["string","'./ramp-title.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SurfaceScales {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," ramps: "],["keyword","readonly"],["text"," Ramp[] = [\n    ramp("],
           ["string","'buildSurfaceScale()'"],["text",", ["],["string","'SIMA_PALETTE.text'"],["text",", SIMA_PALETTE.text], buildSurfaceScale()),\n    ramp(\n      "],
@@ -281,7 +281,12 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "swatches.css",
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n}\n\n"],
-          ["comment","/* One ramp: a chip per step, each labelled by text, so no label depends on the colour. */"],["text","\n.ramp {\n  display: grid;\n  gap: var(--neat-space-3);\n  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));\n}\n\n.chip {\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n\n.name {\n  margin-top: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n\n"],
+          ["comment","/* One ramp: a chip per step, each labelled by text, so no label depends on the colour. */"],["text","\n.ramp {\n  display: grid;\n  gap: var(--neat-space-3);\n  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));\n}\n\n.chip {\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n\n.name {\n  margin-top: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
+        ]
+      },
+      {
+        "name": "ramp-title.css",
+        "code": [
           ["comment","/* A ramp's title: what it is built from, and the value. */"],["text","\nh4 {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: baseline;\n  gap: var(--neat-space-3);\n  margin: 0 0 var(--neat-space-3);\n  font-weight: 500;\n}\n"]
         ]
       }
@@ -335,7 +340,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'app-theme-colours-as-numbers'"],["text",",\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    <table>\n      <thead>\n        <tr>\n          <th scope=\"col\">Token</th>\n          <th scope=\"col\">Sample</th>\n          <th scope=\"col\">Red, green, blue</th>\n        </tr>\n      </thead>\n      <tbody>\n        @for (row of rows(); track row.token) {\n          <tr>\n            <th scope=\"row\" class=\"showcase-code\">{{ row.token }}</th>\n            <td><span class=\"sample\" [style.background]=\"'var(' + row.token + ')'\"></span></td>\n            <td class=\"showcase-code\">{{ row.rgb }}</td>\n          </tr>\n        }\n      </tbody>\n    </table>\n  `"],
           ["text",",\n  styleUrl: "],
-          ["string","'./numbers.css'"],["text",",\n})\n"],
+          ["string","'./theme-colours-as-numbers.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ThemeColoursAsNumbers {\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," colours = neatThemeColors(TOKENS);\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," rows = computed(() => {\n    "],
@@ -345,7 +350,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "numbers.css",
+        "name": "theme-colours-as-numbers.example.css",
         "code": [
           ["text","table {\n  width: 100%;\n  max-width: 46rem;\n  border-collapse: collapse;\n}\n\nth,\ntd {\n  padding: var(--neat-space-2) var(--neat-space-3) var(--neat-space-2) 0;\n  text-align: left;\n  font-weight: 400;\n  font-size: var(--neat-text-sm);\n}\n\nthead th {\n  color: var(--muted-foreground);\n}\n\n.sample {\n  display: inline-block;\n  width: 1.5rem;\n  height: 1.5rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  vertical-align: middle;\n}\n"]
         ]
@@ -405,8 +410,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatInput } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/input'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-resolve-a-colour'"],["text",",\n  imports: [NeatInput],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    <label class=\"field\">\n      <span>CSS colour</span>\n      <input neatInput #css [value]=\"text()\" (input)=\"text.set(css.value)\" />\n    </label>\n    <div class=\"showcase-row\">\n      <span class=\"swatch\" [style.background]=\"text()\"></span>\n      <span class=\"showcase-code\">{{ result() }}</span>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
-          ["string","'./colour-fields.css'"],["text",",\n})\n"],
+          ["text",",\n  styleUrls: ["],
+          ["string","'./colour-field.css'"],["text",", "],["string","'./resolve-a-colour.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ResolveAColour {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," text = signal("],["string","'oklch(0.7 0.15 250)'"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," result = computed(() => {\n    "],
@@ -415,10 +420,15 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "colour-fields.css",
+        "name": "colour-field.css",
         "code": [
-          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n.field {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n\n"],
-          ["comment","/* The colour typed, drawn: a chip for the one colour, a text sample for a pair. */"],["text","\n.swatch {\n  width: 3rem;\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n\n.sample {\n  padding: var(--neat-space-2) var(--neat-space-3);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n"]
+          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n.field {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
+        ]
+      },
+      {
+        "name": "resolve-a-colour.example.css",
+        "code": [
+          ["comment","/* The colour typed, drawn as a chip. */"],["text","\n.swatch {\n  width: 3rem;\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n"]
         ]
       }
     ]
@@ -472,8 +482,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," AA = 4.5;\n\n@Component({\n  selector: "],
           ["string","'app-contrast'"],["text",",\n  imports: [NeatInput],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    <div class=\"showcase-row\">\n      <label class=\"field\">\n        <span>Text</span>\n        <input neatInput #text [value]=\"foreground()\" (input)=\"foreground.set(text.value)\" />\n      </label>\n      <label class=\"field\">\n        <span>Background</span>\n        <input neatInput #fill [value]=\"background()\" (input)=\"background.set(fill.value)\" />\n      </label>\n    </div>\n    <div class=\"showcase-row\">\n      <span class=\"sample\" [style.color]=\"foreground()\" [style.background]=\"background()\">\n        Neat Insight\n      </span>\n      <span class=\"showcase-code\">{{ result() }}</span>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
-          ["string","'./colour-fields.css'"],["text",",\n})\n"],
+          ["text",",\n  styleUrls: ["],
+          ["string","'./colour-field.css'"],["text",", "],["string","'./contrast.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Contrast {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," foreground = signal<"],["keyword","string"],["text",">(SIMA_PALETTE.text);\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," background = signal<"],["keyword","string"],["text",">(SIMA_PALETTE.backgroundAlt);\n  "],
@@ -485,10 +495,15 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "colour-fields.css",
+        "name": "colour-field.css",
         "code": [
-          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n.field {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n\n"],
-          ["comment","/* The colour typed, drawn: a chip for the one colour, a text sample for a pair. */"],["text","\n.swatch {\n  width: 3rem;\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n\n.sample {\n  padding: var(--neat-space-2) var(--neat-space-3);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n"]
+          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n.field {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
+        ]
+      },
+      {
+        "name": "contrast.example.css",
+        "code": [
+          ["comment","/* The pair typed, drawn as text on its background. */"],["text","\n.sample {\n  padding: var(--neat-space-2) var(--neat-space-3);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n"]
         ]
       }
     ]

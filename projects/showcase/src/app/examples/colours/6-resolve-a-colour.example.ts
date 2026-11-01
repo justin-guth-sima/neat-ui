@@ -21,7 +21,7 @@ import { NeatInput } from '@sima/neat-ui/input';
       <span class="showcase-code">{{ result() }}</span>
     </div>
   `,
-  styleUrl: './colour-fields.css',
+  styleUrls: ['./colour-field.css', './resolve-a-colour.example.css'],
 })
 export class ResolveAColour {
   protected readonly text = signal('oklch(0.7 0.15 250)');
