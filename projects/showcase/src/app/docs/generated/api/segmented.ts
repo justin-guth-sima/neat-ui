@@ -43,7 +43,33 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Drawn as an iOS-style switch: a track with a raised thumb that slides under the chosen label. Not built on brain's toggle group: brain makes its items pressed toggle buttons ("
+              "text": "Drawn as an iOS-style switch: a track with a raised thumb that slides under the chosen label. Its width does not move with the choice: every column is as wide as the widest label needs, in semibold."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It never gives up width to its neighbours: in a flex row too narrow for everything in it, the control keeps its labels whole and the text beside it gives way (that text needs "
+            },
+            {
+              "kind": "code",
+              "text": "min-width: 0"
+            },
+            {
+              "kind": "text",
+              "text": " to shrink). It is never wider than its container, though: in one narrower than its labels (a side panel dragged narrow) the options shrink together, still equal, and each label ends in an ellipsis, its full text still the option's name and shown as a tooltip on hover."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Not built on brain's toggle group: brain makes its items pressed toggle buttons ("
             },
             {
               "kind": "code",

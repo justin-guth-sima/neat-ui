@@ -1,0 +1,15 @@
+/* A flex row too narrow for its content: the text must give way, not the control. */
+.crowded {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-3);
+  width: 13rem;
+  max-width: 100%;
+}
+
+.title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

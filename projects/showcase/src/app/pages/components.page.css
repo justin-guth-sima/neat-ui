@@ -30,27 +30,8 @@
   gap: var(--neat-space-3);
 }
 
-.slider-field neat-slider,
-.card-slider {
+.slider-field neat-slider {
   width: 16rem;
-}
-
-/* Fields of both sizes side by side, aligned on their bottom edge so the labels line up. */
-.input-row {
-  align-items: flex-end;
-}
-
-/* A neatInput fills its container's width, so the demos size the container. */
-.input-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--neat-space-2);
-  width: 12rem;
-  font-size: var(--neat-text-sm);
-}
-
-.card-field {
-  width: 10rem;
 }
 
 /* The grid fills its parent, so the demo gives it a box of a fixed height to fill. */
@@ -97,12 +78,6 @@
   font-size: var(--neat-text-sm);
 }
 
-/* A select fills its container's width, so the demos size the container. */
-.select-row neat-select,
-.card-select {
-  width: 14rem;
-}
-
 /* Bars fill their container's width too: a column the width of the demos' sliders. */
 .progress-demo {
   display: flex;
@@ -115,20 +90,6 @@
 .progress-slider {
   width: 16rem;
   margin-bottom: var(--neat-space-3);
-}
-
-/* A drop zone fills its container's width. */
-.drop-demo {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(14rem, 18rem));
-  gap: var(--neat-space-4);
-}
-
-.card-stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--neat-space-3);
-  max-width: 20rem;
 }
 
 /* A list fills its container, so the demos give it a size. */
@@ -209,35 +170,6 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--neat-space-2);
-}
-
-.field-demo {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(14rem, 18rem));
-  align-items: start;
-  gap: var(--neat-space-4);
-}
-
-/* Fields, selects, a number field and a button in a row, level at their bottom edge. */
-.field-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--neat-space-3);
-}
-
-/* The content width of a side panel at its 18rem minimum: narrower than the switch's labels. */
-.segmented-narrow {
-  width: 16rem;
-}
-
-/* A field and a select fill their container's width, so the row gives each one. */
-.field-narrow {
-  width: 10rem;
-}
-
-.field-wide {
-  width: 14rem;
 }
 
 .list-box-narrow {

@@ -1,0 +1,16 @@
+/* Fields of both sizes side by side, aligned on their bottom edge so the names line up. */
+.fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--neat-space-3);
+}
+
+/* An input fills its container's width, so the label around it is given one. */
+label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  width: 12rem;
+  font-size: var(--neat-text-sm);
+}

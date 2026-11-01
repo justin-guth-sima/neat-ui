@@ -48,19 +48,3 @@ app-root {
   align-items: center;
   gap: var(--neat-space-3);
 }
-
-/** A flex row too narrow for its content, as a crowded toolbar is: the text gives way. */
-.showcase-crowded {
-  display: flex;
-  align-items: center;
-  gap: var(--neat-space-3);
-  width: 13rem;
-  max-width: 100%;
-}
-
-.showcase-crowded-title {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}

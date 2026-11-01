@@ -7,7 +7,6 @@ import {
   DOCUMENT,
   inject,
   signal,
-  TemplateRef,
 } from '@angular/core';
 import {
   NeatButton,
@@ -24,17 +23,12 @@ import {
 import { NeatCallout } from '@sima/neat-ui/callout';
 import { NeatCollapsible } from '@sima/neat-ui/collapsible';
 import { NeatDetails } from '@sima/neat-ui/details';
-import { NeatDialog, NeatDialogActions, NeatDialogBody } from '@sima/neat-ui/dialog';
-import { NeatDropZone } from '@sima/neat-ui/drop-zone';
-import { NeatErrorNote, NeatField } from '@sima/neat-ui/field';
 import { NeatFileBrowser } from '@sima/neat-ui/file-browser';
 import { NeatInput } from '@sima/neat-ui/input';
 import { NeatLevelMeter } from '@sima/neat-ui/level-meter';
 import { NeatLine, NeatLineEnd, NeatLineList } from '@sima/neat-ui/line-list';
-import { NeatNumberField } from '@sima/neat-ui/number-field';
 import { NeatProgress } from '@sima/neat-ui/progress';
 import { NeatSegmented, type NeatSegmentedOption } from '@sima/neat-ui/segmented';
-import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
 import { NeatColumn, NeatSelectList, type NeatSelectListGroup } from '@sima/neat-ui/select-list';
 import { NeatSlider } from '@sima/neat-ui/slider';
 import {
@@ -44,7 +38,6 @@ import {
 } from '@sima/neat-ui/status-chip';
 import { NeatSwitch } from '@sima/neat-ui/switch';
 import { NeatFigure, NeatNumeric, NeatTable } from '@sima/neat-ui/table';
-import { NeatTab, NeatTabs } from '@sima/neat-ui/tabs';
 import { NeatToasts } from '@sima/neat-ui/toast';
 import {
   NeatRoiEditor,
@@ -135,41 +128,7 @@ const DEVICE_GROUPS: readonly NeatSelectListGroup[] = [
   { key: 'microphone', label: 'Microphones · 1' },
   { key: 'lidar', label: 'LiDAR · none found', muted: true },
 ];
-const CLIP_LENGTHS: NeatSelectOption<number>[] = [
-  { value: 60, label: '1 min' },
-  { value: 300, label: '5 min' },
-  { value: 600, label: '10 min' },
-];
 
-/** A demo choice for the segmented control; the kit's tiles are always 16:9. */
-type Shape = '16:9' | '1:1';
-
-const SHAPES: NeatSegmentedOption<Shape>[] = [
-  { value: '16:9', label: '16:9', icon: 'aspect-wide' },
-  { value: '1:1', label: '1:1', icon: 'aspect-square' },
-];
-const OVERLAYS: NeatSegmentedOption<string>[] = [
-  { value: 'off', label: 'Off' },
-  { value: 'boxes', label: 'Boxes' },
-  { value: 'masks', label: 'Masks' },
-];
-/** The labels of Insight's source switch, too wide together for a narrow side panel. */
-const SOURCES: NeatSegmentedOption<string>[] = [
-  { value: 'file', label: 'File' },
-  { value: 'camera', label: 'Camera' },
-  { value: 'url', label: 'Stream URL' },
-];
-const VIEWS: NeatSegmentedOption<string>[] = [
-  { value: 'live', label: 'Live' },
-  { value: 'runs', label: 'Runs' },
-];
-const SOURCE_OPTIONS: NeatSelectOption<string>[] = [
-  { value: 'camera', label: 'Front camera' },
-  { value: 'clip', label: 'Warehouse clip' },
-  { value: 'rtsp', label: 'RTSP stream' },
-  { value: 'usb', label: 'USB camera (unavailable)', disabled: true },
-  { value: 'file', label: 'Loading dock recording' },
-];
 const INITIAL_REGIONS = ['Inclusion 1', 'Exclusion 1', 'Exclusion 2'];
 const ROI_MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
   { value: 'off', label: 'Off' },
@@ -186,12 +145,7 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
     NeatCallout,
     NeatCollapsible,
     NeatDetails,
-    NeatDialogActions,
-    NeatDialogBody,
     NeatColumn,
-    NeatDropZone,
-    NeatErrorNote,
-    NeatField,
     NeatFigure,
     NeatFileBrowser,
     NeatIcon,
@@ -205,20 +159,16 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
     NeatStale,
     NeatEasedNumber,
     NeatNote,
-    NeatNumberField,
     NeatNumeric,
     NeatPage,
     NeatProgress,
     NeatSegmented,
-    NeatSelect,
     NeatSelectList,
     NeatSlider,
     NeatStatusChip,
     NeatStatusChipButton,
     NeatSwitch,
-    NeatTab,
     NeatTable,
-    NeatTabs,
     NeatTileGrid,
     NeatRoiEditor,
     NeatRoiSwatch,
@@ -626,308 +576,6 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
         </section>
 
         <section class="showcase-section">
-          <h2>Switch</h2>
-          <p class="showcase-muted">
-            <code>neatSwitch</code> on a <code>button</code>: on or off, applied at once. The
-            content is the label and the accessible name; without content, give it an
-            <code>aria-label</code>. Space and Enter toggle it.
-          </p>
-          <div class="showcase-row">
-            <button neatSwitch [(checked)]="bars">Bars</button>
-            <button neatSwitch [(checked)]="hideEmpty">Hide empty</button>
-            <button
-              neatSwitch
-              aria-label="Bars, without a visible label"
-              [(checked)]="bars"
-            ></button>
-            <button neatSwitch disabled>Disabled</button>
-            <button neatSwitch disabled [checked]="true">Disabled, on</button>
-          </div>
-          <p class="showcase-code showcase-muted">
-            Bars {{ bars() ? 'on' : 'off' }}, hide empty {{ hideEmpty() ? 'on' : 'off' }}
-          </p>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Slider</h2>
-          <p class="showcase-muted">
-            <code>neat-slider</code>: one number in a range, its <code>label</code> the accessible
-            name. The value changes on every step of a drag, so what it drives previews live (the
-            tile grid below repacks as you drag). Arrows step, Page Up and Down step by ten, Home
-            and End jump to the ends.
-          </p>
-          <div class="slider-field">
-            <span>Opacity</span>
-            <neat-slider label="Opacity" [min]="0" [max]="100" [step]="5" [(value)]="opacity" />
-            <span class="showcase-code showcase-muted">{{ opacity() }} %</span>
-          </div>
-          <div class="slider-field">
-            <span>Described</span>
-            <neat-slider
-              label="Gain"
-              describedBy="gain-note"
-              [min]="0"
-              [max]="100"
-              [step]="5"
-              [(value)]="gain"
-            />
-            <span id="gain-note" class="showcase-muted">
-              <code>describedBy</code> names this note, announced after the value.
-            </span>
-          </div>
-          <div class="slider-field">
-            <span>Disabled</span>
-            <neat-slider label="Disabled" [min]="0" [max]="100" [step]="5" [value]="40" disabled />
-          </div>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Segmented</h2>
-          <p class="showcase-muted">
-            <code>neat-segmented</code>: one of a few choices, side by side, each with a label and
-            an optional icon, drawn as an iOS-style switch whose thumb slides under the chosen
-            label. A radio group named by <code>label</code>: one tab stop, and the arrow keys move
-            the choice.
-          </p>
-          <div class="showcase-row">
-            <neat-segmented #shapeControl label="Tile shape" [options]="shapes" [(value)]="shape" />
-            <neat-segmented label="Overlays" [options]="overlays" [(value)]="overlay" />
-            <neat-segmented label="Tile shape, disabled" [options]="shapes" value="1:1" disabled />
-            <button
-              neatButton
-              type="button"
-              variant="outlined"
-              size="small"
-              (click)="shapeControl.focus()"
-            >
-              Focus the tile shape
-            </button>
-          </div>
-          <p class="showcase-code showcase-muted">Shape {{ shape() }}, overlays {{ overlay() }}</p>
-          <p class="showcase-muted">
-            It never gives up width: in a flex row that is too narrow for everything in it, the
-            control keeps its labels whole and the text beside it gives way.
-          </p>
-          <div class="showcase-crowded">
-            <neat-segmented label="Stats view" [options]="views" value="live" />
-            <span class="showcase-crowded-title">Stats for a stream with a long name</span>
-          </div>
-          <p class="showcase-muted">
-            It is never wider than its container, though: in a side panel dragged narrower than its
-            labels, the options shrink together and each label ends in an ellipsis.
-          </p>
-          <div class="segmented-narrow">
-            <neat-segmented label="Source" [options]="sources" [(value)]="sourceForm" />
-          </div>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Tabs</h2>
-          <p class="showcase-muted">
-            <code>neat-tabs</code> with <code>neat-tab</code> children; the open tab is underlined.
-            Each panel is an <code>ng-template</code>, created only while its tab is open. Arrow
-            keys move between tabs and open them; disabled tabs are skipped.
-          </p>
-          <neat-tabs label="Channel settings" [(value)]="tab">
-            <neat-tab label="Metadata" value="metadata">
-              <ng-template>
-                <p class="showcase-muted">Overlay types, confidence thresholds and tracking.</p>
-              </ng-template>
-            </neat-tab>
-            <neat-tab label="General" value="general">
-              <ng-template>
-                <p class="showcase-muted">Video sync buffer, metadata retention and line width.</p>
-              </ng-template>
-            </neat-tab>
-            <neat-tab label="ROI" value="roi" disabled>
-              <ng-template><p class="showcase-muted">Regions of interest.</p></ng-template>
-            </neat-tab>
-          </neat-tabs>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Input</h2>
-          <p class="showcase-muted">
-            <code>neatInput</code> on an <code>input</code>: text or number, in two sizes. Native
-            attributes such as <code>type</code>, <code>inputmode</code> and <code>min</code> keep
-            their meaning. Name it with a label or an <code>aria-label</code>.
-          </p>
-          <div class="showcase-row input-row">
-            <label class="input-field">
-              <span>Stream name</span>
-              <input neatInput placeholder="Front door" />
-            </label>
-            <label class="input-field">
-              <span>Go to page</span>
-              <input neatInput size="small" type="number" inputmode="numeric" min="1" value="1" />
-            </label>
-            <label class="input-field">
-              <span>Disabled</span>
-              <input neatInput disabled value="Read only" />
-            </label>
-          </div>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Number field</h2>
-          <p class="showcase-muted">
-            <code>neat-number-field</code>: a small field for jumping to one whole number, its label
-            before it and naming it. Enter or leaving the field commits a whole number that
-            <code>accept</code> takes, even the one already shown; anything else puts the shown
-            value back. Content marked <code>neatNumberFieldSuffix</code> follows the input. This
-            page field accepts 1 to {{ pageCount }}. <code>focus()</code> focuses the input with its
-            number selected, for a shortcut that jumps to the field.
-          </p>
-          <div class="showcase-row">
-            <neat-number-field
-              #pageField
-              label="Page"
-              [value]="page()"
-              [accept]="acceptPage"
-              (commit)="commitPage($event)"
-            >
-              <span neatNumberFieldSuffix>of {{ pageCount }}</span>
-            </neat-number-field>
-            <neat-number-field
-              label="Draw on channel"
-              [value]="drawChannel()"
-              (commit)="drawChannel.set($event)"
-            />
-            <button neatButton type="button" variant="outlined" (click)="pageField.focus()">
-              Focus the page field
-            </button>
-          </div>
-          <p class="showcase-code showcase-muted">
-            Page {{ page() }}, commits so far {{ pageCommits() }}; channel {{ drawChannel() }}
-          </p>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Field</h2>
-          <p class="showcase-muted">
-            <code>neat-field</code>: a control under its visible name, inside a label that names it,
-            with an optional <code>hint</code> and <code>error</code> under it that describe the
-            control (and mark it invalid). Its name is drawn as a shown select's is, so in a row of
-            controls of one <code>size</code>, aligned at their bottom edge, the names share a
-            baseline and the controls their edges: below, a field, two selects, a number field and a
-            button, small and then medium. <code>neat-error-note</code> says a failure in place: an
-            alert in the danger colour that keeps the message's line breaks.
-          </p>
-          <div class="field-demo">
-            <neat-field label="Stream URL" hint="RTSP and RTSPS only.">
-              <input
-                neatInput
-                size="small"
-                type="url"
-                placeholder="rtsp://192.168.1.10:554/stream1"
-              />
-            </neat-field>
-            <neat-field label="Start Time" error="Use minutes and seconds, as 1:30.">
-              <input neatInput size="small" value="90s" />
-            </neat-field>
-          </div>
-          @for (size of fieldSizes; track size) {
-            <div class="field-row" [attr.data-size]="size">
-              <neat-field class="field-narrow" label="Start Time"
-                ><input neatInput [size]="size" placeholder="0:00"
-              /></neat-field>
-              <neat-select
-                class="field-wide"
-                label="Target Resolution & FPS"
-                showLabel
-                [size]="size"
-                [options]="sourceOptions"
-                [(value)]="source"
-              />
-              <neat-select
-                class="field-narrow"
-                label="Clip Length"
-                showLabel
-                [size]="size"
-                [options]="clipLengths"
-                [value]="300"
-              />
-              @if (size === 'small') {
-                <neat-number-field
-                  label="Page"
-                  [value]="page()"
-                  [accept]="acceptPage"
-                  (commit)="commitPage($event)"
-                />
-              }
-              <button neatButton type="button" variant="outlined" [size]="size">Validate</button>
-            </div>
-          }
-          <neat-error-note>{{ validateError }}</neat-error-note>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Select</h2>
-          <p class="showcase-muted">
-            <code>neat-select</code>: a choice of one value from a list, no free text. Its
-            <code>label</code> is the accessible name of the select and its list;
-            <code>showLabel</code> also shows it above the select, and
-            <code>labelPosition="inline"</code> shows it before the select on the same row instead,
-            for a select in a toolbar or a heading; either way the label is for the trigger, and a
-            click on it opens the list. The arrow keys, Home and End move through the options (a
-            disabled one is skipped), typing a few letters jumps to a label, Enter or Space picks
-            and Escape closes the list without picking. It fills its container's width, and
-            <code>size</code> (small or medium) matches the input's and the button's (see Field).
-            Inside a dialog its list shows above the dialog, and Escape closes the list only; the
-            next Escape closes the dialog.
-          </p>
-          <div class="showcase-row select-row">
-            <neat-select
-              label="Source"
-              placeholder="Pick a source"
-              showLabel
-              [options]="sourceOptions"
-              [(value)]="source"
-            />
-            <neat-select
-              label="Source, label hidden"
-              placeholder="Pick a source"
-              [options]="sourceOptions"
-              [(value)]="source"
-            />
-            <neat-select
-              label="Source"
-              placeholder="Pick a source"
-              labelPosition="inline"
-              [options]="sourceOptions"
-              [(value)]="source"
-            />
-            <neat-select label="Disabled" disabled [options]="sourceOptions" [value]="'rtsp'" />
-            <button neatButton type="button" variant="outlined" (click)="openAssign(assignDialog)">
-              Assign a source…
-            </button>
-          </div>
-          <p class="showcase-code showcase-muted" aria-live="polite">
-            Selected: {{ source() ?? 'none' }}; {{ assignResult() }}
-          </p>
-
-          <ng-template #assignDialog let-dialog>
-            <neat-dialog-body>
-              <neat-select
-                label="Source for channel 3"
-                showLabel
-                placeholder="Pick a source"
-                [options]="sourceOptions"
-                [(value)]="dialogSource"
-              />
-            </neat-dialog-body>
-            <neat-dialog-actions>
-              <button neatButton type="button" variant="outlined" (click)="dialog.close()">
-                Cancel
-              </button>
-              <button neatButton type="button" (click)="dialog.close(dialogSource())">
-                Assign
-              </button>
-            </neat-dialog-actions>
-          </ng-template>
-        </section>
-
-        <section class="showcase-section">
           <h2>Progress</h2>
           <p class="showcase-muted">
             <code>neat-progress</code>: a bar for work with a known share done (<code>value</code>,
@@ -962,39 +610,6 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
             />
             <neat-progress heading="Preparing" detail="Probing the file" [value]="null" />
           </div>
-        </section>
-
-        <section class="showcase-section">
-          <h2>Drop zone</h2>
-          <p class="showcase-muted">
-            <code>neat-drop-zone</code>: drop files on it, or click it (or press Enter or Space on
-            it) for the system's file chooser. <code>files</code> emits what was dropped or chosen;
-            <code>accept</code> filters what is dropped, <code>multiple</code> allows several, and
-            <code>rejected</code> lists what was not taken (the first zone takes one video, so drop
-            a text file on it to see it). Files being dragged over it light it up. Disabled, it
-            ignores clicks and drops.
-          </p>
-          <div class="drop-demo">
-            <neat-drop-zone
-              label="Drop one video here, or click to choose"
-              accept="video/*,.mkv"
-              (rejected)="logDrop('Not accepted', $event)"
-              (files)="logDrop('Received', $event)"
-            />
-            <neat-drop-zone
-              label="Drop any files here, or click to choose"
-              multiple
-              (files)="logDrop('Received', $event)"
-            />
-            <neat-drop-zone label="Uploads are paused" disabled />
-          </div>
-          <p class="showcase-code showcase-muted" aria-live="polite">
-            @for (line of dropLog(); track $index) {
-              {{ line }}<br />
-            } @empty {
-              Nothing dropped yet
-            }
-          </p>
         </section>
 
         <section class="showcase-section">
@@ -1261,50 +876,6 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
         </section>
 
         <section class="showcase-section">
-          <h2>Controls on a card</h2>
-          <p class="showcase-muted">
-            On the card surface, which differs from the page background in dark mode.
-          </p>
-          <div class="card showcase-row">
-            <button neatSwitch [(checked)]="bars">Bars</button>
-            <neat-slider
-              class="card-slider"
-              label="Opacity"
-              [min]="0"
-              [max]="100"
-              [step]="5"
-              [(value)]="opacity"
-            />
-            <neat-segmented label="Tile shape" [options]="shapes" [(value)]="shape" />
-            <div class="card-field">
-              <input neatInput size="small" aria-label="Jump to channel" placeholder="Channel" />
-            </div>
-            <neat-select
-              class="card-select"
-              label="Source, on a card"
-              placeholder="Pick a source"
-              [options]="sourceOptions"
-              [(value)]="source"
-            />
-          </div>
-          <div class="card card-stack">
-            <neat-progress label="Upload, on a card" [value]="progress()" />
-            <neat-progress label="Preparing, on a card" [value]="null" />
-            <neat-drop-zone label="Drop files here, on a card" multiple />
-          </div>
-          <div class="card">
-            <neat-tabs label="Channel settings, on a card" [(value)]="tab">
-              <neat-tab label="Metadata" value="metadata">
-                <ng-template><p class="showcase-muted">Metadata settings.</p></ng-template>
-              </neat-tab>
-              <neat-tab label="General" value="general">
-                <ng-template><p class="showcase-muted">General settings.</p></ng-template>
-              </neat-tab>
-            </neat-tabs>
-          </div>
-        </section>
-
-        <section class="showcase-section">
           <h2>Tile grid</h2>
           <p class="showcase-muted">
             <code>neat-tile-grid</code> packs tiles of a chosen width into its own box with no
@@ -1417,15 +988,9 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
 })
 export class ComponentsPage {
   protected readonly surfaces = SURFACES;
-  protected readonly shapes = SHAPES;
   protected readonly tones = TONES;
   protected readonly toneLabels = TONE_LABELS;
   protected readonly chipVariants = CHIP_VARIANTS;
-  protected readonly fieldSizes = ['small', 'medium'] as const;
-  protected readonly clipLengths = CLIP_LENGTHS;
-  /** A server's diagnostics, on two lines. */
-  protected readonly validateError =
-    'Could not validate the URL.\nyt-dlp: ERROR: [youtube] abc123: Video unavailable';
   protected readonly narrowList = signal(false);
   protected readonly detailsOpen = signal(false);
   protected readonly meterRunning = signal(true);
@@ -1460,30 +1025,14 @@ export class ComponentsPage {
   protected readonly streamId = (stream: DemoStream) => stream.id;
   protected readonly streamTone = (stream: DemoStream) => stream.tone;
   protected readonly stream = signal<DemoStream | null>(DEMO_STREAMS[3]);
-  protected readonly overlays = OVERLAYS;
-  protected readonly views = VIEWS;
-  protected readonly sources = SOURCES;
 
   protected readonly bars = signal(true);
-  protected readonly hideEmpty = signal(false);
-  protected readonly opacity = signal(60);
-  protected readonly gain = signal(30);
-  protected readonly shape = signal<Shape>('16:9');
   protected readonly overlay = signal('boxes');
-  protected readonly sourceForm = signal('url');
   protected readonly tab = signal('metadata');
   protected readonly regions = signal(INITIAL_REGIONS);
-  protected readonly pageCount = 9;
   protected readonly page = signal(3);
-  protected readonly pageCommits = signal(0);
-  protected readonly drawChannel = signal(2);
-  protected readonly acceptPage = (n: number) => n >= 1 && n <= this.pageCount;
-  protected readonly sourceOptions = SOURCE_OPTIONS;
   protected readonly source = signal<string | null>(null);
-  protected readonly dialogSource = signal<string | null>(null);
-  protected readonly assignResult = signal('dialog not opened yet');
   protected readonly progress = signal(40);
-  protected readonly dropLog = signal<readonly string[]>([]);
   protected readonly listChannels = signal<readonly DemoChannel[]>(DEMO_CHANNELS);
   protected readonly noChannels: readonly DemoChannel[] = [];
   protected readonly listChannel = signal<DemoChannel | null>(null);
@@ -1500,7 +1049,6 @@ export class ComponentsPage {
     `${count} ${count === 1 ? 'video' : 'videos'}`;
   protected readonly fileType = (name: string) => name.split('.').pop()!.toUpperCase();
   protected readonly fileSize = demoSize;
-  private readonly dialogs = inject(NeatDialog);
   protected readonly toasts = inject(NeatToasts);
 
   protected readonly tileWidth = signal(240);
@@ -1545,14 +1093,6 @@ export class ComponentsPage {
     );
   }
 
-  protected async openAssign(content: TemplateRef<unknown>): Promise<void> {
-    const source = await this.dialogs.open<string | null>(content, { title: 'Assign a source' })
-      .closed;
-    this.assignResult.set(
-      source === undefined ? 'dialog dismissed' : `dialog assigned ${source ?? 'nothing'}`,
-    );
-  }
-
   protected addLogLine(): void {
     this.logLines.update((lines) => [...lines, `Frame ${lines.length} decoded`]);
   }
@@ -1562,23 +1102,12 @@ export class ComponentsPage {
     this.fps.set(FPS_VALUES[this.fpsIndex]);
   }
 
-  /** Newest first, as a log: a drop can report what it took and what it did not. */
-  protected logDrop(what: 'Received' | 'Not accepted', files: File[]): void {
-    const names = files.map((file) => file.name).join(', ');
-    this.dropLog.update((log) => [`${what}: ${names}`, ...log].slice(0, 4));
-  }
-
   protected deleteRegion(region: string): void {
     this.regions.update((regions) => regions.filter((name) => name !== region));
   }
 
   protected resetRegions(): void {
     this.regions.set(INITIAL_REGIONS);
-  }
-
-  protected commitPage(page: number): void {
-    this.page.set(page);
-    this.pageCommits.update((count) => count + 1);
   }
 
   constructor() {

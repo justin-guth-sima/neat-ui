@@ -34,9 +34,10 @@ const HOST_CLASSES =
   'inline-flex items-center gap-2 rounded-md text-sm font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50';
 
 /**
- * An on/off switch on a native button: `<button neatSwitch [(checked)]="bars">Bars</button>`. The
- * content is the visible label and the accessible name; without content, give it an `aria-label`.
- * Space and Enter toggle it as they click any button.
+ * An on/off switch on a native button, for a setting that applies at once, as it is toggled:
+ * `<button neatSwitch [(checked)]="bars">Bars</button>`. The content is the visible label and the
+ * accessible name; without content, give it an `aria-label`. Space and Enter toggle it as they
+ * click any button.
  *
  * A component rather than a directive on brain's switch: brain's switch is itself a component that
  * renders its own button, so it cannot sit on this one. The host is the native button, which

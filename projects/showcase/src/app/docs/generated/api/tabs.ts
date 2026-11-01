@@ -147,7 +147,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " children. The tab list is named by "
+              "text": " children; the open tab is underlined. The tab list is named by "
             },
             {
               "kind": "code",

@@ -1,0 +1,22 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-4);
+}
+
+/* Fields, selects, a number field and a button in a row, level at their bottom edge. */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--neat-space-3);
+}
+
+/* A field and a select fill their container's width, so the row gives each one. */
+.narrow {
+  width: 10rem;
+}
+
+.wide {
+  width: 14rem;
+}

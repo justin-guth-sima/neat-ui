@@ -15,7 +15,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "An on/off switch on a native button: "
+              "text": "An on/off switch on a native button, for a setting that applies at once, as it is toggled: "
             },
             {
               "kind": "code",

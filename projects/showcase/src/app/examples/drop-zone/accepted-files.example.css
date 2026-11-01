@@ -1,0 +1,6 @@
+/* A drop zone fills its container's width, so the columns give each one. */
+.zones {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 18rem));
+  gap: var(--neat-space-4);
+}

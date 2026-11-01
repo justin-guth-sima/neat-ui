@@ -320,6 +320,130 @@ export const GROUPS: readonly TopicGroup[] = [
     ],
   },
   {
+    id: 'forms',
+    label: 'Forms',
+    icon: 'terminal',
+    topics: [
+      {
+        id: 'input',
+        label: 'Input',
+        parts: ['NeatInput', 'NeatInputSize'],
+        leads: ['NeatInput'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/input'),
+            import('./generated/examples/input'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'number-field',
+        label: 'Number field',
+        parts: ['NeatNumberField'],
+        leads: ['NeatNumberField'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/number-field'),
+            import('./generated/examples/number-field'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'field',
+        label: 'Field',
+        parts: ['NeatField', 'NeatErrorNote'],
+        leads: ['NeatField'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/field'),
+            import('./generated/examples/field'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'select',
+        label: 'Select',
+        parts: ['NeatSelect', 'NeatSelectOption', 'NeatSelectSize', 'NeatSelectLabelPosition'],
+        leads: ['NeatSelect'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/select'),
+            import('./generated/examples/select'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'switch',
+        label: 'Switch',
+        parts: ['NeatSwitch'],
+        leads: ['NeatSwitch'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/switch'),
+            import('./generated/examples/switch'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'slider',
+        label: 'Slider',
+        parts: ['NeatSlider'],
+        leads: ['NeatSlider'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/slider'),
+            import('./generated/examples/slider'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'segmented',
+        label: 'Segmented',
+        parts: ['NeatSegmented', 'NeatSegmentedOption'],
+        leads: ['NeatSegmented'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/segmented'),
+            import('./generated/examples/segmented'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'tabs',
+        label: 'Tabs',
+        parts: ['NeatTabs', 'NeatTab'],
+        leads: ['NeatTabs'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/tabs'),
+            import('./generated/examples/tabs'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
+        id: 'drop-zone',
+        label: 'Drop zone',
+        parts: ['NeatDropZone'],
+        leads: ['NeatDropZone'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/drop-zone'),
+            import('./generated/examples/drop-zone'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+    ],
+  },
+  {
     id: 'status',
     label: 'Status',
     icon: 'info',

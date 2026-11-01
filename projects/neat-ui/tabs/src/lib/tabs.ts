@@ -109,11 +109,12 @@ let nextTabsId = 0;
 
 /**
  * Tabs with one open panel: `<neat-tabs label="Channel settings" [(value)]="tab">` around
- * `neat-tab` children. The tab list is named by `label`. Arrow keys move to the next or previous
- * tab and open it, skipping disabled tabs and wrapping; Home and End jump to the ends; the open tab
- * is the only tab stop. Every tab has a panel element, so each tab's `aria-controls` names one that
- * exists, but only the open tab's holds its content: the others are empty and `hidden`. When
- * `value` names no tab (or is unset), the first enabled tab is open, so the list stays reachable.
+ * `neat-tab` children; the open tab is underlined. The tab list is named by `label`. Arrow keys
+ * move to the next or previous tab and open it, skipping disabled tabs and wrapping; Home and End
+ * jump to the ends; the open tab is the only tab stop. Every tab has a panel element, so each tab's
+ * `aria-controls` names one that exists, but only the open tab's holds its content: the others are
+ * empty and `hidden`. When `value` names no tab (or is unset), the first enabled tab is open, so
+ * the list stays reachable.
  *
  * A panel taller than the space it has is for the surrounding page or pane to scroll, which keeps
  * one scroll context. The tab list is the one part that scrolls itself: tabs that do not fit their

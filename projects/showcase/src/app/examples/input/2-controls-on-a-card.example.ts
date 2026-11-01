@@ -1,0 +1,95 @@
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { NeatDropZone } from '@sima/neat-ui/drop-zone';
+import { NeatInput } from '@sima/neat-ui/input';
+import { NeatProgress } from '@sima/neat-ui/progress';
+import { NeatSegmented, type NeatSegmentedOption } from '@sima/neat-ui/segmented';
+import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
+import { NeatSlider } from '@sima/neat-ui/slider';
+import { NeatSwitch } from '@sima/neat-ui/switch';
+import { NeatTab, NeatTabs } from '@sima/neat-ui/tabs';
+
+type Shape = '16:9' | '1:1';
+
+const SHAPES: NeatSegmentedOption<Shape>[] = [
+  { value: '16:9', label: '16:9', icon: 'aspect-wide' },
+  { value: '1:1', label: '1:1', icon: 'aspect-square' },
+];
+const SOURCES: NeatSelectOption<string>[] = [
+  { value: 'camera', label: 'Front camera' },
+  { value: 'clip', label: 'Warehouse clip' },
+  { value: 'rtsp', label: 'RTSP stream' },
+];
+
+/**
+ * The form controls on the card surface, which differs from the page's background in dark mode:
+ * look at each one's edge, track and fill there. A switch, a slider, a segmented control, an
+ * input and a select in a row; two progress bars and a drop zone in a column; tabs.
+ */
+@Component({
+  selector: 'app-controls-on-a-card',
+  imports: [
+    NeatDropZone,
+    NeatInput,
+    NeatProgress,
+    NeatSegmented,
+    NeatSelect,
+    NeatSlider,
+    NeatSwitch,
+    NeatTab,
+    NeatTabs,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <div class="card row">
+      <button neatSwitch [(checked)]="bars">Bars</button>
+      <neat-slider
+        class="slider"
+        label="Opacity"
+        [min]="0"
+        [max]="100"
+        [step]="5"
+        [(value)]="opacity"
+      />
+      <neat-segmented label="Tile shape" [options]="shapes" [(value)]="shape" />
+      <input
+        class="input"
+        neatInput
+        size="small"
+        aria-label="Jump to channel"
+        placeholder="Channel"
+      />
+      <neat-select
+        class="select"
+        label="Source, on a card"
+        placeholder="Pick a source"
+        [options]="sources"
+        [(value)]="source"
+      />
+    </div>
+    <div class="card stack">
+      <neat-progress label="Upload, on a card" [value]="40" />
+      <neat-progress label="Preparing, on a card" [value]="null" />
+      <neat-drop-zone label="Drop files here, on a card" multiple />
+    </div>
+    <div class="card">
+      <neat-tabs label="Channel settings, on a card" [(value)]="tab">
+        <neat-tab label="Metadata" value="metadata">
+          <ng-template><p class="showcase-muted">Metadata settings.</p></ng-template>
+        </neat-tab>
+        <neat-tab label="General" value="general">
+          <ng-template><p class="showcase-muted">General settings.</p></ng-template>
+        </neat-tab>
+      </neat-tabs>
+    </div>
+  `,
+  styleUrl: './controls-on-a-card.example.css',
+})
+export class ControlsOnACard {
+  protected readonly shapes = SHAPES;
+  protected readonly sources = SOURCES;
+  protected readonly bars = signal(true);
+  protected readonly opacity = signal(60);
+  protected readonly shape = signal<Shape>('16:9');
+  protected readonly source = signal<string | null>(null);
+  protected readonly tab = signal('metadata');
+}

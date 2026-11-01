@@ -1,0 +1,7 @@
+/* A field fills its container's width, so the columns give each one. */
+:host {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 18rem));
+  align-items: start;
+  gap: var(--neat-space-4);
+}

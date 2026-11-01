@@ -1,0 +1,11 @@
+/* A select fills its container's width, so the row gives each one. */
+.selects {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--neat-space-3);
+}
+
+neat-select {
+  width: 14rem;
+}
