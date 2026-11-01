@@ -989,8 +989,9 @@ function showsOf(sourceFile) {
  * page shows as prose and the snippet leaves out; its other source is the snippet, as the file
  * has it, plus the files of its topic folder that it imports (a data file, say) and the stylesheets
  * it names (`styleUrl`) as extras. So what the page renders and what it shows are one file. Returns
- * the topics, each with its examples in file-name order, and the problems (a caption missing, a bad class, an import that is no file of
- * the topic folder); an example that cannot be read is left out.
+ * the topics, each with its examples in file-name order, and the problems (a caption missing, a
+ * bad class, an import that is no file of the topic folder); an example that cannot be read is
+ * left out.
  */
 export function extractExamples(root, kit = extractKit(root)) {
   const publicNames = new Set(kit.entries.flatMap((e) => e.parts.map((p) => p.name)));

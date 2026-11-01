@@ -33,7 +33,7 @@ const TRIGGER_CLASSES =
 
 /**
  * The trigger's row, with the app's `neatCollapsibleEnd` controls after the trigger. It wraps: the
- * controls drop to a line of their own before they take the label's room.
+ * controls drop to a line of their own before they take the room of the label and its summary.
  */
 const ROW_CLASSES = 'flex flex-wrap items-center gap-(--neat-space-2)';
 
