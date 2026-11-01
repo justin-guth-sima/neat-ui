@@ -64,6 +64,11 @@ const CONTENT_CLASSES = 'pt-(--neat-space-2) data-closed:hidden';
  * closes with the focus inside it (a Save that closes it, the app setting `open` to false), the
  * focus moves to the trigger: inert content would otherwise drop it to the page.
  *
+ * Elements marked `neatCollapsibleEnd` sit at the end of the trigger's row, outside the trigger
+ * and its heading: the section's own controls (a copy button over a code sample, a file choice),
+ * which act without opening or closing it. The trigger takes the rest of the row. They show
+ * whether the section is open or closed; an app shows them only while open with an `@if`.
+ *
  * Brain's collapsible is the host directive and its trigger and content directives sit in the
  * template; `open` is brain's `expanded` under the kit's name.
  *
@@ -83,31 +88,37 @@ const CONTENT_CLASSES = 'pt-(--neat-space-2) data-closed:hidden';
   ],
   host: { class: 'block' },
   template: `
-    <!-- A heading only at a level the app sets; otherwise a plain wrapper. -->
-    <div
-      data-slot="collapsible-heading"
-      [attr.role]="headingLevel() ? 'heading' : null"
-      [attr.aria-level]="headingLevel()"
-    >
-      <button
-        #trigger
-        brnCollapsibleTrigger
-        data-slot="collapsible-trigger"
-        [class]="triggerClasses"
+    <!-- The trigger's row: the trigger takes what the app's controls beside it leave. -->
+    <div data-slot="collapsible-row" class="flex items-center gap-(--neat-space-2)">
+      <!-- A heading only at a level the app sets; otherwise a plain wrapper. -->
+      <div
+        data-slot="collapsible-heading"
+        class="min-w-0 flex-1"
+        [attr.role]="headingLevel() ? 'heading' : null"
+        [attr.aria-level]="headingLevel()"
       >
-        <neat-icon
-          name="next"
-          [size]="16"
-          [class]="chevronClasses"
-          [class.rotate-90]="brain.expanded()"
-        />
-        <span class="shrink-0 font-medium">{{ label() }}</span>
-        @if (!brain.expanded() && summary()) {
-          <span data-slot="collapsible-summary" class="min-w-0 truncate text-muted-foreground">{{
-            summary()
-          }}</span>
-        }
-      </button>
+        <button
+          #trigger
+          brnCollapsibleTrigger
+          data-slot="collapsible-trigger"
+          [class]="triggerClasses"
+        >
+          <neat-icon
+            name="next"
+            [size]="16"
+            [class]="chevronClasses"
+            [class.rotate-90]="brain.expanded()"
+          />
+          <span class="shrink-0 font-medium">{{ label() }}</span>
+          @if (!brain.expanded() && summary()) {
+            <span data-slot="collapsible-summary" class="min-w-0 truncate text-muted-foreground">{{
+              summary()
+            }}</span>
+          }
+        </button>
+      </div>
+      <!-- Outside the heading and the button: controls of their own, never part of the name. -->
+      <ng-content select="[neatCollapsibleEnd]" />
     </div>
     <div #content brnCollapsibleContent data-slot="collapsible-content" [class]="contentClasses">
       <ng-content />

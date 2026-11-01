@@ -465,6 +465,9 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   closes with the focus inside, it moves the focus to its trigger before the content turns inert,
   which would drop the focus to the page. Its `headingLevel` puts the trigger in a heading, for
   sections that are part of an outline (the disclosure pattern's button inside a heading).
+  Elements marked `neatCollapsibleEnd` sit at the end of the trigger's row, outside the button and
+  its heading, for the section's own controls (the docs' file choice and Copy over an example's
+  code): a control inside the trigger would be a button in a button.
   `NeatCallout` hosts no brain primitive (brain has none); it is the kit's own box over the theme's
   tints, one look for the banners, problems and guides of every app. Its heading is a real heading
   (`role="heading"`, `headingLevel`, 3 by default), and with `region` (a landmark, which needs a

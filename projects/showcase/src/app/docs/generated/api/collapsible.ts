@@ -135,6 +135,31 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
+              "text": "Elements marked "
+            },
+            {
+              "kind": "code",
+              "text": "neatCollapsibleEnd"
+            },
+            {
+              "kind": "text",
+              "text": " sit at the end of the trigger's row, outside the trigger and its heading: the section's own controls (a copy button over a code sample, a file choice), which act without opening or closing it. The trigger takes the rest of the row. They show whether the section is open or closed; an app shows them only while open with an "
+            },
+            {
+              "kind": "code",
+              "text": "@if"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
               "text": "Brain's collapsible is the host directive and its trigger and content directives sit in the template; "
             },
             {

@@ -16,6 +16,7 @@ import { NeatCollapsible } from './collapsible';
       [headingLevel]="level()"
       [(open)]="open"
     >
+      <button type="button" class="end" neatCollapsibleEnd>Copy</button>
       <button type="button" class="inside">Save</button>
     </neat-collapsible>
   `,
@@ -144,6 +145,23 @@ describe('NeatCollapsible', () => {
     expect(heading.getAttribute('role')).toBe('heading');
     expect(heading.getAttribute('aria-level')).toBe('4');
     expect(heading.textContent).toContain('Details');
+  });
+
+  it("puts the app's end controls in the trigger's row, outside the trigger and its heading", async () => {
+    const { fixture, host, element, trigger, content } = await render((host) => host.level.set(3));
+    const end = element.querySelector<HTMLButtonElement>('.end')!;
+    const row = element.querySelector('[data-slot="collapsible-row"]')!;
+
+    expect(end.parentElement).toBe(row);
+    expect(row.contains(trigger)).toBe(true);
+    expect(end.closest('[role="heading"]')).toBeNull();
+    expect(content.contains(end)).toBe(false);
+    expect(trigger.textContent).not.toContain('Copy');
+
+    // Shown while closed, and a press acts on its own without opening the section.
+    end.click();
+    await fixture.whenStable();
+    expect(host.open()).toBe(false);
   });
 
   it('leaves the focus where it is when it closes with the focus elsewhere', async () => {
