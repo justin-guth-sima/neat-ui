@@ -104,15 +104,18 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
  * of a double-click (`detail` 2 or more) is ignored, so a double-click is its first click plus a
  * close. `regionsChange` emits when a polygon closes, with it appended to `regions`; the editor
  * never changes `regions` itself.
- * Escape cancels the open polygon, and so does a new `mode` or `regions` from outside, or the box
- * it is drawn on changing between the image and the tile. Drawing is pointer-only: the polygon is
- * open on the host, which takes focus on the first point so Escape reaches it.
+ * A right-click or Backspace removes the open polygon's last point, and the polygon with its only
+ * point. Escape cancels the whole polygon, and so does a new `mode` or `regions` from outside, or
+ * the box it is drawn on changing between the image and the tile. Drawing is pointer-only: the
+ * polygon is open on the host, which takes focus on the first point so Backspace and Escape reach
+ * it.
  *
  * In every mode, `off` included, the regions themselves take the pointer:
  * - Hovering one sets `highlighted` to its index in `regions` (where regions overlap, the one
  *   drawn last, on top), and leaving it sets null. An app binds the same index to its region list,
  *   so either side can highlight; a highlighted region has a stronger fill and outline.
- * - A right-click on one opens a small bubble there with a Delete button, which emits
+ * - A right-click on one, while no polygon is open, opens a small bubble there with a Delete
+ *   button, which emits
  *   `regionsChange` without that region. The button takes focus; Escape, a press outside the
  *   bubble, focus leaving it or new `regions` close it. It is a shortcut for the pointer: an app
  *   still offers the keyboard its own way to remove regions, such as its list.
@@ -127,7 +130,7 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    // Focus is only there so Escape arrives, so the host is out of the Tab order and only while a
+    // Focus is only there so Backspace and Escape arrive, so the host is out of the Tab order and only while a
     // polygon is open; the label names what has focus.
     '[attr.tabindex]': 'drawing() ? -1 : null',
     '[attr.role]': 'drawing() ? "group" : null',
@@ -137,6 +140,9 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
     '(click)': 'onClick($event)',
     '(dblclick)': 'onDoubleClick($event)',
     '(keydown.escape)': 'cancelOnEscape($event)',
+    '(keydown.backspace)': 'undoOnBackspace($event)',
+    // Also receives the right-click of a region, which `openMenu` leaves to it while drawing.
+    '(contextmenu)': 'undoOnRightClick($event)',
   },
   template: `
     @if (box(); as box) {
@@ -400,9 +406,27 @@ export class NeatRoiEditor {
     this.open.set([]);
   }
 
+  protected undoOnBackspace(event: Event): void {
+    // A Backspace with nothing open is the page's, such as a field's or a shortcut's.
+    if (this.open().length === 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.undoPoint();
+  }
+
+  protected undoOnRightClick(event: MouseEvent): void {
+    // Without an open polygon the right-click is a region's (its own handler opens the bubble) or
+    // the browser's.
+    if (this.open().length === 0) return;
+    event.preventDefault();
+    this.undoPoint();
+  }
+
   /** Opens the Delete bubble for the region at `index` at the pointer, instead of the browser's. */
   protected openMenu(event: MouseEvent, index: number): void {
     event.preventDefault();
+    // An open polygon takes the right-click as an undo, from the host it bubbles to.
+    if (this.open().length > 0) return;
     // The index is from the last render: a right-click that arrives after `regions` shrank and
     // before the next render names a region that is gone.
     if (index >= this.regions().length) return;
@@ -460,6 +484,11 @@ export class NeatRoiEditor {
   private inMenu(target: EventTarget | null): boolean {
     const element = this.menuElement()?.nativeElement;
     return element !== undefined && target instanceof Node && element.contains(target);
+  }
+
+  /** Drops the open polygon's last point; the polygon is gone with its only one. */
+  private undoPoint(): void {
+    this.open.update((points) => points.slice(0, -1));
   }
 
   private close(mode: 'inclusion' | 'exclusion', points: readonly RoiPoint[]): void {

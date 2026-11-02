@@ -751,7 +751,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " itself. Escape cancels the open polygon, and so does a new "
+              "text": " itself. A right-click or Backspace removes the open polygon's last point, and the polygon with its only point. Escape cancels the whole polygon, and so does a new "
             },
             {
               "kind": "code",
@@ -767,7 +767,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " from outside, or the box it is drawn on changing between the image and the tile. Drawing is pointer-only: the polygon is open on the host, which takes focus on the first point so Escape reaches it."
+              "text": " from outside, or the box it is drawn on changing between the image and the tile. Drawing is pointer-only: the polygon is open on the host, which takes focus on the first point so Backspace and Escape reach it."
             }
           ]
         },
@@ -816,7 +816,7 @@ export const API: DocsEntry = {
             [
               {
                 "kind": "text",
-                "text": "A right-click on one opens a small bubble there with a Delete button, which emits "
+                "text": "A right-click on one, while no polygon is open, opens a small bubble there with a Delete button, which emits "
               },
               {
                 "kind": "code",

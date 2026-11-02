@@ -13,7 +13,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "An editor on a tile that plays a test pattern, with the page keeping the regions: draw polygons in either mode, then hover one to highlight it (the readout names it) or right-click it to delete it. Pause the source and the tile stops, and the editor keeps working on the tile's whole box."
+            "text": "An editor on a tile that plays a test pattern, with the page keeping the regions: draw polygons in either mode, then hover one to highlight it (the readout names it) or right-click it to delete it. While drawing, a right-click or Backspace takes back the last point. The tile gets the same regions to filter with, so a box shows only where the regions let it. Pause the source and the tile stops, and the editor keeps working on the tile's whole box."
           }
         ]
       }
@@ -23,7 +23,9 @@ export const EXAMPLES: readonly DocsExample[] = [
       "@sima/neat-ui/segmented#NeatSegmented",
       "@sima/neat-ui/segmented#NeatSegmentedOption",
       "@sima/neat-ui/switch#NeatSwitch",
+      "@sima/neat-ui/video#NEAT_OVERLAY_DEFAULTS",
       "@sima/neat-ui/video#NeatRoiEditor",
+      "@sima/neat-ui/video#NeatOverlaySettings",
       "@sima/neat-ui/video#NeatRoiDrawMode",
       "@sima/neat-ui/video#NeatRoiPolygon",
       "@sima/neat-ui/video#neatRoiNames",
@@ -39,7 +41,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSegmented, "],["keyword","type"],["text"," NeatSegmentedOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/segmented'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n"],
-          ["keyword","import"],["text"," {\n  NeatRoiEditor,\n  "],
+          ["keyword","import"],["text"," {\n  NEAT_OVERLAY_DEFAULTS,\n  NeatRoiEditor,\n  "],
+          ["keyword","type"],["text"," NeatOverlaySettings,\n  "],
           ["keyword","type"],["text"," NeatRoiDrawMode,\n  "],
           ["keyword","type"],["text"," NeatRoiPolygon,\n  neatRoiNames,\n  NeatRoiSwatch,\n  NeatVideoTile,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n"],
@@ -47,16 +50,25 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [\n  { value: "],
           ["string","'off'"],["text",", label: "],["string","'Off'"],["text"," },\n  { value: "],
           ["string","'inclusion'"],["text",", label: "],["string","'Inclusion'"],["text"," },\n  { value: "],
-          ["string","'exclusion'"],["text",", label: "],["string","'Exclusion'"],["text"," },\n];\n\n@Component({\n  selector: "],
+          ["string","'exclusion'"],["text",", label: "],["string","'Exclusion'"],["text"," },\n];\n\n"],
+          ["comment","/**\n * The box crosses the middle of the image, which is 640 by 360, with its centre at mid height; this\n * exclusion region straddles that line, so the box vanishes as its centre enters the region and\n * returns as it leaves.\n */"],
+          ["text","\n"],
+          ["keyword","const"],["text"," STARTING_REGIONS: "],["keyword","readonly"],["text"," NeatRoiPolygon[] = [\n  {\n    type: "],
+          ["string","'exclusion'"],["text",",\n    points: [\n      { x: 0.4, y: 0.25 },\n      { x: 0.6, y: 0.25 },\n      { x: 0.6, y: 0.75 },\n      { x: 0.4, y: 0.75 },\n    ],\n  },\n];\n\n@Component({\n  selector: "],
           ["string","'app-drawing-regions'"],["text",",\n  imports: [NeatButton, NeatRoiEditor, NeatRoiSwatch, NeatSegmented, NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <neat-segmented label=\"Drawing mode\" [options]=\"modes\" [(value)]=\"mode\" />\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"regions.set([])\">\n        Clear regions\n      </button>\n      <button neatSwitch (checkedChange)=\"testPattern.setPaused($event)\">Pause the source</button>\n      <span class=\"key\"><neat-roi-swatch type=\"inclusion\" />Inclusion</span>\n      <span class=\"key\"><neat-roi-swatch type=\"exclusion\" />Exclusion</span>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n    <div class=\"cell\">\n      <neat-video-tile [source]=\"testPattern\" [bars]=\"false\">\n        <neat-roi-editor\n          neatTileOverlay\n          [regions]=\"regions()\"\n          [mode]=\"mode()\"\n          [(highlighted)]=\"highlighted\"\n          (regionsChange)=\"regions.set($event)\"\n        />\n      </neat-video-tile>\n    </div>\n  `"],
+          ["string","`\n    <div class=\"showcase-row\">\n      <neat-segmented label=\"Drawing mode\" [options]=\"modes\" [(value)]=\"mode\" />\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"regions.set([])\">\n        Clear regions\n      </button>\n      <button neatSwitch (checkedChange)=\"testPattern.setPaused($event)\">Pause the source</button>\n      <span class=\"key\"><neat-roi-swatch type=\"inclusion\" />Inclusion</span>\n      <span class=\"key\"><neat-roi-swatch type=\"exclusion\" />Exclusion</span>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n    <div class=\"cell\">\n      <neat-video-tile [source]=\"testPattern\" [settings]=\"settings()\" [bars]=\"false\">\n        <neat-roi-editor\n          neatTileOverlay\n          [regions]=\"regions()\"\n          [mode]=\"mode()\"\n          [(highlighted)]=\"highlighted\"\n          (regionsChange)=\"regions.set($event)\"\n        />\n      </neat-video-tile>\n    </div>\n    <p class=\"rule showcase-muted\">\n      A box shows while its centre is in an inclusion region, or there is none, and in no exclusion\n      region.\n    </p>\n  `"],
           ["text",",\n  styleUrl: "],
           ["string","'./drawing-regions.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," DrawingRegions {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," testPattern = "],["keyword","new"],["text"," TestPatternSource();\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," modes = MODES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," mode = signal<NeatRoiDrawMode>("],["string","'inclusion'"],["text",");\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," regions = signal<"],["keyword","readonly"],["text"," NeatRoiPolygon[]>([]);\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," regions = signal<"],["keyword","readonly"],["text"," NeatRoiPolygon[]>(STARTING_REGIONS);\n  "],
+          ["comment","/**\n   * The editor draws the regions, so the tile's own outline is off; the tile filters by them all\n   * the same, as `applyRoiFiltering` is on in the defaults.\n   */"],
+          ["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," settings = computed<NeatOverlaySettings>(() => ({\n    ...NEAT_OVERLAY_DEFAULTS,\n    general: { ...NEAT_OVERLAY_DEFAULTS.general, showRoi: "],
+          ["keyword","false"],["text"," },\n    roi: "],
+          ["keyword","this"],["text",".regions(),\n  }));\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," highlighted = signal<"],["keyword","number"],["text"," | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," summary = computed(() => {\n    "],
           ["keyword","const"],["text"," regions = "],["keyword","this"],["text",".regions();\n    "],

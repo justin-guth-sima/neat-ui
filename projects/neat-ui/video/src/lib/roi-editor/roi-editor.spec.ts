@@ -831,6 +831,117 @@ describe('NeatRoiEditor', () => {
     });
   });
 
+  describe('undo', () => {
+    /** A right-click on the surface, or on `target` when given, as a browser sends it. */
+    async function rightClickAt(x: number, y: number, target?: Element): Promise<MouseEvent> {
+      const event = new MouseEvent('contextmenu', {
+        clientX: x,
+        clientY: y,
+        button: 2,
+        bubbles: true,
+        cancelable: true,
+      });
+      (target ?? surface()).dispatchEvent(event);
+      await fixture.whenStable();
+      return event;
+    }
+
+    const draftPoints = () => draft()?.getAttribute('points');
+
+    it('a right-click removes the last point of the open polygon and stops the browser menu', async () => {
+      await create();
+      await clickAt(BOX, 0.1, 0.1);
+      await clickAt(BOX, 0.9, 0.1);
+      await clickAt(BOX, 0.9, 0.9);
+
+      const event = await rightClickAt(BOX.x + 50, BOX.y + 50);
+
+      expect(event.defaultPrevented).toBe(true);
+      // Two points remain: the polyline runs through them to the pointer.
+      expect(draftPoints()?.split(' ')).toHaveLength(3);
+      expect(draftPoints()?.startsWith('20,10 180,10')).toBe(true);
+    });
+
+    it('cancels the polygon on its only point, and a right-click after that leaves the browser menu', async () => {
+      await create();
+      await clickAt(BOX, 0.1, 0.1);
+
+      const first = await rightClickAt(BOX.x + 50, BOX.y + 50);
+
+      expect(first.defaultPrevented).toBe(true);
+      expect(draft()).toBeNull();
+      expect(editor().getAttribute('tabindex')).toBeNull();
+
+      const second = await rightClickAt(BOX.x + 50, BOX.y + 50);
+
+      expect(second.defaultPrevented, 'nothing is open: the browser menu is not ours').toBe(false);
+    });
+
+    it('over an existing region it undoes the point and opens no bubble', async () => {
+      await create();
+      host().regions.set([INCLUSION]);
+      await fixture.whenStable();
+      await clickAt(BOX, 0.1, 0.1);
+      await clickAt(BOX, 0.9, 0.1);
+
+      const event = await rightClickAt(120, 70, polygons()[0]);
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(editor().querySelector('button')).toBeNull();
+      expect(draftPoints()?.split(' ')).toHaveLength(2);
+
+      // One undo for one right-click, though the event bubbles from the polygon to the host.
+      await rightClickAt(120, 70, polygons()[0]);
+      expect(draft()).toBeNull();
+      expect(editor().querySelector('button')).toBeNull();
+    });
+
+    it('Backspace does the same and stops propagation', async () => {
+      await create();
+      const outside = vi.fn();
+      fixture.nativeElement.addEventListener('keydown', outside);
+      await clickAt(BOX, 0.1, 0.1);
+      await clickAt(BOX, 0.9, 0.1);
+
+      const event = await press('Backspace');
+
+      expect(event.defaultPrevented, 'no browser back-navigation').toBe(true);
+      expect(outside).not.toHaveBeenCalled();
+      expect(draftPoints()?.split(' ')).toHaveLength(2);
+
+      await press('Backspace');
+
+      expect(draft()).toBeNull();
+    });
+
+    it('Backspace with nothing open belongs to whoever is around the editor', async () => {
+      await create();
+      const outside = vi.fn();
+      fixture.nativeElement.addEventListener('keydown', outside);
+
+      const event = await press('Backspace');
+
+      expect(outside).toHaveBeenCalledTimes(1);
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('lets the polygon be closed after an undo and a new point', async () => {
+      await create();
+      await clickAt(BOX, 0.1, 0.1);
+      await clickAt(BOX, 0.9, 0.1);
+      await clickAt(BOX, 0.5, 0.5);
+      await press('Backspace');
+      await doubleClickAt(BOX, 0.9, 0.9);
+
+      expect(host().emitted).toHaveLength(1);
+      expect(host().emitted[0][0].points).toEqual([
+        { x: 0.1, y: 0.1 },
+        { x: 0.9, y: 0.1 },
+        { x: 0.9, y: 0.9 },
+      ]);
+    });
+  });
+
   describe('right-click Delete', () => {
     /** Regions numbered per type: Inclusion 1, Exclusion 1, Inclusion 2. */
     const LIST: readonly NeatRoiPolygon[] = [INCLUSION, EXISTING, INCLUSION];
@@ -962,6 +1073,28 @@ describe('NeatRoiEditor', () => {
       expect(deleteButton()).toBeNull();
     });
 
+    it('in a drawing mode with no polygon open, a right-click on a region opens the bubble', async () => {
+      await createWithList();
+      host().mode.set('exclusion');
+      await fixture.whenStable();
+      expect(draft()).toBeNull();
+
+      const event = await rightClick(polygons()[1], 120, 70);
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(deleteButton()?.getAttribute('aria-label')).toBe('Delete Exclusion 1');
+    });
+
+    it('in mode off a right-click on a region opens the bubble', async () => {
+      await createWithList();
+      host().mode.set('off');
+      await fixture.whenStable();
+
+      await rightClick(polygons()[0], 120, 70);
+
+      expect(deleteButton()?.getAttribute('aria-label')).toBe('Delete Inclusion 1');
+    });
+
     it('a press on the bubble outside its button keeps focus on Delete and the bubble open', async () => {
       await createWithList();
       await rightClick(polygons()[0], 120, 70);
@@ -1016,9 +1149,9 @@ describe('NeatRoiEditor', () => {
 
     it('gives focus back to what had it when Escape or Delete closes the bubble', async () => {
       await createWithList();
-      // Mid-polygon the editor's host has focus, so Escape can cancel the polygon.
-      await clickAt(BOX, 0.5, 0.5);
-      expect(document.activeElement).toBe(editor());
+      const elsewhere = document.createElement('button');
+      document.body.append(elsewhere);
+      elsewhere.focus();
 
       await rightClick(polygons()[0], 120, 70);
       expect(document.activeElement).toBe(deleteButton());
@@ -1026,8 +1159,8 @@ describe('NeatRoiEditor', () => {
       deleteButton()?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       await fixture.whenStable();
 
-      expect(document.activeElement).toBe(editor());
-      expect(draft(), 'Escape on the bubble leaves the open polygon alone').not.toBeNull();
+      expect(document.activeElement).toBe(elsewhere);
+      elsewhere.remove();
     });
 
     it('clears the highlight of the region it deletes', async () => {

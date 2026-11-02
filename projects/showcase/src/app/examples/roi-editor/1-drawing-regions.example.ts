@@ -12,7 +12,9 @@ import { NeatButton } from '@sima/neat-ui';
 import { NeatSegmented, type NeatSegmentedOption } from '@sima/neat-ui/segmented';
 import { NeatSwitch } from '@sima/neat-ui/switch';
 import {
+  NEAT_OVERLAY_DEFAULTS,
   NeatRoiEditor,
+  type NeatOverlaySettings,
   type NeatRoiDrawMode,
   type NeatRoiPolygon,
   neatRoiNames,
@@ -28,10 +30,28 @@ const MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
 ];
 
 /**
+ * The box crosses the middle of the image, which is 640 by 360, with its centre at mid height; this
+ * exclusion region straddles that line, so the box vanishes as its centre enters the region and
+ * returns as it leaves.
+ */
+const STARTING_REGIONS: readonly NeatRoiPolygon[] = [
+  {
+    type: 'exclusion',
+    points: [
+      { x: 0.4, y: 0.25 },
+      { x: 0.6, y: 0.25 },
+      { x: 0.6, y: 0.75 },
+      { x: 0.4, y: 0.75 },
+    ],
+  },
+];
+
+/**
  * An editor on a tile that plays a test pattern, with the page keeping the regions: draw
  * polygons in either mode, then hover one to highlight it (the readout names it) or right-click
- * it to delete it. Pause the source and the tile stops, and the editor keeps working on the
- * tile's whole box.
+ * it to delete it. While drawing, a right-click or Backspace takes back the last point. The tile
+ * gets the same regions to filter with, so a box shows only where the regions let it. Pause the
+ * source and the tile stops, and the editor keeps working on the tile's whole box.
  */
 @Component({
   selector: 'app-drawing-regions',
@@ -49,7 +69,7 @@ const MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
     </div>
     <p class="showcase-code showcase-muted" aria-live="polite">{{ summary() }}</p>
     <div class="cell">
-      <neat-video-tile [source]="testPattern" [bars]="false">
+      <neat-video-tile [source]="testPattern" [settings]="settings()" [bars]="false">
         <neat-roi-editor
           neatTileOverlay
           [regions]="regions()"
@@ -59,6 +79,10 @@ const MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
         />
       </neat-video-tile>
     </div>
+    <p class="rule showcase-muted">
+      A box shows while its centre is in an inclusion region, or there is none, and in no exclusion
+      region.
+    </p>
   `,
   styleUrl: './drawing-regions.example.css',
 })
@@ -66,7 +90,16 @@ export class DrawingRegions {
   protected readonly testPattern = new TestPatternSource();
   protected readonly modes = MODES;
   protected readonly mode = signal<NeatRoiDrawMode>('inclusion');
-  protected readonly regions = signal<readonly NeatRoiPolygon[]>([]);
+  protected readonly regions = signal<readonly NeatRoiPolygon[]>(STARTING_REGIONS);
+  /**
+   * The editor draws the regions, so the tile's own outline is off; the tile filters by them all
+   * the same, as `applyRoiFiltering` is on in the defaults.
+   */
+  protected readonly settings = computed<NeatOverlaySettings>(() => ({
+    ...NEAT_OVERLAY_DEFAULTS,
+    general: { ...NEAT_OVERLAY_DEFAULTS.general, showRoi: false },
+    roi: this.regions(),
+  }));
   protected readonly highlighted = signal<number | null>(null);
   protected readonly summary = computed(() => {
     const regions = this.regions();
