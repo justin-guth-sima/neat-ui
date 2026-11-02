@@ -615,7 +615,7 @@ export const GROUPS: readonly TopicGroup[] = [
       {
         id: 'select-list',
         label: 'Select list',
-        parts: ['NeatSelectList', 'NeatColumn', 'NeatSelectListGroup'],
+        parts: ['NeatSelectList', 'NeatColumn', 'NeatSelectListGroup', 'NeatActivateOn'],
         leads: ['NeatSelectList'],
         load: async () => {
           const [api, examples] = await Promise.all([

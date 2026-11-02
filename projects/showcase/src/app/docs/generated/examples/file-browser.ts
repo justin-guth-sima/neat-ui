@@ -30,7 +30,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " is tagged and greyed but can still be selected. Move over a folder with the arrow keys and the selection stays on the file it was on."
+            "text": " is tagged and greyed but can still be selected. A click on a folder only highlights it: open it with a double click, its chevron or Enter. Move over a folder with the arrow keys or a click and the selection stays on the file it was on."
           }
         ]
       }
@@ -123,7 +123,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " mode on a card, with a Type and a Size column after the name; the folders' counts say \"videos\" and follow their names. Check files in several folders and filter: the checked ones stay checked, and the line under the browser counts them."
+            "text": " mode on a card, with a Type and a Size column after the name; the folders' counts say \"videos\" and follow their names. A double click or the chevron opens a folder. Check files in several folders and filter: the checked ones stay checked, and the line under the browser counts them."
           }
         ]
       }

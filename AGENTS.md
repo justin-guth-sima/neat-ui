@@ -568,8 +568,14 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   the selected row) to the clicked one and selects it, and Ctrl or Cmd+A checks every row. They
   only ever check: a row with no box or a blocked one is skipped and nothing is unchecked. The
   blocks are those of the moment the gesture starts, so an app whose cap is its `checkBlocked`
-  must clamp `checked` too. The file browser needs nothing more: a Ctrl or Shift-click on a folder
-  highlights it and opens nothing.
+  must clamp `checked` too. `activateOn="double-click"` (type `NeatActivateOn`) makes a click only
+  select and a double click tell `activated`, as a file manager opens a folder; Enter tells it in
+  both. Why a click then never checks the selected row: its first click would check the row and
+  the double click would activate it too. The box, Space and Ctrl-click still check. The second
+  press of any double click on a row is kept from selecting the row's text. The list reveals the
+  selected row by scrolling its own area only (never `scrollIntoView`, which also scrolls the page
+  and every other ancestor, even from below the fold). The file browser needs nothing more: a Ctrl
+  or Shift-click on a folder highlights it and opens nothing.
   A column's `hideBelow` is judged against the list's own width, which a ResizeObserver
   watches only while some column has one. The header line, the listbox and each row are lines of one
   grid (each spans every track on `grid-cols-subgrid`), so a content-sized column
@@ -593,7 +599,9 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   hover and selection, `--neat-tint-<tone>-accent`); each row takes exactly one set of fills, so no
   class has to outweigh another, and the tints are opaque mixes over `--background`, so a toned list
   sits on the page, not on a card. The file browser reuses the list for its rows, since a folder row
-  is a row that Enter or a click also opens (`activated`), and its `manage` mode is the list's
+  is a row that Enter or a double click also opens (`activated`, with `activateOn="double-click"`;
+  a single click only highlights a folder, and a chevron button, no tab stop, ends a folder row for
+  a pointer's single-click open), and its `manage` mode is the list's
   checked mode (a file's path is its key); what differs is the browser's, not the list's: an arrow
   key onto a folder highlights it without changing `selected` (which is a file's path), and
   Backspace, which the list has no use for, is handled on the list's host. A checked list adds no

@@ -16,7 +16,15 @@ async function render<T>(component: new () => T) {
     row(name).dispatchEvent(new MouseEvent('click', { bubbles: true, ...init }));
     await fixture.whenStable();
   };
-  return { fixture, host, options, row, readout, click };
+  /** A double click, as a browser sends it: the two clicks, then the `dblclick`. */
+  const dblclick = async (name: string): Promise<void> => {
+    for (const detail of [1, 2]) {
+      row(name).dispatchEvent(new MouseEvent('click', { bubbles: true, detail }));
+    }
+    row(name).dispatchEvent(new MouseEvent('dblclick', { bubbles: true, detail: 2 }));
+    await fixture.whenStable();
+  };
+  return { fixture, host, options, row, readout, click, dblclick };
 }
 
 describe('the file browser examples', () => {
@@ -29,12 +37,14 @@ describe('the file browser examples', () => {
     delete (Element.prototype as Partial<Element>).scrollIntoView;
   });
 
-  it('open a folder by clicking it and pick a file, an unusable one included', async () => {
-    const { host, row, readout, click } = await render(Picking);
+  it('open a folder by double clicking it and pick a file, an unusable one included', async () => {
+    const { host, row, readout, click, dblclick } = await render(Picking);
 
     expect(readout()).toBe('Picked: none (in /)');
     await click('clips');
-    await click('indoor');
+    expect(readout()).toBe('Picked: none (in /)');
+    await dblclick('clips');
+    await dblclick('indoor');
     expect(readout()).toBe('Picked: none (in /clips/indoor)');
     await click('warehouse.mp4');
     expect(readout()).toBe('Picked: clips/indoor/warehouse.mp4 (in /clips/indoor)');
@@ -47,10 +57,10 @@ describe('the file browser examples', () => {
   });
 
   it('keep the picked file while the folder changes', async () => {
-    const { readout, click } = await render(Picking);
+    const { readout, click, dblclick } = await render(Picking);
 
     await click('demo.mp4');
-    await click('clips');
+    await dblclick('clips');
 
     expect(readout()).toBe('Picked: demo.mp4 (in /clips)');
   });

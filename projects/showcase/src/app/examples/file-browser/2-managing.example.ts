@@ -5,8 +5,9 @@ import { DEMO_TREE, demoSize } from './demo-tree';
 
 /**
  * A browser in `manage` mode on a card, with a Type and a Size column after the name; the
- * folders' counts say "videos" and follow their names. Check files in several folders and filter:
- * the checked ones stay checked, and the line under the browser counts them.
+ * folders' counts say "videos" and follow their names. A double click or the chevron opens a
+ * folder. Check files in several folders and filter: the checked ones stay checked, and the line
+ * under the browser counts them.
  */
 @Component({
   selector: 'app-managing',

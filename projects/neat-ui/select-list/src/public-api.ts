@@ -7,3 +7,4 @@
 export { NeatColumn } from './lib/select-list';
 export { NeatSelectList } from './lib/select-list';
 export type { NeatSelectListGroup } from './lib/select-list';
+export type { NeatActivateOn } from './lib/select-list';

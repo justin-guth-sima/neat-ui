@@ -171,6 +171,12 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
 const INTERACTIVE =
   'button, a[href], input, select, textarea, summary, [role="button"], [contenteditable], [tabindex]';
 
+/**
+ * What a pointer does to a row: `click` selects it and tells `activated`; `double-click` only
+ * selects it on a click and tells `activated` on a double click. Enter tells it in both.
+ */
+export type NeatActivateOn = 'click' | 'double-click';
+
 /** Stands for "no selection" in key comparisons; no item's key can be it. */
 const NONE = Symbol('none');
 
@@ -303,10 +309,12 @@ let nextListId = 0;
  * Selection follows focus: the listbox is the one tab stop, holds the focus, and names the
  * selected row in `aria-activedescendant`; ArrowDown and ArrowUp move the selection (the first
  * press picks the first or last row when nothing is selected), Home and End jump to the ends, and
- * the selected row scrolls into view. Enter, and a click on a row, tell `activated` with the row's
- * item. A click on a control in a cell, and every key pressed while one has the focus, are that
- * control's: they neither select nor activate. Controls in cells are ordinary tab stops after
- * the listbox.
+ * the selected row scrolls into view (the list's own area only; the page around it stays where it
+ * is). Enter, and a click on a row, tell `activated` with the row's item; with
+ * `activateOn="double-click"` a click only selects, and a double click tells it (Enter still does).
+ * A double click does not select a row's text. A click on a control in a cell, and every key
+ * pressed while one has the focus, are that control's: they neither select nor activate. Controls
+ * in cells are ordinary tab stops after the listbox.
  *
  * The header repeats the columns' labels for the eye and is hidden from assistive technology: the
  * rows read as the text of their cells in order, as a listbox's options do (a listbox cannot
@@ -325,7 +333,9 @@ let nextListId = 0;
  * Space checks or unchecks that row; a click on a row's box checks or unchecks it and does nothing
  * else. A click elsewhere on the row selects and activates it as in the single mode, except on the
  * selected row, which it checks or unchecks as Space does (a row that cannot be checked is
- * activated again as before). Ctrl-click or Cmd-click on a row checks or unchecks it and selects it
+ * activated again as before; with `activateOn="double-click"` a click never checks, so that a
+ * double click on a checkable row only activates it, and the box, Space and Ctrl-click check).
+ * Ctrl-click or Cmd-click on a row checks or unchecks it and selects it
  * without activating it. Shift-click checks the rows from the anchor to the clicked one, inclusive,
  * and selects the clicked one; the anchor is the row last clicked plainly, with Ctrl or Cmd, or
  * checked by Space or its box, else the selected row, else the clicked row alone. A range only
@@ -400,6 +410,8 @@ let nextListId = 0;
           [attr.aria-describedby]="describedBy()"
           (keydown)="onKeydown($event)"
           (click)="onClick($event)"
+          (dblclick)="onDoubleClick($event)"
+          (mousedown)="onMousedown($event)"
         >
           @for (section of sections(); track section.key) {
             @if (section.group; as group) {
@@ -557,7 +569,13 @@ export class NeatSelectList<T, K = unknown> {
    * as Delete on a row); it describes the listbox, and is not shown.
    */
   readonly hint = input('');
-  /** The item of the row that was clicked or that had Enter pressed on it. */
+  /**
+   * What the pointer does to a row: `click` (the default) selects it and tells `activated`;
+   * `double-click` makes a click only select it, and a double click tells `activated`, as a file
+   * manager opens a folder. Enter tells it in both.
+   */
+  readonly activateOn = input<NeatActivateOn>('click');
+  /** The item of the row that was activated: clicked or double-clicked (see `activateOn`), or Enter. */
   readonly activated = output<T>();
 
   protected readonly scrollerClasses = SCROLLER_CLASSES;
@@ -788,15 +806,33 @@ export class NeatSelectList<T, K = unknown> {
     const listbox = this.listbox().nativeElement;
     // A row is found by its index as shown (with groups, not its place among its parent's
     // children), and as an option, since a cell's content may carry a data-index of its own.
-    // jsdom has no scrollIntoView.
-    const reveal = (element: Element | null) => element?.scrollIntoView?.({ block: 'nearest' });
-    reveal(listbox.querySelector(`[role="option"][data-index="${index}"]`));
+    this.reveal(listbox.querySelector(`[role="option"][data-index="${index}"]`));
     // Then the headings that belong with it, nearest again, so that only a move up scrolls for
     // them: a group's first row brings its heading (it would stop under the sticky header, its kind
     // out of view), and the last row the empty groups after it, whose "none found" is content.
-    if (row.heading) reveal(listbox.querySelector(`#${row.heading}`));
+    if (row.heading) this.reveal(listbox.querySelector(`#${row.heading}`));
     if (trailingHeading && index === rows.length - 1) {
-      reveal(listbox.querySelector(`#${trailingHeading}`));
+      this.reveal(listbox.querySelector(`#${trailingHeading}`));
+    }
+  }
+
+  /**
+   * Scrolls the list's own area, and nothing else, by the least that brings the element in view,
+   * below the sticky header. `scrollIntoView` would scroll every scrollable ancestor too, so a list
+   * in a page, even one below the fold, would take the page along with it. The area is the
+   * element's offset parent (it is positioned), so `offsetTop` is the element's place in it.
+   */
+  private reveal(element: HTMLElement | null): void {
+    if (!element) return;
+    const scroller = this.scroller().nativeElement;
+    const header = scroller.querySelector<HTMLElement>('[data-slot="select-list-header"]');
+    const covered = header?.offsetHeight ?? 0;
+    const top = element.offsetTop;
+    const bottom = top + element.offsetHeight;
+    if (top < scroller.scrollTop + covered) {
+      scroller.scrollTop = top - covered;
+    } else if (bottom > scroller.scrollTop + scroller.clientHeight) {
+      scroller.scrollTop = bottom - scroller.clientHeight;
     }
   }
 
@@ -880,14 +916,42 @@ export class NeatSelectList<T, K = unknown> {
       }
       // A second click on the row the keyboard is on checks it, as Space does. A row that cannot
       // be checked has nothing to toggle, so the click keeps its meaning of opening it.
-      if (index === this.selectedIndex() && this.canToggle(row)) {
+      // In double-click mode a click never checks: a double click on the selected row would check
+      // it with its first click and activate it with the second.
+      if (this.activateOn() === 'click' && index === this.selectedIndex() && this.canToggle(row)) {
         this.toggle(row);
         return;
       }
       this.anchor = row.key;
     }
     this.selected.set(row.item);
-    this.activated.emit(row.item);
+    if (this.activateOn() === 'click') this.activated.emit(row.item);
+  }
+
+  /**
+   * A double click on a row tells `activated` in `double-click` mode. A click on a box or a control
+   * is theirs, and a Ctrl, Cmd or Shift double click is the checking gestures' (see `onClick`),
+   * which activate nothing.
+   */
+  protected onDoubleClick(event: MouseEvent): void {
+    if (this.activateOn() !== 'double-click') return;
+    if (event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const row = this.rowOf(event.target as Element);
+    if (row) this.activated.emit(row.item);
+  }
+
+  /** The second press of a double click would select the row's text; the row is not text. */
+  protected onMousedown(event: MouseEvent): void {
+    if (event.detail >= 2 && this.rowOf(event.target as Element)) event.preventDefault();
+  }
+
+  /** The row a pointer event on `target` is for, or null for a box, a control or no row. */
+  private rowOf(target: Element): Row<T, K> | null {
+    const option = target.closest('[role="option"]');
+    if (!option || target.closest('[data-slot="select-list-check"]')) return null;
+    const control = target.closest(INTERACTIVE);
+    if (control && control !== option && option.contains(control)) return null;
+    return this.rows()[Number(option.getAttribute('data-index'))] ?? null;
   }
 
   private canToggle(row: Row<T, K>): boolean {

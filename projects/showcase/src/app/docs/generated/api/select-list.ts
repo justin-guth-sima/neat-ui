@@ -6,6 +6,55 @@ export const API: DocsEntry = {
   "import": "@sima/neat-ui/select-list",
   "parts": [
     {
+      "name": "NeatActivateOn",
+      "kind": "type",
+      "definition": "'click' | 'double-click'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What a pointer does to a row: "
+            },
+            {
+              "kind": "code",
+              "text": "click"
+            },
+            {
+              "kind": "text",
+              "text": " selects it and tells "
+            },
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": "; "
+            },
+            {
+              "kind": "code",
+              "text": "double-click"
+            },
+            {
+              "kind": "text",
+              "text": " only selects it on a click and tells "
+            },
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": " on a double click. Enter tells it in both."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/select-list/src/lib/select-list.ts"
+    },
+    {
       "name": "NeatColumn",
       "kind": "template",
       "selector": "ng-template[neatColumn]",
@@ -360,7 +409,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; ArrowDown and ArrowUp move the selection (the first press picks the first or last row when nothing is selected), Home and End jump to the ends, and the selected row scrolls into view. Enter, and a click on a row, tell "
+              "text": "; ArrowDown and ArrowUp move the selection (the first press picks the first or last row when nothing is selected), Home and End jump to the ends, and the selected row scrolls into view (the list's own area only; the page around it stays where it is). Enter, and a click on a row, tell "
             },
             {
               "kind": "code",
@@ -368,7 +417,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " with the row's item. A click on a control in a cell, and every key pressed while one has the focus, are that control's: they neither select nor activate. Controls in cells are ordinary tab stops after the listbox."
+              "text": " with the row's item; with "
+            },
+            {
+              "kind": "code",
+              "text": "activateOn=\"double-click\""
+            },
+            {
+              "kind": "text",
+              "text": " a click only selects, and a double click tells it (Enter still does). A double click does not select a row's text. A click on a control in a cell, and every key pressed while one has the focus, are that control's: they neither select nor activate. Controls in cells are ordinary tab stops after the listbox."
             }
           ]
         },
@@ -468,7 +525,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " and drawn with the bar. Space checks or unchecks that row; a click on a row's box checks or unchecks it and does nothing else. A click elsewhere on the row selects and activates it as in the single mode, except on the selected row, which it checks or unchecks as Space does (a row that cannot be checked is activated again as before). Ctrl-click or Cmd-click on a row checks or unchecks it and selects it without activating it. Shift-click checks the rows from the anchor to the clicked one, inclusive, and selects the clicked one; the anchor is the row last clicked plainly, with Ctrl or Cmd, or checked by Space or its box, else the selected row, else the clicked row alone. A range only checks, never unchecks, and Ctrl+A or Cmd+A checks every row. None of them checks a row without a box or a blocked one, and a row they do not check stays as it is. The boxes are not tab stops. The multi-selectable listbox says what checking is, so a checked list needs no "
+              "text": " and drawn with the bar. Space checks or unchecks that row; a click on a row's box checks or unchecks it and does nothing else. A click elsewhere on the row selects and activates it as in the single mode, except on the selected row, which it checks or unchecks as Space does (a row that cannot be checked is activated again as before; with "
+            },
+            {
+              "kind": "code",
+              "text": "activateOn=\"double-click\""
+            },
+            {
+              "kind": "text",
+              "text": " a click never checks, so that a double click on a checkable row only activates it, and the box, Space and Ctrl-click check). Ctrl-click or Cmd-click on a row checks or unchecks it and selects it without activating it. Shift-click checks the rows from the anchor to the clicked one, inclusive, and selects the clicked one; the anchor is the row last clicked plainly, with Ctrl or Cmd, or checked by Space or its box, else the selected row, else the clicked row alone. A range only checks, never unchecks, and Ctrl+A or Cmd+A checks every row. None of them checks a row without a box or a blocked one, and a row they do not check stays as it is. The boxes are not tab stops. The multi-selectable listbox says what checking is, so a checked list needs no "
             },
             {
               "kind": "code",
@@ -910,6 +975,54 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "activateOn",
+          "type": "NeatActivateOn",
+          "default": "'click'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What the pointer does to a row: "
+                },
+                {
+                  "kind": "code",
+                  "text": "click"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the default) selects it and tells "
+                },
+                {
+                  "kind": "code",
+                  "text": "activated"
+                },
+                {
+                  "kind": "text",
+                  "text": "; "
+                },
+                {
+                  "kind": "code",
+                  "text": "double-click"
+                },
+                {
+                  "kind": "text",
+                  "text": " makes a click only select it, and a double click tells "
+                },
+                {
+                  "kind": "code",
+                  "text": "activated"
+                },
+                {
+                  "kind": "text",
+                  "text": ", as a file manager opens a folder. Enter tells it in both."
+                }
+              ]
+            }
+          ]
         }
       ],
       "models": [
@@ -964,7 +1077,15 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The item of the row that was clicked or that had Enter pressed on it."
+                  "text": "The item of the row that was activated: clicked or double-clicked (see "
+                },
+                {
+                  "kind": "code",
+                  "text": "activateOn"
+                },
+                {
+                  "kind": "text",
+                  "text": "), or Enter."
                 }
               ]
             }

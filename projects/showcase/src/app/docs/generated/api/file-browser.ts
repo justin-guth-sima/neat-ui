@@ -87,7 +87,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " A click, or Enter on the row the keyboard is on, opens a folder; a click on a breadcrumb, or Backspace in the list, goes up. When the folder is gone from "
+                "text": " A double click on a folder row, a click on the chevron that ends it, or Enter on the row the keyboard is on, opens the folder; a single click only highlights it, and a double click on a file opens nothing. A click on a breadcrumb, or Backspace in the list, goes up. When the folder is gone from "
               },
               {
                 "kind": "code",
@@ -130,7 +130,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " is a file's path. Moving the list's selection with the arrow keys onto a file selects it, as a click does; onto a folder leaves "
+                "text": " is a file's path. A click on a file, or moving the list's selection with the arrow keys onto it, selects it; a click on a folder, or an arrow key onto it, leaves "
               },
               {
                 "kind": "code",
@@ -138,7 +138,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " as it is (the preview of a file stays while the keyboard passes folders) and highlights the folder. A selected file in another folder stays selected. The list's keys are "
+                "text": " as it is (the preview of a file stays while the keyboard or the pointer passes folders) and highlights the folder. A selected file in another folder stays selected. The list's keys are "
               },
               {
                 "kind": "code",
@@ -170,7 +170,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": ", which hold files of other folders too. A click on the box toggles it and nothing else. From the keyboard, Space toggles the file the list is on; the boxes are not tab stops, so the arrow keys keep moving the selection. Ctrl-click or Cmd-click, Shift-click and Ctrl+A or Cmd+A check as they do in the list, without opening a folder. The listbox is multi-selectable and a file "
+                "text": ", which hold files of other folders too. A click on the box toggles it and nothing else. From the keyboard, Space toggles the file the list is on; the boxes are not tab stops, so the arrow keys keep moving the selection. Ctrl-click or Cmd-click, Shift-click and Ctrl+A or Cmd+A check as they do in the list, without opening a folder. A click on the selected file checks it, but not the second click of a double click, which opens nothing. The listbox is multi-selectable and a file "
               },
               {
                 "kind": "code",
@@ -660,6 +660,21 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "What a filter with no match says."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "open",
+          "type": "(folder: string) => string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The chevron button's accessible name on a folder row, from the folder's name."
                 }
               ]
             }

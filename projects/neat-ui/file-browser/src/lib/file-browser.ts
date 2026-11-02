@@ -47,6 +47,8 @@ export interface NeatFileBrowserLabels {
   readonly empty: string;
   /** What a filter with no match says. */
   readonly noMatches: string;
+  /** The chevron button's accessible name on a folder row, from the folder's name. */
+  readonly open: (folder: string) => string;
   /** Read before a folder's name, which an icon alone tells apart from a file. */
   readonly folder: string;
   /** What a folder's count means, read after the folder's name and shown as its tooltip. */
@@ -65,6 +67,7 @@ const DEFAULT_LABELS: NeatFileBrowserLabels = {
   filter: 'Filter files in the current folder and its subfolders',
   empty: 'This folder is empty.',
   noMatches: 'No files match the filter.',
+  open: (folder) => `Open ${folder}`,
   folder: 'Folder',
   folderCount: (folder, count) =>
     `${plural(count, 'file', 'files')} in ${folder} and its subfolders`,
@@ -124,21 +127,25 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
  *   many matched. Navigating, by any means, empties the filter. `filter` is a model, so the app can
  *   read it (a note under the list about what the folder leaves out should show only while it is
  *   empty) and set it.
- * - **Navigating.** A click, or Enter on the row the keyboard is on, opens a folder; a click on a
- *   breadcrumb, or Backspace in the list, goes up. When the folder is gone from `root` (after a
+ * - **Navigating.** A double click on a folder row, a click on the chevron that ends it, or Enter
+ *   on the row the keyboard is on, opens the folder; a single click only highlights it, and a
+ *   double click on a file opens nothing. A click on a breadcrumb, or Backspace in the list, goes
+ *   up. When the folder is gone from `root` (after a
  *   reload), `folder` becomes its nearest ancestor that exists. The list takes the focus after any
  *   navigation, and going up highlights the folder just left; every listing starts at the top.
  *   Pass `root` once it is loaded: an empty tree has no folders, so the browser goes back to the
  *   root.
- * - **Selecting.** `selected` is a file's path. Moving the list's selection with the arrow keys
- *   onto a file selects it, as a click does; onto a folder leaves `selected` as it is (the
- *   preview of a file stays while the keyboard passes folders) and highlights the folder. A
+ * - **Selecting.** `selected` is a file's path. A click on a file, or moving the list's selection
+ *   with the arrow keys onto it, selects it; a click on a folder, or an arrow key onto it, leaves `selected` as it
+ *   is (the preview of a file stays while the keyboard or the pointer passes folders) and
+ *   highlights the folder. A
  *   selected file in another folder stays selected. The list's keys are `neat-select-list`'s.
  * - **`manage` mode** is the list's checked mode: a box on each file (not on folders), for the
  *   paths in `checked`, which hold files of other folders too. A click on the box toggles it and
  *   nothing else. From the keyboard, Space toggles the file the list is on; the boxes are not tab
  *   stops, so the arrow keys keep moving the selection. Ctrl-click or Cmd-click, Shift-click and
- *   Ctrl+A or Cmd+A check as they do in the list, without opening a folder. The listbox is
+ *   Ctrl+A or Cmd+A check as they do in the list, without opening a folder. A click on the selected
+ *   file checks it, but not the second click of a double click, which opens nothing. The listbox is
  *   multi-selectable and a file `aria-selected` while checked, which says what checking is; the
  *   browser adds no hint of its own. Paths that are no longer in `root` leave `checked`;
  *   `selected` is not pruned, since an app may select a file before the tree that holds it has
@@ -204,6 +211,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
       [emptyLabel]="query() ? text().noMatches : text().empty"
       [checkable]="mode() === 'manage'"
       [canCheck]="isFile"
+      activateOn="double-click"
       [(checked)]="checked"
       (selectedChange)="moveCursor($event)"
       (activated)="open($event)"
@@ -239,6 +247,20 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
               >{{ row.count }}</span
             >
             <span class="sr-only">{{ row.countLabel }}</span>
+          }
+          @if (row.node.type === 'folder') {
+            <!-- A pointer's way to open a folder, so no tab stop: the keyboard has Enter. The list
+                 leaves a click on a control in a row to the control. NeatButton cannot be used:
+                 its host binding drops a tabindex. -->
+            <button
+              type="button"
+              tabindex="-1"
+              class="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
+              [attr.aria-label]="text().open(row.label)"
+              (click)="navigate(row.node.path)"
+            >
+              <neat-icon name="next" [size]="16" />
+            </button>
           }
         </span>
       </ng-template>
@@ -431,7 +453,7 @@ export class NeatFileBrowser {
     }
   }
 
-  /** Enter, or a click, on a row: a folder opens. */
+  /** Enter, or a double click, on a row: a folder opens. */
   protected open(row: BrowserRow): void {
     if (row.node.type === 'folder') this.navigate(row.node.path);
   }

@@ -45,7 +45,8 @@ const TREE: readonly NeatFileNode[] = [
       [root]="root()"
       [mode]="mode()"
       [labels]="labels()"
-      [(folder)]="folder"
+      [folder]="folder()"
+      (folderChange)="folder.set($event); folderChanges.push($event)"
       [(selected)]="selected"
       [(checked)]="checked"
       [(filter)]="filter"
@@ -73,6 +74,8 @@ class BrowserHost {
   readonly withColumn = signal(false);
   readonly hideSizeBelow = signal<number | undefined>(undefined);
   readonly folder = signal('');
+  /** The folders the browser reported opening, in order. */
+  readonly folderChanges: string[] = [];
   readonly selected = signal<string | null>(null);
   readonly checked = signal<readonly string[]>([]);
   readonly filter = signal('');
@@ -99,6 +102,33 @@ beforeEach(() => {
   // jsdom does not implement scrollIntoView.
   Element.prototype.scrollIntoView = vi.fn();
 });
+
+/**
+ * jsdom lays nothing out: rows sit `top + 36 * index` down the list's area, which shows `view`
+ * pixels. Returns the undo.
+ */
+function layOutRows(top: number, view: number): () => void {
+  const element = HTMLElement.prototype;
+  const saved = (['offsetTop', 'offsetHeight', 'clientHeight'] as const).map(
+    (name) => [name, Object.getOwnPropertyDescriptor(element, name)] as const,
+  );
+  const define = (name: string, value: (el: HTMLElement) => number) =>
+    Object.defineProperty(element, name, {
+      configurable: true,
+      get(this: HTMLElement) {
+        return value(this);
+      },
+    });
+  define('offsetTop', (el) => top + 36 * Number(el.getAttribute('data-index') ?? 0));
+  define('offsetHeight', () => 36);
+  define('clientHeight', () => view);
+  return () => {
+    for (const [name, descriptor] of saved) {
+      if (descriptor) Object.defineProperty(element, name, descriptor);
+      else delete (element as unknown as Record<string, unknown>)[name];
+    }
+  };
+}
 
 afterEach(() => {
   delete (Element.prototype as Partial<Element>).scrollIntoView;
@@ -142,6 +172,18 @@ async function render(setup: (host: BrowserHost) => void = () => undefined) {
     },
     async click(name: string, init: MouseEventInit = {}) {
       view.row(name).dispatchEvent(new MouseEvent('click', { bubbles: true, ...init }));
+      await fixture.whenStable();
+    },
+    /** A double click: the two clicks of it, then the `dblclick`, as a browser sends them. */
+    async dblclick(name: string, init: MouseEventInit = {}) {
+      for (const detail of [1, 2]) {
+        const down = new MouseEvent('mousedown', { bubbles: true, cancelable: true, detail });
+        view.row(name).dispatchEvent(down);
+        view.row(name).dispatchEvent(new MouseEvent('click', { bubbles: true, detail, ...init }));
+      }
+      view
+        .row(name)
+        .dispatchEvent(new MouseEvent('dblclick', { bubbles: true, detail: 2, ...init }));
       await fixture.whenStable();
     },
     async press(key: string, target: HTMLElement = view.listbox(), init: KeyboardEventInit = {}) {
@@ -270,14 +312,77 @@ describe('NeatFileBrowser', () => {
   });
 
   describe('navigating', () => {
-    it('opens a folder with a click on its row, and the breadcrumb follows', async () => {
-      const { host, click, names, crumbs } = await render();
+    it('opens a folder with a double click on its row, and the breadcrumb follows', async () => {
+      const { host, dblclick, names, crumbs } = await render();
 
-      await click('30FPS');
+      await dblclick('30FPS');
 
       expect(host.folder()).toBe('30FPS');
       expect(names()).toEqual(['indoor', 'highway.mp4']);
       expect(crumbs()).toEqual(['Media Root', '30FPS']);
+    });
+
+    it('only highlights a folder on a single click, and keeps the folder and the selected file', async () => {
+      const { host, click, row, names } = await render();
+      await click('video.mp4');
+
+      await click('30FPS');
+
+      expect(host.folder()).toBe('');
+      expect(names()).toContain('30FPS');
+      expect(row('30FPS').getAttribute('aria-selected')).toBe('true');
+      expect(host.selected()).toBe('video.mp4');
+    });
+
+    it('opens a folder once on a double click, not once per click', async () => {
+      const { host, dblclick } = await render();
+
+      await dblclick('30FPS');
+
+      expect(host.folder()).toBe('30FPS');
+      expect(host.folderChanges).toEqual(['30FPS']);
+    });
+
+    it('opens a folder with a click on the chevron that ends its row, which no other row has', async () => {
+      const { host, row, options, settle } = await render();
+      const chevron = (name: string) => row(name).querySelector<HTMLButtonElement>('button');
+
+      expect(options().map((o) => o.querySelector('button') !== null)).toEqual([
+        true,
+        true,
+        true,
+        false,
+        false,
+      ]);
+      expect(chevron('30FPS')!.getAttribute('aria-label')).toBe('Open 30FPS');
+      expect(chevron('30FPS')!.tabIndex).toBe(-1);
+
+      chevron('30FPS')!.click();
+      await settle();
+      expect(host.folder()).toBe('30FPS');
+      expect(host.folderChanges).toEqual(['30FPS']);
+    });
+
+    it('opens nothing on a double click on a file, and changes no folder', async () => {
+      const { host, dblclick } = await render();
+
+      await dblclick('video.mp4');
+
+      expect(host.folderChanges).toEqual([]);
+      expect(host.folder()).toBe('');
+      expect(host.selected()).toBe('video.mp4');
+    });
+
+    it('does not select the text of a row on the second press of a double click', async () => {
+      const { row } = await render();
+      const press = (detail: number) => {
+        const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true, detail });
+        row('30FPS').dispatchEvent(event);
+        return event.defaultPrevented;
+      };
+
+      expect(press(1)).toBe(false);
+      expect(press(2)).toBe(true);
     });
 
     it('opens the folder the keyboard is on with Enter', async () => {
@@ -406,7 +511,7 @@ describe('NeatFileBrowser', () => {
     });
 
     it('clears when the folder is navigated, by a click, a breadcrumb or a key, or set from outside', async () => {
-      const { type, click, filter, names, element, press, settle, host } = await render();
+      const { type, dblclick, filter, names, element, press, settle, host } = await render();
 
       await type('indoor');
       expect(names()).toEqual([
@@ -425,7 +530,7 @@ describe('NeatFileBrowser', () => {
       expect(filter().value).toBe('');
       expect(host.folder()).toBe('');
 
-      await click('30FPS');
+      await dblclick('30FPS');
       await type('indoor');
       await press('Backspace');
       expect(filter().value).toBe('');
@@ -484,8 +589,8 @@ describe('NeatFileBrowser', () => {
       expect(document.activeElement).toBe(listbox());
     });
 
-    it('does the same for the root crumb, and for a click on a folder row', async () => {
-      const { element, listbox, settle, click } = await attached((host) =>
+    it('does the same for the root crumb, and for a double click on a folder row', async () => {
+      const { element, listbox, settle, dblclick } = await attached((host) =>
         host.folder.set('30FPS'),
       );
       const crumb = element.querySelector<HTMLElement>('nav button')!;
@@ -494,7 +599,7 @@ describe('NeatFileBrowser', () => {
       await settle();
       expect(document.activeElement).toBe(listbox());
 
-      await click('30FPS');
+      await dblclick('30FPS');
       expect(document.activeElement).toBe(listbox());
     });
 
@@ -512,32 +617,34 @@ describe('NeatFileBrowser', () => {
     });
 
     it('does not highlight anything on opening a folder', async () => {
-      const { click, options } = await attached();
+      const { dblclick, options } = await attached();
 
-      await click('30FPS');
+      await dblclick('30FPS');
 
       expect(options().some((o) => o.getAttribute('aria-selected') === 'true')).toBe(false);
     });
 
-    it('scrolls the list into view on the folder just left', async () => {
+    it('scrolls the list to the folder just left', async () => {
       const { element, settle } = await attached((host) => host.folder.set('30FPS/indoor'));
-      const scrolled: Element[] = [];
-      Element.prototype.scrollIntoView = vi.fn(function (this: Element) {
-        scrolled.push(this);
-      });
+      const undo = layOutRows(0, 40);
 
-      element.querySelector<HTMLElement>('nav button')!.click();
-      await settle();
+      try {
+        element.querySelector<HTMLElement>('nav button')!.click();
+        await settle();
 
-      expect(scrolled.map((o) => o.querySelector('.truncate')?.textContent)).toContain('30FPS');
+        // 30FPS is the second row, spanning 36…72, in an area 40 high: its bottom meets the view's.
+        expect(scrollerOf(element).scrollTop).toBe(32);
+      } finally {
+        undo();
+      }
     });
 
     it('opens a folder at the top, not at the previous listing’s offset', async () => {
-      const { element, click, settle } = await attached();
+      const { element, dblclick, settle } = await attached();
       const scroller = scrollerOf(element);
       scroller.scrollTop = 180;
 
-      await click('30FPS');
+      await dblclick('30FPS');
       await settle();
 
       expect(scroller.scrollTop).toBe(0);
@@ -555,13 +662,19 @@ describe('NeatFileBrowser', () => {
 
     it('keeps the offset when only the selection changes', async () => {
       const { element, press, settle } = await attached();
+      const undo = layOutRows(100, 108);
       const scroller = scrollerOf(element);
-      scroller.scrollTop = 180;
+      scroller.scrollTop = 90;
 
-      await press('ArrowDown');
-      await settle();
+      try {
+        await press('ArrowDown');
+        await settle();
 
-      expect(scroller.scrollTop).toBe(180);
+        // The first row spans 100…136, inside the view, so the area stays where it was.
+        expect(scroller.scrollTop).toBe(90);
+      } finally {
+        undo();
+      }
     });
   });
 
@@ -614,9 +727,9 @@ describe('NeatFileBrowser', () => {
     });
 
     it('selects one file at a time and keeps it selected across folders', async () => {
-      const { click, host, names, row } = await render();
+      const { click, dblclick, host, names, row } = await render();
       await click('video.mp4');
-      await click('30FPS');
+      await dblclick('30FPS');
 
       expect(host.selected()).toBe('video.mp4');
       expect(names()).toEqual(['indoor', 'highway.mp4']);
@@ -655,10 +768,10 @@ describe('NeatFileBrowser', () => {
     });
 
     it('keeps the selected file when a folder is opened, and the folder’s own highlight does not outlast it', async () => {
-      const { click, host, options } = await render();
+      const { click, dblclick, host, options } = await render();
       await click('video.mp4');
 
-      await click('30FPS');
+      await dblclick('30FPS');
 
       expect(host.selected()).toBe('video.mp4');
       expect(host.folder()).toBe('30FPS');
@@ -779,12 +892,12 @@ describe('NeatFileBrowser', () => {
       expect(host.checked()).toEqual([]);
     });
 
-    it('opens the highlighted folder on a plain click on it, as on Enter', async () => {
-      const { click, host } = await render(manage);
+    it('opens the highlighted folder on a double click on it, as on Enter', async () => {
+      const { click, dblclick, host } = await render(manage);
 
       await click('30FPS', { ctrlKey: true });
       expect(host.folder()).toBe('');
-      await click('30FPS');
+      await dblclick('30FPS');
 
       expect(host.folder()).toBe('30FPS');
     });
@@ -800,14 +913,15 @@ describe('NeatFileBrowser', () => {
       expect(host.folder(), 'the folder the range ends at is highlighted, not opened').toBe('');
     });
 
-    it('checks the selected file on a second plain click, which opens nothing', async () => {
-      const { click, host } = await render(manage);
+    it('checks nothing on a click or a double click on the selected file, and opens nothing', async () => {
+      const { click, dblclick, host } = await render(manage);
 
       await click('video.mp4');
+      await click('video.mp4');
+      await dblclick('video.mp4');
+
       expect(host.checked()).toEqual([]);
-      await click('video.mp4');
-
-      expect(host.checked()).toEqual(['video.mp4']);
+      expect(host.folderChanges).toEqual([]);
       expect(host.selected()).toBe('video.mp4');
     });
 
@@ -836,11 +950,11 @@ describe('NeatFileBrowser', () => {
     });
 
     it('keeps files checked across folders and filters, and on the files that are shown', async () => {
-      const { isChecked, click, type, box, host, fixture } = await render(manage);
+      const { isChecked, dblclick, type, box, host, fixture } = await render(manage);
       host.checked.set(['30FPS/highway.mp4']);
       await fixture.whenStable();
 
-      await click('30FPS');
+      await dblclick('30FPS');
       expect(isChecked('highway.mp4')).toBe(true);
 
       await type('highway');

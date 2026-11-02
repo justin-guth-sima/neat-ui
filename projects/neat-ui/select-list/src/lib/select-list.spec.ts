@@ -4,7 +4,12 @@ import { contrastRatio, type NeatColorScheme, type NeatTone } from '@sima/neat-u
 import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
-import { NeatColumn, NeatSelectList, type NeatSelectListGroup } from './select-list';
+import {
+  type NeatActivateOn,
+  NeatColumn,
+  NeatSelectList,
+  type NeatSelectListGroup,
+} from './select-list';
 
 interface Slot {
   readonly id: number;
@@ -23,6 +28,7 @@ const SLOTS = [slot(1), slot(2, 'Live'), slot(3), slot(4), slot(5)];
       emptyLabel="No slots."
       [items]="items()"
       [trackBy]="byId"
+      [activateOn]="activateOn()"
       [(selected)]="selected"
       (activated)="activated.push($event.id)"
     >
@@ -37,6 +43,7 @@ class ListHost {
   readonly items = signal<readonly Slot[]>(SLOTS);
   readonly selected = signal<Slot | null>(null);
   readonly stateHeader = signal('State');
+  readonly activateOn = signal<NeatActivateOn>('click');
   readonly activated: number[] = [];
   readonly pressed: number[] = [];
   readonly byId = vi.fn((item: Slot) => item.id);
@@ -108,6 +115,7 @@ const TYPES: readonly AssetType[] = [
       [trackBy]="byId"
       [canCheck]="hasFiles"
       [(checked)]="checked"
+      [activateOn]="activateOn()"
       [(selected)]="selected"
       (activated)="activated.push($event.id)"
     >
@@ -120,6 +128,7 @@ const TYPES: readonly AssetType[] = [
 })
 class CheckedHost {
   readonly types = TYPES;
+  readonly activateOn = signal<NeatActivateOn>('click');
   readonly checked = signal<readonly number[]>([]);
   readonly selected = signal<AssetType | null>(null);
   readonly activated: number[] = [];
@@ -383,17 +392,25 @@ class FakeResizeObserver {
   }
 }
 
+/** The elements the list asked to bring into view, in order. */
 let scrolled: HTMLElement[];
 
 beforeEach(() => {
-  // jsdom does not implement scrollIntoView.
   scrolled = [];
-  Element.prototype.scrollIntoView = vi.fn(function (this: HTMLElement) {
-    scrolled.push(this);
+  // The list scrolls its own area and never calls scrollIntoView, which would move the page too.
+  Element.prototype.scrollIntoView = vi.fn();
+  const proto = NeatSelectList.prototype as unknown as {
+    reveal(element: HTMLElement | null): void;
+  };
+  const reveal = proto.reveal;
+  vi.spyOn(proto, 'reveal').mockImplementation(function (this: unknown, element) {
+    if (element) scrolled.push(element);
+    return reveal.call(this, element);
   });
 });
 
 afterEach(() => {
+  vi.restoreAllMocks();
   delete (Element.prototype as Partial<Element>).scrollIntoView;
 });
 
@@ -751,7 +768,7 @@ describe('NeatSelectList', () => {
       await fixture.whenStable();
       expect(host.selected()).toBe(SLOTS[2]);
       expect(scrolled.at(-1)).toBe(options()[2]);
-      expect(Element.prototype.scrollIntoView).toHaveBeenLastCalledWith({ block: 'nearest' });
+      expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
 
       press(listbox(), 'ArrowUp');
       press(listbox(), 'ArrowUp');
@@ -935,6 +952,204 @@ describe('NeatSelectList', () => {
       listOf(fixture).resetScroll();
 
       expect(scrolled).toEqual([]);
+    });
+  });
+
+  describe('revealing the selected row', () => {
+    const HEADER = 28;
+    const ROW = 36;
+    const VIEW = 108;
+    const boxes = new Map<string, PropertyDescriptor | undefined>();
+
+    /**
+     * jsdom lays nothing out: a row sits at the header's height plus its index times ROW, and the
+     * scroller shows VIEW pixels. A group's heading sits where the test puts it, in `headingTop`.
+     */
+    let headingTop = 0;
+    beforeEach(() => {
+      const element = HTMLElement.prototype;
+      for (const name of ['offsetTop', 'offsetHeight', 'clientHeight']) {
+        boxes.set(name, Object.getOwnPropertyDescriptor(element, name));
+      }
+      const define = (name: string, value: (el: HTMLElement) => number) =>
+        Object.defineProperty(element, name, {
+          configurable: true,
+          get(this: HTMLElement) {
+            return value(this);
+          },
+        });
+      define('offsetTop', (el) =>
+        el.matches('[data-slot="select-list-group-heading"]')
+          ? headingTop
+          : HEADER + ROW * Number(el.getAttribute('data-index') ?? 0),
+      );
+      define('offsetHeight', (el) =>
+        el.matches('[data-slot="select-list-header"]') ? HEADER : ROW,
+      );
+      define('clientHeight', () => VIEW);
+    });
+    afterEach(() => {
+      for (const [name, descriptor] of boxes) {
+        if (descriptor) Object.defineProperty(HTMLElement.prototype, name, descriptor);
+        else delete (HTMLElement.prototype as unknown as Record<string, unknown>)[name];
+      }
+    });
+
+    it('scrolls only the list’s own area to a row selected on first render, never the page', async () => {
+      const { scroller } = await render((host) => host.selected.set(SLOTS[3]));
+
+      // Row 3 spans 136…172; the view ends at 108, so the row's bottom meets the view's.
+      expect(scroller().scrollTop).toBe(64);
+      expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
+    });
+
+    it('scrolls up to a row above the view, below the sticky header, and down to one below it', async () => {
+      const { host, fixture, scroller } = await render((host) => host.selected.set(SLOTS[3]));
+
+      host.selected.set(SLOTS[4]);
+      await fixture.whenStable();
+      expect(scroller().scrollTop).toBe(100);
+
+      host.selected.set(SLOTS[0]);
+      await fixture.whenStable();
+      // Row 0 starts at 28, the header's height: its top lies just under the header.
+      expect(scroller().scrollTop).toBe(0);
+    });
+
+    it('leaves the scroll position alone for a row inside the view', async () => {
+      const { host, fixture, scroller } = await render((host) => host.selected.set(SLOTS[3]));
+
+      host.selected.set(SLOTS[2]);
+      await fixture.whenStable();
+
+      expect(scroller().scrollTop).toBe(64);
+    });
+
+    it('brings a group’s heading into view with its first row', async () => {
+      const { fixture, host, element } = await renderGrouped();
+      headingTop = 70;
+      const scroller = element.querySelector<HTMLElement>('neat-select-list .overflow-y-auto')!;
+      scroller.scrollTop = 300;
+
+      host.selected.set(DEVICES[1]);
+      await fixture.whenStable();
+
+      // The microphone is the second group's first row (top 100); its heading, above it, comes
+      // into view below the sticky header too.
+      expect(scroller.scrollTop).toBe(70 - HEADER);
+    });
+  });
+
+  describe('activating on a double click', () => {
+    const doubleClick = (target: HTMLElement) => {
+      for (const detail of [1, 2]) {
+        target.dispatchEvent(
+          new MouseEvent('mousedown', { bubbles: true, cancelable: true, detail }),
+        );
+        target.dispatchEvent(new MouseEvent('click', { bubbles: true, detail }));
+      }
+      target.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, detail: 2 }));
+    };
+
+    it('selects on a click and emits nothing, and emits once on the double click', async () => {
+      const { host, fixture, options } = await render((host) =>
+        host.activateOn.set('double-click'),
+      );
+
+      options()[1].click();
+      await fixture.whenStable();
+      expect(host.selected()).toBe(SLOTS[1]);
+      expect(host.activated).toEqual([]);
+
+      options()[2].dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+      await fixture.whenStable();
+      expect(host.activated).toEqual([3]);
+    });
+
+    it('emits on Enter in both modes', async () => {
+      const { host, fixture, listbox } = await render((host) => host.selected.set(SLOTS[0]));
+
+      press(listbox(), 'Enter');
+      host.activateOn.set('double-click');
+      await fixture.whenStable();
+      press(listbox(), 'Enter');
+
+      expect(host.activated).toEqual([1, 1]);
+    });
+
+    it('does not select the text of a row on the second press of a double click', async () => {
+      const { options } = await render((host) => host.activateOn.set('double-click'));
+      const press = (detail: number) => {
+        const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true, detail });
+        options()[0].dispatchEvent(event);
+        return event.defaultPrevented;
+      };
+
+      expect(press(1)).toBe(false);
+      expect(press(2)).toBe(true);
+    });
+
+    it('leaves a control in a cell its own double click', async () => {
+      const { host, fixture, element } = await render((host) =>
+        host.activateOn.set('double-click'),
+      );
+
+      element.querySelector('button')!.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+      await fixture.whenStable();
+
+      expect(host.activated).toEqual([]);
+    });
+
+    it('activates nothing on a double click with Ctrl or Shift held', async () => {
+      const { host, options } = await render((host) => host.activateOn.set('double-click'));
+
+      options()[0].dispatchEvent(new MouseEvent('dblclick', { bubbles: true, ctrlKey: true }));
+      options()[0].dispatchEvent(new MouseEvent('dblclick', { bubbles: true, shiftKey: true }));
+
+      expect(host.activated).toEqual([]);
+    });
+
+    describe('in checked mode', () => {
+      async function renderChecked() {
+        const fixture = TestBed.createComponent(CheckedHost);
+        fixture.componentInstance.activateOn.set('double-click');
+        await fixture.whenStable();
+        const options = () => [
+          ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
+            '[role="option"]',
+          ),
+        ];
+        return { fixture, host: fixture.componentInstance, options };
+      }
+
+      it('does not check a row that a double click activates, and a click on the selected row checks nothing', async () => {
+        const { host, fixture, options } = await renderChecked();
+        const first = options()[0];
+        first.click();
+        await fixture.whenStable();
+
+        doubleClick(first);
+        await fixture.whenStable();
+        expect(host.activated).toEqual([host.types[0].id]);
+        expect(host.checked()).toEqual([]);
+
+        // Space, the box and Ctrl-click check; a plain click only selects and activates.
+        first.click();
+        await fixture.whenStable();
+        expect(host.checked()).toEqual([]);
+      });
+
+      it('toggles on a double click on the box and activates nothing', async () => {
+        const { host, fixture, options } = await renderChecked();
+        const box = options()[0].querySelector<HTMLElement>('[data-slot="select-list-check"]')!;
+
+        box.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+        box.click();
+        await fixture.whenStable();
+
+        expect(host.activated).toEqual([]);
+        expect(host.checked()).toEqual([host.types[0].id]);
+      });
     });
   });
 
