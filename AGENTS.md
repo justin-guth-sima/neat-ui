@@ -496,8 +496,9 @@ the primary exports `ɵhlm`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
 fields line up), `ɵINPUT_CLASSES` and `ɵINPUT_HELM_CLASSES` (the text field's look, which `input`
 shares with the page's side list's filter), `ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
 look, which `collapsible` shares with the side list on a narrow screen), `ɵOverlayFocus` and
-`ɵPANEL_SURFACE_CLASSES` (the Tab-order rules and surface of a panel in the overlay, which
-`neat-popover` shares with the shell's collapsed-rail menu): Angular's convention for private API.
+`ɵPANEL_SURFACE_CLASSES` and `ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel
+in the overlay, which `neat-popover` shares with the shell's collapsed-rail menu; the second is
+the helm popover's own classes, which the popover's drift spec reads): Angular's convention for private API.
 They are not for apps, may change in any release, and no app file may import a `ɵ` name. A shared
 internal that a second entry needs is exported the same way, never by a relative path. `lib/ui/`
 itself stays where `helm:add` writes it.

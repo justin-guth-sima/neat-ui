@@ -111,7 +111,8 @@ nav {
   overflow: hidden auto;
 }
 
-.rail-list {
+.rail-list,
+.rail-children {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -125,13 +126,9 @@ nav {
  * line on their left. Each row is a `neatRailItem` in its child variant (`rail-item.css`).
  */
 .rail-children {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
   margin: 0.25rem 0 0 1.25rem;
-  padding: 0 0 0 0.5rem;
+  padding-inline-start: 0.5rem;
   border-inline-start: 1px solid var(--sidebar-border);
-  list-style: none;
 }
 
 /*
@@ -185,7 +182,6 @@ nav {
 }
 
 .page-title {
-  flex: 0 1 auto;
   min-width: 0;
   margin: 0;
   padding-inline-start: 1rem;
@@ -254,10 +250,6 @@ nav {
   min-width: 0;
   align-items: center;
   gap: 0.5rem;
-}
-
-:host([data-narrow='false']) .topbar-end {
-  flex: 0 1 auto;
 }
 
 /*

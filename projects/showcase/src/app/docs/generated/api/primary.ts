@@ -1956,7 +1956,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ") is open on that path only, so it is not open on its siblings' routes."
+                  "text": ") is open on that path only, so it is not open on its siblings' routes. Where two children match, the one with the longer path is open."
                 }
               ]
             }
@@ -3496,7 +3496,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; on a page with sub-pages it is the open sub-page's label with the page's label beside it, muted, or, on a route deeper than the sub-page that has a "
+              "text": "; on a page with sub-pages it is the open sub-page's label with the page's label beside it, muted, or, on a route deeper than the sub-page whose own "
             },
             {
               "kind": "code",
@@ -3504,7 +3504,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", that title with \"page › sub-page\" beside it. The default slot is the content area (usually a "
+              "text": " is set (not an ancestor's), that title with \"page › sub-page\" beside it. The default slot is the content area (usually a "
             },
             {
               "kind": "code",

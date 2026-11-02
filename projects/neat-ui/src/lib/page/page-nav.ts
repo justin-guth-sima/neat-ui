@@ -13,7 +13,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { containsTree, type IsActiveMatchOptions, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   BrnCollapsible,
   BrnCollapsibleContent,
@@ -22,6 +22,7 @@ import {
 import { COLLAPSIBLE_CLASSES } from '../collapsible/collapsible-classes';
 import { INPUT_CLASSES } from '../form/input-classes';
 import { NeatIcon } from '../icon/icon';
+import { openLink } from './open-link';
 import { NeatViewport } from './viewport';
 
 /** One link of the page's side list. */
@@ -42,14 +43,6 @@ export interface NeatPageNavGroup {
   label?: string;
   items: readonly NeatPageNavLink[];
 }
-
-/** A link is open on its own path and every route nested under it, whatever the query. */
-const MATCH: IsActiveMatchOptions = {
-  paths: 'subset',
-  queryParams: 'ignored',
-  matrixParams: 'ignored',
-  fragment: 'ignored',
-};
 
 let nextNavId = 0;
 
@@ -205,16 +198,11 @@ export class NeatPageNav implements AfterViewInit {
   protected readonly current = computed((): NeatPageNavLink | undefined => {
     const url = this.router.lastSuccessfulNavigation()?.finalUrl;
     if (!url) return undefined;
-    let open: NeatPageNavLink | undefined;
-    for (const link of this.groups().flatMap((group) => group.items)) {
-      if (
-        (!open || link.path.length > open.path.length) &&
-        containsTree(url, this.router.parseUrl(link.path), MATCH)
-      ) {
-        open = link;
-      }
-    }
-    return open;
+    return openLink(
+      this.groups().flatMap((group) => group.items),
+      url,
+      this.router,
+    );
   });
 
   constructor() {
@@ -262,9 +250,12 @@ export class NeatPageNav implements AfterViewInit {
   private reveal(box: HTMLElement): void {
     const link = box.querySelector<HTMLElement>('a[aria-current="page"]');
     if (!link) return;
+    // The filter sticks to the box's top, so a link under it is out of view.
+    const covered = box.querySelector<HTMLElement>('.filter')?.offsetHeight ?? 0;
     const top = link.offsetTop;
     const bottom = top + link.offsetHeight;
-    if (top >= box.scrollTop && bottom <= box.scrollTop + box.clientHeight) return;
-    box.scrollTop = top - (box.clientHeight - link.offsetHeight) / 2;
+    const shown = box.clientHeight - covered;
+    if (top >= box.scrollTop + covered && bottom <= box.scrollTop + box.clientHeight) return;
+    box.scrollTop = top - covered - (shown - link.offsetHeight) / 2;
   }
 }

@@ -25,11 +25,12 @@ import { NeatIcon } from '../icon/icon';
 import { NeatKioskExit } from '../kiosk/kiosk-exit';
 import { KioskService } from '../kiosk/kiosk.service';
 import { AsideToggleSlot } from '../page/aside';
+import { openLink } from '../page/open-link';
 import { NeatViewport } from '../page/viewport';
 import { ThemeService } from '../theme/theme.service';
 import { NeatTooltip } from '../tooltip/tooltip';
 import { NeatLogo } from './logo';
-import { isChildCurrent, NeatNavChild, NeatNavItem } from './nav-item';
+import { NeatNavChild, NeatNavItem } from './nav-item';
 import { PageToolbarSlot } from './page-toolbar';
 import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
 import { RailMenu } from './rail-menu';
@@ -53,16 +54,24 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
 const EXACT_MATCH: IsActiveMatchOptions = { ...ACTIVE_MATCH, paths: 'exact' };
 
 /**
- * The title of the deepest primary route that has one, as the router's own title strategy picks
- * it for the document; '' when none has. The primary child, not `firstChild`, which can be a
- * named outlet's. The router commits its state before it records the navigation as successful,
- * so this is the navigation's own route.
+ * The title of the deepest primary route that has one of its own, as the router's own title
+ * strategy picks it for the document; '' when none has. A route's `title` is inherited from its
+ * parent (the router's default), so a title counts only where it differs from the parent's. With
+ * `skip`, only routes whose path reaches past its first `skip` segments count. The primary child,
+ * not `firstChild`, which can be a named outlet's. The router commits its state before it records
+ * the navigation as successful, so this is the navigation's own route.
  */
-function routeTitle(root: ActivatedRouteSnapshot): string {
+function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
   let title = '';
+  let reached = 0;
+  let parentTitle: string | undefined;
   let route: ActivatedRouteSnapshot | undefined = root;
   while (route) {
-    title = route.title ?? title;
+    reached += route.url.length;
+    if (route.title !== parentTitle && (skip === undefined || reached > skip)) {
+      title = route.title ?? title;
+    }
+    parentTitle = route.title;
     route = route.children.find((child) => child.outlet === PRIMARY_OUTLET);
   }
   return title;
@@ -99,8 +108,8 @@ function routeTitle(root: ActivatedRouteSnapshot): string {
  * side panel, the page's side-panel toggle (`neat-aside-toggle`) when the page has one. The page
  * title is the matching nav item's label, else the route's `title`; on a page with sub-pages it is
  * the open sub-page's label with the page's label beside it, muted, or, on a route deeper than the
- * sub-page that has a `title`, that title with "page › sub-page" beside it. The default slot is the
- * content area (usually a `<router-outlet />`).
+ * sub-page whose own `title` is set (not an ancestor's), that title with "page › sub-page" beside
+ * it. The default slot is the content area (usually a `<router-outlet />`).
  *
  * Kiosk mode (`KioskService`, entered from the top bar or with `?kiosk`) drops the rail and the
  * top bar, gives the content area the whole viewport and floats an exit control over its top
@@ -178,14 +187,14 @@ export class NeatShell {
     const item = this.navItems().find((candidate) =>
       containsTree(url, this.router.parseUrl(candidate.path), ACTIVE_MATCH),
     );
-    const child = item?.children?.find((candidate) => isChildCurrent(candidate, item, url));
+    const child = item?.children && openLink(item.children, url, this.router, item.path);
     return item && { item, child, url };
   });
 
   /** The nav item whose sub-pages show in the rail, with its open one; none while collapsed. */
   protected readonly unfolded = computed(() => {
     const active = this.active();
-    return this.railExpanded() && active?.item.children ? active : undefined;
+    return this.railExpanded() && active?.item.children?.length ? active : undefined;
   });
 
   /**
@@ -207,7 +216,8 @@ export class NeatShell {
       return { text: item.label };
     }
     const deeper = !containsTree(url, this.router.parseUrl(child.path), EXACT_MATCH);
-    const own = deeper ? this.routeTitle() : '';
+    // Only a route past the sub-page's own path: a title above it is the page's or the sub-page's.
+    const own = deeper ? this.routeTitle(this.segmentCount(child.path)) : '';
     return own
       ? { text: own, context: `${item.label} › ${child.label}` }
       : { text: child.label, context: item.label };
@@ -235,8 +245,12 @@ export class NeatShell {
     return this.unfolded()?.child === child;
   }
 
-  private routeTitle(): string {
-    return routeTitle(this.router.routerState.snapshot.root);
+  private routeTitle(skip?: number): string {
+    return routeTitle(this.router.routerState.snapshot.root, skip);
+  }
+
+  private segmentCount(path: string): number {
+    return this.router.parseUrl(path).root.children[PRIMARY_OUTLET]?.segments.length ?? 0;
   }
 
   constructor() {

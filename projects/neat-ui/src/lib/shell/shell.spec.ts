@@ -15,7 +15,10 @@ import shellStyles from './shell.css' with { loader: 'text' };
 
 const RAIL_KEY = 'neat-ui:rail-expanded';
 
-/** Pages with sub-pages: Theme's and Layout's route to their own, Stats' first has the page's path. */
+/**
+ * Pages with sub-pages: Theme's and Layout's route to their own, Stats' first has the page's
+ * path.
+ */
 const LEVEL_ITEMS: NeatNavItem[] = [
   {
     label: 'Theme',
@@ -48,6 +51,25 @@ const LEVEL_ITEMS: NeatNavItem[] = [
       { label: 'Runs', path: '/stats/runs' },
     ],
   },
+  {
+    label: 'Archive',
+    icon: 'viewer',
+    path: '/archive',
+    children: [
+      { label: 'Year', path: '/archive/2026' },
+      { label: 'January', path: '/archive/2026/jan' },
+    ],
+  },
+  {
+    label: 'Reports',
+    icon: 'viewer',
+    path: '/reports',
+    children: [
+      { label: 'Summary', path: '/reports/summary' },
+      { label: 'Runs', path: '/reports/runs' },
+    ],
+  },
+  { label: 'Empty', icon: 'viewer', path: '/empty', children: [] },
   { label: 'Home', icon: 'viewer', path: '/home' },
 ];
 
@@ -59,6 +81,10 @@ const NAV_ITEMS: NeatNavItem[] = [
 
 @Component({ template: 'page content' })
 class StubPage {}
+
+/** A parent route's page, which shows its child route. */
+@Component({ imports: [RouterOutlet], template: '<router-outlet />' })
+class ParentPage {}
 
 /** A page with a toolbar whose controls act on the page's own state. */
 @Component({
@@ -170,6 +196,28 @@ const levelRoutes: Routes = [
       { path: 'stats', component: StubPage },
       { path: 'stats/runs', component: StubPage },
       { path: 'stats/runs/compare', title: 'Compare', component: StubPage },
+      { path: 'archive/2026', component: StubPage },
+      { path: 'archive/2026/jan', component: StubPage },
+      { path: 'archive/2026/jan/week', component: StubPage },
+      // The shape of an app that titles a page's one route: the views under it have no titles.
+      {
+        path: 'reports',
+        title: 'Reports',
+        component: ParentPage,
+        children: [
+          { path: 'summary', component: StubPage },
+          {
+            path: 'runs',
+            component: ParentPage,
+            children: [
+              { path: '', component: StubPage },
+              { path: ':id', component: StubPage },
+              { path: ':id/log', title: 'Run log', component: StubPage },
+            ],
+          },
+        ],
+      },
+      { path: 'empty', component: StubPage },
       { path: 'home', component: StubPage },
     ],
   },
@@ -1377,6 +1425,41 @@ describe('NeatShell', () => {
 
       expect(title()).toBe('Data');
       expect(context()).toBe('Components');
+    });
+
+    it('ignores the titles of the routes above the sub-page, which name the page', async () => {
+      await start('/reports/runs/7');
+
+      expect(title()).toBe('Runs');
+      expect(context()).toBe('Reports');
+
+      await harness.navigateByUrl('/reports/runs');
+      expect(title()).toBe('Runs');
+
+      await harness.navigateByUrl('/reports/runs/7/log');
+      expect(title()).toBe('Run log');
+      expect(context()).toBe('Reports › Runs');
+    });
+
+    it('draws no sub-page list for an empty children array', async () => {
+      await start('/empty');
+
+      expect(nav().querySelector('ul ul')).toBeNull();
+      expect(link('Empty').getAttribute('aria-current')).toBe('page');
+    });
+
+    it('opens the sub-page with the longer path where one path is a prefix of another', async () => {
+      await start('/archive/2026');
+      expect(link('Year').getAttribute('aria-current')).toBe('page');
+      expect(link('January').hasAttribute('aria-current')).toBe(false);
+
+      await harness.navigateByUrl('/archive/2026/jan?x=1#top');
+      expect(link('January').getAttribute('aria-current')).toBe('page');
+      expect(link('Year').hasAttribute('aria-current')).toBe(false);
+
+      await harness.navigateByUrl('/archive/2026/jan/week');
+      expect(link('January').getAttribute('aria-current')).toBe('page');
+      expect(link('Year').hasAttribute('aria-current')).toBe(false);
     });
 
     it('keeps the page’s own label as the title of a page without sub-pages', async () => {

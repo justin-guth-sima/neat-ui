@@ -1,4 +1,3 @@
-import { containsTree, DefaultUrlSerializer, UrlTree } from '@angular/router';
 import { NeatIconName } from '../icon/icon-registry';
 
 /**
@@ -12,7 +11,7 @@ export interface NeatNavChild {
    * Absolute app path, for example `/theme/colours`. It is open on its own path and every route
    * nested under it, whatever the query; a child whose path is its page's own (a first view at
    * `/stats`, beside `/stats/runs`) is open on that path only, so it is not open on its siblings'
-   * routes.
+   * routes. Where two children match, the one with the longer path is open.
    */
   path: string;
 }
@@ -34,21 +33,4 @@ export interface NeatNavItem {
    * link.
    */
   children?: readonly NeatNavChild[];
-}
-
-const serializer = new DefaultUrlSerializer();
-
-/**
- * Whether `child` of `page` is the open sub-page at `url`: its path is a prefix of the route's
- * (a deeper route keeps its sub-page open), the query and fragment ignored. A child on its page's
- * own path matches exactly, or it would stay open on every sibling's route. Internal to the kit:
- * the rail and the collapsed rail's menu share it.
- */
-export function isChildCurrent(child: NeatNavChild, page: NeatNavItem, url: UrlTree): boolean {
-  return containsTree(url, serializer.parse(child.path), {
-    paths: child.path === page.path ? 'exact' : 'subset',
-    queryParams: 'ignored',
-    matrixParams: 'ignored',
-    fragment: 'ignored',
-  });
 }

@@ -84,7 +84,8 @@ export class RailMenuPanel {
 
 /**
  * Turns a collapsed rail item that has sub-pages into the button that opens their menu, in place
- * of the link to the page: `<button neatRailItem [neatRailMenu]="page" [neatRailMenuCurrent]="child">`.
+ * of the link to the page:
+ * `<button neatRailItem [neatRailMenu]="page" [neatRailMenuCurrent]="child">`.
  * A press (click, tap, Enter, Space) opens it and navigates nowhere, since the page is its first
  * sub-page; with a mouse or pen, hovering opens it too, and leaving closes it after
  * `HOVER_CLOSE_DELAY` unless a press has kept it. It replaces the item's tooltip (`NeatRailItem`

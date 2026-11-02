@@ -183,13 +183,22 @@ describe('NeatPageNav', () => {
     expect(element.querySelector('nav p')?.textContent?.trim()).toBe('Nothing matches');
   });
 
+  /** Links 28 high, and the filter `filter` high above them. */
+  const mockHeights = (filter = 0): void => {
+    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return this.classList.contains('filter') ? filter : 28;
+    });
+  };
+
   it('scrolls only its own box to an open link below its fold, never the page around it', async () => {
     vi.spyOn(HTMLElement.prototype, 'offsetTop', 'get').mockImplementation(function (
       this: HTMLElement,
     ) {
       return this.getAttribute('href') === '/time-chart' ? 900 : 0;
     });
-    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(28);
+    mockHeights();
     vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(400);
     const { nav } = await open();
 
@@ -205,7 +214,7 @@ describe('NeatPageNav', () => {
     ) {
       return this.getAttribute('href') === far ? 900 : 0;
     });
-    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(28);
+    mockHeights();
     vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(400);
     const { harness, nav } = await open('/overview');
     expect(nav.scrollTop).toBe(0);
@@ -218,9 +227,29 @@ describe('NeatPageNav', () => {
     expect(scrolled).toEqual([]);
   });
 
+  it('counts a link under the sticky filter as out of view', async () => {
+    vi.spyOn(HTMLElement.prototype, 'offsetTop', 'get').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return this.getAttribute('href') === '/table' ? 300 : 40;
+    });
+    mockHeights(40);
+    vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(400);
+    const { harness, nav } = await open('/overview');
+    expect(nav.scrollTop).toBe(0);
+
+    // The link is inside the box's top edge, but the 40px filter lies over it.
+    nav.scrollTop = 280;
+    await harness.navigateByUrl('/table');
+    await harness.fixture.whenStable();
+
+    // Centred in what shows below the filter.
+    expect(nav.scrollTop).toBe(300 - 40 - (400 - 40 - 28) / 2);
+  });
+
   it('leaves its box where it is when the open link is in view', async () => {
     vi.spyOn(HTMLElement.prototype, 'offsetTop', 'get').mockReturnValue(100);
-    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(28);
+    mockHeights();
     vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(400);
     const { nav } = await open();
 
@@ -286,7 +315,7 @@ describe('NeatPageNav', () => {
       ) {
         return this.getAttribute('href') === '/time-chart' ? 900 : 0;
       });
-      vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(28);
+      mockHeights();
       vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(400);
       const { harness, nav } = await open();
       const trigger = nav.querySelector('button') as HTMLButtonElement;
