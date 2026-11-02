@@ -617,8 +617,12 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   blocks are those of the moment the gesture starts, so an app whose cap is its `checkBlocked`
   must clamp `checked` too. `activateOn="double-click"` (type `NeatActivateOn`) makes a click only
   select and a double click tell `activated`, as a file manager opens a folder; Enter tells it in
-  both. Why a click then never checks the selected row: its first click would check the row and
-  the double click would activate it too. The box, Space and Ctrl-click still check. The second
+  both. A second, separate click on the
+  selected checkable row checks it in both modes (so a file in the browser's manage mode checks on a
+  second click); the second click of a double click (`event.detail >= 2`) never does, so a double
+  click on a row not yet selected only selects and activates it. A double click on the already
+  selected checkable row toggles it once, with its first click. The box, Space and Ctrl-click also
+  check. The second
   press of any double click on a row is kept from selecting the row's text. The list reveals the
   selected row by scrolling its own area only (never `scrollIntoView`, which also scrolls the page
   and every other ancestor, even from below the fold). The file browser needs nothing more: a Ctrl

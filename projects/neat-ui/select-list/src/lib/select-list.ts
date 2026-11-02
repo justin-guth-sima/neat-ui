@@ -333,8 +333,9 @@ let nextListId = 0;
  * Space checks or unchecks that row; a click on a row's box checks or unchecks it and does nothing
  * else. A click elsewhere on the row selects and activates it as in the single mode, except on the
  * selected row, which it checks or unchecks as Space does (a row that cannot be checked is
- * activated again as before; with `activateOn="double-click"` a click never checks, so that a
- * double click on a checkable row only activates it, and the box, Space and Ctrl-click check).
+ * activated again as before). The second click of a double click never checks; a double click on
+ * the already selected checkable row checks it once, with its first click, and with
+ * `activateOn="double-click"` the `dblclick` then only activates.
  * Ctrl-click or Cmd-click on a row checks or unchecks it and selects it
  * without activating it. Shift-click checks the rows from the anchor to the clicked one, inclusive,
  * and selects the clicked one; the anchor is the row last clicked plainly, with Ctrl or Cmd, or
@@ -916,11 +917,12 @@ export class NeatSelectList<T, K = unknown> {
         this.selected.set(row.item);
         return;
       }
-      // A second click on the row the keyboard is on checks it, as Space does. A row that cannot
-      // be checked has nothing to toggle, so the click keeps its meaning of opening it.
-      // In double-click mode a click never checks: a double click on the selected row would check
-      // it with its first click and activate it with the second.
-      if (this.activateOn() === 'click' && index === this.selectedIndex() && this.canToggle(row)) {
+      // A second, separate click on the row the keyboard is on checks it, as Space does. A row that
+      // cannot be checked has nothing to toggle, so the click keeps its meaning of opening it.
+      // The second click of a double click (`detail` 2 or more) never toggles. In double-click mode
+      // the first click of a double click on the already selected checkable row still toggles it
+      // once, as a click cannot know a second one follows; the `dblclick` then only activates.
+      if (event.detail < 2 && index === this.selectedIndex() && this.canToggle(row)) {
         this.toggle(row);
         return;
       }

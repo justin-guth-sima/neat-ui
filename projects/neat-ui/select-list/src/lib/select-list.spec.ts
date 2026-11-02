@@ -1122,21 +1122,46 @@ describe('NeatSelectList', () => {
         return { fixture, host: fixture.componentInstance, options };
       }
 
-      it('does not check a row that a double click activates, and a click on the selected row checks nothing', async () => {
+      it('checks the selected row on a second separate click, and unchecks it on the next', async () => {
+        const { host, fixture, options } = await renderChecked();
+        const first = options()[0];
+        first.click();
+        await fixture.whenStable();
+        expect(host.checked()).toEqual([]);
+
+        first.click();
+        await fixture.whenStable();
+        expect(host.checked()).toEqual([host.types[0].id]);
+        expect(host.activated).toEqual([]);
+
+        first.click();
+        await fixture.whenStable();
+        expect(host.checked()).toEqual([]);
+      });
+
+      it('never checks on the second click of a double click, and a dblclick activates once', async () => {
         const { host, fixture, options } = await renderChecked();
         const first = options()[0];
         first.click();
         await fixture.whenStable();
 
-        doubleClick(first);
+        first.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 2 }));
         await fixture.whenStable();
-        expect(host.activated).toEqual([host.types[0].id]);
         expect(host.checked()).toEqual([]);
 
-        // Space, the box and Ctrl-click check; a plain click only selects and activates.
-        first.click();
+        first.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, detail: 2 }));
         await fixture.whenStable();
+        expect(host.activated).toEqual([host.types[0].id]);
+      });
+
+      it('checks nothing on a double click on a row that is not selected yet', async () => {
+        const { host, fixture, options } = await renderChecked();
+
+        doubleClick(options()[1]);
+        await fixture.whenStable();
+
         expect(host.checked()).toEqual([]);
+        expect(host.activated).toEqual([host.types[1].id]);
       });
 
       it('toggles on a double click on the box and activates nothing', async () => {

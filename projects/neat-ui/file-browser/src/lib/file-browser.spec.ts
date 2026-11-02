@@ -857,6 +857,27 @@ describe('NeatFileBrowser', () => {
       expect(host.checked()).toEqual([]);
     });
 
+    it('checks the selected file with a second click, and unchecks it with the next', async () => {
+      const { click, host } = await render(manage);
+      await click('video.mp4');
+
+      await click('video.mp4');
+      expect(host.checked()).toEqual(['video.mp4']);
+
+      await click('video.mp4');
+      expect(host.checked()).toEqual([]);
+    });
+
+    it('checks nothing and opens nothing on a double click on a file', async () => {
+      const { dblclick, host } = await render(manage);
+
+      await dblclick('video.mp4');
+
+      expect(host.selected()).toBe('video.mp4');
+      expect(host.checked()).toEqual([]);
+      expect(host.folderChanges).toEqual([]);
+    });
+
     it('checks the file the list is on with Space, without moving the selection, and unchecks it with the next', async () => {
       const { press, host, isChecked } = await render(manage);
       await press('End');

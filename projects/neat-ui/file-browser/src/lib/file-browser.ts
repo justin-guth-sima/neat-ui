@@ -143,8 +143,10 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
  *   paths in `checked`, which hold files of other folders too. A click on the box toggles it and
  *   nothing else. From the keyboard, Space toggles the file the list is on; the boxes are not tab
  *   stops, so the arrow keys keep moving the selection. Ctrl-click or Cmd-click, Shift-click and
- *   Ctrl+A or Cmd+A check as they do in the list, without opening a folder. A plain click or
- *   double click on a file never checks it (the box does), and a double click opens nothing. The
+ *   Ctrl+A or Cmd+A check as they do in the list, without opening a folder. A click on the
+ *   selected file again checks or unchecks it, as Space does; the first click on a file only selects
+ *   it, a double click on a file not yet selected checks nothing, and a double click opens no file
+ *   (on the already selected file it checks it once, with its first click). The
  *   listbox is multi-selectable and a file `aria-selected` while checked, which says what checking
  *   is; the browser adds no hint of its own. Paths that are no longer in `root` leave `checked`;
  *   `selected` is not pruned, since an app may select a file before the tree that holds it has

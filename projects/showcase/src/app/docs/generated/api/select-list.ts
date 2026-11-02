@@ -525,7 +525,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " and drawn with the bar. Space checks or unchecks that row; a click on a row's box checks or unchecks it and does nothing else. A click elsewhere on the row selects and activates it as in the single mode, except on the selected row, which it checks or unchecks as Space does (a row that cannot be checked is activated again as before; with "
+              "text": " and drawn with the bar. Space checks or unchecks that row; a click on a row's box checks or unchecks it and does nothing else. A click elsewhere on the row selects and activates it as in the single mode, except on the selected row, which it checks or unchecks as Space does (a row that cannot be checked is activated again as before). The second click of a double click never checks; a double click on the already selected checkable row checks it once, with its first click, and with "
             },
             {
               "kind": "code",
@@ -533,7 +533,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " a click never checks, so that a double click on a checkable row only activates it, and the box, Space and Ctrl-click check). Ctrl-click or Cmd-click on a row checks or unchecks it and selects it without activating it. Shift-click checks the rows from the anchor to the clicked one, inclusive, and selects the clicked one; the anchor is the row last clicked plainly, with Ctrl or Cmd, or checked by Space or its box, else the selected row, else the clicked row alone. A range only checks, never unchecks, and Ctrl+A or Cmd+A checks every row. None of them checks a row without a box or a blocked one, and a row they do not check stays as it is. The boxes are not tab stops. The multi-selectable listbox says what checking is, so a checked list needs no "
+              "text": " the "
+            },
+            {
+              "kind": "code",
+              "text": "dblclick"
+            },
+            {
+              "kind": "text",
+              "text": " then only activates. Ctrl-click or Cmd-click on a row checks or unchecks it and selects it without activating it. Shift-click checks the rows from the anchor to the clicked one, inclusive, and selects the clicked one; the anchor is the row last clicked plainly, with Ctrl or Cmd, or checked by Space or its box, else the selected row, else the clicked row alone. A range only checks, never unchecks, and Ctrl+A or Cmd+A checks every row. None of them checks a row without a box or a blocked one, and a row they do not check stays as it is. The boxes are not tab stops. The multi-selectable listbox says what checking is, so a checked list needs no "
             },
             {
               "kind": "code",
