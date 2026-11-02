@@ -47,13 +47,14 @@ ul {
   list-style: none;
 }
 
-/* A row per topic, its fill a band across the column. The open topic is set apart by weight and a
-   bar in the primary colour, not by colour alone, so it differs from a hovered row. */
+/* A row per topic, its fill a band across the column. The open topic looks as the rail's current
+   page does (muted text at rest; the accent fill and its text on hover and for the open topic,
+   which is also set apart by weight), in the page's tokens where the rail has the sidebar's. */
 a {
   display: block;
   padding: calc(var(--neat-space-2) / 2) var(--neat-space-3);
   border-radius: var(--radius);
-  color: var(--foreground);
+  color: var(--muted-foreground);
   font-size: var(--neat-text-sm);
   text-decoration: none;
 }
@@ -61,11 +62,11 @@ a {
 a:hover,
 a[aria-current='page'] {
   background: var(--accent);
+  color: var(--accent-foreground);
 }
 
 a[aria-current='page'] {
-  font-weight: 600;
-  box-shadow: inset 2px 0 0 var(--primary);
+  font-weight: 500;
 }
 
 /* Inside the row, since the column clips what is drawn outside it. */
