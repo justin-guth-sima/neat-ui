@@ -430,11 +430,6 @@ export class NeatFileBrowser {
   }
 
   /**
-   * Opens a folder. The list takes the focus: a pressed breadcrumb is gone from the page once its
-   * folder is the current one (the last crumb is text), and the focus must not fall to the body.
-   * Going up lands the highlight on the folder just left, as file managers do.
-   */
-  /**
    * A chevron's click. The second click of a double click lands on the listing the first one
    * opened, where a folder's chevron may sit at the same spot, so only a first click opens.
    */
@@ -443,6 +438,11 @@ export class NeatFileBrowser {
     this.navigate(path);
   }
 
+  /**
+   * Opens a folder. The list takes the focus: a pressed breadcrumb is gone from the page once its
+   * folder is the current one (the last crumb is text), and the focus must not fall to the body.
+   * Going up lands the highlight on the folder just left, as file managers do.
+   */
   protected navigate(path: string): void {
     const from = this.current();
     this.folder.set(path);
