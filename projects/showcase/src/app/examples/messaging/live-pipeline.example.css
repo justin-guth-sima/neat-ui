@@ -15,6 +15,9 @@
  * phone's narrow box does not stand tall and empty around a drawing its width shrinks.
  */
 .diagram {
+  /* The card's whole width: in this flex column the ratio would otherwise size the width from the
+     capped height, and the drawing would cut off partway across the card when panned. */
+  width: 100%;
   aspect-ratio: 4 / 3;
   max-height: 40rem;
 }

@@ -88,7 +88,9 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["text",":host {\n  display: block;\n}\n\n"],
           ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 2:1 up to 30rem, wide\n * for the level's row of columns, so a phone's narrow box does not stand tall and empty around a\n * drawing its width shrinks.\n */"],
-          ["text","\n.diagram {\n  aspect-ratio: 2 / 1;\n  max-height: 30rem;\n}\n"]
+          ["text","\n.diagram {\n  "],
+          ["comment","/* The card's whole width: the ratio would otherwise size the width from the capped height, and\n     the drawing would cut off partway across the card when panned. */"],
+          ["text","\n  width: 100%;\n  aspect-ratio: 2 / 1;\n  max-height: 30rem;\n}\n"]
         ]
       }
     ]

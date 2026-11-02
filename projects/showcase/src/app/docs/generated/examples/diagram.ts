@@ -220,7 +220,9 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
           ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
-          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
+          ["text","\n.diagram {\n  "],
+          ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
+          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
         ]
       },
       {
@@ -337,7 +339,9 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
           ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
-          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
+          ["text","\n.diagram {\n  "],
+          ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
+          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
         ]
       }
     ]
@@ -513,7 +517,9 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
           ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
-          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
+          ["text","\n.diagram {\n  "],
+          ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
+          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
         ]
       }
     ]
@@ -669,7 +675,9 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
           ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
-          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
+          ["text","\n.diagram {\n  "],
+          ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
+          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
         ]
       }
     ]
@@ -840,7 +848,9 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
           ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
-          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
+          ["text","\n.diagram {\n  "],
+          ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
+          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
         ]
       },
       {

@@ -8,6 +8,9 @@
  * drawing its width shrinks.
  */
 .diagram {
+  /* The card's whole width: the ratio would otherwise size the width from the capped height, and
+     the drawing would cut off partway across the card when panned. */
+  width: 100%;
   aspect-ratio: 2 / 1;
   max-height: 30rem;
 }
