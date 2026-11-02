@@ -29,6 +29,13 @@
   --rail-item-surface: var(--sidebar);
 }
 
+/* A page whose open sub-page shows below it (`data-branch`, set by the shell): its label in full
+   text colour, no fill, so one row alone reads as current. Before the hover rule, which still
+   wins for the pointer. */
+:host([data-branch]) {
+  color: var(--sidebar-foreground);
+}
+
 :host(:hover),
 :host([aria-current='page']) {
   --rail-item-surface: var(--sidebar-accent);
@@ -37,8 +44,19 @@
   color: var(--sidebar-accent-foreground);
 }
 
-:host([aria-current='page']) {
+:host([aria-current='page']),
+:host([data-branch]) {
   font-weight: 500;
+}
+
+/* A sub-page row (`data-child`, set by the shell): text only, 2rem high, a step smaller. */
+:host([data-child]) {
+  min-height: 2rem;
+  font-size: var(--neat-text-sm);
+}
+
+:host([data-child]) .icon {
+  display: none;
 }
 
 :host(:focus-visible) {

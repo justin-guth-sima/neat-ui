@@ -15,6 +15,42 @@ import shellStyles from './shell.css' with { loader: 'text' };
 
 const RAIL_KEY = 'neat-ui:rail-expanded';
 
+/** Pages with sub-pages: Theme's and Layout's route to their own, Stats' first has the page's path. */
+const LEVEL_ITEMS: NeatNavItem[] = [
+  {
+    label: 'Theme',
+    icon: 'viewer',
+    path: '/theme',
+    children: [
+      { label: 'Tokens', path: '/theme/tokens' },
+      { label: 'Colours', path: '/theme/colours' },
+      { label: 'Icons', path: '/theme/icons' },
+    ],
+  },
+  {
+    label: 'Layout',
+    icon: 'viewer',
+    path: '/layout',
+    children: [{ label: 'Grid', path: '/layout/grid' }],
+  },
+  {
+    label: 'Components',
+    icon: 'viewer',
+    path: '/components',
+    children: [{ label: 'Data', path: '/components/data' }],
+  },
+  {
+    label: 'Stats',
+    icon: 'viewer',
+    path: '/stats',
+    children: [
+      { label: 'Live', path: '/stats' },
+      { label: 'Runs', path: '/stats/runs' },
+    ],
+  },
+  { label: 'Home', icon: 'viewer', path: '/home' },
+];
+
 const NAV_ITEMS: NeatNavItem[] = [
   { label: 'Media', icon: 'media', path: '/media' },
   { label: 'Streaming', icon: 'streaming', path: '/streaming' },
@@ -107,6 +143,38 @@ const routes: Routes = [
   },
 ];
 
+@Component({
+  imports: [NeatShell, RouterOutlet],
+  template: `
+    <neat-shell appName="Neat Insight" [navItems]="navItems"><router-outlet /></neat-shell>
+  `,
+})
+class LevelsHost {
+  readonly navItems = LEVEL_ITEMS;
+}
+
+const levelRoutes: Routes = [
+  {
+    path: '',
+    component: LevelsHost,
+    children: [
+      { path: 'theme', component: StubPage },
+      { path: 'theme/tokens', component: StubPage },
+      { path: 'theme/colours', component: StubPage },
+      { path: 'theme/icons', component: StubPage },
+      { path: 'layout', component: StubPage },
+      { path: 'layout/grid', component: StubPage },
+      { path: 'components/data', component: StubPage },
+      { path: 'components/data/select-list', title: 'Select list', component: StubPage },
+      { path: 'components/data/untitled', component: StubPage },
+      { path: 'stats', component: StubPage },
+      { path: 'stats/runs', component: StubPage },
+      { path: 'stats/runs/compare', title: 'Compare', component: StubPage },
+      { path: 'home', component: StubPage },
+    ],
+  },
+];
+
 describe('NeatShell', () => {
   let harness: RouterTestingHarness;
 
@@ -191,7 +259,7 @@ describe('NeatShell', () => {
 
   beforeEach(() => {
     localStorage.clear();
-    TestBed.configureTestingModule({ providers: [provideRouter(routes)] });
+    TestBed.configureTestingModule({ providers: [provideRouter([...routes, ...levelRoutes])] });
   });
 
   afterEach(() => {
@@ -1188,6 +1256,134 @@ describe('NeatShell', () => {
         /grid-template-rows:\s*auto\s+minmax\(0,\s*1fr\);/,
       );
       expect(getComputedStyle(shell()).gridTemplateRows).toMatch(/^auto/);
+    });
+  });
+
+  describe('sub-pages in the rail', () => {
+    const children = (): HTMLAnchorElement[] =>
+      Array.from(nav().querySelectorAll<HTMLAnchorElement>('ul ul a'));
+    const childLabels = (): (string | undefined)[] => children().map((a) => a.textContent?.trim());
+    const title = (): string | undefined =>
+      topbar().querySelector('h1')?.firstChild?.textContent?.trim();
+    const context = (): string | undefined =>
+      topbar().querySelector('.page-context')?.textContent?.trim();
+
+    beforeEach(() => localStorage.setItem(RAIL_KEY, 'true'));
+
+    it('unfolds the active page’s sub-pages under it and marks the open one', async () => {
+      await start('/theme/colours');
+
+      expect(childLabels()).toEqual(['Tokens', 'Colours', 'Icons']);
+      expect(link('Theme').parentElement?.contains(link('Colours'))).toBe(true);
+      expect(
+        link('Theme').compareDocumentPosition(link('Tokens')) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+      expect(link('Colours').getAttribute('aria-current')).toBe('page');
+      expect(link('Tokens').hasAttribute('aria-current')).toBe(false);
+      expect(link('Theme').hasAttribute('aria-current')).toBe(false);
+      expect(link('Layout').hasAttribute('aria-current')).toBe(false);
+      expect(links().map((a) => a.getAttribute('href'))).toContain('/theme/icons');
+    });
+
+    it('keeps a sub-page open on the routes nested under it', async () => {
+      await start('/components/data/select-list');
+
+      expect(link('Data').getAttribute('aria-current')).toBe('page');
+      expect(link('Components').hasAttribute('aria-current')).toBe(false);
+    });
+
+    it('lets the page’s own item stay current where no sub-page matches', async () => {
+      await start('/theme');
+
+      expect(childLabels()).toEqual(['Tokens', 'Colours', 'Icons']);
+      expect(link('Theme').getAttribute('aria-current')).toBe('page');
+    });
+
+    it('matches a sub-page with its page’s path exactly', async () => {
+      await start('/stats');
+      expect(link('Live').getAttribute('aria-current')).toBe('page');
+      expect(link('Runs').hasAttribute('aria-current')).toBe(false);
+
+      await harness.navigateByUrl('/stats/runs');
+      expect(link('Runs').getAttribute('aria-current')).toBe('page');
+      expect(link('Live').hasAttribute('aria-current')).toBe(false);
+
+      await harness.navigateByUrl('/stats/runs/compare?runs=1,2');
+      expect(link('Runs').getAttribute('aria-current')).toBe('page');
+      expect(link('Live').hasAttribute('aria-current')).toBe(false);
+    });
+
+    it('shows no sub-pages in the collapsed rail, and shows them once it is expanded', async () => {
+      localStorage.setItem(RAIL_KEY, 'false');
+      await start('/theme/colours');
+
+      expect(children()).toEqual([]);
+
+      railToggle().click();
+      await settle();
+
+      expect(childLabels()).toEqual(['Tokens', 'Colours', 'Icons']);
+      expect(link('Colours').getAttribute('aria-current')).toBe('page');
+    });
+
+    it('shows them in the floating rail of a narrow screen once it is opened', async () => {
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow: signal(true) } });
+      localStorage.setItem(RAIL_KEY, 'false');
+      await start('/theme/colours');
+      expect(children()).toEqual([]);
+
+      railToggle().click();
+      await settle();
+
+      expect(childLabels()).toEqual(['Tokens', 'Colours', 'Icons']);
+      expect(link('Colours').getAttribute('aria-current')).toBe('page');
+    });
+
+    it('folds the old sub-pages and unfolds the new ones, the pressed link keeping focus', async () => {
+      await start('/theme/colours');
+      const pressed = link('Layout');
+      pressed.focus();
+
+      pressed.click();
+      await settle();
+      await harness.fixture.whenStable();
+
+      expect(childLabels()).toEqual(['Grid']);
+      expect(link('Layout')).toBe(pressed);
+      expect(document.activeElement).toBe(pressed);
+    });
+
+    it('titles the page with the open sub-page and puts the page beside it', async () => {
+      await start('/theme/colours');
+
+      expect(title()).toBe('Colours');
+      expect(context()).toBe('Theme');
+    });
+
+    it('titles a deeper route with its own title and the trail to its sub-page', async () => {
+      await start('/stats/runs/compare');
+
+      expect(title()).toBe('Compare');
+      expect(context()).toBe('Stats › Runs');
+
+      await harness.navigateByUrl('/components/data/select-list');
+
+      expect(title()).toBe('Select list');
+      expect(context()).toBe('Components › Data');
+    });
+
+    it('falls back to the sub-page’s label where a deeper route has no title', async () => {
+      await start('/components/data/untitled');
+
+      expect(title()).toBe('Data');
+      expect(context()).toBe('Components');
+    });
+
+    it('keeps the page’s own label as the title of a page without sub-pages', async () => {
+      await start('/home');
+
+      expect(title()).toBe('Home');
+      expect(context()).toBeUndefined();
     });
   });
 });

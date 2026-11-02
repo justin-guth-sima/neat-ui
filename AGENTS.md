@@ -834,6 +834,21 @@ place, so every app reads the same way.
   whose label says what a click does, never toggles: the theme item is "Dark theme" with the moon
   while light and "Light theme" with the sun while dark; the control is "Show labels" while
   collapsed and "Collapse" while expanded.
+- **Level 2, a page's sub-pages, are its item's `children`** (`NeatNavChild`: a `label` and an
+  absolute `path`, no icon). Why: the rail is the one place pages are navigated, and sub-pages
+  there keep a page's views reachable without a second row of tabs. They unfold under the item
+  only while its page is active and the rail shows its labels (expanded, or floating open on a
+  narrow screen), so the rail does not grow with every page's sub-pages. The open one is the child
+  whose `path` is a prefix of the route (query and fragment ignored), so a deeper route keeps it
+  open; a child whose `path` equals its page's (Stats' Live at `/stats`) matches exactly. The open
+  child carries `aria-current="page"` and the page's item then does not: it keeps its label at
+  weight 500 with no fill, so one row alone looks current. The item's link goes to its own `path`:
+  the app routes that to the first child or gives the first child the page's path; the kit does not
+  redirect. The child row is `neatRailItem`'s `data-child` variant, stated once in `rail-item.css`.
+  The top bar's title is the open child's label with the page's label beside it, muted; on a route
+  deeper than the child with its own route `title` it is that title beside "page › child".
+  Deeper levels are not the rail's: more than a few sub-pages, groups or nesting belong in the
+  page's own list.
 - An app's item is a `button[neatRailItem]` or `a[neatRailItem]` with a `label`, the look and
   behaviour the page links have (they are rail items too): the content is the icon (a
   `neat-icon`), the label shows beside it while the rail is expanded, and while it is collapsed

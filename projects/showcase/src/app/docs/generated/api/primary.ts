@@ -1905,6 +1905,78 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/live-dot/live-dot.ts"
     },
     {
+      "name": "NeatNavChild",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "label",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Shown as the link's name and, while it is open, the page title."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Absolute app path, for example "
+                },
+                {
+                  "kind": "code",
+                  "text": "/theme/colours"
+                },
+                {
+                  "kind": "text",
+                  "text": ". It is open on its own path and every route nested under it, whatever the query; a child whose path is its page's own (a first view at "
+                },
+                {
+                  "kind": "code",
+                  "text": "/stats"
+                },
+                {
+                  "kind": "text",
+                  "text": ", beside "
+                },
+                {
+                  "kind": "code",
+                  "text": "/stats/runs"
+                },
+                {
+                  "kind": "text",
+                  "text": ") is open on that path only, so it is not open on its siblings' routes."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "One sub-page of a page in the shell's rail. It has no icon: sub-pages are rows of text under their page, which carries the icon."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/shell/nav-item.ts"
+    },
+    {
       "name": "NeatNavItem",
       "kind": "interface",
       "members": [
@@ -1946,6 +2018,38 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "; the item stays active on routes nested under it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "children",
+          "type": "readonly NeatNavChild[]",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The page's sub-pages, the only second level of the rail's navigation (more than a few, or deeper levels, belong in the page's own side list). They unfold under the item while the page is active and the rail shows its labels; the open one carries "
+                },
+                {
+                  "kind": "code",
+                  "text": "aria-current=\"page\""
+                },
+                {
+                  "kind": "text",
+                  "text": " and the item then does not. The item's link still goes to "
+                },
+                {
+                  "kind": "code",
+                  "text": "path"
+                },
+                {
+                  "kind": "text",
+                  "text": ": the app routes it to the first sub-page, or gives the first sub-page the page's own path. The kit does not redirect. Collapsed, the rail shows no sub-pages."
                 }
               ]
             }
@@ -3221,6 +3325,31 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
+              "text": "A page with "
+            },
+            {
+              "kind": "code",
+              "text": "children"
+            },
+            {
+              "kind": "text",
+              "text": " unfolds them under its item while it is the active page and the rail shows its labels (expanded, or floating open on a narrow screen): rows of text, indented under a thin line, the open one in the rail's current-page look. The item then keeps its label in full text colour at weight 500 without the fill, so one row alone reads as current, and only that row carries "
+            },
+            {
+              "kind": "code",
+              "text": "aria-current=\"page\""
+            },
+            {
+              "kind": "text",
+              "text": ". Only the active page's children show, so the rail does not grow with every page's sub-pages."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
               "text": "The top bar holds the logo, the app name and the page title, then at its right the active page's tools ("
             },
             {
@@ -3253,7 +3382,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". The default slot is the content area (usually a "
+              "text": "; on a page with sub-pages it is the open sub-page's label with the page's label beside it, muted, or, on a route deeper than the sub-page that has a "
+            },
+            {
+              "kind": "code",
+              "text": "title"
+            },
+            {
+              "kind": "text",
+              "text": ", that title with \"page › sub-page\" beside it. The default slot is the content area (usually a "
             },
             {
               "kind": "code",

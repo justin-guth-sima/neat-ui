@@ -29,7 +29,7 @@ import { NeatViewport } from '../page/viewport';
 import { ThemeService } from '../theme/theme.service';
 import { NeatTooltip } from '../tooltip/tooltip';
 import { NeatLogo } from './logo';
-import { NeatNavItem } from './nav-item';
+import { isChildCurrent, NeatNavChild, NeatNavItem } from './nav-item';
 import { PageToolbarSlot } from './page-toolbar';
 import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
 
@@ -47,6 +47,9 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
   matrixParams: 'ignored',
   fragment: 'ignored',
 };
+
+/** A route is exactly a sub-page's path, no deeper, whatever the query. */
+const EXACT_MATCH: IsActiveMatchOptions = { ...ACTIVE_MATCH, paths: 'exact' };
 
 /**
  * The title of the deepest primary route that has one, as the router's own title strategy picks
@@ -77,11 +80,20 @@ function routeTitle(root: ActivatedRouteSnapshot): string {
  * control are actions named for what a click does: "Dark theme" or "Light theme", "Show labels" or
  * "Collapse".
  *
+ * A page with `children` unfolds them under its item while it is the active page and the rail shows
+ * its labels (expanded, or floating open on a narrow screen): rows of text, indented under a thin
+ * line, the open one in the rail's current-page look. The item then keeps its label in full text
+ * colour at weight 500 without the fill, so one row alone reads as current, and only that row
+ * carries `aria-current="page"`. Only the active page's children show, so the rail does not grow
+ * with every page's sub-pages.
+ *
  * The top bar holds the logo, the app name and the page title, then at its right the active page's
  * tools (`*neatPageToolbar`), elements marked `neatTopbarEnd`, the kiosk button (the one app
  * control there, since it changes how the page is shown), and last, at the right edge above the
  * side panel, the page's side-panel toggle (`neat-aside-toggle`) when the page has one. The page
- * title is the matching nav item's label, else the route's `title`. The default slot is the
+ * title is the matching nav item's label, else the route's `title`; on a page with sub-pages it is
+ * the open sub-page's label with the page's label beside it, muted, or, on a route deeper than the
+ * sub-page that has a `title`, that title with "page › sub-page" beside it. The default slot is the
  * content area (usually a `<router-outlet />`).
  *
  * Kiosk mode (`KioskService`, entered from the top bar or with `?kiosk`) drops the rail and the
@@ -148,21 +160,66 @@ export class NeatShell {
   private readonly kioskButton = viewChild<ElementRef<HTMLElement>>('kioskButton');
 
   /**
-   * The label of the nav item the current route belongs to (the first match wins), else the
-   * route's own `title`, so a page with no rail item (a board's page, a detail view) still has a
-   * heading. The nav label wins because it is what the rail shows as the current page, and nested
-   * routes under one item (Stats' views) keep its name whatever their titles say.
+   * The nav item the current route belongs to (the first match wins) and, when it has sub-pages,
+   * the open one with whether the route is deeper than it.
    */
-  protected readonly pageTitle = computed(() => {
+  private readonly active = computed(() => {
     const url = this.router.lastSuccessfulNavigation()?.finalUrl;
     if (!url) {
-      return '';
+      return undefined;
     }
-    const active = this.navItems().find((item) =>
-      containsTree(url, this.router.parseUrl(item.path), ACTIVE_MATCH),
+    const item = this.navItems().find((candidate) =>
+      containsTree(url, this.router.parseUrl(candidate.path), ACTIVE_MATCH),
     );
-    return active?.label ?? routeTitle(this.router.routerState.snapshot.root);
+    const child = item?.children?.find((candidate) => isChildCurrent(candidate, item, url));
+    return item && { item, child, url };
   });
+
+  /** The nav item whose sub-pages show in the rail, with its open one; none while collapsed. */
+  protected readonly unfolded = computed(() => {
+    const active = this.active();
+    return this.railExpanded() && active?.item.children ? active : undefined;
+  });
+
+  /**
+   * The title's text and, beside it, the muted page it belongs to. A nav item's label wins over a
+   * route's `title` because it is what the rail shows as the current page, and nested routes under
+   * one item keep its name whatever their titles say; a page with sub-pages is the one exception,
+   * where the open sub-page names the route, and a route deeper than it (a level-3 topic, a
+   * compare view) names itself when it has a title, so the title says where the person is. Without
+   * a nav item the route's own `title` is all there is, so a board's page or a detail view still
+   * has a heading.
+   */
+  protected readonly pageTitle = computed((): { text: string; context?: string } => {
+    const active = this.active();
+    if (!active) {
+      return { text: this.router.lastSuccessfulNavigation() ? this.routeTitle() : '' };
+    }
+    const { item, child, url } = active;
+    if (!child) {
+      return { text: item.label };
+    }
+    const deeper = !containsTree(url, this.router.parseUrl(child.path), EXACT_MATCH);
+    const own = deeper ? this.routeTitle() : '';
+    return own
+      ? { text: own, context: `${item.label} › ${child.label}` }
+      : { text: child.label, context: item.label };
+  });
+
+  /** Whether the item's open sub-page is showing, which then carries the current-page state. */
+  protected holdsOpenChild(item: NeatNavItem): boolean {
+    const unfolded = this.unfolded();
+    return unfolded?.item === item && !!unfolded.child;
+  }
+
+  /** Whether `child` is the open sub-page of the unfolded page, for the link's current state. */
+  protected isOpen(child: NeatNavChild): boolean {
+    return this.unfolded()?.child === child;
+  }
+
+  private routeTitle(): string {
+    return routeTitle(this.router.routerState.snapshot.root);
+  }
 
   constructor() {
     // Entering kiosk mode removes the top-bar button that had focus, which drops focus to <body>,

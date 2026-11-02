@@ -25,10 +25,30 @@
               [routerLink]="item.path"
               routerLinkActive="active"
               [routerLinkActiveOptions]="activeMatch"
-              ariaCurrentWhenActive="page"
+              [ariaCurrentWhenActive]="holdsOpenChild(item) ? undefined : 'page'"
+              [attr.data-branch]="holdsOpenChild(item) ? '' : null"
             >
               <neat-icon [name]="item.icon" />
             </a>
+            @if (unfolded(); as open) {
+              @if (open.item === item) {
+                <ul class="rail-children">
+                  @for (child of item.children; track child.path) {
+                    <li>
+                      <!-- The row's text is the item's own label, which the rule cannot see. -->
+                      <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
+                      <a
+                        neatRailItem
+                        data-child
+                        [label]="child.label"
+                        [routerLink]="child.path"
+                        [attr.aria-current]="isOpen(child) ? 'page' : null"
+                      ></a>
+                    </li>
+                  }
+                </ul>
+              }
+            }
           </li>
         }
       </ul>
@@ -64,7 +84,16 @@
       <span class="app-name" [class.sr-only]="viewport.narrow()">{{ appName() }}</span>
     </div>
     @if (pageTitle(); as title) {
-      <h1 class="page-title" [class.sr-only]="viewport.narrow()">{{ title }}</h1>
+      @if (title.text) {
+        <!-- The muted part is inside the heading: it is where the person is, and the page's name
+             to a screen reader too. -->
+        <h1 class="page-title" [class.sr-only]="viewport.narrow()">
+          {{ title.text }}
+          @if (title.context) {
+            <span class="page-context">{{ title.context }}</span>
+          }
+        </h1>
+      }
     }
     @if (pageToolbar(); as toolbar) {
       <div class="page-toolbar" role="group" [attr.aria-label]="toolbarLabel">

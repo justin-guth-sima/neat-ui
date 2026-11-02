@@ -7,7 +7,8 @@ import { NeatToasts } from '@sima/neat-ui/toast';
  * `neatRailEnd` goes in the rail's end slot, above the kit's theme switch and the rail's control:
  * `NeatRailItem`s, and a `NeatRailDivider` between groups of them. The board says its state with
  * the item's `tone`, `text` and `detail`, and the devices after it show the other tones; each
- * item's `label` is the whole sentence, its tooltip and its name.
+ * item's `label` is the whole sentence, its tooltip and its name. The first page has `children`,
+ * which unfold under it while it is the active page and the rail is expanded.
  *
  * @page
  */
@@ -82,9 +83,21 @@ import { NeatToasts } from '@sima/neat-ui/toast';
 })
 export class RailItems {
   protected readonly toasts = inject(NeatToasts);
-  /** The app's pages: here this example and the shell's docs. */
+  /**
+   * The app's pages: here this example, with three sub-pages to show the rail's second level, and
+   * the shell's docs. The first sub-page has the page's own path, so the page needs no redirect.
+   */
   protected readonly navItems: NeatNavItem[] = [
-    { label: 'Rail items', icon: 'viewer', path: '/demo/shell/rail-items' },
+    {
+      label: 'Rail items',
+      icon: 'viewer',
+      path: '/demo/shell/rail-items',
+      children: [
+        { label: 'Overview', path: '/demo/shell/rail-items' },
+        { label: 'Devices', path: '/demo/shell/rail-items/devices' },
+        { label: 'Settings', path: '/demo/shell/rail-items/settings' },
+      ],
+    },
     { label: 'Shell docs', icon: 'document', path: '/layout/shell' },
   ];
 }

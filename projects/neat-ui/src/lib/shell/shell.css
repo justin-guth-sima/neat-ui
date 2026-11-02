@@ -121,6 +121,20 @@ nav {
 }
 
 /*
+ * A page's sub-pages, under its item: indented to the icon's middle, joined to the item by a thin
+ * line on their left. Each row is a `neatRailItem` in its child variant (`rail-item.css`).
+ */
+.rail-children {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0.25rem 0 0 1.25rem;
+  padding: 0 0 0 0.5rem;
+  border-inline-start: 1px solid var(--sidebar-border);
+  list-style: none;
+}
+
+/*
  * The app's items and the theme item at the bottom of the rail, the rail's control after them. The
  * line above the group is a `neatRailDivider`, the element an app puts between its own items, and
  * the items are `neatRailItem`s: both looks are theirs, stated once.
@@ -183,6 +197,13 @@ nav {
   line-height: 1.5;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+/* The page the title belongs to, beside it: the title's size, the muted text colour. */
+.page-context {
+  margin-inline-start: 0.5rem;
+  color: var(--muted-foreground);
+  font-weight: 400;
 }
 
 /*

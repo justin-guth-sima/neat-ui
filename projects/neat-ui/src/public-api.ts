@@ -28,7 +28,7 @@ export { neatResolveColor, neatThemeColors } from './lib/theme/theme-colors';
 export { NeatIcon } from './lib/icon/icon';
 export type { NeatIconGlyph, NeatIconName } from './lib/icon/icon-registry';
 export { NEAT_ICON_NAMES } from './lib/icon/icon-registry';
-export type { NeatNavItem } from './lib/shell/nav-item';
+export type { NeatNavChild, NeatNavItem } from './lib/shell/nav-item';
 export { NeatShell } from './lib/shell/shell';
 export { NeatRailDivider, NeatRailItem } from './lib/shell/rail-item';
 export { provideNeatTitles } from './lib/shell/titles';

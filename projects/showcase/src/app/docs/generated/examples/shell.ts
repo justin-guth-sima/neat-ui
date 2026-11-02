@@ -168,7 +168,15 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " is the whole sentence, its tooltip and its name."
+            "text": " is the whole sentence, its tooltip and its name. The first page has "
+          },
+          {
+            "kind": "code",
+            "text": "children"
+          },
+          {
+            "kind": "text",
+            "text": ", which unfold under it while it is the active page and the rail is expanded."
           }
         ]
       }
@@ -193,9 +201,15 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," RailItems {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," toasts = inject(NeatToasts);\n  "],
-          ["comment","/** The app's pages: here this example and the shell's docs. */"],["text","\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," navItems: NeatNavItem[] = [\n    { label: "],
-          ["string","'Rail items'"],["text",", icon: "],["string","'viewer'"],["text",", path: "],["string","'/demo/shell/rail-items'"],["text"," },\n    { label: "],
+          ["comment","/**\n   * The app's pages: here this example, with three sub-pages to show the rail's second level, and\n   * the shell's docs. The first sub-page has the page's own path, so the page needs no redirect.\n   */"],
+          ["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," navItems: NeatNavItem[] = [\n    {\n      label: "],
+          ["string","'Rail items'"],["text",",\n      icon: "],
+          ["string","'viewer'"],["text",",\n      path: "],
+          ["string","'/demo/shell/rail-items'"],["text",",\n      children: [\n        { label: "],
+          ["string","'Overview'"],["text",", path: "],["string","'/demo/shell/rail-items'"],["text"," },\n        { label: "],
+          ["string","'Devices'"],["text",", path: "],["string","'/demo/shell/rail-items/devices'"],["text"," },\n        { label: "],
+          ["string","'Settings'"],["text",", path: "],["string","'/demo/shell/rail-items/settings'"],["text"," },\n      ],\n    },\n    { label: "],
           ["string","'Shell docs'"],["text",", icon: "],["string","'document'"],["text",", path: "],["string","'/layout/shell'"],["text"," },\n  ];\n}\n"]
         ]
       }

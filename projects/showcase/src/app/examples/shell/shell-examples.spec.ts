@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { KIOSK_POINTER_IDLE_MS, KioskService } from '@sima/neat-ui';
 import { NeatToasts } from '@sima/neat-ui/toast';
 import { Kiosk } from './1-kiosk.example';
@@ -64,6 +64,31 @@ describe('the shell examples', () => {
     expect(kiosk.pointerIdle()).toBe(true);
   });
 
+  it('unfold the active page’s three sub-pages in the expanded rail, the first one open', async () => {
+    localStorage.setItem('neat-ui:rail-expanded', 'true');
+    TestBed.configureTestingModule({ providers: [provideRouter([{ path: '**', children: [] }])] });
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/demo/shell/rail-items');
+    const fixture = TestBed.createComponent(RailItems);
+    await fixture.whenStable();
+    const rail = (fixture.nativeElement as HTMLElement).querySelector(
+      'neat-shell nav',
+    ) as HTMLElement;
+    const children = Array.from(rail.querySelectorAll<HTMLElement>('ul ul a'));
+
+    expect(children.map((child) => child.textContent?.trim())).toEqual([
+      'Overview',
+      'Devices',
+      'Settings',
+    ]);
+    expect(children.map((child) => child.getAttribute('aria-current'))).toEqual([
+      'page',
+      null,
+      null,
+    ]);
+    localStorage.clear();
+  });
+
   it('fill the rail’s end slot: the app’s items, then the theme, then collapse', async () => {
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
     const status = vi.spyOn(TestBed.inject(NeatToasts), 'status');
@@ -72,7 +97,7 @@ describe('the shell examples', () => {
     const host = fixture.nativeElement as HTMLElement;
 
     // Its own shell, with two pages in the rail.
-    expect(host.querySelectorAll('neat-shell nav a[neatRailItem]').length).toBe(2);
+    expect(host.querySelectorAll('neat-shell nav > ul > li > a[neatRailItem]').length).toBe(2);
     const end = host.querySelector('neat-shell .rail-end') as HTMLElement;
     const items = Array.from(end.querySelectorAll('[neatRailItem]'), (item) =>
       item.textContent?.replace(/\s+/g, ' ').trim(),
