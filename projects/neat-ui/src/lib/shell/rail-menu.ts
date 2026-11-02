@@ -9,6 +9,7 @@ import {
   ElementRef,
   ComponentRef,
   inject,
+  Injectable,
   Injector,
   input,
   output,
@@ -30,6 +31,32 @@ const RAIL_GAP = 4;
  * nothing to reach.
  */
 const HOVER_CLOSE_DELAY = 150;
+
+/**
+ * Which rail menu is open, which is at most one: the menus share it, so that a menu opening puts
+ * the open one away at once, with no delay (the delay is for the pointer reaching its own panel,
+ * not for a neighbour). Internal to the kit.
+ */
+@Injectable({ providedIn: 'root' })
+class OpenRailMenu {
+  private open: { close(): void } | undefined;
+
+  /** Makes `menu` the open one, closing the one that was. */
+  claim(menu: { close(): void }): void {
+    const previous = this.open;
+    this.open = menu;
+    if (previous && previous !== menu) {
+      previous.close();
+    }
+  }
+
+  /** `menu` is closed; it is no longer the open one. */
+  release(menu: { close(): void }): void {
+    if (this.open === menu) {
+      this.open = undefined;
+    }
+  }
+}
 
 /** The menu's rows are rail items on a rail that shows its labels, whatever the real one does. */
 const LABELLED_RAIL = { expanded: signal(true), collapseWhenNarrow: () => undefined };
@@ -97,7 +124,9 @@ export class RailMenuPanel {
  * shows): a press (click, tap, Enter, Space) navigates like any rail item, with a link's modified
  * clicks (Ctrl/Cmd/middle) as the router link gives them, and puts the menu away if it is up. The
  * menu is a companion of hover and keyboard focus, never of a press: a mouse or pen hovering shows
- * it, and it closes `HOVER_CLOSE_DELAY` after the pointer leaves both the item and the menu;
+ * it, and it closes `HOVER_CLOSE_DELAY` after the pointer leaves both the item and the menu
+ * (the delay lets the pointer reach the menu; another item's menu opening closes it at once, as
+ * at most one menu is open);
  * keyboard focus on the item (`:focus-visible`, as the tooltip shows on focus) shows it, and it
  * closes when focus leaves both. There is no touch path: a tap navigates and the menu stays shut,
  * since the rail can be expanded to reach the sub-pages. The current sub-page it marks follows the
@@ -140,6 +169,7 @@ export class RailMenu {
   private readonly element: HTMLAnchorElement = inject(ElementRef).nativeElement;
   private readonly overlay = inject(Overlay);
   private readonly injector = inject(Injector);
+  private readonly openMenu = inject(OpenRailMenu);
   private readonly focus = new OverlayFocus(
     () => this.element,
     () => this.close(),
@@ -197,6 +227,7 @@ export class RailMenu {
     if (this.ref) {
       return;
     }
+    this.openMenu.claim(this);
     const ref = this.overlay.create({
       positionStrategy: this.overlay
         .position()
@@ -301,7 +332,9 @@ export class RailMenu {
     }
   }
 
-  private close(): void {
+  /** Public to `OpenRailMenu`, which puts a menu away when another opens. */
+  close(): void {
+    this.openMenu.release(this);
     this.justClosed = true;
     queueMicrotask(() => (this.justClosed = false));
     this.cancelClose();

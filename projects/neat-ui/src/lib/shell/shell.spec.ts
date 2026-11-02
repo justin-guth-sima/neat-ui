@@ -1563,6 +1563,55 @@ describe('NeatShell', () => {
       expect(item.hasAttribute('aria-controls')).toBe(false);
     });
 
+    it('leaves only the second menu open when the pointer crosses two items within the delay', async () => {
+      await start('/home');
+      const first = pageButton('Theme');
+      const second = pageButton('Layout');
+
+      hover(first);
+      await settle();
+      leave(first);
+      hover(second);
+      await settle();
+
+      expect(document.querySelectorAll('neat-rail-menu-panel')).toHaveLength(1);
+      expect(menu()?.querySelector('h2')?.textContent?.trim()).toBe('Layout');
+      expect(first.hasAttribute('aria-controls')).toBe(false);
+      expect(second.getAttribute('aria-controls')).toBe(menu()?.id);
+      await pause(250);
+      expect(document.querySelectorAll('neat-rail-menu-panel')).toHaveLength(1);
+    });
+
+    it('leaves only the second menu open when keyboard focus moves from one item to the next', async () => {
+      await start('/home');
+      const first = pageButton('Theme');
+      const second = pageButton('Layout');
+      focusByKeyboard(first);
+      await settle();
+
+      focusByKeyboard(second);
+      await settle();
+
+      expect(document.querySelectorAll('neat-rail-menu-panel')).toHaveLength(1);
+      expect(menu()?.querySelector('h2')?.textContent?.trim()).toBe('Layout');
+    });
+
+    it('keeps the first menu when the pointer leaves its item for its panel within the delay', async () => {
+      await start('/home');
+      const item = pageButton('Theme');
+      hover(item);
+      await settle();
+
+      leave(item);
+      await pause(50);
+      (menu()?.parentElement as HTMLElement).dispatchEvent(
+        new PointerEvent('pointerenter', { pointerType: 'mouse' }),
+      );
+      await pause(250);
+
+      expect(menu()?.querySelector('h2')?.textContent?.trim()).toBe('Theme');
+    });
+
     it('stays open while the pointer is on the menu, and closes after it leaves it', async () => {
       await start('/theme/colours');
       const item = pageButton('Theme');
