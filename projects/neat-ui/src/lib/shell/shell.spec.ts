@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, RouterOutlet, Routes } from '@angular/router';
+import { provideRouter, Router, RouterOutlet, Routes } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { NeatIcon } from '../icon/icon';
 import { KIOSK_POINTER_IDLE_MS, KioskService } from '../kiosk/kiosk.service';
@@ -1384,6 +1384,259 @@ describe('NeatShell', () => {
 
       expect(title()).toBe('Home');
       expect(context()).toBeUndefined();
+    });
+  });
+
+  describe('sub-page menu of the collapsed rail', () => {
+    const pageButton = (label: string): HTMLButtonElement => button(label);
+    const menu = (): HTMLElement | null => document.querySelector('neat-rail-menu-panel');
+    const menuLinks = (): HTMLAnchorElement[] =>
+      Array.from(menu()?.querySelectorAll('a') ?? []);
+    const url = (): string => TestBed.inject(Router).url;
+    const keydown = (target: Element, key: string, shiftKey = false): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', { key, shiftKey, bubbles: true, cancelable: true });
+      target.dispatchEvent(event);
+      return event;
+    };
+    const pause = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+    /** Presses the item as a mouse that has just come over it does: it hovers, then clicks. */
+    const press = async (item: HTMLElement): Promise<void> => {
+      item.click();
+      await settle();
+    };
+
+    it('makes a page with sub-pages a button that has a menu, closed to begin with', async () => {
+      await start('/theme/colours');
+
+      const item = pageButton('Theme');
+      expect(item.tagName).toBe('BUTTON');
+      expect(item.getAttribute('type')).toBe('button');
+      expect(item.getAttribute('aria-haspopup')).toBe('dialog');
+      expect(item.getAttribute('aria-expanded')).toBe('false');
+      expect(item.getAttribute('aria-current')).toBe('page');
+      expect(menu()).toBeNull();
+    });
+
+    it('opens the menu on a press, without navigating: the page’s name, then its sub-pages', async () => {
+      await start('/theme/colours');
+
+      await press(pageButton('Theme'));
+
+      expect(pageButton('Theme').getAttribute('aria-expanded')).toBe('true');
+      expect(menu()?.getAttribute('role')).toBe('dialog');
+      const heading = menu()?.querySelector('h2') as HTMLElement;
+      expect(heading.textContent?.trim()).toBe('Theme');
+      expect(menu()?.getAttribute('aria-labelledby')).toBe(heading.id);
+      expect(menuLinks().map((a) => a.textContent?.trim())).toEqual(['Tokens', 'Colours', 'Icons']);
+      expect(menuLinks().map((a) => a.getAttribute('href'))).toEqual([
+        '/theme/tokens',
+        '/theme/colours',
+        '/theme/icons',
+      ]);
+      expect(menuLinks().map((a) => a.getAttribute('aria-current'))).toEqual([null, 'page', null]);
+      expect(url()).toBe('/theme/colours');
+    });
+
+    it('moves focus to the first link on a press, and closes on a second press', async () => {
+      await start('/theme/colours');
+      const item = pageButton('Theme');
+
+      await press(item);
+      expect(document.activeElement).toBe(menuLinks()[0]);
+
+      await press(item);
+      expect(menu()).toBeNull();
+      expect(item.getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('is a native button, so Enter and Space press it as a click does', async () => {
+      await start('/theme');
+
+      expect(pageButton('Theme') instanceof HTMLButtonElement).toBe(true);
+      expect(pageButton('Theme').hasAttribute('routerLink')).toBe(false);
+      expect(url()).toBe('/theme');
+    });
+
+    it('marks no sub-page in the menu where the route belongs to the page alone', async () => {
+      await start('/theme');
+
+      await press(pageButton('Theme'));
+
+      expect(menuLinks().map((a) => a.getAttribute('aria-current'))).toEqual([null, null, null]);
+    });
+
+    it('opens on mouse hover without moving focus, and closes after the pointer leaves', async () => {
+      await start('/theme/colours');
+      const item = pageButton('Theme');
+
+      hover(item);
+      await settle();
+      expect(menu()).not.toBeNull();
+      expect(document.activeElement).not.toBe(menuLinks()[0]);
+      expect(tooltip()).toBeNull();
+
+      item.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));
+      await pause(50);
+      expect(menu()).not.toBeNull();
+      await pause(200);
+      expect(menu()).toBeNull();
+    });
+
+    it('stays open while the pointer is on the menu, and closes after it leaves it', async () => {
+      await start('/theme/colours');
+      const item = pageButton('Theme');
+      hover(item);
+      await settle();
+
+      item.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));
+      const panel = menu()?.parentElement as HTMLElement;
+      panel.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+      await pause(250);
+      expect(menu()).not.toBeNull();
+
+      panel.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));
+      await pause(250);
+      expect(menu()).toBeNull();
+    });
+
+    it('keeps a menu that hover opened once it is pressed', async () => {
+      await start('/theme/colours');
+      const item = pageButton('Theme');
+      hover(item);
+      await settle();
+
+      await press(item);
+      item.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));
+      await pause(250);
+
+      expect(menu()).not.toBeNull();
+      expect(document.activeElement).toBe(menuLinks()[0]);
+    });
+
+    it('does not open on a touch pointer entering: a tap is a press', async () => {
+      await start('/theme/colours');
+      const item = pageButton('Theme');
+
+      item.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'touch' }));
+      await settle();
+      expect(menu()).toBeNull();
+
+      await press(item);
+      expect(menu()).not.toBeNull();
+    });
+
+    it('closes on Escape and gives the focus back to the item', async () => {
+      await start('/theme/colours');
+      await press(pageButton('Theme'));
+
+      const event = keydown(document.activeElement as Element, 'Escape');
+      await settle();
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(menu()).toBeNull();
+      expect(document.activeElement).toBe(pageButton('Theme'));
+    });
+
+    it('takes Tab from the item to the first link, also where hover opened the menu', async () => {
+      await start('/theme/colours');
+      const item = pageButton('Theme');
+      hover(item);
+      await settle();
+      item.focus();
+
+      const event = keydown(item, 'Tab');
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(document.activeElement).toBe(menuLinks()[0]);
+    });
+
+    it('leaves the menu from its last link with Tab, on from the item, and from its first with Shift+Tab', async () => {
+      await start('/theme/colours');
+      const item = pageButton('Theme');
+      await press(item);
+
+      menuLinks()[2].focus();
+      const onward = keydown(menuLinks()[2], 'Tab');
+      expect(onward.defaultPrevented).toBe(false);
+      expect(menu()).toBeNull();
+      expect(document.activeElement).toBe(item);
+
+      await press(item);
+      const back = keydown(menuLinks()[0], 'Tab', true);
+      expect(back.defaultPrevented).toBe(true);
+      expect(menu()).toBeNull();
+      expect(document.activeElement).toBe(item);
+    });
+
+    it('closes on a press outside, which keeps the focus it gave', async () => {
+      await start('/theme/colours');
+      await press(pageButton('Theme'));
+      const other = button('Dark theme');
+
+      other.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+      other.focus();
+      other.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await settle();
+
+      expect(menu()).toBeNull();
+      expect(document.activeElement).toBe(other);
+    });
+
+    it('navigates and closes when a link is chosen', async () => {
+      await start('/theme/colours');
+      await press(pageButton('Theme'));
+
+      menuLinks()[2].click();
+      await settle();
+
+      expect(url()).toBe('/theme/icons');
+      expect(menu()).toBeNull();
+      expect(pageButton('Theme').getAttribute('aria-current')).toBe('page');
+    });
+
+    it('leaves a page without sub-pages as it was: a link with a tooltip that navigates', async () => {
+      await start('/theme/colours');
+      const home = link('Home');
+
+      expect(home.hasAttribute('aria-haspopup')).toBe(false);
+      hover(home);
+      await tick();
+      expect(tooltip()?.textContent?.trim()).toBe('Home');
+      expect(menu()).toBeNull();
+
+      home.click();
+      await settle();
+      expect(url()).toBe('/home');
+    });
+
+    it('shows no tooltip on the item that opens the menu', async () => {
+      await start('/theme/colours');
+
+      hover(pageButton('Theme'));
+      await tick();
+
+      expect(tooltip()).toBeNull();
+    });
+
+    it('is a link again, and opens no menu, while the rail is expanded', async () => {
+      localStorage.setItem(RAIL_KEY, 'true');
+      await start('/home');
+
+      expect(link('Theme').getAttribute('href')).toBe('/theme');
+      expect(link('Theme').hasAttribute('aria-haspopup')).toBe(false);
+      hover(link('Theme'));
+      await settle();
+      expect(menu()).toBeNull();
+    });
+
+    it('puts the menu away when the rail expands under it', async () => {
+      await start('/theme/colours');
+      await press(pageButton('Theme'));
+
+      railToggle().click();
+      await settle();
+
+      expect(menu()).toBeNull();
     });
   });
 });

@@ -32,6 +32,7 @@ import { NeatLogo } from './logo';
 import { isChildCurrent, NeatNavChild, NeatNavItem } from './nav-item';
 import { PageToolbarSlot } from './page-toolbar';
 import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
+import { RailMenu } from './rail-menu';
 
 /**
  * The accessible name of the page toolbar's region, in the top bar and in kiosk mode alike. A
@@ -87,6 +88,11 @@ function routeTitle(root: ActivatedRouteSnapshot): string {
  * carries `aria-current="page"`. Only the active page's children show, so the rail does not grow
  * with every page's sub-pages.
  *
+ * Collapsed, the rail has no room for them: its item for a page with `children` is a button that
+ * opens their menu beside the rail in place of following the link, and keeps the
+ * current-page look while the route belongs to the page. A mouse opens the menu on hover as well.
+ * The menu's heading is the page's label, which is why that item has no tooltip.
+ *
  * The top bar holds the logo, the app name and the page title, then at its right the active page's
  * tools (`*neatPageToolbar`), elements marked `neatTopbarEnd`, the kiosk button (the one app
  * control there, since it changes how the page is shown), and last, at the right edge above the
@@ -122,6 +128,7 @@ function routeTitle(root: ActivatedRouteSnapshot): string {
     NeatRailDivider,
     NeatRailItem,
     NeatTooltip,
+    RailMenu,
     RouterLink,
     RouterLinkActive,
   ],
@@ -210,6 +217,17 @@ export class NeatShell {
   protected holdsOpenChild(item: NeatNavItem): boolean {
     const unfolded = this.unfolded();
     return unfolded?.item === item && !!unfolded.child;
+  }
+
+  /** Whether the route belongs to the page, for the item that opens its menu while collapsed. */
+  protected isActivePage(item: NeatNavItem): boolean {
+    return this.active()?.item === item;
+  }
+
+  /** The page's open sub-page, which the collapsed rail's menu marks. */
+  protected currentChild(item: NeatNavItem): NeatNavChild | undefined {
+    const active = this.active();
+    return active?.item === item ? active.child : undefined;
   }
 
   /** Whether `child` is the open sub-page of the unfolded page, for the link's current state. */

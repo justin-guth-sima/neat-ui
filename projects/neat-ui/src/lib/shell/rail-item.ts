@@ -16,6 +16,7 @@ import { NeatViewport } from '../page/viewport';
 import { safeStorage } from '../storage';
 import type { NeatTone } from '../theme/tone';
 import { provideNeatTooltipOptions } from '../tooltip/tooltip';
+import { RailMenu } from './rail-menu';
 
 const RAIL_EXPANDED_KEY = 'neat-ui:rail-expanded';
 
@@ -98,7 +99,9 @@ export class RailState {
  *
  * Brain's tooltip is a host directive here, not `neatTooltip`, because the item names its own
  * tooltip from `label`: a host directive's inputs come from the template that uses the element,
- * and `label` feeds both the item and the tooltip. It is switched off while the labels show.
+ * and `label` feeds both the item and the tooltip. It is switched off while the labels show, and
+ * on the shell's items that open a menu of sub-pages (a collapsed page with `children`), whose
+ * menu names the page itself.
  */
 @Component({
   // An attribute selector keeps the native button or link as the host, as `button[neatSwitch]`
@@ -166,8 +169,10 @@ export class NeatRailItem {
     }
     const tooltip = inject(BrnTooltip);
     // Brain's own switch for the tooltip, which the template of the page that uses the item cannot
-    // reach: the item decides, and a visible label needs no tooltip repeating it.
-    effect(() => tooltip.mutableTooltipDisabled.set(this.expanded()));
+    // reach: the item decides, and a visible label needs no tooltip repeating it. Nor does an item
+    // with a menu, whose heading says the label.
+    const menu = inject(RailMenu, { optional: true });
+    effect(() => tooltip.mutableTooltipDisabled.set(this.expanded() || menu !== null));
   }
 
   protected expanded(): boolean {

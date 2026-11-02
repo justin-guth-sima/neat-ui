@@ -19,17 +19,32 @@
       <ul class="rail-list">
         @for (item of navItems(); track item.path) {
           <li>
-            <a
-              neatRailItem
-              [label]="item.label"
-              [routerLink]="item.path"
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="activeMatch"
-              [ariaCurrentWhenActive]="holdsOpenChild(item) ? undefined : 'page'"
-              [attr.data-branch]="holdsOpenChild(item) ? '' : null"
-            >
-              <neat-icon [name]="item.icon" />
-            </a>
+            @if (item.children?.length && !railExpanded()) {
+              <!-- Collapsed, a page with sub-pages is the button that opens their menu: a press
+                   does not navigate, since the page is its first sub-page. -->
+              <button
+                neatRailItem
+                type="button"
+                [label]="item.label"
+                [neatRailMenu]="item"
+                [neatRailMenuCurrent]="currentChild(item)"
+                [attr.aria-current]="isActivePage(item) ? 'page' : null"
+              >
+                <neat-icon [name]="item.icon" />
+              </button>
+            } @else {
+              <a
+                neatRailItem
+                [label]="item.label"
+                [routerLink]="item.path"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="activeMatch"
+                [ariaCurrentWhenActive]="holdsOpenChild(item) ? undefined : 'page'"
+                [attr.data-branch]="holdsOpenChild(item) ? '' : null"
+              >
+                <neat-icon [name]="item.icon" />
+              </a>
+            }
             @if (unfolded(); as open) {
               @if (open.item === item) {
                 <ul class="rail-children">

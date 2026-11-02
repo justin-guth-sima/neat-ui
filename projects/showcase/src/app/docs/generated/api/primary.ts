@@ -2049,7 +2049,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ": the app routes it to the first sub-page, or gives the first sub-page the page's own path. The kit does not redirect. Collapsed, the rail shows no sub-pages."
+                  "text": ": the app routes it to the first sub-page, or gives the first sub-page the page's own path. The kit does not redirect. Collapsed, the item opens them as a menu beside the rail on a press instead of following its link."
                 }
               ]
             }
@@ -3004,7 +3004,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " feeds both the item and the tooltip. It is switched off while the labels show."
+              "text": " feeds both the item and the tooltip. It is switched off while the labels show, and on the shell's items that open a menu of sub-pages (a collapsed page with "
+            },
+            {
+              "kind": "code",
+              "text": "children"
+            },
+            {
+              "kind": "text",
+              "text": "), whose menu names the page itself."
             }
           ]
         }
@@ -3342,6 +3350,23 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": ". Only the active page's children show, so the rail does not grow with every page's sub-pages."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Collapsed, the rail has no room for them: its item for a page with "
+            },
+            {
+              "kind": "code",
+              "text": "children"
+            },
+            {
+              "kind": "text",
+              "text": " is a button that opens their menu beside the rail in place of following the link, and keeps the current-page look while the route belongs to the page. A mouse opens the menu on hover as well. The menu's heading is the page's label, which is why that item has no tooltip."
             }
           ]
         },
