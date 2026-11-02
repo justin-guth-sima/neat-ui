@@ -685,6 +685,72 @@ test("a third-party export is no part of the kit's docs, and a problem", () => {
   ]);
 });
 
+// --- a whole package re-exported ----------------------------------------------------------------
+
+const PACKAGE = kitWith({
+  'src/public-api.ts': "export * from './lib/swatch';\n",
+  'src/lib/swatch.ts': `import { Component } from '@angular/core';
+
+/** A swatch. */
+@Component({ selector: 'neat-swatch', template: '' })
+export class NeatSwatch {}
+`,
+  'vendor/index.ts':
+    'export const Rocket = 1;\nexport const Anchor = 2;\nexport const icons = {};\n',
+  'glyphs/src/public-api.ts': `/**
+ * Glyphs for the icon, one for each \`Rocket\` and its kin.
+ */
+export * from 'vendor';
+`,
+});
+const packaged = once(() => extractKit(PACKAGE));
+
+test("an entry's `export *` of a package is one part named after it, with the statement's doc", () => {
+  assert.deepEqual(partOf(packaged(), 'glyphs', 'vendor'), {
+    name: 'vendor',
+    kind: 'reexport',
+    package: true,
+    import: '@sima/neat-ui/glyphs',
+    doc: [
+      {
+        kind: 'paragraph',
+        spans: [
+          { kind: 'text', text: 'Glyphs for the icon, one for each ' },
+          { kind: 'code', text: 'Rocket' },
+          { kind: 'text', text: ' and its kin.' },
+        ],
+      },
+    ],
+    source: 'projects/neat-ui/glyphs/src/public-api.ts',
+  });
+});
+
+test("a package's names are no parts and need no topic, and no problem is raised for them", () => {
+  const glyphs = packaged().entries.find((e) => e.entry === 'glyphs');
+  assert.deepEqual(
+    glyphs.parts.map((part) => part.name),
+    ['vendor'],
+  );
+  assert.deepEqual(packaged().problems, []);
+});
+
+test('an `export *` of a kit file still gives that file’s parts', () => {
+  assert.equal(partOf(packaged(), 'primary', 'NeatSwatch').kind, 'component');
+});
+
+test('a package re-exported without a doc is a problem', () => {
+  const bare = extractKit(
+    kitWith({
+      'src/public-api.ts': 'export {};\n',
+      'vendor/index.ts': 'export const Rocket = 1;\n',
+      'glyphs/src/public-api.ts': "export * from 'vendor';\n",
+    }),
+  );
+  assert.deepEqual(bare.problems, [
+    "projects/neat-ui/glyphs/src/public-api.ts:1: export * from 'vendor' has no doc comment",
+  ]);
+});
+
 // --- doc comments (review focus 2) ------------------------------------------------------------
 
 const DOCS = kitWith({

@@ -194,6 +194,11 @@ const FOLD_MEMBERS = 6;
     @if (usage(); as usage) {
       <code neatCode class="showcase-muted" data-slot="usage">{{ usage }}</code>
     }
+    @if (part().kind === 'reexport') {
+      <p neatNote>
+        Re-exports every glyph of <code neatCode>{{ part().name }}</code>
+      </p>
+    }
     @if (view().exportAs; as exportAs) {
       <code neatCode class="showcase-muted" data-slot="usage">#x="{{ exportAs }}"</code>
     }
@@ -260,6 +265,8 @@ export class ApiPart {
   protected readonly view = computed((): PartView => {
     const part = this.part();
     switch (part.kind) {
+      case 'reexport':
+        return NOTHING;
       case 'function':
         return { ...NOTHING, code: part.signature };
       case 'type':

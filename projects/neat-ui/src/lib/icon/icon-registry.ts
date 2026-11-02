@@ -45,6 +45,7 @@ import {
   Upload,
   X,
 } from 'lucide';
+import type { IconNode } from 'lucide';
 
 /**
  * The kit's icon vocabulary: names say what an icon means in the app, the value is the Lucide
@@ -121,6 +122,12 @@ export const NEAT_ICONS = {
 
 /** The name of a glyph in the kit's curated icon set, what `neat-icon`'s `name` takes. */
 export type NeatIconName = keyof typeof NEAT_ICONS;
+
+/**
+ * A Lucide drawing (what `@sima/neat-ui/lucide` exports for each glyph), what `neat-icon`'s `name`
+ * takes where no name of the kit's set fits.
+ */
+export type NeatIconGlyph = IconNode;
 
 /**
  * Every name in the registry, in registry order, for galleries and pickers. Play, pause and stop

@@ -2,6 +2,7 @@
 import type { DocsExample } from '../../model';
 import { Gallery } from '../../../examples/icons/1-gallery.example';
 import { SizesAndLabels } from '../../../examples/icons/2-sizes-and-labels.example';
+import { AnyLucideGlyph } from '../../../examples/icons/3-any-lucide-glyph.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -104,6 +105,71 @@ export const EXAMPLES: readonly DocsExample[] = [
       },
       {
         "name": "sizes-and-labels.example.css",
+        "code": [
+          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n}\n\n.sample {\n  display: flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n  min-width: 9rem;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "any-lucide-glyph",
+    "title": "Any lucide glyph",
+    "component": AnyLucideGlyph,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A glyph the kit's set has no name for, imported from "
+          },
+          {
+            "kind": "code",
+            "text": "@sima/neat-ui/lucide"
+          },
+          {
+            "kind": "text",
+            "text": " and given to the icon as its "
+          },
+          {
+            "kind": "code",
+            "text": "name"
+          },
+          {
+            "kind": "text",
+            "text": ", at the kit's sizes. Reach for it only where no name of the set fits, and never import Lucide from its own package: the kit keeps the icon library swappable."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui#NeatIcon",
+      "@sima/neat-ui/lucide#Anchor",
+      "@sima/neat-ui/lucide#Bell",
+      "@sima/neat-ui/lucide#Rocket"
+    ],
+    "files": [
+      {
+        "name": "3-any-lucide-glyph.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatIcon } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { Anchor, Bell, Rocket } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/lucide'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-any-lucide-glyph'"],["text",",\n  imports: [NeatIcon],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    @for (glyph of glyphs; track glyph.label) {\n      <div class=\"showcase-row\">\n        @for (size of sizes; track size) {\n          <div class=\"sample\">\n            <neat-icon [name]=\"glyph.drawing\" [size]=\"size\" [label]=\"glyph.label\" />\n            <span class=\"showcase-code showcase-muted\">{{ glyph.label }}, {{ size }} px</span>\n          </div>\n        }\n      </div>\n    }\n  `"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./any-lucide-glyph.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," AnyLucideGlyph {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sizes = [16, 20, 24] "],["keyword","as"],["text"," "],["keyword","const"],["text",";\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," glyphs = [\n    { drawing: Rocket, label: "],
+          ["string","'Rocket'"],["text"," },\n    { drawing: Anchor, label: "],
+          ["string","'Anchor'"],["text"," },\n    { drawing: Bell, label: "],
+          ["string","'Bell'"],["text"," },\n  ] "],
+          ["keyword","as"],["text"," "],["keyword","const"],["text",";\n}\n"]
+        ]
+      },
+      {
+        "name": "any-lucide-glyph.example.css",
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n}\n\n.sample {\n  display: flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n  min-width: 9rem;\n}\n"]
         ]

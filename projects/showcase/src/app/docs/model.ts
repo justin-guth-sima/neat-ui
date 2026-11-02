@@ -18,7 +18,13 @@ export interface DocsEntry {
 }
 
 export type DocsPart =
-  DocsClass | DocsFunction | DocsConst | DocsTypeAlias | DocsInterface | DocsReexport;
+  | DocsClass
+  | DocsFunction
+  | DocsConst
+  | DocsTypeAlias
+  | DocsInterface
+  | DocsPackageReexport
+  | DocsReexport;
 
 /** A part as its owner entry documents it: anything but a re-export stub. */
 export type DocsDeclaredPart = Exclude<DocsPart, DocsReexport>;
@@ -96,6 +102,19 @@ export interface DocsReexport {
   readonly from: string;
   /** The comment written above the re-export: why it is still there. */
   readonly note: readonly DocBlock[];
+}
+
+/**
+ * A whole package an entry re-exports (`export * from 'lucide'`), named after the package. Its
+ * names are the package's own, so nothing documents them one by one; the doc is the statement's,
+ * and says what the entry offers them for. It is a part of its entry, where a `DocsReexport`
+ * is a stub.
+ */
+export interface DocsPackageReexport extends DocsOwnPart {
+  readonly kind: 'reexport';
+  readonly package: true;
+  /** The import path of the entry that re-exports it. */
+  readonly import: string;
 }
 
 export interface DocsReexportNote {

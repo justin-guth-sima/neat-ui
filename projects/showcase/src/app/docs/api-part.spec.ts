@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ApiPart } from './api-part';
-import { typeParameters } from './display';
+import { isReexportStub, typeParameters } from './display';
 import type { DocBlock, DocsDeclaredPart, DocsMember } from './model';
 import { FakeDocs, KIT_ENTRIES, provideFakeDocs } from './docs.testing';
 
@@ -259,8 +259,26 @@ describe('ApiPart', () => {
     expect(text(host.querySelector('p[neatNote] + app-doc-text'))).toBe('Apps imported it there.');
   });
 
+  it('shows a re-exported package with its import line, its doc and what it re-exports', async () => {
+    const { host } = await render({
+      name: 'lucide',
+      kind: 'reexport',
+      package: true,
+      import: '@sima/neat-ui/lucide',
+      doc: words('Glyphs for the icon.'),
+      source: SOURCE,
+    });
+
+    expect(text(host.querySelector('h3'))).toBe('lucide');
+    expect(text(host.querySelector('[data-slot="usage"]'))).toBe(
+      "import { Rocket } from '@sima/neat-ui/lucide'",
+    );
+    expect(text(host.querySelector('p[neatNote]'))).toBe('Re-exports every glyph of lucide');
+    expect(text(host.querySelector('app-doc-text'))).toBe('Glyphs for the icon.');
+  });
+
   const PARTS = KIT_ENTRIES.flatMap((entry) =>
-    entry.parts.flatMap((part) => (part.kind === 'reexport' ? [] : [part])),
+    entry.parts.flatMap((part) => (isReexportStub(part) ? [] : [part])),
   );
 
   it.each(PARTS.map((part) => [part.name, part] as const))(

@@ -14,6 +14,7 @@ import { API as FILE_BROWSER } from './generated/api/file-browser';
 import { API as INPUT } from './generated/api/input';
 import { API as LEVEL_METER } from './generated/api/level-meter';
 import { API as LINE_LIST } from './generated/api/line-list';
+import { API as LUCIDE } from './generated/api/lucide';
 import { API as NUMBER_FIELD } from './generated/api/number-field';
 import { API as POPOVER } from './generated/api/popover';
 import { API as PRIMARY } from './generated/api/primary';
@@ -83,6 +84,7 @@ export const KIT_ENTRIES: readonly DocsEntry[] = [
   INPUT,
   LEVEL_METER,
   LINE_LIST,
+  LUCIDE,
   NUMBER_FIELD,
   POPOVER,
   PRIMARY,

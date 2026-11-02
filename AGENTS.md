@@ -89,7 +89,9 @@ look happens in one place. Every rule here protects that.
     with its `NeatDiagramRateCard` (`neat-diagram-rate-card`) and `NeatDiagramAnimationSettings`
     (`neat-diagram-animation-settings`), `neatDrillDownLevel`, `neatBatchTimes` and
     `neatParseMessageSettings`; how it draws is under "How the diagram is drawn" below),
-    each exporting that component and its types; and
+    each exporting that component and its types; `lucide`, which has no component: its public API
+    is `export * from 'lucide'`, every glyph of Lucide for `neat-icon`'s `name` (the icon rule is
+    under "The kit's icons" below); and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
     sit in the tile's overlay layer. Public API is `projects/neat-ui/<name>/src/public-api.ts`; its
@@ -681,6 +683,16 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   moves: `icon.css` turns it once a second, and only for a user who has not asked for reduced
   motion (otherwise it is a still glyph), so an app's busy control never animates it itself and
   says that it waits in text or state (`aria-busy`), since the icon is decorative.
+- **An icon takes a name of the kit's set first; a glyph from `@sima/neat-ui/lucide` only where no
+  name fits; Lucide is never imported from its own package, nor `@lucide/angular`.** Why: the
+  names say what an icon means and are swapped in one place (`icon-registry.ts`), and every app
+  importing the library itself would make the kit's choice of it a promise to every app. A glyph
+  from the `lucide` entry is the escape hatch (`<neat-icon [name]="Rocket" />` with
+  `import { Rocket } from '@sima/neat-ui/lucide'`): `NeatIconGlyph`, a drawing, which has no
+  `data-icon` and so no spinner turn, and which only the glyphs an app imports bundle (the
+  entry is side-effect free). If a glyph is wanted in more than one place, or means something in
+  the app, add a name to the registry instead. The entry's `export *` is the one place the kit
+  re-exports a package whole: the docs show it as one part named `lucide`, not one per glyph.
 - **A toggle button binds `pressed`, never `aria-pressed`.** `NeatButton` owns the attribute (a
   host binding that is absent while `pressed` is undefined) and gives the pressed look with it, so
   an `[attr.aria-pressed]` on a `neatButton` is overwritten. The look is the inverse of the page

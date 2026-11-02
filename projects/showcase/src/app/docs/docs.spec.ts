@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { App } from '../app';
 import { appConfig } from '../app.config';
-import { shownName } from './display';
+import { isReexportStub, shownName } from './display';
 import { KIT_ENTRIES } from './docs.testing';
 import { groupTabs, topicPath } from './docs-routes';
 import type { DocsDeclaredPart, DocsExample } from './model';
@@ -47,7 +47,7 @@ const topics = GROUPS.flatMap((group) => group.topics.map((topic) => ({ group, t
 const generated = topics.filter(({ topic }) => topic.load);
 const declared = new Map(
   KIT_ENTRIES.flatMap((entry) =>
-    entry.parts.flatMap((part) => (part.kind === 'reexport' ? [] : [[part.name, part] as const])),
+    entry.parts.flatMap((part) => (isReexportStub(part) ? [] : [[part.name, part] as const])),
   ),
 );
 

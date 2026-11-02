@@ -27,6 +27,7 @@ import {
   neatStoredSignal,
 } from '@sima/neat-ui';
 import { ApiPanel } from './api-panel';
+import { isReexportStub } from './display';
 import {
   DOCS_TOPIC_OF,
   DocsContext,
@@ -55,7 +56,7 @@ export function topicParts(topic: DocsTopic): DocsTopicPart[] {
   return topic.parts.flatMap((name) => {
     for (const entry of topic.entries) {
       const part = entry.parts.find((candidate) => candidate.name === name);
-      if (part && part.kind !== 'reexport') return [{ part, import: entry.import }];
+      if (part && !isReexportStub(part)) return [{ part, import: entry.import }];
     }
     if (isDevMode()) {
       throw new Error(`The docs topic names ${name}, which none of its entries declares.`);

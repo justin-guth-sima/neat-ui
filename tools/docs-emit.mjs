@@ -357,14 +357,32 @@ class KitReader {
   }
 
   read() {
-    const exports = this.entries.map((entry) => ({ entry, symbols: this.exportsOf(entry) }));
+    const exports = this.entries.map((entry) => {
+      const packages = this.packageReexports(entry);
+      const wholesale = new Set(packages.flatMap(({ symbols }) => symbols));
+      const symbols = this.exportsOf(entry).filter((symbol) => !wholesale.has(symbol));
+      return { entry, symbols, packages };
+    });
     this.publicNames = new Set(exports.flatMap(({ symbols }) => symbols.map((s) => s.name)));
     this.kitNames = this.declaredNames();
 
     const entries = [];
     const reexports = [];
-    for (const { entry, symbols } of exports) {
-      const parts = [];
+    for (const { entry, symbols, packages } of exports) {
+      // The statement's doc is read now, once every public name is known to refer to.
+      const parts = packages.map(({ name, statement }) => {
+        const doc = this.doc(statement, name);
+        if (!doc.blocks.length)
+          this.problem(statement, `export * from '${name}' has no doc comment`);
+        return {
+          name,
+          kind: 'reexport',
+          package: true,
+          import: importPath(entry),
+          ...this.docFields(doc),
+          source: posix(relative(this.root, this.entryFile(entry))),
+        };
+      });
       for (const symbol of symbols) {
         const target =
           symbol.flags & ts.SymbolFlags.Alias ? this.checker.getAliasedSymbol(symbol) : symbol;
@@ -410,6 +428,26 @@ class KitReader {
     return entry === 'primary'
       ? join(this.library, 'src/public-api.ts')
       : join(this.library, entry, 'src/public-api.ts');
+  }
+
+  /**
+   * The `export * from 'package'` statements of an entry whose package lies outside the kit: each
+   * is one part named after the package, with the statement's doc, and its names are no parts of
+   * their own (a package such as `lucide` exports thousands, and the docs cannot judge them).
+   */
+  packageReexports(entry) {
+    const file = this.program.getSourceFile(this.entryFile(entry));
+    const found = [];
+    for (const statement of file.statements) {
+      if (!ts.isExportDeclaration(statement) || statement.exportClause) continue;
+      if (!statement.moduleSpecifier) continue;
+      const module = this.checker.getSymbolAtLocation(statement.moduleSpecifier);
+      const owner = module?.declarations?.[0]?.getSourceFile().fileName;
+      if (!owner || this.isKitFile(owner)) continue;
+      const name = statement.moduleSpecifier.text;
+      found.push({ name, statement, symbols: this.checker.getExportsOfModule(module) });
+    }
+    return found;
   }
 
   /** The entry's exports, without `ɵ` names: the kit's shared internals, not for apps. */

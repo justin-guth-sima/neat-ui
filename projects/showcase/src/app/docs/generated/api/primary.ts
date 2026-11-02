@@ -1582,7 +1582,15 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "An icon from the kit's curated set. Decorative by default (hidden from assistive technology); give it a "
+              "text": "An icon: a name from the kit's curated set, or where no name fits a glyph from "
+            },
+            {
+              "kind": "code",
+              "text": "@sima/neat-ui/lucide"
+            },
+            {
+              "kind": "text",
+              "text": ". Decorative by default (hidden from assistive technology); give it a "
             },
             {
               "kind": "code",
@@ -1622,7 +1630,7 @@ export const API: DocsEntry = {
       "inputs": [
         {
           "name": "name",
-          "type": "NeatIconName",
+          "type": "NeatIconName | NeatIconGlyph",
           "required": true,
           "doc": [
             {
@@ -1630,7 +1638,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Which glyph of the kit's set to draw; "
+                  "text": "Which glyph to draw: a name of the kit's set ("
                 },
                 {
                   "kind": "ref",
@@ -1639,7 +1647,15 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " lists them all."
+                  "text": " lists them all) first, and only where none fits a glyph imported from "
+                },
+                {
+                  "kind": "code",
+                  "text": "@sima/neat-ui/lucide"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
                 }
               ]
             }
@@ -1678,6 +1694,47 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/src/lib/icon/icon.ts"
+    },
+    {
+      "name": "NeatIconGlyph",
+      "kind": "type",
+      "definition": "IconNode",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A Lucide drawing (what "
+            },
+            {
+              "kind": "code",
+              "text": "@sima/neat-ui/lucide"
+            },
+            {
+              "kind": "text",
+              "text": " exports for each glyph), what "
+            },
+            {
+              "kind": "code",
+              "text": "neat-icon"
+            },
+            {
+              "kind": "text",
+              "text": "'s "
+            },
+            {
+              "kind": "code",
+              "text": "name"
+            },
+            {
+              "kind": "text",
+              "text": " takes where no name of the kit's set fits."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/icon/icon-registry.ts"
     },
     {
       "name": "NeatIconName",

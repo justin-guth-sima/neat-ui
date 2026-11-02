@@ -115,14 +115,15 @@ export const GROUPS: readonly TopicGroup[] = [
       {
         id: 'icons',
         label: 'Icons',
-        parts: ['NeatIcon', 'NeatIconName', 'NEAT_ICON_NAMES'],
+        parts: ['NeatIcon', 'NeatIconName', 'NeatIconGlyph', 'NEAT_ICON_NAMES', 'lucide'],
         leads: ['NeatIcon'],
         load: async () => {
-          const [api, examples] = await Promise.all([
+          const [api, lucide, examples] = await Promise.all([
             import('./generated/api/primary'),
+            import('./generated/api/lucide'),
             import('./generated/examples/icons'),
           ]);
-          return { entries: [api.API], examples: examples.EXAMPLES };
+          return { entries: [api.API, lucide.API], examples: examples.EXAMPLES };
         },
       },
     ],

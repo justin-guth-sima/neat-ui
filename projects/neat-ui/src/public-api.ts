@@ -26,7 +26,7 @@ export { ThemeService } from './lib/theme/theme.service';
 export type { NeatRgb } from './lib/theme/theme-colors';
 export { neatResolveColor, neatThemeColors } from './lib/theme/theme-colors';
 export { NeatIcon } from './lib/icon/icon';
-export type { NeatIconName } from './lib/icon/icon-registry';
+export type { NeatIconGlyph, NeatIconName } from './lib/icon/icon-registry';
 export { NEAT_ICON_NAMES } from './lib/icon/icon-registry';
 export type { NeatNavItem } from './lib/shell/nav-item';
 export { NeatShell } from './lib/shell/shell';

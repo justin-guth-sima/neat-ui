@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { NEAT_ICON_NAMES } from '@sima/neat-ui';
 import { Gallery } from './1-gallery.example';
 import { SizesAndLabels } from './2-sizes-and-labels.example';
+import { AnyLucideGlyph } from './3-any-lucide-glyph.example';
 
 describe('the icon examples', () => {
   it('draw every name of the set once, labelled with it', async () => {
@@ -31,5 +32,23 @@ describe('the icon examples', () => {
     expect(
       Array.from(rows[1].querySelectorAll('[role="img"]'), (svg) => svg.getAttribute('aria-label')),
     ).toEqual(['Board', 'Board', 'Board']);
+  });
+
+  it('draw three glyphs outside the kit’s set at each size, each an image named for it', async () => {
+    const fixture = TestBed.createComponent(AnyLucideGlyph);
+    await fixture.whenStable();
+    const rows = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('.showcase-row'),
+    );
+
+    expect(
+      rows.map((row) => Array.from(row.querySelectorAll('svg'), (s) => s.getAttribute('width'))),
+    ).toEqual(Array(3).fill(['16', '20', '24']));
+    expect(rows.map((row) => row.querySelector('svg')?.getAttribute('aria-label'))).toEqual([
+      'Rocket',
+      'Anchor',
+      'Bell',
+    ]);
+    expect(new Set(rows.map((row) => row.querySelector('svg')?.innerHTML)).size).toBe(3);
   });
 });

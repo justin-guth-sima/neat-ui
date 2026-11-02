@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Rocket } from 'lucide';
 import { NeatIcon } from './icon';
 import iconStyles from './icon.css' with { loader: 'text' };
 import { NEAT_ICON_NAMES, NeatIconName } from './icon-registry';
@@ -94,6 +95,42 @@ describe('NeatIcon', () => {
 
   it('leaves an outline glyph unfilled', async () => {
     expect(svg().querySelector('[fill]')).toBeNull();
+  });
+
+  describe('a Lucide glyph given as the name', () => {
+    beforeEach(async () => {
+      fixture.componentRef.setInput('name', Rocket);
+      await fixture.whenStable();
+    });
+
+    it('draws the glyph at the given size', async () => {
+      fixture.componentRef.setInput('size', 32);
+      await fixture.whenStable();
+
+      const shapes = Array.from(svg().children, (child) => child.tagName.toLowerCase());
+      expect(shapes).toEqual(Rocket.map(([tag]) => tag));
+      expect(svg().getAttribute('width')).toBe('32');
+      expect(svg().getAttribute('height')).toBe('32');
+    });
+
+    it('is an image with the label when one is set, and hidden without', async () => {
+      expect(svg().getAttribute('aria-hidden')).toBe('true');
+
+      fixture.componentRef.setInput('label', 'Launch');
+      await fixture.whenStable();
+
+      expect(svg().getAttribute('role')).toBe('img');
+      expect(svg().getAttribute('aria-label')).toBe('Launch');
+    });
+
+    it('names no kit icon on the host, which only the kit’s names do', async () => {
+      expect(fixture.nativeElement.hasAttribute('data-icon')).toBe(false);
+
+      fixture.componentRef.setInput('name', 'spinner');
+      await fixture.whenStable();
+
+      expect(fixture.nativeElement.getAttribute('data-icon')).toBe('spinner');
+    });
   });
 
   describe('the spinner', () => {

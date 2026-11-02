@@ -15,6 +15,7 @@ import * as fileBrowser from '../file-browser/src/public-api';
 import * as input from '../input/src/public-api';
 import * as levelMeter from '../level-meter/src/public-api';
 import * as lineList from '../line-list/src/public-api';
+import * as lucide from '../lucide/src/public-api';
 import * as numberField from '../number-field/src/public-api';
 import * as popover from '../popover/src/public-api';
 import * as progress from '../progress/src/public-api';
@@ -44,6 +45,7 @@ const ENTRIES = {
   input,
   levelMeter,
   lineList,
+  lucide,
   numberField,
   popover,
   progress,

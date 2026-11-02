@@ -3,7 +3,12 @@
  * member names, defaults) and the body's cut, kept out of the templates so each is stated once
  * and tested without a DOM.
  */
-import type { DocBlock, DocsDeclaredPart, DocsMember } from './model';
+import type { DocBlock, DocsDeclaredPart, DocsMember, DocsPart, DocsReexport } from './model';
+
+/** Whether a part is a stub for what another entry owns; a whole package is a part of its own. */
+export function isReexportStub(part: DocsPart): part is DocsReexport {
+  return part.kind === 'reexport' && !('package' in part);
+}
 
 export const KIND_LABEL: Record<DocsDeclaredPart['kind'], string> = {
   component: 'component',
@@ -16,6 +21,7 @@ export const KIND_LABEL: Record<DocsDeclaredPart['kind'], string> = {
   const: 'const',
   interface: 'interface',
   type: 'type',
+  reexport: 're-export',
 };
 
 /** `<neat-diagram>` for an element selector; any other selector as written. */
@@ -41,6 +47,9 @@ export function usageLine(part: DocsDeclaredPart): string | null {
     }
     case 'service':
       return `inject(${part.name})`;
+    case 'reexport':
+      // Lucide's glyph is the sample: the one package the kit re-exports whole.
+      return `import { Rocket } from '${part.import}'`;
     case 'component':
     case 'directive':
     case 'class':
