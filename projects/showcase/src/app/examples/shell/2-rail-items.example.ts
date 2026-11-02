@@ -84,8 +84,10 @@ import { NeatToasts } from '@sima/neat-ui/toast';
 export class RailItems {
   protected readonly toasts = inject(NeatToasts);
   /**
-   * The app's pages: here this example, with three sub-pages to show the rail's second level, and
-   * the shell's docs. The first sub-page has the page's own path, so the page needs no redirect.
+   * The app's pages: here this example alone, with three sub-pages to show the rail's second level. All
+   * stay under the example's own route, which serves its sub-paths with the same example, so a
+   * press changes the URL and the open sub-page without leaving the docs. The first sub-page has
+   * the page's own path, so the page needs no redirect.
    */
   protected readonly navItems: NeatNavItem[] = [
     {
@@ -98,6 +100,5 @@ export class RailItems {
         { label: 'Settings', path: '/demo/shell/rail-items/settings' },
       ],
     },
-    { label: 'Shell docs', icon: 'document', path: '/layout/shell' },
   ];
 }

@@ -86,6 +86,18 @@ describe('the shell examples', () => {
       null,
       null,
     ]);
+
+    // Pressing a sub-page changes the URL, keeps the example and makes that sub-page the open one.
+    children[1].click();
+    await fixture.whenStable();
+
+    expect(router.url).toBe('/demo/shell/rail-items/devices');
+    expect(fixture.nativeElement.querySelector('neat-shell')).not.toBeNull();
+    expect(
+      Array.from(rail.querySelectorAll<HTMLElement>('ul ul a'), (child) =>
+        child.getAttribute('aria-current'),
+      ),
+    ).toEqual([null, 'page', null]);
     localStorage.clear();
   });
 
@@ -96,8 +108,8 @@ describe('the shell examples', () => {
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;
 
-    // Its own shell, with two pages in the rail.
-    expect(host.querySelectorAll('neat-shell nav > ul > li > a[neatRailItem]').length).toBe(2);
+    // Its own shell, with one page in the rail.
+    expect(host.querySelectorAll('neat-shell nav > ul > li > a[neatRailItem]').length).toBe(1);
     const end = host.querySelector('neat-shell .rail-end') as HTMLElement;
     const items = Array.from(end.querySelectorAll('[neatRailItem]'), (item) =>
       item.textContent?.replace(/\s+/g, ' ').trim(),

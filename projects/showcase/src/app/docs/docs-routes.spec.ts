@@ -287,6 +287,15 @@ describe('the docs routes', () => {
     );
   });
 
+  it('keeps a page example rendered on its own sub-paths', async () => {
+    const harness = await RouterTestingHarness.create();
+    const page = await harness.navigateByUrl('/demo/pages/whole-page', WholePage);
+
+    const same = await harness.navigateByUrl('/demo/pages/whole-page/devices', WholePage);
+
+    expect(same).toBe(page);
+  });
+
   it('routes the page examples of each topic and nothing else', async () => {
     const children = async (path: string) => {
       const demo = docsRoutes(GROUPS).find((route) => route.path === path);

@@ -133,7 +133,15 @@ function demoRoute(id: string, load: LoadTopic): Route {
     loadChildren: async () =>
       (await load()).examples.flatMap((example): Route[] =>
         example.page && example.component
-          ? [{ path: example.id, title: example.title, component: example.component }]
+          ? [
+              {
+                path: example.id,
+                title: example.title,
+                component: example.component,
+                // The example's own sub-paths (a shell example's sub-pages) keep it rendered.
+                children: [{ path: '**', children: [] }],
+              },
+            ]
           : [],
       ),
   };

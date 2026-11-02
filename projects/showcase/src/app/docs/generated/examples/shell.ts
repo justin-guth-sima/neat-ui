@@ -201,7 +201,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," RailItems {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," toasts = inject(NeatToasts);\n  "],
-          ["comment","/**\n   * The app's pages: here this example, with three sub-pages to show the rail's second level, and\n   * the shell's docs. The first sub-page has the page's own path, so the page needs no redirect.\n   */"],
+          ["comment","/**\n   * The app's pages: here this example alone, with three sub-pages to show the rail's second level. All\n   * stay under the example's own route, which serves its sub-paths with the same example, so a\n   * press changes the URL and the open sub-page without leaving the docs. The first sub-page has\n   * the page's own path, so the page needs no redirect.\n   */"],
           ["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," navItems: NeatNavItem[] = [\n    {\n      label: "],
           ["string","'Rail items'"],["text",",\n      icon: "],
@@ -209,8 +209,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'/demo/shell/rail-items'"],["text",",\n      children: [\n        { label: "],
           ["string","'Overview'"],["text",", path: "],["string","'/demo/shell/rail-items'"],["text"," },\n        { label: "],
           ["string","'Devices'"],["text",", path: "],["string","'/demo/shell/rail-items/devices'"],["text"," },\n        { label: "],
-          ["string","'Settings'"],["text",", path: "],["string","'/demo/shell/rail-items/settings'"],["text"," },\n      ],\n    },\n    { label: "],
-          ["string","'Shell docs'"],["text",", icon: "],["string","'document'"],["text",", path: "],["string","'/layout/shell'"],["text"," },\n  ];\n}\n"]
+          ["string","'Settings'"],["text",", path: "],["string","'/demo/shell/rail-items/settings'"],["text"," },\n      ],\n    },\n  ];\n}\n"]
         ]
       }
     ]
