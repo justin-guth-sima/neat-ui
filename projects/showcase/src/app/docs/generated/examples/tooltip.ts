@@ -30,10 +30,18 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton, NeatTooltip, "],["keyword","type"],["text"," NeatTooltipPosition } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-positions'"],["text",",\n  imports: [NeatButton, NeatTooltip],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      @for (position of positions; track position) {\n        <button\n          neatButton\n          type=\"button\"\n          variant=\"outlined\"\n          [neatTooltip]=\"'Tooltip on the ' + position\"\n          [neatTooltipPosition]=\"position\"\n        >\n          {{ position }}\n        </button>\n      }\n    </div>\n  `"],
-          ["text",",\n})\n"],
+          ["string","`\n    <div class=\"row\">\n      @for (position of positions; track position) {\n        <button\n          neatButton\n          type=\"button\"\n          variant=\"outlined\"\n          [neatTooltip]=\"'Tooltip on the ' + position\"\n          [neatTooltipPosition]=\"position\"\n        >\n          {{ position }}\n        </button>\n      }\n    </div>\n  `"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./positions.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Positions {\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," positions: "],["keyword","readonly"],["text"," NeatTooltipPosition[] = ["],["string","'top'"],["text",", "],["string","'right'"],["text",", "],["string","'bottom'"],["text",", "],["string","'left'"],["text","];\n}\n"]
+          ["comment","/** Vim's h j k l; the outer tips point away from the row, so no tip covers a neighbour. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," positions: "],["keyword","readonly"],["text"," NeatTooltipPosition[] = ["],["string","'left'"],["text",", "],["string","'bottom'"],["text",", "],["string","'top'"],["text",", "],["string","'right'"],["text","];\n}\n"]
+        ]
+      },
+      {
+        "name": "positions.example.css",
+        "code": [
+          ["comment","/* Centred, so the outer tips have room to open away from the row. */"],["text","\n.row {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  justify-content: center;\n  gap: var(--neat-space-3);\n}\n"]
         ]
       }
     ]

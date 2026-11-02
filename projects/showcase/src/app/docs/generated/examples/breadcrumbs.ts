@@ -57,7 +57,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "walking-a-path.example.css",
         "code": [
-          ["text",".card {\n  --neat-surface: var(--card);\n\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  width: 18rem;\n  padding: var(--neat-space-4);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n  color: var(--card-foreground);\n  font-size: var(--neat-text-xs);\n}\n"]
+          ["text",".card {\n  --neat-surface: var(--card);\n\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  width: fit-content;\n  max-width: 100%;\n  padding: var(--neat-space-4);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n  color: var(--card-foreground);\n  font-size: var(--neat-text-xs);\n}\n"]
         ]
       }
     ]

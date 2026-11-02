@@ -24,7 +24,8 @@ const ramp = (name: string, darkest: Ramp['darkest'], scale: SurfaceScale): Ramp
  * The two surface ramps, from white at step 0 to the darkest at step 950. `buildSurfaceScale` is
  * the light scheme's: white, the two palette backgrounds and the palette text, with the steps
  * between interpolated. `buildNeutralSurfaceScale` is the dark scheme's, the same construction in
- * greys only, down to the near-black `NEAT_NEAR_BLACK`.
+ * greys only, down to the near-black `NEAT_NEAR_BLACK`. They start at 0 because white sits above
+ * the brand's off-white 50 and 100, which keeps the step numbers aligned across all the ramps.
  */
 @Component({
   selector: 'app-surface-scales',

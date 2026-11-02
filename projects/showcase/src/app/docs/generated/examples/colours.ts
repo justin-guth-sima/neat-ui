@@ -124,8 +124,9 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "swatches.css",
         "code": [
-          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n}\n\n"],
-          ["comment","/* One ramp: a chip per step, each labelled by text, so no label depends on the colour. */"],["text","\n.ramp {\n  display: grid;\n  gap: var(--neat-space-3);\n  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));\n}\n\n.chip {\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n\n.name {\n  margin-top: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
+          ["text",":host {\n  container-type: inline-size;\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n}\n\n"],
+          ["comment","/*\n * One ramp: a chip per step, each labelled by text, so no label depends on the colour. A ramp has\n * 11 or 12 steps: one row while all of them fit, otherwise two even rows (6 + 6 or 6 + 5), never a\n * short leftover row. A hex value is about 3.7rem wide, so 12 columns need 57rem, 6 need 27rem;\n * only a container narrower than that, a phone's, falls back to 3 columns.\n */"],
+          ["text","\n.ramp {\n  display: grid;\n  gap: var(--neat-space-3);\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n}\n\n@container (min-width: 27rem) {\n  .ramp {\n    grid-template-columns: repeat(6, minmax(0, 1fr));\n  }\n}\n\n@container (min-width: 57rem) {\n  .ramp {\n    grid-template-columns: repeat(12, minmax(0, 1fr));\n  }\n}\n\n.chip {\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n\n.name {\n  margin-top: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
         ]
       }
     ]
@@ -191,8 +192,9 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "swatches.css",
         "code": [
-          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n}\n\n"],
-          ["comment","/* One ramp: a chip per step, each labelled by text, so no label depends on the colour. */"],["text","\n.ramp {\n  display: grid;\n  gap: var(--neat-space-3);\n  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));\n}\n\n.chip {\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n\n.name {\n  margin-top: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
+          ["text",":host {\n  container-type: inline-size;\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n}\n\n"],
+          ["comment","/*\n * One ramp: a chip per step, each labelled by text, so no label depends on the colour. A ramp has\n * 11 or 12 steps: one row while all of them fit, otherwise two even rows (6 + 6 or 6 + 5), never a\n * short leftover row. A hex value is about 3.7rem wide, so 12 columns need 57rem, 6 need 27rem;\n * only a container narrower than that, a phone's, falls back to 3 columns.\n */"],
+          ["text","\n.ramp {\n  display: grid;\n  gap: var(--neat-space-3);\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n}\n\n@container (min-width: 27rem) {\n  .ramp {\n    grid-template-columns: repeat(6, minmax(0, 1fr));\n  }\n}\n\n@container (min-width: 57rem) {\n  .ramp {\n    grid-template-columns: repeat(12, minmax(0, 1fr));\n  }\n}\n\n.chip {\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n\n.name {\n  margin-top: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
         ]
       },
       {
@@ -240,7 +242,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "."
+            "text": ". They start at 0 because white sits above the brand's off-white 50 and 100, which keeps the step numbers aligned across all the ramps."
           }
         ]
       }
@@ -280,8 +282,9 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "swatches.css",
         "code": [
-          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n}\n\n"],
-          ["comment","/* One ramp: a chip per step, each labelled by text, so no label depends on the colour. */"],["text","\n.ramp {\n  display: grid;\n  gap: var(--neat-space-3);\n  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));\n}\n\n.chip {\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n\n.name {\n  margin-top: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
+          ["text",":host {\n  container-type: inline-size;\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n}\n\n"],
+          ["comment","/*\n * One ramp: a chip per step, each labelled by text, so no label depends on the colour. A ramp has\n * 11 or 12 steps: one row while all of them fit, otherwise two even rows (6 + 6 or 6 + 5), never a\n * short leftover row. A hex value is about 3.7rem wide, so 12 columns need 57rem, 6 need 27rem;\n * only a container narrower than that, a phone's, falls back to 3 columns.\n */"],
+          ["text","\n.ramp {\n  display: grid;\n  gap: var(--neat-space-3);\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n}\n\n@container (min-width: 27rem) {\n  .ramp {\n    grid-template-columns: repeat(6, minmax(0, 1fr));\n  }\n}\n\n@container (min-width: 57rem) {\n  .ramp {\n    grid-template-columns: repeat(12, minmax(0, 1fr));\n  }\n}\n\n.chip {\n  height: 3rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n}\n\n.name {\n  margin-top: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
         ]
       },
       {

@@ -12,13 +12,13 @@ describe('the tooltip examples', () => {
     const buttons = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button'));
 
     expect(buttons.map((button) => button.textContent?.trim())).toEqual([
+      'left',
+      'bottom',
       'top',
       'right',
-      'bottom',
-      'left',
     ]);
 
-    buttons[1].dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+    buttons[3].dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
     await new Promise((resolve) => setTimeout(resolve));
     await fixture.whenStable();
 
