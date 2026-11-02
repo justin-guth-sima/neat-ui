@@ -66,8 +66,9 @@ function routeTitle(root: ActivatedRouteSnapshot): string {
 
 /**
  * The app frame: the rail on the left, which is the app's, the top bar, which is the page's, and
- * the content area for the routed page. It fills the viewport; the content area gives its page the
- * remaining space and never scrolls itself, so pages own their scrolling (see `neat-page`).
+ * the content area for the routed page. It fills the viewport, or the bounded box it is placed in;
+ * the content area gives its page the remaining space and never scrolls itself, so pages own their
+ * scrolling (see `neat-page`).
  *
  * The rail holds the pages (`navItems`) and, at its bottom below a divider, the app's own items
  * (elements marked `neatRailEnd`: `neatRailItem`s, and `neatRailDivider`s between groups of them),

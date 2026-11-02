@@ -115,10 +115,9 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
  *   drawn last, on top), and leaving it sets null. An app binds the same index to its region list,
  *   so either side can highlight; a highlighted region has a stronger fill and outline.
  * - A right-click on one, while no polygon is open, opens a small bubble there with a Delete
- *   button, which emits
- *   `regionsChange` without that region. The button takes focus; Escape, a press outside the
- *   bubble, focus leaving it or new `regions` close it. It is a shortcut for the pointer: an app
- *   still offers the keyboard its own way to remove regions, such as its list.
+ *   button, which emits `regionsChange` without that region. The button takes focus; Escape, a
+ *   press outside the bubble, focus leaving it or new `regions` close it. It is a shortcut for the
+ *   pointer: an app still offers the keyboard its own way to remove regions, such as its list.
  * Elsewhere the editor leaves mode `off` to what is under it.
  *
  * The open polygon lives in component signals: it changes per click, and the polyline follows the
@@ -130,8 +129,8 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    // Focus is only there so Backspace and Escape arrive, so the host is out of the Tab order and only while a
-    // polygon is open; the label names what has focus.
+    // Focus is only there so Backspace and Escape arrive, so the host is out of the Tab order and
+    // only while a polygon is open; the label names what has focus.
     '[attr.tabindex]': 'drawing() ? -1 : null',
     '[attr.role]': 'drawing() ? "group" : null',
     '[attr.aria-label]': 'drawing() ? "Region drawing surface" : null',

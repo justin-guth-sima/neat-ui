@@ -819,7 +819,9 @@ Why: nested scroll containers and hard-coded heights break on other screen sizes
 where the shell's size is not yours to know. Do not measure or hard-code the shell's size. The one
 supported second scroll context is the page's side panel (below). Escape hatch: if a page needs
 another independently scrolling region (for example a log pane beside a form), raise it as a kit
-change so the layout is a supported component, not an ad hoc one.
+change so the layout is a supported component, not an ad hoc one. The shell fills the viewport, or
+the bounded box it is placed in (its `max-height` is 100% of the parent, which does nothing at the
+root); that is for a demo or an embedded frame, not a way for a page to size the shell.
 
 **The rail is the app's, the top bar is the page's.**
 Why: a colleague's review found that page tools running straight into the app's controls (the

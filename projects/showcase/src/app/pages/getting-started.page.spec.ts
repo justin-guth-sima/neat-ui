@@ -72,13 +72,15 @@ describe('GettingStartedPage', () => {
     for (const step of steps) expect(step.querySelector('app-copy-button')).not.toBeNull();
   });
 
-  it('points coding agents at the rules in the kit’s AGENTS.md', async () => {
+  it('points coding agents at the README’s rules for an app, and AGENTS.md for the kit itself', async () => {
     const page = await open();
     const note = page.querySelector('neat-callout') as HTMLElement;
 
     expect(note.querySelector('[role="heading"]')?.textContent?.trim()).toBe('For coding agents');
     const text = note.textContent?.replace(/\s+/g, ' ') ?? '';
-    expect(text).toContain('AGENTS.md');
+    expect(text).toContain('node_modules/@sima/neat-ui/README.md');
+    expect(text).toContain('Using the kit in an app');
+    expect(text).toContain('AGENTS.md is for working on the kit itself');
     for (const rule of [
       'import UI only from the kit',
       'one entry per part',

@@ -363,6 +363,23 @@ describe('NeatFileBrowser', () => {
       expect(host.folderChanges).toEqual(['30FPS']);
     });
 
+    it('opens one folder for a double click on a chevron, whose second click lands on the new listing', async () => {
+      const { host, row, settle } = await render();
+      const chevron = (name: string) => row(name).querySelector<HTMLButtonElement>('button')!;
+      const click = (button: HTMLButtonElement, detail: number) =>
+        button.dispatchEvent(new MouseEvent('click', { bubbles: true, detail }));
+
+      click(chevron('30FPS'), 1);
+      await settle();
+      expect(host.folder()).toBe('30FPS');
+      // The first row of the new listing is a folder, its chevron where the first one was.
+      click(chevron('indoor'), 2);
+      await settle();
+
+      expect(host.folder()).toBe('30FPS');
+      expect(host.folderChanges).toEqual(['30FPS']);
+    });
+
     it('opens nothing on a double click on a file, and changes no folder', async () => {
       const { host, dblclick } = await render();
 

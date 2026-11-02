@@ -130,11 +130,10 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
  * - **Navigating.** A double click on a folder row, a click on the chevron that ends it, or Enter
  *   on the row the keyboard is on, opens the folder; a single click only highlights it, and a
  *   double click on a file opens nothing. A click on a breadcrumb, or Backspace in the list, goes
- *   up. When the folder is gone from `root` (after a
- *   reload), `folder` becomes its nearest ancestor that exists. The list takes the focus after any
- *   navigation, and going up highlights the folder just left; every listing starts at the top.
- *   Pass `root` once it is loaded: an empty tree has no folders, so the browser goes back to the
- *   root.
+ *   up. When the folder is gone from `root` (after a reload), `folder` becomes its nearest ancestor
+ *   that exists. The list takes the focus after any navigation, and going up highlights the folder
+ *   just left; every listing starts at the top. Pass `root` once it is loaded: an empty tree has no
+ *   folders, so the browser goes back to the root.
  * - **Selecting.** `selected` is a file's path. A click on a file, or moving the list's selection
  *   with the arrow keys onto it, selects it; a click on a folder, or an arrow key onto it, leaves
  *   `selected` as it is (the preview of a file stays while the keyboard or the pointer passes
@@ -146,8 +145,8 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
  *   stops, so the arrow keys keep moving the selection. Ctrl-click or Cmd-click, Shift-click and
  *   Ctrl+A or Cmd+A check as they do in the list, without opening a folder. A plain click or
  *   double click on a file never checks it (the box does), and a double click opens nothing. The
- *   listbox is multi-selectable and a file `aria-selected` while checked, which says what checking is; the
- *   browser adds no hint of its own. Paths that are no longer in `root` leave `checked`;
+ *   listbox is multi-selectable and a file `aria-selected` while checked, which says what checking
+ *   is; the browser adds no hint of its own. Paths that are no longer in `root` leave `checked`;
  *   `selected` is not pruned, since an app may select a file before the tree that holds it has
  *   loaded.
  * - **Unavailable and tagged nodes**: an `unavailable` node is greyed, and a `tag` shows after
@@ -257,7 +256,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
               tabindex="-1"
               class="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
               [attr.aria-label]="text().open(row.label)"
-              (click)="navigate(row.node.path)"
+              (click)="openFolder($event, row.node.path)"
             >
               <neat-icon name="next" [size]="16" />
             </button>
@@ -435,6 +434,15 @@ export class NeatFileBrowser {
    * folder is the current one (the last crumb is text), and the focus must not fall to the body.
    * Going up lands the highlight on the folder just left, as file managers do.
    */
+  /**
+   * A chevron's click. The second click of a double click lands on the listing the first one
+   * opened, where a folder's chevron may sit at the same spot, so only a first click opens.
+   */
+  protected openFolder(event: MouseEvent, path: string): void {
+    if (event.detail > 1) return;
+    this.navigate(path);
+  }
+
   protected navigate(path: string): void {
     const from = this.current();
     this.folder.set(path);

@@ -3163,7 +3163,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The app frame: the rail on the left, which is the app's, the top bar, which is the page's, and the content area for the routed page. It fills the viewport; the content area gives its page the remaining space and never scrolls itself, so pages own their scrolling (see "
+              "text": "The app frame: the rail on the left, which is the app's, the top bar, which is the page's, and the content area for the routed page. It fills the viewport, or the bounded box it is placed in; the content area gives its page the remaining space and never scrolls itself, so pages own their scrolling (see "
             },
             {
               "kind": "code",

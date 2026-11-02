@@ -121,10 +121,11 @@ const NEXT = GROUPS.map((group) => ({
           </li>
         </ol>
         <neat-callout heading="For coding agents" [headingLevel]="2">
-          The kit's rules for an app, each with its reason, are in
-          <code neatCode>AGENTS.md</code> at the root of the neat-ui repository: import UI only from
+          The kit's rules for an app, each with its reason, are in the section "Using the kit in an
+          app" of <code neatCode>node_modules/@sima/neat-ui/README.md</code>: import UI only from
           the kit, one entry per part, the kit's icon names and curve names first, and propose a kit
           change instead of a workaround. Point the agent at it before it writes UI.
+          The repository's <code neatCode>AGENTS.md</code> is for working on the kit itself.
         </neat-callout>
         <section class="showcase-section" aria-labelledby="next">
           <h2 id="next">Where next</h2>
