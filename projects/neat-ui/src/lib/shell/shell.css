@@ -10,7 +10,13 @@
   --neat-topbar-height: 3rem;
 
   display: grid;
+  /*
+   * A shell is the app's root and fills the viewport. One placed in a bounded box (the docs' Rail
+   * items example) takes that box's height instead of overflowing it; at the root the parent has
+   * no definite height, so the cap does nothing there.
+   */
   height: 100dvh;
+  max-height: 100%;
   overflow: hidden;
   background: var(--background);
   color: var(--foreground);

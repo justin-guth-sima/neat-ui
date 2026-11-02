@@ -753,6 +753,8 @@ describe('NeatShell', () => {
     const host = getComputedStyle(shell());
     const main = getComputedStyle(shell().querySelector('main') as HTMLElement);
     expect(host.height).toBe('100dvh');
+    // Capped by a bounded box it is placed in; at the root the cap resolves to nothing.
+    expect(host.maxHeight).toBe('100%');
     expect(host.overflow).toBe('hidden');
     expect(main.minHeight).toBe('0px');
     expect(main.minWidth).toBe('0px');
