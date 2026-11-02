@@ -632,7 +632,8 @@ describe('NeatFileBrowser', () => {
         element.querySelector<HTMLElement>('nav button')!.click();
         await settle();
 
-        // 30FPS is the second row, spanning 36…72, in an area 40 high: its bottom meets the view's.
+        // 30FPS is the second row, spanning 36…72, in an area 40 high: its bottom meets the
+        // view's.
         expect(scrollerOf(element).scrollTop).toBe(32);
       } finally {
         undo();

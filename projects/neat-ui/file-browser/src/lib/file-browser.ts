@@ -136,17 +136,17 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
  *   Pass `root` once it is loaded: an empty tree has no folders, so the browser goes back to the
  *   root.
  * - **Selecting.** `selected` is a file's path. A click on a file, or moving the list's selection
- *   with the arrow keys onto it, selects it; a click on a folder, or an arrow key onto it, leaves `selected` as it
- *   is (the preview of a file stays while the keyboard or the pointer passes folders) and
- *   highlights the folder. A
- *   selected file in another folder stays selected. The list's keys are `neat-select-list`'s.
+ *   with the arrow keys onto it, selects it; a click on a folder, or an arrow key onto it, leaves
+ *   `selected` as it is (the preview of a file stays while the keyboard or the pointer passes
+ *   folders) and highlights the folder. A selected file in another folder stays selected. The
+ *   list's keys are `neat-select-list`'s.
  * - **`manage` mode** is the list's checked mode: a box on each file (not on folders), for the
  *   paths in `checked`, which hold files of other folders too. A click on the box toggles it and
  *   nothing else. From the keyboard, Space toggles the file the list is on; the boxes are not tab
  *   stops, so the arrow keys keep moving the selection. Ctrl-click or Cmd-click, Shift-click and
- *   Ctrl+A or Cmd+A check as they do in the list, without opening a folder. A click on the selected
- *   file checks it, but not the second click of a double click, which opens nothing. The listbox is
- *   multi-selectable and a file `aria-selected` while checked, which says what checking is; the
+ *   Ctrl+A or Cmd+A check as they do in the list, without opening a folder. A plain click or
+ *   double click on a file never checks it (the box does), and a double click opens nothing. The
+ *   listbox is multi-selectable and a file `aria-selected` while checked, which says what checking is; the
  *   browser adds no hint of its own. Paths that are no longer in `root` leave `checked`;
  *   `selected` is not pruned, since an app may select a file before the tree that holds it has
  *   loaded.

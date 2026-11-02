@@ -1077,7 +1077,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The item of the row that was activated: clicked or double-clicked (see "
+                  "text": "The item of the row that was activated: by a click or double click ("
                 },
                 {
                   "kind": "code",

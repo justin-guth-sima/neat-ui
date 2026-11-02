@@ -575,7 +575,7 @@ export class NeatSelectList<T, K = unknown> {
    * manager opens a folder. Enter tells it in both.
    */
   readonly activateOn = input<NeatActivateOn>('click');
-  /** The item of the row that was activated: clicked or double-clicked (see `activateOn`), or Enter. */
+  /** The item of the row that was activated: by a click or double click (`activateOn`), or Enter. */
   readonly activated = output<T>();
 
   protected readonly scrollerClasses = SCROLLER_CLASSES;
