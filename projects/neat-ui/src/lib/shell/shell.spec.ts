@@ -1390,16 +1390,20 @@ describe('NeatShell', () => {
   describe('sub-page menu of the collapsed rail', () => {
     const pageButton = (label: string): HTMLButtonElement => button(label);
     const menu = (): HTMLElement | null => document.querySelector('neat-rail-menu-panel');
-    const menuLinks = (): HTMLAnchorElement[] =>
-      Array.from(menu()?.querySelectorAll('a') ?? []);
+    const menuLinks = (): HTMLAnchorElement[] => Array.from(menu()?.querySelectorAll('a') ?? []);
     const url = (): string => TestBed.inject(Router).url;
     const keydown = (target: Element, key: string, shiftKey = false): KeyboardEvent => {
-      const event = new KeyboardEvent('keydown', { key, shiftKey, bubbles: true, cancelable: true });
+      const event = new KeyboardEvent('keydown', {
+        key,
+        shiftKey,
+        bubbles: true,
+        cancelable: true,
+      });
       target.dispatchEvent(event);
       return event;
     };
     const pause = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
-    /** Presses the item as a mouse that has just come over it does: it hovers, then clicks. */
+    /** Presses the item: a click, which a tap and Enter or Space on a button all come to. */
     const press = async (item: HTMLElement): Promise<void> => {
       item.click();
       await settle();
@@ -1449,11 +1453,15 @@ describe('NeatShell', () => {
       expect(item.getAttribute('aria-expanded')).toBe('false');
     });
 
-    it('is a native button, so Enter and Space press it as a click does', async () => {
+    it('is a native button, which the browser presses on Enter and Space as it does on a click', async () => {
+      // jsdom turns no key into a click, so the key half is the platform's: a native, enabled
+      // button with no handler of its own on the keys. The click half is every test here.
       await start('/theme');
 
-      expect(pageButton('Theme') instanceof HTMLButtonElement).toBe(true);
-      expect(pageButton('Theme').hasAttribute('routerLink')).toBe(false);
+      const item = pageButton('Theme');
+      expect(item instanceof HTMLButtonElement).toBe(true);
+      expect(item.disabled).toBe(false);
+      expect(item.tabIndex).toBe(0);
       expect(url()).toBe('/theme');
     });
 
@@ -1537,6 +1545,54 @@ describe('NeatShell', () => {
       expect(document.activeElement).toBe(pageButton('Theme'));
     });
 
+    it('leaves Tab alone on the item while the menu is closed', async () => {
+      await start('/theme/colours');
+      const item = pageButton('Theme');
+      item.focus();
+
+      const event = keydown(item, 'Tab');
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(document.activeElement).toBe(item);
+    });
+
+    it('leaves the focus where it is when Escape closes a menu focus is not in', async () => {
+      await start('/theme/colours');
+      hover(pageButton('Theme'));
+      await settle();
+      const field = document.createElement('input');
+      document.body.append(field);
+      field.focus();
+      // Focus landing outside closes a menu, so the field takes it before the hover opens one.
+      hover(pageButton('Theme'));
+
+      keydown(field, 'Escape');
+      await settle();
+      field.remove();
+
+      expect(menu()).toBeNull();
+      expect(document.activeElement).not.toBe(pageButton('Theme'));
+    });
+
+    it('closes when focus lands outside the menu and its item', async () => {
+      await start('/theme/colours');
+      await press(pageButton('Theme'));
+
+      button('Dark theme').focus();
+      await settle();
+
+      expect(menu()).toBeNull();
+    });
+
+    it('marks the item current while the route is elsewhere on its page, and not on another page', async () => {
+      await start('/home');
+
+      expect(pageButton('Theme').hasAttribute('aria-current')).toBe(false);
+
+      await harness.navigateByUrl('/theme/icons');
+      expect(pageButton('Theme').getAttribute('aria-current')).toBe('page');
+    });
+
     it('takes Tab from the item to the first link, also where hover opened the menu', async () => {
       await start('/theme/colours');
       const item = pageButton('Theme');
@@ -1550,16 +1606,16 @@ describe('NeatShell', () => {
       expect(document.activeElement).toBe(menuLinks()[0]);
     });
 
-    it('leaves the menu from its last link with Tab, on from the item, and from its first with Shift+Tab', async () => {
+    it('leaves the menu from its last link with Tab, on to the next item, and from its first with Shift+Tab to its own', async () => {
       await start('/theme/colours');
       const item = pageButton('Theme');
       await press(item);
 
       menuLinks()[2].focus();
       const onward = keydown(menuLinks()[2], 'Tab');
-      expect(onward.defaultPrevented).toBe(false);
+      expect(onward.defaultPrevented).toBe(true);
       expect(menu()).toBeNull();
-      expect(document.activeElement).toBe(item);
+      expect(document.activeElement).toBe(button('Layout'));
 
       await press(item);
       const back = keydown(menuLinks()[0], 'Tab', true);

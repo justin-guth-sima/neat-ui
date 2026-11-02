@@ -151,6 +151,9 @@ describe('the public API', () => {
     expect(shared.sort()).toEqual([
       'ɵFIELD_LABEL_CLASSES',
       'ɵIN_PAGE_TOOLBAR',
+      'ɵOverlayFocus',
+      'ɵPANEL_SURFACE_CLASSES',
+      'ɵPOPOVER_HELM_CLASSES',
       'ɵhlm',
       'ɵlistVariants',
       'ɵseriesToken',

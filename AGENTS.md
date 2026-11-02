@@ -489,9 +489,11 @@ the whole in the kit's look.
 yet the secondary entries need them, and an entry sees the primary only through its public API. So
 the primary exports `ɵhlm`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
 `ɵFIELD_LABEL_CLASSES` (the field label's look, which `select` and `field` share so that their
-fields line up): Angular's convention for private API. They are not for apps, may change in any
-release, and no app file may import a `ɵ` name. A shared internal that a second entry needs is
-exported the same way, never by a relative path. `lib/ui/` itself stays where `helm:add` writes it.
+fields line up), `ɵOverlayFocus` and `ɵPANEL_SURFACE_CLASSES` (the Tab-order rules and surface of a
+panel in the overlay, which `neat-popover` shares with the shell's collapsed-rail menu): Angular's
+convention for private API. They are not for apps, may change in any release, and no app file may
+import a `ɵ` name. A shared internal that a second entry needs is exported the same way, never by
+a relative path. `lib/ui/` itself stays where `helm:add` writes it.
 
 ## How the kit is built on Spartan
 
@@ -860,10 +862,11 @@ place, so every app reads the same way.
   closes the menu and returns it to the item; Tab from the item goes to the first link, Tab from
   the last link closes the menu and goes on from the item, Shift+Tab from the first returns to the
   item; a press outside closes it; choosing a link navigates and closes it. It is `RailMenu`
-  (`rail-menu.ts`) on CDK's overlay: `neat-popover` is a secondary entry the shell cannot import,
-  and brain's popover opens below its trigger, not beside the rail. Its focus rules are
-  `neat-popover`'s, because a menu rendered at the end of the document has the same Tab-order
-  problem.
+  (`rail-menu.ts`) on CDK's overlay: brain's popover opens below its trigger, not beside the rail.
+  Its focus rules (`OverlayFocus`) and its panel surface (`PANEL_SURFACE_CLASSES`) are the ones
+  `neat-popover` uses, one place for each, exported `ɵ` for the popover's entry (the primary may
+  not import a secondary entry, so what both need lives in the primary); its rows are the rail's
+  own `data-child` rows.
 - An app's item is a `button[neatRailItem]` or `a[neatRailItem]` with a `label`, the look and
   behaviour the page links have (they are rail items too): the content is the icon (a
   `neat-icon`), the label shows beside it while the rail is expanded, and while it is collapsed

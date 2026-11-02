@@ -7,6 +7,7 @@ import {
   ElementRef,
   inject,
   Injectable,
+  InjectionToken,
   input,
   signal,
 } from '@angular/core';
@@ -16,7 +17,6 @@ import { NeatViewport } from '../page/viewport';
 import { safeStorage } from '../storage';
 import type { NeatTone } from '../theme/tone';
 import { provideNeatTooltipOptions } from '../tooltip/tooltip';
-import { RailMenu } from './rail-menu';
 
 const RAIL_EXPANDED_KEY = 'neat-ui:rail-expanded';
 
@@ -50,6 +50,12 @@ export class RailState {
     }
   }
 }
+
+/**
+ * Provided by an item that opens a menu (`RailMenu`), which `NeatRailItem` reads to leave its
+ * tooltip off: the menu's heading says the label. Internal to the kit.
+ */
+export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-menu');
 
 /**
  * An item of the shell's rail, the one look of the page links, the theme item, the rail's own
@@ -171,7 +177,7 @@ export class NeatRailItem {
     // Brain's own switch for the tooltip, which the template of the page that uses the item cannot
     // reach: the item decides, and a visible label needs no tooltip repeating it. Nor does an item
     // with a menu, whose heading says the label.
-    const menu = inject(RailMenu, { optional: true });
+    const menu = inject(RAIL_ITEM_HAS_MENU, { optional: true });
     effect(() => tooltip.mutableTooltipDisabled.set(this.expanded() || menu !== null));
   }
 

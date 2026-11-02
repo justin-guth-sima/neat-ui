@@ -13,7 +13,11 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { OverlayFocus } from '../overlay/overlay-focus';
+import { PANEL_SURFACE_CLASSES } from '../overlay/panel-surface';
+import { hlm } from '../ui/utils/src';
 import { NeatNavChild, NeatNavItem } from './nav-item';
+import { NeatRailItem, RAIL_ITEM_HAS_MENU, RailState } from './rail-item';
 
 /** The space between the rail's edge and the menu, so its outline does not touch the rail. */
 const RAIL_GAP = 4;
@@ -25,40 +29,49 @@ const RAIL_GAP = 4;
  */
 const HOVER_CLOSE_DELAY = 150;
 
+/** The menu's rows are rail items on a rail that shows its labels, whatever the real one does. */
+const LABELLED_RAIL = { expanded: signal(true), collapseWhenNarrow: () => undefined };
+
 /** Numbers each menu, for the id its heading gives it as a name. */
 let nextMenuId = 0;
 
 /**
  * The menu of a collapsed rail item with sub-pages: the page's name as a heading, then one link
  * per sub-page with the open one marked. A non-modal dialog named by its heading, so a screen
- * reader gets a list of links named by the page. Internal to the kit: `RailMenu` opens it.
+ * reader gets a list of links named by the page. On the shared panel surface, and its rows are the
+ * rail's own sub-page rows (`neatRailItem` in its `data-child` variant), so their look is stated
+ * once, in `rail-item.css`. Internal to the kit: `RailMenu` opens it.
  */
 @Component({
   selector: 'neat-rail-menu-panel',
-  imports: [RouterLink],
+  imports: [NeatRailItem, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     role: 'dialog',
-    class: 'shadow-md',
+    '[class]': 'panelClasses',
     '[attr.aria-labelledby]': 'headingId',
   },
   template: `
-    <h2 class="heading" [id]="headingId">{{ page().label }}</h2>
-    <ul class="links">
+    <h2 class="m-0 px-2.5 pt-1 pb-2 text-sm font-medium text-muted-foreground" [id]="headingId">
+      {{ page().label }}
+    </h2>
+    <ul class="m-0 flex list-none flex-col gap-1 p-0">
       @for (child of page().children; track child.path) {
         <li>
+          <!-- The row's text is the item's own label, which the rule cannot see. -->
+          <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
           <a
-            class="link"
+            neatRailItem
+            data-child
+            [label]="child.label"
             [routerLink]="child.path"
             [attr.aria-current]="child === current() ? 'page' : null"
             (click)="chosen.emit()"
-            >{{ child.label }}</a
-          >
+          ></a>
         </li>
       }
     </ul>
   `,
-  styleUrl: './rail-menu.css',
 })
 export class RailMenuPanel {
   readonly page = input.required<NeatNavItem>();
@@ -66,6 +79,7 @@ export class RailMenuPanel {
   /** A link was followed, which puts the menu away. */
   readonly chosen = output<void>();
   protected readonly headingId = `neat-rail-menu-${++nextMenuId}`;
+  protected readonly panelClasses = hlm(PANEL_SURFACE_CLASSES, 'w-auto min-w-48 gap-0 p-2');
 }
 
 /**
@@ -76,18 +90,17 @@ export class RailMenuPanel {
  * `HOVER_CLOSE_DELAY` unless a press has kept it. It replaces the item's tooltip (`NeatRailItem`
  * switches that off), as the menu's heading says what the tooltip would.
  *
- * The kit's own overlay on CDK's, not `neat-popover`, which is a secondary entry the shell in the
- * primary cannot import, and not brain's popover, whose positions open below its trigger where
- * this menu opens beside the rail. CDK gives the placement, Escape and outside presses; the rest is
- * the focus rules of `neat-popover`, which a menu rendered at the end of the document needs:
- * - a press moves focus to the first link; Escape closes it and returns focus to the item;
- * - Tab from the item goes to the first link (the browser would go on to the next item), Tab from
- *   the last link closes the menu and goes on from the item, and Shift+Tab from the first link
- *   returns to the item;
- * - a press outside closes it and leaves focus where the press put it.
+ * On CDK's overlay, not brain's popover, whose positions open below its trigger where this menu
+ * opens beside the rail. CDK gives the placement, Escape and outside presses; the focus rules are
+ * `OverlayFocus`'s, shared with `neat-popover`: a press moves focus to the first link; Tab from the
+ * item goes to the first link; Tab from the last link and Shift+Tab from the first leave the menu
+ * as `neat-popover` does; focus landing elsewhere closes it. Escape closes it and returns focus to
+ * the item, unless focus has already moved elsewhere; a press outside closes it and leaves focus
+ * where the press put it.
  */
 @Directive({
   selector: 'button[neatRailItem][neatRailMenu]',
+  providers: [{ provide: RAIL_ITEM_HAS_MENU, useValue: true }],
   host: {
     'aria-haspopup': 'dialog',
     '[attr.aria-expanded]': 'open()',
@@ -106,9 +119,14 @@ export class RailMenu {
   private readonly element: HTMLButtonElement = inject(ElementRef).nativeElement;
   private readonly overlay = inject(Overlay);
   private readonly injector = inject(Injector);
+  private readonly focus = new OverlayFocus(
+    () => this.element,
+    () => this.close(),
+  );
   private ref: OverlayRef | undefined;
   private by: 'press' | 'hover' = 'press';
   private closeTimer: ReturnType<typeof setTimeout> | undefined;
+  private stopWatchingFocus: (() => void) | undefined;
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.close());
@@ -120,7 +138,7 @@ export class RailMenu {
       return;
     }
     this.show('press');
-    this.focusFirstLink();
+    this.focus.focusFirstControl(this.ref?.overlayElement ?? null);
   }
 
   protected hovered(event: PointerEvent): void {
@@ -151,19 +169,24 @@ export class RailMenu {
         .withPositions(this.positions()),
       scrollStrategy: this.overlay.scrollStrategies.reposition(),
     });
-    const panel = ref.attach(new ComponentPortal(RailMenuPanel, null, this.injector));
+    const rows = Injector.create({
+      parent: this.injector,
+      providers: [{ provide: RailState, useValue: LABELLED_RAIL }],
+    });
+    const panel = ref.attach(new ComponentPortal(RailMenuPanel, null, rows));
     panel.setInput('page', this.neatRailMenu());
     panel.setInput('current', this.neatRailMenuCurrent());
     panel.instance.chosen.subscribe(() => this.closeToItem());
     panel.changeDetectorRef.detectChanges();
     ref.overlayElement.addEventListener('pointerenter', () => this.cancelClose());
     ref.overlayElement.addEventListener('pointerleave', () => this.closeAfterHover());
-    ref.keydownEvents().subscribe((event) => this.keydown(event));
+    ref.keydownEvents().subscribe((event) => this.keydown(event, ref.overlayElement));
     ref.outsidePointerEvents().subscribe((event) => {
       if (!this.element.contains(event.target as Node)) {
         this.close();
       }
     });
+    this.stopWatchingFocus = this.focus.watchOutsideFocus();
     this.ref = ref;
     this.open.set(true);
   }
@@ -179,35 +202,24 @@ export class RailMenu {
     ];
   }
 
-  private keydown(event: KeyboardEvent): void {
-    const target = event.target as Node | null;
+  private keydown(event: KeyboardEvent, panel: HTMLElement): void {
     if (event.key === 'Escape') {
       event.preventDefault();
       this.closeToItem();
-      return;
-    }
-    if (event.key !== 'Tab' || event.altKey || event.ctrlKey || event.metaKey) {
-      return;
-    }
-    const links = this.links();
-    if (!event.shiftKey && this.element.contains(target)) {
+    } else if (
+      event.key === 'Tab' &&
+      !event.shiftKey &&
+      !event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      event.target === this.element
+    ) {
+      // The browser would go on to the next item, past the menu at the end of the document.
       event.preventDefault();
-      links[0]?.focus();
-    } else if (event.shiftKey && target === links[0]) {
-      event.preventDefault();
-      this.closeToItem();
-    } else if (!event.shiftKey && target === links.at(-1)) {
-      // The browser goes on from where focus is when the key's default runs: from the item.
-      this.closeToItem();
+      this.focus.focusFirstControl(panel);
+    } else {
+      this.focus.carryTabOrder(event, panel);
     }
-  }
-
-  private links(): HTMLElement[] {
-    return Array.from(this.ref?.overlayElement.querySelectorAll('a') ?? []);
-  }
-
-  private focusFirstLink(): void {
-    this.links()[0]?.focus();
   }
 
   private closeAfterHover(): void {
@@ -221,13 +233,24 @@ export class RailMenu {
     clearTimeout(this.closeTimer);
   }
 
+  /**
+   * Closes and returns focus to the item, unless focus is on the page already (a hover-opened
+   * menu, Escape pressed in a field): that is not the menu's to take.
+   */
   private closeToItem(): void {
+    const active = this.element.ownerDocument.activeElement;
+    const ownsFocus =
+      !active || active === this.element.ownerDocument.body || this.focus.holdsFocus(active);
     this.close();
-    this.element.focus();
+    if (ownsFocus) {
+      this.element.focus();
+    }
   }
 
   private close(): void {
     this.cancelClose();
+    this.stopWatchingFocus?.();
+    this.stopWatchingFocus = undefined;
     this.ref?.dispose();
     this.ref = undefined;
     this.open.set(false);
