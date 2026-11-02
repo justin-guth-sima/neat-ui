@@ -454,8 +454,8 @@ the whole in the kit's look.
   whenever a stage's time changes. A burst (10 000 pushes in one tick, or what piles up while a
   tab is hidden, when pushes only count) costs the cap's worth of dots, not the burst's; do not
   sample or drop messages in the app to protect the page. The messaging example
-  (`examples/messaging/`) is the reference feed, and its Burst button, 400 messages (ten seconds of its results), is the check
-  of the tab-back case.
+  (`examples/messaging/`) is the reference feed, and its Burst button, 400 messages (about three
+  seconds of its traffic), is the check of the tab-back case.
 - What stays internal: the routing, the port layout, the notes' placement and measurement, the fit
   maths, the pan and zoom, the hover, the level path, and the messaging layer's models, canvas,
   context token and frame probe (the bench reaches some of these through its seam, above).

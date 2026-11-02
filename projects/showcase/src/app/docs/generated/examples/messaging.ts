@@ -48,7 +48,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", and Burst pushes 400 messages in one tick, about ten seconds of the results, as a tab returning from ten seconds in the background would."
+            "text": ", and Burst pushes 400 messages in one tick, about three seconds of this traffic, as a tab returning from a few seconds in the background would."
           }
         ]
       },
@@ -108,7 +108,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** The edges each kind of message travels, on the overview and in the Detector's level. */"],["text","\n"],
           ["keyword","const"],["text"," FRAME_EDGES = ["],["string","'camera-decode'"],["text",", "],["string","'decode-detector'"],["text",", "],["string","'decode-resize'"],["text","];\n"],
           ["keyword","const"],["text"," RESULT_EDGES = ["],["string","'detector-tracker'"],["text",", "],["string","'nms-tracker'"],["text",", "],["string","'tracker-gateway'"],["text",", "],["string","'gateway-browser'"],["text","];\n"],
-          ["comment","/**\n * The Burst button's messages, in one tick: about ten seconds of the results' traffic (four edges\n * at 10 Hz), as a tab back from ten seconds in the background delivers it.\n */"],
+          ["comment","/**\n * The Burst button's messages, in one tick: about three seconds of this example's traffic (some 130\n * pushes a second over its seven edges), as a tab back from a few seconds in the background\n * delivers it.\n */"],
           ["text","\n"],
           ["keyword","const"],["text"," BURST_MESSAGES = 400;\n\n@Component({\n  selector: "],
           ["string","'app-live-pipeline'"],["text",",\n  imports: [\n    NeatButton,\n    NeatDiagramAnimationSettings,\n    NeatDiagramBlockTemplate,\n    NeatDiagramLegend,\n    NeatDiagramMessages,\n    NeatDiagramNoteTemplate,\n    NeatDiagramRateCard,\n    NeatDiagramView,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
