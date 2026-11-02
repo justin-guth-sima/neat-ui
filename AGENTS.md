@@ -15,8 +15,9 @@ look happens in one place. Every rule here protects that.
   - `@sima/neat-ui` (the primary): what the shell and every page need: theme, `NeatIcon`,
     `NeatShell` with `NeatRailItem` and `NeatRailDivider` (an item of its rail and the line between
     groups of items, for the app's items at its bottom),
-    `NeatPageToolbar`, `NeatPage` with its page tabs (`NeatPageTabs`, `NeatPageTab`)
-    and its side panel's parts (`NeatAsideToggle`, `NeatAsidePanel`, `NeatAsideTitle`,
+    `NeatPageToolbar`, `NeatPage` with its side list (`NeatPageNav`, with `NeatPageNavGroup` and
+    `NeatPageNavLink`), its page tabs (`NeatPageTabs`, `NeatPageTab`, deprecated, going in the next
+    release) and its side panel's parts (`NeatAsideToggle`, `NeatAsidePanel`, `NeatAsideTitle`,
     `NeatAsideHeading`, `NeatAsideActions`), `neatAsideOpen`
     (a page's panel state, closed on a narrow screen) and `NeatViewport` (the kit's one answer to
     "is this screen narrow", below 48rem), `NeatCode`,
@@ -489,11 +490,14 @@ the whole in the kit's look.
 yet the secondary entries need them, and an entry sees the primary only through its public API. So
 the primary exports `ɵhlm`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
 `ɵFIELD_LABEL_CLASSES` (the field label's look, which `select` and `field` share so that their
-fields line up), `ɵOverlayFocus` and `ɵPANEL_SURFACE_CLASSES` (the Tab-order rules and surface of a
-panel in the overlay, which `neat-popover` shares with the shell's collapsed-rail menu): Angular's
-convention for private API. They are not for apps, may change in any release, and no app file may
-import a `ɵ` name. A shared internal that a second entry needs is exported the same way, never by
-a relative path. `lib/ui/` itself stays where `helm:add` writes it.
+fields line up), `ɵINPUT_CLASSES` and `ɵINPUT_HELM_CLASSES` (the text field's look, which `input`
+shares with the page's side list's filter), `ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
+look, which `collapsible` shares with the side list on a narrow screen), `ɵOverlayFocus` and
+`ɵPANEL_SURFACE_CLASSES` (the Tab-order rules and surface of a panel in the overlay, which
+`neat-popover` shares with the shell's collapsed-rail menu): Angular's convention for private API.
+They are not for apps, may change in any release, and no app file may import a `ɵ` name. A shared
+internal that a second entry needs is exported the same way, never by a relative path. `lib/ui/`
+itself stays where `helm:add` writes it.
 
 ## How the kit is built on Spartan
 
@@ -818,12 +822,13 @@ that needs no styles simply has no stylesheet.
 
 **Pages fill the shell's content area and own at most one scroll context.**
 Why: nested scroll containers and hard-coded heights break on other screen sizes and in kiosk mode,
-where the shell's size is not yours to know. Do not measure or hard-code the shell's size. The one
-supported second scroll context is the page's side panel (below). Escape hatch: if a page needs
-another independently scrolling region (for example a log pane beside a form), raise it as a kit
-change so the layout is a supported component, not an ad hoc one. The shell fills the viewport, or
-the bounded box it is placed in (its `max-height` is 100% of the parent, which does nothing at the
-root); that is for a demo or an embedded frame, not a way for a page to size the shell.
+where the shell's size is not yours to know. Do not measure or hard-code the shell's size. The
+supported other scroll contexts are the page's side panel and its side list (below). Escape hatch:
+if a page needs another independently scrolling region (for example a log pane beside a form), raise
+it as a kit change so the layout is a supported component, not an ad hoc one. The shell fills the
+viewport, or the bounded box it is placed in (its `max-height` is 100% of the parent, which does
+nothing at the root); that is for a demo or an embedded frame, not a way for a page to size the
+shell.
 
 **The rail is the app's, the top bar is the page's.**
 Why: a colleague's review found that page tools running straight into the app's controls (the
@@ -850,7 +855,7 @@ place, so every app reads the same way.
   The top bar's title is the open child's label with the page's label beside it, muted; on a route
   deeper than the child with its own route `title` it is that title beside "page › child".
   Deeper levels are not the rail's: more than a few sub-pages, groups or nesting belong in the
-  page's own list.
+  page's side list (`nav[neatPageNav]`, below).
 - **Collapsed, a page with `children` is a button that opens their menu** beside the rail, not a
   link. Why: the collapsed rail has no room for sub-pages, and following the link would hide them
   with no way to choose; nothing is lost by not navigating, since the page is its first sub-page.
@@ -907,7 +912,7 @@ place, so every app reads the same way.
   own `title` (a page with no rail item), else none.
 
 **A page's toolbar goes through `*neatPageToolbar`, its side-panel toggle through
-`neat-aside-toggle`, its views through `nav[neatPageTabs]`, its side panel through
+`neat-aside-toggle`, its side list through `nav[neatPageNav]`, its side panel through
 `[neatPageAside]`.**
 Why: the shell owns the top bar and kiosk mode, and `neat-page` owns the page's layout; a page that
 builds its own bar, row of views or panel duplicates both and breaks in one of them. Views do not
@@ -929,6 +934,30 @@ number of tools and a switch in it moves too.
   order is unchanged, so the tab order runs toolbar, end slot, kiosk button, toggle. Kit 0.12.2's
   rule that the toggle leads the tools on a phone is gone with the toggle's place in the first row,
   where it stays in view and the visual order is the tab order.
+- `<nav neatPageNav aria-label="Components" [groups]="groups" filterLabel="Filter">` as a direct
+  child of `neat-page` is the page's side list, the third level of navigation after the rail's
+  pages and their `children`: for more than a few of a page's links, links in groups, or a level
+  below a sub-page. Data, not content: `groups` (`NeatPageNavGroup`, an optional heading `label`
+  and its `items`, each `NeatPageNavLink` a `label` and an absolute `path`) and an optional
+  `filterLabel`, which adds a search field at its top that keeps the links whose label holds what
+  was typed (ignoring case) and a group's heading while any of its links is kept, and says
+  "Nothing matches" when none is. The open link is the one whose `path` the route is under, query
+  and fragment ignored, the longest such path winning; it carries `aria-current="page"` and has
+  the rail's current-page look in the page's tokens (accent fill and weight 500), the other links
+  muted until hovered. The landmark's name is the app's `aria-label` (a nav without a name throws
+  in dev mode, as page tabs did). On a wide screen the page draws it as the body's start column,
+  15rem, as high as the page and scrolling on its own with every `scroll` mode, the filter sticky
+  at its top, the side panel at the other end; on a narrow screen it is a closed section above the
+  body, with `NeatCollapsible`'s look (the primary cannot import the collapsible entry, so the look
+  is shared from the primary as `ɵCOLLAPSIBLE_CLASSES` and brain's collapsible is the behaviour),
+  the landmark's name as its label and the open link as its summary; opened, its list scrolls
+  inside it up to the page's height, and choosing a link closes it with the focus on its button.
+  It scrolls only its own box to show the open link whenever a navigation leaves it out of view,
+  never with `scrollIntoView`, which also scrolls the page and every other ancestor. `neat-page`
+  says which layout with a `data-nav="beside" | "above"` attribute on its host (the list's own
+  host says `data-layout="column" | "collapsible"`), from `NeatViewport`. Why a kit part: the
+  showcase's topic list proved the pattern, and a list each app draws itself would drift in look,
+  scrolling and accessibility.
 - `<nav neatPageTabs aria-label="Stats views">` with an `<a neatPageTab routerLink="…">` per view,
   as a direct child of `neat-page`, is the page's views as tabs: a full-width row above the body
   and the side panel, left-aligned, divided from the page by a border (a page without it has no
@@ -944,7 +973,9 @@ number of tools and a switch in it moves too.
   that exists only sometimes (a comparison being open) is an `@if` of the app's.
   The side panel starts below the row, also when it floats over the page on a phone. Why a row of
   its own and not part of the toolbar: the toolbar is for the view's actions, the tabs for where
-  you are, and they must stay where they are when the actions change.
+  you are, and they must stay where they are when the actions change. Deprecated, and going in the
+  next release: tabs are not navigation, so a page's sub-pages are its rail item's `children` and
+  more links than that its side list; `neat-tabs` stays for views inside one page.
 - Elements marked `neatPageAside` inside `neat-page` form a right-hand panel shown while
   `aside="open"`: `--neat-aside-width` wide (unless `asideWidth` says otherwise, below), inset and
   scrolling on its own, with the body narrowing beside it and keeping its own `scroll` setting.

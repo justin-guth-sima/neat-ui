@@ -34,6 +34,8 @@ export { NeatRailDivider, NeatRailItem } from './lib/shell/rail-item';
 export { provideNeatTitles } from './lib/shell/titles';
 export { NeatPageToolbar } from './lib/shell/page-toolbar';
 export { NeatPage } from './lib/page/page';
+export type { NeatPageNavGroup, NeatPageNavLink } from './lib/page/page-nav';
+export { NeatPageNav } from './lib/page/page-nav';
 export { NeatPageTab, NeatPageTabs } from './lib/page/page-tabs';
 export type { NeatAsideOpen } from './lib/page/aside-open';
 export { neatAsideOpen } from './lib/page/aside-open';
@@ -68,12 +70,18 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
  * Not for apps. The `ɵ` exports are what the kit's secondary entry points share with this one:
  * ng-packagr gives each entry the built primary and nothing else, so the vendored helm code in
  * `lib/ui/` (never exported otherwise), the shell's toolbar token, the field label's classes
- * (which `select` and `field` share), the focus rules and surface of a panel in the overlay (the
- * popover's, shared with the shell's collapsed-rail menu) and the series' token rule (which `charts` and `diagram`
- * share with the swatch) reach them only through here.
- * Angular marks its own private API the same way; these may change or go in any release.
+ * (which `select` and `field` share), the text field's and the collapsible section's looks
+ * (which `input` and `collapsible` share with the page's side list), the focus rules and surface
+ * of a panel in the overlay (the popover's, shared with the shell's collapsed-rail menu) and the
+ * series' token rule (which `charts` and `diagram` share with the swatch) reach them only through
+ * here. Angular marks its own private API the same way; these may change or go in any release.
  */
+export { COLLAPSIBLE_CLASSES as ɵCOLLAPSIBLE_CLASSES } from './lib/collapsible/collapsible-classes';
 export { FIELD_LABEL_CLASSES as ɵFIELD_LABEL_CLASSES } from './lib/form/field-label';
+export {
+  INPUT_CLASSES as ɵINPUT_CLASSES,
+  INPUT_HELM_CLASSES as ɵINPUT_HELM_CLASSES,
+} from './lib/form/input-classes';
 export { IN_PAGE_TOOLBAR as ɵIN_PAGE_TOOLBAR } from './lib/shell/page-toolbar';
 export { OverlayFocus as ɵOverlayFocus } from './lib/overlay/overlay-focus';
 export {

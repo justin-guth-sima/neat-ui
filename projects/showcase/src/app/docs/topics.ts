@@ -183,7 +183,16 @@ export const GROUPS: readonly TopicGroup[] = [
       {
         id: 'page',
         label: 'Page',
-        parts: ['NeatPage', 'NeatPageToolbar', 'NeatPageTabs', 'NeatPageTab', 'NeatViewport'],
+        parts: [
+          'NeatPage',
+          'NeatPageNav',
+          'NeatPageNavGroup',
+          'NeatPageNavLink',
+          'NeatPageToolbar',
+          'NeatPageTabs',
+          'NeatPageTab',
+          'NeatViewport',
+        ],
         leads: ['NeatPage'],
         load: async () => {
           const [api, examples] = await Promise.all([

@@ -1,0 +1,112 @@
+/* The links' offset parent in the column, which scrolls itself to the open link by it; no z-index,
+   so it makes no stacking context. Its place and size are its layout's, below: the page cannot
+   style what it projects. */
+:host {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Beside the body: the page's start column, as high as the page, that scrolls on its own whatever
+   the body does, so it stays in view while the body scrolls. Wide enough for a label of a few
+   words and its inset; a longer one wraps. */
+:host([data-layout='column']) {
+  flex: none;
+  width: 15rem;
+  padding: 0 var(--neat-space-3) var(--neat-space-4);
+  overflow-y: auto;
+  border-inline-end: 1px solid var(--border);
+}
+
+/* Above the body on a narrow screen: as high as the closed section, and opened at most as high as
+   the page, which the body then gives up (its list scrolls inside, below the button). Inset as the
+   page's body is, so the button lines up with the content under it. */
+:host([data-layout='collapsible']) {
+  flex: 0 1 auto;
+  min-height: 0;
+  padding: var(--neat-space-2) var(--neat-space-6);
+  border-block-end: 1px solid var(--border);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* The open section's list, which scrolls itself to the open link as the column does. */
+.list {
+  position: relative;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* The filter stays at the top while the links scroll under it, also when the list has scrolled to
+   the open link, covering the rows in the fill of the surface it sits on. */
+.filter {
+  position: sticky;
+  top: 0;
+  background: var(--neat-surface);
+}
+
+/* In the column it carries the column's top inset, so nothing shows above it. */
+:host([data-layout='column']) .filter {
+  padding-block: var(--neat-space-4) var(--neat-space-2);
+}
+
+/* In the section the content's own inset is above it. */
+:host([data-layout='collapsible']) .filter {
+  padding-block: 0 var(--neat-space-2);
+}
+
+h2 {
+  margin: var(--neat-space-4) 0 var(--neat-space-2);
+  padding-inline: var(--neat-space-3);
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A row per link, its fill a band across the list. The open link looks as the rail's current page
+   does (muted text at rest; the accent fill and its text on hover and for the open link, which is
+   also set apart by weight), in the page's tokens where the rail has the sidebar's. */
+a {
+  display: block;
+  padding: calc(var(--neat-space-2) / 2) var(--neat-space-3);
+  border-radius: var(--radius);
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-sm);
+  text-decoration: none;
+}
+
+a:hover,
+a[aria-current='page'] {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+a[aria-current='page'] {
+  font-weight: 500;
+}
+
+/* Inside the row, since the list clips what is drawn outside it. */
+a:focus-visible {
+  outline: var(--neat-focus-ring-width) solid var(--ring);
+  outline-offset: calc(-1 * var(--neat-focus-ring-width));
+}
+
+p {
+  margin: var(--neat-space-4) 0 0;
+  padding-inline: var(--neat-space-3);
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-sm);
+}

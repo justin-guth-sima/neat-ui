@@ -24,7 +24,15 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "), where in kiosk mode they float beside the exit control, and its views are page tabs that link to this example's second view. Resize the window to see the tab row scroll sideways instead of wrapping."
+            "text": "), where in kiosk mode they float beside the exit control, and its side list ("
+          },
+          {
+            "kind": "code",
+            "text": "nav[neatPageNav]"
+          },
+          {
+            "kind": "text",
+            "text": ") links its views: a column of its own beside the body that stays put while the body scrolls, with a filter over its links at the top (a long list wants one; this short one has it to show it). Make the window narrow to see the list fold into a section above the body."
           }
         ]
       }
@@ -32,8 +40,8 @@ export const EXAMPLES: readonly DocsExample[] = [
     "shows": [
       "@sima/neat-ui#NeatButton",
       "@sima/neat-ui#NeatPage",
-      "@sima/neat-ui#NeatPageTab",
-      "@sima/neat-ui#NeatPageTabs",
+      "@sima/neat-ui#NeatPageNav",
+      "@sima/neat-ui#NeatPageNavGroup",
       "@sima/neat-ui#NeatPageToolbar",
       "@sima/neat-ui#NeatViewport"
     ],
@@ -42,13 +50,21 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "1-overview.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, computed, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," { RouterLink } "],["keyword","from"],["text"," "],["string","'@angular/router'"],["text",";\n"],
-          ["keyword","import"],["text"," {\n  NeatButton,\n  NeatPage,\n  NeatPageTab,\n  NeatPageTabs,\n  NeatPageToolbar,\n  NeatViewport,\n} "],
-          ["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-overview'"],["text",",\n  imports: [NeatButton, NeatPage, NeatPageTab, NeatPageTabs, NeatPageToolbar, RouterLink],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div *neatPageToolbar>\n      <button neatButton type=\"button\" variant=\"text\" size=\"small\" (click)=\"many.set(!many())\">\n        {{ many() ? 'Fewer' : 'More' }} sections\n      </button>\n    </div>\n\n    <neat-page>\n      <nav neatPageTabs aria-label=\"Page example views\">\n        <a neatPageTab routerLink=\"/demo/page/overview\">Overview</a>\n        <a neatPageTab routerLink=\"/demo/page/details\" activeMatch=\"subset\">Details</a>\n      </nav>\n      <div class=\"showcase-page\">\n        <section class=\"showcase-section\">\n          <h2>Page</h2>\n          <p>\n            Content like this belongs to the page, not to the shell. It never measures the shell's\n            size and never sets a height, so the same page works in a small window, on a wall\n            display and in kiosk mode, where the rail and the top bar are gone and the page gets the\n            whole viewport.\n          </p>\n          <p class=\"showcase-muted\">\n            The screen is {{ narrow() ? 'narrow, below 48rem' : 'wide' }}.\n          </p>\n        </section>\n        @for (section of sections(); track section) {\n          <section class=\"showcase-section\">\n            <h3>Section {{ section }}</h3>\n            <p class=\"showcase-muted\">More of the body, which is all that scrolls.</p>\n          </section>\n        }\n      </div>\n    </neat-page>\n  `"],
+          ["keyword","import"],["text"," {\n  NeatButton,\n  NeatPage,\n  NeatPageNav,\n  "],
+          ["keyword","type"],["text"," NeatPageNavGroup,\n  NeatPageToolbar,\n  NeatViewport,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n"],
+          ["keyword","const"],["text"," SIDE_LIST: "],["keyword","readonly"],["text"," NeatPageNavGroup[] = [\n  {\n    label: "],
+          ["string","'Views'"],["text",",\n    items: [\n      { label: "],
+          ["string","'Overview'"],["text",", path: "],["string","'/demo/page/overview'"],["text"," },\n      { label: "],
+          ["string","'Details'"],["text",", path: "],["string","'/demo/page/details'"],["text"," },\n    ],\n  },\n  {\n    label: "],
+          ["string","'Details'"],["text",",\n    items: [\n      { label: "],
+          ["string","'Network'"],["text",", path: "],["string","'/demo/page/details/network'"],["text"," },\n      { label: "],
+          ["string","'Storage'"],["text",", path: "],["string","'/demo/page/details/storage'"],["text"," },\n    ],\n  },\n];\n\n@Component({\n  selector: "],
+          ["string","'app-overview'"],["text",",\n  imports: [NeatButton, NeatPage, NeatPageNav, NeatPageToolbar],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <div *neatPageToolbar>\n      <button neatButton type=\"button\" variant=\"text\" size=\"small\" (click)=\"many.set(!many())\">\n        {{ many() ? 'Fewer' : 'More' }} sections\n      </button>\n    </div>\n\n    <neat-page>\n      <nav\n        neatPageNav\n        aria-label=\"Page example\"\n        [groups]=\"sideList\"\n        filterLabel=\"Filter views\"\n      ></nav>\n      <div class=\"showcase-page\">\n        <section class=\"showcase-section\">\n          <h2>Page</h2>\n          <p>\n            Content like this belongs to the page, not to the shell. It never measures the shell's\n            size and never sets a height, so the same page works in a small window, on a wall\n            display and in kiosk mode, where the rail and the top bar are gone and the page gets the\n            whole viewport.\n          </p>\n          <p class=\"showcase-muted\">\n            The screen is {{ narrow() ? 'narrow, below 48rem' : 'wide' }}.\n          </p>\n        </section>\n        @for (section of sections(); track section) {\n          <section class=\"showcase-section\">\n            <h3>Section {{ section }}</h3>\n            <p class=\"showcase-muted\">More of the body, which is all that scrolls.</p>\n          </section>\n        }\n      </div>\n    </neat-page>\n  `"],
           ["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Overview {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sideList = SIDE_LIST;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," narrow = inject(NeatViewport).narrow;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," many = signal("],["keyword","true"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sections = computed(() =>\n    Array.from({ length: "],
@@ -68,35 +84,42 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The second view of the page tabs: a route of its own, so the tab row is declared again and the open tab follows the route. The tab for this view has "
+            "text": "The second view of the side list: a route of its own, so the list is declared again and its open link follows the route. Network and Storage are routes nested under this one, which keep this example rendered: of the links whose path the route is under, the longest is the open one, so on "
           },
           {
             "kind": "code",
-            "text": "activeMatch=\"subset\""
+            "text": "…/details/network"
           },
           {
             "kind": "text",
-            "text": ", which keeps it open under routes nested below its own; the other keeps the default, its own path only. The row stays where it is when the view changes, under the top bar and above the body."
+            "text": " it is Network, not Details. The list stays where it is when the view changes, beside the body; it has no filter here, which is the default."
           }
         ]
       }
     ],
     "shows": [
       "@sima/neat-ui#NeatPage",
-      "@sima/neat-ui#NeatPageTab",
-      "@sima/neat-ui#NeatPageTabs"
+      "@sima/neat-ui#NeatPageNav",
+      "@sima/neat-ui#NeatPageNavGroup"
     ],
     "files": [
       {
         "name": "2-details.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," { RouterLink } "],["keyword","from"],["text"," "],["string","'@angular/router'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatPage, NeatPageTab, NeatPageTabs } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-details'"],["text",",\n  imports: [NeatPage, NeatPageTab, NeatPageTabs, RouterLink],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-page>\n      <nav neatPageTabs aria-label=\"Page example views\">\n        <a neatPageTab routerLink=\"/demo/page/overview\">Overview</a>\n        <a neatPageTab routerLink=\"/demo/page/details\" activeMatch=\"subset\">Details</a>\n      </nav>\n      <div class=\"showcase-page\">\n        <section class=\"showcase-section\">\n          <h2>Details</h2>\n          <p>The same row as the overview's, on a route of its own.</p>\n        </section>\n      </div>\n    </neat-page>\n  `"],
+          ["keyword","import"],["text"," { NeatPage, NeatPageNav, "],["keyword","type"],["text"," NeatPageNavGroup } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n"],
+          ["keyword","const"],["text"," SIDE_LIST: "],["keyword","readonly"],["text"," NeatPageNavGroup[] = [\n  {\n    label: "],
+          ["string","'Views'"],["text",",\n    items: [\n      { label: "],
+          ["string","'Overview'"],["text",", path: "],["string","'/demo/page/overview'"],["text"," },\n      { label: "],
+          ["string","'Details'"],["text",", path: "],["string","'/demo/page/details'"],["text"," },\n    ],\n  },\n  {\n    label: "],
+          ["string","'Details'"],["text",",\n    items: [\n      { label: "],
+          ["string","'Network'"],["text",", path: "],["string","'/demo/page/details/network'"],["text"," },\n      { label: "],
+          ["string","'Storage'"],["text",", path: "],["string","'/demo/page/details/storage'"],["text"," },\n    ],\n  },\n];\n\n@Component({\n  selector: "],
+          ["string","'app-details'"],["text",",\n  imports: [NeatPage, NeatPageNav],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <neat-page>\n      <nav neatPageNav aria-label=\"Page example\" [groups]=\"sideList\"></nav>\n      <div class=\"showcase-page\">\n        <section class=\"showcase-section\">\n          <h2>Details</h2>\n          <p>The same list as the overview's, on a route of its own.</p>\n        </section>\n      </div>\n    </neat-page>\n  `"],
           ["text",",\n})\n"],
-          ["keyword","export"],["text"," "],["keyword","class"],["text"," Details {}\n"]
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," Details {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sideList = SIDE_LIST;\n}\n"]
         ]
       }
     ]

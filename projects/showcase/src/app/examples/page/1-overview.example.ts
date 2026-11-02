@@ -1,26 +1,44 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import {
   NeatButton,
   NeatPage,
-  NeatPageTab,
-  NeatPageTabs,
+  NeatPageNav,
+  type NeatPageNavGroup,
   NeatPageToolbar,
   NeatViewport,
 } from '@sima/neat-ui';
+
+const SIDE_LIST: readonly NeatPageNavGroup[] = [
+  {
+    label: 'Views',
+    items: [
+      { label: 'Overview', path: '/demo/page/overview' },
+      { label: 'Details', path: '/demo/page/details' },
+    ],
+  },
+  {
+    label: 'Details',
+    items: [
+      { label: 'Network', path: '/demo/page/details/network' },
+      { label: 'Storage', path: '/demo/page/details/storage' },
+    ],
+  },
+];
 
 /**
  * A page that fills the shell's content area and owns the one scroll context below it. It is
  * longer than any screen on purpose: the shell, the top bar and the rail stay put while only the
  * body scrolls. Its tools are in the top bar (`*neatPageToolbar`), where in kiosk mode they float
- * beside the exit control, and its views are page tabs that link to this example's second view.
- * Resize the window to see the tab row scroll sideways instead of wrapping.
+ * beside the exit control, and its side list (`nav[neatPageNav]`) links its views: a column of its
+ * own beside the body that stays put while the body scrolls, with a filter over its links at the
+ * top (a long list wants one; this short one has it to show it). Make the window narrow to see the
+ * list fold into a section above the body.
  *
  * @page
  */
 @Component({
   selector: 'app-overview',
-  imports: [NeatButton, NeatPage, NeatPageTab, NeatPageTabs, NeatPageToolbar, RouterLink],
+  imports: [NeatButton, NeatPage, NeatPageNav, NeatPageToolbar],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div *neatPageToolbar>
@@ -30,10 +48,12 @@ import {
     </div>
 
     <neat-page>
-      <nav neatPageTabs aria-label="Page example views">
-        <a neatPageTab routerLink="/demo/page/overview">Overview</a>
-        <a neatPageTab routerLink="/demo/page/details" activeMatch="subset">Details</a>
-      </nav>
+      <nav
+        neatPageNav
+        aria-label="Page example"
+        [groups]="sideList"
+        filterLabel="Filter views"
+      ></nav>
       <div class="showcase-page">
         <section class="showcase-section">
           <h2>Page</h2>
@@ -58,6 +78,7 @@ import {
   `,
 })
 export class Overview {
+  protected readonly sideList = SIDE_LIST;
   protected readonly narrow = inject(NeatViewport).narrow;
   protected readonly many = signal(true);
   protected readonly sections = computed(() =>

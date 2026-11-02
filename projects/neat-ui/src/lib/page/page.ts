@@ -36,18 +36,23 @@ const KEY_STEP = 16;
  * area's edges, so every app's pages line up; `padding="none"` lets full-bleed content (a video
  * grid, a map) reach the edges.
  *
+ * A `nav[neatPageNav]` (see `NeatPageNav`) as a direct child is the page's side list: the body's
+ * start column, as high as the page and scrolling on its own whatever `scroll` says, with the
+ * side panel at the other end; on a narrow screen a closed section above the body, under which
+ * the floating panel opens. Without one, the body starts at the page's edge.
+ *
  * A `nav[neatPageTabs]` (see `NeatPageTabs`) as a direct child is the page's tabs: a full-width
- * row above the body and the side panel, so neither is under it, and a floating panel on a narrow
- * screen opens below it. Without one, no row is drawn.
+ * row above the body, the side list and the side panel, so none is under it, and a floating panel
+ * on a narrow screen opens below it. Without one, no row is drawn.
  *
  * Elements marked `neatPageAside` form the page's side panel (an inspector, say), shown on the
  * right while `aside="open"`. The panel is `--neat-aside-width` wide and scrolls on its own; the
- * body narrows beside it rather than being covered, keeping its own scroll setting. The aside is
- * the one supported second scroll context of a page: a page that needs another region of its own
- * that scrolls independently is a kit change, so that the layout becomes a supported component,
- * not a workaround. Closed, the panel and its content are out of the DOM, but projected content
- * is still instantiated (content projection always creates it): gate expensive content with an
- * `@if` of your own.
+ * body narrows beside it rather than being covered, keeping its own scroll setting. The aside and
+ * the side list are the supported other scroll contexts of a page: a page that needs another
+ * region of its own that scrolls independently is a kit change, so that the layout becomes a
+ * supported component, not a workaround. Closed, the panel and its content are out of the DOM,
+ * but projected content is still instantiated (content projection always creates it): gate
+ * expensive content with an `@if` of your own.
  *
  * On a narrow screen (`NeatViewport`) the panel floats over the right of the page instead,
  * `--neat-aside-width` wide but never wider than the page, and the body keeps the whole width.
@@ -70,47 +75,51 @@ const KEY_STEP = 16;
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[attr.data-aside]': "viewport.narrow() ? 'overlay' : 'beside'",
+    '[attr.data-nav]': "viewport.narrow() ? 'above' : 'beside'",
     '[attr.data-resizing]': "dragWidth() === null ? null : ''",
   },
   template: `
     <ng-content select="[neatPageTabs]" />
-    <div class="content">
-      <div class="body" [attr.data-scroll]="scroll()" [attr.data-padding]="padding()">
-        <ng-content />
-      </div>
-      @if (aside() === 'open') {
-        @if (!viewport.narrow()) {
-          <div
-            class="separator"
-            role="separator"
-            tabindex="0"
-            aria-orientation="vertical"
-            aria-label="Resize side panel"
-            [attr.aria-valuemin]="bounds().min"
-            [attr.aria-valuemax]="bounds().max"
-            [attr.aria-valuenow]="width()"
-            [attr.aria-valuetext]="width() === null ? null : width() + ' px'"
-            (keydown)="step($event)"
-            (pointerdown)="startDrag($event)"
-            (pointermove)="drag($event)"
-            (pointerup)="endDrag()"
-            (pointercancel)="cancelDrag()"
-            (lostpointercapture)="cancelDrag()"
-            (dblclick)="asideWidth.set(null)"
-          ></div>
+    <div class="frame">
+      <ng-content select="[neatPageNav]" />
+      <div class="content">
+        <div class="body" [attr.data-scroll]="scroll()" [attr.data-padding]="padding()">
+          <ng-content />
+        </div>
+        @if (aside() === 'open') {
+          @if (!viewport.narrow()) {
+            <div
+              class="separator"
+              role="separator"
+              tabindex="0"
+              aria-orientation="vertical"
+              aria-label="Resize side panel"
+              [attr.aria-valuemin]="bounds().min"
+              [attr.aria-valuemax]="bounds().max"
+              [attr.aria-valuenow]="width()"
+              [attr.aria-valuetext]="width() === null ? null : width() + ' px'"
+              (keydown)="step($event)"
+              (pointerdown)="startDrag($event)"
+              (pointermove)="drag($event)"
+              (pointerup)="endDrag()"
+              (pointercancel)="cancelDrag()"
+              (lostpointercapture)="cancelDrag()"
+              (dblclick)="asideWidth.set(null)"
+            ></div>
+          }
+          <aside
+            #aside
+            class="in-data-[aside=overlay]:shadow-md"
+            [style.--neat-aside-width]="requested() === null ? null : requested() + 'px'"
+            [style.--neat-page-aside-min]="viewport.narrow() ? null : bounds().min + 'px'"
+            [style.--neat-page-aside-max]="
+              viewport.narrow() || bounds().max === null ? null : bounds().max + 'px'
+            "
+          >
+            <ng-content select="[neatPageAside]" />
+          </aside>
         }
-        <aside
-          #aside
-          class="in-data-[aside=overlay]:shadow-md"
-          [style.--neat-aside-width]="requested() === null ? null : requested() + 'px'"
-          [style.--neat-page-aside-min]="viewport.narrow() ? null : bounds().min + 'px'"
-          [style.--neat-page-aside-max]="
-            viewport.narrow() || bounds().max === null ? null : bounds().max + 'px'
-          "
-        >
-          <ng-content select="[neatPageAside]" />
-        </aside>
-      }
+      </div>
     </div>
   `,
   styleUrl: './page.css',

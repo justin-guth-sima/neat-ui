@@ -98,8 +98,10 @@ describe('the public API', () => {
     );
   });
 
-  it("exports the page tabs, the primary entry's page navigation", () => {
-    expect(Object.keys(primary)).toEqual(expect.arrayContaining(['NeatPageTabs', 'NeatPageTab']));
+  it("exports the page's side list and its page tabs, the primary entry's page navigation", () => {
+    expect(Object.keys(primary)).toEqual(
+      expect.arrayContaining(['NeatPageNav', 'NeatPageTabs', 'NeatPageTab']),
+    );
   });
 
   it('exports the rail item beside the shell, for the app’s items at the bottom of the rail', () => {
@@ -149,7 +151,10 @@ describe('the public API', () => {
   it('shares its internals with the entries only under a ɵ prefix', () => {
     const shared = Object.keys(primary).filter((symbol) => symbol.startsWith('ɵ'));
     expect(shared.sort()).toEqual([
+      'ɵCOLLAPSIBLE_CLASSES',
       'ɵFIELD_LABEL_CLASSES',
+      'ɵINPUT_CLASSES',
+      'ɵINPUT_HELM_CLASSES',
       'ɵIN_PAGE_TOOLBAR',
       'ɵOverlayFocus',
       'ɵPANEL_SURFACE_CLASSES',

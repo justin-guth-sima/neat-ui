@@ -22,8 +22,12 @@ describe('the page examples, each routed on a page of its own', () => {
     await router.navigateByUrl(path);
     await fixture.whenStable();
   };
-  const tabs = (): HTMLAnchorElement[] =>
-    Array.from(content().querySelectorAll<HTMLAnchorElement>('neat-page > nav a'));
+  const links = (): HTMLAnchorElement[] =>
+    Array.from(content().querySelectorAll<HTMLAnchorElement>('neat-page nav[neatPageNav] a'));
+  const openLink = (): (string | undefined)[] =>
+    links()
+      .filter((link) => link.getAttribute('aria-current') === 'page')
+      .map((link) => link.textContent?.trim());
 
   function start(providers: unknown[] = []): void {
     TestBed.configureTestingModule({ providers: [...appConfig.providers, ...providers] });
@@ -41,30 +45,33 @@ describe('the page examples, each routed on a page of its own', () => {
     vi.restoreAllMocks();
   });
 
-  it('link page tabs between two routes, the open one marked', async () => {
+  it('link their views in a side list, the open one marked', async () => {
     start();
     await open('/demo/page/overview');
 
-    expect(content().querySelector('neat-page > nav')?.getAttribute('aria-label')).toBe(
-      'Page example views',
-    );
-    expect(tabs().map((tab) => tab.getAttribute('href'))).toEqual([
+    const nav = content().querySelector('neat-page nav[neatPageNav]');
+    expect(nav?.getAttribute('aria-label')).toBe('Page example');
+    expect(Array.from(nav?.querySelectorAll('h2') ?? [], (h) => h.textContent?.trim())).toEqual([
+      'Views',
+      'Details',
+    ]);
+    expect(links().map((link) => link.getAttribute('href'))).toEqual([
       '/demo/page/overview',
       '/demo/page/details',
+      '/demo/page/details/network',
+      '/demo/page/details/storage',
     ]);
-    expect(
-      tabs()
-        .filter((tab) => tab.getAttribute('aria-current') === 'page')
-        .map((tab) => tab.textContent?.trim()),
-    ).toEqual(['Overview']);
+    expect(openLink()).toEqual(['Overview']);
+    expect(nav?.querySelector('input[type="search"]')?.getAttribute('aria-label')).toBe(
+      'Filter views',
+    );
 
     await open('/demo/page/details');
+    expect(openLink()).toEqual(['Details']);
 
-    expect(
-      tabs()
-        .filter((tab) => tab.getAttribute('aria-current') === 'page')
-        .map((tab) => tab.textContent?.trim()),
-    ).toEqual(['Details']);
+    await open('/demo/page/details/network');
+    expect(openLink()).toEqual(['Network']);
+    expect(content().querySelector('.showcase-section h2')?.textContent).toBe('Details');
   });
 
   it('put the page’s tool in the top bar, and keep its state in the page', async () => {

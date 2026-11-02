@@ -14,22 +14,13 @@ import {
   BrnCollapsibleContent,
   BrnCollapsibleTrigger,
 } from '@spartan-ng/brain/collapsible';
-import { NeatIcon } from '@sima/neat-ui';
+import { NeatIcon, ɵCOLLAPSIBLE_CLASSES as CLASSES } from '@sima/neat-ui';
 
 /*
- * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
- * them. Colours are the theme's tokens only; collapsible.spec holds the label and the summary to
- * 4.5:1 on every surface. Helm's collapsible has one class, the closed content's `hidden`, which
- * CONTENT_CLASSES states through the preset's `data-closed` variant, so none is vendored.
+ * The trigger, chevron, label, summary and content are the primary's collapsible look
+ * (`ɵCOLLAPSIBLE_CLASSES`), which the page's side list shares on a narrow screen. Class strings
+ * stay literals: Tailwind finds the classes the kit stylesheet needs by reading them.
  */
-
-/**
- * The trigger: a full-width text button, its chevron, label and summary on one line. It draws the
- * kit's focus outline at full `--ring` (held to 3:1 by the theme). Hovering it brings the chevron
- * from the muted colour to the text's, the only hover cue a button with no fill has.
- */
-const TRIGGER_CLASSES =
-  'group flex w-full min-w-0 cursor-pointer items-center gap-(--neat-space-2) rounded-(--radius) py-1 text-start text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring';
 
 /**
  * The trigger's row, with the app's `neatCollapsibleEnd` controls after the trigger. It wraps: the
@@ -43,20 +34,6 @@ const ROW_CLASSES = 'flex flex-wrap items-center gap-(--neat-space-2)';
  * into the rest of its line. Alone on its line it may still shrink, which truncates the summary.
  */
 const HEADING_CLASSES = 'min-w-0 grow';
-
-/**
- * The chevron: turned a quarter while open, by a transform the kit's transition duration times and
- * that a reduced-motion setting turns into a jump, as the kit's other motion is.
- */
-const CHEVRON_CLASSES =
-  'shrink-0 text-muted-foreground transition-transform duration-(--neat-transition-duration) group-hover:text-foreground motion-reduce:transition-none';
-
-/**
- * The content. Brain makes it `inert` while closed (no focus, no clicks) but leaves it shown, so
- * the kit hides it: `data-state` is brain's, and the one variant is the content's only display
- * statement (a `div` is a block already), so no class has to lose to it.
- */
-const CONTENT_CLASSES = 'pt-(--neat-space-2) data-closed:hidden';
 
 /**
  * A section that a full-width button opens and closes, such as a panel's "Details":
@@ -130,11 +107,9 @@ const CONTENT_CLASSES = 'pt-(--neat-space-2) data-closed:hidden';
             [class]="chevronClasses"
             [class.rotate-90]="brain.expanded()"
           />
-          <span class="shrink-0 font-medium">{{ label() }}</span>
+          <span [class]="labelClasses">{{ label() }}</span>
           @if (!brain.expanded() && summary()) {
-            <span data-slot="collapsible-summary" class="min-w-0 truncate text-muted-foreground">{{
-              summary()
-            }}</span>
+            <span data-slot="collapsible-summary" [class]="summaryClasses">{{ summary() }}</span>
           }
         </button>
       </div>
@@ -158,9 +133,11 @@ export class NeatCollapsible {
   readonly headingLevel = input<2 | 3 | 4 | 5 | 6 | null>(null);
 
   protected readonly brain = inject(BrnCollapsible);
-  protected readonly triggerClasses = TRIGGER_CLASSES;
-  protected readonly chevronClasses = CHEVRON_CLASSES;
-  protected readonly contentClasses = CONTENT_CLASSES;
+  protected readonly triggerClasses = CLASSES.trigger;
+  protected readonly chevronClasses = CLASSES.chevron;
+  protected readonly labelClasses = CLASSES.label;
+  protected readonly summaryClasses = CLASSES.summary;
+  protected readonly contentClasses = CLASSES.content;
   protected readonly rowClasses = ROW_CLASSES;
   protected readonly headingClasses = HEADING_CLASSES;
 

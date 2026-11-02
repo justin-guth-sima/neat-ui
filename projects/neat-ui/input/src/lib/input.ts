@@ -1,32 +1,18 @@
 import { computed, Directive, input } from '@angular/core';
 import { BrnInput } from '@spartan-ng/brain/input';
-import { ɵhlm as hlm } from '@sima/neat-ui';
+import {
+  ɵINPUT_CLASSES as INPUT_CLASSES,
+  ɵINPUT_HELM_CLASSES as HELM_CLASSES,
+} from '@sima/neat-ui';
 
 /** `medium` matches the kit's medium button (2.25rem), `small` its small one (2rem). */
 export type NeatInputSize = 'small' | 'medium';
 
 /**
- * Helm's input classes (`lib/ui/input/src/lib/hlm-input.ts`), copied because helm keeps them
- * inline. input.spec checks that the string still appears in the vendored helm, so a helm update
- * that changes it fails until this is reviewed.
+ * Helm's input classes, re-exported for input.spec's drift check; the primary keeps them with the
+ * field's look, which the page's side list shares for its filter.
  */
-export const INPUT_HELM_CLASSES =
-  'dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 data-[matches-spartan-invalid=true]:ring-destructive/20 dark:data-[matches-spartan-invalid=true]:ring-destructive/40 data-[matches-spartan-invalid=true]:border-destructive dark:data-[matches-spartan-invalid=true]:border-destructive/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] file:h-7 file:text-sm file:font-medium focus-visible:ring-3 data-[matches-spartan-invalid=true]:ring-3 md:text-sm file:text-foreground placeholder:text-muted-foreground w-full min-w-0 outline-none file:inline-flex file:border-0 file:bg-transparent disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50';
-
-/**
- * Where the kit departs from helm; each override exists because input.spec failed without it.
- * - Focus ring: helm's `ring-ring/50` is about 1.85:1 on white, where a focus indicator needs
- *   3:1; the kit draws full `--ring`, which the theme holds to it.
- * - Dark fill: helm tints the field with `--input` at 30%, which takes the placeholder to 4.2:1
- *   on a card. The field stays transparent as in light; its border marks it at 3:1 or more.
- */
-const OVERRIDES = 'focus-visible:ring-ring dark:bg-transparent';
-
-/** The kit's sizes over helm's `h-9`; class strings stay literals for Tailwind to find. */
-const SIZES: Record<NeatInputSize, string> = {
-  small: 'h-8',
-  medium: '',
-};
+export const INPUT_HELM_CLASSES = HELM_CLASSES;
 
 /**
  * A text or number field: `<input neatInput type="number" inputmode="numeric" min="1">`. Every
@@ -52,7 +38,5 @@ export class NeatInput {
   /** The field's height, the kit's `medium` (2.25rem) or `small` (2rem); not a character width. */
   readonly size = input<NeatInputSize>('medium');
 
-  protected readonly classes = computed(() =>
-    hlm(INPUT_HELM_CLASSES, OVERRIDES, SIZES[this.size()]),
-  );
+  protected readonly classes = computed(() => INPUT_CLASSES[this.size()]);
 }

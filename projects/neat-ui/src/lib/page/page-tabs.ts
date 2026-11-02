@@ -30,6 +30,10 @@ const MATCH: Record<'exact' | 'subset', IsActiveMatchOptions> = {
  * Left-aligned text, 16px apart, divided from the page by a border. The row scrolls sideways
  * when its tabs do not fit, and its tabs never wrap. Class strings stay literals: Tailwind finds
  * the classes the kit stylesheet needs by reading them.
+ *
+ * @deprecated Tabs are not navigation: a page's sub-pages are its rail item's children
+ * (`NeatNavItem.children`), and more links than that go in the page's side list (`NeatPageNav`).
+ * Page tabs go in the next release.
  */
 @Directive({
   selector: 'nav[neatPageTabs]',
@@ -62,6 +66,10 @@ export class NeatPageTabs implements AfterViewInit {
  * "Runs"). Open, it carries `aria-current="page"` and is drawn in the foreground colour, semibold
  * and underlined in `--primary`; the others are `--muted-foreground` and take the foreground on
  * hover. The focus ring is inset, since the row clips what is drawn outside it.
+ *
+ * @deprecated Tabs are not navigation: a page's sub-pages are its rail item's children
+ * (`NeatNavItem.children`), and more links than that go in the page's side list (`NeatPageNav`).
+ * Page tabs go in the next release.
  */
 @Directive({
   selector: 'a[neatPageTab]',

@@ -2166,6 +2166,40 @@ export const API: DocsEntry = {
             },
             {
               "kind": "code",
+              "text": "nav[neatPageNav]"
+            },
+            {
+              "kind": "text",
+              "text": " (see "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatPageNav",
+              "name": "NeatPageNav"
+            },
+            {
+              "kind": "text",
+              "text": ") as a direct child is the page's side list: the body's start column, as high as the page and scrolling on its own whatever "
+            },
+            {
+              "kind": "code",
+              "text": "scroll"
+            },
+            {
+              "kind": "text",
+              "text": " says, with the side panel at the other end; on a narrow screen a closed section above the body, under which the floating panel opens. Without one, the body starts at the page's edge."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A "
+            },
+            {
+              "kind": "code",
               "text": "nav[neatPageTabs]"
             },
             {
@@ -2179,7 +2213,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") as a direct child is the page's tabs: a full-width row above the body and the side panel, so neither is under it, and a floating panel on a narrow screen opens below it. Without one, no row is drawn."
+              "text": ") as a direct child is the page's tabs: a full-width row above the body, the side list and the side panel, so none is under it, and a floating panel on a narrow screen opens below it. Without one, no row is drawn."
             }
           ]
         },
@@ -2212,7 +2246,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " wide and scrolls on its own; the body narrows beside it rather than being covered, keeping its own scroll setting. The aside is the one supported second scroll context of a page: a page that needs another region of its own that scrolls independently is a kit change, so that the layout becomes a supported component, not a workaround. Closed, the panel and its content are out of the DOM, but projected content is still instantiated (content projection always creates it): gate expensive content with an "
+              "text": " wide and scrolls on its own; the body narrows beside it rather than being covered, keeping its own scroll setting. The aside and the side list are the supported other scroll contexts of a page: a page that needs another region of its own that scrolls independently is a kit change, so that the layout becomes a supported component, not a workaround. Closed, the panel and its content are out of the DOM, but projected content is still instantiated (content projection always creates it): gate expensive content with an "
             },
             {
               "kind": "code",
@@ -2461,6 +2495,293 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/page/page.ts"
     },
     {
+      "name": "NeatPageNav",
+      "kind": "component",
+      "selector": "nav[neatPageNav]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The page's side list, the third level of the kit's navigation: pages are rail items, a page's sub-pages its item's "
+            },
+            {
+              "kind": "code",
+              "text": "children"
+            },
+            {
+              "kind": "text",
+              "text": ", and anything more (more than a few links, groups of them, or a level below a sub-page) is this list, as a direct child of "
+            },
+            {
+              "kind": "code",
+              "text": "neat-page"
+            },
+            {
+              "kind": "text",
+              "text": ":"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-page>\n  <nav neatPageNav aria-label=\"Components\" [groups]=\"groups\" filterLabel=\"Filter\"></nav>\n  …\n</neat-page>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "groups"
+            },
+            {
+              "kind": "text",
+              "text": " is data, not content: each group's links under its heading (none for a group without a "
+            },
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": "). The open link is the one whose "
+            },
+            {
+              "kind": "code",
+              "text": "path"
+            },
+            {
+              "kind": "text",
+              "text": " the URL is under (the query and fragment are never judged, and the longest such path wins); it carries "
+            },
+            {
+              "kind": "code",
+              "text": "aria-current=\"page\""
+            },
+            {
+              "kind": "text",
+              "text": " and has the rail's current-page look in the page's tokens, the accent fill and weight, where the other links are muted until hovered. With "
+            },
+            {
+              "kind": "code",
+              "text": "filterLabel"
+            },
+            {
+              "kind": "text",
+              "text": ", a search field at the top, named and hinted by that text, keeps the links whose label holds what was typed, ignoring case, and a group's heading while any of its links is kept; when none is, it says \"Nothing matches\"."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The landmark is the app's: a screen reader hears a navigation landmark of links, so it needs a name, which only the app knows. A nav without an "
+            },
+            {
+              "kind": "code",
+              "text": "aria-label"
+            },
+            {
+              "kind": "text",
+              "text": " (or "
+            },
+            {
+              "kind": "code",
+              "text": "aria-labelledby"
+            },
+            {
+              "kind": "text",
+              "text": ") throws in dev mode. The name is read once, when the list is first drawn."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "On a wide screen the page draws it as its body's start column, as high as the page, with the side panel at the other end. It scrolls on its own whatever the page's "
+            },
+            {
+              "kind": "code",
+              "text": "scroll"
+            },
+            {
+              "kind": "text",
+              "text": ", so it stays in view while the body scrolls, with the filter fixed at its top; it scrolls itself, never with "
+            },
+            {
+              "kind": "code",
+              "text": "scrollIntoView"
+            },
+            {
+              "kind": "text",
+              "text": " (which would scroll the page around it too), to show the open link whenever a navigation leaves that link out of view. On a narrow screen ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatViewport",
+              "name": "NeatViewport"
+            },
+            {
+              "kind": "text",
+              "text": ") it is a closed section above the body instead, with the look of "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatCollapsible",
+              "name": "NeatCollapsible"
+            },
+            {
+              "kind": "text",
+              "text": ": the landmark's name as its label and the open link as its summary. Opened, its list scrolls inside it up to the page's height, and choosing a link closes it with the focus on its button, as a link followed puts the floating rail away."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "groups",
+          "type": "readonly NeatPageNavGroup[]",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The links, in groups, in the order they are listed."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "filterLabel",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The name and placeholder of a filter over the links' labels at the top of the list (\"Filter components\"); no filter without it."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/page/page-nav.ts"
+    },
+    {
+      "name": "NeatPageNavGroup",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "label",
+          "type": "string",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The group's heading; a group without one shows its links with no heading above them."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "items",
+          "type": "readonly NeatPageNavLink[]",
+          "doc": []
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A group of the side list's links, under a heading when it has a "
+            },
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/page/page-nav.ts"
+    },
+    {
+      "name": "NeatPageNavLink",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "label",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The link's text, which the filter matches."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Absolute app path, for example "
+                },
+                {
+                  "kind": "code",
+                  "text": "/settings/network"
+                },
+                {
+                  "kind": "text",
+                  "text": ". The link is the open one on this path and every route nested under it, whatever the query and fragment; where two links match, the one with the longer path is."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "One link of the page's side list."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/page/page-nav.ts"
+    },
+    {
       "name": "NeatPageTab",
       "kind": "directive",
       "selector": "a[neatPageTab]",
@@ -2535,6 +2856,36 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": " and take the foreground on hover. The focus ring is inset, since the row clips what is drawn outside it."
+            }
+          ]
+        }
+      ],
+      "deprecated": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Tabs are not navigation: a page's sub-pages are its rail item's children ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatNavItem.children",
+              "name": "NeatNavItem",
+              "member": "children"
+            },
+            {
+              "kind": "text",
+              "text": "), and more links than that go in the page's side list ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatPageNav",
+              "name": "NeatPageNav"
+            },
+            {
+              "kind": "text",
+              "text": "). Page tabs go in the next release."
             }
           ]
         }
@@ -2660,6 +3011,36 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": "Left-aligned text, 16px apart, divided from the page by a border. The row scrolls sideways when its tabs do not fit, and its tabs never wrap. Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading them."
+            }
+          ]
+        }
+      ],
+      "deprecated": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Tabs are not navigation: a page's sub-pages are its rail item's children ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatNavItem.children",
+              "name": "NeatNavItem",
+              "member": "children"
+            },
+            {
+              "kind": "text",
+              "text": "), and more links than that go in the page's side list ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatPageNav",
+              "name": "NeatPageNav"
+            },
+            {
+              "kind": "text",
+              "text": "). Page tabs go in the next release."
             }
           ]
         }

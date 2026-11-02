@@ -1,4 +1,4 @@
-/* The page's tabs, if it has any, above the content row; the page itself never scrolls. */
+/* The page's tabs, if it has any, above the rest; the page itself never scrolls. */
 :host {
   display: flex;
   flex-direction: column;
@@ -6,14 +6,34 @@
   overflow: hidden;
 }
 
-/* The body and, while open, the aside side by side, in what the tabs leave of the page's height. It
+/* The side list, if the page has one, and the content row, in what the tabs leave of the page's
+   height. It may shrink below its content's height so the body and the list scroll inside it
+   instead of growing it. */
+.frame {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+/* The list is the body's start column on a wide screen... */
+:host([data-nav='beside']) .frame {
+  flex-direction: row;
+}
+
+/* ...and a section above it on a narrow one. */
+:host([data-nav='above']) .frame {
+  flex-direction: column;
+}
+
+/* The body and, while open, the aside side by side, in what the side list leaves of the frame. It
    is the containing block of the floating aside, so the aside stays inside this box, below the
-   tabs. It may shrink below its content's height so the body scrolls inside it instead of
-   growing it. */
+   tabs and the narrow screen's side list. It may shrink below its content's size so the body
+   scrolls inside it instead of growing it. */
 .content {
   position: relative;
   display: flex;
   flex: 1 1 0;
+  min-width: 0;
   min-height: 0;
 }
 
