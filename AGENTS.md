@@ -348,19 +348,19 @@ the whole in the kit's look.
   Its `chips` are the kit's status chips, drawn tinted. Its `stale` (a block's or a bracket's
   diagnostics stopped) gives the whole card the look of `[neatStale]`, the primary's
   `ɵSTALE_CLASSES` applied to the card, so the label, chips and the app's content grey out
-  together, with no transition, and the hidden list adds "stale"; the app says why in its content. **Where a part runs is said by a chip in
-  one convention**, documented here rather than enforced, so every demo reads alike: the hardware
-  decoder `HW` in `success`, `EV74` in `highlight`, `MLA` in `info`, `A65` in `neutral`. An edge's
-  `series` is 1 to 8, the charts' `--neat-series-1` to `-8` (counted from 1, unlike
-  `NeatSeriesSwatch`'s index from 0, and converted in one place, `seriesIndex` in `drawing.ts`);
-  unset, or on a `ghost` line, it is muted. Its `line` is `solid`, `dashed` or `ghost`, its tips
-  `none`, `arrow` or `dot` (unset: none at the start, an arrow at the end), and its `label` a small
-  mono chip at `labelAt` along it. A note is anchored to its `edges` (the mean of their points at
-  `along`, 0.5 unset) or to an `anchor` point, placed at `x`/`y` or moved `dx`/`dy` from the anchor,
-  and joined to it by a dotted leader that meets the box's nearest point, or its centre with
-  `leaderTo: 'centre'`. A node's, an edge's and a note's `data` is the app's and never read. A part
-  whose ids name nothing (an edge's end, a node's parent, a block's `opens`, a note's edge) is left
-  out and named once in dev mode; the diagram never throws for it.
+  together, with no transition, and the hidden list adds "stale"; the app says why in its content.
+  **Where a part runs is said by a chip in one convention**, documented here rather than enforced,
+  so every demo reads alike: the hardware decoder `HW` in `success`, `EV74` in `highlight`, `MLA` in
+  `info`, `A65` in `neutral`. An edge's `series` is 1 to 8, the charts' `--neat-series-1` to `-8`
+  (counted from 1, unlike `NeatSeriesSwatch`'s index from 0, and converted in one place,
+  `seriesIndex` in `drawing.ts`); unset, or on a `ghost` line, it is muted. Its `line` is `solid`,
+  `dashed` or `ghost`, its tips `none`, `arrow` or `dot` (unset: none at the start, an arrow at the
+  end), and its `label` a small mono chip at `labelAt` along it. A note is anchored to its `edges`
+  (the mean of their points at `along`, 0.5 unset) or to an `anchor` point, placed at `x`/`y` or
+  moved `dx`/`dy` from the anchor, and joined to it by a dotted leader that meets the box's nearest
+  point, or its centre with `leaderTo: 'centre'`. A node's, an edge's and a note's `data` is the
+  app's and never read. A part whose ids name nothing (an edge's end, a node's parent, a block's
+  `opens`, a note's edge) is left out and named once in dev mode; the diagram never throws for it.
 - **The drawing:** `neat-diagram` is a `figure` named by its `label`. Frames and bands are
   positioned HTML behind one SVG of edges; blocks, brackets, edge labels and notes are HTML in
   front of it; one container holds them all, which is what pan and zoom move. Every part is keyed
@@ -385,14 +385,14 @@ the whole in the kit's look.
   `ng-template[neatDiagramNote]` (a note's content) and `ng-template[neatDiagramEdgeTip]` (the tip
   of the edge under a mouse or a pen). The app matches parts inside the template, by id or by `data`
   (`@if (note.id === 'rate') { … }`): one template per kind rather than one per id keeps the
-  diagram's input plain data. A bracket renders the block template too, after its label and detail (the stage's live time over
-  a row of blocks); `node.role` tells the two apart. A block's body sits in its card below the label, and the card keeps
-  the size the node gives it, so the app sizes `h` (and `w`) for the body it renders. A block the
-  template renders nothing for keeps its card as it is, a note it renders nothing for is not drawn
-  (nor its leader; without the template no note is), and an edge it renders nothing for shows no
-  tip. The tip sits by the pointer in the popover's colours, kept inside the box, and is hidden from
-  assistive technology, so it must hold nothing a reader needs that the hidden list or a note does
-  not say.
+  diagram's input plain data. A bracket renders the block template too, after its label and detail
+  (the stage's live time over a row of blocks); `node.role` tells the two apart. A block's body sits
+  in its card below the label, and the card keeps the size the node gives it, so the app sizes `h`
+  (and `w`) for the body it renders. A block the template renders nothing for keeps its card as it
+  is, a note it renders nothing for is not drawn (nor its leader; without the template no note is),
+  and an edge it renders nothing for shows no tip. The tip sits by the pointer in the popover's
+  colours, kept inside the box, and is hidden from assistive technology, so it must hold nothing a
+  reader needs that the hidden list or a note does not say.
 - **Focus:** by `highlight`, `'none'` by default, a block or an edge under the pointer, or a block
   whose open button has the keyboard's focus (`:focus-visible`; a press that focuses it does not
   count), stays as it is with what it is joined to (a block's edges, an edge's ends, the notes on
@@ -456,18 +456,19 @@ the whole in the kit's look.
   start no steps. `rate(edgeId)` is a signal of messages and bytes per second and a 60 s history
   (`rate(edgeIds)` of several edges their sum: rates added, histories added second by second from
   the newest, so an edge that began later adds nothing before its first second; the same signal
-  for the same ids, and `neat-diagram-rate-card` shows the sum like any rate), refreshed at 12 Hz while something reads it. A push counts on any edge of any level, drawn or
-  not, so a level opens with its numbers; the step edges count only while their level is drawn and
-  the page is visible, as their dots place them. An id that is no edge of the diagram is ignored,
-  which keeps the rates' memory bounded by the diagram. The performance rules: one canvas
-  over the drawing, sized to the layer's own box at the device pixel ratio, sprites per colour, edge
-  shapes sampled once per layout and mapped to the screen once per pan or zoom, nothing allocated
-  and no signal written per dot or per frame, at most `MAX_DOTS` (16 384) dots with the oldest
-  dropped, frames only while a visible dot moves (messages that get no dot, see `every`, run none)
-  and never while the page is hidden. Dots go behind the blocks and notes, fade with the hover
-  (`--diagram-dim`), scale with the zoom and recolour with the scheme (`neatThemeColors`); under
-  reduced motion each message is a brief mark at its edge's end. `neat-diagram-rate-card` (`label`, `rate` the signal's value, `stageMs?`, a
-  `[neatRateCardThumbnails]` slot the app lays out) is the demo's card for a note's content: the
+  for the same ids, and `neat-diagram-rate-card` shows the sum like any rate), refreshed at 12 Hz
+  while something reads it. A push counts on any edge of any level, drawn or not, so a level opens
+  with its numbers; the step edges count only while their level is drawn and the page is visible, as
+  their dots place them. An id that is no edge of the diagram is ignored, which keeps the rates'
+  memory bounded by the diagram. The performance rules: one canvas over the drawing, sized to the
+  layer's own box at the device pixel ratio, sprites per colour, edge shapes sampled once per layout
+  and mapped to the screen once per pan or zoom, nothing allocated and no signal written per dot or
+  per frame, at most `MAX_DOTS` (16 384) dots with the oldest dropped, frames only while a visible
+  dot moves (messages that get no dot, see `every`, run none) and never while the page is hidden.
+  Dots go behind the blocks and notes, fade with the hover (`--diagram-dim`), scale with the zoom
+  and recolour with the scheme (`neatThemeColors`); under reduced motion each message is a brief
+  mark at its edge's end. `neat-diagram-rate-card` (`label`, `rate` the signal's value, `stageMs?`,
+  a `[neatRateCardThumbnails]` slot the app lays out) is the demo's card for a note's content: the
   label, whole msg/s, MB/s in hundredths from units of 10 kB, and a `NeatSparkline` of the history,
   or a step's stage time in ms to a tenth in place of the MB/s and the sparkline; it draws no box,
   the note does. `neat-diagram-animation-settings` is the demo's Animation popover (an icon button,
@@ -475,19 +476,18 @@ the whole in the kit's look.
   to 10, a switch for the steps, a reset) over a two-way `settings` model; it keeps nothing. An app
   that remembers the choice per browser makes the model a `neatStoredSignal` with
   `NEAT_DIAGRAM_MESSAGE_DEFAULTS` as its initial value and `neatParseMessageSettings` (clamps,
-  rounds and defaults what an older version stored) as its parse. The layer reaches the diagram
-  only through an internal context token (the drawn level's edges, the covers, the focus, the
-  transform and a hook for its changes), so a benchmark can provide it over another renderer, with
-  an internal per-frame probe; neither is public.
-  **Feeding it:** call `push` straight from the transport's handler (a timer, a WebSocket
-  message, a poll's reply) per message, with no signal and no batching of your own: it is cheap,
-  safe outside the zone and safe to call from anywhere, and a push for a level not drawn only
-  counts; an unknown id is ignored. To spread a batch that arrived together, pass each message's
-  time from `neatBatchTimes(offsetsMs, arrivalMs)` (the messages' own times from the first, at
-  most 200 ms apart, from the batch's `performance.now()`) as its `atMs`; call `stageMs`
-  whenever a stage's time changes. A burst (10 000 pushes in one tick, or what piles up while a
-  tab is hidden, when pushes only count) costs the cap's worth of dots, not the burst's; do not
-  sample or drop messages in the app to protect the page. The messaging example
+  rounds and defaults what an older version stored) as its parse. The layer reaches the diagram only
+  through an internal context token (the drawn level's edges, the covers, the focus, the transform
+  and a hook for its changes), so a benchmark can provide it over another renderer, with an internal
+  per-frame probe; neither is public. **Feeding it:** call `push` straight from the transport's
+  handler (a timer, a WebSocket message, a poll's reply) per message, with no signal and no batching
+  of your own: it is cheap, safe outside the zone and safe to call from anywhere, and a push for a
+  level not drawn only counts; an unknown id is ignored. To spread a batch that arrived together,
+  pass each message's time from `neatBatchTimes(offsetsMs, arrivalMs)` (the messages' own times from
+  the first, at most 200 ms apart, from the batch's `performance.now()`) as its `atMs`; call
+  `stageMs` whenever a stage's time changes. A burst (10 000 pushes in one tick, or what piles up
+  while a tab is hidden, when pushes only count) costs the cap's worth of dots, not the burst's; do
+  not sample or drop messages in the app to protect the page. The messaging example
   (`examples/messaging/`) is the reference feed, and its Burst button, 400 messages (about three
   seconds of its traffic), is the check of the tab-back case.
 - What stays internal: the routing, the port layout, the notes' placement and measurement, the fit
@@ -501,14 +501,14 @@ the primary exports `ɵhlm`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
 `ɵFIELD_LABEL_CLASSES` (the field label's look, which `select` and `field` share so that their
 fields line up), `ɵINPUT_CLASSES` and `ɵINPUT_HELM_CLASSES` (the text field's look, which `input`
 shares with the page's side list's filter), `ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
-look, which `collapsible` shares with the side list on a narrow screen), `ɵSTALE_CLASSES` (the stale look, which `diagram` gives a node's card), `ɵOverlayFocus` and
-`ɵPANEL_SURFACE_CLASSES` and `ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel
-in the overlay, which `neat-popover` shares with the shell's collapsed-rail menu; the second is
-the helm popover's own classes, which the popover's drift spec reads): Angular's convention for
-private API.
-They are not for apps, may change in any release, and no app file may import a `ɵ` name. A shared
-internal that a second entry needs is exported the same way, never by a relative path. `lib/ui/`
-itself stays where `helm:add` writes it.
+look, which `collapsible` shares with the side list on a narrow screen), `ɵSTALE_CLASSES` (the stale
+look, which `diagram` gives a node's card), `ɵOverlayFocus` and `ɵPANEL_SURFACE_CLASSES` and
+`ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel in the overlay, which
+`neat-popover` shares with the shell's collapsed-rail menu; the second is the helm popover's own
+classes, which the popover's drift spec reads): Angular's convention for private API. They are not
+for apps, may change in any release, and no app file may import a `ɵ` name. A shared internal that a
+second entry needs is exported the same way, never by a relative path. `lib/ui/` itself stays where
+`helm:add` writes it.
 
 ## How the kit is built on Spartan
 
