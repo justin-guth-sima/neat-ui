@@ -1,4 +1,5 @@
 import { InjectionToken } from '@angular/core';
+import type { NeatPageNavGroup } from '@sima/neat-ui';
 import type { DocsDeclaredPart, DocsEntry, DocsExample } from './model';
 
 /**
@@ -27,24 +28,11 @@ export interface DocsTopic {
   readonly fit?: true;
 }
 
-/** A topic of the page's group, as one of its page tabs or a link of its topic list. */
-export interface DocsTab {
+/** A category's topics, which each of its pages lists in its side list (`nav[neatPageNav]`). */
+export interface DocsSideList {
+  /** The list's name, and its label on a narrow screen: "Data topics". */
   readonly label: string;
-  /** The topic's route, `/components/legend`. */
-  readonly path: string;
-}
-
-/** A heading of a topic list and the topics under it. */
-export interface DocsCategory {
-  readonly label: string;
-  readonly topics: readonly DocsTab[];
-}
-
-/** A group's topics under their headings, which its pages list beside them instead of tabs. */
-export interface DocsTopicList {
-  /** The group's label: "Components". */
-  readonly label: string;
-  readonly categories: readonly DocsCategory[];
+  readonly groups: readonly NeatPageNavGroup[];
 }
 
 /** A part of the topic with the import path of the entry that owns it. */
@@ -74,9 +62,9 @@ export abstract class DocsContext {
 }
 
 /**
- * The path of the topic that documents a part (`/components/diagram`), for links to parts that
- * are not on the page; null for a name no topic documents. The topics config provides it; until
- * then only the page's own parts are links.
+ * The path of the topic that documents a part (`/components/diagram/legend`), for links to parts
+ * that are not on the page; null for a name no topic documents. The topics config provides it;
+ * until then only the page's own parts are links.
  */
 export const DOCS_TOPIC_OF = new InjectionToken<(name: string) => string | null>('DOCS_TOPIC_OF', {
   providedIn: 'root',

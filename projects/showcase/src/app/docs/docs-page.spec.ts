@@ -7,7 +7,7 @@ import {
 } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { NeatViewport } from '@sima/neat-ui';
-import { DOCS_TOPIC_OF, type DocsTab, type DocsTopic, type DocsTopicList } from './docs-context';
+import { DOCS_TOPIC_OF, type DocsSideList, type DocsTopic } from './docs-context';
 import { DOCS_ASIDE_OPEN_KEY, DOCS_ASIDE_WIDTH_KEY, DocsPage, topicParts } from './docs-page';
 import type { DocBlock, DocsEntry } from './model';
 
@@ -88,14 +88,17 @@ const TOPICS: Record<string, DocsTopic> = {
   short: { ...TOPIC, parts: ['NeatDiagramView'] },
   full: TOPIC,
 };
-const TABS: DocsTab[] = [
-  { label: 'Diagram', path: '/diagram' },
-  { label: 'Legend', path: '/legend' },
-];
-/** A listed group's topics, which its pages show beside them instead of tabs. */
-const LIST: DocsTopicList = {
-  label: 'Components',
-  categories: [{ label: 'Diagram', topics: [{ label: 'Listed', path: '/listed' }] }],
+/** A category's topics, which its pages show in their side list. */
+const SIDE_LIST: DocsSideList = {
+  label: 'Diagram topics',
+  groups: [
+    {
+      items: [
+        { label: 'Diagram', path: '/diagram' },
+        { label: 'Listed', path: '/listed' },
+      ],
+    },
+  ],
 };
 
 class NoopResizeObserver {
@@ -110,27 +113,27 @@ describe('DocsPage', () => {
   async function open(url = '/diagram', narrow = false) {
     TestBed.configureTestingModule({
       providers: [
-        // The routes as the topics config gives them: the topic and its tabs as route data.
+        // The routes as the topics config gives them: the topic and its side list as route data.
         provideRouter(
           [
             {
               path: 'diagram',
               component: DocsPage,
-              data: { topic: TOPIC, tabs: TABS, tabsLabel: 'Diagram topics' },
+              data: { topic: TOPIC, sideList: null },
             },
             { path: 'legend', children: [] },
             {
               path: 'listed',
               title: 'Listed',
               component: DocsPage,
-              data: { topic: TOPIC, tabs: [], list: LIST },
+              data: { topic: TOPIC, sideList: SIDE_LIST },
             },
             {
               path: 'pages',
               component: DocsPage,
               data: {
                 topic: { ...TOPIC, examples: [{ ...TOPIC.examples[0], page: true }] },
-                tabs: [],
+                sideList: null,
               },
             },
           ],
@@ -163,48 +166,44 @@ describe('DocsPage', () => {
     delete (Element.prototype as Partial<Element>).scrollIntoView;
   });
 
-  it("shows the group's topics as page tabs", async () => {
-    const { host } = await open();
-    const nav = host.querySelector('nav[neatPageTabs]') as HTMLElement;
+  it('shows a category’s topics in the page’s side list, with a filter, and no tabs', async () => {
+    const { host } = await open('/listed');
+    const page = host.querySelector('neat-page') as HTMLElement;
+    const nav = page.querySelector(':scope > nav[neatPageNav]') as HTMLElement;
 
     expect(nav.getAttribute('aria-label')).toBe('Diagram topics');
+    expect(nav.getAttribute('data-layout')).toBe('column');
     expect(
       Array.from(nav.querySelectorAll('a'), (a) => [a.textContent, a.getAttribute('href')]),
     ).toEqual([
       ['Diagram', '/diagram'],
-      ['Legend', '/legend'],
+      ['Listed', '/listed'],
     ]);
-  });
-
-  it('shows a listed group’s topics in a column before the page, and no tabs', async () => {
-    const { host } = await open('/listed');
-    const list = host.querySelector('app-topic-list') as HTMLElement;
-    const page = host.querySelector('neat-page') as HTMLElement;
-
-    expect(list.querySelector('nav')?.getAttribute('aria-label')).toBe('Components topics');
-    expect(list.getAttribute('data-layout')).toBe('column');
-    expect(page.contains(list)).toBe(false);
-    expect(list.compareDocumentPosition(page) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(host.querySelector('nav[neatPageTabs]')).toBeNull();
+    expect(nav.querySelector('a[aria-current="page"]')?.textContent).toBe('Listed');
+    expect(nav.querySelector('input[type="search"]')?.getAttribute('aria-label')).toBe(
+      'Filter topics',
+    );
+    expect(host.querySelector('[neatPageTabs]')).toBeNull();
     // The API stays the page's own panel.
     expect(page.querySelector('aside app-api-panel')).not.toBeNull();
   });
 
-  it('puts the topic list above the topic on a narrow screen, collapsed', async () => {
+  it('collapses the side list above the topic on a narrow screen', async () => {
     const { host } = await open('/listed', true);
-    const list = host.querySelector('app-topic-list') as HTMLElement;
-    const trigger = list.querySelector('neat-collapsible button') as HTMLElement;
+    const nav = host.querySelector('neat-page > nav[neatPageNav]') as HTMLElement;
+    const trigger = nav.querySelector('button[aria-expanded]') as HTMLElement;
 
-    expect(host.querySelector('neat-page .showcase-page')?.firstElementChild).toBe(list);
+    expect(nav.getAttribute('data-layout')).toBe('collapsible');
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
-    expect(trigger.textContent).toContain('Components');
+    expect(trigger.textContent).toContain('Diagram topics');
     expect(trigger.textContent).toContain('Listed');
   });
 
-  it('shows no topic list for a group with tabs', async () => {
+  it('shows no side list, and no tabs, for a topic without one', async () => {
     const { host } = await open();
 
-    expect(host.querySelector('app-topic-list')).toBeNull();
+    expect(host.querySelector('nav[neatPageNav]')).toBeNull();
+    expect(host.querySelector('[neatPageTabs]')).toBeNull();
   });
 
   it('introduces the topic’s lead parts, then the examples', async () => {
@@ -322,7 +321,7 @@ describe('DocsPage', () => {
             {
               path: 'topic/:id',
               component: DocsPage,
-              data: { tabs: [] },
+              data: { sideList: null },
               resolve: { topic: (route: ActivatedRouteSnapshot) => TOPICS[route.params['id']] },
             },
           ],

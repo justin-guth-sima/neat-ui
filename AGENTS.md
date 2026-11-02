@@ -16,9 +16,8 @@ look happens in one place. Every rule here protects that.
     `NeatShell` with `NeatRailItem` and `NeatRailDivider` (an item of its rail and the line between
     groups of items, for the app's items at its bottom),
     `NeatPageToolbar`, `NeatPage` with its side list (`NeatPageNav`, with `NeatPageNavGroup` and
-    `NeatPageNavLink`), its page tabs (`NeatPageTabs`, `NeatPageTab`, deprecated, going in the next
-    release) and its side panel's parts (`NeatAsideToggle`, `NeatAsidePanel`, `NeatAsideTitle`,
-    `NeatAsideHeading`, `NeatAsideActions`), `neatAsideOpen`
+    `NeatPageNavLink`) and its side panel's parts (`NeatAsideToggle`, `NeatAsidePanel`,
+    `NeatAsideTitle`, `NeatAsideHeading`, `NeatAsideActions`), `neatAsideOpen`
     (a page's panel state, closed on a narrow screen) and `NeatViewport` (the kit's one answer to
     "is this screen narrow", below 48rem), `NeatCode`,
     `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatBreadcrumbs` (`neat-breadcrumbs`, the
@@ -124,28 +123,32 @@ change to the public API or to an example shows in review as a diff and a fresh 
 pre-step; never edit them. Why generated: hand-written docs drift from the code. Here the API panel
 is the doc comment, and the snippet under an example is the file that renders it.
 
-- A topic is one page, `/<group>/<topic>`: its examples, each live with its code, and the API
-  panel of its parts beside them. The groups, the topics, each topic's parts (each part in exactly
-  one topic), its lead parts (the ones the body introduces) and its lazy loader are
-  `docs/topics.ts`, written by hand. A topic with `fit: true` gets a Fit button in the top bar that
-  calls `fit()` on each of its examples that has one.
+- A topic is one page, `/<group>/<topic>`, or `/<group>/<category>/<topic>` in a group with
+  categories: its examples, each live with its code, and the API panel of its parts beside them.
+  The groups, the categories, the topics, each topic's parts (each part in exactly one topic), its
+  lead parts (the ones the body introduces) and its lazy loader are `docs/topics.ts`, written by
+  hand. A topic with `fit: true` gets a Fit button in the top bar that calls `fit()` on each of
+  its examples that has one.
 - **The rail has four items: Getting started, Theme, Layout and Components.** Getting started
   (`/getting-started`, `pages/getting-started.page.ts`) is the showcase's own page, in no group:
   how an app starts on the kit, its snippets held to the kit by its spec (the tarball's name, the
-  stylesheet's export, each part imported from its entry). A group is a rail item: Theme and
-  Layout show their few topics as page tabs (`topics`), Components lists its many under category
-  headings (`categories`: Actions, Forms, Status, Data, Charts, Diagram, Video) in a topic list
-  with a filter (`docs/topic-list.ts`), a column before the page that scrolls on its own, collapsed
-  above the topic on a narrow screen, the API panel still the page's side panel. Why: a rail item
-  per category read as an area of an app when the categories are only filing, so a new component
-  topic goes under a category and a new category is a heading, never a rail item. Topic ids are
-  unique across groups (`docs.spec.ts`), since an id is also the examples folder, the
-  `/demo/<id>` path and `/components/<id>`; a category keeps the id it had as a rail item, and its
-  old addresses (`/data/select-list`, `/charts`) redirect to its topics under Components. Escape
+  stylesheet's export, each part imported from its entry), and its note for coding agents held to
+  the package README's rules for an app. A group is a rail item, navigated as the kit says an app
+  is (below): Theme's and Layout's few topics (`topics`) are its `children` in the rail;
+  Components' categories (`categories`: Actions, Forms, Status, Data, Charts, Diagram, Video) are
+  its `children`, and each category's topics are the side list (`nav[neatPageNav]`, with a filter)
+  of its pages, the API panel still the page's side panel. `/<group>` goes to its first topic and
+  `/components/<category>` to the category's first, the routes the rail's links need; an address
+  that changed has no redirect, and only the catch-all, to Getting started, takes an unknown one.
+  Why categories and not more rail items: a rail item per category read as an area of an app when
+  the categories are only filing, so a new component topic goes under a category and a new
+  category is a sub-page of Components, never a rail item. Topic ids are unique across groups
+  (`docs.spec.ts`), since an id is also the examples folder and the `/demo/<id>` path. Escape
   hatch: a fifth rail item is a change to this rule, raised with the maintainer, not a new group in
   `topics.ts`.
   A topic that is no part's docs (the theme's tokens) is hand-made: `page` (a lazy component)
-  instead of `load`, with no parts, no examples module and the group's tabs as inputs.
+  instead of `load`, with no parts, no examples module and no inputs, so it belongs to a group's
+  own `topics`, not to a category.
 - An example is a standalone component in `examples/<topic>/<id>.example.ts` (a numeric prefix
   orders the examples and is not part of the id). Its class doc is its caption: prose shown above
   it and left out of the snippet. Its title is the class name in words (`CPUUsage` is "CPU usage"),
@@ -161,8 +164,8 @@ is the doc comment, and the snippet under an example is the file that renders it
   its line: `@unpadded`, its live area without the inset, for an example that fills it to its
   edges (the diagram's Filling its card), and `@page`, a route of its own at
   `/demo/<topic>/<example>` that its card links to, for an example that needs the whole page (its
-  own toolbar, tabs, panel or shell, which a docs page keeps for itself). Why per example: how an
-  example shows is a fact of that example, beside the code that needs it, so no stylesheet
+  own toolbar, side list, panel or shell, which a docs page keeps for itself). Why per example: how
+  an example shows is a fact of that example, beside the code that needs it, so no stylesheet
   outweighs the card's padding and no topic sends examples that fit a card off to a page. Any
   other tag, or text after one of these, is a doc problem. Escape hatch: a new way to show an
   example is a new tag (`EXAMPLE_OPTIONS` in `tools/docs-emit.mjs`, `DocsExample`, the example
@@ -830,6 +833,19 @@ viewport, or the bounded box it is placed in (its `max-height` is 100% of the pa
 nothing at the root); that is for a demo or an embedded frame, not a way for a page to size the
 shell.
 
+**Navigation is the rail and the page's side list; tabs are not navigation.**
+Pages are the rail's items (`navItems`); a page's sub-pages are its item's `children`; more than a
+few sub-pages (about six), groups of them or a level below a sub-page are the page's side list
+(`nav[neatPageNav]`). Never route-linked tabs: `neat-tabs` is for views inside one page that are
+not addresses (a dialog's sections, say). The package README's "Using the kit in an app" states
+this rule for apps, and the showcase follows it. Why: an app's coding agent copies what the kit
+shows, and two ways to navigate (tabs on some pages, the rail on others) drift into as many as
+there are apps; one model also lets the kit keep each level reachable on every screen and to a
+screen reader. `NeatPageTabs` and `NeatPageTab` were removed in 0.26.0 for this: a page's
+route-linked views are its rail item's `children`, or links in its side list. Escape hatch: a
+level the three do not cover is a change to this rule, raised with the maintainer, never a row of
+links an app draws itself.
+
 **The rail is the app's, the top bar is the page's.**
 Why: a colleague's review found that page tools running straight into the app's controls (the
 board, System Info, the theme) did not read as the page's. `neat-shell` says which is which by
@@ -945,7 +961,7 @@ number of tools and a switch in it moves too.
   and fragment ignored, the longest such path winning; it carries `aria-current="page"` and has
   the rail's current-page look in the page's tokens (accent fill and weight 500), the other links
   muted until hovered. The landmark's name is the app's `aria-label` (a nav without a name throws
-  in dev mode, as page tabs did). On a wide screen the page draws it as the body's start column,
+  in dev mode). On a wide screen the page draws it as the body's start column,
   15rem, as high as the page and scrolling on its own with every `scroll` mode, the filter sticky
   at its top, the side panel at the other end; on a narrow screen it is a closed section above the
   body, with `NeatCollapsible`'s look (the primary cannot import the collapsible entry, so the look
@@ -956,26 +972,8 @@ number of tools and a switch in it moves too.
   never with `scrollIntoView`, which also scrolls the page and every other ancestor. `neat-page`
   says which layout with a `data-nav="beside" | "above"` attribute on its host (the list's own
   host says `data-layout="column" | "collapsible"`), from `NeatViewport`. Why a kit part: the
-  showcase's topic list proved the pattern, and a list each app draws itself would drift in look,
-  scrolling and accessibility.
-- `<nav neatPageTabs aria-label="Stats views">` with an `<a neatPageTab routerLink="…">` per view,
-  as a direct child of `neat-page`, is the page's views as tabs: a full-width row above the body
-  and the side panel, left-aligned, divided from the page by a border (a page without it has no
-  row, and nothing else changes). They are navigation, never an ARIA `tablist`: `neat-tabs` is the
-  in-page tablist (one tab stop, arrow keys, no routes); these are links between routes, each a
-  tab stop, the landmark named by the `aria-label` the app writes (a nav without a name throws in
-  dev mode). The open tab follows the router, so deep links, back and forward and a view's own
-  query parameters all land right: it carries `aria-current="page"`, is drawn in the foreground
-  colour, semibold and underlined in `--primary`, and the others are `--muted-foreground`.
-  `activeMatch` is `exact` (the default: the path is the tab's) or `subset` (routes nested under
-  the tab's keep it open); the query and the fragment are never judged, since they belong to the
-  view. The row scrolls sideways when its tabs do not fit and never wraps them. A tab for a view
-  that exists only sometimes (a comparison being open) is an `@if` of the app's.
-  The side panel starts below the row, also when it floats over the page on a phone. Why a row of
-  its own and not part of the toolbar: the toolbar is for the view's actions, the tabs for where
-  you are, and they must stay where they are when the actions change. Deprecated, and going in the
-  next release: tabs are not navigation, so a page's sub-pages are its rail item's `children` and
-  more links than that its side list; `neat-tabs` stays for views inside one page.
+  showcase's own topic list, which it replaced, proved the pattern, and a list each app draws
+  itself would drift in look, scrolling and accessibility.
 - Elements marked `neatPageAside` inside `neat-page` form a right-hand panel shown while
   `aside="open"`: `--neat-aside-width` wide (unless `asideWidth` says otherwise, below), inset and
   scrolling on its own, with the body narrowing beside it and keeping its own `scroll` setting.

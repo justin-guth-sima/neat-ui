@@ -41,10 +41,6 @@ const KEY_STEP = 16;
  * side panel at the other end; on a narrow screen a closed section above the body, under which
  * the floating panel opens. Without one, the body starts at the page's edge.
  *
- * A `nav[neatPageTabs]` (see `NeatPageTabs`) as a direct child is the page's tabs: a full-width
- * row above the body, the side list and the side panel, so none is under it, and a floating panel
- * on a narrow screen opens below it. Without one, no row is drawn.
- *
  * Elements marked `neatPageAside` form the page's side panel (an inspector, say), shown on the
  * right while `aside="open"`. The panel is `--neat-aside-width` wide and scrolls on its own; the
  * body narrows beside it rather than being covered, keeping its own scroll setting. The aside and
@@ -79,47 +75,44 @@ const KEY_STEP = 16;
     '[attr.data-resizing]': "dragWidth() === null ? null : ''",
   },
   template: `
-    <ng-content select="[neatPageTabs]" />
-    <div class="frame">
-      <ng-content select="[neatPageNav]" />
-      <div class="content">
-        <div class="body" [attr.data-scroll]="scroll()" [attr.data-padding]="padding()">
-          <ng-content />
-        </div>
-        @if (aside() === 'open') {
-          @if (!viewport.narrow()) {
-            <div
-              class="separator"
-              role="separator"
-              tabindex="0"
-              aria-orientation="vertical"
-              aria-label="Resize side panel"
-              [attr.aria-valuemin]="bounds().min"
-              [attr.aria-valuemax]="bounds().max"
-              [attr.aria-valuenow]="width()"
-              [attr.aria-valuetext]="width() === null ? null : width() + ' px'"
-              (keydown)="step($event)"
-              (pointerdown)="startDrag($event)"
-              (pointermove)="drag($event)"
-              (pointerup)="endDrag()"
-              (pointercancel)="cancelDrag()"
-              (lostpointercapture)="cancelDrag()"
-              (dblclick)="asideWidth.set(null)"
-            ></div>
-          }
-          <aside
-            #aside
-            class="in-data-[aside=overlay]:shadow-md"
-            [style.--neat-aside-width]="requested() === null ? null : requested() + 'px'"
-            [style.--neat-page-aside-min]="viewport.narrow() ? null : bounds().min + 'px'"
-            [style.--neat-page-aside-max]="
-              viewport.narrow() || bounds().max === null ? null : bounds().max + 'px'
-            "
-          >
-            <ng-content select="[neatPageAside]" />
-          </aside>
-        }
+    <ng-content select="[neatPageNav]" />
+    <div class="content">
+      <div class="body" [attr.data-scroll]="scroll()" [attr.data-padding]="padding()">
+        <ng-content />
       </div>
+      @if (aside() === 'open') {
+        @if (!viewport.narrow()) {
+          <div
+            class="separator"
+            role="separator"
+            tabindex="0"
+            aria-orientation="vertical"
+            aria-label="Resize side panel"
+            [attr.aria-valuemin]="bounds().min"
+            [attr.aria-valuemax]="bounds().max"
+            [attr.aria-valuenow]="width()"
+            [attr.aria-valuetext]="width() === null ? null : width() + ' px'"
+            (keydown)="step($event)"
+            (pointerdown)="startDrag($event)"
+            (pointermove)="drag($event)"
+            (pointerup)="endDrag()"
+            (pointercancel)="cancelDrag()"
+            (lostpointercapture)="cancelDrag()"
+            (dblclick)="asideWidth.set(null)"
+          ></div>
+        }
+        <aside
+          #aside
+          class="in-data-[aside=overlay]:shadow-md"
+          [style.--neat-aside-width]="requested() === null ? null : requested() + 'px'"
+          [style.--neat-page-aside-min]="viewport.narrow() ? null : bounds().min + 'px'"
+          [style.--neat-page-aside-max]="
+            viewport.narrow() || bounds().max === null ? null : bounds().max + 'px'
+          "
+        >
+          <ng-content select="[neatPageAside]" />
+        </aside>
+      }
     </div>
   `,
   styleUrl: './page.css',

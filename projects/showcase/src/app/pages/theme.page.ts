@@ -1,7 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { NeatPage, NeatPageTab, NeatPageTabs } from '@sima/neat-ui';
-import type { DocsTab } from '../docs/docs-context';
+import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
+import { NeatPage } from '@sima/neat-ui';
 import { describeContrast } from './contrast';
 import { Swatch } from './swatch';
 import { injectThemeVariables } from './theme-variables';
@@ -106,24 +104,15 @@ const SIZES = [
 ] as const;
 
 /**
- * The theme's tokens, a hand-made topic of the docs (`TopicConfig.page`): the route hands it its
- * group's topics as page tabs, as it does a docs page.
+ * The theme's tokens, a hand-made topic of the docs (`TopicConfig.page`), one of Theme's
+ * sub-pages in the rail.
  */
 @Component({
   selector: 'app-theme-page',
-  imports: [NeatPage, NeatPageTab, NeatPageTabs, RouterLink, Swatch],
+  imports: [NeatPage, Swatch],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-page>
-      <!-- DocsPage's tab row, restated: NeatPage projects [neatPageTabs] only from a direct
-           child, so a component holding the row could not be shared. -->
-      @if (tabs().length) {
-        <nav neatPageTabs [attr.aria-label]="tabsLabel()">
-          @for (tab of tabs(); track tab.path) {
-            <a neatPageTab [routerLink]="tab.path">{{ tab.label }}</a>
-          }
-        </nav>
-      }
       <div class="showcase-page">
         <section class="showcase-section">
           <h2>Theme variables</h2>
@@ -200,11 +189,6 @@ const SIZES = [
   styleUrl: './theme.page.css',
 })
 export class ThemePage {
-  /** The topics of the page's group, as page tabs; none shows no row. */
-  readonly tabs = input<readonly DocsTab[]>([]);
-  /** The tabs' landmark name: "Theme topics". */
-  readonly tabsLabel = input('Topics');
-
   protected readonly weights = WEIGHTS;
   protected readonly sizes = SIZES;
 

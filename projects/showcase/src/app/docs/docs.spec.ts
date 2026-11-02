@@ -5,9 +5,9 @@ import { App } from '../app';
 import { appConfig } from '../app.config';
 import { isReexportStub, shownName } from './display';
 import { KIT_ENTRIES } from './docs.testing';
-import { topicPath } from './docs-routes';
+import { placedTopics } from './docs-routes';
 import type { DocsDeclaredPart, DocsExample } from './model';
-import { GROUPS, type TopicConfig, topicsOf } from './topics';
+import { GROUPS, type TopicConfig } from './topics';
 
 /*
  * What the topics config owes the kit: nothing public goes undocumented or unreachable. The
@@ -40,7 +40,9 @@ const BELONGS_TO_THE_APP: ReadonlySet<string> = new Set([
   'NeatToastHost',
 ]);
 
-const topics = GROUPS.flatMap((group) => topicsOf(group).map((topic) => ({ group, topic })));
+const topics = GROUPS.flatMap((group) =>
+  placedTopics(group).map((placed) => ({ group, ...placed })),
+);
 /**
  * The topics generated from the kit. A hand-made one (`page`) has no examples module and no part,
  * so the rules about examples are not its.
@@ -61,10 +63,8 @@ describe('the docs topics', () => {
 
   it('puts no public part in more than one topic', () => {
     const owners = new Map<string, string[]>();
-    for (const { group, topic } of topics) {
-      for (const name of topic.parts) {
-        owners.set(name, [...(owners.get(name) ?? []), topicPath(group, topic)]);
-      }
+    for (const { topic, path } of topics) {
+      for (const name of topic.parts) owners.set(name, [...(owners.get(name) ?? []), path]);
     }
 
     expect([...owners].filter(([, paths]) => paths.length > 1)).toEqual([]);
@@ -130,14 +130,14 @@ describe('the docs topics', () => {
   });
 
   it('has unique group and topic routes', () => {
-    const paths = topics.map(({ group, topic }) => topicPath(group, topic));
+    const paths = topics.map(({ path }) => path);
     const groups = GROUPS.map((group) => group.id);
 
     expect(new Set(paths).size).toBe(paths.length);
     expect(new Set(groups).size).toBe(groups.length);
   });
 
-  it('has Theme and Layout with tabs, and Components with its seven categories', () => {
+  it('has Theme and Layout with their topics as sub-pages, and Components with its seven categories', () => {
     expect(
       GROUPS.map((group) => [group.id, group.topics?.length, group.categories?.length]),
     ).toEqual([
@@ -154,7 +154,7 @@ describe('the docs topics', () => {
       'Diagram',
       'Video',
     ]);
-    expect(topicsOf(GROUPS[2])).toHaveLength(47);
+    expect(placedTopics(GROUPS[2])).toHaveLength(47);
     expect(topics).toHaveLength(53);
   });
 
@@ -184,41 +184,65 @@ describe('every docs topic in the app', () => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
     TestBed.configureTestingModule({ providers: appConfig.providers });
     router = TestBed.inject(Router);
+    // The rail starts collapsed whatever an earlier test chose, and is opened to show its labels,
+    // the state in which a page's sub-pages unfold under its item.
+    localStorage.clear();
     fixture = TestBed.createComponent(App);
     await router.navigateByUrl('/');
+    await fixture.whenStable();
+    const showLabels = Array.from(
+      root().querySelectorAll<HTMLButtonElement>('neat-shell button[neatRailItem]'),
+    ).find((button) => button.textContent?.trim() === 'Show labels') as HTMLButtonElement;
+    showLabels.click();
     await fixture.whenStable();
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
+    localStorage.clear();
   });
 
-  it.each(topics.map(({ group, topic }) => [topicPath(group, topic), group, topic] as const))(
-    'renders %s with its group in the rail and its group’s topics as tabs or a list',
-    async (path, group, topic) => {
+  it.each(
+    topics.map(({ group, topic, path, category }) => [path, group, topic, category] as const),
+  )(
+    'renders %s with its page and sub-page in the rail, and a category’s topics in its side list',
+    async (path, group, topic, category) => {
       await router.navigateByUrl(path);
       await fixture.whenStable();
-
-      expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe(group.label);
-      const tabs = Array.from(content().querySelectorAll('neat-page > nav a'));
-      const listed = Array.from(content().querySelectorAll('app-topic-list nav a'));
-      // A group shows its topics one way: as its pages' tabs, or in the list beside them.
-      const [links, none] = group.topics ? [tabs, listed] : [listed, tabs];
-      const expected = topicsOf(group).map((each) => [each.label, topicPath(group, each)]);
-
-      expect(none).toEqual([]);
-      expect(links.map((link) => [link.textContent?.trim(), link.getAttribute('href')])).toEqual(
-        expected,
-      );
-      expect(
-        links
+      const linksOf = (links: Iterable<Element>) =>
+        Array.from(links, (link) => [link.textContent?.trim(), link.getAttribute('href')]);
+      const current = (links: Iterable<Element>) =>
+        Array.from(links)
           .filter((link) => link.getAttribute('aria-current') === 'page')
-          .map((link) => link.textContent?.trim()),
-      ).toEqual([topic.label]);
-      expect(
-        content().querySelector('neat-page > nav, app-topic-list nav')?.getAttribute('aria-label'),
-      ).toBe(`${group.label} topics`);
+          .map((link) => link.textContent?.trim());
+
+      // The rail: the group's item active, its sub-pages unfolded under it, the open one current.
+      const rail = root().querySelector('neat-shell nav') as HTMLElement;
+      const children = rail.querySelectorAll('a[data-child]');
+      expect(rail.querySelector('a.active:not([data-child])')?.textContent?.trim()).toBe(
+        group.label,
+      );
+      expect(linksOf(children)).toEqual(
+        group.categories
+          ? group.categories.map((each) => [each.label, `/${group.id}/${each.id}`])
+          : group.topics.map((each) => [each.label, `/${group.id}/${each.id}`]),
+      );
+      expect(current(children)).toEqual([category?.label ?? topic.label]);
+
+      // The page: a category's topics in its side list, a group's own topics in none.
+      const list = content().querySelector('neat-page > nav[neatPageNav]');
+      expect(content().querySelector('[neatPageTabs]')).toBeNull();
+      if (!category) {
+        expect(list).toBeNull();
+        return;
+      }
+      expect(list?.getAttribute('aria-label')).toBe(`${category.label} topics`);
+      const links = list?.querySelectorAll('a') ?? [];
+      expect(linksOf(links)).toEqual(
+        category.topics.map((each) => [each.label, `/${group.id}/${category.id}/${each.id}`]),
+      );
+      expect(current(links)).toEqual([topic.label]);
     },
   );
 
@@ -227,7 +251,7 @@ describe('every docs topic in the app', () => {
   // No example is left out: the stubs above (no `ResizeObserver`, no canvas context) are all the
   // canvas charts, the video tile and the ROI editor need to mount, and what they draw is checked
   // by eye and in their own specs.
-  it.each(topics.map(({ group, topic }) => [topicPath(group, topic), topic] as const))(
+  it.each(topics.map(({ topic, path }) => [path, topic] as const))(
     'renders %s with its intros, examples and API panel',
     async (path, topic) => {
       await router.navigateByUrl(path);
@@ -274,12 +298,15 @@ describe('every docs topic in the app', () => {
         const page = selector ? content().querySelector(selector) : null;
 
         expect(page?.childElementCount ?? 0, `${example.id} did not render`).toBeGreaterThan(0);
+        expect(content().querySelector('[neatPageTabs]'), example.id).toBeNull();
       }
     },
   );
 
   it.each(GROUPS)('has a rail item for the $label group', (group) => {
-    const items = Array.from(root().querySelectorAll('nav a'), (a) => a.textContent?.trim());
+    const items = Array.from(root().querySelectorAll('neat-shell nav a'), (a) =>
+      a.textContent?.trim(),
+    );
 
     expect(items).toContain(group.label);
   });

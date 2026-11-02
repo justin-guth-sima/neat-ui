@@ -60,7 +60,7 @@ const NEXT = GROUPS.map((group) => ({
 /**
  * How an app starts on the kit, the page the showcase opens on: the package, the providers, the
  * stylesheet and the shell, a note for coding agents, and the way on to the docs. A page of the
- * showcase's own, in no group, so it has no tabs.
+ * showcase's own, in no group, so it has no sub-pages.
  */
 @Component({
   selector: 'app-getting-started-page',
@@ -123,9 +123,11 @@ const NEXT = GROUPS.map((group) => ({
         <neat-callout heading="For coding agents" [headingLevel]="2">
           The kit's rules for an app, each with its reason, are in the section "Using the kit in an
           app" of <code neatCode>node_modules/@sima/neat-ui/README.md</code>: import UI only from
-          the kit, one entry per part, the kit's icon names and curve names first, and propose a kit
-          change instead of a workaround. Point the agent at it before it writes UI.
-          The repository's <code neatCode>AGENTS.md</code> is for working on the kit itself.
+          the kit, one entry per part, pages in the rail, a page's sub-pages as its rail item's
+          children, more in the page's side list, never tabs that change the address, the kit's icon
+          names and curve names first, and propose a kit change instead of a workaround. Point the
+          agent at it before it writes UI. The repository's <code neatCode>AGENTS.md</code> is for
+          working on the kit itself.
         </neat-callout>
         <section class="showcase-section" aria-labelledby="next">
           <h2 id="next">Where next</h2>

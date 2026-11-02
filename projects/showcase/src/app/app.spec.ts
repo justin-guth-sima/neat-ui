@@ -3,33 +3,87 @@ import { Router } from '@angular/router';
 import { App } from './app';
 import { appConfig } from './app.config';
 
+/**
+ * A page of each kind, with its rail item and the top bar's title: a sub-page's label beside its
+ * page's, a topic of a category beside "page › category", Getting started alone.
+ */
 const PAGES = [
-  { path: '/getting-started', link: 'Getting started', heading: 'Add the package' },
-  { path: '/theme/tokens', link: 'Theme', heading: 'Theme variables' },
-  { path: '/theme/colours', link: 'Theme', heading: 'ThemeService' },
-  { path: '/theme/icons', link: 'Theme', heading: 'NeatIcon' },
-  { path: '/layout/shell', link: 'Layout', heading: 'NeatShell' },
-  { path: '/layout/page', link: 'Layout', heading: 'NeatPage' },
-  { path: '/layout/side-panel', link: 'Layout', heading: 'NeatAsidePanel' },
-  { path: '/components/button', link: 'Components', heading: 'NeatButton' },
-  { path: '/components/input', link: 'Components', heading: 'NeatInput' },
-  { path: '/components/status-chip', link: 'Components', heading: 'NeatStatusChip' },
-  { path: '/components/table', link: 'Components', heading: 'NeatTable' },
-  { path: '/components/time-chart', link: 'Components', heading: 'NeatTimeChart' },
-  { path: '/components/sparkline', link: 'Components', heading: 'NeatSparkline' },
-  { path: '/components/diagram', link: 'Components', heading: 'NeatDiagramView' },
-  { path: '/components/video-tile', link: 'Components', heading: 'NeatVideoTile' },
+  {
+    path: '/getting-started',
+    link: 'Getting started',
+    heading: 'Add the package',
+    title: 'Getting started',
+  },
+  { path: '/theme/tokens', link: 'Theme', heading: 'Theme variables', title: 'Tokens Theme' },
+  { path: '/theme/colours', link: 'Theme', heading: 'ThemeService', title: 'Colours Theme' },
+  { path: '/theme/icons', link: 'Theme', heading: 'NeatIcon', title: 'Icons Theme' },
+  { path: '/layout/shell', link: 'Layout', heading: 'NeatShell', title: 'Shell Layout' },
+  { path: '/layout/page', link: 'Layout', heading: 'NeatPage', title: 'Page Layout' },
+  {
+    path: '/layout/side-panel',
+    link: 'Layout',
+    heading: 'NeatAsidePanel',
+    title: 'Side panel Layout',
+  },
+  {
+    path: '/components/actions/button',
+    link: 'Components',
+    heading: 'NeatButton',
+    title: 'Button Components › Actions',
+  },
+  {
+    path: '/components/forms/input',
+    link: 'Components',
+    heading: 'NeatInput',
+    title: 'Input Components › Forms',
+  },
+  {
+    path: '/components/status/status-chip',
+    link: 'Components',
+    heading: 'NeatStatusChip',
+    title: 'Status chip Components › Status',
+  },
+  {
+    path: '/components/data/table',
+    link: 'Components',
+    heading: 'NeatTable',
+    title: 'Table Components › Data',
+  },
+  {
+    path: '/components/charts/time-chart',
+    link: 'Components',
+    heading: 'NeatTimeChart',
+    title: 'Time chart Components › Charts',
+  },
+  {
+    path: '/components/charts/sparkline',
+    link: 'Components',
+    heading: 'NeatSparkline',
+    title: 'Sparkline Components › Charts',
+  },
+  {
+    path: '/components/diagram/diagram',
+    link: 'Components',
+    heading: 'NeatDiagramView',
+    title: 'Diagram Components › Diagram',
+  },
+  {
+    path: '/components/video/video-tile',
+    link: 'Components',
+    heading: 'NeatVideoTile',
+    title: 'Video tile Components › Video',
+  },
 ];
 
-/** Components' categories, in list order, with their topics' count. */
+/** Components' categories, its sub-pages in the rail, in order, with their topics' count. */
 const CATEGORIES = [
-  ['Actions', 8],
-  ['Forms', 9],
-  ['Status', 9],
-  ['Data', 7],
-  ['Charts', 6],
-  ['Diagram', 4],
-  ['Video', 4],
+  ['Actions', '/components/actions', 8],
+  ['Forms', '/components/forms', 9],
+  ['Status', '/components/status', 9],
+  ['Data', '/components/data', 7],
+  ['Charts', '/components/charts', 6],
+  ['Diagram', '/components/diagram', 4],
+  ['Video', '/components/video', 4],
 ] as const;
 
 /**
@@ -48,6 +102,23 @@ describe('App', () => {
 
   const root = (): HTMLElement => fixture.nativeElement;
   const content = (): HTMLElement => root().querySelector('neat-shell main.content') as HTMLElement;
+  /** The rail's pages, and their sub-pages while unfolded, which are the `data-child` rows. */
+  const rail = (): HTMLElement => root().querySelector('neat-shell nav') as HTMLElement;
+  const linksOf = (links: Iterable<Element>) =>
+    Array.from(links, (link) => [link.textContent?.trim(), link.getAttribute('href')]);
+  const currentOf = (links: Iterable<Element>) =>
+    Array.from(links)
+      .filter((link) => link.getAttribute('aria-current') === 'page')
+      .map((link) => link.textContent?.trim());
+
+  /** Presses the rail's own control, "Show labels" or "Collapse". */
+  async function pressRailControl(label: string): Promise<void> {
+    const control = Array.from(
+      root().querySelectorAll<HTMLButtonElement>('neat-shell button[neatRailItem]'),
+    ).find((button) => button.textContent?.trim() === label) as HTMLButtonElement;
+    control.click();
+    await fixture.whenStable();
+  }
 
   async function navigate(path: string): Promise<void> {
     await router.navigateByUrl(path);
@@ -60,101 +131,145 @@ describe('App', () => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
     TestBed.configureTestingModule({ providers: appConfig.providers });
     router = TestBed.inject(Router);
+    // The rail starts collapsed, as a first visit's does, whatever an earlier test chose.
+    localStorage.clear();
     fixture = TestBed.createComponent(App);
     await navigate('/');
+    // Sub-pages unfold only while the rail shows its labels; collapsed, they are a menu.
+    await pressRailControl('Show labels');
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
+    localStorage.clear();
   });
 
   it('lists Getting started, Theme, Layout and Components in the rail, in order', () => {
-    // The rail is the shell's first nav; the page's tabs, a nav of the page, come after it.
-    const rail = root().querySelector('nav') as HTMLElement;
-    const labels = Array.from(rail.querySelectorAll('a'), (a) => a.textContent?.trim());
+    const labels = Array.from(rail().querySelectorAll('a:not([data-child])'), (a) =>
+      a.textContent?.trim(),
+    );
     expect(labels).toEqual(['Getting started', 'Theme', 'Layout', 'Components']);
+    // Getting started has no sub-pages, so none unfold.
+    expect(rail().querySelector('a[data-child]')).toBeNull();
   });
 
-  it('opens a group on its first topic, the rail item staying open on the group’s topics', async () => {
+  it('opens a page on its first sub-page, and a category on its first topic', async () => {
     await navigate('/components');
 
-    expect(router.url).toBe('/components/button');
-    expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe('Components');
+    expect(router.url).toBe('/components/actions/button');
+    expect(rail().querySelector('a.active')?.textContent?.trim()).toBe('Components');
+
+    await navigate('/components/data');
+
+    expect(router.url).toBe('/components/data/table');
 
     await navigate('/theme');
 
     expect(router.url).toBe('/theme/tokens');
-    expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe('Theme');
+    expect(rail().querySelector('a.active')?.textContent?.trim()).toBe('Theme');
+  });
+
+  it('unfolds Theme’s topics under its rail item', async () => {
+    await navigate('/theme/colours');
+    const children = rail().querySelectorAll('a[data-child]');
+
+    expect(linksOf(children)).toEqual([
+      ['Tokens', '/theme/tokens'],
+      ['Colours', '/theme/colours'],
+      ['Icons', '/theme/icons'],
+    ]);
+    expect(currentOf(children)).toEqual(['Colours']);
+  });
+
+  it('unfolds Components’ seven categories under its rail item, the open one current', async () => {
+    await navigate('/components/data/select-list');
+    const children = rail().querySelectorAll('a[data-child]');
+
+    expect(linksOf(children)).toEqual(CATEGORIES.map(([label, path]) => [label, path]));
+    expect(currentOf(children)).toEqual(['Data']);
+    // One row looks current: the category, not Components above it.
+    expect(
+      rail().querySelector('a.active:not([data-child])')?.getAttribute('aria-current'),
+    ).toBeNull();
+  });
+
+  it('makes Components a button for its categories’ menu while the rail is collapsed', async () => {
+    await navigate('/components/data/select-list');
+    await pressRailControl('Collapse');
+    const item = Array.from(rail().querySelectorAll('button[neatRailItem]')).find(
+      (button) => button.textContent?.trim() === 'Components',
+    );
+
+    expect(rail().querySelector('a[data-child]')).toBeNull();
+    expect(item?.getAttribute('aria-haspopup')).toBe('dialog');
+    expect(item?.getAttribute('aria-current')).toBe('page');
   });
 
   it('redirects the root to Getting started', () => {
     expect(router.url).toBe('/getting-started');
-    expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe('Getting started');
+    expect(rail().querySelector('a.active')?.textContent?.trim()).toBe('Getting started');
   });
 
+  // No redirects from earlier addresses: a category's own (`/data/select-list`) and a topic's
+  // straight under Components (`/components/select-list`) are unknown now, as is any other.
   it.each([
-    ['/data/select-list', '/components/select-list'],
-    ['/charts', '/components/sparkline'],
-    ['/diagram/drill-down', '/components/drill-down'],
-    ['/actions', '/components/button'],
-  ])('sends the old address %s to %s', async (path, to) => {
+    '/data/select-list',
+    '/charts',
+    '/components/select-list',
+    '/components/button',
+    '/legacy/charts',
+    '/nowhere/at/all',
+    '/components/nothing',
+    '/components/data/nothing',
+  ])('sends the unknown address %s to Getting started', async (path) => {
     await navigate(path);
 
-    expect(router.url).toBe(to);
+    expect(router.url).toBe('/getting-started');
   });
 
-  it.each(['/legacy/charts', '/nowhere/at/all', '/components/nothing'])(
-    'sends the unknown address %s to Getting started',
-    async (path) => {
-      await navigate(path);
-
-      expect(router.url).toBe('/getting-started');
-    },
-  );
-
-  it('lists Components’ topics under seven headings, with a filter', async () => {
-    await navigate('/components/select-list');
-    const list = content().querySelector('app-topic-list') as HTMLElement;
-    const headings = () =>
-      Array.from(list.querySelectorAll('h2'), (heading) => heading.textContent?.trim());
+  it('lists a category’s topics in the page’s side list, with a filter', async () => {
+    await navigate('/components/data/select-list');
+    const list = content().querySelector('neat-page > nav[neatPageNav]') as HTMLElement;
     const links = () => Array.from(list.querySelectorAll('a'), (link) => link.textContent?.trim());
 
     expect(content().querySelector('neat-page h2')?.textContent).toContain('NeatSelectList');
-    expect(headings()).toEqual(CATEGORIES.map(([label]) => label));
-    expect(links()).toHaveLength(47);
-    for (const list of Array.from(content().querySelectorAll('app-topic-list ul'))) {
-      const label = content().querySelector(`[id="${list.getAttribute('aria-labelledby')}"]`);
-      const count = CATEGORIES.find(([name]) => name === label?.textContent?.trim())?.[1];
-      expect(list.querySelectorAll('a').length, label?.textContent ?? '').toBe(count);
-    }
-    expect(
-      Array.from(list.querySelectorAll('a[aria-current="page"]'), (link) =>
-        link.getAttribute('href'),
-      ),
-    ).toEqual(['/components/select-list']);
+    expect(list.getAttribute('aria-label')).toBe('Data topics');
+    expect(links()).toEqual([
+      'Table',
+      'Details',
+      'Line list',
+      'Select list',
+      'File browser',
+      'Collapsible',
+      'Stored signal',
+    ]);
+    expect(currentOf(list.querySelectorAll('a'))).toEqual(['Select list']);
+    expect(list.querySelector('a[aria-current="page"]')?.getAttribute('href')).toBe(
+      '/components/data/select-list',
+    );
 
-    const field = list.querySelector('input[neatInput]') as HTMLInputElement;
-    expect(field.getAttribute('aria-label')).toBe('Filter components');
-    field.value = 'chart';
+    const field = list.querySelector('input[type="search"]') as HTMLInputElement;
+    expect(field.getAttribute('aria-label')).toBe('Filter topics');
+    field.value = 'list';
     field.dispatchEvent(new Event('input'));
     await fixture.whenStable();
 
-    expect(headings()).toEqual(['Charts']);
-    expect(links()).toEqual([
-      'Sparkline',
-      'Time chart',
-      'Stacked chart',
-      'Heatmap',
-      'Chart card',
-      'Series swatch',
-    ]);
+    expect(links()).toEqual(['Line list', 'Select list']);
+  });
+
+  it('renders no page tabs, which the kit no longer has', async () => {
+    for (const path of ['/theme/tokens', '/layout/page', '/components/data/select-list']) {
+      await navigate(path);
+
+      expect(content().querySelector('[neatPageTabs]'), path).toBeNull();
+    }
   });
 
   it('titles the document with the app name and the page', async () => {
     expect(document.title).toBe('neat-ui showcase · Getting started');
 
-    await navigate('/components/select-list');
+    await navigate('/components/data/select-list');
 
     expect(document.title).toBe('neat-ui showcase · Select list');
 
@@ -163,15 +278,19 @@ describe('App', () => {
     expect(document.title).toBe('neat-ui showcase · Details');
   });
 
-  it.each(PAGES)('renders $path as a page inside the shell', async ({ path, link, heading }) => {
-    await navigate(path);
+  it.each(PAGES)(
+    'renders $path as a page inside the shell',
+    async ({ path, link, heading, title }) => {
+      await navigate(path);
 
-    expect(content().querySelector('neat-page')).not.toBeNull();
-    // The page's own first heading; Components' topic list beside it has headings too.
-    expect(content().querySelector('neat-page h2')?.textContent).toContain(heading);
-    expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe(link);
-    expect(root().querySelector('header h1')?.textContent?.trim()).toBe(link);
-  });
+      expect(content().querySelector('neat-page')).not.toBeNull();
+      expect(content().querySelector('neat-page h2')?.textContent).toContain(heading);
+      expect(rail().querySelector('a.active')?.textContent?.trim()).toBe(link);
+      expect(root().querySelector('header h1')?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+        title,
+      );
+    },
+  );
 
   it('keeps only the kit’s theme switch at the rail’s end', () => {
     const end = root().querySelector('neat-shell .rail-end') as HTMLElement;

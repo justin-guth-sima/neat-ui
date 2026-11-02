@@ -240,7 +240,15 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "), here Getting started and one rail item per group of the docs, and "
+            "text": "), here Getting started and one rail item per group of the docs, with the group's topics or categories as the item's "
+          },
+          {
+            "kind": "code",
+            "text": "children"
+          },
+          {
+            "kind": "text",
+            "text": ", and "
           },
           {
             "kind": "ref",
@@ -274,7 +282,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","`\n    <neat-shell appName=\"neat-ui showcase\" [navItems]=\"navItems\">\n      <router-outlet />\n    </neat-shell>\n    <neat-toast-host />\n  `"],
           ["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," App {\n  "],
-          ["comment","/** Getting started, then the groups of the docs: Theme, Layout and Components. */"],["text","\n  "],
+          ["comment","/** Getting started, then the docs' groups (Theme, Layout, Components) with their sub-pages. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," navItems: NeatNavItem[] = [\n    { label: "],
           ["string","'Getting started'"],["text",", icon: "],["string","'info'"],["text",", path: "],["string","`/${GETTING_STARTED}`"],["text"," },\n    ...groupNavItems(GROUPS),\n  ];\n}\n"]
         ]

@@ -31,7 +31,7 @@ import { NeatLine, NeatLineEnd, NeatLineList } from '@sima/neat-ui/line-list';
           <button neatInlineButton type="button" disabled>Reset on 2 channels…</button>
         </li>
         <li neatLine>
-          <a neatInlineButton routerLink="/components/inline-button">This page</a>
+          <a neatInlineButton routerLink="/components/actions/inline-button">This page</a>
         </li>
       </ul>
     </div>

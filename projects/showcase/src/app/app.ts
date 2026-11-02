@@ -8,9 +8,10 @@ import { GROUPS } from './docs/topics';
 
 /**
  * The showcase's own root. `NeatShell` takes the app's name and its navigation (`navItems`), here
- * Getting started and one rail item per group of the docs, and `NeatToastHost` is rendered once,
- * beside the shell. The rail keeps only the kit's theme switch and its control at its bottom; the
- * Rail items example shows an app's own items there.
+ * Getting started and one rail item per group of the docs, with the group's topics or categories
+ * as the item's `children`, and `NeatToastHost` is rendered once, beside the shell. The rail keeps
+ * only the kit's theme switch and its control at its bottom; the Rail items example shows an
+ * app's own items there.
  */
 @Component({
   imports: [NeatShell, NeatToastHost, RouterOutlet],
@@ -23,7 +24,7 @@ import { GROUPS } from './docs/topics';
   `,
 })
 export class App {
-  /** Getting started, then the groups of the docs: Theme, Layout and Components. */
+  /** Getting started, then the docs' groups (Theme, Layout, Components) with their sub-pages. */
   protected readonly navItems: NeatNavItem[] = [
     { label: 'Getting started', icon: 'info', path: `/${GETTING_STARTED}` },
     ...groupNavItems(GROUPS),

@@ -13,7 +13,7 @@ import {
   viewChildren,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import {
   NeatAsidePanel,
   neatAsideOpen,
@@ -21,26 +21,22 @@ import {
   NeatButton,
   NeatIcon,
   NeatPage,
-  NeatPageTab,
-  NeatPageTabs,
+  NeatPageNav,
   NeatPageToolbar,
   neatStoredSignal,
-  NeatViewport,
 } from '@sima/neat-ui';
 import { ApiPanel } from './api-panel';
 import { isReexportStub } from './display';
 import {
   DOCS_TOPIC_OF,
   DocsContext,
-  type DocsTab,
+  type DocsSideList,
   type DocsTarget,
   type DocsTopic,
-  type DocsTopicList,
   type DocsTopicPart,
 } from './docs-context';
 import { ExampleCard } from './example-card';
 import { PartIntro } from './part-intro';
-import { TopicList } from './topic-list';
 
 /** Whether the API panel is open on a wide screen, for every topic alike. */
 export const DOCS_ASIDE_OPEN_KEY = 'neat-ui-showcase:docs-aside-open';
@@ -73,14 +69,11 @@ function hasFit(instance: unknown): instance is { fit(): void } {
 }
 
 /**
- * One topic of the docs: its group's topics as page tabs or as a topic list, a body that
- * introduces the parts its examples show and then the examples, and the topic's API in the page's
- * side panel, open by default on a wide screen, resizable, both remembered for every topic. The
- * topic may ask for a Fit button in the top bar (`DocsTopic.fit`), the page's one toolbar.
- *
- * The topic list (`list`, Components') is a column before the `neat-page`, not inside its body:
- * there it would scroll away with the topic, or need the body's height, which the page never gives
- * its content. On a narrow screen it goes into the body instead, collapsed above the topic.
+ * One topic of the docs: a category's topics in the page's side list (`sideList`, Components'),
+ * a body that introduces the parts its examples show and then the examples, and the topic's API in
+ * the page's side panel, open by default on a wide screen, resizable, both remembered for every
+ * topic. The topic may ask for a Fit button in the top bar (`DocsTopic.fit`), the page's one
+ * toolbar. A group's own topics have no side list: the rail lists them under the group's item.
  *
  * The URL's fragment `#api-<Name>`, as the page opens and each time it changes (a link to another
  * topic, a shared link, back and forward), opens the panel on the part's section; `#example-<id>`
@@ -97,12 +90,9 @@ function hasFit(instance: unknown): instance is { fit(): void } {
     NeatButton,
     NeatIcon,
     NeatPage,
-    NeatPageTab,
-    NeatPageTabs,
+    NeatPageNav,
     NeatPageToolbar,
     PartIntro,
-    RouterLink,
-    TopicList,
   ],
   providers: [{ provide: DocsContext, useExisting: DocsPage }],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -116,29 +106,20 @@ function hasFit(instance: unknown): instance is { fit(): void } {
       </div>
     }
     <neat-aside-toggle label="API" [open]="aside.open()" (openChange)="aside.set($event)" />
-    @if (list(); as list) {
-      @if (!viewport.narrow()) {
-        <app-topic-list [list]="list" />
-      }
-    }
     <neat-page
       [aside]="aside.open() ? 'open' : 'closed'"
       [asideWidth]="asideWidth() ?? defaultAsideWidth"
       (asideWidthChange)="asideWidth.set($event)"
     >
-      @if (tabs().length) {
-        <nav neatPageTabs [attr.aria-label]="tabsLabel()">
-          @for (tab of tabs(); track tab.path) {
-            <a neatPageTab [routerLink]="tab.path">{{ tab.label }}</a>
-          }
-        </nav>
+      @if (sideList(); as list) {
+        <nav
+          neatPageNav
+          [attr.aria-label]="list.label"
+          [groups]="list.groups"
+          filterLabel="Filter topics"
+        ></nav>
       }
       <div class="showcase-page">
-        @if (list(); as list) {
-          @if (viewport.narrow()) {
-            <app-topic-list [list]="list" collapsible [current]="title() ?? ''" />
-          }
-        }
         @for (item of intros(); track item.part.name) {
           <app-part-intro [part]="item.part" [import]="item.import" />
         }
@@ -163,23 +144,14 @@ function hasFit(instance: unknown): instance is { fit(): void } {
 })
 export class DocsPage extends DocsContext {
   readonly topic = input.required<DocsTopic>();
-  /** The topics of the page's group, as page tabs; none shows no row. */
-  readonly tabs = input<readonly DocsTab[]>([]);
-  /** The tabs' landmark name: "Diagram topics". */
-  readonly tabsLabel = input('Topics');
-  /** The group's topics under their headings, shown beside the page in place of tabs. */
-  readonly list = input<DocsTopicList | null>(null);
+  /** The topics of the page's category, in the page's side list; none for a group's own topic. */
+  readonly sideList = input<DocsSideList | null>(null);
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
   private readonly topicOf = inject(DOCS_TOPIC_OF);
   private readonly route = inject(ActivatedRoute);
   private readonly cards = viewChildren(ExampleCard);
-  protected readonly viewport = inject(NeatViewport);
-  /** The topic's label, the route's title: the collapsed topic list's summary. */
-  protected readonly title = toSignal(this.route.title, {
-    initialValue: this.route.snapshot.title,
-  });
 
   private readonly openStored = neatStoredSignal(DOCS_ASIDE_OPEN_KEY, true, (stored) =>
     typeof stored === 'boolean' ? stored : undefined,

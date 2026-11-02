@@ -17,7 +17,7 @@ export type LoadTopic = () => Promise<{
 export type TopicConfig = {
   /** The route's last segment, and the name of the topic's folder under `examples/`. */
   readonly id: string;
-  /** The page tab's text, and the document's title. */
+  /** Its link's text, in the rail or in its category's side list, and the document's title. */
   readonly label: string;
   /** Export names in the order the topic reads, each in exactly one topic; none for a `page`. */
   readonly parts: readonly string[];
@@ -34,8 +34,9 @@ export type TopicConfig = {
   | {
       /**
        * The page's component, for a topic that is no part's docs (the theme's tokens). It is
-       * routed with the group's tabs as its `tabs` and `tabsLabel` inputs, as a docs page is, and
-       * has no examples module, so the examples rules of `docs.spec.ts` leave it out.
+       * routed as it is, with no inputs, so it belongs to a group's own `topics`: a category's
+       * topic gets its side list from the docs page. It has no examples module, so the examples
+       * rules of `docs.spec.ts` leave it out.
        */
       readonly page: () => Promise<Type<unknown>>;
       readonly load?: never;
@@ -43,47 +44,40 @@ export type TopicConfig = {
     }
 );
 
-/** A heading of a group's topic list and the topics under it. */
+/** A sub-page of a group with categories, and the topics its pages list in their side list. */
 export interface TopicCategory {
-  /**
-   * The route segment the category had as a rail item of its own (`/data/select-list`), whose
-   * addresses now redirect to its topics under the group.
-   */
+  /** The route's second segment: `/components/data/select-list`. */
   readonly id: string;
-  /** The heading. */
+  /** The rail child's text, and the side list's name ("Data topics"). */
   readonly label: string;
-  /** In list order. */
+  /** In list order; the first is where the category's rail child goes. */
   readonly topics: readonly TopicConfig[];
 }
 
 /**
- * A rail item and the topics it opens: a few topics as its pages' tabs (`topics`), or many under
- * category headings in a topic list beside its pages (`categories`), as Components has, since nine
- * rail items for its categories read as nine areas of an app when they are only filing.
+ * A rail item and the topics it opens, the kit's navigation applied to the docs: a few topics as
+ * the item's sub-pages (`topics`), or categories as its sub-pages, each with its many topics in a
+ * side list beside its pages (`categories`), as Components has. Why not a rail item per category:
+ * seven of them read as seven areas of an app when they are only filing.
  */
 export type TopicGroup = {
   /** The route's first segment. */
   readonly id: string;
-  /** The rail item's label, and the title in the top bar. */
+  /** The rail item's label, which the top bar shows beside the open sub-page's. */
   readonly label: string;
   readonly icon: NeatIconName;
 } & (
   | {
-      /** In tab order; the first is where the rail item goes. */
+      /** In rail order; the first is where the rail item goes. */
       readonly topics: readonly TopicConfig[];
       readonly categories?: never;
     }
   | {
-      /** In list order; the first category's first topic is where the rail item goes. */
+      /** In rail order; the first category's first topic is where the rail item goes. */
       readonly categories: readonly TopicCategory[];
       readonly topics?: never;
     }
 );
-
-/** A group's topics in order, its categories' one after another. */
-export function topicsOf(group: TopicGroup): readonly TopicConfig[] {
-  return group.topics ?? group.categories.flatMap((category) => category.topics);
-}
 
 /**
  * The docs by kind, in rail order (after Getting started, which is no group). Every public export
@@ -189,8 +183,6 @@ export const GROUPS: readonly TopicGroup[] = [
           'NeatPageNavGroup',
           'NeatPageNavLink',
           'NeatPageToolbar',
-          'NeatPageTabs',
-          'NeatPageTab',
           'NeatViewport',
         ],
         leads: ['NeatPage'],

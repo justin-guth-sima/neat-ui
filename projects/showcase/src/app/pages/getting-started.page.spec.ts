@@ -12,6 +12,7 @@ import {
 import { NeatToastHost } from '@sima/neat-ui/toast';
 import { signal } from '@angular/core';
 import kit from '../../../../neat-ui/package.json' with { type: 'json' };
+import readme from '../../../../neat-ui/README.md' with { loader: 'text' };
 import { KIT_ENTRIES } from '../docs/docs.testing';
 import {
   APP_COMPONENT,
@@ -84,10 +85,23 @@ describe('GettingStartedPage', () => {
     for (const rule of [
       'import UI only from the kit',
       'one entry per part',
+      "pages in the rail, a page's sub-pages as its rail item's children, more in the page's side list, never tabs that change the address",
       'icon names and curve names first',
       'propose a kit change instead of a workaround',
     ]) {
       expect(text).toContain(rule);
+    }
+  });
+
+  // The README is the rules' one home for an app; the note names them, so both must say the same.
+  it('finds the navigation rule it names in the README’s rules for an app', () => {
+    const rules = readme.slice(readme.indexOf('## Using the kit in an app')).replace(/\s+/g, ' ');
+
+    expect(rules).toContain(
+      "**Navigate with the rail and the page's side list, never with tabs.**",
+    );
+    for (const part of ['`children`', '`nav[neatPageNav]`', 'route-linked tabs', '`neat-tabs`']) {
+      expect(rules).toContain(part);
     }
   });
 

@@ -21,7 +21,7 @@ import { VARIANTS } from './variants';
         </button>
         <button neatButton type="button" [variant]="variant" disabled>Disabled</button>
         <button neatButton type="button" [variant]="variant" aria-disabled="true">Waiting</button>
-        <a neatButton [variant]="variant" routerLink="/components/button">Link</a>
+        <a neatButton [variant]="variant" routerLink="/components/actions/button">Link</a>
       </div>
     }
   `,

@@ -98,10 +98,12 @@ describe('the public API', () => {
     );
   });
 
-  it("exports the page's side list and its page tabs, the primary entry's page navigation", () => {
-    expect(Object.keys(primary)).toEqual(
-      expect.arrayContaining(['NeatPageNav', 'NeatPageTabs', 'NeatPageTab']),
-    );
+  it("exports the page's side list, the primary entry's page navigation, and no page tabs", () => {
+    expect(Object.keys(primary)).toContain('NeatPageNav');
+    // Removed in 0.26.0: tabs are not navigation, so a page's sub-pages are its rail item's
+    // `children` and more links than that its side list.
+    expect(Object.keys(primary)).not.toContain('NeatPageTabs');
+    expect(Object.keys(primary)).not.toContain('NeatPageTab');
   });
 
   it('exports the rail item beside the shell, for the app’s items at the bottom of the rail', () => {

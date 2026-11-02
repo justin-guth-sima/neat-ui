@@ -1,23 +1,19 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, type Route, Router, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { NeatViewport } from '@sima/neat-ui';
-import type { DocsTab } from './docs-context';
 import { DocsPage } from './docs-page';
-import { docsRoutes, groupNavItems, groupTabs, partTopicPath, topicPath } from './docs-routes';
+import { docsRoutes, groupNavItems, partTopicPath, placedTopics } from './docs-routes';
 import type { DocsEntry, DocsExample } from './model';
 import type { TopicGroup } from './topics';
 
 @Component({ selector: 'app-whole-page', template: '<p class="whole">A page of its own</p>' })
 class WholePage {}
 
-/** A hand-made topic's page: it takes its group's tabs as a docs page does. */
-@Component({ selector: 'app-made-page', template: '<p class="made">{{ tabs().length }} tab</p>' })
-class MadePage {
-  readonly tabs = input<readonly DocsTab[]>([]);
-  readonly tabsLabel = input('Topics');
-}
+/** A hand-made topic's page, a component of its own with no inputs. */
+@Component({ selector: 'app-made-page', template: '<p class="made">Made by hand</p>' })
+class MadePage {}
 
 const ENTRY: DocsEntry = {
   entry: 'primary',
@@ -81,7 +77,7 @@ const THINGS = {
   ],
 } satisfies TopicGroup;
 
-/** A group whose topics are listed under category headings beside its pages, not as tabs. */
+/** A group whose sub-pages are categories, each with its topics in a side list beside its pages. */
 const PARTS = {
   id: 'parts',
   label: 'Parts',
@@ -161,20 +157,52 @@ describe('the docs routes', () => {
     router = TestBed.inject(Router);
   });
 
-  it('names a topic /<group>/<topic>, with the group’s topics as its tabs', () => {
-    expect(topicPath(THINGS, THINGS.topics[1])).toBe('/things/pages');
-    expect(groupTabs(THINGS)).toEqual([
-      { label: 'Thing', path: '/things/thing' },
-      { label: 'Pages', path: '/things/pages' },
+  it('names a topic /<group>/<topic>, and one filed under a category /<group>/<category>/<topic>', () => {
+    expect(placedTopics(THINGS).map(({ topic, path }) => [topic.id, path])).toEqual([
+      ['thing', '/things/thing'],
+      ['pages', '/things/pages'],
+    ]);
+    expect(
+      placedTopics(PARTS).map(({ topic, path, category }) => [topic.id, path, category?.id]),
+    ).toEqual([
+      ['bolt', '/parts/small/bolt', 'small'],
+      ['nut', '/parts/small/nut', 'small'],
+      ['beam', '/parts/large/beam', 'large'],
     ]);
   });
 
-  it('gives each group a rail item, which is open on the group’s topics', () => {
+  it('gives each group a rail item, with its topics or its categories as the item’s children', () => {
     expect(groupNavItems(GROUPS)).toEqual([
-      { label: 'Things', icon: 'info', path: '/things' },
-      { label: 'Other', icon: 'stats', path: '/other' },
-      { label: 'Hand', icon: 'document', path: '/hand' },
-      { label: 'Parts', icon: 'shapes', path: '/parts' },
+      {
+        label: 'Things',
+        icon: 'info',
+        path: '/things',
+        children: [
+          { label: 'Thing', path: '/things/thing' },
+          { label: 'Pages', path: '/things/pages' },
+        ],
+      },
+      {
+        label: 'Other',
+        icon: 'stats',
+        path: '/other',
+        children: [{ label: 'One', path: '/other/one' }],
+      },
+      {
+        label: 'Hand',
+        icon: 'document',
+        path: '/hand',
+        children: [{ label: 'Made', path: '/hand/made' }],
+      },
+      {
+        label: 'Parts',
+        icon: 'shapes',
+        path: '/parts',
+        children: [
+          { label: 'Small', path: '/parts/small' },
+          { label: 'Large', path: '/parts/large' },
+        ],
+      },
     ]);
   });
 
@@ -183,7 +211,7 @@ describe('the docs routes', () => {
 
     expect(topicOf('NeatThing')).toBe('/things/thing');
     expect(topicOf('NeatOne')).toBe('/other/one');
-    expect(topicOf('NeatBolt')).toBe('/parts/bolt');
+    expect(topicOf('NeatBolt')).toBe('/parts/small/bolt');
     expect(topicOf('NeatUnknown')).toBeNull();
   });
 
@@ -193,7 +221,7 @@ describe('the docs routes', () => {
     expect(router.url).toBe('/things/thing');
   });
 
-  it('titles a page with its topic, and hands the docs page its topic and its group’s tabs', async () => {
+  it('titles a page with its topic, and hands the docs page its topic and no side list', async () => {
     const harness = await RouterTestingHarness.create();
     const page = await harness.navigateByUrl('/things/thing', DocsPage);
     await harness.fixture.whenStable();
@@ -205,21 +233,18 @@ describe('the docs routes', () => {
       leads: ['NeatThing'],
       fit: true,
     });
-    expect(page.tabsLabel()).toBe('Things topics');
-    expect(page.tabs().map((tab) => tab.path)).toEqual(['/things/thing', '/things/pages']);
+    expect(page.sideList()).toBeNull();
   });
 
-  it('routes a hand-made topic’s component with the group’s tabs, not a docs page', async () => {
+  it('routes a hand-made topic’s component, not a docs page', async () => {
     const harness = await RouterTestingHarness.create();
-    const page = await harness.navigateByUrl('/hand/made', MadePage);
+    await harness.navigateByUrl('/hand/made', MadePage);
     await harness.fixture.whenStable();
     const route = docsRoutes(GROUPS).find((candidate) => candidate.path === 'hand/made');
 
     expect(route?.title).toBe('Made');
     expect(route?.resolve).toBeUndefined();
-    expect(page.tabs()).toEqual([{ label: 'Made', path: '/hand/made' }]);
-    expect(page.tabsLabel()).toBe('Hand topics');
-    expect(harness.routeNativeElement?.querySelector('.made')?.textContent).toBe('1 tab');
+    expect(harness.routeNativeElement?.querySelector('.made')?.textContent).toBe('Made by hand');
     expect(harness.routeNativeElement?.querySelector('app-docs-page')).toBeNull();
   });
 
@@ -229,42 +254,33 @@ describe('the docs routes', () => {
     expect(router.url).toBe('/hand/made');
   });
 
-  it('hands a listed group’s pages its categories as their topic list, and no tabs', async () => {
+  it('hands the pages of a category its topics as their side list', async () => {
     const harness = await RouterTestingHarness.create();
-    const page = await harness.navigateByUrl('/parts/nut', DocsPage);
+    const page = await harness.navigateByUrl('/parts/small/nut', DocsPage);
     await harness.fixture.whenStable();
 
-    expect(docsRoutes(GROUPS).find((route) => route.path === 'parts/nut')?.title).toBe('Nut');
-    expect(page.tabs()).toEqual([]);
-    expect(page.list()).toEqual({
-      label: 'Parts',
-      categories: [
+    expect(docsRoutes(GROUPS).find((route) => route.path === 'parts/small/nut')?.title).toBe('Nut');
+    expect(page.sideList()).toEqual({
+      label: 'Small topics',
+      groups: [
         {
-          label: 'Small',
-          topics: [
-            { label: 'Bolt', path: '/parts/bolt' },
-            { label: 'Nut', path: '/parts/nut' },
+          items: [
+            { label: 'Bolt', path: '/parts/small/bolt' },
+            { label: 'Nut', path: '/parts/small/nut' },
           ],
         },
-        { label: 'Large', topics: [{ label: 'Beam', path: '/parts/beam' }] },
       ],
     });
   });
 
-  it('opens a listed group on its first category’s first topic', async () => {
-    await RouterTestingHarness.create().then((harness) => harness.navigateByUrl('/parts'));
-
-    expect(router.url).toBe('/parts/bolt');
-  });
-
-  it('sends a category’s old addresses to its topics under the group', async () => {
+  it('opens a group with categories on its first category’s first topic, a category on its first', async () => {
     const harness = await RouterTestingHarness.create();
 
-    await harness.navigateByUrl('/small/nut');
-    expect(router.url).toBe('/parts/nut');
+    await harness.navigateByUrl('/parts');
+    expect(router.url).toBe('/parts/small/bolt');
 
-    await harness.navigateByUrl('/large');
-    expect(router.url).toBe('/parts/beam');
+    await harness.navigateByUrl('/parts/large');
+    expect(router.url).toBe('/parts/large/beam');
   });
 
   it('routes a page example as a page of its own, and its card links there', async () => {
@@ -309,7 +325,9 @@ describe('the docs routes', () => {
     expect(await children('demo/nut')).toEqual([]);
   });
 
-  it('routes each topic, a demo per generated one, and each category’s old addresses', () => {
+  // No redirect from an earlier address (a category's own, `/small/nut`, or a topic's straight
+  // under its group, `/parts/nut`): the app's one catch-all sends those to Getting started.
+  it('routes each group, category and topic and a demo per generated topic, and no old address', () => {
     const paths = docsRoutes(GROUPS).map((route) => route.path);
 
     expect(paths).toEqual([
@@ -324,17 +342,14 @@ describe('the docs routes', () => {
       'hand',
       'hand/made',
       'parts',
-      'parts/bolt',
-      'parts/nut',
-      'parts/beam',
+      'parts/small',
+      'parts/small/bolt',
+      'parts/small/nut',
+      'parts/large',
+      'parts/large/beam',
       'demo/bolt',
       'demo/nut',
       'demo/beam',
-      'small',
-      'small/bolt',
-      'small/nut',
-      'large',
-      'large/beam',
     ]);
   });
 });

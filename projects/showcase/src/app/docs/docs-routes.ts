@@ -1,57 +1,61 @@
 import type { Route, Routes } from '@angular/router';
 import type { NeatNavItem } from '@sima/neat-ui';
-import type { DocsTab, DocsTopic, DocsTopicList } from './docs-context';
-import {
-  type LoadTopic,
-  type TopicCategory,
-  type TopicConfig,
-  type TopicGroup,
-  topicsOf,
-} from './topics';
+import type { DocsSideList, DocsTopic } from './docs-context';
+import type { LoadTopic, TopicCategory, TopicConfig, TopicGroup } from './topics';
 
-/** Where a topic is routed: `/<group>/<topic>`. */
-export const topicPath = (group: TopicGroup, topic: TopicConfig): string =>
-  `/${group.id}/${topic.id}`;
+/** A topic with the address it is routed at, and the category it is filed under, if any. */
+export interface PlacedTopic {
+  readonly topic: TopicConfig;
+  /** `/<group>/<topic>`, or `/<group>/<category>/<topic>` for a topic filed under a category. */
+  readonly path: string;
+  readonly category?: TopicCategory;
+}
+
+/** Where a category is routed: `/<group>/<category>`, its rail child's path. */
+const categoryPath = (group: TopicGroup, category: TopicCategory): string =>
+  `/${group.id}/${category.id}`;
+
+/** A group's topics in order, with their addresses; a group with categories files them there. */
+export function placedTopics(group: TopicGroup): PlacedTopic[] {
+  if (group.topics) {
+    return group.topics.map((topic) => ({ topic, path: `/${group.id}/${topic.id}` }));
+  }
+  return group.categories.flatMap((category) =>
+    category.topics.map((topic) => ({
+      topic,
+      path: `${categoryPath(group, category)}/${topic.id}`,
+      category,
+    })),
+  );
+}
 
 /** Where a page example is routed: `/demo/<topic>/<example>`, a page of its own. */
 export const demoPath = (topic: string, example: string): string => `/demo/${topic}/${example}`;
 
-/** Topics of a group as links: its page tabs, or the rows of its topic list. */
-function topicLinks(group: TopicGroup, topics: readonly TopicConfig[]): DocsTab[] {
-  return topics.map((topic) => ({ label: topic.label, path: topicPath(group, topic) }));
-}
-
-/** The page tabs of a group's topics. */
-export function groupTabs(
-  group: TopicGroup & { readonly topics: readonly TopicConfig[] },
-): DocsTab[] {
-  return topicLinks(group, group.topics);
-}
-
-/** The topic list of a group with categories, which its pages show beside them. */
-export function groupList(
-  group: TopicGroup & { readonly categories: readonly TopicCategory[] },
-): DocsTopicList {
-  return {
-    label: group.label,
-    categories: group.categories.map((category) => ({
-      label: category.label,
-      topics: topicLinks(group, category.topics),
-    })),
-  };
-}
-
-/** The shell's rail items, one per group; each stays open on the group's topics. */
+/**
+ * The shell's rail items, one per group, with the group's sub-pages as the item's children: its
+ * topics, or its categories, whose topics are then the side list of each category's pages.
+ */
 export function groupNavItems(groups: readonly TopicGroup[]): NeatNavItem[] {
-  return groups.map((group) => ({ label: group.label, icon: group.icon, path: `/${group.id}` }));
+  return groups.map((group) => ({
+    label: group.label,
+    icon: group.icon,
+    path: `/${group.id}`,
+    children: group.topics
+      ? placedTopics(group).map(({ topic, path }) => ({ label: topic.label, path }))
+      : group.categories.map((category) => ({
+          label: category.label,
+          path: categoryPath(group, category),
+        })),
+  }));
 }
 
 /** The path of the topic that documents a part, for the links between topics. */
 export function partTopicPath(groups: readonly TopicGroup[]): (name: string) => string | null {
   const paths = new Map(
     groups.flatMap((group) =>
-      topicsOf(group).flatMap((topic) =>
-        topic.parts.map((name) => [name, topicPath(group, topic)] as const),
+      placedTopics(group).flatMap(({ topic, path }) =>
+        topic.parts.map((name) => [name, path] as const),
       ),
     ),
   );
@@ -72,54 +76,68 @@ async function resolveTopic(topic: TopicConfig & { load: LoadTopic }): Promise<D
 }
 
 /**
- * The routes of the docs: `/<group>` to its first topic, `/<group>/<topic>` for every topic, and
+ * The routes of the docs: `/<group>` to its first topic, `/<group>/<category>` to the category's
+ * first topic, a page for every topic at its address (`placedTopics`), and
  * `/demo/<topic>/<example>` for each page example (`DocsExample.page`), its own route with the
- * example as the page (it sits in the shell like any page, and may declare the toolbar, tabs or
- * shell a docs page keeps for itself).
+ * example as the page (it sits in the shell like any page, and may declare the toolbar, side list
+ * or shell a docs page keeps for itself).
  *
- * A group's pages get its topics as their tabs or, for a group with categories, as the topic list
- * beside them. A category's addresses from when it was a rail item of its own
- * (`/data/select-list`, `/charts`) redirect to its topics in the group, so old links still land.
+ * The group's and the categories' routes are where the rail's item and children go. An earlier
+ * address (`/data/select-list`, `/components/select-list`) has no route: the app's catch-all
+ * takes it, since the showcase keeps no redirects for addresses that changed.
  */
 export function docsRoutes(groups: readonly TopicGroup[]): Routes {
   return groups.flatMap((group): Route[] => {
-    const topics = topicsOf(group);
-    // Every input the page takes, since the router binds one the data leaves out to undefined.
-    const data = group.topics
-      ? { tabs: groupTabs(group), tabsLabel: `${group.label} topics`, list: null }
-      : { tabs: [], list: groupList(group) };
+    const placed = placedTopics(group);
+    const pages = group.topics
+      ? placed.map((each) => topicRoute(each, null))
+      : group.categories.flatMap((category) => categoryRoutes(group, category, placed));
     return [
-      { path: group.id, pathMatch: 'full', redirectTo: `${group.id}/${topics[0].id}` },
-      ...topics.map((topic) => topicRoute(group, topic, data)),
-      ...topics.flatMap((topic) => (topic.load ? [demoRoute(topic.id, topic.load)] : [])),
-      ...(group.categories ?? []).flatMap((category) => categoryRedirects(group, category)),
+      { path: group.id, pathMatch: 'full', redirectTo: placed[0].path },
+      ...pages,
+      ...placed.flatMap(({ topic }) => (topic.load ? [demoRoute(topic.id, topic.load)] : [])),
     ];
   });
 }
 
 /**
- * A topic's page: the docs page with the topic resolved, or the topic's own component. Either kind
- * gets the group's topics from `data`, as its tabs or as its topic list.
+ * A category's route, to its first topic, and its topics' pages, each with the category's topics
+ * as its side list, under no heading since the rail names the category.
  */
-function topicRoute(group: TopicGroup, topic: TopicConfig, data: Route['data']): Route {
-  const route = { path: `${group.id}/${topic.id}`, title: topic.label, data };
+function categoryRoutes(
+  group: TopicGroup,
+  category: TopicCategory,
+  placed: readonly PlacedTopic[],
+): Route[] {
+  const filed = placed.filter((each) => each.category === category);
+  const list: DocsSideList = {
+    label: `${category.label} topics`,
+    groups: [{ items: filed.map(({ topic, path }) => ({ label: topic.label, path })) }],
+  };
+  return [
+    {
+      path: categoryPath(group, category).slice(1),
+      pathMatch: 'full',
+      redirectTo: filed[0].path,
+    },
+    ...filed.map((each) => topicRoute(each, list)),
+  ];
+}
+
+/**
+ * A topic's page: the docs page with the topic resolved and its side list, if any, or the topic's
+ * own component, which takes no inputs.
+ */
+function topicRoute({ topic, path }: PlacedTopic, sideList: DocsSideList | null): Route {
+  const route = { path: path.slice(1), title: topic.label };
   if (topic.page) return { ...route, loadComponent: topic.page };
   return {
     ...route,
+    // Every input the page takes, since the router binds one the data leaves out to undefined.
+    data: { sideList },
     loadComponent: () => import('./docs-page').then((m) => m.DocsPage),
     resolve: { topic: () => resolveTopic(topic) },
   };
-}
-
-/** A category's old addresses: its own, to its first topic, and each of its topics'. */
-function categoryRedirects(group: TopicGroup, category: TopicCategory): Route[] {
-  return [
-    { path: category.id, pathMatch: 'full', redirectTo: topicPath(group, category.topics[0]) },
-    ...category.topics.map((topic) => ({
-      path: `${category.id}/${topic.id}`,
-      redirectTo: topicPath(group, topic),
-    })),
-  ];
 }
 
 /**
