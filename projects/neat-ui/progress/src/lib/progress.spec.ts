@@ -121,6 +121,14 @@ describe('NeatProgress', () => {
     expect([...fill.classList]).toEqual(expect.arrayContaining(['bg-primary', 'h-full']));
   });
 
+  it('draws a bare bar as a block flex of its own height, and leaves easing to neatEased', async () => {
+    const { track, fill } = await render(50);
+
+    expect(track.classList).toContain('flex');
+    expect(track.classList).not.toContain('inline-flex');
+    expect([...fill.classList].some((c) => c.startsWith('transition'))).toBe(false);
+  });
+
   it('helm drift: the copied class strings still appear in the vendored helm progress', () => {
     expect(helmProgress).toContain(PROGRESS_HELM_CLASSES.track);
     expect(helmIndicator).toContain(PROGRESS_HELM_CLASSES.indicator);

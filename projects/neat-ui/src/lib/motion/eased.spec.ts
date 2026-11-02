@@ -1,6 +1,7 @@
-import { createEnvironmentInjector, EnvironmentInjector, signal } from '@angular/core';
+import { createEnvironmentInjector, EnvironmentInjector, type Signal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { easedBy, neatEased } from './eased';
+import type { NeatEasing } from './easing';
 
 /** `matchMedia` answering the reduced-motion query with `reduce`. */
 function stubReducedMotion(reduce: boolean) {
@@ -10,7 +11,7 @@ function stubReducedMotion(reduce: boolean) {
 }
 
 /** An eased value on a clock and frames the spec steps by hand, in an injector it can destroy. */
-function setup(initial: number | null | undefined) {
+function setup(initial: number | null | undefined, easing?: NeatEasing | Signal<NeatEasing>) {
   let clock = 1000;
   const frames: (() => void)[] = [];
   const cancelled: number[] = [];
@@ -24,6 +25,7 @@ function setup(initial: number | null | undefined) {
         cancel: (handle) => cancelled.push(handle),
       },
       source,
+      { easing },
     ),
   );
   TestBed.tick();
@@ -50,14 +52,58 @@ describe('neatEased', () => {
     expect(frames).toHaveLength(0);
   });
 
-  it('is at 0.875 of the way after 200 ms, ease-out cubic over 400 ms', () => {
-    const { value, change, advance } = setup(10);
+  it('is halfway after 200 ms by default, ease-in-out over 400 ms', () => {
+    const { value, change, advance } = setup(0);
 
-    change(18);
+    change(100);
     advance(200);
 
-    // 1 - (1 - 0.5)³ = 0.875
-    expect(value()).toBeCloseTo(10 + 0.875 * 8);
+    expect(value()).toBeCloseTo(50);
+  });
+
+  it('follows a named curve: ease-out is at 0.578125 a quarter through', () => {
+    const { value, change, advance } = setup(0, 'ease-out');
+
+    change(100);
+    advance(100);
+
+    expect(value()).toBeCloseTo(57.8125);
+  });
+
+  it('follows a function as given', () => {
+    const { value, change, advance } = setup(0, (t) => t);
+
+    change(100);
+    advance(100);
+
+    expect(value()).toBeCloseTo(25);
+  });
+
+  it('follows a curve switched on the way, and still ends exactly on the target', () => {
+    const easing = signal<NeatEasing>('linear');
+    const { value, change, advance } = setup(0, easing);
+
+    change(100);
+    advance(100);
+    expect(value()).toBeCloseTo(25);
+    easing.set('ease-in');
+    advance(100);
+    // ease-in at 0.5 is 0.125
+    expect(value()).toBeCloseTo(12.5);
+    advance(200);
+    expect(value()).toBe(100);
+  });
+
+  it('shows an overshooting curve beyond the target, then lands on it exactly', () => {
+    const { value, change, advance } = setup(0, (t) => (t < 1 ? 1.2 * t : 1));
+
+    change(100);
+    advance(350);
+    expect(value()).toBeGreaterThan(100);
+    advance(50);
+    expect(value()).toBe(100);
+    change(null);
+    expect(value()).toBeNull();
   });
 
   it('settles on the value at 400 ms and asks for no frame after that', () => {

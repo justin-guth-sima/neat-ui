@@ -11,6 +11,14 @@ class EasedHost {
   readonly digits = signal(0);
 }
 
+@Component({
+  imports: [NeatEasedNumber],
+  template: `<neat-eased-number [value]="value()" [easing]="'linear'" />`,
+})
+class LinearHost {
+  readonly value = signal<number | null | undefined>(0);
+}
+
 async function render(value: number | null | undefined, digits = 0) {
   const fixture = TestBed.createComponent(EasedHost);
   fixture.componentInstance.value.set(value);
@@ -53,5 +61,22 @@ describe('NeatEasedNumber', () => {
     const { element } = await render(1);
 
     expect(element.classList).toContain('tabular-nums');
+  });
+
+  it('moves by the curve it is given', async () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'] });
+    try {
+      const fixture = TestBed.createComponent(LinearHost);
+      await fixture.whenStable();
+      fixture.componentInstance.value.set(100);
+      await fixture.whenStable();
+
+      await vi.advanceTimersByTimeAsync(100);
+      fixture.detectChanges();
+      // Frames land every 16 ms, so "a quarter" is 24; the default curve would show 6 here.
+      expect(Number((fixture.nativeElement as HTMLElement).textContent?.trim())).toBe(24);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

@@ -20,8 +20,13 @@ export const PROGRESS_HELM_CLASSES = {
  * - Track: `bg-muted` is 1.10:1 on white and is the card colour itself in dark, so the bar's extent
  *   vanishes. An outline in `--input`, the theme's form-control boundary, which is held to 3:1 on
  *   every surface, marks it. The outline is outside the track, since the fill covers an inner one.
+ * - Track: `flex` for helm's `inline-flex`, which sits on a text baseline and so takes the line's
+ *   height, not its own, when the bar stands bare in a block.
+ * - Indicator: no `transition-all`, which would fight `neatEased`.
  */
-const TRACK_CLASSES = hlm(PROGRESS_HELM_CLASSES.track, 'ring-1 ring-input');
+const TRACK_CLASSES = hlm(PROGRESS_HELM_CLASSES.track, 'flex', 'ring-1 ring-input');
+// Easing is `neatEased`'s job: a CSS transition restarted on each of its frames would fight it.
+const INDICATOR_CLASSES = PROGRESS_HELM_CLASSES.indicator.replace(' transition-all', '');
 
 /**
  * Helm moves the fill with `animate-indeterminate` (a keyframes animation of the preset) while the
@@ -142,7 +147,7 @@ export class NeatProgress {
     return shown === null ? null : Math.round(shown);
   });
   protected readonly indicatorClasses = computed(() =>
-    hlm(PROGRESS_HELM_CLASSES.indicator, this.shown() === null ? INDETERMINATE_CLASSES : ''),
+    hlm(INDICATOR_CLASSES, this.shown() === null ? INDETERMINATE_CLASSES : ''),
   );
   /**
    * The fill is as wide as the track and pushed out of it by the part that is not done. This and

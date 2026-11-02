@@ -288,6 +288,23 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/theme/palette.ts"
     },
     {
+      "name": "NEAT_EASINGS",
+      "kind": "const",
+      "type": "Readonly<Record<NeatEasingName, (t: number) => number>>",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The catalog: cubic curves, so they differ in where they hurry and where they settle."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/motion/easing.ts"
+    },
+    {
       "name": "NEAT_HIGHLIGHT_BASE",
       "kind": "const",
       "type": "\"#9D93D6\"",
@@ -1476,9 +1493,84 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "easing",
+          "type": "NeatEasing",
+          "default": "'ease-in-out'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The curve it moves by; a catalog name, or a function where none fits."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/src/lib/motion/eased-number.ts"
+    },
+    {
+      "name": "NeatEasing",
+      "kind": "type",
+      "definition": "NeatEasingName | ((t: number) => number)",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A curve for "
+            },
+            {
+              "kind": "ref",
+              "text": "neatEased",
+              "name": "neatEased"
+            },
+            {
+              "kind": "text",
+              "text": ": a catalog name, or a function from "
+            },
+            {
+              "kind": "code",
+              "text": "t"
+            },
+            {
+              "kind": "text",
+              "text": " to the eased share (0 at 0, 1 at 1) for the rare motion no name fits. Prefer a name, so every app moves the same way."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/motion/easing.ts"
+    },
+    {
+      "name": "NeatEasingName",
+      "kind": "type",
+      "definition": "'ease-in-out' | 'ease-out' | 'ease-in' | 'linear'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The kit's named easing curves: a progress "
+            },
+            {
+              "kind": "code",
+              "text": "t"
+            },
+            {
+              "kind": "text",
+              "text": " from 0 to 1 in, the eased share out."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/motion/easing.ts"
     },
     {
       "name": "NeatIcon",
@@ -3780,7 +3872,7 @@ export const API: DocsEntry = {
     {
       "name": "neatEased",
       "kind": "function",
-      "signature": "neatEased(source: Signal<number | null | undefined>, options: { durationMs?: number } = {}): Signal<number | null | undefined>",
+      "signature": "neatEased(source: Signal<number | null | undefined>, options: { durationMs?: number; easing?: NeatEasing | Signal<NeatEasing> } = {}): Signal<number | null | undefined>",
       "doc": [
         {
           "kind": "paragraph",
@@ -3795,7 +3887,31 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "'s latest value over 400 ms (ease-out cubic) instead of jumping, so a figure that updates twice a second reads as moving rather than flickering. The first value, and a value that follows none (null or undefined), appears at once; null and undefined pass through as they are. Under a reduced-motion setting it follows "
+              "text": "'s latest value over 400 ms ("
+            },
+            {
+              "kind": "code",
+              "text": "durationMs"
+            },
+            {
+              "kind": "text",
+              "text": ") instead of jumping, so a figure that updates twice a second reads as moving rather than flickering. The curve is "
+            },
+            {
+              "kind": "code",
+              "text": "easing"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "'ease-in-out'"
+            },
+            {
+              "kind": "text",
+              "text": " unless told otherwise: a catalog name comes first, one motion language across apps, a function only where no name fits; a signal of either may switch the curve while a value is moving, and the next frame follows the new one. A curve that overshoots shows more than the target on the way; the last frame shows the target exactly. The first value, and a value that follows none (null or undefined), appears at once; null and undefined pass through as they are. Under a reduced-motion setting it follows "
             },
             {
               "kind": "code",

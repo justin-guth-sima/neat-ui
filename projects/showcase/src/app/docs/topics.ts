@@ -542,7 +542,7 @@ export const GROUPS: readonly TopicGroup[] = [
       {
         id: 'motion',
         label: 'Motion',
-        parts: ['neatEased', 'NeatEasedNumber'],
+        parts: ['neatEased', 'NeatEasedNumber', 'NEAT_EASINGS', 'NeatEasing', 'NeatEasingName'],
         leads: ['neatEased', 'NeatEasedNumber'],
         load: async () => {
           const [api, examples] = await Promise.all([

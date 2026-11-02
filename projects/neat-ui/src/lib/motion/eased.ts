@@ -1,4 +1,13 @@
-import { DestroyRef, effect, inject, type Signal, signal, untracked } from '@angular/core';
+import {
+  DestroyRef,
+  effect,
+  inject,
+  isSignal,
+  type Signal,
+  signal,
+  untracked,
+} from '@angular/core';
+import { NEAT_EASINGS, type NeatEasing } from './easing';
 
 /** How long a value takes to reach a new one, unless the caller says otherwise. */
 const EASE_MS = 400;
@@ -30,16 +39,20 @@ function reducedMotion(): boolean {
 }
 
 /**
- * A number that eases toward `source`'s latest value over 400 ms (ease-out cubic) instead of
- * jumping, so a figure that updates twice a second reads as moving rather than flickering. The
- * first value, and a value that follows none (null or undefined), appears at once; null and
- * undefined pass through as they are. Under a reduced-motion setting it follows `source` at once.
- * Frames are asked for only while it moves and cancelled when its injector is destroyed. Call in
- * an injection context.
+ * A number that eases toward `source`'s latest value over 400 ms (`durationMs`) instead of jumping,
+ * so a figure that updates twice a second reads as moving rather than flickering. The curve is
+ * `easing`, `'ease-in-out'` unless told otherwise: a catalog name comes first, one motion
+ * language across apps, a function only where no name fits; a signal of either may switch the
+ * curve while a value is moving, and the next frame follows the new one. A curve that overshoots
+ * shows more than the target on the way; the last frame shows the target exactly. The first value,
+ * and a value that follows none (null or undefined), appears at once; null and undefined pass
+ * through as they are. Under a reduced-motion setting it follows `source` at once. Frames are
+ * asked for only while it moves and cancelled when its injector is destroyed. Call in an
+ * injection context.
  */
 export function neatEased(
   source: Signal<number | null | undefined>,
-  options: { durationMs?: number } = {},
+  options: { durationMs?: number; easing?: NeatEasing | Signal<NeatEasing> } = {},
 ): Signal<number | null | undefined> {
   return easedBy(BROWSER_CLOCK, source, options);
 }
@@ -48,7 +61,10 @@ export function neatEased(
 export function easedBy(
   clock: FrameClock,
   source: Signal<number | null | undefined>,
-  { durationMs = EASE_MS }: { durationMs?: number } = {},
+  {
+    durationMs = EASE_MS,
+    easing = 'ease-in-out',
+  }: { durationMs?: number; easing?: NeatEasing | Signal<NeatEasing> } = {},
 ): Signal<number | null | undefined> {
   const shown = signal<number | null | undefined>(undefined);
   let from = 0;
@@ -61,12 +77,18 @@ export function easedBy(
     handle = undefined;
   };
 
+  // Resolved every frame, so a curve switched mid-move applies to the next frame.
+  const curve = (): ((t: number) => number) => {
+    const current = isSignal(easing) ? untracked(easing) : easing;
+    return typeof current === 'function' ? current : NEAT_EASINGS[current];
+  };
+
   // One signal write per frame, for 400 ms after a change: only what reads the value updates.
   const tick = (): void => {
     handle = undefined;
     if (isNone(to)) return;
     const t = Math.min(1, (clock.now() - start) / durationMs);
-    shown.set(t >= 1 ? to : from + (to - from) * (1 - (1 - t) ** 3));
+    shown.set(t >= 1 ? to : from + (to - from) * curve()(t));
     if (t < 1) handle = clock.request(tick);
   };
 

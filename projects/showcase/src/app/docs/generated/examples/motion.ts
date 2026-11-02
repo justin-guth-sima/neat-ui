@@ -2,6 +2,7 @@
 import type { DocsExample } from '../../model';
 import { EasedNumber } from '../../../examples/motion/1-eased-number.example';
 import { EasedSignal } from '../../../examples/motion/2-eased-signal.example';
+import { Curves } from '../../../examples/motion/3-curves.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -100,6 +101,79 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "eased-signal.example.css",
         "code": [
           ["comment","/* The bar takes the row's width beside its button. */"],["text","\n:host {\n  display: grid;\n  grid-template-columns: minmax(0, 1fr) auto;\n  align-items: center;\n  gap: var(--neat-space-3);\n  max-width: 28rem;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "curves",
+    "title": "Curves",
+    "component": Curves,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "One bar per curve of the catalog, each fed "
+          },
+          {
+            "kind": "ref",
+            "text": "neatEased",
+            "name": "neatEased"
+          },
+          {
+            "kind": "text",
+            "text": " of the same share with its own "
+          },
+          {
+            "kind": "code",
+            "text": "easing"
+          },
+          {
+            "kind": "text",
+            "text": ", so a single press moves all four side by side: ease-in-out, the default, starts and settles gently, ease-out starts fast, ease-in starts slow, and linear keeps one pace."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui#NEAT_EASINGS",
+      "@sima/neat-ui#NeatButton",
+      "@sima/neat-ui#NeatEasingName",
+      "@sima/neat-ui#neatEased",
+      "@sima/neat-ui/progress#NeatProgress"
+    ],
+    "files": [
+      {
+        "name": "3-curves.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, computed, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NEAT_EASINGS, NeatButton, "],["keyword","type"],["text"," NeatEasingName, neatEased } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatProgress } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/progress'"],["text",";\n\n"],
+          ["comment","/** The shares the bars move through, in turn, in percent. */"],["text","\n"],
+          ["keyword","const"],["text"," SHARES = [0, 100];\n\n"],
+          ["comment","/** The catalog's names, in the order the bars stand. */"],["text","\n"],
+          ["keyword","const"],["text"," CURVES = Object.keys(NEAT_EASINGS) "],["keyword","as"],["text"," NeatEasingName[];\n\n@Component({\n  selector: "],
+          ["string","'app-curves'"],["text",",\n  imports: [NeatButton, NeatProgress],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    @for (bar of bars; track bar.curve) {\n      <span class=\"name\">{{ bar.curve }}</span>\n      <neat-progress [label]=\"bar.curve\" [value]=\"bar.value()\" />\n    }\n    <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"next()\">\n      Next share\n    </button>\n  `"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./curves.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," Curves {\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," share = signal(SHARES[0]);\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," bars = CURVES.map((curve) => {\n    "],
+          ["keyword","const"],["text"," eased = neatEased("],["keyword","this"],["text",".share, { easing: curve });\n    "],
+          ["keyword","return"],["text"," { curve, value: computed(() => eased() ?? 0) };\n  });\n  "],
+          ["keyword","private"],["text"," index = 0;\n\n  "],
+          ["keyword","protected"],["text"," next(): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".index = ("],["keyword","this"],["text",".index + 1) % SHARES.length;\n    "],
+          ["keyword","this"],["text",".share.set(SHARES["],["keyword","this"],["text",".index]);\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "curves.example.css",
+        "code": [
+          ["comment","/* Each bar takes the row's width beside its name; the button stands under them. */"],["text","\n:host {\n  display: grid;\n  grid-template-columns: 6.5rem minmax(0, 1fr);\n  align-items: center;\n  gap: var(--neat-space-3);\n  max-width: 28rem;\n  font-size: var(--neat-text-sm);\n}\n\nbutton {\n  grid-column: 1 / -1;\n  justify-self: start;\n}\n"]
         ]
       }
     ]

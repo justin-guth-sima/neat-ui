@@ -59,6 +59,7 @@ export { NeatStale } from './lib/stale/stale';
 export { neatSecondsAgo } from './lib/time/seconds-ago';
 export { neatEased } from './lib/motion/eased';
 export { NeatEasedNumber } from './lib/motion/eased-number';
+export { NEAT_EASINGS, type NeatEasing, type NeatEasingName } from './lib/motion/easing';
 export { neatStoredSignal } from './lib/stored-signal';
 export type { NeatTooltipPosition } from './lib/tooltip/tooltip';
 export { NeatTooltip } from './lib/tooltip/tooltip';

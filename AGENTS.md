@@ -35,9 +35,12 @@ look happens in one place. Every rule here protects that.
     `NeatStale` (`[neatStale]`: what its host shows is stale, faded to 0.55 and grey, with no
     transition; the words beside it say why) and `provideNeatTitles(appName)` (the document's
     title, `<appName> · <route title>`, or the app name alone on an untitled route).
-    `neatEased` (a number signal that eases to each new value in 400 ms, ease-out cubic, and
-    follows at once under reduced motion or after no value) and `NeatEasedNumber` (that figure in
-    tabular digits, "–" while there is none) are the kit's one way a live figure moves.
+    `neatEased` (a number signal that eases to each new value in 400 ms, ease-in-out cubic by
+    default, and follows at once under reduced motion or after no value) and `NeatEasedNumber`
+    (that figure in tabular digits, "–" while there is none) are the kit's one way a live figure
+    moves. Their `easing` is a catalog name (`NEAT_EASINGS`: `ease-in-out`, `ease-out`, `ease-in`,
+    `linear`), so every app moves the same way; a custom function only where no name fits. The
+    curve may be switched while a value moves, and the last frame always shows the target exactly.
     `neatThemeColors` (the theme's tokens as `NeatRgb`, sRGB from 0 to 1, read again when the
     scheme changes) and `neatResolveColor` (any CSS colour, resolved on a 1×1 canvas) are for code
     that draws outside CSS (three.js, a canvas), which takes colours as numbers: any CSS colour a

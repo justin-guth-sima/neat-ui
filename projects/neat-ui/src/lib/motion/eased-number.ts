@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { neatEased } from './eased';
+import type { NeatEasing } from './easing';
 
 /**
  * A figure that eases to each new value (`neatEased`) instead of jumping, as
@@ -19,7 +20,10 @@ export class NeatEasedNumber {
   /** Digits after the decimal point. */
   readonly digits = input(0);
 
-  private readonly shown = neatEased(this.value);
+  /** The curve it moves by; a catalog name, or a function where none fits. */
+  readonly easing = input<NeatEasing>('ease-in-out');
+
+  private readonly shown = neatEased(this.value, { easing: this.easing });
   protected readonly text = computed(() => {
     const value = this.shown();
     return value === null || value === undefined ? '–' : value.toFixed(this.digits());

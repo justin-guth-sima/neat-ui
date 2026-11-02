@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { EasedNumber } from './1-eased-number.example';
 import { EasedSignal } from './2-eased-signal.example';
+import { Curves } from './3-curves.example';
 
 const button = (host: HTMLElement, name: string): HTMLButtonElement =>
   Array.from(host.querySelectorAll('button')).find((b) => b.textContent?.trim() === name)!;
@@ -58,5 +59,27 @@ describe('the motion examples', () => {
 
     await settle(fixture, 300);
     expect(value()).toBe(85);
+  });
+
+  it('move four bars, one per curve, with one press', async () => {
+    const fixture = TestBed.createComponent(Curves);
+    const host = fixture.nativeElement as HTMLElement;
+    const now = () =>
+      Array.from(host.querySelectorAll('[role="progressbar"]')).map((bar) =>
+        Number(bar.getAttribute('aria-valuenow')),
+      );
+    await settle(fixture, 0);
+
+    expect(now()).toEqual([0, 0, 0, 0]);
+
+    button(host, 'Next share').click();
+    await settle(fixture, 100);
+    const early = now();
+    expect(early).toHaveLength(4);
+    expect(early.every((v) => v > 0 && v < 100)).toBe(true);
+    expect(new Set(early).size).toBe(4);
+
+    await settle(fixture, 400);
+    expect(now()).toEqual([100, 100, 100, 100]);
   });
 });
