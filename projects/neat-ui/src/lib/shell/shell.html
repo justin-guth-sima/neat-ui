@@ -21,7 +21,7 @@
           <li>
             @if (item.children?.length && !railExpanded()) {
               <!-- Collapsed, a page with sub-pages is the button that opens their menu: a press
-                   does not navigate, since the page is its first sub-page. -->
+                   navigates to the page, as the expanded link does, and opens the menu. -->
               <button
                 neatRailItem
                 type="button"

@@ -5,14 +5,16 @@ import {
   Component,
   DestroyRef,
   Directive,
+  effect,
   ElementRef,
+  ComponentRef,
   inject,
   Injector,
   input,
   output,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { OverlayFocus } from '../overlay/overlay-focus';
 import { PANEL_SURFACE_CLASSES } from '../overlay/panel-surface';
 import { hlm } from '../ui/utils/src';
@@ -86,9 +88,16 @@ export class RailMenuPanel {
  * Turns a collapsed rail item that has sub-pages into the button that opens their menu, in place
  * of the link to the page:
  * `<button neatRailItem [neatRailMenu]="page" [neatRailMenuCurrent]="child">`.
- * A press (click, tap, Enter, Space) opens it and navigates nowhere, since the page is its first
- * sub-page; with a mouse or pen, hovering opens it too, and leaving closes it after
- * `HOVER_CLOSE_DELAY` unless a press has kept it. It replaces the item's tooltip (`NeatRailItem`
+ * A press (click, tap, Enter, Space) navigates to the page's `path`, as the expanded rail's link
+ * does (the app's routes decide which sub-page that shows), and opens the menu, whose current
+ * sub-page follows the route. With a mouse or pen, hovering opens the menu too, without
+ * navigating, and leaving closes it after `HOVER_CLOSE_DELAY` unless a press has kept it.
+ *
+ * It stays a button and navigates with the router, rather than becoming a link that also opens
+ * the menu: a link would need its Enter, its modified clicks and `aria-expanded` reconciled with
+ * the menu, where a button already has Enter and Space as a click and `aria-haspopup`/
+ * `aria-expanded` mean what they say. The cost is that Ctrl/Cmd/middle click are plain presses,
+ * not "open in a new tab"; the menu's own rows are links for that. It replaces the item's tooltip (`NeatRailItem`
  * switches that off), as the menu's heading says what the tooltip would.
  *
  * On CDK's overlay, not brain's popover, whose positions open below its trigger where this menu
@@ -120,20 +129,31 @@ export class RailMenu {
   private readonly element: HTMLButtonElement = inject(ElementRef).nativeElement;
   private readonly overlay = inject(Overlay);
   private readonly injector = inject(Injector);
+  private readonly router = inject(Router);
   private readonly focus = new OverlayFocus(
     () => this.element,
     () => this.close(),
   );
   private ref: OverlayRef | undefined;
+  private panel: ComponentRef<RailMenuPanel> | undefined;
   private by: 'press' | 'hover' = 'press';
   private closeTimer: ReturnType<typeof setTimeout> | undefined;
   private stopWatchingFocus: (() => void) | undefined;
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.close());
+    // The press navigates as it opens, so the menu marks the sub-page the new route shows.
+    effect(() => {
+      const current = this.neatRailMenuCurrent();
+      if (this.panel) {
+        this.panel.setInput('current', current);
+        this.panel.changeDetectorRef.detectChanges();
+      }
+    });
   }
 
   protected pressed(): void {
+    void this.router.navigateByUrl(this.neatRailMenu().path);
     if (this.ref && this.by === 'press') {
       this.close();
       return;
@@ -179,6 +199,7 @@ export class RailMenu {
     panel.setInput('current', this.neatRailMenuCurrent());
     panel.instance.chosen.subscribe(() => this.closeToItem());
     panel.changeDetectorRef.detectChanges();
+    this.panel = panel;
     ref.overlayElement.addEventListener('pointerenter', () => this.cancelClose());
     ref.overlayElement.addEventListener('pointerleave', () => this.closeAfterHover());
     ref.keydownEvents().subscribe((event) => this.keydown(event, ref.overlayElement));
@@ -254,6 +275,7 @@ export class RailMenu {
     this.stopWatchingFocus = undefined;
     this.ref?.dispose();
     this.ref = undefined;
+    this.panel = undefined;
     this.open.set(false);
   }
 }

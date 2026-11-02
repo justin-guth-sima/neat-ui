@@ -874,11 +874,12 @@ place, so every app reads the same way.
   deeper than the child with its own route `title` it is that title beside "page › child".
   Deeper levels are not the rail's: more than a few sub-pages, groups or nesting belong in the
   page's side list (`nav[neatPageNav]`, below).
-- **Collapsed, a page with `children` is a button that opens their menu** beside the rail, not a
-  link. Why: the collapsed rail has no room for sub-pages, and following the link would hide them
-  with no way to choose; nothing is lost by not navigating, since the page is its first sub-page.
-  A press (click, tap, Enter, Space) opens it and navigates nowhere; with a mouse or pen, hover
-  opens it too and leaving closes it after a short delay unless a press kept it. The menu is a
+- **Collapsed, a page with `children` is a button that navigates and opens their menu** beside the
+  rail, not a link. Why: the collapsed rail has no room for sub-pages, so a press must also offer the choice
+  among them. A press (click, tap, Enter, Space) navigates to the page's `path`, as the expanded
+  link does (the app's routes decide which sub-page shows), and opens the menu, whose current
+  sub-page follows the route; it stays a button and navigates with the router, so Ctrl/Cmd/middle
+  click are plain presses. With a mouse or pen, hover opens it without navigating and leaving closes it after a short delay unless a press kept it. The menu is a
   dialog named by its heading, the page's label, with one link per child, the open one
   `aria-current="page"`; the button has `aria-haspopup="dialog"` and `aria-expanded`, and no
   tooltip, since the heading says the label. Focus: a press moves it to the first link; Escape

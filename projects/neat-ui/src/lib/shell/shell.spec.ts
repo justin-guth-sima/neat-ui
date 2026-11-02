@@ -1504,7 +1504,7 @@ describe('NeatShell', () => {
       expect(menu()).toBeNull();
     });
 
-    it('opens the menu on a press, without navigating: the page’s name, then its sub-pages', async () => {
+    it('opens the menu on a press: the page’s name, then its sub-pages', async () => {
       await start('/theme/colours');
 
       await press(pageButton('Theme'));
@@ -1520,8 +1520,30 @@ describe('NeatShell', () => {
         '/theme/colours',
         '/theme/icons',
       ]);
+      expect(menuLinks().map((a) => a.getAttribute('aria-current'))).toEqual([null, null, null]);
+    });
+
+    it('navigates to the page’s path on a press, and marks the sub-page that route shows', async () => {
+      // The fixture routes /theme to no sub-page, so the menu marks none after the press; it
+      // marked Colours before it.
+      await start('/theme/colours');
+      hover(pageButton('Theme'));
+      await settle();
       expect(menuLinks().map((a) => a.getAttribute('aria-current'))).toEqual([null, 'page', null]);
-      expect(url()).toBe('/theme/colours');
+
+      await press(pageButton('Theme'));
+
+      expect(url()).toBe('/theme');
+      expect(menuLinks().map((a) => a.getAttribute('aria-current'))).toEqual([null, null, null]);
+    });
+
+    it('navigates on a press from another page, and opens the menu', async () => {
+      await start('/home');
+
+      await press(pageButton('Theme'));
+
+      expect(url()).toBe('/theme');
+      expect(menu()).not.toBeNull();
     });
 
     it('moves focus to the first link on a press, and closes on a second press', async () => {
@@ -1545,7 +1567,6 @@ describe('NeatShell', () => {
       expect(item instanceof HTMLButtonElement).toBe(true);
       expect(item.disabled).toBe(false);
       expect(item.tabIndex).toBe(0);
-      expect(url()).toBe('/theme');
     });
 
     it('marks no sub-page in the menu where the route belongs to the page alone', async () => {
@@ -1565,6 +1586,7 @@ describe('NeatShell', () => {
       expect(menu()).not.toBeNull();
       expect(document.activeElement).not.toBe(menuLinks()[0]);
       expect(tooltip()).toBeNull();
+      expect(url()).toBe('/theme/colours');
 
       item.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));
       await pause(50);

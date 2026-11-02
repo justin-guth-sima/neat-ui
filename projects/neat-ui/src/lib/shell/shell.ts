@@ -98,8 +98,9 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * with every page's sub-pages.
  *
  * Collapsed, the rail has no room for them: its item for a page with `children` is a button that
- * opens their menu beside the rail in place of following the link, and keeps the
- * current-page look while the route belongs to the page. A mouse opens the menu on hover as well.
+ * a button: a press navigates to the page's `path`, as the expanded link does, and opens their
+ * menu beside the rail; it keeps the current-page look while the route belongs to the page. A
+ * mouse opens the menu on hover as well, without navigating.
  * The menu's heading is the page's label, which is why that item has no tooltip.
  *
  * The top bar holds the logo, the app name and the page title, then at its right the active page's

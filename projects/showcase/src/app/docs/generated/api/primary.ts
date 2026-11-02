@@ -2049,7 +2049,15 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ": the app routes it to the first sub-page, or gives the first sub-page the page's own path. The kit does not redirect. Collapsed, the item opens them as a menu beside the rail on a press instead of following its link."
+                  "text": ": the app routes it to the first sub-page, or gives the first sub-page the page's own path. The kit does not redirect. Collapsed, a press on the item goes to "
+                },
+                {
+                  "kind": "code",
+                  "text": "path"
+                },
+                {
+                  "kind": "text",
+                  "text": " as well and opens them as a menu beside the rail."
                 }
               ]
             }
@@ -3455,7 +3463,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is a button that opens their menu beside the rail in place of following the link, and keeps the current-page look while the route belongs to the page. A mouse opens the menu on hover as well. The menu's heading is the page's label, which is why that item has no tooltip."
+              "text": " is a button that a button: a press navigates to the page's "
+            },
+            {
+              "kind": "code",
+              "text": "path"
+            },
+            {
+              "kind": "text",
+              "text": ", as the expanded link does, and opens their menu beside the rail; it keeps the current-page look while the route belongs to the page. A mouse opens the menu on hover as well, without navigating. The menu's heading is the page's label, which is why that item has no tooltip."
             }
           ]
         },

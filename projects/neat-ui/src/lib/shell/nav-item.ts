@@ -29,8 +29,8 @@ export interface NeatNavItem {
    * is active and the rail shows its labels; the open one carries `aria-current="page"` and the
    * item then does not. The item's link still goes to `path`: the app routes it to the first
    * sub-page, or gives the first sub-page the page's own path. The kit does not redirect.
-   * Collapsed, the item opens them as a menu beside the rail on a press instead of following its
-   * link.
+   * Collapsed, a press on the item goes to `path` as well and opens them as a menu beside the
+   * rail.
    */
   children?: readonly NeatNavChild[];
 }
