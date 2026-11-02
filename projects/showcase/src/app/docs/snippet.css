@@ -4,16 +4,14 @@
 }
 
 /*
- * The trigger's row, after "Code": the file shown, the other files, Copy, at the row's end, also
- * when a narrow card puts them on a line of their own.
+ * The trigger's row, after "Code": Copy, at the row's end, also when a narrow card puts it on a
+ * line of its own.
  */
 .files {
   display: flex;
   flex-grow: 1;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--neat-space-2);
   min-width: 0;
 }
 

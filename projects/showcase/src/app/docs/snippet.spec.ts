@@ -63,42 +63,58 @@ describe('Snippet', () => {
     expect(host.querySelector('pre .comment')?.textContent).toBe('// The figure line.');
   });
 
-  it("names the file, the other files and Copy in the trigger's row", async () => {
+  it('lists the files as tabs in their given order, which choosing another does not change', async () => {
+    const { fixture, host, open } = await render([MAIN, DATA]);
+    await open();
+    const names = () =>
+      Array.from(host.querySelectorAll('[role="tab"]'), (t) => t.textContent?.trim());
+
+    expect(host.querySelector('[role="tablist"]')?.getAttribute('aria-label')).toBe('Files');
+    expect(names()).toEqual([MAIN.name, DATA.name]);
+
+    (host.querySelectorAll('[role="tab"]')[1] as HTMLButtonElement).click();
+    await fixture.whenStable();
+
+    expect(names()).toEqual([MAIN.name, DATA.name]);
+  });
+
+  it('keeps only Copy in the trigger row', async () => {
     const { host, open } = await render([MAIN, DATA]);
     await open();
     const row = host.querySelector('[data-slot="collapsible-row"]') as HTMLElement;
-    const trigger = row.querySelector('[data-slot="collapsible-trigger"]') as HTMLElement;
 
-    expect(trigger.textContent?.trim()).toBe('Code');
-    expect(row.querySelector('.files code')?.textContent).toBe('messaging-pipeline.example.ts');
+    expect(row.querySelector('[data-slot="collapsible-trigger"]')?.textContent?.trim()).toBe(
+      'Code',
+    );
     expect(
       Array.from(row.querySelectorAll('.files button'), (b) => b.getAttribute('aria-label')),
-    ).toEqual(['Show pipeline-data.ts', 'Copy messaging-pipeline.example.ts']);
-    expect(host.querySelector('[data-slot="collapsible-content"] .files')).toBeNull();
+    ).toEqual(['Copy messaging-pipeline.example.ts']);
+    expect(row.querySelector('.files code')).toBeNull();
   });
 
-  it('offers no other file for an example of one file', async () => {
+  it('shows the code of the chosen tab, and Copy copies that file', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+    const { fixture, host, open } = await render([MAIN, DATA]);
+    await open();
+
+    (host.querySelectorAll('[role="tab"]')[1] as HTMLButtonElement).click();
+    await fixture.whenStable();
+
+    expect(host.querySelector('[role="tabpanel"]:not([hidden]) pre')?.textContent).toBe(text(DATA));
+    const copy = host.querySelector('app-copy-button button') as HTMLButtonElement;
+    expect(copy.getAttribute('aria-label')).toBe('Copy pipeline-data.ts');
+    copy.click();
+    expect(writeText).toHaveBeenCalledWith(text(DATA));
+    vi.unstubAllGlobals();
+  });
+
+  it('has no tab list for an example of one file', async () => {
     const { host, open } = await render([MAIN]);
     await open();
 
-    expect(host.querySelectorAll('.files button')).toHaveLength(1);
-  });
-
-  it('shows another file on its button, which stays focused as the files swap', async () => {
-    const { fixture, host, open } = await render([MAIN, DATA]);
-    document.body.append(host);
-    await open();
-    const other = host.querySelector('.files button') as HTMLButtonElement;
-    other.focus();
-
-    other.click();
-    await fixture.whenStable();
-
-    expect(host.querySelector('pre')?.textContent).toBe(text(DATA));
-    expect(host.querySelector('.files code')?.textContent).toBe('pipeline-data.ts');
-    expect(document.activeElement).toBe(other);
-    expect(other.getAttribute('aria-label')).toBe('Show messaging-pipeline.example.ts');
-    host.remove();
+    expect(host.querySelector('[role="tablist"]')).toBeNull();
+    expect(host.querySelector('pre')?.textContent).toBe(text(MAIN));
   });
 
   it('names where the showcase classes are defined, only for a file that uses one', async () => {
@@ -113,10 +129,10 @@ describe('Snippet', () => {
       'projects/showcase/src/styles.css',
     );
 
-    (host.querySelector('.files button') as HTMLButtonElement).click();
+    (host.querySelectorAll('[role="tab"]')[1] as HTMLButtonElement).click();
     await TestBed.inject(ApplicationRef).whenStable();
 
-    expect(host.querySelector('pre')?.textContent).toBe(text(MAIN));
+    expect(host.querySelector('[role="tabpanel"]:not([hidden]) pre')?.textContent).toBe(text(MAIN));
     expect(host.querySelector('[neatNote]')).toBeNull();
   });
 
