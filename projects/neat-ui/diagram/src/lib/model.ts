@@ -28,6 +28,13 @@ export type NeatDiagramLook = 'default' | 'accent' | 'dashed' | 'ghost' | 'muted
 /** How an edge ends: plain, with an arrowhead, or with a dot. */
 export type NeatDiagramTip = 'none' | 'arrow' | 'dot';
 
+/**
+ * What dims the rest of a diagram while the pointer or the keyboard is on a part: `none`, nothing;
+ * `edges`, an edge's two blocks, its notes and itself stay and the rest dims; `all`, the same for
+ * a block and the edges that join it too.
+ */
+export type NeatDiagramHighlight = 'none' | 'edges' | 'all';
+
 /** How an edge's line is drawn. */
 export type NeatDiagramLine = 'solid' | 'dashed' | 'ghost';
 

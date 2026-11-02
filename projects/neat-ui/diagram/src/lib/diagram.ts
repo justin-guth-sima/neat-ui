@@ -21,7 +21,7 @@ import { NeatBreadcrumbs, NeatButton, NeatIcon } from '@sima/neat-ui';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
 import { BRACE_HEIGHT, describeLevel, drawLevel } from './drawing';
 import { levelExtent } from './fit';
-import { DiagramHover, focusedParts } from './hover';
+import { DiagramHover, focusedParts, highlighted } from './hover';
 import { samePath, walkLevels } from './levels';
 import {
   type DiagramMessagesContext,
@@ -29,7 +29,7 @@ import {
   IDENTITY_TRANSFORM,
   provideDiagramMessagesContext,
 } from './messages/context';
-import type { NeatDiagramNode, NeatDiagramSet } from './model';
+import type { NeatDiagramHighlight, NeatDiagramNode, NeatDiagramSet } from './model';
 import { NoteBox, NoteSizes } from './note-sizes';
 import { placeNotes } from './notes';
 import { firstOfEachId } from './report';
@@ -61,9 +61,9 @@ import { DiagramZoom } from './zoom';
  * `neatDiagramEdgeTip`). A visually hidden list after the drawing says the level's nodes and
  * edges in words.
  *
- * A block or an edge under the pointer, or a block whose open button has the focus, is in focus
- * with what it is joined to; the rest is dimmed. A block that opens a level is a button that opens
- * it; `level` is the path of open levels, which an app can bind to its route, and the bar over the
+ * With `highlight` set, a block or an edge under the pointer, or a block whose open button has the
+ * focus, is in focus with what it is joined to; the rest is dimmed. A block that opens a level is
+ * a button that opens it; `level` is the path of open levels, which an app can bind to its route, and the bar over the
  * drawing goes back and shows the path. A path that leads nowhere (a stale route) is cut to the
  * part that does, and the model is set to it; so render the diagram once its data is there, since
  * a routed path is checked against the diagram given, a placeholder too.
@@ -95,6 +95,14 @@ export class NeatDiagramView {
    * it; `[]` for the overview. Set by the open buttons, the back button and the breadcrumbs.
    */
   readonly level = model<string[]>([]);
+  /**
+   * What dims the rest while something is under the pointer: nothing by default, since dimming
+   * without a reason to look is noise that every pass of the pointer over the drawing makes;
+   * `edges` for a drawing whose links are what the reader follows (the dim then says which blocks
+   * a link joins); `all` when a block's links are worth tracing too. An edge's tip shows whatever
+   * this is.
+   */
+  readonly highlight = input<NeatDiagramHighlight>('none');
 
   protected readonly blockTemplate = contentChild(NeatDiagramBlockTemplate);
   protected readonly noteTemplate = contentChild(NeatDiagramNoteTemplate);
@@ -156,7 +164,9 @@ export class NeatDiagramView {
   );
 
   /** The parts in focus while something is (the rest is dimmed); null while nothing is. */
-  protected readonly focused = computed(() => focusedParts(this.shown(), this.hover.focus()));
+  protected readonly focused = computed(() =>
+    focusedParts(this.shown(), highlighted(this.hover.focus(), this.highlight())),
+  );
 
   /** The tip of the edge under the pointer, while the app has a tip template. */
   protected readonly edgeTip = computed(() => {

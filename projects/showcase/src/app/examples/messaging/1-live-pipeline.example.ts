@@ -36,8 +36,11 @@ const STAGE_SHOWN_EVERY = 10;
 /** The edges each kind of message travels, on the overview and in the Detector's level. */
 const FRAME_EDGES = ['camera-decode', 'decode-detector', 'decode-resize'];
 const RESULT_EDGES = ['detector-tracker', 'nms-tracker', 'tracker-gateway', 'gateway-browser'];
-/** The Burst button's messages, in one tick: far past the dots' cap, to show the example holds. */
-const BURST_MESSAGES = 10_000;
+/**
+ * The Burst button's messages, in one tick: about ten seconds of the results' traffic (four edges
+ * at 10 Hz), as a tab back from ten seconds in the background delivers it.
+ */
+const BURST_MESSAGES = 400;
 
 /**
  * A timer feeds camera frames at 30 Hz and results at 10 Hz, in batches of three frames that
@@ -46,7 +49,8 @@ const BURST_MESSAGES = 10_000;
  * notes are rate cards of an edge's `rate()`, the Detector's with its stage time in place of the
  * megabytes.
  * The Animation panel tunes the dots, its choice kept per browser with `neatStoredSignal`, and
- * Burst pushes 10 000 messages in one tick, as a tab returning from the background would.
+ * Burst pushes 400 messages in one tick, about ten seconds of the results, as a tab returning
+ * from ten seconds in the background would.
  *
  * The top bar's Fit calls `NeatDiagramView.fit`, which fits the drawing to its box again after it
  * was panned or zoomed.

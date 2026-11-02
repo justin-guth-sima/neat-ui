@@ -5,10 +5,10 @@
 }
 
 /*
- * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 28rem, so a
+ * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a
  * phone's narrow box does not stand tall and empty around a drawing its width shrinks.
  */
 .diagram {
   aspect-ratio: 4 / 3;
-  max-height: 28rem;
+  max-height: 40rem;
 }

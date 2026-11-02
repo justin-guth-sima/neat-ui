@@ -3,6 +3,7 @@ import type { DocsExample } from '../../model';
 import { MessagingPipeline } from '../../../examples/diagram/1-messaging-pipeline.example';
 import { CompileFlow } from '../../../examples/diagram/2-compile-flow.example';
 import { ModelGraph } from '../../../examples/diagram/3-model-graph.example';
+import { Highlight } from '../../../examples/diagram/4-highlight.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -217,8 +218,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "diagram-box.css",
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
-          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 28rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
-          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 28rem;\n}\n"]
+          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
+          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
         ]
       },
       {
@@ -334,8 +335,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "diagram-box.css",
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
-          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 28rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
-          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 28rem;\n}\n"]
+          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
+          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
         ]
       }
     ]
@@ -510,8 +511,164 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "diagram-box.css",
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
-          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 28rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
-          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 28rem;\n}\n"]
+          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
+          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "highlight",
+    "title": "Highlight",
+    "component": Highlight,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "What dims the rest of the drawing while the pointer is on a part, set by "
+          },
+          {
+            "kind": "ref",
+            "text": "NeatDiagramView.highlight",
+            "name": "NeatDiagramView",
+            "member": "highlight"
+          },
+          {
+            "kind": "text",
+            "text": ". The default is "
+          },
+          {
+            "kind": "code",
+            "text": "none"
+          },
+          {
+            "kind": "text",
+            "text": ": dimming without a reason to look is noise every time the pointer crosses the drawing. "
+          },
+          {
+            "kind": "code",
+            "text": "edges"
+          },
+          {
+            "kind": "text",
+            "text": " suits a drawing read by its links, where hovering one shows which blocks it joins; "
+          },
+          {
+            "kind": "code",
+            "text": "all"
+          },
+          {
+            "kind": "text",
+            "text": " also traces a block's links, for a dense drawing in which they are hard to follow by eye. An edge's tip shows in every mode."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/diagram#NeatDiagramLegend",
+      "@sima/neat-ui/diagram#NeatDiagramView",
+      "@sima/neat-ui/diagram#NeatDiagramHighlight",
+      "@sima/neat-ui/segmented#NeatSegmented",
+      "@sima/neat-ui/segmented#NeatSegmentedOption"
+    ],
+    "files": [
+      {
+        "name": "4-highlight.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal, viewChild } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," {\n  NeatDiagramLegend,\n  NeatDiagramView,\n  "],
+          ["keyword","type"],["text"," NeatDiagramHighlight,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSegmented, "],["keyword","type"],["text"," NeatSegmentedOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/segmented'"],["text",";\n"],
+          ["keyword","import"],["text"," { COMPILE_FLOW, COMPILE_LEGEND } "],["keyword","from"],["text"," "],["string","'./compile-flow-data'"],["text",";\n\n"],
+          ["keyword","const"],["text"," MODES: NeatSegmentedOption<NeatDiagramHighlight>[] = [\n  { value: "],
+          ["string","'none'"],["text",", label: "],["string","'None'"],["text"," },\n  { value: "],
+          ["string","'edges'"],["text",", label: "],["string","'Edges'"],["text"," },\n  { value: "],
+          ["string","'all'"],["text",", label: "],["string","'All'"],["text"," },\n];\n\n@Component({\n  selector: "],
+          ["string","'app-highlight'"],["text",",\n  imports: [NeatDiagramLegend, NeatDiagramView, NeatSegmented],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <neat-segmented label=\"Highlight\" [options]=\"modes\" [(value)]=\"mode\" />\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram\n      class=\"diagram\"\n      [diagram]=\"flow\"\n      label=\"A compile flow to hover\"\n      [highlight]=\"mode()\"\n    />\n  `"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./diagram-box.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," Highlight {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," modes = MODES;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," mode = signal<NeatDiagramHighlight>("],["string","'edges'"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," flow = COMPILE_FLOW;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," legend = COMPILE_LEGEND;\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," diagram = viewChild.required(NeatDiagramView);\n\n  "],
+          ["comment","/** Fits the drawing to its box again, as a toolbar's Fit button does. */"],["text","\n  fit(): "],
+          ["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".diagram().fit();\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "compile-flow-data.ts",
+        "code": [
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramLegendItem, NeatDiagramSet } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
+          ["keyword","import"],["text"," { MLA } "],["keyword","from"],["text"," "],["string","'./chips'"],["text",";\n\n"],
+          ["comment","/*\n * A compile flow, placed after the reference sheet: a column of steps, with an input beside it and\n * an optional step.\n */"],
+          ["text","\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," COMPILE_FLOW: NeatDiagramSet = {\n  overview: {\n    nodes: [\n      { id: "],
+          ["string","'onnx'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'model.onnx'"],["text",", detail: "],["string","'FP32'"],["text",", x: 0, y: 0, w: 150, h: 46 },\n      {\n        id: "],
+          ["string","'surgery'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        label: "],
+          ["string","'Model surgery'"],["text",",\n        detail: "],
+          ["string","'unsupported ops'"],["text",",\n        x: 0,\n        y: 80,\n        w: 150,\n        h: 46,\n      },\n      {\n        id: "],
+          ["string","'quantize'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        label: "],
+          ["string","'Quantize'"],["text",",\n        detail: "],
+          ["string","'INT8'"],["text",",\n        x: 0,\n        y: 160,\n        w: 150,\n        h: 46,\n      },\n      { id: "],
+          ["string","'compile'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Compile'"],["text",", chips: [MLA], x: 0, y: 240, w: 150, h: 46 },\n      {\n        id: "],
+          ["string","'archive'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        label: "],
+          ["string","'model.tar.gz'"],["text",",\n        detail: "],
+          ["string","'archive'"],["text",",\n        x: 0,\n        y: 320,\n        w: 150,\n        h: 46,\n      },\n      {\n        id: "],
+          ["string","'calibration'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        look: "],
+          ["string","'muted'"],["text",",\n        label: "],
+          ["string","'Calibration set'"],["text",",\n        detail: "],
+          ["string","'200 images'"],["text",",\n        x: 220,\n        y: 80,\n        w: 160,\n        h: 46,\n      },\n      {\n        id: "],
+          ["string","'accuracy'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        look: "],
+          ["string","'ghost'"],["text",",\n        label: "],
+          ["string","'Accuracy check'"],["text",",\n        detail: "],
+          ["string","'optional'"],["text",",\n        "],
+          ["comment","// Level with the lower of Quantize's two right-hand ports (they sit 10 apart about its"],["text","\n        "],
+          ["comment","// middle, 183), so the ghost edge runs straight."],["text","\n        x: 220,\n        y: 165,\n        w: 160,\n        h: 46,\n      },\n    ],\n    edges: [\n      { id: "],
+          ["string","'onnx-surgery'"],["text",", from: "],["string","'onnx'"],["text",", to: "],["string","'surgery'"],["text",", series: 1 },\n      { id: "],
+          ["string","'surgery-quantize'"],["text",", from: "],["string","'surgery'"],["text",", to: "],["string","'quantize'"],["text",", series: 1 },\n      { id: "],
+          ["string","'calibration-quantize'"],["text",", from: "],["string","'calibration'"],["text",", to: "],["string","'quantize'"],["text",", series: 2 },\n      { id: "],
+          ["string","'quantize-compile'"],["text",", from: "],["string","'quantize'"],["text",", to: "],["string","'compile'"],["text",", series: 1 },\n      { id: "],
+          ["string","'quantize-accuracy'"],["text",", from: "],["string","'quantize'"],["text",", to: "],["string","'accuracy'"],["text",", line: "],["string","'ghost'"],["text"," },\n      { id: "],
+          ["string","'compile-archive'"],["text",", from: "],["string","'compile'"],["text",", to: "],["string","'archive'"],["text",", series: 3 },\n    ],\n    "],
+          ["comment","// About the Compile step, so anchored to its right side rather than to an edge."],["text","\n    notes: [{ id: "],
+          ["string","'compile-result'"],["text",", anchor: { x: 150, y: 263 }, x: 305, y: 270 }],\n  },\n};\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," COMPILE_LEGEND: "],["keyword","readonly"],["text"," NeatDiagramLegendItem[] = [\n  { series: 1, label: "],
+          ["string","'model'"],["text"," },\n  { series: 2, label: "],
+          ["string","'calibration data'"],["text"," },\n  { series: 3, label: "],
+          ["string","'archive'"],["text"," },\n  { line: "],
+          ["string","'ghost'"],["text",", label: "],["string","'not run here'"],["text"," },\n];\n"]
+        ]
+      },
+      {
+        "name": "chips.ts",
+        "code": [
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
+          ["comment","/*\n * The chips follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramChip = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramChip = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramChip = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramChip = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
+        ]
+      },
+      {
+        "name": "diagram-box.css",
+        "code": [
+          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
+          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
+          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
         ]
       }
     ]

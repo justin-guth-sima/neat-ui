@@ -48,7 +48,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", and Burst pushes 10 000 messages in one tick, as a tab returning from the background would."
+            "text": ", and Burst pushes 400 messages in one tick, about ten seconds of the results, as a tab returning from ten seconds in the background would."
           }
         ]
       },
@@ -108,8 +108,9 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** The edges each kind of message travels, on the overview and in the Detector's level. */"],["text","\n"],
           ["keyword","const"],["text"," FRAME_EDGES = ["],["string","'camera-decode'"],["text",", "],["string","'decode-detector'"],["text",", "],["string","'decode-resize'"],["text","];\n"],
           ["keyword","const"],["text"," RESULT_EDGES = ["],["string","'detector-tracker'"],["text",", "],["string","'nms-tracker'"],["text",", "],["string","'tracker-gateway'"],["text",", "],["string","'gateway-browser'"],["text","];\n"],
-          ["comment","/** The Burst button's messages, in one tick: far past the dots' cap, to show the example holds. */"],["text","\n"],
-          ["keyword","const"],["text"," BURST_MESSAGES = 10_000;\n\n@Component({\n  selector: "],
+          ["comment","/**\n * The Burst button's messages, in one tick: about ten seconds of the results' traffic (four edges\n * at 10 Hz), as a tab back from ten seconds in the background delivers it.\n */"],
+          ["text","\n"],
+          ["keyword","const"],["text"," BURST_MESSAGES = 400;\n\n@Component({\n  selector: "],
           ["string","'app-live-pipeline'"],["text",",\n  imports: [\n    NeatButton,\n    NeatDiagramAnimationSettings,\n    NeatDiagramBlockTemplate,\n    NeatDiagramLegend,\n    NeatDiagramMessages,\n    NeatDiagramNoteTemplate,\n    NeatDiagramRateCard,\n    NeatDiagramView,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    <div class=\"controls\">\n      <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"burst()\">\n        Burst\n      </button>\n      <neat-diagram-animation-settings [(settings)]=\"dots\" />\n    </div>\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram class=\"diagram\" [diagram]=\"pipeline\" label=\"A live messaging pipeline\">\n      <neat-diagram-messages #messages [steps]=\"steps\" [settings]=\"dots()\" />\n      <ng-template neatDiagramBlock let-node>\n        @if (node.id === 'decode') {\n          <span class=\"figure\">30.0 fps · 1080p</span>\n        }\n      </ng-template>\n      <ng-template neatDiagramNote let-note>\n        @switch (note.id) {\n          @case ('tracker-rate') {\n            <neat-diagram-rate-card\n              label=\"Tracker → Gateway\"\n              [rate]=\"messages.rate('tracker-gateway')()\"\n            />\n          }\n          @case ('yolox-rate') {\n            <neat-diagram-rate-card\n              label=\"YOLOX → NMS\"\n              [rate]=\"messages.rate('yolox-nms')()\"\n              [stageMs]=\"yoloxMs()\"\n            />\n          }\n          @case ('camera-rate') {\n            <neat-diagram-rate-card\n              label=\"Camera → Decode\"\n              [rate]=\"messages.rate('camera-decode')()\"\n            />\n          }\n        }\n      </ng-template>\n    </neat-diagram>\n  `"],
           ["text",",\n  styleUrl: "],
@@ -268,8 +269,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "live-pipeline.example.css",
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n.controls {\n  display: flex;\n  align-items: center;\n  gap: var(--neat-space-3);\n}\n\n"],
-          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 28rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
-          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 28rem;\n}\n\n"],
+          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
+          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n\n"],
           ["comment","/* A block's live figure (Decode's), below its label: small, quiet, steady digits. */"],["text","\n.figure {\n  font-size: var(--neat-text-xs);\n  color: var(--muted-foreground);\n  font-variant-numeric: tabular-nums;\n  white-space: nowrap;\n}\n"]
         ]
       }

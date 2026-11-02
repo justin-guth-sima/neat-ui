@@ -102,12 +102,12 @@ describe('the live pipeline example', () => {
     expect(document.querySelector('[role="dialog"][aria-label="Animation"]')).not.toBeNull();
   });
 
-  it('pushes ten thousand messages in one tick from Burst', () => {
+  it('pushes four hundred messages in one tick from Burst', () => {
     const push = vi.spyOn(NeatDiagramMessages.prototype, 'push');
 
     button('Burst').click();
 
-    expect(push).toHaveBeenCalledTimes(10_000);
+    expect(push).toHaveBeenCalledTimes(400);
   });
 
   it('fits the drawing again from fit()', () => {

@@ -9,7 +9,7 @@ import frameStyles from './frames.css' with { loader: 'text' };
 import { fitTransform } from './fit';
 import { layoutEdges } from './layout';
 import { TIP_GAP } from './hover';
-import type { NeatDiagram, NeatDiagramNode, NeatDiagramSet } from './model';
+import type { NeatDiagram, NeatDiagramHighlight, NeatDiagramNode, NeatDiagramSet } from './model';
 import { resetReported } from './report';
 import { resize, stubResizeObserver } from './resize-observer.testing';
 import { pointAlong } from './route';
@@ -558,7 +558,7 @@ const LEVELS: NeatDiagramSet = {
 @Component({
   imports: [NeatDiagramView, NeatDiagramEdgeTipTemplate, NeatDiagramNoteTemplate],
   template: `
-    <neat-diagram [diagram]="diagram()" label="Levels" [(level)]="level">
+    <neat-diagram [diagram]="diagram()" label="Levels" [highlight]="highlight()" [(level)]="level">
       <ng-template neatDiagramEdgeTip let-edge
         ><b class="said">About {{ edge.id }}</b></ng-template
       >
@@ -569,6 +569,7 @@ const LEVELS: NeatDiagramSet = {
 class LevelsHost {
   readonly diagram = signal<NeatDiagramSet>(LEVELS);
   readonly level = signal<string[]>([]);
+  readonly highlight = signal<NeatDiagramHighlight>('all');
 }
 
 describe('NeatDiagramView’s hover, levels and words', () => {
@@ -703,6 +704,63 @@ describe('NeatDiagramView’s hover, levels and words', () => {
       await view.stable();
       expect(document.activeElement).toBe(decode);
       expect(view.dimmed()).toEqual([]);
+    });
+  });
+
+  describe('highlight', () => {
+    const tab = (view: { host: HTMLElement }) =>
+      view.host.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+
+    it('is none by default: nothing dims, for a block, an edge or the keyboard', async () => {
+      const fixture = TestBed.createComponent(NeatDiagramView);
+      fixture.componentRef.setInput('diagram', LEVELS);
+      fixture.componentRef.setInput('label', 'Plain');
+      await fixture.whenStable();
+      expect(fixture.componentInstance.highlight()).toBe('none');
+    });
+
+    it('none: dims nothing for a block, an edge or a focused open button, but still tips', async () => {
+      const view = await renderLevels();
+      view.fixture.componentInstance.highlight.set('none');
+      await view.stable();
+
+      await view.pointer('pointerover', view.node('camera').querySelector('.label')!);
+      expect(view.dimmed()).toEqual([]);
+
+      await view.pointer('pointerover', view.edge('images').querySelector('.hit')!);
+      expect(view.dimmed()).toEqual([]);
+      expect(view.one('.edge-tip').textContent?.trim()).toBe('About images');
+
+      await view.pointer('pointerleave', view.host);
+      tab(view);
+      view.node('decode').focus();
+      await view.stable();
+      expect(view.dimmed()).toEqual([]);
+    });
+
+    it('edges: dims all but a hovered edge, its blocks and its notes; a block dims nothing', async () => {
+      const view = await renderLevels();
+      view.fixture.componentInstance.highlight.set('edges');
+      await view.stable();
+
+      await view.pointer('pointerover', view.edge('images').querySelector('.hit')!);
+      expect(view.dimmed().sort()).toEqual(['CODE:frames', 'camera', 'g:frames']);
+
+      await view.pointer('pointerleave', view.host);
+      await view.pointer('pointerover', view.node('camera').querySelector('.label')!);
+      expect(view.dimmed()).toEqual([]);
+
+      await view.pointer('pointerleave', view.host);
+      tab(view);
+      view.node('decode').focus();
+      await view.stable();
+      expect(view.dimmed()).toEqual([]);
+    });
+
+    it('all: dims for a block as for an edge', async () => {
+      const view = await renderLevels();
+      await view.pointer('pointerover', view.node('camera').querySelector('.label')!);
+      expect(view.dimmed().sort()).toEqual(['decode', 'g:images', 'rate', 'sink']);
     });
   });
 

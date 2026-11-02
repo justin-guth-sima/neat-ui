@@ -1,4 +1,4 @@
-import { focusedParts, placeTip, TIP_GAP } from './hover';
+import { focusedParts, highlighted, placeTip, TIP_GAP } from './hover';
 import type { NeatDiagram } from './model';
 
 /** Camera → Decode → Sink, a note on each edge and one on a point of its own. */
@@ -75,5 +75,26 @@ describe('placeTip', () => {
     expect(placeTip({ x: 120, y: 60 }, size, { w: 260, h: 140 })).toEqual({ left: 60, top: 40 });
     // A tip larger than the box starts at its corner.
     expect(placeTip({ x: 50, y: 50 }, size, { w: 100, h: 80 })).toEqual({ left: 0, top: 0 });
+  });
+});
+
+describe('highlighted', () => {
+  const block = { kind: 'block', id: 'decode' } as const;
+  const edge = { kind: 'edge', id: 'frames' } as const;
+
+  it('lets nothing through for none', () => {
+    expect(highlighted(block, 'none')).toBeNull();
+    expect(highlighted(edge, 'none')).toBeNull();
+  });
+
+  it('lets an edge through, not a block, for edges', () => {
+    expect(highlighted(edge, 'edges')).toBe(edge);
+    expect(highlighted(block, 'edges')).toBeNull();
+  });
+
+  it('lets both through for all, and nothing in focus stays nothing', () => {
+    expect(highlighted(block, 'all')).toBe(block);
+    expect(highlighted(edge, 'all')).toBe(edge);
+    expect(highlighted(null, 'all')).toBeNull();
   });
 });

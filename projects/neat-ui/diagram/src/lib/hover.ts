@@ -1,13 +1,14 @@
 import { computed, signal } from '@angular/core';
-import type { NeatDiagram } from './model';
+import type { NeatDiagram, NeatDiagramHighlight } from './model';
 import type { Point } from './route';
 
 /*
  * What is in focus on a diagram, ported from the Autoware demo's System page (`link-hover.ts`): a
  * block (the pointer over it, or the keyboard on its open button) or an edge (the pointer over its
  * hit path or its label), and the tip of that edge by the pointer. While something is in focus
- * the rest is dimmed. The listeners stay in `DiagramHover`, outside change detection; a signal
- * changes only when what is in focus does, and the tip follows the pointer by a style write.
+ * the rest is dimmed, as far as the diagram's `highlight` allows (`highlighted`). The listeners
+ * stay in `DiagramHover`, outside change detection; a signal changes only when what is in focus
+ * does, and the tip follows the pointer by a style write.
  */
 
 /** What the pointer or the keyboard is on. */
@@ -25,6 +26,18 @@ export interface FocusedParts {
 
 /** The gap between the pointer and its tip, px on screen (the demo's). */
 export const TIP_GAP = 14;
+
+/**
+ * What `highlight` lets dim the diagram out of `focus`: nothing for `none`, an edge only for
+ * `edges`, anything for `all`. The tip of an edge follows the pointer whatever this answers.
+ */
+export function highlighted(
+  focus: DiagramFocus | null,
+  highlight: NeatDiagramHighlight,
+): DiagramFocus | null {
+  if (highlight === 'all') return focus;
+  return highlight === 'edges' && focus?.kind === 'edge' ? focus : null;
+}
 
 /**
  * The parts in focus on `level`: a block with the edges that enter or leave it, an edge with the

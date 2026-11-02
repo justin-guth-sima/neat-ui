@@ -362,12 +362,23 @@ the whole in the kit's look.
   tip. The tip sits by the pointer in the popover's colours, kept inside the box, and is hidden from
   assistive technology, so it must hold nothing a reader needs that the hidden list or a note does
   not say.
-- **Focus:** a block or an edge under the pointer, or a block whose open button has the keyboard's
-  focus (`:focus-visible`; a press that focuses it does not count), stays as it is with what it is
-  joined to (a block's edges, an edge's ends, the notes on those edges) while the rest but the
-  frames fades to 0.25 (`hover.ts`). A note anchored by `anchor` alone belongs to no edge, so it
-  is never in focus with one and fades whenever anything is in focus. Touch and a drag put nothing
-  in focus.
+- **Focus:** by `highlight`, `'none'` by default, a block or an edge under the pointer, or a block
+  whose open button has the keyboard's focus (`:focus-visible`; a press that focuses it does not
+  count), stays as it is with what it is joined to (a block's edges, an edge's ends, the notes on
+  those edges) while the rest but the frames fades to 0.25 (`hover.ts`). `'edges'` lets only an
+  edge do this, `'all'` a block too. Why none: dimming everything on every pass of the pointer is
+  noise unless the drawing is read by its links; an app opts in where it is (the Autoware demo
+  limited it to links). The edge's tip does not depend on it. A note anchored by `anchor` alone
+  belongs to no edge, so it is never in focus with one and fades whenever anything is in focus.
+  Touch and a drag put nothing in focus.
+- **An opening block's border** is one 2px primary border with no box-shadow ring, and its padding
+  gives up the 1px, so the content stays put. Why: a 1px border with a 1px ring round it
+  rasterises as two lines that drift apart under a fractional zoom. Do not add a ring to show
+  "opens"; if a look needs one, draw it with the border.
+- **An example's drawing box** is sized for the drawing, not for a phone: 4:3 up to `40rem` (2:1
+  up to `30rem` for the drill-down's wide level), kept in each example's own stylesheet because
+  that is part of its copyable snippet. Why a cap at all: a narrow box must not stand tall and
+  empty around a drawing its width shrinks.
 - **Levels and the path:** a block whose `opens` names a level is a button ("Open Stages") that
   opens it, and a level may open further levels. `[(level)]` is the path of open levels, `[]` for
   the overview, which an app can bind to its route. A path is followed while each id names a level a
@@ -443,7 +454,8 @@ the whole in the kit's look.
   whenever a stage's time changes. A burst (10 000 pushes in one tick, or what piles up while a
   tab is hidden, when pushes only count) costs the cap's worth of dots, not the burst's; do not
   sample or drop messages in the app to protect the page. The messaging example
-  (`examples/messaging/`) is the reference feed, and its Burst button is the check.
+  (`examples/messaging/`) is the reference feed, and its Burst button, 400 messages (ten seconds of its results), is the check
+  of the tab-back case.
 - What stays internal: the routing, the port layout, the notes' placement and measurement, the fit
   maths, the pan and zoom, the hover, the level path, and the messaging layer's models, canvas,
   context token and frame probe (the bench reaches some of these through its seam, above).

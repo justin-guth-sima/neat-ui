@@ -656,6 +656,47 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/diagram/src/lib/templates.ts"
     },
     {
+      "name": "NeatDiagramHighlight",
+      "kind": "type",
+      "definition": "'none' | 'edges' | 'all'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What dims the rest of a diagram while the pointer or the keyboard is on a part: "
+            },
+            {
+              "kind": "code",
+              "text": "none"
+            },
+            {
+              "kind": "text",
+              "text": ", nothing; "
+            },
+            {
+              "kind": "code",
+              "text": "edges"
+            },
+            {
+              "kind": "text",
+              "text": ", an edge's two blocks, its notes and itself stay and the rest dims; "
+            },
+            {
+              "kind": "code",
+              "text": "all"
+            },
+            {
+              "kind": "text",
+              "text": ", the same for a block and the edges that join it too."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/model.ts"
+    },
+    {
       "name": "NeatDiagramLegend",
       "kind": "component",
       "selector": "neat-diagram-legend",
@@ -2202,7 +2243,15 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A block or an edge under the pointer, or a block whose open button has the focus, is in focus with what it is joined to; the rest is dimmed. A block that opens a level is a button that opens it; "
+              "text": "With "
+            },
+            {
+              "kind": "code",
+              "text": "highlight"
+            },
+            {
+              "kind": "text",
+              "text": " set, a block or an edge under the pointer, or a block whose open button has the focus, is in focus with what it is joined to; the rest is dimmed. A block that opens a level is a button that opens it; "
             },
             {
               "kind": "code",
@@ -2309,6 +2358,38 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "The figure's accessible name: what the diagram shows."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "highlight",
+          "type": "NeatDiagramHighlight",
+          "default": "'none'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What dims the rest while something is under the pointer: nothing by default, since dimming without a reason to look is noise that every pass of the pointer over the drawing makes; "
+                },
+                {
+                  "kind": "code",
+                  "text": "edges"
+                },
+                {
+                  "kind": "text",
+                  "text": " for a drawing whose links are what the reader follows (the dim then says which blocks a link joins); "
+                },
+                {
+                  "kind": "code",
+                  "text": "all"
+                },
+                {
+                  "kind": "text",
+                  "text": " when a block's links are worth tracing too. An edge's tip shows whatever this is."
                 }
               ]
             }

@@ -12,12 +12,13 @@
   display: flex;
   align-items: center;
   gap: var(--neat-space-2);
-  padding: var(--neat-space-2) var(--neat-space-3);
-  border: var(--block-line) var(--block-open-edge, var(--block-edge));
+  padding: calc(var(--neat-space-2) - var(--block-open-inset, 0px))
+    calc(var(--neat-space-3) - var(--block-open-inset, 0px));
+  border: var(--block-open-line, var(--block-line)) var(--block-open-edge, var(--block-edge));
   border-radius: var(--radius);
   background: var(--block-fill);
   color: var(--block-ink);
-  box-shadow: var(--block-open-ring, var(--block-shadow));
+  box-shadow: var(--block-shadow);
 }
 
 .block[data-look='default'] {
@@ -66,10 +67,16 @@
   --block-weight: 600;
 }
 
-/* Opens a level: the primary border, ringed, whatever the look. */
+/*
+ * Opens a level: one 2px primary border, whatever the look, and no ring. A 1px border with a 1px
+ * ring round it drew two lines that rasterise apart under a fractional zoom (near 1.1 to 1.4),
+ * a hairline of card showing between them. The padding gives up the 1px the border gains, so the
+ * content stays where it was. The look's own shadow stays.
+ */
 .block[data-opens] {
+  --block-open-line: 2px solid;
   --block-open-edge: var(--primary);
-  --block-open-ring: 0 0 0 1px var(--primary);
+  --block-open-inset: 1px;
 }
 
 .block .text {

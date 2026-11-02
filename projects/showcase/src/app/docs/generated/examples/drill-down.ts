@@ -87,8 +87,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "detector-level.example.css",
         "code": [
           ["text",":host {\n  display: block;\n}\n\n"],
-          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 2:1 up to 20rem, wide\n * for the level's row of columns, so a phone's narrow box does not stand tall and empty around a\n * drawing its width shrinks.\n */"],
-          ["text","\n.diagram {\n  aspect-ratio: 2 / 1;\n  max-height: 20rem;\n}\n"]
+          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 2:1 up to 30rem, wide\n * for the level's row of columns, so a phone's narrow box does not stand tall and empty around a\n * drawing its width shrinks.\n */"],
+          ["text","\n.diagram {\n  aspect-ratio: 2 / 1;\n  max-height: 30rem;\n}\n"]
         ]
       }
     ]

@@ -111,6 +111,41 @@ describe('the diagram examples on the diagram topic', () => {
     expect(pipeline.querySelector('[data-note="yolox-rate"]')?.textContent).toContain('14.8 ms');
   });
 
+  it('switches what the pointer dims from the highlight example’s segmented control', async () => {
+    const flow = figure('A compile flow to hover');
+    const dimmed = (): number => flow.querySelectorAll('.dim').length;
+    const hover = async (target: Element): Promise<void> => {
+      target.dispatchEvent(
+        new PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse' }),
+      );
+      await fixture.whenStable();
+    };
+    const choose = async (label: string): Promise<void> => {
+      const option = Array.from(
+        flow.parentElement!.querySelectorAll<HTMLElement>('neat-segmented [role="radio"]'),
+      ).find((el) => el.textContent?.includes(label));
+      option!.click();
+      await fixture.whenStable();
+    };
+    const block = flow.querySelector('.block[data-node="onnx"]')!;
+    const edge = flow.querySelector('g[data-edge] .hit')!;
+
+    // Starts on edges: a block dims nothing, an edge dims the rest.
+    await hover(block);
+    expect(dimmed()).toBe(0);
+    await hover(edge);
+    expect(dimmed()).toBeGreaterThan(0);
+
+    await choose('None');
+    expect(dimmed()).toBe(0);
+    await hover(edge);
+    expect(dimmed()).toBe(0);
+
+    await choose('All');
+    await hover(block);
+    expect(dimmed()).toBeGreaterThan(0);
+  });
+
   it('fits every example again from the top bar’s Fit', () => {
     const fit = vi.spyOn(NeatDiagramView.prototype, 'fit');
     const button = Array.from(root().querySelectorAll<HTMLButtonElement>('header button')).find(
@@ -119,6 +154,6 @@ describe('the diagram examples on the diagram topic', () => {
 
     button.click();
 
-    expect(fit).toHaveBeenCalledTimes(3);
+    expect(fit).toHaveBeenCalledTimes(4);
   });
 });
