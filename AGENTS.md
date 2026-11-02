@@ -124,11 +124,25 @@ pre-step; never edit them. Why generated: hand-written docs drift from the code.
 is the doc comment, and the snippet under an example is the file that renders it.
 
 - A topic is one page, `/<group>/<topic>`: its examples, each live with its code, and the API
-  panel of its parts beside them. A group is a rail item and its topics are its page tabs. The
-  groups, the topics, each topic's parts (each part in exactly one topic), its lead parts (the ones
-  the body introduces) and its lazy loader are `docs/topics.ts`, written by hand. A topic with
-  `fit: true` gets a Fit button in the top bar that calls `fit()` on each of its examples that has
-  one.
+  panel of its parts beside them. The groups, the topics, each topic's parts (each part in exactly
+  one topic), its lead parts (the ones the body introduces) and its lazy loader are
+  `docs/topics.ts`, written by hand. A topic with `fit: true` gets a Fit button in the top bar that
+  calls `fit()` on each of its examples that has one.
+- **The rail has four items: Getting started, Theme, Layout and Components.** Getting started
+  (`/getting-started`, `pages/getting-started.page.ts`) is the showcase's own page, in no group:
+  how an app starts on the kit, its snippets held to the kit by its spec (the tarball's name, the
+  stylesheet's export, each part imported from its entry). A group is a rail item: Theme and
+  Layout show their few topics as page tabs (`topics`), Components lists its many under category
+  headings (`categories`: Actions, Forms, Status, Data, Charts, Diagram, Video) in a topic list
+  with a filter (`docs/topic-list.ts`), a column before the page that scrolls on its own, collapsed
+  above the topic on a narrow screen, the API panel still the page's side panel. Why: a rail item
+  per category read as an area of an app when the categories are only filing, so a new component
+  topic goes under a category and a new category is a heading, never a rail item. Topic ids are
+  unique across groups (`docs.spec.ts`), since an id is also the examples folder, the
+  `/demo/<id>` path and `/components/<id>`; a category keeps the id it had as a rail item, and its
+  old addresses (`/data/select-list`, `/charts`) redirect to its topics under Components. Escape
+  hatch: a fifth rail item is a change to this rule, raised with the maintainer, not a new group in
+  `topics.ts`.
   A topic that is no part's docs (the theme's tokens) is hand-made: `page` (a lazy component)
   instead of `load`, with no parts, no examples module and the group's tabs as inputs.
 - An example is a standalone component in `examples/<topic>/<id>.example.ts` (a numeric prefix

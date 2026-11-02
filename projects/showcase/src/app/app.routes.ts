@@ -1,13 +1,20 @@
 import { Routes } from '@angular/router';
-import { docsRoutes, topicPath } from './docs/docs-routes';
+import { docsRoutes } from './docs/docs-routes';
 import { GROUPS } from './docs/topics';
+
+/** The page the showcase opens on, how an app starts on the kit: no group, so no tabs. */
+export const GETTING_STARTED = 'getting-started';
 
 // Each page's title goes into the document's (`provideNeatTitles` in app.config.ts).
 export const routes: Routes = [
-  // The first topic of the first group, not the group: one redirect only is followed per level.
-  { path: '', pathMatch: 'full', redirectTo: topicPath(GROUPS[0], GROUPS[0].topics[0]) },
-  // The docs: a page per topic of each group, the theme's among them.
+  { path: '', pathMatch: 'full', redirectTo: GETTING_STARTED },
+  {
+    path: GETTING_STARTED,
+    title: 'Getting started',
+    loadComponent: () => import('./pages/getting-started.page').then((m) => m.GettingStartedPage),
+  },
+  // The docs: a page per topic of each group, and the old addresses of Components' categories.
   ...docsRoutes(GROUPS),
-  // An address of the old pages, or a mistyped one, lands on the docs' first page, not a blank one.
-  { path: '**', redirectTo: topicPath(GROUPS[0], GROUPS[0].topics[0]) },
+  // A mistyped or retired address lands on Getting started, not on a blank page.
+  { path: '**', redirectTo: GETTING_STARTED },
 ];

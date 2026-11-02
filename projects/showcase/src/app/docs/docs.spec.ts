@@ -5,9 +5,9 @@ import { App } from '../app';
 import { appConfig } from '../app.config';
 import { isReexportStub, shownName } from './display';
 import { KIT_ENTRIES } from './docs.testing';
-import { groupTabs, topicPath } from './docs-routes';
+import { topicPath } from './docs-routes';
 import type { DocsDeclaredPart, DocsExample } from './model';
-import { GROUPS, type TopicConfig } from './topics';
+import { GROUPS, type TopicConfig, topicsOf } from './topics';
 
 /*
  * What the topics config owes the kit: nothing public goes undocumented or unreachable. The
@@ -40,7 +40,7 @@ const BELONGS_TO_THE_APP: ReadonlySet<string> = new Set([
   'NeatToastHost',
 ]);
 
-const topics = GROUPS.flatMap((group) => group.topics.map((topic) => ({ group, topic })));
+const topics = GROUPS.flatMap((group) => topicsOf(group).map((topic) => ({ group, topic })));
 /**
  * The topics generated from the kit. A hand-made one (`page`) has no examples module and no part,
  * so the rules about examples are not its.
@@ -137,6 +137,27 @@ describe('the docs topics', () => {
     expect(new Set(groups).size).toBe(groups.length);
   });
 
+  it('has Theme and Layout with tabs, and Components with its seven categories', () => {
+    expect(
+      GROUPS.map((group) => [group.id, group.topics?.length, group.categories?.length]),
+    ).toEqual([
+      ['theme', 3, undefined],
+      ['layout', 3, undefined],
+      ['components', undefined, 7],
+    ]);
+    expect(GROUPS[2].categories?.map((category) => category.label)).toEqual([
+      'Actions',
+      'Forms',
+      'Status',
+      'Data',
+      'Charts',
+      'Diagram',
+      'Video',
+    ]);
+    expect(topicsOf(GROUPS[2])).toHaveLength(47);
+    expect(topics).toHaveLength(53);
+  });
+
   // The id is also the examples folder and the `/demo/<id>` path, whichever group the topic is in.
   it('has unique topic ids across groups', () => {
     const ids = topics.map(({ topic }) => topic.id);
@@ -174,22 +195,30 @@ describe('every docs topic in the app', () => {
   });
 
   it.each(topics.map(({ group, topic }) => [topicPath(group, topic), group, topic] as const))(
-    'renders %s with its group in the rail and its group’s topics as tabs',
+    'renders %s with its group in the rail and its group’s topics as tabs or a list',
     async (path, group, topic) => {
       await router.navigateByUrl(path);
       await fixture.whenStable();
 
       expect(root().querySelector('nav a.active')?.textContent?.trim()).toBe(group.label);
       const tabs = Array.from(content().querySelectorAll('neat-page > nav a'));
-      expect(tabs.map((tab) => [tab.textContent?.trim(), tab.getAttribute('href')])).toEqual(
-        groupTabs(group).map((tab) => [tab.label, tab.path]),
+      const listed = Array.from(content().querySelectorAll('app-topic-list nav a'));
+      // A group shows its topics one way: as its pages' tabs, or in the list beside them.
+      const [links, none] = group.topics ? [tabs, listed] : [listed, tabs];
+      const expected = topicsOf(group).map((each) => [each.label, topicPath(group, each)]);
+
+      expect(none).toEqual([]);
+      expect(links.map((link) => [link.textContent?.trim(), link.getAttribute('href')])).toEqual(
+        expected,
       );
       expect(
-        tabs.filter((tab) => tab.getAttribute('aria-current') === 'page').map((t) => t.textContent),
+        links
+          .filter((link) => link.getAttribute('aria-current') === 'page')
+          .map((link) => link.textContent?.trim()),
       ).toEqual([topic.label]);
-      expect(content().querySelector('neat-page > nav')?.getAttribute('aria-label')).toBe(
-        `${group.label} topics`,
-      );
+      expect(
+        content().querySelector('neat-page > nav, app-topic-list nav')?.getAttribute('aria-label'),
+      ).toBe(`${group.label} topics`);
     },
   );
 

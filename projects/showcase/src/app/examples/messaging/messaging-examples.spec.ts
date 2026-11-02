@@ -124,7 +124,7 @@ describe('the messaging topic', () => {
     vi.stubGlobal('ResizeObserver', NoopResizeObserver);
     TestBed.configureTestingModule({ providers: appConfig.providers });
     const app = TestBed.createComponent(App);
-    await TestBed.inject(Router).navigateByUrl('/diagram/messaging');
+    await TestBed.inject(Router).navigateByUrl('/components/messaging');
     await app.whenStable();
     const fit = vi.spyOn(NeatDiagramView.prototype, 'fit');
     const button = Array.from(

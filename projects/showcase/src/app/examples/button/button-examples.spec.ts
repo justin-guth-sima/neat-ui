@@ -91,7 +91,7 @@ describe('the button examples', () => {
       // Waiting is not disabled: it stays in the Tab order, which `disabled` would take it out of.
       expect(waiting.disabled).toBe(false);
       expect(waiting.getAttribute('aria-disabled')).toBe('true');
-      expect(link.getAttribute('href')).toBe('/actions/button');
+      expect(link.getAttribute('href')).toBe('/components/button');
     }
   });
 

@@ -21,6 +21,6 @@ describe('the inline button examples', () => {
     expect(host.querySelector('p')?.contains(actions[0])).toBe(true);
     expect(host.querySelector('ul')?.contains(actions[1])).toBe(true);
     expect((actions[3] as HTMLButtonElement).disabled).toBe(true);
-    expect(actions[4].getAttribute('href')).toBe('/actions/inline-button');
+    expect(actions[4].getAttribute('href')).toBe('/components/inline-button');
   });
 });

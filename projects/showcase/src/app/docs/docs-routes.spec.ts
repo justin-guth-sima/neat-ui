@@ -44,30 +44,87 @@ const EXAMPLE: DocsExample = {
 /** An example of the same topic that sits in its card, and one that is code only. */
 const IN_CARD: DocsExample = { ...EXAMPLE, id: 'in-card', title: 'In card', page: undefined };
 const CODE_ONLY: DocsExample = { ...EXAMPLE, id: 'app', component: undefined, page: undefined };
+/** The entry of a listed group's part. */
+const BOLTS: DocsEntry = {
+  ...ENTRY,
+  parts: [
+    {
+      name: 'NeatBolt',
+      kind: 'component',
+      selector: 'neat-bolt',
+      doc: [{ kind: 'paragraph', spans: [{ kind: 'text', text: 'A bolt.' }] }],
+      source: 'projects/neat-ui/src/lib/bolt.ts',
+    },
+  ],
+};
+
+const THINGS = {
+  id: 'things',
+  label: 'Things',
+  icon: 'info',
+  topics: [
+    {
+      id: 'thing',
+      label: 'Thing',
+      parts: ['NeatThing'],
+      leads: ['NeatThing'],
+      fit: true,
+      load: async () => ({ entries: [ENTRY], examples: [] }),
+    },
+    {
+      id: 'pages',
+      label: 'Pages',
+      parts: [],
+      leads: [],
+      load: async () => ({ entries: [], examples: [EXAMPLE, IN_CARD, CODE_ONLY] }),
+    },
+  ],
+} satisfies TopicGroup;
+
+/** A group whose topics are listed under category headings beside its pages, not as tabs. */
+const PARTS = {
+  id: 'parts',
+  label: 'Parts',
+  icon: 'shapes',
+  categories: [
+    {
+      id: 'small',
+      label: 'Small',
+      topics: [
+        {
+          id: 'bolt',
+          label: 'Bolt',
+          parts: ['NeatBolt'],
+          leads: [],
+          load: async () => ({ entries: [BOLTS], examples: [] }),
+        },
+        {
+          id: 'nut',
+          label: 'Nut',
+          parts: [],
+          leads: [],
+          load: async () => ({ entries: [], examples: [] }),
+        },
+      ],
+    },
+    {
+      id: 'large',
+      label: 'Large',
+      topics: [
+        {
+          id: 'beam',
+          label: 'Beam',
+          parts: [],
+          leads: [],
+          load: async () => ({ entries: [], examples: [] }),
+        },
+      ],
+    },
+  ],
+} satisfies TopicGroup;
 
 const GROUPS: TopicGroup[] = [
-  {
-    id: 'things',
-    label: 'Things',
-    icon: 'info',
-    topics: [
-      {
-        id: 'thing',
-        label: 'Thing',
-        parts: ['NeatThing'],
-        leads: ['NeatThing'],
-        fit: true,
-        load: async () => ({ entries: [ENTRY], examples: [] }),
-      },
-      {
-        id: 'pages',
-        label: 'Pages',
-        parts: [],
-        leads: [],
-        load: async () => ({ entries: [], examples: [EXAMPLE, IN_CARD, CODE_ONLY] }),
-      },
-    ],
-  },
+  THINGS,
   {
     id: 'other',
     label: 'Other',
@@ -88,6 +145,7 @@ const GROUPS: TopicGroup[] = [
     icon: 'document',
     topics: [{ id: 'made', label: 'Made', parts: [], leads: [], page: async () => MadePage }],
   },
+  PARTS,
 ];
 
 describe('the docs routes', () => {
@@ -104,8 +162,8 @@ describe('the docs routes', () => {
   });
 
   it('names a topic /<group>/<topic>, with the group’s topics as its tabs', () => {
-    expect(topicPath(GROUPS[0], GROUPS[0].topics[1])).toBe('/things/pages');
-    expect(groupTabs(GROUPS[0])).toEqual([
+    expect(topicPath(THINGS, THINGS.topics[1])).toBe('/things/pages');
+    expect(groupTabs(THINGS)).toEqual([
       { label: 'Thing', path: '/things/thing' },
       { label: 'Pages', path: '/things/pages' },
     ]);
@@ -116,6 +174,7 @@ describe('the docs routes', () => {
       { label: 'Things', icon: 'info', path: '/things' },
       { label: 'Other', icon: 'stats', path: '/other' },
       { label: 'Hand', icon: 'document', path: '/hand' },
+      { label: 'Parts', icon: 'shapes', path: '/parts' },
     ]);
   });
 
@@ -124,6 +183,7 @@ describe('the docs routes', () => {
 
     expect(topicOf('NeatThing')).toBe('/things/thing');
     expect(topicOf('NeatOne')).toBe('/other/one');
+    expect(topicOf('NeatBolt')).toBe('/parts/bolt');
     expect(topicOf('NeatUnknown')).toBeNull();
   });
 
@@ -169,6 +229,44 @@ describe('the docs routes', () => {
     expect(router.url).toBe('/hand/made');
   });
 
+  it('hands a listed group’s pages its categories as their topic list, and no tabs', async () => {
+    const harness = await RouterTestingHarness.create();
+    const page = await harness.navigateByUrl('/parts/nut', DocsPage);
+    await harness.fixture.whenStable();
+
+    expect(docsRoutes(GROUPS).find((route) => route.path === 'parts/nut')?.title).toBe('Nut');
+    expect(page.tabs()).toEqual([]);
+    expect(page.list()).toEqual({
+      label: 'Parts',
+      categories: [
+        {
+          label: 'Small',
+          topics: [
+            { label: 'Bolt', path: '/parts/bolt' },
+            { label: 'Nut', path: '/parts/nut' },
+          ],
+        },
+        { label: 'Large', topics: [{ label: 'Beam', path: '/parts/beam' }] },
+      ],
+    });
+  });
+
+  it('opens a listed group on its first category’s first topic', async () => {
+    await RouterTestingHarness.create().then((harness) => harness.navigateByUrl('/parts'));
+
+    expect(router.url).toBe('/parts/bolt');
+  });
+
+  it('sends a category’s old addresses to its topics under the group', async () => {
+    const harness = await RouterTestingHarness.create();
+
+    await harness.navigateByUrl('/small/nut');
+    expect(router.url).toBe('/parts/nut');
+
+    await harness.navigateByUrl('/large');
+    expect(router.url).toBe('/parts/beam');
+  });
+
   it('routes a page example as a page of its own, and its card links there', async () => {
     const harness = await RouterTestingHarness.create();
     const docs = await harness.navigateByUrl('/things/pages', DocsPage);
@@ -199,9 +297,10 @@ describe('the docs routes', () => {
     expect(await children('demo/pages')).toEqual(['whole-page']);
     expect(await children('demo/thing')).toEqual([]);
     expect(await children('demo/one')).toEqual([]);
+    expect(await children('demo/nut')).toEqual([]);
   });
 
-  it('gives each generated topic a lazy demo route, and a hand-made one none', () => {
+  it('routes each topic, a demo per generated one, and each category’s old addresses', () => {
     const paths = docsRoutes(GROUPS).map((route) => route.path);
 
     expect(paths).toEqual([
@@ -215,6 +314,18 @@ describe('the docs routes', () => {
       'demo/one',
       'hand',
       'hand/made',
+      'parts',
+      'parts/bolt',
+      'parts/nut',
+      'parts/beam',
+      'demo/bolt',
+      'demo/nut',
+      'demo/beam',
+      'small',
+      'small/bolt',
+      'small/nut',
+      'large',
+      'large/beam',
     ]);
   });
 });

@@ -7,7 +7,7 @@ import {
 } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { NeatViewport } from '@sima/neat-ui';
-import { DOCS_TOPIC_OF, type DocsTab, type DocsTopic } from './docs-context';
+import { DOCS_TOPIC_OF, type DocsTab, type DocsTopic, type DocsTopicList } from './docs-context';
 import { DOCS_ASIDE_OPEN_KEY, DOCS_ASIDE_WIDTH_KEY, DocsPage, topicParts } from './docs-page';
 import type { DocBlock, DocsEntry } from './model';
 
@@ -92,6 +92,11 @@ const TABS: DocsTab[] = [
   { label: 'Diagram', path: '/diagram' },
   { label: 'Legend', path: '/legend' },
 ];
+/** A listed group's topics, which its pages show beside them instead of tabs. */
+const LIST: DocsTopicList = {
+  label: 'Components',
+  categories: [{ label: 'Diagram', topics: [{ label: 'Listed', path: '/listed' }] }],
+};
 
 class NoopResizeObserver {
   observe = vi.fn();
@@ -102,7 +107,7 @@ class NoopResizeObserver {
 describe('DocsPage', () => {
   let scrolled: Element[];
 
-  async function open(url = '/diagram') {
+  async function open(url = '/diagram', narrow = false) {
     TestBed.configureTestingModule({
       providers: [
         // The routes as the topics config gives them: the topic and its tabs as route data.
@@ -115,6 +120,12 @@ describe('DocsPage', () => {
             },
             { path: 'legend', children: [] },
             {
+              path: 'listed',
+              title: 'Listed',
+              component: DocsPage,
+              data: { topic: TOPIC, tabs: [], list: LIST },
+            },
+            {
               path: 'pages',
               component: DocsPage,
               data: {
@@ -125,7 +136,7 @@ describe('DocsPage', () => {
           ],
           withComponentInputBinding(),
         ),
-        { provide: NeatViewport, useValue: { narrow: signal(false) } },
+        { provide: NeatViewport, useValue: { narrow: signal(narrow) } },
         {
           provide: DOCS_TOPIC_OF,
           useValue: (name: string) => (name === 'NeatDiagramLegend' ? '/legend' : null),
@@ -163,6 +174,37 @@ describe('DocsPage', () => {
       ['Diagram', '/diagram'],
       ['Legend', '/legend'],
     ]);
+  });
+
+  it('shows a listed group’s topics in a column before the page, and no tabs', async () => {
+    const { host } = await open('/listed');
+    const list = host.querySelector('app-topic-list') as HTMLElement;
+    const page = host.querySelector('neat-page') as HTMLElement;
+
+    expect(list.querySelector('nav')?.getAttribute('aria-label')).toBe('Components topics');
+    expect(list.getAttribute('data-layout')).toBe('column');
+    expect(page.contains(list)).toBe(false);
+    expect(list.compareDocumentPosition(page) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(host.querySelector('nav[neatPageTabs]')).toBeNull();
+    // The API stays the page's own panel.
+    expect(page.querySelector('aside app-api-panel')).not.toBeNull();
+  });
+
+  it('puts the topic list above the topic on a narrow screen, collapsed', async () => {
+    const { host } = await open('/listed', true);
+    const list = host.querySelector('app-topic-list') as HTMLElement;
+    const trigger = list.querySelector('neat-collapsible button') as HTMLElement;
+
+    expect(host.querySelector('neat-page .showcase-page')?.firstElementChild).toBe(list);
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(trigger.textContent).toContain('Components');
+    expect(trigger.textContent).toContain('Listed');
+  });
+
+  it('shows no topic list for a group with tabs', async () => {
+    const { host } = await open();
+
+    expect(host.querySelector('app-topic-list')).toBeNull();
   });
 
   it('introduces the topic’s lead parts, then the examples', async () => {

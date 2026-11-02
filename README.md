@@ -10,6 +10,8 @@ kit's `neat-*` API and its prebuilt stylesheet; they need no Tailwind of their o
   `@sima/neat-ui/<name>` (`@sima/neat-ui/dialog`, `@sima/neat-ui/select-list`, …), so an app's
   main bundle carries only the entries its shell imports. AGENTS.md lists them.
 - `projects/showcase`: the kit's docs, every part with live examples and its API in both themes.
+  It opens on Getting started (the package, the providers, the stylesheet and the shell), then
+  Theme, Layout and Components, whose topics are listed under seven categories with a filter.
   Look here before building something new.
 - `projects/bench`: the rendering bench, which measures how much diagram a machine draws smoothly
   with the kit and with ngx-vflow. Never published.

@@ -227,7 +227,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "), here one rail item per group of the docs, and "
+            "text": "), here Getting started and one rail item per group of the docs, and "
           },
           {
             "kind": "ref",
@@ -254,14 +254,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { RouterOutlet } "],["keyword","from"],["text"," "],["string","'@angular/router'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatNavItem, NeatShell } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatToastHost } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/toast'"],["text",";\n"],
+          ["keyword","import"],["text"," { GETTING_STARTED } "],["keyword","from"],["text"," "],["string","'./app.routes'"],["text",";\n"],
           ["keyword","import"],["text"," { groupNavItems } "],["keyword","from"],["text"," "],["string","'./docs/docs-routes'"],["text",";\n"],
           ["keyword","import"],["text"," { GROUPS } "],["keyword","from"],["text"," "],["string","'./docs/topics'"],["text",";\n\n@Component({\n  imports: [NeatShell, NeatToastHost, RouterOutlet],\n  selector: "],
           ["string","'app-root'"],["text",",\n  template: "],
           ["string","`\n    <neat-shell appName=\"neat-ui showcase\" [navItems]=\"navItems\">\n      <router-outlet />\n    </neat-shell>\n    <neat-toast-host />\n  `"],
           ["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," App {\n  "],
-          ["comment","/** The groups of the docs, the theme first. */"],["text","\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," navItems: NeatNavItem[] = groupNavItems(GROUPS);\n}\n"]
+          ["comment","/** Getting started, then the groups of the docs: Theme, Layout and Components. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," navItems: NeatNavItem[] = [\n    { label: "],
+          ["string","'Getting started'"],["text",", icon: "],["string","'info'"],["text",", path: "],["string","`/${GETTING_STARTED}`"],["text"," },\n    ...groupNavItems(GROUPS),\n  ];\n}\n"]
         ]
       }
     ]

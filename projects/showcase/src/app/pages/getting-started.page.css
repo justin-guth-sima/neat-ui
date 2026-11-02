@@ -1,0 +1,77 @@
+/* One column of prose and code, narrower than a docs page's `showcase-page` (72rem, for examples
+   that need the width), so the prose keeps a readable measure. Widths are measures of this
+   gallery, not spacing. */
+.guide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-6);
+  max-width: 52rem;
+  margin-inline: auto;
+}
+
+.lead {
+  margin: 0;
+  color: var(--muted-foreground);
+}
+
+/* Numbered: the kit stylesheet's reset takes every list's markers away. */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-6);
+  margin: 0;
+  padding-inline-start: var(--neat-space-6);
+  list-style: decimal;
+}
+
+/* A list item keeps its number only as `display: list-item`, so its parts are spaced by margins,
+   not a flex gap. */
+.steps li > * {
+  margin: 0;
+}
+
+.steps li > * + * {
+  margin-block-start: var(--neat-space-3);
+}
+
+.steps li::marker {
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.next {
+  display: grid;
+  gap: var(--neat-space-3);
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.next a {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--neat-space-3) var(--neat-space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--foreground);
+  font-size: var(--neat-text-sm);
+  text-decoration: none;
+}
+
+.next a:hover {
+  background: var(--accent);
+}
+
+.next a:focus-visible {
+  outline: var(--neat-focus-ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+
+.name {
+  font-size: var(--neat-text-base);
+  font-weight: 500;
+}
