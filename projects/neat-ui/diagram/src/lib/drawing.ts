@@ -214,7 +214,12 @@ export function describeLevel(level: DrawnLevel): {
   return {
     nodes: drawnNodes.map((node) => ({
       id: node.id,
-      text: words(node.label, node.detail, ...(node.chips ?? []).map((chip) => chip.label)),
+      text: words(
+        node.label,
+        node.detail,
+        ...(node.chips ?? []).map((chip) => chip.label),
+        node.stale ? 'stale' : undefined,
+      ),
     })),
     edges: level.edges.map(({ id, edge }) => ({
       id,

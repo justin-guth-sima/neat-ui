@@ -345,7 +345,10 @@ the whole in the kit's look.
   `parent`. A node's `role` is `frame` (holds nodes, behind the edges, its title a size above a
   block's label), `block` (a card), `band` (a cable or a bus) or `bracket` (a brace under a row of
   siblings); its `look` is `default`, `accent`, `dashed`, `ghost` (a part not running) or `muted`.
-  Its `chips` are the kit's status chips, drawn tinted. **Where a part runs is said by a chip in
+  Its `chips` are the kit's status chips, drawn tinted. Its `stale` (a block's or a bracket's
+  diagnostics stopped) gives the whole card the look of `[neatStale]`, the primary's
+  `ɵSTALE_CLASSES` applied to the card, so the label, chips and the app's content grey out
+  together, with no transition, and the hidden list adds "stale"; the app says why in its content. **Where a part runs is said by a chip in
   one convention**, documented here rather than enforced, so every demo reads alike: the hardware
   decoder `HW` in `success`, `EV74` in `highlight`, `MLA` in `info`, `A65` in `neutral`. An edge's
   `series` is 1 to 8, the charts' `--neat-series-1` to `-8` (counted from 1, unlike
@@ -382,7 +385,8 @@ the whole in the kit's look.
   `ng-template[neatDiagramNote]` (a note's content) and `ng-template[neatDiagramEdgeTip]` (the tip
   of the edge under a mouse or a pen). The app matches parts inside the template, by id or by `data`
   (`@if (note.id === 'rate') { … }`): one template per kind rather than one per id keeps the
-  diagram's input plain data. A block's body sits in its card below the label, and the card keeps
+  diagram's input plain data. A bracket renders the block template too, after its label and detail (the stage's live time over
+  a row of blocks); `node.role` tells the two apart. A block's body sits in its card below the label, and the card keeps
   the size the node gives it, so the app sizes `h` (and `w`) for the body it renders. A block the
   template renders nothing for keeps its card as it is, a note it renders nothing for is not drawn
   (nor its leader; without the template no note is), and an edge it renders nothing for shows no
@@ -449,8 +453,10 @@ the whole in the kit's look.
   a dot arriving at a step's start goes on once the stage's time has passed, along the chain, and
   a message places at most `MAX_CHAIN` (32) dots in all, so steps that loop or fan out cannot grow
   without bound. `passive` (edge ids, fed edges and steps alike) names the edges whose messages
-  start no steps. `rate(edgeId)` is a signal of messages and bytes per second and a 60 s history,
-  refreshed at 12 Hz while something reads it. A push counts on any edge of any level, drawn or
+  start no steps. `rate(edgeId)` is a signal of messages and bytes per second and a 60 s history
+  (`rate(edgeIds)` of several edges their sum: rates added, histories added second by second from
+  the newest, so an edge that began later adds nothing before its first second; the same signal
+  for the same ids, and `neat-diagram-rate-card` shows the sum like any rate), refreshed at 12 Hz while something reads it. A push counts on any edge of any level, drawn or
   not, so a level opens with its numbers; the step edges count only while their level is drawn and
   the page is visible, as their dots place them. An id that is no edge of the diagram is ignored,
   which keeps the rates' memory bounded by the diagram. The performance rules: one canvas
@@ -495,7 +501,7 @@ the primary exports `ɵhlm`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
 `ɵFIELD_LABEL_CLASSES` (the field label's look, which `select` and `field` share so that their
 fields line up), `ɵINPUT_CLASSES` and `ɵINPUT_HELM_CLASSES` (the text field's look, which `input`
 shares with the page's side list's filter), `ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
-look, which `collapsible` shares with the side list on a narrow screen), `ɵOverlayFocus` and
+look, which `collapsible` shares with the side list on a narrow screen), `ɵSTALE_CLASSES` (the stale look, which `diagram` gives a node's card), `ɵOverlayFocus` and
 `ɵPANEL_SURFACE_CLASSES` and `ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel
 in the overlay, which `neat-popover` shares with the shell's collapsed-rail menu; the second is
 the helm popover's own classes, which the popover's drift spec reads): Angular's convention for

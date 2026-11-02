@@ -367,6 +367,39 @@ describe('NeatDiagramMessages', () => {
     expect(rate()).toEqual({ msgsPerSec: 0, bytesPerSec: 0, history: [4] });
   });
 
+  it('sums the rate over several edges, and gives the same signal for the same ids', async () => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'performance'] });
+    const { layer } = await renderLayer();
+    const both = layer.rate(['in', 'elsewhere']);
+    expect(layer.rate(['in', 'elsewhere'])).toBe(both);
+    expect(layer.rate(['in', 'in', 'elsewhere'])).toBe(both);
+    expect(layer.rate(['in'])).toBe(layer.rate('in'));
+    expect(layer.rate(['elsewhere', 'in'])).not.toBe(both);
+
+    layer.push('in', 1000);
+    layer.push('in', 1000);
+    vi.advanceTimersByTime(1000);
+    // `elsewhere` starts a second later: nothing of it before its first second.
+    layer.push('in', 100);
+    layer.push('elsewhere', 200);
+    layer.push('elsewhere', 300);
+    layer.push('elsewhere', 400);
+    vi.advanceTimersByTime(80);
+    expect(both()).toEqual({ msgsPerSec: 4, bytesPerSec: 1000, history: [2] });
+
+    vi.advanceTimersByTime(1000);
+    const { history } = both();
+    expect(history).toEqual([2, 4]);
+    expect(layer.rate('in')().history).toEqual([2, 1]);
+    expect(layer.rate('elsewhere')().history).toEqual([3]);
+
+    // The same array while nothing changed, so a sparkline redraws once a second.
+    vi.advanceTimersByTime(80);
+    expect(both().history).toBe(history);
+    expect(layer.rate([])()).toEqual({ msgsPerSec: 0, bytesPerSec: 0, history: [] });
+    expect(layer.rate(['nowhere', 'in'])().msgsPerSec).toBe(layer.rate('in')().msgsPerSec);
+  });
+
   it('stops refreshing the rates while nothing reads them, and starts again when read', async () => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'performance'] });
     const { layer } = await renderLayer();

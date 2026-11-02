@@ -148,7 +148,7 @@ export const PIPELINE: NeatDiagramSet = {
       { id: 'camera-rate', edges: ['camera-decode'], x: 215, y: -50 },
       // A note's x and y are its centre: below the Modalix frame (which ends at y 360), so the card
       // straddles no border, and its leader runs clear of it.
-      { id: 'tracker-rate', edges: ['tracker-gateway'], x: 330, y: 410 },
+      { id: 'tracker-rate', edges: ['detector-tracker'], x: 330, y: 410 },
     ],
   },
   levels: {

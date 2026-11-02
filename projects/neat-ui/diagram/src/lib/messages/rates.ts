@@ -204,3 +204,31 @@ function grow(track: Track, capacity: number): void {
 function bucketOf(second: number): number {
   return ((second % BUCKETS) + BUCKETS) % BUCKETS;
 }
+
+/**
+ * Histories added second by second from the newest: they all end at the same second (the one
+ * before `nowMs`'s), so an edge that started later is zero before its first second and adds
+ * nothing there. Oldest first, as a history is, and as long as the longest. One history comes
+ * back as it is, and so does `previous` when every part is the array it was made from, so a
+ * sparkline fed at the numbers' refresh rate redraws once a second.
+ */
+export function sumHistories(
+  histories: readonly (readonly number[])[],
+  previous?: { readonly parts: readonly (readonly number[])[]; readonly sum: readonly number[] },
+): { readonly parts: readonly (readonly number[])[]; readonly sum: readonly number[] } {
+  if (
+    previous &&
+    previous.parts.length === histories.length &&
+    previous.parts.every((part, i) => part === histories[i])
+  ) {
+    return previous;
+  }
+  if (histories.length === 1) return { parts: histories, sum: histories[0] };
+  const length = Math.max(0, ...histories.map((history) => history.length));
+  const sum = new Array<number>(length).fill(0);
+  for (const history of histories) {
+    const offset = length - history.length;
+    for (let i = 0; i < history.length; i++) sum[offset + i] += history[i];
+  }
+  return { parts: histories, sum };
+}

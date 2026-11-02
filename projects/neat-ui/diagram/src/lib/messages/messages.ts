@@ -29,7 +29,7 @@ import {
   travelTime,
 } from './dot-model';
 import { EdgeGeometry } from './edge-geometry';
-import { EdgeRates } from './rates';
+import { EdgeRates, sumHistories } from './rates';
 
 /** How the layer animates its dots: tuning only, the numbers count every message regardless. */
 export interface NeatDiagramMessageSettings {
@@ -115,7 +115,8 @@ const sameRate = (a: NeatDiagramEdgeRate, b: NeatDiagramEdgeRate) =>
  * fed edge or a step) end their messages where they enter, starting no steps.
  *
  * `rate(edgeId)` is the edge's messages and bytes per second and its history, for the notes an app
- * fills, refreshed at 12 Hz while something reads it. A push counts on any edge of any level, drawn
+ * fills (`rate(['a', 'b'])` their sum, for a note over several edges), refreshed at 12 Hz while
+ * something reads it. A push counts on any edge of any level, drawn
  * or not, so a level opens with its numbers; the step edges are the exception, counted only while
  * their level is drawn and the page is visible, as it is their dots that count them. An id that is
  * no edge of the diagram is ignored, so the rates' memory stays bounded by the diagram's edges.
@@ -311,23 +312,39 @@ export class NeatDiagramMessages {
   }
 
   /**
-   * `edgeId`'s messages and bytes per second over the last second and its history, refreshed at
-   * 12 Hz while something reads it (a template, an effect); the same signal for the same id.
+   * `edgeIds`' messages and bytes per second over the last second and their history, refreshed
+   * at 12 Hz while something reads it (a template, an effect); the same signal for the same id or
+   * list of ids. Several ids give the sum: the rates added, and the histories added second by
+   * second from the newest, so an edge whose messages began later adds nothing before its first
+   * second. An id twice counts once; an id that is no edge counts nothing.
    */
-  rate(edgeId: string): Signal<NeatDiagramEdgeRate> {
-    let rate = this.rateSignals.get(edgeId);
+  rate(edgeIds: string | readonly string[]): Signal<NeatDiagramEdgeRate> {
+    const ids = [...new Set(typeof edgeIds === 'string' ? [edgeIds] : edgeIds)];
+    const key = JSON.stringify(ids);
+    let rate = this.rateSignals.get(key);
     if (!rate) {
+      let summed: ReturnType<typeof sumHistories> | undefined;
       rate = computed(
         () => {
           this.numbers();
           this.numbersWanted();
           const now = performance.now();
-          const { msgsPerSec, bytesPerSec } = this.rates.snapshot(edgeId, now);
-          return { msgsPerSec, bytesPerSec, history: this.rates.history(edgeId, now) };
+          let msgsPerSec = 0;
+          let bytesPerSec = 0;
+          for (const id of ids) {
+            const edge = this.rates.snapshot(id, now);
+            msgsPerSec += edge.msgsPerSec;
+            bytesPerSec += edge.bytesPerSec;
+          }
+          summed = sumHistories(
+            ids.map((id) => this.rates.history(id, now)),
+            summed,
+          );
+          return { msgsPerSec, bytesPerSec, history: summed.sum };
         },
         { equal: sameRate },
       );
-      this.rateSignals.set(edgeId, rate);
+      this.rateSignals.set(key, rate);
     }
     return rate;
   }

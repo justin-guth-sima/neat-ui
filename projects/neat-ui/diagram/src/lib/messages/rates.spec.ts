@@ -1,4 +1,4 @@
-import { EdgeRates, HISTORY_SECONDS, RATE_WINDOW_MS } from './rates';
+import { EdgeRates, HISTORY_SECONDS, RATE_WINDOW_MS, sumHistories } from './rates';
 
 describe('EdgeRates', () => {
   it('counts messages and bytes of the last second', () => {
@@ -149,5 +149,28 @@ describe('EdgeRates', () => {
     rates.clear();
     expect(rates.snapshot('a', 10).msgsPerSec).toBe(0);
     expect(rates.history('a', 5000)).toEqual([]);
+  });
+});
+
+describe('sumHistories', () => {
+  it('adds histories second by second from the newest, so a later start adds nothing before it', () => {
+    expect(
+      sumHistories([
+        [1, 2, 3],
+        [10, 20],
+      ]).sum,
+    ).toEqual([1, 12, 23]);
+    expect(sumHistories([[5], [1, 2, 3], []]).sum).toEqual([1, 2, 8]);
+    expect(sumHistories([]).sum).toEqual([]);
+  });
+
+  it('gives one history as it is, and the last sum while every part is the same array', () => {
+    const only = [1, 2];
+    expect(sumHistories([only]).sum).toBe(only);
+    const a = [1, 2];
+    const b = [3];
+    const first = sumHistories([a, b]);
+    expect(sumHistories([a, b], first)).toBe(first);
+    expect(sumHistories([a, [3]], first)).not.toBe(first);
   });
 });

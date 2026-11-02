@@ -114,6 +114,7 @@
             type="button"
             class="block"
             data-opens
+            [class]="part.node.stale ? staleClasses : ''"
             [class.dim]="focus !== null && !focus.nodes.has(part.node.id)"
             [attr.data-node]="part.node.id"
             [attr.data-look]="part.look"
@@ -130,6 +131,7 @@
         } @else {
           <div
             class="block"
+            [class]="part.node.stale ? staleClasses : ''"
             [class.dim]="focus !== null && !focus.nodes.has(part.node.id)"
             [attr.data-node]="part.node.id"
             [attr.data-look]="part.look"
@@ -144,6 +146,7 @@
       } @else {
         <div
           class="bracket"
+          [class]="part.node.stale ? staleClasses : ''"
           [class.dim]="focus !== null && !focus.nodes.has(part.node.id)"
           [attr.data-node]="part.node.id"
           [style.left.px]="part.rect.x"
@@ -166,6 +169,9 @@
               <!-- Spaced in the text too, so it reads as words where it is not seen. -->
               <span class="separator"> · </span>
               <span>{{ part.node.detail }}</span>
+            }
+            @if (blockTemplate(); as body) {
+              <ng-container *ngTemplateOutlet="body.template; context: { $implicit: part.node }" />
             }
           </span>
         </div>

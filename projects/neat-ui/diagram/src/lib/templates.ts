@@ -33,7 +33,9 @@ export interface NeatDiagramNoteContext {
  * ```
  *
  * The card keeps the node's size, so the app sizes the node's `h` (and `w`) for the body. A block
- * it renders nothing for keeps its card as it is.
+ * it renders nothing for keeps its card as it is. A bracket renders it too, after its label and
+ * detail (the stage's live time over a row of blocks, say): `node.role` tells the two apart, and
+ * a template that matches by id never meets the other.
  */
 @Directive({ selector: 'ng-template[neatDiagramBlock]' })
 export class NeatDiagramBlockTemplate {

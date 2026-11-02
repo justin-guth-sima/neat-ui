@@ -30,6 +30,9 @@ const OVERVIEW: NeatDiagram = {
         @if (node.id === 'decode') {
           <span class="figure">{{ node.label }}: 30 fps</span>
         }
+        @if (node.role === 'bracket') {
+          <span class="total">12.3 ms</span>
+        }
       </ng-template>
       @if (notes()) {
         <ng-template neatDiagramNote let-note>
@@ -78,8 +81,19 @@ describe('the diagram’s templates', () => {
     ).toBeTruthy();
     // A block the template has nothing for gets an empty body, which takes no room (CSS).
     expect(one('[data-node="camera"] .figure')).toBeNull();
-    // Brackets take no body.
+    // A bracket has no body; the template renders after its label (below).
     expect(one('[data-node="graph"] .body')).toBeNull();
+  });
+
+  it('renders the block template in a bracket too, after its label, with the node', async () => {
+    const { one } = await render();
+    const bracket = one('[data-node="graph"]');
+    const total = bracket.querySelector('.bracket-text .total') as Element;
+    expect(total.textContent).toBe('12.3 ms');
+    const label = bracket.querySelector('.bracket-text .label') as Element;
+    expect(label.compareDocumentPosition(total) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // The block's template met the block with its own role: no total there.
+    expect(one('[data-node="decode"] .total')).toBeNull();
   });
 
   it('renders the note template for each note and measures it before placing it', async () => {

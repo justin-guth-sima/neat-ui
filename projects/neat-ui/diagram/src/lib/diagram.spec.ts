@@ -3,6 +3,7 @@ import type { MockInstance } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { zoomTransform } from 'd3-zoom';
+import { ɵSTALE_CLASSES } from '@sima/neat-ui';
 import { NeatDiagramView } from './diagram';
 import diagramStyles from './diagram.css' with { loader: 'text' };
 import frameStyles from './frames.css' with { loader: 'text' };
@@ -933,6 +934,64 @@ describe('NeatDiagramView’s hover, levels and words', () => {
       );
       const bar = /\n\.bar \{([^}]*)\}/.exec(diagramStyles)?.[1] ?? '';
       expect(bar).toMatch(/z-index: 1;/);
+    });
+  });
+
+  describe('a stale node', () => {
+    const staleCard = (stale: boolean): NeatDiagramSet => ({
+      overview: {
+        nodes: [
+          {
+            id: 'a',
+            role: 'block',
+            label: 'Decode',
+            detail: 'HW',
+            x: 0,
+            y: 0,
+            w: 120,
+            h: 40,
+            stale,
+          },
+          {
+            id: 'b',
+            role: 'block',
+            label: 'Sink',
+            x: 200,
+            y: 0,
+            w: 120,
+            h: 40,
+            opens: 'in',
+            stale,
+          },
+          { id: 'c', role: 'bracket', label: 'Graph', x: 0, y: 60, w: 320, h: 30, stale },
+          { id: 'd', role: 'block', label: 'Fresh', x: 400, y: 0, w: 120, h: 40 },
+        ],
+        edges: [],
+      },
+      levels: { in: { nodes: [], edges: [] } },
+    });
+
+    it('greys out the whole card as [neatStale] does, and says so in the hidden list', async () => {
+      const view = await renderLevels();
+      view.fixture.componentInstance.diagram.set(staleCard(true));
+      await view.stable();
+      for (const id of ['a', 'b', 'c']) {
+        for (const name of ɵSTALE_CLASSES.split(' '))
+          expect(view.node(id).classList).toContain(name);
+      }
+      expect(view.node('d').className).not.toContain('opacity-55');
+      const items = () =>
+        Array.from(view.one('.sr-only ul[aria-label="Parts"]').querySelectorAll('li')).map((li) =>
+          li.textContent?.trim(),
+        );
+      expect(items()).toEqual(['Decode, HW, stale', 'Sink, stale', 'Graph, stale', 'Fresh']);
+
+      view.fixture.componentInstance.diagram.set(staleCard(false));
+      await view.stable();
+      expect(view.node('a').className).not.toContain('opacity-55');
+      expect(view.node('b').className).not.toContain('opacity-55');
+      expect(view.node('c').className).not.toContain('opacity-55');
+      expect(items()).toEqual(['Decode, HW', 'Sink', 'Graph', 'Fresh']);
     });
   });
 

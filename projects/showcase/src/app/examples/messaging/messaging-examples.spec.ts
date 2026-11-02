@@ -51,7 +51,7 @@ describe('the live pipeline example', () => {
   it('moves the messages, the notes reading an edge’s rate', () => {
     expect(pipeline().querySelector('neat-diagram-messages canvas')).not.toBeNull();
     for (const [note, label] of [
-      ['tracker-rate', 'Tracker → Gateway'],
+      ['tracker-rate', 'Into Tracker'],
       ['camera-rate', 'Camera → Decode'],
     ]) {
       const card = pipeline().querySelector(`[data-note="${note}"] neat-diagram-rate-card`);

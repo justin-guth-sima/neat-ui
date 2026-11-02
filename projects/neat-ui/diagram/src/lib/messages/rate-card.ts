@@ -14,7 +14,8 @@ const perSecond = (value: number) => `${Math.round(value)} msg/s`;
  * </ng-template>
  * ```
  *
- * It shows the label, the messages per second (whole) and the megabytes per second (two decimals,
+ * Give it `rate(['a', 'b'])` for a note over several edges: the card shows their sum. It shows the
+ * label, the messages per second (whole) and the megabytes per second (two decimals,
  * from the bytes in units of 10 kB), and the history as a sparkline named for its messages per
  * second. `stageMs`, a block step's stage time, swaps the megabytes and the sparkline for the time
  * in milliseconds to a tenth: the dots of a step are made up, so they have no sizes. Anything an
@@ -60,7 +61,7 @@ const perSecond = (value: number) => `${Math.round(value)} msg/s`;
 export class NeatDiagramRateCard {
   /** What the numbers are of: the edge's or the step's name. */
   readonly label = input.required<string>();
-  /** The edge's rate: `NeatDiagramMessages.rate(edgeId)`'s value. */
+  /** The edge's rate, or the sum over several: `NeatDiagramMessages.rate(edgeIds)`'s value. */
   readonly rate = input.required<NeatDiagramEdgeRate>();
   /**
    * The stage time of a step, in ms: the card then shows it in place of the megabytes and the

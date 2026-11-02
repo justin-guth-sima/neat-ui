@@ -69,6 +69,13 @@ export interface NeatDiagramNode {
   /** Unset: `default`. */
   readonly look?: NeatDiagramLook;
   readonly chips?: readonly NeatDiagramChip[];
+  /**
+   * Whether what the card shows is stale (the node's diagnostics stopped): the whole card, its
+   * label, chips and the app's content, takes the look of `[neatStale]`, faded and grey with no
+   * transition, and the hidden list says "stale". The app says in words why, in the card's
+   * content. Blocks and brackets only.
+   */
+  readonly stale?: boolean;
   /** The id of the level (`NeatDiagramSet.levels`) this block opens. */
   readonly opens?: string;
   /**

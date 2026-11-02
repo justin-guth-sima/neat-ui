@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, signal, viewChild } from '@angular/core';
 import {
+  NeatDiagramBlockTemplate,
   NeatDiagramEdgeTipTemplate,
   NeatDiagramLegend,
   NeatDiagramView,
@@ -7,13 +8,19 @@ import {
 import { MODEL_EDGE_TIPS, MODEL_GRAPH, MODEL_LEGEND } from './model-graph-data';
 
 /**
- * Tensor shapes as edge labels, the tip of an edge from the app's `NeatDiagramEdgeTipTemplate`, and
+ * Tensor shapes as edge labels, a figure after a brace's label from the app's
+ * `NeatDiagramBlockTemplate` (`node.role` tells a bracket from a block), the tip of an edge from the app's `NeatDiagramEdgeTipTemplate`, and
  * levels two deep: Stages opens its stages, and Dark5 opens its layers. `NeatDiagramView.level` is
  * the path of open levels, shown below the drawing.
  */
 @Component({
   selector: 'app-model-graph',
-  imports: [NeatDiagramEdgeTipTemplate, NeatDiagramLegend, NeatDiagramView],
+  imports: [
+    NeatDiagramBlockTemplate,
+    NeatDiagramEdgeTipTemplate,
+    NeatDiagramLegend,
+    NeatDiagramView,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-diagram-legend [items]="legend" />
@@ -23,6 +30,11 @@ import { MODEL_EDGE_TIPS, MODEL_GRAPH, MODEL_LEGEND } from './model-graph-data';
       label="A detector’s model graph"
       [(level)]="level"
     >
+      <ng-template neatDiagramBlock let-node>
+        @if (node.role === 'bracket') {
+          <span class="bracket-figure">3 tensors</span>
+        }
+      </ng-template>
       <ng-template neatDiagramEdgeTip let-edge>
         @if (tips[edge.id]; as tip) {
           {{ tip }}

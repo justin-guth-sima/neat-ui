@@ -17,7 +17,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { NeatBreadcrumbs, NeatButton, NeatIcon } from '@sima/neat-ui';
+import { NeatBreadcrumbs, NeatButton, NeatIcon, ɵSTALE_CLASSES } from '@sima/neat-ui';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
 import { BRACE_HEIGHT, describeLevel, drawLevel } from './drawing';
 import { levelExtent } from './fit';
@@ -123,6 +123,8 @@ export class NeatDiagramView {
   );
 
   protected readonly BRACE_HEIGHT = BRACE_HEIGHT;
+  /** The look of `[neatStale]`, for a node with `stale`. */
+  protected readonly staleClasses = ɵSTALE_CLASSES;
 
   private readonly walked = computed(() => walkLevels(this.diagram(), this.level()));
 

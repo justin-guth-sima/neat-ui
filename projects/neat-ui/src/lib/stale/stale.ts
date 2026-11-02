@@ -4,7 +4,7 @@ import { computed, Directive, input } from '@angular/core';
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
  * them. `opacity-55` is opacity 0.55 and `grayscale` is `filter: grayscale(100%)`.
  */
-const STALE_CLASSES = 'opacity-55 grayscale';
+export const STALE_CLASSES = 'opacity-55 grayscale';
 
 /**
  * Shows that what the host shows is stale (a figure from before a connection dropped, a frame of

@@ -161,6 +161,7 @@ describe('the public API', () => {
       'ɵOverlayFocus',
       'ɵPANEL_SURFACE_CLASSES',
       'ɵPOPOVER_HELM_CLASSES',
+      'ɵSTALE_CLASSES',
       'ɵhlm',
       'ɵlistVariants',
       'ɵseriesToken',

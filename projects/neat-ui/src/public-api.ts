@@ -56,7 +56,7 @@ export { NeatBreadcrumbs } from './lib/breadcrumbs/breadcrumbs';
 export { NeatLiveDot } from './lib/live-dot/live-dot';
 export { NeatSeriesSwatch } from './lib/series-swatch/series-swatch';
 export { NeatNote } from './lib/note/note';
-export { NeatStale } from './lib/stale/stale';
+export { NeatStale, STALE_CLASSES as ɵSTALE_CLASSES } from './lib/stale/stale';
 export { neatSecondsAgo } from './lib/time/seconds-ago';
 export { neatEased } from './lib/motion/eased';
 export { NeatEasedNumber } from './lib/motion/eased-number';
@@ -70,7 +70,8 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
  * ng-packagr gives each entry the built primary and nothing else, so the vendored helm code in
  * `lib/ui/` (never exported otherwise), the shell's toolbar token, the field label's classes
  * (which `select` and `field` share), the text field's and the collapsible section's looks
- * (which `input` and `collapsible` share with the page's side list), the focus rules and surface
+ * (which `input` and `collapsible` share with the page's side list), the stale look (which
+ * `diagram` gives a node's card), the focus rules and surface
  * of a panel in the overlay (the popover's, shared with the shell's collapsed-rail menu, and the
  * helm classes its drift spec reads) and the series' token rule (which `charts` and `diagram`
  * share with the swatch) reach them only through here. Angular marks its own private API the same

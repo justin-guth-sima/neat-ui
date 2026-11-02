@@ -183,7 +183,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") for the body. A block it renders nothing for keeps its card as it is."
+              "text": ") for the body. A block it renders nothing for keeps its card as it is. A bracket renders it too, after its label and detail (the stage's live time over a row of blocks, say): "
+            },
+            {
+              "kind": "code",
+              "text": "node.role"
+            },
+            {
+              "kind": "text",
+              "text": " tells the two apart, and a template that matches by id never meets the other."
             }
           ]
         }
@@ -1190,7 +1198,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the edge's messages and bytes per second and its history, for the notes an app fills, refreshed at 12 Hz while something reads it. A push counts on any edge of any level, drawn or not, so a level opens with its numbers; the step edges are the exception, counted only while their level is drawn and the page is visible, as it is their dots that count them. An id that is no edge of the diagram is ignored, so the rates' memory stays bounded by the diagram's edges."
+              "text": " is the edge's messages and bytes per second and its history, for the notes an app fills ("
+            },
+            {
+              "kind": "code",
+              "text": "rate(['a', 'b'])"
+            },
+            {
+              "kind": "text",
+              "text": " their sum, for a note over several edges), refreshed at 12 Hz while something reads it. A push counts on any edge of any level, drawn or not, so a level opens with its numbers; the step edges are the exception, counted only while their level is drawn and the page is visible, as it is their dots that count them. An id that is no edge of the diagram is ignored, so the rates' memory stays bounded by the diagram's edges."
             }
           ]
         },
@@ -1385,18 +1401,18 @@ export const API: DocsEntry = {
         },
         {
           "name": "rate",
-          "signature": "rate(edgeId: string): Signal<NeatDiagramEdgeRate>",
+          "signature": "rate(edgeIds: string | readonly string[]): Signal<NeatDiagramEdgeRate>",
           "doc": [
             {
               "kind": "paragraph",
               "spans": [
                 {
                   "kind": "code",
-                  "text": "edgeId"
+                  "text": "edgeIds"
                 },
                 {
                   "kind": "text",
-                  "text": "'s messages and bytes per second over the last second and its history, refreshed at 12 Hz while something reads it (a template, an effect); the same signal for the same id."
+                  "text": "' messages and bytes per second over the last second and their history, refreshed at 12 Hz while something reads it (a template, an effect); the same signal for the same id or list of ids. Several ids give the sum: the rates added, and the histories added second by second from the newest, so an edge whose messages began later adds nothing before its first second. An id twice counts once; an id that is no edge counts nothing."
                 }
               ]
             }
@@ -1521,6 +1537,30 @@ export const API: DocsEntry = {
           "type": "readonly NeatDiagramChip[]",
           "optional": true,
           "doc": []
+        },
+        {
+          "name": "stale",
+          "type": "boolean",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether what the card shows is stale (the node's diagnostics stopped): the whole card, its label, chips and the app's content, takes the look of "
+                },
+                {
+                  "kind": "code",
+                  "text": "[neatStale]"
+                },
+                {
+                  "kind": "text",
+                  "text": ", faded and grey with no transition, and the hidden list says \"stale\". The app says in words why, in the card's content. Blocks and brackets only."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "opens",
@@ -1943,7 +1983,15 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It shows the label, the messages per second (whole) and the megabytes per second (two decimals, from the bytes in units of 10 kB), and the history as a sparkline named for its messages per second. "
+              "text": "Give it "
+            },
+            {
+              "kind": "code",
+              "text": "rate(['a', 'b'])"
+            },
+            {
+              "kind": "text",
+              "text": " for a note over several edges: the card shows their sum. It shows the label, the messages per second (whole) and the megabytes per second (two decimals, from the bytes in units of 10 kB), and the history as a sparkline named for its messages per second. "
             },
             {
               "kind": "code",
@@ -2008,11 +2056,11 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The edge's rate: "
+                  "text": "The edge's rate, or the sum over several: "
                 },
                 {
                   "kind": "code",
-                  "text": "NeatDiagramMessages.rate(edgeId)"
+                  "text": "NeatDiagramMessages.rate(edgeIds)"
                 },
                 {
                   "kind": "text",

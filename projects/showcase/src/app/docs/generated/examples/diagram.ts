@@ -44,6 +44,23 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
+            "text": "The Browser has stopped reporting: its node is "
+          },
+          {
+            "kind": "code",
+            "text": "stale"
+          },
+          {
+            "kind": "text",
+            "text": ", so the whole card is greyed out, and the same template says why in words, since grey alone tells no one what happened."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
             "text": "The notes are the app's "
           },
           {
@@ -101,7 +118,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
           ["keyword","import"],["text"," { PIPELINE, PIPELINE_LEGEND } "],["keyword","from"],["text"," "],["string","'./pipeline-data'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-messaging-pipeline'"],["text",",\n  imports: [NeatDiagramBlockTemplate, NeatDiagramLegend, NeatDiagramNoteTemplate, NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram class=\"diagram\" [diagram]=\"pipeline\" label=\"A messaging pipeline\">\n      <ng-template neatDiagramBlock let-node>\n        @if (node.id === 'decode') {\n          <span class=\"figure\">30.0 fps · 1080p</span>\n        }\n      </ng-template>\n      <ng-template neatDiagramNote let-note>\n        @switch (note.id) {\n          @case ('camera-rate') {\n            <b>Camera → Decode</b><br />30 frames/s\n          }\n          @case ('tracker-rate') {\n            <b>Tracker → Gateway</b><br />10 results/s\n          }\n          @case ('yolox-rate') {\n            <b>YOLOX → NMS</b><br />14.8 ms\n          }\n        }\n      </ng-template>\n    </neat-diagram>\n  `"],
+          ["string","`\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram class=\"diagram\" [diagram]=\"pipeline\" label=\"A messaging pipeline\">\n      <ng-template neatDiagramBlock let-node>\n        @if (node.id === 'decode') {\n          <span class=\"figure\">30.0 fps · 1080p</span>\n        }\n        @if (node.id === 'browser') {\n          <span class=\"figure\">No data for 5 s</span>\n        }\n      </ng-template>\n      <ng-template neatDiagramNote let-note>\n        @switch (note.id) {\n          @case ('camera-rate') {\n            <b>Camera → Decode</b><br />30 frames/s\n          }\n          @case ('tracker-rate') {\n            <b>Tracker → Gateway</b><br />10 results/s\n          }\n          @case ('yolox-rate') {\n            <b>YOLOX → NMS</b><br />14.8 ms\n          }\n        }\n      </ng-template>\n    </neat-diagram>\n  `"],
           ["text",",\n  styleUrls: ["],
           ["string","'./diagram-box.css'"],["text",", "],["string","'./messaging-pipeline.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," MessagingPipeline {\n  "],
@@ -142,9 +159,11 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'laptop'"],["text",",\n    x: 20,\n    y: 190,\n    w: 130,\n    h: 46,\n  },\n  {\n    id: "],
           ["string","'browser'"],["text",",\n    role: "],
           ["string","'block'"],["text",",\n    label: "],
-          ["string","'Browser'"],["text",",\n    inSide: "],
+          ["string","'Browser'"],["text",",\n    "],
+          ["comment","// Its stats stopped: the whole card is greyed out, and the block template says why."],["text","\n    stale: "],
+          ["keyword","true"],["text",",\n    inSide: "],
           ["string","'top'"],["text",",\n    parent: "],
-          ["string","'laptop'"],["text",",\n    x: 20,\n    y: 290,\n    w: 130,\n    h: 46,\n  },\n  { id: "],
+          ["string","'laptop'"],["text",",\n    x: 20,\n    y: 290,\n    w: 130,\n    h: 58,\n  },\n  { id: "],
           ["string","'ethernet'"],["text",", role: "],["string","'band'"],["text",", label: "],["string","'Ethernet'"],["text",", x: 186, y: 0, w: 30, h: 360 },\n  { id: "],
           ["string","'modalix'"],["text",", role: "],["string","'frame'"],["text",", look: "],["string","'accent'"],["text",", label: "],["string","'Modalix'"],["text",", x: 232, y: 0, w: 300, h: 360 },\n  {\n    id: "],
           ["string","'decode'"],["text",",\n    role: "],
@@ -222,7 +241,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
           ["text","\n.diagram {\n  "],
           ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
-          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
+          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n\n"],
+          ["comment","/* A figure the app puts after a bracket's label: small, quiet, steady digits. */"],["text","\n.bracket-figure {\n  font-size: var(--neat-text-xs);\n  color: var(--muted-foreground);\n  font-variant-numeric: tabular-nums;\n}\n"]
         ]
       },
       {
@@ -341,7 +361,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
           ["text","\n.diagram {\n  "],
           ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
-          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
+          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n\n"],
+          ["comment","/* A figure the app puts after a bracket's label: small, quiet, steady digits. */"],["text","\n.bracket-figure {\n  font-size: var(--neat-text-xs);\n  color: var(--muted-foreground);\n  font-variant-numeric: tabular-nums;\n}\n"]
         ]
       }
     ]
@@ -356,7 +377,24 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Tensor shapes as edge labels, the tip of an edge from the app's "
+            "text": "Tensor shapes as edge labels, a figure after a brace's label from the app's "
+          },
+          {
+            "kind": "ref",
+            "text": "NeatDiagramBlockTemplate",
+            "name": "NeatDiagramBlockTemplate"
+          },
+          {
+            "kind": "text",
+            "text": " ("
+          },
+          {
+            "kind": "code",
+            "text": "node.role"
+          },
+          {
+            "kind": "text",
+            "text": " tells a bracket from a block), the tip of an edge from the app's "
           },
           {
             "kind": "ref",
@@ -381,6 +419,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       }
     ],
     "shows": [
+      "@sima/neat-ui/diagram#NeatDiagramBlockTemplate",
       "@sima/neat-ui/diagram#NeatDiagramEdgeTipTemplate",
       "@sima/neat-ui/diagram#NeatDiagramLegend",
       "@sima/neat-ui/diagram#NeatDiagramView"
@@ -390,11 +429,11 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "3-model-graph.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, computed, signal, viewChild } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," {\n  NeatDiagramEdgeTipTemplate,\n  NeatDiagramLegend,\n  NeatDiagramView,\n} "],
+          ["keyword","import"],["text"," {\n  NeatDiagramBlockTemplate,\n  NeatDiagramEdgeTipTemplate,\n  NeatDiagramLegend,\n  NeatDiagramView,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
           ["keyword","import"],["text"," { MODEL_EDGE_TIPS, MODEL_GRAPH, MODEL_LEGEND } "],["keyword","from"],["text"," "],["string","'./model-graph-data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-model-graph'"],["text",",\n  imports: [NeatDiagramEdgeTipTemplate, NeatDiagramLegend, NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram\n      class=\"diagram\"\n      [diagram]=\"graph\"\n      label=\"A detector’s model graph\"\n      [(level)]=\"level\"\n    >\n      <ng-template neatDiagramEdgeTip let-edge>\n        @if (tips[edge.id]; as tip) {\n          {{ tip }}\n        }\n      </ng-template>\n    </neat-diagram>\n    <span class=\"showcase-muted\">Open levels: {{ levelText() }}</span>\n  `"],
+          ["string","'app-model-graph'"],["text",",\n  imports: [\n    NeatDiagramBlockTemplate,\n    NeatDiagramEdgeTipTemplate,\n    NeatDiagramLegend,\n    NeatDiagramView,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram\n      class=\"diagram\"\n      [diagram]=\"graph\"\n      label=\"A detector’s model graph\"\n      [(level)]=\"level\"\n    >\n      <ng-template neatDiagramBlock let-node>\n        @if (node.role === 'bracket') {\n          <span class=\"bracket-figure\">3 tensors</span>\n        }\n      </ng-template>\n      <ng-template neatDiagramEdgeTip let-edge>\n        @if (tips[edge.id]; as tip) {\n          {{ tip }}\n        }\n      </ng-template>\n    </neat-diagram>\n    <span class=\"showcase-muted\">Open levels: {{ levelText() }}</span>\n  `"],
           ["text",",\n  styleUrl: "],
           ["string","'./diagram-box.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ModelGraph {\n  "],
@@ -519,7 +558,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
           ["text","\n.diagram {\n  "],
           ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
-          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
+          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n\n"],
+          ["comment","/* A figure the app puts after a bracket's label: small, quiet, steady digits. */"],["text","\n.bracket-figure {\n  font-size: var(--neat-text-xs);\n  color: var(--muted-foreground);\n  font-variant-numeric: tabular-nums;\n}\n"]
         ]
       }
     ]
@@ -677,7 +717,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
           ["text","\n.diagram {\n  "],
           ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
-          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
+          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n\n"],
+          ["comment","/* A figure the app puts after a bracket's label: small, quiet, steady digits. */"],["text","\n.bracket-figure {\n  font-size: var(--neat-text-xs);\n  color: var(--muted-foreground);\n  font-variant-numeric: tabular-nums;\n}\n"]
         ]
       }
     ]
@@ -770,9 +811,11 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'laptop'"],["text",",\n    x: 20,\n    y: 190,\n    w: 130,\n    h: 46,\n  },\n  {\n    id: "],
           ["string","'browser'"],["text",",\n    role: "],
           ["string","'block'"],["text",",\n    label: "],
-          ["string","'Browser'"],["text",",\n    inSide: "],
+          ["string","'Browser'"],["text",",\n    "],
+          ["comment","// Its stats stopped: the whole card is greyed out, and the block template says why."],["text","\n    stale: "],
+          ["keyword","true"],["text",",\n    inSide: "],
           ["string","'top'"],["text",",\n    parent: "],
-          ["string","'laptop'"],["text",",\n    x: 20,\n    y: 290,\n    w: 130,\n    h: 46,\n  },\n  { id: "],
+          ["string","'laptop'"],["text",",\n    x: 20,\n    y: 290,\n    w: 130,\n    h: 58,\n  },\n  { id: "],
           ["string","'ethernet'"],["text",", role: "],["string","'band'"],["text",", label: "],["string","'Ethernet'"],["text",", x: 186, y: 0, w: 30, h: 360 },\n  { id: "],
           ["string","'modalix'"],["text",", role: "],["string","'frame'"],["text",", look: "],["string","'accent'"],["text",", label: "],["string","'Modalix'"],["text",", x: 232, y: 0, w: 300, h: 360 },\n  {\n    id: "],
           ["string","'decode'"],["text",",\n    role: "],
@@ -850,7 +893,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
           ["text","\n.diagram {\n  "],
           ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
-          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
+          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n\n"],
+          ["comment","/* A figure the app puts after a bracket's label: small, quiet, steady digits. */"],["text","\n.bracket-figure {\n  font-size: var(--neat-text-xs);\n  color: var(--muted-foreground);\n  font-variant-numeric: tabular-nums;\n}\n"]
         ]
       },
       {

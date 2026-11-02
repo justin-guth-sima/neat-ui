@@ -75,6 +75,23 @@ describe('the diagram examples on the diagram topic', () => {
     );
   });
 
+  it('greys out the pipeline’s Browser card whole, and says why in its body', () => {
+    const browser = figure('A messaging pipeline').querySelector('[data-node="browser"]');
+    expect(browser?.classList).toContain('opacity-55');
+    expect(browser?.querySelector('.body')?.textContent?.trim()).toBe('No data for 5 s');
+    expect(
+      figure('A messaging pipeline').querySelector('[data-node="camera"]')?.classList,
+    ).not.toContain('opacity-55');
+  });
+
+  it('shows a figure after the model graph’s brace, from the block template', async () => {
+    const graph = figure('A detector’s model graph');
+    await press(graph, 'Open Stages');
+    const brace = graph.querySelector('[data-node="outputs"]');
+    expect(brace?.querySelector('.label')?.textContent).toBe('To the head');
+    expect(brace?.querySelector('.bracket-text .bracket-figure')?.textContent).toBe('3 tensors');
+  });
+
   it('shows a ghost and a muted block and a note in the compile flow', () => {
     const flow = figure('A compile flow');
     expect(flow.querySelector('[data-node="accuracy"]')?.getAttribute('data-look')).toBe('ghost');
