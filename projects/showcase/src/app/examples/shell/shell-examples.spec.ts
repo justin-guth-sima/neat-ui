@@ -1,6 +1,9 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { KIOSK_POINTER_IDLE_MS, KioskService } from '@sima/neat-ui';
+import { NeatToasts } from '@sima/neat-ui/toast';
 import { Kiosk } from './1-kiosk.example';
+import { RailItems } from './2-rail-items.example';
 
 describe('the shell examples', () => {
   afterEach(() => {
@@ -59,5 +62,41 @@ describe('the shell examples', () => {
     vi.advanceTimersByTime(KIOSK_POINTER_IDLE_MS);
 
     expect(kiosk.pointerIdle()).toBe(true);
+  });
+
+  it('fill the rail’s end slot: the app’s items, then the theme, then collapse', async () => {
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    const status = vi.spyOn(TestBed.inject(NeatToasts), 'status');
+    const fixture = TestBed.createComponent(RailItems);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+
+    // Its own shell, with two pages in the rail.
+    expect(host.querySelectorAll('neat-shell nav a[neatRailItem]').length).toBe(2);
+    const end = host.querySelector('neat-shell .rail-end') as HTMLElement;
+    const items = Array.from(end.querySelectorAll('[neatRailItem]'), (item) =>
+      item.textContent?.replace(/\s+/g, ' ').trim(),
+    );
+
+    expect(items.length).toBe(6);
+    expect([items[0], items[5]]).toEqual(['About this app', 'Dark theme']);
+    // The second says a board's state with the item's tone, text and detail.
+    const board = end.querySelector('[label="Demo board, 192.168.1.20, connected"]') as HTMLElement;
+    const lines = Array.from(board.querySelectorAll('.line'), (line) => line.textContent?.trim());
+    expect(lines).toEqual(['Demo board', '192.168.1.20']);
+    expect(board.getAttribute('data-tone')).toBe('success');
+    expect(board.querySelector('.dot')).not.toBeNull();
+    // The items after it show the other tones, each on the rail's own surface.
+    const tones = Array.from(end.querySelectorAll('[neatRailItem][data-tone]'), (item) =>
+      item.getAttribute('data-tone'),
+    );
+    expect(tones).toEqual(['success', 'warning', 'danger', 'neutral']);
+    // A divider of the app's own sets the devices apart from the items below them.
+    const last = end.querySelector('[label="Microphone, idle"]') as HTMLElement;
+    expect(last.nextElementSibling?.matches('hr[neatRailDivider]')).toBe(true);
+
+    board.click();
+
+    expect(status).toHaveBeenCalledWith('A board item would open its dialog here.');
   });
 });

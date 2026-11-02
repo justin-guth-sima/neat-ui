@@ -1,0 +1,14 @@
+/* The containing block of the legend, which lies over the drawing instead of above it. */
+:host {
+  position: relative;
+}
+
+/*
+ * After the drawing, so it paints over it, and under the diagram's own layers above the drawing
+ * (the tip of the edge under the pointer). Bottom left: the bar a level opens is top left.
+ */
+.legend {
+  position: absolute;
+  bottom: var(--neat-space-3);
+  left: var(--neat-space-3);
+}

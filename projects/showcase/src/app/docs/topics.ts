@@ -29,11 +29,6 @@ export type TopicConfig = {
       readonly load: LoadTopic;
       /** The top bar's Fit button, for examples that have a `fit()` (`DocsTopic.fit`). */
       readonly fit?: true;
-      /**
-       * The examples need a whole page: each is routed at `/demo/<id>/<example>`
-       * (`DocsTopic.openBase`).
-       */
-      readonly fullPage?: true;
       readonly page?: never;
     }
   | {
@@ -45,7 +40,6 @@ export type TopicConfig = {
       readonly page: () => Promise<Type<unknown>>;
       readonly load?: never;
       readonly fit?: never;
-      readonly fullPage?: never;
     }
 );
 
@@ -159,7 +153,6 @@ export const GROUPS: readonly TopicGroup[] = [
         label: 'Page',
         parts: ['NeatPage', 'NeatPageToolbar', 'NeatPageTabs', 'NeatPageTab', 'NeatViewport'],
         leads: ['NeatPage'],
-        fullPage: true,
         load: async () => {
           const [api, examples] = await Promise.all([
             import('./generated/api/primary'),
@@ -182,7 +175,6 @@ export const GROUPS: readonly TopicGroup[] = [
           'NeatCode',
         ],
         leads: ['NeatAsidePanel'],
-        fullPage: true,
         load: async () => {
           const [api, examples] = await Promise.all([
             import('./generated/api/primary'),

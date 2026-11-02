@@ -1425,6 +1425,56 @@ test('an example with no caption, a bad class or a bad relative import is a prob
   ]);
 });
 
+// --- an example's options -------------------------------------------------------------------
+
+/** An example whose class doc is `lines`, each a line of the comment's body. */
+const documented = (name, lines) =>
+  source(
+    '/**',
+    ...lines.map((line) => (line ? ` * ${line}` : ' *')),
+    ' */',
+    "@Component({ selector: 'app-x', template: '' })",
+    `export class ${name} {}`,
+  );
+
+test('@unpadded and @page set their options and stay out of the caption and the snippet', () => {
+  const kit = kitWithExamples({
+    'a/1-edge.example.ts': documented('Edge', ['Edge to edge.', '@unpadded']),
+    'a/2-whole.example.ts': documented('Whole', ['A page of its own.', '', '@page']),
+    'a/3-plain.example.ts': component('Plain'),
+  });
+  const { topics, problems } = extractExamples(kit);
+  assert.deepEqual(problems, []);
+  const [edge, whole, plainExample] = topics[0].examples;
+  assert.equal(edge.unpadded, true);
+  assert.equal(edge.page, undefined);
+  assert.deepEqual(edge.caption, plain('Edge to edge.'));
+  assert.equal(whole.page, true);
+  assert.equal(whole.unpadded, undefined);
+  assert.deepEqual(whole.caption, plain('A page of its own.'));
+  assert.doesNotMatch(spelled(whole.files[0].code), /@page/);
+  assert.ok(!('unpadded' in plainExample) && !('page' in plainExample));
+
+  const text = generate(kit).files.get(`${EXAMPLES_OUTPUT_DIR}/a.ts`);
+  assert.match(text, /^ {4}"unpadded": true,$/m);
+  assert.match(text, /^ {4}"page": true,$/m);
+  assert.equal(text.match(/"(unpadded|page)": true/g).length, 2);
+});
+
+test('text after @unpadded or @page is a problem, and any other tag still is', () => {
+  const kit = kitWithExamples({
+    'a/1-said.example.ts': documented('Said', ['Said.', '@unpadded so it fills']),
+    'a/2-more.example.ts': documented('More', ['More.', '@page', 'More prose.']),
+    'a/3-other.example.ts': documented('Other', ['Other.', '@padded']),
+  });
+  const base = `${EXAMPLES_DIR}/a`;
+  assert.deepEqual(extractExamples(kit).problems, [
+    `${base}/1-said.example.ts:6: Said's @unpadded has text after it; the tag stands alone`,
+    `${base}/2-more.example.ts:7: More's @page has text after it; the tag stands alone`,
+    `${base}/3-other.example.ts:6: Other's doc has the tag @padded; an example's doc is its caption`,
+  ]);
+});
+
 // --- the caption check ----------------------------------------------------------------------
 
 test('a caption that names a non-public kit name, as a code span or a bare word, is a problem', () => {

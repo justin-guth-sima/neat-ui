@@ -37,7 +37,6 @@ import {
   type DocsTopicPart,
 } from './docs-context';
 import { ExampleCard } from './example-card';
-import type { DocsExample } from './model';
 import { PartIntro } from './part-intro';
 
 /** Whether the API panel is open on a wide screen, for every topic alike. */
@@ -129,7 +128,7 @@ function hasFit(instance: unknown): instance is { fit(): void } {
           <section class="examples" aria-labelledby="examples">
             <h2 id="examples">Examples</h2>
             @for (example of topic().examples; track example.id) {
-              <app-example-card [example]="example" [open]="openPath(example)" />
+              <app-example-card [example]="example" [topic]="topic().id" />
             }
           </section>
         }
@@ -205,16 +204,6 @@ export class DocsPage extends DocsContext {
         untracked(() => this.scrollTo(`example-${example}`));
       }
     });
-  }
-
-  /**
-   * Where a full-page example is routed, for a topic whose examples are not in the cards. None for
-   * an example with no component: it is code only and has no route (`demoRoute`), so its card says
-   * so instead of linking.
-   */
-  protected openPath(example: DocsExample): string | null {
-    const base = this.topic().openBase;
-    return base && example.component ? `${base}/${example.id}` : null;
   }
 
   /** Fits every example that can, as the top bar's Fit button asks. */

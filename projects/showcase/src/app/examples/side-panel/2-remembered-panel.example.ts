@@ -13,6 +13,8 @@ import {
  * write it, here a stored signal. On a wide screen the panel is the remembered choice; on a narrow
  * one it floats over the page and starts closed, and what is opened or closed there is not
  * remembered, so a phone never overwrites the choice made on a wide screen.
+ *
+ * @page
  */
 @Component({
   selector: 'app-remembered-panel',

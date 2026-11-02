@@ -17,10 +17,11 @@ const EXAMPLE: DocsExample = {
 };
 
 describe('ExampleCard', () => {
-  async function render(docs: FakeDocs) {
+  async function render(docs: FakeDocs, example: DocsExample = EXAMPLE) {
     TestBed.configureTestingModule({ providers: provideFakeDocs(docs) });
     const fixture = TestBed.createComponent(ExampleCard);
-    fixture.componentRef.setInput('example', EXAMPLE);
+    fixture.componentRef.setInput('example', example);
+    fixture.componentRef.setInput('topic', 'status-chip');
     await fixture.whenStable();
     return fixture.nativeElement as HTMLElement;
   }
@@ -33,13 +34,33 @@ describe('ExampleCard', () => {
     expect(card.getAttribute('aria-labelledby')).toBe(card.querySelector('h3')?.id);
     expect(card.textContent).toContain('The six tones, in words.');
     expect(card.querySelector('.live .live-tones')?.textContent).toBe('Six tones');
+    expect(card.querySelector('.live')?.getAttribute('data-unpadded')).toBe('false');
     expect(card.querySelector('app-snippet')).not.toBeNull();
+  });
+
+  it('gives an unpadded example a live area without the inset', async () => {
+    const host = await render(new FakeDocs(), { ...EXAMPLE, unpadded: true });
+
+    expect(host.querySelector('.live')?.getAttribute('data-unpadded')).toBe('true');
+    expect(host.querySelector('.live .live-tones')).not.toBeNull();
+  });
+
+  it('links a page example to its route instead of rendering it, with its code', async () => {
+    const host = await render(new FakeDocs(), { ...EXAMPLE, page: true });
+
+    expect(host.querySelector('a[neatButton]')?.getAttribute('href')).toBe(
+      '/demo/status-chip/tones',
+    );
+    expect(host.querySelector('.live')).toBeNull();
+    expect(host.querySelector('.live-tones')).toBeNull();
+    expect(host.querySelector('app-snippet')).not.toBeNull();
   });
 
   it('says a code-only example is not rendered, and still shows its code', async () => {
     TestBed.configureTestingModule({ providers: provideFakeDocs(new FakeDocs()) });
     const fixture = TestBed.createComponent(ExampleCard);
     fixture.componentRef.setInput('example', { ...EXAMPLE, component: undefined });
+    fixture.componentRef.setInput('topic', 'shell');
     await fixture.whenStable();
     const card = (fixture.nativeElement as HTMLElement).querySelector('article') as HTMLElement;
 

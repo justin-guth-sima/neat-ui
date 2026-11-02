@@ -146,6 +146,17 @@ describe('the diagram examples on the diagram topic', () => {
     expect(dimmed()).toBeGreaterThan(0);
   });
 
+  it('fills its card with the pipeline, edge to edge, the legend over it', () => {
+    const diagram = figure('A messaging pipeline, edge to edge');
+    const live = diagram.closest('.live') as HTMLElement;
+
+    expect(live.getAttribute('data-unpadded')).toBe('true');
+    expect(blocks(diagram)).toEqual(expect.arrayContaining(['camera', 'decode', 'detector']));
+    expect(diagram.parentElement?.querySelector('neat-diagram-legend.legend')).not.toBeNull();
+    // The other examples keep the inset.
+    expect(figure('A compile flow').closest('.live')?.getAttribute('data-unpadded')).toBe('false');
+  });
+
   it('fits every example again from the top bar’s Fit', () => {
     const fit = vi.spyOn(NeatDiagramView.prototype, 'fit');
     const button = Array.from(root().querySelectorAll<HTMLButtonElement>('header button')).find(
@@ -154,6 +165,6 @@ describe('the diagram examples on the diagram topic', () => {
 
     button.click();
 
-    expect(fit).toHaveBeenCalledTimes(4);
+    expect(fit).toHaveBeenCalledTimes(5);
   });
 });

@@ -4,6 +4,7 @@ import { MessagingPipeline } from '../../../examples/diagram/1-messaging-pipelin
 import { CompileFlow } from '../../../examples/diagram/2-compile-flow.example';
 import { ModelGraph } from '../../../examples/diagram/3-model-graph.example';
 import { Highlight } from '../../../examples/diagram/4-highlight.example';
+import { FillingItsCard } from '../../../examples/diagram/5-filling-its-card.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -669,6 +670,185 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
           ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
           ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "filling-its-card",
+    "title": "Filling its card",
+    "component": FillingItsCard,
+    "unpadded": true,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The pipeline filling its card to the edges, as a page like the demo's System page shows it. The box rule is the other examples', so the drawing takes the card's whole width, and the app lays "
+          },
+          {
+            "kind": "ref",
+            "text": "NeatDiagramLegend",
+            "name": "NeatDiagramLegend"
+          },
+          {
+            "kind": "text",
+            "text": " over the drawing's bottom left corner instead of above it, where it gives up no height and stays clear of the bar a level opens in the top left. The card clips the drawing to its rounded corners, and the top bar's Fit still fits it ("
+          },
+          {
+            "kind": "ref",
+            "text": "NeatDiagramView.fit",
+            "name": "NeatDiagramView",
+            "member": "fit"
+          },
+          {
+            "kind": "text",
+            "text": ")."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/diagram#NeatDiagramLegend",
+      "@sima/neat-ui/diagram#NeatDiagramView"
+    ],
+    "files": [
+      {
+        "name": "5-filling-its-card.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, viewChild } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatDiagramLegend, NeatDiagramView } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
+          ["keyword","import"],["text"," { PIPELINE, PIPELINE_LEGEND } "],["keyword","from"],["text"," "],["string","'./pipeline-data'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-filling-its-card'"],["text",",\n  imports: [NeatDiagramLegend, NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <neat-diagram class=\"diagram\" [diagram]=\"pipeline\" label=\"A messaging pipeline, edge to edge\" />\n    <neat-diagram-legend class=\"legend\" [items]=\"legend\" />\n  `"],
+          ["text",",\n  styleUrls: ["],
+          ["string","'./diagram-box.css'"],["text",", "],["string","'./filling-its-card.example.css'"],["text","],\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," FillingItsCard {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pipeline = PIPELINE;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," legend = PIPELINE_LEGEND;\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," diagram = viewChild.required(NeatDiagramView);\n\n  "],
+          ["comment","/** Fits the drawing to its box again, as a toolbar's Fit button does. */"],["text","\n  fit(): "],
+          ["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".diagram().fit();\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "pipeline-data.ts",
+        "code": [
+          ["keyword","import"],["text"," {\n  "],
+          ["keyword","type"],["text"," NeatDiagram,\n  "],
+          ["keyword","type"],["text"," NeatDiagramChip,\n  "],
+          ["keyword","type"],["text"," NeatDiagramEdge,\n  "],
+          ["keyword","type"],["text"," NeatDiagramLegendItem,\n  "],
+          ["keyword","type"],["text"," NeatDiagramNode,\n  "],
+          ["keyword","type"],["text"," NeatDiagramSet,\n  neatDrillDownLevel,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
+          ["keyword","import"],["text"," { A65, EV74, HW, MLA } "],["keyword","from"],["text"," "],["string","'./chips'"],["text",";\n\n"],
+          ["comment","/*\n * The reference sheet's messaging pipeline (insight-next, docs/superpowers/reference/diagram):\n * laptop, cable, board, placed after the sheet with room for the kit's type and edge labels. The\n * diagram fits each level to its box, so where a level starts does not matter.\n */"],
+          ["text","\n\n"],
+          ["keyword","const"],["text"," PIPELINE_NODES: "],["keyword","readonly"],["text"," NeatDiagramNode[] = [\n  { id: "],
+          ["string","'laptop'"],["text",", role: "],["string","'frame'"],["text",", label: "],["string","'Laptop'"],["text",", x: 0, y: 0, w: 170, h: 360 },\n  {\n    id: "],
+          ["string","'camera'"],["text",",\n    role: "],
+          ["string","'block'"],["text",",\n    label: "],
+          ["string","'Camera'"],["text",",\n    detail: "],
+          ["string","'USB'"],["text",",\n    parent: "],
+          ["string","'laptop'"],["text",",\n    x: 20,\n    y: 56,\n    w: 130,\n    h: 46,\n  },\n  {\n    id: "],
+          ["string","'gateway'"],["text",",\n    role: "],
+          ["string","'block'"],["text",",\n    label: "],
+          ["string","'Gateway'"],["text",",\n    inSide: "],
+          ["string","'right'"],["text",",\n    outSide: "],
+          ["string","'bottom'"],["text",",\n    parent: "],
+          ["string","'laptop'"],["text",",\n    x: 20,\n    y: 190,\n    w: 130,\n    h: 46,\n  },\n  {\n    id: "],
+          ["string","'browser'"],["text",",\n    role: "],
+          ["string","'block'"],["text",",\n    label: "],
+          ["string","'Browser'"],["text",",\n    inSide: "],
+          ["string","'top'"],["text",",\n    parent: "],
+          ["string","'laptop'"],["text",",\n    x: 20,\n    y: 290,\n    w: 130,\n    h: 46,\n  },\n  { id: "],
+          ["string","'ethernet'"],["text",", role: "],["string","'band'"],["text",", label: "],["string","'Ethernet'"],["text",", x: 186, y: 0, w: 30, h: 360 },\n  { id: "],
+          ["string","'modalix'"],["text",", role: "],["string","'frame'"],["text",", look: "],["string","'accent'"],["text",", label: "],["string","'Modalix'"],["text",", x: 232, y: 0, w: 300, h: 360 },\n  {\n    id: "],
+          ["string","'decode'"],["text",",\n    role: "],
+          ["string","'block'"],["text",",\n    label: "],
+          ["string","'Decode'"],["text",",\n    chips: [HW],\n    outSide: "],
+          ["string","'bottom'"],["text",",\n    parent: "],
+          ["string","'modalix'"],["text",",\n    "],
+          ["comment","// Sized for its body below the label too: the page's figure line (neatDiagramBlock)."],["text","\n    x: 20,\n    y: 50,\n    w: 170,\n    h: 58,\n  },\n  {\n    id: "],
+          ["string","'detector'"],["text",",\n    role: "],
+          ["string","'block'"],["text",",\n    label: "],
+          ["string","'Detector'"],["text",",\n    chips: [MLA],\n    opens: "],
+          ["string","'detector'"],["text",",\n    inSide: "],
+          ["string","'top'"],["text",",\n    outSide: "],
+          ["string","'bottom'"],["text",",\n    parent: "],
+          ["string","'modalix'"],["text",",\n    x: 20,\n    y: 140,\n    w: 170,\n    h: 46,\n  },\n  {\n    id: "],
+          ["string","'tracker'"],["text",",\n    role: "],
+          ["string","'block'"],["text",",\n    label: "],
+          ["string","'Tracker'"],["text",",\n    chips: [A65],\n    inSide: "],
+          ["string","'top'"],["text",",\n    outSide: "],
+          ["string","'left'"],["text",",\n    parent: "],
+          ["string","'modalix'"],["text",",\n    x: 35,\n    y: 230,\n    w: 140,\n    h: 40,\n  },\n];\n\n"],
+          ["keyword","const"],["text"," PIPELINE_EDGES: "],["keyword","readonly"],["text"," NeatDiagramEdge[] = [\n  { id: "],
+          ["string","'camera-decode'"],["text",", from: "],["string","'camera'"],["text",", to: "],["string","'decode'"],["text",", series: 1 },\n  { id: "],
+          ["string","'tracker-gateway'"],["text",", from: "],["string","'tracker'"],["text",", to: "],["string","'gateway'"],["text",", series: 4 },\n  { id: "],
+          ["string","'gateway-browser'"],["text",", from: "],["string","'gateway'"],["text",", to: "],["string","'browser'"],["text",", series: 4 },\n];\n\n"],
+          ["comment","/** A step of the Detector, in a row inside it below the level frame's title. */"],["text","\n"],
+          ["keyword","const"],["text"," step = (id: "],["keyword","string"],["text",", label: "],["keyword","string"],["text",", chip: NeatDiagramChip, i: "],["keyword","number"],["text","): NeatDiagramNode => ({\n  id,\n  role: "],
+          ["string","'block'"],["text",",\n  label,\n  chips: [chip],\n  parent: "],
+          ["string","'detector'"],["text",",\n  x: 20 + i * 170,\n  y: 72,\n  w: 130,\n  h: 40,\n});\n\n"],
+          ["comment","/**\n * The pipeline with the Detector's steps inside it, which the overview leaves out (its card is\n * too small to hold them): what `neatDrillDownLevel` places the Detector's level from.\n */"],
+          ["text","\n"],
+          ["keyword","const"],["text"," PIPELINE_STEPS: NeatDiagram = {\n  nodes: [\n    ...PIPELINE_NODES,\n    step("],
+          ["string","'resize'"],["text",", "],["string","'Resize'"],["text",", EV74, 0),\n    step("],
+          ["string","'yolox'"],["text",", "],["string","'YOLOX'"],["text",", MLA, 1),\n    step("],
+          ["string","'nms'"],["text",", "],["string","'NMS'"],["text",", A65, 2),\n  ],\n  edges: [\n    ...PIPELINE_EDGES,\n    { id: "],
+          ["string","'decode-resize'"],["text",", from: "],["string","'decode'"],["text",", to: "],["string","'resize'"],["text",", series: 1 },\n    "],
+          ["comment","// The steps hand frames on inside the process: dashed and muted, as the demo draws them."],["text","\n    { id: "],
+          ["string","'resize-yolox'"],["text",", from: "],["string","'resize'"],["text",", to: "],["string","'yolox'"],["text",", line: "],["string","'dashed'"],["text"," },\n    { id: "],
+          ["string","'yolox-nms'"],["text",", from: "],["string","'yolox'"],["text",", to: "],["string","'nms'"],["text",", line: "],["string","'dashed'"],["text"," },\n    { id: "],
+          ["string","'nms-tracker'"],["text",", from: "],["string","'nms'"],["text",", to: "],["string","'tracker'"],["text",", series: 4 },\n  ],\n};\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," PIPELINE: NeatDiagramSet = {\n  overview: {\n    nodes: PIPELINE_NODES,\n    edges: [\n      ...PIPELINE_EDGES,\n      { id: "],
+          ["string","'decode-detector'"],["text",", from: "],["string","'decode'"],["text",", to: "],["string","'detector'"],["text",", series: 1 },\n      { id: "],
+          ["string","'detector-tracker'"],["text",", from: "],["string","'detector'"],["text",", to: "],["string","'tracker'"],["text",", series: 4 },\n    ],\n    notes: [\n      "],
+          ["comment","// Above the frames (they start at y 0; the card is about 85 high), clear of the Camera."],["text","\n      { id: "],
+          ["string","'camera-rate'"],["text",", edges: ["],["string","'camera-decode'"],["text","], x: 215, y: -50 },\n      "],
+          ["comment","// A note's x and y are its centre: below the Modalix frame (which ends at y 360), so the card"],["text","\n      "],
+          ["comment","// straddles no border, and its leader runs clear of it."],["text","\n      { id: "],
+          ["string","'tracker-rate'"],["text",", edges: ["],["string","'tracker-gateway'"],["text","], x: 330, y: 410 },\n    ],\n  },\n  levels: {\n    detector: {\n      ...neatDrillDownLevel(PIPELINE_STEPS, "],
+          ["string","'detector'"],["text","),\n      "],
+          ["comment","// The card of a step: its stage time in place of the megabytes. Below the level's frame"],["text","\n      "],
+          ["comment","// (which ends at y 152), under the edge it is about."],["text","\n      notes: [{ id: "],
+          ["string","'yolox-rate'"],["text",", edges: ["],["string","'yolox-nms'"],["text","], x: 340, y: 235 }],\n    },\n  },\n};\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," PIPELINE_LEGEND: "],["keyword","readonly"],["text"," NeatDiagramLegendItem[] = [\n  { series: 1, label: "],
+          ["string","'image'"],["text"," },\n  { series: 4, label: "],
+          ["string","'results'"],["text"," },\n  { line: "],
+          ["string","'dashed'"],["text",", label: "],["string","'inside the Detector'"],["text"," },\n];\n"]
+        ]
+      },
+      {
+        "name": "chips.ts",
+        "code": [
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
+          ["comment","/*\n * The chips follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramChip = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramChip = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramChip = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramChip = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
+        ]
+      },
+      {
+        "name": "diagram-box.css",
+        "code": [
+          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
+          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
+          ["text","\n.diagram {\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n"]
+        ]
+      },
+      {
+        "name": "filling-its-card.example.css",
+        "code": [
+          ["comment","/* The containing block of the legend, which lies over the drawing instead of above it. */"],["text","\n:host {\n  position: relative;\n}\n\n"],
+          ["comment","/*\n * After the drawing, so it paints over it, and under the diagram's own layers above the drawing\n * (the tip of the edge under the pointer). Bottom left: the bar a level opens is top left.\n */"],
+          ["text","\n.legend {\n  position: absolute;\n  bottom: var(--neat-space-3);\n  left: var(--neat-space-3);\n}\n"]
         ]
       }
     ]

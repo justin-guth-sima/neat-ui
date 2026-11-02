@@ -7,6 +7,9 @@ import type { LoadTopic, TopicConfig, TopicGroup } from './topics';
 export const topicPath = (group: TopicGroup, topic: TopicConfig): string =>
   `/${group.id}/${topic.id}`;
 
+/** Where a page example is routed: `/demo/<topic>/<example>`, a page of its own. */
+export const demoPath = (topic: string, example: string): string => `/demo/${topic}/${example}`;
+
 /** The page tabs of a group's topics. */
 export function groupTabs(group: TopicGroup): DocsTab[] {
   return group.topics.map((topic) => ({ label: topic.label, path: topicPath(group, topic) }));
@@ -33,28 +36,26 @@ export function partTopicPath(groups: readonly TopicGroup[]): (name: string) => 
 async function resolveTopic(topic: TopicConfig & { load: LoadTopic }): Promise<DocsTopic> {
   const { entries, examples } = await topic.load();
   return {
+    id: topic.id,
     parts: topic.parts,
     leads: topic.leads,
     entries,
     examples,
     ...(topic.fit ? { fit: true as const } : {}),
-    ...(topic.fullPage ? { openBase: `/demo/${topic.id}` } : {}),
   };
 }
 
 /**
  * The routes of the docs: `/<group>` to its first topic, `/<group>/<topic>` for every topic, and
- * `/demo/<topic>/<example>` for the examples of a full-page topic, each its own route with the
- * example as the page (it sits in the shell like any page, and may declare the toolbar and tabs a
- * docs page keeps for itself).
+ * `/demo/<topic>/<example>` for each page example (`DocsExample.page`), its own route with the
+ * example as the page (it sits in the shell like any page, and may declare the toolbar, tabs or
+ * shell a docs page keeps for itself).
  */
 export function docsRoutes(groups: readonly TopicGroup[]): Routes {
   return groups.flatMap((group): Route[] => [
     { path: group.id, pathMatch: 'full', redirectTo: `${group.id}/${group.topics[0].id}` },
     ...group.topics.map((topic) => topicRoute(group, topic)),
-    ...group.topics.flatMap((topic) =>
-      topic.load && topic.fullPage ? [demoRoute(topic.id, topic.load)] : [],
-    ),
+    ...group.topics.flatMap((topic) => (topic.load ? [demoRoute(topic.id, topic.load)] : [])),
   ]);
 }
 
@@ -74,14 +75,17 @@ function topicRoute(group: TopicGroup, topic: TopicConfig): Route {
   };
 }
 
-/** The examples of a full-page topic, each routed at `/demo/<topic>/<example>`. */
+/**
+ * The page examples of a topic, each routed at `/demo/<topic>/<example>`. Which examples are pages
+ * is known only once the topic's examples module is loaded, so every generated topic has this
+ * lazy parent, and its children are its page examples alone.
+ */
 function demoRoute(id: string, load: LoadTopic): Route {
   return {
     path: `demo/${id}`,
     loadChildren: async () =>
       (await load()).examples.flatMap((example): Route[] =>
-        // One with no component is code only (the shell's), which a page of its own cannot show.
-        example.component
+        example.page && example.component
           ? [{ path: example.id, title: example.title, component: example.component }]
           : [],
       ),

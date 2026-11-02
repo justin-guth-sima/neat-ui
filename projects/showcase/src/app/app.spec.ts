@@ -115,27 +115,12 @@ describe('App', () => {
     expect(root().querySelector('header h1')?.textContent?.trim()).toBe(link);
   });
 
-  it('demonstrates the rail’s end slot: the app’s items, then the theme, then collapse', () => {
+  it('keeps only the kit’s theme switch at the rail’s end', () => {
     const end = root().querySelector('neat-shell .rail-end') as HTMLElement;
     const items = Array.from(end.querySelectorAll('[neatRailItem]'), (item) =>
-      item.textContent?.replace(/\s+/g, ' ').trim(),
+      item.textContent?.trim(),
     );
 
-    expect(items.length).toBe(6);
-    expect([items[0], items[5]]).toEqual(['About this showcase', 'Dark theme']);
-    // The second says a board's state with the item's tone, text and detail.
-    const board = end.querySelector('[label="Demo board, 192.168.1.20, connected"]') as HTMLElement;
-    const lines = Array.from(board.querySelectorAll('.line'), (line) => line.textContent?.trim());
-    expect(lines).toEqual(['Demo board', '192.168.1.20']);
-    expect(board.getAttribute('data-tone')).toBe('success');
-    expect(board.querySelector('.dot')).not.toBeNull();
-    // The items after it show the other tones, each on the rail's own surface.
-    const tones = Array.from(end.querySelectorAll('[neatRailItem][data-tone]'), (item) =>
-      item.getAttribute('data-tone'),
-    );
-    expect(tones).toEqual(['success', 'warning', 'danger', 'neutral']);
-    // A divider of the app's own sets the devices apart from the items below them.
-    const last = end.querySelector('[label="Microphone, idle"]') as HTMLElement;
-    expect(last.nextElementSibling?.matches('hr[neatRailDivider]')).toBe(true);
+    expect(items).toEqual(['Dark theme']);
   });
 });

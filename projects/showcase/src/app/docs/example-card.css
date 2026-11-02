@@ -25,8 +25,19 @@ article {
  */
 .live {
   min-width: 0;
-  padding: var(--neat-space-4);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--background);
+}
+
+.live[data-unpadded='false'] {
+  padding: var(--neat-space-4);
+}
+
+/*
+ * An example that fills the area to its edges (`@unpadded`, a drawing): no inset, and what it
+ * draws is clipped to the area's rounded corners.
+ */
+.live[data-unpadded='true'] {
+  overflow: hidden;
 }

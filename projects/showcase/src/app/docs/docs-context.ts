@@ -6,6 +6,8 @@ import type { DocsDeclaredPart, DocsEntry, DocsExample } from './model';
  * own them, and its examples module's examples.
  */
 export interface DocsTopic {
+  /** The topic's id, which routes its page examples at `/demo/<id>/<example>`. */
+  readonly id: string;
   /** Export names, in the order the topic reads; each documented in exactly one topic. */
   readonly parts: readonly string[];
   /**
@@ -23,12 +25,6 @@ export interface DocsTopic {
    * declare it (a second `*neatPageToolbar` throws).
    */
   readonly fit?: true;
-  /**
-   * Where the topic's full-page examples are routed (`/demo/page`), for examples that need the
-   * whole page (a toolbar, tabs, a panel of their own) and so cannot sit in a card: each card then
-   * links to `<openBase>/<id>` and shows the code, instead of rendering the example.
-   */
-  readonly openBase?: string;
 }
 
 /** A topic of the page's group, as one of its page tabs. */

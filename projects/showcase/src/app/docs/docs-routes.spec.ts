@@ -1,6 +1,6 @@
 import { Component, input, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router, withComponentInputBinding } from '@angular/router';
+import { provideRouter, type Route, Router, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { NeatViewport } from '@sima/neat-ui';
 import type { DocsTab } from './docs-context';
@@ -36,10 +36,14 @@ const EXAMPLE: DocsExample = {
   id: 'whole-page',
   title: 'Whole page',
   component: WholePage,
+  page: true,
   caption: [],
   shows: ['@sima/neat-ui#NeatThing'],
   files: [{ name: 'whole-page.example.ts', code: [['text', 'export class WholePage {}\n']] }],
 };
+/** An example of the same topic that sits in its card, and one that is code only. */
+const IN_CARD: DocsExample = { ...EXAMPLE, id: 'in-card', title: 'In card', page: undefined };
+const CODE_ONLY: DocsExample = { ...EXAMPLE, id: 'app', component: undefined, page: undefined };
 
 const GROUPS: TopicGroup[] = [
   {
@@ -60,8 +64,7 @@ const GROUPS: TopicGroup[] = [
         label: 'Pages',
         parts: [],
         leads: [],
-        fullPage: true,
-        load: async () => ({ entries: [], examples: [EXAMPLE] }),
+        load: async () => ({ entries: [], examples: [EXAMPLE, IN_CARD, CODE_ONLY] }),
       },
     ],
   },
@@ -136,8 +139,12 @@ describe('the docs routes', () => {
     await harness.fixture.whenStable();
 
     expect(docsRoutes(GROUPS).find((route) => route.path === 'things/thing')?.title).toBe('Thing');
-    expect(page.topic()).toMatchObject({ parts: ['NeatThing'], leads: ['NeatThing'], fit: true });
-    expect(page.topic().openBase).toBeUndefined();
+    expect(page.topic()).toMatchObject({
+      id: 'thing',
+      parts: ['NeatThing'],
+      leads: ['NeatThing'],
+      fit: true,
+    });
     expect(page.tabsLabel()).toBe('Things topics');
     expect(page.tabs().map((tab) => tab.path)).toEqual(['/things/thing', '/things/pages']);
   });
@@ -162,18 +169,17 @@ describe('the docs routes', () => {
     expect(router.url).toBe('/hand/made');
   });
 
-  it('routes the examples of a full-page topic as pages of their own, and links them', async () => {
+  it('routes a page example as a page of its own, and its card links there', async () => {
     const harness = await RouterTestingHarness.create();
     const docs = await harness.navigateByUrl('/things/pages', DocsPage);
     await harness.fixture.whenStable();
 
-    expect(docs.topic().openBase).toBe('/demo/pages');
     expect(docs.topic().fit).toBeUndefined();
-    expect(
-      harness.routeNativeElement
-        ?.querySelector('app-example-card a[neatButton]')
-        ?.getAttribute('href'),
-    ).toBe('/demo/pages/whole-page');
+    const links = Array.from(
+      harness.routeNativeElement?.querySelectorAll('app-example-card a[neatButton]') ?? [],
+      (link) => link.getAttribute('href'),
+    );
+    expect(links).toEqual(['/demo/pages/whole-page']);
 
     const page = await harness.navigateByUrl('/demo/pages/whole-page', WholePage);
 
@@ -183,53 +189,30 @@ describe('the docs routes', () => {
     );
   });
 
-  it('leaves a code-only example out of a full-page topic’s routes', async () => {
-    const codeOnly: TopicGroup = {
-      id: 'shell',
-      label: 'Shell',
-      icon: 'info',
-      topics: [
-        {
-          id: 'shell',
-          label: 'Shell',
-          parts: [],
-          leads: [],
-          fullPage: true,
-          load: async () => ({
-            entries: [],
-            examples: [EXAMPLE, { ...EXAMPLE, id: 'app', component: undefined }],
-          }),
-        },
-      ],
+  it('routes the page examples of each topic and nothing else', async () => {
+    const children = async (path: string) => {
+      const demo = docsRoutes(GROUPS).find((route) => route.path === path);
+      const routes = await (demo?.loadChildren as () => Promise<Route[]>)();
+      return routes.map((route) => route.path);
     };
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      providers: [
-        provideRouter(docsRoutes([codeOnly]), withComponentInputBinding()),
-        { provide: NeatViewport, useValue: { narrow: signal(false) } },
-      ],
-    });
-    const harness = await RouterTestingHarness.create();
 
-    expect(await harness.navigateByUrl('/demo/shell/whole-page', WholePage)).toBeInstanceOf(
-      WholePage,
-    );
-    const config = TestBed.inject(Router).config;
-    const demo = config.find((route) => route.path === 'demo/shell');
-    const children = await (demo?.loadChildren as () => Promise<{ path: string }[]>)();
-    expect(children.map((route) => route.path)).toEqual(['whole-page']);
+    expect(await children('demo/pages')).toEqual(['whole-page']);
+    expect(await children('demo/thing')).toEqual([]);
+    expect(await children('demo/one')).toEqual([]);
   });
 
-  it('routes no example of a topic that is not full-page', () => {
+  it('gives each generated topic a lazy demo route, and a hand-made one none', () => {
     const paths = docsRoutes(GROUPS).map((route) => route.path);
 
     expect(paths).toEqual([
       'things',
       'things/thing',
       'things/pages',
+      'demo/thing',
       'demo/pages',
       'other',
       'other/one',
+      'demo/one',
       'hand',
       'hand/made',
     ]);

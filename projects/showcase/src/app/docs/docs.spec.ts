@@ -1,3 +1,4 @@
+import { reflectComponentType } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { App } from '../app';
@@ -193,7 +194,7 @@ describe('every docs topic in the app', () => {
   );
 
   // The smoke test: every topic's page renders in jsdom with its examples live and its API panel,
-  // and each full-page example's own route renders.
+  // and each page example's own route renders.
   // No example is left out: the stubs above (no `ResizeObserver`, no canvas context) are all the
   // canvas charts, the video tile and the ROI editor need to mount, and what they draw is checked
   // by eye and in their own specs.
@@ -219,10 +220,10 @@ describe('every docs topic in the app', () => {
       ).toEqual(examples.map((example) => example.title));
       for (const example of examples) {
         const card = content().querySelector(`article[aria-labelledby="example-${example.id}"]`);
-        if (topic.fullPage) {
-          // The examples of a full-page topic are routes of their own, which the card links to.
+        if (example.page) {
+          // A page example is a route of its own, which the card links to.
           expect(
-            card?.querySelector('a[href^="/demo/"]'),
+            card?.querySelector(`a[href="/demo/${topic.id}/${example.id}"]`),
             `${example.id} has no link`,
           ).not.toBeNull();
         } else if (example.component) {
@@ -236,17 +237,14 @@ describe('every docs topic in the app', () => {
       expect(
         Array.from(content().querySelectorAll('aside app-api-part'), (part) => part.id).sort(),
       ).toEqual(topic.parts.map((name) => `api-${name}`).sort());
-      // A full-page example is a page of its own, which only its route renders.
-      if (topic.fullPage) {
-        for (const example of examples.filter((candidate) => candidate.component)) {
-          await router.navigateByUrl(`/demo/${topic.id}/${example.id}`);
-          await fixture.whenStable();
+      // A page example is a page of its own, which only its route renders.
+      for (const example of examples.filter((candidate) => candidate.page)) {
+        await router.navigateByUrl(`/demo/${topic.id}/${example.id}`);
+        await fixture.whenStable();
+        const selector = example.component && reflectComponentType(example.component)?.selector;
+        const page = selector ? content().querySelector(selector) : null;
 
-          expect(
-            content().querySelector('neat-page'),
-            `${example.id} did not render`,
-          ).not.toBeNull();
-        }
+        expect(page?.childElementCount ?? 0, `${example.id} did not render`).toBeGreaterThan(0);
       }
     },
   );

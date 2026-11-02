@@ -7,6 +7,8 @@ import { NeatPage, NeatPageTab, NeatPageTabs } from '@sima/neat-ui';
  * open tab follows the route. The tab for this view has `activeMatch="subset"`, which keeps it
  * open under routes nested below its own; the other keeps the default, its own path only. The
  * row stays where it is when the view changes, under the top bar and above the body.
+ *
+ * @page
  */
 @Component({
   selector: 'app-details',

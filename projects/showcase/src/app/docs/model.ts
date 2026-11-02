@@ -191,7 +191,17 @@ export interface DocsExample {
    * in it (the showcase's own shell): the card says so and shows the code.
    */
   readonly component?: Type<unknown>;
-  /** The component's doc comment: prose for the page, left out of the snippet. */
+  /**
+   * The live area has no inset, for an example that fills it to its edges (a drawing); the
+   * example's class doc says so with the bare tag `@unpadded`.
+   */
+  readonly unpadded?: true;
+  /**
+   * The example needs a whole page (its own toolbar, tabs, panel or shell), so it is routed at
+   * `/demo/<topic>/<id>` and its card links there instead of rendering it; the bare tag `@page`.
+   */
+  readonly page?: true;
+  /** The component's doc comment less those tags: prose for the page, left out of the snippet. */
   readonly caption: readonly DocBlock[];
   /**
    * The kit parts the file imports, as `<import path>#<name>`:

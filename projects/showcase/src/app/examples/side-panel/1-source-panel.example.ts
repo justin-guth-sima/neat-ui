@@ -19,6 +19,8 @@ import { NeatDetails } from '@sima/neat-ui/details';
  * and each scrolls on its own. `[(asideWidth)]` is the panel's width, which the page only exposes
  * (here in the text below, and reset to the default by the toolbar's button); drag the line on
  * its left edge, or focus it and use the arrow keys, Home and End, to change it.
+ *
+ * @page
  */
 @Component({
   selector: 'app-source-panel',

@@ -1058,12 +1058,13 @@ function showsOf(sourceFile) {
 /**
  * Reads the showcase's examples: every `*.example.ts` directly in a folder of `EXAMPLES_DIR`, the
  * folder being the topic. Each is one standalone component. Its class doc is its caption, which the
- * page shows as prose and the snippet leaves out; its other source is the snippet, as the file
- * has it, plus the files of its topic folder that it imports (a data file, say) and the stylesheets
- * it names (`styleUrl`) as extras. So what the page renders and what it shows are one file. Returns
- * the topics, each with its examples in file-name order, and the problems (a caption missing, a
- * bad class, an import that is no file of the topic folder); an example that cannot be read is
- * left out. The showcase's `app.ts` is appended to the examples of its topic (`SHELL_EXTRA`).
+ * page shows as prose and the snippet leaves out, and may end in the bare tags that say how the
+ * page shows it (`EXAMPLE_OPTIONS`); its other source is the snippet, as the file has it, plus the
+ * files of its topic folder that it imports (a data file, say) and the stylesheets it names
+ * (`styleUrl`) as extras. So what the page renders and what it shows are one file. Returns the
+ * topics, each with its examples in file-name order, and the problems (a caption missing, a bad
+ * class, an import that is no file of the topic folder); an example that cannot be read is left
+ * out. The showcase's `app.ts` is appended to the examples of its topic (`SHELL_EXTRA`).
  */
 export function extractExamples(root, kit = extractKit(root)) {
   const base = join(root, EXAMPLES_DIR);
@@ -1110,16 +1111,30 @@ function exportedComponent(sourceFile, report) {
 }
 
 /**
- * An example's caption (its class doc, which is prose and nothing else) and the file's text less
- * that doc, since the page shows the caption above the example and the snippet is what is left.
- * A caption names only what an app can import: the kit's hidden names are a problem here as in the
- * doc comments of parts (`isHidden`), so prose moved onto a page cannot leak internals.
+ * How the docs show an example, each a bare tag in its class doc: `@unpadded`, its live area
+ * without the inset (a drawing that fills its card), and `@page`, a route of its own that the card
+ * links to (an example that needs the whole page: its own toolbar, tabs, panel or shell).
+ */
+const EXAMPLE_OPTIONS = ['unpadded', 'page'];
+
+/**
+ * An example's caption (its class doc, which is prose and nothing else but the bare tags of
+ * `EXAMPLE_OPTIONS`), those options, and the file's text less that doc, since the page shows the
+ * caption above the example and the snippet is what is left. A caption names only what an app can
+ * import: the kit's hidden names are a problem here as in the doc comments of parts (`isHidden`),
+ * so prose moved onto a page cannot leak internals.
  */
 function readCaption({ cls, sourceFile, kit, report }) {
   const className = cls.name.text;
   const { body, tags } = rawDoc(cls);
+  const options = {};
   for (const tag of tags) {
-    report(cls, `${className}'s doc has the tag @${tag.name}; an example's doc is its caption`);
+    if (!EXAMPLE_OPTIONS.includes(tag.name)) {
+      report(cls, `${className}'s doc has the tag @${tag.name}; an example's doc is its caption`);
+    } else if (tag.lines.some((line) => line.trim())) {
+      // A tag runs on to the next one, so prose after it would be lost from the caption.
+      report(cls, `${className}'s @${tag.name} has text after it; the tag stands alone`);
+    } else options[tag.name] = true;
   }
   const caption = blocksOf(body, kit.names.public);
   if (!caption.length) report(cls, `${className} has no caption: write its doc comment`);
@@ -1132,7 +1147,7 @@ function readCaption({ cls, sourceFile, kit, report }) {
     const end = comment.end + (text[comment.end] === '\n' ? 1 : 0);
     text = text.slice(0, comment.getStart()) + text.slice(end);
   }
-  return { caption, text };
+  return { caption, options, text };
 }
 
 /**
@@ -1256,7 +1271,7 @@ function readTopic({ root, topic, kit, found }) {
     ids.set(id, name);
     classes.set(className, name);
 
-    const { caption, text } = readCaption({ cls, sourceFile, kit, report });
+    const { caption, options, text } = readCaption({ cls, sourceFile, kit, report });
     const files = [{ path, name, text }];
     addImports(sourceFile, files);
     addStyles(cls, files);
@@ -1265,6 +1280,7 @@ function readTopic({ root, topic, kit, found }) {
       id,
       title: titleOf(className),
       component: className,
+      ...options,
       caption,
       shows: showsOf(sourceFile),
       files: files.map((file) => ({
@@ -1315,6 +1331,7 @@ function renderExamples(topic, examples) {
       `    "id": ${JSON.stringify(example.id)},`,
       `    "title": ${JSON.stringify(example.title)},`,
       ...(example.component ? [`    "component": ${example.component},`] : []),
+      ...EXAMPLE_OPTIONS.filter((name) => example[name]).map((name) => `    "${name}": true,`),
       `    "caption": ${json(example.caption)},`,
       `    "shows": ${json(example.shows)},`,
       `    "files": [\n${files.join(',\n')}\n    ]`,

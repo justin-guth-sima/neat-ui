@@ -128,9 +128,7 @@ is the doc comment, and the snippet under an example is the file that renders it
   groups, the topics, each topic's parts (each part in exactly one topic), its lead parts (the ones
   the body introduces) and its lazy loader are `docs/topics.ts`, written by hand. A topic with
   `fit: true` gets a Fit button in the top bar that calls `fit()` on each of its examples that has
-  one; `fullPage: true` routes its examples at `/demo/<topic>/<example>` instead of in a card, for
-  one that needs the whole page (its own toolbar, tabs or panel, which a docs page keeps for
-  itself).
+  one.
   A topic that is no part's docs (the theme's tokens) is hand-made: `page` (a lazy component)
   instead of `load`, with no parts, no examples module and the group's tabs as inputs.
 - An example is a standalone component in `examples/<topic>/<id>.example.ts` (a numeric prefix
@@ -144,9 +142,20 @@ is the doc comment, and the snippet under an example is the file that renders it
   in a part's doc comment. The showcase's own `app.ts` is one more example of the `shell` topic
   (`SHELL_EXTRA` in `tools/docs-emit.mjs`), shown as code only because the page already sits in
   it; it needs a class doc like any example, and counts once the topic has an examples folder.
+- How the docs show an example is said by bare tags at the end of its class doc, each alone on
+  its line: `@unpadded`, its live area without the inset, for an example that fills it to its
+  edges (the diagram's Filling its card), and `@page`, a route of its own at
+  `/demo/<topic>/<example>` that its card links to, for an example that needs the whole page (its
+  own toolbar, tabs, panel or shell, which a docs page keeps for itself). Why per example: how an
+  example shows is a fact of that example, beside the code that needs it, so no stylesheet
+  outweighs the card's padding and no topic sends examples that fit a card off to a page. Any
+  other tag, or text after one of these, is a doc problem. Escape hatch: a new way to show an
+  example is a new tag (`EXAMPLE_OPTIONS` in `tools/docs-emit.mjs`, `DocsExample`, the example
+  card), never a rule in an example's stylesheet that reaches into the card.
 - `npm run docs:emit -- --check` (which `npm run test:tools` runs, so CI does) fails on a stale,
   missing or extra module and on doc problems: a part or an own input, model or output without a
-  doc, an example without a caption, a caption naming a name the kit does not export.
+  doc, an example without a caption or with a tag that is not one of its options, a caption naming
+  a name the kit does not export.
   `docs:emit -- --watch` keeps the modules live while editing; `npm start` writes them once first.
   `docs/docs.spec.ts` fails a public export in no topic or in two, a component, directive,
   service or function of a topic that none of its examples shows, and a topic page that does not
@@ -410,7 +419,8 @@ the whole in the kit's look.
   without a `line` shows the kit's `NeatSeriesSwatch` (from the primary, so no d3 comes with it);
   any other item shows a short sample of its line (solid when unset) drawn by the edges' own rules
   in the colour its edges take, muted for a ghost, without a series or for a series not 1 to 8.
-  The app places the legend (above the diagram, or over it).
+  The app places the legend: above the diagram, or over it in a corner the level bar (top left)
+  does not take, as the Filling its card example does.
 - **The messages** (`messages/`): `neat-diagram-messages`, projected into `neat-diagram`, draws the
   messages an app feeds by id: `push(edgeId, bytes, atMs?)` per message (`atMs` on the
   `performance.now()` clock) and `stageMs(nodeId, stage, ms)` for the stage times. A message on a
@@ -815,8 +825,8 @@ place, so every app reads the same way.
 - An item with a state (a board, a connection) says it with `tone` (a `NeatTone`: a 0.5rem dot on
   the icon's corner, ringed in the surface it sits on, the rail's or the hover and current-page
   fill), `text` (the visible first line, the label by default) and `detail` (a smaller second line
-  in the tone's colour, muted for success, neutral or no tone), as the showcase's board item and
-  the device items after it, one per other tone, do.
+  in the tone's colour, muted for success, neutral or no tone), as the board item of the shell
+  topic's Rail items example and the device items after it, one per other tone, do.
   Both lines ellipsize and hide with the label while the rail is collapsed. `label` stays the
   tooltip and the name, so the app writes the whole sentence there, the state the dot alone shows
   included ("DevKit, 192.168.100.2, connected"). Why not composed by the kit: brain's tooltip takes

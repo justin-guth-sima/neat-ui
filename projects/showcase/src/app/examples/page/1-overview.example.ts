@@ -15,6 +15,8 @@ import {
  * body scrolls. Its tools are in the top bar (`*neatPageToolbar`), where in kiosk mode they float
  * beside the exit control, and its views are page tabs that link to this example's second view.
  * Resize the window to see the tab row scroll sideways instead of wrapping.
+ *
+ * @page
  */
 @Component({
   selector: 'app-overview',

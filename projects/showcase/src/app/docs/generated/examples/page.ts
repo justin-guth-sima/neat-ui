@@ -9,6 +9,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "overview",
     "title": "Overview",
     "component": Overview,
+    "page": true,
     "caption": [
       {
         "kind": "paragraph",
@@ -60,6 +61,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "details",
     "title": "Details",
     "component": Details,
+    "page": true,
     "caption": [
       {
         "kind": "paragraph",
@@ -103,6 +105,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "full-bleed",
     "title": "Full bleed",
     "component": FullBleed,
+    "page": true,
     "caption": [
       {
         "kind": "paragraph",

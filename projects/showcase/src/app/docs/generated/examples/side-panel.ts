@@ -8,6 +8,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "source-panel",
     "title": "Source panel",
     "component": SourcePanel,
+    "page": true,
     "caption": [
       {
         "kind": "paragraph",
@@ -63,6 +64,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "remembered-panel",
     "title": "Remembered panel",
     "component": RememberedPanel,
+    "page": true,
     "caption": [
       {
         "kind": "paragraph",

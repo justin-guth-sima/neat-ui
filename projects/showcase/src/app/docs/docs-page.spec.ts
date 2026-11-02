@@ -65,6 +65,7 @@ const DIAGRAM: DocsEntry = {
 class Pipeline {}
 
 const TOPIC: DocsTopic = {
+  id: 'diagram',
   parts: ['NeatDiagramView', 'NeatDiagramBlockTemplate', 'NeatDiagramRole', 'NeatDiagramSet'],
   leads: ['NeatDiagramView'],
   entries: [DIAGRAM],
@@ -116,17 +117,8 @@ describe('DocsPage', () => {
             {
               path: 'pages',
               component: DocsPage,
-              data: { topic: { ...TOPIC, openBase: '/demo/pipeline' }, tabs: [] },
-            },
-            {
-              path: 'code-only',
-              component: DocsPage,
               data: {
-                topic: {
-                  ...TOPIC,
-                  openBase: '/demo/shell',
-                  examples: [{ ...TOPIC.examples[0], id: 'app', component: undefined }],
-                },
+                topic: { ...TOPIC, examples: [{ ...TOPIC.examples[0], page: true }] },
                 tabs: [],
               },
             },
@@ -320,23 +312,14 @@ describe('DocsPage', () => {
     expect(scrolled).toEqual([host.querySelector('#api-NeatDiagramSet')]);
   });
 
-  it('shows the code and a link, not the example, for a topic of full-page examples', async () => {
+  it('shows a page example’s code and a link to its demo route, not the example', async () => {
     const { host } = await open('/pages');
 
     expect(host.querySelector('.pipeline')).toBeNull();
     expect(host.querySelector('app-example-card a[neatButton]')?.getAttribute('href')).toBe(
-      '/demo/pipeline/pipeline',
+      '/demo/diagram/pipeline',
     );
     expect(host.querySelector('app-snippet')).not.toBeNull();
-  });
-
-  it('links no example without a component, whatever the topic: it is code only', async () => {
-    const { host } = await open('/code-only');
-    const card = host.querySelector('app-example-card') as HTMLElement;
-
-    expect(card.querySelector('a[neatButton]')).toBeNull();
-    expect(card.textContent).toContain('Not rendered here');
-    expect(card.querySelector('app-snippet')).not.toBeNull();
   });
 
   it('reveals a part once on a click of a link of the page, the panel open already', async () => {
