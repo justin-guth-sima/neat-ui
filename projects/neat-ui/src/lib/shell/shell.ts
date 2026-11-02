@@ -97,11 +97,12 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * carries `aria-current="page"`. Only the active page's children show, so the rail does not grow
  * with every page's sub-pages.
  *
- * Collapsed, the rail has no room for them: its item for a page with `children` is a button that
- * a button: a press navigates to the page's `path`, as the expanded link does, and opens their
- * menu beside the rail; it keeps the current-page look while the route belongs to the page. A
- * mouse opens the menu on hover as well, without navigating.
- * The menu's heading is the page's label, which is why that item has no tooltip.
+ * Collapsed, the rail has no room for them: its item for a page with `children` stays a link to the
+ * page's `path`, and a press just navigates, as on any rail item. The menu of the sub-pages beside
+ * the rail is a companion of mouse hover and keyboard focus only (Tab steps from the item into its
+ * links, Escape closes it); a tap shows none, as the rail can be expanded. The item keeps the
+ * current-page look while the route belongs to the page. The menu's heading is the page's label,
+ * which is why that item has no tooltip.
  *
  * The top bar holds the logo, the app name and the page title, then at its right the active page's
  * tools (`*neatPageToolbar`), elements marked `neatTopbarEnd`, the kiosk button (the one app

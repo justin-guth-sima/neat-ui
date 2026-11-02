@@ -194,15 +194,16 @@ describe('App', () => {
     ).toBeNull();
   });
 
-  it('makes Components a button for its categories’ menu while the rail is collapsed', async () => {
+  it('keeps Components a link, with a categories’ menu on hover and focus, while the rail is collapsed', async () => {
     await navigate('/components/data/select-list');
     await pressRailControl('Collapse');
-    const item = Array.from(rail().querySelectorAll('button[neatRailItem]')).find(
-      (button) => button.textContent?.trim() === 'Components',
+    const item = Array.from(rail().querySelectorAll('a[neatRailItem]')).find(
+      (link) => link.textContent?.trim() === 'Components',
     );
 
     expect(rail().querySelector('a[data-child]')).toBeNull();
-    expect(item?.getAttribute('aria-haspopup')).toBe('dialog');
+    expect(item?.hasAttribute('aria-haspopup')).toBe(false);
+    expect(item?.getAttribute('href')).toBe('/components');
     expect(item?.getAttribute('aria-current')).toBe('page');
   });
 

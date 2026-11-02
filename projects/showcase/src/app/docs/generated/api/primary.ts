@@ -2057,7 +2057,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " as well and opens them as a menu beside the rail."
+                  "text": " as well, and hovering it with a mouse or focusing it with the keyboard shows them as a menu beside the rail."
                 }
               ]
             }
@@ -3101,7 +3101,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " feeds both the item and the tooltip. It is switched off while the labels show, and on the shell's items that open a menu of sub-pages (a collapsed page with "
+              "text": " feeds both the item and the tooltip. It is switched off while the labels show, and on the shell's items that show a menu of sub-pages on hover and focus (a collapsed page with "
             },
             {
               "kind": "code",
@@ -3463,7 +3463,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is a button that a button: a press navigates to the page's "
+              "text": " stays a link to the page's "
             },
             {
               "kind": "code",
@@ -3471,7 +3471,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", as the expanded link does, and opens their menu beside the rail; it keeps the current-page look while the route belongs to the page. A mouse opens the menu on hover as well, without navigating. The menu's heading is the page's label, which is why that item has no tooltip."
+              "text": ", and a press just navigates, as on any rail item. The menu of the sub-pages beside the rail is a companion of mouse hover and keyboard focus only (Tab steps from the item into its links, Escape closes it); a tap shows none, as the rail can be expanded. The item keeps the current-page look while the route belongs to the page. The menu's heading is the page's label, which is why that item has no tooltip."
             }
           ]
         },

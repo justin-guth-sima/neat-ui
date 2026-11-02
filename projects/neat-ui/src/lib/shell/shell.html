@@ -20,18 +20,18 @@
         @for (item of navItems(); track item.path) {
           <li>
             @if (item.children?.length && !railExpanded()) {
-              <!-- Collapsed, a page with sub-pages is the button that opens their menu: a press
-                   navigates to the page, as the expanded link does, and opens the menu. -->
-              <button
+              <!-- Collapsed, a page with sub-pages is a link to the page like any other; hover and
+                   keyboard focus show the menu of its sub-pages beside the rail. -->
+              <a
                 neatRailItem
-                type="button"
                 [label]="item.label"
+                [routerLink]="item.path"
                 [neatRailMenu]="item"
                 [neatRailMenuCurrent]="currentChild(item)"
                 [attr.aria-current]="isActivePage(item) ? 'page' : null"
               >
                 <neat-icon [name]="item.icon" />
-              </button>
+              </a>
             } @else {
               <a
                 neatRailItem

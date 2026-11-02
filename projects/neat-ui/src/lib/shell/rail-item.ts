@@ -52,7 +52,8 @@ export class RailState {
 }
 
 /**
- * Provided by an item that opens a menu (`RailMenu`), which `NeatRailItem` reads to leave its
+ * Provided by an item that shows a menu of sub-pages (`RailMenu`), which `NeatRailItem` reads to
+ * leave its
  * tooltip off: the menu's heading says the label. Internal to the kit.
  */
 export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-menu');
@@ -106,8 +107,8 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
  * Brain's tooltip is a host directive here, not `neatTooltip`, because the item names its own
  * tooltip from `label`: a host directive's inputs come from the template that uses the element,
  * and `label` feeds both the item and the tooltip. It is switched off while the labels show, and
- * on the shell's items that open a menu of sub-pages (a collapsed page with `children`), whose
- * menu names the page itself.
+ * on the shell's items that show a menu of sub-pages on hover and focus (a collapsed page with
+ * `children`), whose menu names the page itself.
  */
 @Component({
   // An attribute selector keeps the native button or link as the host, as `button[neatSwitch]`

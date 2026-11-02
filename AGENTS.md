@@ -874,23 +874,25 @@ place, so every app reads the same way.
   deeper than the child with its own route `title` it is that title beside "page › child".
   Deeper levels are not the rail's: more than a few sub-pages, groups or nesting belong in the
   page's side list (`nav[neatPageNav]`, below).
-- **Collapsed, a page with `children` is a button that navigates and opens their menu** beside the
-  rail, not a link. Why: the collapsed rail has no room for sub-pages, so a press must also offer the choice
-  among them. A press (click, tap, Enter, Space) navigates to the page's `path`, as the expanded
-  link does (the app's routes decide which sub-page shows), and opens the menu, whose current
-  sub-page follows the route; it stays a button and navigates with the router, so Ctrl/Cmd/middle
-  click are plain presses. With a mouse or pen, hover opens it without navigating and leaving closes it after a short delay unless a press kept it. The menu is a
-  dialog named by its heading, the page's label, with one link per child, the open one
-  `aria-current="page"`; the button has `aria-haspopup="dialog"` and `aria-expanded`, and no
-  tooltip, since the heading says the label. Focus: a press moves it to the first link; Escape
-  closes the menu and returns it to the item; Tab from the item goes to the first link, Tab from
-  the last link closes the menu and goes on from the item, Shift+Tab from the first returns to the
-  item; a press outside closes it; choosing a link navigates and closes it. It is `RailMenu`
-  (`rail-menu.ts`) on CDK's overlay: brain's popover opens below its trigger, not beside the rail.
-  Its focus rules (`OverlayFocus`) and its panel surface (`PANEL_SURFACE_CLASSES`) are the ones
-  `neat-popover` uses, one place for each, exported `ɵ` for the popover's entry (the primary may
-  not import a secondary entry, so what both need lives in the primary); its rows are the rail's
-  own `data-child` rows.
+- **Collapsed, a page with `children` stays a link; hover and keyboard focus show their menu.** The
+  collapsed rail has no room for sub-pages, so a menu beside the rail offers the choice among them,
+  but only as a companion: a press (click, tap, Enter, Space) navigates to the page's `path`, as on
+  any rail item (the app's routes decide which sub-page shows), with a link's modified clicks, and
+  puts the menu away if it is up. Why: a menu that a click opened and left up was a nuisance, and
+  the rail can be expanded where there is no hover (touch), so a tap shows no menu. A mouse or pen
+  hovering shows it and it closes a short delay after the pointer leaves the item and the menu;
+  keyboard focus on the item (`:focus-visible`, as the tooltip shows on focus) shows it, Tab from the
+  item goes to the first link, Tab from the last link closes the menu and goes on from the item,
+  Shift+Tab from the first returns to the item, Escape closes it and leaves focus on the item, and
+  focus leaving both closes it. The menu is a `group` named by its heading, the page's label, with
+  one link per child, the open one `aria-current="page"`; the item `aria-controls` it while it is
+  shown and has no `aria-haspopup`/`aria-expanded` (a press opens nothing) and no tooltip, since the
+  heading says the label. `aria-describedby`, the tooltip's way, would hold the links as text. It is
+  `RailMenu` (`rail-menu.ts`) on CDK's overlay: brain's popover opens below its trigger, not beside
+  the rail. Its focus rules (`OverlayFocus`) and its panel surface (`PANEL_SURFACE_CLASSES`) are the
+  ones `neat-popover` uses, one place for each, exported `ɵ` for the popover's entry (the primary
+  may not import a secondary entry, so what both need lives in the primary); its rows are the
+  rail's own `data-child` rows.
 - An app's item is a `button[neatRailItem]` or `a[neatRailItem]` with a `label`, the look and
   behaviour the page links have (they are rail items too): the content is the icon (a
   `neat-icon`), the label shows beside it while the rail is expanded, and while it is collapsed

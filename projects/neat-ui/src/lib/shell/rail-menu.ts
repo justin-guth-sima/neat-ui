@@ -14,7 +14,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { OverlayFocus } from '../overlay/overlay-focus';
 import { PANEL_SURFACE_CLASSES } from '../overlay/panel-surface';
 import { hlm } from '../ui/utils/src';
@@ -25,7 +25,7 @@ import { NeatRailItem, RAIL_ITEM_HAS_MENU, RailState } from './rail-item';
 const RAIL_GAP = 4;
 
 /**
- * How long a menu opened by hover outlives the pointer's leaving, so that the pointer can cross
+ * How long a menu outlives the pointer's leaving, so that the pointer can cross
  * the rail's padding and the gap to the menu. The tooltip it replaces hides at once, but it has
  * nothing to reach.
  */
@@ -39,8 +39,10 @@ let nextMenuId = 0;
 
 /**
  * The menu of a collapsed rail item with sub-pages: the page's name as a heading, then one link
- * per sub-page with the open one marked. A non-modal dialog named by its heading, so a screen
- * reader gets a list of links named by the page. On the shared panel surface, and its rows are the
+ * per sub-page with the open one marked. A group named by its heading, so a screen reader gets a
+ * list of links named by the page. Not a dialog: nothing opens it by a press any more, it is a
+ * companion that hover and focus show, and the item that shows it points at it with
+ * `aria-controls` (see `RailMenu`). On the shared panel surface, and its rows are the
  * rail's own sub-page rows (`neatRailItem` in its `data-child` variant), so their look is stated
  * once, in `rail-item.css`. Internal to the kit: `RailMenu` opens it.
  */
@@ -49,7 +51,8 @@ let nextMenuId = 0;
   imports: [NeatRailItem, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    role: 'dialog',
+    role: 'group',
+    '[id]': 'panelId',
     '[class]': 'panelClasses',
     '[attr.aria-labelledby]': 'headingId',
   },
@@ -80,41 +83,48 @@ export class RailMenuPanel {
   readonly current = input<NeatNavChild>();
   /** A link was followed, which puts the menu away. */
   readonly chosen = output<void>();
-  protected readonly headingId = `neat-rail-menu-${++nextMenuId}`;
+  private readonly menuId = ++nextMenuId;
+  /** The panel's id, which the item points at with `aria-controls`. */
+  readonly panelId = `neat-rail-menu-panel-${this.menuId}`;
+  protected readonly headingId = `neat-rail-menu-${this.menuId}`;
   protected readonly panelClasses = hlm(PANEL_SURFACE_CLASSES, 'w-auto min-w-48 gap-0 p-2');
 }
 
 /**
- * Turns a collapsed rail item that has sub-pages into the button that opens their menu, in place
- * of the link to the page:
- * `<button neatRailItem [neatRailMenu]="page" [neatRailMenuCurrent]="child">`.
- * A press (click, tap, Enter, Space) navigates to the page's `path`, as the expanded rail's link
- * does (the app's routes decide which sub-page that shows), and opens the menu, whose current
- * sub-page follows the route. With a mouse or pen, hovering opens the menu too, without
- * navigating, and leaving closes it after `HOVER_CLOSE_DELAY` unless a press has kept it.
+ * Gives a collapsed rail link whose page has sub-pages a menu of them beside the rail:
+ * `<a neatRailItem [routerLink]="page.path" [neatRailMenu]="page" [neatRailMenuCurrent]="child">`.
+ * The item stays a plain link to the page's `path` (the app's routes decide which sub-page that
+ * shows): a press (click, tap, Enter, Space) navigates like any rail item, with a link's modified
+ * clicks (Ctrl/Cmd/middle) as the router link gives them, and puts the menu away if it is up. The
+ * menu is a companion of hover and keyboard focus, never of a press: a mouse or pen hovering shows
+ * it, and it closes `HOVER_CLOSE_DELAY` after the pointer leaves both the item and the menu;
+ * keyboard focus on the item (`:focus-visible`, as the tooltip shows on focus) shows it, and it
+ * closes when focus leaves both. There is no touch path: a tap navigates and the menu stays shut,
+ * since the rail can be expanded to reach the sub-pages. The current sub-page it marks follows the
+ * route. It replaces the item's tooltip (`NeatRailItem` switches that off), as the menu's heading
+ * says what the tooltip would.
  *
- * It stays a button and navigates with the router, rather than becoming a link that also opens
- * the menu: a link would need its Enter, its modified clicks and `aria-expanded` reconciled with
- * the menu, where a button already has Enter and Space as a click and `aria-haspopup`/
- * `aria-expanded` mean what they say. The cost is that Ctrl/Cmd/middle click are plain presses,
- * not "open in a new tab"; the menu's own rows are links for that. It replaces the item's tooltip (`NeatRailItem`
- * switches that off), as the menu's heading says what the tooltip would.
+ * Accessibility: the item does not control a popup by a press, so it has no `aria-haspopup` or
+ * `aria-expanded`. The menu is a group labelled by its heading, and the item `aria-controls` it
+ * while it is shown. The tooltip's `aria-describedby` does not fit, as a description is read as
+ * text and cannot hold links; a labelled group of links the item points at keeps them reachable,
+ * and Tab from the item steps into them.
  *
  * On CDK's overlay, not brain's popover, whose positions open below its trigger where this menu
  * opens beside the rail. CDK gives the placement, Escape and outside presses; the focus rules are
- * `OverlayFocus`'s, shared with `neat-popover`: a press moves focus to the first link; Tab from the
- * item goes to the first link; Tab from the last link and Shift+Tab from the first leave the menu
- * as `neat-popover` does; focus landing elsewhere closes it. Escape closes it and returns focus to
- * the item, unless focus has already moved elsewhere; a press outside closes it and leaves focus
- * where the press put it.
+ * `OverlayFocus`'s, shared with `neat-popover`: Tab from the item goes to the first link; Tab from
+ * the last link and Shift+Tab from the first leave the menu as `neat-popover` does; focus landing
+ * elsewhere closes it. Escape closes it and returns focus to the item, unless focus has already
+ * moved elsewhere (and the menu stays shut until focus comes back or the pointer re-enters); a
+ * press outside closes it and leaves focus where the press put it.
  */
 @Directive({
-  selector: 'button[neatRailItem][neatRailMenu]',
+  selector: 'a[neatRailItem][neatRailMenu]',
   providers: [{ provide: RAIL_ITEM_HAS_MENU, useValue: true }],
   host: {
-    'aria-haspopup': 'dialog',
-    '[attr.aria-expanded]': 'open()',
+    '[attr.aria-controls]': 'controls()',
     '(click)': 'pressed()',
+    '(focus)': 'focused()',
     '(pointerenter)': 'hovered($event)',
     '(pointerleave)': 'left($event)',
   },
@@ -125,24 +135,28 @@ export class RailMenu {
   /** The page's open sub-page, which the menu marks. */
   readonly neatRailMenuCurrent = input<NeatNavChild | undefined>();
 
-  protected readonly open = signal(false);
-  private readonly element: HTMLButtonElement = inject(ElementRef).nativeElement;
+  /** The id of the menu while it is shown, for `aria-controls`. */
+  protected readonly controls = signal<string | null>(null);
+  private readonly element: HTMLAnchorElement = inject(ElementRef).nativeElement;
   private readonly overlay = inject(Overlay);
   private readonly injector = inject(Injector);
-  private readonly router = inject(Router);
   private readonly focus = new OverlayFocus(
     () => this.element,
     () => this.close(),
   );
   private ref: OverlayRef | undefined;
   private panel: ComponentRef<RailMenuPanel> | undefined;
-  private by: 'press' | 'hover' = 'press';
+  /**
+   * Set for the rest of the task that closed the menu: closing hands focus back to the item
+   * (Escape, Shift+Tab from the first link), and that focus must not show the menu again.
+   */
+  private justClosed = false;
   private closeTimer: ReturnType<typeof setTimeout> | undefined;
   private stopWatchingFocus: (() => void) | undefined;
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.close());
-    // The press navigates as it opens, so the menu marks the sub-page the new route shows.
+    // The route changes under an open menu (a link was followed elsewhere), so it marks the new sub-page.
     effect(() => {
       const current = this.neatRailMenuCurrent();
       if (this.panel) {
@@ -152,14 +166,17 @@ export class RailMenu {
     });
   }
 
+  /** A press only navigates (the router link does); it puts the menu away. */
   protected pressed(): void {
-    void this.router.navigateByUrl(this.neatRailMenu().path);
-    if (this.ref && this.by === 'press') {
-      this.close();
-      return;
+    this.close();
+  }
+
+  /** Keyboard focus shows the menu; a pointer's focus (a press) does not. */
+  protected focused(): void {
+    if (!this.justClosed && this.showsFocusRing()) {
+      this.cancelClose();
+      this.show();
     }
-    this.show('press');
-    this.focus.focusFirstControl(this.ref?.overlayElement ?? null);
   }
 
   protected hovered(event: PointerEvent): void {
@@ -167,7 +184,7 @@ export class RailMenu {
       return;
     }
     this.cancelClose();
-    this.show('hover');
+    this.show();
   }
 
   protected left(event: PointerEvent): void {
@@ -176,13 +193,10 @@ export class RailMenu {
     }
   }
 
-  private show(by: 'press' | 'hover'): void {
+  private show(): void {
     if (this.ref) {
-      // A press on a menu hover opened keeps it: the pointer leaving no longer closes it.
-      this.by = by === 'press' ? 'press' : this.by;
       return;
     }
-    this.by = by;
     const ref = this.overlay.create({
       positionStrategy: this.overlay
         .position()
@@ -210,7 +224,7 @@ export class RailMenu {
     });
     this.stopWatchingFocus = this.focus.watchOutsideFocus();
     this.ref = ref;
-    this.open.set(true);
+    this.controls.set(panel.instance.panelId);
   }
 
   /** Beside the rail, not the item: the menu starts past the rail's edge, level with the item. */
@@ -244,11 +258,29 @@ export class RailMenu {
     }
   }
 
+  /** The pointer left the item or the menu: close after the delay, unless the keyboard holds it. */
   private closeAfterHover(): void {
-    if (this.by === 'hover') {
-      this.cancelClose();
-      this.closeTimer = setTimeout(() => this.close(), HOVER_CLOSE_DELAY);
+    this.cancelClose();
+    this.closeTimer = setTimeout(() => {
+      if (!this.keyboardHolds()) {
+        this.close();
+      }
+    }, HOVER_CLOSE_DELAY);
+  }
+
+  /** Whether keyboard focus is on the item or inside the menu, which the pointer leaving keeps. */
+  private keyboardHolds(): boolean {
+    const active = this.element.ownerDocument.activeElement;
+    if (!active || !this.ref) {
+      return false;
     }
+    return (
+      this.ref.overlayElement.contains(active) || (active === this.element && this.showsFocusRing())
+    );
+  }
+
+  private showsFocusRing(): boolean {
+    return this.element.matches(':focus-visible');
   }
 
   private cancelClose(): void {
@@ -270,12 +302,14 @@ export class RailMenu {
   }
 
   private close(): void {
+    this.justClosed = true;
+    queueMicrotask(() => (this.justClosed = false));
     this.cancelClose();
     this.stopWatchingFocus?.();
     this.stopWatchingFocus = undefined;
     this.ref?.dispose();
     this.ref = undefined;
     this.panel = undefined;
-    this.open.set(false);
+    this.controls.set(null);
   }
 }
