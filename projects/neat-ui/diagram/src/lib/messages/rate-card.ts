@@ -14,6 +14,9 @@ const perSecond = (value: number) => `${Math.round(value)} msg/s`;
  * </ng-template>
  * ```
  *
+ * `showBytes` false leaves the megabytes out, for an app that pushes no sizes (its messages all
+ * count 0 bytes, which would read "0.00 MB/s"); the messages and the sparkline stay.
+ *
  * Give it `rate(['a', 'b'])` for a note over several edges: the card shows their sum. It shows the
  * label, the messages per second (whole) and the megabytes per second (two decimals,
  * from the bytes in units of 10 kB), and the history as a sparkline named for its messages per
@@ -38,7 +41,7 @@ const perSecond = (value: number) => `${Math.round(value)} msg/s`;
       <span
         ><span class="value">{{ msgs() }}</span> msg/s</span
       >
-      @if (stage() === null) {
+      @if (stage() === null && showBytes()) {
         <span
           ><span class="value">{{ megabytes() }}</span> MB/s</span
         >
@@ -68,6 +71,12 @@ export class NeatDiagramRateCard {
    * sparkline. A value that is not a number, or below 0, is no stage time.
    */
   readonly stageMs = input<number | undefined>(undefined);
+
+  /**
+   * Whether the megabytes per second show. False for an app that pushes no sizes, so the card
+   * does not say "0.00 MB/s". A step's stage time shows in place of the megabytes either way.
+   */
+  readonly showBytes = input(true);
 
   protected readonly perSecond = perSecond;
   protected readonly msgs = computed(() => String(Math.round(this.rate().msgsPerSec)));

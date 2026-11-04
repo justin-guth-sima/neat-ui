@@ -87,6 +87,8 @@ class FakeVideoFrames {
 class FakeResizeObserver {
   static instances: FakeResizeObserver[] = [];
   readonly observed: Element[] = [];
+  /** What it was first asked to observe; `disconnect` empties `observed`. */
+  target: Element | null = null;
   disconnected = false;
 
   constructor(private readonly callback: ResizeObserverCallback) {
@@ -94,6 +96,7 @@ class FakeResizeObserver {
   }
 
   observe(target: Element): void {
+    this.target ??= target;
     this.observed.push(target);
   }
 
@@ -106,9 +109,17 @@ class FakeResizeObserver {
     const entry = {
       target: this.observed[0],
       contentRect: { width, height },
+      borderBoxSize: [{ inlineSize: width, blockSize: height }],
     };
     this.callback([entry as unknown as ResizeObserverEntry], this as unknown as ResizeObserver);
   }
+}
+
+/** The observer that watches the tile's own size (the bar has one of its own). */
+function hostObserver(): FakeResizeObserver {
+  const found = FakeResizeObserver.instances.find((o) => o.target?.localName === 'neat-video-tile');
+  if (!found) throw new Error('no observer on the tile');
+  return found;
 }
 
 @Component({
@@ -228,7 +239,7 @@ describe('NeatVideoTile', () => {
     source = new FakeSource();
     host().source.set(source);
     render();
-    FakeResizeObserver.instances[0].resize(640, 480);
+    hostObserver().resize(640, 480);
   }
 
   function startStream(): void {
@@ -639,7 +650,7 @@ describe('NeatVideoTile', () => {
 
   describe('videoBox', () => {
     const resizeTile = (width: number, height: number) =>
-      FakeResizeObserver.instances[0].resize(width, height);
+      hostObserver().resize(width, height);
     /** A stream whose first frame is presented: the tile is `playing`. */
     function startPlaying(): void {
       startStream();
@@ -884,7 +895,7 @@ describe('NeatVideoTile', () => {
     expect(source.listeners.size).toBe(0);
     expect(frames.callbacks.size).toBe(0);
     expect(vi.getTimerCount(), 'no stale check or stats timer is left').toBe(0);
-    expect(FakeResizeObserver.instances[0].disconnected).toBe(true);
+    expect(hostObserver().disconnected).toBe(true);
   });
 
   it('plays again when the video track unmutes, until the stream is gone', () => {
@@ -994,8 +1005,8 @@ describe('NeatVideoTile', () => {
     vi.stubGlobal('devicePixelRatio', 3);
     create();
     startStream();
-    FakeResizeObserver.instances[0].resize(320, 240);
-    expect(FakeResizeObserver.instances[0].observed).toStrictEqual([tileElement()]);
+    hostObserver().resize(320, 240);
+    expect(hostObserver().observed).toStrictEqual([tileElement()]);
     expect([canvas().width, canvas().height]).toStrictEqual([640, 480]);
 
     source.send(detection(1, [10, 10, 20, 20]));
@@ -1035,7 +1046,7 @@ describe('NeatVideoTile', () => {
         overlaySettings({ types: { 'pose-estimation': { showKeypointLabels: true } } }),
       );
       render();
-      FakeResizeObserver.instances[0].resize(1000, 480);
+      hostObserver().resize(1000, 480);
       videoWidth.mockReturnValue(1000);
       videoHeight.mockReturnValue(480);
 
@@ -1074,7 +1085,7 @@ describe('NeatVideoTile', () => {
       create();
       startStream();
       present(1);
-      FakeResizeObserver.instances[0].resize(400, 150);
+      hostObserver().resize(400, 150);
       const plain = tile().videoBox();
       expect(plain).toStrictEqual({ x: 100, y: 0, width: 200, height: 150 });
 
@@ -1162,6 +1173,33 @@ describe('NeatVideoTile', () => {
       expect(strokeRects(), 'the second frame still drew').toHaveLength(1);
       expect(warn).toHaveBeenCalledTimes(1);
       expect(String(warn.mock.calls[0][0])).toContain('frameListener');
+    });
+  });
+
+  describe('barHeight', () => {
+    const barObserver = (): FakeResizeObserver => {
+      const found = FakeResizeObserver.instances.slice().reverse().find((o) => o.target?.classList.contains('bar'));
+      if (!found) throw new Error('no observer on the bar');
+      return found;
+    };
+
+    it('reports the bar’s measured height, and 0 without a bar', () => {
+      create();
+      expect(tile().barHeight(), 'nothing measured yet').toBe(0);
+
+      const first = barObserver();
+      first.resize(300, 28);
+      expect(tile().barHeight()).toBe(28);
+
+      host().bars.set(false);
+      render();
+      expect(tile().barHeight()).toBe(0);
+      expect(first.disconnected).toBe(true);
+
+      host().bars.set(true);
+      render();
+      barObserver().resize(300, 32);
+      expect(tile().barHeight()).toBe(32);
     });
   });
 });

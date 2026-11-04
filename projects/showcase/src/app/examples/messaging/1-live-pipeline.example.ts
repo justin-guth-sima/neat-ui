@@ -48,7 +48,8 @@ const BURST_MESSAGES = 400;
  * `neatBatchTimes` spreads. Decode's figure line comes from the example's
  * `NeatDiagramBlockTemplate`. Open the Detector: inside it, the dots wait out its stage times. The
  * notes are rate cards of an edge's `rate()` (the Tracker's of the two edges into it, summed by
- * `rate(['detector-tracker', 'nms-tracker'])`), the Detector's with its stage time in place of the
+ * `rate(['detector-tracker', 'nms-tracker'])`, and with `showBytes` off, since results are a few
+ * kilobytes and not worth a megabyte figure), the Detector's with its stage time in place of the
  * megabytes.
  * The Animation panel tunes the dots, its choice kept per browser with `neatStoredSignal`, and
  * Burst pushes 400 messages in one tick, about three seconds of this traffic, as a tab returning
@@ -91,6 +92,7 @@ const BURST_MESSAGES = 400;
             <neat-diagram-rate-card
               label="Into Tracker"
               [rate]="messages.rate(['detector-tracker', 'nms-tracker'])()"
+              [showBytes]="false"
             />
           }
           @case ('yolox-rate') {

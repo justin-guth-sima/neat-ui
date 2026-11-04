@@ -111,6 +111,14 @@ export interface NeatDiagramEdge {
   readonly label?: string;
   /** Where the label sits along the edge, 0 at `from` to 1 at `to`; unset, 0.5. */
   readonly labelAt?: number;
+  /**
+   * The side of `from` this edge leaves on, over the node's `outSide` for this edge only; unset,
+   * the node's `outSide`, else the side facing the other end. The route and the label follow it.
+   * An end inside a frame stays on the frame's border nearest the node, as the node's sides do.
+   */
+  readonly fromSide?: NeatDiagramSide;
+  /** The side of `to` this edge enters on, as `fromSide` is for the leaving end (`inSide`). */
+  readonly toSide?: NeatDiagramSide;
   /** The app's, never read by the kit. */
   readonly data?: unknown;
 }

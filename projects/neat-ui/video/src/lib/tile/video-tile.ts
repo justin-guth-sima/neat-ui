@@ -131,7 +131,8 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
  * `neatTileChip`, and a tile without video says so. With `bars` off it is only video and overlay.
  *
  * Content projected with `neatTileOverlay` fills a layer over the tile, above the overlay canvas
- * and below the bar; `videoBox` says where the image is inside it. Without video the layer stays
+ * and below the bar; `videoBox` says where the image is inside it and `barHeight` how tall the bar
+ * is. Without video the layer stays
  * above what covers the image and below the no-video note, which lets pointer input through. The
  * layer itself catches no pointer input, so the video under it keeps its hits; its content takes
  * them only where it sets `pointer-events: auto`.
@@ -152,7 +153,7 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
       @if (state() !== 'playing') {
         <p class="no-video"><span class="no-video-text">No active video received</span></p>
       }
-      <div class="bar">
+      <div #bar class="bar">
         <span class="label">{{ label() }}</span>
         <span class="status">{{ status() }}</span>
         <ng-content select="[neatTileChip]" />
@@ -214,8 +215,17 @@ export class NeatVideoTile {
    */
   readonly videoBox: Signal<NeatVideoBox | null> = this.box.asReadonly();
 
+  private readonly barSize = signal(0);
+  /**
+   * The height in CSS pixels of the bar along the bottom as laid out, 0 while `bars` is off. For
+   * content projected with `neatTileOverlay` that keeps clear of the bar without copying its
+   * styling. It changes only when the bar's size does, never per frame.
+   */
+  readonly barHeight: Signal<number> = this.barSize.asReadonly();
+
   private readonly videoElement = viewChild.required<ElementRef<HTMLVideoElement>>('video');
   private readonly canvasElement = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
+  private readonly barElement = viewChild<ElementRef<HTMLElement>>('bar');
   private readonly colors = inject(NeatOverlayColors);
   private readonly zone = inject(NgZone);
   private readonly document = inject(DOCUMENT);
@@ -259,6 +269,24 @@ export class NeatVideoTile {
       this.frameRetentionMs = this.retentionMs();
       this.view.mirror = this.mirror();
       this.frameListenerFn = this.frameListener();
+    });
+    // After render, so the bar `bars` adds is in the document. The query is read untracked: it
+    // only changes with `bars`, and tracking it would reschedule this on every teardown too.
+    afterRenderEffect((onCleanup) => {
+      this.bars();
+      const bar = untracked(this.barElement)?.nativeElement;
+      if (bar === undefined) {
+        this.barSize.set(0);
+        return;
+      }
+      const observer = this.zone.runOutsideAngular(
+        () =>
+          new ResizeObserver((entries) => {
+            this.barSize.set(entries[entries.length - 1].borderBoxSize[0].blockSize);
+          }),
+      );
+      observer.observe(bar);
+      onCleanup(() => observer.disconnect());
     });
     effect(() => {
       // A new state starts with no tracks, track colours or warnings of its own.

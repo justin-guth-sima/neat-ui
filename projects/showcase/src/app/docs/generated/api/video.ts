@@ -1724,7 +1724,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " says where the image is inside it. Without video the layer stays above what covers the image and below the no-video note, which lets pointer input through. The layer itself catches no pointer input, so the video under it keeps its hits; its content takes them only where it sets "
+              "text": " says where the image is inside it and "
+            },
+            {
+              "kind": "code",
+              "text": "barHeight"
+            },
+            {
+              "kind": "text",
+              "text": " how tall the bar is. Without video the layer stays above what covers the image and below the no-video note, which lets pointer input through. The layer itself catches no pointer input, so the video under it keeps its hits; its content takes them only where it sets "
             },
             {
               "kind": "code",
@@ -2055,6 +2063,37 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": " the frozen frame is blurred and scaled up, so no box describes it. Unlike the frame loop's fields it is a signal, for overlays that follow the image: it is written only when the tile's state or the tile's or the video's size changes, never per frame, and an unchanged box does not notify."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "barHeight",
+          "type": "Signal<number>",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The height in CSS pixels of the bar along the bottom as laid out, 0 while "
+                },
+                {
+                  "kind": "code",
+                  "text": "bars"
+                },
+                {
+                  "kind": "text",
+                  "text": " is off. For content projected with "
+                },
+                {
+                  "kind": "code",
+                  "text": "neatTileOverlay"
+                },
+                {
+                  "kind": "text",
+                  "text": " that keeps clear of the bar without copying its styling. It changes only when the bar's size does, never per frame."
                 }
               ]
             }

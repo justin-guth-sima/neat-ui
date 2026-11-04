@@ -355,6 +355,27 @@ describe('NeatDiagramView', () => {
     expect({ x: parseFloat(quarter.style.left), y: parseFloat(quarter.style.top) }).toEqual(at);
   });
 
+  it('places an edge’s label on the route its fromSide gave it', async () => {
+    const sided: NeatDiagramSet = {
+      overview: {
+        ...OVERVIEW,
+        edges: OVERVIEW.edges.map((e) =>
+          e.id === 'decode-detect' ? { ...e, label: 'frames', fromSide: 'top' as const } : e,
+        ),
+      },
+    };
+    const { one } = await render(sided);
+    const route = layoutEdges(sided.overview).get('decode-detect')!;
+    const unsided = layoutEdges(OVERVIEW).get('decode-detect')!;
+
+    expect(route.sourceSide).toBe('top');
+    expect(route.points).not.toEqual(unsided.points);
+    const label = one('.edge-label[data-edge="decode-detect"]');
+    expect({ x: parseFloat(label.style.left), y: parseFloat(label.style.top) }).toEqual(
+      pointAlong(route.points, 0.5),
+    );
+  });
+
   it('keeps every drawn element given an equal diagram again (a poll recomputing it)', async () => {
     const { node, edge, one, set } = await render();
     const before = [

@@ -505,6 +505,86 @@ export const API: DocsEntry = {
           ]
         },
         {
+          "name": "fromSide",
+          "type": "NeatDiagramSide",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The side of "
+                },
+                {
+                  "kind": "code",
+                  "text": "from"
+                },
+                {
+                  "kind": "text",
+                  "text": " this edge leaves on, over the node's "
+                },
+                {
+                  "kind": "code",
+                  "text": "outSide"
+                },
+                {
+                  "kind": "text",
+                  "text": " for this edge only; unset, the node's "
+                },
+                {
+                  "kind": "code",
+                  "text": "outSide"
+                },
+                {
+                  "kind": "text",
+                  "text": ", else the side facing the other end. The route and the label follow it. An end inside a frame stays on the frame's border nearest the node, as the node's sides do."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "toSide",
+          "type": "NeatDiagramSide",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The side of "
+                },
+                {
+                  "kind": "code",
+                  "text": "to"
+                },
+                {
+                  "kind": "text",
+                  "text": " this edge enters on, as "
+                },
+                {
+                  "kind": "code",
+                  "text": "fromSide"
+                },
+                {
+                  "kind": "text",
+                  "text": " is for the leaving end ("
+                },
+                {
+                  "kind": "code",
+                  "text": "inSide"
+                },
+                {
+                  "kind": "text",
+                  "text": ")."
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "data",
           "type": "unknown",
           "optional": true,
@@ -1982,6 +2062,19 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "code",
+              "text": "showBytes"
+            },
+            {
+              "kind": "text",
+              "text": " false leaves the megabytes out, for an app that pushes no sizes (its messages all count 0 bytes, which would read \"0.00 MB/s\"); the messages and the sparkline stay."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
               "kind": "text",
               "text": "Give it "
             },
@@ -2081,6 +2174,22 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "The stage time of a step, in ms: the card then shows it in place of the megabytes and the sparkline. A value that is not a number, or below 0, is no stage time."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "showBytes",
+          "type": "boolean",
+          "default": "true",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the megabytes per second show. False for an app that pushes no sizes, so the card does not say \"0.00 MB/s\". A step's stage time shows in place of the megabytes either way."
                 }
               ]
             }

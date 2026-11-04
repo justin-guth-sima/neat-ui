@@ -5,6 +5,7 @@ import { CompileFlow } from '../../../examples/diagram/2-compile-flow.example';
 import { ModelGraph } from '../../../examples/diagram/3-model-graph.example';
 import { Highlight } from '../../../examples/diagram/4-highlight.example';
 import { FillingItsCard } from '../../../examples/diagram/5-filling-its-card.example';
+import { EdgeSides } from '../../../examples/diagram/6-edge-sides.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -903,6 +904,131 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/* The containing block of the legend, which lies over the drawing instead of above it. */"],["text","\n:host {\n  position: relative;\n}\n\n"],
           ["comment","/*\n * After the drawing, so it paints over it, and under the diagram's own layers above the drawing\n * (the tip of the edge under the pointer). Bottom left: the bar a level opens is top left.\n */"],
           ["text","\n.legend {\n  position: absolute;\n  bottom: var(--neat-space-3);\n  left: var(--neat-space-3);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "edge-sides",
+    "title": "Edge sides",
+    "component": EdgeSides,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A node's "
+          },
+          {
+            "kind": "code",
+            "text": "outSide"
+          },
+          {
+            "kind": "text",
+            "text": " and "
+          },
+          {
+            "kind": "code",
+            "text": "inSide"
+          },
+          {
+            "kind": "text",
+            "text": " say where all of its outgoing and incoming edges meet it. An edge's own "
+          },
+          {
+            "kind": "code",
+            "text": "fromSide"
+          },
+          {
+            "kind": "text",
+            "text": " and "
+          },
+          {
+            "kind": "code",
+            "text": "toSide"
+          },
+          {
+            "kind": "text",
+            "text": " override them for that edge alone: here both edges leave the Source on its right, as its "
+          },
+          {
+            "kind": "code",
+            "text": "outSide"
+          },
+          {
+            "kind": "text",
+            "text": " says, except the archive copy, which leaves on the bottom ("
+          },
+          {
+            "kind": "code",
+            "text": "fromSide"
+          },
+          {
+            "kind": "text",
+            "text": "). The route and the label follow the side the edge chose."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/diagram#NeatDiagramLegend",
+      "@sima/neat-ui/diagram#NeatDiagramView"
+    ],
+    "files": [
+      {
+        "name": "6-edge-sides.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, viewChild } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatDiagramLegend, NeatDiagramView } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
+          ["keyword","import"],["text"," { EDGE_SIDES, EDGE_SIDES_LEGEND } "],["keyword","from"],["text"," "],["string","'./edge-sides-data'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-edge-sides'"],["text",",\n  imports: [NeatDiagramLegend, NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram class=\"diagram\" [diagram]=\"sides\" label=\"A source with a side chosen by an edge\" />\n  `"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./diagram-box.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," EdgeSides {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sides = EDGE_SIDES;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," legend = EDGE_SIDES_LEGEND;\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," diagram = viewChild.required(NeatDiagramView);\n\n  "],
+          ["comment","/** Fits the drawing to its box again, as a toolbar's Fit button does. */"],["text","\n  fit(): "],
+          ["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".diagram().fit();\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "edge-sides-data.ts",
+        "code": [
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramLegendItem, NeatDiagramSet } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
+          ["comment","/*\n * A source that sends to a display and to an archive. Both edges leave the source on its `outSide`\n * (right) unless an edge says otherwise: the archive copy leaves on the source's bottom and enters\n * the archive on its left, with `fromSide` and `toSide` on that one edge.\n */"],
+          ["text","\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," EDGE_SIDES: NeatDiagramSet = {\n  overview: {\n    nodes: [\n      {\n        id: "],
+          ["string","'source'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        label: "],
+          ["string","'Source'"],["text",",\n        detail: "],
+          ["string","'outSide right'"],["text",",\n        outSide: "],
+          ["string","'right'"],["text",",\n        x: 0,\n        y: 0,\n        w: 150,\n        h: 46,\n      },\n      { id: "],
+          ["string","'display'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Display'"],["text",", x: 300, y: 0, w: 150, h: 46 },\n      { id: "],
+          ["string","'archive'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Archive'"],["text",", x: 300, y: 140, w: 150, h: 46 },\n    ],\n    edges: [\n      { id: "],
+          ["string","'source-display'"],["text",", from: "],["string","'source'"],["text",", to: "],["string","'display'"],["text",", series: 1, label: "],["string","'frames'"],["text"," },\n      {\n        id: "],
+          ["string","'source-archive'"],["text",",\n        from: "],
+          ["string","'source'"],["text",",\n        to: "],
+          ["string","'archive'"],["text",",\n        series: 2,\n        label: "],
+          ["string","'archive copy'"],["text",",\n        fromSide: "],
+          ["string","'bottom'"],["text",",\n      },\n    ],\n  },\n};\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," EDGE_SIDES_LEGEND: "],["keyword","readonly"],["text"," NeatDiagramLegendItem[] = [\n  { series: 1, label: "],
+          ["string","'Leaves on the node’s outSide'"],["text"," },\n  { series: 2, label: "],
+          ["string","'Leaves on its own fromSide'"],["text"," },\n];\n"]
+        ]
+      },
+      {
+        "name": "diagram-box.css",
+        "code": [
+          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
+          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
+          ["text","\n.diagram {\n  "],
+          ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
+          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n\n"],
+          ["comment","/* A figure the app puts after a bracket's label: small, quiet, steady digits. */"],["text","\n.bracket-figure {\n  font-size: var(--neat-text-xs);\n  color: var(--muted-foreground);\n  font-variant-numeric: tabular-nums;\n}\n"]
         ]
       }
     ]

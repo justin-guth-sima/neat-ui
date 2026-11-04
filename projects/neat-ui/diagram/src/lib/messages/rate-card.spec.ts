@@ -6,7 +6,9 @@ import { NeatDiagramRateCard } from './rate-card';
 @Component({
   imports: [NeatDiagramRateCard],
   template: `
-    <neat-diagram-rate-card label="Tracker → Gateway" [rate]="rate()" [stageMs]="stageMs()">
+    <neat-diagram-rate-card label="Tracker → Gateway" [rate]="rate()" [stageMs]="stageMs()"
+      [showBytes]="showBytes()"
+    >
       <img neatRateCardThumbnails alt="" src="data:," />
     </neat-diagram-rate-card>
   `,
@@ -14,6 +16,7 @@ import { NeatDiagramRateCard } from './rate-card';
 class Host {
   readonly rate = signal<NeatDiagramEdgeRate>({ msgsPerSec: 0, bytesPerSec: 0, history: [] });
   readonly stageMs = signal<number | undefined>(undefined);
+  readonly showBytes = signal(true);
 }
 
 describe('NeatDiagramRateCard', () => {
@@ -43,6 +46,28 @@ describe('NeatDiagramRateCard', () => {
     expect(values).toEqual(['0', '0.00']);
     const units = Array.from(card().querySelectorAll('.numbers > span'), (u) => u.textContent);
     expect(units).toEqual(['0 msg/s', '0.00 MB/s']);
+  });
+
+  it('showBytes false leaves out the megabytes and keeps the messages and the history', () => {
+    const { fixture, card, set } = render();
+    set({ msgsPerSec: 29.6, bytesPerSec: 4_512_345, history: [1, 2, 3] });
+    expect(card().textContent).toContain('MB/s');
+
+    fixture.componentInstance.showBytes.set(false);
+    fixture.detectChanges();
+
+    expect(card().textContent).not.toContain('MB/s');
+    const values = Array.from(card().querySelectorAll('.numbers .value'), (v) => v.textContent);
+    expect(values).toEqual(['30']);
+    expect(card().querySelector('neat-sparkline')).not.toBeNull();
+  });
+
+  it('showBytes does not change a step’s stage time', () => {
+    const { fixture, text, set } = render();
+    fixture.componentInstance.showBytes.set(false);
+    set({ msgsPerSec: 5 }, 12.34);
+
+    expect(text('.stage')).toBe('Stage 12.3 ms');
   });
 
   it('shows whole messages per second and megabytes with two decimals', () => {

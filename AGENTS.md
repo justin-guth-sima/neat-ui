@@ -120,6 +120,8 @@ look happens in one place. Every rule here protects that.
     Angular, after drawing, with a `NeatTileFrame`: the frame's `now` and the `messages` the
     overlay drew, each with a `held` flag; keep it cheap and write a signal only when a value
     changes. A listener that throws is logged once and the frames keep drawing.
+    `barHeight` (a signal beside `videoBox`) is the bar's laid-out height in CSS pixels, 0 without a
+    bar, for content in the `neatTileOverlay` layer that keeps clear of it.
     Public API is `projects/neat-ui/<name>/src/public-api.ts`; its
     code lives in `projects/neat-ui/<name>/src/lib/`.
     Why one entry per component: an app's main bundle carries only the entries its shell imports,
@@ -399,7 +401,9 @@ the whole in the kit's look.
   routes sharing a corridor spread apart, stubs when the target lies behind) is the Autoware
   demo's, ported with its specs; an edge between a frame and a node inside it runs inside the
   frame, from the frame's border nearest the node (the frame's own `outSide` and `inSide` are for
-  the nodes around it). An edge's colour comes from `lineColour` in `drawing.ts`, through
+  the nodes around it). An edge end goes on the side its edge's `fromSide` or `toSide` names, else
+  its node's `outSide` or `inSide`, else the side facing the other end; the route and the label
+  follow it (an end inside a frame stays on the frame's border). An edge's colour comes from `lineColour` in `drawing.ts`, through
   `seriesIndex` and the kit's `seriesToken`, and each line look is stated once in
   `lines.css`, which the edges and the legend's samples both read. A visually hidden list after
   the drawing says the level's nodes (label, detail, chips) and edges ("Camera to Decode, image")
@@ -498,9 +502,10 @@ the whole in the kit's look.
   Dots go behind the blocks and notes, fade with the hover (`--diagram-dim`), scale with the zoom
   and recolour with the scheme (`neatThemeColors`); under reduced motion each message is a brief
   mark at its edge's end. `neat-diagram-rate-card` (`label`, `rate` the signal's value, `stageMs?`,
-  a `[neatRateCardThumbnails]` slot the app lays out) is the demo's card for a note's content: the
+  `showBytes`, a `[neatRateCardThumbnails]` slot the app lays out) is the demo's card for a note's content: the
   label, whole msg/s, MB/s in hundredths from units of 10 kB, and a `NeatSparkline` of the history,
-  or a step's stage time in ms to a tenth in place of the MB/s and the sparkline; it draws no box,
+  or a step's stage time in ms to a tenth in place of the MB/s and the sparkline; `showBytes` false
+  leaves the MB/s out for an app that pushes no sizes; it draws no box,
   the note does. `neat-diagram-animation-settings` is the demo's Animation popover (an icon button,
   `neat-popover` with `neat-slider`s for speed 50 to 1000, dot size 0.5 to 2 and messages per dot 1
   to 10, a switch for the steps, a reset) over a two-way `settings` model; it keeps nothing. An app

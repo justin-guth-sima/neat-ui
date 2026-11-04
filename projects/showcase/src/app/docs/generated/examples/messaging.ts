@@ -47,7 +47,15 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "), the Detector's with its stage time in place of the megabytes. The Animation panel tunes the dots, its choice kept per browser with "
+            "text": ", and with "
+          },
+          {
+            "kind": "code",
+            "text": "showBytes"
+          },
+          {
+            "kind": "text",
+            "text": " off, since results are a few kilobytes and not worth a megabyte figure), the Detector's with its stage time in place of the megabytes. The Animation panel tunes the dots, its choice kept per browser with "
           },
           {
             "kind": "ref",
@@ -120,7 +128,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["text","\n"],
           ["keyword","const"],["text"," BURST_MESSAGES = 400;\n\n@Component({\n  selector: "],
           ["string","'app-live-pipeline'"],["text",",\n  imports: [\n    NeatButton,\n    NeatDiagramAnimationSettings,\n    NeatDiagramBlockTemplate,\n    NeatDiagramLegend,\n    NeatDiagramMessages,\n    NeatDiagramNoteTemplate,\n    NeatDiagramRateCard,\n    NeatDiagramView,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"controls\">\n      <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"burst()\">\n        Burst\n      </button>\n      <neat-diagram-animation-settings [(settings)]=\"dots\" />\n    </div>\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram class=\"diagram\" [diagram]=\"pipeline\" label=\"A live messaging pipeline\">\n      <neat-diagram-messages #messages [steps]=\"steps\" [settings]=\"dots()\" />\n      <ng-template neatDiagramBlock let-node>\n        @if (node.id === 'decode') {\n          <span class=\"figure\">30.0 fps · 1080p</span>\n        }\n      </ng-template>\n      <ng-template neatDiagramNote let-note>\n        @switch (note.id) {\n          @case ('tracker-rate') {\n            <neat-diagram-rate-card\n              label=\"Into Tracker\"\n              [rate]=\"messages.rate(['detector-tracker', 'nms-tracker'])()\"\n            />\n          }\n          @case ('yolox-rate') {\n            <neat-diagram-rate-card\n              label=\"YOLOX → NMS\"\n              [rate]=\"messages.rate('yolox-nms')()\"\n              [stageMs]=\"yoloxMs()\"\n            />\n          }\n          @case ('camera-rate') {\n            <neat-diagram-rate-card\n              label=\"Camera → Decode\"\n              [rate]=\"messages.rate('camera-decode')()\"\n            />\n          }\n        }\n      </ng-template>\n    </neat-diagram>\n  `"],
+          ["string","`\n    <div class=\"controls\">\n      <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"burst()\">\n        Burst\n      </button>\n      <neat-diagram-animation-settings [(settings)]=\"dots\" />\n    </div>\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram class=\"diagram\" [diagram]=\"pipeline\" label=\"A live messaging pipeline\">\n      <neat-diagram-messages #messages [steps]=\"steps\" [settings]=\"dots()\" />\n      <ng-template neatDiagramBlock let-node>\n        @if (node.id === 'decode') {\n          <span class=\"figure\">30.0 fps · 1080p</span>\n        }\n      </ng-template>\n      <ng-template neatDiagramNote let-note>\n        @switch (note.id) {\n          @case ('tracker-rate') {\n            <neat-diagram-rate-card\n              label=\"Into Tracker\"\n              [rate]=\"messages.rate(['detector-tracker', 'nms-tracker'])()\"\n              [showBytes]=\"false\"\n            />\n          }\n          @case ('yolox-rate') {\n            <neat-diagram-rate-card\n              label=\"YOLOX → NMS\"\n              [rate]=\"messages.rate('yolox-nms')()\"\n              [stageMs]=\"yoloxMs()\"\n            />\n          }\n          @case ('camera-rate') {\n            <neat-diagram-rate-card\n              label=\"Camera → Decode\"\n              [rate]=\"messages.rate('camera-decode')()\"\n            />\n          }\n        }\n      </ng-template>\n    </neat-diagram>\n  `"],
           ["text",",\n  styleUrl: "],
           ["string","'./live-pipeline.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," LivePipeline {\n  "],

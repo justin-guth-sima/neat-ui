@@ -50,15 +50,14 @@ describe('the live pipeline example', () => {
 
   it('moves the messages, the notes reading an edge’s rate', () => {
     expect(pipeline().querySelector('neat-diagram-messages canvas')).not.toBeNull();
-    for (const [note, label] of [
-      ['tracker-rate', 'Into Tracker'],
-      ['camera-rate', 'Camera → Decode'],
-    ]) {
+    for (const [note, label, numbers] of [
+      // The results' sizes are not worth a megabyte figure, so the Tracker's card leaves it out.
+      ['tracker-rate', 'Into Tracker', /^\d+ msg\/s$/],
+      ['camera-rate', 'Camera → Decode', /\d+ msg\/s\s*[\d.]+ MB\/s/],
+    ] as const) {
       const card = pipeline().querySelector(`[data-note="${note}"] neat-diagram-rate-card`);
       expect(card?.querySelector('.label')?.textContent, note).toBe(label);
-      expect(card?.querySelector('.numbers')?.textContent, note).toMatch(
-        /\d+ msg\/s\s*[\d.]+ MB\/s/,
-      );
+      expect(card?.querySelector('.numbers')?.textContent?.trim(), note).toMatch(numbers);
       expect(card?.querySelector('neat-sparkline'), note).not.toBeNull();
     }
   });

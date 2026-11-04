@@ -128,6 +128,20 @@ describe('the diagram examples on the diagram topic', () => {
     expect(pipeline.querySelector('[data-note="yolox-rate"]')?.textContent).toContain('14.8 ms');
   });
 
+  it('leaves the edge sides example’s archive copy on its own fromSide, the other on the outSide', () => {
+    const sides = figure('A source with a side chosen by an edge');
+    const start = (id: string): string | undefined =>
+      sides
+        .querySelector(`[data-edge="${id}"] path.line`)
+        ?.getAttribute('d')
+        ?.split(' L ')[0]
+        .split(' Q ')[0];
+
+    // The Source is 150 × 46 at the origin: its right side's middle, and its bottom's.
+    expect(start('source-display')).toBe('M 150 23');
+    expect(start('source-archive')).toBe('M 75 46');
+  });
+
   it('switches what the pointer dims from the highlight example’s segmented control', async () => {
     const flow = figure('A compile flow to hover');
     const dimmed = (): number => flow.querySelectorAll('.dim').length;
@@ -182,6 +196,6 @@ describe('the diagram examples on the diagram topic', () => {
 
     button.click();
 
-    expect(fit).toHaveBeenCalledTimes(5);
+    expect(fit).toHaveBeenCalledTimes(6);
   });
 });

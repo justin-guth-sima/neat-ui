@@ -230,6 +230,40 @@ describe('layoutEdges', () => {
     expect(edges.get('ab')).toMatchObject({ sourceSide: 'top', targetSide: 'bottom' });
   });
 
+  it('takes an edge’s fromSide and toSide over its nodes’ outSide and inSide, for that edge only', () => {
+    const edges = layoutEdges({
+      nodes: [
+        block('a', 0, 0, { outSide: 'right', inSide: 'left' }),
+        block('b', 400, 0, { inSide: 'left' }),
+        block('c', 400, 300, { inSide: 'left' }),
+      ],
+      edges: [
+        { ...edge('ab', 'a', 'b'), fromSide: 'top', toSide: 'top' },
+        edge('ac', 'a', 'c'),
+      ],
+    });
+
+    expect(edges.get('ab')).toMatchObject({ sourceSide: 'top', targetSide: 'top' });
+    expect(edges.get('ac'), 'the node’s other edge keeps its outSide and inSide').toMatchObject({
+      sourceSide: 'right',
+      targetSide: 'left',
+    });
+  });
+
+  it('routes an edge from the side it chose: its port and first corner lie on that side', () => {
+    const edges = layoutEdges({
+      nodes: [block('a', 0, 0), block('b', 400, 0)],
+      edges: [{ ...edge('ab', 'a', 'b'), fromSide: 'top' }],
+    });
+    const route = edges.get('ab');
+
+    expect(route?.sourceSide).toBe('top');
+    expect(route?.source).toEqual({ x: 50, y: 0 });
+    expect(route?.targetSide, 'an unset toSide is the facing side').toBe('left');
+    expect(route?.points[1].x, 'it leaves upward first').toBe(50);
+    expect(route?.points[1].y).toBeLessThan(0);
+  });
+
   it('gives each edge its route’s corners and its rounded path', () => {
     const edges = layoutEdges({
       nodes: [block('a', 0, 0), block('b', 400, 0)],

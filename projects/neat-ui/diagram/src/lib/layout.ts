@@ -164,8 +164,8 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
     return false;
   };
 
-  // Each edge end goes on the side its node names for it, else on the side that faces the other
-  // end; between a frame and a node inside it, on the frame's border nearest the node and the
+  // Each edge end goes on the side its edge names, else its node names for it, else on the side
+  // that faces the other end; between a frame and a node inside it, on the frame's border nearest the node and the
   // node's side facing that border, so the edge runs inside the frame. A frame's own `outSide` and
   // `inSide` are for the nodes around it, so they do not move that end.
   const ends = edges.map((edge, order) => {
@@ -185,7 +185,7 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
     const along = { x: b.x - a.x, y: b.y - a.y };
     const source: End = {
       node: edge.from,
-      side: inward === 'source' ? out : (nodes.get(edge.from)?.outSide ?? out),
+      side: inward === 'source' ? out : (edge.fromSide ?? nodes.get(edge.from)?.outSide ?? out),
       offset: 0,
       along,
       sign: 1,
@@ -193,7 +193,7 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
     };
     const target: End = {
       node: edge.to,
-      side: inward === 'target' ? into : (nodes.get(edge.to)?.inSide ?? into),
+      side: inward === 'target' ? into : (edge.toSide ?? nodes.get(edge.to)?.inSide ?? into),
       offset: 0,
       along,
       sign: -1,
