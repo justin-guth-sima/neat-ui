@@ -13,7 +13,39 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The last 30 s of a gesture classifier. The window advances every 250 ms; a new run opens when the class changes and grows until the next one. It opens with \"Pointing with two fingers\" held for the last 5 s, a name wider than its run, which the timeline cuts with an ellipsis. \"No gesture\" is "
+            "text": "The last 30 s of a gesture classifier, shown twice with the same runs: the top strip is "
+          },
+          {
+            "kind": "code",
+            "text": "motion=\"step\""
+          },
+          {
+            "kind": "text",
+            "text": " and the bottom one "
+          },
+          {
+            "kind": "code",
+            "text": "motion=\"smooth\""
+          },
+          {
+            "kind": "text",
+            "text": ". The window advances once a second, the rate at which "
+          },
+          {
+            "kind": "code",
+            "text": "step"
+          },
+          {
+            "kind": "text",
+            "text": " jumps and "
+          },
+          {
+            "kind": "code",
+            "text": "smooth"
+          },
+          {
+            "kind": "text",
+            "text": " scrolls in between. A new run opens when the class changes and grows until the next one. It opens with \"Pointing with two fingers\" held for the last 5 s, a name wider than its run, which the timeline cuts with an ellipsis. \"No gesture\" is "
           },
           {
             "kind": "code",
@@ -28,24 +60,26 @@ export const EXAMPLES: readonly DocsExample[] = [
     ],
     "shows": [
       "@sima/neat-ui/charts#NeatLabelRun",
-      "@sima/neat-ui/charts#NeatLabelTimeline"
+      "@sima/neat-ui/charts#NeatLabelTimeline",
+      "@sima/neat-ui/charts#NeatTimelineMotion"
     ],
     "files": [
       {
         "name": "1-label-timeline.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatLabelRun, NeatLabelTimeline } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatLabelRun, NeatLabelTimeline, NeatTimelineMotion } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { CLASSES, classAt, durationAt, NO_GESTURE } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n"],
           ["keyword","const"],["text"," WINDOW_MS = 30_000;\n"],
-          ["keyword","const"],["text"," TICK_MS = 250;\n"],
+          ["keyword","const"],["text"," TICK_MS = 1000;\n"],
           ["comment","/** The gesture held when the example opens, and how much of the window it already fills. */"],["text","\n"],
           ["keyword","const"],["text"," HELD = CLASSES[2];\n"],
           ["keyword","const"],["text"," HELD_MS = 5000;\n\n@Component({\n  selector: "],
           ["string","'app-gesture-timeline'"],["text",",\n  imports: [NeatLabelTimeline],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-label-timeline\n      label=\"Last 30 s\"\n      [runs]=\"runs()\"\n      [nowMs]=\"nowMs()\"\n      [windowMs]=\"windowMs\"\n      [labels]=\"labels\"\n      [quiet]=\"quiet\"\n    />\n  `"],
+          ["string","`\n    <div class=\"showcase-section\">\n      @for (motion of motions; track motion) {\n        <p class=\"showcase-muted\">\n          {{\n            motion === 'step'\n              ? 'Step: moves when the app updates'\n              : 'Smooth: scrolls between updates'\n          }}\n        </p>\n        <neat-label-timeline\n          [label]=\"'Last 30 s, ' + motion\"\n          [runs]=\"runs()\"\n          [nowMs]=\"nowMs()\"\n          [windowMs]=\"windowMs\"\n          [labels]=\"labels\"\n          [quiet]=\"quiet\"\n          [motion]=\"motion\"\n        />\n      }\n    </div>\n  `"],
           ["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," GestureTimeline {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motions: "],["keyword","readonly"],["text"," NeatTimelineMotion[] = ["],["string","'step'"],["text",", "],["string","'smooth'"],["text","];\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," windowMs = WINDOW_MS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," labels = CLASSES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," quiet = [NO_GESTURE];\n  "],

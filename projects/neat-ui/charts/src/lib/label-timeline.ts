@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  input,
+  linkedSignal,
+} from '@angular/core';
+import { ɵBROWSER_CLOCK as clock, ɵreducedMotion as reducedMotion } from '@sima/neat-ui';
 import { isNumber } from './geometry';
 import { neatLabelColour } from './label-colour';
 
@@ -10,6 +18,12 @@ export interface NeatLabelRun {
   /** Epoch milliseconds; a run that ends before it starts is not drawn. */
   readonly endMs: number;
 }
+
+/**
+ * How the strip moves: `step` jumps when the app passes a later `nowMs`; `smooth` also scrolls
+ * between two updates, at real time.
+ */
+export type NeatTimelineMotion = 'step' | 'smooth';
 
 /** A run as drawn: its place in the window in percent, its colour and its spoken span. */
 interface Bar {
@@ -25,6 +39,22 @@ interface Bar {
 const NAMED_SHARE = 0.12;
 /** The axis marks the window's start, its end and two points that divide it in thirds. */
 const TICKS = 3;
+
+/**
+ * How far past the last `nowMs` the smooth strip may run. A stream that stalls stops the strip
+ * after this long, rather than inventing a second of data per second of silence.
+ */
+const MAX_AHEAD_MS = 1000;
+
+/**
+ * The drawn now in smooth mode, and the update it runs on from: that update's `nowMs` and the
+ * frame-clock time at which it arrived.
+ */
+interface Drawn {
+  readonly now: number;
+  readonly from: number;
+  readonly arrivedAt: number;
+}
 
 /**
  * A quiet run's fill. `neatLabelColour` gives a quiet label `--muted-foreground`, a colour for
@@ -51,7 +81,12 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
  *
  * It draws the window from `nowMs - windowMs` to `nowMs`, left to right, under an axis of four
  * ticks (−30 s, −20 s, −10 s and now for the default window). The app moves the window by
- * passing a later `nowMs`; the strip has no clock of its own, so a test or a replay sets the time.
+ * passing a later `nowMs`, so a test or a replay sets the time. With the default `motion="step"`
+ * that is all there is: the strip jumps at the app's update rate. With `motion="smooth"` it also
+ * scrolls between two updates, on animation frames at real time, so an app that updates once a
+ * second still reads as moving. It never runs more than a second past the last `nowMs` (a stalled
+ * stream stops the strip), and never moves backwards: a `nowMs` behind what is drawn holds the
+ * strip until real time catches up. A reduced-motion setting forces `step`.
  * A run is placed by its times and clipped to the window; one that ends before it starts, lies
  * outside the window or has a time that is not a number is not drawn. Runs that overlap are drawn
  * in the order of `runs`, the later on top, so the app decides which wins. A run at least 12 % of
@@ -111,9 +146,47 @@ export class NeatLabelTimeline {
   readonly quiet = input<readonly string[]>([]);
   /** Names the strip. */
   readonly label = input.required<string>();
+  /** Whether the strip scrolls between updates (`smooth`) or only at them. */
+  readonly motion = input<NeatTimelineMotion>('step');
+
+  /** Smooth, and not ruled out by the reduced-motion setting (read when `motion` changes). */
+  private readonly smooth = computed(() => this.motion() === 'smooth' && !reducedMotion());
+
+  /**
+   * Smooth mode's state. It is recomputed when an update or the mode arrives, and holds the drawn
+   * now there if it is already ahead of the update (it never moves backwards); the frame loop
+   * advances it between updates.
+   */
+  private readonly drawn = linkedSignal<{ now: number; smooth: boolean }, Drawn>({
+    source: () => ({ now: this.nowMs(), smooth: this.smooth() }),
+    computation: ({ now, smooth }, previous) => {
+      const held = smooth && previous?.source.smooth ? Math.max(previous.value.now, now) : now;
+      return { now: held, from: now, arrivedAt: clock.now() };
+    },
+  });
+
+  /** The right edge of the window as drawn. */
+  private readonly drawnNow = computed(() => (this.smooth() ? this.drawn().now : this.nowMs()));
+
+  constructor() {
+    effect((onCleanup) => {
+      if (!this.smooth()) return;
+      let handle: number | undefined;
+      const frame = (): void => {
+        this.drawn.update((state) => {
+          const ahead = Math.min(MAX_AHEAD_MS, clock.now() - state.arrivedAt);
+          const now = Math.max(state.now, state.from + ahead);
+          return now === state.now ? state : { ...state, now };
+        });
+        handle = clock.request(frame);
+      };
+      handle = clock.request(frame);
+      onCleanup(() => clock.cancel(handle!));
+    });
+  }
 
   protected readonly bars = computed<readonly Bar[]>(() => {
-    const now = this.nowMs();
+    const now = this.drawnNow();
     const window = this.windowMs();
     if (!isNumber(now) || !isNumber(window) || window <= 0) return [];
     const from = now - window;

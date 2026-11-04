@@ -155,6 +155,7 @@ describe('the public API', () => {
   it('shares its internals with the entries only under a ɵ prefix', () => {
     const shared = Object.keys(primary).filter((symbol) => symbol.startsWith('ɵ'));
     expect(shared.sort()).toEqual([
+      'ɵBROWSER_CLOCK',
       'ɵCOLLAPSIBLE_CLASSES',
       'ɵFIELD_LABEL_CLASSES',
       'ɵINPUT_CLASSES',
@@ -166,6 +167,7 @@ describe('the public API', () => {
       'ɵSTALE_CLASSES',
       'ɵhlm',
       'ɵlistVariants',
+      'ɵreducedMotion',
       'ɵseriesToken',
       'ɵseriesTokenName',
     ]);

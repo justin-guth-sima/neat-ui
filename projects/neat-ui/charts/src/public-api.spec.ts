@@ -30,4 +30,5 @@ export type ExportedTypes = [
   charts.NeatReference,
   charts.NeatSeries,
   charts.NeatThreshold,
+  charts.NeatTimelineMotion,
 ];

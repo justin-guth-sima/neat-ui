@@ -704,7 +704,47 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; the strip has no clock of its own, so a test or a replay sets the time. A run is placed by its times and clipped to the window; one that ends before it starts, lies outside the window or has a time that is not a number is not drawn. Runs that overlap are drawn in the order of "
+              "text": ", so a test or a replay sets the time. With the default "
+            },
+            {
+              "kind": "code",
+              "text": "motion=\"step\""
+            },
+            {
+              "kind": "text",
+              "text": " that is all there is: the strip jumps at the app's update rate. With "
+            },
+            {
+              "kind": "code",
+              "text": "motion=\"smooth\""
+            },
+            {
+              "kind": "text",
+              "text": " it also scrolls between two updates, on animation frames at real time, so an app that updates once a second still reads as moving. It never runs more than a second past the last "
+            },
+            {
+              "kind": "code",
+              "text": "nowMs"
+            },
+            {
+              "kind": "text",
+              "text": " (a stalled stream stops the strip), and never moves backwards: a "
+            },
+            {
+              "kind": "code",
+              "text": "nowMs"
+            },
+            {
+              "kind": "text",
+              "text": " behind what is drawn holds the strip until real time catches up. A reduced-motion setting forces "
+            },
+            {
+              "kind": "code",
+              "text": "step"
+            },
+            {
+              "kind": "text",
+              "text": ". A run is placed by its times and clipped to the window; one that ends before it starts, lies outside the window or has a time that is not a number is not drawn. Runs that overlap are drawn in the order of "
             },
             {
               "kind": "code",
@@ -909,6 +949,30 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "Names the strip."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "motion",
+          "type": "NeatTimelineMotion",
+          "default": "'step'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the strip scrolls between updates ("
+                },
+                {
+                  "kind": "code",
+                  "text": "smooth"
+                },
+                {
+                  "kind": "text",
+                  "text": ") or only at them."
                 }
               ]
             }
@@ -2161,6 +2225,47 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/charts/src/lib/time-chart.ts"
+    },
+    {
+      "name": "NeatTimelineMotion",
+      "kind": "type",
+      "definition": "'step' | 'smooth'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How the strip moves: "
+            },
+            {
+              "kind": "code",
+              "text": "step"
+            },
+            {
+              "kind": "text",
+              "text": " jumps when the app passes a later "
+            },
+            {
+              "kind": "code",
+              "text": "nowMs"
+            },
+            {
+              "kind": "text",
+              "text": "; "
+            },
+            {
+              "kind": "code",
+              "text": "smooth"
+            },
+            {
+              "kind": "text",
+              "text": " also scrolls between two updates, at real time."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/charts/src/lib/label-timeline.ts"
     },
     {
       "name": "neatLabelColour",

@@ -790,7 +790,7 @@ export const GROUPS: readonly TopicGroup[] = [
           {
             id: 'label-timeline',
             label: 'Label timeline',
-            parts: ['NeatLabelTimeline', 'NeatLabelRun'],
+            parts: ['NeatLabelTimeline', 'NeatLabelRun', 'NeatTimelineMotion'],
             leads: ['NeatLabelTimeline'],
             load: async () => {
               const [api, examples] = await Promise.all([

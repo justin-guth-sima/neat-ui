@@ -7,8 +7,11 @@ describe('the label timeline example', () => {
   it('starts with the window filled with named gestures and a muted quiet class', async () => {
     const fixture = TestBed.createComponent(GestureTimeline);
     await fixture.whenStable();
+    // The example shows the same runs in two strips; the first is enough for what they hold.
     const runs = Array.from<HTMLElement>(
-      fixture.nativeElement.querySelectorAll('[data-slot="label-timeline-run"]'),
+      fixture.nativeElement
+        .querySelector('neat-label-timeline')
+        .querySelectorAll('[data-slot="label-timeline-run"]'),
     );
 
     expect(runs.length).toBeGreaterThan(4);
@@ -23,8 +26,26 @@ describe('the label timeline example', () => {
   });
 });
 
-describe('the label timeline example\'s classes', () => {
-  it('are the score bars example\'s, so a label has the same colour in both', () => {
+describe("the label timeline example's strips", () => {
+  it('are the same runs, one stepping and one smooth, each named for it', async () => {
+    const fixture = TestBed.createComponent(GestureTimeline);
+    await fixture.whenStable();
+    const strips = Array.from<HTMLElement>(
+      fixture.nativeElement.querySelectorAll('neat-label-timeline'),
+    );
+
+    expect(strips.map((strip) => strip.getAttribute('aria-label'))).toEqual([
+      'Last 30 s, step',
+      'Last 30 s, smooth',
+    ]);
+    expect(strips[0].querySelectorAll('li').length).toBe(strips[1].querySelectorAll('li').length);
+    expect(fixture.nativeElement.textContent).toContain('Step: moves when the app updates');
+    expect(fixture.nativeElement.textContent).toContain('Smooth: scrolls between updates');
+  });
+});
+
+describe("the label timeline example's classes", () => {
+  it("are the score bars example's, so a label has the same colour in both", () => {
     expect(CLASSES).toEqual(SCORE_BARS_CLASSES);
   });
 });

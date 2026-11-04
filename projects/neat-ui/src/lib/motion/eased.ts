@@ -24,7 +24,8 @@ export interface FrameClock {
   cancel(handle: number): void;
 }
 
-const BROWSER_CLOCK: FrameClock = {
+/** The browser's clock and frames; the label timeline's smooth mode runs on them too. Internal. */
+export const BROWSER_CLOCK: FrameClock = {
   now: () => performance.now(),
   request: (callback) => requestAnimationFrame(callback),
   cancel: (handle) => cancelAnimationFrame(handle),
@@ -33,8 +34,11 @@ const BROWSER_CLOCK: FrameClock = {
 const isNone = (value: number | null | undefined): value is null | undefined =>
   value === null || value === undefined;
 
-/** Read when a value changes, so a setting changed while the page is open applies to the next. */
-function reducedMotion(): boolean {
+/**
+ * Read when a value changes, so a setting changed while the page is open applies to the next.
+ * Shared with the label timeline's smooth mode. Internal.
+ */
+export function reducedMotion(): boolean {
   return typeof matchMedia === 'function' && matchMedia(REDUCED_MOTION).matches;
 }
 

@@ -1,15 +1,17 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
-import { NeatLabelRun, NeatLabelTimeline } from '@sima/neat-ui/charts';
+import { NeatLabelRun, NeatLabelTimeline, NeatTimelineMotion } from '@sima/neat-ui/charts';
 import { CLASSES, classAt, durationAt, NO_GESTURE } from './data';
 
 const WINDOW_MS = 30_000;
-const TICK_MS = 250;
+const TICK_MS = 1000;
 /** The gesture held when the example opens, and how much of the window it already fills. */
 const HELD = CLASSES[2];
 const HELD_MS = 5000;
 
 /**
- * The last 30 s of a gesture classifier. The window advances every 250 ms; a new run opens when
+ * The last 30 s of a gesture classifier, shown twice with the same runs: the top strip is
+ * `motion="step"` and the bottom one `motion="smooth"`. The window advances once a second, the
+ * rate at which `step` jumps and `smooth` scrolls in between. A new run opens when
  * the class changes and grows until the next one. It opens with "Pointing with two fingers" held
  * for the last 5 s, a name wider than its run, which the timeline cuts with an ellipsis. "No gesture" is `quiet`, so it is drawn muted and
  * never named, and a gesture shorter than 12 % of the window (3.6 s) keeps its colour but no label.
@@ -21,17 +23,30 @@ const HELD_MS = 5000;
   imports: [NeatLabelTimeline],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <neat-label-timeline
-      label="Last 30 s"
-      [runs]="runs()"
-      [nowMs]="nowMs()"
-      [windowMs]="windowMs"
-      [labels]="labels"
-      [quiet]="quiet"
-    />
+    <div class="showcase-section">
+      @for (motion of motions; track motion) {
+        <p class="showcase-muted">
+          {{
+            motion === 'step'
+              ? 'Step: moves when the app updates'
+              : 'Smooth: scrolls between updates'
+          }}
+        </p>
+        <neat-label-timeline
+          [label]="'Last 30 s, ' + motion"
+          [runs]="runs()"
+          [nowMs]="nowMs()"
+          [windowMs]="windowMs"
+          [labels]="labels"
+          [quiet]="quiet"
+          [motion]="motion"
+        />
+      }
+    </div>
   `,
 })
 export class GestureTimeline {
+  protected readonly motions: readonly NeatTimelineMotion[] = ['step', 'smooth'];
   protected readonly windowMs = WINDOW_MS;
   protected readonly labels = CLASSES;
   protected readonly quiet = [NO_GESTURE];

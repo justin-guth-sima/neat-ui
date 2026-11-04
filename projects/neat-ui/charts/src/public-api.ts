@@ -10,7 +10,11 @@ export { NeatHeatmap, type NeatHeatmapRow } from './lib/heatmap';
 // the apps that import it from this entry keep working.
 export { NeatSeriesSwatch } from '@sima/neat-ui';
 export { neatLabelColour } from './lib/label-colour';
-export { type NeatLabelRun, NeatLabelTimeline } from './lib/label-timeline';
+export {
+  type NeatLabelRun,
+  NeatLabelTimeline,
+  type NeatTimelineMotion,
+} from './lib/label-timeline';
 export { type NeatScore, NeatScoreBars } from './lib/score-bars';
 export { NeatSparkline } from './lib/sparkline';
 export { NeatStackedChart } from './lib/stacked-chart';
