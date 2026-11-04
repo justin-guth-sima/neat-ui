@@ -1,6 +1,6 @@
 import type { NeatMetadataMessage } from '../../sync/metadata-message';
 import { OVERLAY_NEUTRAL_COLOR } from '../../theme/overlay-palette';
-import type { NeatOverlaySettings } from '../overlay-settings';
+import { NEAT_OVERLAY_DEFAULTS, type NeatOverlaySettings } from '../overlay-settings';
 import {
   colorOfText,
   drawMessages,
@@ -31,6 +31,30 @@ function pose(id: string | undefined, originX: number, originY: number) {
       x: originX + dx,
       y: originY + dy,
       confidence: 0.95,
+    })),
+  };
+}
+
+const HAND_NAMES = [
+  'wrist',
+  ...['thumb', 'index_finger', 'middle_finger', 'ring_finger', 'pinky'].flatMap((finger) =>
+    (finger === 'thumb' ? ['cmc', 'mcp', 'ip', 'tip'] : ['mcp', 'pip', 'dip', 'tip']).map(
+      (joint) => `${finger}_${joint}`,
+    ),
+  ),
+];
+
+/** A MediaPipe hand: 21 landmarks along a diagonal, each with the extra `z` the model reports. */
+function hand(id: string | undefined, originX: number, originY: number) {
+  return {
+    id,
+    label: 'hand',
+    keypoints: HAND_NAMES.map((name, i) => ({
+      name,
+      x: originX + i * 4,
+      y: originY + i * 3,
+      z: -0.02 * i,
+      confidence: 0.9,
     })),
   };
 }
@@ -168,5 +192,78 @@ describe('pose estimation overlay', () => {
     expect(y).toBe(150 - 5 - 8);
     expect(w).toBe(40 + 16);
     expect(h).toBe(95 + 16);
+  });
+
+  describe('hands and per-label styles', () => {
+    it("draws a hand's 21 links", () => {
+      const ctx = draw(overlayState(), poses([hand('h', 100, 100)]));
+      expect(ctx.ops('stroke')).toHaveLength(21);
+    });
+
+    it('draws a hand and a person in one message', () => {
+      const ctx = draw(overlayState(), poses([hand('h', 100, 100), pose('p', 400, 150)]));
+      // The person here has 7 named points: nose-eyes, nose-shoulders, shoulders-hips, hips.
+      expect(ctx.ops('stroke')).toHaveLength(21 + 7);
+      expect(ctx.ops('arc')).toHaveLength(21 + 7);
+    });
+
+    it('joins no link to an unnamed keypoint but still draws its joint', () => {
+      const ctx = draw(
+        overlayState(),
+        poses([
+          {
+            label: 'hand',
+            keypoints: [
+              { name: 'wrist', x: 10, y: 10, confidence: 1 },
+              { x: 20, y: 20, confidence: 1 },
+              { name: 'thumb_cmc', x: 30, y: 30, confidence: 1 },
+            ],
+          },
+        ]),
+      );
+      expect(ctx.ops('stroke')).toHaveLength(1);
+      expect(ctx.ops('arc')).toHaveLength(3);
+    });
+
+    it('styles a pose by its label', () => {
+      const person: NeatOverlaySettings['types']['pose-estimation']['objects'] = [
+        { label: 'person', color: '#888888', style: 'solid', width: 1 },
+      ];
+      const ctx = draw(
+        overlayState(),
+        poses([hand('h', 100, 100), pose('p', 400, 150)]),
+        0,
+        overlaySettings({ types: { 'pose-estimation': { objects: person } } }),
+      );
+      const strokes = ctx.ops('stroke');
+      const grey = strokes.filter((call) => call.strokeStyle === '#888888');
+      expect(grey).toHaveLength(7);
+      grey.forEach((call) => expect(call.lineWidth).toBe(1));
+      const handStrokes = strokes.filter((call) => call.strokeStyle !== '#888888');
+      expect(handStrokes).toHaveLength(21);
+      handStrokes.forEach((call) => expect(call.lineWidth).not.toBe(1));
+      expect(colorOfText(ctx, 'person #p')).toBe('#888888');
+    });
+
+    it('leaves boxes out when showBoxes is off', () => {
+      const ctx = draw(
+        overlayState(),
+        poses([pose('p', 200, 150)]),
+        0,
+        overlaySettings({ types: { 'pose-estimation': { showBoxes: false } } }),
+      );
+      expect(ctx.ops('strokeRect')).toHaveLength(0);
+      expect(texts(ctx)).toStrictEqual([]);
+      expect(ctx.ops('stroke')).toHaveLength(7);
+    });
+
+    it('draws a COCO pose with boxes and no label rows by default', () => {
+      const defaults = NEAT_OVERLAY_DEFAULTS.types['pose-estimation'];
+      expect(defaults.showBoxes).toBe(true);
+      expect(defaults.objects).toStrictEqual([]);
+      const ctx = draw(overlayState(), poses([pose('p', 200, 150)]), 0, NEAT_OVERLAY_DEFAULTS);
+      expect(ctx.ops('strokeRect')).toHaveLength(1);
+      expect(texts(ctx)).toStrictEqual(['person #p']);
+    });
   });
 });

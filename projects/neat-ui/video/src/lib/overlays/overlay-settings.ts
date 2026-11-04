@@ -69,6 +69,13 @@ export interface NeatOverlaySettings {
       readonly showKeypoints: boolean;
       /** Joint names next to the dots. */
       readonly showKeypointLabels: boolean;
+      /** The box and label plate around each pose. */
+      readonly showBoxes: boolean;
+      /**
+       * Colour, line and width by the pose's label (`person`, `hand`); a pose without a row keeps
+       * its identity colour.
+       */
+      readonly objects: readonly NeatOverlayClassStyle[];
     };
     readonly classification: { readonly visible: boolean };
   };
@@ -86,7 +93,13 @@ export const NEAT_OVERLAY_DEFAULTS: NeatOverlaySettings = {
       confidenceThreshold: 0,
       history: { enabled: true, trailLength: 10, lostTrackTtlMs: 2000 },
     },
-    'pose-estimation': { visible: true, showKeypoints: true, showKeypointLabels: false },
+    'pose-estimation': {
+      visible: true,
+      showKeypoints: true,
+      showKeypointLabels: false,
+      showBoxes: true,
+      objects: [],
+    },
     classification: { visible: true },
   },
   roi: [],

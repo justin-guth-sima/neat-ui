@@ -1,5 +1,11 @@
 import type { DrawStrategy } from '../draw-context';
-import { drawLabelPlate, identityColor } from '../draw-context';
+import {
+  applyLineStyle,
+  classStyles,
+  drawLabelPlate,
+  identityColor,
+  styleFor,
+} from '../draw-context';
 
 interface Keypoint {
   name?: unknown;
@@ -14,6 +20,7 @@ interface PoseData {
   poses?: readonly ({ id?: unknown; label?: unknown; keypoints?: unknown } | null)[];
 }
 
+/** The body's links, by COCO keypoint name. */
 const COCO_SKELETON: readonly (readonly [string, string])[] = [
   ['nose', 'left_eye'],
   ['nose', 'right_eye'],
@@ -34,6 +41,40 @@ const COCO_SKELETON: readonly (readonly [string, string])[] = [
   ['right_knee', 'right_ankle'],
 ];
 
+/**
+ * The hand's links, by MediaPipe landmark name (its `HAND_CONNECTIONS`): the thumb, then the
+ * palm's knuckles and the four fingers.
+ */
+const HAND_SKELETON: readonly (readonly [string, string])[] = [
+  ['wrist', 'thumb_cmc'],
+  ['thumb_cmc', 'thumb_mcp'],
+  ['thumb_mcp', 'thumb_ip'],
+  ['thumb_ip', 'thumb_tip'],
+  ['wrist', 'index_finger_mcp'],
+  ['index_finger_mcp', 'index_finger_pip'],
+  ['index_finger_pip', 'index_finger_dip'],
+  ['index_finger_dip', 'index_finger_tip'],
+  ['index_finger_mcp', 'middle_finger_mcp'],
+  ['middle_finger_mcp', 'middle_finger_pip'],
+  ['middle_finger_pip', 'middle_finger_dip'],
+  ['middle_finger_dip', 'middle_finger_tip'],
+  ['middle_finger_mcp', 'ring_finger_mcp'],
+  ['ring_finger_mcp', 'ring_finger_pip'],
+  ['ring_finger_pip', 'ring_finger_dip'],
+  ['ring_finger_dip', 'ring_finger_tip'],
+  ['ring_finger_mcp', 'pinky_mcp'],
+  ['wrist', 'pinky_mcp'],
+  ['pinky_mcp', 'pinky_pip'],
+  ['pinky_pip', 'pinky_dip'],
+  ['pinky_dip', 'pinky_tip'],
+];
+
+/**
+ * Every link a pose can have. The body's and the hand's names are disjoint, so a pose needs no
+ * kind: a link draws when both its ends are present, and a pose has only its own kind's names.
+ */
+const SKELETON: readonly (readonly [string, string])[] = [...COCO_SKELETON, ...HAND_SKELETON];
+
 /** Joints at or below this confidence are drawn faded but left out of the person's box. */
 const KEYPOINT_MIN_CONFIDENCE = 0.3;
 const BOX_PADDING = 8;
@@ -48,7 +89,10 @@ function hasId(id: unknown): boolean {
   return id !== null && id !== undefined && id !== '';
 }
 
-/** Skeletons, joints and a labelled box per person, all in the pose id's colour. */
+/**
+ * Skeletons, joints and a labelled box per pose, in the pose id's colour; a label's row in
+ * `objects` sets that colour, the line and the width instead, as it does for detections.
+ */
 export const drawPoseEstimation: DrawStrategy = (dc, data) => {
   const poses = (data as PoseData | null | undefined)?.poses;
   const type = dc.settings.types['pose-estimation'];
@@ -59,13 +103,14 @@ export const drawPoseEstimation: DrawStrategy = (dc, data) => {
     kp.x * box.scaleX + box.offsetX,
     kp.y * box.scaleY + box.offsetY,
   ];
-  ctx.lineWidth = dc.settings.general.lineWidth;
-  ctx.setLineDash([]);
+  const { styles } = classStyles(type.objects);
   ctx.font = dc.fonts.label;
 
   for (const pose of poses) {
     if (!Array.isArray(pose?.keypoints)) continue;
-    const color = identityColor(dc, 'pose', pose.id);
+    const row = styleFor(styles, pose.label);
+    const color = row?.color ?? identityColor(dc, 'pose', pose.id);
+    applyLineStyle(ctx, row, dc.settings.general.lineWidth);
     const keypoints = (pose.keypoints as (Keypoint | null)[]).filter((kp): kp is Keypoint =>
       Boolean(kp),
     );
@@ -73,7 +118,7 @@ export const drawPoseEstimation: DrawStrategy = (dc, data) => {
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
 
-    for (const [a, b] of COCO_SKELETON) {
+    for (const [a, b] of SKELETON) {
       const from = byName.get(a);
       const to = byName.get(b);
       if (!from || !to) continue;
@@ -103,6 +148,7 @@ export const drawPoseEstimation: DrawStrategy = (dc, data) => {
     }
     ctx.globalAlpha = 1;
 
+    if (!type.showBoxes) continue;
     // The box and its label frame only the joints the model is fairly sure of.
     const confident = keypoints.filter((kp) => Number(kp.confidence) > KEYPOINT_MIN_CONFIDENCE);
     if (confident.length < 2) continue;

@@ -99,7 +99,11 @@ look happens in one place. Every rule here protects that.
     under "The kit's icons" below); and
     `video`: the video tile, the tile grid and what they need (overlay drawing, metadata sync, the
     overlay palette), and the region-of-interest editor with its swatch and `neatRoiNames`, which
-    sit in the tile's overlay layer. Public API is `projects/neat-ui/<name>/src/public-api.ts`; its
+    sit in the tile's overlay layer. The `pose-estimation` overlay draws a person (COCO names) and
+    a hand (MediaPipe's 21 snake-case landmarks, `wrist` to `pinky_tip`) from one message: the
+    two name sets are disjoint, so one link list serves both. Its `showBoxes` setting turns the
+    box and label plate off, and `objects` rows (as for detections) style a pose by its `label`.
+    Public API is `projects/neat-ui/<name>/src/public-api.ts`; its
     code lives in `projects/neat-ui/<name>/src/lib/`.
     Why one entry per component: an app's main bundle carries only the entries its shell imports,
     and a lazy route can keep a component (video's canvas, frame-loop and overlay code most of all)
