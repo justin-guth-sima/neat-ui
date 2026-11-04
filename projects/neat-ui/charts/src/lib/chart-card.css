@@ -1,45 +1,36 @@
+/*
+ * The chart card is a `neat-card` (the frame, the fill, the title) with the chart card's own
+ * states and body. The host takes the card's place in a layout, so a grid or a row sizes it as
+ * before.
+ */
 :host {
-  /* The charts' labels carry a halo in the fill of the surface they sit on: this card's. */
-  --neat-surface: var(--card);
-
   display: flex;
   flex-direction: column;
-  gap: var(--neat-space-2);
   min-width: 0;
-  padding: var(--neat-space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--card);
-  color: var(--card-foreground);
-
-  /*
-   * No `overflow`, `position` with a `z-index`, `isolation`, `transform` or `opacity` on the card:
-   * a chart's readout can hang below its plot, and a card that clipped it or made a stacking
-   * context of its own would let the next card paint over it.
-   */
 }
 
-:host([data-selectable]) {
+.card {
+  /* A chip is no taller than the heading, so the header is as tall as its text. */
+  --neat-card-header-min-height: 0;
+
+  flex: 1;
+}
+
+:host([data-selectable]) .card {
   cursor: pointer;
 }
 
 /* The outline is 2px: the border's 1px and the same again inside it, so the card does not move. */
-:host([data-selected]) {
+:host([data-selected]) .card {
   border-color: var(--primary);
   box-shadow: inset 0 0 0 1px var(--primary);
 }
 
-.head {
+.body {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  flex-direction: column;
   gap: var(--neat-space-2);
-}
-
-.heading {
   min-width: 0;
-  font-size: var(--neat-text-sm);
-  font-weight: 500;
 }
 
 .activator {
@@ -70,7 +61,9 @@
   color: var(--muted-foreground);
 }
 
+/* The page's leading, which the caption had before the card's `text-sm` leading (1.43) reached it. */
 .caption {
+  line-height: 1.5;
   font-size: var(--neat-text-xs);
   color: var(--muted-foreground);
 }

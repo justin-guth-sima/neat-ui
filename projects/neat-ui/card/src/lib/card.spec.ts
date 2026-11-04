@@ -33,6 +33,17 @@ function declared(selector: string, property: string): string | undefined {
   return new RegExp(`(?:^|[;\\s])${property}:\\s*([^;]+);`).exec(body)?.[1];
 }
 
+@Component({
+  imports: [NeatCard],
+  template: `
+    <neat-card title="Detections">
+      <button type="button" neatCardTitle class="own">Detections</button>
+      <p>Nothing yet.</p>
+    </neat-card>
+  `,
+})
+class TitleSlotHost {}
+
 // Only NeatCard is imported: the actions and footer attributes are the card's own selectors.
 @Component({
   imports: [NeatCard],
@@ -73,6 +84,21 @@ describe('NeatCard', () => {
     expect(slot('card-description')!.textContent!.trim()).toBe('Last minute');
     expect(card.getAttribute('role')).toBe('region');
     expect(title.id).not.toBe('');
+    expect(card.getAttribute('aria-labelledby')).toBe(title.id);
+  });
+
+  it('takes an element for the title with neatCardTitle, which still names the region', async () => {
+    const fixture = TestBed.createComponent(TitleSlotHost);
+    await fixture.whenStable();
+    const card: HTMLElement = fixture.nativeElement.querySelector('neat-card');
+    const title = card.querySelector<HTMLElement>('[data-slot="card-title"]')!;
+
+    // The element stands in the title's heading, in place of its text; the content has none of it.
+    expect(title.tagName).toBe('H2');
+    expect(title.querySelector('button.own')?.textContent).toBe('Detections');
+    expect(title.textContent!.trim()).toBe('Detections');
+    expect(card.querySelector('[data-slot="card-content"] button')).toBeNull();
+    expect(card.getAttribute('role')).toBe('region');
     expect(card.getAttribute('aria-labelledby')).toBe(title.id);
   });
 
@@ -194,7 +220,7 @@ describe('NeatCard', () => {
   });
 
   it('keeps the header as tall with actions as without', () => {
-    expect(kitCardClasses('header').split(' ')).toContain('min-h-8');
+    expect(kitCardClasses('header').split(' ')).toContain('min-h-[var(--neat-card-header-min-height,2rem)]');
   });
 
   it('only drops classes that helm still has', () => {

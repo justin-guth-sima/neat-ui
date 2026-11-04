@@ -81,8 +81,9 @@ look happens in one place. Every rule here protects that.
     (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed),
     `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
     `card` (`NeatCard`, a card on Spartan's helm card with an optional `title` that names it as a
-    region, a `subtitle`, the elements marked `neatCardActions` at the header's end and those marked
-    `neatCardFooter` in its footer; the attributes are the card's own selectors, no import),
+    region, a `subtitle`, the elements marked `neatCardActions` at the header's end, one marked
+    `neatCardTitle` in place of the title's text (a button) and those marked `neatCardFooter` in its
+    footer; the attributes are the card's own selectors, no import),
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments) and `charts` (live
     metric charts, drawn as SVG but for the heatmap, the score bars and the label timeline, which are
     HTML: `NeatSparkline`, `NeatTimeChart`,
@@ -333,10 +334,13 @@ grid is one tab stop with a cell cursor. The geometry is internal; only the comp
 types are exported.
 
 `NeatChartCard` is the one card for a metric (the overview cards, the Power tiles, a run view's
-tiles): heading, `[neatChartCardChip]`, value with unit, caption, then the chart. It sets
-`--neat-surface` to `--card` for the charts' label halos and has no `overflow`, `z-index`,
-`isolation` or `transform`: a readout can hang below its plot, and a card that clipped it or made a
-stacking context would let the next card paint over it. A `selectable` card's heading is a button
+tiles): heading, `[neatChartCardChip]`, value with unit, caption, then the chart. It is a preset of
+`NeatCard` (`card`): the heading is the card's title (a button when selectable, through
+`neatCardTitle`), the chip its header actions, the rest its content. The frame, the `--card` fill
+and `--neat-surface` (for the charts' label halos) are the card's, in one place; the chart card
+adds the selected look. The card has no `overflow`, `z-index`, `isolation` or `transform`: a
+readout can hang below its plot, and a card that clipped it or made a stacking context would let
+the next card paint over it. A `selectable` card's heading is a button
 with `aria-current` and a click anywhere on the card emits `activate` too, its chart's plot
 included: the readout follows the pointer without a click, and the plot is most of the card. Only
 a control in the content (a button, a link, a form field) keeps its click; the plot's keys move the

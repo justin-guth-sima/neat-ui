@@ -42,8 +42,14 @@ export const CARD_HELM_CLASSES = {
  *   parts sit `--neat-space-2` apart.
  * - Type: the title is `text-sm` (`--neat-text-sm`) as a chart card's heading, the subtitle
  *   `text-xs` (`--neat-text-xs`, the size of a chart card's caption: the kit's secondary line).
- * - Header: at least 2rem tall (`min-h-8`), so cards side by side line their content up whether or
- *   not one has actions (a small button is 2rem). The header, the action area, the content and the
+ * - Actions: a row of their own, so an action that is an inline element (a chip) takes its own
+ *   height and no line box of the text around it adds to it. They sit in the title's row only
+ *   (helm's two-row span leaves an empty row and its gap under a title alone), and the text of the
+ *   title and of the actions share a baseline.
+ * - Header: at least 2rem tall, so cards side by side line their content up whether or not one has
+ *   actions (a small button is 2rem). The minimum is the custom property
+ *   `--neat-card-header-min-height` (2rem unless set), for a card whose actions are smaller, a
+ *   chart card's chip. The header, the action area, the content and the
  *   footer leave the layout while they hold nothing to show: a card of content only keeps no empty
  *   band and no gap for one.
  */
@@ -63,11 +69,14 @@ const KIT_CARD = {
   },
   header: {
     drop: ['rounded-t-xl'],
-    add: 'min-h-8 [&:not(:has([data-slot=card-title],[data-slot=card-description],[data-slot=card-action]:not(:empty)))]:hidden',
+    add: 'min-h-[var(--neat-card-header-min-height,2rem)] [&:not(:has([data-slot=card-title],[data-slot=card-description],[data-slot=card-action]:not(:empty)))]:hidden',
   },
-  title: { drop: ['text-base'], add: 'text-sm' },
+  title: { drop: ['text-base'], add: 'text-sm self-baseline' },
   description: { drop: ['text-sm'], add: 'text-xs' },
-  action: { drop: [], add: 'empty:hidden' },
+  action: {
+    drop: ['row-span-2', 'self-start'],
+    add: 'flex items-center gap-(--neat-space-2) self-baseline empty:hidden',
+  },
   content: { drop: [], add: 'empty:hidden' },
   footer: { drop: ['rounded-b-xl'], add: 'empty:hidden' },
 } as const;
@@ -97,7 +106,9 @@ export const CARD_KIT_DROPPED = KIT_CARD;
  *
  * The title stands at the start of the header, the subtitle under it; elements with the attribute
  * `neatCardActions` go to the header's end, elements with `neatCardFooter` to the footer, and
- * everything else is the content. The attributes are selectors of the card, not directives, so
+ * everything else is the content. An element with `neatCardTitle` stands in the title's heading in
+ * place of its text (a button, say); the `title` still names the card. The attributes are
+ * selectors of the card, not directives, so
  * they need no import and cannot be forgotten into silence. The header, the footer and the
  * actions area are always in the template and leave the layout while empty: a card without a
  * title, a subtitle or actions has no header, and actions alone still sit at the header's end.
@@ -121,7 +132,9 @@ export const CARD_KIT_DROPPED = KIT_CARD;
   template: `
     <div data-slot="card-header" [class]="headerClasses">
       @if (title()) {
-        <h2 data-slot="card-title" [class]="titleClasses" [id]="titleId">{{ title() }}</h2>
+        <h2 data-slot="card-title" [class]="titleClasses" [id]="titleId">
+          <ng-content select="[neatCardTitle]">{{ title() }}</ng-content>
+        </h2>
       }
       @if (subtitle()) {
         <p data-slot="card-description" [class]="descriptionClasses">{{ subtitle() }}</p>

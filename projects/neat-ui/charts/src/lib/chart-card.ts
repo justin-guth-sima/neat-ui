@@ -7,6 +7,7 @@ import {
   input,
   output,
 } from '@angular/core';
+import { NeatCard } from '@sima/neat-ui/card';
 
 /** The elements that handle a click of their own. */
 const CONTROLS = 'a[href], button, input, select, textarea, summary, [contenteditable="true"]';
@@ -34,11 +35,13 @@ const CONTROLS = 'a[href], button, input, select, textarea, summary, [contentedi
  * in the content (a button, a link, a form field) handles its own click and leaves the card alone.
  * Not selectable, the heading is text and the card handles no clicks.
  *
- * The card is the fill of `--card`, so it sets `--neat-surface` to it for the charts' label halos.
- * It does not clip its content or make a stacking context: a readout can hang below its plot.
+ * The card is a `NeatCard` (the frame, the `--card` fill, `--neat-surface` for the charts' label
+ * halos, no clipping and no stacking context: a readout can hang below its plot); the chart card
+ * adds the selected look and what goes in it.
  */
 @Component({
   selector: 'neat-chart-card',
+  imports: [NeatCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[attr.data-selectable]': 'selectable() ? "" : null',
@@ -47,30 +50,35 @@ const CONTROLS = 'a[href], button, input, select, textarea, summary, [contentedi
     '(click)': 'onClick($event)',
   },
   template: `
-    <div class="head">
-      <span class="heading">
-        @if (selectable()) {
-          <button type="button" class="activator" [attr.aria-current]="selected() ? 'true' : null">
-            {{ heading() }}
-          </button>
-        } @else {
+    <neat-card class="card" [title]="heading()">
+      @if (selectable()) {
+        <button
+          type="button"
+          neatCardTitle
+          class="activator"
+          [attr.aria-current]="selected() ? 'true' : null"
+        >
           {{ heading() }}
+        </button>
+      } @else {
+        <span neatCardTitle>{{ heading() }}</span>
+      }
+      <ng-content select="[neatChartCardChip]" ngProjectAs="[neatCardActions]" />
+      <div class="body">
+        @if (value()) {
+          <div class="value">
+            {{ value() }}
+            @if (unit()) {
+              <span class="unit">{{ unit() }}</span>
+            }
+          </div>
         }
-      </span>
-      <ng-content select="[neatChartCardChip]" />
-    </div>
-    @if (value()) {
-      <div class="value">
-        {{ value() }}
-        @if (unit()) {
-          <span class="unit">{{ unit() }}</span>
+        @if (caption()) {
+          <div class="caption">{{ caption() }}</div>
         }
+        <ng-content />
       </div>
-    }
-    @if (caption()) {
-      <div class="caption">{{ caption() }}</div>
-    }
-    <ng-content />
+    </neat-card>
   `,
   styleUrl: './chart-card.css',
 })

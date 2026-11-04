@@ -7,7 +7,7 @@ async function render() {
   const host = fixture.nativeElement as HTMLElement;
   const card = (heading: string) =>
     Array.from(host.querySelectorAll<HTMLElement>('neat-chart-card')).find((c) =>
-      c.querySelector('.heading')?.textContent?.includes(heading),
+      c.querySelector('[data-slot="card-title"]')?.textContent?.includes(heading),
     )!;
   const chosen = () => host.querySelector('.chosen')?.textContent?.trim();
   const click = async (element: Element) => {

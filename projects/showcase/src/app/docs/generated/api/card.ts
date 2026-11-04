@@ -45,7 +45,23 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " to the footer, and everything else is the content. The attributes are selectors of the card, not directives, so they need no import and cannot be forgotten into silence. The header, the footer and the actions area are always in the template and leave the layout while empty: a card without a title, a subtitle or actions has no header, and actions alone still sit at the header's end."
+              "text": " to the footer, and everything else is the content. An element with "
+            },
+            {
+              "kind": "code",
+              "text": "neatCardTitle"
+            },
+            {
+              "kind": "text",
+              "text": " stands in the title's heading in place of its text (a button, say); the "
+            },
+            {
+              "kind": "code",
+              "text": "title"
+            },
+            {
+              "kind": "text",
+              "text": " still names the card. The attributes are selectors of the card, not directives, so they need no import and cannot be forgotten into silence. The header, the footer and the actions area are always in the template and leave the layout while empty: a card without a title, a subtitle or actions has no header, and actions alone still sit at the header's end."
             }
           ]
         },

@@ -120,7 +120,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The card is the fill of "
+              "text": "The card is a "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatCard",
+              "name": "NeatCard"
+            },
+            {
+              "kind": "text",
+              "text": " (the frame, the "
             },
             {
               "kind": "code",
@@ -128,7 +137,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", so it sets "
+              "text": " fill, "
             },
             {
               "kind": "code",
@@ -136,7 +145,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " to it for the charts' label halos. It does not clip its content or make a stacking context: a readout can hang below its plot."
+              "text": " for the charts' label halos, no clipping and no stacking context: a readout can hang below its plot); the chart card adds the selected look and what goes in it."
             }
           ]
         }
