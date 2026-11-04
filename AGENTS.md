@@ -86,7 +86,8 @@ look happens in one place. Every rule here protects that.
     metric charts, drawn as SVG but for the heatmap: `NeatSparkline`, `NeatTimeChart`,
     `NeatStackedChart` and `NeatHeatmap`, `NeatChartCard`, the card they sit on, `NeatScoreBars`
     (a classifier's scores as labelled bars, with `NeatScore` and `neatLabelColour`, the one rule
-    that colours a label like the bars do, for an app's own timeline of the same labels) and the
+    that colours a label like the bars do), `NeatLabelTimeline` (the classifier's recent results
+    as coloured runs over a time axis, with `NeatLabelRun`, coloured by the same rule) and the
     primary's `NeatSeriesSwatch` again; with `diagram`, the only code that imports d3), `diagram`
     (hand-placed diagrams: their model, `NeatDiagramView` (`neat-diagram`) with its templates,
     `NeatDiagramLegend` (`neat-diagram-legend`), `NeatDiagramMessages` (`neat-diagram-messages`)

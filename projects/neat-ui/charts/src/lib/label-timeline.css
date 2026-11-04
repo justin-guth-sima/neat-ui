@@ -1,0 +1,41 @@
+/* The strip is the runs over their axis; the runs are positioned in percent of the window. */
+:host {
+  display: block;
+}
+
+.runs {
+  position: relative;
+  height: 64px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A bar with a card-coloured edge on its right, so runs of one colour side by side stay apart. */
+.run {
+  position: absolute;
+  top: 0;
+  height: 28px;
+  background: var(--run);
+  border-right: 2px solid var(--card);
+}
+
+/* The label hangs below its bar from a rule at the bar's start; the bar's width never clips it. */
+.name {
+  position: absolute;
+  top: 34px;
+  left: 0;
+  padding-left: 4px;
+  border-left: 1px solid var(--border);
+  font-size: var(--neat-text-xs);
+  line-height: 2.4;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+}

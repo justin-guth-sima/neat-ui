@@ -604,6 +604,263 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/charts/src/lib/heatmap.ts"
     },
     {
+      "name": "NeatLabelRun",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "label",
+          "type": "string",
+          "doc": []
+        },
+        {
+          "name": "startMs",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Epoch milliseconds."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "endMs",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Epoch milliseconds; a run that ends before it starts is not drawn."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A stretch of time in which a classifier kept giving one label."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/charts/src/lib/label-timeline.ts"
+    },
+    {
+      "name": "NeatLabelTimeline",
+      "kind": "component",
+      "selector": "neat-label-timeline",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A classifier's recent results as a strip of coloured runs, newest at the right:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-label-timeline\n  label=\"Last 30 s\"\n  [runs]=\"runs\"\n  [nowMs]=\"nowMs\"\n  [labels]=\"classes\"\n  [quiet]=\"['No gesture']\"\n/>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It draws the window from "
+            },
+            {
+              "kind": "code",
+              "text": "nowMs - windowMs"
+            },
+            {
+              "kind": "text",
+              "text": " to "
+            },
+            {
+              "kind": "code",
+              "text": "nowMs"
+            },
+            {
+              "kind": "text",
+              "text": ", left to right, under an axis of four ticks (−30 s, −20 s, −10 s and now for the default window). The app moves the window by passing a later "
+            },
+            {
+              "kind": "code",
+              "text": "nowMs"
+            },
+            {
+              "kind": "text",
+              "text": "; the strip has no clock of its own, so a test or a replay sets the time. A run is placed by its times and clipped to the window; one that ends before it starts, lies outside the window or has a time that is not a number is not drawn. Runs that overlap are drawn in the order of "
+            },
+            {
+              "kind": "code",
+              "text": "runs"
+            },
+            {
+              "kind": "text",
+              "text": ", the later on top, so the app decides which wins. A run at least 12 % of the window wide shows its label beneath it, unless the label is "
+            },
+            {
+              "kind": "code",
+              "text": "quiet"
+            },
+            {
+              "kind": "text",
+              "text": "; a narrower one would only collide with its neighbour's. Colours come from "
+            },
+            {
+              "kind": "ref",
+              "text": "neatLabelColour",
+              "name": "neatLabelColour"
+            },
+            {
+              "kind": "text",
+              "text": ", as in "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatScoreBars",
+              "name": "NeatScoreBars"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The host is a group named by "
+            },
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": " that holds a list with one item per drawn run, named by its label and its span in seconds, so a screen reader gets the runs the label text leaves out."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "runs",
+          "type": "readonly NeatLabelRun[]",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The runs to draw, in the order that decides which of two overlapping ones is on top."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "nowMs",
+          "type": "number",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The right edge of the window, epoch milliseconds."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "windowMs",
+          "type": "number",
+          "default": "30_000",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How much time the strip shows, in milliseconds."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "labels",
+          "type": "readonly string[]",
+          "default": "[]",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The colour order of the labels; empty means no label has a colour of its own."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "quiet",
+          "type": "readonly string[]",
+          "default": "[]",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Labels drawn in the muted colour and never named, such as \"No gesture\"."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Names the strip."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/charts/src/lib/label-timeline.ts"
+    },
+    {
       "name": "NeatReference",
       "kind": "interface",
       "members": [

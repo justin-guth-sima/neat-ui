@@ -7,6 +7,7 @@ describe('the charts entry', () => {
     expect(Object.keys(charts).sort()).toEqual([
       'NeatChartCard',
       'NeatHeatmap',
+      'NeatLabelTimeline',
       'NeatScoreBars',
       'NeatSeriesSwatch',
       'NeatSparkline',

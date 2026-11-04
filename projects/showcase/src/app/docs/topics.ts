@@ -788,6 +788,19 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
+            id: 'label-timeline',
+            label: 'Label timeline',
+            parts: ['NeatLabelTimeline', 'NeatLabelRun'],
+            leads: ['NeatLabelTimeline'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/charts'),
+                import('./generated/examples/label-timeline'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'chart-card',
             label: 'Chart card',
             parts: ['NeatChartCard'],
