@@ -113,6 +113,20 @@ describe('NeatLabelTimeline', () => {
     ]);
   });
 
+  it('colours by first appearance when no labels are given', async () => {
+    const { runs } = await render(
+      [run('B', 30, 20), run('Q', 20, 15), run('A', 15, 10), run('B', 10, 0)],
+      (host) => host.quiet.set(['Q']),
+    );
+
+    expect(runs.map((element) => element.style.getPropertyValue('--run'))).toEqual([
+      'var(--neat-series-1)',
+      'var(--muted-foreground)',
+      'var(--neat-series-3)',
+      'var(--neat-series-1)',
+    ]);
+  });
+
   it('labels the axis for the window', async () => {
     expect((await render([])).ticks).toEqual(['−30 s', '−20 s', '−10 s', 'now']);
     expect((await render([], (host) => host.windowMs.set(60_000))).ticks).toEqual([

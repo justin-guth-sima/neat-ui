@@ -729,7 +729,23 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", as in "
+              "text": ", by the label's place in "
+            },
+            {
+              "kind": "code",
+              "text": "labels"
+            },
+            {
+              "kind": "text",
+              "text": " (empty means the order in which labels first appear in "
+            },
+            {
+              "kind": "code",
+              "text": "runs"
+            },
+            {
+              "kind": "text",
+              "text": "), as in "
             },
             {
               "kind": "ref",
@@ -819,7 +835,15 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The colour order of the labels; empty means no label has a colour of its own."
+                  "text": "The colour order of the labels; empty means the order of first appearance in "
+                },
+                {
+                  "kind": "code",
+                  "text": "runs"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
                 }
               ]
             }

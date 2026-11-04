@@ -49,7 +49,8 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
  * outside the window or has a time that is not a number is not drawn. Runs that overlap are drawn
  * in the order of `runs`, the later on top, so the app decides which wins. A run at least 12 % of
  * the window wide shows its label beneath it, unless the label is `quiet`; a narrower one would
- * only collide with its neighbour's. Colours come from `neatLabelColour`, as in `NeatScoreBars`.
+ * only collide with its neighbour's. Colours come from `neatLabelColour`, by the label's place in
+ * `labels` (empty means the order in which labels first appear in `runs`), as in `NeatScoreBars`.
  *
  * The host is a group named by `label` that holds a list with one item per drawn run, named by its
  * label and its span in seconds, so a screen reader gets the runs the label text leaves out.
@@ -94,7 +95,7 @@ export class NeatLabelTimeline {
   readonly nowMs = input.required<number>();
   /** How much time the strip shows, in milliseconds. */
   readonly windowMs = input(30_000);
-  /** The colour order of the labels; empty means no label has a colour of its own. */
+  /** The colour order of the labels; empty means the order of first appearance in `runs`. */
   readonly labels = input<readonly string[]>([]);
   /** Labels drawn in the muted colour and never named, such as "No gesture". */
   readonly quiet = input<readonly string[]>([]);
@@ -106,6 +107,7 @@ export class NeatLabelTimeline {
     const window = this.windowMs();
     if (!isNumber(now) || !isNumber(window) || window <= 0) return [];
     const from = now - window;
+    const order = this.labels().length > 0 ? this.labels() : this.runs().map((run) => run.label);
     const bars: Bar[] = [];
     for (const { label, startMs, endMs } of this.runs()) {
       if (!isNumber(startMs) || !isNumber(endMs)) continue;
@@ -117,7 +119,7 @@ export class NeatLabelTimeline {
         label,
         left: ((start - from) / window) * 100,
         width: width * 100,
-        colour: neatLabelColour(label, this.labels(), this.quiet()),
+        colour: neatLabelColour(label, order, this.quiet()),
         named: width >= NAMED_SHARE && !this.quiet().includes(label),
         span: spoken(label, now - start, now - end),
       });
