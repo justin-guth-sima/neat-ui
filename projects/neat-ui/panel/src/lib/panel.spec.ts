@@ -1,10 +1,14 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { stylesheet } from '../../../charts/src/lib/css.testing';
 import { NeatPanel } from './panel';
 import panelStyles from './panel.css' with { loader: 'text' };
 
-const { rule, declared } = stylesheet(panelStyles);
+/** The value a rule with exactly this selector declares for a property, or `undefined`. */
+function declared(selector: string, property: string): string | undefined {
+  const escaped = selector.replace(/[.:()[\]]/g, '\\$&');
+  const body = new RegExp(`(?:^|\\n)${escaped}\\s*\\{([^}]*)\\}`).exec(panelStyles)?.[1] ?? '';
+  return new RegExp(`(?:^|[;\\s])${property}:\\s*([^;]+);`).exec(body)?.[1];
+}
 
 // Only NeatPanel is imported: the actions attribute is the panel's own selector.
 @Component({
@@ -73,7 +77,7 @@ describe('NeatPanel', () => {
     expect(declared(':host', '--neat-surface')).toBe('var(--card)');
     expect(declared(':host', 'background')).toBe('var(--card)');
     expect(declared(':host', 'color')).toBe('var(--card-foreground)');
-    expect(rule(':host')).not.toContain('!important');
+    expect(panelStyles).not.toContain('!important');
   });
 
   it('projects the body', async () => {
