@@ -15,6 +15,8 @@ interface Row {
   /** The score clamped to 0..1, `0` for a value that is not a number. */
   readonly clamped: number;
   readonly text: string;
+  /** Whether the value was a number; a row that was not reads "no value", not 0. */
+  readonly numeric: boolean;
   readonly colour: string;
 }
 
@@ -49,7 +51,7 @@ interface Row {
   },
   template: `
     @for (row of rows(); track $index) {
-      <div class="row" data-slot="score-row" [attr.data-top]="$index === top() ? '' : null">
+      <div class="row" data-slot="score-bars-row" [attr.data-top]="$index === top() ? '' : null">
         <span class="name">{{ row.label }}</span>
         <span
           class="track"
@@ -57,6 +59,7 @@ interface Row {
           aria-valuemin="0"
           aria-valuemax="1"
           [attr.aria-valuenow]="row.clamped"
+          [attr.aria-valuetext]="row.numeric ? null : 'no value'"
           [attr.aria-label]="row.label"
         >
           <span class="fill" [style.width.%]="row.clamped * 100" [style.--fill]="row.colour"></span>
@@ -74,17 +77,20 @@ export class NeatScoreBars {
   readonly labels = input<readonly string[]>([]);
   /** Labels drawn in the muted colour, such as "No gesture". */
   readonly quiet = input<readonly string[]>([]);
-  /** Names the list. */
+  /** Names the group of bars. */
   readonly label = input.required<string>();
 
   protected readonly rows = computed<readonly Row[]>(() => {
     const scores = this.scores();
-    const order = this.labels().length > 0 ? this.labels() : scores.map((score) => score.label);
+    // Distinct, so a repeated label does not push the next one's place in the palette on.
+    const order =
+      this.labels().length > 0 ? this.labels() : [...new Set(scores.map((score) => score.label))];
     return scores.map(({ label, value }) => {
       const clamped = isNumber(value) ? Math.min(1, Math.max(0, value)) : 0;
       return {
         label,
         clamped,
+        numeric: isNumber(value),
         text: isNumber(value) ? clamped.toFixed(2) : '–',
         colour: neatLabelColour(label, order, this.quiet()),
       };

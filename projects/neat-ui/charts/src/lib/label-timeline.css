@@ -11,16 +11,19 @@
   list-style: none;
 }
 
-/* A bar with a card-coloured edge on its right, so runs of one colour side by side stay apart. */
+/* A bar with an edge on its right in the surface it sits on, so runs of one colour side by side stay apart. */
 .run {
   position: absolute;
   top: 0;
   height: 28px;
   background: var(--run);
-  border-right: 2px solid var(--card);
+  border-right: 2px solid var(--neat-surface);
 }
 
-/* The label hangs below its bar from a rule at the bar's start; the bar's width never clips it. */
+/*
+ * The label hangs below its bar from a rule at the bar's start. It stays inside its run: a name
+ * longer than the run is cut with an ellipsis rather than running under the next run's name.
+ */
 .name {
   position: absolute;
   top: 34px;
@@ -30,6 +33,9 @@
   font-size: var(--neat-text-xs);
   line-height: 2.4;
   color: var(--muted-foreground);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

@@ -28,7 +28,7 @@ async function render(values: readonly number[], labels: readonly string[] = [])
   return {
     fixture,
     host,
-    rows: Array.from<HTMLElement>(host.querySelectorAll('[data-slot="score-row"]')),
+    rows: Array.from<HTMLElement>(host.querySelectorAll('[data-slot="score-bars-row"]')),
   };
 }
 
@@ -88,6 +88,12 @@ describe('NeatScoreBars', () => {
     const meters = rows.map((row) => row.querySelector('[role="meter"]')!);
 
     expect(meters.map((meter) => meter.getAttribute('aria-valuenow'))).toEqual(['1', '0.25', '0']);
+    // A row with no value is not a score of 0: it says so.
+    expect(meters.map((meter) => meter.getAttribute('aria-valuetext'))).toEqual([
+      null,
+      null,
+      'no value',
+    ]);
     expect(meters.every((meter) => meter.getAttribute('aria-valuemin') === '0')).toBe(true);
     expect(meters.every((meter) => meter.getAttribute('aria-valuemax') === '1')).toBe(true);
     expect(meters.map((meter) => meter.getAttribute('aria-label'))).toEqual([
@@ -109,6 +115,23 @@ describe('NeatScoreBars', () => {
       'var(--neat-series-1)',
       'var(--muted-foreground)',
       'var(--neat-chip-neutral)',
+    ]);
+  });
+
+  it('counts a repeated label once when it orders colours by first appearance', async () => {
+    const fixture = TestBed.createComponent(ScoreBarsHost);
+    fixture.componentInstance.scores.set([
+      { label: 'A', value: 0.5 },
+      { label: 'A', value: 0.3 },
+      { label: 'B', value: 0.2 },
+    ]);
+    await fixture.whenStable();
+    const fills = Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('.fill'));
+
+    expect(fills.map((fill) => fill.style.getPropertyValue('--fill'))).toEqual([
+      'var(--neat-series-1)',
+      'var(--neat-series-1)',
+      'var(--neat-series-2)',
     ]);
   });
 

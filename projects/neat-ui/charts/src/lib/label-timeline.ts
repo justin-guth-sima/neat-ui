@@ -26,6 +26,13 @@ const NAMED_SHARE = 0.12;
 /** The axis marks the window's start, its end and two points that divide it in thirds. */
 const TICKS = 3;
 
+/**
+ * A quiet run's fill. `neatLabelColour` gives a quiet label `--muted-foreground`, a colour for
+ * text; here the label fills a stretch of the strip, and a quiet class often fills most of the
+ * window, so it takes the lighter `--muted` and is never the strip's heaviest mark.
+ */
+const QUIET_FILL = 'var(--muted)';
+
 /** Seconds with at most one decimal, so 8.5 stays 8.5 and 20 stays 20. */
 const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
 
@@ -51,9 +58,12 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
  * the window wide shows its label beneath it, unless the label is `quiet`; a narrower one would
  * only collide with its neighbour's. Colours come from `neatLabelColour`, by the label's place in
  * `labels` (empty means the order in which labels first appear in `runs`), as in `NeatScoreBars`.
+ * The one difference is a `quiet` label: its run is filled with `--muted`, not the
+ * `--muted-foreground` that `neatLabelColour` returns for text and the score bars use, because a
+ * quiet class fills most of the window and must not be its heaviest mark.
  *
  * The host is a group named by `label` that holds a list with one item per drawn run, named by its
- * label and its span in seconds, so a screen reader gets the runs the label text leaves out.
+ * label and its span in seconds (as visually hidden text in the item), so a screen reader gets the runs the label text leaves out.
  */
 @Component({
   selector: 'neat-label-timeline',
@@ -67,13 +77,13 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
       @for (bar of bars(); track $index) {
         <li
           class="run"
-          data-slot="timeline-run"
+          data-slot="label-timeline-run"
           [attr.data-label]="bar.label"
-          [attr.aria-label]="bar.span"
           [style.left.%]="bar.left"
           [style.width.%]="bar.width"
           [style.--run]="bar.colour"
         >
+          <span class="sr-only">{{ bar.span }}</span>
           @if (bar.named) {
             <span class="name" aria-hidden="true">{{ bar.label }}</span>
           }
@@ -82,7 +92,7 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
     </ul>
     <div class="axis" aria-hidden="true">
       @for (tick of ticks(); track $index) {
-        <span data-slot="timeline-tick">{{ tick }}</span>
+        <span data-slot="label-timeline-tick">{{ tick }}</span>
       }
     </div>
   `,
@@ -107,7 +117,10 @@ export class NeatLabelTimeline {
     const window = this.windowMs();
     if (!isNumber(now) || !isNumber(window) || window <= 0) return [];
     const from = now - window;
-    const order = this.labels().length > 0 ? this.labels() : this.runs().map((run) => run.label);
+    // Distinct, so a repeated label does not push the next one's place in the palette on.
+    const order =
+      this.labels().length > 0 ? this.labels() : [...new Set(this.runs().map((run) => run.label))];
+    const quiet = this.quiet();
     const bars: Bar[] = [];
     for (const { label, startMs, endMs } of this.runs()) {
       if (!isNumber(startMs) || !isNumber(endMs)) continue;
@@ -119,8 +132,8 @@ export class NeatLabelTimeline {
         label,
         left: ((start - from) / window) * 100,
         width: width * 100,
-        colour: neatLabelColour(label, order, this.quiet()),
-        named: width >= NAMED_SHARE && !this.quiet().includes(label),
+        colour: quiet.includes(label) ? QUIET_FILL : neatLabelColour(label, order, quiet),
+        named: width >= NAMED_SHARE && !quiet.includes(label),
         span: spoken(label, now - start, now - end),
       });
     }
@@ -130,6 +143,7 @@ export class NeatLabelTimeline {
   /** The axis, oldest tick first; the last is "now". */
   protected readonly ticks = computed(() => {
     const window = this.windowMs();
+    if (!isNumber(window) || window <= 0) return [];
     return Array.from({ length: TICKS + 1 }, (_, index) =>
       index === TICKS ? 'now' : `−${inSeconds((window * (TICKS - index)) / TICKS)} s`,
     );

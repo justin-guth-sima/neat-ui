@@ -754,7 +754,40 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "."
+              "text": ". The one difference is a "
+            },
+            {
+              "kind": "code",
+              "text": "quiet"
+            },
+            {
+              "kind": "text",
+              "text": " label: its run is filled with "
+            },
+            {
+              "kind": "code",
+              "text": "--muted"
+            },
+            {
+              "kind": "text",
+              "text": ", not the "
+            },
+            {
+              "kind": "code",
+              "text": "--muted-foreground"
+            },
+            {
+              "kind": "text",
+              "text": " that "
+            },
+            {
+              "kind": "ref",
+              "text": "neatLabelColour",
+              "name": "neatLabelColour"
+            },
+            {
+              "kind": "text",
+              "text": " returns for text and the score bars use, because a quiet class fills most of the window and must not be its heaviest mark."
             }
           ]
         },
@@ -771,7 +804,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " that holds a list with one item per drawn run, named by its label and its span in seconds, so a screen reader gets the runs the label text leaves out."
+              "text": " that holds a list with one item per drawn run, named by its label and its span in seconds (as visually hidden text in the item), so a screen reader gets the runs the label text leaves out."
             }
           ]
         }
@@ -1120,7 +1153,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Names the list."
+                  "text": "Names the group of bars."
                 }
               ]
             }
@@ -2187,7 +2220,23 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " for a label in neither list. One function, so the score bars and an app's timeline of the same labels cannot colour them differently."
+              "text": " for a label in neither list. One function, so the score bars and an app's timeline of the same labels cannot colour them differently. The one exception is the timeline's quiet runs: they fill a stretch of the strip, often most of the window, so the timeline fills them with "
+            },
+            {
+              "kind": "code",
+              "text": "--muted"
+            },
+            {
+              "kind": "text",
+              "text": " instead and the quiet class is never its heaviest mark; the score bars' quiet fill stays "
+            },
+            {
+              "kind": "code",
+              "text": "--muted-foreground"
+            },
+            {
+              "kind": "text",
+              "text": "."
             }
           ]
         }

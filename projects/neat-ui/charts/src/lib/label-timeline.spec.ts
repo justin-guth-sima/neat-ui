@@ -1,6 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { stylesheet } from './css.testing';
+import { neatLabelColour } from './label-colour';
 import { type NeatLabelRun, NeatLabelTimeline } from './label-timeline';
+import timelineStyles from './label-timeline.css' with { loader: 'text' };
+
+const { declared } = stylesheet(timelineStyles);
 
 const NOW = 1_000_000;
 
@@ -38,12 +43,15 @@ async function render(runs: readonly NeatLabelRun[], setup?: (host: TimelineHost
   const host = fixture.nativeElement as HTMLElement;
   return {
     host,
-    runs: Array.from<HTMLElement>(host.querySelectorAll('[data-slot="timeline-run"]')),
-    ticks: Array.from(host.querySelectorAll('[data-slot="timeline-tick"]')).map((tick) =>
+    runs: Array.from<HTMLElement>(host.querySelectorAll('[data-slot="label-timeline-run"]')),
+    ticks: Array.from(host.querySelectorAll('[data-slot="label-timeline-tick"]')).map((tick) =>
       tick.textContent?.trim(),
     ),
   };
 }
+
+/** The text a screen reader gets for a run: the visually hidden span inside the item. */
+const spoken = (element: HTMLElement) => element.querySelector('.sr-only')?.textContent?.trim();
 
 const named = (element: HTMLElement) => element.querySelector('.name')?.textContent?.trim();
 
@@ -74,9 +82,7 @@ describe('NeatLabelTimeline', () => {
       run('Kept', 20, 10),
     ]);
 
-    expect(runs.map((element) => element.getAttribute('aria-label'))).toEqual([
-      'Kept, 20 s to 10 s ago',
-    ]);
+    expect(runs.map(spoken)).toEqual(['Kept, 20 s to 10 s ago']);
   });
 
   it('draws overlaps in input order', async () => {
@@ -108,9 +114,16 @@ describe('NeatLabelTimeline', () => {
     expect(runs.map((element) => element.style.getPropertyValue('--run'))).toEqual([
       'var(--neat-series-2)',
       'var(--neat-series-1)',
-      'var(--muted-foreground)',
+      'var(--muted)',
       'var(--neat-chip-neutral)',
     ]);
+  });
+
+  it('fills a quiet run with --muted, the score bars keeping neatLabelColour', async () => {
+    const { runs } = await render([run('Q', 30, 0)], (host) => host.quiet.set(['Q']));
+
+    expect(runs[0].style.getPropertyValue('--run')).toBe('var(--muted)');
+    expect(neatLabelColour('Q', [], ['Q'])).toBe('var(--muted-foreground)');
   });
 
   it('colours by first appearance when no labels are given', async () => {
@@ -121,10 +134,33 @@ describe('NeatLabelTimeline', () => {
 
     expect(runs.map((element) => element.style.getPropertyValue('--run'))).toEqual([
       'var(--neat-series-1)',
-      'var(--muted-foreground)',
+      'var(--muted)',
       'var(--neat-series-3)',
       'var(--neat-series-1)',
     ]);
+  });
+
+  it('counts a repeated label once when it orders colours by first appearance', async () => {
+    const { runs } = await render([run('A', 30, 20), run('A', 20, 10), run('B', 10, 0)]);
+
+    expect(runs.map((element) => element.style.getPropertyValue('--run'))).toEqual([
+      'var(--neat-series-1)',
+      'var(--neat-series-1)',
+      'var(--neat-series-2)',
+    ]);
+  });
+
+  it('draws no axis for a window that is not a positive number', async () => {
+    for (const windowMs of [0, -1, Number.NaN]) {
+      expect((await render([], (host) => host.windowMs.set(windowMs))).ticks).toEqual([]);
+    }
+  });
+
+  it('keeps a run name inside its run, cut with an ellipsis', () => {
+    expect(declared('.name', 'max-width')).toBe('100%');
+    expect(declared('.name', 'overflow')).toBe('hidden');
+    expect(declared('.name', 'text-overflow')).toBe('ellipsis');
+    expect(declared('.run', 'border-right')).toBe('2px solid var(--neat-surface)');
   });
 
   it('labels the axis for the window', async () => {
@@ -144,7 +180,7 @@ describe('NeatLabelTimeline', () => {
       'Recent gestures',
     );
     expect(host.querySelector('ul')?.getAttribute('role')).toBe('list');
-    expect(runs.map((element) => element.getAttribute('aria-label'))).toEqual([
+    expect(runs.map(spoken)).toEqual([
       'Zoom in, 20 s to 10 s ago',
       'Throw up, 8.5 s ago to now',
     ]);
