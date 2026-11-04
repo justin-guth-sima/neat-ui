@@ -53,7 +53,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " stands in the title's place (a button, say), as it is, with no heading role; only the "
+              "text": " stands in the title's place (a button, say), as it is, inside the title's element: with "
             },
             {
               "kind": "code",
@@ -61,7 +61,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " text is a heading. The attributes are selectors of the card, not directives, so they need no import and cannot be forgotten into silence. The header, the footer and the actions area are always in the template and leave the layout while empty: a card without a title, a subtitle or actions has no header, and actions alone still sit at the header's end."
+              "text": " text as well, that element is in the heading and names the region, and without it the card has no heading role. The attributes are selectors of the card, not directives, so they need no import and cannot be forgotten into silence. The header, the footer and the actions area are always in the template and leave the layout while empty: a card without a title, a subtitle or actions has no header, and actions alone still sit at the header's end."
             }
           ]
         },

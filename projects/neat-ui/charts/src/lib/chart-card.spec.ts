@@ -308,7 +308,8 @@ describe('NeatChartCard', () => {
     expect(declared(':host', 'background')).toBeUndefined();
     expect(rule(':host')).not.toMatch(CLIPS_OR_STACKS);
     expect(declared(':host', 'position')).toBeUndefined();
-    expect(card.className).not.toMatch(/overflow|z-\d|isolat|transform|opacity/);
+    // `overflow-visible` is the card's neutraliser of helm's `overflow-hidden`: no clipping.
+    expect(card.className).not.toMatch(/overflow-(?!visible)|z-\d|isolat|transform|opacity/);
   });
 
   describe('contrast, from the emitted theme tokens', () => {

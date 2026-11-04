@@ -19,7 +19,7 @@ import helmHeader from '../../../src/lib/ui/card/src/lib/hlm-card-header.ts?sour
 import helmTitle from '../../../src/lib/ui/card/src/lib/hlm-card-title.ts?source' with {
   loader: 'text',
 };
-import { CARD_HELM_CLASSES, CARD_KIT_DROPPED, kitCardClasses, NeatCard } from './card';
+import { CARD_CLASSES, CARD_HELM_CLASSES, NeatCard } from './card';
 import cardStyles from './card.css' with { loader: 'text' };
 
 /** The variant that takes the header out of the layout while it holds nothing to show. */
@@ -201,16 +201,16 @@ describe('NeatCard', () => {
     const { card } = await render();
 
     expect(declared(':host', '--neat-surface')).toBe('var(--card)');
-    expect(declared(':host', 'color')).toBe('var(--card-foreground)');
+    expect(declared(':host', 'color')).toBeUndefined();
     expect(cardStyles).not.toContain('!important');
     expect(card.className).toContain('bg-card');
     expect(card.className).toContain('text-card-foreground');
   });
 
-  it('draws every part with helm’s classes restyled by the kit', async () => {
+  it('draws every part with the module’s class strings, the same for each card', async () => {
     const { card, slot } = await render();
 
-    expect(Array.from(card.classList).sort()).toEqual(kitCardClasses('card').split(' ').sort());
+    expect(Array.from(card.classList).sort()).toEqual(CARD_CLASSES.card.split(' ').sort());
     for (const [name, key] of [
       ['card-header', 'header'],
       ['card-title', 'title'],
@@ -220,38 +220,61 @@ describe('NeatCard', () => {
       ['card-footer', 'footer'],
     ] as const) {
       expect(Array.from(slot(name)!.classList).sort()).toEqual(
-        kitCardClasses(key).split(' ').sort(),
+        CARD_CLASSES[key].split(' ').sort(),
       );
     }
   });
 
   it('has the chart card’s frame: a border, the radius, no ring, shadow or clipping', () => {
-    const classes = kitCardClasses('card').split(' ');
+    const classes = CARD_CLASSES.card.split(' ');
 
     expect(classes).toEqual(
-      expect.arrayContaining(['border', 'border-border', 'rounded-(--radius)']),
+      expect.arrayContaining(['border', 'border-border', 'rounded-(--radius)', 'ring-0']),
     );
+    expect(classes).toEqual(expect.arrayContaining(['shadow-none', 'overflow-visible']));
     expect(classes).toContain('[--card-spacing:var(--neat-space-4)]');
     expect(classes).toContain('gap-(--neat-space-2)');
-    for (const gone of ['ring-1', 'shadow-xs', 'overflow-hidden', 'rounded-xl']) {
+    // Merged away, so no two classes of a kind compete.
+    for (const gone of [
+      'ring-1',
+      'shadow-xs',
+      'overflow-hidden',
+      'rounded-xl',
+      'gap-(--card-spacing)',
+      '[--card-spacing:--spacing(6)]',
+    ]) {
       expect(classes).not.toContain(gone);
     }
-    expect(kitCardClasses('title').split(' ')).toContain('text-sm');
-    expect(kitCardClasses('title').split(' ')).not.toContain('text-base');
-    expect(kitCardClasses('description').split(' ')).toContain('text-xs');
+    expect(CARD_CLASSES.title.split(' ')).toContain('text-sm');
+    // twMerge drops helm's `leading-normal` for `text-sm` (which sets a line height): it is back.
+    expect(CARD_CLASSES.title.split(' ')).toContain('leading-normal');
+    expect(CARD_CLASSES.title.split(' ')).not.toContain('text-base');
+    expect(CARD_CLASSES.description.split(' ')).toContain('text-xs');
+    expect(CARD_CLASSES.description.split(' ')).not.toContain('text-sm');
+    expect(CARD_CLASSES.description.split(' ')).toContain('col-start-1');
   });
 
-  it('keeps the header as tall with actions as without', () => {
-    expect(kitCardClasses('header').split(' ')).toContain(
-      'min-h-[var(--neat-card-header-min-height,2rem)]',
-    );
+  it('keeps the header as tall with actions as without, and no container of its own', () => {
+    const header = CARD_CLASSES.header.split(' ');
+
+    expect(header).toContain('min-h-[var(--neat-card-header-min-height,2rem)]');
+    expect(header).not.toContain('@container/card-header');
+    expect(header).toContain('@container-normal/card-header');
+    expect(header).not.toContain('rounded-t-xl');
+    expect(header).not.toContain('gap-1');
   });
 
-  it('only drops classes that helm still has', () => {
-    for (const [part, { drop }] of Object.entries(CARD_KIT_DROPPED)) {
-      const helm = CARD_HELM_CLASSES[part as keyof typeof CARD_HELM_CLASSES].split(' ');
-      for (const cls of drop) expect(helm).toContain(cls);
-    }
+  it('gives the content the height the card has left', () => {
+    const content = CARD_CLASSES.content.split(' ');
+
+    expect(content).toEqual(expect.arrayContaining(['flex-1', 'min-h-0']));
+  });
+
+  it('spaces several footer elements apart', () => {
+    const footer = CARD_CLASSES.footer.split(' ');
+
+    expect(footer).toContain('gap-(--neat-space-2)');
+    expect(footer).not.toContain('rounded-b-xl');
   });
 
   it('helm drift: the copied class strings still appear in the vendored helm card', () => {

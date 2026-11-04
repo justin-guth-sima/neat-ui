@@ -1,0 +1,25 @@
+/* A row of cards, as tall as the tallest. */
+:host {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--neat-space-4);
+}
+
+p {
+  margin: 0;
+}
+
+/* The picture lies over the frame, which is as tall as the card leaves its content. */
+.frame {
+  position: relative;
+  height: 100%;
+}
+
+.picture {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius);
+}

@@ -2,6 +2,9 @@
 import type { DocsExample } from '../../model';
 import { TitledCardExample } from '../../../examples/card/1-titled-card.example';
 import { ContentOnlyCardExample } from '../../../examples/card/2-content-only.example';
+import { FillingTheRowExample } from '../../../examples/card/3-filling-the-row.example';
+import { ActionsOnlyCardExample } from '../../../examples/card/4-actions-only.example';
+import { TitleButtonCardExample } from '../../../examples/card/5-title-as-a-button.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -48,7 +51,8 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "card.example.css",
         "code": [
-          ["text","p {\n  margin: 0;\n}\n"]
+          ["text","p {\n  margin: 0;\n}\n\n"],
+          ["comment","/* A title that is a button reads as the title does, and as something to click. */"],["text","\n.title-button {\n  padding: 0;\n  border: 0;\n  background: none;\n  color: inherit;\n  font: inherit;\n  cursor: pointer;\n}\n"]
         ]
       }
     ]
@@ -87,7 +91,147 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "card.example.css",
         "code": [
-          ["text","p {\n  margin: 0;\n}\n"]
+          ["text","p {\n  margin: 0;\n}\n\n"],
+          ["comment","/* A title that is a button reads as the title does, and as something to click. */"],["text","\n.title-button {\n  padding: 0;\n  border: 0;\n  background: none;\n  color: inherit;\n  font: inherit;\n  cursor: pointer;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "filling-the-row",
+    "title": "Filling the row example",
+    "component": FillingTheRowExample,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Two cards in a row of equal height. The content takes the height the card has left, so the untitled card gives its image all of it, and a footer stands at the bottom of its card however little there is above it."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/card#NeatCard"
+    ],
+    "files": [
+      {
+        "name": "3-filling-the-row.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatCard } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/card'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-filling-the-row'"],["text",",\n  imports: [NeatCard],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <neat-card>\n      <div class=\"frame\">\n        <img\n          class=\"picture\"\n          alt=\"A grey frame with a lighter square in its middle\"\n          src=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='160' height='90' fill='%23888'/%3E%3Crect x='60' y='25' width='40' height='40' fill='%23ccc'/%3E%3C/svg%3E\"\n        />\n      </div>\n    </neat-card>\n    <neat-card title=\"Camera 1\" subtitle=\"Front door\">\n      <p>Last detection: person, 0.92.</p>\n      <p>Two more in the last minute, one of them a car.</p>\n      <p>Nothing since.</p>\n      <p neatCardFooter>Updated just now</p>\n    </neat-card>\n  `"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./filling-the-row.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," FillingTheRowExample {}\n"]
+        ]
+      },
+      {
+        "name": "filling-the-row.example.css",
+        "code": [
+          ["comment","/* A row of cards, as tall as the tallest. */"],["text","\n:host {\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  gap: var(--neat-space-4);\n}\n\np {\n  margin: 0;\n}\n\n"],
+          ["comment","/* The picture lies over the frame, which is as tall as the card leaves its content. */"],["text","\n.frame {\n  position: relative;\n  height: 100%;\n}\n\n.picture {\n  position: absolute;\n  inset: 0;\n  width: 100%;\n  height: 100%;\n  object-fit: cover;\n  border-radius: var(--radius);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "actions-only",
+    "title": "Actions only card example",
+    "component": ActionsOnlyCardExample,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A card with actions and no title: they still sit at the header's end, and the card is no region."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui#NeatButton",
+      "@sima/neat-ui/card#NeatCard"
+    ],
+    "files": [
+      {
+        "name": "4-actions-only.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatCard } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/card'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-actions-only-card'"],["text",",\n  imports: [NeatButton, NeatCard],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <neat-card>\n      <button neatButton neatCardActions type=\"button\" size=\"small\">Refresh</button>\n      <button neatButton neatCardActions type=\"button\" size=\"small\">Clear</button>\n      <p>yolov8n, 640 by 640.</p>\n    </neat-card>\n  `"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./card.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," ActionsOnlyCardExample {}\n"]
+        ]
+      },
+      {
+        "name": "card.example.css",
+        "code": [
+          ["text","p {\n  margin: 0;\n}\n\n"],
+          ["comment","/* A title that is a button reads as the title does, and as something to click. */"],["text","\n.title-button {\n  padding: 0;\n  border: 0;\n  background: none;\n  color: inherit;\n  font: inherit;\n  cursor: pointer;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "title-as-a-button",
+    "title": "Title button card example",
+    "component": TitleButtonCardExample,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A card whose title is a button, projected with "
+          },
+          {
+            "kind": "code",
+            "text": "neatCardTitle"
+          },
+          {
+            "kind": "text",
+            "text": " in place of the title's text: a card that opens its detail. Without a "
+          },
+          {
+            "kind": "code",
+            "text": "title"
+          },
+          {
+            "kind": "text",
+            "text": " the card has no heading role, so the button is the card's name as a control."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/card#NeatCard"
+    ],
+    "files": [
+      {
+        "name": "5-title-as-a-button.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatCard } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/card'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-title-button-card'"],["text",",\n  imports: [NeatCard],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <neat-card subtitle=\"Click the title\">\n      <button type=\"button\" neatCardTitle class=\"title-button\" (click)=\"opened.set(!opened())\">\n        Detections\n      </button>\n      <p>{{ opened() ? 'Opened.' : 'Closed.' }}</p>\n    </neat-card>\n  `"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./card.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," TitleButtonCardExample {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," opened = signal("],["keyword","false"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "card.example.css",
+        "code": [
+          ["text","p {\n  margin: 0;\n}\n\n"],
+          ["comment","/* A title that is a button reads as the title does, and as something to click. */"],["text","\n.title-button {\n  padding: 0;\n  border: 0;\n  background: none;\n  color: inherit;\n  font: inherit;\n  cursor: pointer;\n}\n"]
         ]
       }
     ]

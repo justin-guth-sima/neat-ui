@@ -1,4 +1,5 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ɵhlm as hlm } from '@sima/neat-ui';
 
 /** Numbers each card, for the id its title has. */
 let nextCardId = 0;
@@ -8,8 +9,7 @@ let nextCardId = 0;
  * constants. card.spec checks that each string still appears in the vendored helm file named
  * here, so a helm update that changes one fails until this table is reviewed.
  *
- * The kit restyles some of them (below, KIT_CARD). Class strings stay literals:
- * Tailwind finds the classes the kit stylesheet needs by reading them.
+ * The kit restyles some of them (below, CARD_CLASSES).
  */
 export const CARD_HELM_CLASSES = {
   /** `hlm-card.ts`: the card, a column of header, content and footer one spacing apart. */
@@ -31,9 +31,12 @@ export const CARD_HELM_CLASSES = {
 
 /**
  * The kit's card look, from helm's: the frame the chart card has always had, so a card and a chart
- * card are one look. Each part names the helm classes it drops and what replaces them, and
- * card.spec checks every dropped class is still in helm's string, so a helm update that renames
- * one fails here instead of leaving two competing classes.
+ * card are one look. Each part is helm's string merged with the kit's classes (`hlm`, as the
+ * dialog's panel is), so a kit class replaces the helm class of its kind and the neutralisers
+ * (`ring-0`, `shadow-none`, `overflow-visible`, `rounded-t-none`, ...) replace the helm classes
+ * the kit has no use for. A helm update that renames one shows up as drift in card.spec, and a
+ * class that no longer merges away shows in its look test. Class strings stay literals: Tailwind
+ * finds the classes the kit stylesheet needs by reading them.
  *
  * - Frame: a 1px `--border` and `--radius` instead of helm's ring, shadow and `rounded-xl`; no
  *   `overflow-hidden`, since a chart's readout can hang below its plot, and no ring or shadow,
@@ -42,6 +45,8 @@ export const CARD_HELM_CLASSES = {
  *   parts sit `--neat-space-2` apart.
  * - Type: the title is `text-sm` (`--neat-text-sm`) as a chart card's heading, the subtitle
  *   `text-xs` (`--neat-text-xs`, the size of a chart card's caption: the kit's secondary line).
+ * - Subtitle: always in the first column, under the title: with no actions in the header it would
+ *   otherwise be placed in the second column, beside the title.
  * - Actions: a row of their own, so an action that is an inline element (a chip) takes its own
  *   height and no line box of the text around it adds to it.
  * - Header: the row gap only with a subtitle (helm's `gap-1` also left a gap under a title alone,
@@ -51,43 +56,33 @@ export const CARD_HELM_CLASSES = {
  *   kit's own presets whose actions are smaller (a chart card's chip); an app sizes a card by its
  *   actions, not by this. The header, the action area, the content and the footer leave the layout
  *   while they hold nothing to show: a card of content only keeps no empty band and no gap for one.
+ * - Content: it takes the height the card has left (`flex-1 min-h-0`), so a card a grid row
+ *   stretches gives its content the rest, an image can fill an untitled card, and the footers of
+ *   cards in a row line up.
+ * - Footer: several elements sit `--neat-space-2` apart.
  */
-const KIT_CARD = {
-  card: {
-    drop: [
-      'ring-foreground/10',
-      'overflow-hidden',
-      'rounded-xl',
-      'shadow-xs',
-      'ring-1',
-      '[--card-spacing:--spacing(6)]',
-      'data-[size=sm]:[--card-spacing:--spacing(4)]',
-      'gap-(--card-spacing)',
-    ],
-    add: 'min-w-0 border border-border rounded-(--radius) gap-(--neat-space-2) [--card-spacing:var(--neat-space-4)]',
-  },
-  header: {
-    drop: ['rounded-t-xl', 'gap-1'],
-    add: 'gap-x-1 has-data-[slot=card-description]:gap-y-1 min-h-[var(--neat-card-header-min-height,2rem)] [&:not(:has([data-slot=card-title]:not(:empty),[data-slot=card-description],[data-slot=card-action]:not(:empty)))]:hidden',
-  },
-  title: { drop: ['text-base'], add: 'text-sm' },
-  description: { drop: ['text-sm'], add: 'text-xs' },
-  action: { drop: [], add: 'flex items-center gap-(--neat-space-2) empty:hidden' },
-  content: { drop: [], add: 'empty:hidden' },
-  footer: { drop: ['rounded-b-xl'], add: 'empty:hidden' },
+export const CARD_CLASSES = {
+  card: hlm(
+    CARD_HELM_CLASSES.card,
+    'min-w-0 border border-border rounded-(--radius) ring-0 shadow-none overflow-visible gap-(--neat-space-2) [--card-spacing:var(--neat-space-4)]',
+  ),
+  header: hlm(
+    CARD_HELM_CLASSES.header,
+    '@container-normal/card-header rounded-t-none gap-0 gap-x-1 has-data-[slot=card-description]:gap-y-1 min-h-[var(--neat-card-header-min-height,2rem)] [&:not(:has([data-slot=card-title]:not(:empty),[data-slot=card-description],[data-slot=card-action]:not(:empty)))]:hidden',
+  ),
+  // `text-sm` replaces the line height too, under twMerge: `leading-normal` is set again.
+  title: hlm(CARD_HELM_CLASSES.title, 'text-sm leading-normal'),
+  description: hlm(CARD_HELM_CLASSES.description, 'text-xs col-start-1'),
+  action: hlm(
+    CARD_HELM_CLASSES.action,
+    'flex items-center gap-(--neat-space-2) empty:hidden',
+  ),
+  content: hlm(CARD_HELM_CLASSES.content, 'flex-1 min-h-0 empty:hidden'),
+  footer: hlm(
+    CARD_HELM_CLASSES.footer,
+    'rounded-b-none gap-(--neat-space-2) empty:hidden',
+  ),
 } as const;
-
-/** The kit's classes for a part: helm's without the dropped ones, then the kit's. */
-export function kitCardClasses(part: keyof typeof KIT_CARD): string {
-  const { drop, add } = KIT_CARD[part];
-  const kept = CARD_HELM_CLASSES[part]
-    .split(' ')
-    .filter((cls) => !(drop as readonly string[]).includes(cls));
-  return [...kept, add].join(' ');
-}
-
-/** Exposed for card.spec, which holds each dropped class to helm's string. */
-export const CARD_KIT_DROPPED = KIT_CARD;
 
 /**
  * A card on Spartan's, with an optional title and subtitle, actions beside them and a footer:
@@ -103,11 +98,12 @@ export const CARD_KIT_DROPPED = KIT_CARD;
  * The title stands at the start of the header, the subtitle under it; elements with the attribute
  * `neatCardActions` go to the header's end, elements with `neatCardFooter` to the footer, and
  * everything else is the content. An element with `neatCardTitle` stands in the title's place (a
- * button, say), as it is, with no heading role; only the `title` text is a heading. The attributes
+ * button, say), as it is, inside the title's element: with `title` text as well, that element is
+ * in the heading and names the region, and without it the card has no heading role. The attributes
  * are selectors of the card, not directives, so they need no import and cannot be forgotten into
- * silence. The header, the footer and the
- * actions area are always in the template and leave the layout while empty: a card without a
- * title, a subtitle or actions has no header, and actions alone still sit at the header's end.
+ * silence. The header, the footer and the actions area are always in the template and leave the
+ * layout while empty: a card without a title, a subtitle or actions has no header, and actions
+ * alone still sit at the header's end.
  *
  * The title is a real heading (`role="heading"`), at `headingLevel`, 3 by default, as the
  * callout's: pick the level that fits where the card stands. `region` makes the card a landmark
@@ -120,18 +116,18 @@ export const CARD_KIT_DROPPED = KIT_CARD;
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     'data-slot': 'card',
-    '[class]': 'cardClasses',
+    '[class]': 'classes.card',
     '[attr.role]': 'region() && title() ? "region" : null',
     '[attr.aria-labelledby]': 'region() && title() ? titleId : null',
     // The title is an input, so the attribute must not stay on the host as a native tooltip.
     '[attr.title]': 'null',
   },
   template: `
-    <div data-slot="card-header" [class]="headerClasses">
+    <div data-slot="card-header" [class]="classes.header">
       <!-- Always there: an element marked neatCardTitle fills it with no title text. -->
       <div
         data-slot="card-title"
-        [class]="titleClasses"
+        [class]="classes.title"
         [id]="titleId"
         [attr.role]="title() ? 'heading' : null"
         [attr.aria-level]="title() ? headingLevel() : null"
@@ -139,14 +135,14 @@ export const CARD_KIT_DROPPED = KIT_CARD;
         <ng-content select="[neatCardTitle]">{{ title() }}</ng-content>
       </div>
       @if (subtitle()) {
-        <p data-slot="card-description" [class]="descriptionClasses">{{ subtitle() }}</p>
+        <p data-slot="card-description" [class]="classes.description">{{ subtitle() }}</p>
       }
-      <div data-slot="card-action" [class]="actionClasses">
+      <div data-slot="card-action" [class]="classes.action">
         <ng-content select="[neatCardActions]" />
       </div>
     </div>
-    <div data-slot="card-content" [class]="contentClasses"><ng-content /></div>
-    <div data-slot="card-footer" [class]="footerClasses">
+    <div data-slot="card-content" [class]="classes.content"><ng-content /></div>
+    <div data-slot="card-footer" [class]="classes.footer">
       <ng-content select="[neatCardFooter]" />
     </div>
   `,
@@ -163,11 +159,5 @@ export class NeatCard {
   readonly subtitle = input('');
 
   protected readonly titleId = `neat-card-${++nextCardId}-title`;
-  protected readonly cardClasses = kitCardClasses('card');
-  protected readonly headerClasses = kitCardClasses('header');
-  protected readonly titleClasses = kitCardClasses('title');
-  protected readonly descriptionClasses = kitCardClasses('description');
-  protected readonly actionClasses = kitCardClasses('action');
-  protected readonly contentClasses = kitCardClasses('content');
-  protected readonly footerClasses = kitCardClasses('footer');
+  protected readonly classes = CARD_CLASSES;
 }

@@ -1,3 +1,13 @@
 p {
   margin: 0;
 }
+
+/* A title that is a button reads as the title does, and as something to click. */
+.title-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
