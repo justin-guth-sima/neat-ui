@@ -216,7 +216,8 @@ function motionSetup(options: { reduced?: boolean; motion?: NeatTimelineMotion }
   vi.spyOn(ɵBROWSER_CLOCK, 'cancel').mockImplementation((handle) => {
     frames.delete(handle);
   });
-  vi.stubGlobal('matchMedia', (query: string) => ({ matches: !!options.reduced, media: query }));
+  let reduced = !!options.reduced;
+  vi.stubGlobal('matchMedia', (query: string) => ({ matches: reduced, media: query }));
   const fixture = TestBed.createComponent(MotionHost);
   if (options.motion) fixture.componentInstance.motion.set(options.motion);
   /** Moves the clock in 100 ms frames, each run once, and lets the view follow. */
@@ -234,6 +235,7 @@ function motionSetup(options: { reduced?: boolean; motion?: NeatTimelineMotion }
       fixture.nativeElement.querySelectorAll('[data-slot="label-timeline-run"]'),
     ).map((element) => parseFloat(element.style.left));
   return {
+    setReduced: (value: boolean) => (reduced = value),
     fixture,
     host: fixture.componentInstance,
     advance,
@@ -287,6 +289,49 @@ describe('NeatLabelTimeline motion', () => {
     expect(lefts()).toEqual(ahead);
     await advance(300);
     expect(lefts()[0]).toBeLessThan(ahead[0]);
+  });
+
+  it('idles at the cap and wakes for the next update', async () => {
+    const { fixture, host, advance, frames } = motionSetup();
+    await fixture.whenStable();
+
+    await advance(3000);
+    expect(frames.size).toBe(0);
+
+    host.now.set(NOW + 3000);
+    await fixture.whenStable();
+    expect(frames.size).toBe(1);
+  });
+
+  it('holds a jitter behind the drawn now but snaps to a rewind', async () => {
+    const { fixture, host, advance, lefts } = motionSetup();
+    await fixture.whenStable();
+    await advance(1000);
+
+    host.now.set(NOW + 100);
+    await fixture.whenStable();
+    expect(lefts()[0]).toBeCloseTo(leftAfter(1000), 4);
+
+    host.now.set(NOW - 5000);
+    await fixture.whenStable();
+    expect(lefts()[0]).toBeCloseTo(leftAfter(-5000), 4);
+    await advance(300);
+    expect(lefts()[0]).toBeCloseTo(leftAfter(-4700), 4);
+  });
+
+  it('follows the reduced-motion setting when the next update arrives', async () => {
+    const { fixture, host, advance, lefts, frames, setReduced } = motionSetup();
+    await fixture.whenStable();
+    await advance(300);
+    expect(lefts()[0]).toBeCloseTo(leftAfter(300), 4);
+
+    setReduced(true);
+    host.now.set(NOW + 400);
+    await fixture.whenStable();
+    expect(lefts()[0]).toBeCloseTo(leftAfter(400), 4);
+    expect(frames.size).toBe(0);
+    await advance(500);
+    expect(lefts()[0]).toBeCloseTo(leftAfter(400), 4);
   });
 
   it('restarts from a later update', async () => {

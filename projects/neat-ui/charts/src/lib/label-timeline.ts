@@ -5,6 +5,7 @@ import {
   effect,
   input,
   linkedSignal,
+  untracked,
 } from '@angular/core';
 import { ɵBROWSER_CLOCK as clock, ɵreducedMotion as reducedMotion } from '@sima/neat-ui';
 import { isNumber } from './geometry';
@@ -51,6 +52,10 @@ const MAX_AHEAD_MS = 1000;
  * frame-clock time at which it arrived.
  */
 interface Drawn {
+  /** Whether the strip is smooth now: `motion` asks for it and reduced motion does not forbid it. */
+  readonly smooth: boolean;
+  /** Counts the updates, so the frame loop starts again for each. */
+  readonly update: number;
   readonly now: number;
   readonly from: number;
   readonly arrivedAt: number;
@@ -149,39 +154,57 @@ export class NeatLabelTimeline {
   /** Whether the strip scrolls between updates (`smooth`) or only at them. */
   readonly motion = input<NeatTimelineMotion>('step');
 
-  /** Smooth, and not ruled out by the reduced-motion setting (read when `motion` changes). */
-  private readonly smooth = computed(() => this.motion() === 'smooth' && !reducedMotion());
-
   /**
-   * Smooth mode's state. It is recomputed when an update or the mode arrives, and holds the drawn
-   * now there if it is already ahead of the update (it never moves backwards); the frame loop
+   * Smooth mode's state. It is recomputed when an update or the mode arrives, which is also when
+   * the reduced-motion setting is read, so switching it on stops the scroll at the next update.
+   * The drawn now is held where it is if the update is behind it by no more than the cap (jitter:
+   * it never moves backwards), and snaps to the update when it is further behind (a rewind, such as
+   * a replay loop or a restarted time base, would otherwise freeze the strip). The frame loop
    * advances it between updates.
    */
-  private readonly drawn = linkedSignal<{ now: number; smooth: boolean }, Drawn>({
-    source: () => ({ now: this.nowMs(), smooth: this.smooth() }),
-    computation: ({ now, smooth }, previous) => {
-      const held = smooth && previous?.source.smooth ? Math.max(previous.value.now, now) : now;
-      return { now: held, from: now, arrivedAt: clock.now() };
+  private readonly drawn = linkedSignal<{ now: number; motion: NeatTimelineMotion }, Drawn>({
+    source: () => ({ now: this.nowMs(), motion: this.motion() }),
+    computation: ({ now, motion }, previous) => {
+      const smooth = motion === 'smooth' && !reducedMotion();
+      const last = previous?.value;
+      const held = smooth && last?.smooth && last.now - now <= MAX_AHEAD_MS;
+      return {
+        smooth,
+        now: held ? Math.max(last.now, now) : now,
+        from: now,
+        arrivedAt: clock.now(),
+        update: (last?.update ?? 0) + 1,
+      };
     },
   });
 
   /** The right edge of the window as drawn. */
-  private readonly drawnNow = computed(() => (this.smooth() ? this.drawn().now : this.nowMs()));
+  private readonly drawnNow = computed(() =>
+    this.drawn().smooth ? this.drawn().now : this.nowMs(),
+  );
+
+  /** Which update the frame loop runs for; -1 when the strip is not smooth. */
+  private readonly loopFor = computed(() => (this.drawn().smooth ? this.drawn().update : -1));
 
   constructor() {
+    // One loop per update: it asks for frames until the drawn now has run the cap past the
+    // update, then idles, so a stalled stream costs no wake-ups; the next update starts it again.
     effect((onCleanup) => {
-      if (!this.smooth()) return;
+      if (this.loopFor() < 0) return;
       let handle: number | undefined;
       const frame = (): void => {
+        const { arrivedAt } = untracked(this.drawn);
+        const elapsed = clock.now() - arrivedAt;
         this.drawn.update((state) => {
-          const ahead = Math.min(MAX_AHEAD_MS, clock.now() - state.arrivedAt);
-          const now = Math.max(state.now, state.from + ahead);
+          const now = Math.max(state.now, state.from + Math.min(MAX_AHEAD_MS, elapsed));
           return now === state.now ? state : { ...state, now };
         });
-        handle = clock.request(frame);
+        handle = elapsed < MAX_AHEAD_MS ? clock.request(frame) : undefined;
       };
       handle = clock.request(frame);
-      onCleanup(() => clock.cancel(handle!));
+      onCleanup(() => {
+        if (handle !== undefined) clock.cancel(handle);
+      });
     });
   }
 
