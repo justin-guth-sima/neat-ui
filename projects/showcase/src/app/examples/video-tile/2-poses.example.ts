@@ -8,6 +8,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { SIMA_PALETTE } from '@sima/neat-ui';
 import { NeatSwitch } from '@sima/neat-ui/switch';
 import {
   NEAT_OVERLAY_DEFAULTS,
@@ -53,7 +54,7 @@ export class Poses {
       'pose-estimation': {
         ...NEAT_OVERLAY_DEFAULTS.types['pose-estimation'],
         showBoxes: this.boxes(),
-        objects: [{ label: 'person', color: '#9ca3af', style: 'solid', width: 1 }],
+        objects: [{ label: 'person', color: SIMA_PALETTE.backgroundAlt, style: 'solid', width: 1 }],
       },
     },
   }));

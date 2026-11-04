@@ -158,6 +158,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       }
     ],
     "shows": [
+      "@sima/neat-ui#SIMA_PALETTE",
       "@sima/neat-ui/switch#NeatSwitch",
       "@sima/neat-ui/video#NEAT_OVERLAY_DEFAULTS",
       "@sima/neat-ui/video#NeatOverlaySettings",
@@ -169,6 +170,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," {\n  afterNextRender,\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  DestroyRef,\n  DOCUMENT,\n  inject,\n  signal,\n} "],
           ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { SIMA_PALETTE } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n"],
           ["keyword","import"],["text"," {\n  NEAT_OVERLAY_DEFAULTS,\n  "],
           ["keyword","type"],["text"," NeatOverlaySettings,\n  NeatVideoTile,\n} "],
@@ -185,7 +187,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'pose-estimation'"],["text",": {\n        ...NEAT_OVERLAY_DEFAULTS.types["],
           ["string","'pose-estimation'"],["text","],\n        showBoxes: "],
           ["keyword","this"],["text",".boxes(),\n        objects: [{ label: "],
-          ["string","'person'"],["text",", color: "],["string","'#9ca3af'"],["text",", style: "],["string","'solid'"],["text",", width: 1 }],\n      },\n    },\n  }));\n\n  "],
+          ["string","'person'"],["text",", color: SIMA_PALETTE.backgroundAlt, style: "],["string","'solid'"],["text",", width: 1 }],\n      },\n    },\n  }));\n\n  "],
           ["keyword","constructor"],["text","() {\n    "],
           ["keyword","const"],["text"," document = inject(DOCUMENT);\n    afterNextRender(() => "],
           ["keyword","this"],["text",".poses.start(document));\n    inject(DestroyRef).onDestroy(() => "],
