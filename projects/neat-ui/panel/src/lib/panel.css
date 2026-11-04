@@ -1,0 +1,34 @@
+/*
+ * The card look of the demos' sections: the card fill, a border, the radius and the kit's padding.
+ * `min-width: 0` lets a panel in a grid or a flex row shrink below its content's width instead of
+ * pushing the row wider.
+ */
+:host {
+  display: block;
+  min-width: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--neat-space-3);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--neat-space-2);
+  margin-block-end: var(--neat-space-2);
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--neat-text-sm);
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+}

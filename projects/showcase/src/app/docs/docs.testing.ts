@@ -16,6 +16,7 @@ import { API as LEVEL_METER } from './generated/api/level-meter';
 import { API as LINE_LIST } from './generated/api/line-list';
 import { API as LUCIDE } from './generated/api/lucide';
 import { API as NUMBER_FIELD } from './generated/api/number-field';
+import { API as PANEL } from './generated/api/panel';
 import { API as POPOVER } from './generated/api/popover';
 import { API as PRIMARY } from './generated/api/primary';
 import { API as PROGRESS } from './generated/api/progress';
@@ -86,6 +87,7 @@ export const KIT_ENTRIES: readonly DocsEntry[] = [
   LINE_LIST,
   LUCIDE,
   NUMBER_FIELD,
+  PANEL,
   POPOVER,
   PRIMARY,
   PROGRESS,

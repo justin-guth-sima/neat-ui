@@ -24,6 +24,7 @@
       "@sima/neat-ui/line-list": ["../neat-ui/line-list/src/public-api.ts"],
       "@sima/neat-ui/lucide": ["../neat-ui/lucide/src/public-api.ts"],
       "@sima/neat-ui/number-field": ["../neat-ui/number-field/src/public-api.ts"],
+      "@sima/neat-ui/panel": ["../neat-ui/panel/src/public-api.ts"],
       "@sima/neat-ui/popover": ["../neat-ui/popover/src/public-api.ts"],
       "@sima/neat-ui/progress": ["../neat-ui/progress/src/public-api.ts"],
       "@sima/neat-ui/segmented": ["../neat-ui/segmented/src/public-api.ts"],

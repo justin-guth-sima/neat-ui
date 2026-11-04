@@ -17,6 +17,7 @@ import * as levelMeter from '../level-meter/src/public-api';
 import * as lineList from '../line-list/src/public-api';
 import * as lucide from '../lucide/src/public-api';
 import * as numberField from '../number-field/src/public-api';
+import * as panel from '../panel/src/public-api';
 import * as popover from '../popover/src/public-api';
 import * as progress from '../progress/src/public-api';
 import * as segmented from '../segmented/src/public-api';
@@ -47,6 +48,7 @@ const ENTRIES = {
   lineList,
   lucide,
   numberField,
+  panel,
   popover,
   progress,
   segmented,

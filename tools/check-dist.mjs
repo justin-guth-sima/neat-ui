@@ -51,6 +51,7 @@ export const SECONDARY_ENTRIES = {
   // Glyphs only: no selector for the primary to leak, so it is listed for the FESM check alone.
   lucide: [],
   'number-field': ['neat-number-field'],
+  panel: ['neat-panel', '[neatPanelActions]'],
   popover: [
     'neat-popover',
     'ng-template[neatPopoverContent]',

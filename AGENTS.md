@@ -80,6 +80,8 @@ look happens in one place. Every rule here protects that.
     a hint and an error, and `NeatErrorNote`, a failure said in place), `collapsible`
     (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed),
     `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
+    `panel` (`NeatPanel` with `NeatPanelActions`, a titled card whose heading names it as a region,
+    with actions at the header's end),
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments) and `charts` (live
     metric charts, drawn as SVG but for the heatmap: `NeatSparkline`, `NeatTimeChart`,
     `NeatStackedChart` and `NeatHeatmap`, `NeatChartCard`, the card they sit on, and the
