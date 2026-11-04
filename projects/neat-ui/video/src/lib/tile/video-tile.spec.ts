@@ -649,8 +649,7 @@ describe('NeatVideoTile', () => {
   });
 
   describe('videoBox', () => {
-    const resizeTile = (width: number, height: number) =>
-      hostObserver().resize(width, height);
+    const resizeTile = (width: number, height: number) => hostObserver().resize(width, height);
     /** A stream whose first frame is presented: the tile is `playing`. */
     function startPlaying(): void {
       startStream();
@@ -1063,7 +1062,9 @@ describe('NeatVideoTile', () => {
       expect(joint.args[0], 'x 100 in a 1000 px video is drawn at 900').toBe(900);
       const [label] = context.ops('fillText');
       expect(label.args[0]).toBe('nose');
-      expect(label.transform[0], 'the label is drawn upright, not through a flip').toBeGreaterThan(0);
+      expect(label.transform[0], 'the label is drawn upright, not through a flip').toBeGreaterThan(
+        0,
+      );
       expect(label.textAlign, 'it reads away from its anchor, back over the picture').toBe('right');
     });
 
@@ -1178,7 +1179,10 @@ describe('NeatVideoTile', () => {
 
   describe('barHeight', () => {
     const barObserver = (): FakeResizeObserver => {
-      const found = FakeResizeObserver.instances.slice().reverse().find((o) => o.target?.classList.contains('bar'));
+      const found = FakeResizeObserver.instances
+        .slice()
+        .reverse()
+        .find((o) => o.target?.classList.contains('bar'));
       if (!found) throw new Error('no observer on the bar');
       return found;
     };

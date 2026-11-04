@@ -6,7 +6,10 @@ import { NeatDiagramRateCard } from './rate-card';
 @Component({
   imports: [NeatDiagramRateCard],
   template: `
-    <neat-diagram-rate-card label="Tracker → Gateway" [rate]="rate()" [stageMs]="stageMs()"
+    <neat-diagram-rate-card
+      label="Tracker → Gateway"
+      [rate]="rate()"
+      [stageMs]="stageMs()"
       [showBytes]="showBytes()"
     >
       <img neatRateCardThumbnails alt="" src="data:," />

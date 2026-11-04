@@ -14,7 +14,11 @@ import { EDGE_SIDES, EDGE_SIDES_LEGEND } from './edge-sides-data';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-diagram-legend [items]="legend" />
-    <neat-diagram class="diagram" [diagram]="sides" label="A source with a side chosen by an edge" />
+    <neat-diagram
+      class="diagram"
+      [diagram]="sides"
+      label="A source with a side chosen by an edge"
+    />
   `,
   styleUrl: './diagram-box.css',
 })

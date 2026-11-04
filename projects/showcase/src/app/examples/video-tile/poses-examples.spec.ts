@@ -1,10 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import {
-  type NeatTileFrame,
-  type NeatTileFrameListener,
-  NeatVideoTile,
-} from '@sima/neat-ui/video';
+import { type NeatTileFrame, type NeatTileFrameListener, NeatVideoTile } from '@sima/neat-ui/video';
 import { Poses } from './2-poses.example';
 import { HAND_LANDMARKS, poseMessage } from './pose-source';
 
@@ -39,8 +35,9 @@ describe('the poses example', () => {
     const fixture = TestBed.createComponent(Poses);
     await fixture.whenStable();
     const element = fixture.nativeElement as HTMLElement;
-    const listener = fixture.debugElement.query(By.directive(NeatVideoTile)).componentInstance
-      .frameListener() as NeatTileFrameListener;
+    const listener = fixture.debugElement
+      .query(By.directive(NeatVideoTile))
+      .componentInstance.frameListener() as NeatTileFrameListener;
     const frame = (poses: number): NeatTileFrame => ({
       now: 0,
       messages: [

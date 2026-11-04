@@ -403,11 +403,11 @@ the whole in the kit's look.
   frame, from the frame's border nearest the node (the frame's own `outSide` and `inSide` are for
   the nodes around it). An edge end goes on the side its edge's `fromSide` or `toSide` names, else
   its node's `outSide` or `inSide`, else the side facing the other end; the route and the label
-  follow it (an end inside a frame stays on the frame's border). An edge's colour comes from `lineColour` in `drawing.ts`, through
-  `seriesIndex` and the kit's `seriesToken`, and each line look is stated once in
-  `lines.css`, which the edges and the legend's samples both read. A visually hidden list after
-  the drawing says the level's nodes (label, detail, chips) and edges ("Camera to Decode, image")
-  in words.
+  follow it (an end inside a frame stays on the frame's border). An edge's colour comes from
+  `lineColour` in `drawing.ts`, through `seriesIndex` and the kit's `seriesToken`, and each line
+  look is stated once in `lines.css`, which the edges and the legend's samples both read. A visually
+  hidden list after the drawing says the level's nodes (label, detail, chips) and edges ("Camera to
+  Decode, image") in words.
 - **The app gives it its size.** The host has no height of its own (what it draws is positioned
   inside it), so without one from the app it is zero high and shows nothing; it fits its level
   once it has a size, so a hidden tab is fine. Give it a bounded box: a height, an
@@ -502,11 +502,11 @@ the whole in the kit's look.
   Dots go behind the blocks and notes, fade with the hover (`--diagram-dim`), scale with the zoom
   and recolour with the scheme (`neatThemeColors`); under reduced motion each message is a brief
   mark at its edge's end. `neat-diagram-rate-card` (`label`, `rate` the signal's value, `stageMs?`,
-  `showBytes`, a `[neatRateCardThumbnails]` slot the app lays out) is the demo's card for a note's content: the
-  label, whole msg/s, MB/s in hundredths from units of 10 kB, and a `NeatSparkline` of the history,
-  or a step's stage time in ms to a tenth in place of the MB/s and the sparkline; `showBytes` false
-  leaves the MB/s out for an app that pushes no sizes; it draws no box,
-  the note does. `neat-diagram-animation-settings` is the demo's Animation popover (an icon button,
+  `showBytes`, a `[neatRateCardThumbnails]` slot the app lays out) is the demo's card for a note's
+  content: the label, whole msg/s, MB/s in hundredths from units of 10 kB, and a `NeatSparkline` of
+  the history, or a step's stage time in ms to a tenth in place of the MB/s and the sparkline;
+  `showBytes` false leaves the MB/s out for an app that pushes no sizes; it draws no box, the note
+  does. `neat-diagram-animation-settings` is the demo's Animation popover (an icon button,
   `neat-popover` with `neat-slider`s for speed 50 to 1000, dot size 0.5 to 2 and messages per dot 1
   to 10, a switch for the steps, a reset) over a two-way `settings` model; it keeps nothing. An app
   that remembers the choice per browser makes the model a `neatStoredSignal` with

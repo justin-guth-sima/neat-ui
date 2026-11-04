@@ -983,7 +983,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatDiagramLegend, NeatDiagramView } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
           ["keyword","import"],["text"," { EDGE_SIDES, EDGE_SIDES_LEGEND } "],["keyword","from"],["text"," "],["string","'./edge-sides-data'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-edge-sides'"],["text",",\n  imports: [NeatDiagramLegend, NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram class=\"diagram\" [diagram]=\"sides\" label=\"A source with a side chosen by an edge\" />\n  `"],
+          ["string","`\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram\n      class=\"diagram\"\n      [diagram]=\"sides\"\n      label=\"A source with a side chosen by an edge\"\n    />\n  `"],
           ["text",",\n  styleUrl: "],
           ["string","'./diagram-box.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," EdgeSides {\n  "],

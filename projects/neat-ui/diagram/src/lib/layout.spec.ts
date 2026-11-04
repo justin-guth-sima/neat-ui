@@ -237,10 +237,7 @@ describe('layoutEdges', () => {
         block('b', 400, 0, { inSide: 'left' }),
         block('c', 400, 300, { inSide: 'left' }),
       ],
-      edges: [
-        { ...edge('ab', 'a', 'b'), fromSide: 'top', toSide: 'top' },
-        edge('ac', 'a', 'c'),
-      ],
+      edges: [{ ...edge('ab', 'a', 'b'), fromSide: 'top', toSide: 'top' }, edge('ac', 'a', 'c')],
     });
 
     expect(edges.get('ab')).toMatchObject({ sourceSide: 'top', targetSide: 'top' });

@@ -465,7 +465,10 @@ describe('drawFrame', () => {
       const ctx = drawMessages(
         overlayState(),
         overlaySettings(),
-        [detection, { type: 'classification', data: { top_classes: [{ label: 'cat', confidence: 0.5 }] } }],
+        [
+          detection,
+          { type: 'classification', data: { top_classes: [{ label: 'cat', confidence: 0.5 }] } },
+        ],
         { view: mirrored },
       );
 
