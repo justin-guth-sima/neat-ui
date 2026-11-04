@@ -1,22 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  contentChild,
-  Directive,
   input,
 } from '@angular/core';
 
 /** Numbers each panel, for the id its heading has. */
 let nextPanelId = 0;
-
-/**
- * Marks an element as one of a panel's header actions: `<button neatPanelActions>`. The panel
- * queries for it to learn whether it has any actions, so the area exists only when something is
- * projected into it; a content query finds only directives the app's template has matched, so an
- * app imports this one beside `NeatPanel`.
- */
-@Directive({ selector: '[neatPanelActions]' })
-export class NeatPanelActions {}
 
 /**
  * A titled panel in the kit's card look:
@@ -28,10 +17,12 @@ export class NeatPanelActions {}
  * </neat-panel>
  * ```
  *
- * The heading stands at the start of the header, small and muted; elements marked
- * `neatPanelActions` (import `NeatPanelActions` for them) go to the header's end, and everything
- * else is the body. A panel without actions has no actions area at all, so its header keeps no gap
- * for one.
+ * The heading stands at the start of the header, small and muted; elements with the attribute
+ * `neatPanelActions` go to the header's end, and everything else is the body. The attribute is a
+ * selector of the panel, not a directive, so it needs no import and cannot be forgotten into
+ * silence. The actions area is always in the template and hidden while empty, so a panel without
+ * actions shows no area and its header keeps no gap for one. The header is as tall with actions as
+ * without, so panels side by side keep their bodies in line.
  *
  * The host is a named region (`role="region"`, labelled by the heading), the landmark a `section`
  * with a name maps to; a custom element is not a `section` of its own. The heading is an `h2`:
@@ -47,11 +38,9 @@ export class NeatPanelActions {}
   template: `
     <div class="header" data-slot="panel-header">
       <h2 class="heading" data-slot="panel-heading" [id]="headingId">{{ heading() }}</h2>
-      @if (actions()) {
-        <div class="actions" data-slot="panel-actions">
-          <ng-content select="[neatPanelActions]" />
-        </div>
-      }
+      <div class="actions" data-slot="panel-actions">
+        <ng-content select="[neatPanelActions]" />
+      </div>
     </div>
     <div data-slot="panel-body"><ng-content /></div>
   `,
@@ -62,5 +51,4 @@ export class NeatPanel {
   readonly heading = input.required<string>();
 
   protected readonly headingId = `neat-panel-${++nextPanelId}-heading`;
-  protected readonly actions = contentChild(NeatPanelActions);
 }

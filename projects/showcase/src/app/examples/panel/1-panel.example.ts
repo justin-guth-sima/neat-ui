@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NeatButton } from '@sima/neat-ui';
-import { NeatPanel, NeatPanelActions } from '@sima/neat-ui/panel';
+import { NeatPanel } from '@sima/neat-ui/panel';
 
 /** A panel with an action at its header's end, and one with none, whose header keeps no gap. */
 @Component({
   selector: 'app-panel',
-  imports: [NeatButton, NeatPanel, NeatPanelActions],
+  imports: [NeatButton, NeatPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-panel heading="Detections">

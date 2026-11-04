@@ -4,4 +4,4 @@
  * it loads imports it. It imports the primary entry point by package name when it needs it; the
  * primary never imports it. Every export added here is a promise to consumers.
  */
-export { NeatPanel, NeatPanelActions } from './lib/panel';
+export { NeatPanel } from './lib/panel';

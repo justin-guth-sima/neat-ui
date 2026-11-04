@@ -29,7 +29,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The heading stands at the start of the header, small and muted; elements marked "
+              "text": "The heading stands at the start of the header, small and muted; elements with the attribute "
             },
             {
               "kind": "code",
@@ -37,16 +37,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (import "
-            },
-            {
-              "kind": "ref",
-              "text": "NeatPanelActions",
-              "name": "NeatPanelActions"
-            },
-            {
-              "kind": "text",
-              "text": " for them) go to the header's end, and everything else is the body. A panel without actions has no actions area at all, so its header keeps no gap for one."
+              "text": " go to the header's end, and everything else is the body. The attribute is a selector of the panel, not a directive, so it needs no import and cannot be forgotten into silence. The actions area is always in the template and hidden while empty, so a panel without actions shows no area and its header keeps no gap for one. The header is as tall with actions as without, so panels side by side keep their bodies in line."
             }
           ]
         },
@@ -106,40 +97,6 @@ export const API: DocsEntry = {
                   "text": "The panel's title, which also names it as a region."
                 }
               ]
-            }
-          ]
-        }
-      ],
-      "source": "projects/neat-ui/panel/src/lib/panel.ts"
-    },
-    {
-      "name": "NeatPanelActions",
-      "kind": "directive",
-      "selector": "[neatPanelActions]",
-      "doc": [
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "Marks an element as one of a panel's header actions: "
-            },
-            {
-              "kind": "code",
-              "text": "<button neatPanelActions>"
-            },
-            {
-              "kind": "text",
-              "text": ". The panel queries for it to learn whether it has any actions, so the area exists only when something is projected into it; a content query finds only directives the app's template has matched, so an app imports this one beside "
-            },
-            {
-              "kind": "ref",
-              "text": "NeatPanel",
-              "name": "NeatPanel"
-            },
-            {
-              "kind": "text",
-              "text": "."
             }
           ]
         }

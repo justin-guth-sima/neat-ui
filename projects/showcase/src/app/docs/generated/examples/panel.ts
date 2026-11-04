@@ -20,8 +20,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     ],
     "shows": [
       "@sima/neat-ui#NeatButton",
-      "@sima/neat-ui/panel#NeatPanel",
-      "@sima/neat-ui/panel#NeatPanelActions"
+      "@sima/neat-ui/panel#NeatPanel"
     ],
     "files": [
       {
@@ -29,8 +28,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatPanel, NeatPanelActions } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/panel'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-panel'"],["text",",\n  imports: [NeatButton, NeatPanel, NeatPanelActions],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["keyword","import"],["text"," { NeatPanel } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/panel'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-panel'"],["text",",\n  imports: [NeatButton, NeatPanel],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    <neat-panel heading=\"Detections\">\n      <button neatButton neatPanelActions type=\"button\" size=\"small\">Clear</button>\n      <p>Nothing yet.</p>\n    </neat-panel>\n    <neat-panel heading=\"Model\">\n      <p>yolov8n, 640 by 640.</p>\n    </neat-panel>\n  `"],
           ["text",",\n  styleUrl: "],
           ["string","'./panel.example.css'"],["text",",\n})\n"],

@@ -4,9 +4,13 @@
  * pushing the row wider.
  */
 :host {
+  /* The charts' labels and the timeline's run edges are drawn in the surface they sit on: this one. */
+  --neat-surface: var(--card);
+
   display: block;
   min-width: 0;
   background: var(--card);
+  color: var(--card-foreground);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: var(--neat-space-3);
@@ -17,6 +21,8 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--neat-space-2);
+  /* A small button (2rem) fits: a header with actions is no taller than one without. */
+  min-height: 2rem;
   margin-block-end: var(--neat-space-2);
 }
 
@@ -31,4 +37,9 @@
   display: flex;
   align-items: center;
   gap: var(--neat-space-2);
+}
+
+/* A panel without actions keeps no area, so its heading gets no gap beside it. */
+.actions:empty {
+  display: none;
 }

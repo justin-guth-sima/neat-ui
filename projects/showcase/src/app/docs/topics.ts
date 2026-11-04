@@ -503,19 +503,6 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
-            id: 'panel',
-            label: 'Panel',
-            parts: ['NeatPanel', 'NeatPanelActions'],
-            leads: ['NeatPanel'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/panel'),
-                import('./generated/examples/panel'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
             id: 'note',
             label: 'Note',
             parts: ['NeatNote'],
@@ -691,6 +678,19 @@ export const GROUPS: readonly TopicGroup[] = [
               const [api, examples] = await Promise.all([
                 import('./generated/api/collapsible'),
                 import('./generated/examples/collapsible'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'panel',
+            label: 'Panel',
+            parts: ['NeatPanel'],
+            leads: ['NeatPanel'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/panel'),
+                import('./generated/examples/panel'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },

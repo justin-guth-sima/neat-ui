@@ -1,9 +1,14 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { NeatPanel, NeatPanelActions } from './panel';
+import { stylesheet } from '../../../charts/src/lib/css.testing';
+import { NeatPanel } from './panel';
+import panelStyles from './panel.css' with { loader: 'text' };
 
+const { rule, declared } = stylesheet(panelStyles);
+
+// Only NeatPanel is imported: the actions attribute is the panel's own selector.
 @Component({
-  imports: [NeatPanel, NeatPanelActions],
+  imports: [NeatPanel],
   template: `
     <neat-panel heading="Detections">
       @if (withActions()) {
@@ -44,14 +49,31 @@ describe('NeatPanel', () => {
     expect(panel.querySelector('[data-slot="panel-body"] button')).toBeNull();
   });
 
-  it('has no actions area without actions', async () => {
+  it('shows no visible actions area or gap without actions', async () => {
     const { fixture, panel } = await render(false);
-    expect(panel.querySelector('[data-slot="panel-actions"]')).toBeNull();
+    const area = panel.querySelector<HTMLElement>('[data-slot="panel-actions"]')!;
+
+    // The area is always rendered; it is empty and the stylesheet hides an empty one, so it takes
+    // no room and the header's gap has nothing beside the heading to separate.
+    expect(area.childElementCount).toBe(0);
+    expect(area.textContent!.trim()).toBe('');
+    expect(declared('.actions:empty', 'display')).toBe('none');
 
     // The area follows the projected content, not just its first state.
     fixture.componentInstance.withActions.set(true);
     await fixture.whenStable();
-    expect(panel.querySelector('[data-slot="panel-actions"] button')).not.toBeNull();
+    expect(area.querySelector('button')).not.toBeNull();
+  });
+
+  it('keeps the header as tall with actions as without', () => {
+    expect(declared('.header', 'min-height')).toBe('2rem');
+  });
+
+  it('sets the surface and the text colour of the card it draws', () => {
+    expect(declared(':host', '--neat-surface')).toBe('var(--card)');
+    expect(declared(':host', 'background')).toBe('var(--card)');
+    expect(declared(':host', 'color')).toBe('var(--card-foreground)');
+    expect(rule(':host')).not.toContain('!important');
   });
 
   it('projects the body', async () => {
