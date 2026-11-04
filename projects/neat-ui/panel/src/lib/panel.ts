@@ -29,8 +29,9 @@ export class NeatPanelActions {}
  * ```
  *
  * The heading stands at the start of the header, small and muted; elements marked
- * `neatPanelActions` (import `NeatPanelActions` for them) go to the header's end, and everything else is the body. A panel without
- * actions has no actions area at all, so its header keeps no gap for one.
+ * `neatPanelActions` (import `NeatPanelActions` for them) go to the header's end, and everything
+ * else is the body. A panel without actions has no actions area at all, so its header keeps no gap
+ * for one.
  *
  * The host is a named region (`role="region"`, labelled by the heading), the landmark a `section`
  * with a name maps to; a custom element is not a `section` of its own. The heading is an `h2`:
