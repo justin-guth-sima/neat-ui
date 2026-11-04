@@ -17,6 +17,7 @@ interface DrawState {
   lineWidth: number;
   globalAlpha: number;
   font: string;
+  textAlign: string;
   imageSmoothingEnabled: boolean;
   lineDash: number[];
   transform: number[];
@@ -38,6 +39,7 @@ export class RecordingContext {
   lineWidth = 1;
   globalAlpha = 1;
   font = '';
+  textAlign = 'start';
   imageSmoothingEnabled = false;
   globalCompositeOperation = 'source-over';
   lineDash: number[] = [];
@@ -134,6 +136,7 @@ export class RecordingContext {
       lineWidth: this.lineWidth,
       globalAlpha: this.globalAlpha,
       font: this.font,
+      textAlign: this.textAlign,
       imageSmoothingEnabled: this.imageSmoothingEnabled,
       lineDash: [...this.lineDash],
       transform: [...this.transform],
@@ -221,6 +224,7 @@ export const VIEW: NeatOverlayView = {
   dpr: 1,
   videoWidth: 640,
   videoHeight: 480,
+  mirror: false,
 };
 
 export function fresh(message: NeatMetadataMessage): NeatOverlayItem {

@@ -152,7 +152,15 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " rows style a pose by its label: here the person is a thin light grey, and the hands keep the colour of their ids. Boxes shows and hides the box and label plate around each pose."
+            "text": " rows style a pose by its label: here the person is a thin light grey, and the hands keep the colour of their ids. Boxes shows and hides the box and label plate around each pose. Mirror flips the picture and the poses, not their labels. The line under the switches is fed by the tile's "
+          },
+          {
+            "kind": "code",
+            "text": "frameListener"
+          },
+          {
+            "kind": "text",
+            "text": ", which gets each frame's matched messages outside Angular, so it writes its signal only when the count changes."
           }
         ]
       }
@@ -162,6 +170,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       "@sima/neat-ui/switch#NeatSwitch",
       "@sima/neat-ui/video#NEAT_OVERLAY_DEFAULTS",
       "@sima/neat-ui/video#NeatOverlaySettings",
+      "@sima/neat-ui/video#NeatTileFrame",
       "@sima/neat-ui/video#NeatVideoTile"
     ],
     "files": [
@@ -173,16 +182,23 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { SIMA_PALETTE } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n"],
           ["keyword","import"],["text"," {\n  NEAT_OVERLAY_DEFAULTS,\n  "],
-          ["keyword","type"],["text"," NeatOverlaySettings,\n  NeatVideoTile,\n} "],
+          ["keyword","type"],["text"," NeatOverlaySettings,\n  "],
+          ["keyword","type"],["text"," NeatTileFrame,\n  NeatVideoTile,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n"],
           ["keyword","import"],["text"," { PoseSource } "],["keyword","from"],["text"," "],["string","'./pose-source'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-poses'"],["text",",\n  imports: [NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <button neatSwitch [(checked)]=\"boxes\">Boxes</button>\n    </div>\n    <div class=\"tiles\">\n      <div class=\"cell\">\n        <neat-video-tile\n          [source]=\"poses\"\n          label=\"1\"\n          status=\"Hands and a person · 640×360\"\n          [settings]=\"settings()\"\n        />\n      </div>\n    </div>\n  `"],
+          ["string","`\n    <div class=\"showcase-row\">\n      <button neatSwitch [(checked)]=\"boxes\">Boxes</button>\n      <button neatSwitch [(checked)]=\"mirror\">Mirror</button>\n    </div>\n    <p>{{ poseCount() }} {{ poseCount() === 1 ? 'pose' : 'poses' }} in this frame</p>\n    <div class=\"tiles\">\n      <div class=\"cell\">\n        <neat-video-tile\n          [source]=\"poses\"\n          label=\"1\"\n          status=\"Hands and a person · 640×360\"\n          [settings]=\"settings()\"\n          [mirror]=\"mirror()\"\n          [frameListener]=\"countPoses\"\n        />\n      </div>\n    </div>\n  `"],
           ["text",",\n  styleUrl: "],
           ["string","'./test-pattern-tiles.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Poses {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," poses = "],["keyword","new"],["text"," PoseSource();\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," boxes = signal("],["keyword","true"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," mirror = signal("],["keyword","false"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," poseCount = signal(0);\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," countPoses = ({ messages }: NeatTileFrame): "],["keyword","void"],["text"," => {\n    "],
+          ["keyword","const"],["text"," found = messages.find(({ message }) => message.type === "],["string","'pose-estimation'"],["text",");\n    "],
+          ["keyword","const"],["text"," poses = (found?.message.data "],["keyword","as"],["text"," { poses?: "],["keyword","readonly"],["text"," "],["keyword","unknown"],["text","[] } | "],["keyword","undefined"],["text",")?.poses;\n    "],
+          ["keyword","this"],["text",".poseCount.set(poses?.length ?? 0);\n  };\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," settings = computed<NeatOverlaySettings>(() => ({\n    ...NEAT_OVERLAY_DEFAULTS,\n    types: {\n      ...NEAT_OVERLAY_DEFAULTS.types,\n      "],
           ["string","'pose-estimation'"],["text",": {\n        ...NEAT_OVERLAY_DEFAULTS.types["],
           ["string","'pose-estimation'"],["text","],\n        showBoxes: "],

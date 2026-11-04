@@ -48,7 +48,7 @@ describe('drawFrame', () => {
   });
 
   it('drawFrame scales the context by dpr and keeps lineWidth in CSS pixels', () => {
-    const view = { cssWidth: 320, cssHeight: 240, dpr: 2, videoWidth: 640, videoHeight: 480 };
+    const view = { ...VIEW, cssWidth: 320, cssHeight: 240, dpr: 2 };
     const ctx = drawMessages(overlayState(), overlaySettings(), [detection], { view });
 
     const [clear] = ctx.ops('clearRect');
@@ -439,5 +439,89 @@ describe('drawFrame', () => {
       },
     ]);
     expect(ctx.ops('strokeRect').map((call) => call.lineWidth)).toStrictEqual([3]);
+  });
+
+  describe('in a mirrored view', () => {
+    const mirrored = { ...VIEW, mirror: true };
+
+    it('flips a box across the canvas, extending leftward from its mirrored corner', () => {
+      const ctx = drawMessages(overlayState(), overlaySettings(), [detection], { view: mirrored });
+
+      // Video pixels 10..40 of 640 are drawn at 600..630: the corner is at 630, the width -30.
+      const [box] = ctx.ops('strokeRect');
+      expect(box.args).toStrictEqual([630, 20, -30, 40]);
+    });
+
+    it('flips about the picture, not the canvas, when the video is letterboxed', () => {
+      const view = { ...VIEW, cssWidth: 800, mirror: true };
+      const ctx = drawMessages(overlayState(), overlaySettings(), [detection], { view });
+
+      // The 640 px picture sits at 80..720; video x 10..40 is drawn at 80+600..80+630 flipped
+      // within that: 800 - (80 + 10) = 710 for the corner.
+      expect(ctx.ops('strokeRect')[0].args).toStrictEqual([710, 20, -30, 40]);
+    });
+
+    it('draws text right-aligned at its anchor and unflipped, and leaves other overlays alone', () => {
+      const ctx = drawMessages(
+        overlayState(),
+        overlaySettings(),
+        [detection, { type: 'classification', data: { top_classes: [{ label: 'cat', confidence: 0.5 }] } }],
+        { view: mirrored },
+      );
+
+      const labels = ctx.ops('fillText');
+      expect(labels).toHaveLength(2);
+      for (const label of labels) {
+        expect(label.textAlign).toBe('right');
+        expect(label.transform[0]).toBeGreaterThan(0);
+      }
+      // The classification list stands in the top-right corner, as the picture's top-left does.
+      expect(labels[1].args).toStrictEqual(['cat (50%)', 630, 20]);
+    });
+
+    it('puts a label plate left of its anchor so it stays over the picture', () => {
+      const tracks: NeatMetadataMessage = {
+        type: 'tracking',
+        data: { tracks: [{ id: 1, label: 'car', bbox: [100, 100, 50, 50] }] },
+      };
+      const ctx = drawMessages(overlayState(), overlaySettings(), [tracks], { view: mirrored });
+
+      const [plate] = ctx.ops('fillRect');
+      const [x, , width] = plate.args as number[];
+      // The anchor is the box's mirrored corner at 540; the plate ends there.
+      expect(x + width).toBe(540);
+      expect(ctx.ops('fillText')[0].args[1]).toBe(540 - 4);
+    });
+
+    it('filters by the region of interest in the picture’s own sense', () => {
+      const settings = overlaySettings({
+        general: { applyRoiFiltering: true },
+        roi: [
+          {
+            type: 'inclusion',
+            points: [
+              { x: 0, y: 0 },
+              { x: 0.25, y: 0 },
+              { x: 0.25, y: 1 },
+              { x: 0, y: 1 },
+            ],
+          },
+        ],
+      });
+      const both: NeatMetadataMessage = {
+        type: 'object-detection',
+        data: {
+          objects: [
+            { label: 'left', confidence: 1, bbox: [10, 20, 30, 40] },
+            { label: 'right', confidence: 1, bbox: [500, 20, 30, 40] },
+          ],
+        },
+      };
+      const ctx = drawMessages(overlayState(), settings, [both], { view: mirrored });
+
+      // The polygon and the box centres are mapped alike, so the left object stays, drawn right.
+      expect(texts(ctx)).toStrictEqual(['left (100%)']);
+      expect(ctx.ops('strokeRect')[0].args[0]).toBe(630);
+    });
   });
 });

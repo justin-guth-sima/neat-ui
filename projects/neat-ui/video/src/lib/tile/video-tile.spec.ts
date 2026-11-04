@@ -8,7 +8,7 @@ import { letterbox } from '../overlays/letterbox';
 import { mapRoi } from '../overlays/roi';
 import { overlaySettings, RecordingContext } from '../overlays/spec-helpers';
 import type { NeatTileSource } from './tile-source';
-import type { NeatVideoBox } from './video-tile';
+import type { NeatTileFrame, NeatTileFrameListener, NeatVideoBox } from './video-tile';
 import { NEAT_STREAM_STALE_MS, NeatFrameStats, NeatTileState, NeatVideoTile } from './video-tile';
 
 /** A source whose stream and metadata the test controls. */
@@ -103,7 +103,10 @@ class FakeResizeObserver {
   }
 
   resize(width: number, height: number): void {
-    const entry = { target: this.observed[0], contentRect: { width, height } };
+    const entry = {
+      target: this.observed[0],
+      contentRect: { width, height },
+    };
     this.callback([entry as unknown as ResizeObserverEntry], this as unknown as ResizeObserver);
   }
 }
@@ -120,6 +123,8 @@ class FakeResizeObserver {
       [status]="status()"
       [bars]="bars()"
       [selected]="selected()"
+      [mirror]="mirror()"
+      [frameListener]="frameListener()"
       (stateChange)="states.push($event)"
       (frameStats)="stats.push($event)"
     >
@@ -135,6 +140,8 @@ class Host {
   readonly status = signal<string | null>('H.264 · 640×480 · 30.0 fps');
   readonly bars = signal(true);
   readonly selected = signal(false);
+  readonly mirror = signal(false);
+  readonly frameListener = signal<NeatTileFrameListener | null>(null);
   readonly states: NeatTileState[] = [];
   readonly stats: NeatFrameStats[] = [];
   /** Application renders, whichever views they refresh. */
@@ -1010,5 +1017,151 @@ describe('NeatVideoTile', () => {
     present(1);
 
     expect(strokeRects()).toStrictEqual([]);
+  });
+
+  describe('mirror', () => {
+    /** The rules of the tile's stylesheet that name `data-mirrored`. */
+    const mirrorRules = (): CSSStyleRule[] =>
+      Array.from(document.styleSheets)
+        .flatMap((sheet) => Array.from(sheet.cssRules))
+        .filter((rule): rule is CSSStyleRule => rule instanceof CSSStyleRule)
+        .filter((rule) => rule.selectorText.includes('data-mirrored'));
+
+    it('mirror flips a pose’s geometry, not its text', () => {
+      create();
+      startStream();
+      host().mirror.set(true);
+      host().settings.set(
+        overlaySettings({ types: { 'pose-estimation': { showKeypointLabels: true } } }),
+      );
+      render();
+      FakeResizeObserver.instances[0].resize(1000, 480);
+      videoWidth.mockReturnValue(1000);
+      videoHeight.mockReturnValue(480);
+
+      source.send({
+        type: 'pose-estimation',
+        data: {
+          poses: [{ id: 1, keypoints: [{ name: 'nose', x: 100, y: 50, confidence: 0.9 }] }],
+        },
+        _insight: { rtp_timestamp: 1 },
+      });
+      present(1);
+
+      const [joint] = context.ops('arc');
+      expect(joint.args[0], 'x 100 in a 1000 px video is drawn at 900').toBe(900);
+      const [label] = context.ops('fillText');
+      expect(label.args[0]).toBe('nose');
+      expect(label.transform[0], 'the label is drawn upright, not through a flip').toBeGreaterThan(0);
+      expect(label.textAlign, 'it reads away from its anchor, back over the picture').toBe('right');
+    });
+
+    it('mirror sets data-mirrored and the stylesheet flips only the video', () => {
+      create();
+      expect(tileElement().hasAttribute('data-mirrored')).toBe(false);
+
+      host().mirror.set(true);
+      render();
+      expect(tileElement().hasAttribute('data-mirrored')).toBe(true);
+
+      const rules = mirrorRules();
+      expect(rules, 'one rule states the mirror').toHaveLength(1);
+      expect(rules[0].selectorText).toMatch(/^\[data-mirrored\].*\.video\b/);
+      expect(rules[0].style.transform).toBe('scaleX(-1)');
+    });
+
+    it('videoBox is the same with and without mirror', () => {
+      create();
+      startStream();
+      present(1);
+      FakeResizeObserver.instances[0].resize(400, 150);
+      const plain = tile().videoBox();
+      expect(plain).toStrictEqual({ x: 100, y: 0, width: 200, height: 150 });
+
+      host().mirror.set(true);
+      render();
+      expect(tile().videoBox()).toStrictEqual(plain);
+    });
+  });
+
+  describe('frameListener', () => {
+    let frames_: NeatTileFrame[];
+
+    beforeEach(() => {
+      frames_ = [];
+    });
+
+    function listen(listener: NeatTileFrameListener = (frame) => frames_.push(frame)): void {
+      host().frameListener.set(listener);
+      render();
+    }
+
+    const pose = (rtpTimestamp: number): NeatMetadataMessage => ({
+      type: 'pose-estimation',
+      data: { poses: [] },
+      _insight: { rtp_timestamp: rtpTimestamp },
+    });
+
+    it('frameListener gets each frame’s matched messages with held flags', () => {
+      create();
+      startStream();
+      listen();
+
+      source.send(pose(1));
+      present(1);
+      expect(frames_).toHaveLength(1);
+      expect(frames_[0].now).toBe(performance.now());
+      expect(frames_[0].messages.map(({ message, held }) => [message.type, held])).toStrictEqual([
+        ['pose-estimation', false],
+      ]);
+      const fresh = frames_[0].messages[0].message;
+
+      present(2);
+      expect(frames_).toHaveLength(2);
+      expect(frames_[1].messages).toStrictEqual([{ message: fresh, held: true }]);
+    });
+
+    it('a frame with nothing matched calls the listener with no messages', () => {
+      create();
+      startStream();
+      listen();
+
+      present(1);
+
+      expect(frames_).toHaveLength(1);
+      expect(frames_[0].messages).toStrictEqual([]);
+    });
+
+    it('is called after the frame is drawn, and once per presented frame', () => {
+      create();
+      startStream();
+      const drawnAtCall: number[] = [];
+      listen(() => drawnAtCall.push(context.ops('strokeRect').length));
+
+      source.send(detection(1, [10, 10, 20, 20]));
+      present(1);
+      present(2);
+
+      expect(drawnAtCall).toStrictEqual([1, 1]);
+    });
+
+    it('a listener that throws is logged once and the frames keep drawing', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      create();
+      startStream();
+      listen(() => {
+        throw new Error('boom');
+      });
+
+      source.send(detection(1, [10, 10, 20, 20]));
+      present(1);
+      expect(strokeRects()).toHaveLength(1);
+      source.send(detection(2, [30, 30, 20, 20]));
+      present(2);
+
+      expect(strokeRects(), 'the second frame still drew').toHaveLength(1);
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(String(warn.mock.calls[0][0])).toContain('frameListener');
+    });
   });
 });

@@ -2,7 +2,7 @@ import type { NeatMetadataMessage } from '../sync/metadata-message';
 import type { ColorAllocator, NeatOverlayColors } from './colors';
 import { createColorAllocator } from './colors';
 import type { DrawContext, DrawStrategy, OverlayFonts, TrackTrail } from './draw-context';
-import { letterbox } from './letterbox';
+import { letterbox, mirrorLetterbox } from './letterbox';
 import type { NeatOverlaySettings } from './overlay-settings';
 import type { MaskSurfaceFactory } from './rle';
 import { RleMaskCanvas, sharedMaskCanvas } from './rle';
@@ -23,6 +23,11 @@ export interface NeatOverlayView {
   /** The video's intrinsic size, the space metadata coordinates are in. 0 before it is known. */
   videoWidth: number;
   videoHeight: number;
+  /**
+   * Whether the picture is shown mirrored. Geometry is flipped across the canvas; text is not, so
+   * it stays readable.
+   */
+  mirror: boolean;
 }
 
 /** One message to draw; `held` marks one repeated from an earlier frame. */
@@ -184,13 +189,16 @@ export function drawFrame(
   ctx.setTransform(view.dpr, 0, 0, view.dpr, 0, 0);
   if (items.length === 0) return;
 
-  const box = letterbox(view.videoWidth, view.videoHeight, view.cssWidth, view.cssHeight);
+  const contained = letterbox(view.videoWidth, view.videoHeight, view.cssWidth, view.cssHeight);
+  // The one place a mirrored view differs: strategies read the mapping and draw as they always do.
+  const box = view.mirror ? mirrorLetterbox(contained, view.cssWidth) : contained;
   // Shared by every message of the frame, so the ROI is mapped and drawn once.
   const frame: Omit<DrawContext, 'held'> = {
     ctx,
     channel: state.channel,
     settings,
     box,
+    mirrored: view.mirror,
     roi: mapRoi(settings.roi, view.videoWidth, view.videoHeight, box),
     colors: state.colors,
     fonts: fontsFor(state, ctx.canvas),
@@ -215,6 +223,8 @@ export function drawFrame(
     }
     // The queue yields one message per type and frame, so skipping this one skips the type.
     ctx.save();
+    // Text anchored at a mirrored point reads away from the picture's edge, not into it.
+    ctx.textAlign = view.mirror ? 'right' : 'left';
     try {
       draw({ ...frame, held }, message.data);
     } catch (error) {

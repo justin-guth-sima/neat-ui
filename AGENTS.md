@@ -110,6 +110,16 @@ look happens in one place. Every rule here protects that.
     a hand (MediaPipe's 21 snake-case landmarks, `wrist` to `pinky_tip`) from one message: the
     two name sets are disjoint, so one link list serves both. Its `showBoxes` setting turns the
     box and label plate off, and `objects` rows (as for detections) style a pose by its `label`.
+    `NeatVideoTile`'s `mirror` shows the picture as in a mirror (a selfie view): the video flips by
+    the stylesheet (`data-mirrored`) and every overlay's geometry flips in the one mapping
+    strategies read (`mirrorLetterbox`, so a rectangle's width goes negative), while text stays
+    upright, right-aligned at its anchor, and a label plate ends at its anchor. `videoBox`, the bar,
+    the no-video note and the `neatTileOverlay` layer are not flipped (projected content reads
+    `mirror` from the app), and the region-of-interest editor does not follow `mirror`. Its
+    `frameListener` (a `NeatTileFrameListener`) is called once per presented frame, outside
+    Angular, after drawing, with a `NeatTileFrame`: the frame's `now` and the `messages` the
+    overlay drew, each with a `held` flag; keep it cheap and write a signal only when a value
+    changes. A listener that throws is logged once and the frames keep drawing.
     Public API is `projects/neat-ui/<name>/src/public-api.ts`; its
     code lives in `projects/neat-ui/<name>/src/lib/`.
     Why one entry per component: an app's main bundle carries only the entries its shell imports,

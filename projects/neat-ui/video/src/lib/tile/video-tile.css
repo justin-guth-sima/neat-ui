@@ -55,12 +55,22 @@
 }
 
 /*
+ * Mirrored: only the video flips (the overlay canvas draws its geometry flipped and its text
+ * upright; the bar, the note and the app's layer are not flipped). `transform` is the mirror's and
+ * the stopped state below scales through the separate `scale` property, so the two compose
+ * without a rule for their combination.
+ */
+:host([data-mirrored]) .video {
+  transform: scaleX(-1);
+}
+
+/*
  * Stopped: the last frame stays, frosted and dimmed, with its overlays hidden. The frame is scaled
  * up a little so the blur's transparent edge falls outside the tile.
  */
 :host([data-state='stopped']) .video {
   filter: blur(9px) saturate(0.6) brightness(0.75);
-  transform: scale(1.07);
+  scale: 1.07;
 }
 
 :host([data-state='stopped']) .overlay {

@@ -30,6 +30,7 @@ import * as table from '../table/src/public-api';
 import * as tabs from '../tabs/src/public-api';
 import * as toast from '../toast/src/public-api';
 import * as video from '../video/src/public-api';
+import type { NeatTileFrame, NeatTileFrameListener } from '../video/src/public-api';
 import * as primary from './public-api';
 
 const ENTRIES = {
@@ -82,6 +83,12 @@ describe('the public API', () => {
           primary[symbol as keyof typeof primary],
         );
     }
+  });
+
+  it('exports the tile’s frame types, which an app writes its frame listener with', () => {
+    // Types leave no runtime export; this fails to compile if either is not exported.
+    const listener: NeatTileFrameListener = (frame: NeatTileFrame) => void frame.messages.length;
+    expect(listener({ now: 0, messages: [] })).toBeUndefined();
   });
 
   it('exports the series swatch, which the charts and the diagram’s legend both show', () => {

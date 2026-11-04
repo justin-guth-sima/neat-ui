@@ -39,3 +39,18 @@ export function letterbox(
   }
   return { scaleX: drawWidth / videoWidth, scaleY: drawHeight / videoHeight, offsetX, offsetY };
 }
+
+/**
+ * The mapping seen in a mirror: the same picture with x running right to left across a box
+ * `boxWidth` wide. A negative `scaleX` turns a rectangle's width into a leftward extent, which
+ * `strokeRect`, `fillRect` and `drawImage` all draw correctly, so strategies need no case of
+ * their own for geometry.
+ */
+export function mirrorLetterbox(box: Letterbox, boxWidth: number): Letterbox {
+  return {
+    scaleX: -box.scaleX,
+    scaleY: box.scaleY,
+    offsetX: boxWidth - box.offsetX,
+    offsetY: box.offsetY,
+  };
+}

@@ -13,6 +13,7 @@ import { NeatSwitch } from '@sima/neat-ui/switch';
 import {
   NEAT_OVERLAY_DEFAULTS,
   type NeatOverlaySettings,
+  type NeatTileFrame,
   NeatVideoTile,
 } from '@sima/neat-ui/video';
 import { PoseSource } from './pose-source';
@@ -21,7 +22,9 @@ import { PoseSource } from './pose-source';
  * Two hands and a person in one `pose-estimation` message. A hand draws as MediaPipe's 21
  * landmarks and links, a person as COCO's keypoints. The `objects` rows style a pose by its
  * label: here the person is a thin light grey, and the hands keep the colour of their ids. Boxes shows
- * and hides the box and label plate around each pose.
+ * and hides the box and label plate around each pose. Mirror flips the picture and the poses, not
+ * their labels. The line under the switches is fed by the tile's `frameListener`, which gets each
+ * frame's matched messages outside Angular, so it writes its signal only when the count changes.
  */
 @Component({
   selector: 'app-poses',
@@ -30,7 +33,9 @@ import { PoseSource } from './pose-source';
   template: `
     <div class="showcase-row">
       <button neatSwitch [(checked)]="boxes">Boxes</button>
+      <button neatSwitch [(checked)]="mirror">Mirror</button>
     </div>
+    <p>{{ poseCount() }} {{ poseCount() === 1 ? 'pose' : 'poses' }} in this frame</p>
     <div class="tiles">
       <div class="cell">
         <neat-video-tile
@@ -38,6 +43,8 @@ import { PoseSource } from './pose-source';
           label="1"
           status="Hands and a person · 640×360"
           [settings]="settings()"
+          [mirror]="mirror()"
+          [frameListener]="countPoses"
         />
       </div>
     </div>
@@ -47,6 +54,13 @@ import { PoseSource } from './pose-source';
 export class Poses {
   protected readonly poses = new PoseSource();
   protected readonly boxes = signal(true);
+  protected readonly mirror = signal(false);
+  protected readonly poseCount = signal(0);
+  protected readonly countPoses = ({ messages }: NeatTileFrame): void => {
+    const found = messages.find(({ message }) => message.type === 'pose-estimation');
+    const poses = (found?.message.data as { poses?: readonly unknown[] } | undefined)?.poses;
+    this.poseCount.set(poses?.length ?? 0);
+  };
   protected readonly settings = computed<NeatOverlaySettings>(() => ({
     ...NEAT_OVERLAY_DEFAULTS,
     types: {

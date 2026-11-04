@@ -31,5 +31,11 @@ export { NeatRoiEditor } from './lib/roi-editor/roi-editor';
 export { neatRoiNames } from './lib/roi-editor/roi-names';
 export { NeatRoiSwatch } from './lib/roi-editor/roi-swatch';
 export type { NeatTileSource } from './lib/tile/tile-source';
-export type { NeatFrameStats, NeatTileState, NeatVideoBox } from './lib/tile/video-tile';
+export type {
+  NeatFrameStats,
+  NeatTileFrame,
+  NeatTileFrameListener,
+  NeatTileState,
+  NeatVideoBox,
+} from './lib/tile/video-tile';
 export { NeatVideoTile } from './lib/tile/video-tile';

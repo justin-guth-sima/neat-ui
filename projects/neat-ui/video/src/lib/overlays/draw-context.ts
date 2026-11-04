@@ -27,6 +27,8 @@ export interface DrawContext {
   readonly settings: NeatOverlaySettings;
   /** Video pixels to overlay CSS pixels. */
   readonly box: Letterbox;
+  /** The picture is mirrored: `box.scaleX` is negative and text is right-aligned at its anchor. */
+  readonly mirrored: boolean;
   readonly roi: RoiFrame;
   readonly colors: ColorAllocator;
   readonly fonts: OverlayFonts;
@@ -98,7 +100,10 @@ export function applyLineStyle(
   ctx.setLineDash(style?.style === 'dashed' ? [6, 4] : style?.style === 'dotted' ? [2, 2] : []);
 }
 
-/** A label in `color` on a dark plate whose bottom-left is at (x, y), kept inside the top edge. */
+/**
+ * A label in `color` on a dark plate whose bottom-left is at (x, y), kept inside the top edge. In a
+ * mirrored view the plate's bottom-right is at (x, y) and the text still reads left to right.
+ */
 export function drawLabelPlate(
   dc: DrawContext,
   text: string,
@@ -114,9 +119,9 @@ export function drawLabelPlate(
   const width = ctx.measureText(text).width + paddingX * 2;
   const labelY = Math.max(height + 2, y);
   ctx.fillStyle = OVERLAY_LABEL_PLATE_COLOR;
-  ctx.fillRect(x, labelY - height, width, height);
+  ctx.fillRect(dc.mirrored ? x - width : x, labelY - height, width, height);
   ctx.fillStyle = color;
-  ctx.fillText(text, x + paddingX, labelY - paddingY);
+  ctx.fillText(text, dc.mirrored ? x - paddingX : x + paddingX, labelY - paddingY);
 }
 
 /** A confidence in 0..1 as a whole percentage. */

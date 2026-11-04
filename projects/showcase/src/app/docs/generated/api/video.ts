@@ -1099,6 +1099,87 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/video/src/lib/grid/pack.ts"
     },
     {
+      "name": "NeatTileFrame",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "now",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "When the frame was presented, on the "
+                },
+                {
+                  "kind": "code",
+                  "text": "performance.now()"
+                },
+                {
+                  "kind": "text",
+                  "text": " clock."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "messages",
+          "type": "readonly { readonly message: NeatMetadataMessage; readonly held: boolean }[]",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "One message per type at most; empty when nothing matched and nothing is held."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What the overlay drew for one presented frame: the messages matched to it, and the ones held over from an earlier frame because this frame had none of their type ("
+            },
+            {
+              "kind": "code",
+              "text": "held"
+            },
+            {
+              "kind": "text",
+              "text": ")."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/video/src/lib/tile/video-tile.ts"
+    },
+    {
+      "name": "NeatTileFrameListener",
+      "kind": "type",
+      "definition": "(frame: NeatTileFrame) => void",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Called once for each frame the tile presents, after the overlay is drawn, outside Angular: it runs up to the video's frame rate, so it must be cheap and should not touch Angular state per call (write a signal at most when its value changes)."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/video/src/lib/tile/video-tile.ts"
+    },
+    {
       "name": "NeatTileGrid",
       "kind": "component",
       "selector": "neat-tile-grid",
@@ -1812,6 +1893,79 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "Draws the kit's focus ring around the tile, for the tile the app has chosen."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "mirror",
+          "type": "boolean",
+          "default": "false",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Shows the picture as in a mirror (a selfie view): the video and every overlay flip horizontally, while overlay text (labels, plates) still reads left to right. The bar, the no-video note and the "
+                },
+                {
+                  "kind": "code",
+                  "text": "neatTileOverlay"
+                },
+                {
+                  "kind": "text",
+                  "text": " layer are not flipped; content projected there reads the app's own "
+                },
+                {
+                  "kind": "code",
+                  "text": "mirror"
+                },
+                {
+                  "kind": "text",
+                  "text": " value to follow. "
+                },
+                {
+                  "kind": "code",
+                  "text": "videoBox"
+                },
+                {
+                  "kind": "text",
+                  "text": " is the same with and without it. The region-of-interest editor does not follow "
+                },
+                {
+                  "kind": "code",
+                  "text": "mirror"
+                },
+                {
+                  "kind": "text",
+                  "text": ": it works in the unflipped picture."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "frameListener",
+          "type": "NeatTileFrameListener | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Called once for each presented frame with what the overlay drew (see "
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatTileFrame",
+                  "name": "NeatTileFrame"
+                },
+                {
+                  "kind": "text",
+                  "text": "), for an app that acts on a frame's metadata (counting poses, say) in step with the picture. It runs outside Angular; a listener that throws is logged once per tile and the frames keep drawing."
                 }
               ]
             }

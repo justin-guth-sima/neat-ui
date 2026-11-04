@@ -22,6 +22,7 @@ import { createOverlayState, drawFrame, resetOverlayState } from '../overlays/dr
 import type { NeatOverlaySettings } from '../overlays/overlay-settings';
 import { NEAT_OVERLAY_DEFAULTS } from '../overlays/overlay-settings';
 import { letterbox } from '../overlays/letterbox';
+import type { NeatMetadataMessage } from '../sync/metadata-message';
 import { parseMetadataMessage } from '../sync/metadata-message';
 import type {
   NeatHeldOverlays,
@@ -69,6 +70,24 @@ function sameVideoBox(a: NeatVideoBox | null, b: NeatVideoBox | null): boolean {
   if (a === null || b === null) return a === b;
   return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
 }
+
+/**
+ * What the overlay drew for one presented frame: the messages matched to it, and the ones held
+ * over from an earlier frame because this frame had none of their type (`held`).
+ */
+export interface NeatTileFrame {
+  /** When the frame was presented, on the `performance.now()` clock. */
+  readonly now: number;
+  /** One message per type at most; empty when nothing matched and nothing is held. */
+  readonly messages: readonly { readonly message: NeatMetadataMessage; readonly held: boolean }[];
+}
+
+/**
+ * Called once for each frame the tile presents, after the overlay is drawn, outside Angular: it
+ * runs up to the video's frame rate, so it must be cheap and should not touch Angular state per
+ * call (write a signal at most when its value changes).
+ */
+export type NeatTileFrameListener = (frame: NeatTileFrame) => void;
 
 /**
  * The tile's frame-sync counters and video state, as the app reports them (the `synchronization`
@@ -123,6 +142,7 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
   host: {
     '[attr.data-state]': 'state()',
     '[attr.data-selected]': 'selected() ? "" : null',
+    '[attr.data-mirrored]': 'mirror() ? "" : null',
   },
   template: `
     <video #video class="video" autoplay playsinline [muted]="true"></video>
@@ -161,6 +181,20 @@ export class NeatVideoTile {
   readonly bars = input(true);
   /** Draws the kit's focus ring around the tile, for the tile the app has chosen. */
   readonly selected = input(false);
+  /**
+   * Shows the picture as in a mirror (a selfie view): the video and every overlay flip
+   * horizontally, while overlay text (labels, plates) still reads left to right. The bar, the
+   * no-video note and the `neatTileOverlay` layer are not flipped; content projected there reads
+   * the app's own `mirror` value to follow. `videoBox` is the same with and without it. The
+   * region-of-interest editor does not follow `mirror`: it works in the unflipped picture.
+   */
+  readonly mirror = input(false);
+  /**
+   * Called once for each presented frame with what the overlay drew (see `NeatTileFrame`), for an
+   * app that acts on a frame's metadata (counting poses, say) in step with the picture. It runs
+   * outside Angular; a listener that throws is logged once per tile and the frames keep drawing.
+   */
+  readonly frameListener = input<NeatTileFrameListener | null>(null);
 
   /** The tile's state each time it changes: `empty`, `playing` or `stopped`. */
   readonly stateChange = output<NeatTileState>();
@@ -189,6 +223,7 @@ export class NeatVideoTile {
   // What the frame loop reads. Plain fields, written when the inputs change, never signals.
   private frameSettings: NeatOverlaySettings = NEAT_OVERLAY_DEFAULTS;
   private frameRetentionMs = 0;
+  private frameListenerFn: NeatTileFrameListener | null = null;
   private overlayState: NeatOverlayState | null = null;
   private currentState: NeatTileState = 'empty';
 
@@ -201,6 +236,7 @@ export class NeatVideoTile {
     dpr: 1,
     videoWidth: 0,
     videoHeight: 0,
+    mirror: false,
   };
 
   private playing: { source: NeatTileSource; stream: MediaStream; stop: () => void } | null = null;
@@ -214,12 +250,15 @@ export class NeatVideoTile {
   private messagesThisSecond = 0;
   private warnedUnreadable = false;
   private warnedPlayback = false;
+  private warnedListener = false;
   private destroyed = false;
 
   constructor() {
     effect(() => {
       this.frameSettings = this.settings();
       this.frameRetentionMs = this.retentionMs();
+      this.view.mirror = this.mirror();
+      this.frameListenerFn = this.frameListener();
     });
     effect(() => {
       // A new state starts with no tracks, track colours or warnings of its own.
@@ -379,21 +418,32 @@ export class NeatVideoTile {
       takeMetadataForFrame(this.queue, rtpTimestamp, this.frameRetentionMs, now),
       now,
     );
+    const messages = items.map((item) => ({ message: item.data, held: item.held === true }));
     const ctx = this.context;
-    if (ctx === null || this.overlayState === null) return;
-    // A window moved to a screen of another density changes the ratio without a resize.
-    const dpr = currentDpr();
-    if (dpr !== this.view.dpr) this.sizeCanvas(dpr);
-    this.view.videoWidth = video.videoWidth;
-    this.view.videoHeight = video.videoHeight;
-    drawFrame(
-      ctx,
-      this.view,
-      items.map((item) => ({ message: item.data, held: item.held === true })),
-      this.overlayState,
-      this.frameSettings,
-      now,
-    );
+    if (ctx !== null && this.overlayState !== null) {
+      // A window moved to a screen of another density changes the ratio without a resize.
+      const dpr = currentDpr();
+      if (dpr !== this.view.dpr) this.sizeCanvas(dpr);
+      this.view.videoWidth = video.videoWidth;
+      this.view.videoHeight = video.videoHeight;
+      drawFrame(ctx, this.view, messages, this.overlayState, this.frameSettings, now);
+    }
+    this.notifyListener({ now, messages });
+  }
+
+  private notifyListener(frame: NeatTileFrame): void {
+    const listener = this.frameListenerFn;
+    if (listener === null) return;
+    try {
+      listener(frame);
+    } catch (error) {
+      if (this.warnedListener) return;
+      this.warnedListener = true;
+      console.warn(
+        `video: channel ${this.channel()} frameListener threw; later errors are dropped silently`,
+        error,
+      );
+    }
   }
 
   /**

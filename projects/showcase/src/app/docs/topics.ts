@@ -925,6 +925,8 @@ export const GROUPS: readonly TopicGroup[] = [
             parts: [
               'NeatVideoTile',
               'NeatVideoBox',
+              'NeatTileFrame',
+              'NeatTileFrameListener',
               'NeatTileSource',
               'NeatTileState',
               'NeatFrameStats',
