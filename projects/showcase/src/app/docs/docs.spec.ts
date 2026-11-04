@@ -154,8 +154,8 @@ describe('the docs topics', () => {
       'Diagram',
       'Video',
     ]);
-    expect(placedTopics(GROUPS[2])).toHaveLength(48);
-    expect(topics).toHaveLength(54);
+    expect(placedTopics(GROUPS[2])).toHaveLength(49);
+    expect(topics).toHaveLength(55);
   });
 
   // The id is also the examples folder and the `/demo/<id>` path, whichever group the topic is in.

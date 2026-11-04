@@ -7,10 +7,12 @@ describe('the charts entry', () => {
     expect(Object.keys(charts).sort()).toEqual([
       'NeatChartCard',
       'NeatHeatmap',
+      'NeatScoreBars',
       'NeatSeriesSwatch',
       'NeatSparkline',
       'NeatStackedChart',
       'NeatTimeChart',
+      'neatLabelColour',
     ]);
     // The swatch moved to the primary; it stays here, the same class, for the apps importing it.
     expect(Object.keys(charts).filter((symbol) => symbol in primary)).toEqual(['NeatSeriesSwatch']);

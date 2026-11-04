@@ -1,0 +1,45 @@
+/* Each row is a label, its bar and its figure on the list's three tracks, so the bars line up. */
+:host {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) 3em;
+  align-items: center;
+  column-gap: var(--neat-space-2);
+  row-gap: 2px;
+  font-size: var(--neat-text-sm);
+}
+
+/* The rows only group their cells, so the cells sit on the host's tracks. */
+.row {
+  display: contents;
+}
+
+.name {
+  white-space: nowrap;
+  color: var(--muted-foreground);
+}
+
+.row[data-top] .name {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.track {
+  display: block;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--muted);
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--fill);
+}
+
+.value {
+  text-align: right;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}

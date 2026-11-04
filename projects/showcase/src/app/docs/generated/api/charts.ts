@@ -632,6 +632,223 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/charts/src/lib/types.ts"
     },
     {
+      "name": "NeatScore",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "label",
+          "type": "string",
+          "doc": []
+        },
+        {
+          "name": "value",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Clamped to 0..1 for the bar; anything that is not a finite number draws an empty bar."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "One class and the score a classifier gave it, 0 to 1."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/charts/src/lib/score-bars.ts"
+    },
+    {
+      "name": "NeatScoreBars",
+      "kind": "component",
+      "selector": "neat-score-bars",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A classifier's live output, one bar per class:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-score-bars\n  label=\"Gesture probabilities\"\n  [scores]=\"scores\"\n  [labels]=\"classes\"\n  [quiet]=\"['No gesture']\"\n/>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Rows keep the order of "
+            },
+            {
+              "kind": "code",
+              "text": "scores"
+            },
+            {
+              "kind": "text",
+              "text": ", so a bar does not jump about as the scores change. Each row is the label, a bar filled to its score (clamped to 0..1) and the score with two decimals; a value that is not a number draws an empty bar and \"–\". The fill takes its colour from "
+            },
+            {
+              "kind": "ref",
+              "text": "neatLabelColour",
+              "name": "neatLabelColour"
+            },
+            {
+              "kind": "text",
+              "text": ", by the label's place in "
+            },
+            {
+              "kind": "code",
+              "text": "labels"
+            },
+            {
+              "kind": "text",
+              "text": " (empty means the order of "
+            },
+            {
+              "kind": "code",
+              "text": "scores"
+            },
+            {
+              "kind": "text",
+              "text": "), and "
+            },
+            {
+              "kind": "code",
+              "text": "quiet"
+            },
+            {
+              "kind": "text",
+              "text": " names the labels that stay muted. The row with the highest score has "
+            },
+            {
+              "kind": "code",
+              "text": "data-top"
+            },
+            {
+              "kind": "text",
+              "text": " and its label in bold, the first of a tie, and none when no score is a number."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The host is a group named by "
+            },
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": ". Each bar is a "
+            },
+            {
+              "kind": "code",
+              "text": "role=\"meter\""
+            },
+            {
+              "kind": "text",
+              "text": " from 0 to 1 named by its class, so a screen reader gets every value; the top row has no state of its own for it."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "scores",
+          "type": "readonly NeatScore[]",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The classes and their scores, in the order the rows are drawn."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "labels",
+          "type": "readonly string[]",
+          "default": "[]",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The colour order of the labels; empty means the order of "
+                },
+                {
+                  "kind": "code",
+                  "text": "scores"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "quiet",
+          "type": "readonly string[]",
+          "default": "[]",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Labels drawn in the muted colour, such as \"No gesture\"."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Names the list."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/charts/src/lib/score-bars.ts"
+    },
+    {
       "name": "NeatSeries",
       "kind": "interface",
       "members": [
@@ -1630,6 +1847,71 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/charts/src/lib/time-chart.ts"
+    },
+    {
+      "name": "neatLabelColour",
+      "kind": "function",
+      "signature": "neatLabelColour(label: string, labels: readonly string[], quiet: readonly string[]): string",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The colour of a label that stands for a class, a state or a gesture, as CSS: the series colour at the label's place in "
+            },
+            {
+              "kind": "code",
+              "text": "labels"
+            },
+            {
+              "kind": "text",
+              "text": " ("
+            },
+            {
+              "kind": "code",
+              "text": "--neat-series-1"
+            },
+            {
+              "kind": "text",
+              "text": " to "
+            },
+            {
+              "kind": "code",
+              "text": "-8"
+            },
+            {
+              "kind": "text",
+              "text": ", the palette starting again after eight), "
+            },
+            {
+              "kind": "code",
+              "text": "--muted-foreground"
+            },
+            {
+              "kind": "text",
+              "text": " for a label in "
+            },
+            {
+              "kind": "code",
+              "text": "quiet"
+            },
+            {
+              "kind": "text",
+              "text": " (the \"nothing here\" class, which should not compete with the others), and "
+            },
+            {
+              "kind": "code",
+              "text": "--neat-chip-neutral"
+            },
+            {
+              "kind": "text",
+              "text": " for a label in neither list. One function, so the score bars and an app's timeline of the same labels cannot colour them differently."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/charts/src/lib/label-colour.ts"
     }
   ]
 };

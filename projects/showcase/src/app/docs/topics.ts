@@ -775,6 +775,19 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
+            id: 'score-bars',
+            label: 'Score bars',
+            parts: ['NeatScoreBars', 'NeatScore', 'neatLabelColour'],
+            leads: ['NeatScoreBars'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/charts'),
+                import('./generated/examples/score-bars'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'chart-card',
             label: 'Chart card',
             parts: ['NeatChartCard'],

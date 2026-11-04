@@ -9,6 +9,8 @@ export { NeatHeatmap, type NeatHeatmapRow } from './lib/heatmap';
 // The swatch moved to the primary (the diagram's legend shows it too); still exported here so
 // the apps that import it from this entry keep working.
 export { NeatSeriesSwatch } from '@sima/neat-ui';
+export { neatLabelColour } from './lib/label-colour';
+export { type NeatScore, NeatScoreBars } from './lib/score-bars';
 export { NeatSparkline } from './lib/sparkline';
 export { NeatStackedChart } from './lib/stacked-chart';
 export { NeatTimeChart } from './lib/time-chart';

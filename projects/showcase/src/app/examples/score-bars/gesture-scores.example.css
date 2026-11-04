@@ -1,0 +1,13 @@
+.reading {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+  margin: var(--neat-space-3) 0 0;
+  font-size: var(--neat-text-sm);
+}
+
+.dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 999px;
+}
