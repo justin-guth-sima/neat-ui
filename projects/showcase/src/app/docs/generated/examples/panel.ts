@@ -32,10 +32,15 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatPanel, NeatPanelActions } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/panel'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-panel'"],["text",",\n  imports: [NeatButton, NeatPanel, NeatPanelActions],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    <neat-panel heading=\"Detections\">\n      <button neatButton neatPanelActions type=\"button\" size=\"small\">Clear</button>\n      <p>Nothing yet.</p>\n    </neat-panel>\n    <neat-panel heading=\"Model\">\n      <p>yolov8n, 640 by 640.</p>\n    </neat-panel>\n  `"],
-          ["text",",\n  styles: "],
-          ["string","`\n    :host {\n      display: flex;\n      flex-direction: column;\n      gap: var(--neat-space-3);\n    }\n    p {\n      margin: 0;\n    }\n  `"],
-          ["text",",\n})\n"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./panel.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," PanelExample {}\n"]
+        ]
+      },
+      {
+        "name": "panel.example.css",
+        "code": [
+          ["comment","/* The panels one gap apart, as a page stacks its sections. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\np {\n  margin: 0;\n}\n"]
         ]
       }
     ]

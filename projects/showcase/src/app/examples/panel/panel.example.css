@@ -1,0 +1,9 @@
+/* The panels one gap apart, as a page stacks its sections. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+p {
+  margin: 0;
+}

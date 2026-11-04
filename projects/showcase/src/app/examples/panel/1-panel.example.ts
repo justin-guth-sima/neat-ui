@@ -16,15 +16,6 @@ import { NeatPanel, NeatPanelActions } from '@sima/neat-ui/panel';
       <p>yolov8n, 640 by 640.</p>
     </neat-panel>
   `,
-  styles: `
-    :host {
-      display: flex;
-      flex-direction: column;
-      gap: var(--neat-space-3);
-    }
-    p {
-      margin: 0;
-    }
-  `,
+  styleUrl: './panel.example.css',
 })
 export class PanelExample {}
