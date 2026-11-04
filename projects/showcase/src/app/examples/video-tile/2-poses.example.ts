@@ -20,7 +20,7 @@ import { PoseSource } from './pose-source';
 /**
  * Two hands and a person in one `pose-estimation` message. A hand draws as MediaPipe's 21
  * landmarks and links, a person as COCO's keypoints. The `objects` rows style a pose by its
- * label: here the person is a thin grey, and the hands keep the colour of their ids. Boxes shows
+ * label: here the person is a thin light grey, and the hands keep the colour of their ids. Boxes shows
  * and hides the box and label plate around each pose.
  */
 @Component({

@@ -152,7 +152,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " rows style a pose by its label: here the person is a thin grey, and the hands keep the colour of their ids. Boxes shows and hides the box and label plate around each pose."
+            "text": " rows style a pose by its label: here the person is a thin light grey, and the hands keep the colour of their ids. Boxes shows and hides the box and label plate around each pose."
           }
         ]
       }

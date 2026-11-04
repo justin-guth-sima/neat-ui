@@ -1,10 +1,21 @@
-/** A few of IPN Hand's classes; the first is the quiet one. */
+/**
+ * IPN Hand's 14 classes; the first is the quiet one. The same list, in the same order, as the
+ * score bars example's, so a label has the same colour in both (its spec holds them equal): the
+ * docs let an example import only files of its own topic folder, so the list is repeated here.
+ */
 export const CLASSES: readonly string[] = [
   'No gesture',
   'Pointing with one finger',
+  'Pointing with two fingers',
   'Click with one finger',
+  'Click with two fingers',
   'Throw up',
+  'Throw down',
   'Throw left',
+  'Throw right',
+  'Open twice',
+  'Double click with one finger',
+  'Double click with two fingers',
   'Zoom in',
   'Zoom out',
 ];

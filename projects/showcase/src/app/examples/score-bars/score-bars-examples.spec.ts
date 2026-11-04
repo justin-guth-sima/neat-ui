@@ -6,7 +6,7 @@ describe('the score bars example', () => {
   it('draws the 14 classes and marks one as the top', async () => {
     const fixture = TestBed.createComponent(GestureScores);
     await fixture.whenStable();
-    const rows = Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('.row'));
+    const rows = Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('[data-slot="score-bars-row"]'));
 
     expect(rows.map((row) => row.querySelector('.name')?.textContent?.trim())).toEqual([
       ...CLASSES,
