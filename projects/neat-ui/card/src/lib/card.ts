@@ -8,8 +8,7 @@ let nextCardId = 0;
  * constants. card.spec checks that each string still appears in the vendored helm file named
  * here, so a helm update that changes one fails until this table is reviewed.
  *
- * Used as they are: helm's spacing (`--card-spacing`, 1.5rem), ring, shadow, radius and type. The
- * `data-size` classes never match, since the card sets no size. Class strings stay literals:
+ * The kit restyles some of them (below, KIT_CARD). Class strings stay literals:
  * Tailwind finds the classes the kit stylesheet needs by reading them.
  */
 export const CARD_HELM_CLASSES = {
@@ -27,25 +26,63 @@ export const CARD_HELM_CLASSES = {
   /** `hlm-card-content.ts` */
   content: 'px-(--card-spacing)',
   /** `hlm-card-footer.ts` */
-  footer:
-    'rounded-b-xl px-(--card-spacing) [.border-t]:pt-(--card-spacing) flex items-center',
+  footer: 'rounded-b-xl px-(--card-spacing) [.border-t]:pt-(--card-spacing) flex items-center',
 } as const;
 
 /**
- * What the kit adds to helm's parts, each once: the header leaves the layout while it has no
- * title, no subtitle and no actions (a card of content only keeps no empty band and no gap for
- * one), and the action area, the content and the footer leave it while empty.
+ * The kit's card look, from helm's: the frame the chart card has always had, so a card and a chart
+ * card are one look. Each part names the helm classes it drops and what replaces them, and
+ * card.spec checks every dropped class is still in helm's string, so a helm update that renames
+ * one fails here instead of leaving two competing classes.
+ *
+ * - Frame: a 1px `--border` and `--radius` instead of helm's ring, shadow and `rounded-xl`; no
+ *   `overflow-hidden`, since a chart's readout can hang below its plot, and no ring or shadow,
+ *   since a selected chart card draws a border colour and an inset shadow of its own.
+ * - Spacing: `--card-spacing` is `--neat-space-4` (helm's 1.5rem is roomy for a dashboard), and the
+ *   parts sit `--neat-space-2` apart.
+ * - Type: the title is `text-sm` (`--neat-text-sm`) as a chart card's heading, the subtitle
+ *   `text-xs` (`--neat-text-xs`, the size of a chart card's caption: the kit's secondary line).
+ * - Header: at least 2rem tall (`min-h-8`), so cards side by side line their content up whether or
+ *   not one has actions (a small button is 2rem). The header, the action area, the content and the
+ *   footer leave the layout while they hold nothing to show: a card of content only keeps no empty
+ *   band and no gap for one.
  */
-const KIT_CLASSES = {
-  header:
-    '[&:not(:has([data-slot=card-title],[data-slot=card-description],[data-slot=card-action]:not(:empty)))]:hidden',
-  empty: 'empty:hidden',
+const KIT_CARD = {
+  card: {
+    drop: [
+      'ring-foreground/10',
+      'overflow-hidden',
+      'rounded-xl',
+      'shadow-xs',
+      'ring-1',
+      '[--card-spacing:--spacing(6)]',
+      'data-[size=sm]:[--card-spacing:--spacing(4)]',
+      'gap-(--card-spacing)',
+    ],
+    add: 'min-w-0 border border-border rounded-(--radius) gap-(--neat-space-2) [--card-spacing:var(--neat-space-4)]',
+  },
+  header: {
+    drop: ['rounded-t-xl'],
+    add: 'min-h-8 [&:not(:has([data-slot=card-title],[data-slot=card-description],[data-slot=card-action]:not(:empty)))]:hidden',
+  },
+  title: { drop: ['text-base'], add: 'text-sm' },
+  description: { drop: ['text-sm'], add: 'text-xs' },
+  action: { drop: [], add: 'empty:hidden' },
+  content: { drop: [], add: 'empty:hidden' },
+  footer: { drop: ['rounded-b-xl'], add: 'empty:hidden' },
 } as const;
 
-const HEADER_CLASSES = `${CARD_HELM_CLASSES.header} ${KIT_CLASSES.header}`;
-const ACTION_CLASSES = `${CARD_HELM_CLASSES.action} ${KIT_CLASSES.empty}`;
-const CONTENT_CLASSES = `${CARD_HELM_CLASSES.content} ${KIT_CLASSES.empty}`;
-const FOOTER_CLASSES = `${CARD_HELM_CLASSES.footer} ${KIT_CLASSES.empty}`;
+/** The kit's classes for a part: helm's without the dropped ones, then the kit's. */
+export function kitCardClasses(part: keyof typeof KIT_CARD): string {
+  const { drop, add } = KIT_CARD[part];
+  const kept = CARD_HELM_CLASSES[part]
+    .split(' ')
+    .filter((cls) => !(drop as readonly string[]).includes(cls));
+  return [...kept, add].join(' ');
+}
+
+/** Exposed for card.spec, which holds each dropped class to helm's string. */
+export const CARD_KIT_DROPPED = KIT_CARD;
 
 /**
  * A card on Spartan's, with an optional title and subtitle, actions beside them and a footer:
@@ -107,11 +144,11 @@ export class NeatCard {
   readonly subtitle = input('');
 
   protected readonly titleId = `neat-card-${++nextCardId}-title`;
-  protected readonly cardClasses = CARD_HELM_CLASSES.card;
-  protected readonly headerClasses = HEADER_CLASSES;
-  protected readonly titleClasses = CARD_HELM_CLASSES.title;
-  protected readonly descriptionClasses = CARD_HELM_CLASSES.description;
-  protected readonly actionClasses = ACTION_CLASSES;
-  protected readonly contentClasses = CONTENT_CLASSES;
-  protected readonly footerClasses = FOOTER_CLASSES;
+  protected readonly cardClasses = kitCardClasses('card');
+  protected readonly headerClasses = kitCardClasses('header');
+  protected readonly titleClasses = kitCardClasses('title');
+  protected readonly descriptionClasses = kitCardClasses('description');
+  protected readonly actionClasses = kitCardClasses('action');
+  protected readonly contentClasses = kitCardClasses('content');
+  protected readonly footerClasses = kitCardClasses('footer');
 }
