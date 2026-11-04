@@ -3,6 +3,7 @@
 // entries is written out: a spec is bundled statically, so it cannot import by a name found on disk
 // (`check-dist.test.mjs` compares the entry folders with its own table).
 import * as callout from '../callout/src/public-api';
+import * as card from '../card/src/public-api';
 import * as charts from '../charts/src/public-api';
 import * as collapsible from '../collapsible/src/public-api';
 import * as confirm from '../confirm/src/public-api';
@@ -17,7 +18,6 @@ import * as levelMeter from '../level-meter/src/public-api';
 import * as lineList from '../line-list/src/public-api';
 import * as lucide from '../lucide/src/public-api';
 import * as numberField from '../number-field/src/public-api';
-import * as panel from '../panel/src/public-api';
 import * as popover from '../popover/src/public-api';
 import * as progress from '../progress/src/public-api';
 import * as segmented from '../segmented/src/public-api';
@@ -34,6 +34,7 @@ import * as primary from './public-api';
 
 const ENTRIES = {
   callout,
+  card,
   charts,
   collapsible,
   confirm,
@@ -48,7 +49,6 @@ const ENTRIES = {
   lineList,
   lucide,
   numberField,
-  panel,
   popover,
   progress,
   segmented,

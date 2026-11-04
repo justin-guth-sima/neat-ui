@@ -243,7 +243,7 @@ describe('App', () => {
       'Select list',
       'File browser',
       'Collapsible',
-      'Panel',
+      'Card',
       'Stored signal',
     ]);
     expect(currentOf(list.querySelectorAll('a'))).toEqual(['Select list']);

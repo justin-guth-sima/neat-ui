@@ -10,6 +10,7 @@
     "paths": {
       "@bench/diagram-seam": ["../neat-ui/diagram/src/bench-seam.ts"],
       "@sima/neat-ui/callout": ["../neat-ui/callout/src/public-api.ts"],
+      "@sima/neat-ui/card": ["../neat-ui/card/src/public-api.ts"],
       "@sima/neat-ui/charts": ["../neat-ui/charts/src/public-api.ts"],
       "@sima/neat-ui/collapsible": ["../neat-ui/collapsible/src/public-api.ts"],
       "@sima/neat-ui/confirm": ["../neat-ui/confirm/src/public-api.ts"],
@@ -24,7 +25,6 @@
       "@sima/neat-ui/line-list": ["../neat-ui/line-list/src/public-api.ts"],
       "@sima/neat-ui/lucide": ["../neat-ui/lucide/src/public-api.ts"],
       "@sima/neat-ui/number-field": ["../neat-ui/number-field/src/public-api.ts"],
-      "@sima/neat-ui/panel": ["../neat-ui/panel/src/public-api.ts"],
       "@sima/neat-ui/popover": ["../neat-ui/popover/src/public-api.ts"],
       "@sima/neat-ui/progress": ["../neat-ui/progress/src/public-api.ts"],
       "@sima/neat-ui/segmented": ["../neat-ui/segmented/src/public-api.ts"],

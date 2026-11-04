@@ -2,6 +2,7 @@ import type { EnvironmentProviders, Provider } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { DocsContext, type DocsTarget } from './docs-context';
 import { API as CALLOUT } from './generated/api/callout';
+import { API as CARD } from './generated/api/card';
 import { API as CHARTS } from './generated/api/charts';
 import { API as COLLAPSIBLE } from './generated/api/collapsible';
 import { API as CONFIRM } from './generated/api/confirm';
@@ -16,7 +17,6 @@ import { API as LEVEL_METER } from './generated/api/level-meter';
 import { API as LINE_LIST } from './generated/api/line-list';
 import { API as LUCIDE } from './generated/api/lucide';
 import { API as NUMBER_FIELD } from './generated/api/number-field';
-import { API as PANEL } from './generated/api/panel';
 import { API as POPOVER } from './generated/api/popover';
 import { API as PRIMARY } from './generated/api/primary';
 import { API as PROGRESS } from './generated/api/progress';
@@ -73,6 +73,7 @@ export function provideFakeDocs(docs: FakeDocs): (Provider | EnvironmentProvider
  */
 export const KIT_ENTRIES: readonly DocsEntry[] = [
   CALLOUT,
+  CARD,
   CHARTS,
   COLLAPSIBLE,
   CONFIRM,
@@ -87,7 +88,6 @@ export const KIT_ENTRIES: readonly DocsEntry[] = [
   LINE_LIST,
   LUCIDE,
   NUMBER_FIELD,
-  PANEL,
   POPOVER,
   PRIMARY,
   PROGRESS,

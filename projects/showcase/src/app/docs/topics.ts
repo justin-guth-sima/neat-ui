@@ -683,14 +683,14 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
-            id: 'panel',
-            label: 'Panel',
-            parts: ['NeatPanel'],
-            leads: ['NeatPanel'],
+            id: 'card',
+            label: 'Card',
+            parts: ['NeatCard'],
+            leads: ['NeatCard'],
             load: async () => {
               const [api, examples] = await Promise.all([
-                import('./generated/api/panel'),
-                import('./generated/examples/panel'),
+                import('./generated/api/card'),
+                import('./generated/examples/card'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },

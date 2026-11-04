@@ -1,0 +1,12 @@
+/*
+ * The surface a card draws, for what sits on it. The rest of the card's look is helm's classes in
+ * card.ts. `min-width: 0` lets a card in a grid or a flex row shrink below its content's width
+ * instead of pushing the row wider.
+ */
+:host {
+  /* The charts' labels and the timeline's run edges are drawn in the surface they sit on: this one. */
+  --neat-surface: var(--card);
+
+  min-width: 0;
+  color: var(--card-foreground);
+}

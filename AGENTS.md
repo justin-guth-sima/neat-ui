@@ -80,8 +80,9 @@ look happens in one place. Every rule here protects that.
     a hint and an error, and `NeatErrorNote`, a failure said in place), `collapsible`
     (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed),
     `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
-    `panel` (`NeatPanel`, a titled card whose heading names it as a region, with the elements marked
-    `neatPanelActions` at the header's end; the attribute is the panel's own selector, no import),
+    `card` (`NeatCard`, a card on Spartan's helm card with an optional `title` that names it as a
+    region, a `subtitle`, the elements marked `neatCardActions` at the header's end and those marked
+    `neatCardFooter` in its footer; the attributes are the card's own selectors, no import),
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments) and `charts` (live
     metric charts, drawn as SVG but for the heatmap, the score bars and the label timeline, which are
     HTML: `NeatSparkline`, `NeatTimeChart`,

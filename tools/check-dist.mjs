@@ -20,6 +20,7 @@ const ALIAS = '@neat-ui/helm';
  */
 export const SECONDARY_ENTRIES = {
   callout: ['neat-callout'],
+  card: ['neat-card'],
   charts: [
     'neat-sparkline',
     'neat-time-chart',
@@ -51,7 +52,6 @@ export const SECONDARY_ENTRIES = {
   // Glyphs only: no selector for the primary to leak, so it is listed for the FESM check alone.
   lucide: [],
   'number-field': ['neat-number-field'],
-  panel: ['neat-panel'],
   popover: [
     'neat-popover',
     'ng-template[neatPopoverContent]',
