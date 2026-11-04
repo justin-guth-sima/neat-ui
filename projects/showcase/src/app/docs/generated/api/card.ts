@@ -53,7 +53,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " stands in the title's heading in place of its text (a button, say); the "
+              "text": " stands in the title's place (a button, say), as it is, with no heading role; only the "
             },
             {
               "kind": "code",
@@ -61,7 +61,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " still names the card. The attributes are selectors of the card, not directives, so they need no import and cannot be forgotten into silence. The header, the footer and the actions area are always in the template and leave the layout while empty: a card without a title, a subtitle or actions has no header, and actions alone still sit at the header's end."
+              "text": " text is a heading. The attributes are selectors of the card, not directives, so they need no import and cannot be forgotten into silence. The header, the footer and the actions area are always in the template and leave the layout while empty: a card without a title, a subtitle or actions has no header, and actions alone still sit at the header's end."
             }
           ]
         },
@@ -70,7 +70,31 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "With a title the host is a named region ("
+              "text": "The title is a real heading ("
+            },
+            {
+              "kind": "code",
+              "text": "role=\"heading\""
+            },
+            {
+              "kind": "text",
+              "text": "), at "
+            },
+            {
+              "kind": "code",
+              "text": "headingLevel"
+            },
+            {
+              "kind": "text",
+              "text": ", 3 by default, as the callout's: pick the level that fits where the card stands. "
+            },
+            {
+              "kind": "code",
+              "text": "region"
+            },
+            {
+              "kind": "text",
+              "text": " makes the card a landmark ("
             },
             {
               "kind": "code",
@@ -78,31 +102,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", labelled by the title), the landmark a "
-            },
-            {
-              "kind": "code",
-              "text": "section"
-            },
-            {
-              "kind": "text",
-              "text": " with a name maps to; a custom element is not a "
-            },
-            {
-              "kind": "code",
-              "text": "section"
-            },
-            {
-              "kind": "text",
-              "text": " of its own. Without a title it has no role, since a region with no name is no landmark. The title is an "
-            },
-            {
-              "kind": "code",
-              "text": "h2"
-            },
-            {
-              "kind": "text",
-              "text": ": cards are a page's sections. The card sets "
+              "text": ", labelled by the title), for a card a user should be able to jump to; without a title it takes no role, since a region with no name is no landmark. The card sets "
             },
             {
               "kind": "code",
@@ -126,7 +126,48 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The card's title, which also names it as a region; none if empty."
+                  "text": "The card's title, a heading at "
+                },
+                {
+                  "kind": "code",
+                  "text": "headingLevel"
+                },
+                {
+                  "kind": "text",
+                  "text": "; none if empty."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "headingLevel",
+          "type": "2 | 3 | 4 | 5 | 6",
+          "default": "3",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The title's level in the page's outline."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "region",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the card is a landmark, named by its title (none without one)."
                 }
               ]
             }

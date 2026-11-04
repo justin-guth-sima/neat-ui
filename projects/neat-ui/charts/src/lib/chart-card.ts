@@ -50,7 +50,7 @@ const CONTROLS = 'a[href], button, input, select, textarea, summary, [contentedi
     '(click)': 'onClick($event)',
   },
   template: `
-    <neat-card class="card" [title]="heading()">
+    <neat-card class="card">
       @if (selectable()) {
         <button
           type="button"
@@ -63,7 +63,9 @@ const CONTROLS = 'a[href], button, input, select, textarea, summary, [contentedi
       } @else {
         <span neatCardTitle>{{ heading() }}</span>
       }
-      <ng-content select="[neatChartCardChip]" ngProjectAs="[neatCardActions]" />
+      <span neatCardActions class="chip-slot">
+        <ng-content select="[neatChartCardChip]" />
+      </span>
       <div class="body">
         @if (value()) {
           <div class="value">

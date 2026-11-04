@@ -24,7 +24,7 @@ import cardStyles from './card.css' with { loader: 'text' };
 
 /** The variant that takes the header out of the layout while it holds nothing to show. */
 const HEADER_HIDDEN_WHEN_EMPTY =
-  '[&:not(:has([data-slot=card-title],[data-slot=card-description],[data-slot=card-action]:not(:empty)))]:hidden';
+  '[&:not(:has([data-slot=card-title]:not(:empty),[data-slot=card-description],[data-slot=card-action]:not(:empty)))]:hidden';
 
 /** The value a rule with exactly this selector declares for a property, or `undefined`. */
 function declared(selector: string, property: string): string | undefined {
@@ -36,7 +36,7 @@ function declared(selector: string, property: string): string | undefined {
 @Component({
   imports: [NeatCard],
   template: `
-    <neat-card title="Detections">
+    <neat-card>
       <button type="button" neatCardTitle class="own">Detections</button>
       <p>Nothing yet.</p>
     </neat-card>
@@ -48,7 +48,12 @@ class TitleSlotHost {}
 @Component({
   imports: [NeatCard],
   template: `
-    <neat-card [title]="title()" [subtitle]="subtitle()">
+    <neat-card
+      [title]="title()"
+      [subtitle]="subtitle()"
+      [region]="region()"
+      [headingLevel]="level()"
+    >
       @if (withActions()) {
         <button type="button" neatCardActions>Clear</button>
       }
@@ -61,6 +66,8 @@ class TitleSlotHost {}
 })
 class CardHost {
   readonly title = signal('Detections');
+  readonly region = signal(false);
+  readonly level = signal<2 | 3 | 4 | 5 | 6>(3);
   readonly subtitle = signal('Last minute');
   readonly withActions = signal(true);
   readonly withFooter = signal(true);
@@ -76,8 +83,22 @@ async function render(setup: (host: CardHost) => void = () => undefined) {
 }
 
 describe('NeatCard', () => {
-  it('renders the title and the subtitle and names the region by the title', async () => {
-    const { card, slot } = await render();
+  it('renders the title as a heading at its level, no landmark by default', async () => {
+    const { fixture, card, slot } = await render();
+
+    const title = slot('card-title')!;
+    expect(title.getAttribute('role')).toBe('heading');
+    expect(title.getAttribute('aria-level')).toBe('3');
+    expect(card.hasAttribute('role')).toBe(false);
+    expect(card.hasAttribute('aria-labelledby')).toBe(false);
+
+    fixture.componentInstance.level.set(2);
+    await fixture.whenStable();
+    expect(title.getAttribute('aria-level')).toBe('2');
+  });
+
+  it('renders the title and the subtitle and, as a region, names it by the title', async () => {
+    const { card, slot } = await render((host) => host.region.set(true));
 
     const title = slot('card-title')!;
     expect(title.textContent!.trim()).toBe('Detections');
@@ -87,19 +108,18 @@ describe('NeatCard', () => {
     expect(card.getAttribute('aria-labelledby')).toBe(title.id);
   });
 
-  it('takes an element for the title with neatCardTitle, which still names the region', async () => {
+  it('takes an element for the title with neatCardTitle, which is no heading by itself', async () => {
     const fixture = TestBed.createComponent(TitleSlotHost);
     await fixture.whenStable();
     const card: HTMLElement = fixture.nativeElement.querySelector('neat-card');
     const title = card.querySelector<HTMLElement>('[data-slot="card-title"]')!;
 
     // The element stands in the title's heading, in place of its text; the content has none of it.
-    expect(title.tagName).toBe('H2');
     expect(title.querySelector('button.own')?.textContent).toBe('Detections');
     expect(title.textContent!.trim()).toBe('Detections');
     expect(card.querySelector('[data-slot="card-content"] button')).toBeNull();
-    expect(card.getAttribute('role')).toBe('region');
-    expect(card.getAttribute('aria-labelledby')).toBe(title.id);
+    expect(title.hasAttribute('role')).toBe(false);
+    expect(card.hasAttribute('role')).toBe(false);
   });
 
   it('draws no native tooltip from the title attribute', async () => {
@@ -108,14 +128,16 @@ describe('NeatCard', () => {
     expect(card.hasAttribute('title')).toBe(false);
   });
 
-  it('has no header text and no role without a title', async () => {
+  it('has no header text and no role without a title, even as a region', async () => {
     const { card, slot } = await render((host) => {
       host.title.set('');
       host.subtitle.set('');
+      host.region.set(true);
       host.withActions.set(false);
     });
 
-    expect(slot('card-title')).toBeNull();
+    expect(slot('card-title')!.textContent).toBe('');
+    expect(slot('card-title')!.hasAttribute('role')).toBe(false);
     expect(slot('card-description')).toBeNull();
     expect(card.hasAttribute('role')).toBe(false);
     expect(card.hasAttribute('aria-labelledby')).toBe(false);
@@ -220,7 +242,9 @@ describe('NeatCard', () => {
   });
 
   it('keeps the header as tall with actions as without', () => {
-    expect(kitCardClasses('header').split(' ')).toContain('min-h-[var(--neat-card-header-min-height,2rem)]');
+    expect(kitCardClasses('header').split(' ')).toContain(
+      'min-h-[var(--neat-card-header-min-height,2rem)]',
+    );
   });
 
   it('only drops classes that helm still has', () => {

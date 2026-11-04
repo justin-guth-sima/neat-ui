@@ -267,7 +267,7 @@ describe('NeatChartCard', () => {
     expect(declared('.card', '--neat-card-header-min-height')).toBe('0');
   });
 
-  it('is a neat-card whose title is the heading and whose header actions hold the chip', async () => {
+  it('is a neat-card whose title is the heading, with no landmark or heading role and whose header actions hold the chip', async () => {
     const { root, one } = await render();
     const card = one('neat-chart-card > neat-card')!;
     const title = card.querySelector('[data-slot="card-title"]')!;
@@ -275,8 +275,13 @@ describe('NeatChartCard', () => {
     expect(root.querySelectorAll('neat-card').length).toBe(1);
     expect(text(title)).toBe('MLA temperature');
     expect(title.querySelector('button.activator')).not.toBeNull();
-    expect(card.getAttribute('role')).toBe('region');
-    expect(card.getAttribute('aria-labelledby')).toBe(title.id);
+    // Its accessibility tree is what it was before the card: no landmark, no heading.
+    expect(card.hasAttribute('role')).toBe(false);
+    expect(card.hasAttribute('aria-labelledby')).toBe(false);
+    expect(title.hasAttribute('role')).toBe(false);
+    expect(
+      root.querySelector('[role="region"], [role="heading"], h1, h2, h3, h4, h5, h6'),
+    ).toBeNull();
     expect(text(card.querySelector('[data-slot="card-action"]'))).toBe('Warning');
     // The value, the caption and the chart are the card's content, not its header.
     expect(card.querySelector('[data-slot="card-content"] .value')).not.toBeNull();

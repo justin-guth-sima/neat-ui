@@ -14,7 +14,15 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A card with a title, a subtitle, an action at the header's end and a footer."
+            "text": "A card with a title, a subtitle, an action at the header's end and a footer, and a landmark: "
+          },
+          {
+            "kind": "code",
+            "text": "region"
+          },
+          {
+            "kind": "text",
+            "text": " names it by its title for a user who jumps between regions."
           }
         ]
       }
@@ -31,7 +39,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCard } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/card'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-titled-card'"],["text",",\n  imports: [NeatButton, NeatCard],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-card title=\"Detections\" subtitle=\"The last minute\">\n      <button neatButton neatCardActions type=\"button\" size=\"small\">Clear</button>\n      <p>Nothing yet.</p>\n      <p neatCardFooter>Updated just now</p>\n    </neat-card>\n  `"],
+          ["string","`\n    <neat-card title=\"Detections\" subtitle=\"The last minute\" region>\n      <button neatButton neatCardActions type=\"button\" size=\"small\">Clear</button>\n      <p>Nothing yet.</p>\n      <p neatCardFooter>Updated just now</p>\n    </neat-card>\n  `"],
           ["text",",\n  styleUrl: "],
           ["string","'./card.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," TitledCardExample {}\n"]

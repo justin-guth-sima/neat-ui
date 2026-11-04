@@ -26,6 +26,15 @@
   box-shadow: inset 0 0 0 1px var(--primary);
 }
 
+/* The chip sits centred on the heading's line (the heading's `text-sm` over its normal leading). */
+.chip-slot {
+  display: flex;
+  align-items: center;
+  min-height: 1lh;
+  font-size: var(--neat-text-sm);
+  line-height: 1.5;
+}
+
 .body {
   display: flex;
   flex-direction: column;
@@ -61,7 +70,7 @@
   color: var(--muted-foreground);
 }
 
-/* The page's leading, which the caption had before the card's `text-sm` leading (1.43) reached it. */
+/* The page's leading, which the caption had before the card's `text-sm` leading reached it. */
 .caption {
   line-height: 1.5;
   font-size: var(--neat-text-xs);

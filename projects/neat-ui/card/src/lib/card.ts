@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 /** Numbers each card, for the id its title has. */
 let nextCardId = 0;
@@ -43,15 +43,14 @@ export const CARD_HELM_CLASSES = {
  * - Type: the title is `text-sm` (`--neat-text-sm`) as a chart card's heading, the subtitle
  *   `text-xs` (`--neat-text-xs`, the size of a chart card's caption: the kit's secondary line).
  * - Actions: a row of their own, so an action that is an inline element (a chip) takes its own
- *   height and no line box of the text around it adds to it. They sit in the title's row only
- *   (helm's two-row span leaves an empty row and its gap under a title alone), and the text of the
- *   title and of the actions share a baseline.
- * - Header: at least 2rem tall, so cards side by side line their content up whether or not one has
- *   actions (a small button is 2rem). The minimum is the custom property
- *   `--neat-card-header-min-height` (2rem unless set), for a card whose actions are smaller, a
- *   chart card's chip. The header, the action area, the content and the
- *   footer leave the layout while they hold nothing to show: a card of content only keeps no empty
- *   band and no gap for one.
+ *   height and no line box of the text around it adds to it.
+ * - Header: the row gap only with a subtitle (helm's `gap-1` also left a gap under a title alone,
+ *   where the actions' two-row span makes an empty second row), and at least 2rem tall, so cards
+ *   side by side line their content up whether or not one has actions (a small button is 2rem).
+ *   The minimum is the custom property `--neat-card-header-min-height` (2rem unless set), for the
+ *   kit's own presets whose actions are smaller (a chart card's chip); an app sizes a card by its
+ *   actions, not by this. The header, the action area, the content and the footer leave the layout
+ *   while they hold nothing to show: a card of content only keeps no empty band and no gap for one.
  */
 const KIT_CARD = {
   card: {
@@ -68,15 +67,12 @@ const KIT_CARD = {
     add: 'min-w-0 border border-border rounded-(--radius) gap-(--neat-space-2) [--card-spacing:var(--neat-space-4)]',
   },
   header: {
-    drop: ['rounded-t-xl'],
-    add: 'min-h-[var(--neat-card-header-min-height,2rem)] [&:not(:has([data-slot=card-title],[data-slot=card-description],[data-slot=card-action]:not(:empty)))]:hidden',
+    drop: ['rounded-t-xl', 'gap-1'],
+    add: 'gap-x-1 has-data-[slot=card-description]:gap-y-1 min-h-[var(--neat-card-header-min-height,2rem)] [&:not(:has([data-slot=card-title]:not(:empty),[data-slot=card-description],[data-slot=card-action]:not(:empty)))]:hidden',
   },
-  title: { drop: ['text-base'], add: 'text-sm self-baseline' },
+  title: { drop: ['text-base'], add: 'text-sm' },
   description: { drop: ['text-sm'], add: 'text-xs' },
-  action: {
-    drop: ['row-span-2', 'self-start'],
-    add: 'flex items-center gap-(--neat-space-2) self-baseline empty:hidden',
-  },
+  action: { drop: [], add: 'flex items-center gap-(--neat-space-2) empty:hidden' },
   content: { drop: [], add: 'empty:hidden' },
   footer: { drop: ['rounded-b-xl'], add: 'empty:hidden' },
 } as const;
@@ -106,17 +102,18 @@ export const CARD_KIT_DROPPED = KIT_CARD;
  *
  * The title stands at the start of the header, the subtitle under it; elements with the attribute
  * `neatCardActions` go to the header's end, elements with `neatCardFooter` to the footer, and
- * everything else is the content. An element with `neatCardTitle` stands in the title's heading in
- * place of its text (a button, say); the `title` still names the card. The attributes are
- * selectors of the card, not directives, so
- * they need no import and cannot be forgotten into silence. The header, the footer and the
+ * everything else is the content. An element with `neatCardTitle` stands in the title's place (a
+ * button, say), as it is, with no heading role; only the `title` text is a heading. The attributes
+ * are selectors of the card, not directives, so they need no import and cannot be forgotten into
+ * silence. The header, the footer and the
  * actions area are always in the template and leave the layout while empty: a card without a
  * title, a subtitle or actions has no header, and actions alone still sit at the header's end.
  *
- * With a title the host is a named region (`role="region"`, labelled by the title), the landmark
- * a `section` with a name maps to; a custom element is not a `section` of its own. Without a
- * title it has no role, since a region with no name is no landmark. The title is an `h2`: cards
- * are a page's sections. The card sets `--neat-surface` to its fill, for the charts it holds.
+ * The title is a real heading (`role="heading"`), at `headingLevel`, 3 by default, as the
+ * callout's: pick the level that fits where the card stands. `region` makes the card a landmark
+ * (`role="region"`, labelled by the title), for a card a user should be able to jump to; without a
+ * title it takes no role, since a region with no name is no landmark. The card sets
+ * `--neat-surface` to its fill, for the charts it holds.
  */
 @Component({
   selector: 'neat-card',
@@ -124,18 +121,23 @@ export const CARD_KIT_DROPPED = KIT_CARD;
   host: {
     'data-slot': 'card',
     '[class]': 'cardClasses',
-    '[attr.role]': 'title() ? "region" : null',
-    '[attr.aria-labelledby]': 'title() ? titleId : null',
+    '[attr.role]': 'region() && title() ? "region" : null',
+    '[attr.aria-labelledby]': 'region() && title() ? titleId : null',
     // The title is an input, so the attribute must not stay on the host as a native tooltip.
     '[attr.title]': 'null',
   },
   template: `
     <div data-slot="card-header" [class]="headerClasses">
-      @if (title()) {
-        <h2 data-slot="card-title" [class]="titleClasses" [id]="titleId">
-          <ng-content select="[neatCardTitle]">{{ title() }}</ng-content>
-        </h2>
-      }
+      <!-- Always there: an element marked neatCardTitle fills it with no title text. -->
+      <div
+        data-slot="card-title"
+        [class]="titleClasses"
+        [id]="titleId"
+        [attr.role]="title() ? 'heading' : null"
+        [attr.aria-level]="title() ? headingLevel() : null"
+      >
+        <ng-content select="[neatCardTitle]">{{ title() }}</ng-content>
+      </div>
       @if (subtitle()) {
         <p data-slot="card-description" [class]="descriptionClasses">{{ subtitle() }}</p>
       }
@@ -151,8 +153,12 @@ export const CARD_KIT_DROPPED = KIT_CARD;
   styleUrl: './card.css',
 })
 export class NeatCard {
-  /** The card's title, which also names it as a region; none if empty. */
+  /** The card's title, a heading at `headingLevel`; none if empty. */
   readonly title = input('');
+  /** The title's level in the page's outline. */
+  readonly headingLevel = input<2 | 3 | 4 | 5 | 6>(3);
+  /** Whether the card is a landmark, named by its title (none without one). */
+  readonly region = input(false, { transform: booleanAttribute });
   /** A line under the title; none if empty. */
   readonly subtitle = input('');
 

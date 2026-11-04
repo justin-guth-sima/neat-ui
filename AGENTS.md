@@ -80,8 +80,10 @@ look happens in one place. Every rule here protects that.
     a hint and an error, and `NeatErrorNote`, a failure said in place), `collapsible`
     (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed),
     `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
-    `card` (`NeatCard`, a card on Spartan's helm card with an optional `title` that names it as a
-    region, a `subtitle`, the elements marked `neatCardActions` at the header's end, one marked
+    `card` (`NeatCard`, a card on Spartan's helm card with an optional `title` (a heading at
+    `headingLevel`, 3 by default; `region` makes the card a landmark named by it, opt-in as the
+    callout's; `--neat-card-header-min-height` is for the kit's own presets, a chart card's chip,
+    not for apps), a `subtitle`, the elements marked `neatCardActions` at the header's end, one marked
     `neatCardTitle` in place of the title's text (a button) and those marked `neatCardFooter` in its
     footer; the attributes are the card's own selectors, no import),
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments) and `charts` (live
@@ -335,8 +337,9 @@ types are exported.
 
 `NeatChartCard` is the one card for a metric (the overview cards, the Power tiles, a run view's
 tiles): heading, `[neatChartCardChip]`, value with unit, caption, then the chart. It is a preset of
-`NeatCard` (`card`): the heading is the card's title (a button when selectable, through
-`neatCardTitle`), the chip its header actions, the rest its content. The frame, the `--card` fill
+`NeatCard` (`card`): the heading stands in the card's title (a button when selectable, through
+`neatCardTitle`; no heading role and no region, so its accessibility tree is what it was before),
+the chip is its header actions, the rest its content. The frame, the `--card` fill
 and `--neat-surface` (for the charts' label halos) are the card's, in one place; the chart card
 adds the selected look. The card has no `overflow`, `z-index`, `isolation` or `transform`: a
 readout can hang below its plot, and a card that clipped it or made a stacking context would let
