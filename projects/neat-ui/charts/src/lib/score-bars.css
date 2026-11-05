@@ -39,7 +39,7 @@
   display: block;
   height: var(--bar);
   border-radius: 999px;
-  background: var(--muted);
+  background: var(--neat-track);
   overflow: hidden;
 }
 

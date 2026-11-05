@@ -177,4 +177,9 @@ describe('NeatScoreBars', () => {
     await fixture.whenStable();
     expect(bars.hasAttribute('data-fill')).toBe(false);
   });
+
+  it('draws the empty track in --neat-track, which shows on a card in both schemes', () => {
+    const { declared } = stylesheet(barStyles);
+    expect(declared('.track', 'background')).toBe('var(--neat-track)');
+  });
 });

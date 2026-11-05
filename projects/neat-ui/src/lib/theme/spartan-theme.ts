@@ -195,6 +195,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
   const border = surface[roles.border];
   const tints = rowTints(ROW_TINT_SHARE[scheme], background);
   const charts = chartTokens(scheme, status(scales.destructive));
+  const chipNeutral = neutralChipFill(scheme, surface, [raised, background], accent);
 
   return {
     background,
@@ -251,7 +252,11 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     'neat-live': liveToken(),
     ...segmentedTokens(scheme, surface, primary),
     ...tints,
-    'neat-chip-neutral': neutralChipFill(scheme, surface, [raised, background], accent),
+    'neat-chip-neutral': chipNeutral,
+    // An empty track or a quiet stretch inside a card (score bars, label timeline): the muted
+    // surface in light; in dark the muted surface is the card's own colour, so the neutral chip's
+    // fill, which is chosen to show on cards.
+    'neat-track': scheme === 'dark' ? chipNeutral : surface[roles.muted],
     'neat-warning-text': warningText(charts['neat-line-warning'], text, [
       tints['neat-tint-warning'],
       tints['neat-tint-warning-accent'],

@@ -410,6 +410,14 @@ describe('buildSpartanThemeCss', () => {
     expect(schemes.dark.get('--neat-chip-neutral')).toBe('#383838');
   });
 
+  it('gives empty tracks and quiet stretches a fill that shows on a card: --muted in light, the neutral chip fill in dark', () => {
+    expect(schemes.light.get('--neat-track')).toBe(schemes.light.get('--muted'));
+    expect(schemes.dark.get('--neat-track')).toBe(schemes.dark.get('--neat-chip-neutral'));
+    expect(
+      contrastRatio(schemes.dark.get('--neat-track')!, schemes.dark.get('--card')!),
+    ).toBeGreaterThanOrEqual(MIN_CHIP_FILL_CONTRAST);
+  });
+
   it('gives warning a text colour: its line mixed toward --foreground by the least 5% step that reads at 4.5:1 on the warning tints', () => {
     const shareStep = 0.05;
     for (const scheme of ['light', 'dark'] as const) {

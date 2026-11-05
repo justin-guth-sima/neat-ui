@@ -253,7 +253,7 @@ describe('NeatLabelTimeline', () => {
     expect(runs.map((element) => element.style.getPropertyValue('--run'))).toEqual([
       'var(--neat-series-2)',
       'var(--neat-series-1)',
-      'var(--muted)',
+      'var(--neat-track)',
       'var(--neat-chip-neutral)',
     ]);
   });
@@ -261,7 +261,7 @@ describe('NeatLabelTimeline', () => {
   it('fills a quiet run with --muted, the score bars keeping neatLabelColour', async () => {
     const { runs } = await render([run('Q', 30, 0)], (host) => host.quiet.set(['Q']));
 
-    expect(runs[0].style.getPropertyValue('--run')).toBe('var(--muted)');
+    expect(runs[0].style.getPropertyValue('--run')).toBe('var(--neat-track)');
     expect(neatLabelColour('Q', [], ['Q'])).toBe('var(--muted-foreground)');
   });
 
@@ -273,7 +273,7 @@ describe('NeatLabelTimeline', () => {
 
     expect(runs.map((element) => element.style.getPropertyValue('--run'))).toEqual([
       'var(--neat-series-1)',
-      'var(--muted)',
+      'var(--neat-track)',
       'var(--neat-series-3)',
       'var(--neat-series-1)',
     ]);

@@ -98,9 +98,10 @@ interface Drawn {
 /**
  * A quiet run's fill. `neatLabelColour` gives a quiet label `--muted-foreground`, a colour for
  * text; here the label fills a stretch of the strip, and a quiet class often fills most of the
- * window, so it takes the lighter `--muted` and is never the strip's heaviest mark.
+ * window, so it takes the light `--neat-track` (the muted surface, in dark the neutral chip fill that
+ * shows on a card) and is never the strip's heaviest mark.
  */
-const QUIET_FILL = 'var(--muted)';
+const QUIET_FILL = 'var(--neat-track)';
 
 /** Seconds with at most one decimal, so 8.5 stays 8.5 and 20 stays 20. */
 const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
