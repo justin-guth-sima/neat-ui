@@ -60,6 +60,14 @@ interface Drawn {
   sprite: HTMLCanvasElement;
 }
 
+/** A box on the canvas, CSS px. */
+interface Box {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 /**
  * A 2D context, as jsdom has none: it records the sprites drawn, and parses `#rrggbb` and the
  * layer's `rgb(r g b)` like a browser's, so the kit's colour probe resolves the theme's tokens.
@@ -69,9 +77,12 @@ class FakeContext {
   readonly fills: string[] = [];
   /** Each path filled: its rule, the composite operation it was filled with, its round rects. */
   readonly filled: { rule: string; composite: string; rects: number }[] = [];
+  /** Each path erased (filled with `destination-out`): its round rects' boxes, CSS px. */
+  readonly erased: Box[][] = [];
   globalAlpha = 1;
   globalCompositeOperation = 'source-over';
   private rects = 0;
+  private boxes: Box[] = [];
   private style = '#000000';
   private pixel: Pixel = [0, 0, 0];
 
@@ -102,14 +113,17 @@ class FakeContext {
 
   beginPath(): void {
     this.rects = 0;
+    this.boxes = [];
   }
 
-  roundRect(): void {
+  roundRect(x: number, y: number, w: number, h: number): void {
     this.rects++;
+    this.boxes.push({ x, y, w, h });
   }
 
   fill(rule = 'nonzero'): void {
     this.filled.push({ rule, composite: this.globalCompositeOperation, rects: this.rects });
+    if (this.globalCompositeOperation === 'destination-out') this.erased.push(this.boxes);
   }
 
   // What the layer draws besides its sprites: nothing these specs look at.
@@ -671,7 +685,10 @@ describe('NeatDiagramMessages', () => {
   });
 });
 
-/** A camera feeding a decoder on the overview; the decoder opens a level with its steps. */
+/**
+ * A camera feeding a decoder on the overview, the edge labelled; the decoder opens a level with
+ * its steps.
+ */
 const SYSTEM: NeatDiagramSet = {
   overview: {
     nodes: [
@@ -687,7 +704,7 @@ const SYSTEM: NeatDiagramSet = {
         h: 40,
       },
     ],
-    edges: [{ id: 'frames', from: 'camera', to: 'decode', series: 1 }],
+    edges: [{ id: 'frames', from: 'camera', to: 'decode', series: 1, label: 'frames' }],
   },
   levels: {
     decode: {
@@ -817,6 +834,110 @@ describe('NeatDiagramMessages in neat-diagram', () => {
     const expected = onScreen(host, SYSTEM.levels!['decode'], 'parsed', 0);
     expect(dot.x).toBeCloseTo(expected.x);
     expect(dot.y).toBeCloseTo(expected.y);
+  });
+
+  /** `frames` runs straight from (120, 20) to (400, 20): its label is centred on (260, 20). */
+  const LABEL_AT = { x: 260, y: 20 };
+  /** The label's border box as a browser measures it (diagram units: a zoom does not change it). */
+  const LABEL_SIZE = { w: 44, h: 18 };
+
+  /** Measures the edge label as a browser would after layout. */
+  async function measureLabel(fixture: { whenStable(): Promise<unknown> }, host: HTMLElement) {
+    const label = host.querySelector('.edge-label[data-edge="frames"]') as HTMLElement;
+    resize(new Map([[label, LABEL_SIZE]]));
+    await fixture.whenStable();
+  }
+
+  /** The label's box, 2 px clear of its border all round, on the canvas through the transform. */
+  function labelOnScreen(host: HTMLElement): Box {
+    const { k, x, y } = zoomTransform(host);
+    return {
+      x: (LABEL_AT.x - LABEL_SIZE.w / 2 - 2) * k + x,
+      y: (LABEL_AT.y - LABEL_SIZE.h / 2 - 2) * k + y,
+      w: (LABEL_SIZE.w + 4) * k,
+      h: (LABEL_SIZE.h + 4) * k,
+    };
+  }
+
+  /** The boxes erased in the last frame. */
+  const lastErased = (element: HTMLElement) =>
+    fakeOf(element.querySelector('canvas')!).erased.at(-1) ?? [];
+
+  /** Whether the dot's whole square lies inside `box`: erased, nothing of it is left. */
+  const covered = (dot: Drawn, box: Box) =>
+    dot.x - dot.size / 2 >= box.x &&
+    dot.x + dot.size / 2 <= box.x + box.w &&
+    dot.y - dot.size / 2 >= box.y &&
+    dot.y + dot.size / 2 <= box.y + box.h;
+
+  /** Whether any of the dot's square lies inside `box`. */
+  const touches = (dot: Drawn, box: Box) =>
+    dot.x + dot.size / 2 > box.x &&
+    dot.x - dot.size / 2 < box.x + box.w &&
+    dot.y + dot.size / 2 > box.y &&
+    dot.y - dot.size / 2 < box.y + box.h;
+
+  /** How long a message takes along `frames`. */
+  const framesTravel = () =>
+    (EdgeGeometry.fromPoints(layoutEdges(SYSTEM.overview).get('frames')!.points).length /
+      SETTINGS.speed) *
+    1000;
+
+  it('erases a dot that runs through an edge label, 2 px clear of its border', async () => {
+    const { fixture, host, element, layer, frame } = await renderDiagram();
+    await measureLabel(fixture, host);
+    layer.push('frames', 1000, 0);
+
+    // Halfway, the dot is at the label's centre: drawn, then erased with the label's box.
+    const [dot] = frame(framesTravel() / 2);
+    const label = labelOnScreen(host);
+    const erased = lastErased(element);
+    expect(erased).toHaveLength(3);
+    const box = erased.find((b) => Math.abs(b.x - label.x) < 1e-6)!;
+    expect(box.x).toBeCloseTo(label.x);
+    expect(box.y).toBeCloseTo(label.y);
+    expect(box.w).toBeCloseTo(label.w);
+    expect(box.h).toBeCloseTo(label.h);
+    expect(covered(dot, box)).toBe(true);
+  });
+
+  it('leaves the dots away from the labels and cards as they are', async () => {
+    const { fixture, host, element, layer, frame } = await renderDiagram();
+    await measureLabel(fixture, host);
+    layer.push('frames', 1000, 0);
+
+    // A tenth of the way, the dot is between the camera and the label: nothing erases it.
+    const [dot] = frame(framesTravel() / 10);
+    expect(dot).toBeDefined();
+    expect(lastErased(element).filter((box) => touches(dot, box))).toEqual([]);
+  });
+
+  it("keeps an edge label's box on the label through a zoom and a pan", async () => {
+    const { fixture, host, element, layer, frame } = await renderDiagram();
+    await measureLabel(fixture, host);
+    layer.push('frames', 1000, 0);
+    const before = zoomTransform(host);
+
+    host.dispatchEvent(new WheelEvent('wheel', { deltaY: -100, bubbles: true, cancelable: true }));
+    host.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+    const after = zoomTransform(host);
+    expect(after.k).not.toBeCloseTo(before.k);
+
+    const [dot] = frame(framesTravel() / 2);
+    const label = labelOnScreen(host);
+    const box = lastErased(element).find((b) => Math.abs(b.x - label.x) < 1e-6)!;
+    expect(box).toBeDefined();
+    expect(box.y).toBeCloseTo(label.y);
+    expect(box.w).toBeCloseTo(label.w);
+    expect(box.h).toBeCloseTo(label.h);
+    expect(covered(dot, box)).toBe(true);
+  });
+
+  it('erases nothing for an edge label not measured yet', async () => {
+    const { element, layer, frame } = await renderDiagram();
+    layer.push('frames', 1000, 0);
+    frame(100);
+    expect(lastErased(element)).toHaveLength(2);
   });
 
   it("keeps the dots behind the level's blocks", async () => {

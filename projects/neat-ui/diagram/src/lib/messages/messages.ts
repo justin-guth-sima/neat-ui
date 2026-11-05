@@ -127,10 +127,10 @@ const sameRate = (a: NeatDiagramEdgeRate, b: NeatDiagramEdgeRate) =>
  * protect the page.
  *
  * All dots are drawn on one canvas over the drawing, sized to this element's box (it fills the
- * diagram's), at the device's pixel ratio, scaled with the zoom and behind the cards; dots of
- * edges out of focus fade with them. The frames run only while a dot is on its way and stop while
- * the page is hidden (its messages then still count, without dots). Under reduced motion no dot
- * travels: each message shows as a brief mark at its edge's end.
+ * diagram's), at the device's pixel ratio, scaled with the zoom and behind the cards and the edge
+ * labels; dots of edges out of focus fade with them. The frames run only while a dot is on its way
+ * and stop while the page is hidden (its messages then still count, without dots). Under reduced
+ * motion no dot travels: each message shows as a brief mark at its edge's end.
  */
 @Component({
   selector: 'neat-diagram-messages',

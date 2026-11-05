@@ -167,6 +167,35 @@ function drawEdge(edge: NeatDiagramEdge, layout: EdgeLayout): DrawnEdge {
 }
 
 /**
+ * How far the dots keep off an edge label's border, diagram units (2 px at zoom 1, scaled with the
+ * label).
+ */
+export const LABEL_CLEARANCE = 2;
+
+/**
+ * The boxes the dots keep off for the edge labels, in diagram units: each measured label's border
+ * box (`sizes`, by edge id; centred on its point, as `.edge-label` is) grown by
+ * `LABEL_CLEARANCE` all round. A label not measured yet has none.
+ */
+export function labelCovers(
+  edges: readonly DrawnEdge[],
+  sizes: ReadonlyMap<string, { readonly w: number; readonly h: number }>,
+): Rect[] {
+  return edges.flatMap(({ id, label }) => {
+    const size = label && sizes.get(id);
+    if (!label || !size) return [];
+    return [
+      {
+        x: label.at.x - size.w / 2 - LABEL_CLEARANCE,
+        y: label.at.y - size.h / 2 - LABEL_CLEARANCE,
+        w: size.w + 2 * LABEL_CLEARANCE,
+        h: size.h + 2 * LABEL_CLEARANCE,
+      },
+    ];
+  });
+}
+
+/**
  * The colour of a line, an edge's or a legend sample's: its series' token, else the muted colour.
  * A ghost is muted whatever its series: it is a part that does not run here, and stays quiet
  * beside the edges that do. `part` names what has the line in the dev-mode message.

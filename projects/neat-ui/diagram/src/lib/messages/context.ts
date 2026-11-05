@@ -44,8 +44,9 @@ export interface DiagramMessagesContext {
   /** The level drawn. A new value is a new layout, which the layer samples once. */
   readonly level: Signal<MessagesLevel>;
   /**
-   * The cards the dots pass behind (blocks and placed notes), in diagram units: dots are drawn on
-   * a canvas over the whole drawing, so without this they would run over the card they enter.
+   * The cards the dots pass behind (blocks, placed notes and edge labels), in diagram units: dots
+   * are drawn on a canvas over the whole drawing, so without this they would run over the card
+   * they enter and through the text of a label on their edge.
    */
   readonly covers: Signal<readonly Rect[]>;
   /**

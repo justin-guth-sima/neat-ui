@@ -11,23 +11,24 @@ import {
 } from '@angular/core';
 
 /*
- * A note's content is the app's, so only the browser knows how big its box is, and a note is
- * placed from its size (`placeNotes`). One ResizeObserver per diagram measures the rendered boxes;
- * it stays here, apart from the component (AGENTS.md: raw browser APIs stay isolated), and writes
- * one signal, only when a size changes. ResizeObserver reports layout sizes, which a zoom's CSS
- * transform does not change, so the sizes are diagram units.
+ * Boxes whose size only the browser knows: a note's content is the app's, and a note is placed
+ * from its size (`placeNotes`); an edge label's text sets its width, and the dots are kept off it
+ * by its box. One ResizeObserver per kind and diagram measures the rendered boxes; it stays here,
+ * apart from the component (AGENTS.md: raw browser APIs stay isolated), and writes one signal,
+ * only when a size changes. ResizeObserver reports layout sizes, which a zoom's CSS transform does
+ * not change, so the sizes are diagram units.
  */
 
-export interface NoteSize {
+export interface BoxSize {
   readonly w: number;
   readonly h: number;
 }
 
-/** The measured size of each note box with content, by note id. Provided by the diagram. */
+/** The measured size of each box with content, by its part's id. */
 @Injectable()
-export class NoteSizes implements OnDestroy {
-  private readonly measured = signal<ReadonlyMap<string, NoteSize>>(new Map());
-  /** The sizes so far; a note without content, or not laid out yet, has none. */
+abstract class BoxSizes implements OnDestroy {
+  private readonly measured = signal<ReadonlyMap<string, BoxSize>>(new Map());
+  /** The sizes so far; a box without content, or not laid out yet, has none. */
   readonly sizes = this.measured.asReadonly();
   private readonly ids = new Map<Element, string>();
   private readonly zone = inject(NgZone);
@@ -63,8 +64,8 @@ export class NoteSizes implements OnDestroy {
     );
   }
 
-  private write(changes: readonly (readonly [string, NoteSize | null])[]): void {
-    let next: Map<string, NoteSize> | null = null;
+  private write(changes: readonly (readonly [string, BoxSize | null])[]): void {
+    let next: Map<string, BoxSize> | null = null;
     for (const [id, size] of changes) {
       const known = (next ?? this.measured()).get(id);
       if (known?.w === size?.w && known?.h === size?.h) continue;
@@ -81,7 +82,7 @@ export class NoteSizes implements OnDestroy {
  * empty (only Angular's comment anchors in it), or one without a size (in a hidden tab), which is
  * measured again once it has one.
  */
-function sizeOf(entry: ResizeObserverEntry): NoteSize | null {
+function sizeOf(entry: ResizeObserverEntry): BoxSize | null {
   const [border] = entry.borderBoxSize ?? [];
   if (!border || border.inlineSize <= 0 || border.blockSize <= 0) return null;
   const content = Array.from(entry.target.childNodes).some(
@@ -92,6 +93,14 @@ function sizeOf(entry: ResizeObserverEntry): NoteSize | null {
   return content ? { w: border.inlineSize, h: border.blockSize } : null;
 }
 
+/** The note boxes' sizes, by note id. Provided by the diagram. */
+@Injectable()
+export class NoteSizes extends BoxSizes {}
+
+/** The edge labels' sizes, by edge id. Provided by the diagram. */
+@Injectable()
+export class EdgeLabelSizes extends BoxSizes {}
+
 /** Puts a note's box under the diagram's measurement while it is rendered. */
 @Directive({ selector: '[neatDiagramNoteBox]' })
 export class NoteBox implements OnInit, OnDestroy {
@@ -99,6 +108,23 @@ export class NoteBox implements OnInit, OnDestroy {
   readonly id = input.required<string>({ alias: 'neatDiagramNoteBox' });
   private readonly box = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly sizes = inject(NoteSizes);
+
+  ngOnInit(): void {
+    this.sizes.observe(this.box, this.id());
+  }
+
+  ngOnDestroy(): void {
+    this.sizes.unobserve(this.box);
+  }
+}
+
+/** Puts an edge label under the diagram's measurement while it is rendered. */
+@Directive({ selector: '[neatDiagramEdgeLabelBox]' })
+export class EdgeLabelBox implements OnInit, OnDestroy {
+  /** The edge's id. */
+  readonly id = input.required<string>({ alias: 'neatDiagramEdgeLabelBox' });
+  private readonly box = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+  private readonly sizes = inject(EdgeLabelSizes);
 
   ngOnInit(): void {
     this.sizes.observe(this.box, this.id());

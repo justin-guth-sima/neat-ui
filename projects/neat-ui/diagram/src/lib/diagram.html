@@ -182,6 +182,7 @@
       @if (edge.label; as label) {
         <code
           class="edge-label"
+          [neatDiagramEdgeLabelBox]="edge.id"
           [class.dim]="focus !== null && !focus.edges.has(edge.id)"
           [attr.data-edge]="edge.id"
           [style.left.px]="label.at.x"

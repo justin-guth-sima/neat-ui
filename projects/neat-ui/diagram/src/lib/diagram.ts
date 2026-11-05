@@ -19,8 +19,9 @@ import {
 } from '@angular/core';
 import { NeatBreadcrumbs, NeatButton, NeatIcon, ɵSTALE_CLASSES } from '@sima/neat-ui';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
-import { BRACE_HEIGHT, describeLevel, drawLevel } from './drawing';
+import { BRACE_HEIGHT, describeLevel, drawLevel, labelCovers } from './drawing';
 import { levelExtent } from './fit';
+import { EdgeLabelBox, EdgeLabelSizes, NoteBox, NoteSizes } from './box-sizes';
 import { DiagramHover, focusedParts, highlighted } from './hover';
 import { samePath, walkLevels } from './levels';
 import {
@@ -30,7 +31,6 @@ import {
   provideDiagramMessagesContext,
 } from './messages/context';
 import type { NeatDiagramHighlight, NeatDiagramNode, NeatDiagramSet } from './model';
-import { NoteBox, NoteSizes } from './note-sizes';
 import { placeNotes } from './notes';
 import { firstOfEachId } from './report';
 import {
@@ -78,9 +78,17 @@ import { DiagramZoom } from './zoom';
  */
 @Component({
   selector: 'neat-diagram',
-  imports: [NeatBreadcrumbs, NeatButton, NeatIcon, NeatStatusChip, NgTemplateOutlet, NoteBox],
+  imports: [
+    EdgeLabelBox,
+    NeatBreadcrumbs,
+    NeatButton,
+    NeatIcon,
+    NeatStatusChip,
+    NgTemplateOutlet,
+    NoteBox,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [NoteSizes, provideDiagramMessagesContext()],
+  providers: [NoteSizes, EdgeLabelSizes, provideDiagramMessagesContext()],
   host: { role: 'figure', '[attr.aria-label]': 'label()', tabindex: '0' },
   templateUrl: './diagram.html',
   styleUrls: ['./frames.css', './blocks.css', './lines.css', './diagram.css'],
@@ -108,6 +116,7 @@ export class NeatDiagramView {
   protected readonly noteTemplate = contentChild(NeatDiagramNoteTemplate);
   private readonly edgeTipTemplate = contentChild(NeatDiagramEdgeTipTemplate);
   private readonly noteSizes = inject(NoteSizes);
+  private readonly labelSizes = inject(EdgeLabelSizes);
   private readonly content = viewChild.required<ElementRef<HTMLElement>>('content');
   private readonly edges = viewChild.required<ElementRef<SVGElement>>('edges');
   private readonly tipBox = viewChild<ElementRef<HTMLElement>>('tip');
@@ -238,8 +247,9 @@ export class NeatDiagramView {
 
   /**
    * What a messaging layer projected into the diagram draws by: the level shown (another path is
-   * another level), its blocks and placed notes as the cards dots pass behind, every edge id of
-   * the set, the edges in focus, and the transform with a hook for each change of it.
+   * another level), its blocks, placed notes and edge labels as the cards dots pass behind (the
+   * canvas lies over the whole drawing, so a dot would otherwise run through a label's text),
+   * every edge id of the set, the edges in focus, and the transform with a hook for each change.
    */
   private messagesContext(): DiagramMessagesContext {
     return {
@@ -259,6 +269,7 @@ export class NeatDiagramView {
           .front.filter(({ node }) => node.role === 'block')
           .map(({ rect }) => rect),
         ...[...this.placements().values()].map(({ box }) => box),
+        ...labelCovers(this.drawn().edges, this.labelSizes.sizes()),
       ]),
       edgeIds: computed(() => {
         const { overview, levels } = this.diagram();

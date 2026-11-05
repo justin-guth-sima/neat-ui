@@ -183,7 +183,9 @@ export class DotCanvas {
    * pass behind the cards they run into and come out of. The canvas holds only the dots, so
    * erasing after drawing is the same as drawing around the cards, and one path of all of them,
    * filled by the nonzero rule, is their union: where two cards overlap stays erased, which a clip
-   * to outside them with the even-odd rule would paint again.
+   * to outside them with the even-odd rule would paint again. Every cover takes the cards' corner
+   * radius; an edge label's cover is its box grown 2 units (`LABEL_CLEARANCE`), whose corners at
+   * that radius still hold the label's own, at half of it, for any radius up to 13 units.
    */
   private erase(context: CanvasRenderingContext2D, covers: readonly Rect[]): void {
     if (covers.length === 0) return;
