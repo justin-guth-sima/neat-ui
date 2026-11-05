@@ -53,7 +53,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", so it is drawn muted and never named, and a gesture shorter than 12 % of the window (3.6 s) keeps its colour but no label. Runs that have left the window are dropped here: the timeline clips what it is given, but the app is what knows it will not need them again."
+            "text": ", so it is drawn muted and never named, and a gesture shorter than 12 % of the window (3.6 s) keeps its colour but no label. Runs that have left the window are dropped here: the timeline clips what it is given, but the app is what knows it will not need them again. Point at a run, a quiet one too, or focus a strip and use the arrow keys, to read out its label and when it was."
           }
         ]
       }

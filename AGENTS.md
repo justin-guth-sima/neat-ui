@@ -324,19 +324,20 @@ Both wordings come from one code path (`timeAxis`, `whenText` and `chartName` ta
 they cannot drift apart. Its plot is a tab stop whose readout the arrow keys, Home, End and Escape
 drive; each key press, and only a key press, is repeated in a polite live region, since a pointer
 move announced on every pixel would be noise. A chart with a live region (the time chart, the
-stacked chart and the heatmap) is `position: relative` on its host, without a z-index
-(`chart-frame.css`): the host is the containing block of its own absolutely positioned parts, so
+stacked chart, the heatmap and the label timeline) is `position: relative` on its host, without a
+z-index (`chart-frame.css`, and the timeline's own sheet): the host is the containing block of its own absolutely positioned parts, so
 the visually hidden live region cannot reach past a page's scroll body, which is not positioned,
 and a readout that hangs below its plot still paints over the next card.
 
-The charts that read out a sample (the time chart, the stacked chart and the heatmap) share one
-cursor, `ReadoutCursor` in `charts/src/lib/readout.ts`: the pointer-versus-keys rule, Escape (a
+The charts that read out what lies under the pointer (the time chart, the stacked chart, the
+heatmap and the label timeline) share one cursor, `ReadoutCursor` in `charts/src/lib/readout.ts`: the pointer-versus-keys rule, Escape (a
 readout that is there to close, else it belongs to whatever holds the chart), focus, blur and the
 announce rule live there once, and each chart tells it only what its cells are (a sample for the
-time-based charts, a row and column for the heatmap). The frame the plots share (heights, grid,
-time axis, accessible name) is `frame.ts`, and their styles are `chart-frame.css` (host, head,
-readout, axis) and `plot.css` (the drawn box), which a component lists before its own in
-`styleUrls`. The stacked chart's bands are `stackedPaths` (bottom first; a sample where any band is
+time-based charts, a row and column for the heatmap, a run for the timeline, whose strip is its
+tab stop). The frame the plots share (heights, grid, time axis, accessible name) is `frame.ts`,
+and their styles are `chart-frame.css` (host, head, axis), `readout.css` (the readout, which the
+timeline shares without the rest of the frame) and `plot.css` (the drawn box), which a component
+lists before its own in `styleUrls`. The stacked chart's bands are `stackedPaths` (bottom first; a sample where any band is
 missing breaks the whole stack, since a partial sum was never measured, and for the same reason a
 sample of "Other", the sum of the series folded beyond eight, is null where any folded value is),
 at 0.85 opacity with a hairline in `--neat-surface`; its legend carries each band's value and

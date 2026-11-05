@@ -10,6 +10,7 @@ import {
 import { ɵBROWSER_CLOCK as clock, ɵreducedMotion as reducedMotion } from '@sima/neat-ui';
 import { isNumber } from './geometry';
 import { neatLabelColour } from './label-colour';
+import { fractionAcross, ReadoutCursor } from './readout';
 
 /** A stretch of time in which a classifier kept giving one label. */
 export interface NeatLabelRun {
@@ -26,13 +27,25 @@ export interface NeatLabelRun {
  */
 export type NeatTimelineMotion = 'step' | 'smooth';
 
-/** A run as drawn: its place in the window in percent, its colour and its spoken span. */
+/** A run as drawn: its place in the window in percent, its colour and its span in words. */
 interface Bar {
   readonly label: string;
+  /** The run's own start, which tells it apart for the readout's cursor as the strip moves. */
+  readonly startMs: number;
   readonly left: number;
   readonly width: number;
   readonly colour: string;
   readonly named: boolean;
+  /** When it was, "20 s to 10 s ago", as the readout shows it. */
+  readonly span: string;
+  /** Its label and span as one phrase, for the hidden list and the live region. */
+  readonly spoken: string;
+}
+
+/** What the readout shows: the run's label and span, beside its middle (0 to 1 across the strip). */
+interface RunReadout {
+  readonly at: number;
+  readonly label: string;
   readonly span: string;
 }
 
@@ -104,16 +117,31 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
  *
  * The host is a group named by `label` that holds a list with one item per drawn run, named by its
  * label and its span in seconds (as visually hidden text in the item), so a screen reader gets the runs the label text leaves out.
+ * The pointer over a run, quiet ones included, shows a readout beside its middle with its label
+ * and its span ("Zoom in" over "20 s to 10 s ago"), as the other charts read out what lies under
+ * the pointer; it follows the run while the strip scrolls. The strip is one tab stop: focus reads
+ * out the newest run, Left and Right step to the run before or after it in time, Home and End go
+ * to the oldest and the newest, and Escape hides the readout. Each key press, and only a key
+ * press, is repeated in a polite live region.
  */
 @Component({
   selector: 'neat-label-timeline',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     role: 'group',
+    tabindex: '0',
     '[attr.aria-label]': 'label()',
+    '(focus)': 'cursor.focus()',
+    '(blur)': 'cursor.blur()',
+    '(keydown)': 'cursor.keydown($event)',
   },
   template: `
-    <ul class="runs" role="list">
+    <ul
+      class="runs"
+      role="list"
+      (pointermove)="onPointerMove($event)"
+      (pointerleave)="cursor.pointerLeave()"
+    >
       @for (bar of bars(); track $index) {
         <li
           class="run"
@@ -123,10 +151,21 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
           [style.width.%]="bar.width"
           [style.--run]="bar.colour"
         >
-          <span class="sr-only">{{ bar.span }}</span>
+          <span class="sr-only">{{ bar.spoken }}</span>
           @if (bar.named) {
             <span class="name" aria-hidden="true">{{ bar.label }}</span>
           }
+        </li>
+      }
+      @if (readout(); as readout) {
+        <li
+          class="readout"
+          aria-hidden="true"
+          [attr.data-flip]="readout.at > 0.5 ? '' : null"
+          [style.--at]="readout.at"
+        >
+          <span class="row">{{ readout.label }}</span>
+          <span class="when">{{ readout.span }}</span>
         </li>
       }
     </ul>
@@ -135,8 +174,9 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
         <span data-slot="label-timeline-tick">{{ tick }}</span>
       }
     </div>
+    <span class="sr-only" aria-live="polite">{{ cursor.announcement() }}</span>
   `,
-  styleUrl: './label-timeline.css',
+  styleUrls: ['./readout.css', './label-timeline.css'],
 })
 export class NeatLabelTimeline {
   /** The runs to draw, in the order that decides which of two overlapping ones is on top. */
@@ -224,17 +264,81 @@ export class NeatLabelTimeline {
       const end = Math.min(endMs, now);
       if (end <= start) continue;
       const width = (end - start) / window;
+      const span = spanText(now - start, now - end);
       bars.push({
         label,
+        startMs,
         left: ((start - from) / window) * 100,
         width: width * 100,
         colour: quiet.includes(label) ? QUIET_FILL : neatLabelColour(label, order, quiet),
         named: width >= NAMED_SHARE && !quiet.includes(label),
-        span: spoken(label, now - start, now - end),
+        span,
+        spoken: `${label}, ${span}`,
       });
     }
     return bars;
   });
+
+  /** The drawn runs from the oldest to the newest, the order the keys walk them in. */
+  private readonly inTime = computed(() =>
+    [...this.bars()].sort((a, b) => a.startMs - b.startMs || a.left - b.left),
+  );
+
+  /** The run a cursor (a run's `startMs`) points at, the later of two with one start. */
+  private barAt(startMs: number): Bar | undefined {
+    return lastOf(this.bars(), (bar) => bar.startMs === startMs);
+  }
+
+  /**
+   * The readout's cursor: a run, by its start, so a run a key chose stays chosen while the strip
+   * moves and older runs leave; the pointer is a place across the strip (0 to 1), so the readout
+   * shows whichever run is under it as the runs slide by.
+   */
+  protected readonly cursor = new ReadoutCursor<number, number>({
+    // The topmost run under the place: later runs are drawn over earlier ones.
+    under: (fraction) =>
+      lastOf(
+        this.bars(),
+        (bar) => fraction * 100 >= bar.left && fraction * 100 <= bar.left + bar.width,
+      )?.startMs ?? null,
+    // A chosen run that has left the strip hands over to the oldest one still on it.
+    fit: (startMs) => {
+      const runs = this.inTime();
+      if (!runs.length) return null;
+      if (this.barAt(startMs)) return startMs;
+      return (runs.find((bar) => bar.startMs >= startMs) ?? runs[runs.length - 1]).startMs;
+    },
+    start: () => {
+      const runs = this.inTime();
+      return runs.length ? runs[runs.length - 1].startMs : null;
+    },
+    after: (key, current) => {
+      const runs = this.inTime();
+      const last = runs.length - 1;
+      if (last < 0) return null;
+      // Hidden, an arrow brings the readout up at the newest run.
+      const index = current === null ? null : runs.findIndex((bar) => bar.startMs === current);
+      const next = {
+        ArrowLeft: index === null ? last : index - 1,
+        ArrowRight: index === null ? last : index + 1,
+        Home: 0,
+        End: last,
+      }[key];
+      return next === undefined ? null : runs[Math.min(last, Math.max(0, next))].startMs;
+    },
+    spoken: (startMs) => this.barAt(startMs)?.spoken ?? '',
+  });
+
+  protected readonly readout = computed((): RunReadout | null => {
+    const startMs = this.cursor.active();
+    const bar = startMs === null ? undefined : this.barAt(startMs);
+    return bar ? { at: (bar.left + bar.width / 2) / 100, label: bar.label, span: bar.span } : null;
+  });
+
+  protected onPointerMove(event: MouseEvent): void {
+    const fraction = fractionAcross(event, event.currentTarget as HTMLElement);
+    if (fraction !== null) this.cursor.pointerTo(fraction);
+  }
 
   /** The axis, oldest tick first; the last is "now". */
   protected readonly ticks = computed(() => {
@@ -246,9 +350,15 @@ export class NeatLabelTimeline {
   });
 }
 
-/** "Zoom in, 20 s to 10 s ago", or "Zoom in, 8.5 s ago to now" for a run that reaches the edge. */
-function spoken(label: string, startAgo: number, endAgo: number): string {
+/** The last of `bars` that `test` holds for: the topmost, since later runs are drawn on top. */
+function lastOf(bars: readonly Bar[], test: (bar: Bar) => boolean): Bar | undefined {
+  for (let i = bars.length - 1; i >= 0; i--) if (test(bars[i])) return bars[i];
+  return undefined;
+}
+
+/** "20 s to 10 s ago", or "8.5 s ago to now" for a run that reaches the edge. */
+function spanText(startAgo: number, endAgo: number): string {
   const from = inSeconds(startAgo);
   const to = inSeconds(endAgo);
-  return to === 0 ? `${label}, ${from} s ago to now` : `${label}, ${from} s to ${to} s ago`;
+  return to === 0 ? `${from} s ago to now` : `${from} s to ${to} s ago`;
 }

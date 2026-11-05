@@ -134,7 +134,7 @@ interface CellReadout extends Cell {
     </div>
     <span class="sr-only" aria-live="polite">{{ cursor.announcement() }}</span>
   `,
-  styleUrls: ['./chart-frame.css', './heatmap.css'],
+  styleUrls: ['./chart-frame.css', './readout.css', './heatmap.css'],
 })
 export class NeatHeatmap {
   /** The heatmap's title, which also names it for assistive technology. */

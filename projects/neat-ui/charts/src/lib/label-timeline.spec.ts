@@ -185,6 +185,173 @@ describe('NeatLabelTimeline', () => {
   });
 });
 
+/** The strip's readout and the ways to move it: the pointer at a place across it, and keys. */
+function readoutOf(host: HTMLElement, fixture: { whenStable(): Promise<unknown> }) {
+  const timeline = host.querySelector<HTMLElement>('neat-label-timeline')!;
+  const strip = timeline.querySelector<HTMLElement>('.runs')!;
+  return {
+    timeline,
+    readout: () => timeline.querySelector<HTMLElement>('.readout'),
+    live: () => timeline.querySelector<HTMLElement>('[aria-live]')!,
+    /** Moves the pointer to `fraction` of the strip's width. */
+    async point(fraction: number) {
+      // jsdom lays nothing out; the pointer maths needs a box, so give the strip one 600 px wide.
+      strip.getBoundingClientRect = () =>
+        ({ left: 100, top: 0, width: 600, height: 64, right: 700, bottom: 64 }) as DOMRect;
+      strip.dispatchEvent(
+        new MouseEvent('pointermove', { clientX: 100 + fraction * 600, bubbles: true }),
+      );
+      await fixture.whenStable();
+    },
+    async leave() {
+      strip.dispatchEvent(new MouseEvent('pointerleave'));
+      await fixture.whenStable();
+    },
+    async focus() {
+      timeline.dispatchEvent(new FocusEvent('focus'));
+      await fixture.whenStable();
+    },
+    async blur() {
+      timeline.dispatchEvent(new FocusEvent('blur'));
+      await fixture.whenStable();
+    },
+    async key(key: string) {
+      timeline.dispatchEvent(
+        new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }),
+      );
+      await fixture.whenStable();
+    },
+  };
+}
+
+describe('NeatLabelTimeline readout', () => {
+  const RUNS = [run('Silence', 30, 20), run('Zoom in', 20, 10), run('Throw up', 8.5, 0)];
+  const setup = async () => {
+    const fixture = TestBed.createComponent(TimelineHost);
+    fixture.componentInstance.runs.set(RUNS);
+    fixture.componentInstance.quiet.set(['Silence']);
+    await fixture.whenStable();
+    return { fixture, ...readoutOf(fixture.nativeElement as HTMLElement, fixture) };
+  };
+  const lines = (element: HTMLElement | null) =>
+    Array.from(element?.children ?? []).map((line) => line.textContent?.trim());
+
+  it('shows the run under the pointer, its label and its span, and hides when it leaves', async () => {
+    const chart = await setup();
+    expect(chart.readout(), 'hidden until the pointer or a key').toBeNull();
+
+    await chart.point(0.5);
+    expect(lines(chart.readout())).toEqual(['Zoom in', '20 s to 10 s ago']);
+    // It stands at the run's middle, to the right of it before the strip's middle.
+    expect(parseFloat(chart.readout()!.style.getPropertyValue('--at'))).toBeCloseTo(0.5, 6);
+    expect(chart.readout()?.hasAttribute('data-flip')).toBe(false);
+    // A pointer move is not announced: that would be noise at every pixel.
+    expect(chart.live().textContent?.trim()).toBe('');
+
+    await chart.point(0.9);
+    expect(lines(chart.readout())).toEqual(['Throw up', '8.5 s ago to now']);
+    expect(chart.readout()?.hasAttribute('data-flip')).toBe(true);
+
+    await chart.leave();
+    expect(chart.readout()).toBeNull();
+  });
+
+  it('reads out a quiet run too, which has no name under it', async () => {
+    const chart = await setup();
+
+    await chart.point(0.1);
+
+    expect(lines(chart.readout())).toEqual(['Silence', '30 s to 20 s ago']);
+  });
+
+  it('shows nothing over a stretch of the strip without a run', async () => {
+    const fixture = TestBed.createComponent(TimelineHost);
+    fixture.componentInstance.runs.set([run('Zoom in', 20, 10)]);
+    await fixture.whenStable();
+    const chart = readoutOf(fixture.nativeElement as HTMLElement, fixture);
+
+    await chart.point(0.9);
+
+    expect(chart.readout()).toBeNull();
+  });
+
+  it('leaves the names under the runs as they were', async () => {
+    const chart = await setup();
+    const names = () =>
+      Array.from(chart.timeline.querySelectorAll('.name')).map((n) => n.textContent?.trim());
+    const before = names();
+
+    await chart.point(0.5);
+
+    expect(names()).toEqual(before);
+    expect(before).toEqual(['Zoom in', 'Throw up']);
+  });
+
+  it('is one tab stop: focus reads out the newest run and the arrow keys walk the runs', async () => {
+    const chart = await setup();
+    expect(chart.timeline.getAttribute('tabindex')).toBe('0');
+    expect(chart.timeline.querySelectorAll('[tabindex]')).toHaveLength(0);
+
+    await chart.focus();
+    expect(lines(chart.readout())).toEqual(['Throw up', '8.5 s ago to now']);
+    // Focus alone lands on the strip without a sentence in the reader's ear.
+    expect(chart.live().textContent?.trim()).toBe('');
+
+    await chart.key('ArrowLeft');
+    expect(lines(chart.readout())).toEqual(['Zoom in', '20 s to 10 s ago']);
+    expect(chart.live().textContent?.trim()).toBe('Zoom in, 20 s to 10 s ago');
+
+    await chart.key('Home');
+    expect(lines(chart.readout())?.[0]).toBe('Silence');
+    await chart.key('ArrowLeft');
+    expect(lines(chart.readout())?.[0]).toBe('Silence');
+    await chart.key('End');
+    expect(lines(chart.readout())?.[0]).toBe('Throw up');
+    await chart.key('ArrowRight');
+    expect(lines(chart.readout())?.[0]).toBe('Throw up');
+
+    await chart.key('Escape');
+    expect(chart.readout()).toBeNull();
+    await chart.key('Home');
+    expect(lines(chart.readout())?.[0]).toBe('Silence');
+    await chart.key('Escape');
+    await chart.key('ArrowLeft');
+    expect(lines(chart.readout())?.[0]).toBe('Throw up');
+    await chart.blur();
+    expect(chart.readout()).toBeNull();
+  });
+
+  it('walks the runs by time, whatever order they come in', async () => {
+    const fixture = TestBed.createComponent(TimelineHost);
+    fixture.componentInstance.runs.set([run('Late', 10, 0), run('Early', 30, 10)]);
+    await fixture.whenStable();
+    const chart = readoutOf(fixture.nativeElement as HTMLElement, fixture);
+
+    await chart.focus();
+    expect(lines(chart.readout())?.[0]).toBe('Late');
+    await chart.key('ArrowLeft');
+    expect(lines(chart.readout())?.[0]).toBe('Early');
+  });
+
+  it('keeps a run a key chose while the app drops older runs', async () => {
+    const chart = await setup();
+    await chart.focus();
+    await chart.key('ArrowLeft');
+
+    chart.fixture.componentInstance.runs.set(RUNS.slice(1));
+    await chart.fixture.whenStable();
+
+    expect(lines(chart.readout())?.[0]).toBe('Zoom in');
+  });
+
+  it('keeps its live region a child of its host, the box the sheet positions', async () => {
+    const chart = await setup();
+
+    expect(chart.live().parentElement).toBe(chart.timeline);
+    expect(declared(':host', 'position')).toBe('relative');
+  });
+});
+
 @Component({
   imports: [NeatLabelTimeline],
   template: `<neat-label-timeline
@@ -344,6 +511,22 @@ describe('NeatLabelTimeline motion', () => {
     await advance(400);
 
     expect(lefts()[0]).toBeCloseTo(leftAfter(1400), 4);
+  });
+
+  it('moves a run’s readout with the run as the strip scrolls', async () => {
+    const { fixture, advance } = motionSetup();
+    await fixture.whenStable();
+    const chart = readoutOf(fixture.nativeElement as HTMLElement, fixture);
+    await chart.focus();
+    await chart.key('ArrowLeft');
+    const at = () => parseFloat(chart.readout()!.style.getPropertyValue('--at'));
+    // Zoom in, 20 s to 10 s before NOW: its middle is half the window back.
+    expect(at()).toBeCloseTo(0.5, 4);
+
+    await advance(500);
+
+    expect(chart.readout()?.textContent).toContain('Zoom in');
+    expect(at()).toBeCloseTo(0.5 - 500 / 30_000, 4);
   });
 
   it('stays put between updates in step mode', async () => {

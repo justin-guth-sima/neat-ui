@@ -142,7 +142,7 @@ import type { NeatChartFormat, NeatSeries } from './types';
     }
     <span class="sr-only" aria-live="polite">{{ cursor.announcement() }}</span>
   `,
-  styleUrls: ['./chart-frame.css', './plot.css', './stacked-chart.css'],
+  styleUrls: ['./chart-frame.css', './readout.css', './plot.css', './stacked-chart.css'],
 })
 export class NeatStackedChart {
   /** The chart's title, which also names it for assistive technology. */
