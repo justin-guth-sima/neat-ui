@@ -65,11 +65,13 @@ interface ShownName {
   readonly row: number;
 }
 
-/** What the readout shows: the run's label and span, beside its middle (0 to 1 across). */
+/**
+ * What the readout shows: the run's label, beside its middle (0 to 1 across). Its span stays in the
+ * hidden list and the live region; on screen the strip's place already says when it was.
+ */
 interface RunReadout {
   readonly at: number;
   readonly label: string;
-  readonly span: string;
 }
 
 /** The axis marks the window's start, its end and two points that divide it in thirds. */
@@ -151,8 +153,7 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
  * The host is a group named by `label` that holds a list with one item per drawn run, named by its
  * label and its span in seconds (as visually hidden text in the item), so a screen reader gets the
  * runs the label text leaves out. The pointer over a run, quiet ones included, shows a readout
- * beside its middle with its label and its span ("Zoom in" over "20 s to 10 s ago"), as the other
- * charts read out what lies under the pointer; it follows the run while the strip scrolls, and the
+ * beside its middle with its label, as the other charts read out what lies under the pointer; it follows the run while the strip scrolls, and the
  * pointer on a run's name shows the same. The strip is one tab stop: focus reads out the newest
  * run, Left and Right step to the run before or after it in time, Home and End go to the oldest and
  * the newest, and Escape hides the readout. Each key press, and only a key press, is repeated in a
@@ -222,7 +223,6 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
           [style.--at]="readout.at"
         >
           <span class="row">{{ readout.label }}</span>
-          <span class="when">{{ readout.span }}</span>
         </li>
       }
     </ul>
@@ -487,7 +487,7 @@ export class NeatLabelTimeline {
   protected readonly readout = computed((): RunReadout | null => {
     const startMs = this.cursor.active();
     const bar = startMs === null ? undefined : this.barAt(startMs);
-    return bar ? { at: (bar.left + bar.width / 2) / 100, label: bar.label, span: bar.span } : null;
+    return bar ? { at: (bar.left + bar.width / 2) / 100, label: bar.label } : null;
   });
 
   /** The pointer on a run's name reads out that run, as the pointer at the run's middle would. */

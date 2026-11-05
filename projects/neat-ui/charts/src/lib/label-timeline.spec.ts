@@ -378,12 +378,12 @@ describe('NeatLabelTimeline readout', () => {
   const lines = (element: HTMLElement | null) =>
     Array.from(element?.children ?? []).map((line) => line.textContent?.trim());
 
-  it('shows the run under the pointer, its label and its span, and hides when it leaves', async () => {
+  it('shows the run under the pointer, its label only (the span stays in the hidden list), and hides when it leaves', async () => {
     const chart = await setup();
     expect(chart.readout(), 'hidden until the pointer or a key').toBeNull();
 
     await chart.point(0.5);
-    expect(lines(chart.readout())).toEqual(['Zoom in', '20 s to 10 s ago']);
+    expect(lines(chart.readout())).toEqual(['Zoom in']);
     // It stands at the run's middle, to the right of it before the strip's middle.
     expect(parseFloat(chart.readout()!.style.getPropertyValue('--at'))).toBeCloseTo(0.5, 6);
     expect(chart.readout()?.hasAttribute('data-flip')).toBe(false);
@@ -391,7 +391,7 @@ describe('NeatLabelTimeline readout', () => {
     expect(chart.live().textContent?.trim()).toBe('');
 
     await chart.point(0.9);
-    expect(lines(chart.readout())).toEqual(['Throw up', '8.5 s ago to now']);
+    expect(lines(chart.readout())).toEqual(['Throw up']);
     expect(chart.readout()?.hasAttribute('data-flip')).toBe(true);
 
     await chart.leave();
@@ -406,7 +406,7 @@ describe('NeatLabelTimeline readout', () => {
 
     name.dispatchEvent(new MouseEvent('pointermove', { bubbles: true }));
     await chart.fixture.whenStable();
-    expect(lines(chart.readout())).toEqual(['Zoom in', '20 s to 10 s ago']);
+    expect(lines(chart.readout())).toEqual(['Zoom in']);
 
     chart.timeline.querySelector('.names')!.dispatchEvent(new MouseEvent('pointerleave'));
     await chart.fixture.whenStable();
@@ -418,7 +418,7 @@ describe('NeatLabelTimeline readout', () => {
 
     await chart.point(0.1);
 
-    expect(lines(chart.readout())).toEqual(['Silence', '30 s to 20 s ago']);
+    expect(lines(chart.readout())).toEqual(['Silence']);
   });
 
   it('shows nothing over a stretch of the strip without a run', async () => {
@@ -448,12 +448,12 @@ describe('NeatLabelTimeline readout', () => {
     expect(chart.timeline.querySelectorAll('[tabindex]')).toHaveLength(0);
 
     await chart.focus();
-    expect(lines(chart.readout())).toEqual(['Throw up', '8.5 s ago to now']);
+    expect(lines(chart.readout())).toEqual(['Throw up']);
     // Focus alone lands on the strip without a sentence in the reader's ear.
     expect(chart.live().textContent?.trim()).toBe('');
 
     await chart.key('ArrowLeft');
-    expect(lines(chart.readout())).toEqual(['Zoom in', '20 s to 10 s ago']);
+    expect(lines(chart.readout())).toEqual(['Zoom in']);
     expect(chart.live().textContent?.trim()).toBe('Zoom in, 20 s to 10 s ago');
 
     await chart.key('Home');
