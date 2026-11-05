@@ -66,6 +66,8 @@ interface Box {
   y: number;
   w: number;
   h: number;
+  /** The corner radius it was erased with, CSS px. */
+  r?: number;
 }
 
 /**
@@ -116,9 +118,9 @@ class FakeContext {
     this.boxes = [];
   }
 
-  roundRect(x: number, y: number, w: number, h: number): void {
+  roundRect(x: number, y: number, w: number, h: number, r?: number): void {
     this.rects++;
-    this.boxes.push({ x, y, w, h });
+    this.boxes.push({ x, y, w, h, r });
   }
 
   fill(rule = 'nonzero'): void {
@@ -848,14 +850,14 @@ describe('NeatDiagramMessages in neat-diagram', () => {
     await fixture.whenStable();
   }
 
-  /** The label's box, 2 px clear of its border all round, on the canvas through the transform. */
+  /** The label's border box, exactly, on the canvas through the transform. */
   function labelOnScreen(host: HTMLElement): Box {
     const { k, x, y } = zoomTransform(host);
     return {
-      x: (LABEL_AT.x - LABEL_SIZE.w / 2 - 2) * k + x,
-      y: (LABEL_AT.y - LABEL_SIZE.h / 2 - 2) * k + y,
-      w: (LABEL_SIZE.w + 4) * k,
-      h: (LABEL_SIZE.h + 4) * k,
+      x: (LABEL_AT.x - LABEL_SIZE.w / 2) * k + x,
+      y: (LABEL_AT.y - LABEL_SIZE.h / 2) * k + y,
+      w: LABEL_SIZE.w * k,
+      h: LABEL_SIZE.h * k,
     };
   }
 
@@ -883,7 +885,7 @@ describe('NeatDiagramMessages in neat-diagram', () => {
       SETTINGS.speed) *
     1000;
 
-  it('erases a dot that runs through an edge label, 2 px clear of its border', async () => {
+  it('erases a dot that runs through an edge label, exactly where the label is drawn', async () => {
     const { fixture, host, element, layer, frame } = await renderDiagram();
     await measureLabel(fixture, host);
     layer.push('frames', 1000, 0);
@@ -898,6 +900,9 @@ describe('NeatDiagramMessages in neat-diagram', () => {
     expect(box.y).toBeCloseTo(label.y);
     expect(box.w).toBeCloseTo(label.w);
     expect(box.h).toBeCloseTo(label.h);
+    // The label's own corner (half the cards'), not the cards': the cover is the label drawn.
+    const card = erased.find((b) => b !== box)!;
+    expect(box.r).toBeCloseTo(card.r! / 2);
     expect(covered(dot, box)).toBe(true);
   });
 

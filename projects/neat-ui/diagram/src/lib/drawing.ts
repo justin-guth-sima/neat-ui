@@ -1,5 +1,12 @@
 import { ɵseriesToken } from '@sima/neat-ui';
-import { absoluteRects, type EdgeLayout, layoutEdges, type Rect, SIDE_AXES } from './layout';
+import {
+  absoluteRects,
+  type Cover,
+  type EdgeLayout,
+  layoutEdges,
+  type Rect,
+  SIDE_AXES,
+} from './layout';
 import type {
   NeatDiagram,
   NeatDiagramEdge,
@@ -166,30 +173,29 @@ function drawEdge(edge: NeatDiagramEdge, layout: EdgeLayout): DrawnEdge {
   };
 }
 
-/**
- * How far the dots keep off an edge label's border, diagram units (2 px at zoom 1, scaled with the
- * label).
- */
-export const LABEL_CLEARANCE = 2;
+/** An edge label's corner radius as a share of the cards' (`.edge-label`: `--radius` / 2). */
+export const LABEL_CORNER = 0.5;
 
 /**
- * The boxes the dots keep off for the edge labels, in diagram units: each measured label's border
- * box (`sizes`, by edge id; centred on its point, as `.edge-label` is) grown by
- * `LABEL_CLEARANCE` all round. A label not measured yet has none.
+ * The boxes the dots pass behind for the edge labels, in diagram units: each measured label's
+ * border box (`sizes`, by edge id; centred on its point, as `.edge-label` is) with the label's own
+ * corner radius, so a dot is hidden exactly where the label is drawn, as the edge's line is under
+ * it. A label not measured yet has none.
  */
 export function labelCovers(
   edges: readonly DrawnEdge[],
   sizes: ReadonlyMap<string, { readonly w: number; readonly h: number }>,
-): Rect[] {
+): Cover[] {
   return edges.flatMap(({ id, label }) => {
     const size = label && sizes.get(id);
     if (!label || !size) return [];
     return [
       {
-        x: label.at.x - size.w / 2 - LABEL_CLEARANCE,
-        y: label.at.y - size.h / 2 - LABEL_CLEARANCE,
-        w: size.w + 2 * LABEL_CLEARANCE,
-        h: size.h + 2 * LABEL_CLEARANCE,
+        x: label.at.x - size.w / 2,
+        y: label.at.y - size.h / 2,
+        w: size.w,
+        h: size.h,
+        corner: LABEL_CORNER,
       },
     ];
   });

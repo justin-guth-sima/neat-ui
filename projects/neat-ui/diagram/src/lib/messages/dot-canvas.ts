@@ -1,5 +1,5 @@
 import type { NeatRgb } from '@sima/neat-ui';
-import type { Rect } from '../layout';
+import type { Cover } from '../layout';
 import type { DiagramTransform } from './context';
 import type { Dot } from './dot-model';
 import type { EdgeGeometry } from './edge-geometry';
@@ -134,7 +134,7 @@ export class DotCanvas {
     dots: readonly Dot[],
     size: number,
     focus: ReadonlySet<string> | null,
-    covers: readonly Rect[],
+    covers: readonly Cover[],
   ): number {
     const context = this.start();
     const scale = (size * this.k) / REFERENCE_ZOOM;
@@ -156,7 +156,7 @@ export class DotCanvas {
     now: number,
     size: number,
     focus: ReadonlySet<string> | null,
-    covers: readonly Rect[],
+    covers: readonly Cover[],
   ): number {
     const context = this.start();
     const scale = (size * this.k) / REFERENCE_ZOOM;
@@ -183,18 +183,23 @@ export class DotCanvas {
    * pass behind the cards they run into and come out of. The canvas holds only the dots, so
    * erasing after drawing is the same as drawing around the cards, and one path of all of them,
    * filled by the nonzero rule, is their union: where two cards overlap stays erased, which a clip
-   * to outside them with the even-odd rule would paint again. Every cover takes the cards' corner
-   * radius; an edge label's cover is its box grown 2 units (`LABEL_CLEARANCE`), whose corners at
-   * that radius still hold the label's own, at half of it, for any radius up to 13 units.
+   * to outside them with the even-odd rule would paint again. Each cover takes the cards' corner
+   * radius times its own `corner` share (an edge label's is half), so it is exactly the box drawn.
    */
-  private erase(context: CanvasRenderingContext2D, covers: readonly Rect[]): void {
+  private erase(context: CanvasRenderingContext2D, covers: readonly Cover[]): void {
     if (covers.length === 0) return;
     const { k, x, y } = this;
     context.globalAlpha = this.alpha = 1;
     context.globalCompositeOperation = 'destination-out';
     context.beginPath();
     for (const c of covers) {
-      context.roundRect(c.x * k + x, c.y * k + y, c.w * k, c.h * k, this.radius * k);
+      context.roundRect(
+        c.x * k + x,
+        c.y * k + y,
+        c.w * k,
+        c.h * k,
+        this.radius * (c.corner ?? 1) * k,
+      );
     }
     context.fill();
     context.globalCompositeOperation = 'source-over';

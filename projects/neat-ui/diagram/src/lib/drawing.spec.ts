@@ -1,4 +1,4 @@
-import { drawLevel, LABEL_CLEARANCE, labelCovers } from './drawing';
+import { drawLevel, LABEL_CORNER, labelCovers } from './drawing';
 import type { NeatDiagram } from './model';
 
 /** Two blocks joined straight across, the edge labelled at its middle, and one unlabelled. */
@@ -19,12 +19,12 @@ describe('labelCovers', () => {
   /** Where the route puts the label: the middle of `tokens`, between the blocks. */
   const at = edges.find((edge) => edge.id === 'tokens')!.label!.at;
 
-  it("is each measured label's border box, centred on its point, grown by the clearance", () => {
+  it("is each measured label's border box, centred on its point, with the label's corner", () => {
     expect(at.x).toBeCloseTo(200);
     const [cover, ...more] = labelCovers(edges, new Map([['tokens', { w: 50, h: 18 }]]));
     expect(more).toEqual([]);
-    expect(LABEL_CLEARANCE).toBe(2);
-    expect(cover).toEqual({ x: at.x - 25 - 2, y: at.y - 9 - 2, w: 54, h: 22 });
+    expect(LABEL_CORNER).toBe(0.5);
+    expect(cover).toEqual({ x: at.x - 25, y: at.y - 9, w: 50, h: 18, corner: 0.5 });
   });
 
   it('holds the label point and leaves the rest of the edge outside', () => {
@@ -32,7 +32,8 @@ describe('labelCovers', () => {
     const inside = (x: number, y: number) =>
       x >= cover.x && x <= cover.x + cover.w && y >= cover.y && y <= cover.y + cover.h;
     expect(inside(at.x, at.y)).toBe(true);
-    expect(inside(at.x - 26, at.y)).toBe(true);
+    expect(inside(at.x - 25, at.y)).toBe(true);
+    expect(inside(at.x - 26, at.y)).toBe(false);
     expect(inside(at.x - 50, at.y)).toBe(false);
     expect(inside(at.x + 50, at.y)).toBe(false);
     expect(inside(at.x, at.y + 12)).toBe(false);

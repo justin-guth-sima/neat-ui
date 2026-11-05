@@ -13,6 +13,14 @@ export interface Rect extends Point {
   h: number;
 }
 
+/**
+ * A box the message dots pass behind: a card, a note or an edge label. `corner` is its corner
+ * radius as a share of the cards' (`--radius`); unset, 1.
+ */
+export interface Cover extends Rect {
+  readonly corner?: number;
+}
+
 /** An edge as drawn: its ports and their sides, and its route in the rounded shape. */
 export interface EdgeLayout {
   /**

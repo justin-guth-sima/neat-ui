@@ -1,5 +1,5 @@
 import { inject, Injectable, InjectionToken, type Provider, type Signal } from '@angular/core';
-import type { Rect } from '../layout';
+import type { Cover } from '../layout';
 import type { NeatDiagramEdge } from '../model';
 import type { Point } from '../route';
 
@@ -48,7 +48,7 @@ export interface DiagramMessagesContext {
    * are drawn on a canvas over the whole drawing, so without this they would run over the card
    * they enter and through the text of a label on their edge.
    */
-  readonly covers: Signal<readonly Rect[]>;
+  readonly covers: Signal<readonly Cover[]>;
   /**
    * Every edge id of every level: the ids whose messages the layer counts, so a push for an id
    * that names no edge costs no memory.
