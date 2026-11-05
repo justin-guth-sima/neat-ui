@@ -75,8 +75,9 @@ const PIPELINE_NODES: readonly NeatDiagramNode[] = [
     inSide: 'top',
     outSide: 'bottom',
     parent: 'modalix',
+    // Far enough below Decode for the label of the edge between them, with its arrow.
     x: 20,
-    y: 140,
+    y: 156,
     w: 170,
     h: 46,
   },
@@ -89,7 +90,7 @@ const PIPELINE_NODES: readonly NeatDiagramNode[] = [
     outSide: 'left',
     parent: 'modalix',
     x: 35,
-    y: 230,
+    y: 246,
     w: 140,
     h: 40,
   },
@@ -140,7 +141,8 @@ export const PIPELINE: NeatDiagramSet = {
     nodes: PIPELINE_NODES,
     edges: [
       ...PIPELINE_EDGES,
-      { id: 'decode-detector', from: 'decode', to: 'detector', series: 1 },
+      // Labelled, so the dots are seen passing behind an edge label.
+      { id: 'decode-detector', from: 'decode', to: 'detector', series: 1, label: 'frames' },
       { id: 'detector-tracker', from: 'detector', to: 'tracker', series: 4 },
     ],
     notes: [
