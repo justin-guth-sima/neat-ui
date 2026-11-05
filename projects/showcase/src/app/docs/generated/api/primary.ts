@@ -3372,7 +3372,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The app frame: the rail on the left, which is the app's, the top bar, which is the page's, and the content area for the routed page. It fills the viewport, or the bounded box it is placed in; the content area gives its page the remaining space and never scrolls itself, so pages own their scrolling (see "
+              "text": "The app frame: the top bar, which is the page's, across the full width at the top, and below it the rail on the left, which is the app's, and the content area for the routed page. The top bar comes first in the DOM, so the tab order is the visual one: top bar, rail, content. It fills the viewport, or the bounded box it is placed in; the content area gives its page the remaining space and never scrolls itself, so pages own their scrolling (see "
             },
             {
               "kind": "code",
@@ -3580,7 +3580,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; the name beside the logo, which is also named \"SiMa.ai\"). The logo, the end slot, the kiosk button and the side-panel toggle share the first row, the end slot growing from a zero basis and the toggle last, and the page toolbar takes its own full-width second row. An expanded rail floats over the content instead of squeezing it, starts collapsed without touching the remembered choice, and collapses when one of its links is followed. The host's "
+              "text": "; the name beside the logo, which is also named \"SiMa.ai\"). The logo, the end slot, the kiosk button and the side-panel toggle share the first row, the end slot growing from a zero basis and the toggle last, and the page toolbar takes its own full-width second row. An expanded rail floats over the content, below the top bar, instead of squeezing it, starts collapsed without touching the remembered choice, and collapses when one of its links is followed. The host's "
             },
             {
               "kind": "code",

@@ -575,7 +575,7 @@ describe('NeatShell', () => {
 
     expect(nav().getAttribute('aria-label')).toBe('Main');
     expect(topbar().textContent).toContain('Neat Insight');
-    expect(getComputedStyle(shell()).gridTemplateAreas).toBe('"rail topbar" "rail content"');
+    expect(getComputedStyle(shell()).gridTemplateAreas).toBe('"topbar topbar" "rail content"');
   });
 
   it('shows the exit control on pointer movement and hides it when the pointer is idle', async () => {
@@ -693,7 +693,7 @@ describe('NeatShell', () => {
     expect(edge).toMatch(/border-inline-start:\s*1px solid var\(--border\);/);
     expect(edge).toMatch(/margin-inline-end:\s*calc\(-1 \* var\(--neat-space-2\)\);/);
     expect(rule(":host([data-narrow='false']) .topbar")).toMatch(
-      /padding-inline:\s*1rem var\(--neat-space-2\);/,
+      /padding-inline-end:\s*var\(--neat-space-2\);/,
     );
   });
 
@@ -1098,6 +1098,34 @@ describe('NeatShell', () => {
     expect(railToggle().textContent?.trim()).toBe('Collapse');
   });
 
+  it('places the top bar before the rail in the DOM, so Tab goes top bar, rail, content', async () => {
+    await start();
+
+    const bar = topbar();
+    const rail = railBox();
+    expect(bar.compareDocumentPosition(rail) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(rail.compareDocumentPosition(main()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('spans the top bar over the whole width, with the rail below it beside the content', async () => {
+    await start();
+
+    expect(rule(":host([data-kiosk='false'])")).toMatch(
+      /grid-template-areas:\s*'topbar topbar'\s*'rail content';/,
+    );
+  });
+
+  it('centres the logo mark over the collapsed rail’s icon column, whatever the rail does', async () => {
+    await start();
+
+    // The mark is 0.875rem to its middle; the column's middle is half the collapsed rail's width.
+    // Both screens' bars inherit the one inset, and it does not depend on the expanded width.
+    expect(rule('.topbar')).toMatch(
+      /padding-inline-start:\s*calc\(var\(--neat-rail-width\) \/ 2 - 0\.875rem\);/,
+    );
+    expect(shellStyles).not.toMatch(/\.topbar[^{]*\{[^}]*--neat-rail-width-expanded/);
+  });
+
   it('on a wide screen: lays the expanded rail beside the content', async () => {
     await start();
     railToggle().click();
@@ -1149,6 +1177,13 @@ describe('NeatShell', () => {
       expect(railBox().dataset['expanded']).toBe('true');
       expect(getComputedStyle(shell()).gridTemplateColumns).toMatch(/^var\(--neat-rail-width\)/);
       expect(getComputedStyle(railBox()).position).toBe('absolute');
+      // It stays in its grid cell (the second row, under the top bar): an absolutely positioned
+      // grid child takes that cell as its containing block, so `inset-block: 0` starts it below
+      // the bar and no rule may take it out of its area.
+      expect(rule('.rail')).toMatch(/grid-area:\s*rail;/);
+      expect(rule(".rail[data-floating='true']")).not.toMatch(/grid-area/);
+      expect(getComputedStyle(shell()).gridTemplateAreas).toBe('"topbar topbar" "rail content"');
+      expect(rule(".rail[data-floating='true']")).not.toMatch(/inset-block-start:\s*0/);
       expect(rule(".rail[data-floating='true']")).toMatch(/inset-block:\s*0;/);
       expect(rule(".rail[data-floating='true']")).toMatch(/inset-inline-start:\s*0;/);
       expect(rule(".rail[data-floating='true']")).toMatch(/z-index:\s*1;/);
@@ -1223,7 +1258,7 @@ describe('NeatShell', () => {
       await start();
       const declarations = rule(":host([data-narrow='true']) .topbar");
       expect(declarations).toMatch(/gap:\s*0 var\(--neat-space-2\);/);
-      expect(declarations).toMatch(/padding-inline:\s*var\(--neat-space-2\);/);
+      expect(declarations).toMatch(/padding-inline-end:\s*var\(--neat-space-2\);/);
       expect(declarations).toMatch(/flex-wrap:\s*wrap;/);
     });
 

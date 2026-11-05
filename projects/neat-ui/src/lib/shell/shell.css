@@ -1,6 +1,7 @@
 /*
- * Layout A: the rail spans the full height on the left; the top bar and the content area share
- * the column to its right. Colours are the theme's Spartan variables: the rail is Spartan's
+ * The top bar spans the full width at the top; below it the rail stands on the left, beside the
+ * content area. Whatever the rail does, the logo, the app name and the top bar's tools stay where
+ * they are. Colours are the theme's Spartan variables: the rail is Spartan's
  * sidebar. Chrome text sits only where the theme guarantees 4.5:1: body and muted text on the
  * background, and accent-foreground on the hover and selection fill (accent).
  */
@@ -24,11 +25,14 @@
 
 :host([data-kiosk='false']) {
   grid-template-areas:
-    'rail topbar'
+    'topbar topbar'
     'rail content';
 }
 
-/* The rail's column is as wide as the rail, expanded or not; the top bar is one row high. */
+/*
+ * The rail's column is as wide as the rail, expanded or not (the content moves, the top bar does
+ * not); the top bar is one row high.
+ */
 :host([data-kiosk='false'][data-narrow='false']) {
   grid-template-columns: auto minmax(0, 1fr);
   grid-template-rows: var(--neat-topbar-height) minmax(0, 1fr);
@@ -37,8 +41,8 @@
 /*
  * On a narrow screen the column stays the collapsed rail's width, so the content does not move
  * when the rail expands: the expanded rail floats over it instead (see `.rail`). The host is the
- * containing block of that floating rail and of the app name hidden in the top bar, which would
- * otherwise reach the viewport's. The top bar's row is as high as its content: a phone has no
+ * containing block of the app name hidden in the top bar, which would otherwise reach the
+ * viewport's. The top bar's row is as high as its content: a phone has no
  * room to put the page's tools beside the logo, so they take a row of their own (see
  * `.page-toolbar`), and the bar is two rows high on a page that has tools. A bar without tools is
  * held to the wide bar's height by `.topbar`'s min-height.
@@ -85,9 +89,11 @@
   width: var(--neat-rail-width-expanded);
 }
 
-/* Expanded on a narrow screen: out of the grid, over the content, which a phone has no room to
+/* Expanded on a narrow screen: out of the flow, over the content, which a phone has no room to
    give up. It keeps the rail's own fill, since the content would show through otherwise, and
-   its z-index lifts it over the content's isolated stacking context and the top bar. */
+   its z-index lifts it over the content's isolated stacking context. Being a child of the grid,
+   it still has its grid area (`rail`, the second row) as its containing block, so `inset-block: 0`
+   starts it under the top bar, whatever height that has, and ends it at the bottom. */
 .rail[data-floating='true'] {
   position: absolute;
   inset-block: 0;
@@ -151,11 +157,14 @@ nav {
   align-items: center;
   min-width: 0;
   border-block-end: 1px solid var(--border);
+  /* The mark (the logo's first 100 of its 111.34 units, 1.75rem high: 0.875rem to its middle)
+     is centred over the collapsed rail's icon column below, whatever the rail's width is. */
+  padding-inline-start: calc(var(--neat-rail-width) / 2 - 0.875rem);
 }
 
 :host([data-narrow='false']) .topbar {
   gap: 1rem;
-  padding-inline: 1rem var(--neat-space-2);
+  padding-inline-end: var(--neat-space-2);
 }
 
 /* A phone has no room for the wide bar's spacing: its icons would overlap the app's end content.
@@ -166,7 +175,7 @@ nav {
   flex-wrap: wrap;
   min-height: var(--neat-topbar-height);
   gap: 0 var(--neat-space-2);
-  padding-inline: var(--neat-space-2);
+  padding-inline-end: var(--neat-space-2);
 }
 
 .brand {

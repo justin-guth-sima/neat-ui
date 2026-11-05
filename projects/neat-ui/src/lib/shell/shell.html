@@ -10,6 +10,56 @@
     }
   </div>
 } @else {
+  <header class="topbar" [attr.data-toolbar]="pageToolbar() ? 'true' : 'false'">
+    <div class="brand">
+      <neat-logo />
+      <span class="app-name" [class.sr-only]="viewport.narrow()">{{ appName() }}</span>
+    </div>
+    @if (pageTitle(); as title) {
+      @if (title.text) {
+        <!-- The muted part is inside the heading: it is where the person is, and the page's name
+             to a screen reader too. -->
+        <h1 class="page-title" [class.sr-only]="viewport.narrow()">
+          {{ title.text }}
+          @if (title.context) {
+            <span class="page-context">{{ title.context }}</span>
+          }
+        </h1>
+      }
+    }
+    @if (pageToolbar(); as toolbar) {
+      <div class="page-toolbar" role="group" [attr.aria-label]="toolbarLabel">
+        <ng-template [cdkPortalOutlet]="toolbar" />
+      </div>
+    }
+    <div class="topbar-end">
+      <ng-content select="[neatTopbarEnd]" />
+    </div>
+    <div class="topbar-actions">
+      <button
+        #kioskButton
+        neatButton
+        type="button"
+        variant="text"
+        size="large"
+        rounded
+        iconOnly
+        aria-label="Kiosk mode"
+        neatTooltip="Kiosk mode"
+        neatTooltipPosition="bottom"
+        (click)="kiosk.toggle()"
+      >
+        <neat-icon name="kiosk-enter" />
+      </button>
+    </div>
+    @if (asideToggle(); as toggle) {
+      <!-- The page's side-panel toggle, at the right edge above the panel. -->
+      <div class="aside-edge">
+        <ng-template [cdkPortalOutlet]="toggle" />
+      </div>
+    }
+  </header>
+
   <div
     class="rail data-[floating=true]:shadow-md"
     [attr.data-expanded]="railExpanded()"
@@ -92,56 +142,6 @@
       <neat-icon [name]="railExpanded() ? 'rail-collapse' : 'rail-expand'" />
     </button>
   </div>
-
-  <header class="topbar" [attr.data-toolbar]="pageToolbar() ? 'true' : 'false'">
-    <div class="brand">
-      <neat-logo />
-      <span class="app-name" [class.sr-only]="viewport.narrow()">{{ appName() }}</span>
-    </div>
-    @if (pageTitle(); as title) {
-      @if (title.text) {
-        <!-- The muted part is inside the heading: it is where the person is, and the page's name
-             to a screen reader too. -->
-        <h1 class="page-title" [class.sr-only]="viewport.narrow()">
-          {{ title.text }}
-          @if (title.context) {
-            <span class="page-context">{{ title.context }}</span>
-          }
-        </h1>
-      }
-    }
-    @if (pageToolbar(); as toolbar) {
-      <div class="page-toolbar" role="group" [attr.aria-label]="toolbarLabel">
-        <ng-template [cdkPortalOutlet]="toolbar" />
-      </div>
-    }
-    <div class="topbar-end">
-      <ng-content select="[neatTopbarEnd]" />
-    </div>
-    <div class="topbar-actions">
-      <button
-        #kioskButton
-        neatButton
-        type="button"
-        variant="text"
-        size="large"
-        rounded
-        iconOnly
-        aria-label="Kiosk mode"
-        neatTooltip="Kiosk mode"
-        neatTooltipPosition="bottom"
-        (click)="kiosk.toggle()"
-      >
-        <neat-icon name="kiosk-enter" />
-      </button>
-    </div>
-    @if (asideToggle(); as toggle) {
-      <!-- The page's side-panel toggle, at the right edge above the panel. -->
-      <div class="aside-edge">
-        <ng-template [cdkPortalOutlet]="toggle" />
-      </div>
-    }
-  </header>
 }
 
 <main class="content">
