@@ -243,7 +243,7 @@ let diagram: FakeDiagram;
 const probed: [number, number][] = [];
 
 /** One second per 300 units: `in` and `step` each take 1000 ms. */
-const SETTINGS: NeatDiagramMessageSettings = { speed: 300, size: 1, every: 1, steps: true };
+const SETTINGS: NeatDiagramMessageSettings = { speed: 300, size: 1, every: 1 };
 const STEPS: Record<string, NeatDiagramMessageStep> = {
   step: { from: 'detector', stage: 'infer' },
 };
@@ -461,18 +461,12 @@ describe('NeatDiagramMessages', () => {
     expect(dot.x).toBeCloseTo(315 * REFERENCE_ZOOM);
   });
 
-  it('starts no step dots from a passive edge, nor with steps turned off', async () => {
+  it('starts no step dots from a passive edge', async () => {
     const { fixture, layer, frame } = await renderLayer();
     fixture.componentInstance.passive.set(['in']);
     await fixture.whenStable();
     layer.push('in', 1000, 0);
     expect(frame(1500)).toEqual([]);
-
-    fixture.componentInstance.passive.set([]);
-    fixture.componentInstance.settings.set({ ...SETTINGS, steps: false });
-    await fixture.whenStable();
-    layer.push('in', 1000, 2000);
-    expect(frame(3500)).toEqual([]);
   });
 
   it("takes an edge's colour from `colours`, else its series, else the muted colour", async () => {

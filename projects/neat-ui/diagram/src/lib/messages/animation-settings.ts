@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, model } from '@angular/core';
 import { NeatButton, NeatIcon } from '@sima/neat-ui';
 import { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } from '@sima/neat-ui/popover';
 import { NeatSlider } from '@sima/neat-ui/slider';
-import { NeatSwitch } from '@sima/neat-ui/switch';
 import { NEAT_DIAGRAM_MESSAGE_DEFAULTS, type NeatDiagramMessageSettings } from './messages';
 
 /** The range of each number, for the sliders and for settings read back from storage. */
@@ -39,15 +38,13 @@ export function neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettin
     speed: pick('speed'),
     size: pick('size'),
     every: pick('every'),
-    steps:
-      typeof record['steps'] === 'boolean' ? record['steps'] : NEAT_DIAGRAM_MESSAGE_DEFAULTS.steps,
   };
 }
 
 /**
  * The Animation panel for `neat-diagram-messages`: an icon button that opens sliders for the
- * dots' speed, size and messages per dot, a switch for the dots through the blocks' steps, and a
- * reset to the defaults:
+ * dots' speed, size and messages per dot, and a reset to the defaults (dots always go on through
+ * the blocks' steps, where a diagram has them):
  *
  * ```html
  * <neat-diagram-animation-settings [(settings)]="dots" />
@@ -60,15 +57,7 @@ export function neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettin
  */
 @Component({
   selector: 'neat-diagram-animation-settings',
-  imports: [
-    NeatButton,
-    NeatIcon,
-    NeatPopover,
-    NeatPopoverContent,
-    NeatPopoverTrigger,
-    NeatSlider,
-    NeatSwitch,
-  ],
+  imports: [NeatButton, NeatIcon, NeatPopover, NeatPopoverContent, NeatPopoverTrigger, NeatSlider],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './animation-settings.css',
   template: `
@@ -122,14 +111,6 @@ export function neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettin
             [value]="s.every"
             (valueChange)="set({ every: $event })"
           />
-          <button
-            neatSwitch
-            type="button"
-            [checked]="s.steps"
-            (checkedChange)="set({ steps: $event })"
-          >
-            Dots inside the blocks
-          </button>
           <button
             neatButton
             variant="outlined"

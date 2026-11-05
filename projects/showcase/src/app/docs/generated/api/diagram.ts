@@ -74,7 +74,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": an icon button that opens sliders for the dots' speed, size and messages per dot, a switch for the dots through the blocks' steps, and a reset to the defaults:"
+              "text": ": an icon button that opens sliders for the dots' speed, size and messages per dot, and a reset to the defaults (dots always go on through the blocks' steps, where a diagram has them):"
             }
           ]
         },
@@ -1047,29 +1047,6 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "Messages per dot, a whole number: each edge shows a dot for every Nth message on it (1: every message), so a busy edge shows gaps instead of a solid band."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "steps",
-          "type": "boolean",
-          "doc": [
-            {
-              "kind": "paragraph",
-              "spans": [
-                {
-                  "kind": "text",
-                  "text": "Whether dots go on through the blocks' steps (the layer's "
-                },
-                {
-                  "kind": "code",
-                  "text": "steps"
-                },
-                {
-                  "kind": "text",
-                  "text": ")."
                 }
               ]
             }

@@ -514,7 +514,8 @@ the whole in the kit's look.
   `showBytes` false leaves the MB/s out for an app that pushes no sizes; it draws no box, the note
   does. `neat-diagram-animation-settings` is the demo's Animation popover (an icon button,
   `neat-popover` with `neat-slider`s for speed 50 to 1000, dot size 0.5 to 2 and messages per dot 1
-  to 10, a switch for the steps, a reset) over a two-way `settings` model; it keeps nothing. An app
+  to 10, a reset; dots always go on through the steps) over a two-way `settings` model; it keeps
+  nothing. An app
   that remembers the choice per browser makes the model a `neatStoredSignal` with
   `NEAT_DIAGRAM_MESSAGE_DEFAULTS` as its initial value and `neatParseMessageSettings` (clamps,
   rounds and defaults what an older version stored) as its parse. The layer reaches the diagram only

@@ -55,8 +55,8 @@ describe('NeatDiagramAnimationSettings', () => {
     expect(panel()?.getAttribute('aria-label')).toBe('Animation');
   });
 
-  it('shows the settings: speed, size, messages per dot and the steps switch', async () => {
-    const { thumb } = await render({ speed: 400, size: 1.5, every: 3, steps: false });
+  it('shows the settings: speed, size and messages per dot, and no switch', async () => {
+    const { thumb } = await render({ speed: 400, size: 1.5, every: 3 });
     const rows = Array.from(panel()!.querySelectorAll('.row'), (row) =>
       Array.from(row.querySelectorAll('span'), (span) => span.textContent),
     );
@@ -66,7 +66,7 @@ describe('NeatDiagramAnimationSettings', () => {
       ['Messages per dot', '1 dot = 3 msgs'],
     ]);
     expect(thumb('Speed').getAttribute('aria-valuenow')).toBe('400');
-    expect(panel()!.querySelector('[role="switch"]')?.getAttribute('aria-checked')).toBe('false');
+    expect(panel()!.querySelector('[role="switch"]')).toBeNull();
   });
 
   it('says "1 dot = 1 msg" for one message per dot', async () => {
@@ -97,15 +97,8 @@ describe('NeatDiagramAnimationSettings', () => {
     expect(panel()!.textContent).toContain('1 dot = 2 msgs');
   });
 
-  it('writes the switch into the model as steps', async () => {
-    const { fixture, host } = await render();
-    panel()!.querySelector<HTMLButtonElement>('[role="switch"]')!.click();
-    await fixture.whenStable();
-    expect(host.settings().steps).toBe(false);
-  });
-
   it('resets every setting to the defaults', async () => {
-    const { fixture, host } = await render({ speed: 900, size: 2, every: 7, steps: false });
+    const { fixture, host } = await render({ speed: 900, size: 2, every: 7 });
     const reset = Array.from(panel()!.querySelectorAll('button')).find(
       (b) => b.textContent?.trim() === 'Reset to defaults',
     )!;
@@ -122,10 +115,11 @@ describe('neatParseMessageSettings', () => {
     }
   });
 
-  it('keeps known keys of the right type, clamped, and rounds the whole-number one', () => {
+  it('keeps known keys of the right type, clamped, rounds the whole-number one and drops the rest', () => {
+    // `steps` was a setting once (a switch for the dots through the blocks); a stored one is dropped.
     expect(
       neatParseMessageSettings({ speed: 5000, size: 0.1, every: 2.6, steps: false, old: 1 }),
-    ).toEqual({ speed: 1000, size: 0.5, every: 3, steps: false });
+    ).toEqual({ speed: 1000, size: 0.5, every: 3 });
   });
 
   it('takes the default for a value of the wrong type or not finite', () => {

@@ -42,8 +42,6 @@ export interface NeatDiagramMessageSettings {
    * message), so a busy edge shows gaps instead of a solid band.
    */
   readonly every: number;
-  /** Whether dots go on through the blocks' steps (the layer's `steps`). */
-  readonly steps: boolean;
 }
 
 /** The demo's settings: its median overview edge takes about 1.2 s at this speed. */
@@ -51,7 +49,6 @@ export const NEAT_DIAGRAM_MESSAGE_DEFAULTS: NeatDiagramMessageSettings = Object.
   speed: 270,
   size: 1,
   every: 1,
-  steps: true,
 });
 
 /** An edge's messages and bytes per second over the last second, and its messages per second. */
@@ -81,8 +78,6 @@ const PALETTE_TOKENS: Record<string, string> = Object.fromEntries(
 );
 
 const NO_DOTS: readonly Dot[] = [];
-
-const NO_CHAIN: ReadonlyMap<string, readonly string[]> = new Map();
 
 const isSeries = (n: unknown): n is number =>
   typeof n === 'number' && Number.isInteger(n) && n >= 1 && n <= 8;
@@ -224,10 +219,8 @@ export class NeatDiagramMessages {
     for (const [id, edge] of this.geometry()) travel.set(id, travelTime(edge.length, speed));
     return travel;
   });
-  private readonly stepsOn = computed(() => this.settings().steps);
   /** What follows each drawn edge: the steps leaving the node it enters, unless it is passive. */
   private readonly chain = computed(() => {
-    if (!this.stepsOn()) return NO_CHAIN;
     const next = chainOf(this.diagram.level().edges, this.steps());
     for (const id of this.passive()) next.delete(id);
     return next;
