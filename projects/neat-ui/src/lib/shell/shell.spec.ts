@@ -11,6 +11,7 @@ import { NeatNavItem } from './nav-item';
 import { NeatPageToolbar } from './page-toolbar';
 import { NeatRailDivider, NeatRailItem } from './rail-item';
 import { NeatShell } from './shell';
+import logoStyles from './logo.css' with { loader: 'text' };
 import shellStyles from './shell.css' with { loader: 'text' };
 
 const RAIL_KEY = 'neat-ui:rail-expanded';
@@ -1118,12 +1119,19 @@ describe('NeatShell', () => {
   it('centres the logo mark over the collapsed rail’s icon column, whatever the rail does', async () => {
     await start();
 
-    // The mark is 0.875rem to its middle; the column's middle is half the collapsed rail's width.
-    // Both screens' bars inherit the one inset, and it does not depend on the expanded width.
-    expect(rule('.topbar')).toMatch(
-      /padding-inline-start:\s*calc\(var\(--neat-rail-width\) \/ 2 - 0\.875rem\);/,
+    // The mark is the logo's first 100 units of its 111.34-unit-wide viewBox, as high as the svg
+    // (1.75rem), so it is square and its middle is half that height from the bar's start edge.
+    // The column's middle is half the collapsed rail's width (3.5rem: 1.75rem). Both screens'
+    // bars have the one inset.
+    const markHeight = /svg\s*\{[^}]*height:\s*([\d.]+)rem;/.exec(logoStyles)?.[1];
+    const railWidth = /--neat-rail-width:\s*([\d.]+)rem;/.exec(shellStyles)?.[1];
+    expect(markHeight).toBe('1.75');
+    expect(railWidth).toBe('3.5');
+    const markMiddle = Number(markHeight) / 2;
+    expect(markMiddle).toBe(0.875);
+    expect(rule('.topbar')).toContain(
+      `padding-inline-start: calc(var(--neat-rail-width) / 2 - ${markMiddle}rem);`,
     );
-    expect(shellStyles).not.toMatch(/\.topbar[^{]*\{[^}]*--neat-rail-width-expanded/);
   });
 
   it('on a wide screen: lays the expanded rail beside the content', async () => {
@@ -1183,7 +1191,12 @@ describe('NeatShell', () => {
       expect(rule('.rail')).toMatch(/grid-area:\s*rail;/);
       expect(rule(".rail[data-floating='true']")).not.toMatch(/grid-area/);
       expect(getComputedStyle(shell()).gridTemplateAreas).toBe('"topbar topbar" "rail content"');
-      expect(rule(".rail[data-floating='true']")).not.toMatch(/inset-block-start:\s*0/);
+      // jsdom has no layout, so the cascade is all this can pin: the floating rule sets no start
+      // or end offset of its own against the host. The browser check (the rail at the top bar's
+      // height, in screenshots) is the evidence that it starts below the bar.
+      expect(rule(".rail[data-floating='true']")).not.toMatch(
+        /(^|[\s;])(top|bottom|inset|inset-block-start|inset-block-end):/,
+      );
       expect(rule(".rail[data-floating='true']")).toMatch(/inset-block:\s*0;/);
       expect(rule(".rail[data-floating='true']")).toMatch(/inset-inline-start:\s*0;/);
       expect(rule(".rail[data-floating='true']")).toMatch(/z-index:\s*1;/);

@@ -80,9 +80,9 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
 /**
  * The app frame: the top bar, which is the page's, across the full width at the top, and below it
  * the rail on the left, which is the app's, and the content area for the routed page. The top bar
- * comes first in the DOM, so the tab order is the visual one: top bar, rail, content. It fills the viewport, or the bounded box it is placed in;
- * the content area gives its page the remaining space and never scrolls itself, so pages own their
- * scrolling (see `neat-page`).
+ * comes first in the DOM, so the tab order is the visual one: top bar, rail, content. It fills the
+ * viewport, or the bounded box it is placed in; the content area gives its page the remaining space
+ * and never scrolls itself, so pages own their scrolling (see `neat-page`).
  *
  * The rail holds the pages (`navItems`) and, at its bottom below a divider, the app's own items
  * (elements marked `neatRailEnd`: `neatRailItem`s, and `neatRailDivider`s between groups of them),
@@ -124,10 +124,10 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * hidden but stay for screen readers (the title as the page's `h1`; the name beside the logo,
  * which is also named "SiMa.ai"). The logo, the end slot, the kiosk button and the side-panel
  * toggle share the first row, the end slot growing from a zero basis and the toggle last, and the
- * page toolbar takes its own full-width second row. An
- * expanded rail floats over the content, below the top bar, instead of squeezing it, starts collapsed without
- * touching the remembered choice, and collapses when one of its links is followed. The host's
- * `data-narrow` says which, and the CSS reacts to that, never to a second `@media`.
+ * page toolbar takes its own full-width second row. An expanded rail floats over the content,
+ * below the top bar, instead of squeezing it, starts collapsed without touching the remembered
+ * choice, and collapses when one of its links is followed. The host's `data-narrow` says which,
+ * and the CSS reacts to that, never to a second `@media`.
  */
 @Component({
   selector: 'neat-shell',
