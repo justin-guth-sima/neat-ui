@@ -1137,6 +1137,51 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "code",
+              "text": "size"
+            },
+            {
+              "kind": "text",
+              "text": " says how tall the list is. "
+            },
+            {
+              "kind": "code",
+              "text": "auto"
+            },
+            {
+              "kind": "text",
+              "text": ", the default, gives each row the height of its text. "
+            },
+            {
+              "kind": "code",
+              "text": "fill"
+            },
+            {
+              "kind": "text",
+              "text": " makes the host at least as tall as its container ("
+            },
+            {
+              "kind": "code",
+              "text": "min-height: 100%"
+            },
+            {
+              "kind": "text",
+              "text": ", so the container needs a height of its own, such as a card a grid row stretches) and shares that height evenly among the rows: each row grows, its label and figure stay centred in it, and its bar thickens with it up to twice its usual thickness. A container shorter than the rows' natural height does not squeeze them: the list keeps that height and overflows, as it does without "
+            },
+            {
+              "kind": "code",
+              "text": "fill"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
               "kind": "text",
               "text": "The host is a group named by "
             },
@@ -1227,6 +1272,34 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "Names the group of bars."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "size",
+          "type": "'auto' | 'fill'",
+          "default": "'auto'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "code",
+                  "text": "auto"
+                },
+                {
+                  "kind": "text",
+                  "text": " sizes the rows to their text; "
+                },
+                {
+                  "kind": "code",
+                  "text": "fill"
+                },
+                {
+                  "kind": "text",
+                  "text": " shares the container's height among them."
                 }
               ]
             }

@@ -1,6 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { stylesheet } from './css.testing';
 import { type NeatScore, NeatScoreBars } from './score-bars';
+import barStyles from './score-bars.css' with { loader: 'text' };
 
 @Component({
   imports: [NeatScoreBars],
@@ -9,12 +11,14 @@ import { type NeatScore, NeatScoreBars } from './score-bars';
     [scores]="scores()"
     [labels]="labels()"
     [quiet]="quiet()"
+    [size]="size()"
   />`,
 })
 class ScoreBarsHost {
   readonly scores = signal<readonly NeatScore[]>([]);
   readonly labels = signal<readonly string[]>([]);
   readonly quiet = signal<readonly string[]>([]);
+  readonly size = signal<'auto' | 'fill'>('auto');
 }
 
 async function render(values: readonly number[], labels: readonly string[] = []) {
@@ -141,5 +145,36 @@ describe('NeatScoreBars', () => {
       row.querySelector<HTMLElement>('.fill')!.style.getPropertyValue('--fill');
 
     expect(rows.map(colour)).toEqual(['var(--neat-series-1)', 'var(--neat-series-2)']);
+  });
+
+  it('fills its container with size="fill", rows sharing the height, and keeps its look without it', async () => {
+    const { fixture, host } = await render([0.4, 0.3]);
+    const bars = host.querySelector<HTMLElement>('neat-score-bars')!;
+    expect(bars.hasAttribute('data-fill')).toBe(false);
+
+    fixture.componentInstance.size.set('fill');
+    await fixture.whenStable();
+    expect(bars.hasAttribute('data-fill')).toBe(true);
+
+    // jsdom does no layout, so the rules that make it fill are read from the sheet: the host takes
+    // at least its container's height, and its rows share it evenly but never shrink below the
+    // height their text needs, so a short container overflows rather than squeezing the labels.
+    const { declared } = stylesheet(barStyles);
+    expect(declared(':host([data-fill])', 'min-height')).toBe('100%');
+    expect(declared(':host([data-fill])', 'grid-auto-rows')).toBe('minmax(min-content, 1fr)');
+    expect(declared(':host', 'align-items')).toBe('center');
+    // The bar grows with its row, from today's thickness up to twice that.
+    expect(declared(':host', '--bar')).toBe('10px');
+    expect(declared('.track', 'height')).toBe('var(--bar)');
+    expect(declared(':host([data-fill]) .track', 'height')).toBe(
+      'clamp(var(--bar), 40%, calc(2 * var(--bar)))',
+    );
+    // Without it, the host keeps its natural height and no row grows.
+    expect(declared(':host', 'min-height')).toBeUndefined();
+    expect(declared(':host', 'grid-auto-rows')).toBeUndefined();
+
+    fixture.componentInstance.size.set('auto');
+    await fixture.whenStable();
+    expect(bars.hasAttribute('data-fill')).toBe(false);
   });
 });

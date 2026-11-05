@@ -1,11 +1,23 @@
 /* Each row is a label, its bar and its figure on the list's three tracks, so the bars line up. */
 :host {
+  /* A bar's thickness: what it always has, and half of the most a filling list gives it. */
+  --bar: 10px;
+
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr) 3em;
   align-items: center;
   column-gap: var(--neat-space-2);
   row-gap: 2px;
   font-size: var(--neat-text-sm);
+}
+
+/*
+ * `size="fill"`: the host is at least as tall as its container, and the rows share that height
+ * evenly, never shrinking below what their text needs (a short container overflows instead).
+ */
+:host([data-fill]) {
+  min-height: 100%;
+  grid-auto-rows: minmax(min-content, 1fr);
 }
 
 /* The rows only group their cells, so the cells sit on the host's tracks. */
@@ -25,10 +37,15 @@
 
 .track {
   display: block;
-  height: 10px;
+  height: var(--bar);
   border-radius: 999px;
   background: var(--muted);
   overflow: hidden;
+}
+
+/* A taller row thickens its bar with it, up to twice the usual thickness. */
+:host([data-fill]) .track {
+  height: clamp(var(--bar), 40%, calc(2 * var(--bar)));
 }
 
 .fill {

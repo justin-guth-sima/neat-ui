@@ -1,0 +1,5 @@
+/* A box of a fixed height, as the space beside a video; the card takes all of it. */
+:host {
+  display: grid;
+  height: 24rem;
+}

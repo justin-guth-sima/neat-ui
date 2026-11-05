@@ -39,6 +39,13 @@ interface Row {
  * `quiet` names the labels that stay muted. The row with the highest score has `data-top` and its
  * label in bold, the first of a tie, and none when no score is a number.
  *
+ * `size` says how tall the list is. `auto`, the default, gives each row the height of its text.
+ * `fill` makes the host at least as tall as its container (`min-height: 100%`, so the container
+ * needs a height of its own, such as a card a grid row stretches) and shares that height evenly
+ * among the rows: each row grows, its label and figure stay centred in it, and its bar thickens
+ * with it up to twice its usual thickness. A container shorter than the rows' natural height does
+ * not squeeze them: the list keeps that height and overflows, as it does without `fill`.
+ *
  * The host is a group named by `label`. Each bar is a `role="meter"` from 0 to 1 named by its
  * class, so a screen reader gets every value; the top row has no state of its own for it.
  */
@@ -48,6 +55,7 @@ interface Row {
   host: {
     role: 'group',
     '[attr.aria-label]': 'label()',
+    '[attr.data-fill]': "size() === 'fill' ? '' : null",
   },
   template: `
     @for (row of rows(); track $index) {
@@ -79,6 +87,8 @@ export class NeatScoreBars {
   readonly quiet = input<readonly string[]>([]);
   /** Names the group of bars. */
   readonly label = input.required<string>();
+  /** `auto` sizes the rows to their text; `fill` shares the container's height among them. */
+  readonly size = input<'auto' | 'fill'>('auto');
 
   protected readonly rows = computed<readonly Row[]>(() => {
     const scores = this.scores();
