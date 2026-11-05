@@ -1,16 +1,25 @@
 import {
+  afterNextRender,
+  afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   effect,
+  type ElementRef,
+  inject,
   input,
   linkedSignal,
+  signal,
   untracked,
+  viewChild,
 } from '@angular/core';
 import { ɵBROWSER_CLOCK as clock, ɵreducedMotion as reducedMotion } from '@sima/neat-ui';
 import { isNumber } from './geometry';
 import { neatLabelColour } from './label-colour';
+import { type NameBox, placeNames } from './name-rows';
 import { fractionAcross, ReadoutCursor } from './readout';
+import { textWidth, watchWidth } from './strip-measure';
 
 /** A stretch of time in which a classifier kept giving one label. */
 export interface NeatLabelRun {
@@ -35,11 +44,20 @@ interface Bar {
   readonly left: number;
   readonly width: number;
   readonly colour: string;
-  readonly named: boolean;
+  readonly quiet: boolean;
   /** When it was, "20 s to 10 s ago", as the readout shows it. */
   readonly span: string;
   /** Its label and span as one phrase, for the hidden list and the live region. */
   readonly spoken: string;
+}
+
+/** A name as drawn above the strip: its run's label, where it starts (px) and its row (0 lowest). */
+interface ShownName {
+  /** Tells the run apart as the strip moves: its start and its label. */
+  readonly key: string;
+  readonly label: string;
+  readonly x: number;
+  readonly row: number;
 }
 
 /** What the readout shows: the run's label and span, beside its middle (0 to 1 across the strip). */
@@ -49,8 +67,6 @@ interface RunReadout {
   readonly span: string;
 }
 
-/** The narrowest a run may be, as a share of the window, and still carry its label. */
-const NAMED_SHARE = 0.12;
 /** The axis marks the window's start, its end and two points that divide it in thirds. */
 const TICKS = 3;
 
@@ -107,11 +123,20 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
  * strip until real time catches up. A reduced-motion setting forces `step`.
  * A run is placed by its times and clipped to the window; one that ends before it starts, lies
  * outside the window or has a time that is not a number is not drawn. Runs that overlap are drawn
- * in the order of `runs`, the later on top, so the app decides which wins. A run at least 12 % of
- * the window wide shows its label beneath it, unless the label is `quiet`; a narrower one would
- * only collide with its neighbour's. Colours come from `neatLabelColour`, by the label's place in
- * `labels` (empty means the order in which labels first appear in `runs`), as in `NeatScoreBars`.
- * The one difference is a `quiet` label: its run is filled with `--muted`, not the
+ * in the order of `runs`, the later on top, so the app decides which wins.
+ *
+ * The runs' names stand above the strip, outside the runs, each from a rule at its run's start
+ * (held back from the strip's right end) and as wide as it needs, so a gesture of a second still
+ * has its name. They are laid out in `labelRows` rows, 1 by default, the first next to the strip:
+ * from the newest run back, each name goes into the first row where it keeps a gap from the newer
+ * names, so the latest result is the one named. A name that fits in no row is not drawn; the
+ * readout and the hidden list still say it. A `quiet` label is never named. While the strip
+ * scrolls a name keeps its row as long as it fits there, so names do not hop between rows from
+ * frame to frame. The names are measured as drawn and laid out again when the strip's width
+ * changes.
+ *
+ * Colours come from `neatLabelColour`, by the label's place in `labels` (empty means the order in
+ * which labels first appear in `runs`), as in `NeatScoreBars`. The one difference is a `quiet` label: its run is filled with `--muted`, not the
  * `--muted-foreground` that `neatLabelColour` returns for text and the score bars use, because a
  * quiet class fills most of the window and must not be its heaviest mark.
  *
@@ -136,6 +161,18 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
     '(keydown)': 'cursor.keydown($event)',
   },
   template: `
+    <div #nameArea class="names" aria-hidden="true" [style.--rows]="rows()">
+      @for (name of names(); track name.key) {
+        <span
+          class="name"
+          data-slot="label-timeline-name"
+          [style.left.px]="name.x"
+          [style.--row]="name.row"
+          >{{ name.label }}</span
+        >
+      }
+      <span #probe class="name probe"></span>
+    </div>
     <ul
       class="runs"
       role="list"
@@ -152,9 +189,6 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
           [style.--run]="bar.colour"
         >
           <span class="sr-only">{{ bar.spoken }}</span>
-          @if (bar.named) {
-            <span class="name" aria-hidden="true">{{ bar.label }}</span>
-          }
         </li>
       }
       @if (readout(); as readout) {
@@ -193,6 +227,33 @@ export class NeatLabelTimeline {
   readonly label = input.required<string>();
   /** Whether the strip scrolls between updates (`smooth`) or only at them. */
   readonly motion = input<NeatTimelineMotion>('step');
+  /**
+   * How many rows of names stand above the strip, a positive whole number. More rows name more of
+   * a busy strip; a name that fits in none is left out, and the readout and the hidden list still
+   * say it.
+   */
+  readonly labelRows = input(1);
+
+  /** `labelRows` as a whole number of rows, 1 for anything that is not one. */
+  protected readonly rows = computed(() => {
+    const rows = this.labelRows();
+    return Number.isFinite(rows) && rows >= 1 ? Math.floor(rows) : 1;
+  });
+
+  private readonly nameArea = viewChild.required<ElementRef<HTMLElement>>('nameArea');
+  private readonly probe = viewChild.required<ElementRef<HTMLElement>>('probe');
+  /** The strip's width in px as last measured, 0 until it is. */
+  private readonly stripWidth = signal(0);
+  /** How wide each label's name is drawn, the gap after it included, as measured with the probe. */
+  private readonly nameWidths = signal<ReadonlyMap<string, number>>(new Map());
+  /** The labels that may be named: those of the runs that are not quiet. */
+  private readonly namedLabels = computed(
+    () =>
+      [...new Set(this.runs().map((run) => run.label))].filter(
+        (label) => !this.quiet().includes(label),
+      ),
+    { equal: (a, b) => a.length === b.length && a.every((label, i) => label === b[i]) },
+  );
 
   /**
    * Smooth mode's state. It is recomputed when an update or the mode arrives, which is also when
@@ -227,6 +288,24 @@ export class NeatLabelTimeline {
   private readonly loopFor = computed(() => (this.drawn().smooth ? this.drawn().update : -1));
 
   constructor() {
+    const destroyRef = inject(DestroyRef);
+    // The strip's width now, at each resize and once the fonts are in, each time with every name
+    // measured again, since a resize may come with another font or zoom; read after rendering and
+    // in the observer's callback, never while the view computes what to draw.
+    afterNextRender(() => {
+      const stop = watchWidth(this.nameArea().nativeElement, (width) => {
+        this.nameWidths.set(this.measure(untracked(this.namedLabels), new Map()));
+        this.stripWidth.set(width);
+      });
+      destroyRef.onDestroy(stop);
+    });
+    // A label first seen after that is measured once it has rendered.
+    afterRenderEffect(() => {
+      const widths = this.nameWidths();
+      if (this.namedLabels().some((label) => !widths.has(label))) {
+        this.nameWidths.set(this.measure(this.namedLabels(), widths));
+      }
+    });
     // One loop per update: it asks for frames until the drawn now has run the cap past the
     // update, then idles, so a stalled stream costs no wake-ups; the next update starts it again.
     effect((onCleanup) => {
@@ -271,13 +350,68 @@ export class NeatLabelTimeline {
         left: ((start - from) / window) * 100,
         width: width * 100,
         colour: quiet.includes(label) ? QUIET_FILL : neatLabelColour(label, order, quiet),
-        named: width >= NAMED_SHARE && !quiet.includes(label),
+        quiet: quiet.includes(label),
         span,
         spoken: `${label}, ${span}`,
       });
     }
     return bars;
   });
+
+  /**
+   * The names above the strip, newest first. Recomputed with the runs (every frame while the strip
+   * scrolls), the strip's width, the names' widths and the rows, each name kept in the row it had
+   * while it still fits there.
+   */
+  protected readonly names = linkedSignal<
+    {
+      bars: readonly Bar[];
+      width: number;
+      widths: ReadonlyMap<string, number>;
+      rows: number;
+    },
+    readonly ShownName[]
+  >({
+    source: () => ({
+      bars: this.bars(),
+      width: this.stripWidth(),
+      widths: this.nameWidths(),
+      rows: this.rows(),
+    }),
+    computation: ({ bars, width, widths, rows }, previous) => {
+      const labels = new Map<string, string>();
+      const boxes: NameBox[] = [];
+      // Newest first; of two runs with one start, the later in `runs`, which is drawn on top.
+      for (const bar of [...bars].reverse().sort((a, b) => b.startMs - a.startMs)) {
+        const nameWidth = widths.get(bar.label);
+        if (bar.quiet || nameWidth === undefined) continue;
+        const key = `${bar.startMs}\u0000${bar.label}`;
+        labels.set(key, bar.label);
+        boxes.push({ key, left: (bar.left / 100) * width, width: nameWidth });
+      }
+      const before = new Map((previous?.value ?? []).map((name) => [name.key, name.row]));
+      return [...placeNames(boxes, width, rows, before).values()].map(({ key, x, row }) => ({
+        key,
+        label: labels.get(key) as string,
+        x,
+        row,
+      }));
+    },
+  });
+
+  /** `widths` with the width of each of `labels` it lacks, as the probe draws it. */
+  private measure(
+    labels: readonly string[],
+    widths: ReadonlyMap<string, number>,
+  ): ReadonlyMap<string, number> {
+    const probe = this.probe().nativeElement;
+    const measured = new Map(widths);
+    for (const label of labels) {
+      if (!measured.has(label)) measured.set(label, textWidth(probe, label));
+    }
+    probe.textContent = '';
+    return measured;
+  }
 
   /** The drawn runs from the oldest to the newest, the order the keys walk them in. */
   private readonly inTime = computed(() =>

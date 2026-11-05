@@ -761,7 +761,24 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", the later on top, so the app decides which wins. A run at least 12 % of the window wide shows its label beneath it, unless the label is "
+              "text": ", the later on top, so the app decides which wins."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The runs' names stand above the strip, outside the runs, each from a rule at its run's start (held back from the strip's right end) and as wide as it needs, so a gesture of a second still has its name. They are laid out in "
+            },
+            {
+              "kind": "code",
+              "text": "labelRows"
+            },
+            {
+              "kind": "text",
+              "text": " rows, 1 by default, the first next to the strip: from the newest run back, each name goes into the first row where it keeps a gap from the newer names, so the latest result is the one named. A name that fits in no row is not drawn; the readout and the hidden list still say it. A "
             },
             {
               "kind": "code",
@@ -769,7 +786,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; a narrower one would only collide with its neighbour's. Colours come from "
+              "text": " label is never named. While the strip scrolls a name keeps its row as long as it fits there, so names do not hop between rows from frame to frame. The names are measured as drawn and laid out again when the strip's width changes."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Colours come from "
             },
             {
               "kind": "ref",
@@ -982,6 +1008,22 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": ") or only at them."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "labelRows",
+          "type": "number",
+          "default": "1",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How many rows of names stand above the strip, a positive whole number. More rows name more of a busy strip; a name that fits in none is left out, and the readout and the hidden list still say it."
                 }
               ]
             }

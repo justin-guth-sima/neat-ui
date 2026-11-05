@@ -11,13 +11,14 @@ const HELD_MS = 5000;
 /**
  * The last 30 s of a gesture classifier, shown twice with the same runs: the top strip is
  * `motion="step"` and the bottom one `motion="smooth"`. The window advances once a second, the
- * rate at which `step` jumps and `smooth` scrolls in between. A new run opens when
- * the class changes and grows until the next one. It opens with "Pointing with two fingers" held
- * for the last 5 s, a name wider than its run, which the timeline cuts with an ellipsis. "No gesture" is `quiet`, so it is drawn muted and
- * never named, and a gesture shorter than 12 % of the window (3.6 s) keeps its colour but no label.
- * Runs that have left the window are dropped here: the timeline clips what it is given, but the app
- * is what knows it will not need them again. Point at a run, a quiet one too, or focus a strip and
- * use the arrow keys, to read out its label and when it was.
+ * rate at which `step` jumps and `smooth` scrolls in between. A new run opens when the class
+ * changes and grows until the next one. It opens with "Pointing with two fingers" held for the
+ * last 5 s, a name wider than its run, which stands above the strip held back from its right end.
+ * "No gesture" is `quiet`, so it is drawn muted and never named. The names share one row, so a
+ * name that would run into a newer one's is left out. Point at a run, a quiet one too, or focus a
+ * strip and use the arrow keys, to read out its label and when it was. Runs that have left the
+ * window are dropped here: the timeline clips what it is given, but the app is what knows it will
+ * not need them again.
  */
 @Component({
   selector: 'app-gesture-timeline',

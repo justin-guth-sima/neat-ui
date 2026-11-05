@@ -13,9 +13,44 @@
   outline-offset: 2px;
 }
 
+/* The names stand above the strip in `--rows` rows, the first next to the strip. */
+.names {
+  --name-line: 1.25rem;
+
+  position: relative;
+  height: calc(var(--rows) * var(--name-line));
+}
+
+/*
+ * A name hangs from a rule at its run's start down to the strip, its text in its own row. A name
+ * wider than the whole strip is cut with an ellipsis.
+ */
+.name {
+  position: absolute;
+  top: calc((var(--rows) - 1 - var(--row)) * var(--name-line));
+  bottom: 0;
+  max-width: 100%;
+  padding-left: 4px;
+  border-left: 1px solid var(--border);
+  font-size: var(--neat-text-xs);
+  line-height: var(--name-line);
+  color: var(--muted-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Measures a name as it is drawn, with the gap a row keeps after it; never seen. */
+.probe {
+  top: 0;
+  max-width: none;
+  padding-inline-end: var(--neat-space-2);
+  visibility: hidden;
+}
+
 .runs {
   position: relative;
-  height: 64px;
+  height: 28px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -25,32 +60,14 @@
 .run {
   position: absolute;
   top: 0;
-  height: 28px;
+  height: 100%;
   background: var(--run);
   border-right: 2px solid var(--neat-surface);
 }
 
-/*
- * The label hangs below its bar from a rule at the bar's start. It stays inside its run: a name
- * longer than the run is cut with an ellipsis rather than running under the next run's name.
- */
-.name {
-  position: absolute;
-  top: 34px;
-  left: 0;
-  padding-left: 4px;
-  border-left: 1px solid var(--border);
-  font-size: var(--neat-text-xs);
-  line-height: 2.4;
-  color: var(--muted-foreground);
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .axis {
   display: flex;
+  margin-top: 0.25rem;
   justify-content: space-between;
   font-size: var(--neat-text-xs);
   color: var(--muted-foreground);

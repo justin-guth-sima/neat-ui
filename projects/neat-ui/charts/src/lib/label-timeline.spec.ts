@@ -5,6 +5,7 @@ import { stylesheet } from './css.testing';
 import { neatLabelColour } from './label-colour';
 import { type NeatLabelRun, NeatLabelTimeline, type NeatTimelineMotion } from './label-timeline';
 import timelineStyles from './label-timeline.css' with { loader: 'text' };
+import { resize, stubResizeObserver } from './resize-observer.testing';
 
 const { declared } = stylesheet(timelineStyles);
 
@@ -19,6 +20,7 @@ const NOW = 1_000_000;
     [windowMs]="windowMs()"
     [labels]="labels()"
     [quiet]="quiet()"
+    [labelRows]="labelRows()"
   />`,
 })
 class TimelineHost {
@@ -27,7 +29,34 @@ class TimelineHost {
   readonly windowMs = signal(30_000);
   readonly labels = signal<readonly string[]>([]);
   readonly quiet = signal<readonly string[]>([]);
+  readonly labelRows = signal(1);
 }
+
+/** The strip's width in the specs: 600 px for 30 s, so 20 px a second. */
+const STRIP_PX = 600;
+/** How wide a name is drawn in the specs, its gap included: 6 px a character. */
+const nameWidth = (text: string) => text.length * 6;
+
+// jsdom lays nothing out: the names' row is 600 px wide and the probe as wide as its text says.
+// A spec that needs another box (the strip, for the pointer) gives that element its own.
+beforeEach(() => {
+  stubResizeObserver();
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+    this: HTMLElement,
+  ) {
+    const width = this.classList.contains('names')
+      ? STRIP_PX
+      : this.classList.contains('probe')
+        ? nameWidth(this.textContent ?? '')
+        : 0;
+    return { left: 0, top: 0, width, height: 0, right: width, bottom: 0 } as DOMRect;
+  });
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
 
 /** A run from `from` to `to` seconds before now. */
 const run = (label: string, from: number, to: number): NeatLabelRun => ({
@@ -54,7 +83,16 @@ async function render(runs: readonly NeatLabelRun[], setup?: (host: TimelineHost
 /** The text a screen reader gets for a run: the visually hidden span inside the item. */
 const spoken = (element: HTMLElement) => element.querySelector('.sr-only')?.textContent?.trim();
 
-const named = (element: HTMLElement) => element.querySelector('.name')?.textContent?.trim();
+/** The names drawn above the strip: each one's text, where it starts (px) and its row. */
+const namesOf = (host: HTMLElement) =>
+  Array.from(host.querySelectorAll<HTMLElement>('[data-slot="label-timeline-name"]')).map(
+    (name) => ({
+      text: name.textContent?.trim(),
+      // To a hundredth of a px: the percentages the runs are placed by do not add up exactly.
+      x: Math.round(parseFloat(name.style.left) * 100) / 100,
+      row: Number(name.style.getPropertyValue('--row')),
+    }),
+  );
 
 describe('NeatLabelTimeline', () => {
   it('places a run by its times', async () => {
@@ -94,13 +132,96 @@ describe('NeatLabelTimeline', () => {
     expect(runs.every((element) => element.style.zIndex === '')).toBe(true);
   });
 
-  it('names a wide run and not a narrow or quiet one', async () => {
-    const { runs } = await render(
-      [run('Wide', 20, 10), run('Narrow', 8, 6), run('Edge', 6, 2.4), run('Silence', 30, 20)],
-      (host) => host.quiet.set(['Silence']),
+  it('names the runs above the strip, outside them, in one row by default', async () => {
+    const { host } = await render([run('Zoom in', 20, 10), run('Throw up', 8.5, 0)]);
+    const timeline = host.querySelector('neat-label-timeline')!;
+    const names = timeline.querySelector<HTMLElement>('.names')!;
+
+    expect(names.nextElementSibling?.classList.contains('runs')).toBe(true);
+    expect(names.getAttribute('aria-hidden')).toBe('true');
+    expect(names.style.getPropertyValue('--rows')).toBe('1');
+    expect(timeline.querySelector('.run .name')).toBeNull();
+    // Each starts at its run's left edge: 10 s and 21.5 s into the 30 s window.
+    expect(namesOf(host)).toEqual([
+      { text: 'Throw up', x: 430, row: 0 },
+      { text: 'Zoom in', x: 200, row: 0 },
+    ]);
+  });
+
+  it('names a run narrower than its name, from the run’s start', async () => {
+    // One second is 20 px; the name is 150.
+    const { host } = await render([run('Pointing with two fingers', 20, 19)]);
+
+    expect(namesOf(host)).toEqual([{ text: 'Pointing with two fingers', x: 200, row: 0 }]);
+  });
+
+  it('holds a name back from the strip’s right end', async () => {
+    const { host } = await render([run('Pointing with two fingers', 2, 0)]);
+
+    expect(namesOf(host)).toEqual([{ text: 'Pointing with two fingers', x: 450, row: 0 }]);
+  });
+
+  it('lets the newest name win, and leaves out one that fits nowhere but keeps it in words', async () => {
+    // Alpha one (200 to 254 px) runs into Beta, which starts at 220 px.
+    const runs = [run('Alpha one', 20, 19.5), run('Beta', 19, 18)];
+    const { host, runs: items } = await render(runs);
+
+    expect(namesOf(host).map((name) => name.text)).toEqual(['Beta']);
+    expect(items.map(spoken)).toEqual(['Alpha one, 20 s to 19.5 s ago', 'Beta, 19 s to 18 s ago']);
+  });
+
+  it('uses a second row only with labelRows of 2 and the first row taken', async () => {
+    const runs = [run('Alpha one', 20, 19.5), run('Beta', 19, 18), run('Gamma', 10, 5)];
+    const { host } = await render(runs, (h) => h.labelRows.set(2));
+
+    expect(host.querySelector<HTMLElement>('.names')!.style.getPropertyValue('--rows')).toBe('2');
+    expect(namesOf(host)).toEqual([
+      { text: 'Gamma', x: 400, row: 0 },
+      { text: 'Beta', x: 220, row: 0 },
+      { text: 'Alpha one', x: 200, row: 1 },
+    ]);
+  });
+
+  it('never names a quiet run', async () => {
+    const { host } = await render([run('Silence', 30, 10), run('Zoom in', 10, 0)], (h) =>
+      h.quiet.set(['Silence']),
     );
 
-    expect(runs.map(named)).toEqual(['Wide', undefined, 'Edge', undefined]);
+    expect(namesOf(host).map((name) => name.text)).toEqual(['Zoom in']);
+  });
+
+  it('lays the names out again when the strip is resized or labelRows changes', async () => {
+    const runs = [run('Alpha one', 20, 19.5), run('Beta', 19, 18)];
+    const fixture = TestBed.createComponent(TimelineHost);
+    fixture.componentInstance.runs.set(runs);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    expect(namesOf(host).map((name) => name.text)).toEqual(['Beta']);
+
+    // Four times as wide, Alpha one (800 to 854 px) ends before Beta starts (880 px).
+    resize(host.querySelector('.names')!, 2400);
+    await fixture.whenStable();
+    expect(namesOf(host)).toEqual([
+      { text: 'Beta', x: 880, row: 0 },
+      { text: 'Alpha one', x: 800, row: 0 },
+    ]);
+
+    resize(host.querySelector('.names')!, 600);
+    fixture.componentInstance.labelRows.set(2);
+    await fixture.whenStable();
+    expect(namesOf(host).map((name) => [name.text, name.row])).toEqual([
+      ['Beta', 0],
+      ['Alpha one', 1],
+    ]);
+  });
+
+  it('draws no names before the strip has a width', async () => {
+    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockImplementation(
+      () => ({ width: 0 }) as DOMRect,
+    );
+    const { host } = await render([run('Zoom in', 20, 10)]);
+
+    expect(namesOf(host)).toEqual([]);
   });
 
   it('colours runs through neatLabelColour', async () => {
@@ -157,11 +278,15 @@ describe('NeatLabelTimeline', () => {
     }
   });
 
-  it('keeps a run name inside its run, cut with an ellipsis', () => {
+  it('cuts a name wider than the strip with an ellipsis, and keeps runs of one colour apart', () => {
     expect(declared('.name', 'max-width')).toBe('100%');
     expect(declared('.name', 'overflow')).toBe('hidden');
     expect(declared('.name', 'text-overflow')).toBe('ellipsis');
     expect(declared('.run', 'border-right')).toBe('2px solid var(--neat-surface)');
+    // The probe measures a name with the gap kept after it in its row, and never shows.
+    expect(declared('.probe', 'padding-inline-end')).toBe('var(--neat-space-2)');
+    expect(declared('.probe', 'visibility')).toBe('hidden');
+    expect(declared('.probe', 'max-width')).toBe('none');
   });
 
   it('labels the axis for the window', async () => {
@@ -275,16 +400,14 @@ describe('NeatLabelTimeline readout', () => {
     expect(chart.readout()).toBeNull();
   });
 
-  it('leaves the names under the runs as they were', async () => {
+  it('leaves the names as they were', async () => {
     const chart = await setup();
-    const names = () =>
-      Array.from(chart.timeline.querySelectorAll('.name')).map((n) => n.textContent?.trim());
-    const before = names();
+    const before = namesOf(chart.timeline);
 
     await chart.point(0.5);
 
-    expect(names()).toEqual(before);
-    expect(before).toEqual(['Zoom in', 'Throw up']);
+    expect(namesOf(chart.timeline)).toEqual(before);
+    expect(before.map((name) => name.text)).toEqual(['Throw up', 'Zoom in']);
   });
 
   it('is one tab stop: focus reads out the newest run and the arrow keys walk the runs', async () => {
@@ -527,6 +650,24 @@ describe('NeatLabelTimeline motion', () => {
 
     expect(chart.readout()?.textContent).toContain('Zoom in');
     expect(at()).toBeCloseTo(0.5 - 500 / 30_000, 4);
+  });
+
+  it('moves the names with their runs as the strip scrolls', async () => {
+    const { fixture, advance } = motionSetup();
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    // Zoom in starts 20 s back (200 px), Throw up 10 s back (400 px); both slide 10 px in 500 ms.
+    expect(namesOf(host)).toEqual([
+      { text: 'Throw up', x: 400, row: 0 },
+      { text: 'Zoom in', x: 200, row: 0 },
+    ]);
+
+    await advance(500);
+
+    expect(namesOf(host)).toEqual([
+      { text: 'Throw up', x: 390, row: 0 },
+      { text: 'Zoom in', x: 190, row: 0 },
+    ]);
   });
 
   it('stays put between updates in step mode', async () => {
