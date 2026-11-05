@@ -325,29 +325,30 @@ they cannot drift apart. Its plot is a tab stop whose readout the arrow keys, Ho
 drive; each key press, and only a key press, is repeated in a polite live region, since a pointer
 move announced on every pixel would be noise. A chart with a live region (the time chart, the
 stacked chart, the heatmap and the label timeline) is `position: relative` on its host, without a
-z-index (`chart-frame.css`, and the timeline's own sheet): the host is the containing block of its own absolutely positioned parts, so
-the visually hidden live region cannot reach past a page's scroll body, which is not positioned,
-and a readout that hangs below its plot still paints over the next card.
+z-index (`chart-frame.css`, and the timeline's own sheet): the host is the containing block of its
+own absolutely positioned parts, so the visually hidden live region cannot reach past a page's
+scroll body, which is not positioned, and a readout that hangs below its plot still paints over the
+next card.
 
-The charts that read out what lies under the pointer (the time chart, the stacked chart, the
-heatmap and the label timeline) share one cursor, `ReadoutCursor` in `charts/src/lib/readout.ts`: the pointer-versus-keys rule, Escape (a
-readout that is there to close, else it belongs to whatever holds the chart), focus, blur and the
-announce rule live there once, and each chart tells it only what its cells are (a sample for the
-time-based charts, a row and column for the heatmap, a run for the timeline, whose strip is its
-tab stop). The frame the plots share (heights, grid, time axis, accessible name) is `frame.ts`,
-and their styles are `chart-frame.css` (host, head, axis), `readout.css` (the readout, which the
-timeline shares without the rest of the frame) and `plot.css` (the drawn box), which a component
-lists before its own in `styleUrls`. The stacked chart's bands are `stackedPaths` (bottom first; a sample where any band is
-missing breaks the whole stack, since a partial sum was never measured, and for the same reason a
-sample of "Other", the sum of the series folded beyond eight, is null where any folded value is),
-at 0.85 opacity with a hairline in `--neat-surface`; its legend carries each band's value and
-share as text, because eight colours alone are not enough. The heatmap is an HTML grid, not an
-SVG: a cell is a `<span>` whose `--cell` is a `color-mix` of `--neat-heat-low` and
-`--neat-heat-high` by the value's place in the domain (transparent when empty), its rows are
-columns of time from `heatmap-columns.ts` (at most 48, one per sampling interval while the history
-is short, so a pause stays visible, and a poll that comes late leaves no empty column), and its
-grid is one tab stop with a cell cursor. The geometry is internal; only the components and their
-types are exported.
+The charts that read out what lies under the pointer (the time chart, the stacked chart, the heatmap
+and the label timeline) share one cursor, `ReadoutCursor` in `charts/src/lib/readout.ts`: the
+pointer-versus-keys rule, Escape (a readout that is there to close, else it belongs to whatever
+holds the chart), focus, blur and the announce rule live there once, and each chart tells it only
+what its cells are (a sample for the time-based charts, a row and column for the heatmap, a run for
+the timeline, whose strip is its tab stop). The frame the plots share (heights, grid, time axis,
+accessible name) is `frame.ts`, and their styles are `chart-frame.css` (host, head, axis),
+`readout.css` (the readout, which the timeline shares without the rest of the frame) and `plot.css`
+(the drawn box), which a component lists before its own in `styleUrls`. The stacked chart's bands
+are `stackedPaths` (bottom first; a sample where any band is missing breaks the whole stack, since a
+partial sum was never measured, and for the same reason a sample of "Other", the sum of the series
+folded beyond eight, is null where any folded value is), at 0.85 opacity with a hairline in
+`--neat-surface`; its legend carries each band's value and share as text, because eight colours
+alone are not enough. The heatmap is an HTML grid, not an SVG: a cell is a `<span>` whose `--cell`
+is a `color-mix` of `--neat-heat-low` and `--neat-heat-high` by the value's place in the domain
+(transparent when empty), its rows are columns of time from `heatmap-columns.ts` (at most 48, one
+per sampling interval while the history is short, so a pause stays visible, and a poll that comes
+late leaves no empty column), and its grid is one tab stop with a cell cursor. The geometry is
+internal; only the components and their types are exported.
 
 `NeatChartCard` is the one card for a metric (the overview cards, the Power tiles, a run view's
 tiles): heading, `[neatChartCardChip]`, value with unit, caption, then the chart. It is a preset of
@@ -395,23 +396,23 @@ the whole in the kit's look.
   app's and never read. A part whose ids name nothing (an edge's end, a node's parent, a block's
   `opens`, a note's edge) is left out and named once in dev mode; the diagram never throws for it.
 - **The drawing:** `neat-diagram` is a `figure` named by its `label`. Frames and bands are
-  positioned HTML behind one SVG of edges; blocks, brackets, edge labels and notes are HTML in
-  front of it; one container holds them all, which is what pan and zoom move. Every part is keyed
-  by its id, so an equal diagram recomputed on every poll changes nothing in the DOM and a moved
-  node is the same element, moved. The routing (port sides and order so fans do not cross, Z
-  routes sharing a corridor spread apart, stubs when the target lies behind) is the Autoware
-  demo's, ported with its specs, plus one rule of the kit's: an edge whose ports face each other
-  between boxes that overlap across runs straight, both ports at one coordinate in the overlap
-  (the spread port's of an end with several on its side, so a fan keeps its order) and clear of
-  both boxes' rounded corners, instead of a Z with bends a few units apart; an edge between a frame and a node inside it runs inside the
-  frame, from the frame's border nearest the node (the frame's own `outSide` and `inSide` are for
-  the nodes around it). An edge end goes on the side its edge's `fromSide` or `toSide` names, else
-  its node's `outSide` or `inSide`, else the side facing the other end; the route and the label
-  follow it (an end inside a frame stays on the frame's border). An edge's colour comes from
-  `lineColour` in `drawing.ts`, through `seriesIndex` and the kit's `seriesToken`, and each line
-  look is stated once in `lines.css`, which the edges and the legend's samples both read. A visually
-  hidden list after the drawing says the level's nodes (label, detail, chips) and edges ("Camera to
-  Decode, image") in words.
+  positioned HTML behind one SVG of edges; blocks, brackets, edge labels and notes are HTML in front
+  of it; one container holds them all, which is what pan and zoom move. Every part is keyed by its
+  id, so an equal diagram recomputed on every poll changes nothing in the DOM and a moved node is
+  the same element, moved. The routing (port sides and order so fans do not cross, Z routes sharing
+  a corridor spread apart, stubs when the target lies behind) is the Autoware demo's, ported with
+  its specs, plus one rule of the kit's: an edge whose ports face each other between boxes that
+  overlap across runs straight, both ports at one coordinate in the overlap (the spread port's of an
+  end with several on its side, so a fan keeps its order) and clear of both boxes' rounded corners,
+  instead of a Z with bends a few units apart; an edge between a frame and a node inside it runs
+  inside the frame, from the frame's border nearest the node (the frame's own `outSide` and `inSide`
+  are for the nodes around it). An edge end goes on the side its edge's `fromSide` or `toSide`
+  names, else its node's `outSide` or `inSide`, else the side facing the other end; the route and
+  the label follow it (an end inside a frame stays on the frame's border). An edge's colour comes
+  from `lineColour` in `drawing.ts`, through `seriesIndex` and the kit's `seriesToken`, and each
+  line look is stated once in `lines.css`, which the edges and the legend's samples both read. A
+  visually hidden list after the drawing says the level's nodes (label, detail, chips) and edges
+  ("Camera to Decode, image") in words.
 - **The app gives it its size.** The host has no height of its own (what it draws is positioned
   inside it), so without one from the app it is zero high and shows nothing; it fits its level
   once it has a size, so a hidden tab is fine. Give it a bounded box: a height, an

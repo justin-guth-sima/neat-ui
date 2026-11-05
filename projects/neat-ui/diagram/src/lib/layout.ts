@@ -130,11 +130,12 @@ const PORT_SPAN = 0.8;
 const JOG_STEP = 24;
 
 /**
- * How far from a box's corner a straightened edge meets it at least: the theme's `--radius`
- * (0.5 rem, 8 px at zoom 1), so a straight edge never enters a rounded corner. Boxes whose overlap
- * leaves no room past their corners keep their Z.
+ * How far from a box's corner a straightened edge meets it at least, so a straight edge never
+ * enters a rounded corner; boxes whose overlap leaves no room past their corners keep their Z. It
+ * mirrors the theme's `--radius` (0.5 rem, 8 px at zoom 1), which the layout, being plain
+ * TypeScript, cannot read: `layout.spec.ts` holds the two together.
  */
-const CORNER = 8;
+export const CORNER = 8;
 
 /** The least room a straightened edge leaves between its port and the next on the same side. */
 const PORT_GAP = PORT_STEP / 2;

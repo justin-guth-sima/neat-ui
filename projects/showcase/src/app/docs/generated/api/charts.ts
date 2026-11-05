@@ -786,7 +786,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " label is never named. While the strip scrolls a name keeps its row as long as it fits there, so names do not hop between rows from frame to frame. The names are measured as drawn and laid out again when the strip's width changes."
+              "text": " label is never named. While the strip scrolls a name keeps its row as long as it fits there, so names do not hop between rows from frame to frame. A name held back from the right end keeps its rule at its run's start, below its text, so it still points at its own run. The names are measured as drawn and laid out again when the strip's width changes."
             }
           ]
         },
@@ -879,7 +879,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " that holds a list with one item per drawn run, named by its label and its span in seconds (as visually hidden text in the item), so a screen reader gets the runs the label text leaves out. The pointer over a run, quiet ones included, shows a readout beside its middle with its label and its span (\"Zoom in\" over \"20 s to 10 s ago\"), as the other charts read out what lies under the pointer; it follows the run while the strip scrolls. The strip is one tab stop: focus reads out the newest run, Left and Right step to the run before or after it in time, Home and End go to the oldest and the newest, and Escape hides the readout. Each key press, and only a key press, is repeated in a polite live region."
+              "text": " that holds a list with one item per drawn run, named by its label and its span in seconds (as visually hidden text in the item), so a screen reader gets the runs the label text leaves out. The pointer over a run, quiet ones included, shows a readout beside its middle with its label and its span (\"Zoom in\" over \"20 s to 10 s ago\"), as the other charts read out what lies under the pointer; it follows the run while the strip scrolls, and the pointer on a run's name shows the same. The strip is one tab stop: focus reads out the newest run, Left and Right step to the run before or after it in time, Home and End go to the oldest and the newest, and Escape hides the readout. Each key press, and only a key press, is repeated in a polite live region."
             }
           ]
         }

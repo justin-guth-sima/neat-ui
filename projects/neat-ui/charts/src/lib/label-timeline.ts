@@ -51,16 +51,21 @@ interface Bar {
   readonly spoken: string;
 }
 
-/** A name as drawn above the strip: its run's label, where it starts (px) and its row (0 lowest). */
+/** A name as drawn above the strip: its run's label, where it stands (px), its row (0 lowest). */
 interface ShownName {
   /** Tells the run apart as the strip moves: its start and its label. */
   readonly key: string;
   readonly label: string;
+  /** Its run's start, for the readout of the run under a name the pointer is on. */
+  readonly startMs: number;
+  /** Where the text starts, held back from the strip's right end. */
   readonly x: number;
+  /** Where its rule stands: its run's start. */
+  readonly rule: number;
   readonly row: number;
 }
 
-/** What the readout shows: the run's label and span, beside its middle (0 to 1 across the strip). */
+/** What the readout shows: the run's label and span, beside its middle (0 to 1 across). */
 interface RunReadout {
   readonly at: number;
   readonly label: string;
@@ -130,24 +135,27 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
  * has its name. They are laid out in `labelRows` rows, 1 by default, the first next to the strip:
  * from the newest run back, each name goes into the first row where it keeps a gap from the newer
  * names, so the latest result is the one named. A name that fits in no row is not drawn; the
- * readout and the hidden list still say it. A `quiet` label is never named. While the strip
- * scrolls a name keeps its row as long as it fits there, so names do not hop between rows from
- * frame to frame. The names are measured as drawn and laid out again when the strip's width
- * changes.
+ * readout and the hidden list still say it. A `quiet` label is never named. While the strip scrolls
+ * a name keeps its row as long as it fits there, so names do not hop between rows from frame to
+ * frame. A name held back from the right end keeps its rule at its run's start, below its text, so
+ * it still points at its own run. The names are measured as drawn and laid out again when the
+ * strip's width changes.
  *
  * Colours come from `neatLabelColour`, by the label's place in `labels` (empty means the order in
- * which labels first appear in `runs`), as in `NeatScoreBars`. The one difference is a `quiet` label: its run is filled with `--muted`, not the
- * `--muted-foreground` that `neatLabelColour` returns for text and the score bars use, because a
- * quiet class fills most of the window and must not be its heaviest mark.
+ * which labels first appear in `runs`), as in `NeatScoreBars`. The one difference is a `quiet`
+ * label: its run is filled with `--muted`, not the `--muted-foreground` that `neatLabelColour`
+ * returns for text and the score bars use, because a quiet class fills most of the window and must
+ * not be its heaviest mark.
  *
  * The host is a group named by `label` that holds a list with one item per drawn run, named by its
- * label and its span in seconds (as visually hidden text in the item), so a screen reader gets the runs the label text leaves out.
- * The pointer over a run, quiet ones included, shows a readout beside its middle with its label
- * and its span ("Zoom in" over "20 s to 10 s ago"), as the other charts read out what lies under
- * the pointer; it follows the run while the strip scrolls. The strip is one tab stop: focus reads
- * out the newest run, Left and Right step to the run before or after it in time, Home and End go
- * to the oldest and the newest, and Escape hides the readout. Each key press, and only a key
- * press, is repeated in a polite live region.
+ * label and its span in seconds (as visually hidden text in the item), so a screen reader gets the
+ * runs the label text leaves out. The pointer over a run, quiet ones included, shows a readout
+ * beside its middle with its label and its span ("Zoom in" over "20 s to 10 s ago"), as the other
+ * charts read out what lies under the pointer; it follows the run while the strip scrolls, and the
+ * pointer on a run's name shows the same. The strip is one tab stop: focus reads out the newest
+ * run, Left and Right step to the run before or after it in time, Home and End go to the oldest and
+ * the newest, and Escape hides the readout. Each key press, and only a key press, is repeated in a
+ * polite live region.
  */
 @Component({
   selector: 'neat-label-timeline',
@@ -161,13 +169,27 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
     '(keydown)': 'cursor.keydown($event)',
   },
   template: `
-    <div #nameArea class="names" aria-hidden="true" [style.--rows]="rows()">
+    <div
+      #nameArea
+      class="names"
+      aria-hidden="true"
+      [style.--rows]="rows()"
+      (pointerleave)="cursor.pointerLeave()"
+    >
       @for (name of names(); track name.key) {
+        <span
+          class="rule"
+          data-slot="label-timeline-rule"
+          [style.left.px]="name.rule"
+          [style.--row]="name.row"
+        ></span>
         <span
           class="name"
           data-slot="label-timeline-name"
+          [attr.data-held]="name.x < name.rule ? '' : null"
           [style.left.px]="name.x"
           [style.--row]="name.row"
+          (pointermove)="pointAtRun(name.startMs)"
           >{{ name.label }}</span
         >
       }
@@ -379,23 +401,21 @@ export class NeatLabelTimeline {
       rows: this.rows(),
     }),
     computation: ({ bars, width, widths, rows }, previous) => {
-      const labels = new Map<string, string>();
+      const runs = new Map<string, Bar>();
       const boxes: NameBox[] = [];
       // Newest first; of two runs with one start, the later in `runs`, which is drawn on top.
       for (const bar of [...bars].reverse().sort((a, b) => b.startMs - a.startMs)) {
         const nameWidth = widths.get(bar.label);
         if (bar.quiet || nameWidth === undefined) continue;
         const key = `${bar.startMs}\u0000${bar.label}`;
-        labels.set(key, bar.label);
+        runs.set(key, bar);
         boxes.push({ key, left: (bar.left / 100) * width, width: nameWidth });
       }
       const before = new Map((previous?.value ?? []).map((name) => [name.key, name.row]));
-      return [...placeNames(boxes, width, rows, before).values()].map(({ key, x, row }) => ({
-        key,
-        label: labels.get(key) as string,
-        x,
-        row,
-      }));
+      return [...placeNames(boxes, width, rows, before).values()].map((placed) => {
+        const { label, startMs } = runs.get(placed.key) as Bar;
+        return { ...placed, label, startMs };
+      });
     },
   });
 
@@ -468,6 +488,12 @@ export class NeatLabelTimeline {
     const bar = startMs === null ? undefined : this.barAt(startMs);
     return bar ? { at: (bar.left + bar.width / 2) / 100, label: bar.label, span: bar.span } : null;
   });
+
+  /** The pointer on a run's name reads out that run, as the pointer at the run's middle would. */
+  protected pointAtRun(startMs: number): void {
+    const bar = this.barAt(startMs);
+    if (bar) this.cursor.pointerTo((bar.left + bar.width / 2) / 100);
+  }
 
   protected onPointerMove(event: MouseEvent): void {
     const fraction = fractionAcross(event, event.currentTarget as HTMLElement);

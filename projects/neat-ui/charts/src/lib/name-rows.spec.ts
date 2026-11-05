@@ -11,8 +11,8 @@ describe('placeNames', () => {
     const placed = placeNames([box('b', 300, 100), box('a', 100, 100)], 600, 1);
 
     expect([...placed.values()]).toEqual([
-      { key: 'b', x: 300, row: 0 },
-      { key: 'a', x: 100, row: 0 },
+      { key: 'b', x: 300, rule: 300, row: 0 },
+      { key: 'a', x: 100, rule: 100, row: 0 },
     ]);
   });
 
@@ -47,13 +47,38 @@ describe('placeNames', () => {
     expect(placeNames([box('wide', 200, 300)], 600, 1).get('wide')).toEqual({
       key: 'wide',
       x: 200,
+      rule: 200,
       row: 0,
     });
   });
 
   it('holds a name back from the strip’s right end, and at its left end when wider than it', () => {
-    expect(placeNames([box('late', 560, 150)], 600, 1).get('late')?.x).toBe(450);
-    expect(placeNames([box('huge', 100, 800)], 600, 1).get('huge')?.x).toBe(0);
+    // The text moves; the rule stays at the run's start, so it still points at its own run.
+    expect(placeNames([box('late', 560, 150)], 600, 1).get('late')).toMatchObject({
+      x: 450,
+      rule: 560,
+    });
+    expect(placeNames([box('huge', 100, 800)], 600, 1).get('huge')).toMatchObject({
+      x: 0,
+      rule: 100,
+    });
+  });
+
+  it('keeps the rows below a held-back name clear from its rule, not from its text', () => {
+    // `late`'s text starts at 450 in the second row, its rule at 560 crosses the first: a name in
+    // the first row ending by 560 fits there under `late`'s text.
+    const boxes = [box('late', 560, 150), box('under', 440, 110)];
+    const placed = placeNames(boxes, 600, 2, new Map([['late', 1]]));
+
+    expect(rowsOf(placed)).toEqual({ late: 1, under: 0 });
+  });
+
+  it('keeps a higher row’s rule from crossing a lower row’s text', () => {
+    // `late` is held back to 450 in the first row; `older`'s rule at 470 would come down through
+    // that text, so `older` has no row, though the second row has room for its text.
+    const boxes = [box('late', 560, 150), box('older', 470, 100)];
+
+    expect(rowsOf(placeNames(boxes, 600, 2))).toEqual({ late: 0 });
   });
 
   it('keeps a name in its row while it still fits there, so a scrolling strip does not jitter', () => {

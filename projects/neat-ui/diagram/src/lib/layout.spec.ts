@@ -1,5 +1,7 @@
+import tokens from '../../../src/lib/theme/tokens.generated.css' with { loader: 'text' };
 import {
   absoluteRects,
+  CORNER,
   crossings,
   type EdgeLayout,
   intersect,
@@ -569,6 +571,12 @@ describe('layoutEdges, facing boxes that overlap across', () => {
         { x: 56, y: 300 },
       ],
     });
+  });
+
+  it('keeps clear of the corners by the theme’s radius, at zoom 1', () => {
+    const radius = /--radius:\s*([\d.]+)rem;/.exec(tokens)?.[1];
+    expect(radius).toBeDefined();
+    expect(CORNER).toBe(Number(radius) * 16);
   });
 
   it('keeps a Z between boxes that do not overlap, or overlap only at their corners', () => {

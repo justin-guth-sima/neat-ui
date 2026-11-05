@@ -20,9 +20,9 @@ export function watchWidth(element: HTMLElement, report: (width: number) => void
       stopped = true;
     };
   }
-  const observer = new ResizeObserver((entries) => {
-    if (!stopped) report(entries[entries.length - 1].contentRect.width);
-  });
+  // Measured as the probe measures names (the box as drawn, transforms included), so the strip and
+  // the names stay in one unit; the observer only says when.
+  const observer = new ResizeObserver(now);
   observer.observe(element);
   return () => {
     stopped = true;

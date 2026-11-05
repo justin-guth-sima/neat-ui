@@ -7,11 +7,15 @@ describe('watchWidth', () => {
   it('reports the width now and at every resize, until stopped', () => {
     stubResizeObserver();
     const element = document.createElement('div');
-    element.getBoundingClientRect = () => ({ width: 480 }) as DOMRect;
+    let width = 480;
+    element.getBoundingClientRect = () => ({ width }) as DOMRect;
     const widths: number[] = [];
 
-    const stop = watchWidth(element, (width) => widths.push(width));
-    resize(element, 520);
+    const stop = watchWidth(element, (reported) => widths.push(reported));
+    // At a resize it measures the box as it did at first (its content width may differ under a
+    // transform), so the strip and the names, measured the same way, stay in one unit.
+    width = 520;
+    resize(element, 999);
     expect(widths).toEqual([480, 520]);
     expect(watched()).toEqual([element]);
 

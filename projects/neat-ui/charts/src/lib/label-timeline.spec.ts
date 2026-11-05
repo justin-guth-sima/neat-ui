@@ -32,20 +32,21 @@ class TimelineHost {
   readonly labelRows = signal(1);
 }
 
-/** The strip's width in the specs: 600 px for 30 s, so 20 px a second. */
-const STRIP_PX = 600;
+/** The strip's width in the specs: 600 px for 30 s, so 20 px a second, unless a spec resizes it. */
+let stripPx = 600;
 /** How wide a name is drawn in the specs, its gap included: 6 px a character. */
 const nameWidth = (text: string) => text.length * 6;
 
 // jsdom lays nothing out: the names' row is 600 px wide and the probe as wide as its text says.
 // A spec that needs another box (the strip, for the pointer) gives that element its own.
 beforeEach(() => {
+  stripPx = 600;
   stubResizeObserver();
   vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
     this: HTMLElement,
   ) {
     const width = this.classList.contains('names')
-      ? STRIP_PX
+      ? stripPx
       : this.classList.contains('probe')
         ? nameWidth(this.textContent ?? '')
         : 0;
@@ -82,6 +83,15 @@ async function render(runs: readonly NeatLabelRun[], setup?: (host: TimelineHost
 
 /** The text a screen reader gets for a run: the visually hidden span inside the item. */
 const spoken = (element: HTMLElement) => element.querySelector('.sr-only')?.textContent?.trim();
+
+/** The rules the names hang from, down to the strip: where each stands (px) and its name's row. */
+const rulesOf = (host: HTMLElement) =>
+  Array.from(host.querySelectorAll<HTMLElement>('[data-slot="label-timeline-rule"]')).map(
+    (rule) => ({
+      x: Math.round(parseFloat(rule.style.left) * 100) / 100,
+      row: Number(rule.style.getPropertyValue('--row')),
+    }),
+  );
 
 /** The names drawn above the strip: each one's text, where it starts (px) and its row. */
 const namesOf = (host: HTMLElement) =>
@@ -155,10 +165,15 @@ describe('NeatLabelTimeline', () => {
     expect(namesOf(host)).toEqual([{ text: 'Pointing with two fingers', x: 200, row: 0 }]);
   });
 
-  it('holds a name back from the strip’s right end', async () => {
-    const { host } = await render([run('Pointing with two fingers', 2, 0)]);
+  it('holds a name back from the strip’s right end, its rule still at its run’s start', async () => {
+    const { host } = await render([run('Zoom in', 10, 2), run('Pointing with two fingers', 2, 0)]);
+    const name = host.querySelector<HTMLElement>('[data-slot="label-timeline-name"]')!;
 
-    expect(namesOf(host)).toEqual([{ text: 'Pointing with two fingers', x: 450, row: 0 }]);
+    expect(namesOf(host)[0]).toEqual({ text: 'Pointing with two fingers', x: 450, row: 0 });
+    // Its text is held back over the older run; the rule stands at its own run's start (560 px).
+    expect(name.hasAttribute('data-held')).toBe(true);
+    expect(rulesOf(host)[0]).toEqual({ x: 560, row: 0 });
+    expect(declared('.name[data-held]', 'border-left-color')).toBe('transparent');
   });
 
   it('lets the newest name win, and leaves out one that fits nowhere but keeps it in words', async () => {
@@ -199,6 +214,7 @@ describe('NeatLabelTimeline', () => {
     expect(namesOf(host).map((name) => name.text)).toEqual(['Beta']);
 
     // Four times as wide, Alpha one (800 to 854 px) ends before Beta starts (880 px).
+    stripPx = 2400;
     resize(host.querySelector('.names')!, 2400);
     await fixture.whenStable();
     expect(namesOf(host)).toEqual([
@@ -206,6 +222,7 @@ describe('NeatLabelTimeline', () => {
       { text: 'Alpha one', x: 800, row: 0 },
     ]);
 
+    stripPx = 600;
     resize(host.querySelector('.names')!, 600);
     fixture.componentInstance.labelRows.set(2);
     await fixture.whenStable();
@@ -378,6 +395,21 @@ describe('NeatLabelTimeline readout', () => {
     expect(chart.readout()?.hasAttribute('data-flip')).toBe(true);
 
     await chart.leave();
+    expect(chart.readout()).toBeNull();
+  });
+
+  it('reads out a name’s run when the pointer is on the name, and hides when it leaves', async () => {
+    const chart = await setup();
+    const name = Array.from(
+      chart.timeline.querySelectorAll<HTMLElement>('[data-slot="label-timeline-name"]'),
+    ).find((element) => element.textContent?.trim() === 'Zoom in')!;
+
+    name.dispatchEvent(new MouseEvent('pointermove', { bubbles: true }));
+    await chart.fixture.whenStable();
+    expect(lines(chart.readout())).toEqual(['Zoom in', '20 s to 10 s ago']);
+
+    chart.timeline.querySelector('.names')!.dispatchEvent(new MouseEvent('pointerleave'));
+    await chart.fixture.whenStable();
     expect(chart.readout()).toBeNull();
   });
 

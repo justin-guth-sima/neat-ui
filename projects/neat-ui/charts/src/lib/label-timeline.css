@@ -13,22 +13,25 @@
   outline-offset: 2px;
 }
 
-/* The names stand above the strip in `--rows` rows, the first next to the strip. */
+/*
+ * The names stand above the strip in `--rows` rows, the first next to the strip, with a short foot
+ * below them through which the rules reach the strip.
+ */
 .names {
   --name-line: 1.25rem;
 
   position: relative;
-  height: calc(var(--rows) * var(--name-line));
+  height: calc(var(--rows) * var(--name-line) + 4px);
 }
 
 /*
- * A name hangs from a rule at its run's start down to the strip, its text in its own row. A name
- * wider than the whole strip is cut with an ellipsis.
+ * A name's text, in its row, from the rule at its run's start. A name held back from the strip's
+ * right end (`data-held`) starts left of its run, so its rule is not its border but the run's own
+ * line below. A name wider than the whole strip is cut with an ellipsis.
  */
 .name {
   position: absolute;
   top: calc((var(--rows) - 1 - var(--row)) * var(--name-line));
-  bottom: 0;
   max-width: 100%;
   padding-left: 4px;
   border-left: 1px solid var(--border);
@@ -38,6 +41,18 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.name[data-held] {
+  border-left-color: transparent;
+}
+
+/* The rule from below a name's row down to the strip, at its run's start. */
+.rule {
+  position: absolute;
+  top: calc((var(--rows) - var(--row)) * var(--name-line));
+  bottom: 0;
+  border-left: 1px solid var(--border);
 }
 
 /* Measures a name as it is drawn, with the gap a row keeps after it; never seen. */
