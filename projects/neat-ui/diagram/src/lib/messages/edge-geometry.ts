@@ -40,12 +40,19 @@ export class EdgeGeometry {
    * written into `into` and returned, so a caller moving dots every frame allocates nothing.
    * `xy` is the same samples in other coordinates (the layer's, mapped to the screen once per pan
    * or zoom): a transform that scales both axes alike keeps the shares of the length, so the table
-   * measured in diagram units finds the point there too.
+   * measured in diagram units finds the point there too. `before` and `after` (diagram units) run
+   * the way on past the ends, straight on along the first and the last sample's direction: 0 is
+   * then that far before the start and 1 that far past the end, so a dot can leave from inside the
+   * card it comes out of and go on until it is wholly inside the card it enters.
    */
-  at(t: number, into: Point, xy: Float32Array = this.xy): Point {
+  at(t: number, into: Point, xy: Float32Array = this.xy, before = 0, after = 0): Point {
     const { lut } = this;
     const last = lut.length - 1;
-    const target = (t > 0 ? Math.min(t, 1) : 0) * this.length;
+    const target = (t > 0 ? Math.min(t, 1) : 0) * (this.length + before + after) - before;
+    if (last >= 1 && target < 0) return beyond(lut, xy, 0, 1, -target, into);
+    if (last >= 1 && target > this.length) {
+      return beyond(lut, xy, last, last - 1, target - this.length, into);
+    }
     if (last < 1 || target <= 0) {
       into.x = xy[0];
       into.y = xy[1];
@@ -66,4 +73,20 @@ export class EdgeGeometry {
     into.y = xy[2 * lo - 1] + (xy[2 * lo + 1] - xy[2 * lo - 1]) * f;
     return into;
   }
+}
+
+/** The point `distance` (diagram units) past sample `end`, straight on from sample `inner`. */
+function beyond(
+  lut: Float32Array,
+  xy: Float32Array,
+  end: number,
+  inner: number,
+  distance: number,
+  into: Point,
+): Point {
+  const run = Math.abs(lut[end] - lut[inner]);
+  const f = run > 0 ? distance / run : 0;
+  into.x = xy[2 * end] + (xy[2 * end] - xy[2 * inner]) * f;
+  into.y = xy[2 * end + 1] + (xy[2 * end + 1] - xy[2 * inner + 1]) * f;
+  return into;
 }

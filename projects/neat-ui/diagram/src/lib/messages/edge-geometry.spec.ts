@@ -13,6 +13,20 @@ describe('EdgeGeometry', () => {
     expect(geometry.at(1, at)).toEqual({ x: 400, y: 10 });
   });
 
+  it('runs on past the ends by `before` and `after`, straight on along the end samples', () => {
+    const geometry = EdgeGeometry.fromPoints([
+      { x: 0, y: 10 },
+      { x: 400, y: 10 },
+    ]);
+    const at = { x: 0, y: 0 };
+    // 0 is `before` ahead of the start, 1 `after` past the end, the share between over the whole.
+    expect(geometry.at(0, at, undefined, 5, 7)).toEqual({ x: -5, y: 10 });
+    expect(geometry.at(1, at, undefined, 5, 7)).toEqual({ x: 407, y: 10 });
+    expect(geometry.at(0.5, at, undefined, 6, 6)).toEqual({ x: 200, y: 10 });
+    // Without them it stays on the shape.
+    expect(geometry.at(0, at)).toEqual({ x: 0, y: 10 });
+  });
+
   it('writes the point into the object it is given', () => {
     const geometry = EdgeGeometry.fromPoints([
       { x: 0, y: 0 },

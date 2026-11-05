@@ -80,6 +80,12 @@ export class DotCanvas {
   /** The globalAlpha set on the context. */
   private alpha = 1;
   private readonly point = { x: 0, y: 0 };
+  /**
+   * Per edge, this frame: whether its start and its end lie on a cover (a card), where a dot runs
+   * on hidden until it is wholly inside (or comes out from wholly inside) instead of popping at
+   * the port.
+   */
+  private readonly ends = new Map<string, readonly [boolean, boolean]>();
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -138,9 +144,10 @@ export class DotCanvas {
   ): number {
     const context = this.start();
     const scale = (size * this.k) / REFERENCE_ZOOM;
+    this.findEnds(covers);
     let drawn = 0;
     for (const dot of dots) {
-      if (this.sprite(context, dot.edge, dot.t, dot.r * scale, dot.colour, focus)) drawn++;
+      if (this.sprite(context, dot.edge, dot.t, dot.r * scale, dot.colour, focus, true)) drawn++;
     }
     this.erase(context, covers);
     return drawn;
@@ -205,7 +212,22 @@ export class DotCanvas {
     context.globalCompositeOperation = 'source-over';
   }
 
-  /** One dot of radius `r` (CSS px) at `t` along `edge`; false for an edge not drawn. */
+  /** Which edges start or end on a cover, for `sprite`'s run-on: once per frame, edges x covers. */
+  private findEnds(covers: readonly Cover[]): void {
+    this.ends.clear();
+    for (const [id, { geometry }] of this.mapped) {
+      const { xy } = geometry;
+      const n = xy.length;
+      if (n < 2) continue;
+      this.ends.set(id, [onCover(xy[0], xy[1], covers), onCover(xy[n - 2], xy[n - 1], covers)]);
+    }
+  }
+
+  /**
+   * One dot of radius `r` (CSS px) at `t` along `edge`; false for an edge not drawn. With `runOn`,
+   * an end on a card is moved a radius into it, so the dot leaves from wholly inside and goes on
+   * until it is wholly inside: the card's cover hides it there instead of it popping at the port.
+   */
   private sprite(
     context: CanvasRenderingContext2D,
     edge: string,
@@ -213,11 +235,20 @@ export class DotCanvas {
     r: number,
     colour: number,
     focus: ReadonlySet<string> | null,
+    runOn = false,
   ): boolean {
     const mapped = this.mapped.get(edge);
     const sprite = this.sprites[colour] ?? this.sprites[0];
     if (!mapped || !sprite) return false;
-    const at = mapped.geometry.at(t, this.point, mapped.screen);
+    const ends = runOn ? this.ends.get(edge) : undefined;
+    const extra = r / this.k;
+    const at = mapped.geometry.at(
+      t,
+      this.point,
+      mapped.screen,
+      ends?.[0] ? extra : 0,
+      ends?.[1] ? extra : 0,
+    );
     const alpha = focus === null || focus.has(edge) ? 1 : this.dim;
     if (alpha !== this.alpha) context.globalAlpha = this.alpha = alpha;
     const size = SIZE_PER_RADIUS * r;
@@ -301,4 +332,12 @@ function pixels(value: string): number | null {
     return n * parseFloat(getComputedStyle(document.documentElement).fontSize || '16');
   }
   return value.trim().endsWith('px') ? n : null;
+}
+
+/** Whether the point (diagram units) lies on a cover, its border included (a port is on it). */
+function onCover(x: number, y: number, covers: readonly Cover[]): boolean {
+  const slack = 0.5;
+  return covers.some(
+    (c) => x >= c.x - slack && x <= c.x + c.w + slack && y >= c.y - slack && y <= c.y + c.h + slack,
+  );
 }

@@ -505,7 +505,8 @@ the whole in the kit's look.
   per frame, at most `MAX_DOTS` (16 384) dots with the oldest dropped, frames only while a visible
   dot moves (messages that get no dot, see `every`, run none) and never while the page is hidden.
   Dots go behind the blocks, notes and edge labels (a label's measured border box with its own
-  corner, as the edge's line goes under it), fade with the hover (`--diagram-dim`), scale with the zoom
+  corner, as the edge's line goes under it); at an end on a block a dot runs on a radius into it,
+  so it comes out of and goes into the block whole instead of popping at the port; they fade with the hover (`--diagram-dim`), scale with the zoom
   and recolour with the scheme (`neatThemeColors`); under reduced motion each message is a brief
   mark at its edge's end. `neat-diagram-rate-card` (`label`, `rate` the signal's value, `stageMs?`,
   `showBytes`, a `[neatRateCardThumbnails]` slot the app lays out) is the demo's card for a note's

@@ -828,8 +828,9 @@ describe('NeatDiagramMessages in neat-diagram', () => {
     layer.push('parsed', 1000, 200);
     const [dot] = frame(200);
     const expected = onScreen(host, SYSTEM.levels!['decode'], 'parsed', 0);
-    expect(dot.x).toBeCloseTo(expected.x);
-    expect(dot.y).toBeCloseTo(expected.y);
+    // `parsed` leaves a card: a new dot starts a radius inside it (the sprite is two radii wide),
+    // on the edge's line, so it comes out of the card instead of appearing at the port.
+    expect(Math.hypot(dot.x - expected.x, dot.y - expected.y)).toBeCloseTo(dot.size / 2);
   });
 
   /** `frames` runs straight from (120, 20) to (400, 20): its label is centred on (260, 20). */
