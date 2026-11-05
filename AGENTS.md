@@ -399,7 +399,10 @@ the whole in the kit's look.
   by its id, so an equal diagram recomputed on every poll changes nothing in the DOM and a moved
   node is the same element, moved. The routing (port sides and order so fans do not cross, Z
   routes sharing a corridor spread apart, stubs when the target lies behind) is the Autoware
-  demo's, ported with its specs; an edge between a frame and a node inside it runs inside the
+  demo's, ported with its specs, plus one rule of the kit's: an edge whose ports face each other
+  between boxes that overlap across runs straight, both ports at one coordinate in the overlap
+  (the spread port's of an end with several on its side, so a fan keeps its order) and clear of
+  both boxes' rounded corners, instead of a Z with bends a few units apart; an edge between a frame and a node inside it runs inside the
   frame, from the frame's border nearest the node (the frame's own `outSide` and `inSide` are for
   the nodes around it). An edge end goes on the side its edge's `fromSide` or `toSide` names, else
   its node's `outSide` or `inSide`, else the side facing the other end; the route and the label

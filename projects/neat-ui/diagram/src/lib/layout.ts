@@ -130,6 +130,16 @@ const PORT_SPAN = 0.8;
 const JOG_STEP = 24;
 
 /**
+ * How far from a box's corner a straightened edge meets it at least: the theme's `--radius`
+ * (0.5 rem, 8 px at zoom 1), so a straight edge never enters a rounded corner. Boxes whose overlap
+ * leaves no room past their corners keep their Z.
+ */
+const CORNER = 8;
+
+/** The least room a straightened edge leaves between its port and the next on the same side. */
+const PORT_GAP = PORT_STEP / 2;
+
+/**
  * Each edge as drawn, by id: its ends on the sides that face each other (or that its nodes name),
  * spread along each side so a fan does not cross itself, and its rounded route, Z routes that
  * share a corridor spread apart. An edge with an end that is not a node on the level (or one left
@@ -201,8 +211,18 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
     };
     return { edge, source, target, inward };
   });
-  spreadPorts(
+  const sides = spreadPorts(
     ends.flatMap((e) => [e.source, e.target]),
+    rects,
+  );
+  straightenFacing(
+    ends.filter(
+      ({ edge, inward }) =>
+        inward === null &&
+        nodes.get(edge.from)?.role !== 'frame' &&
+        nodes.get(edge.to)?.role !== 'frame',
+    ),
+    sides,
     rects,
   );
 
@@ -226,16 +246,20 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
   );
 }
 
+/** The key of a node's side, for the ports on it. */
+const sideKey = (end: End) => `${end.node}\u0000${end.side}`;
+
 /**
  * Ports on one side are spread along it in the order of the directions their edges leave in, so
  * edges fanning out from a side do not cross; parallel edges between the same two nodes keep one
  * order seen from both ends (by the side of the edge each port lies on). `ends` are in the order
- * of their edges, which breaks the remaining ties.
+ * of their edges, which breaks the remaining ties. Returns each side's ends in their order along
+ * it, by `sideKey`.
  */
-function spreadPorts(ends: End[], rects: Map<string, Rect>): void {
+function spreadPorts(ends: End[], rects: Map<string, Rect>): Map<string, End[]> {
   const sides = new Map<string, End[]>();
   for (const end of ends) {
-    const key = `${end.node}\u0000${end.side}`;
+    const key = sideKey(end);
     sides.set(key, [...(sides.get(key) ?? []), end]);
   }
   for (const onSide of sides.values()) {
@@ -250,6 +274,66 @@ function spreadPorts(ends: End[], rects: Map<string, Rect>): void {
     const step =
       onSide.length > 1 ? Math.min(PORT_STEP, (length * PORT_SPAN) / (onSide.length - 1)) : 0;
     onSide.forEach((e, i) => (e.offset = (i - (onSide.length - 1) / 2) * step));
+  }
+  return sides;
+}
+
+/**
+ * An edge whose ports face each other (left and right, or top and bottom) between nodes whose
+ * spans across that way overlap runs straight: both ports move to one coordinate inside the
+ * overlap, clear of both boxes' corners, instead of drawing a Z whose bends lie a few units apart.
+ * The coordinate is the spread port's of the end whose side has several ports (the source's when
+ * both have), so a fan keeps its order; else the target's centre, or the overlap's middle when the
+ * centre lies outside it; held to the overlap either way. A port moves only while it stays
+ * `PORT_GAP` from its neighbours on its side, so no side's order changes and no fan crosses
+ * itself; an edge that cannot move both its ports keeps its route, as does one already straight.
+ * `sides` are each side's ends in their order along it, as `spreadPorts` leaves them.
+ */
+function straightenFacing(
+  pairs: readonly { source: End; target: End }[],
+  sides: Map<string, End[]>,
+  rects: Map<string, Rect>,
+): void {
+  /** Whether `end` may take `offset` and stay `PORT_GAP` from the ports beside it on its side. */
+  const keepsOrder = (end: End, offset: number): boolean => {
+    const onSide = sides.get(sideKey(end)) as End[];
+    const i = onSide.indexOf(end);
+    const before = onSide[i - 1];
+    const after = onSide[i + 1];
+    return (
+      (before === undefined || offset - before.offset >= PORT_GAP) &&
+      (after === undefined || after.offset - offset >= PORT_GAP)
+    );
+  };
+  for (const { source, target } of pairs) {
+    if (OPPOSITE[source.side] !== target.side) continue;
+    const a = rects.get(source.node) as Rect;
+    const b = rects.get(target.node) as Rect;
+    const from = portPoint(a, source);
+    const to = portPoint(b, target);
+    // Facing each other with the target ahead: the target behind is routed with stubs.
+    if (dot({ x: to.x - from.x, y: to.y - from.y }, SIDE_AXES[source.side].n) <= 0) continue;
+    const [across, size] = horizontal(source.side) ? (['y', 'h'] as const) : (['x', 'w'] as const);
+    if (from[across] === to[across]) continue;
+    const low = Math.max(a[across], b[across]) + CORNER;
+    const high = Math.min(a[across] + a[size], b[across] + b[size]) - CORNER;
+    if (low > high) continue;
+    const fanning = [source, target].find((end) => (sides.get(sideKey(end)) as End[]).length > 1);
+    const centre = b[across] + b[size] / 2;
+    const wanted =
+      fanning === source
+        ? from[across]
+        : fanning === target
+          ? to[across]
+          : centre < low || centre > high
+            ? (low + high) / 2
+            : centre;
+    const at = Math.min(high, Math.max(low, wanted));
+    const sourceOffset = at - (a[across] + a[size] / 2);
+    const targetOffset = at - (b[across] + b[size] / 2);
+    if (!keepsOrder(source, sourceOffset) || !keepsOrder(target, targetOffset)) continue;
+    source.offset = sourceOffset;
+    target.offset = targetOffset;
   }
 }
 

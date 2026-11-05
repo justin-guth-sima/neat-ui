@@ -1,4 +1,11 @@
-import { absoluteRects, crossings, intersect, layoutEdges } from './layout';
+import {
+  absoluteRects,
+  crossings,
+  type EdgeLayout,
+  intersect,
+  layoutEdges,
+  type Rect,
+} from './layout';
 import type { NeatDiagram, NeatDiagramEdge, NeatDiagramNode } from './model';
 import { resetReported } from './report';
 import { roundCorners, sampleRoute, type Point } from './route';
@@ -207,7 +214,7 @@ describe('layoutEdges', () => {
     const edges = layoutEdges({
       nodes: [
         block('a', 0, 0),
-        block('right', 400, 50),
+        block('right', 400, 150),
         block('below', 0, 400),
         block('left', -400, 0),
       ],
@@ -218,8 +225,8 @@ describe('layoutEdges', () => {
       ['b', 'bottom', 'top'],
       ['l', 'left', 'right'],
     ]);
-    // A lone port sits in the middle of its side.
-    expect(edges.get('r')).toMatchObject({ source: { x: 100, y: 50 }, target: { x: 400, y: 100 } });
+    // A lone port sits in the middle of its side (between boxes that do not overlap across).
+    expect(edges.get('r')).toMatchObject({ source: { x: 100, y: 50 }, target: { x: 400, y: 200 } });
   });
 
   it('takes a node’s inSide and outSide over the facing sides', () => {
@@ -466,6 +473,180 @@ describe('layoutEdges', () => {
     const spread = Math.max(...middles) - Math.min(...middles);
     expect(spread).toBeGreaterThan(50);
     expect(spread).toBeLessThan(140);
+  });
+});
+
+describe('layoutEdges, facing boxes that overlap across', () => {
+  /** Whether a port lies on its node's side, within the side's extent. */
+  const onItsSide = (diagram: NeatDiagram, id: string, end: 'source' | 'target'): boolean => {
+    const e = layoutEdges(diagram).get(id) as EdgeLayout;
+    const r = absoluteRects(diagram).get(
+      end === 'source' ? edgeById(diagram, id).from : edgeById(diagram, id).to,
+    ) as Rect;
+    const p = e[end];
+    const side = end === 'source' ? e.sourceSide : e.targetSide;
+    const within = (v: number, lo: number, hi: number) => v >= lo && v <= hi;
+    switch (side) {
+      case 'left':
+        return p.x === r.x && within(p.y, r.y, r.y + r.h);
+      case 'right':
+        return p.x === r.x + r.w && within(p.y, r.y, r.y + r.h);
+      case 'top':
+        return p.y === r.y && within(p.x, r.x, r.x + r.w);
+      case 'bottom':
+        return p.y === r.y + r.h && within(p.x, r.x, r.x + r.w);
+    }
+  };
+  const edgeById = (diagram: NeatDiagram, id: string) =>
+    diagram.edges.find((e) => e.id === id) as NeatDiagramEdge;
+
+  // A node with two outputs on its right, one to a box straight across whose centre is 4 below.
+  const fan: NeatDiagram = {
+    nodes: [block('hub', 0, 0), block('near', 300, 4), block('far', 300, 300)],
+    edges: [edge('near', 'hub', 'near'), edge('far', 'hub', 'far')],
+  };
+
+  it('runs an edge straight from a fanning side to a box across, at the fan’s port', () => {
+    const edges = layoutEdges(fan);
+    const near = edges.get('near') as EdgeLayout;
+    expect(near.points).toHaveLength(2);
+    expect(near.source.y).toBe(near.target.y);
+    // The fan keeps its spread port, so it keeps its order: the near edge's port above the far one's.
+    expect(near.source.y).toBe(45);
+    expect(near.source.y).toBeLessThan((edges.get('far') as EdgeLayout).source.y);
+    // The far box does not overlap the hub: its edge is still a Z.
+    expect(edges.get('far')?.points).toHaveLength(4);
+    expect(drawnCrossings(fan)).toEqual([]);
+  });
+
+  it('runs an edge straight into a side with several inputs, at that side’s port', () => {
+    const diagram: NeatDiagram = {
+      nodes: [block('src', 0, 0), block('sink', 300, 4), block('other', 0, 300)],
+      edges: [edge('in', 'src', 'sink'), edge('low', 'other', 'sink')],
+    };
+    const edges = layoutEdges(diagram);
+    const into = edges.get('in') as EdgeLayout;
+    expect(into.points).toHaveLength(2);
+    // The sink's two inputs are spread 10 apart about its middle (54): the upper one is this edge's.
+    expect(into.target.y).toBe(49);
+    expect(into.source.y).toBe(49);
+    expect(into.target.y).toBeLessThan((edges.get('low') as EdgeLayout).target.y);
+    expect(edges.get('low')?.points).toHaveLength(4);
+  });
+
+  it('meets a lone port at the target’s centre, or the overlap’s middle when that is outside it', () => {
+    const centred = layoutEdges({
+      nodes: [block('a', 0, 0), block('b', 300, 6)],
+      edges: [edge('ab', 'a', 'b')],
+    }).get('ab') as EdgeLayout;
+    expect(centred.points).toEqual([
+      { x: 100, y: 56 },
+      { x: 300, y: 56 },
+    ]);
+
+    // b spans 70..170 and a 0..100: b's centre (120) is outside the overlap, clear of the corners
+    // (78..92), so the edge runs at its middle.
+    const offset = layoutEdges({
+      nodes: [block('a', 0, 0), block('b', 300, 70)],
+      edges: [edge('ab', 'a', 'b')],
+    }).get('ab') as EdgeLayout;
+    expect(offset.points).toEqual([
+      { x: 100, y: 85 },
+      { x: 300, y: 85 },
+    ]);
+  });
+
+  it('runs top to bottom straight as well, across x', () => {
+    const edges = layoutEdges({
+      nodes: [block('a', 0, 0), block('b', 6, 300)],
+      edges: [edge('ab', 'a', 'b')],
+    });
+    expect(edges.get('ab')).toMatchObject({
+      sourceSide: 'bottom',
+      targetSide: 'top',
+      points: [
+        { x: 56, y: 100 },
+        { x: 56, y: 300 },
+      ],
+    });
+  });
+
+  it('keeps a Z between boxes that do not overlap, or overlap only at their corners', () => {
+    for (const y of [150, 90]) {
+      const edges = layoutEdges({
+        nodes: [block('a', 0, 0), block('b', 300, y)],
+        edges: [edge('ab', 'a', 'b')],
+      });
+      expect([y, edges.get('ab')?.points]).toEqual([
+        y,
+        [
+          { x: 100, y: 50 },
+          { x: 200, y: 50 },
+          { x: 200, y: y + 50 },
+          { x: 300, y: y + 50 },
+        ],
+      ]);
+    }
+  });
+
+  it('leaves an edge that already runs straight where it is', () => {
+    const edges = layoutEdges({
+      nodes: [
+        block('hub', 0, 0),
+        block('up', 300, -300),
+        block('mid', 300, 0),
+        block('down', 300, 300),
+      ],
+      edges: [edge('up', 'hub', 'up'), edge('mid', 'hub', 'mid'), edge('down', 'hub', 'down')],
+    });
+    expect(edges.get('mid')?.points).toEqual([
+      { x: 100, y: 50 },
+      { x: 300, y: 50 },
+    ]);
+    expect(edges.get('up')?.source.y).toBe(40);
+    expect(edges.get('down')?.source.y).toBe(60);
+  });
+
+  it('keeps two straight edges into one side from two sources apart and in order', () => {
+    const diagram: NeatDiagram = {
+      nodes: [block('s1', 0, 10), block('s2', 0, 110), block('t', 300, 0, { h: 200 })],
+      edges: [edge('one', 's1', 't'), edge('two', 's2', 't')],
+    };
+    const edges = layoutEdges(diagram);
+    const one = edges.get('one') as EdgeLayout;
+    const two = edges.get('two') as EdgeLayout;
+    expect(one.points).toHaveLength(2);
+    expect(two.points).toHaveLength(2);
+    // The target's spread ports are 95 and 105; 105 is above s2's, which meets it at its top
+    // clear of the corner (118).
+    expect(one.target.y).toBe(95);
+    expect(two.target.y).toBe(118);
+    expect(drawnCrossings(diagram)).toEqual([]);
+  });
+
+  it('keeps every port on its node’s side, within the side’s extent', () => {
+    const many: NeatDiagram = {
+      nodes: [
+        block('hub', 0, 0),
+        ...[-60, -20, 3, 40, 95].map((y, i) => block(`t${i}`, 300, y, { h: 30 })),
+        block('src', -300, 70),
+      ],
+      edges: [
+        ...[0, 1, 2, 3, 4].map((i) => edge(`e${i}`, 'hub', `t${i}`)),
+        edge('in', 'src', 'hub'),
+      ],
+    };
+    const fanCase = fan;
+    for (const diagram of [many, fanCase]) {
+      for (const e of diagram.edges) {
+        expect([
+          e.id,
+          onItsSide(diagram, e.id, 'source'),
+          onItsSide(diagram, e.id, 'target'),
+        ]).toEqual([e.id, true, true]);
+      }
+      expect(drawnCrossings(diagram)).toEqual([]);
+    }
   });
 });
 
