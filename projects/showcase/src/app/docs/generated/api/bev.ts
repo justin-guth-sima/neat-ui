@@ -47,7 +47,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " sets a label's colour and line as the tiles' class rows do. Wheel, pinch and drag zoom and pan it, from the whole range in to a quarter of it and only within the plot; with focus, the arrows pan, "
+              "text": " sets a label's colour and line as the tiles' class rows do. Hovering an object, or tapping it, reads it out beside it: its label, its distance from the vehicle and its "
+            },
+            {
+              "kind": "code",
+              "text": "text"
+            },
+            {
+              "kind": "text",
+              "text": ". Wheel, pinch and drag zoom and pan it, from the whole range in to a quarter of it and only within the plot; with focus, the arrows pan, "
             },
             {
               "kind": "code",

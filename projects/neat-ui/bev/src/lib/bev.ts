@@ -22,14 +22,29 @@ import {
   NeatTooltip,
   ThemeService,
   ɵNeatOverlayColors as NeatOverlayColors,
+  ɵREADOUT_CLASSES as READOUT_CLASSES,
 } from '@sima/neat-ui';
 import { zoomIdentity, type ZoomTransform } from 'd3-zoom';
 import type { NeatOverlayClassStyle } from '@sima/neat-ui/video';
 import { BevCanvas, type BevInputs, type BevTheme } from './bev-canvas';
 import { LabelColours } from './colours';
-import { type BevView, defaultView, type PlotArea, plotArea, spokeList } from './geometry';
+import {
+  type BevView,
+  defaultView,
+  hitObject,
+  PLOT_INSET,
+  type PlotArea,
+  plotArea,
+  spokeList,
+  toScreen,
+  toVehicle,
+} from './geometry';
 import type { NeatBevFrame, NeatBevSensor, NeatBevShape, NeatBevSpoke } from './model';
+import { BevReadout } from './readout';
 import { BevZoom, isDefault } from './zoom';
+
+/** How far around an object the pointer still reads it out, CSS px: room for a small one. */
+const HIT_TOLERANCE_PX = 4;
 
 /** The theme's tokens the plot draws its own parts in. */
 const TOKENS = {
@@ -46,7 +61,8 @@ const TOKENS = {
  * in the vehicle's own frame (metres, x forward and y left, forward up on the screen). Labels pick
  * colours as the video overlays' classes do, from the page's class colours, so "car" has one colour
  * in the view and in every tile; `styles` sets a label's colour and line as the tiles' class rows
- * do. Wheel, pinch and drag zoom and pan it, from the whole range in to a quarter of it and only
+ * do. Hovering an object, or tapping it, reads it out beside it: its label, its distance from the
+ * vehicle and its `text`. Wheel, pinch and drag zoom and pan it, from the whole range in to a quarter of it and only
  * within the plot; with focus, the arrows pan, `+` and `-` zoom and `0` resets, as a button does
  * while it is zoomed. It draws on one canvas outside change detection, at the next animation frame
  * after anything changes and never while the page is hidden. Give it a height, or it is as tall as
@@ -83,6 +99,14 @@ const TOKENS = {
         <neat-icon name="fit-all" [size]="16" />
       </button>
     }
+    <!-- The object under the pointer; filled and placed by each frame, not by change detection. -->
+    <div #readout class="readout" aria-hidden="true" hidden [class]="readoutClasses.box">
+      <span [class]="readoutClasses.row"
+        ><span #swatch class="swatch"></span><span #name></span
+      ></span>
+      <span #distance [class]="readoutClasses.muted"></span>
+      <span #text></span>
+    </div>
   `,
   styleUrl: './bev.css',
 })
@@ -137,10 +161,24 @@ export class NeatBev {
     spokes: spokeList(this.spokes()),
   }));
 
+  protected readonly readoutClasses = READOUT_CLASSES;
+  private readonly readoutBox = viewChild.required<ElementRef<HTMLElement>>('readout');
+  private readonly readoutSwatch = viewChild.required<ElementRef<HTMLElement>>('swatch');
+  private readonly readoutName = viewChild.required<ElementRef<HTMLElement>>('name');
+  private readonly readoutDistance = viewChild.required<ElementRef<HTMLElement>>('distance');
+  private readonly readoutText = viewChild.required<ElementRef<HTMLElement>>('text');
+
   /** Whether the view is zoomed or panned away from the whole range: the reset button shows. */
   protected readonly zoomed = signal(false);
 
   private canvas: BevCanvas | null = null;
+  private readout: BevReadout | null = null;
+  /** Where the pointer is over the box (CSS px), or the last tap; null for neither. */
+  private pointer: { x: number; y: number } | null = null;
+  /** The kind of the last press: a touch reads out by a tap, a mouse or pen by hovering. */
+  private pressedBy = '';
+  private readonly vehiclePoint = { x: 0, y: 0 };
+  private readonly screenPoint = { x: 0, y: 0 };
   private zoom: BevZoom | null = null;
   /** The pan and zoom on top of the default view. */
   private transform: ZoomTransform = zoomIdentity;
@@ -171,6 +209,18 @@ export class NeatBev {
       this.zone.runOutsideAngular(() => {
         if (this.destroyed) return;
         this.canvas = new BevCanvas(this.canvasElement().nativeElement);
+        this.readout = new BevReadout(
+          this.readoutBox().nativeElement,
+          this.readoutSwatch().nativeElement,
+          this.readoutName().nativeElement,
+          this.readoutDistance().nativeElement,
+          this.readoutText().nativeElement,
+        );
+        this.host.addEventListener('pointermove', this.pointerMove);
+        this.host.addEventListener('pointerleave', this.pointerLeave);
+        this.host.addEventListener('pointerdown', this.pointerDown);
+        this.host.addEventListener('click', this.click);
+        this.host.addEventListener('keydown', this.escape);
         this.zoom = new BevZoom(this.host, (transform) => {
           this.transform = transform;
           this.zoomed.set(!isDefault(transform));
@@ -195,6 +245,11 @@ export class NeatBev {
       this.request = 0;
       observer?.disconnect();
       this.zoom?.destroy();
+      this.host.removeEventListener('pointermove', this.pointerMove);
+      this.host.removeEventListener('pointerleave', this.pointerLeave);
+      this.host.removeEventListener('pointerdown', this.pointerDown);
+      this.host.removeEventListener('click', this.click);
+      this.host.removeEventListener('keydown', this.escape);
       this.document.removeEventListener('visibilitychange', this.visibility);
     });
   }
@@ -211,13 +266,50 @@ export class NeatBev {
     this.request = this.zone.runOutsideAngular(() => requestAnimationFrame(this.tick));
   }
 
+  /** Where `event` is over the box, CSS px. */
+  private pointOf(event: MouseEvent): { x: number; y: number } {
+    const rect = this.host.getBoundingClientRect();
+    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  }
+
+  /** A mouse or pen over the box reads out what it hovers; a finger does by tapping. */
+  private readonly pointerMove = (event: PointerEvent): void => {
+    if (event.pointerType === 'touch') return;
+    this.pointer = this.pointOf(event);
+    this.schedule();
+  };
+
+  private readonly pointerLeave = (event: PointerEvent): void => {
+    if (event.pointerType === 'touch') return;
+    this.pointer = null;
+    this.schedule();
+  };
+
+  private readonly pointerDown = (event: PointerEvent): void => {
+    this.pressedBy = event.pointerType;
+  };
+
+  /** A tap reads out what it lands on, or puts the readout away; a drag is no click (d3-zoom). */
+  private readonly click = (event: MouseEvent): void => {
+    if (this.pressedBy !== 'touch') return;
+    this.pointer = this.pointOf(event);
+    this.schedule();
+  };
+
+  private readonly escape = (event: KeyboardEvent): void => {
+    if (event.key !== 'Escape' || this.pointer === null) return;
+    this.pointer = null;
+    this.schedule();
+  };
+
   private readonly visibility = (): void => {
     if (!this.document.hidden) this.schedule();
   };
 
   private readonly tick = (): void => {
     this.request = 0;
-    if (this.destroyed || !this.canvas) return;
+    // Nothing to draw on before the box has a size: nothing is resolved either (the colours).
+    if (this.destroyed || !this.canvas || this.width <= 0 || this.height <= 0) return;
     const ratio =
       typeof devicePixelRatio === 'number' && devicePixelRatio > 0 ? devicePixelRatio : 1;
     const inputs = untracked(this.inputs);
@@ -229,17 +321,32 @@ export class NeatBev {
     }
     const { k, x, y } = this.transform;
     const view: BevView = { ...defaultView(area, inputs.range), k, tx: x, ty: y };
+    const frame = untracked(this.frame);
+    const hover = this.hovered(view, area, frame);
     this.colours.begin(performance.now());
-    this.canvas.draw(
-      ratio,
-      view,
-      inputs,
-      untracked(this.theme),
-      this.colours,
-      untracked(this.frame),
-      -1,
-    );
+    this.canvas.draw(ratio, view, inputs, untracked(this.theme), this.colours, frame, hover);
+    const object = hover >= 0 ? frame?.objects?.[hover] : undefined;
+    if (object) {
+      const at = toScreen(view, object.x, object.y, this.screenPoint);
+      const colour = this.colours.of(object.label).colour;
+      this.readout?.show(object, colour, at.x, at.y, this.width, this.height);
+    } else {
+      this.readout?.hide();
+    }
   };
+
+  /** The index of the object under the pointer, on the plot; -1 for none. */
+  private hovered(view: BevView, area: PlotArea, frame: NeatBevFrame | null): number {
+    const objects = frame?.objects;
+    const pointer = this.pointer;
+    if (!pointer || !objects?.length) return -1;
+    if (untracked(this.shape) === 'round') {
+      const radius = area.halfWidth - PLOT_INSET;
+      if (Math.hypot(pointer.x - area.cx, pointer.y - area.cy) > radius) return -1;
+    }
+    const at = toVehicle(view, pointer.x, pointer.y, this.vehiclePoint);
+    return hitObject(objects, at.x, at.y, HIT_TOLERANCE_PX / (view.ppm * view.k));
+  }
 }
 
 function sameArea(a: PlotArea, b: PlotArea | null): boolean {

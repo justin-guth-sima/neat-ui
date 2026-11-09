@@ -86,6 +86,85 @@ describe('NeatBev', () => {
     expect(element.querySelector('canvas')?.getAttribute('aria-hidden')).toBe('true');
   });
 
+  describe('the readout', () => {
+    // In the 400 × 300 box the round plot's centre is (200, 150), at (150 - 12) / 60 px per metre.
+    const ppm = (150 - 12) / 60;
+    const car = { x: 10, y: 0, length: 4, width: 2, yaw: 0, label: 'car', text: 'Score 0.9' };
+    const readout = () => element.querySelector<HTMLElement>('.readout')!;
+    const pointer = (type: string, x: number, y: number, pointerType = 'mouse') => {
+      const event = new MouseEvent(type, { bubbles: true, clientX: x, clientY: y });
+      Object.defineProperty(event, 'pointerType', { value: pointerType });
+      element.dispatchEvent(event);
+    };
+
+    beforeEach(async () => {
+      host.frame.set({ objects: [car] });
+      await settle();
+      frames.run();
+    });
+
+    it('reads out the object a mouse hovers, outlined, beside it', () => {
+      expect(readout().hidden).toBe(true);
+      pointer('pointermove', 200, 150 - 10 * ppm);
+      frames.run();
+      expect(draws.at(-1)![6]).toBe(0);
+      expect(readout().hidden).toBe(false);
+      expect(readout().textContent).toContain('car');
+      expect(readout().textContent).toContain('10 m');
+      expect(readout().textContent).toContain('Score 0.9');
+      expect(readout().getAttribute('aria-hidden')).toBe('true');
+    });
+
+    it('puts it away when the pointer leaves the object or the box, or on Escape', () => {
+      pointer('pointermove', 200, 150 - 10 * ppm);
+      frames.run();
+      pointer('pointermove', 200, 150 + 20 * ppm);
+      frames.run();
+      expect(readout().hidden).toBe(true);
+      expect(draws.at(-1)![6]).toBe(-1);
+      pointer('pointermove', 200, 150 - 10 * ppm);
+      frames.run();
+      pointer('pointerleave', 0, 0);
+      frames.run();
+      expect(readout().hidden).toBe(true);
+      pointer('pointermove', 200, 150 - 10 * ppm);
+      frames.run();
+      element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      frames.run();
+      expect(readout().hidden).toBe(true);
+    });
+
+    it('follows the object under the pointer from frame to frame', async () => {
+      pointer('pointermove', 200, 150 - 10 * ppm);
+      frames.run();
+      host.frame.set({ objects: [{ ...car, x: 30 }] });
+      await settle();
+      frames.run();
+      expect(readout().hidden).toBe(true);
+    });
+
+    it('reads out by a tap on a touch screen, not by a finger moving', () => {
+      pointer('pointermove', 200, 150 - 10 * ppm, 'touch');
+      frames.run();
+      expect(readout().hidden).toBe(true);
+      pointer('pointerdown', 200, 150 - 10 * ppm, 'touch');
+      element.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, clientX: 200, clientY: 150 - 10 * ppm }),
+      );
+      frames.run();
+      expect(readout().hidden).toBe(false);
+    });
+
+    it('reads out nothing outside the round plot', async () => {
+      host.frame.set({ objects: [{ ...car, x: 0, y: 70, length: 20, width: 20 }] });
+      await settle();
+      // 70 m to the left is beyond the 60 m edge; the box's left edge is.
+      pointer('pointermove', 200 - 70 * ppm, 150);
+      frames.run();
+      expect(readout().hidden).toBe(true);
+    });
+  });
+
   describe('zoomed', () => {
     const key = (name: string) =>
       element.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true }));

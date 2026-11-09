@@ -33,3 +33,26 @@ canvas {
   top: var(--neat-space-2);
   right: var(--neat-space-2);
 }
+
+/*
+ * The readout: placed by each frame with a transform from the box's top left. Its look is the kit's
+ * readout (the template's classes); hidden, it takes no room whatever its display says.
+ */
+.readout {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.readout[hidden] {
+  display: none;
+}
+
+/* The label's colour as a small square, as a chart's readout shows its series. */
+.swatch {
+  display: inline-block;
+  flex: none;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 2px;
+}
