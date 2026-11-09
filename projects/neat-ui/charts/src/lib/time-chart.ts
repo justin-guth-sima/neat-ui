@@ -7,7 +7,7 @@ import {
   input,
   viewChild,
 } from '@angular/core';
-import { NeatSeriesSwatch } from '@sima/neat-ui';
+import { NeatSeriesSwatch, ɵREADOUT_CLASSES } from '@sima/neat-ui';
 import {
   chartName,
   FLIP_BELOW,
@@ -196,15 +196,16 @@ interface Level {
         <span class="crosshair" aria-hidden="true" [style.left.%]="readout.at * 100"></span>
         <span
           class="readout"
+          [class]="readoutClasses.box"
           aria-hidden="true"
           [attr.data-flip]="readout.at > 0.5 ? '' : null"
           [style.--at]="readout.at"
         >
           @if (readout.when) {
-            <span class="when">{{ readout.when }}</span>
+            <span class="when" [class]="readoutClasses.muted">{{ readout.when }}</span>
           }
           @for (row of readout.rows; track row.key) {
-            <span class="row">
+            <span class="row" [class]="readoutClasses.row">
               @if (row.series !== null) {
                 <neat-series-swatch [index]="row.series" />
               }
@@ -226,6 +227,9 @@ interface Level {
   styleUrls: ['./chart-frame.css', './readout.css', './plot.css', './time-chart.css'],
 })
 export class NeatTimeChart {
+  /** The kit's one readout look, shared with the other charts and the bird's-eye view. */
+  protected readonly readoutClasses = ɵREADOUT_CLASSES;
+
   /** The chart's title, which also names it for assistive technology. */
   readonly label = input.required<string>();
   /** The current value as the app words it, beside the title and in the accessible name. */

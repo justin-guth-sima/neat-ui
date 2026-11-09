@@ -1,3 +1,4 @@
+import { ɵREADOUT_CLASSES } from '@sima/neat-ui';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { chartName, timeAxis } from './frame';
 import { isNumber } from './geometry';
@@ -110,12 +111,13 @@ interface CellReadout extends Cell {
             @if (readout.row === r) {
               <span
                 class="readout"
+                [class]="readoutClasses.box"
                 aria-hidden="true"
                 [attr.data-flip]="readout.at > 0.5 ? '' : null"
                 [style.--at]="readout.at"
               >
-                <span class="when">{{ readout.head }}</span>
-                <span class="row">{{ readout.value }}</span>
+                <span class="when" [class]="readoutClasses.muted">{{ readout.head }}</span>
+                <span class="row" [class]="readoutClasses.row">{{ readout.value }}</span>
               </span>
             }
           }
@@ -137,6 +139,9 @@ interface CellReadout extends Cell {
   styleUrls: ['./chart-frame.css', './readout.css', './heatmap.css'],
 })
 export class NeatHeatmap {
+  /** The kit's one readout look, shared with the other charts and the bird's-eye view. */
+  protected readonly readoutClasses = ɵREADOUT_CLASSES;
+
   /** The heatmap's title, which also names it for assistive technology. */
   readonly label = input.required<string>();
   /** The overall value as the app words it, beside the title and in the accessible name. */

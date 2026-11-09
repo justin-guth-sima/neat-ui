@@ -1,8 +1,9 @@
 /*
- * The readout of a chart whose pointer and keys read out what lies under them (the time chart, the
- * stacked chart, the heatmap and the label timeline): a box in the popover's colours beside its
- * place across the chart (`--at`, 0 to 1), its lines muted (`.when`) or not (`.row`). Its chart
- * lists this sheet before its own in `styleUrls`.
+ * Where the readout of a chart whose pointer and keys read out what lies under them (the time
+ * chart, the stacked chart, the heatmap and the label timeline) stands: beside its place across
+ * the chart (`--at`, 0 to 1). How it looks is the kit's one readout look (`ɵREADOUT_CLASSES` in the
+ * primary, which the bird's-eye view shares), set on it by the chart's template. Its chart lists
+ * this sheet before its own in `styleUrls`.
  */
 
 /* The readout stands to the right of its sample, and to the left past the middle of the plot. */
@@ -10,19 +11,6 @@
   position: absolute;
   top: 0;
   left: calc(var(--at) * 100%);
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  padding: var(--neat-space-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--popover);
-  color: var(--popover-foreground);
-  font-size: var(--neat-text-xs);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  pointer-events: none;
 }
 
 .readout:not([data-flip]) {
@@ -31,14 +19,4 @@
 
 .readout[data-flip] {
   transform: translateX(calc(-100% - var(--neat-space-2)));
-}
-
-.when {
-  color: var(--muted-foreground);
-}
-
-.row {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--neat-space-2);
 }

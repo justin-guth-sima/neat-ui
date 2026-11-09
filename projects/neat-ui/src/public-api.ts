@@ -76,7 +76,8 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
  * helm classes its drift spec reads), the series' token rule (which `charts` and `diagram`
  * share with the swatch) and the browser's frame clock and reduced-motion check (which `charts`'
  * label timeline shares with `neatEased`), and the page's class colours with their identity palette and
- * style rows (which `video`'s overlays share with `bev`) reach them only through here. Angular marks its own
+ * style rows (which `video`'s overlays share with `bev`), and the readout's look (which `charts` and `bev`
+ * share) reach them only through here. Angular marks its own
  * private API the same way; these may change or go in any release.
  */
 export {
@@ -90,6 +91,7 @@ export {
   INPUT_HELM_CLASSES as ɵINPUT_HELM_CLASSES,
 } from './lib/form/input-classes';
 export { IN_PAGE_TOOLBAR as ɵIN_PAGE_TOOLBAR } from './lib/shell/page-toolbar';
+export { READOUT_CLASSES as ɵREADOUT_CLASSES } from './lib/readout/readout-classes';
 export { OverlayFocus as ɵOverlayFocus } from './lib/overlay/overlay-focus';
 export {
   classStyles as ɵclassStyles,

@@ -176,6 +176,7 @@ describe('the public API', () => {
       'ɵOverlayFocus',
       'ɵPANEL_SURFACE_CLASSES',
       'ɵPOPOVER_HELM_CLASSES',
+      'ɵREADOUT_CLASSES',
       'ɵSTALE_CLASSES',
       'ɵclassStyles',
       'ɵcreateColorAllocator',

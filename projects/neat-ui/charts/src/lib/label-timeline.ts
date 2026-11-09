@@ -14,7 +14,11 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { ɵBROWSER_CLOCK as clock, ɵreducedMotion as reducedMotion } from '@sima/neat-ui';
+import {
+  ɵBROWSER_CLOCK as clock,
+  ɵreducedMotion as reducedMotion,
+  ɵREADOUT_CLASSES,
+} from '@sima/neat-ui';
 import { isNumber } from './geometry';
 import { neatLabelColour } from './label-colour';
 import { type NameBox, placeNames } from './name-rows';
@@ -218,11 +222,12 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
       @if (readout(); as readout) {
         <li
           class="readout"
+          [class]="readoutClasses.box"
           aria-hidden="true"
           [attr.data-flip]="readout.at > 0.5 ? '' : null"
           [style.--at]="readout.at"
         >
-          <span class="row">{{ readout.label }}</span>
+          <span class="row" [class]="readoutClasses.row">{{ readout.label }}</span>
         </li>
       }
     </ul>
@@ -236,6 +241,9 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
   styleUrls: ['./readout.css', './label-timeline.css'],
 })
 export class NeatLabelTimeline {
+  /** The kit's one readout look, shared with the other charts and the bird's-eye view. */
+  protected readonly readoutClasses = ɵREADOUT_CLASSES;
+
   /** The runs to draw, in the order that decides which of two overlapping ones is on top. */
   readonly runs = input.required<readonly NeatLabelRun[]>();
   /** The right edge of the window, epoch milliseconds. */
