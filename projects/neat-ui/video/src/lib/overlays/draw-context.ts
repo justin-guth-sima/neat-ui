@@ -68,28 +68,8 @@ export function identityColor(
   });
 }
 
-/** A type's class rows by label, and their colours as overrides for `identityColor`. */
-export function classStyles(rows: readonly NeatOverlayClassStyle[]): {
-  styles: Readonly<Record<string, NeatOverlayClassStyle>>;
-  overrides: Readonly<Record<string, string>>;
-} {
-  // No prototype, so a producer's label such as "__proto__" or "constructor" finds no row.
-  const styles: Record<string, NeatOverlayClassStyle> = Object.create(null);
-  const overrides: Record<string, string> = Object.create(null);
-  for (const row of rows) {
-    styles[row.label] = row;
-    overrides[row.label] = row.color;
-  }
-  return { styles, overrides };
-}
-
-/** The row for `label`, or the `default` row. */
-export function styleFor(
-  styles: Readonly<Record<string, NeatOverlayClassStyle>>,
-  label: unknown,
-): NeatOverlayClassStyle | undefined {
-  return styles[String(label)] ?? styles['default'];
-}
+/** A type's class rows by label, and their colours as overrides for `identityColor`; a label's row. */
+export { ɵclassStyles as classStyles, ɵstyleFor as styleFor } from '@sima/neat-ui';
 
 export function applyLineStyle(
   ctx: CanvasRenderingContext2D,

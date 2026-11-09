@@ -1,5 +1,5 @@
-import { SIMA_PALETTE } from '@sima/neat-ui';
-import { OVERLAY_NEUTRAL_COLOR, OVERLAY_PALETTE } from '../theme/overlay-palette';
+import { SIMA_PALETTE } from '../theme/palette';
+import { OVERLAY_NEUTRAL_COLOR, OVERLAY_PALETTE } from '../theme/identity-palette';
 import { createColorAllocator, NeatOverlayColors, RELEASE_AFTER_MS, resolveColor } from './colors';
 
 const PALETTE = OVERLAY_PALETTE;

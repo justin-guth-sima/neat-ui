@@ -75,7 +75,8 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
  * of a panel in the overlay (the popover's, shared with the shell's collapsed-rail menu, and the
  * helm classes its drift spec reads), the series' token rule (which `charts` and `diagram`
  * share with the swatch) and the browser's frame clock and reduced-motion check (which `charts`'
- * label timeline shares with `neatEased`) reach them only through here. Angular marks its own
+ * label timeline shares with `neatEased`), and the page's class colours with their identity palette and
+ * style rows (which `video`'s overlays share with `bev`) reach them only through here. Angular marks its own
  * private API the same way; these may change or go in any release.
  */
 export {
@@ -90,6 +91,23 @@ export {
 } from './lib/form/input-classes';
 export { IN_PAGE_TOOLBAR as ɵIN_PAGE_TOOLBAR } from './lib/shell/page-toolbar';
 export { OverlayFocus as ɵOverlayFocus } from './lib/overlay/overlay-focus';
+export {
+  classStyles as ɵclassStyles,
+  styleFor as ɵstyleFor,
+} from './lib/overlay-colors/class-styles';
+export {
+  createColorAllocator as ɵcreateColorAllocator,
+  NeatOverlayColors as ɵNeatOverlayColors,
+  resolveColor as ɵresolveColor,
+} from './lib/overlay-colors/colors';
+export type {
+  ColorAllocator as ɵColorAllocator,
+  ColorNamespace as ɵColorNamespace,
+} from './lib/overlay-colors/colors';
+export {
+  OVERLAY_NEUTRAL_COLOR as ɵOVERLAY_NEUTRAL_COLOR,
+  OVERLAY_PALETTE as ɵOVERLAY_PALETTE,
+} from './lib/theme/identity-palette';
 export {
   PANEL_SURFACE_CLASSES as ɵPANEL_SURFACE_CLASSES,
   POPOVER_HELM_CLASSES as ɵPOPOVER_HELM_CLASSES,

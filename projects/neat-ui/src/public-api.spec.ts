@@ -168,15 +168,22 @@ describe('the public API', () => {
       'ɵINPUT_CLASSES',
       'ɵINPUT_HELM_CLASSES',
       'ɵIN_PAGE_TOOLBAR',
+      'ɵNeatOverlayColors',
+      'ɵOVERLAY_NEUTRAL_COLOR',
+      'ɵOVERLAY_PALETTE',
       'ɵOverlayFocus',
       'ɵPANEL_SURFACE_CLASSES',
       'ɵPOPOVER_HELM_CLASSES',
       'ɵSTALE_CLASSES',
+      'ɵclassStyles',
+      'ɵcreateColorAllocator',
       'ɵhlm',
       'ɵlistVariants',
       'ɵreducedMotion',
+      'ɵresolveColor',
       'ɵseriesToken',
       'ɵseriesTokenName',
+      'ɵstyleFor',
     ]);
   });
 });

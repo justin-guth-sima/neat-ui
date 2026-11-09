@@ -1,33 +1,16 @@
 import { NEAT_DANGER_BASE, SIMA_PALETTE } from '@sima/neat-ui';
 
 /*
- * Colours of the video overlays: detections, masks, tracks, poses and ROI polygons. They are drawn
- * over live footage, not over the kit's surfaces, so the identity colours are chosen to stay apart
- * on dark and bright video rather than taken from the brand palette; ROI polygons are the
- * exception (below). All are the same in both themes.
+ * Colours of the video overlays besides the identity colours: the label plate, ROI polygons and
+ * the style rows' fallback. The identity colours (detections, masks, tracks, poses) live in the
+ * primary entry's theme (`identity-palette.ts`), since the bird's-eye view colours its labels from
+ * them too; they are re-exported here under their old names for the overlays' code. All are the
+ * same in both themes.
  */
-
-/**
- * Identity colours, handed out by the overlay colour allocator in slot order. The first 20 are
- * hand-picked to stay apart on dark and bright video; the last 20 are overflow. Keep 40 entries;
- * overlay-palette.spec.ts checks their separation. Five per row keeps the slot numbers countable.
- */
-// prettier-ignore
-export const OVERLAY_PALETTE: readonly string[] = [
-  '#2563eb', '#dc2626', '#16a34a', '#ca8a04', '#9333ea',
-  '#0891b2', '#ea580c', '#4f46e5', '#be123c', '#0f766e',
-  '#f472b6', '#84cc16', '#fbbf24', '#38bdf8', '#92400e',
-  '#d946ef', '#14532d', '#fdba74', '#f43f5e', '#5eead4',
-  // Overflow colors, used only when a channel shows more than twenty identities at once.
-  // They sit closer together than the first twenty, but still beat repeating a color.
-  '#989900', '#ff96d3', '#e1a0fe', '#b6b4ff', '#e2684a',
-  '#267d30', '#4d7800', '#e06285', '#78c7fd', '#786900',
-  '#bc6ece', '#10d8d8', '#927eec', '#2bdda4', '#66da85',
-  '#ab413e', '#5590f3', '#8fd465', '#1899ec', '#b1cc46',
-];
-
-/** The colour of an overlay with no identity: a track or pose without an id, a label-less class. */
-export const OVERLAY_NEUTRAL_COLOR = '#f8fafc';
+export {
+  ɵOVERLAY_NEUTRAL_COLOR as OVERLAY_NEUTRAL_COLOR,
+  ɵOVERLAY_PALETTE as OVERLAY_PALETTE,
+} from '@sima/neat-ui';
 
 /** The dark plate behind track and pose labels, so the label reads in its identity colour. */
 export const OVERLAY_LABEL_PLATE_COLOR = 'rgba(15, 23, 42, 0.82)';
