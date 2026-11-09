@@ -5,6 +5,7 @@ import { By } from '@angular/platform-browser';
 import { Round } from './1-round.example';
 import { Square } from './2-square.example';
 import { CameraSeams } from './3-camera-seams.example';
+import { SharedStyles } from './4-shared-styles.example';
 import { CAMERAS, MOUNT_EDGES, SEAMS, StreetScene } from './scene';
 
 describe('the BEV examples', () => {
@@ -22,7 +23,7 @@ describe('the BEV examples', () => {
     vi.unstubAllGlobals();
   });
 
-  const examples: readonly Type<unknown>[] = [Round, Square, CameraSeams];
+  const examples: readonly Type<unknown>[] = [Round, Square, CameraSeams, SharedStyles];
   for (const example of examples) {
     it(`${example.name} moves its scene on while shown, and stops when gone`, async () => {
       const fixture = TestBed.createComponent(example);
