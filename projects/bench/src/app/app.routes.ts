@@ -27,6 +27,11 @@ export const routes: Routes = [
     loadComponent: () => import('./hosts/none-host').then((m) => m.NoneHost),
   },
   {
+    path: 'bev',
+    title: "Bird's-eye view",
+    loadComponent: () => import('./hosts/bev-host').then((m) => m.BevHost),
+  },
+  {
     path: 'results',
     title: 'Results',
     loadComponent: () => import('./results/results-view').then((m) => m.ResultsView),

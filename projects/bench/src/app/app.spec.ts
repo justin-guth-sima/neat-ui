@@ -11,6 +11,7 @@ const VIEWS = [
   { path: '/kit', view: 'bench-kit-host', title: 'Kit' },
   { path: '/vflow', view: 'bench-vflow-host', title: 'vflow' },
   { path: '/none', view: 'bench-none-host', title: 'None' },
+  { path: '/bev', view: 'bench-bev-host', title: "Bird's-eye view" },
   { path: '/results', view: 'bench-results-view', title: 'Results' },
 ];
 
@@ -46,7 +47,7 @@ describe('App', () => {
       a.getAttribute('href'),
     );
     expect(heading()).toBe('neat-ui rendering bench');
-    expect(links).toEqual(['#/kit', '#/vflow', '#/none', '#/results']);
+    expect(links).toEqual(['#/kit', '#/vflow', '#/none', '#/bev', '#/results']);
   });
 
   it.each(VIEWS)('routes $path to its own view', async ({ path, view, title }) => {

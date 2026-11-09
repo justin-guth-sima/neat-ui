@@ -1,0 +1,17 @@
+/* The view fills the window as the other hosts' boxes do; the result sits over its top left. */
+neat-bev {
+  height: 100%;
+}
+
+:host {
+  position: relative;
+}
+
+.bev-result {
+  position: absolute;
+  top: var(--neat-space-2);
+  left: var(--neat-space-2);
+  font-size: var(--neat-text-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-foreground);
+}
