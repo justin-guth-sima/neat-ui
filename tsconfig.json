@@ -8,6 +8,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "@sima/neat-ui/bev": ["./projects/neat-ui/bev/src/public-api.ts"],
       "@sima/neat-ui/callout": ["./projects/neat-ui/callout/src/public-api.ts"],
       "@sima/neat-ui/card": ["./projects/neat-ui/card/src/public-api.ts"],
       "@sima/neat-ui/charts": ["./projects/neat-ui/charts/src/public-api.ts"],

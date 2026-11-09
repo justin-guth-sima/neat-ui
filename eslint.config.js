@@ -86,8 +86,9 @@ module.exports = defineConfig([
       ],
     },
   },
-  // d3 belongs to two entries, each to its own packages (AGENTS.md "d3 belongs to two entries"):
-  // `charts` to d3-scale and d3-shape, `diagram` to d3-zoom and d3-selection; every other part of
+  // d3 belongs to three entries, each to its own packages (AGENTS.md "d3 belongs to three
+  // entries"): `charts` to d3-scale and d3-shape, `diagram` and `bev` to d3-zoom and d3-selection
+  // (both pan and zoom with it); every other part of
   // the kit, and every app that takes the kit's config, draws through those entries' components.
   // The bench's dev dependencies and the diagram's bench seam are importable under projects/bench/
   // only, where d3-drag is the one d3 package allowed (vflow's peer). It is the typescript-eslint
@@ -98,7 +99,12 @@ module.exports = defineConfig([
   // disjoint files for the same reason, which is also why each states both boundaries in one rule.
   {
     files: ['**/*.ts'],
-    ignores: ['projects/neat-ui/charts/**', 'projects/neat-ui/diagram/**', 'projects/bench/**'],
+    ignores: [
+      'projects/neat-ui/charts/**',
+      'projects/neat-ui/diagram/**',
+      'projects/neat-ui/bev/**',
+      'projects/bench/**',
+    ],
     rules: { '@typescript-eslint/no-restricted-imports': kitImports([]) },
   },
   {
@@ -106,7 +112,8 @@ module.exports = defineConfig([
     rules: { '@typescript-eslint/no-restricted-imports': kitImports(['d3-scale', 'd3-shape']) },
   },
   {
-    files: ['projects/neat-ui/diagram/**/*.ts'],
+    // The diagram and the bird's-eye view pan and zoom with d3-zoom, on the same terms.
+    files: ['projects/neat-ui/diagram/**/*.ts', 'projects/neat-ui/bev/**/*.ts'],
     rules: { '@typescript-eslint/no-restricted-imports': kitImports(['d3-zoom', 'd3-selection']) },
   },
   {

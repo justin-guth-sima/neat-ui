@@ -826,6 +826,29 @@ export const GROUPS: readonly TopicGroup[] = [
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
           },
+          {
+            id: 'bev',
+            label: "Bird's-eye view",
+            parts: [
+              'NeatBev',
+              'NeatBevFrame',
+              'NeatBevObject',
+              'NeatBevPoints',
+              'NeatBevLine',
+              'NeatBevGrid',
+              'NeatBevSensor',
+              'NeatBevSpoke',
+              'NeatBevShape',
+            ],
+            leads: ['NeatBev'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/bev'),
+                import('./generated/examples/bev'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
         ],
       },
       {

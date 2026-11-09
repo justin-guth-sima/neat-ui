@@ -19,6 +19,7 @@ const ALIAS = '@neat-ui/helm';
  * compares this table with the entry folders on disk, so one missing from it fails the test.
  */
 export const SECONDARY_ENTRIES = {
+  bev: ['neat-bev'],
   callout: ['neat-callout'],
   card: ['neat-card'],
   charts: [

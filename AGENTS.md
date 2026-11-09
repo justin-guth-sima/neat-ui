@@ -238,9 +238,9 @@ that imports entries by relative path.
 A new export goes into the entry point that owns its code, and only what an app or the showcase
 needs is exported: a helper that only the kit's own code uses stays internal.
 
-**d3 belongs to two entries, each to its own packages.** `charts` imports `d3-scale` and
-`d3-shape`, `diagram` imports `d3-zoom` and `d3-selection` (each by its exact name, no deep paths),
-and nothing else imports d3. ESLint (`@typescript-eslint/no-restricted-imports` in the root
+**d3 belongs to three entries, each to its own packages.** `charts` imports `d3-scale` and
+`d3-shape`, `diagram` and `bev` import `d3-zoom` and `d3-selection` (each by its exact name, no deep
+paths; both pan and zoom with them), and nothing else imports d3. ESLint (`@typescript-eslint/no-restricted-imports` in the root
 `eslint.config.js`, which the kit's and the showcase's configs both take) fails any other import of
 `d3` or `d3-*`; `tools/lint-boundaries.test.mjs` runs the real configs over sample code to prove it
 fires and that the entry-direction rules above still do. Why: d3 reaches an app's bundle only

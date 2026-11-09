@@ -1,0 +1,23 @@
+/*
+ * The view is as wide as its container and as tall as the app makes it, or as tall as it is wide
+ * without a height: the explicit width keeps the aspect ratio from narrowing it when a height is
+ * set. The canvas lies over the whole box; its labels take the kit's small text size and the
+ * host's font.
+ */
+:host {
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  min-width: 0;
+  min-height: 0;
+  font-size: var(--neat-text-xs);
+}
+
+canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
