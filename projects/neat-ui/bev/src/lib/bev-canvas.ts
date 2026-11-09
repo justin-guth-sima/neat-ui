@@ -79,6 +79,28 @@ const NO_FRAME: NeatBevFrame = {};
 /** No dash, kept so that drawing allocates no empty array. */
 const SOLID = dashOf(null);
 
+/** The points' pixels: a buffer as wide and high as the canvas, as bytes and as 32-bit words. */
+interface PointPixels {
+  readonly canvas: HTMLCanvasElement;
+  readonly context: CanvasRenderingContext2D;
+  readonly image: ImageData;
+  readonly words: Uint32Array;
+}
+
+/** One pixel's bytes and the word they make, reused so that packing allocates nothing. */
+const PIXEL_BYTES = new Uint8Array(4);
+const PIXEL_WORD = new Uint32Array(PIXEL_BYTES.buffer);
+
+/** An opaque colour as one pixel word in the buffer's byte order (RGBA in memory). */
+export function packRgb([red, green, blue]: readonly [number, number, number]): number {
+  const byte = (value: number) => Math.round(Math.min(1, Math.max(0, value)) * 255);
+  PIXEL_BYTES[0] = byte(red);
+  PIXEL_BYTES[1] = byte(green);
+  PIXEL_BYTES[2] = byte(blue);
+  PIXEL_BYTES[3] = 255;
+  return PIXEL_WORD[0];
+}
+
 /** A grid's pixels, kept until its cells or its colour change. */
 interface GridCache {
   cells: Uint8Array | null;
@@ -109,7 +131,11 @@ export class BevCanvas {
   layerDraws = 0;
 
   private readonly grids: GridCache[] = [];
+  /** The points' buffer and the canvas it is put on: made once per plot size. */
+  private points: PointPixels | null = null;
   private readonly corners = new Float64Array(8);
+  /** This frame's labels of objects, in the order they first appear; reused. */
+  private readonly labels: string[] = [];
   private readonly point = { x: 0, y: 0 };
   private readonly other = { x: 0, y: 0 };
 
@@ -172,7 +198,7 @@ export class BevCanvas {
     context.save();
     this.clip(context, inputs.shape);
     this.drawLines(context, view, shown, colours);
-    this.drawPoints(context, view, shown, colours);
+    this.drawPoints(context, view, shown, colours, inputs.shape);
     this.drawObjects(context, view, shown, colours, hover);
     this.drawEgo(context, view, theme);
     context.restore();
@@ -554,31 +580,80 @@ export class BevCanvas {
     view: BevView,
     frame: NeatBevFrame,
     colours: LabelColours,
+    shape: NeatBevShape,
   ): void {
     const sets = frame.points;
-    if (!sets) return;
-    // The mapping written out, as a cloud has tens of thousands of points.
-    const scale = view.ppm * view.k;
-    const ox = view.tx + view.k * view.cx;
-    const oy = view.ty + view.k * view.cy;
-    const side = POINT_HALF * 2;
+    if (!sets?.some((set) => set.xy.length >= 2)) return;
+    // The buffer covers the plot alone (for a round plot, the square around its circle), in
+    // device pixels, so a wide box clears and uploads no more than it shows points in.
+    const ratio = this.ratio;
+    const area = plotArea(this.width, this.height, shape);
+    const left = Math.max(0, Math.floor((area.cx - area.halfWidth) * ratio));
+    const top = Math.max(0, Math.floor((area.cy - area.halfHeight) * ratio));
+    const right = Math.min(this.canvas.width, Math.ceil((area.cx + area.halfWidth) * ratio));
+    const bottom = Math.min(this.canvas.height, Math.ceil((area.cy + area.halfHeight) * ratio));
+    const pixels = this.pointPixels(right - left, bottom - top);
+    if (!pixels) return;
+    const { image, words, canvas, context: pointsContext } = pixels;
+    const width = image.width;
+    const height = image.height;
+    words.fill(0);
+    // The mapping written out, as a cloud has tens of thousands of points, in the buffer's device
+    // pixels: each point a square of whole pixels written straight into the buffer. Canvas calls
+    // per point (one path of many rects, or a fillRect each) cost far more to rasterise, with a
+    // GPU or without (the bench's BEV page measured the path at 20 fps, this buffer at 60).
+    const scale = view.ppm * view.k * ratio;
+    const ox = (view.tx + view.k * view.cx) * ratio - left;
+    const oy = (view.ty + view.k * view.cy) * ratio - top;
+    const side = Math.max(1, Math.round(POINT_HALF * 2 * ratio));
+    const half = side >> 1;
     for (const set of sets) {
       const xy = set.xy;
-      if (xy.length < 2) continue;
-      context.fillStyle = colours.of(set.label).colour;
-      context.beginPath();
+      const rgb = colours.of(set.label).rgb;
+      if (xy.length < 2 || !rgb) continue;
+      const word = packRgb(rgb);
       for (let i = 0; i + 1 < xy.length; i += 2) {
-        context.rect(
-          ox - xy[i + 1] * scale - POINT_HALF,
-          oy - xy[i] * scale - POINT_HALF,
-          side,
-          side,
-        );
+        const x = Math.round(ox - xy[i + 1] * scale) - half;
+        const y = Math.round(oy - xy[i] * scale) - half;
+        if (x >= width || y >= height || x + side <= 0 || y + side <= 0) continue;
+        const x0 = Math.max(0, x);
+        const x1 = Math.min(width, x + side);
+        const y1 = Math.min(height, y + side);
+        for (let row = Math.max(0, y); row < y1; row++) {
+          words.fill(word, row * width + x0, row * width + x1);
+        }
       }
-      context.fill();
     }
+    pointsContext.putImageData(image, 0, 0);
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.drawImage(canvas, left, top);
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
   }
 
+  /**
+   * The points' pixel buffer, `width` × `height`, made again only when its size changes. Its canvas
+   * is kept in memory (`willReadFrequently`), so putting the buffer on it is a copy, not an upload
+   * to the GPU every frame (the bench measured 56 to 59 fps with an upload, 60 without).
+   */
+  private pointPixels(width: number, height: number): PointPixels | null {
+    const held = this.points;
+    if (held && held.image.width === width && held.image.height === height) return held;
+    const canvas = held?.canvas ?? this.createCanvas();
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    if (!context || width === 0 || height === 0) return null;
+    const image = context.createImageData(width, height);
+    this.points = { canvas, context, image, words: new Uint32Array(image.data.buffer) };
+    return this.points;
+  }
+
+  /**
+   * The objects, a label at a time in the order the labels first appear: one path holds all of a
+   * label's boxes, filled once and outlined once, and one more its headings, so a frame makes a few
+   * calls per label instead of several per object. Where boxes of two labels overlap, the label
+   * that appeared later is on top.
+   */
   private drawObjects(
     context: CanvasRenderingContext2D,
     view: BevView,
@@ -587,12 +662,16 @@ export class BevCanvas {
     hover: number,
   ): void {
     const objects = frame.objects;
-    if (!objects) return;
+    if (!objects?.length) return;
+    const labels = this.labels;
+    labels.length = 0;
+    for (const object of objects) if (!labels.includes(object.label)) labels.push(object.label);
     context.lineJoin = 'round';
     context.lineCap = 'round';
-    for (const object of objects) {
-      const look = colours.of(object.label);
-      this.objectPath(context, view, object);
+    for (const label of labels) {
+      const look = colours.of(label);
+      context.beginPath();
+      for (const object of objects) if (object.label === label) this.addBox(context, view, object);
       context.fillStyle = look.colour;
       context.globalAlpha = OBJECT_FILL_ALPHA;
       context.fill();
@@ -601,20 +680,19 @@ export class BevCanvas {
       context.lineWidth = look.width;
       context.setLineDash(dashOf(look.style));
       context.stroke();
-      // The heading: from the centre to the middle of the front edge.
-      const c = this.corners;
+      // The headings: from each centre to the middle of its front edge.
       context.setLineDash(SOLID);
       context.beginPath();
-      const centre = toScreen(view, object.x, object.y, this.point);
-      context.moveTo(centre.x, centre.y);
-      const front = toScreen(view, (c[0] + c[2]) / 2, (c[1] + c[3]) / 2, this.other);
-      context.lineTo(front.x, front.y);
+      for (const object of objects) {
+        if (object.label === label) this.addHeading(context, view, object);
+      }
       context.stroke();
     }
     const hovered = objects[hover];
     if (hovered) {
       const look = colours.of(hovered.label);
-      this.objectPath(context, view, hovered);
+      context.beginPath();
+      this.addBox(context, view, hovered);
       context.strokeStyle = look.colour;
       context.lineWidth = look.width + HOVER_EXTRA;
       context.setLineDash(SOLID);
@@ -622,20 +700,28 @@ export class BevCanvas {
     }
   }
 
-  /** The object's outline as the current path, its corners left in `corners`. */
-  private objectPath(
-    context: CanvasRenderingContext2D,
-    view: BevView,
-    object: NeatBevObject,
-  ): void {
+  /** Adds the object's outline to the current path. */
+  private addBox(context: CanvasRenderingContext2D, view: BevView, object: NeatBevObject): void {
     const c = objectCorners(object, this.corners);
-    context.beginPath();
     for (let k = 0; k < 4; k++) {
       const at = toScreen(view, c[2 * k], c[2 * k + 1], this.point);
       if (k === 0) context.moveTo(at.x, at.y);
       else context.lineTo(at.x, at.y);
     }
     context.closePath();
+  }
+
+  /** Adds the object's heading, from its centre to the middle of its front edge, to the path. */
+  private addHeading(
+    context: CanvasRenderingContext2D,
+    view: BevView,
+    object: NeatBevObject,
+  ): void {
+    const c = objectCorners(object, this.corners);
+    const centre = toScreen(view, object.x, object.y, this.point);
+    context.moveTo(centre.x, centre.y);
+    const front = toScreen(view, (c[0] + c[2]) / 2, (c[1] + c[3]) / 2, this.other);
+    context.lineTo(front.x, front.y);
   }
 
   private drawEgo(context: CanvasRenderingContext2D, view: BevView, theme: BevTheme): void {

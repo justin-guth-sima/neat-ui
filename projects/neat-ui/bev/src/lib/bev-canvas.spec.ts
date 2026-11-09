@@ -1,4 +1,4 @@
-import { BevCanvas, type BevInputs, type BevTheme } from './bev-canvas';
+import { BevCanvas, type BevInputs, type BevTheme, packRgb } from './bev-canvas';
 import { calls, type Recorded, type Recording, sets, stubCanvases } from './canvas.testing';
 import { GRID_ALPHA, type LabelColours, type LabelLook, OBJECT_FILL_ALPHA } from './colours';
 import { type BevView, defaultView, plotArea, spokeList } from './geometry';
@@ -46,6 +46,13 @@ const car = (x: number, y: number, yaw = 0): NeatBevObject => ({
   width: 2,
   yaw,
   label: 'car',
+});
+
+describe('packRgb', () => {
+  it('packs an opaque colour as the pixel word the buffer holds, red first in memory', () => {
+    const bytes = new Uint8Array(new Uint32Array([packRgb([1, 0.5, 0])]).buffer);
+    expect([...bytes]).toEqual([255, 128, 0, 255]);
+  });
 });
 
 describe('BevCanvas', () => {
@@ -264,13 +271,57 @@ describe('BevCanvas', () => {
       expect(widths.at(-2)).toBe(4);
     });
 
-    it('draws a set of points as one path of small squares', () => {
+    it('writes points as squares of whole device pixels into a buffer, put over the plot', () => {
       const xy = new Float32Array([1, 2, 3, 4, 5, 6]);
       draw({ points: [{ label: 'lidar', xy }] });
-      const squares = calls(main(), 'rect').filter((c) => c.args[2] === 2);
-      expect(squares).toHaveLength(3);
-      expect(squares[0].args[0]).toBeCloseTo(200 - 2 * view.ppm - 1);
-      expect(squares[0].args[1]).toBeCloseTo(200 - 1 * view.ppm - 1);
+      // The layer is the first canvas made, the points' buffer the second.
+      const buffer = created[1];
+      const [put] = calls(recordingOf(buffer).log, 'putImageData');
+      const image = put.args[0] as ImageData;
+      // At ratio 2 the 400 × 400 round plot is 800 × 800 device pixels, from the box's corner.
+      expect([image.width, image.height]).toEqual([800, 800]);
+      expect(calls(main(), 'drawImage').find((c) => c.args[0] === buffer)?.args).toEqual([
+        buffer,
+        0,
+        0,
+      ]);
+      const words = new Uint32Array(image.data.buffer);
+      const word = packRgb([1, 0.5, 0]);
+      // The first point, 1 m forward and 2 m left: a 4 px square (2 CSS px) around it.
+      const x = Math.round(400 - 2 * view.ppm * 2);
+      const y = Math.round(400 - 1 * view.ppm * 2);
+      expect(words[y * 800 + x]).toBe(word);
+      expect(words[(y - 2) * 800 + x - 2]).toBe(word);
+      expect(words[(y + 2) * 800 + x]).toBe(0);
+      expect(words.filter((w) => w === word)).toHaveLength(3 * 16);
+    });
+
+    it("sizes the points' buffer to the plot in a wide box, and clears it each frame", () => {
+      bev.size(600, 400);
+      const wide = defaultView(plotArea(600, 400, 'round'), 60);
+      const xy = new Float32Array([1, 2]);
+      draw({ points: [{ label: 'lidar', xy }] }, {}, -1, wide);
+      draw(
+        {
+          points: [
+            { label: 'lidar', xy: new Float32Array(0) },
+            { label: 'lidar', xy },
+          ],
+        },
+        {},
+        -1,
+        wide,
+      );
+      const buffer = created.at(-1)!;
+      const puts = calls(recordingOf(buffer).log, 'putImageData');
+      const image = puts.at(-1)!.args[0] as ImageData;
+      expect([image.width, image.height]).toEqual([800, 800]);
+      expect(
+        calls(main(), 'drawImage')
+          .filter((c) => c.args[0] === buffer)
+          .at(-1)?.args,
+      ).toEqual([buffer, 200, 0]);
+      expect(new Uint32Array(image.data.buffer).filter((w) => w !== 0)).toHaveLength(16);
     });
 
     it('draws a line in its style, closing it when asked', () => {
