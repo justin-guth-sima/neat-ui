@@ -47,7 +47,31 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " sets a label's colour and line as the tiles' class rows do. It draws on one canvas outside change detection, at the next animation frame after anything changes and never while the page is hidden. Give it a height, or it is as tall as it is wide."
+              "text": " sets a label's colour and line as the tiles' class rows do. Wheel, pinch and drag zoom and pan it, from the whole range in to a quarter of it and only within the plot; with focus, the arrows pan, "
+            },
+            {
+              "kind": "code",
+              "text": "+"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "-"
+            },
+            {
+              "kind": "text",
+              "text": " zoom and "
+            },
+            {
+              "kind": "code",
+              "text": "0"
+            },
+            {
+              "kind": "text",
+              "text": " resets, as a button does while it is zoomed. It draws on one canvas outside change detection, at the next animation frame after anything changes and never while the page is hidden. Give it a height, or it is as tall as it is wide."
             }
           ]
         },

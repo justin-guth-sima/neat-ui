@@ -10,20 +10,26 @@ import {
   inject,
   input,
   NgZone,
+  signal,
   untracked,
   viewChild,
 } from '@angular/core';
 import {
+  NeatButton,
+  NeatIcon,
   neatThemeColors,
   type NeatRgb,
+  NeatTooltip,
   ThemeService,
   ɵNeatOverlayColors as NeatOverlayColors,
 } from '@sima/neat-ui';
+import { zoomIdentity, type ZoomTransform } from 'd3-zoom';
 import type { NeatOverlayClassStyle } from '@sima/neat-ui/video';
 import { BevCanvas, type BevInputs, type BevTheme } from './bev-canvas';
 import { LabelColours } from './colours';
-import { type BevView, defaultView, plotArea, spokeList } from './geometry';
+import { type BevView, defaultView, type PlotArea, plotArea, spokeList } from './geometry';
 import type { NeatBevFrame, NeatBevSensor, NeatBevShape, NeatBevSpoke } from './model';
+import { BevZoom, isDefault } from './zoom';
 
 /** The theme's tokens the plot draws its own parts in. */
 const TOKENS = {
@@ -34,17 +40,17 @@ const TOKENS = {
   halo: '--neat-surface',
 } as const;
 
-/** The zoom and pan on top of the default view: none yet. */
-const IDENTITY = { k: 1, tx: 0, ty: 0 } as const;
-
 /**
  * A bird's-eye view around a vehicle: what it sees (`frame`: objects, points, lines and grids),
  * what its sensors cover (`sensors`), and rings or a metric grid to read distances by (`shape`),
  * in the vehicle's own frame (metres, x forward and y left, forward up on the screen). Labels pick
  * colours as the video overlays' classes do, from the page's class colours, so "car" has one colour
  * in the view and in every tile; `styles` sets a label's colour and line as the tiles' class rows
- * do. It draws on one canvas outside change detection, at the next animation frame after anything
- * changes and never while the page is hidden. Give it a height, or it is as tall as it is wide.
+ * do. Wheel, pinch and drag zoom and pan it, from the whole range in to a quarter of it and only
+ * within the plot; with focus, the arrows pan, `+` and `-` zoom and `0` resets, as a button does
+ * while it is zoomed. It draws on one canvas outside change detection, at the next animation frame
+ * after anything changes and never while the page is hidden. Give it a height, or it is as tall as
+ * it is wide.
  *
  * ```html
  * <neat-bev [frame]="frame()" [sensors]="cameras" [spokes]="seams" [range]="60" />
@@ -53,8 +59,31 @@ const IDENTITY = { k: 1, tx: 0, ty: 0 } as const;
 @Component({
   selector: 'neat-bev',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { role: 'img', '[attr.aria-label]': 'label()' },
-  template: '<canvas #canvas aria-hidden="true"></canvas>',
+  imports: [NeatButton, NeatIcon, NeatTooltip],
+  host: { role: 'figure', '[attr.aria-label]': 'label()', tabindex: '0' },
+  template: `
+    <canvas #canvas aria-hidden="true"></canvas>
+    @if (zoomed()) {
+      <!-- Pressed, it resets: its press is no drag of the view, nor its double-click a zoom. -->
+      <button
+        neatButton
+        class="reset"
+        variant="outlined"
+        size="small"
+        iconOnly
+        type="button"
+        aria-label="Reset view"
+        neatTooltip="Reset view"
+        neatTooltipPosition="left"
+        (click)="reset()"
+        (mousedown)="$event.stopPropagation()"
+        (touchstart)="$event.stopPropagation()"
+        (dblclick)="$event.stopPropagation()"
+      >
+        <neat-icon name="fit-all" [size]="16" />
+      </button>
+    }
+  `,
   styleUrl: './bev.css',
 })
 export class NeatBev {
@@ -108,7 +137,15 @@ export class NeatBev {
     spokes: spokeList(this.spokes()),
   }));
 
+  /** Whether the view is zoomed or panned away from the whole range: the reset button shows. */
+  protected readonly zoomed = signal(false);
+
   private canvas: BevCanvas | null = null;
+  private zoom: BevZoom | null = null;
+  /** The pan and zoom on top of the default view. */
+  private transform: ZoomTransform = zoomIdentity;
+  /** The plot the zoom was last given, so a frame gives it only a new one. */
+  private area: PlotArea | null = null;
   /** The style rows the colours were last given. */
   private stylesGiven: readonly NeatOverlayClassStyle[] | null = null;
   private width = 0;
@@ -134,6 +171,11 @@ export class NeatBev {
       this.zone.runOutsideAngular(() => {
         if (this.destroyed) return;
         this.canvas = new BevCanvas(this.canvasElement().nativeElement);
+        this.zoom = new BevZoom(this.host, (transform) => {
+          this.transform = transform;
+          this.zoomed.set(!isDefault(transform));
+          this.schedule();
+        });
         observer = new ResizeObserver((entries) => {
           const box = entries.at(-1)?.borderBoxSize?.[0];
           if (!box) return;
@@ -152,8 +194,15 @@ export class NeatBev {
       if (this.request !== 0) cancelAnimationFrame(this.request);
       this.request = 0;
       observer?.disconnect();
+      this.zoom?.destroy();
       this.document.removeEventListener('visibilitychange', this.visibility);
     });
+  }
+
+  /** Back to the whole range around the vehicle. */
+  protected reset(): void {
+    this.zoom?.reset();
+    this.host.focus();
   }
 
   /** A frame, unless one is coming, the page is hidden, there is no canvas yet or it is gone. */
@@ -172,10 +221,14 @@ export class NeatBev {
     const ratio =
       typeof devicePixelRatio === 'number' && devicePixelRatio > 0 ? devicePixelRatio : 1;
     const inputs = untracked(this.inputs);
-    const view: BevView = {
-      ...defaultView(plotArea(this.width, this.height, inputs.shape), inputs.range),
-      ...IDENTITY,
-    };
+    const area = plotArea(this.width, this.height, inputs.shape);
+    if (!sameArea(area, this.area)) {
+      this.area = area;
+      // May move the view back inside a smaller plot, setting `transform` before it is read.
+      this.zoom?.setPlot(area);
+    }
+    const { k, x, y } = this.transform;
+    const view: BevView = { ...defaultView(area, inputs.range), k, tx: x, ty: y };
     this.colours.begin(performance.now());
     this.canvas.draw(
       ratio,
@@ -187,6 +240,16 @@ export class NeatBev {
       -1,
     );
   };
+}
+
+function sameArea(a: PlotArea, b: PlotArea | null): boolean {
+  return (
+    b !== null &&
+    a.cx === b.cx &&
+    a.cy === b.cy &&
+    a.halfWidth === b.halfWidth &&
+    a.halfHeight === b.halfHeight
+  );
 }
 
 /** A colour from 0..1 channels as CSS. */

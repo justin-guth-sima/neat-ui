@@ -46,6 +46,13 @@ describe('NeatBev', () => {
     hidden = false;
     vi.spyOn(document, 'hidden', 'get').mockImplementation(() => hidden);
     vi.stubGlobal('devicePixelRatio', 2);
+    // Zoom and reset jump instead of animating, so each step is checked at once.
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: true,
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
     draws = [];
     const draw = BevCanvas.prototype.draw;
     vi.spyOn(BevCanvas.prototype, 'draw').mockImplementation(function (
@@ -72,9 +79,48 @@ describe('NeatBev', () => {
   /** Lets change detection run the inputs' effects. */
   const settle = (): Promise<void> => fixture.whenStable();
 
-  it('is an image named by its label', () => {
-    expect(element.getAttribute('role')).toBe('img');
+  it('is a figure named by its label, and a tab stop for its keys', () => {
+    expect(element.getAttribute('role')).toBe('figure');
     expect(element.getAttribute('aria-label')).toBe("Bird's-eye view");
+    expect(element.tabIndex).toBe(0);
+    expect(element.querySelector('canvas')?.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  describe('zoomed', () => {
+    const key = (name: string) =>
+      element.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true }));
+    const resetButton = () => element.querySelector<HTMLButtonElement>('button.reset');
+
+    it("draws the view zoomed about the plot's centre", () => {
+      key('+');
+      frames.run();
+      const [, view] = draws.at(-1)!;
+      expect(view.k).toBeCloseTo(1.25);
+      // The plot's centre (200, 150) stays put: k · cx + tx = cx.
+      expect(view.k * view.cx + view.tx).toBeCloseTo(200);
+    });
+
+    it('shows a reset button while zoomed, which goes back to the whole range', async () => {
+      expect(resetButton()).toBeNull();
+      key('+');
+      await settle();
+      const button = resetButton()!;
+      expect(button.getAttribute('aria-label')).toBe('Reset view');
+      button.click();
+      frames.run();
+      await settle();
+      expect(resetButton()).toBeNull();
+      expect(draws.at(-1)![1].k).toBe(1);
+      expect(document.activeElement).toBe(element);
+    });
+
+    it('keeps the zoom when the box is resized', () => {
+      key('+');
+      frames.run();
+      resize(element, 300, 300);
+      frames.run();
+      expect(draws.at(-1)![1].k).toBeCloseTo(1.25);
+    });
   });
 
   it('draws once it has a size, at the pixel ratio, with the vehicle in the round plot', () => {
