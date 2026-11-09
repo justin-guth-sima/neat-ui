@@ -79,7 +79,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " resets, as a button does while it is zoomed. It draws on one canvas outside change detection, at the next animation frame after anything changes and never while the page is hidden. Give it a height, or it is as tall as it is wide."
+              "text": " resets, as a button does while it is zoomed. It draws on one canvas outside change detection, at the next animation frame after anything changes and never while the page is hidden. A screen reader hears it as a figure named by "
+            },
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": " with a summary of what it shows (\"18 car, 51 pedestrian within 60 m\"), which changes at most once a second. Give it a height, or it is as tall as it is wide."
             }
           ]
         },

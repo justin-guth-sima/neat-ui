@@ -41,6 +41,7 @@ import {
 } from './geometry';
 import type { NeatBevFrame, NeatBevSensor, NeatBevShape, NeatBevSpoke } from './model';
 import { BevReadout } from './readout';
+import { SUMMARY_MS, summaryText } from './summary';
 import { BevZoom, isDefault } from './zoom';
 
 /** How far around an object the pointer still reads it out, CSS px: room for a small one. */
@@ -65,8 +66,9 @@ const TOKENS = {
  * vehicle and its `text`. Wheel, pinch and drag zoom and pan it, from the whole range in to a quarter of it and only
  * within the plot; with focus, the arrows pan, `+` and `-` zoom and `0` resets, as a button does
  * while it is zoomed. It draws on one canvas outside change detection, at the next animation frame
- * after anything changes and never while the page is hidden. Give it a height, or it is as tall as
- * it is wide.
+ * after anything changes and never while the page is hidden. A screen reader hears it as a figure
+ * named by `label` with a summary of what it shows ("18 car, 51 pedestrian within 60 m"), which
+ * changes at most once a second. Give it a height, or it is as tall as it is wide.
  *
  * ```html
  * <neat-bev [frame]="frame()" [sensors]="cameras" [spokes]="seams" [range]="60" />
@@ -79,6 +81,8 @@ const TOKENS = {
   host: { role: 'figure', '[attr.aria-label]': 'label()', tabindex: '0' },
   template: `
     <canvas #canvas aria-hidden="true"></canvas>
+    <!-- What the picture shows, for a screen reader: written by the frames, at most once a second. -->
+    <p #summary class="sr-only"></p>
     @if (zoomed()) {
       <!-- Pressed, it resets: its press is no drag of the view, nor its double-click a zoom. -->
       <button
@@ -167,6 +171,7 @@ export class NeatBev {
   private readonly readoutName = viewChild.required<ElementRef<HTMLElement>>('name');
   private readonly readoutDistance = viewChild.required<ElementRef<HTMLElement>>('distance');
   private readonly readoutText = viewChild.required<ElementRef<HTMLElement>>('text');
+  private readonly summaryElement = viewChild.required<ElementRef<HTMLElement>>('summary');
 
   /** Whether the view is zoomed or panned away from the whole range: the reset button shows. */
   protected readonly zoomed = signal(false);
@@ -177,6 +182,11 @@ export class NeatBev {
   private pointer: { x: number; y: number } | null = null;
   /** The kind of the last press: a touch reads out by a tap, a mouse or pen by hovering. */
   private pressedBy = '';
+  /** The summary written, the frame and range it was made from, when, and the one waiting. */
+  private summary = '';
+  private summaryOf: { frame: NeatBevFrame | null; range: number } | null = null;
+  private summaryAt = -Infinity;
+  private summaryTimer: ReturnType<typeof setTimeout> | undefined;
   private readonly vehiclePoint = { x: 0, y: 0 };
   private readonly screenPoint = { x: 0, y: 0 };
   private zoom: BevZoom | null = null;
@@ -245,6 +255,7 @@ export class NeatBev {
       this.request = 0;
       observer?.disconnect();
       this.zoom?.destroy();
+      clearTimeout(this.summaryTimer);
       this.host.removeEventListener('pointermove', this.pointerMove);
       this.host.removeEventListener('pointerleave', this.pointerLeave);
       this.host.removeEventListener('pointerdown', this.pointerDown);
@@ -325,6 +336,7 @@ export class NeatBev {
     const hover = this.hovered(view, area, frame);
     this.colours.begin(performance.now());
     this.canvas.draw(ratio, view, inputs, untracked(this.theme), this.colours, frame, hover);
+    this.summarise(frame, inputs.range);
     const object = hover >= 0 ? frame?.objects?.[hover] : undefined;
     if (object) {
       const at = toScreen(view, object.x, object.y, this.screenPoint);
@@ -334,6 +346,29 @@ export class NeatBev {
       this.readout?.hide();
     }
   };
+
+  /**
+   * Says what a new frame or range shows, at most once every `SUMMARY_MS`: one sooner waits for
+   * its turn, and the newest frame by then is the one summed up.
+   */
+  private summarise(frame: NeatBevFrame | null, range: number): void {
+    if (this.summaryOf?.frame === frame && this.summaryOf.range === range) return;
+    if (this.summaryTimer !== undefined) return;
+    const wait = this.summaryAt + SUMMARY_MS - performance.now();
+    if (wait > 0) {
+      this.summaryTimer = setTimeout(() => {
+        this.summaryTimer = undefined;
+        if (!this.destroyed) this.summarise(untracked(this.frame), untracked(this.range));
+      }, wait);
+      return;
+    }
+    this.summaryOf = { frame, range };
+    this.summaryAt = performance.now();
+    const text = summaryText(frame?.objects, range);
+    if (text === this.summary) return;
+    this.summary = text;
+    this.summaryElement().nativeElement.textContent = text;
+  }
 
   /** The index of the object under the pointer, on the plot; -1 for none. */
   private hovered(view: BevView, area: PlotArea, frame: NeatBevFrame | null): number {

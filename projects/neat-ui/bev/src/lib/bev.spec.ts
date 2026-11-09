@@ -86,6 +86,51 @@ describe('NeatBev', () => {
     expect(element.querySelector('canvas')?.getAttribute('aria-hidden')).toBe('true');
   });
 
+  describe('the summary', () => {
+    const summary = () => element.querySelector('p.sr-only')!.textContent;
+    const car = { x: 10, y: 0, length: 4, width: 2, yaw: 0, label: 'car' };
+    let now = 0;
+    /** Well after the summary the first frame wrote on the real clock. */
+    let base = 0;
+
+    beforeEach(() => {
+      base = performance.now() + 10_000;
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+      vi.spyOn(performance, 'now').mockImplementation(() => now);
+    });
+
+    // Faked timeouts would stall Angular's scheduler: the tests run change detection themselves.
+    afterEach(() => vi.useRealTimers());
+
+    it('says what the frame shows within the range, for a screen reader', () => {
+      now = base;
+      host.frame.set({ objects: [car, { ...car, label: 'bus' }] });
+      fixture.detectChanges();
+      frames.run();
+      expect(summary()).toBe('1 car, 1 bus within 60 m');
+    });
+
+    it('changes at most once a second, to the newest frame', () => {
+      now = base;
+      host.frame.set({ objects: [car] });
+      fixture.detectChanges();
+      frames.run();
+      expect(summary()).toBe('1 car within 60 m');
+      now = base + 200;
+      host.frame.set({ objects: [car, car] });
+      fixture.detectChanges();
+      frames.run();
+      now = base + 400;
+      host.frame.set({ objects: [car, car, car] });
+      fixture.detectChanges();
+      frames.run();
+      expect(summary()).toBe('1 car within 60 m');
+      now = base + 1000;
+      vi.advanceTimersByTime(800);
+      expect(summary()).toBe('3 car within 60 m');
+    });
+  });
+
   describe('the readout', () => {
     // In the 400 × 300 box the round plot's centre is (200, 150), at (150 - 12) / 60 px per metre.
     const ppm = (150 - 12) / 60;
