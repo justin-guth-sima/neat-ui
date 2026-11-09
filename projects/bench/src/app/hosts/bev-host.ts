@@ -38,7 +38,7 @@ declare global {
 }
 
 /**
- * The bird's-eye view's measured page (the bev spec's budget, `BEV_LOAD`): `neat-bev` filling the
+ * The bird's-eye view's measured page (its budget, `BEV_LOAD`): `neat-bev` filling the
  * window, fed 100 moving objects, 30,000 lidar returns, 4 lines and a 128 × 128 grid at 20 Hz.
  * After a warm-up that calibrates the refresh it measures for ten seconds: the frames shown (the
  * bench's frame recorder and statistics) and each frame's script time in its animation-frame

@@ -95,7 +95,11 @@ look happens in one place. Every rule here protects that.
     that colours a label like the bars do), `NeatLabelTimeline` (the classifier's recent results
     as coloured runs over a time axis, with `NeatLabelRun`, coloured by the same rule, and
     `NeatTimelineMotion`, `step` or `smooth` for whether it scrolls between updates) and the
-    primary's `NeatSeriesSwatch` again; with `diagram`, the only code that imports d3), `diagram`
+    primary's `NeatSeriesSwatch` again; with `diagram` and `bev`, the only code that imports d3),
+    `bev` (`NeatBev`, `neat-bev`: a bird's-eye view around a vehicle, with its model types
+    `NeatBevFrame`, `NeatBevObject`, `NeatBevPoints`, `NeatBevLine`, `NeatBevGrid`, `NeatBevSensor`,
+    `NeatBevSpoke` and `NeatBevShape`; how it draws is under "How the bird's-eye view is drawn"
+    below), `diagram`
     (hand-placed diagrams: their model, `NeatDiagramView` (`neat-diagram`) with its templates,
     `NeatDiagramLegend` (`neat-diagram-legend`), `NeatDiagramMessages` (`neat-diagram-messages`)
     with its `NeatDiagramRateCard` (`neat-diagram-rate-card`) and `NeatDiagramAnimationSettings`
@@ -279,6 +283,14 @@ in the root config) fails an import of it outside `projects/bench/`, and a relat
 `npm run check:dist` fails a package that names the file or exports a name the seam exports. A new
 name in it is a new reach into the kit: add one only for what the bench measures, saying why in
 the seam's header.
+**The bench's BEV page** (`/#/bev`, `hosts/bev-host.ts`) measures `neat-bev` under its budget
+(100 objects, 30,000 points, 4 lines and a 128 × 128 grid at 20 Hz, `synth/bev-load.ts`;
+`?objects=` and `?points=` change it): after a 2 s warm-up it records 10 s of frames and each
+frame's script in its animation-frame callbacks (`measure/callback-timer.ts`, which wraps
+`requestAnimationFrame`, so it reaches into nothing of the kit's), shown on the page and as
+`window.benchBev`. It is not part of the ladders. Measure in a browser with a display and a GPU:
+headless Chrome rasterises the canvas in software, and with a GPU but no display it gets about one
+frame a second.
 Run files go to `projects/bench/results/`, which is gitignored; each campaign's summary is
 published as a page. **A board campaign is one command shape:** `npm run bench:build`, then
 `npm run bench:run -- --target remote --ssh <user@board> --remote-display bare --serve board
@@ -549,10 +561,55 @@ look, which `diagram` gives a node's card), `ɵOverlayFocus` and `ɵPANEL_SURFAC
 `neat-popover` shares with the shell's collapsed-rail menu; the second is the helm popover's own
 classes, which the popover's drift spec reads), `ɵBROWSER_CLOCK` and `ɵreducedMotion` (the
 browser's frame clock and the reduced-motion check, which `charts`' label timeline shares with
-`neatEased`): Angular's convention for private API. They are not
+`neatEased`), `ɵREADOUT_CLASSES` (the readout's look, which `charts` shares with `bev`), and the
+page's class colours, which `video`'s overlays share with `bev`: `ɵNeatOverlayColors`,
+`ɵcreateColorAllocator`, `ɵresolveColor`, the identity palette (`ɵOVERLAY_PALETTE`,
+`ɵOVERLAY_NEUTRAL_COLOR`, in `lib/theme/identity-palette.ts`) and the style-row lookup
+(`ɵclassStyles`, `ɵstyleFor`); `video` re-exports them to its own code under their old names. They
+moved to the primary because `bev` imported from `video` pulled the tile's component into a page
+with a view and no tile. Angular's convention for private API. They are not
 for apps, may change in any release, and no app file may import a `ɵ` name. A shared internal that a
 second entry needs is exported the same way, never by a relative path. `lib/ui/` itself stays where
 `helm:add` writes it.
+
+**How the bird's-eye view is drawn.** `bev` draws what a vehicle sees around it (`neat-bev`),
+for driving demos such as the FastBEV one.
+
+- Coordinates are the vehicle's own frame in metres, x forward and y to the left (nuScenes, ROS
+  REP 103), forward up on the screen; angles are radians counter-clockwise from x, so a detector's
+  yaw or a calibration's angles go in unchanged. A grid's `cells` are row-major in screen order:
+  row 0 forward, column 0 left.
+- What it draws comes from `frame` (objects as rotated boxes with a heading line, point sets as
+  `Float32Array` x,y pairs, polylines, grids) and from inputs that change rarely: `sensors` (wedges),
+  `spokes` (a number spaced from straight ahead, or a list of angles each with an optional origin:
+  a rig's seams, or its cameras' edges from their mounts), `range`, `shape` (`round`, rings in the
+  largest square that fits, as a radar; `square`, a grid filling the box) and `styles`. Give a new
+  `frame` object for each moment and a new grid `cells` array for new cells: the view redraws on
+  a new frame and repaints a grid only for a new array.
+- Labels take their colours from the page's class colours (`ɵNeatOverlayColors`), the allocator
+  the video tiles use, so a class has one colour in every tile and in the view; `styles` takes the
+  overlays' class rows (`NeatOverlayClassStyle`), so the same rows give the same look in both. The
+  plot's own parts follow the theme (`--border`, `--input`, `--muted-foreground`, `--foreground`,
+  `--neat-surface` for the labels' halo), read through `neatThemeColors`.
+- Drawing (`bev-canvas.ts`, outside change detection, at the next animation frame after a change,
+  never while the page is hidden or before the box has a size): what changes only with the size,
+  view, theme or inputs (sensor wedges, rings or grid lines, spokes, their labels) goes into a
+  cached layer; a frame draws its grids (a small canvas per grid, scaled without smoothing), lines,
+  points and objects over it without allocating per item. Points are squares of whole device
+  pixels written into a buffer that covers only the plot, kept in memory (`willReadFrequently`) and
+  put over the plot once per frame: one canvas call per point, or one path of them all, cost
+  several times as much to rasterise (the bench's BEV page, above). Objects are drawn a label at a
+  time, one path for a label's boxes and one for their headings. Ring and grid steps widen until
+  their labels sit at least 44 px apart, and labels are drawn unclipped where they fall on the plot.
+- Pan and zoom (`zoom.ts`, d3-zoom on the host, as the diagram's): wheel, pinch, drag and
+  double-click, from the whole range in to a quarter of it, and only within the plot; the host is a
+  tab stop whose arrows pan, `+`/`=` and `-` zoom about the plot's centre and `0` resets; a "Reset
+  view" button shows while the view is zoomed or panned. The kit stores nothing.
+- The readout (`readout.ts`): a mouse or pen hovering an object, or a finger tapping it, outlines it
+  and shows the kit's readout beside it (`ɵREADOUT_CLASSES`): a swatch and its label, its distance,
+  the app's `text`. It is filled and placed by the frames, straight in the DOM, and re-tested at the
+  pointer every frame. The host is a figure named by `label`, with a visually hidden summary of the
+  counts per label within the range (`summary.ts`), rewritten at most once a second.
 
 ## How the kit is built on Spartan
 

@@ -2,7 +2,7 @@ import type { NeatBevFrame, NeatBevLine, NeatBevObject } from '@sima/neat-ui/bev
 import { mulberry32, type Prng } from './prng';
 
 /*
- * The bird's-eye view's measured load (the bev spec's budget): 100 objects moving through the
+ * The bird's-eye view's measured load (its budget): 100 objects moving through the
  * view, a lidar's 30,000 returns redrawn every frame, 4 lines and one 128 × 128 grid, at 20 frames
  * a second. Seeded, so every run draws the same thing. The points are rewritten in place, as a
  * driver's buffer would be, and the grid stays one array, as a map that has not changed does: the
