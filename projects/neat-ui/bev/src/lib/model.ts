@@ -7,9 +7,11 @@ import type { NeatOverlayLineStyle } from '@sima/neat-ui/video';
  */
 
 /**
- * An object seen around the vehicle (a detection, a track): a box `length` long along its heading
- * `yaw` and `width` across it, centered on `x`, `y`. It is drawn as a rotated rectangle, filled
- * and outlined in its label's color, with a line from its center to the middle of its front edge.
+ * An object seen around the vehicle, such as a detection or a track.
+ *
+ * It is a box centered on `x`, `y`: `length` long along its heading `yaw`, and `width` across it.
+ * It is drawn as a rotated rectangle, filled and outlined in its label's color. A line runs from
+ * its center to the middle of its front edge.
  */
 export interface NeatBevObject {
   /**
@@ -53,8 +55,10 @@ export interface NeatBevPick extends NeatBevPoint {
 }
 
 /**
- * Points in one label's color (radar or lidar returns): `xy` holds x, y pairs in meters, so a
- * large cloud stays one typed array and nothing is allocated to draw it.
+ * Points in one label's color, such as radar or lidar returns.
+ *
+ * `xy` holds x, y pairs in meters. So a large cloud stays one typed array, and nothing is allocated
+ * to draw it.
  */
 export interface NeatBevPoints {
   /** What picks the points' color, and what the summary counts them as. */
@@ -64,11 +68,14 @@ export interface NeatBevPoints {
 }
 
 /**
- * A polyline in one label's color (a planned path, a lane, a boundary), or with `fill` a polygon
- * (a road, a zone, free space from a model): an area, filled as a grid is, a light tint over the
- * surface that covers what lies under it, without an outline. A label's polygons fill as one area,
- * so a road network given as overlapping pieces shows no darker joins; for an outline, give the
- * same points again as a line without `fill`.
+ * A polyline in one label's color, such as a planned path, a lane or a boundary.
+ *
+ * With `fill` it is a polygon, such as a road, a zone, or free space from a model. A polygon is an
+ * area, filled as a grid is: a light tint over the surface that covers what lies under it, without
+ * an outline.
+ *
+ * A label's polygons fill as one area, so a road network given as overlapping pieces shows no
+ * darker joins. For an outline, give the same points again as a line without `fill`.
  */
 export interface NeatBevLine {
   /** What picks its color. */
@@ -84,11 +91,16 @@ export interface NeatBevLine {
 }
 
 /**
- * A grid of cells over a rectangle (a drivable area, an occupancy map), drawn in its label's
- * color: each cell's value, 0 to 255, scales the grid's opacity, 0 leaving the cell clear.
- * `cells` is row-major in screen order, so the array reads like the picture: row 0 is the forward
- * edge (`x[1]`), column 0 the left edge (`y[1]`). Give a new array for new cells: the grid is
- * redrawn when its `cells` array changes, not when the same array is written to.
+ * A grid of cells over a rectangle, such as a drivable area or an occupancy map.
+ *
+ * It is drawn in its label's color. Each cell's value, 0 to 255, scales the grid's opacity, and 0
+ * leaves the cell clear.
+ *
+ * `cells` is row-major in screen order, so the array reads like the picture. Row 0 is the forward
+ * edge (`x[1]`), and column 0 the left edge (`y[1]`).
+ *
+ * Give a new array for new cells. The grid is redrawn when its `cells` array changes, not when the
+ * same array is written to.
  */
 export interface NeatBevGrid {
   /** What picks its color. */
@@ -112,10 +124,13 @@ export interface NeatBevFrame {
 }
 
 /**
- * What the app draws besides a frame, under the data (`background`) or over it (`foreground`):
- * lines, polygons (lines with `fill`, see-through here) and points, in their labels' colors.
- * Drawn with the view's cached layers, so for what changes rarely: a map's lanes, a camera's field
- * of view, a zone around the vehicle. Give a new object when it changes.
+ * What the app draws besides a frame, under the data (`background`) or over it (`foreground`).
+ *
+ * It holds lines, polygons and points, in their labels' colors. Its polygons are lines with `fill`,
+ * and see-through here.
+ *
+ * It is drawn with the view's cached layers, so it is for what changes rarely: a map's lanes, a
+ * camera's field of view, a zone around the vehicle. Give a new object when it changes.
  */
 export interface NeatBevLayer {
   readonly lines?: readonly NeatBevLine[];
@@ -132,14 +147,18 @@ export interface NeatBevSpoke {
 }
 
 /**
- * The plot's shape: `'round'`, the circle of the view's range around the vehicle with rings, as a
- * radar shows it; `'rect'`, a rectangle (`bounds`) with a metric grid.
+ * The plot's shape: `'round'` or `'rect'`.
+ *
+ * `'round'` is the circle of the view's range around the vehicle, with rings, as a radar shows it.
+ * `'rect'` is a rectangle (`bounds`) with a metric grid.
  */
 export type NeatBevShape = 'round' | 'rect';
 
 /**
- * A rectangle around the vehicle in meters, as `NeatBevGrid` sets one: `x` its back and front
- * edges (meters forward), `y` its right and left edges (meters to the left).
+ * A rectangle around the vehicle in meters, as `NeatBevGrid` sets one.
+ *
+ * `x` is its back and front edges, in meters forward. `y` is its right and left edges, in meters to
+ * the left.
  */
 export interface NeatBevBounds {
   readonly x: readonly [min: number, max: number];
@@ -147,8 +166,10 @@ export interface NeatBevBounds {
 }
 
 /**
- * What lies outside the shape: `'clip'` cuts the data and the guides at its edge; `'visible'`
- * draws both over the whole box, rings and grid lines running on to its edges.
+ * What lies outside the shape: `'clip'` or `'visible'`.
+ *
+ * `'clip'` cuts the data and the guides at the shape's edge. `'visible'` draws both over the whole
+ * box, the rings and grid lines running on to its edges.
  */
 export type NeatBevOverflow = 'clip' | 'visible';
 

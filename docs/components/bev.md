@@ -4195,13 +4195,13 @@ Positions are in the vehicle's own frame: meters, x forward and y to the left. F
 
 The data and the guides stop at the shape's edge, or run on over the whole box with `overflow`. The guides lie over the data, or under it with `guides`.
 
-Labels take their colors from the page's class colors, as the video overlays' classes do, so "car" has one color in the view and in every tile. `styles` sets a label's color and line, as the tiles' class rows do.
+Labels take their colors from the page's class colors, as the video overlays' classes do. So "car" has one color in the view and in every tile. `styles` sets a label's color and line, as the tiles' class rows do.
 
 Hovering an object, or tapping it, reads it out beside it: its label, its distance from the vehicle and its `text`.
 
 With `zoom`, the wheel, a pinch and a drag zoom and pan the view, the shape and all. The zoom stays within `zoomExtent`, up to four times the default view unless it says otherwise. Panning stays within what the default view shows and `panBounds`. With focus, the arrow keys pan, `+` and `-` zoom, and `0` resets, as the reset button does while the view is zoomed.
 
-A screen reader hears the view as a figure named by `label`, with a summary of what it shows ("18 car, 51 pedestrian within 60 m"). The summary changes at most once a second.
+A screen reader hears the view as a figure named by `label`, with a summary of what it shows: "18 car, 51 pedestrian within 60 m". The summary changes at most once a second.
 
 It draws on one canvas, outside change detection: at the next animation frame after anything changes, and never while the page is hidden.
 
@@ -4221,7 +4221,9 @@ It draws on one canvas, outside change detection: at the next animation frame af
 
 - **`spokes`** `number | readonly NeatBevSpoke[]`, default `12`
 
-  The spokes: a number spaces that many evenly from straight ahead (12, every 30°, by default; 0 for none); a list places each one, from its own origin if it has one (a rig's seams between its cameras, or lines from where they are mounted).
+  The spokes: a number of them spaced evenly, or a list that places each one.
+
+  A number spaces that many evenly from straight ahead: 12, every 30°, by default, and 0 for none. A list places each one, from its own origin if it has one. That draws a rig's seams between its cameras, say, or lines from where the cameras are mounted.
 
 - **`range`** `number`, default `60`
 
@@ -4253,11 +4255,15 @@ It draws on one canvas, outside change detection: at the next animation frame af
 
 - **`panBounds`** `NeatBevBounds | null`, default `null`
 
-  A rectangle in meters the view may also pan over, besides what the default view shows: with a smaller `range`, a view that starts zoomed in and still reaches further out.
+  A rectangle in meters the view may also pan over, besides what the default view shows.
+
+  With a smaller `range`, it makes a view that starts zoomed in and still reaches further out.
 
 - **`zoomExtent`** `readonly [min: number, max: number]`, default `ZOOM_EXTENT`
 
-  How far the view zooms out and in, relative to the default view (1): not out and in four times by default; a min below 1 zooms out beyond the default view. It always takes in 1.
+  How far the view zooms out and in, relative to the default view (1).
+
+  By default it zooms in up to four times, and not out. A min below 1 zooms out beyond the default view. The extent always takes in 1.
 
 - **`styles`** `readonly NeatOverlayClassStyle[]`, default `[]`
 
@@ -4271,7 +4277,9 @@ It draws on one canvas, outside change detection: at the next animation frame af
 
 - **`hovered`** `NeatBevObjectId | null`, default `null`
 
-  The object outlined and read out: the one under the pointer while it is over the view (null once it leaves), or one the app sets, by its `id` (its index without one). It changes when another object comes under the pointer, not with every frame.
+  The object outlined and read out, by its `id`, or its index without one.
+
+  It is the one under the pointer while the pointer is over the view, and null once it leaves. Otherwise it is the one the app sets. It changes when another object comes under the pointer, not with every frame.
 
 **Outputs**
 
@@ -4281,7 +4289,9 @@ It draws on one canvas, outside change detection: at the next animation frame af
 
 - **`pointerMove`** `NeatBevPoint | null`
 
-  Where a mouse or pen is over the view, meters, at most once a frame and only when it changed (a zoom moves it too); null when it leaves.
+  Where a mouse or pen is over the view, in meters; null when it leaves.
+
+  It emits at most once a frame, and only when the point changed. A zoom moves it too.
 
 ### `NeatBevFrame`
 
@@ -4303,7 +4313,9 @@ What `neat-bev` draws at one moment. Every part is optional.
 
 Interface from `@sima/neat-ui/bev`.
 
-An object seen around the vehicle (a detection, a track): a box `length` long along its heading `yaw` and `width` across it, centered on `x`, `y`. It is drawn as a rotated rectangle, filled and outlined in its label's color, with a line from its center to the middle of its front edge.
+An object seen around the vehicle, such as a detection or a track.
+
+It is a box centered on `x`, `y`: `length` long along its heading `yaw`, and `width` across it. It is drawn as a rotated rectangle, filled and outlined in its label's color. A line runs from its center to the middle of its front edge.
 
 **Members**
 
@@ -4343,7 +4355,9 @@ An object seen around the vehicle (a detection, a track): a box `length` long al
 
 Interface from `@sima/neat-ui/bev`.
 
-Points in one label's color (radar or lidar returns): `xy` holds x, y pairs in meters, so a large cloud stays one typed array and nothing is allocated to draw it.
+Points in one label's color, such as radar or lidar returns.
+
+`xy` holds x, y pairs in meters. So a large cloud stays one typed array, and nothing is allocated to draw it.
 
 **Members**
 
@@ -4359,7 +4373,11 @@ Points in one label's color (radar or lidar returns): `xy` holds x, y pairs in m
 
 Interface from `@sima/neat-ui/bev`.
 
-A polyline in one label's color (a planned path, a lane, a boundary), or with `fill` a polygon (a road, a zone, free space from a model): an area, filled as a grid is, a light tint over the surface that covers what lies under it, without an outline. A label's polygons fill as one area, so a road network given as overlapping pieces shows no darker joins; for an outline, give the same points again as a line without `fill`.
+A polyline in one label's color, such as a planned path, a lane or a boundary.
+
+With `fill` it is a polygon, such as a road, a zone, or free space from a model. A polygon is an area, filled as a grid is: a light tint over the surface that covers what lies under it, without an outline.
+
+A label's polygons fill as one area, so a road network given as overlapping pieces shows no darker joins. For an outline, give the same points again as a line without `fill`.
 
 **Members**
 
@@ -4387,7 +4405,13 @@ A polyline in one label's color (a planned path, a lane, a boundary), or with `f
 
 Interface from `@sima/neat-ui/bev`.
 
-A grid of cells over a rectangle (a drivable area, an occupancy map), drawn in its label's color: each cell's value, 0 to 255, scales the grid's opacity, 0 leaving the cell clear. `cells` is row-major in screen order, so the array reads like the picture: row 0 is the forward edge (`x[1]`), column 0 the left edge (`y[1]`). Give a new array for new cells: the grid is redrawn when its `cells` array changes, not when the same array is written to.
+A grid of cells over a rectangle, such as a drivable area or an occupancy map.
+
+It is drawn in its label's color. Each cell's value, 0 to 255, scales the grid's opacity, and 0 leaves the cell clear.
+
+`cells` is row-major in screen order, so the array reads like the picture. Row 0 is the forward edge (`x[1]`), and column 0 the left edge (`y[1]`).
+
+Give a new array for new cells. The grid is redrawn when its `cells` array changes, not when the same array is written to.
 
 **Members**
 
@@ -4415,7 +4439,11 @@ A grid of cells over a rectangle (a drivable area, an occupancy map), drawn in i
 
 Interface from `@sima/neat-ui/bev`.
 
-What the app draws besides a frame, under the data (`background`) or over it (`foreground`): lines, polygons (lines with `fill`, see-through here) and points, in their labels' colors. Drawn with the view's cached layers, so for what changes rarely: a map's lanes, a camera's field of view, a zone around the vehicle. Give a new object when it changes.
+What the app draws besides a frame, under the data (`background`) or over it (`foreground`).
+
+It holds lines, polygons and points, in their labels' colors. Its polygons are lines with `fill`, and see-through here.
+
+It is drawn with the view's cached layers, so it is for what changes rarely: a map's lanes, a camera's field of view, a zone around the vehicle. Give a new object when it changes.
 
 **Members**
 
@@ -4439,7 +4467,9 @@ A line out to the plot's edge: from `origin` (the vehicle's center by default) a
 
 Type from `@sima/neat-ui/bev`.
 
-The plot's shape: `'round'`, the circle of the view's range around the vehicle with rings, as a radar shows it; `'rect'`, a rectangle (`bounds`) with a metric grid.
+The plot's shape: `'round'` or `'rect'`.
+
+`'round'` is the circle of the view's range around the vehicle, with rings, as a radar shows it. `'rect'` is a rectangle (`bounds`) with a metric grid.
 
 ```ts
 type NeatBevShape = 'round' | 'rect'
@@ -4449,7 +4479,9 @@ type NeatBevShape = 'round' | 'rect'
 
 Interface from `@sima/neat-ui/bev`.
 
-A rectangle around the vehicle in meters, as [`NeatBevGrid`](../components/bev.md#neatbevgrid) sets one: `x` its back and front edges (meters forward), `y` its right and left edges (meters to the left).
+A rectangle around the vehicle in meters, as [`NeatBevGrid`](../components/bev.md#neatbevgrid) sets one.
+
+`x` is its back and front edges, in meters forward. `y` is its right and left edges, in meters to the left.
 
 **Members**
 
@@ -4461,7 +4493,9 @@ A rectangle around the vehicle in meters, as [`NeatBevGrid`](../components/bev.m
 
 Type from `@sima/neat-ui/bev`.
 
-What lies outside the shape: `'clip'` cuts the data and the guides at its edge; `'visible'` draws both over the whole box, rings and grid lines running on to its edges.
+What lies outside the shape: `'clip'` or `'visible'`.
+
+`'clip'` cuts the data and the guides at the shape's edge. `'visible'` draws both over the whole box, the rings and grid lines running on to its edges.
 
 ```ts
 type NeatBevOverflow = 'clip' | 'visible'

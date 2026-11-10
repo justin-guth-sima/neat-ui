@@ -304,16 +304,29 @@ Project it into the `neat-video-tile` with `neatTileOverlay`:
 </neat-video-tile>
 ```
 
-While the tile plays, it sits on the tile's video box, so a point is a position on the image, not on the letterbox, and it stays there when the tile resizes. Without video (none yet, or stopped) it uses the tile's full box instead, so regions can be seen and drawn before a stream plays; points are normalized to whichever box was used, which is exact for a stream of the tile's shape. Until it knows either box it draws nothing and takes no input. The full box is meant for a tile with `bars` off: with bars on, the no-video note and the bar paint above the editor and cover what lies under them.
+While the tile plays, the editor sits on the tile's video box. So a point is a position on the image, not on the letterbox, and it stays there when the tile resizes.
 
-With a `mode` of `inclusion` or `exclusion`, each click adds a point. A click within 10 px of the first point closes the polygon once it has three; so does a double-click. The second click of a double-click (`detail` 2 or more) is ignored, so a double-click is its first click plus a close. `regionsChange` emits when a polygon closes, with it appended to `regions`; the editor never changes `regions` itself. A right-click or Backspace removes the open polygon's last point, and the polygon with its only point. Escape cancels the whole polygon, and so does a new `mode` or `regions` from outside, or the box it is drawn on changing between the image and the tile. Drawing is pointer-only: the polygon is open on the host, which takes focus on the first point so Backspace and Escape reach it.
+Without video, none yet or stopped, it uses the tile's full box instead. So regions can be seen and drawn before a stream plays. Points are normalized to whichever box was used, which is exact for a stream of the tile's shape. Until it knows either box, it draws nothing and takes no input.
+
+The full box is meant for a tile with `bars` off. With bars on, the no-video note and the bar paint above the editor and cover what lies under them.
+
+With a `mode` of `inclusion` or `exclusion`, each click adds a point:
+
+- A click within 10 px of the first point closes the polygon once it has three. So does a double-click. The second click of a double-click (`detail` 2 or more) is ignored, so a double-click is its first click plus a close.
+- `regionsChange` emits when a polygon closes, with it appended to `regions`. The editor never changes `regions` itself.
+- A right-click or Backspace removes the open polygon's last point, and the polygon with its only point.
+- Escape cancels the whole polygon. So does a new `mode` or `regions` from outside, or the box it is drawn on changing between the image and the tile.
+
+Drawing is pointer-only. The polygon is open on the host, which takes focus on the first point, so Backspace and Escape reach it.
 
 In every mode, `off` included, the regions themselves take the pointer:
 
-- Hovering one sets `highlighted` to its index in `regions` (where regions overlap, the one drawn last, on top), and leaving it sets null. An app binds the same index to its region list, so either side can highlight; a highlighted region has a stronger fill and outline.
-- A right-click on one, while no polygon is open, opens a small bubble there with a Delete button, which emits `regionsChange` without that region. The button takes focus; Escape, a press outside the bubble, focus leaving it or new `regions` close it. It is a shortcut for the pointer: an app still offers the keyboard its own way to remove regions, such as its list. Elsewhere the editor leaves mode `off` to what is under it.
+- Hovering one sets `highlighted` to its index in `regions`, and leaving it sets null. Where regions overlap, it is the one drawn last, on top. A highlighted region has a stronger fill and outline.
+- An app binds the same index to its region list, so either side can highlight.
+- A right-click on one, while no polygon is open, opens a small bubble there with a Delete button. The button emits `regionsChange` without that region, and takes focus. Escape, a press outside the bubble, focus leaving it or new `regions` close it.
+- The bubble is a shortcut for the pointer. An app still offers the keyboard its own way to remove regions, such as its list.
 
-The open polygon lives in component signals: it changes per click, and the polyline follows the pointer only while a polygon is open, so a pointer that moves over an idle editor costs no change detection beyond entering and leaving a region.
+Elsewhere, the editor leaves mode `off` to what is under it.
 
 **Inputs**
 
@@ -341,7 +354,13 @@ The open polygon lives in component signals: it changes per click, and the polyl
 
 Component from `@sima/neat-ui/video`, selector `neat-roi-swatch`.
 
-A dot in the outline color of a region type, as `neat-roi-editor` draws it on the video: put it before a region's name in a list (`<neat-roi-swatch [type]="region.type" />`) so the list and the image read alike. It is decoration, hidden from assistive technology, so the name next to it must say the type.
+A dot in the outline color of a region type, as `neat-roi-editor` draws it on the video.
+
+```html
+<neat-roi-swatch [type]="region.type" /> {{ region.name }}
+```
+
+Put it before a region's name in a list, so the list and the image read alike. It is decoration, hidden from assistive technology, so the name next to it must say the type.
 
 **Inputs**
 

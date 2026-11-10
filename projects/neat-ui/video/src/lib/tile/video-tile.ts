@@ -50,14 +50,18 @@ const FRAME_STATS_INTERVAL_MS = 1000;
 const MAX_CANVAS_DPR = 2;
 
 /**
- * `empty` until the stream presents its first frame, `playing` while frames arrive, `stopped`
- * once none has arrived for the stale timeout (about 1.8 s); it plays again when frames return.
+ * Where the tile's stream is: `empty`, `playing` or `stopped`.
+ *
+ * It is `empty` until the stream presents its first frame, and `playing` while frames arrive. It is
+ * `stopped` once none has arrived for the stale timeout, about 1.8 s. It plays again when frames
+ * return.
  */
 export type NeatTileState = 'empty' | 'playing' | 'stopped';
 
 /**
- * Where the shown image sits inside the tile, in CSS pixels from the tile's top-left corner: the
- * video without the bars `object-fit: contain` leaves around it.
+ * Where the shown image sits inside the tile, in CSS pixels from the tile's top-left corner.
+ *
+ * It is the video without the letterbox bars that `object-fit: contain` leaves around it.
  */
 export interface NeatVideoBox {
   readonly x: number;
@@ -72,8 +76,10 @@ function sameVideoBox(a: NeatVideoBox | null, b: NeatVideoBox | null): boolean {
 }
 
 /**
- * What the overlay drew for one presented frame: the messages matched to it, and the ones held
- * over from an earlier frame because this frame had none of their type (`held`).
+ * What the overlay drew for one presented frame.
+ *
+ * It holds the messages matched to the frame. It also holds the ones held over from an earlier
+ * frame because this frame had none of their type, marked `held`.
  */
 export interface NeatTileFrame {
   /** When the frame was presented, on the `performance.now()` clock. */
@@ -83,9 +89,10 @@ export interface NeatTileFrame {
 }
 
 /**
- * Called once for each frame the tile presents, after the overlay is drawn, outside Angular: it
- * runs up to the video's frame rate, so it must be cheap and should not touch Angular state per
- * call (write a signal at most when its value changes).
+ * Called once for each frame the tile presents, after the overlay is drawn, outside Angular.
+ *
+ * It runs up to the video's frame rate. So it must be cheap, and should not touch Angular state
+ * per call: write a signal at most when its value changes.
  */
 export type NeatTileFrameListener = (frame: NeatTileFrame) => void;
 
@@ -131,12 +138,14 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
  * `neatTileChip`, and a tile without video says so. With `bars` off it is only video and overlay.
  *
  * Content projected with `neatTileOverlay` fills a layer over the tile, above the overlay canvas
- * and below the bar; `videoBox` says where the image is inside it and `barHeight` how tall the bar
- * is. Without video the layer stays above what covers the image and below the no-video note, which
- * lets pointer input through. The layer itself catches no pointer input, so the video under it
- * keeps its hits; its content takes them only where it sets `pointer-events: auto`.
+ * and below the bar. `videoBox` says where the image is inside it, and `barHeight` how tall the
+ * bar is.
  *
- * The frame loop runs outside Angular and touches no signal: per frame it matches the queued
+ * Without video, the layer stays above what covers the image and below the no-video note, which
+ * lets pointer input through. The layer itself catches no pointer input, so the video under it
+ * keeps its hits. Its content takes them only where it sets `pointer-events: auto`.
+ *
+ * The frame loop runs outside Angular and touches no signal. Per frame, it matches the queued
  * metadata to the presented frame, holds a type that is missing for a moment, and draws. The
  * component sees a state change and, at most once a second, `frameStats`. Inputs the loop needs
  * are copied into fields when they change, so a frame never reads an input or resolves settings.
@@ -187,17 +196,21 @@ export class NeatVideoTile {
   /** Draws the kit's focus ring around the tile, for the tile the app has chosen. */
   readonly selected = input(false);
   /**
-   * Shows the picture as in a mirror (a selfie view): the video and every overlay flip
-   * horizontally, while overlay text (labels, plates) still reads left to right. The bar, the
-   * no-video note and the `neatTileOverlay` layer are not flipped; content projected there reads
-   * the app's own `mirror` value to follow. `videoBox` is the same with and without it. The
-   * region-of-interest editor does not follow `mirror`: it works in the unflipped picture.
+   * Shows the picture as in a mirror, for a selfie view.
+   *
+   * The video and every overlay flip horizontally, while overlay text, such as labels and plates,
+   * still reads left to right. The bar, the no-video note and the `neatTileOverlay` layer are not
+   * flipped. Content projected there reads the app's own `mirror` value to follow. `videoBox` is
+   * the same with and without it. The region-of-interest editor does not follow `mirror`: it works
+   * in the unflipped picture.
    */
   readonly mirror = input(false);
   /**
-   * Called once for each presented frame with what the overlay drew (see `NeatTileFrame`), for an
-   * app that acts on a frame's metadata (counting poses, say) in step with the picture. It runs
-   * outside Angular; a listener that throws is logged once per tile and the frames keep drawing.
+   * Called once for each presented frame, with what the overlay drew (`NeatTileFrame`).
+   *
+   * It is for an app that acts on a frame's metadata in step with the picture, such as counting
+   * poses. It runs outside Angular. A listener that throws is logged once per tile, and the frames
+   * keep drawing.
    */
   readonly frameListener = input<NeatTileFrameListener | null>(null);
 
@@ -210,12 +223,14 @@ export class NeatVideoTile {
 
   private readonly box = signal<NeatVideoBox | null>(null, { equal: sameVideoBox });
   /**
-   * Where the shown image sits in the tile. Non-null only while the tile is `playing` and the
-   * video and the tile have a size: before the first frame the surface covers the video, and once
-   * the stream is `stopped` the frozen frame is blurred and scaled up, so no box describes it.
-   * Unlike the frame loop's fields it is a signal, for overlays that follow the image: it is
-   * written only when the tile's state or the tile's or the video's size changes, never per frame,
-   * and an unchanged box does not notify.
+   * Where the shown image sits in the tile.
+   *
+   * It is non-null only while the tile is `playing` and the video and the tile have a size. Before
+   * the first frame, the surface covers the video. Once the stream is `stopped`, the frozen frame
+   * is blurred and scaled up. So no box describes either.
+   *
+   * It is a signal, for overlays that follow the image. It is written only when the tile's state or
+   * the tile's or the video's size changes, never per frame. An unchanged box does not notify.
    */
   readonly videoBox: Signal<NeatVideoBox | null> = this.box.asReadonly();
 

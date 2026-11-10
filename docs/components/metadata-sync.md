@@ -238,7 +238,11 @@ lateNoticeDetails(snapshot: NeatLatenessSnapshot, currentBufferMs: number, buffe
 
 Function from `@sima/neat-ui/video`.
 
-Whether the late-metadata warning is on after this sample, from whether it was on before and the recent late share (0 to 1, `null` when unknown, which changes nothing). It turns on at half the messages late and off below a tenth; in between it stays as it was, so a share hovering around one value does not make the chip blink.
+Whether the late-metadata warning is on after this sample.
+
+It follows from whether the warning was on before, and the recent late share. The share is 0 to 1, or `null` when unknown, which changes nothing.
+
+The warning turns on at half the messages late, and off below a tenth. In between it stays as it was, so a share hovering around one value does not make the chip blink.
 
 ```ts
 nextWarningActive(active: boolean, recentLateShare: number | null): boolean
@@ -248,7 +252,11 @@ nextWarningActive(active: boolean, recentLateShare: number | null): boolean
 
 Function from `@sima/neat-ui/video`.
 
-How long, in ms, to keep the late warning off after the video sync buffer changes from `previousBufferMs` to `nextBufferMs`: a browser moves to a raised jitter buffer target gradually, roughly 100 ms per second of video, and what is measured until it has arrived still describes the old buffer. A second, plus ten times the raise (a lowered buffer: a second).
+How long, in ms, to keep the late warning off after the video sync buffer changes.
+
+The buffer changes from `previousBufferMs` to `nextBufferMs`. A browser moves to a raised jitter buffer target gradually, roughly 100 ms per second of video. What is measured until it has arrived still describes the old buffer.
+
+The answer is a second, plus ten times the raise. A lowered buffer gets a second.
 
 ```ts
 bufferSettleMs(previousBufferMs: number, nextBufferMs: number): number
@@ -276,7 +284,9 @@ One metadata message from the stream's data channel. `_insight.rtp_timestamp` id
 
 Interface from `@sima/neat-ui/video`.
 
-What a tile's metadata queue holds and how late it has been, from [`NeatVideoTile.snapshot`](../components/video-tile.md#neatvideotile): the cumulative counters and the messages still waiting for a frame, then the lateness of the last five seconds, which the app's lateness notice reads. The `recent` figures are `null` while the window has too little to say.
+What a tile's metadata queue holds and how late it has been, from [`NeatVideoTile.snapshot`](../components/video-tile.md#neatvideotile).
+
+It holds the cumulative counters and the messages still waiting for a frame. Then it holds the lateness of the last five seconds, which the app's lateness notice reads. The `recent` figures are `null` while the window has too little to say.
 
 **Members**
 
@@ -335,7 +345,14 @@ type NeatLatenessSnapshot = Pick<
 
 Interface from `@sima/neat-ui/video`.
 
-What an app's "metadata late" notice shows and offers, from [`lateNoticeDetails`](../components/metadata-sync.md#latenoticedetails): how late the metadata is (median ms, share of messages in percent), the video sync buffer in use, the suggested one, why none is suggested if so, and the action for the global setting.
+What an app's "metadata late" notice shows and offers, from [`lateNoticeDetails`](../components/metadata-sync.md#latenoticedetails).
+
+It holds:
+
+- how late the metadata is, as the median in ms and the share of messages in percent;
+- the video sync buffer in use, and the suggested one;
+- why none is suggested, if so;
+- the action for the global setting.
 
 **Members**
 
@@ -365,7 +382,9 @@ type NeatLateNoticeBlocker = 'unsupported' | 'unmeasured' | 'maximum'
 
 Interface from `@sima/neat-ui/video`.
 
-The notice's second button: `raise` lifts the value the channels follow to the suggestion; `follow` only lets this channel adopt the followed value, which already covers it.
+The notice's second button: `raise` or `follow`.
+
+`raise` lifts the value the channels follow to the suggestion. `follow` only lets this channel adopt the followed value, which already covers it.
 
 **Members**
 

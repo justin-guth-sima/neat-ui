@@ -67,11 +67,12 @@ export function packTiles(area: NeatTileArea, tileWidth: number, gap: number): N
 }
 
 /**
- * The widest tile, in whole CSS pixels, at which `count` tiles fit into `area` on one page. For
- * each column count from 1 to `count` the rows follow (`ceil(count / columns)`), and the tile is
- * bounded by both the width and the height of the area; the column count with the widest tile
- * wins. Whole pixels, rounded down, so a floating-point edge can never make the grid drop a row
- * that this function counted on.
+ * The widest tile, in whole CSS pixels, at which `count` tiles fit into `area` on one page.
+ *
+ * For each column count from 1 to `count`, the rows follow (`ceil(count / columns)`). The tile is
+ * bounded by both the width and the height of the area. The column count with the widest tile
+ * wins. The width is in whole pixels, rounded down, so a floating-point edge can never make the
+ * grid drop a row that this function counted on.
  *
  * Never below `NEAT_MIN_TILE_WIDTH`: when `count` tiles would need narrower ones, the result is
  * the minimum and the caller pages. A count that is not a finite number of at least 1 is one tile;

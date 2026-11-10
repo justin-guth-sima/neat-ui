@@ -127,7 +127,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Labels take their colors from the page's class colors, as the video overlays' classes do, so \"car\" has one color in the view and in every tile. "
+              "text": "Labels take their colors from the page's class colors, as the video overlays' classes do. So \"car\" has one color in the view and in every tile. "
             },
             {
               "kind": "code",
@@ -226,7 +226,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", with a summary of what it shows (\"18 car, 51 pedestrian within 60 m\"). The summary changes at most once a second."
+              "text": ", with a summary of what it shows: \"18 car, 51 pedestrian within 60 m\". The summary changes at most once a second."
             }
           ]
         },
@@ -299,7 +299,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The spokes: a number spaces that many evenly from straight ahead (12, every 30°, by default; 0 for none); a list places each one, from its own origin if it has one (a rig's seams between its cameras, or lines from where they are mounted)."
+                  "text": "The spokes: a number of them spaced evenly, or a list that places each one."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A number spaces that many evenly from straight ahead: 12, every 30°, by default, and 0 for none. A list places each one, from its own origin if it has one. That draws a rig's seams between its cameras, say, or lines from where the cameras are mounted."
                 }
               ]
             }
@@ -485,7 +494,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "A rectangle in meters the view may also pan over, besides what the default view shows: with a smaller "
+                  "text": "A rectangle in meters the view may also pan over, besides what the default view shows."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "With a smaller "
                 },
                 {
                   "kind": "code",
@@ -493,7 +511,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ", a view that starts zoomed in and still reaches further out."
+                  "text": ", it makes a view that starts zoomed in and still reaches further out."
                 }
               ]
             }
@@ -509,7 +527,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "How far the view zooms out and in, relative to the default view (1): not out and in four times by default; a min below 1 zooms out beyond the default view. It always takes in 1."
+                  "text": "How far the view zooms out and in, relative to the default view (1)."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "By default it zooms in up to four times, and not out. A min below 1 zooms out beyond the default view. The extent always takes in 1."
                 }
               ]
             }
@@ -559,7 +586,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The object outlined and read out: the one under the pointer while it is over the view (null once it leaves), or one the app sets, by its "
+                  "text": "The object outlined and read out, by its "
                 },
                 {
                   "kind": "code",
@@ -567,7 +594,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " (its index without one). It changes when another object comes under the pointer, not with every frame."
+                  "text": ", or its index without one."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is the one under the pointer while the pointer is over the view, and null once it leaves. Otherwise it is the one the app sets. It changes when another object comes under the pointer, not with every frame."
                 }
               ]
             }
@@ -599,7 +635,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Where a mouse or pen is over the view, meters, at most once a frame and only when it changed (a zoom moves it too); null when it leaves."
+                  "text": "Where a mouse or pen is over the view, in meters; null when it leaves."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It emits at most once a frame, and only when the point changed. A zoom moves it too."
                 }
               ]
             }
@@ -638,15 +683,20 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " sets one: "
-            },
+              "text": " sets one."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "x"
             },
             {
               "kind": "text",
-              "text": " its back and front edges (meters forward), "
+              "text": " is its back and front edges, in meters forward. "
             },
             {
               "kind": "code",
@@ -654,7 +704,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " its right and left edges (meters to the left)."
+              "text": " is its right and left edges, in meters to the left."
             }
           ]
         }
@@ -804,15 +854,29 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A grid of cells over a rectangle (a drivable area, an occupancy map), drawn in its label's color: each cell's value, 0 to 255, scales the grid's opacity, 0 leaving the cell clear. "
-            },
+              "text": "A grid of cells over a rectangle, such as a drivable area or an occupancy map."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is drawn in its label's color. Each cell's value, 0 to 255, scales the grid's opacity, and 0 leaves the cell clear."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "cells"
             },
             {
               "kind": "text",
-              "text": " is row-major in screen order, so the array reads like the picture: row 0 is the forward edge ("
+              "text": " is row-major in screen order, so the array reads like the picture. Row 0 is the forward edge ("
             },
             {
               "kind": "code",
@@ -820,7 +884,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), column 0 the left edge ("
+              "text": "), and column 0 the left edge ("
             },
             {
               "kind": "code",
@@ -828,7 +892,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "). Give a new array for new cells: the grid is redrawn when its "
+              "text": ")."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Give a new array for new cells. The grid is redrawn when its "
             },
             {
               "kind": "code",
@@ -915,7 +988,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "): lines, polygons (lines with "
+              "text": ")."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It holds lines, polygons and points, in their labels' colors. Its polygons are lines with "
             },
             {
               "kind": "code",
@@ -923,7 +1005,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", see-through here) and points, in their labels' colors. Drawn with the view's cached layers, so for what changes rarely: a map's lanes, a camera's field of view, a zone around the vehicle. Give a new object when it changes."
+              "text": ", and see-through here."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is drawn with the view's cached layers, so it is for what changes rarely: a map's lanes, a camera's field of view, a zone around the vehicle. Give a new object when it changes."
             }
           ]
         }
@@ -1019,7 +1110,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A polyline in one label's color (a planned path, a lane, a boundary), or with "
+              "text": "A polyline in one label's color, such as a planned path, a lane or a boundary."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "With "
             },
             {
               "kind": "code",
@@ -1027,7 +1127,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " a polygon (a road, a zone, free space from a model): an area, filled as a grid is, a light tint over the surface that covers what lies under it, without an outline. A label's polygons fill as one area, so a road network given as overlapping pieces shows no darker joins; for an outline, give the same points again as a line without "
+              "text": " it is a polygon, such as a road, a zone, or free space from a model. A polygon is an area, filled as a grid is: a light tint over the surface that covers what lies under it, without an outline."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A label's polygons fill as one area, so a road network given as overlapping pieces shows no darker joins. For an outline, give the same points again as a line without "
             },
             {
               "kind": "code",
@@ -1199,31 +1308,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "An object seen around the vehicle (a detection, a track): a box "
-            },
-            {
-              "kind": "code",
-              "text": "length"
-            },
-            {
-              "kind": "text",
-              "text": " long along its heading "
-            },
-            {
-              "kind": "code",
-              "text": "yaw"
-            },
+              "text": "An object seen around the vehicle, such as a detection or a track."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": " and "
-            },
-            {
-              "kind": "code",
-              "text": "width"
-            },
-            {
-              "kind": "text",
-              "text": " across it, centered on "
+              "text": "It is a box centered on "
             },
             {
               "kind": "code",
@@ -1239,7 +1333,31 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". It is drawn as a rotated rectangle, filled and outlined in its label's color, with a line from its center to the middle of its front edge."
+              "text": ": "
+            },
+            {
+              "kind": "code",
+              "text": "length"
+            },
+            {
+              "kind": "text",
+              "text": " long along its heading "
+            },
+            {
+              "kind": "code",
+              "text": "yaw"
+            },
+            {
+              "kind": "text",
+              "text": ", and "
+            },
+            {
+              "kind": "code",
+              "text": "width"
+            },
+            {
+              "kind": "text",
+              "text": " across it. It is drawn as a rotated rectangle, filled and outlined in its label's color. A line runs from its center to the middle of its front edge."
             }
           ]
         }
@@ -1297,7 +1415,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " cuts the data and the guides at its edge; "
+              "text": " or "
             },
             {
               "kind": "code",
@@ -1305,7 +1423,28 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " draws both over the whole box, rings and grid lines running on to its edges."
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "'clip'"
+            },
+            {
+              "kind": "text",
+              "text": " cuts the data and the guides at the shape's edge. "
+            },
+            {
+              "kind": "code",
+              "text": "'visible'"
+            },
+            {
+              "kind": "text",
+              "text": " draws both over the whole box, the rings and grid lines running on to its edges."
             }
           ]
         }
@@ -1447,15 +1586,20 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Points in one label's color (radar or lidar returns): "
-            },
+              "text": "Points in one label's color, such as radar or lidar returns."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "xy"
             },
             {
               "kind": "text",
-              "text": " holds x, y pairs in meters, so a large cloud stays one typed array and nothing is allocated to draw it."
+              "text": " holds x, y pairs in meters. So a large cloud stays one typed array, and nothing is allocated to draw it."
             }
           ]
         }
@@ -1480,7 +1624,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", the circle of the view's range around the vehicle with rings, as a radar shows it; "
+              "text": " or "
             },
             {
               "kind": "code",
@@ -1488,7 +1632,28 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", a rectangle ("
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "'round'"
+            },
+            {
+              "kind": "text",
+              "text": " is the circle of the view's range around the vehicle, with rings, as a radar shows it. "
+            },
+            {
+              "kind": "code",
+              "text": "'rect'"
+            },
+            {
+              "kind": "text",
+              "text": " is a rectangle ("
             },
             {
               "kind": "code",

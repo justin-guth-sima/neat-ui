@@ -22,8 +22,10 @@ export type NeatLatenessSnapshot = Pick<
 export type NeatLateNoticeBlocker = 'unsupported' | 'unmeasured' | 'maximum';
 
 /**
- * The notice's second button: `raise` lifts the value the channels follow to the suggestion;
- * `follow` only lets this channel adopt the followed value, which already covers it.
+ * The notice's second button: `raise` or `follow`.
+ *
+ * `raise` lifts the value the channels follow to the suggestion. `follow` only lets this channel
+ * adopt the followed value, which already covers it.
  */
 export interface NeatGlobalBufferAction {
   kind: 'raise' | 'follow';
@@ -31,9 +33,13 @@ export interface NeatGlobalBufferAction {
 }
 
 /**
- * What an app's "metadata late" notice shows and offers, from `lateNoticeDetails`: how late the
- * metadata is (median ms, share of messages in percent), the video sync buffer in use, the
- * suggested one, why none is suggested if so, and the action for the global setting.
+ * What an app's "metadata late" notice shows and offers, from `lateNoticeDetails`.
+ *
+ * It holds:
+ * - how late the metadata is, as the median in ms and the share of messages in percent;
+ * - the video sync buffer in use, and the suggested one;
+ * - why none is suggested, if so;
+ * - the action for the global setting.
  */
 export interface NeatLateNoticeDetails {
   latenessMs: number | null;
@@ -45,10 +51,13 @@ export interface NeatLateNoticeDetails {
 }
 
 /**
- * Whether the late-metadata warning is on after this sample, from whether it was on before and
- * the recent late share (0 to 1, `null` when unknown, which changes nothing). It turns on at half
- * the messages late and off below a tenth; in between it stays as it was, so a share hovering
- * around one value does not make the chip blink.
+ * Whether the late-metadata warning is on after this sample.
+ *
+ * It follows from whether the warning was on before, and the recent late share. The share is 0 to
+ * 1, or `null` when unknown, which changes nothing.
+ *
+ * The warning turns on at half the messages late, and off below a tenth. In between it stays as it
+ * was, so a share hovering around one value does not make the chip blink.
  */
 export function nextWarningActive(active: boolean, recentLateShare: number | null): boolean {
   if (recentLateShare == null) return active;
@@ -69,10 +78,13 @@ export function suggestedBufferMs(
 }
 
 /**
- * How long, in ms, to keep the late warning off after the video sync buffer changes from
- * `previousBufferMs` to `nextBufferMs`: a browser moves to a raised jitter buffer target
- * gradually, roughly 100 ms per second of video, and what is measured until it has arrived still
- * describes the old buffer. A second, plus ten times the raise (a lowered buffer: a second).
+ * How long, in ms, to keep the late warning off after the video sync buffer changes.
+ *
+ * The buffer changes from `previousBufferMs` to `nextBufferMs`. A browser moves to a raised jitter
+ * buffer target gradually, roughly 100 ms per second of video. What is measured until it has
+ * arrived still describes the old buffer.
+ *
+ * The answer is a second, plus ten times the raise. A lowered buffer gets a second.
  */
 export function bufferSettleMs(previousBufferMs: number, nextBufferMs: number): number {
   const raisedBy = Math.max(0, nextBufferMs - previousBufferMs);

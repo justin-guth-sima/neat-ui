@@ -172,7 +172,28 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " lifts the value the channels follow to the suggestion; "
+              "text": " or "
+            },
+            {
+              "kind": "code",
+              "text": "follow"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "raise"
+            },
+            {
+              "kind": "text",
+              "text": " lifts the value the channels follow to the suggestion. "
             },
             {
               "kind": "code",
@@ -254,8 +275,46 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": how late the metadata is (median ms, share of messages in percent), the video sync buffer in use, the suggested one, why none is suggested if so, and the action for the global setting."
+              "text": "."
             }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It holds:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "how late the metadata is, as the median in ms and the share of messages in percent;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "the video sync buffer in use, and the suggested one;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "why none is suggested, if so;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "the action for the global setting."
+              }
+            ]
           ]
         }
       ],
@@ -468,7 +527,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": the cumulative counters and the messages still waiting for a frame, then the lateness of the last five seconds, which the app's lateness notice reads. The "
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It holds the cumulative counters and the messages still waiting for a frame. Then it holds the lateness of the last five seconds, which the app's lateness notice reads. The "
             },
             {
               "kind": "code",
@@ -687,7 +755,25 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "While the tile plays, it sits on the tile's video box, so a point is a position on the image, not on the letterbox, and it stays there when the tile resizes. Without video (none yet, or stopped) it uses the tile's full box instead, so regions can be seen and drawn before a stream plays; points are normalized to whichever box was used, which is exact for a stream of the tile's shape. Until it knows either box it draws nothing and takes no input. The full box is meant for a tile with "
+              "text": "While the tile plays, the editor sits on the tile's video box. So a point is a position on the image, not on the letterbox, and it stays there when the tile resizes."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Without video, none yet or stopped, it uses the tile's full box instead. So regions can be seen and drawn before a stream plays. Points are normalized to whichever box was used, which is exact for a stream of the tile's shape. Until it knows either box, it draws nothing and takes no input."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The full box is meant for a tile with "
             },
             {
               "kind": "code",
@@ -695,7 +781,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " off: with bars on, the no-video note and the bar paint above the editor and cover what lies under them."
+              "text": " off. With bars on, the no-video note and the bar paint above the editor and cover what lies under them."
             }
           ]
         },
@@ -728,55 +814,89 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", each click adds a point. A click within 10 px of the first point closes the polygon once it has three; so does a double-click. The second click of a double-click ("
-            },
-            {
-              "kind": "code",
-              "text": "detail"
-            },
+              "text": ", each click adds a point:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "A click within 10 px of the first point closes the polygon once it has three. So does a double-click. The second click of a double-click ("
+              },
+              {
+                "kind": "code",
+                "text": "detail"
+              },
+              {
+                "kind": "text",
+                "text": " 2 or more) is ignored, so a double-click is its first click plus a close."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "regionsChange"
+              },
+              {
+                "kind": "text",
+                "text": " emits when a polygon closes, with it appended to "
+              },
+              {
+                "kind": "code",
+                "text": "regions"
+              },
+              {
+                "kind": "text",
+                "text": ". The editor never changes "
+              },
+              {
+                "kind": "code",
+                "text": "regions"
+              },
+              {
+                "kind": "text",
+                "text": " itself."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A right-click or Backspace removes the open polygon's last point, and the polygon with its only point."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Escape cancels the whole polygon. So does a new "
+              },
+              {
+                "kind": "code",
+                "text": "mode"
+              },
+              {
+                "kind": "text",
+                "text": " or "
+              },
+              {
+                "kind": "code",
+                "text": "regions"
+              },
+              {
+                "kind": "text",
+                "text": " from outside, or the box it is drawn on changing between the image and the tile."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": " 2 or more) is ignored, so a double-click is its first click plus a close. "
-            },
-            {
-              "kind": "code",
-              "text": "regionsChange"
-            },
-            {
-              "kind": "text",
-              "text": " emits when a polygon closes, with it appended to "
-            },
-            {
-              "kind": "code",
-              "text": "regions"
-            },
-            {
-              "kind": "text",
-              "text": "; the editor never changes "
-            },
-            {
-              "kind": "code",
-              "text": "regions"
-            },
-            {
-              "kind": "text",
-              "text": " itself. A right-click or Backspace removes the open polygon's last point, and the polygon with its only point. Escape cancels the whole polygon, and so does a new "
-            },
-            {
-              "kind": "code",
-              "text": "mode"
-            },
-            {
-              "kind": "text",
-              "text": " or "
-            },
-            {
-              "kind": "code",
-              "text": "regions"
-            },
-            {
-              "kind": "text",
-              "text": " from outside, or the box it is drawn on changing between the image and the tile. Drawing is pointer-only: the polygon is open on the host, which takes focus on the first point so Backspace and Escape reach it."
+              "text": "Drawing is pointer-only. The polygon is open on the host, which takes focus on the first point, so Backspace and Escape reach it."
             }
           ]
         },
@@ -819,13 +939,19 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " (where regions overlap, the one drawn last, on top), and leaving it sets null. An app binds the same index to its region list, so either side can highlight; a highlighted region has a stronger fill and outline."
+                "text": ", and leaving it sets null. Where regions overlap, it is the one drawn last, on top. A highlighted region has a stronger fill and outline."
               }
             ],
             [
               {
                 "kind": "text",
-                "text": "A right-click on one, while no polygon is open, opens a small bubble there with a Delete button, which emits "
+                "text": "An app binds the same index to its region list, so either side can highlight."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A right-click on one, while no polygon is open, opens a small bubble there with a Delete button. The button emits "
               },
               {
                 "kind": "code",
@@ -833,7 +959,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " without that region. The button takes focus; Escape, a press outside the bubble, focus leaving it or new "
+                "text": " without that region, and takes focus. Escape, a press outside the bubble, focus leaving it or new "
               },
               {
                 "kind": "code",
@@ -841,15 +967,13 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " close it. It is a shortcut for the pointer: an app still offers the keyboard its own way to remove regions, such as its list. Elsewhere the editor leaves mode "
-              },
-              {
-                "kind": "code",
-                "text": "off"
-              },
+                "text": " close it."
+              }
+            ],
+            [
               {
                 "kind": "text",
-                "text": " to what is under it."
+                "text": "The bubble is a shortcut for the pointer. An app still offers the keyboard its own way to remove regions, such as its list."
               }
             ]
           ]
@@ -859,7 +983,15 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The open polygon lives in component signals: it changes per click, and the polyline follows the pointer only while a polygon is open, so a pointer that moves over an idle editor costs no change detection beyond entering and leaving a region."
+              "text": "Elsewhere, the editor leaves mode "
+            },
+            {
+              "kind": "code",
+              "text": "off"
+            },
+            {
+              "kind": "text",
+              "text": " to what is under it."
             }
           ]
         }
@@ -1021,15 +1153,21 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " draws it on the video: put it before a region's name in a list ("
-            },
-            {
-              "kind": "code",
-              "text": "<neat-roi-swatch [type]=\"region.type\" />"
-            },
+              "text": " draws it on the video."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-roi-swatch [type]=\"region.type\" /> {{ region.name }}"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ") so the list and the image read alike. It is decoration, hidden from assistive technology, so the name next to it must say the type."
+              "text": "Put it before a region's name in a list, so the list and the image read alike. It is decoration, hidden from assistive technology, so the name next to it must say the type."
             }
           ]
         }
@@ -1156,7 +1294,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "What the overlay drew for one presented frame: the messages matched to it, and the ones held over from an earlier frame because this frame had none of their type ("
+              "text": "What the overlay drew for one presented frame."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It holds the messages matched to the frame. It also holds the ones held over from an earlier frame because this frame had none of their type, marked "
             },
             {
               "kind": "code",
@@ -1164,7 +1311,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ")."
+              "text": "."
             }
           ]
         }
@@ -1181,7 +1328,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Called once for each frame the tile presents, after the overlay is drawn, outside Angular: it runs up to the video's frame rate, so it must be cheap and should not touch Angular state per call (write a signal at most when its value changes)."
+              "text": "Called once for each frame the tile presents, after the overlay is drawn, outside Angular."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It runs up to the video's frame rate. So it must be cheap, and should not touch Angular state per call: write a signal at most when its value changes."
             }
           ]
         }
@@ -1258,7 +1414,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the number of projected items. When fewer than a row's worth are shown, they form a centered block of their own width instead of hugging the left edge of a full-width row."
+              "text": " is the number of projected items. When fewer than a row's worth are shown, they form a centered block of their own width. They do not hug the left edge of a full-width row."
             }
           ]
         },
@@ -1411,7 +1567,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "What the grid reports: the packing, the gap it used between tiles and the content box it was packed into. A page that sizes tiles itself (to fit a count, say) needs the gap the grid used, which may be the kit's token rather than a number the page chose."
+              "text": "What the grid reports: the packing, the gap it used between tiles and the content box it was packed into."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A page that sizes tiles itself, to fit a count say, needs the gap the grid used. It may be the kit's token rather than a number the page chose."
             }
           ]
         }
@@ -1572,12 +1737,16 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "text",
+              "text": "Where the tile's stream is: "
+            },
+            {
               "kind": "code",
               "text": "empty"
             },
             {
               "kind": "text",
-              "text": " until the stream presents its first frame, "
+              "text": ", "
             },
             {
               "kind": "code",
@@ -1585,7 +1754,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " while frames arrive, "
+              "text": " or "
             },
             {
               "kind": "code",
@@ -1593,7 +1762,40 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " once none has arrived for the stale timeout (about 1.8 s); it plays again when frames return."
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is "
+            },
+            {
+              "kind": "code",
+              "text": "empty"
+            },
+            {
+              "kind": "text",
+              "text": " until the stream presents its first frame, and "
+            },
+            {
+              "kind": "code",
+              "text": "playing"
+            },
+            {
+              "kind": "text",
+              "text": " while frames arrive. It is "
+            },
+            {
+              "kind": "code",
+              "text": "stopped"
+            },
+            {
+              "kind": "text",
+              "text": " once none has arrived for the stale timeout, about 1.8 s. It plays again when frames return."
             }
           ]
         }
@@ -1631,7 +1833,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Where the shown image sits inside the tile, in CSS pixels from the tile's top-left corner: the video without the bars "
+              "text": "Where the shown image sits inside the tile, in CSS pixels from the tile's top-left corner."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is the video without the letterbox bars that "
             },
             {
               "kind": "code",
@@ -1736,7 +1947,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " fills a layer over the tile, above the overlay canvas and below the bar; "
+              "text": " fills a layer over the tile, above the overlay canvas and below the bar. "
             },
             {
               "kind": "code",
@@ -1744,7 +1955,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " says where the image is inside it and "
+              "text": " says where the image is inside it, and "
             },
             {
               "kind": "code",
@@ -1752,7 +1963,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " how tall the bar is. Without video the layer stays above what covers the image and below the no-video note, which lets pointer input through. The layer itself catches no pointer input, so the video under it keeps its hits; its content takes them only where it sets "
+              "text": " how tall the bar is."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Without video, the layer stays above what covers the image and below the no-video note, which lets pointer input through. The layer itself catches no pointer input, so the video under it keeps its hits. Its content takes them only where it sets "
             },
             {
               "kind": "code",
@@ -1769,7 +1989,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The frame loop runs outside Angular and touches no signal: per frame it matches the queued metadata to the presented frame, holds a type that is missing for a moment, and draws. The component sees a state change and, at most once a second, "
+              "text": "The frame loop runs outside Angular and touches no signal. Per frame, it matches the queued metadata to the presented frame, holds a type that is missing for a moment, and draws. The component sees a state change and, at most once a second, "
             },
             {
               "kind": "code",
@@ -1953,7 +2173,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Shows the picture as in a mirror (a selfie view): the video and every overlay flip horizontally, while overlay text (labels, plates) still reads left to right. The bar, the no-video note and the "
+                  "text": "Shows the picture as in a mirror, for a selfie view."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The video and every overlay flip horizontally, while overlay text, such as labels and plates, still reads left to right. The bar, the no-video note and the "
                 },
                 {
                   "kind": "code",
@@ -1961,7 +2190,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " layer are not flipped; content projected there reads the app's own "
+                  "text": " layer are not flipped. Content projected there reads the app's own "
                 },
                 {
                   "kind": "code",
@@ -2001,7 +2230,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Called once for each presented frame with what the overlay drew (see "
+                  "text": "Called once for each presented frame, with what the overlay drew ("
                 },
                 {
                   "kind": "ref",
@@ -2010,7 +2239,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": "), for an app that acts on a frame's metadata (counting poses, say) in step with the picture. It runs outside Angular; a listener that throws is logged once per tile and the frames keep drawing."
+                  "text": ")."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is for an app that acts on a frame's metadata in step with the picture, such as counting poses. It runs outside Angular. A listener that throws is logged once per tile, and the frames keep drawing."
                 }
               ]
             }
@@ -2083,7 +2321,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Where the shown image sits in the tile. Non-null only while the tile is "
+                  "text": "Where the shown image sits in the tile."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is non-null only while the tile is "
                 },
                 {
                   "kind": "code",
@@ -2091,7 +2338,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " and the video and the tile have a size: before the first frame the surface covers the video, and once the stream is "
+                  "text": " and the video and the tile have a size. Before the first frame, the surface covers the video. Once the stream is "
                 },
                 {
                   "kind": "code",
@@ -2099,7 +2346,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " the frozen frame is blurred and scaled up, so no box describes it. Unlike the frame loop's fields it is a signal, for overlays that follow the image: it is written only when the tile's state or the tile's or the video's size changes, never per frame, and an unchanged box does not notify."
+                  "text": ", the frozen frame is blurred and scaled up. So no box describes either."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is a signal, for overlays that follow the image. It is written only when the tile's state or the tile's or the video's size changes, never per frame. An unchanged box does not notify."
                 }
               ]
             }
@@ -2181,7 +2437,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "How long, in ms, to keep the late warning off after the video sync buffer changes from "
+              "text": "How long, in ms, to keep the late warning off after the video sync buffer changes."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The buffer changes from "
             },
             {
               "kind": "code",
@@ -2197,7 +2462,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": a browser moves to a raised jitter buffer target gradually, roughly 100 ms per second of video, and what is measured until it has arrived still describes the old buffer. A second, plus ten times the raise (a lowered buffer: a second)."
+              "text": ". A browser moves to a raised jitter buffer target gradually, roughly 100 ms per second of video. What is measured until it has arrived still describes the old buffer."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The answer is a second, plus ten times the raise. A lowered buffer gets a second."
             }
           ]
         }
@@ -2230,7 +2504,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " on one page. For each column count from 1 to "
+              "text": " on one page."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "For each column count from 1 to "
             },
             {
               "kind": "code",
@@ -2238,7 +2521,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " the rows follow ("
+              "text": ", the rows follow ("
             },
             {
               "kind": "code",
@@ -2246,7 +2529,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), and the tile is bounded by both the width and the height of the area; the column count with the widest tile wins. Whole pixels, rounded down, so a floating-point edge can never make the grid drop a row that this function counted on."
+              "text": "). The tile is bounded by both the width and the height of the area. The column count with the widest tile wins. The width is in whole pixels, rounded down, so a floating-point edge can never make the grid drop a row that this function counted on."
             }
           ]
         },
@@ -2404,7 +2687,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Whether the late-metadata warning is on after this sample, from whether it was on before and the recent late share (0 to 1, "
+              "text": "Whether the late-metadata warning is on after this sample."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It follows from whether the warning was on before, and the recent late share. The share is 0 to 1, or "
             },
             {
               "kind": "code",
@@ -2412,7 +2704,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " when unknown, which changes nothing). It turns on at half the messages late and off below a tenth; in between it stays as it was, so a share hovering around one value does not make the chip blink."
+              "text": " when unknown, which changes nothing."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The warning turns on at half the messages late, and off below a tenth. In between it stays as it was, so a share hovering around one value does not make the chip blink."
             }
           ]
         }

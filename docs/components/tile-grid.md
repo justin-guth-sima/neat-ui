@@ -260,7 +260,7 @@ The grid is centered. The tile width comes from the page, from a slider say. The
 
 It fills its parent and measures its own box, never the shell's, so it repacks when the parent changes size for any reason. `layout` is emitted when a value of it changes, not on every resize notification.
 
-`count` is the number of projected items. When fewer than a row's worth are shown, they form a centered block of their own width instead of hugging the left edge of a full-width row.
+`count` is the number of projected items. When fewer than a row's worth are shown, they form a centered block of their own width. They do not hug the left edge of a full-width row.
 
 The gap defaults to the kit's `--neat-space-2` token, read once when the grid initializes; an explicit `gap` (in CSS pixels) overrides it.
 
@@ -288,7 +288,9 @@ The gap defaults to the kit's `--neat-space-2` token, read once when the grid in
 
 Interface from `@sima/neat-ui/video`.
 
-What the grid reports: the packing, the gap it used between tiles and the content box it was packed into. A page that sizes tiles itself (to fit a count, say) needs the gap the grid used, which may be the kit's token rather than a number the page chose.
+What the grid reports: the packing, the gap it used between tiles and the content box it was packed into.
+
+A page that sizes tiles itself, to fit a count say, needs the gap the grid used. It may be the kit's token rather than a number the page chose.
 
 **Members**
 
@@ -348,7 +350,9 @@ const NEAT_MIN_TILE_WIDTH: 64
 
 Function from `@sima/neat-ui/video`.
 
-The widest tile, in whole CSS pixels, at which `count` tiles fit into `area` on one page. For each column count from 1 to `count` the rows follow (`ceil(count / columns)`), and the tile is bounded by both the width and the height of the area; the column count with the widest tile wins. Whole pixels, rounded down, so a floating-point edge can never make the grid drop a row that this function counted on.
+The widest tile, in whole CSS pixels, at which `count` tiles fit into `area` on one page.
+
+For each column count from 1 to `count`, the rows follow (`ceil(count / columns)`). The tile is bounded by both the width and the height of the area. The column count with the widest tile wins. The width is in whole pixels, rounded down, so a floating-point edge can never make the grid drop a row that this function counted on.
 
 Never below [`NEAT_MIN_TILE_WIDTH`](../components/tile-grid.md#neat_min_tile_width): when `count` tiles would need narrower ones, the result is the minimum and the caller pages. A count that is not a finite number of at least 1 is one tile; a fractional count is rounded down.
 

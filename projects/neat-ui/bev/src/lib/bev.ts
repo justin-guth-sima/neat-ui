@@ -97,7 +97,7 @@ const TOKENS = {
  * The data and the guides stop at the shape's edge, or run on over the whole box with `overflow`.
  * The guides lie over the data, or under it with `guides`.
  *
- * Labels take their colors from the page's class colors, as the video overlays' classes do, so
+ * Labels take their colors from the page's class colors, as the video overlays' classes do. So
  * "car" has one color in the view and in every tile. `styles` sets a label's color and line, as
  * the tiles' class rows do.
  *
@@ -109,8 +109,8 @@ const TOKENS = {
  * stays within what the default view shows and `panBounds`. With focus, the arrow keys pan, `+` and
  * `-` zoom, and `0` resets, as the reset button does while the view is zoomed.
  *
- * A screen reader hears the view as a figure named by `label`, with a summary of what it shows
- * ("18 car, 51 pedestrian within 60 m"). The summary changes at most once a second.
+ * A screen reader hears the view as a figure named by `label`, with a summary of what it shows:
+ * "18 car, 51 pedestrian within 60 m". The summary changes at most once a second.
  *
  * It draws on one canvas, outside change detection: at the next animation frame after anything
  * changes, and never while the page is hidden.
@@ -171,9 +171,11 @@ export class NeatBev {
   /** The same, drawn over the data (and the guides): a zone around the vehicle, say. */
   readonly foreground = input<NeatBevLayer | null>(null);
   /**
-   * The spokes: a number spaces that many evenly from straight ahead (12, every 30°, by default;
-   * 0 for none); a list places each one, from its own origin if it has one (a rig's seams between
-   * its cameras, or lines from where they are mounted).
+   * The spokes: a number of them spaced evenly, or a list that places each one.
+   *
+   * A number spaces that many evenly from straight ahead: 12, every 30°, by default, and 0 for
+   * none. A list places each one, from its own origin if it has one. That draws a rig's seams
+   * between its cameras, say, or lines from where the cameras are mounted.
    */
   readonly spokes = input<number | readonly NeatBevSpoke[]>(12);
   /** Meters from the vehicle to the circle, and to the rectangle's edges without `bounds`. */
@@ -191,26 +193,32 @@ export class NeatBev {
   /** Whether wheel, pinch, drag and keys zoom and pan the view; off, the page scrolls over it. */
   readonly zoom = input(false, { transform: booleanAttribute });
   /**
-   * A rectangle in meters the view may also pan over, besides what the default view shows: with a
-   * smaller `range`, a view that starts zoomed in and still reaches further out.
+   * A rectangle in meters the view may also pan over, besides what the default view shows.
+   *
+   * With a smaller `range`, it makes a view that starts zoomed in and still reaches further out.
    */
   readonly panBounds = input<NeatBevBounds | null>(null);
   /**
-   * How far the view zooms out and in, relative to the default view (1): not out and in four
-   * times by default; a min below 1 zooms out beyond the default view. It always takes in 1.
+   * How far the view zooms out and in, relative to the default view (1).
+   *
+   * By default it zooms in up to four times, and not out. A min below 1 zooms out beyond the
+   * default view. The extent always takes in 1.
    */
   readonly zoomExtent = input<readonly [min: number, max: number]>(ZOOM_EXTENT);
   /**
-   * The object outlined and read out: the one under the pointer while it is over the view (null
-   * once it leaves), or one the app sets, by its `id` (its index without one). It changes when
-   * another object comes under the pointer, not with every frame.
+   * The object outlined and read out, by its `id`, or its index without one.
+   *
+   * It is the one under the pointer while the pointer is over the view, and null once it leaves.
+   * Otherwise it is the one the app sets. It changes when another object comes under the pointer,
+   * not with every frame.
    */
   readonly hovered = model<NeatBevObjectId | null>(null);
   /** A click or tap on the view that is no drag: the object it hit (or null) and the point. */
   readonly activated = output<NeatBevPick>();
   /**
-   * Where a mouse or pen is over the view, meters, at most once a frame and only when it changed
-   * (a zoom moves it too); null when it leaves.
+   * Where a mouse or pen is over the view, in meters; null when it leaves.
+   *
+   * It emits at most once a frame, and only when the point changed. A zoom moves it too.
    */
   readonly pointerMove = output<NeatBevPoint | null>();
   /** A label's color, line and width, as the video overlays' class rows set them for the tiles. */

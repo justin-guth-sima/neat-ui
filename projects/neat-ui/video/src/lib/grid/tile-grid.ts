@@ -17,8 +17,10 @@ import { NeatTileArea, NeatTilePack, packTiles } from './pack';
 
 /**
  * What the grid reports: the packing, the gap it used between tiles and the content box it was
- * packed into. A page that sizes tiles itself (to fit a count, say) needs the gap the grid used,
- * which may be the kit's token rather than a number the page chose.
+ * packed into.
+ *
+ * A page that sizes tiles itself, to fit a count say, needs the gap the grid used. It may be the
+ * kit's token rather than a number the page chose.
  */
 export interface NeatTileLayout extends NeatTilePack {
   /** Space between tiles in CSS pixels. */
@@ -63,7 +65,7 @@ function sameLayout(a: NeatTileLayout | null, b: NeatTileLayout | null): boolean
  * resize notification.
  *
  * `count` is the number of projected items. When fewer than a row's worth are shown, they form a
- * centered block of their own width instead of hugging the left edge of a full-width row.
+ * centered block of their own width. They do not hug the left edge of a full-width row.
  *
  * The gap defaults to the kit's `--neat-space-2` token, read once when the grid initializes; an
  * explicit `gap` (in CSS pixels) overrides it.
