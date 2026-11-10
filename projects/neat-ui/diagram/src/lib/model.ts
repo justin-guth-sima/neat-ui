@@ -35,6 +35,17 @@ export type NeatDiagramTip = 'none' | 'arrow' | 'dot';
  */
 export type NeatDiagramHighlight = 'none' | 'edges' | 'all';
 
+/** A part of a diagram as `hovered` and `activated` name it: a block or an edge, by its id. */
+export interface NeatDiagramPart {
+  readonly kind: 'block' | 'edge';
+  readonly id: string;
+}
+
+/** A click on a part of a diagram: which part, and the click itself, for its modifier keys. */
+export interface NeatDiagramPick extends NeatDiagramPart {
+  readonly event: MouseEvent;
+}
+
 /** How an edge's line is drawn. */
 export type NeatDiagramLine = 'solid' | 'dashed' | 'ghost';
 

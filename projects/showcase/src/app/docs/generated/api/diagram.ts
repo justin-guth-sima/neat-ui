@@ -2017,6 +2017,76 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/diagram/src/lib/templates.ts"
     },
     {
+      "name": "NeatDiagramPart",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "kind",
+          "type": "'block' | 'edge'",
+          "doc": []
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "doc": []
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A part of a diagram as "
+            },
+            {
+              "kind": "code",
+              "text": "hovered"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": " name it: a block or an edge, by its id."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/model.ts"
+    },
+    {
+      "name": "NeatDiagramPick",
+      "kind": "interface",
+      "extends": [
+        "NeatDiagramPart"
+      ],
+      "members": [
+        {
+          "name": "event",
+          "type": "MouseEvent",
+          "doc": []
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A click on a part of a diagram: which part, and the click itself, for its modifier keys."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/model.ts"
+    },
+    {
       "name": "NeatDiagramRateCard",
       "kind": "component",
       "selector": "neat-diagram-rate-card",
@@ -2385,7 +2455,31 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " set, a block or an edge under the pointer, or a block whose open button has the focus, is in focus with what it is joined to; the rest is dimmed. A block that opens a level is a button that opens it; "
+              "text": " set, a block or an edge under the pointer, or a block whose open button has the focus, is in focus with what it is joined to; the rest is dimmed. "
+            },
+            {
+              "kind": "code",
+              "text": "hovered"
+            },
+            {
+              "kind": "text",
+              "text": " is that part, both ways (the kit's rule for widget interaction): the diagram sets it while the pointer or the keyboard is on a part, null once they leave, and the app may set it, so a list beside the diagram can put a block in focus (shown as "
+            },
+            {
+              "kind": "code",
+              "text": "highlight"
+            },
+            {
+              "kind": "text",
+              "text": " allows). "
+            },
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": " reports a click on a block or an edge; a block that opens a level opens it too. A block that opens a level is a button that opens it; "
             },
             {
               "kind": "code",
@@ -2558,6 +2652,39 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": " for the overview. Set by the open buttons, the back button and the breadcrumbs."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hovered",
+          "type": "NeatDiagramPart | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The part in focus: the pointer's block or edge, or the keyboard's block, while they are on one (null once they leave); or one the app sets, while they are on none."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "activated",
+          "type": "NeatDiagramPick",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A click on a block or an edge (not a drag of the view): which part."
                 }
               ]
             }

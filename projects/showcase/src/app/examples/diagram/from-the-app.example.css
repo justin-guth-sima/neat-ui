@@ -1,0 +1,65 @@
+/* The drawing beside a card that reports on it; one above the other where there is no room. */
+.beside {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(12rem, 1fr);
+  gap: var(--neat-space-4);
+  align-items: start;
+}
+
+@media (width < 48rem) {
+  .beside {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.report {
+  padding: var(--neat-space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+  font-size: var(--neat-text-sm);
+}
+
+.blocks {
+  margin: 0 0 var(--neat-space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.blocks button {
+  display: block;
+  width: 100%;
+  padding: var(--neat-space-2) var(--neat-space-3);
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+}
+
+.blocks button[data-current] {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.blocks button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+.report dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--neat-space-2) var(--neat-space-4);
+  margin: 0;
+}
+
+.report dt {
+  color: var(--muted-foreground);
+}
+
+.report dd {
+  margin: 0;
+}

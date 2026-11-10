@@ -1199,7 +1199,10 @@ moment), and the heatmap names a cell (`NeatHeatmapCell`: row key and time); the
 reports a click or Enter (`NeatSamplePick`, `NeatHeatmapPick`, `NeatRunPick`). The charts share
 it through `charts/readout.ts`: the cursor's `own` (pointer or keys) and `outside` (the app's),
 and `linkHovered`, which writes `hovered` only from the chart's own cursor, so charts bound
-together never answer each other.
+together never answer each other. The diagram's `hovered` is the part in focus
+(`NeatDiagramPart`: a block or an edge by id), the pointer's or the keyboard's, or the app's while
+they are on none, shown as `highlight` allows; its `activated` reports a click on a block or an
+edge (`NeatDiagramPick`).
 
 **Every public part has a doc comment, and appears in the docs.**
 Why: the docs are generated from the comments, so an undocumented part is an empty entry, and a

@@ -10,7 +10,14 @@ import frameStyles from './frames.css' with { loader: 'text' };
 import { fitTransform } from './fit';
 import { layoutEdges } from './layout';
 import { TIP_GAP } from './hover';
-import type { NeatDiagram, NeatDiagramHighlight, NeatDiagramNode, NeatDiagramSet } from './model';
+import type {
+  NeatDiagram,
+  NeatDiagramHighlight,
+  NeatDiagramNode,
+  NeatDiagramPart,
+  NeatDiagramPick,
+  NeatDiagramSet,
+} from './model';
 import { resetReported } from './report';
 import { resize, stubResizeObserver } from './resize-observer.testing';
 import { pointAlong } from './route';
@@ -580,7 +587,14 @@ const LEVELS: NeatDiagramSet = {
 @Component({
   imports: [NeatDiagramView, NeatDiagramEdgeTipTemplate, NeatDiagramNoteTemplate],
   template: `
-    <neat-diagram [diagram]="diagram()" label="Levels" [highlight]="highlight()" [(level)]="level">
+    <neat-diagram
+      [diagram]="diagram()"
+      label="Levels"
+      [highlight]="highlight()"
+      [(level)]="level"
+      [(hovered)]="hovered"
+      (activated)="picks.push($event)"
+    >
       <ng-template neatDiagramEdgeTip let-edge
         ><b class="said">About {{ edge.id }}</b></ng-template
       >
@@ -592,6 +606,8 @@ class LevelsHost {
   readonly diagram = signal<NeatDiagramSet>(LEVELS);
   readonly level = signal<string[]>([]);
   readonly highlight = signal<NeatDiagramHighlight>('all');
+  readonly hovered = signal<NeatDiagramPart | null>(null);
+  readonly picks: NeatDiagramPick[] = [];
 }
 
 describe('NeatDiagramView’s hover, levels and words', () => {
@@ -783,6 +799,43 @@ describe('NeatDiagramView’s hover, levels and words', () => {
       const view = await renderLevels();
       await view.pointer('pointerover', view.node('camera').querySelector('.label')!);
       expect(view.dimmed().sort()).toEqual(['decode', 'g:images', 'rate', 'sink']);
+    });
+  });
+
+  describe('hovered and activated', () => {
+    it('tells the app the part under the pointer, and nothing once it leaves', async () => {
+      const view = await renderLevels();
+      await view.pointer('pointerover', view.node('camera').querySelector('.label')!);
+      expect(view.fixture.componentInstance.hovered()).toEqual({ kind: 'block', id: 'camera' });
+      await view.pointer('pointerover', view.edge('images').querySelector('.hit')!);
+      expect(view.fixture.componentInstance.hovered()).toEqual({ kind: 'edge', id: 'images' });
+      await view.pointer('pointerleave', view.host);
+      expect(view.fixture.componentInstance.hovered()).toBeNull();
+    });
+
+    it('puts a part the app names in focus, as the pointer would', async () => {
+      const view = await renderLevels();
+      view.fixture.componentInstance.hovered.set({ kind: 'block', id: 'camera' });
+      await view.stable();
+      expect(view.dimmed().sort()).toEqual(['decode', 'g:images', 'rate', 'sink']);
+      view.fixture.componentInstance.hovered.set(null);
+      await view.stable();
+      expect(view.dimmed()).toEqual([]);
+    });
+
+    it('reports a click on a block or an edge, and nothing for the ground', async () => {
+      const view = await renderLevels();
+      view.node('camera').querySelector<HTMLElement>('.label')!.click();
+      view
+        .edge('images')
+        .querySelector('.hit')!
+        .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      view.host.click();
+      const picks = view.fixture.componentInstance.picks;
+      expect(picks.map(({ kind, id }) => ({ kind, id }))).toEqual([
+        { kind: 'block', id: 'camera' },
+        { kind: 'edge', id: 'images' },
+      ]);
     });
   });
 

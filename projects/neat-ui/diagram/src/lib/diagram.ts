@@ -14,6 +14,7 @@ import {
   input,
   model,
   NgZone,
+  output,
   untracked,
   viewChild,
 } from '@angular/core';
@@ -30,7 +31,13 @@ import {
   IDENTITY_TRANSFORM,
   provideDiagramMessagesContext,
 } from './messages/context';
-import type { NeatDiagramHighlight, NeatDiagramNode, NeatDiagramSet } from './model';
+import type {
+  NeatDiagramHighlight,
+  NeatDiagramNode,
+  NeatDiagramPart,
+  NeatDiagramPick,
+  NeatDiagramSet,
+} from './model';
 import { placeNotes } from './notes';
 import { firstOfEachId } from './report';
 import {
@@ -62,7 +69,11 @@ import { DiagramZoom } from './zoom';
  * edges in words.
  *
  * With `highlight` set, a block or an edge under the pointer, or a block whose open button has the
- * focus, is in focus with what it is joined to; the rest is dimmed. A block that opens a level is
+ * focus, is in focus with what it is joined to; the rest is dimmed. `hovered` is that part, both
+ * ways (the kit's rule for widget interaction): the diagram sets it while the pointer or the
+ * keyboard is on a part, null once they leave, and the app may set it, so a list beside the
+ * diagram can put a block in focus (shown as `highlight` allows). `activated` reports a click on a
+ * block or an edge; a block that opens a level opens it too. A block that opens a level is
  * a button that opens it; `level` is the path of open levels, which an app can bind to its route,
  * and the bar over the drawing goes back and shows the path. A path that leads nowhere (a stale
  * route) is cut to the part that does, and the model is set to it; so render the diagram once its
@@ -89,7 +100,12 @@ import { DiagramZoom } from './zoom';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [NoteSizes, EdgeLabelSizes, provideDiagramMessagesContext()],
-  host: { role: 'figure', '[attr.aria-label]': 'label()', tabindex: '0' },
+  host: {
+    role: 'figure',
+    '[attr.aria-label]': 'label()',
+    tabindex: '0',
+    '(click)': 'onClick($event)',
+  },
   templateUrl: './diagram.html',
   styleUrls: ['./frames.css', './blocks.css', './lines.css', './diagram.css'],
 })
@@ -111,6 +127,13 @@ export class NeatDiagramView {
    * this is.
    */
   readonly highlight = input<NeatDiagramHighlight>('none');
+  /**
+   * The part in focus: the pointer's block or edge, or the keyboard's block, while they are on one
+   * (null once they leave); or one the app sets, while they are on none.
+   */
+  readonly hovered = model<NeatDiagramPart | null>(null);
+  /** A click on a block or an edge (not a drag of the view): which part. */
+  readonly activated = output<NeatDiagramPick>();
 
   protected readonly blockTemplate = contentChild(NeatDiagramBlockTemplate);
   protected readonly noteTemplate = contentChild(NeatDiagramNoteTemplate);
@@ -176,7 +199,7 @@ export class NeatDiagramView {
 
   /** The parts in focus while something is (the rest is dimmed); null while nothing is. */
   protected readonly focused = computed(() =>
-    focusedParts(this.shown(), highlighted(this.hover.focus(), this.highlight())),
+    focusedParts(this.shown(), highlighted(this.hover.focus() ?? this.hovered(), this.highlight())),
   );
 
   /** The tip of the edge under the pointer, while the app has a tip template. */
@@ -192,6 +215,23 @@ export class NeatDiagramView {
 
   constructor() {
     inject(DiagramMessagesSlot).context = this.messagesContext();
+
+    // `hovered` follows the pointer's or the keyboard's part while there is one, and goes back to
+    // null when they leave; the app's own value stands while they are on none.
+    let held = false;
+    effect(() => {
+      const own = this.hover.focus();
+      untracked(() => {
+        if (own) {
+          held = true;
+          const now = this.hovered();
+          if (now?.kind !== own.kind || now?.id !== own.id) this.hovered.set(own);
+        } else if (held) {
+          held = false;
+          if (this.hovered() !== null) this.hovered.set(null);
+        }
+      });
+    });
 
     // A path cut to where it leads goes back to the app (a stale route is corrected).
     effect(() => {
@@ -283,6 +323,15 @@ export class NeatDiagramView {
         return () => this.transformListeners.delete(listener);
       },
     };
+  }
+
+  /** A click on a block or an edge (d3-zoom swallows a drag's) reports it to the app. */
+  protected onClick(event: MouseEvent): void {
+    const target = event.target instanceof Element ? event.target : null;
+    const edge = target?.closest('[data-edge]')?.getAttribute('data-edge');
+    const block = target?.closest('.block[data-node]')?.getAttribute('data-node');
+    if (edge) this.activated.emit({ kind: 'edge', id: edge, event });
+    else if (block) this.activated.emit({ kind: 'block', id: block, event });
   }
 
   /** Opens the level `block` opens, one deeper than the level shown. */

@@ -16,6 +16,8 @@ export type {
   NeatDiagramChip,
   NeatDiagramEdge,
   NeatDiagramHighlight,
+  NeatDiagramPart,
+  NeatDiagramPick,
   NeatDiagramLine,
   NeatDiagramLook,
   NeatDiagramNode,

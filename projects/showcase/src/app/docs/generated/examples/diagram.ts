@@ -6,6 +6,7 @@ import { ModelGraph } from '../../../examples/diagram/3-model-graph.example';
 import { Highlight } from '../../../examples/diagram/4-highlight.example';
 import { FillingItsCard } from '../../../examples/diagram/5-filling-its-card.example';
 import { EdgeSides } from '../../../examples/diagram/6-edge-sides.example';
+import { DiagramFromTheApp } from '../../../examples/diagram/7-from-the-app.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -1029,6 +1030,163 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
           ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n\n"],
           ["comment","/* A figure the app puts after a bracket's label: small, quiet, steady digits. */"],["text","\n.bracket-figure {\n  font-size: var(--neat-text-xs);\n  color: var(--muted-foreground);\n  font-variant-numeric: tabular-nums;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "from-the-app",
+    "title": "Diagram from the app",
+    "component": DiagramFromTheApp,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The app reads the diagram and sets it: "
+          },
+          {
+            "kind": "code",
+            "text": "hovered"
+          },
+          {
+            "kind": "text",
+            "text": " is the part in focus (the pointer's block or edge, or the keyboard's block, or one the app sets), and "
+          },
+          {
+            "kind": "code",
+            "text": "activated"
+          },
+          {
+            "kind": "text",
+            "text": " reports a click on a block or an edge. The list beside the drawing is bound to "
+          },
+          {
+            "kind": "code",
+            "text": "hovered"
+          },
+          {
+            "kind": "text",
+            "text": " both ways: point at a row (or tab to it) and its block is in focus in the drawing, with what it is joined to; point at a block and its row is marked. The card also says the last part clicked."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/diagram#NeatDiagramPart",
+      "@sima/neat-ui/diagram#NeatDiagramPick",
+      "@sima/neat-ui/diagram#NeatDiagramView"
+    ],
+    "files": [
+      {
+        "name": "7-from-the-app.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, computed, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { "],["keyword","type"],["text"," NeatDiagramPart, "],["keyword","type"],["text"," NeatDiagramPick, NeatDiagramView } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
+          ["keyword","import"],["text"," { COMPILE_FLOW } "],["keyword","from"],["text"," "],["string","'./compile-flow-data'"],["text",";\n\n"],
+          ["comment","/** The overview's blocks, for the list beside the drawing. */"],["text","\n"],
+          ["keyword","const"],["text"," BLOCKS = COMPILE_FLOW.overview.nodes\n  .filter((node) => node.role === "],
+          ["string","'block'"],["text",")\n  .map((node) => ({ id: node.id, label: node.label }));\n\n@Component({\n  selector: "],
+          ["string","'app-diagram-from-the-app'"],["text",",\n  imports: [NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <div class=\"beside\">\n      <neat-diagram\n        class=\"diagram\"\n        [diagram]=\"flow\"\n        label=\"A compile flow, read from the app\"\n        highlight=\"all\"\n        [(hovered)]=\"hovered\"\n        (activated)=\"picked.set($event)\"\n      />\n      <div class=\"report\">\n        <ul class=\"blocks\" aria-label=\"Blocks\">\n          @for (block of blocks; track block.id) {\n            <li>\n              <button\n                type=\"button\"\n                [attr.data-current]=\"isHovered(block.id) ? '' : null\"\n                (pointerenter)=\"show(block.id)\"\n                (pointerleave)=\"hovered.set(null)\"\n                (focus)=\"show(block.id)\"\n                (blur)=\"hovered.set(null)\"\n              >\n                {{ block.label }}\n              </button>\n            </li>\n          }\n        </ul>\n        <dl>\n          <dt>Hovered</dt>\n          <dd>{{ hoveredText() }}</dd>\n          <dt>Last click</dt>\n          <dd>{{ pickedText() }}</dd>\n        </dl>\n      </div>\n    </div>\n  `"],
+          ["text",",\n  styleUrls: ["],
+          ["string","'./diagram-box.css'"],["text",", "],["string","'./from-the-app.example.css'"],["text","],\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," DiagramFromTheApp {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," flow = COMPILE_FLOW;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," blocks = BLOCKS;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," hovered = signal<NeatDiagramPart | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," picked = signal<NeatDiagramPick | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n\n  "],
+          ["keyword","protected"],["text"," isHovered(id: "],["keyword","string"],["text","): "],["keyword","boolean"],["text"," {\n    "],
+          ["keyword","const"],["text"," part = "],["keyword","this"],["text",".hovered();\n    "],
+          ["keyword","return"],["text"," part?.kind === "],["string","'block'"],["text"," && part.id === id;\n  }\n\n  "],
+          ["comment","/** Puts a block in focus in the drawing, as the pointer on it would. */"],["text","\n  "],
+          ["keyword","protected"],["text"," show(id: "],["keyword","string"],["text","): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".hovered.set({ kind: "],["string","'block'"],["text",", id });\n  }\n\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," hoveredText = computed(() => {\n    "],
+          ["keyword","const"],["text"," part = "],["keyword","this"],["text",".hovered();\n    "],
+          ["keyword","return"],["text"," part ? "],["string","`${part.kind} ${part.id}`"],["text"," : "],["string","'Nothing'"],["text",";\n  });\n\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pickedText = computed(() => {\n    "],
+          ["keyword","const"],["text"," pick = "],["keyword","this"],["text",".picked();\n    "],
+          ["keyword","return"],["text"," pick ? "],["string","`${pick.kind} ${pick.id}`"],["text"," : "],["string","'None yet'"],["text",";\n  });\n}\n"]
+        ]
+      },
+      {
+        "name": "compile-flow-data.ts",
+        "code": [
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramLegendItem, NeatDiagramSet } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
+          ["keyword","import"],["text"," { MLA } "],["keyword","from"],["text"," "],["string","'./chips'"],["text",";\n\n"],
+          ["comment","/*\n * A compile flow, placed after the reference sheet: a column of steps, with an input beside it and\n * an optional step.\n */"],
+          ["text","\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," COMPILE_FLOW: NeatDiagramSet = {\n  overview: {\n    nodes: [\n      { id: "],
+          ["string","'onnx'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'model.onnx'"],["text",", detail: "],["string","'FP32'"],["text",", x: 0, y: 0, w: 150, h: 46 },\n      {\n        id: "],
+          ["string","'surgery'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        label: "],
+          ["string","'Model surgery'"],["text",",\n        detail: "],
+          ["string","'unsupported ops'"],["text",",\n        x: 0,\n        y: 80,\n        w: 150,\n        h: 46,\n      },\n      {\n        id: "],
+          ["string","'quantize'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        label: "],
+          ["string","'Quantize'"],["text",",\n        detail: "],
+          ["string","'INT8'"],["text",",\n        x: 0,\n        y: 160,\n        w: 150,\n        h: 46,\n      },\n      { id: "],
+          ["string","'compile'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Compile'"],["text",", chips: [MLA], x: 0, y: 240, w: 150, h: 46 },\n      {\n        id: "],
+          ["string","'archive'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        label: "],
+          ["string","'model.tar.gz'"],["text",",\n        detail: "],
+          ["string","'archive'"],["text",",\n        x: 0,\n        y: 320,\n        w: 150,\n        h: 46,\n      },\n      {\n        id: "],
+          ["string","'calibration'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        look: "],
+          ["string","'muted'"],["text",",\n        label: "],
+          ["string","'Calibration set'"],["text",",\n        detail: "],
+          ["string","'200 images'"],["text",",\n        x: 220,\n        y: 80,\n        w: 160,\n        h: 46,\n      },\n      {\n        id: "],
+          ["string","'accuracy'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        look: "],
+          ["string","'ghost'"],["text",",\n        label: "],
+          ["string","'Accuracy check'"],["text",",\n        detail: "],
+          ["string","'optional'"],["text",",\n        "],
+          ["comment","// Level with the lower of Quantize's two right-hand ports (they sit 10 apart about its"],["text","\n        "],
+          ["comment","// middle, 183), so the ghost edge runs straight."],["text","\n        x: 220,\n        y: 165,\n        w: 160,\n        h: 46,\n      },\n    ],\n    edges: [\n      { id: "],
+          ["string","'onnx-surgery'"],["text",", from: "],["string","'onnx'"],["text",", to: "],["string","'surgery'"],["text",", series: 1 },\n      { id: "],
+          ["string","'surgery-quantize'"],["text",", from: "],["string","'surgery'"],["text",", to: "],["string","'quantize'"],["text",", series: 1 },\n      { id: "],
+          ["string","'calibration-quantize'"],["text",", from: "],["string","'calibration'"],["text",", to: "],["string","'quantize'"],["text",", series: 2 },\n      { id: "],
+          ["string","'quantize-compile'"],["text",", from: "],["string","'quantize'"],["text",", to: "],["string","'compile'"],["text",", series: 1 },\n      { id: "],
+          ["string","'quantize-accuracy'"],["text",", from: "],["string","'quantize'"],["text",", to: "],["string","'accuracy'"],["text",", line: "],["string","'ghost'"],["text"," },\n      { id: "],
+          ["string","'compile-archive'"],["text",", from: "],["string","'compile'"],["text",", to: "],["string","'archive'"],["text",", series: 3 },\n    ],\n    "],
+          ["comment","// About the Compile step, so anchored to its right side rather than to an edge."],["text","\n    notes: [{ id: "],
+          ["string","'compile-result'"],["text",", anchor: { x: 150, y: 263 }, x: 305, y: 270 }],\n  },\n};\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," COMPILE_LEGEND: "],["keyword","readonly"],["text"," NeatDiagramLegendItem[] = [\n  { series: 1, label: "],
+          ["string","'model'"],["text"," },\n  { series: 2, label: "],
+          ["string","'calibration data'"],["text"," },\n  { series: 3, label: "],
+          ["string","'archive'"],["text"," },\n  { line: "],
+          ["string","'ghost'"],["text",", label: "],["string","'not run here'"],["text"," },\n];\n"]
+        ]
+      },
+      {
+        "name": "chips.ts",
+        "code": [
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
+          ["comment","/*\n * The chips follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramChip = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramChip = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramChip = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramChip = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
+        ]
+      },
+      {
+        "name": "diagram-box.css",
+        "code": [
+          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
+          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
+          ["text","\n.diagram {\n  "],
+          ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
+          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n\n"],
+          ["comment","/* A figure the app puts after a bracket's label: small, quiet, steady digits. */"],["text","\n.bracket-figure {\n  font-size: var(--neat-text-xs);\n  color: var(--muted-foreground);\n  font-variant-numeric: tabular-nums;\n}\n"]
+        ]
+      },
+      {
+        "name": "from-the-app.example.css",
+        "code": [
+          ["comment","/* The drawing beside a card that reports on it; one above the other where there is no room. */"],["text","\n.beside {\n  display: grid;\n  grid-template-columns: minmax(0, 2fr) minmax(12rem, 1fr);\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n@media (width < 48rem) {\n  .beside {\n    grid-template-columns: minmax(0, 1fr);\n  }\n}\n\n.report {\n  padding: var(--neat-space-4);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n  color: var(--card-foreground);\n  font-size: var(--neat-text-sm);\n}\n\n.blocks {\n  margin: 0 0 var(--neat-space-4);\n  padding: 0;\n  list-style: none;\n}\n\n.blocks button {\n  display: block;\n  width: 100%;\n  padding: var(--neat-space-2) var(--neat-space-3);\n  border: 0;\n  border-radius: var(--radius);\n  background: none;\n  color: inherit;\n  font: inherit;\n  text-align: start;\n}\n\n.blocks button[data-current] {\n  background: var(--accent);\n  color: var(--accent-foreground);\n}\n\n.blocks button:focus-visible {\n  outline: 2px solid var(--ring);\n  outline-offset: -2px;\n}\n\n.report dl {\n  display: grid;\n  grid-template-columns: auto 1fr;\n  gap: var(--neat-space-2) var(--neat-space-4);\n  margin: 0;\n}\n\n.report dt {\n  color: var(--muted-foreground);\n}\n\n.report dd {\n  margin: 0;\n}\n"]
         ]
       }
     ]

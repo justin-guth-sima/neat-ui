@@ -882,6 +882,8 @@ export const GROUPS: readonly TopicGroup[] = [
               'NeatDiagramLook',
               'NeatDiagramTip',
               'NeatDiagramHighlight',
+              'NeatDiagramPart',
+              'NeatDiagramPick',
             ],
             leads: ['NeatDiagramView'],
             fit: true,
