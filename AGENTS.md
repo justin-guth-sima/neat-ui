@@ -215,6 +215,15 @@ is the doc comment, and the snippet under an example is the file that renders it
   `docs/docs.spec.ts` fails a public export in no topic or in two, a component, directive,
   service or function of a topic that none of its examples shows, and a topic page that does not
   render in jsdom with its examples and API panel.
+- **The examples' pictures** for the Markdown docs come from `npm run docs:capture`
+  (`tools/docs-capture.mjs`): it builds the showcase, serves it and, in Chrome through Playwright,
+  takes each example's live area (a page example's content area on its route) in light and dark as
+  WebP, `docs/images/<topic>/<example>.<scheme>.webp`. Fixed viewport and pixel ratio, reduced
+  motion, the docs page's side panel closed, the corners transparent; Chrome's canvas encodes, so
+  there is no image library. It warns past its size budget (150 kB a picture, 25 MB in all) and
+  never fails for it, and it lists the pictures no example makes any more rather than deleting
+  them. Pictures are committed with the docs page that first shows them and retaken at a release,
+  not on every change: a picture is a few dozen kB that git keeps forever. It is not run in CI.
 - `provideNeatUi` and `provideNeatTitles` configure an app once, in its `app.config.ts`, and
   `NeatToastHost` is rendered once, in its root template, so no example can show them without
   faking their use (a second host would show every toast twice); `docs.spec.ts` names them as
@@ -268,12 +277,14 @@ own dependencies' before adding it here and to the rule.
 ngx-vflow under the same load, on a laptop and on the Modalix board (the design is insight-next's
 `docs/superpowers/specs/2026-10-31-bench-design.md`). Its dev dependencies sit in the root
 `package.json`, the workspace's one manifest, and never in `projects/neat-ui/package.json`, the
-published one. Licenses, all bench-only: `ngx-vflow` MIT, `d3-drag` ISC (vflow's peer),
+published one. Licenses, all bench-only but Playwright, which the docs' capture tool uses too
+(above): `ngx-vflow` MIT, `d3-drag` ISC (vflow's peer),
 `@types/d3-drag` MIT, `playwright` and the `playwright-core` it wraps Apache-2.0, `source-map`
 BSD-3-Clause. ESLint (`BENCH_ONLY` in the root `eslint.config.js`) fails an import of any of them
 outside `projects/bench/`, where `d3-drag` is the one d3 package allowed, and `npm run check:dist`
 fails a built package that names one. ESLint catches static imports only; a dynamic `import()`
-is covered by `check:dist` alone. Why: apps install the kit, never the bench's tools.
+is covered by `check:dist` alone. Why: apps install the kit, never the bench's tools. The capture
+tool is a `.mjs` file under `tools/`, outside the ESLint rule, and never part of the package.
 **The diagram's bench seam is an agreed exception** to exporting only what an app needs.
 `projects/neat-ui/diagram/src/bench-seam.ts` re-exports, for the bench alone, the internals it
 needs to draw the kit's picture with vflow and put the kit's own dot layer over it: `drawLevel`
@@ -1262,6 +1273,7 @@ Node 24 is required (`.node-version`; Angular 22 supports `^22.22.3 || ^24.15.0`
 | `npm run test:tools`     | Tests for the repo tools (`tools/*.test.mjs`)                                   |
 | `npm run theme:emit`     | Regenerate `lib/theme/tokens.generated.css` from the theme sources              |
 | `npm run docs:emit`      | Regenerate the docs (`-- --check` only checks, `-- --watch` follows)            |
+| `npm run docs:capture`   | Build the showcase and picture its examples into `docs/images` (`-- --help`)    |
 | `npm run helm:add`       | Add a Spartan helm component to `lib/ui/` (`-- <name>`), the only way in        |
 | `npm run build:showcase` | Build the showcase app                                                          |
 | `npm run bench`          | Rendering bench dev server, on port 4300                                        |
