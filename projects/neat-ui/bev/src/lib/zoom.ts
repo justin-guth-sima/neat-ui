@@ -7,13 +7,13 @@ import {
   zoomTransform,
   type ZoomTransform,
 } from 'd3-zoom';
-import { type ScreenRect, ZOOM_MAX } from './geometry';
+import { type ScreenRect, ZOOM_EXTENT } from './geometry';
 
 /*
  * The bird's-eye view's pan and zoom, as the diagram's: d3-zoom handles the pointer on the box
  * (drag, wheel, pinch, double-click), this unit the keys, the reset and the wheel's default. The
- * view zooms from the default (1) in to four times it (`ZOOM_MAX`) and pans only within what the
- * default view shows (`setBounds`), so the vehicle's surroundings never leave the box. Every wheel
+ * view zooms within its limits (`setScaleExtent`; from the default, 1, in to four times it unless
+ * the app says otherwise) and pans only within its bounds (`setBounds`). Every wheel
  * over the box is the view's, also at the zoom's limits, where d3-zoom lets it through: the page
  * would scroll away under the pointer. Made only while the view's `zoom` is on; `destroy` leaves
  * the box as it found it. Every listener stays here, outside change detection (AGENTS.md: raw
@@ -59,6 +59,8 @@ export class BevZoom {
     typeof matchMedia === 'function' ? matchMedia(REDUCED_MOTION) : null;
   /** The box's size, CSS px; none before it has one. */
   private size: readonly [number, number] | null = null;
+  /** How far the view zooms out and in, relative to the default view. */
+  private limits: readonly [number, number] = ZOOM_EXTENT;
   /** The key zoom or reset in flight: where it goes and the frame it waits for. */
   private animation: { readonly to: ZoomTransform; readonly frame: number } | null = null;
 
@@ -68,7 +70,7 @@ export class BevZoom {
     private readonly onChange: (transform: ZoomTransform) => void,
   ) {
     this.behavior = zoom<HTMLElement, unknown>()
-      .scaleExtent([1, ZOOM_MAX])
+      .scaleExtent([...this.limits])
       .clickDistance(CLICK_DISTANCE)
       .extent(() => this.extentOf())
       .translateExtent([
@@ -107,7 +109,20 @@ export class BevZoom {
     if (inside.k !== now.k || inside.x !== now.x || inside.y !== now.y) this.jump(inside);
   }
 
-  /** Back to the whole range, animated. */
+  /**
+   * How far the view zooms out and in (`zoomLimits` makes sure 1 is within): a view zoomed beyond
+   * new limits is brought back within them.
+   */
+  setScaleExtent(min: number, max: number): void {
+    if (min === this.limits[0] && max === this.limits[1]) return;
+    this.limits = [min, max];
+    this.behavior.scaleExtent([min, max]);
+    const now = this.transform;
+    const k = Math.min(Math.max(now.k, min), max);
+    if (k !== now.k) this.jump(this.constrained(this.scaledAboutCentre(now, k / now.k)));
+  }
+
+  /** Back to the default view, animated. */
   reset(): void {
     this.animate(zoomIdentity);
   }
@@ -205,7 +220,7 @@ export class BevZoom {
 
   /** `from` zoomed by `by` within the limits, the plot's centre staying where it is. */
   private scaledAboutCentre(from: ZoomTransform, by: number): ZoomTransform {
-    const k = Math.min(Math.max(from.k * by, 1), ZOOM_MAX);
+    const k = Math.min(Math.max(from.k * by, this.limits[0]), this.limits[1]);
     const [[x0, y0], [x1, y1]] = this.extentOf();
     const centre: [number, number] = [(x0 + x1) / 2, (y0 + y1) / 2];
     const [px, py] = from.invert(centre);

@@ -617,9 +617,11 @@ for driving demos such as the FastBEV one.
   along the shape's left and top edges or the box's.
 - Pan and zoom (`zoom.ts`, d3-zoom on the host, as the diagram's), only while `zoom` is on (off by
   default; `BevZoom` is made when it turns on and destroyed, listeners and all, when it turns off):
-  wheel, pinch, drag and double-click zoom the whole view, the shape with it, in to four times the
-  default, and pan only within what the default view shows (the shape's rectangle with `clip`, the
-  box with `visible`). Every wheel over the host is prevented, at the zoom's limits too, where
+  wheel, pinch, drag and double-click zoom the whole view, the shape with it, within `zoomExtent`
+  (relative to the default view, `[1, 4]` by default, always taking in 1; a min below 1 zooms out
+  beyond the default), and pan only within what the default view shows (the shape's rectangle with
+  `clip`, the box with `visible`) and `panBounds` (metres) when given: a smaller `range` with wider
+  `panBounds` starts zoomed in and still reaches further out. Every wheel over the host is prevented, at the zoom's limits too, where
   d3-zoom alone lets the page scroll. The host is then a tab stop whose arrows pan, `+`/`=` and `-`
   zoom about the box's centre and `0` resets; a "Reset view" button shows while the view is zoomed
   or panned. The kit stores nothing.

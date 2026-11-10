@@ -15,8 +15,19 @@ import type {
 
 /** CSS px between the box's edge and the plot at the default zoom: room for the outline. */
 export const PLOT_INSET = 12;
-/** How far the view zooms in: a quarter of the range across the plot. */
-export const ZOOM_MAX = 4;
+/** How far the view zooms by default, relative to the default view: not out, in four times. */
+export const ZOOM_EXTENT: readonly [min: number, max: number] = [1, 4];
+
+/**
+ * The zoom's limits from an app's `extent`: positive and finite (the default's where they are
+ * not), and always taking in 1, the default view, so that the start and the reset are in reach.
+ */
+export function zoomLimits(extent: readonly [number, number]): readonly [number, number] {
+  const [min, max] = extent;
+  const low = Number.isFinite(min) && min > 0 ? Math.min(min, 1) : ZOOM_EXTENT[0];
+  const high = Number.isFinite(max) && max > 0 ? Math.max(max, 1) : ZOOM_EXTENT[1];
+  return [low, high];
+}
 /** The direction the rings' labels sit in from the vehicle: halfway between forward and left. */
 export const LABEL_ANGLE = Math.PI / 4;
 
@@ -117,15 +128,30 @@ export type ScreenRect = readonly [readonly [number, number], readonly [number, 
 
 /**
  * Where the view may pan, in the default view's pixels: what the default view shows, the plot's
- * rectangle with `'clip'` or the whole `width` × `height` box with `'visible'`.
+ * rectangle with `'clip'` or the whole `width` × `height` box with `'visible'`; with `extra` (an
+ * app's `panBounds`, metres), the whole box and that rectangle too, so the start never moves.
  */
-export function panBounds(
+export function panArea(
   view: BevView,
   plot: BevPlot,
   overflow: NeatBevOverflow,
   width: number,
   height: number,
+  extra: NeatBevBounds | null = null,
 ): ScreenRect {
+  if (extra) {
+    const [back, front] = extra.x;
+    const [right, left] = extra.y;
+    if ([back, front, right, left].every(Number.isFinite) && front > back && left > right) {
+      return [
+        [Math.min(0, view.cx - left * view.ppm), Math.min(0, view.cy - front * view.ppm)],
+        [
+          Math.max(width, view.cx - right * view.ppm),
+          Math.max(height, view.cy - back * view.ppm),
+        ],
+      ];
+    }
+  }
   if (overflow === 'visible') {
     return [
       [0, 0],

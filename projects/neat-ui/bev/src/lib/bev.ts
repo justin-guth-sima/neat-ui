@@ -36,7 +36,9 @@ import {
   defaultView,
   hitObject,
   onPlot,
-  panBounds,
+  ZOOM_EXTENT,
+  zoomLimits,
+  panArea,
   plotAspect,
   type ScreenRect,
   spokeList,
@@ -79,8 +81,9 @@ const TOKENS = {
  * video overlays' classes do, from the page's class colours, so "car" has one colour in the view
  * and in every tile; `styles` sets a label's colour and line as the tiles' class rows do. Hovering
  * an object, or tapping it, reads it out beside it: its label, its distance from the vehicle and
- * its `text`. With `zoom`, wheel, pinch and drag zoom and pan it, the shape and all, in to four
- * times the default and within what the default shows; with focus, the arrows pan, `+` and `-` zoom
+ * its `text`. With `zoom`, wheel, pinch and drag zoom and pan it, the shape and all, within
+ * `zoomExtent` (in to four times the default by default) and over what the default view shows and
+ * `panBounds`; with focus, the arrows pan, `+` and `-` zoom
  * and `0` resets, as a button does while it is zoomed. It draws on one canvas outside change
  * detection, at the next animation frame after anything changes and never while the page is
  * hidden. A screen reader hears it as a figure named by `label` with a summary of what it shows
@@ -161,6 +164,16 @@ export class NeatBev {
   readonly guides = input<NeatBevGuides>('over');
   /** Whether wheel, pinch, drag and keys zoom and pan the view; off, the page scrolls over it. */
   readonly zoom = input(false, { transform: booleanAttribute });
+  /**
+   * A rectangle in metres the view may also pan over, besides what the default view shows: with a
+   * smaller `range`, a view that starts zoomed in and still reaches further out.
+   */
+  readonly panBounds = input<NeatBevBounds | null>(null);
+  /**
+   * How far the view zooms out and in, relative to the default view (1): not out and in four
+   * times by default; a min below 1 zooms out beyond the default view. It always takes in 1.
+   */
+  readonly zoomExtent = input<readonly [min: number, max: number]>(ZOOM_EXTENT);
   /** A label's colour, line and width, as the video overlays' class rows set them for the tiles. */
   readonly styles = input<readonly NeatOverlayClassStyle[]>([]);
   /** The plot's accessible name. */
@@ -248,6 +261,8 @@ export class NeatBev {
       const styles = this.styles();
       this.frame();
       this.inputs();
+      this.panBounds();
+      this.zoomExtent();
       // The scheme, not the colours: they are resolved (on a canvas) only when a frame draws.
       this.scheme();
       untracked(() => {
@@ -396,7 +411,10 @@ export class NeatBev {
     const { plot } = inputs;
     const start = defaultView(this.width, this.height, plot);
     if (this.zoomer) {
-      const pan = panBounds(start, plot, inputs.overflow, this.width, this.height);
+      const [min, max] = zoomLimits(untracked(this.zoomExtent));
+      this.zoomer.setScaleExtent(min, max);
+      const extra = untracked(this.panBounds);
+      const pan = panArea(start, plot, inputs.overflow, this.width, this.height, extra);
       if (!sameBounds(this.bounded, this.width, this.height, pan)) {
         this.bounded = { width: this.width, height: this.height, pan };
         // May move the view back inside smaller bounds, setting `transform` before it is read.

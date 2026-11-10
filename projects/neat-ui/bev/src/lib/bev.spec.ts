@@ -21,6 +21,8 @@ import type { NeatBevBounds, NeatBevFrame, NeatBevOverflow, NeatBevShape } from 
     [spokes]="spokes()"
     [styles]="styles()"
     [zoom]="zoom()"
+    [panBounds]="panBounds()"
+    [zoomExtent]="zoomExtent()"
   />`,
 })
 class Host {
@@ -30,6 +32,8 @@ class Host {
   readonly bounds = signal<NeatBevBounds | null>(null);
   readonly overflow = signal<NeatBevOverflow>('clip');
   readonly zoom = signal(false);
+  readonly panBounds = signal<NeatBevBounds | null>(null);
+  readonly zoomExtent = signal<readonly [number, number]>([1, 4]);
   readonly spokes = signal<number>(12);
   readonly styles = signal<readonly NeatOverlayClassStyle[]>([]);
 }
@@ -311,6 +315,29 @@ describe('NeatBev', () => {
       expect(resetButton()).toBeNull();
       expect(draws.at(-1)![1].k).toBe(1);
       expect(document.activeElement).toBe(element);
+    });
+
+    it('zooms within the zoom extent, out beyond the default view too', async () => {
+      host.zoomExtent.set([0.5, 2]);
+      await settle();
+      frames.run();
+      for (let i = 0; i < 20; i++) key('-');
+      frames.run();
+      expect(draws.at(-1)![1].k).toBeCloseTo(0.5);
+    });
+
+    it('pans over the pan bounds, further than the default view shows', async () => {
+      const furthest = () => {
+        for (let i = 0; i < 100; i++) key('ArrowUp');
+        frames.run();
+        return draws.at(-1)![1].ty;
+      };
+      key('+');
+      const within = furthest();
+      host.panBounds.set({ x: [-200, 200], y: [-200, 200] });
+      await settle();
+      frames.run();
+      expect(furthest()).toBeGreaterThan(within + 100);
     });
 
     it('keeps the zoom when the box is resized', () => {

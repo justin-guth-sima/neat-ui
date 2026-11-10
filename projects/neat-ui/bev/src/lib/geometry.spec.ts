@@ -11,13 +11,14 @@ import {
   metresText,
   objectCorners,
   onPlot,
-  panBounds,
+  panArea,
   PLOT_INSET,
   pixelsPerMetre,
   plotAspect,
   plotReach,
   plotRect,
   ringStep,
+  zoomLimits,
   stepFor,
   spokeLength,
   spokeList,
@@ -128,14 +129,37 @@ describe('the view', () => {
   it('pans within the plot with clip, and within the box with visible', () => {
     const view = defaultView(600, 400, round(50));
     const r = 200 - PLOT_INSET;
-    expect(panBounds(view, round(50), 'clip', 600, 400)).toEqual([
+    expect(panArea(view, round(50), 'clip', 600, 400)).toEqual([
       [300 - r, 200 - r],
       [300 + r, 200 + r],
     ]);
-    expect(panBounds(view, round(50), 'visible', 600, 400)).toEqual([
+    expect(panArea(view, round(50), 'visible', 600, 400)).toEqual([
       [0, 0],
       [600, 400],
     ]);
+  });
+
+  it('pans over the whole box and the rectangle of the app too, when it gives one', () => {
+    const view = defaultView(600, 400, round(50));
+    // ±100 m ahead and behind, 10 m to either side: taller than the box, narrower.
+    const [[x0, y0], [x1, y1]] = panArea(view, round(50), 'clip', 600, 400, {
+      x: [-100, 100],
+      y: [-10, 10],
+    });
+    expect([x0, x1]).toEqual([0, 600]);
+    expect(y0).toBeCloseTo(200 - 100 * view.ppm);
+    expect(y1).toBeCloseTo(200 + 100 * view.ppm);
+    // A rectangle with no area is no rectangle.
+    expect(panArea(view, round(50), 'visible', 600, 400, { x: [5, 5], y: [-1, 1] })).toEqual([
+      [0, 0],
+      [600, 400],
+    ]);
+  });
+
+  it('keeps the zoom limits positive, around the default view', () => {
+    expect(zoomLimits([0.5, 8])).toEqual([0.5, 8]);
+    expect(zoomLimits([2, 0.5])).toEqual([1, 1]);
+    expect(zoomLimits([0, Number.NaN])).toEqual([1, 4]);
   });
 
   it('finds the rectangle of the plot on the screen, zoomed and panned', () => {

@@ -79,7 +79,23 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", wheel, pinch and drag zoom and pan it, the shape and all, in to four times the default and within what the default shows; with focus, the arrows pan, "
+              "text": ", wheel, pinch and drag zoom and pan it, the shape and all, within "
+            },
+            {
+              "kind": "code",
+              "text": "zoomExtent"
+            },
+            {
+              "kind": "text",
+              "text": " (in to four times the default by default) and over what the default view shows and "
+            },
+            {
+              "kind": "code",
+              "text": "panBounds"
+            },
+            {
+              "kind": "text",
+              "text": "; with focus, the arrows pan, "
             },
             {
               "kind": "code",
@@ -335,6 +351,46 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "Whether wheel, pinch, drag and keys zoom and pan the view; off, the page scrolls over it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "panBounds",
+          "type": "NeatBevBounds | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A rectangle in metres the view may also pan over, besides what the default view shows: with a smaller "
+                },
+                {
+                  "kind": "code",
+                  "text": "range"
+                },
+                {
+                  "kind": "text",
+                  "text": ", a view that starts zoomed in and still reaches further out."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "zoomExtent",
+          "type": "readonly [min: number, max: number]",
+          "default": "ZOOM_EXTENT",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How far the view zooms out and in, relative to the default view (1): not out and in four times by default; a min below 1 zooms out beyond the default view. It always takes in 1."
                 }
               ]
             }

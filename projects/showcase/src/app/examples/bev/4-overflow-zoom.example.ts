@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { NeatBev } from '@sima/neat-ui/bev';
+import { NeatBev, type NeatBevBounds } from '@sima/neat-ui/bev';
 import { streetFrames } from './scene';
 
 /**
- * The same two views with `zoom`: scroll or pinch to zoom, drag to pan, and reset with the button
- * that then shows. With overflow visible the view pans over the whole box the default view shows,
- * not only the shape's square, so the street beside the range stays in reach.
+ * The same two views with `zoom`, starting closer in: a 25 m range, and `panBounds` reaching 60 m
+ * all around, so dragging reaches the whole street, the far end of the road ahead too. Scroll or
+ * pinch to zoom, and `zoomExtent` lets the view zoom out to half the default as well as in to four
+ * times it; reset with the button that then shows.
  */
 @Component({
   selector: 'app-overflow-zoom',
@@ -18,8 +19,10 @@ import { streetFrames } from './scene';
         shape="rect"
         overflow="visible"
         zoom
+        [panBounds]="reach"
+        [zoomExtent]="[0.5, 4]"
         [outline]="false"
-        [range]="40"
+        [range]="25"
         [spokes]="0"
         [frame]="frame()"
       />
@@ -27,8 +30,10 @@ import { streetFrames } from './scene';
         class="wide"
         overflow="visible"
         zoom
+        [panBounds]="reach"
+        [zoomExtent]="[0.5, 4]"
         [outline]="false"
-        [range]="30"
+        [range]="25"
         [frame]="frame()"
       />
     </div>
@@ -37,4 +42,5 @@ import { streetFrames } from './scene';
 })
 export class OverflowZoom {
   protected readonly frame = streetFrames();
+  protected readonly reach: NeatBevBounds = { x: [-60, 60], y: [-60, 60] };
 }

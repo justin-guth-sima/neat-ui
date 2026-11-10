@@ -226,7 +226,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The rectangle: a metric grid in bounds of the app's, here a square reaching 45 m ahead and 15 m behind, 30 m to either side, labelled along its left and top edges. The view has the round view's height, and the square is fitted inside it, as large as the circle above. Without a height of the app's the view takes the rectangle's proportions; without "
+            "text": "The rectangle: a metric grid in bounds of the app's, here a square reaching 80 m ahead and 40 m behind, 60 m to either side, labelled along its left and top edges. It spans 120 m as the circle above does, in a view of the same height, so the two show the street at one scale. Without a height of the app's the view takes the rectangle's proportions; without "
           },
           {
             "kind": "code",
@@ -263,7 +263,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Rect {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," frame = streetFrames();\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," bounds: NeatBevBounds = { x: [-15, 45], y: [-30, 30] };\n}\n"]
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," bounds: NeatBevBounds = { x: [-40, 80], y: [-60, 60] };\n}\n"]
         ]
       },
       {
@@ -459,7 +459,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " nothing stops at the shape: the data and the guides run on over the whole box. The shape still sets the scale, fitted in the box as before; the rest is extra view. Above, a grid that fills a wide box; below, the rings running on past the range. Neither draws an outline: with nothing cut at the shape, its edge would only cross the picture."
+            "text": " nothing stops at the shape: the data and the guides run on over the whole box. The shape still sets the scale, fitted in the box as before; the rest is extra view. Above, a grid that fills a wide box; below, the rings running on past the range, both at the same 40 m range. Neither draws an outline: with nothing cut at the shape, its edge would only cross the picture."
           }
         ]
       }
@@ -475,7 +475,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatBev } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
           ["keyword","import"],["text"," { streetFrames } "],["keyword","from"],["text"," "],["string","'./scene'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-overflow'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"stack\">\n      <neat-bev\n        class=\"wide\"\n        shape=\"rect\"\n        overflow=\"visible\"\n        [outline]=\"false\"\n        [range]=\"40\"\n        [spokes]=\"0\"\n        [frame]=\"frame()\"\n      />\n      <neat-bev class=\"wide\" overflow=\"visible\" [outline]=\"false\" [range]=\"30\" [frame]=\"frame()\" />\n    </div>\n  `"],
+          ["string","`\n    <div class=\"stack\">\n      <neat-bev\n        class=\"wide\"\n        shape=\"rect\"\n        overflow=\"visible\"\n        [outline]=\"false\"\n        [range]=\"40\"\n        [spokes]=\"0\"\n        [frame]=\"frame()\"\n      />\n      <neat-bev class=\"wide\" overflow=\"visible\" [outline]=\"false\" [range]=\"40\" [frame]=\"frame()\" />\n    </div>\n  `"],
           ["text",",\n  styleUrl: "],
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Overflow {\n  "],
@@ -675,27 +675,45 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ": scroll or pinch to zoom, drag to pan, and reset with the button that then shows. With overflow visible the view pans over the whole box the default view shows, not only the shape's square, so the street beside the range stays in reach."
+            "text": ", starting closer in: a 25 m range, and "
+          },
+          {
+            "kind": "code",
+            "text": "panBounds"
+          },
+          {
+            "kind": "text",
+            "text": " reaching 60 m all around, so dragging reaches the whole street, the far end of the road ahead too. Scroll or pinch to zoom, and "
+          },
+          {
+            "kind": "code",
+            "text": "zoomExtent"
+          },
+          {
+            "kind": "text",
+            "text": " lets the view zoom out to half the default as well as in to four times it; reset with the button that then shows."
           }
         ]
       }
     ],
     "shows": [
-      "@sima/neat-ui/bev#NeatBev"
+      "@sima/neat-ui/bev#NeatBev",
+      "@sima/neat-ui/bev#NeatBevBounds"
     ],
     "files": [
       {
         "name": "4-overflow-zoom.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatBev } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatBev, "],["keyword","type"],["text"," NeatBevBounds } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
           ["keyword","import"],["text"," { streetFrames } "],["keyword","from"],["text"," "],["string","'./scene'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-overflow-zoom'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"stack\">\n      <neat-bev\n        class=\"wide\"\n        shape=\"rect\"\n        overflow=\"visible\"\n        zoom\n        [outline]=\"false\"\n        [range]=\"40\"\n        [spokes]=\"0\"\n        [frame]=\"frame()\"\n      />\n      <neat-bev\n        class=\"wide\"\n        overflow=\"visible\"\n        zoom\n        [outline]=\"false\"\n        [range]=\"30\"\n        [frame]=\"frame()\"\n      />\n    </div>\n  `"],
+          ["string","`\n    <div class=\"stack\">\n      <neat-bev\n        class=\"wide\"\n        shape=\"rect\"\n        overflow=\"visible\"\n        zoom\n        [panBounds]=\"reach\"\n        [zoomExtent]=\"[0.5, 4]\"\n        [outline]=\"false\"\n        [range]=\"25\"\n        [spokes]=\"0\"\n        [frame]=\"frame()\"\n      />\n      <neat-bev\n        class=\"wide\"\n        overflow=\"visible\"\n        zoom\n        [panBounds]=\"reach\"\n        [zoomExtent]=\"[0.5, 4]\"\n        [outline]=\"false\"\n        [range]=\"25\"\n        [frame]=\"frame()\"\n      />\n    </div>\n  `"],
           ["text",",\n  styleUrl: "],
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," OverflowZoom {\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," frame = streetFrames();\n}\n"]
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," frame = streetFrames();\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," reach: NeatBevBounds = { x: [-60, 60], y: [-60, 60] };\n}\n"]
         ]
       },
       {

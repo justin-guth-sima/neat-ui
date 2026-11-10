@@ -1,5 +1,5 @@
 import type { ZoomTransform } from 'd3-zoom';
-import { type ScreenRect, ZOOM_MAX } from './geometry';
+import { type ScreenRect, ZOOM_EXTENT } from './geometry';
 import { BevZoom, isDefault } from './zoom';
 
 /** `matchMedia` answering the reduced-motion query, so moves jump instead of animating. */
@@ -74,10 +74,23 @@ describe('BevZoom', () => {
     // The plot's centre stays where it is.
     expect(zoomed.apply([300, 200])).toEqual([300, 200]);
     for (let i = 0; i < 20; i++) key('=');
-    expect(zoom.transform.k).toBe(ZOOM_MAX);
+    expect(zoom.transform.k).toBe(ZOOM_EXTENT[1]);
     for (let i = 0; i < 20; i++) key('-');
     expect(zoom.transform.k).toBe(1);
     expect(seen.at(-1)).toBe(zoom.transform);
+  });
+
+  it('zooms within the limits it is given, out beyond the default view too', () => {
+    zoom.setScaleExtent(0.5, 2);
+    for (let i = 0; i < 20; i++) key('-');
+    expect(zoom.transform.k).toBe(0.5);
+    // Zoomed out, the plot is smaller than the box: it stays in the middle.
+    expect(zoom.transform.apply([300, 200])[0]).toBeCloseTo(300);
+    for (let i = 0; i < 20; i++) key('+');
+    expect(zoom.transform.k).toBe(2);
+    // Narrower limits bring the view back within them.
+    zoom.setScaleExtent(1, 1.5);
+    expect(zoom.transform.k).toBe(1.5);
   });
 
   it('pans with the arrows only within the plot', () => {
