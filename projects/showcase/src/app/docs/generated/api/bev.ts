@@ -429,6 +429,64 @@ export const API: DocsEntry = {
           ]
         }
       ],
+      "models": [
+        {
+          "name": "hovered",
+          "type": "NeatBevObjectId | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The object outlined and read out: the one under the pointer while it is over the view (null once it leaves), or one the app sets, by its "
+                },
+                {
+                  "kind": "code",
+                  "text": "id"
+                },
+                {
+                  "kind": "text",
+                  "text": " (its index without one). It changes when another object comes under the pointer, not with every frame."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "activated",
+          "type": "NeatBevPick",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A click or tap on the view that is no drag: the object it hit (or null) and the point."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "pointerMove",
+          "type": "NeatBevPoint | null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Where a mouse or pen is over the view, metres, at most once a frame and only when it changed (a zoom moves it too); null when it leaves."
+                }
+              ]
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/bev/src/lib/bev.ts"
     },
     {
@@ -816,6 +874,46 @@ export const API: DocsEntry = {
       "kind": "interface",
       "members": [
         {
+          "name": "id",
+          "type": "NeatBevObjectId",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What identifies it from frame to frame (a track's id), for "
+                },
+                {
+                  "kind": "code",
+                  "text": "hovered"
+                },
+                {
+                  "kind": "text",
+                  "text": " and "
+                },
+                {
+                  "kind": "code",
+                  "text": "activated"
+                },
+                {
+                  "kind": "text",
+                  "text": ". Give every object an id, or none: without one an object is known by its index in "
+                },
+                {
+                  "kind": "code",
+                  "text": "objects"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "x",
           "type": "number",
           "doc": [
@@ -976,6 +1074,39 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/bev/src/lib/model.ts"
     },
     {
+      "name": "NeatBevObjectId",
+      "kind": "type",
+      "definition": "string | number",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What identifies an object across frames: its "
+            },
+            {
+              "kind": "code",
+              "text": "id"
+            },
+            {
+              "kind": "text",
+              "text": ", or its index in "
+            },
+            {
+              "kind": "code",
+              "text": "objects"
+            },
+            {
+              "kind": "text",
+              "text": " without one."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/bev/src/lib/model.ts"
+    },
+    {
       "name": "NeatBevOverflow",
       "kind": "type",
       "definition": "'clip' | 'visible'",
@@ -1002,6 +1133,100 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": " draws both over the whole box, rings and grid lines running on to its edges."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/bev/src/lib/model.ts"
+    },
+    {
+      "name": "NeatBevPick",
+      "kind": "interface",
+      "extends": [
+        "NeatBevPoint"
+      ],
+      "members": [
+        {
+          "name": "object",
+          "type": "NeatBevObject | null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The object under it, or null for none."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "id",
+          "type": "NeatBevObjectId | null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "That object's id (its index without one), or null."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "event",
+          "type": "MouseEvent",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The click itself, for its modifier keys."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A click or tap on the view (not a drag): what it hit, and where."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/bev/src/lib/model.ts"
+    },
+    {
+      "name": "NeatBevPoint",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "x",
+          "type": "number",
+          "doc": []
+        },
+        {
+          "name": "y",
+          "type": "number",
+          "doc": []
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A point around the vehicle, metres: x forward, y to the left."
             }
           ]
         }

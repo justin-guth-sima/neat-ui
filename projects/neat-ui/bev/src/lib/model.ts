@@ -12,6 +12,11 @@ import type { NeatOverlayLineStyle } from '@sima/neat-ui/video';
  * and outlined in its label's colour, with a line from its centre to the middle of its front edge.
  */
 export interface NeatBevObject {
+  /**
+   * What identifies it from frame to frame (a track's id), for `hovered` and `activated`. Give
+   * every object an id, or none: without one an object is known by its index in `objects`.
+   */
+  readonly id?: NeatBevObjectId;
   /** Its centre, metres forward of the vehicle. */
   readonly x: number;
   /** Its centre, metres to the left of the vehicle. */
@@ -26,6 +31,25 @@ export interface NeatBevObject {
   readonly label: string;
   /** More for the readout, after the label and the distance (a score, a speed). */
   readonly text?: string;
+}
+
+/** What identifies an object across frames: its `id`, or its index in `objects` without one. */
+export type NeatBevObjectId = string | number;
+
+/** A point around the vehicle, metres: x forward, y to the left. */
+export interface NeatBevPoint {
+  readonly x: number;
+  readonly y: number;
+}
+
+/** A click or tap on the view (not a drag): what it hit, and where. */
+export interface NeatBevPick extends NeatBevPoint {
+  /** The object under it, or null for none. */
+  readonly object: NeatBevObject | null;
+  /** That object's id (its index without one), or null. */
+  readonly id: NeatBevObjectId | null;
+  /** The click itself, for its modifier keys. */
+  readonly event: MouseEvent;
 }
 
 /**

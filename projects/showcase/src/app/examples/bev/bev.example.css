@@ -34,3 +34,33 @@ figcaption {
   color: var(--muted-foreground);
   text-align: center;
 }
+
+/* The view beside the card that reports on it; one above the other where there is no room. */
+.interaction {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--neat-space-4);
+  align-items: start;
+}
+
+.report {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--neat-space-2) var(--neat-space-4);
+  margin: 0 0 var(--neat-space-3);
+  font-size: var(--neat-text-sm);
+}
+
+.report dt {
+  color: var(--muted-foreground);
+}
+
+.report dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The list fills its container, so the example gives it a height. */
+.tracks {
+  height: 14rem;
+}

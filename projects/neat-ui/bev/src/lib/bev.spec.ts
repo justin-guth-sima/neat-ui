@@ -8,7 +8,15 @@ import { BevCanvas, type BevInputs, type BevTheme } from './bev-canvas';
 import { FakeAnimationFrames, resize, stubCanvases, stubResizeObserver } from './canvas.testing';
 import type { LabelColours } from './colours';
 import type { BevView } from './geometry';
-import type { NeatBevBounds, NeatBevFrame, NeatBevOverflow, NeatBevShape } from './model';
+import type {
+  NeatBevBounds,
+  NeatBevFrame,
+  NeatBevObjectId,
+  NeatBevOverflow,
+  NeatBevPick,
+  NeatBevPoint,
+  NeatBevShape,
+} from './model';
 
 @Component({
   imports: [NeatBev],
@@ -23,6 +31,9 @@ import type { NeatBevBounds, NeatBevFrame, NeatBevOverflow, NeatBevShape } from 
     [zoom]="zoom()"
     [panBounds]="panBounds()"
     [zoomExtent]="zoomExtent()"
+    [(hovered)]="hovered"
+    (activated)="picks.push($event)"
+    (pointerMove)="points.push($event)"
   />`,
 })
 class Host {
@@ -34,6 +45,9 @@ class Host {
   readonly zoom = signal(false);
   readonly panBounds = signal<NeatBevBounds | null>(null);
   readonly zoomExtent = signal<readonly [number, number]>([1, 4]);
+  readonly hovered = signal<NeatBevObjectId | null>(null);
+  readonly picks: NeatBevPick[] = [];
+  readonly points: (NeatBevPoint | null)[] = [];
   readonly spokes = signal<number>(12);
   readonly styles = signal<readonly NeatOverlayClassStyle[]>([]);
 }
@@ -235,6 +249,90 @@ describe('NeatBev', () => {
       expect(readout().hidden).toBe(false);
     });
 
+    it('tells the app which object is hovered, by its id, once while it stays hovered', async () => {
+      host.frame.set({ objects: [{ ...car, id: 'car 7' }] });
+      await settle();
+      frames.run();
+      pointer('pointermove', 200, 150 - 10 * ppm);
+      frames.run();
+      await settle();
+      expect(host.hovered()).toBe('car 7');
+      const changes: unknown[] = [];
+      const bev = fixture.debugElement.children[0].componentInstance as NeatBev;
+      bev.hovered.subscribe((id) => changes.push(id));
+      // A new frame with the same object a little further: still the same one.
+      host.frame.set({ objects: [{ ...car, id: 'car 7', x: 10.2 }] });
+      await settle();
+      frames.run();
+      expect(changes).toEqual([]);
+      pointer('pointerleave', 0, 0);
+      frames.run();
+      await settle();
+      expect(host.hovered()).toBeNull();
+    });
+
+    it('names an object without an id by its index', async () => {
+      pointer('pointermove', 200, 150 - 10 * ppm);
+      frames.run();
+      await settle();
+      expect(host.hovered()).toBe(0);
+    });
+
+    it('outlines and reads out the object the app hovers, while no pointer is over it', async () => {
+      host.frame.set({
+        objects: [
+          { ...car, id: 'a' },
+          { ...car, id: 'b', x: -20 },
+        ],
+      });
+      host.hovered.set('b');
+      await settle();
+      frames.run();
+      expect(draws.at(-1)![6]).toBe(1);
+      expect(readout().hidden).toBe(false);
+      host.hovered.set('nobody');
+      await settle();
+      frames.run();
+      expect(draws.at(-1)![6]).toBe(-1);
+      expect(readout().hidden).toBe(true);
+      // One beyond the range is not drawn, so not outlined or read out either.
+      host.frame.set({ objects: [{ ...car, id: 'far', x: 70 }] });
+      host.hovered.set('far');
+      await settle();
+      frames.run();
+      expect(draws.at(-1)![6]).toBe(-1);
+      expect(readout().hidden).toBe(true);
+    });
+
+    it('tells the app what a click hit, and where, in metres', () => {
+      const click = (x: number, y: number) =>
+        element.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: x, clientY: y }));
+      click(200, 150 - 10 * ppm);
+      click(200 - 20 * ppm, 150);
+      expect(host.picks).toHaveLength(2);
+      expect(host.picks[0]).toMatchObject({ object: car, id: 0 });
+      expect(host.picks[0].x).toBeCloseTo(10);
+      expect(host.picks[1]).toMatchObject({ object: null, id: null });
+      expect(host.picks[1].y).toBeCloseTo(20);
+    });
+
+    it('reports where a mouse is, in metres, once a frame and only when it moved', () => {
+      pointer('pointermove', 200, 150 - 5 * ppm);
+      pointer('pointermove', 200, 150 - 6 * ppm);
+      frames.run();
+      frames.run();
+      expect(host.points).toHaveLength(1);
+      expect(host.points[0]!.x).toBeCloseTo(6);
+      pointer('pointerleave', 0, 0);
+      frames.run();
+      expect(host.points.at(-1)).toBeNull();
+      // A finger's tap is no pointer over the view.
+      pointer('pointerdown', 200, 150, 'touch');
+      element.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 200, clientY: 150 }));
+      frames.run();
+      expect(host.points).toHaveLength(2);
+    });
+
     it('reads out nothing outside the round plot, unless overflow is visible', async () => {
       host.frame.set({ objects: [{ ...car, x: 0, y: 70, length: 20, width: 20 }] });
       await settle();
@@ -310,6 +408,8 @@ describe('NeatBev', () => {
       const button = resetButton()!;
       expect(button.getAttribute('aria-label')).toBe('Reset view');
       button.click();
+      // The reset's own click is no click on the view.
+      expect(host.picks).toEqual([]);
       frames.run();
       await settle();
       expect(resetButton()).toBeNull();

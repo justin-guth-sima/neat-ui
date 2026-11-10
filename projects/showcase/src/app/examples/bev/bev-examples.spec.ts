@@ -10,6 +10,7 @@ import { CameraSeams } from './5-camera-seams.example';
 import { Zoom } from './6-zoom.example';
 import { SharedStyles } from './7-shared-styles.example';
 import { Polygons } from './8-polygons.example';
+import { Interaction } from './9-interaction.example';
 import { RoadScene } from './roads';
 import { CAMERAS, SEAMS, StreetScene } from './scene';
 
@@ -37,6 +38,7 @@ describe('the BEV examples', () => {
     Zoom,
     SharedStyles,
     Polygons,
+    Interaction,
   ];
   for (const example of examples) {
     it(`${example.name} moves its scene on while shown, and stops when gone`, async () => {
@@ -66,6 +68,35 @@ function inside(xy: Float32Array, x: number, y: number): boolean {
   }
   return crossings % 2 === 1;
 }
+
+describe('the interaction example', () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      'ResizeObserver',
+      vi.fn(() => ({ observe: vi.fn(), disconnect: vi.fn() })),
+    );
+  });
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('lists the vehicles by their tracks, and binds the selected one to the view both ways', () => {
+    const fixture = TestBed.createComponent(Interaction);
+    fixture.detectChanges();
+    const view = fixture.debugElement.query(By.directive(NeatBev)).componentInstance as NeatBev;
+    const text = () => (fixture.nativeElement as HTMLElement).querySelector('.report')!.textContent;
+    expect(text()).toContain('Nothing');
+    // The view hovers a car: the card names it.
+    view.hovered.set('car 2');
+    fixture.detectChanges();
+    expect(text()).toContain('car 2,');
+    const rows = (fixture.nativeElement as HTMLElement).querySelectorAll('[role="option"]');
+    expect(rows.length).toBeGreaterThan(10);
+    expect(
+      [...rows].find((row) => row.getAttribute('aria-selected') === 'true')?.textContent,
+    ).toContain('car 2');
+    fixture.destroy();
+  });
+});
 
 describe('the road network', () => {
   const frame = new RoadScene().frameAt(3);

@@ -10,7 +10,9 @@ import {
   ElementRef,
   inject,
   input,
+  model,
   NgZone,
+  output,
   signal,
   untracked,
   viewChild,
@@ -49,6 +51,10 @@ import type {
   NeatBevBounds,
   NeatBevFrame,
   NeatBevGuides,
+  NeatBevObject,
+  NeatBevObjectId,
+  NeatBevPick,
+  NeatBevPoint,
   NeatBevOverflow,
   NeatBevSensor,
   NeatBevShape,
@@ -174,6 +180,19 @@ export class NeatBev {
    * times by default; a min below 1 zooms out beyond the default view. It always takes in 1.
    */
   readonly zoomExtent = input<readonly [min: number, max: number]>(ZOOM_EXTENT);
+  /**
+   * The object outlined and read out: the one under the pointer while it is over the view (null
+   * once it leaves), or one the app sets, by its `id` (its index without one). It changes when
+   * another object comes under the pointer, not with every frame.
+   */
+  readonly hovered = model<NeatBevObjectId | null>(null);
+  /** A click or tap on the view that is no drag: the object it hit (or null) and the point. */
+  readonly activated = output<NeatBevPick>();
+  /**
+   * Where a mouse or pen is over the view, metres, at most once a frame and only when it changed
+   * (a zoom moves it too); null when it leaves.
+   */
+  readonly pointerMove = output<NeatBevPoint | null>();
   /** A label's colour, line and width, as the video overlays' class rows set them for the tiles. */
   readonly styles = input<readonly NeatOverlayClassStyle[]>([]);
   /** The plot's accessible name. */
@@ -232,6 +251,14 @@ export class NeatBev {
   private readout: BevReadout | null = null;
   /** Where the pointer is over the box (CSS px), or the last tap; null for neither. */
   private pointer: { x: number; y: number } | null = null;
+  /** Whether `pointer` is a mouse or pen over the box, not a tap: what `pointerMove` reports. */
+  private hovering = false;
+  /** Whether the pointer has left, or the readout was put away: the hover goes back to null. */
+  private released = false;
+  /** The point `pointerMove` last reported. */
+  private reported: NeatBevPoint | null = null;
+  /** The view, the inputs and the frame last drawn: what a click is tested against. */
+  private drawn: { view: BevView; inputs: BevInputs; frame: NeatBevFrame | null } | null = null;
   /** The kind of the last press: a touch reads out by a tap, a mouse or pen by hovering. */
   private pressedBy = '';
   /** The summary written, the frame and plot it was made from, when, and the one waiting. */
@@ -262,6 +289,7 @@ export class NeatBev {
       const styles = this.styles();
       this.frame();
       this.inputs();
+      this.hovered();
       this.panBounds();
       this.zoomExtent();
       // The scheme, not the colours: they are resolved (on a canvas) only when a frame draws.
@@ -288,8 +316,8 @@ export class NeatBev {
           this.readoutDistance().nativeElement,
           this.readoutText().nativeElement,
         );
-        this.host.addEventListener('pointermove', this.pointerMove);
-        this.host.addEventListener('pointerleave', this.pointerLeave);
+        this.host.addEventListener('pointermove', this.moved);
+        this.host.addEventListener('pointerleave', this.left);
         this.host.addEventListener('pointerdown', this.pointerDown);
         this.host.addEventListener('click', this.click);
         this.host.addEventListener('keydown', this.escape);
@@ -315,8 +343,8 @@ export class NeatBev {
       observer?.disconnect();
       this.zoomer?.destroy();
       clearTimeout(this.summaryTimer);
-      this.host.removeEventListener('pointermove', this.pointerMove);
-      this.host.removeEventListener('pointerleave', this.pointerLeave);
+      this.host.removeEventListener('pointermove', this.moved);
+      this.host.removeEventListener('pointerleave', this.left);
       this.host.removeEventListener('pointerdown', this.pointerDown);
       this.host.removeEventListener('click', this.click);
       this.host.removeEventListener('keydown', this.escape);
@@ -369,33 +397,54 @@ export class NeatBev {
   }
 
   /** A mouse or pen over the box reads out what it hovers; a finger does by tapping. */
-  private readonly pointerMove = (event: PointerEvent): void => {
+  private readonly moved = (event: PointerEvent): void => {
     if (event.pointerType === 'touch') return;
     this.pointer = this.pointOf(event);
+    this.hovering = true;
     this.schedule();
   };
 
-  private readonly pointerLeave = (event: PointerEvent): void => {
+  private readonly left = (event: PointerEvent): void => {
     if (event.pointerType === 'touch') return;
-    this.pointer = null;
-    this.schedule();
+    this.release();
   };
+
+  /** No pointer any more: the hover goes back to null at the next frame. */
+  private release(): void {
+    this.pointer = null;
+    this.hovering = false;
+    this.released = true;
+    this.schedule();
+  }
 
   private readonly pointerDown = (event: PointerEvent): void => {
     this.pressedBy = event.pointerType;
   };
 
-  /** A tap reads out what it lands on, or puts the readout away; a drag is no click (d3-zoom). */
+  /**
+   * A click or tap that is no drag (d3-zoom swallows those) and not on the reset button: the app
+   * hears what it hit; a tap also reads out what it lands on, or puts the readout away.
+   */
   private readonly click = (event: MouseEvent): void => {
-    if (this.pressedBy !== 'touch') return;
-    this.pointer = this.pointOf(event);
-    this.schedule();
+    if (event.target instanceof Element && event.target.closest('button')) return;
+    const at = this.pointOf(event);
+    if (this.pressedBy === 'touch') {
+      this.pointer = at;
+      this.hovering = false;
+      this.schedule();
+    }
+    const drawn = this.drawn;
+    if (!drawn || !(drawn.view.ppm > 0)) return;
+    const point = toVehicle(drawn.view, at.x, at.y, { x: 0, y: 0 });
+    const index = this.hitAt(drawn.view, drawn.inputs, drawn.frame, at);
+    const object = index >= 0 ? (drawn.frame?.objects?.[index] ?? null) : null;
+    const id = object ? (object.id ?? index) : null;
+    this.zone.run(() => this.activated.emit({ object, id, x: point.x, y: point.y, event }));
   };
 
   private readonly escape = (event: KeyboardEvent): void => {
     if (event.key !== 'Escape' || this.pointer === null) return;
-    this.pointer = null;
-    this.schedule();
+    this.release();
   };
 
   private readonly visibility = (): void => {
@@ -425,7 +474,9 @@ export class NeatBev {
     const { k, x, y } = this.transform;
     const view: BevView = { ...start, k, tx: x, ty: y };
     const frame = untracked(this.frame);
-    const hover = this.hovered(view, inputs, frame);
+    this.drawn = { view, inputs, frame };
+    const hover = this.hover(view, inputs, frame);
+    this.report(view);
     this.colours.begin(performance.now());
     this.canvas.draw(ratio, view, inputs, untracked(this.theme), this.colours, frame, hover);
     this.summarise(frame, plot);
@@ -462,15 +513,73 @@ export class NeatBev {
     this.summaryElement().nativeElement.textContent = text;
   }
 
-  /** The index of the object under the pointer, where the view shows objects; -1 for none. */
-  private hovered(view: BevView, inputs: BevInputs, frame: NeatBevFrame | null): number {
+  /**
+   * The index of the object to outline and read out. While a pointer is over the view, the one
+   * under it, and `hovered` follows when that is another object; otherwise the one `hovered`
+   * names, as the app may have set it (null once the pointer has left).
+   */
+  private hover(view: BevView, inputs: BevInputs, frame: NeatBevFrame | null): number {
+    const objects = frame?.objects ?? [];
+    if (this.pointer) {
+      const index = this.hitAt(view, inputs, frame, this.pointer);
+      const id = index >= 0 ? (objects[index].id ?? index) : null;
+      this.setHovered(id);
+      return index;
+    }
+    if (this.released) {
+      this.released = false;
+      this.setHovered(null);
+    }
+    // One the app names is outlined only where the view shows it.
+    const index = indexOf(objects, untracked(this.hovered));
+    const object = objects[index];
+    if (!object || (inputs.overflow === 'clip' && !onPlot(inputs.plot, object.x, object.y))) {
+      return -1;
+    }
+    return index;
+  }
+
+  /** Sets `hovered` when it changes, in the zone, so that an app's listener runs as any other. */
+  private setHovered(id: NeatBevObjectId | null): void {
+    if (untracked(this.hovered) === id) return;
+    this.zone.run(() => this.hovered.set(id));
+  }
+
+  /** Reports where a mouse or pen is, metres, when that changed; null once it has gone. */
+  private report(view: BevView): void {
+    const pointer = this.hovering ? this.pointer : null;
+    let point: NeatBevPoint | null = null;
+    if (pointer && view.ppm > 0) {
+      const { x, y } = toVehicle(view, pointer.x, pointer.y, this.vehiclePoint);
+      point = { x, y };
+    }
+    const last = this.reported;
+    if (point === last || (point && last && point.x === last.x && point.y === last.y)) return;
+    this.reported = point;
+    this.zone.run(() => this.pointerMove.emit(point));
+  }
+
+  /** The index of the object at `pointer` (CSS px), where the view shows objects; -1 for none. */
+  private hitAt(
+    view: BevView,
+    inputs: BevInputs,
+    frame: NeatBevFrame | null,
+    pointer: { x: number; y: number },
+  ): number {
     const objects = frame?.objects;
-    const pointer = this.pointer;
-    if (!pointer || !objects?.length || !(view.ppm > 0)) return -1;
+    if (!objects?.length || !(view.ppm > 0)) return -1;
     const at = toVehicle(view, pointer.x, pointer.y, this.vehiclePoint);
     if (inputs.overflow === 'clip' && !onPlot(inputs.plot, at.x, at.y)) return -1;
     return hitObject(objects, at.x, at.y, HIT_TOLERANCE_PX / (view.ppm * view.k));
   }
+}
+
+/** The index of the object `id` names: by its `id`, or by its index for objects without one. */
+function indexOf(objects: readonly NeatBevObject[], id: NeatBevObjectId | null): number {
+  if (id === null) return -1;
+  const byId = objects.findIndex((object) => object.id === id);
+  if (byId >= 0) return byId;
+  return typeof id === 'number' && objects[id]?.id === undefined && id in objects ? id : -1;
 }
 
 function sameBounds(

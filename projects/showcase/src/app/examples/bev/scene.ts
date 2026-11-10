@@ -139,6 +139,8 @@ function wallReturns(next: () => number): Float32Array {
 
 /** Something that moves along a straight lane, wrapping around. */
 interface Mover {
+  /** Its track's id, as a tracker would give it: the label and a number ("car 3"). */
+  readonly id: string;
   readonly label: string;
   readonly length: number;
   readonly width: number;
@@ -157,7 +159,7 @@ const wrap = (value: number): number =>
   ((((value + WRAP) % (2 * WRAP)) + 2 * WRAP) % (2 * WRAP)) - WRAP;
 
 function movers(next: () => number): Mover[] {
-  const car = (x: number, y: number, yaw: number, speed: number): Mover => ({
+  const car = (x: number, y: number, yaw: number, speed: number): Omit<Mover, 'id'> => ({
     label: 'car',
     length: 4.5,
     width: 1.9,
@@ -170,7 +172,7 @@ function movers(next: () => number): Mover[] {
   const oncoming = ROAD_Y + LANE;
   const crossLeft = CROSS_X - LANE / 2;
   const crossRight = CROSS_X + LANE / 2;
-  const list: Mover[] = [
+  const list: Omit<Mover, 'id'>[] = [
     // Queued in the vehicle's lane, ahead and behind: waiting, as it is.
     car(9, 0, 0, 0),
     car(-9.5, 0, 0, 0),
@@ -229,7 +231,12 @@ function movers(next: () => number): Mover[] {
       score: 0.5 + 0.4 * next(),
     });
   }
-  return list;
+  const counts = new Map<string, number>();
+  return list.map((mover) => {
+    const n = (counts.get(mover.label) ?? 0) + 1;
+    counts.set(mover.label, n);
+    return { ...mover, id: `${mover.label} ${n}` };
+  });
 }
 
 /** The scene at `seconds`: everything moved on, the lidar's returns jittered a little. */
@@ -252,6 +259,7 @@ export class StreetScene {
       const travelled = m.speed * seconds;
       const along = Math.abs(Math.cos(m.yaw)) > 0.5;
       return {
+        id: m.id,
         label: m.label,
         length: m.length,
         width: m.width,

@@ -98,8 +98,9 @@ look happens in one place. Every rule here protects that.
     primary's `NeatSeriesSwatch` again; with `diagram` and `bev`, the only code that imports d3),
     `bev` (`NeatBev`, `neat-bev`: a bird's-eye view around a vehicle, with its model types
     `NeatBevFrame`, `NeatBevObject`, `NeatBevPoints`, `NeatBevLine`, `NeatBevGrid`, `NeatBevSensor`,
-    `NeatBevSpoke`, `NeatBevShape`, `NeatBevBounds`, `NeatBevOverflow` and `NeatBevGuides`; how it
-    draws is under "How the bird's-eye view is drawn" below), `diagram`
+    `NeatBevSpoke`, `NeatBevShape`, `NeatBevBounds`, `NeatBevOverflow`, `NeatBevGuides`,
+    `NeatBevObjectId`, `NeatBevPick` and `NeatBevPoint`; how it draws is under "How the bird's-eye
+    view is drawn" below), `diagram`
     (hand-placed diagrams: their model, `NeatDiagramView` (`neat-diagram`) with its templates,
     `NeatDiagramLegend` (`neat-diagram-legend`), `NeatDiagramMessages` (`neat-diagram-messages`)
     with its `NeatDiagramRateCard` (`neat-diagram-rate-card`) and `NeatDiagramAnimationSettings`
@@ -630,6 +631,13 @@ for driving demos such as the FastBEV one.
   d3-zoom alone lets the page scroll. The host is then a tab stop whose arrows pan, `+`/`=` and `-`
   zoom about the box's centre and `0` resets; a "Reset view" button shows while the view is zoomed
   or panned. The kit stores nothing.
+- Interaction (the rule "A widget tells the app what happens on it"): `hovered`, a model of the
+  outlined object's id (an object's `id`, or its index without one), set by the pointer while it
+  is over the view (null when it leaves) and by the app otherwise, changing only when another
+  object comes under the pointer; `activated`, a click or tap that is no drag (`NeatBevPick`: the
+  object or null, its id, the point in metres, the event; the reset button's clicks excluded);
+  `pointerMove`, a mouse or pen's point in metres once a frame when it changed, null on leaving.
+  An object the app hovers is outlined and read out only where the view shows it.
 - The readout (`readout.ts`): a mouse or pen hovering an object, or a finger tapping it, outlines it
   and shows the kit's readout beside it (`ɵREADOUT_CLASSES`): a swatch and its label, its distance,
   the app's `text`. It is filled and placed by the frames, straight in the DOM, and re-tested at the
@@ -1168,6 +1176,19 @@ spread through components it makes change detection unpredictable and bugs hard 
 Keep it in a small, separate unit that runs outside the Angular zone/signals graph, exposes a narrow
 interface, and has its own tests. Escape hatch: if the isolation costs too much for a case, say so
 in the PR and agree the exception before merging.
+
+**A widget tells the app what happens on it: `model()` for state, `output()` for events.**
+State the app may also set (what is hovered, what is selected) is a `model()`, so the app can bind
+it both ways and drive the widget from outside (a row hovered in a list outlines the item in the
+view). Events are `output()`s carrying the widget's own item and a position in the widget's own
+units (metres, a time, a cell), not a DOM event alone. An item is named by an id the app gives,
+stable across updates, not by an index into data that changes. Listeners that run outside change
+detection hand events back inside Angular's zone (`NgZone.run`), so an app's handler runs as any
+other; continuous events (a pointer moving) at most once per animation frame, and only when they
+changed. Every widget that gets them gets a showcase example in which another component (a card)
+shows the state and drives it. Why: an app reacts to the widget without reaching into it, and
+every widget does it the same way. `neat-bev` is the first (`hovered`, `activated`,
+`pointerMove`).
 
 **Every public part has a doc comment, and appears in the docs.**
 Why: the docs are generated from the comments, so an undocumented part is an empty entry, and a
