@@ -8,6 +8,140 @@ every other Neat app, in light and dark.
 
 <!-- gallery: written by `npm run docs:gallery` from the @gallery examples -->
 
+### Charts
+
+<table>
+<tr>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/sparkline.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/sparkline/tones.dark.webp">
+<img src="docs/images/sparkline/tones.light.webp" alt="Sparkline: Tones">
+</picture></a><br>
+<a href="docs/components/sparkline.md"><b>Sparkline</b></a>
+</td>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/time-chart.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/time-chart/several-series.dark.webp">
+<img src="docs/images/time-chart/several-series.light.webp" alt="Time chart: Several series">
+</picture></a><br>
+<a href="docs/components/time-chart.md"><b>Time chart</b></a>
+</td>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/stacked-chart.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/stacked-chart/power-rails.dark.webp">
+<img src="docs/images/stacked-chart/power-rails.light.webp" alt="Stacked chart: Power rails">
+</picture></a><br>
+<a href="docs/components/stacked-chart.md"><b>Stacked chart</b></a>
+</td>
+</tr>
+<tr>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/heatmap.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/heatmap/core-load.dark.webp">
+<img src="docs/images/heatmap/core-load.light.webp" alt="Heatmap: Core load">
+</picture></a><br>
+<a href="docs/components/heatmap.md"><b>Heatmap</b></a>
+</td>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/score-bars.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/score-bars/score-bars.dark.webp">
+<img src="docs/images/score-bars/score-bars.light.webp" alt="Score bars: Gesture scores">
+</picture></a><br>
+<a href="docs/components/score-bars.md"><b>Score bars</b></a>
+</td>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/label-timeline.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/label-timeline/name-rows.dark.webp">
+<img src="docs/images/label-timeline/name-rows.light.webp" alt="Label timeline: Name rows">
+</picture></a><br>
+<a href="docs/components/label-timeline.md"><b>Label timeline</b></a>
+</td>
+</tr>
+<tr>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/chart-card.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/chart-card/selectable-cards.dark.webp">
+<img src="docs/images/chart-card/selectable-cards.light.webp" alt="Chart card: Selectable cards">
+</picture></a><br>
+<a href="docs/components/chart-card.md"><b>Chart card</b></a>
+</td>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/series-swatch.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/series-swatch/run-chips.dark.webp">
+<img src="docs/images/series-swatch/run-chips.light.webp" alt="Swatch: Run chips">
+</picture></a><br>
+<a href="docs/components/series-swatch.md"><b>Swatch</b></a>
+</td>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/bev.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/bev/interaction.dark.webp">
+<img src="docs/images/bev/interaction.light.webp" alt="Bird's-eye view: Interaction">
+</picture></a><br>
+<a href="docs/components/bev.md"><b>Bird's-eye view</b></a>
+</td>
+</tr>
+</table>
+
+### Diagram
+
+<table>
+<tr>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/diagram.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/diagram/filling-its-card.dark.webp">
+<img src="docs/images/diagram/filling-its-card.light.webp" alt="Diagram: Filling its card">
+</picture></a><br>
+<a href="docs/components/diagram.md"><b>Diagram</b></a>
+</td>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/messaging.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/messaging/live-pipeline.dark.webp">
+<img src="docs/images/messaging/live-pipeline.light.webp" alt="Messaging: Live pipeline">
+</picture></a><br>
+<a href="docs/components/messaging.md"><b>Messaging</b></a>
+</td>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/drill-down.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/drill-down/detector-level.dark.webp">
+<img src="docs/images/drill-down/detector-level.light.webp" alt="Drill-down: Detector level">
+</picture></a><br>
+<a href="docs/components/drill-down.md"><b>Drill-down</b></a>
+</td>
+</tr>
+</table>
+
+Also: [Legend](docs/components/legend.md).
+
+### Video
+
+<table>
+<tr>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/video-tile.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/video-tile/poses.dark.webp">
+<img src="docs/images/video-tile/poses.light.webp" alt="Video tile: Poses">
+</picture></a><br>
+<a href="docs/components/video-tile.md"><b>Video tile</b></a>
+</td>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/roi-editor.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/roi-editor/drawing-regions.dark.webp">
+<img src="docs/images/roi-editor/drawing-regions.light.webp" alt="ROI editor: Drawing regions">
+</picture></a><br>
+<a href="docs/components/roi-editor.md"><b>ROI editor</b></a>
+</td>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/metadata-sync.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/metadata-sync/late-notice.dark.webp">
+<img src="docs/images/metadata-sync/late-notice.light.webp" alt="Metadata sync: Late notice">
+</picture></a><br>
+<a href="docs/components/metadata-sync.md"><b>Metadata sync</b></a>
+</td>
+</tr>
+</table>
+
+Also: [Tile grid](docs/components/tile-grid.md).
+
 ### Theme
 
 <table>
@@ -281,140 +415,6 @@ Also: [Stale](docs/components/stale.md), [Motion](docs/components/motion.md), [T
 </table>
 
 Also: [Collapsible](docs/components/collapsible.md), [Stored signal](docs/components/stored-signal.md).
-
-### Charts
-
-<table>
-<tr>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/sparkline.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/sparkline/tones.dark.webp">
-<img src="docs/images/sparkline/tones.light.webp" alt="Sparkline: Tones">
-</picture></a><br>
-<a href="docs/components/sparkline.md"><b>Sparkline</b></a>
-</td>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/time-chart.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/time-chart/several-series.dark.webp">
-<img src="docs/images/time-chart/several-series.light.webp" alt="Time chart: Several series">
-</picture></a><br>
-<a href="docs/components/time-chart.md"><b>Time chart</b></a>
-</td>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/stacked-chart.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/stacked-chart/power-rails.dark.webp">
-<img src="docs/images/stacked-chart/power-rails.light.webp" alt="Stacked chart: Power rails">
-</picture></a><br>
-<a href="docs/components/stacked-chart.md"><b>Stacked chart</b></a>
-</td>
-</tr>
-<tr>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/heatmap.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/heatmap/core-load.dark.webp">
-<img src="docs/images/heatmap/core-load.light.webp" alt="Heatmap: Core load">
-</picture></a><br>
-<a href="docs/components/heatmap.md"><b>Heatmap</b></a>
-</td>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/score-bars.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/score-bars/score-bars.dark.webp">
-<img src="docs/images/score-bars/score-bars.light.webp" alt="Score bars: Gesture scores">
-</picture></a><br>
-<a href="docs/components/score-bars.md"><b>Score bars</b></a>
-</td>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/label-timeline.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/label-timeline/name-rows.dark.webp">
-<img src="docs/images/label-timeline/name-rows.light.webp" alt="Label timeline: Name rows">
-</picture></a><br>
-<a href="docs/components/label-timeline.md"><b>Label timeline</b></a>
-</td>
-</tr>
-<tr>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/chart-card.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/chart-card/selectable-cards.dark.webp">
-<img src="docs/images/chart-card/selectable-cards.light.webp" alt="Chart card: Selectable cards">
-</picture></a><br>
-<a href="docs/components/chart-card.md"><b>Chart card</b></a>
-</td>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/series-swatch.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/series-swatch/run-chips.dark.webp">
-<img src="docs/images/series-swatch/run-chips.light.webp" alt="Swatch: Run chips">
-</picture></a><br>
-<a href="docs/components/series-swatch.md"><b>Swatch</b></a>
-</td>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/bev.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/bev/interaction.dark.webp">
-<img src="docs/images/bev/interaction.light.webp" alt="Bird's-eye view: Interaction">
-</picture></a><br>
-<a href="docs/components/bev.md"><b>Bird's-eye view</b></a>
-</td>
-</tr>
-</table>
-
-### Diagram
-
-<table>
-<tr>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/diagram.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/diagram/filling-its-card.dark.webp">
-<img src="docs/images/diagram/filling-its-card.light.webp" alt="Diagram: Filling its card">
-</picture></a><br>
-<a href="docs/components/diagram.md"><b>Diagram</b></a>
-</td>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/messaging.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/messaging/live-pipeline.dark.webp">
-<img src="docs/images/messaging/live-pipeline.light.webp" alt="Messaging: Live pipeline">
-</picture></a><br>
-<a href="docs/components/messaging.md"><b>Messaging</b></a>
-</td>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/drill-down.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/drill-down/detector-level.dark.webp">
-<img src="docs/images/drill-down/detector-level.light.webp" alt="Drill-down: Detector level">
-</picture></a><br>
-<a href="docs/components/drill-down.md"><b>Drill-down</b></a>
-</td>
-</tr>
-</table>
-
-Also: [Legend](docs/components/legend.md).
-
-### Video
-
-<table>
-<tr>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/video-tile.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/video-tile/poses.dark.webp">
-<img src="docs/images/video-tile/poses.light.webp" alt="Video tile: Poses">
-</picture></a><br>
-<a href="docs/components/video-tile.md"><b>Video tile</b></a>
-</td>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/roi-editor.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/roi-editor/drawing-regions.dark.webp">
-<img src="docs/images/roi-editor/drawing-regions.light.webp" alt="ROI editor: Drawing regions">
-</picture></a><br>
-<a href="docs/components/roi-editor.md"><b>ROI editor</b></a>
-</td>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/metadata-sync.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/metadata-sync/late-notice.dark.webp">
-<img src="docs/images/metadata-sync/late-notice.light.webp" alt="Metadata sync: Late notice">
-</picture></a><br>
-<a href="docs/components/metadata-sync.md"><b>Metadata sync</b></a>
-</td>
-</tr>
-</table>
-
-Also: [Tile grid](docs/components/tile-grid.md).
 
 <!-- gallery end -->
 

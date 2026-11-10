@@ -1,7 +1,8 @@
 /*
  * The README's gallery: one picture per topic, the example marked `@gallery`, grouped as the
  * showcase's rail groups them (Theme, Layout, then Components by category), written into
- * README.md between its two gallery markers.
+ * README.md between its two gallery markers. The sections in `LEAD` come first, the rest follow in
+ * rail order.
  *
  *   npm run docs:gallery              rewrite the gallery in README.md
  *   npm run docs:gallery -- --check   only check it (npm run test:tools does, so CI does)
@@ -30,17 +31,30 @@ export const IMAGES = 'docs/images';
 /** Pictures per row: three fit GitHub's column at a size where a component still reads. */
 const COLUMNS = 3;
 
+/**
+ * The sections that open the gallery, by id: a reader should first see what the kit draws that
+ * nothing else does, not the theme's swatches or a page's frame.
+ */
+export const LEAD = ['charts', 'diagram', 'video'];
+
 /** The sections of the gallery, in rail order: a group's own topics, or each of its categories. */
 export function sectionsOf(groups) {
   return groups.flatMap((group) =>
     group.topics
-      ? [{ label: group.label, group: group.id, topics: group.topics }]
+      ? [{ id: group.id, label: group.label, group: group.id, topics: group.topics }]
       : group.categories.map((category) => ({
+          id: category.id,
           label: category.label,
           group: group.id,
           topics: category.topics,
         })),
   );
+}
+
+/** `sections` with those `lead` names first, in `lead`'s order, and the others as they were. */
+export function leading(sections, lead = LEAD) {
+  const first = lead.map((id) => sections.find((section) => section.id === id)).filter(Boolean);
+  return [...first, ...sections.filter((section) => !lead.includes(section.id))];
 }
 
 const escape = (text) =>
@@ -131,7 +145,7 @@ export async function gallery(root = ROOT) {
     const pick = examples.find((example) => example.gallery);
     if (pick) picks.set(topic, pick);
   }
-  const markdown = galleryMarkdown({ sections: sectionsOf(GROUPS), picks });
+  const markdown = galleryMarkdown({ sections: leading(sectionsOf(GROUPS)), picks });
   const current = readFileSync(join(root, README), 'utf8');
   return { wanted: withGallery(current, markdown), current, missing: missingPictures(root, picks) };
 }

@@ -9,6 +9,7 @@ import {
   START,
   gallery,
   galleryMarkdown,
+  leading,
   missingPictures,
   sectionsOf,
   withGallery,
@@ -41,6 +42,18 @@ describe('sectionsOf', () => {
         ['Actions', 'components', ['button']],
         ['Forms', 'components', ['switch']],
       ],
+    );
+  });
+});
+
+describe('leading', () => {
+  it('puts the lead sections first, in its order, and keeps the others in theirs', () => {
+    const sections = ['theme', 'layout', 'actions', 'charts', 'video', 'diagram'].map((id) => ({
+      id,
+    }));
+    assert.deepEqual(
+      leading(sections, ['charts', 'diagram', 'video', 'gone']).map((section) => section.id),
+      ['charts', 'diagram', 'video', 'theme', 'layout', 'actions'],
     );
   });
 });

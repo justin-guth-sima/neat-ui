@@ -246,8 +246,8 @@ is the doc comment, and the snippet under an example is the file that renders it
   they are stale, and a page of a topic that is gone is removed (only a `.md` file directly in a
   group's folder, `removablePage`).
 - **The README's gallery** is written by `npm run docs:gallery` (`tools/readme-gallery.mjs`)
-  between its two markers, from `topics.ts` (sections in rail order, a group's own topics or each
-  category) and the `@gallery` examples, each picture light and dark in a `<picture>` and linked to
+  between its two markers, from `topics.ts` (a group's own topics or each category as a section,
+  Charts, Diagram and Video first, `LEAD`, then the rest in rail order) and the `@gallery` examples, each picture light and dark in a `<picture>` and linked to
   its topic's docs page. `npm run test:tools` fails when it is stale or a pick has no picture. The
   README's quick start repeats the Getting started page's four snippets, and that page's spec
   holds them to it.
