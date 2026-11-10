@@ -41,8 +41,10 @@ export interface NeatBevPoints {
 
 /**
  * A polyline in one label's colour (a planned path, a lane, a boundary), or with `fill` a polygon
- * (a zone, a parking space, free space from a model): filled as a grid is, a light tint over the
- * surface that covers what lies under it, and outlined.
+ * (a road, a zone, free space from a model): an area, filled as a grid is, a light tint over the
+ * surface that covers what lies under it, without an outline. A label's polygons fill as one area,
+ * so a road network given as overlapping pieces shows no darker joins; for an outline, give the
+ * same points again as a line without `fill`.
  */
 export interface NeatBevLine {
   /** What picks its colour. */
@@ -51,7 +53,7 @@ export interface NeatBevLine {
   readonly xy: Float32Array;
   /** Whether the last point joins the first. */
   readonly closed?: boolean;
-  /** Whether it is filled as an area, as a grid is; a filled line is closed. */
+  /** Whether it is a polygon filled as an area, as a grid is, without an outline; it is closed. */
   readonly fill?: boolean;
   /** Its dash, as the video overlays' lines have it; a label's style row wins. Solid by default. */
   readonly style?: NeatOverlayLineStyle;

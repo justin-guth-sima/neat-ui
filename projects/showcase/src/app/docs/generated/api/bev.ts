@@ -759,7 +759,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Whether it is filled as an area, as a grid is; a filled line is closed."
+                  "text": "Whether it is a polygon filled as an area, as a grid is, without an outline; it is closed."
                 }
               ]
             }
@@ -796,7 +796,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " a polygon (a zone, a parking space, free space from a model): filled as a grid is, a light tint over the surface that covers what lies under it, and outlined."
+              "text": " a polygon (a road, a zone, free space from a model): an area, filled as a grid is, a light tint over the surface that covers what lies under it, without an outline. A label's polygons fill as one area, so a road network given as overlapping pieces shows no darker joins; for an outline, give the same points again as a line without "
+            },
+            {
+              "kind": "code",
+              "text": "fill"
+            },
+            {
+              "kind": "text",
+              "text": "."
             }
           ]
         }

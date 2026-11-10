@@ -9,6 +9,8 @@ import { OverflowZoom } from './4-overflow-zoom.example';
 import { CameraSeams } from './5-camera-seams.example';
 import { Zoom } from './6-zoom.example';
 import { SharedStyles } from './7-shared-styles.example';
+import { Polygons } from './8-polygons.example';
+import { RoadScene } from './roads';
 import { CAMERAS, SEAMS, StreetScene } from './scene';
 
 describe('the BEV examples', () => {
@@ -34,6 +36,7 @@ describe('the BEV examples', () => {
     CameraSeams,
     Zoom,
     SharedStyles,
+    Polygons,
   ];
   for (const example of examples) {
     it(`${example.name} moves its scene on while shown, and stops when gone`, async () => {
@@ -54,6 +57,48 @@ describe('the BEV examples', () => {
   }
 });
 
+/** Whether `x`, `y` lies inside the polygon `xy` (x, y pairs), by counting crossings. */
+function inside(xy: Float32Array, x: number, y: number): boolean {
+  let crossings = 0;
+  for (let i = 0, j = xy.length - 2; i < xy.length; j = i, i += 2) {
+    const [xi, yi, xj, yj] = [xy[i], xy[i + 1], xy[j], xy[j + 1]];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) crossings++;
+  }
+  return crossings % 2 === 1;
+}
+
+describe('the road network', () => {
+  const frame = new RoadScene().frameAt(3);
+  const areas = frame.lines!.filter((line) => line.fill);
+  const onRoad = (x: number, y: number) => areas.some((area) => inside(area.xy, x, y));
+
+  it('gives the drivable area as filled pieces the vehicle and every mover are on', () => {
+    expect(areas.length).toBeGreaterThan(3);
+    expect(areas.every((area) => area.label === 'drivable area')).toBe(true);
+    expect(onRoad(0, 0)).toBe(true);
+    for (const object of frame.objects!) expect(onRoad(object.x, object.y)).toBe(true);
+  });
+
+  it("rounds the side road's corners and leaves the crossing's square", () => {
+    // Behind, where the side road meets the main road's left edge (12.25 m): a rounded corner
+    // fills the angle near the edge, and leaves its outer corner clear.
+    expect(onRoad(-29.5, 12.75)).toBe(true);
+    expect(onRoad(-33.5, 17.5)).toBe(false);
+    // Ahead, the crossing's corner is square: just beside the narrow road, off it.
+    expect(onRoad(18.5, 13)).toBe(false);
+    expect(onRoad(19.5, 13)).toBe(true);
+  });
+
+  it('branches a ramp off to the right that the planned path takes', () => {
+    const path = frame.lines!.find((line) => line.label === 'planned path')!;
+    const end = [path.xy[path.xy.length - 2], path.xy[path.xy.length - 1]];
+    expect(end[1]).toBeLessThan(-50);
+    expect(onRoad(end[0], end[1])).toBe(true);
+    // Beside the main road on the right, short of the ramp: off the road.
+    expect(onRoad(28, -10)).toBe(false);
+  });
+});
+
 describe('the street scene', () => {
   it('marks the road ahead and its crossing drivable, row 0 forward and column 0 left', () => {
     const [grid] = new StreetScene().frameAt(0).grids!;
@@ -67,14 +112,6 @@ describe('the street scene', () => {
     expect(at(22, 30)).toBe(255); // the crossing road, to the left
     expect(at(0, 30)).toBe(0); // a block beside the road
     expect(at(40, -20)).toBe(0);
-  });
-
-  it('gives the crosswalk as a filled polygon across the road, before the crossing', () => {
-    const [crosswalk] = new StreetScene().frameAt(0).lines!;
-    expect(crosswalk).toMatchObject({ label: 'crosswalk', fill: true });
-    const xs = [...crosswalk.xy].filter((_, i) => i % 2 === 0);
-    expect(Math.max(...xs)).toBeLessThan(15);
-    expect(Math.min(...xs)).toBeGreaterThan(5);
   });
 
   it('moves traffic on and keeps the grid, so it is not painted again', () => {

@@ -517,7 +517,7 @@ describe('BevCanvas', () => {
       expect(calls(main(), 'closePath').length).toBeGreaterThan(0);
     });
 
-    it('fills a filled line as an area: its backing, then its tint with the grids, then its outline', () => {
+    it('fills a filled line as an area: its backing, then its tint with the grids, no outline', () => {
       const zone = new Float32Array([5, 5, 10, 5, 10, 10]);
       const grid = {
         label: 'road',
@@ -544,10 +544,46 @@ describe('BevCanvas', () => {
           .at(-1)?.value;
       expect(alphaAt(fills[0])).toBe(1);
       expect(alphaAt(fills[1])).toBe(GRID_ALPHA);
-      // Outlined and closed, though it does not say `closed`.
-      const stroke = calls(log, 'stroke').map((c) => log.indexOf(c))[0];
-      expect(stroke).toBeGreaterThan(fills[1]);
-      expect(calls(log, 'closePath').length).toBeGreaterThanOrEqual(3);
+      // Closed, though it does not say `closed`, and not outlined: the one stroke is the marker's.
+      expect(calls(log, 'closePath')).toHaveLength(3);
+      expect(calls(log, 'stroke')).toHaveLength(1);
+    });
+
+    it("fills a label's overlapping polygons as one area, each wound the same way", () => {
+      // The same square twice, once counter-clockwise and once clockwise, and a second label.
+      const square = [0, 0, 10, 0, 10, 10, 0, 10];
+      const forward = new Float32Array(square);
+      const backward = new Float32Array([0, 10, 10, 10, 10, 0, 0, 0]);
+      draw({
+        lines: [
+          { label: 'road', xy: forward, fill: true },
+          { label: 'road', xy: backward, fill: true },
+          { label: 'zone', xy: forward, fill: true },
+        ],
+      });
+      const log = main();
+      // A backing and a tint for each label, not for each polygon, by the nonzero rule.
+      const fills = calls(log, 'fill');
+      expect(fills.slice(0, 4).map((c) => c.args)).toEqual([
+        ['nonzero'],
+        ['nonzero'],
+        ['nonzero'],
+        ['nonzero'],
+      ]);
+      expect(sets(log, 'fillStyle').slice(0, 4)).toEqual([
+        THEME.halo,
+        THEME.halo,
+        '#road',
+        '#zone',
+      ]);
+      // Both road squares are in the first path, the clockwise one turned round: they start at the
+      // same corner and go the same way.
+      const firstFill = log.indexOf(fills[0]);
+      const path = log.slice(0, firstFill);
+      const starts = calls(path, 'moveTo').map((c) => c.args);
+      expect(starts).toHaveLength(2);
+      const ways = calls(path, 'lineTo').map((c) => c.args);
+      expect(ways.slice(0, 3)).toEqual(ways.slice(3, 6));
     });
 
     it('lays no backing under a filled line without a surface colour', () => {

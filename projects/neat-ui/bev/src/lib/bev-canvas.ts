@@ -26,6 +26,7 @@ import type {
   NeatBevFrame,
   NeatBevGrid,
   NeatBevGuides,
+  NeatBevLine,
   NeatBevObject,
   NeatBevOverflow,
   NeatBevSensor,
@@ -167,6 +168,8 @@ export class BevCanvas {
   private readonly corners = new Float64Array(8);
   /** This frame's labels of objects, in the order they first appear; reused. */
   private readonly labels: string[] = [];
+  /** This frame's labels of filled lines, likewise. */
+  private readonly areaLabels: string[] = [];
   private readonly point = { x: 0, y: 0 };
   private readonly other = { x: 0, y: 0 };
 
@@ -670,16 +673,8 @@ export class BevCanvas {
     const count = grids?.length ?? 0;
     this.grids.length = Math.min(this.grids.length, count);
     for (const layer of ['backing', 'tint'] as const) {
-      if (layer === 'tint' || theme.surface) {
-        if (layer === 'backing') context.fillStyle = theme.halo;
-        context.globalAlpha = layer === 'tint' ? GRID_ALPHA : 1;
-        for (const line of lines ?? []) {
-          if (!line.fill || line.xy.length < 6) continue;
-          if (layer === 'tint') context.fillStyle = colours.of(line.label).colour;
-          this.linePath(context, view, line.xy, true);
-          context.fill();
-        }
-        context.globalAlpha = 1;
+      if (lines && (layer === 'tint' || theme.surface)) {
+        this.fillPolygons(context, view, lines, layer === 'tint' ? colours : null, theme.halo);
       }
       if (!grids) continue;
       context.imageSmoothingEnabled = false;
@@ -701,6 +696,51 @@ export class BevCanvas {
       }
       context.imageSmoothingEnabled = true;
     }
+  }
+
+  /**
+   * The filled lines, a label at a time: each label's polygons are one path, every polygon wound
+   * the same way, so that where they overlap the nonzero rule fills their union once (a road
+   * network given as pieces shows no darker joins). With `colours`, the tint in each label's
+   * colour; without, the backing in `surface`.
+   */
+  private fillPolygons(
+    context: CanvasRenderingContext2D,
+    view: BevView,
+    lines: readonly NeatBevLine[],
+    colours: LabelColours | null,
+    surface: string,
+  ): void {
+    const labels = this.areaLabels;
+    labels.length = 0;
+    for (const line of lines) {
+      if (line.fill && line.xy.length >= 6 && !labels.includes(line.label)) labels.push(line.label);
+    }
+    if (labels.length === 0) return;
+    context.globalAlpha = colours ? GRID_ALPHA : 1;
+    for (const label of labels) {
+      context.beginPath();
+      for (const line of lines) {
+        if (!line.fill || line.label !== label || line.xy.length < 6) continue;
+        this.addPolygon(context, view, line.xy);
+      }
+      context.fillStyle = colours ? colours.of(label).colour : surface;
+      context.fill('nonzero');
+    }
+    context.globalAlpha = 1;
+  }
+
+  /** Adds a closed polygon to the current path, wound counter-clockwise in metres. */
+  private addPolygon(context: CanvasRenderingContext2D, view: BevView, xy: Float32Array): void {
+    const pairs = xy.length >> 1;
+    const reversed = signedArea(xy) < 0;
+    for (let k = 0; k < pairs; k++) {
+      const i = 2 * (reversed ? pairs - 1 - k : k);
+      const at = toScreen(view, xy[i], xy[i + 1], this.point);
+      if (k === 0) context.moveTo(at.x, at.y);
+      else context.lineTo(at.x, at.y);
+    }
+    context.closePath();
   }
 
   /** A line's points as the current path, closed when asked. */
@@ -796,12 +836,13 @@ export class BevCanvas {
     context.lineCap = 'round';
     for (const line of lines) {
       const xy = line.xy;
-      if (xy.length < 4) continue;
+      // A filled line is an area, drawn with the grids, and has no outline of its own.
+      if (xy.length < 4 || line.fill) continue;
       const look = colours.of(line.label);
       context.strokeStyle = look.colour;
       context.lineWidth = look.width;
       context.setLineDash(dashOf(look.style ?? line.style));
-      this.linePath(context, view, xy, line.closed === true || line.fill === true);
+      this.linePath(context, view, xy, line.closed === true);
       context.stroke();
     }
     context.setLineDash(SOLID);
@@ -971,6 +1012,15 @@ export class BevCanvas {
     context.fill();
     context.stroke();
   }
+}
+
+/** Twice a polygon's signed area (x, y pairs): positive when wound counter-clockwise. */
+function signedArea(xy: Float32Array): number {
+  let sum = 0;
+  for (let i = 0, j = xy.length - 2; i + 1 < xy.length; j = i, i += 2) {
+    sum += xy[j] * xy[i + 1] - xy[i] * xy[j + 1];
+  }
+  return sum;
 }
 
 function sameRgb(a: NeatRgb | null, b: NeatRgb | null): boolean {

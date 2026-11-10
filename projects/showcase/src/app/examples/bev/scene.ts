@@ -12,7 +12,7 @@ import type {
  * A made-up street scene for the BEV examples, in the vehicle's frame (metres, x forward, y left):
  * the vehicle waits in the right lane of a road that crosses another 22 m ahead, with traffic,
  * people and a cyclist moving around it, a lidar's returns from the buildings, the lane markings,
- * a crosswalk, a planned left turn and a six-camera rig. Nothing here comes from a real recording.
+ * a planned left turn and a six-camera rig. Nothing here comes from a real recording.
  */
 
 /** The road the vehicle is on: its centre line and half its width. */
@@ -108,27 +108,6 @@ function plannedPath(): NeatBevLine {
   }
   points.push([CROSS_X - LANE / 2, 45]);
   return { label: 'planned path', xy: pairs(points) };
-}
-
-/**
- * The crosswalk the vehicle waits at, across its road just before the crossing: a filled line, as
- * a map or a model might give an area as a polygon.
- */
-function crosswalk(): NeatBevLine {
-  const near = CROSS_X - HALF_ROAD - 4;
-  const far = near + 3;
-  const right = ROAD_Y - HALF_ROAD;
-  const left = ROAD_Y + HALF_ROAD;
-  return {
-    label: 'crosswalk',
-    fill: true,
-    xy: pairs([
-      [near, right],
-      [far, right],
-      [far, left],
-      [near, left],
-    ]),
-  };
 }
 
 /** The lidar's returns from the buildings' walls at the four corners of the crossing. */
@@ -259,7 +238,6 @@ export class StreetScene {
   private readonly grid = drivableGrid();
   private readonly lanes = laneMarkings();
   private readonly path = plannedPath();
-  private readonly crosswalk = crosswalk();
   private readonly walls = wallReturns(this.next);
   /** The returns as drawn: the walls, jittered in place each frame. */
   private readonly returns = new Float32Array(this.walls.length);
@@ -285,7 +263,7 @@ export class StreetScene {
     });
     return {
       grids: [this.grid],
-      lines: [this.crosswalk, ...this.lanes, this.path],
+      lines: [...this.lanes, this.path],
       points: [{ label: 'lidar', xy: this.returns }],
       objects,
     };

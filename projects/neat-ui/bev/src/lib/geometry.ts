@@ -145,10 +145,7 @@ export function panArea(
     if ([back, front, right, left].every(Number.isFinite) && front > back && left > right) {
       return [
         [Math.min(0, view.cx - left * view.ppm), Math.min(0, view.cy - front * view.ppm)],
-        [
-          Math.max(width, view.cx - right * view.ppm),
-          Math.max(height, view.cy - back * view.ppm),
-        ],
+        [Math.max(width, view.cx - right * view.ppm), Math.max(height, view.cy - back * view.ppm)],
       ];
     }
   }

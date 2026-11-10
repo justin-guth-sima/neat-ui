@@ -608,7 +608,9 @@ for driving demos such as the FastBEV one.
   smoothing) and filled lines as areas: every area's backing, opaque in `--neat-surface` (a grid's
   as far as each cell's value goes), then every area's tint in its label's colour at `GRID_ALPHA`,
   so an area covers what lies under it, guides under the data included, still looks see-through
-  over the surface, and overlapping areas still blend. Then the lines (filled ones outlined), points and objects without allocating per item, clipped to the shape as the
+  over the surface, and overlapping areas still blend; a label's filled lines are one path, each
+  polygon wound the same way, filled once by the nonzero rule, so pieces of one area (a road
+  network from a map) join without darker seams. Filled lines have no outline. Then the lines, points and objects without allocating per item, clipped to the shape as the
   view shows it (zoom included) unless overflow is visible; the vehicle's marker goes on top.
   Points are squares of whole device pixels written into a buffer that covers only the shape's
   rectangle within the box (the box with `visible`), kept in memory (`willReadFrequently`) and
