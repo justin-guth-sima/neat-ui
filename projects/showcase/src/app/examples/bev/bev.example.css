@@ -1,17 +1,10 @@
-/*
- * The views' sizes are the app's to set: a fixed height here, the wide ones lower; the rectangle
- * takes its own proportions.
- */
+/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */
 neat-bev {
   height: 26rem;
 }
 
 neat-bev.wide {
   height: 16rem;
-}
-
-neat-bev.own-height {
-  height: auto;
 }
 
 .pair {

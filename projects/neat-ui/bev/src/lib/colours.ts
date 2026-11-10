@@ -21,6 +21,10 @@ import type { NeatOverlayClassStyle, NeatOverlayLineStyle } from '@sima/neat-ui/
 export const OBJECT_FILL_ALPHA = 0.25;
 /** How opaque a sensor's wedge is. */
 export const SENSOR_FILL_ALPHA = 0.07;
+/** How opaque the guides (rings, grid lines, spokes) are: the foreground, faint. */
+export const GUIDE_ALPHA = 0.18;
+/** How opaque the shape's outline is: the foreground, stronger than the guides. */
+export const OUTLINE_ALPHA = 0.5;
 /** How opaque a grid's cell of value 255 is. */
 export const GRID_ALPHA = 0.3;
 /** The width of objects' outlines and lines without a style row, CSS px. */

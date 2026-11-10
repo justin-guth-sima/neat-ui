@@ -44,9 +44,9 @@ import type {
 
 /** The theme's colours and the font, as CSS, for what the plot draws itself. */
 export interface BevTheme {
-  /** Rings, grid lines and spokes. */
+  /** Rings, grid lines and spokes: see-through, so that over the data they show on top of it. */
   readonly line: string;
-  /** The plot's edge and the range's ring. */
+  /** The plot's edge, see-through as the lines are. */
   readonly strong: string;
   /** The labels. */
   readonly text: string;

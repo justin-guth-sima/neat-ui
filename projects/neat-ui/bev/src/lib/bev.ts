@@ -28,7 +28,7 @@ import {
 import { zoomIdentity, type ZoomTransform } from 'd3-zoom';
 import type { NeatOverlayClassStyle } from '@sima/neat-ui/video';
 import { BevCanvas, type BevInputs, type BevTheme } from './bev-canvas';
-import { LabelColours } from './colours';
+import { GUIDE_ALPHA, LabelColours, OUTLINE_ALPHA } from './colours';
 import {
   type BevPlot,
   bevPlot,
@@ -59,10 +59,12 @@ import { BevZoom, isDefault } from './zoom';
 /** How far around an object the pointer still reads it out, CSS px: room for a small one. */
 const HIT_TOLERANCE_PX = 4;
 
-/** The theme's tokens the plot draws its own parts in. */
+/**
+ * The theme's tokens the plot draws its own parts in. The guides are the foreground, see-through
+ * (`GUIDE_ALPHA`, `OUTLINE_ALPHA`), so that over the data they darken (or, dark, lighten) what they
+ * cross and read as on top of it; an opaque line as light as the border would read as a gap.
+ */
 const TOKENS = {
-  line: '--border',
-  strong: '--input',
   text: '--muted-foreground',
   ego: '--foreground',
   halo: '--neat-surface',
@@ -177,10 +179,11 @@ export class NeatBev {
     const colours = this.themeColours();
     const style = getComputedStyle(this.host);
     const fallback = style.color;
-    const css = (rgb: NeatRgb | null): string => (rgb ? cssColour(rgb) : fallback);
+    const css = (rgb: NeatRgb | null, alpha = 1): string =>
+      rgb ? cssColour(rgb, alpha) : fallback;
     return {
-      line: css(colours.line),
-      strong: css(colours.strong),
+      line: css(colours.ego, GUIDE_ALPHA),
+      strong: css(colours.ego, OUTLINE_ALPHA),
       text: css(colours.text),
       ego: css(colours.ego),
       halo: css(colours.halo),
@@ -462,7 +465,8 @@ function sameBounds(
   return a0 === x0 && b0 === y0 && a1 === x1 && b1 === y1;
 }
 
-/** A colour from 0..1 channels as CSS. */
-function cssColour([red, green, blue]: NeatRgb): string {
-  return `rgb(${Math.round(red * 255)} ${Math.round(green * 255)} ${Math.round(blue * 255)})`;
+/** A colour from 0..1 channels as CSS, opaque or see-through by `alpha`. */
+function cssColour([red, green, blue]: NeatRgb, alpha = 1): string {
+  const rgb = `${Math.round(red * 255)} ${Math.round(green * 255)} ${Math.round(blue * 255)}`;
+  return alpha === 1 ? `rgb(${rgb})` : `rgb(${rgb} / ${alpha})`;
 }

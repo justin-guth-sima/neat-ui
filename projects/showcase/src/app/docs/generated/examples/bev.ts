@@ -3,9 +3,10 @@ import type { DocsExample } from '../../model';
 import { Round } from '../../../examples/bev/1-round.example';
 import { Rect } from '../../../examples/bev/2-rect.example';
 import { Overflow } from '../../../examples/bev/3-overflow.example';
-import { CameraSeams } from '../../../examples/bev/4-camera-seams.example';
-import { Zoom } from '../../../examples/bev/5-zoom.example';
-import { SharedStyles } from '../../../examples/bev/6-shared-styles.example';
+import { OverflowZoom } from '../../../examples/bev/4-overflow-zoom.example';
+import { CameraSeams } from '../../../examples/bev/5-camera-seams.example';
+import { Zoom } from '../../../examples/bev/6-zoom.example';
+import { SharedStyles } from '../../../examples/bev/7-shared-styles.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -210,8 +211,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "bev.example.css",
         "code": [
-          ["comment","/*\n * The views' sizes are the app's to set: a fixed height here, the wide ones lower; the rectangle\n * takes its own proportions.\n */"],
-          ["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\nneat-bev.own-height {\n  height: auto;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n"]
+          ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n"]
         ]
       }
     ]
@@ -226,7 +226,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The rectangle: a metric grid in bounds of the app's, here 45 m ahead and 15 m behind, 40 m to either side, labelled along its left and top edges. Without a height of the app's the view takes the rectangle's proportions; with one, the rectangle is fitted inside it. Without "
+            "text": "The rectangle: a metric grid in bounds of the app's, here a square reaching 45 m ahead and 15 m behind, 30 m to either side, labelled along its left and top edges. The view has the round view's height, and the square is fitted inside it, as large as the circle above. Without a height of the app's the view takes the rectangle's proportions; without "
           },
           {
             "kind": "code",
@@ -234,7 +234,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " it is the square of ±"
+            "text": " the rectangle is the square of ±"
           },
           {
             "kind": "code",
@@ -259,12 +259,11 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatBev, "],["keyword","type"],["text"," NeatBevBounds } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
           ["keyword","import"],["text"," { streetFrames } "],["keyword","from"],["text"," "],["string","'./scene'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-rect'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`<neat-bev\n    class=\"own-height\"\n    shape=\"rect\"\n    [bounds]=\"bounds\"\n    [spokes]=\"0\"\n    [frame]=\"frame()\"\n  />`"],
-          ["text",",\n  styleUrl: "],
+          ["string","`<neat-bev shape=\"rect\" [bounds]=\"bounds\" [spokes]=\"0\" [frame]=\"frame()\" />`"],["text",",\n  styleUrl: "],
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Rect {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," frame = streetFrames();\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," bounds: NeatBevBounds = { x: [-15, 45], y: [-40, 40] };\n}\n"]
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," bounds: NeatBevBounds = { x: [-15, 45], y: [-30, 30] };\n}\n"]
         ]
       },
       {
@@ -437,8 +436,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "bev.example.css",
         "code": [
-          ["comment","/*\n * The views' sizes are the app's to set: a fixed height here, the wide ones lower; the rectangle\n * takes its own proportions.\n */"],
-          ["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\nneat-bev.own-height {\n  height: auto;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n"]
+          ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n"]
         ]
       }
     ]
@@ -461,7 +459,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " nothing stops at the shape: the data and the guides run on over the whole box. The shape still sets the scale, fitted in the box as before; the rest is extra view. Above, a grid that fills a wide box without an outline; below, the rings running on past the range, its outline still marking where the range ends."
+            "text": " nothing stops at the shape: the data and the guides run on over the whole box. The shape still sets the scale, fitted in the box as before; the rest is extra view. Above, a grid that fills a wide box; below, the rings running on past the range. Neither draws an outline: with nothing cut at the shape, its edge would only cross the picture."
           }
         ]
       }
@@ -477,7 +475,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatBev } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
           ["keyword","import"],["text"," { streetFrames } "],["keyword","from"],["text"," "],["string","'./scene'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-overflow'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"stack\">\n      <neat-bev\n        class=\"wide\"\n        shape=\"rect\"\n        overflow=\"visible\"\n        [outline]=\"false\"\n        [range]=\"40\"\n        [spokes]=\"0\"\n        [frame]=\"frame()\"\n      />\n      <neat-bev class=\"wide\" overflow=\"visible\" [range]=\"30\" [frame]=\"frame()\" />\n    </div>\n  `"],
+          ["string","`\n    <div class=\"stack\">\n      <neat-bev\n        class=\"wide\"\n        shape=\"rect\"\n        overflow=\"visible\"\n        [outline]=\"false\"\n        [range]=\"40\"\n        [spokes]=\"0\"\n        [frame]=\"frame()\"\n      />\n      <neat-bev class=\"wide\" overflow=\"visible\" [outline]=\"false\" [range]=\"30\" [frame]=\"frame()\" />\n    </div>\n  `"],
           ["text",",\n  styleUrl: "],
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Overflow {\n  "],
@@ -654,8 +652,223 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "bev.example.css",
         "code": [
-          ["comment","/*\n * The views' sizes are the app's to set: a fixed height here, the wide ones lower; the rectangle\n * takes its own proportions.\n */"],
-          ["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\nneat-bev.own-height {\n  height: auto;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n"]
+          ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "overflow-zoom",
+    "title": "Overflow zoom",
+    "component": OverflowZoom,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The same two views with "
+          },
+          {
+            "kind": "code",
+            "text": "zoom"
+          },
+          {
+            "kind": "text",
+            "text": ": scroll or pinch to zoom, drag to pan, and reset with the button that then shows. With overflow visible the view pans over the whole box the default view shows, not only the shape's square, so the street beside the range stays in reach."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/bev#NeatBev"
+    ],
+    "files": [
+      {
+        "name": "4-overflow-zoom.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatBev } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
+          ["keyword","import"],["text"," { streetFrames } "],["keyword","from"],["text"," "],["string","'./scene'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-overflow-zoom'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <div class=\"stack\">\n      <neat-bev\n        class=\"wide\"\n        shape=\"rect\"\n        overflow=\"visible\"\n        zoom\n        [outline]=\"false\"\n        [range]=\"40\"\n        [spokes]=\"0\"\n        [frame]=\"frame()\"\n      />\n      <neat-bev\n        class=\"wide\"\n        overflow=\"visible\"\n        zoom\n        [outline]=\"false\"\n        [range]=\"30\"\n        [frame]=\"frame()\"\n      />\n    </div>\n  `"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./bev.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," OverflowZoom {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," frame = streetFrames();\n}\n"]
+        ]
+      },
+      {
+        "name": "scene.ts",
+        "code": [
+          ["keyword","import"],["text"," { DestroyRef, inject, signal, "],["keyword","type"],["text"," Signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," {\n  NeatBevFrame,\n  NeatBevGrid,\n  NeatBevLine,\n  NeatBevObject,\n  NeatBevSensor,\n  NeatBevSpoke,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n\n"],
+          ["comment","/*\n * A made-up street scene for the BEV examples, in the vehicle's frame (metres, x forward, y left):\n * the vehicle waits in the right lane of a road that crosses another 22 m ahead, with traffic,\n * people and a cyclist moving around it, a lidar's returns from the buildings, the lane markings,\n * a planned left turn and a six-camera rig. Nothing here comes from a real recording.\n */"],
+          ["text","\n\n"],
+          ["comment","/** The road the vehicle is on: its centre line and half its width. */"],["text","\n"],
+          ["keyword","const"],["text"," ROAD_Y = 1.75;\n"],
+          ["comment","/** The crossing road: its centre line, 22 m ahead. */"],["text","\n"],
+          ["keyword","const"],["text"," CROSS_X = 22;\n"],
+          ["keyword","const"],["text"," HALF_ROAD = 7;\n"],
+          ["keyword","const"],["text"," LANE = 3.5;\n"],
+          ["comment","/** How far the drivable grid reaches, and its cells: 128 × 128 at 0.8 m. */"],["text","\n"],
+          ["keyword","const"],["text"," GRID_REACH = 51.2;\n"],
+          ["keyword","const"],["text"," GRID_CELLS = 128;\n"],
+          ["comment","/** How far moving things travel before they wrap around. */"],["text","\n"],
+          ["keyword","const"],["text"," WRAP = 56;\n\n"],
+          ["comment","/** A deterministic random number generator, so the scene looks the same on every load. */"],["text","\n"],
+          ["keyword","function"],["text"," random(seed: "],["keyword","number"],["text","): () => "],["keyword","number"],["text"," {\n  "],
+          ["keyword","let"],["text"," state = seed >>> 0;\n  "],
+          ["keyword","return"],["text"," () => {\n    state = (state * 1664525 + 1013904223) >>> 0;\n    "],
+          ["keyword","return"],["text"," state / 2 ** 32;\n  };\n}\n\n"],
+          ["keyword","function"],["text"," onRoad(x: "],["keyword","number"],["text",", y: "],["keyword","number"],["text","): "],["keyword","boolean"],["text"," {\n  "],
+          ["keyword","return"],["text"," Math.abs(y - ROAD_Y) <= HALF_ROAD || Math.abs(x - CROSS_X) <= HALF_ROAD;\n}\n\n"],
+          ["comment","/** The drivable area: both roads, as a grid with row 0 forward and column 0 left. */"],["text","\n"],
+          ["keyword","function"],["text"," drivableGrid(): NeatBevGrid {\n  "],
+          ["keyword","const"],["text"," size = (2 * GRID_REACH) / GRID_CELLS;\n  "],
+          ["keyword","const"],["text"," cells = "],["keyword","new"],["text"," Uint8Array(GRID_CELLS * GRID_CELLS);\n  "],
+          ["keyword","for"],["text"," ("],["keyword","let"],["text"," row = 0; row < GRID_CELLS; row++) {\n    "],
+          ["keyword","const"],["text"," x = GRID_REACH - (row + 0.5) * size;\n    "],
+          ["keyword","for"],["text"," ("],["keyword","let"],["text"," column = 0; column < GRID_CELLS; column++) {\n      "],
+          ["keyword","const"],["text"," y = GRID_REACH - (column + 0.5) * size;\n      "],
+          ["keyword","if"],["text"," (onRoad(x, y)) cells[row * GRID_CELLS + column] = 255;\n    }\n  }\n  "],
+          ["keyword","return"],["text"," {\n    label: "],
+          ["string","'drivable area'"],["text",",\n    cells,\n    columns: GRID_CELLS,\n    rows: GRID_CELLS,\n    x: [-GRID_REACH, GRID_REACH],\n    y: [-GRID_REACH, GRID_REACH],\n  };\n}\n\n"],
+          ["comment","/** x, y pairs from a list of points. */"],["text","\n"],
+          ["keyword","const"],["text"," pairs = (points: "],["keyword","readonly"],["text"," ("],["keyword","readonly"],["text"," ["],["keyword","number"],["text",", "],["keyword","number"],["text","])[]): Float32Array =>\n  Float32Array.from(points.flat());\n\n"],
+          ["comment","/** The dashed centre lines of both roads, broken where they cross. */"],["text","\n"],
+          ["keyword","function"],["text"," laneMarkings(): NeatBevLine[] {\n  "],
+          ["keyword","const"],["text"," near = CROSS_X - HALF_ROAD;\n  "],
+          ["keyword","const"],["text"," far = CROSS_X + HALF_ROAD;\n  "],
+          ["keyword","const"],["text"," left = ROAD_Y + HALF_ROAD;\n  "],
+          ["keyword","const"],["text"," right = ROAD_Y - HALF_ROAD;\n  "],
+          ["keyword","return"],["text"," [\n    [\n      [-WRAP, ROAD_Y],\n      [near, ROAD_Y],\n    ],\n    [\n      [far, ROAD_Y],\n      [WRAP, ROAD_Y],\n    ],\n    [\n      [CROSS_X, -WRAP],\n      [CROSS_X, right],\n    ],\n    [\n      [CROSS_X, left],\n      [CROSS_X, WRAP],\n    ],\n  ].map((points) => ({\n    label: "],
+          ["string","'lane marking'"],["text",",\n    xy: pairs(points "],
+          ["keyword","as"],["text"," ["],["keyword","number"],["text",", "],["keyword","number"],["text","][]),\n    style: "],
+          ["string","'dashed'"],["text"," "],["keyword","as"],["text"," "],["keyword","const"],["text",",\n  }));\n}\n\n"],
+          ["comment","/** The planned path: ahead to the crossing, a left turn into its far lane, and on. */"],["text","\n"],
+          ["keyword","function"],["text"," plannedPath(): NeatBevLine {\n  "],
+          ["keyword","const"],["text"," radius = CROSS_X - LANE / 2 - 14;\n  "],
+          ["keyword","const"],["text"," points: ["],["keyword","number"],["text",", "],["keyword","number"],["text","][] = [\n    [0, 0],\n    [14, 0],\n  ];\n  "],
+          ["keyword","for"],["text"," ("],["keyword","let"],["text"," i = 1; i <= 12; i++) {\n    "],
+          ["keyword","const"],["text"," a = (i / 12) * (Math.PI / 2);\n    points.push([14 + radius * Math.sin(a), radius - radius * Math.cos(a)]);\n  }\n  points.push([CROSS_X - LANE / 2, 45]);\n  "],
+          ["keyword","return"],["text"," { label: "],["string","'planned path'"],["text",", xy: pairs(points) };\n}\n\n"],
+          ["comment","/** The lidar's returns from the buildings' walls at the four corners of the crossing. */"],["text","\n"],
+          ["keyword","function"],["text"," wallReturns(next: () => "],["keyword","number"],["text","): Float32Array {\n  "],
+          ["keyword","const"],["text"," points: "],["keyword","number"],["text","[] = [];\n  "],
+          ["keyword","const"],["text"," walls = {\n    left: ROAD_Y + HALF_ROAD + 3.5,\n    right: ROAD_Y - HALF_ROAD - 3.5,\n    near: CROSS_X - HALF_ROAD - 3.5,\n    far: CROSS_X + HALF_ROAD + 3.5,\n  };\n  "],
+          ["keyword","const"],["text"," along = (fixed: "],["string","'x'"],["text"," | "],["string","'y'"],["text",", at: "],["keyword","number"],["text",", from: "],["keyword","number"],["text",", to: "],["keyword","number"],["text",", count: "],["keyword","number"],["text",") => {\n    "],
+          ["keyword","for"],["text"," ("],["keyword","let"],["text"," i = 0; i < count; i++) {\n      "],
+          ["keyword","const"],["text"," t = "],["keyword","from"],["text"," + (to - "],["keyword","from"],["text",") * next();\n      "],
+          ["keyword","const"],["text"," depth = at + (next() - 0.5) * 0.4;\n      points.push(fixed === "],
+          ["string","'x'"],["text"," ? depth : t, fixed === "],["string","'x'"],["text"," ? t : depth);\n    }\n  };\n  along("],
+          ["string","'y'"],["text",", walls.left, -45, walls.near, 900);\n  along("],
+          ["string","'y'"],["text",", walls.right, -45, walls.near, 900);\n  along("],
+          ["string","'y'"],["text",", walls.left, walls.far, 45, 500);\n  along("],
+          ["string","'y'"],["text",", walls.right, walls.far, 45, 500);\n  along("],
+          ["string","'x'"],["text",", walls.near, walls.left, 45, 500);\n  along("],
+          ["string","'x'"],["text",", walls.near, -45, walls.right, 500);\n  along("],
+          ["string","'x'"],["text",", walls.far, walls.left, 45, 400);\n  along("],
+          ["string","'x'"],["text",", walls.far, -45, walls.right, 400);\n  "],
+          ["keyword","return"],["text"," Float32Array.from(points);\n}\n\n"],
+          ["comment","/** Something that moves along a straight lane, wrapping around. */"],["text","\n"],
+          ["keyword","interface"],["text"," Mover {\n  "],
+          ["keyword","readonly"],["text"," label: "],["keyword","string"],["text",";\n  "],
+          ["keyword","readonly"],["text"," length: "],["keyword","number"],["text",";\n  "],
+          ["keyword","readonly"],["text"," width: "],["keyword","number"],["text",";\n  "],
+          ["comment","/**\n   * Where it starts, which way it faces (radians) and its speed in m/s, signed along x for a mover\n   * heading along the road and along y for one heading across.\n   */"],
+          ["text","\n  "],
+          ["keyword","readonly"],["text"," x: "],["keyword","number"],["text",";\n  "],
+          ["keyword","readonly"],["text"," y: "],["keyword","number"],["text",";\n  "],
+          ["keyword","readonly"],["text"," yaw: "],["keyword","number"],["text",";\n  "],
+          ["keyword","readonly"],["text"," speed: "],["keyword","number"],["text",";\n  "],
+          ["keyword","readonly"],["text"," score: "],["keyword","number"],["text",";\n}\n\n"],
+          ["keyword","const"],["text"," wrap = (value: "],["keyword","number"],["text","): "],["keyword","number"],["text"," =>\n  ((((value + WRAP) % (2 * WRAP)) + 2 * WRAP) % (2 * WRAP)) - WRAP;\n\n"],
+          ["keyword","function"],["text"," movers(next: () => "],["keyword","number"],["text","): Mover[] {\n  "],
+          ["keyword","const"],["text"," car = (x: "],["keyword","number"],["text",", y: "],["keyword","number"],["text",", yaw: "],["keyword","number"],["text",", speed: "],["keyword","number"],["text","): Mover => ({\n    label: "],
+          ["string","'car'"],["text",",\n    length: 4.5,\n    width: 1.9,\n    x,\n    y,\n    yaw,\n    speed,\n    score: 0.6 + 0.39 * next(),\n  });\n  "],
+          ["keyword","const"],["text"," oncoming = ROAD_Y + LANE;\n  "],
+          ["keyword","const"],["text"," crossLeft = CROSS_X - LANE / 2;\n  "],
+          ["keyword","const"],["text"," crossRight = CROSS_X + LANE / 2;\n  "],
+          ["keyword","const"],["text"," list: Mover[] = [\n    "],
+          ["comment","// Queued in the vehicle's lane, ahead and behind: waiting, as it is."],["text","\n    car(9, 0, 0, 0),\n    car(-9.5, 0, 0, 0),\n    car(-17, 0.2, 0.02, 0),\n    "],
+          ["comment","// Oncoming."],["text","\n    ...[-40, -15, 12, 38].map((x) => car(x, oncoming, Math.PI, -9)),\n    "],
+          ["comment","// Crossing, both ways."],["text","\n    ...[-44, -20, 18, 41].map((y) => car(crossRight, y, -Math.PI / 2, -7)),\n    ...[-35, -8, 30].map((y) => car(crossLeft, y, Math.PI / 2, 7)),\n    {\n      label: "],
+          ["string","'truck'"],["text",",\n      length: 9,\n      width: 2.5,\n      x: crossRight,\n      y: 5,\n      yaw: -Math.PI / 2,\n      speed: -7,\n      score: 0.82,\n    },\n    {\n      label: "],
+          ["string","'bicycle'"],["text",",\n      length: 1.8,\n      width: 0.6,\n      x: -30,\n      y: ROAD_Y - HALF_ROAD + 0.8,\n      yaw: 0,\n      speed: 4.5,\n      score: 0.74,\n    },\n  ];\n  "],
+          ["comment","// People on the pavements, and a group crossing the far side of the junction."],["text","\n  "],
+          ["keyword","const"],["text"," pavements = [ROAD_Y + HALF_ROAD + 1.5, ROAD_Y - HALF_ROAD - 1.5];\n  "],
+          ["keyword","for"],["text"," ("],["keyword","let"],["text"," i = 0; i < 18; i++) {\n    "],
+          ["keyword","const"],["text"," side = pavements[i % 2];\n    "],
+          ["keyword","const"],["text"," forward = next() < 0.5;\n    list.push({\n      label: "],
+          ["string","'pedestrian'"],["text",",\n      length: 0.6,\n      width: 0.6,\n      x: -50 + 100 * next(),\n      y: side + (next() - 0.5),\n      yaw: forward ? 0 : Math.PI,\n      speed: (forward ? 1 : -1) * (0.9 + 0.6 * next()),\n      score: 0.4 + 0.5 * next(),\n    });\n  }\n  "],
+          ["keyword","for"],["text"," ("],["keyword","let"],["text"," i = 0; i < 5; i++) {\n    list.push({\n      label: "],
+          ["string","'pedestrian'"],["text",",\n      length: 0.6,\n      width: 0.6,\n      x: CROSS_X + HALF_ROAD + 1 + next() * 1.5,\n      y: -12 + 3 * next(),\n      yaw: Math.PI / 2,\n      speed: 1.2 + 0.3 * next(),\n      score: 0.5 + 0.4 * next(),\n    });\n  }\n  "],
+          ["keyword","return"],["text"," list;\n}\n\n"],
+          ["comment","/** The scene at `seconds`: everything moved on, the lidar's returns jittered a little. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," StreetScene {\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," next = random(7);\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," grid = drivableGrid();\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," lanes = laneMarkings();\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," path = plannedPath();\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," walls = wallReturns("],["keyword","this"],["text",".next);\n  "],
+          ["comment","/** The returns as drawn: the walls, jittered in place each frame. */"],["text","\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," returns = "],["keyword","new"],["text"," Float32Array("],["keyword","this"],["text",".walls.length);\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," movers = movers("],["keyword","this"],["text",".next);\n\n  frameAt(seconds: "],
+          ["keyword","number"],["text","): NeatBevFrame {\n    "],
+          ["keyword","for"],["text"," ("],["keyword","let"],["text"," i = 0; i < "],["keyword","this"],["text",".walls.length; i++) {\n      "],
+          ["keyword","this"],["text",".returns[i] = "],["keyword","this"],["text",".walls[i] + ("],["keyword","this"],["text",".next() - 0.5) * 0.15;\n    }\n    "],
+          ["comment","// A mover's speed is signed along its axis: x for those heading along the road, y across."],["text","\n    "],
+          ["keyword","const"],["text"," objects: NeatBevObject[] = "],["keyword","this"],["text",".movers.map((m) => {\n      "],
+          ["keyword","const"],["text"," travelled = m.speed * seconds;\n      "],
+          ["keyword","const"],["text"," along = Math.abs(Math.cos(m.yaw)) > 0.5;\n      "],
+          ["keyword","return"],["text"," {\n        label: m.label,\n        length: m.length,\n        width: m.width,\n        yaw: m.yaw,\n        x: along ? wrap(m.x + travelled) : m.x,\n        y: along ? m.y : wrap(m.y + travelled),\n        text: "],
+          ["string","`Score ${m.score.toFixed(2)}`"],["text",",\n      };\n    });\n    "],
+          ["keyword","return"],["text"," {\n      grids: ["],
+          ["keyword","this"],["text",".grid],\n      lines: [..."],
+          ["keyword","this"],["text",".lanes, "],["keyword","this"],["text",".path],\n      points: [{ label: "],
+          ["string","'lidar'"],["text",", xy: "],["keyword","this"],["text",".returns }],\n      objects,\n    };\n  }\n}\n\n"],
+          ["comment","/**\n * The scene, moving on at 20 frames a second while the example is shown. Call in an injection\n * context.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","function"],["text"," streetFrames(): Signal<NeatBevFrame> {\n  "],
+          ["keyword","const"],["text"," scene = "],["keyword","new"],["text"," StreetScene();\n  "],
+          ["keyword","const"],["text"," started = performance.now();\n  "],
+          ["keyword","const"],["text"," frame = signal(scene.frameAt(0));\n  "],
+          ["keyword","const"],["text"," timer = setInterval(\n    () => frame.set(scene.frameAt((performance.now() - started) / 1000)),\n    50,\n  );\n  inject(DestroyRef).onDestroy(() => clearInterval(timer));\n  "],
+          ["keyword","return"],["text"," frame.asReadonly();\n}\n\n"],
+          ["comment","/** A camera of the rig: which way it looks, how wide, and where it is mounted. */"],["text","\n"],
+          ["keyword","interface"],["text"," Camera {\n  "],
+          ["keyword","readonly"],["text"," label: "],["keyword","string"],["text",";\n  "],
+          ["keyword","readonly"],["text"," yaw: "],["keyword","number"],["text",";\n  "],
+          ["keyword","readonly"],["text"," fov: "],["keyword","number"],["text",";\n  "],
+          ["keyword","readonly"],["text"," mount: { "],["keyword","readonly"],["text"," x: "],["keyword","number"],["text","; "],["keyword","readonly"],["text"," y: "],["keyword","number"],["text"," };\n}\n\n"],
+          ["keyword","const"],["text"," degrees = (value: "],["keyword","number"],["text","): "],["keyword","number"],["text"," => (value * Math.PI) / 180;\n\n"],
+          ["comment","/**\n * Six cameras around the vehicle, in order around it from the front, counter-clockwise: wider\n * at the back, so the seams between them are irregular. Mounts are metres from the rear axle.\n */"],
+          ["text","\n"],
+          ["keyword","const"],["text"," RIG: "],["keyword","readonly"],["text"," Camera[] = [\n  { label: "],
+          ["string","'Front'"],["text",", yaw: 0, fov: degrees(70), mount: { x: 1.7, y: 0 } },\n  { label: "],
+          ["string","'Front left'"],["text",", yaw: degrees(55), fov: degrees(70), mount: { x: 1.5, y: 0.5 } },\n  { label: "],
+          ["string","'Back left'"],["text",", yaw: degrees(110), fov: degrees(70), mount: { x: 1, y: 0.5 } },\n  { label: "],
+          ["string","'Back'"],["text",", yaw: degrees(180), fov: degrees(110), mount: { x: 0, y: 0 } },\n  { label: "],
+          ["string","'Back right'"],["text",", yaw: degrees(-110), fov: degrees(70), mount: { x: 1, y: -0.5 } },\n  { label: "],
+          ["string","'Front right'"],["text",", yaw: degrees(-55), fov: degrees(70), mount: { x: 1.5, y: -0.5 } },\n];\n\n"],
+          ["comment","/** Each camera's wedge, from its mount between its edges. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," CAMERAS: "],["keyword","readonly"],["text"," NeatBevSensor[] = RIG.map((camera) => ({\n  label: camera.label,\n  from: camera.yaw - camera.fov / 2,\n  to: camera.yaw + camera.fov / 2,\n  origin: camera.mount,\n}));\n\n"],
+          ["comment","/**\n * The seams between neighbouring cameras, from the vehicle's centre: each halfway between one\n * camera's left edge and the next one's right edge.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," SEAMS: "],["keyword","readonly"],["text"," NeatBevSpoke[] = RIG.map((camera, i) => {\n  "],
+          ["keyword","const"],["text"," next = RIG[(i + 1) % RIG.length];\n  "],
+          ["keyword","const"],["text"," left = camera.yaw + camera.fov / 2;\n  "],
+          ["keyword","let"],["text"," right = next.yaw - next.fov / 2;\n  "],
+          ["keyword","while"],["text"," (right < left - Math.PI) right += 2 * Math.PI;\n  "],
+          ["keyword","return"],["text"," { angle: (left + right) / 2 };\n});\n"]
+        ]
+      },
+      {
+        "name": "bev.example.css",
+        "code": [
+          ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n"]
         ]
       }
     ]
@@ -688,7 +901,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     ],
     "files": [
       {
-        "name": "4-camera-seams.example.ts",
+        "name": "5-camera-seams.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatBev } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
@@ -873,8 +1086,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "bev.example.css",
         "code": [
-          ["comment","/*\n * The views' sizes are the app's to set: a fixed height here, the wide ones lower; the rectangle\n * takes its own proportions.\n */"],
-          ["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\nneat-bev.own-height {\n  height: auto;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n"]
+          ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n"]
         ]
       }
     ]
@@ -939,7 +1151,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     ],
     "files": [
       {
-        "name": "5-zoom.example.ts",
+        "name": "6-zoom.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatBev } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
@@ -1122,8 +1334,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "bev.example.css",
         "code": [
-          ["comment","/*\n * The views' sizes are the app's to set: a fixed height here, the wide ones lower; the rectangle\n * takes its own proportions.\n */"],
-          ["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\nneat-bev.own-height {\n  height: auto;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n"]
+          ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n"]
         ]
       }
     ]
@@ -1159,7 +1370,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     ],
     "files": [
       {
-        "name": "6-shared-styles.example.ts",
+        "name": "7-shared-styles.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NEAT_HIGHLIGHT_BASE, SIMA_PALETTE } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
@@ -1348,8 +1559,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "bev.example.css",
         "code": [
-          ["comment","/*\n * The views' sizes are the app's to set: a fixed height here, the wide ones lower; the rectangle\n * takes its own proportions.\n */"],
-          ["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\nneat-bev.own-height {\n  height: auto;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n"]
+          ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n"]
         ]
       }
     ]

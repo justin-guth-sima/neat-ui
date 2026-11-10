@@ -594,8 +594,11 @@ for driving demos such as the FastBEV one.
 - Labels take their colours from the page's class colours (`ɵNeatOverlayColors`), the allocator
   the video tiles use, so a class has one colour in every tile and in the view; `styles` takes the
   overlays' class rows (`NeatOverlayClassStyle`), so the same rows give the same look in both. The
-  plot's own parts follow the theme (`--border`, `--input`, `--muted-foreground`, `--foreground`,
-  `--neat-surface` for the labels' halo), read through `neatThemeColors`.
+  plot's own parts follow the theme (`--muted-foreground`, `--foreground`, `--neat-surface` for the
+  labels' halo), read through `neatThemeColors`. The guides and the outline are the foreground,
+  see-through (`GUIDE_ALPHA`, `OUTLINE_ALPHA` in `colours.ts`): over the data they darken (dark:
+  lighten) what they cross, so they read as on top; an opaque line as light as `--border` read as
+  a gap in a fill, the guides seeming under it.
 - Drawing (`bev-canvas.ts`, outside change detection, at the next animation frame after a change,
   never while the page is hidden or before the box has a size): what changes only with the size,
   view, theme or inputs goes into two cached layers, one under the data (sensor fills, and the

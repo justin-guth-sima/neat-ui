@@ -5,9 +5,10 @@ import { By } from '@angular/platform-browser';
 import { Round } from './1-round.example';
 import { Rect } from './2-rect.example';
 import { Overflow } from './3-overflow.example';
-import { CameraSeams } from './4-camera-seams.example';
-import { Zoom } from './5-zoom.example';
-import { SharedStyles } from './6-shared-styles.example';
+import { OverflowZoom } from './4-overflow-zoom.example';
+import { CameraSeams } from './5-camera-seams.example';
+import { Zoom } from './6-zoom.example';
+import { SharedStyles } from './7-shared-styles.example';
 import { CAMERAS, SEAMS, StreetScene } from './scene';
 
 describe('the BEV examples', () => {
@@ -29,6 +30,7 @@ describe('the BEV examples', () => {
     Round,
     Rect,
     Overflow,
+    OverflowZoom,
     CameraSeams,
     Zoom,
     SharedStyles,
