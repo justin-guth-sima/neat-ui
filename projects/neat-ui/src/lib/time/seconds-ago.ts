@@ -11,8 +11,8 @@
  * `seconds` is first rounded to a whole second. A time ahead of now, from a clock that stepped
  * back, reads as "just now".
  *
- * This is the one place the words and thresholds live, so a page that parses a timestamp and the
- * charts' readout cannot say the same age two ways.
+ * This is the one place the words and thresholds live. So a page that parses a timestamp, and the
+ * charts' readout, cannot say the same age two ways.
  */
 export function neatSecondsAgo(seconds: number): string {
   const whole = Math.round(seconds);

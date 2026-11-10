@@ -27,12 +27,19 @@ function probe(): CanvasRenderingContext2D | null {
 }
 
 /**
- * A CSS color in any notation the browser knows (hex, `rgb()`, `oklch()`, a name) as sRGB
- * channels from 0 to 1, resolved by drawing it on a 1×1 canvas and reading the pixel back, so the
- * kit parses no color syntax of its own. Null where there is no canvas or the color does not
- * parse. For code that draws outside CSS (three.js, a canvas) in the theme's colors or any other
- * color an app holds, which such code takes as numbers. Alpha is ignored, so a token with alpha
- * (a scrim) is not a fit.
+ * A CSS color as sRGB channels from 0 to 1, for code that draws outside CSS.
+ *
+ * ```ts
+ * const [r, g, b] = neatResolveColor('oklch(0.62 0.19 260)') ?? [0, 0, 0];
+ * ```
+ *
+ * It takes any notation the browser knows: hex, `rgb()`, `oklch()`, a name. It is for code that
+ * draws outside CSS, such as three.js or a canvas, which takes colors as numbers. That may be the
+ * theme's colors or any other color an app holds.
+ *
+ * The color is resolved by drawing it on a 1×1 canvas and reading the pixel back, so the kit
+ * parses no color syntax of its own. The answer is null where there is no canvas, or the color does
+ * not parse. Alpha is ignored, so a token with alpha, such as a scrim, is not a fit.
  */
 export function neatResolveColor(css: string): NeatRgb | null {
   const context = probe();
@@ -50,12 +57,19 @@ export function neatResolveColor(css: string): NeatRgb | null {
 }
 
 /**
- * The theme's colors for code that draws outside CSS: `tokens` maps the app's names to custom
- * properties (`{ line: '--neat-line', grid: '--border' }`), and the signal answers each resolved
- * (`neatResolveColor`), or null where the property is not set or not a color. They are read from
- * `element` (the document element by default, or while it answers undefined) and read again when
- * the color scheme changes, which `ThemeService` applies before the signal is read again. Call in
- * an injection context.
+ * The theme's colors, as numbers, for code that draws outside CSS.
+ *
+ * ```ts
+ * readonly colors = neatThemeColors({ line: '--neat-line', grid: '--border' });
+ * ```
+ *
+ * `tokens` maps the app's names to custom properties. The signal answers each resolved, as
+ * `neatResolveColor` does, or null where the property is not set or not a color. Call it in an
+ * injection context.
+ *
+ * The colors are read from `element`: the document element by default, or while `element` answers
+ * undefined. They are read again when the color scheme changes, which `ThemeService` applies
+ * before the signal is read again.
  */
 export function neatThemeColors<K extends string>(
   tokens: Record<K, string>,

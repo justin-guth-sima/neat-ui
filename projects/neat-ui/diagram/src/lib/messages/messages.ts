@@ -290,7 +290,8 @@ export class NeatDiagramMessages {
    * received together. The message counts in the edge's rate, and is drawn as a dot while the edge
    * is drawn. A push for a level not drawn only counts.
    *
-   * A size that is not a number counts as no bytes. An id that is no edge of the diagram is ignored.
+   * A size that is not a number counts as no bytes. An id that is no edge of the diagram is
+   * ignored.
    */
   push(edgeId: string, bytes: number, atMs: number = performance.now()): void {
     if (this.destroyed) return;

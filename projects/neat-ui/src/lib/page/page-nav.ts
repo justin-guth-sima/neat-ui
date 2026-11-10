@@ -30,9 +30,10 @@ export interface NeatPageNavLink {
   /** The link's text, which the filter matches. */
   label: string;
   /**
-   * Absolute app path, for example `/settings/network`. The link is the open one on this path and
-   * every route nested under it, whatever the query and fragment; where two links match, the one
-   * with the longer path is.
+   * Absolute app path, for example `/settings/network`.
+   *
+   * The link is the open one on this path and every route nested under it, whatever the query and
+   * fragment. Where two links match, the one with the longer path is open.
    */
   path: string;
 }
@@ -47,9 +48,7 @@ export interface NeatPageNavGroup {
 let nextNavId = 0;
 
 /**
- * The page nav, the third level of the kit's navigation: pages are rail items, a page's
- * sub-pages its item's `children`, and anything more (more than a few links, groups of them, or a
- * level below a sub-page) is this list, as a direct child of `neat-page`:
+ * The page nav: a list of a page's links, beside its body, for the third level of navigation.
  *
  * ```html
  * <neat-page>
@@ -58,27 +57,37 @@ let nextNavId = 0;
  * </neat-page>
  * ```
  *
- * `groups` is data, not content: each group's links under its heading (none for a group without
- * a `label`). The open link is the one whose `path` the URL is under (the query and fragment are
- * never judged, and the longest such path wins); it carries `aria-current="page"` and has the
- * rail's current-page look in the page's tokens, the accent fill and weight, where the other links
- * are muted until hovered. With `filterLabel`, a search field at the top, named and hinted by that
- * text, keeps the links whose label holds what was typed, ignoring case, and a group's heading
- * while any of its links is kept; when none is, it says "Nothing matches".
+ * Pages are rail items, and a page's sub-pages are its item's `children`. Anything more is this
+ * list, as a direct child of `neat-page`: more than a few links, groups of them, or a level below a
+ * sub-page.
+ *
+ * `groups` is data, not content: each group's links under its heading. A group without a `label`
+ * has no heading.
+ *
+ * The open link is the one whose `path` the URL is under, the longest such path winning. The query
+ * and fragment are never judged. The open link carries `aria-current="page"`, and has the rail's
+ * current-page look in the page's tokens: the accent fill and weight. The other links are muted
+ * until hovered.
+ *
+ * With `filterLabel`, a search field at the top, named and hinted by that text, filters the links.
+ * It keeps those whose label holds what was typed, ignoring case, and a group's heading while any
+ * of its links is kept. When none is kept, it says "Nothing matches".
  *
  * The landmark is the app's: a screen reader hears a navigation landmark of links, so it needs a
  * name, which only the app knows. A nav without an `aria-label` (or `aria-labelledby`) throws in
  * dev mode. The name is read once, when the list is first drawn.
  *
- * On a wide screen the page draws it as its body's start column, as high as the page, with the
- * aside at the other end. It scrolls on its own whatever the page's `scroll`, so it stays in
- * view while the body scrolls, with the filter fixed at its top; it scrolls itself, never with
- * `scrollIntoView` (which would scroll the page around it too), to show the open link whenever a
- * navigation leaves that link out of view. On a narrow screen (`NeatViewport`) it is a closed
- * section above the body instead, with the look of `NeatCollapsible`: the landmark's name as its
- * label and the open link as its summary. Opened, its list scrolls inside it up to the page's
- * height, and choosing a link closes it with the focus on its button, as a link followed puts the
- * floating rail away.
+ * On a wide screen, the page draws it as its body's start column, as high as the page, with the
+ * aside at the other end. It scrolls on its own, whatever the page's `scroll`, so it stays in view
+ * while the body scrolls. The filter stays fixed at its top.
+ *
+ * Whenever a navigation leaves the open link out of view, the list scrolls itself to show it. It
+ * never uses `scrollIntoView`, which would scroll the page around it too.
+ *
+ * On a narrow screen (`NeatViewport`), it is a closed section above the body instead, with the look
+ * of `NeatCollapsible`. The landmark's name is its label, and the open link its summary. Opened,
+ * its list scrolls inside it up to the page's height. Choosing a link closes it, with the focus on
+ * its button, as a link followed puts the floating rail away.
  */
 @Component({
   // An attribute selector keeps the native `nav` as the host, so the landmark and its name are the

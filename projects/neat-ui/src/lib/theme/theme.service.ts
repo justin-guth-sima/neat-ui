@@ -26,9 +26,10 @@ export class ThemeService {
   }
 
   /**
-   * Applies `scheme` and, unless `persist` is false, stores it for later page loads. Without
-   * storing, the scheme holds for this page load only, as a URL parameter that themes a shared
-   * link needs: the user's stored choice stays, and a later toggle stores as usual.
+   * Applies `scheme` and, unless `persist` is false, stores it for later page loads.
+   *
+   * Without storing, the scheme holds for this page load only, as a URL parameter that themes a
+   * shared link needs. The user's stored choice stays, and a later toggle stores as usual.
    */
   setScheme(scheme: NeatColorScheme, { persist = true }: { persist?: boolean } = {}): void {
     this.current.set(scheme);

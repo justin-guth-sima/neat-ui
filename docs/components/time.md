@@ -84,7 +84,7 @@ It says "just now" under 10 s, then "12 s ago", "3 min ago", "2 h ago" and "4 d 
 
 `seconds` is first rounded to a whole second. A time ahead of now, from a clock that stepped back, reads as "just now".
 
-This is the one place the words and thresholds live, so a page that parses a timestamp and the charts' readout cannot say the same age two ways.
+This is the one place the words and thresholds live. So a page that parses a timestamp, and the charts' readout, cannot say the same age two ways.
 
 ```ts
 neatSecondsAgo(seconds: number): string

@@ -123,11 +123,11 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
  * folders first, then files, each by name ignoring case. A folder row shows the number of
  * available files in it and below.
  *
- * **Filter.** Typing lists every file below the current folder whose path, relative to it,
- * contains the text, ignoring case. The rows show those relative paths, and the count says how many
- * matched. Navigating, by any means, empties the filter. `filter` is a model, so the app can read it
- * and set it. A note under the list about what the folder leaves out, say, should show only while
- * the filter is empty.
+ * **Filter.** Typing lists every file below the current folder whose path, relative to it, contains
+ * the text, ignoring case. The rows show those relative paths, and the count says how many matched.
+ * Navigating, by any means, empties the filter. `filter` is a model, so the app can read it and set
+ * it. A note under the list about what the folder leaves out, say, should show only while the
+ * filter is empty.
  *
  * **Navigating.**
  * - A double click on a folder row, a click on the chevron that ends it, or Enter on the row the
@@ -331,7 +331,8 @@ export class NeatFileBrowser {
    * The filter field's text, two-way, so an app can tell whether a filter is active, or clear it.
    *
    * A note about the current folder, such as how many files it left out, belongs to the unfiltered
-   * listing. The filter is emptied whenever the folder changes. Matching ignores surrounding spaces.
+   * listing. The filter is emptied whenever the folder changes. Matching ignores surrounding
+   * spaces.
    */
   readonly filter = model('');
 

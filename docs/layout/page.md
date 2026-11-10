@@ -254,15 +254,29 @@ With `scroll="body"` (the default) its body is the single scroll container. With
 
 The content takes its size from the page, and never measures the shell or sets a height. So the same page works in a small window, on a wall display and in kiosk mode, where the rail and the top bar are gone and the page gets the whole viewport.
 
-With `padding="page"` (the default) the content keeps the kit's page inset from the content area's edges, so every app's pages line up; `padding="none"` lets full-bleed content (a video grid, a map) reach the edges.
+With `padding="page"` (the default), the content keeps the kit's page inset from the content area's edges, so every app's pages line up. `padding="none"` lets full-bleed content, such as a video grid or a map, reach the edges.
 
-A `nav[neatPageNav]` (see [`NeatPageNav`](../layout/page.md#neatpagenav)) as a direct child is the page nav: the body's start column, as high as the page and scrolling on its own whatever `scroll` says, with the aside at the other end; on a narrow screen a closed section above the body, under which the floating panel opens. Without one, the body starts at the page's edge.
+**The page nav.** A `nav[neatPageNav]` (see [`NeatPageNav`](../layout/page.md#neatpagenav)) as a direct child is the page nav. It is the body's start column, as high as the page, with the aside at the other end. It scrolls on its own, whatever `scroll` says. On a narrow screen it is a closed section above the body, under which the floating panel opens. Without one, the body starts at the page's edge.
 
-Elements marked `neatPageAside` form the page's aside (an inspector, say), shown on the right while `aside="open"`. The panel is `--neat-aside-width` wide and scrolls on its own; the body narrows beside it rather than being covered, keeping its own scroll setting. The aside and the page nav are the supported other scroll contexts of a page: a page that needs another region of its own that scrolls independently is a kit change, so that the layout becomes a supported component, not a workaround. Closed, the panel and its content are out of the DOM, but projected content is still instantiated (content projection always creates it): gate expensive content with an `@if` of your own.
+**The aside.** Elements marked `neatPageAside` form the page's aside, such as an inspector. It shows on the right while `aside="open"`. The panel is `--neat-aside-width` wide and scrolls on its own. The body narrows beside it rather than being covered, and keeps its own scroll setting.
 
-On a narrow screen ([`NeatViewport`](../layout/page.md#neatviewport)) the panel floats over the right of the page instead, `--neat-aside-width` wide but never wider than the page, and the body keeps the whole width. There is no scrim and no Escape handling: the page owns the open state, and the toolbar's `neat-aside-toggle` closes it. A page that keeps its panel's state should use [`neatAsideOpen`](../layout/aside.md#neatasideopen), which starts the panel closed on a narrow screen without overwriting the choice remembered for a wide one.
+The aside and the page nav are a page's supported other scroll contexts. A page that needs another region of its own that scrolls independently is a kit change. So the layout becomes a supported component, not a workaround.
 
-Beside the body the panel can be resized: a separator on its inline-start edge is dragged with a pointer, or moved with the arrow keys (left widens, 16 px a step), Home and End; a double click returns to the default. `asideWidth` is the width in pixels, `null` for the default `--neat-aside-width`. The page only exposes the model, so an app that wants the width kept binds `[(asideWidth)]` and stores it where it likes; a drag writes it on release, a key press at once. The panel is shown between 18rem and the page's width less 20rem, which leaves the body 20rem; a width outside that is shown clamped and the model left alone, so a remembered width returns when the window is wide enough again.
+Closed, the panel and its content are out of the DOM. Projected content is still instantiated, though, since content projection always creates it. Gate expensive content with an `@if` of your own.
+
+On a narrow screen ([`NeatViewport`](../layout/page.md#neatviewport)), the panel floats over the right of the page instead. It is `--neat-aside-width` wide, but never wider than the page, and the body keeps the whole width.
+
+There is no scrim and no Escape handling: the page owns the open state, and the toolbar's `neat-aside-toggle` closes it. A page that keeps its panel's state should use [`neatAsideOpen`](../layout/aside.md#neatasideopen). It starts the panel closed on a narrow screen, without overwriting the choice remembered for a wide one.
+
+**Resizing.** Beside the body, the panel can be resized by a separator on its inline-start edge:
+
+- Drag it with a pointer.
+- Move it with the arrow keys, 16 px a step, left widening. Home and End go to the bounds.
+- Double-click it to return to the default.
+
+`asideWidth` is the width in pixels, `null` for the default `--neat-aside-width`. The page only exposes the model. So an app that wants the width kept binds `[(asideWidth)]`, and stores it where it likes. A drag writes it on release, a key press at once.
+
+The panel is shown between 18rem and the page's width less 20rem, which leaves the body 20rem. A width outside that is shown clamped, and the model left alone. So a remembered width returns when the window is wide enough again.
 
 **Inputs**
 
@@ -288,7 +302,7 @@ Beside the body the panel can be resized: a separator on its inline-start edge i
 
 Component from `@sima/neat-ui`, selector `nav[neatPageNav]`.
 
-The page nav, the third level of the kit's navigation: pages are rail items, a page's sub-pages its item's `children`, and anything more (more than a few links, groups of them, or a level below a sub-page) is this list, as a direct child of `neat-page`:
+The page nav: a list of a page's links, beside its body, for the third level of navigation.
 
 ```html
 <neat-page>
@@ -297,11 +311,21 @@ The page nav, the third level of the kit's navigation: pages are rail items, a p
 </neat-page>
 ```
 
-`groups` is data, not content: each group's links under its heading (none for a group without a `label`). The open link is the one whose `path` the URL is under (the query and fragment are never judged, and the longest such path wins); it carries `aria-current="page"` and has the rail's current-page look in the page's tokens, the accent fill and weight, where the other links are muted until hovered. With `filterLabel`, a search field at the top, named and hinted by that text, keeps the links whose label holds what was typed, ignoring case, and a group's heading while any of its links is kept; when none is, it says "Nothing matches".
+Pages are rail items, and a page's sub-pages are its item's `children`. Anything more is this list, as a direct child of `neat-page`: more than a few links, groups of them, or a level below a sub-page.
+
+`groups` is data, not content: each group's links under its heading. A group without a `label` has no heading.
+
+The open link is the one whose `path` the URL is under, the longest such path winning. The query and fragment are never judged. The open link carries `aria-current="page"`, and has the rail's current-page look in the page's tokens: the accent fill and weight. The other links are muted until hovered.
+
+With `filterLabel`, a search field at the top, named and hinted by that text, filters the links. It keeps those whose label holds what was typed, ignoring case, and a group's heading while any of its links is kept. When none is kept, it says "Nothing matches".
 
 The landmark is the app's: a screen reader hears a navigation landmark of links, so it needs a name, which only the app knows. A nav without an `aria-label` (or `aria-labelledby`) throws in dev mode. The name is read once, when the list is first drawn.
 
-On a wide screen the page draws it as its body's start column, as high as the page, with the aside at the other end. It scrolls on its own whatever the page's `scroll`, so it stays in view while the body scrolls, with the filter fixed at its top; it scrolls itself, never with `scrollIntoView` (which would scroll the page around it too), to show the open link whenever a navigation leaves that link out of view. On a narrow screen ([`NeatViewport`](../layout/page.md#neatviewport)) it is a closed section above the body instead, with the look of [`NeatCollapsible`](../components/collapsible.md#neatcollapsible): the landmark's name as its label and the open link as its summary. Opened, its list scrolls inside it up to the page's height, and choosing a link closes it with the focus on its button, as a link followed puts the floating rail away.
+On a wide screen, the page draws it as its body's start column, as high as the page, with the aside at the other end. It scrolls on its own, whatever the page's `scroll`, so it stays in view while the body scrolls. The filter stays fixed at its top.
+
+Whenever a navigation leaves the open link out of view, the list scrolls itself to show it. It never uses `scrollIntoView`, which would scroll the page around it too.
+
+On a narrow screen ([`NeatViewport`](../layout/page.md#neatviewport)), it is a closed section above the body instead, with the look of [`NeatCollapsible`](../components/collapsible.md#neatcollapsible). The landmark's name is its label, and the open link its summary. Opened, its list scrolls inside it up to the page's height. Choosing a link closes it, with the focus on its button, as a link followed puts the floating rail away.
 
 **Inputs**
 
@@ -341,23 +365,41 @@ One link of the page nav.
 
 - **`path`** `string`
 
-  Absolute app path, for example `/settings/network`. The link is the open one on this path and every route nested under it, whatever the query and fragment; where two links match, the one with the longer path is.
+  Absolute app path, for example `/settings/network`.
+
+  The link is the open one on this path and every route nested under it, whatever the query and fragment. Where two links match, the one with the longer path is open.
 
 ### `NeatPageToolbar`
 
 Structural directive from `@sima/neat-ui`, selector `[neatPageToolbar]`.
 
-The page's toolbar: `<div *neatPageToolbar>…</div>` on a page renders that content in the shell's top bar, at its right end just before the end slot and the kiosk button, while the page exists. In kiosk mode, where the top bar is hidden, it renders in a floating bar beside the exit control that shows while the pointer moves. The content stays the page's: its bindings and injection context are those of the page's template.
+The page's toolbar, rendered in the shell's top bar while the page exists.
 
-One page toolbar at a time; a second one throws in dev mode.
+```html
+<div *neatPageToolbar>
+  <button neatButton type="button" variant="text" (click)="refresh()">Refresh</button>
+</div>
+```
+
+It sits at the top bar's right end, just before the end slot and the kiosk button. In kiosk mode, where the top bar is hidden, it renders in a floating bar beside the exit control, which shows while the pointer moves.
+
+The content stays the page's: its bindings and injection context are those of the page's template.
+
+One page toolbar at a time: a second one throws in dev mode.
 
 ### `NeatViewport`
 
 Service from `@sima/neat-ui`.
 
-Whether the screen is narrow, a phone's width. `narrow` follows the browser's media query live, so turning a phone or resizing a window changes it at once; where the browser has no `matchMedia` (a test environment) it stays `false`, a wide screen.
+Whether the screen is narrow, a phone's width: below 48rem.
 
-Inject it rather than asking the browser, so the kit and the app share one answer and a test can provide `{ narrow: signal(true) }` in its place.
+```ts
+readonly narrow = inject(NeatViewport).narrow;
+```
+
+`narrow` follows the browser's media query live, so turning a phone or resizing a window changes it at once. Where the browser has no `matchMedia`, as in a test environment, it stays `false`, a wide screen.
+
+Inject it rather than asking the browser, so the kit and the app share one answer. A test can provide `{ narrow: signal(true) }` in its place.
 
 **Properties**
 

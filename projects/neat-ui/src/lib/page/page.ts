@@ -41,39 +41,47 @@ const KEY_STEP = 16;
  * same page works in a small window, on a wall display and in kiosk mode, where the rail and the
  * top bar are gone and the page gets the whole viewport.
  *
- * With `padding="page"` (the default) the content keeps the kit's page inset from the content
- * area's edges, so every app's pages line up; `padding="none"` lets full-bleed content (a video
- * grid, a map) reach the edges.
+ * With `padding="page"` (the default), the content keeps the kit's page inset from the content
+ * area's edges, so every app's pages line up. `padding="none"` lets full-bleed content, such as a
+ * video grid or a map, reach the edges.
  *
- * A `nav[neatPageNav]` (see `NeatPageNav`) as a direct child is the page nav: the body's
- * start column, as high as the page and scrolling on its own whatever `scroll` says, with the
- * aside at the other end; on a narrow screen a closed section above the body, under which
- * the floating panel opens. Without one, the body starts at the page's edge.
+ * **The page nav.** A `nav[neatPageNav]` (see `NeatPageNav`) as a direct child is the page nav.
+ * It is the body's start column, as high as the page, with the aside at the other end. It scrolls
+ * on its own, whatever `scroll` says. On a narrow screen it is a closed section above the body,
+ * under which the floating panel opens. Without one, the body starts at the page's edge.
  *
- * Elements marked `neatPageAside` form the page's aside (an inspector, say), shown on the
- * right while `aside="open"`. The panel is `--neat-aside-width` wide and scrolls on its own; the
- * body narrows beside it rather than being covered, keeping its own scroll setting. The aside and
- * the page nav are the supported other scroll contexts of a page: a page that needs another
- * region of its own that scrolls independently is a kit change, so that the layout becomes a
- * supported component, not a workaround. Closed, the panel and its content are out of the DOM,
- * but projected content is still instantiated (content projection always creates it): gate
- * expensive content with an `@if` of your own.
+ * **The aside.** Elements marked `neatPageAside` form the page's aside, such as an inspector. It
+ * shows on the right while `aside="open"`. The panel is `--neat-aside-width` wide and scrolls on
+ * its own. The body narrows beside it rather than being covered, and keeps its own scroll setting.
  *
- * On a narrow screen (`NeatViewport`) the panel floats over the right of the page instead,
- * `--neat-aside-width` wide but never wider than the page, and the body keeps the whole width.
+ * The aside and the page nav are a page's supported other scroll contexts. A page that needs
+ * another region of its own that scrolls independently is a kit change. So the layout becomes a
+ * supported component, not a workaround.
+ *
+ * Closed, the panel and its content are out of the DOM. Projected content is still instantiated,
+ * though, since content projection always creates it. Gate expensive content with an `@if` of your
+ * own.
+ *
+ * On a narrow screen (`NeatViewport`), the panel floats over the right of the page instead. It is
+ * `--neat-aside-width` wide, but never wider than the page, and the body keeps the whole width.
+ *
  * There is no scrim and no Escape handling: the page owns the open state, and the toolbar's
- * `neat-aside-toggle` closes it. A page that keeps its panel's state should use `neatAsideOpen`,
- * which starts the panel closed on a narrow screen without overwriting the choice remembered
- * for a wide one.
+ * `neat-aside-toggle` closes it. A page that keeps its panel's state should use `neatAsideOpen`.
+ * It starts the panel closed on a narrow screen, without overwriting the choice remembered for a
+ * wide one.
  *
- * Beside the body the panel can be resized: a separator on its inline-start edge is dragged with
- * a pointer, or moved with the arrow keys (left widens, 16 px a step), Home and End; a double
- * click returns to the default. `asideWidth` is the width in pixels, `null` for the default
- * `--neat-aside-width`. The page only exposes the model, so an app that wants the width kept
- * binds `[(asideWidth)]` and stores it where it likes; a drag writes it on release, a key press
- * at once. The panel is shown between 18rem and the page's width less 20rem, which leaves the
- * body 20rem; a width outside that is shown clamped and the model left alone, so a remembered
- * width returns when the window is wide enough again.
+ * **Resizing.** Beside the body, the panel can be resized by a separator on its inline-start edge:
+ * - Drag it with a pointer.
+ * - Move it with the arrow keys, 16 px a step, left widening. Home and End go to the bounds.
+ * - Double-click it to return to the default.
+ *
+ * `asideWidth` is the width in pixels, `null` for the default `--neat-aside-width`. The page only
+ * exposes the model. So an app that wants the width kept binds `[(asideWidth)]`, and stores it
+ * where it likes. A drag writes it on release, a key press at once.
+ *
+ * The panel is shown between 18rem and the page's width less 20rem, which leaves the body 20rem. A
+ * width outside that is shown clamped, and the model left alone. So a remembered width returns when
+ * the window is wide enough again.
  */
 @Component({
   selector: 'neat-page',

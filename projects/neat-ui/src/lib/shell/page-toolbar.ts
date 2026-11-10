@@ -32,13 +32,22 @@ export class PageToolbarSlot extends ShellSlot {
 }
 
 /**
- * The page's toolbar: `<div *neatPageToolbar>…</div>` on a page renders that content in the
- * shell's top bar, at its right end just before the end slot and the kiosk button, while the page
- * exists. In kiosk mode, where the top bar is hidden, it renders in a floating bar beside the exit
- * control that shows while the pointer moves. The content stays the page's: its bindings and
- * injection context are those of the page's template.
+ * The page's toolbar, rendered in the shell's top bar while the page exists.
  *
- * One page toolbar at a time; a second one throws in dev mode.
+ * ```html
+ * <div *neatPageToolbar>
+ *   <button neatButton type="button" variant="text" (click)="refresh()">Refresh</button>
+ * </div>
+ * ```
+ *
+ * It sits at the top bar's right end, just before the end slot and the kiosk button. In kiosk mode,
+ * where the top bar is hidden, it renders in a floating bar beside the exit control, which shows
+ * while the pointer moves.
+ *
+ * The content stays the page's: its bindings and injection context are those of the page's
+ * template.
+ *
+ * One page toolbar at a time: a second one throws in dev mode.
  */
 @Directive({ selector: '[neatPageToolbar]' })
 export class NeatPageToolbar {

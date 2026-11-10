@@ -23,14 +23,15 @@ function kioskRequested(search: string): boolean {
  * fullscreen without a user gesture; booth machines use the browser's own kiosk flag instead.
  * If fullscreen was obtained by `enter()`, leaving it (Esc) leaves kiosk mode too.
  *
- * A component whose UI lives outside the floating chrome but belongs to it (a popover opened from
- * the page toolbar) holds the toolbar with `holdToolbar()`, so the chrome does not fade under it.
- *
- * The document listeners are plain DOM listeners outside change detection; signals change only
- * when the state does, so pointer movement does not cause renders.
+ * Some components have UI that lives outside the floating chrome but belongs to it, such as a
+ * popover opened from the page toolbar. They hold the toolbar with `holdToolbar()`, so the chrome
+ * does not fade under them.
  */
 @Injectable({ providedIn: 'root' })
 export class KioskService {
+  // The document listeners are plain DOM listeners outside change detection; signals change only
+  // when the state does, so pointer movement does not cause renders.
+
   private readonly document = inject(DOCUMENT);
 
   private readonly isActive = signal(kioskRequested(this.document.location?.search ?? ''));

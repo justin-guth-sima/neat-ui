@@ -10,15 +10,22 @@ export interface NeatAsideOpen {
 }
 
 /**
- * The open state of a page's aside, for a page that remembers the choice (`remembered`, with
- * `remember` writing it where the page keeps it, such as local storage). Call it in an injection
- * context.
+ * The open state of a page's aside, for a page that remembers the choice.
  *
- * On a wide screen the panel is the remembered choice and `set` remembers. On a narrow screen the
- * panel floats over the page and starts closed, whatever was remembered, and `set` changes a
+ * ```ts
+ * readonly aside = neatAsideOpen(this.stored, (open) => this.stored.set(open));
+ * ```
+ *
+ * `remembered` is the choice, and `remember` writes it where the page keeps it, such as local
+ * storage. Call it in an injection context.
+ *
+ * On a wide screen, the panel is the remembered choice, and `set` remembers. On a narrow screen,
+ * the panel floats over the page and starts closed, whatever was remembered. `set` then changes a
  * transient flag only: a phone's opening and closing must not overwrite the choice made on a wide
- * screen. The flag resets to closed whenever `narrow` changes, so each time the viewport becomes
- * narrow it starts closed, and going wide shows the remembered choice again.
+ * screen.
+ *
+ * The flag resets to closed whenever `narrow` changes. So each time the viewport becomes narrow the
+ * panel starts closed, and going wide shows the remembered choice again.
  */
 export function neatAsideOpen(
   remembered: Signal<boolean>,

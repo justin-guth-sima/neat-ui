@@ -210,7 +210,13 @@ Put it on the element marked `neatPageAside`, or on that element's root inside. 
 
 Directive from `@sima/neat-ui`, selector `[neatAsideHeading]`.
 
-The heading of a section of the panel: `<h3 neatAsideHeading>Source</h3>`. It sits nearer to the section it names than to the one before (a gap above it on top of the panel's), except as the panel's first part.
+The heading of a section of the panel.
+
+```html
+<h3 neatAsideHeading>Source</h3>
+```
+
+It sits nearer to the section it names than to the one before, with a gap above it on top of the panel's. As the panel's first part, it has no such gap.
 
 ### `NeatAsideTitle`
 
@@ -228,7 +234,7 @@ A row of the panel's buttons, which wraps when the panel is narrow.
 
 Component from `@sima/neat-ui`, selector `neat-aside-toggle`.
 
-The button that opens and closes the page's aside, which the shell draws at the top bar's right edge, after the kiosk button and above the panel:
+The button that opens and closes the page's aside, at the right edge of the top bar.
 
 ```html
 <div *neatPageToolbar>…</div>
@@ -236,9 +242,15 @@ The button that opens and closes the page's aside, which the shell draws at the 
 <neat-page [aside]="asideOpen() ? 'open' : 'closed'">…</neat-page>
 ```
 
-The page declares it anywhere in its template except inside `*neatPageToolbar` (which throws in dev mode: the toggle has a place of its own, and the toolbar's view is re-created by the shell); it renders nothing where it is declared, and its button, a template of its own, goes to the shell while the page exists, as the page toolbar does. On a narrow screen it is the last item of the top bar's first row; in kiosk mode it floats with the page's tools, after them. One toggle at a time; a second throws in dev mode.
+The shell draws it after the kiosk button, above the panel. On a narrow screen it is the last item of the top bar's first row. In kiosk mode it floats with the page's tools, after them.
 
-One look on every page: the top bar's edge control, as the kiosk button beside it (a large, round, text, icon-only `neatButton`), with the `side-panel` icon (not `info`, which is left for an information action), whose pressed state is the panel's. `label` names it and is its tooltip ("Side panel" unless the page says otherwise). `open` is a model the page owns, so the page decides where it is remembered; the toggle only flips it. `focus()` puts the focus on the button, for a page whose panel closes from inside (Escape, a close button) and must not leave the focus on nothing.
+The page declares it anywhere in its template except inside `*neatPageToolbar`, which throws in dev mode. The toggle has a place of its own, and the shell re-creates the toolbar's view. It renders nothing where it is declared. Its button, a template of its own, goes to the shell while the page exists, as the page toolbar does. One toggle at a time: a second throws in dev mode.
+
+It has one look on every page: the top bar's edge control, as the kiosk button beside it. That is a large, round, text, icon-only `neatButton`, with the `side-panel` icon. The `info` icon is left for an information action. Its pressed state is the panel's.
+
+`label` names it and is its tooltip: "Side panel" unless the page says otherwise. `open` is a model the page owns, so the page decides where it is remembered. The toggle only flips it.
+
+`focus()` puts the focus on the button. It is for a page whose panel closes from inside, by Escape or a close button, and must not leave the focus on nothing.
 
 **Inputs**
 
@@ -288,9 +300,17 @@ The state of a page's aside, as [`neatAsideOpen`](../layout/aside.md#neatasideop
 
 Function from `@sima/neat-ui`.
 
-The open state of a page's aside, for a page that remembers the choice (`remembered`, with `remember` writing it where the page keeps it, such as local storage). Call it in an injection context.
+The open state of a page's aside, for a page that remembers the choice.
 
-On a wide screen the panel is the remembered choice and `set` remembers. On a narrow screen the panel floats over the page and starts closed, whatever was remembered, and `set` changes a transient flag only: a phone's opening and closing must not overwrite the choice made on a wide screen. The flag resets to closed whenever `narrow` changes, so each time the viewport becomes narrow it starts closed, and going wide shows the remembered choice again.
+```ts
+readonly aside = neatAsideOpen(this.stored, (open) => this.stored.set(open));
+```
+
+`remembered` is the choice, and `remember` writes it where the page keeps it, such as local storage. Call it in an injection context.
+
+On a wide screen, the panel is the remembered choice, and `set` remembers. On a narrow screen, the panel floats over the page and starts closed, whatever was remembered. `set` then changes a transient flag only: a phone's opening and closing must not overwrite the choice made on a wide screen.
+
+The flag resets to closed whenever `narrow` changes. So each time the viewport becomes narrow the panel starts closed, and going wide shows the remembered choice again.
 
 ```ts
 neatAsideOpen(remembered: Signal<boolean>, remember: (open: boolean) => void): NeatAsideOpen

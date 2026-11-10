@@ -4,11 +4,15 @@ import { buttonVariants, type ButtonVariants } from '../ui/button/src';
 import { hlm } from '../ui/utils/src';
 
 /**
- * The button's look, by what the action does: `primary` the page's main action (the app's
- * accent), `secondary` a quieter filled one and the neutral choice, `outlined` a bordered one,
- * `text` no fill and no border (for actions among others), `danger` a solid red for what stops or
- * discards something (Stop recording), `danger-text` that red as text for a destructive action
- * among text buttons, and `success` a solid green for what starts something (Start recording).
+ * The button's look, by what the action does.
+ *
+ * - `primary`: the page's main action, in the app's accent.
+ * - `secondary`: a quieter filled one, and the neutral choice.
+ * - `outlined`: a bordered one.
+ * - `text`: no fill and no border, for actions among others.
+ * - `danger`: a solid red, for what stops or discards something (Stop recording).
+ * - `danger-text`: that red as text, for a destructive action among text buttons.
+ * - `success`: a solid green, for what starts something (Start recording).
  *
  * `success` and `danger` pair with the filled `play` and `stop` icons. `danger-text` hovers as the
  * text buttons beside it do, its label kept red, and focuses with danger's red ring.
@@ -190,11 +194,15 @@ export class NeatButton {
   /** Fully rounded ends: a pill, or a circle when `iconOnly`. */
   readonly rounded = input(false, { transform: booleanAttribute });
   /**
-   * A toggle's state: `aria-pressed` and the pressed look. Undefined for a button that is not a
-   * toggle. Only for `button[neatButton]`: `aria-pressed` is not valid on a link. The primary,
-   * success and danger variants are solid fills already, so their pressed look is the least
-   * distinct (primary 2.78:1 against its resting fill in dark; success 2.86:1 in light and 2.0:1
-   * in dark; danger 2.87:1 in light and 2.48:1 in dark); put toggles on the other variants.
+   * A toggle's state: `aria-pressed` and the pressed look.
+   *
+   * Leave it undefined for a button that is not a toggle. It is only for `button[neatButton]`:
+   * `aria-pressed` is not valid on a link.
+   *
+   * The primary, success and danger variants are solid fills already, so their pressed look is the
+   * least distinct. Against its resting fill, primary's is 2.78:1 in dark, success's 2.86:1 in
+   * light and 2.0:1 in dark, and danger's 2.87:1 in light and 2.48:1 in dark. Put toggles on the
+   * other variants.
    */
   readonly pressed = input<boolean | undefined>(undefined);
 

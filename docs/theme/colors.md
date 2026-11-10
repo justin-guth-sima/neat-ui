@@ -709,7 +709,9 @@ Service from `@sima/neat-ui`.
   setScheme(scheme: NeatColorScheme, { persist = true }: { persist?: boolean } = {}): void
   ```
 
-  Applies `scheme` and, unless `persist` is false, stores it for later page loads. Without storing, the scheme holds for this page load only, as a URL parameter that themes a shared link needs: the user's stored choice stays, and a later toggle stores as usual.
+  Applies `scheme` and, unless `persist` is false, stores it for later page loads.
+
+  Without storing, the scheme holds for this page load only, as a URL parameter that themes a shared link needs. The user's stored choice stays, and a later toggle stores as usual.
 
 - **`toggle`**
 
@@ -743,7 +745,15 @@ type NeatColorScheme = 'light' | 'dark'
 
 Function from `@sima/neat-ui`.
 
-The theme's colors for code that draws outside CSS: `tokens` maps the app's names to custom properties (`{ line: '--neat-line', grid: '--border' }`), and the signal answers each resolved ([`neatResolveColor`](../theme/colors.md#neatresolvecolor)), or null where the property is not set or not a color. They are read from `element` (the document element by default, or while it answers undefined) and read again when the color scheme changes, which [`ThemeService`](../theme/colors.md#themeservice) applies before the signal is read again. Call in an injection context.
+The theme's colors, as numbers, for code that draws outside CSS.
+
+```ts
+readonly colors = neatThemeColors({ line: '--neat-line', grid: '--border' });
+```
+
+`tokens` maps the app's names to custom properties. The signal answers each resolved, as [`neatResolveColor`](../theme/colors.md#neatresolvecolor) does, or null where the property is not set or not a color. Call it in an injection context.
+
+The colors are read from `element`: the document element by default, or while `element` answers undefined. They are read again when the color scheme changes, which [`ThemeService`](../theme/colors.md#themeservice) applies before the signal is read again.
 
 ```ts
 neatThemeColors<K extends string>(tokens: Record<K, string>, element?: () => Element | undefined): Signal<Record<K, NeatRgb | null>>
@@ -753,7 +763,15 @@ neatThemeColors<K extends string>(tokens: Record<K, string>, element?: () => Ele
 
 Function from `@sima/neat-ui`.
 
-A CSS color in any notation the browser knows (hex, `rgb()`, `oklch()`, a name) as sRGB channels from 0 to 1, resolved by drawing it on a 1×1 canvas and reading the pixel back, so the kit parses no color syntax of its own. Null where there is no canvas or the color does not parse. For code that draws outside CSS (three.js, a canvas) in the theme's colors or any other color an app holds, which such code takes as numbers. Alpha is ignored, so a token with alpha (a scrim) is not a fit.
+A CSS color as sRGB channels from 0 to 1, for code that draws outside CSS.
+
+```ts
+const [r, g, b] = neatResolveColor('oklch(0.62 0.19 260)') ?? [0, 0, 0];
+```
+
+It takes any notation the browser knows: hex, `rgb()`, `oklch()`, a name. It is for code that draws outside CSS, such as three.js or a canvas, which takes colors as numbers. That may be the theme's colors or any other color an app holds.
+
+The color is resolved by drawing it on a 1×1 canvas and reading the pixel back, so the kit parses no color syntax of its own. The answer is null where there is no canvas, or the color does not parse. Alpha is ignored, so a token with alpha, such as a scrim, is not a fit.
 
 ```ts
 neatResolveColor(css: string): NeatRgb | null
@@ -773,7 +791,9 @@ buildColorScale(base: string): ColorScale
 
 Function from `@sima/neat-ui`.
 
-Builds the brand surface ramp: white, the two palette backgrounds and the palette text as anchors, with 200-900 interpolated in OKLab between the alternate background and the text. The light scheme's surfaces.
+Builds the brand surface ramp, the light scheme's surfaces.
+
+White, the two palette backgrounds and the palette text are its anchors. Steps 200-900 are interpolated in OKLab between the alternate background and the text.
 
 ```ts
 buildSurfaceScale(): SurfaceScale
@@ -783,7 +803,9 @@ buildSurfaceScale(): SurfaceScale
 
 Function from `@sima/neat-ui`.
 
-Builds the neutral surface ramp: the brand ramp's construction in grays only, from grays as light as the two palette backgrounds down to the near-black ([`NEAT_NEAR_BLACK`](../theme/colors.md#neat_near_black)). The dark scheme's surfaces, which carry no hue of their own.
+Builds the neutral surface ramp, the dark scheme's surfaces, which carry no hue of their own.
+
+It is the brand ramp's construction in grays only. It runs from grays as light as the two palette backgrounds down to the near-black ([`NEAT_NEAR_BLACK`](../theme/colors.md#neat_near_black)).
 
 ```ts
 buildNeutralSurfaceScale(): SurfaceScale
@@ -843,7 +865,11 @@ type NeatRgb = readonly [red: number, green: number, blue: number]
 
 Type from `@sima/neat-ui`.
 
-What a status color says: nothing in particular (`neutral`), it went well, take note, it failed, for information, or a distinct state that is none of these (`highlight`, the brand purple). A status chip's fill and a select-list row's tint both take it, so that a row and its chip, given the same tone, say the same.
+What a status color says.
+
+It says nothing in particular (`neutral`), that it went well, to take note, that it failed, or that it is for information. `highlight`, the brand purple, is a distinct state that is none of these.
+
+A status chip's fill and a select-list row's tint both take it. So a row and its chip, given the same tone, say the same.
 
 ```ts
 type NeatTone = 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'highlight'
@@ -883,7 +909,9 @@ const NEAT_DANGER_BASE: "#C8372D"
 
 Constant from `@sima/neat-ui`.
 
-The hue of the highlight tone, which marks a distinct state that is none of the statuses: the palette purple's hue (291° in OKLCH) at about three times its chroma. The palette purple itself is too pale to work from: a row tint of 10% of it on white is #FAFAFD, no tint at all, and no step of its scale is a fill that white text reads on and that still looks purple.
+The hue of the highlight tone, which marks a distinct state that is none of the statuses.
+
+It is the palette purple's hue (291° in OKLCH) at about three times its chroma. The palette purple itself is too pale to work from. A row tint of 10% of it on white is #FAFAFD, no tint at all. And no step of its scale is a fill that white text reads on and that still looks purple.
 
 ```ts
 const NEAT_HIGHLIGHT_BASE: "#9D93D6"
@@ -903,7 +931,9 @@ const NEAT_WARN_BASE: "#E9A23B"
 
 Constant from `@sima/neat-ui`.
 
-Base of the series teal: the teal of Justin's colors mockup, a hue the palette lacks. Chart series need a fourth hue next to blue, purple and orange that is not a status color (green, amber and red stay free to mean status).
+Base of the series teal: the teal of Justin's colors mockup, a hue the palette lacks.
+
+Chart series need a fourth hue next to blue, purple and orange that is not a status color. Green, amber and red stay free to mean status.
 
 ```ts
 const NEAT_SERIES_TEAL_BASE: "#2A8C9A"

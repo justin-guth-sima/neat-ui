@@ -8,12 +8,18 @@ import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 const NARROW_QUERY = '(width < 48rem)';
 
 /**
- * Whether the screen is narrow, a phone's width. `narrow` follows the browser's media query live,
- * so turning a phone or resizing a window changes it at once; where the browser has no
- * `matchMedia` (a test environment) it stays `false`, a wide screen.
+ * Whether the screen is narrow, a phone's width: below 48rem.
  *
- * Inject it rather than asking the browser, so the kit and the app share one answer and a test
- * can provide `{ narrow: signal(true) }` in its place.
+ * ```ts
+ * readonly narrow = inject(NeatViewport).narrow;
+ * ```
+ *
+ * `narrow` follows the browser's media query live, so turning a phone or resizing a window changes
+ * it at once. Where the browser has no `matchMedia`, as in a test environment, it stays `false`, a
+ * wide screen.
+ *
+ * Inject it rather than asking the browser, so the kit and the app share one answer. A test can
+ * provide `{ narrow: signal(true) }` in its place.
  */
 @Injectable({ providedIn: 'root' })
 export class NeatViewport {

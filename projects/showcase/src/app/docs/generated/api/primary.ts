@@ -130,7 +130,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A component whose UI lives outside the floating chrome but belongs to it (a popover opened from the page toolbar) holds the toolbar with "
+              "text": "Some components have UI that lives outside the floating chrome but belongs to it, such as a popover opened from the page toolbar. They hold the toolbar with "
             },
             {
               "kind": "code",
@@ -138,16 +138,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", so the chrome does not fade under it."
-            }
-          ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "The document listeners are plain DOM listeners outside change detection; signals change only when the state does, so pointer movement does not cause renders."
+              "text": ", so the chrome does not fade under them."
             }
           ]
         }
@@ -314,7 +305,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The hue of the highlight tone, which marks a distinct state that is none of the statuses: the palette purple's hue (291° in OKLCH) at about three times its chroma. The palette purple itself is too pale to work from: a row tint of 10% of it on white is #FAFAFD, no tint at all, and no step of its scale is a fill that white text reads on and that still looks purple."
+              "text": "The hue of the highlight tone, which marks a distinct state that is none of the statuses."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is the palette purple's hue (291° in OKLCH) at about three times its chroma. The palette purple itself is too pale to work from. A row tint of 10% of it on white is #FAFAFD, no tint at all. And no step of its scale is a fill that white text reads on and that still looks purple."
             }
           ]
         }
@@ -391,7 +391,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Base of the series teal: the teal of Justin's colors mockup, a hue the palette lacks. Chart series need a fourth hue next to blue, purple and orange that is not a status color (green, amber and red stay free to mean status)."
+              "text": "Base of the series teal: the teal of Justin's colors mockup, a hue the palette lacks."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Chart series need a fourth hue next to blue, purple and orange that is not a status color. Green, amber and red stay free to mean status."
             }
           ]
         }
@@ -442,15 +451,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The heading of a section of the panel: "
-            },
-            {
-              "kind": "code",
-              "text": "<h3 neatAsideHeading>Source</h3>"
-            },
+              "text": "The heading of a section of the panel."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<h3 neatAsideHeading>Source</h3>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ". It sits nearer to the section it names than to the one before (a gap above it on top of the panel's), except as the panel's first part."
+              "text": "It sits nearer to the section it names than to the one before, with a gap above it on top of the panel's. As the panel's first part, it has no such gap."
             }
           ]
         }
@@ -622,7 +637,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The button that opens and closes the page's aside, which the shell draws at the top bar's right edge, after the kiosk button and above the panel:"
+              "text": "The button that opens and closes the page's aside, at the right edge of the top bar."
             }
           ]
         },
@@ -630,6 +645,15 @@ export const API: DocsEntry = {
           "kind": "code",
           "language": "html",
           "code": "<div *neatPageToolbar>…</div>\n<neat-aside-toggle [(open)]=\"asideOpen\" />\n<neat-page [aside]=\"asideOpen() ? 'open' : 'closed'\">…</neat-page>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The shell draws it after the kiosk button, above the panel. On a narrow screen it is the last item of the top bar's first row. In kiosk mode it floats with the page's tools, after them."
+            }
+          ]
         },
         {
           "kind": "paragraph",
@@ -644,7 +668,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (which throws in dev mode: the toggle has a place of its own, and the toolbar's view is re-created by the shell); it renders nothing where it is declared, and its button, a template of its own, goes to the shell while the page exists, as the page toolbar does. On a narrow screen it is the last item of the top bar's first row; in kiosk mode it floats with the page's tools, after them. One toggle at a time; a second throws in dev mode."
+              "text": ", which throws in dev mode. The toggle has a place of its own, and the shell re-creates the toolbar's view. It renders nothing where it is declared. Its button, a template of its own, goes to the shell while the page exists, as the page toolbar does. One toggle at a time: a second throws in dev mode."
             }
           ]
         },
@@ -653,7 +677,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "One look on every page: the top bar's edge control, as the kiosk button beside it (a large, round, text, icon-only "
+              "text": "It has one look on every page: the top bar's edge control, as the kiosk button beside it. That is a large, round, text, icon-only "
             },
             {
               "kind": "code",
@@ -661,7 +685,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), with the "
+              "text": ", with the "
             },
             {
               "kind": "code",
@@ -669,7 +693,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " icon (not "
+              "text": " icon. The "
             },
             {
               "kind": "code",
@@ -677,15 +701,20 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", which is left for an information action), whose pressed state is the panel's. "
-            },
+              "text": " icon is left for an information action. Its pressed state is the panel's."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "label"
             },
             {
               "kind": "text",
-              "text": " names it and is its tooltip (\"Side panel\" unless the page says otherwise). "
+              "text": " names it and is its tooltip: \"Side panel\" unless the page says otherwise. "
             },
             {
               "kind": "code",
@@ -693,15 +722,20 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is a model the page owns, so the page decides where it is remembered; the toggle only flips it. "
-            },
+              "text": " is a model the page owns, so the page decides where it is remembered. The toggle only flips it."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "focus()"
             },
             {
               "kind": "text",
-              "text": " puts the focus on the button, for a page whose panel closes from inside (Escape, a close button) and must not leave the focus on nothing."
+              "text": " puts the focus on the button. It is for a page whose panel closes from inside, by Escape or a close button, and must not leave the focus on nothing."
             }
           ]
         }
@@ -810,7 +844,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Where the user is and the way back, as the kit's one breadcrumb (the file browser's folders, the diagram's levels):"
+              "text": "Where the user is and the way back, as the kit's one breadcrumb."
             }
           ]
         },
@@ -824,7 +858,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A "
+              "text": "The file browser's folders and the diagram's levels use it."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is a "
             },
             {
               "kind": "code",
@@ -840,7 +883,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " around an ordered list. Each crumb but the last is an inline button that emits its index on "
+              "text": ", around an ordered list. Each crumb but the last is an inline button that emits its index on "
             },
             {
               "kind": "code",
@@ -848,7 +891,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; the last is plain text marked as the location ("
+              "text": ". The last is plain text marked as the location ("
             },
             {
               "kind": "code",
@@ -856,7 +899,25 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), with its detail muted after it. A decorative \"›\" sits between crumbs. A long path wraps onto further lines rather than scrolling. A pressed crumb is usually gone once the app goes there (it becomes the last), so the app moves the focus where the user's next step is."
+              "text": "), with its detail muted after it."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A decorative \"›\" sits between crumbs. A long path wraps onto further lines rather than scrolling."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A pressed crumb is usually gone once the app goes there, since it becomes the last. So the app moves the focus where the user's next step is."
             }
           ]
         }
@@ -1174,7 +1235,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " and the pressed look. Undefined for a button that is not a toggle. Only for "
+                  "text": " and the pressed look."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Leave it undefined for a button that is not a toggle. It is only for "
                 },
                 {
                   "kind": "code",
@@ -1190,7 +1260,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " is not valid on a link. The primary, success and danger variants are solid fills already, so their pressed look is the least distinct (primary 2.78:1 against its resting fill in dark; success 2.86:1 in light and 2.0:1 in dark; danger 2.87:1 in light and 2.48:1 in dark); put toggles on the other variants."
+                  "text": " is not valid on a link."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The primary, success and danger variants are solid fills already, so their pressed look is the least distinct. Against its resting fill, primary's is 2.78:1 in dark, success's 2.86:1 in light and 2.0:1 in dark, and danger's 2.87:1 in light and 2.48:1 in dark. Put toggles on the other variants."
                 }
               ]
             }
@@ -1270,64 +1349,83 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The button's look, by what the action does: "
-            },
-            {
-              "kind": "code",
-              "text": "primary"
-            },
-            {
-              "kind": "text",
-              "text": " the page's main action (the app's accent), "
-            },
-            {
-              "kind": "code",
-              "text": "secondary"
-            },
-            {
-              "kind": "text",
-              "text": " a quieter filled one and the neutral choice, "
-            },
-            {
-              "kind": "code",
-              "text": "outlined"
-            },
-            {
-              "kind": "text",
-              "text": " a bordered one, "
-            },
-            {
-              "kind": "code",
-              "text": "text"
-            },
-            {
-              "kind": "text",
-              "text": " no fill and no border (for actions among others), "
-            },
-            {
-              "kind": "code",
-              "text": "danger"
-            },
-            {
-              "kind": "text",
-              "text": " a solid red for what stops or discards something (Stop recording), "
-            },
-            {
-              "kind": "code",
-              "text": "danger-text"
-            },
-            {
-              "kind": "text",
-              "text": " that red as text for a destructive action among text buttons, and "
-            },
-            {
-              "kind": "code",
-              "text": "success"
-            },
-            {
-              "kind": "text",
-              "text": " a solid green for what starts something (Start recording)."
+              "text": "The button's look, by what the action does."
             }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "primary"
+              },
+              {
+                "kind": "text",
+                "text": ": the page's main action, in the app's accent."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "secondary"
+              },
+              {
+                "kind": "text",
+                "text": ": a quieter filled one, and the neutral choice."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "outlined"
+              },
+              {
+                "kind": "text",
+                "text": ": a bordered one."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "text"
+              },
+              {
+                "kind": "text",
+                "text": ": no fill and no border, for actions among others."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "danger"
+              },
+              {
+                "kind": "text",
+                "text": ": a solid red, for what stops or discards something (Stop recording)."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "danger-text"
+              },
+              {
+                "kind": "text",
+                "text": ": that red as text, for a destructive action among text buttons."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "success"
+              },
+              {
+                "kind": "text",
+                "text": ": a solid green, for what starts something (Start recording)."
+              }
+            ]
           ]
         },
         {
@@ -1546,7 +1644,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": a catalog name, or a function from "
+              "text": ": a catalog name, or a function."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Prefer a name, so every app moves the same way. A function, from "
             },
             {
               "kind": "code",
@@ -1554,7 +1661,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " to the eased share (0 at 0, 1 at 1) for the rare motion no name fits. Prefer a name, so every app moves the same way."
+              "text": " to the eased share (0 at 0, 1 at 1), is for the rare motion no name fits."
             }
           ]
         }
@@ -2041,7 +2148,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ". It is open on its own path and every route nested under it, whatever the query; a child whose path is its page's own (a first view at "
+                  "text": "."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is open on its own path and every route nested under it, whatever the query. A child whose path is its page's own, such as a first view at "
                 },
                 {
                   "kind": "code",
@@ -2049,7 +2165,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ", beside "
+                  "text": " beside "
                 },
                 {
                   "kind": "code",
@@ -2057,7 +2173,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ") is open on that path only, so it is not open on its siblings' routes. Where two children match, the one with the longer path is open."
+                  "text": ", is open on that path only. So it is not open on its siblings' routes. Where two children match, the one with the longer path is open."
                 }
               ]
             }
@@ -2134,7 +2250,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The page's sub-pages, the only second level of the rail's navigation (more than a few, or deeper levels, belong in the page nav). They unfold under the item while the page is active and the rail shows its labels; the open one carries "
+                  "text": "The page's sub-pages, the only second level of the rail's navigation."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "More than a few, or deeper levels, belong in the page nav. They unfold under the item while the page is active and the rail shows its labels. The open one carries "
                 },
                 {
                   "kind": "code",
@@ -2142,7 +2267,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " and the item then does not. The item's link still goes to "
+                  "text": ", and the item then does not."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The item's link still goes to "
                 },
                 {
                   "kind": "code",
@@ -2150,7 +2284,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ": the app routes it to the first sub-page, or gives the first sub-page the page's own path. The kit does not redirect. Collapsed, a press on the item goes to "
+                  "text": ". The app routes it to the first sub-page, or gives the first sub-page the page's own path: the kit does not redirect."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Collapsed, a press on the item goes to "
                 },
                 {
                   "kind": "code",
@@ -2158,7 +2301,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " as well, and hovering it with a mouse or focusing it with the keyboard shows them as a menu beside the rail."
+                  "text": " as well. Hovering it with a mouse, or focusing it with the keyboard, shows the sub-pages as a menu beside the rail."
                 }
               ]
             }
@@ -2292,7 +2435,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (the default) the content keeps the kit's page inset from the content area's edges, so every app's pages line up; "
+              "text": " (the default), the content keeps the kit's page inset from the content area's edges, so every app's pages line up. "
             },
             {
               "kind": "code",
@@ -2300,7 +2443,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " lets full-bleed content (a video grid, a map) reach the edges."
+              "text": " lets full-bleed content, such as a video grid or a map, reach the edges."
             }
           ]
         },
@@ -2309,7 +2452,12 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A "
+              "text": "The page nav.",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " A "
             },
             {
               "kind": "code",
@@ -2326,7 +2474,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") as a direct child is the page nav: the body's start column, as high as the page and scrolling on its own whatever "
+              "text": ") as a direct child is the page nav. It is the body's start column, as high as the page, with the aside at the other end. It scrolls on its own, whatever "
             },
             {
               "kind": "code",
@@ -2334,7 +2482,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " says, with the aside at the other end; on a narrow screen a closed section above the body, under which the floating panel opens. Without one, the body starts at the page's edge."
+              "text": " says. On a narrow screen it is a closed section above the body, under which the floating panel opens. Without one, the body starts at the page's edge."
             }
           ]
         },
@@ -2343,7 +2491,12 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Elements marked "
+              "text": "The aside.",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " Elements marked "
             },
             {
               "kind": "code",
@@ -2351,7 +2504,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " form the page's aside (an inspector, say), shown on the right while "
+              "text": " form the page's aside, such as an inspector. It shows on the right while "
             },
             {
               "kind": "code",
@@ -2367,7 +2520,25 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " wide and scrolls on its own; the body narrows beside it rather than being covered, keeping its own scroll setting. The aside and the page nav are the supported other scroll contexts of a page: a page that needs another region of its own that scrolls independently is a kit change, so that the layout becomes a supported component, not a workaround. Closed, the panel and its content are out of the DOM, but projected content is still instantiated (content projection always creates it): gate expensive content with an "
+              "text": " wide and scrolls on its own. The body narrows beside it rather than being covered, and keeps its own scroll setting."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The aside and the page nav are a page's supported other scroll contexts. A page that needs another region of its own that scrolls independently is a kit change. So the layout becomes a supported component, not a workaround."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Closed, the panel and its content are out of the DOM. Projected content is still instantiated, though, since content projection always creates it. Gate expensive content with an "
             },
             {
               "kind": "code",
@@ -2393,7 +2564,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") the panel floats over the right of the page instead, "
+              "text": "), the panel floats over the right of the page instead. It is "
             },
             {
               "kind": "code",
@@ -2401,7 +2572,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " wide but never wider than the page, and the body keeps the whole width. There is no scrim and no Escape handling: the page owns the open state, and the toolbar's "
+              "text": " wide, but never wider than the page, and the body keeps the whole width."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "There is no scrim and no Escape handling: the page owns the open state, and the toolbar's "
             },
             {
               "kind": "code",
@@ -2418,7 +2598,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", which starts the panel closed on a narrow screen without overwriting the choice remembered for a wide one."
+              "text": ". It starts the panel closed on a narrow screen, without overwriting the choice remembered for a wide one."
             }
           ]
         },
@@ -2427,8 +2607,41 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Beside the body the panel can be resized: a separator on its inline-start edge is dragged with a pointer, or moved with the arrow keys (left widens, 16 px a step), Home and End; a double click returns to the default. "
+              "text": "Resizing.",
+              "strong": true
             },
+            {
+              "kind": "text",
+              "text": " Beside the body, the panel can be resized by a separator on its inline-start edge:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "Drag it with a pointer."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Move it with the arrow keys, 16 px a step, left widening. Home and End go to the bounds."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Double-click it to return to the default."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "asideWidth"
@@ -2451,7 +2664,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". The page only exposes the model, so an app that wants the width kept binds "
+              "text": ". The page only exposes the model. So an app that wants the width kept binds "
             },
             {
               "kind": "code",
@@ -2459,7 +2672,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " and stores it where it likes; a drag writes it on release, a key press at once. The panel is shown between 18rem and the page's width less 20rem, which leaves the body 20rem; a width outside that is shown clamped and the model left alone, so a remembered width returns when the window is wide enough again."
+              "text": ", and stores it where it likes. A drag writes it on release, a key press at once."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The panel is shown between 18rem and the page's width less 20rem, which leaves the body 20rem. A width outside that is shown clamped, and the model left alone. So a remembered width returns when the window is wide enough again."
             }
           ]
         }
@@ -2625,23 +2847,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The page nav, the third level of the kit's navigation: pages are rail items, a page's sub-pages its item's "
-            },
-            {
-              "kind": "code",
-              "text": "children"
-            },
-            {
-              "kind": "text",
-              "text": ", and anything more (more than a few links, groups of them, or a level below a sub-page) is this list, as a direct child of "
-            },
-            {
-              "kind": "code",
-              "text": "neat-page"
-            },
-            {
-              "kind": "text",
-              "text": ":"
+              "text": "The page nav: a list of a page's links, beside its body, for the third level of navigation."
             }
           ]
         },
@@ -2654,12 +2860,37 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "text",
+              "text": "Pages are rail items, and a page's sub-pages are its item's "
+            },
+            {
+              "kind": "code",
+              "text": "children"
+            },
+            {
+              "kind": "text",
+              "text": ". Anything more is this list, as a direct child of "
+            },
+            {
+              "kind": "code",
+              "text": "neat-page"
+            },
+            {
+              "kind": "text",
+              "text": ": more than a few links, groups of them, or a level below a sub-page."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
               "kind": "code",
               "text": "groups"
             },
             {
               "kind": "text",
-              "text": " is data, not content: each group's links under its heading (none for a group without a "
+              "text": " is data, not content: each group's links under its heading. A group without a "
             },
             {
               "kind": "code",
@@ -2667,7 +2898,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "). The open link is the one whose "
+              "text": " has no heading."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The open link is the one whose "
             },
             {
               "kind": "code",
@@ -2675,7 +2915,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " the URL is under (the query and fragment are never judged, and the longest such path wins); it carries "
+              "text": " the URL is under, the longest such path winning. The query and fragment are never judged. The open link carries "
             },
             {
               "kind": "code",
@@ -2683,7 +2923,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " and has the rail's current-page look in the page's tokens, the accent fill and weight, where the other links are muted until hovered. With "
+              "text": ", and has the rail's current-page look in the page's tokens: the accent fill and weight. The other links are muted until hovered."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "With "
             },
             {
               "kind": "code",
@@ -2691,7 +2940,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", a search field at the top, named and hinted by that text, keeps the links whose label holds what was typed, ignoring case, and a group's heading while any of its links is kept; when none is, it says \"Nothing matches\"."
+              "text": ", a search field at the top, named and hinted by that text, filters the links. It keeps those whose label holds what was typed, ignoring case, and a group's heading while any of its links is kept. When none is kept, it says \"Nothing matches\"."
             }
           ]
         },
@@ -2725,7 +2974,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "On a wide screen the page draws it as its body's start column, as high as the page, with the aside at the other end. It scrolls on its own whatever the page's "
+              "text": "On a wide screen, the page draws it as its body's start column, as high as the page, with the aside at the other end. It scrolls on its own, whatever the page's "
             },
             {
               "kind": "code",
@@ -2733,7 +2982,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", so it stays in view while the body scrolls, with the filter fixed at its top; it scrolls itself, never with "
+              "text": ", so it stays in view while the body scrolls. The filter stays fixed at its top."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Whenever a navigation leaves the open link out of view, the list scrolls itself to show it. It never uses "
             },
             {
               "kind": "code",
@@ -2741,7 +2999,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (which would scroll the page around it too), to show the open link whenever a navigation leaves that link out of view. On a narrow screen ("
+              "text": ", which would scroll the page around it too."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "On a narrow screen ("
             },
             {
               "kind": "ref",
@@ -2750,7 +3017,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") it is a closed section above the body instead, with the look of "
+              "text": "), it is a closed section above the body instead, with the look of "
             },
             {
               "kind": "ref",
@@ -2759,7 +3026,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": the landmark's name as its label and the open link as its summary. Opened, its list scrolls inside it up to the page's height, and choosing a link closes it with the focus on its button, as a link followed puts the floating rail away."
+              "text": ". The landmark's name is its label, and the open link its summary. Opened, its list scrolls inside it up to the page's height. Choosing a link closes it, with the focus on its button, as a link followed puts the floating rail away."
             }
           ]
         }
@@ -2882,7 +3149,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ". The link is the open one on this path and every route nested under it, whatever the query and fragment; where two links match, the one with the longer path is."
+                  "text": "."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The link is the open one on this path and every route nested under it, whatever the query and fragment. Where two links match, the one with the longer path is open."
                 }
               ]
             }
@@ -2912,15 +3188,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The page's toolbar: "
-            },
-            {
-              "kind": "code",
-              "text": "<div *neatPageToolbar>…</div>"
-            },
+              "text": "The page's toolbar, rendered in the shell's top bar while the page exists."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<div *neatPageToolbar>\n  <button neatButton type=\"button\" variant=\"text\" (click)=\"refresh()\">Refresh</button>\n</div>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": " on a page renders that content in the shell's top bar, at its right end just before the end slot and the kiosk button, while the page exists. In kiosk mode, where the top bar is hidden, it renders in a floating bar beside the exit control that shows while the pointer moves. The content stays the page's: its bindings and injection context are those of the page's template."
+              "text": "It sits at the top bar's right end, just before the end slot and the kiosk button. In kiosk mode, where the top bar is hidden, it renders in a floating bar beside the exit control, which shows while the pointer moves."
             }
           ]
         },
@@ -2929,7 +3211,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "One page toolbar at a time; a second one throws in dev mode."
+              "text": "The content stays the page's: its bindings and injection context are those of the page's template."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "One page toolbar at a time: a second one throws in dev mode."
             }
           ]
         }
@@ -2946,15 +3237,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A line between groups of the rail's bottom items: "
-            },
-            {
-              "kind": "code",
-              "text": "<hr neatRailEnd neatRailDivider />"
-            },
+              "text": "A line between groups of the rail's bottom items."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<hr neatRailEnd neatRailDivider />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": " among an app's "
+              "text": "Put it among an app's "
             },
             {
               "kind": "code",
@@ -2962,7 +3259,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " items (below a board block, for example). The shell draws the line above the whole group with the same element, so the look is stated once: 1px of "
+              "text": " items, below a board block, for example. The shell draws the line above the whole group with the same element, so the look is stated once."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The line is 1px of "
             },
             {
               "kind": "code",
@@ -2970,7 +3276,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", a quarter step of margin above and below, which with the group's quarter-step gap leaves half a step to the items around it. Decorative ("
+              "text": ", with a quarter step of margin above and below. With the group's quarter-step gap, that leaves half a step to the items around it."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is decorative ("
             },
             {
               "kind": "code",
@@ -2978,7 +3293,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "): the items' names say what they are, and a separator announced between them would only be noise."
+              "text": "). The items' names say what they are, and a separator announced between them would only be noise."
             }
           ]
         }
@@ -3034,7 +3349,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the visible text while the rail is expanded; collapsed, it stays as the item's visually hidden text, so the name is kept, and shows as a tooltip on the right."
+              "text": " is the visible text while the rail is expanded. Collapsed, it stays as the item's visually hidden text, so the name is kept, and shows as a tooltip on the right."
             }
           ]
         },
@@ -3043,7 +3358,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "An item with a state (a board, a connection) says it with the kit's inputs:"
+              "text": "An item with a state, such as a board or a connection, says it with the kit's inputs:"
             }
           ]
         },
@@ -3053,15 +3368,75 @@ export const API: DocsEntry = {
           "code": "<button neatRailEnd neatRailItem type=\"button\" label=\"DevKit, 192.168.100.2, connected\"\n        text=\"DevKit\" detail=\"192.168.100.2\" tone=\"success\" (click)=\"…\">\n  <neat-icon name=\"board\" />\n</button>"
         },
         {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "tone"
+              },
+              {
+                "kind": "text",
+                "text": " puts a dot on the icon's corner."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "text"
+              },
+              {
+                "kind": "text",
+                "text": " is the visible first line, the label by default."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "detail"
+              },
+              {
+                "kind": "text",
+                "text": " is a smaller second line, in the tone's color."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Both lines are cut with an ellipsis, and hidden with the label while the rail is collapsed."
+            }
+          ]
+        },
+        {
           "kind": "paragraph",
           "spans": [
             {
               "kind": "code",
-              "text": "tone"
+              "text": "label"
             },
             {
               "kind": "text",
-              "text": " puts a dot on the icon's corner, "
+              "text": " stays the tooltip and the name, so it is the whole sentence, with the state the dot alone shows. The tooltip takes its text from "
+            },
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": " alone, so the kit cannot compose it from the lines. So "
+            },
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": " must hold the visible "
             },
             {
               "kind": "code",
@@ -3069,7 +3444,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the visible first line (the label by default) and "
+              "text": " and "
             },
             {
               "kind": "code",
@@ -3077,23 +3452,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " a smaller second line in the tone's color, both cut with an ellipsis and hidden with the label while the rail is collapsed. "
-            },
-            {
-              "kind": "code",
-              "text": "label"
-            },
-            {
-              "kind": "text",
-              "text": " stays the tooltip and the name, so it is the whole sentence, with the state the dot alone shows: the tooltip takes its text from "
-            },
-            {
-              "kind": "code",
-              "text": "label"
-            },
+              "text": " as they read."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": " alone, so the kit cannot compose it from the lines. While the lines say other than "
+              "text": "While the lines say other than "
             },
             {
               "kind": "code",
@@ -3109,7 +3477,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " and the label is visually hidden text beside them, so the name still comes from the content and an "
+              "text": ", and the label is visually hidden text beside them. So the name still comes from the content, and an "
             },
             {
               "kind": "code",
@@ -3117,7 +3485,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " the app sets still wins (a kit "
+              "text": " the app sets still wins. A kit "
             },
             {
               "kind": "code",
@@ -3125,7 +3493,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " binding would remove the app's)."
+              "text": " binding would remove the app's."
             }
           ]
         },
@@ -3142,7 +3510,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", which takes the label's place; "
+              "text": ", which takes the label's place. "
             },
             {
               "kind": "code",
@@ -3150,7 +3518,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " stays the tooltip, so it should say at least what that text says. Its name is then that text, unless the app gives an "
+              "text": " stays the tooltip, so it should say at least what that text says. The item's name is then that text, unless the app gives an "
             },
             {
               "kind": "code",
@@ -3158,7 +3526,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". The lines of such an element are the app's, which the kit's stylesheet cannot reach: each ellipsizes itself ("
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The lines of such an element are the app's, which the kit's stylesheet cannot reach. So each ellipsizes itself: "
             },
             {
               "kind": "code",
@@ -3190,7 +3567,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ")."
+              "text": "."
             }
           ]
         },
@@ -3199,7 +3576,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "An item is an action, never a toggle: its label says what a click does (\"Dark theme\" while light, \"Light theme\" while dark), so it has no pressed state, and the rail's selection fill means only \"the current page\" ("
+              "text": "An item is an action, never a toggle. Its label says what a click does: \"Dark theme\" while light, \"Light theme\" while dark. So it has no pressed state, and the rail's selection fill means only \"the current page\" ("
             },
             {
               "kind": "code",
@@ -3224,7 +3601,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". A link followed on a narrow screen puts the floating rail away; a button leaves it, since its action may want the rail (a theme switch) or open a dialog over it."
+              "text": ". A link followed on a narrow screen puts the floating rail away. A button leaves it, since its action may want the rail, as a theme switch does, or open a dialog over it."
             }
           ]
         },
@@ -3579,39 +3956,82 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The rail holds the pages ("
-            },
-            {
-              "kind": "code",
-              "text": "navItems"
+              "text": "The rail",
+              "strong": true
             },
             {
               "kind": "text",
-              "text": ") and, at its bottom below a divider, the app's own items (elements marked "
-            },
-            {
-              "kind": "code",
-              "text": "neatRailEnd"
-            },
+              "text": " holds, from the top:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "the pages, "
+              },
+              {
+                "kind": "code",
+                "text": "navItems"
+              },
+              {
+                "kind": "text",
+                "text": ";"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "below a divider, the app's own items: elements marked "
+              },
+              {
+                "kind": "code",
+                "text": "neatRailEnd"
+              },
+              {
+                "kind": "text",
+                "text": ", which are "
+              },
+              {
+                "kind": "code",
+                "text": "neatRailItem"
+              },
+              {
+                "kind": "text",
+                "text": "s and the "
+              },
+              {
+                "kind": "code",
+                "text": "neatRailDivider"
+              },
+              {
+                "kind": "text",
+                "text": "s between groups of them;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "the kit's theme item;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "the rail's own control."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ": "
-            },
-            {
-              "kind": "code",
-              "text": "neatRailItem"
-            },
-            {
-              "kind": "text",
-              "text": "s, and "
-            },
-            {
-              "kind": "code",
-              "text": "neatRailDivider"
-            },
-            {
-              "kind": "text",
-              "text": "s between groups of them), then the kit's theme item, then the rail's control. Expanded, its items show icon and label; collapsed, the icon with the label as a tooltip and as hidden text. The theme item and the control are actions named for what a click does: \"Dark theme\" or \"Light theme\", \"Show labels\" or \"Collapse\"."
+              "text": "Expanded, its items show icon and label. Collapsed, they show the icon, with the label as a tooltip and as hidden text. The theme item and the control are actions named for what a click does: \"Dark theme\" or \"Light theme\", \"Show labels\" or \"Collapse\"."
             }
           ]
         },
@@ -3620,7 +4040,12 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A page with "
+              "text": "Sub-pages.",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " A page with "
             },
             {
               "kind": "code",
@@ -3628,15 +4053,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " unfolds them under its item while it is the active page and the rail shows its labels (expanded, or floating open on a narrow screen): rows of text, indented under a thin line, the open one in the rail's current-page look. The item then keeps its label in full text color at weight 500 without the fill, so one row alone reads as current, and only that row carries "
-            },
-            {
-              "kind": "code",
-              "text": "aria-current=\"page\""
-            },
-            {
-              "kind": "text",
-              "text": ". Only the active page's children show, so the rail does not grow with every page's sub-pages."
+              "text": " unfolds them under its item while it is the active page and the rail shows its labels: expanded, or floating open on a narrow screen. They are rows of text, indented under a thin line, the open one in the rail's current-page look. Only the active page's children show, so the rail does not grow with every page's sub-pages."
             }
           ]
         },
@@ -3645,7 +4062,24 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Collapsed, the rail has no room for them: its item for a page with "
+              "text": "The page's item then keeps its label in full text color at weight 500, without the fill. So one row alone reads as current, and only that row carries "
+            },
+            {
+              "kind": "code",
+              "text": "aria-current=\"page\""
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Collapsed, the rail has no room for sub-pages. Its item for a page with "
             },
             {
               "kind": "code",
@@ -3661,7 +4095,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", and a press navigates, as on any rail item. The menu of the sub-pages beside the rail is a companion of mouse hover and keyboard focus only (Tab steps from the item into its links, Escape closes it); a tap shows none, as the rail can be expanded. The item keeps the current-page look while the route belongs to the page. The menu's heading is the page's label, which is why that item has no tooltip."
+              "text": ", and a press navigates, as on any rail item. The item keeps the current-page look while the route belongs to the page."
             }
           ]
         },
@@ -3670,31 +4104,83 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The top bar holds the logo, the app name and the page title, then at its right the active page's tools ("
-            },
+              "text": "A menu of the sub-pages beside the rail goes with mouse hover and keyboard focus only. Tab steps from the item into its links, and Escape closes it. A tap shows none, since the rail can be expanded. The menu's heading is the page's label, which is why that item has no tooltip."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
-              "kind": "code",
-              "text": "*neatPageToolbar"
+              "kind": "text",
+              "text": "The top bar",
+              "strong": true
             },
             {
               "kind": "text",
-              "text": "), elements marked "
-            },
-            {
-              "kind": "code",
-              "text": "neatTopbarEnd"
-            },
+              "text": " holds the logo, the app name and the page title. At its right it holds, in order:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "the active page's tools, "
+              },
+              {
+                "kind": "code",
+                "text": "*neatPageToolbar"
+              },
+              {
+                "kind": "text",
+                "text": ";"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "elements marked "
+              },
+              {
+                "kind": "code",
+                "text": "neatTopbarEnd"
+              },
+              {
+                "kind": "text",
+                "text": ";"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "the kiosk button, the one app control there, since it changes how the page is shown;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "last, at the right edge above the aside, the page's aside toggle ("
+              },
+              {
+                "kind": "code",
+                "text": "neat-aside-toggle"
+              },
+              {
+                "kind": "text",
+                "text": "), when the page has one."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ", the kiosk button (the one app control there, since it changes how the page is shown), and last, at the right edge above the aside, the page's aside toggle ("
-            },
-            {
-              "kind": "code",
-              "text": "neat-aside-toggle"
-            },
-            {
-              "kind": "text",
-              "text": ") when the page has one. The page title is the matching nav item's label, else the route's "
+              "text": "The page title is the matching nav item's label, else the route's "
             },
             {
               "kind": "code",
@@ -3702,7 +4188,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; on a page with sub-pages it is the open sub-page's label with the page's label beside it, muted, or, on a route deeper than the sub-page whose own "
+              "text": ". On a page with sub-pages, it is the open sub-page's label, with the page's label beside it, muted. On a route deeper than the sub-page, with a "
             },
             {
               "kind": "code",
@@ -3710,7 +4196,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is set (not an ancestor's), that title with \"page › sub-page\" beside it. The default slot is the content area (usually a "
+              "text": " of its own (not an ancestor's), it is that title, with \"page › sub-page\" beside it."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The default slot is the content area, usually a "
             },
             {
               "kind": "code",
@@ -3718,7 +4213,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ")."
+              "text": "."
             }
           ]
         },
@@ -3727,7 +4222,12 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Kiosk mode ("
+              "text": "Kiosk mode",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " ("
             },
             {
               "kind": "ref",
@@ -3736,7 +4236,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", entered from the top bar or with "
+              "text": ") is entered from the top bar or with "
             },
             {
               "kind": "code",
@@ -3744,7 +4244,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") drops the rail and the top bar, gives the content area the whole viewport and floats an exit control over its top right corner while the pointer moves; the page toolbar, then the aside toggle, float beside it on the same terms. Their views are re-created on entering and leaving kiosk mode, so the page keeps their state."
+              "text": ". It drops the rail and the top bar, and gives the content area the whole viewport. An exit control floats over its top right corner while the pointer moves. The page toolbar, then the aside toggle, float beside it on the same terms. Their views are re-created on entering and leaving kiosk mode, so the page keeps their state."
             }
           ]
         },
@@ -3753,7 +4253,12 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "On a narrow screen ("
+              "text": "On a narrow screen",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " ("
             },
             {
               "kind": "ref",
@@ -3762,7 +4267,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", below 48rem) the app name and the page title are visually hidden but stay for screen readers (the title as the page's "
+              "text": ", below 48rem), the app name and the page title are visually hidden, but stay for screen readers. The title stays as the page's "
             },
             {
               "kind": "code",
@@ -3770,23 +4275,25 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; the name beside the logo, which is also named \"SiMa.ai\"). The logo, the end slot, the kiosk button and the aside toggle share the first row, the end slot growing from a zero basis and the toggle last, and the page toolbar takes its own full-width second row. An expanded rail floats over the content, below the top bar, instead of squeezing it, starts collapsed without touching the remembered choice, and collapses when one of its links is followed. The host's "
-            },
-            {
-              "kind": "code",
-              "text": "data-narrow"
-            },
-            {
-              "kind": "text",
-              "text": " says which, and the CSS reacts to that, never to a second "
-            },
-            {
-              "kind": "code",
-              "text": "@media"
-            },
+              "text": ", and the name beside the logo, which is also named \"SiMa.ai\"."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": "."
+              "text": "The logo, the end slot, the kiosk button and the aside toggle share the first row. The end slot grows from a zero basis, and the toggle comes last. The page toolbar takes its own full-width second row."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An expanded rail floats over the content, below the top bar, instead of squeezing it. It starts collapsed without touching the remembered choice, and collapses when one of its links is followed."
             }
           ]
         }
@@ -3995,7 +4502,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "What a status color says: nothing in particular ("
+              "text": "What a status color says."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It says nothing in particular ("
             },
             {
               "kind": "code",
@@ -4003,7 +4519,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), it went well, take note, it failed, for information, or a distinct state that is none of these ("
+              "text": "), that it went well, to take note, that it failed, or that it is for information. "
             },
             {
               "kind": "code",
@@ -4011,7 +4527,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", the brand purple). A status chip's fill and a select-list row's tint both take it, so that a row and its chip, given the same tone, say the same."
+              "text": ", the brand purple, is a distinct state that is none of these."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A status chip's fill and a select-list row's tint both take it. So a row and its chip, given the same tone, say the same."
             }
           ]
         }
@@ -4179,15 +4704,25 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Whether the screen is narrow, a phone's width. "
-            },
+              "text": "Whether the screen is narrow, a phone's width: below 48rem."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "readonly narrow = inject(NeatViewport).narrow;"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "narrow"
             },
             {
               "kind": "text",
-              "text": " follows the browser's media query live, so turning a phone or resizing a window changes it at once; where the browser has no "
+              "text": " follows the browser's media query live, so turning a phone or resizing a window changes it at once. Where the browser has no "
             },
             {
               "kind": "code",
@@ -4195,7 +4730,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (a test environment) it stays "
+              "text": ", as in a test environment, it stays "
             },
             {
               "kind": "code",
@@ -4212,7 +4747,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Inject it rather than asking the browser, so the kit and the app share one answer and a test can provide "
+              "text": "Inject it rather than asking the browser, so the kit and the app share one answer. A test can provide "
             },
             {
               "kind": "code",
@@ -4329,7 +4864,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " is false, stores it for later page loads. Without storing, the scheme holds for this page load only, as a URL parameter that themes a shared link needs: the user's stored choice stays, and a later toggle stores as usual."
+                  "text": " is false, stores it for later page loads."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Without storing, the scheme holds for this page load only, as a URL parameter that themes a shared link needs. The user's stored choice stays, and a later toggle stores as usual."
                 }
               ]
             }
@@ -4388,7 +4932,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Builds the neutral surface ramp: the brand ramp's construction in grays only, from grays as light as the two palette backgrounds down to the near-black ("
+              "text": "Builds the neutral surface ramp, the dark scheme's surfaces, which carry no hue of their own."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is the brand ramp's construction in grays only. It runs from grays as light as the two palette backgrounds down to the near-black ("
             },
             {
               "kind": "ref",
@@ -4397,7 +4950,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "). The dark scheme's surfaces, which carry no hue of their own."
+              "text": ")."
             }
           ]
         }
@@ -4414,7 +4967,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Builds the brand surface ramp: white, the two palette backgrounds and the palette text as anchors, with 200-900 interpolated in OKLab between the alternate background and the text. The light scheme's surfaces."
+              "text": "Builds the brand surface ramp, the light scheme's surfaces."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "White, the two palette backgrounds and the palette text are its anchors. Steps 200-900 are interpolated in OKLab between the alternate background and the text."
             }
           ]
         }
@@ -4456,15 +5018,25 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The open state of a page's aside, for a page that remembers the choice ("
-            },
+              "text": "The open state of a page's aside, for a page that remembers the choice."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "readonly aside = neatAsideOpen(this.stored, (open) => this.stored.set(open));"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "remembered"
             },
             {
               "kind": "text",
-              "text": ", with "
+              "text": " is the choice, and "
             },
             {
               "kind": "code",
@@ -4472,7 +5044,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " writing it where the page keeps it, such as local storage). Call it in an injection context."
+              "text": " writes it where the page keeps it, such as local storage. Call it in an injection context."
             }
           ]
         },
@@ -4481,7 +5053,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "On a wide screen the panel is the remembered choice and "
+              "text": "On a wide screen, the panel is the remembered choice, and "
             },
             {
               "kind": "code",
@@ -4489,7 +5061,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " remembers. On a narrow screen the panel floats over the page and starts closed, whatever was remembered, and "
+              "text": " remembers. On a narrow screen, the panel floats over the page and starts closed, whatever was remembered. "
             },
             {
               "kind": "code",
@@ -4497,7 +5069,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " changes a transient flag only: a phone's opening and closing must not overwrite the choice made on a wide screen. The flag resets to closed whenever "
+              "text": " then changes a transient flag only: a phone's opening and closing must not overwrite the choice made on a wide screen."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The flag resets to closed whenever "
             },
             {
               "kind": "code",
@@ -4505,7 +5086,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " changes, so each time the viewport becomes narrow it starts closed, and going wide shows the remembered choice again."
+              "text": " changes. So each time the viewport becomes narrow the panel starts closed, and going wide shows the remembered choice again."
             }
           ]
         }
@@ -4629,7 +5210,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A CSS color in any notation the browser knows (hex, "
+              "text": "A CSS color as sRGB channels from 0 to 1, for code that draws outside CSS."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "const [r, g, b] = neatResolveColor('oklch(0.62 0.19 260)') ?? [0, 0, 0];"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It takes any notation the browser knows: hex, "
             },
             {
               "kind": "code",
@@ -4645,7 +5240,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", a name) as sRGB channels from 0 to 1, resolved by drawing it on a 1×1 canvas and reading the pixel back, so the kit parses no color syntax of its own. Null where there is no canvas or the color does not parse. For code that draws outside CSS (three.js, a canvas) in the theme's colors or any other color an app holds, which such code takes as numbers. Alpha is ignored, so a token with alpha (a scrim) is not a fit."
+              "text": ", a name. It is for code that draws outside CSS, such as three.js or a canvas, which takes colors as numbers. That may be the theme's colors or any other color an app holds."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The color is resolved by drawing it on a 1×1 canvas and reading the pixel back, so the kit parses no color syntax of its own. The answer is null where there is no canvas, or the color does not parse. Alpha is ignored, so a token with alpha, such as a scrim, is not a fit."
             }
           ]
         }
@@ -4698,7 +5302,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "This is the one place the words and thresholds live, so a page that parses a timestamp and the charts' readout cannot say the same age two ways."
+              "text": "This is the one place the words and thresholds live. So a page that parses a timestamp, and the charts' readout, cannot say the same age two ways."
             }
           ]
         }
@@ -4808,23 +5412,25 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The theme's colors for code that draws outside CSS: "
-            },
+              "text": "The theme's colors, as numbers, for code that draws outside CSS."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "readonly colors = neatThemeColors({ line: '--neat-line', grid: '--border' });"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "tokens"
             },
             {
               "kind": "text",
-              "text": " maps the app's names to custom properties ("
-            },
-            {
-              "kind": "code",
-              "text": "{ line: '--neat-line', grid: '--border' }"
-            },
-            {
-              "kind": "text",
-              "text": "), and the signal answers each resolved ("
+              "text": " maps the app's names to custom properties. The signal answers each resolved, as "
             },
             {
               "kind": "ref",
@@ -4833,7 +5439,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), or null where the property is not set or not a color. They are read from "
+              "text": " does, or null where the property is not set or not a color. Call it in an injection context."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The colors are read from "
             },
             {
               "kind": "code",
@@ -4841,7 +5456,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (the document element by default, or while it answers undefined) and read again when the color scheme changes, which "
+              "text": ": the document element by default, or while "
+            },
+            {
+              "kind": "code",
+              "text": "element"
+            },
+            {
+              "kind": "text",
+              "text": " answers undefined. They are read again when the color scheme changes, which "
             },
             {
               "kind": "ref",
@@ -4850,7 +5473,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " applies before the signal is read again. Call in an injection context."
+              "text": " applies before the signal is read again."
             }
           ]
         }
@@ -4875,7 +5498,21 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", or "
+              "text": ", so every app's browser tabs read the same way."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "providers: [provideRouter(routes), provideNeatTitles('Neat Insight')],"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "On a route without a title, the document's title is "
             },
             {
               "kind": "code",
@@ -4883,23 +5520,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " alone on a route without a title, so every app's browser tabs read the same way: "
-            },
-            {
-              "kind": "code",
-              "text": "provideNeatTitles('Neat Insight')"
-            },
-            {
-              "kind": "text",
-              "text": " beside "
-            },
-            {
-              "kind": "code",
-              "text": "provideRouter"
-            },
-            {
-              "kind": "text",
-              "text": " in the app's providers. The page title in the shell's top bar is the shell's own and does not come from here."
+              "text": " alone. The page title in the shell's top bar is the shell's own, and does not come from here."
             }
           ]
         }

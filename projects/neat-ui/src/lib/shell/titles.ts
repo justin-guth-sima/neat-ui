@@ -18,10 +18,14 @@ class NeatTitleStrategy extends TitleStrategy {
 }
 
 /**
- * Titles the document `<appName> · <route title>`, or `<appName>` alone on a route without a
- * title, so every app's browser tabs read the same way: `provideNeatTitles('Neat Insight')` beside
- * `provideRouter` in the app's providers. The page title in the shell's top bar is the shell's own
- * and does not come from here.
+ * Titles the document `<appName> · <route title>`, so every app's browser tabs read the same way.
+ *
+ * ```ts
+ * providers: [provideRouter(routes), provideNeatTitles('Neat Insight')],
+ * ```
+ *
+ * On a route without a title, the document's title is `<appName>` alone. The page title in the
+ * shell's top bar is the shell's own, and does not come from here.
  */
 export function provideNeatTitles(appName: string): EnvironmentProviders {
   return makeEnvironmentProviders([

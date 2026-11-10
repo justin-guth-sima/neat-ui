@@ -70,11 +70,11 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
  * It has the look of every rail item: the page links, the theme item and the rail's own control.
  * Mark it `neatRailEnd` to place it at the rail's bottom.
  *
- * The content is the icon. `label` is the visible text while the rail is expanded; collapsed, it
+ * The content is the icon. `label` is the visible text while the rail is expanded. Collapsed, it
  * stays as the item's visually hidden text, so the name is kept, and shows as a tooltip on the
  * right.
  *
- * An item with a state (a board, a connection) says it with the kit's inputs:
+ * An item with a state, such as a board or a connection, says it with the kit's inputs:
  *
  * ```html
  * <button neatRailEnd neatRailItem type="button" label="DevKit, 192.168.100.2, connected"
@@ -83,28 +83,35 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
  * </button>
  * ```
  *
- * `tone` puts a dot on the icon's corner, `text` is the visible first line (the label by default)
- * and `detail` a smaller second line in the tone's color, both cut with an ellipsis and hidden with
- * the label while the rail is collapsed. `label` stays the tooltip and the name, so it is the whole
- * sentence, with the state the dot alone shows: the tooltip takes its text from `label` alone, so
- * the kit cannot compose it from the lines. While the lines say other than `label`, they are
- * `aria-hidden` and the label is visually hidden text beside them, so the name still comes from the
- * content and an `aria-label` the app sets still wins (a kit `aria-label` binding would remove the
- * app's).
+ * - `tone` puts a dot on the icon's corner.
+ * - `text` is the visible first line, the label by default.
+ * - `detail` is a smaller second line, in the tone's color.
  *
- * Visible text the inputs cannot say goes in an element marked `neatRailItemLabel`, which takes
- * the label's place; `label` stays the tooltip, so it should say at least what that text says. Its
- * name is then that text, unless the app gives an `aria-label`. The lines of such an element are
- * the app's, which the kit's stylesheet cannot reach: each ellipsizes itself (`min-width: 0`,
- * `overflow: hidden`, `white-space: nowrap`, `text-overflow: ellipsis`).
+ * Both lines are cut with an ellipsis, and hidden with the label while the rail is collapsed.
  *
- * An item is an action, never a toggle: its label says what a click does ("Dark theme" while
- * light, "Light theme" while dark), so it has no pressed state, and the rail's selection fill means
- * only "the current page" (`aria-current="page"`).
+ * `label` stays the tooltip and the name, so it is the whole sentence, with the state the dot alone
+ * shows. The tooltip takes its text from `label` alone, so the kit cannot compose it from the
+ * lines. So `label` must hold the visible `text` and `detail` as they read.
+ *
+ * While the lines say other than `label`, they are `aria-hidden`, and the label is visually hidden
+ * text beside them. So the name still comes from the content, and an `aria-label` the app sets
+ * still wins. A kit `aria-label` binding would remove the app's.
+ *
+ * Visible text the inputs cannot say goes in an element marked `neatRailItemLabel`, which takes the
+ * label's place. `label` stays the tooltip, so it should say at least what that text says. The
+ * item's name is then that text, unless the app gives an `aria-label`.
+ *
+ * The lines of such an element are the app's, which the kit's stylesheet cannot reach. So each
+ * ellipsizes itself: `min-width: 0`, `overflow: hidden`, `white-space: nowrap`,
+ * `text-overflow: ellipsis`.
+ *
+ * An item is an action, never a toggle. Its label says what a click does: "Dark theme" while light,
+ * "Light theme" while dark. So it has no pressed state, and the rail's selection fill means only
+ * "the current page" (`aria-current="page"`).
  *
  * The host stays the native button or link, with its own click, focus and `routerLink`. A link
- * followed on a narrow screen puts the floating rail away; a button leaves it, since its action
- * may want the rail (a theme switch) or open a dialog over it.
+ * followed on a narrow screen puts the floating rail away. A button leaves it, since its action
+ * may want the rail, as a theme switch does, or open a dialog over it.
  *
  * The tooltip is off while the labels show. It is off too on a collapsed page item with
  * `children`, whose menu of sub-pages names the page itself.
@@ -197,12 +204,20 @@ export class NeatRailItem {
 }
 
 /**
- * A line between groups of the rail's bottom items: `<hr neatRailEnd neatRailDivider />` among an
- * app's `[neatRailEnd]` items (below a board block, for example). The shell draws the line above
- * the whole group with the same element, so the look is stated once: 1px of `--sidebar-border`, a
- * quarter step of margin above and below, which with the group's quarter-step gap leaves half a
- * step to the items around it. Decorative (`aria-hidden`): the items' names say what they are, and
- * a separator announced between them would only be noise.
+ * A line between groups of the rail's bottom items.
+ *
+ * ```html
+ * <hr neatRailEnd neatRailDivider />
+ * ```
+ *
+ * Put it among an app's `[neatRailEnd]` items, below a board block, for example. The shell draws
+ * the line above the whole group with the same element, so the look is stated once.
+ *
+ * The line is 1px of `--sidebar-border`, with a quarter step of margin above and below. With the
+ * group's quarter-step gap, that leaves half a step to the items around it.
+ *
+ * It is decorative (`aria-hidden`). The items' names say what they are, and a separator announced
+ * between them would only be noise.
  */
 @Directive({
   selector: 'hr[neatRailDivider]',

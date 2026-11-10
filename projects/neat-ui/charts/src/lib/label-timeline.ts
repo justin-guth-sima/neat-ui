@@ -185,7 +185,8 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
  * `hovered` is a moment (ms), both ways, as on the time charts. The strip sets it to the moment
  * under the pointer, or to a run's middle while the keys hold one. The app may set it, which reads
  * out the run covering that moment. So a timeline shares a crosshair with time charts bound to the
- * same signal. `activated` reports a click, or Enter, with the run under it, if any, and the moment.
+ * same signal. `activated` reports a click, or Enter, with the run under it, if any, and the
+ * moment.
  */
 @Component({
   selector: 'neat-label-timeline',

@@ -143,9 +143,10 @@ function gray(hex: string): string {
 }
 
 /**
- * Builds the brand surface ramp: white, the two palette backgrounds and the palette text as
- * anchors, with 200-900 interpolated in OKLab between the alternate background and the text. The
- * light scheme's surfaces.
+ * Builds the brand surface ramp, the light scheme's surfaces.
+ *
+ * White, the two palette backgrounds and the palette text are its anchors. Steps 200-900 are
+ * interpolated in OKLab between the alternate background and the text.
  */
 export function buildSurfaceScale(): SurfaceScale {
   return surfaceRamp({
@@ -156,9 +157,10 @@ export function buildSurfaceScale(): SurfaceScale {
 }
 
 /**
- * Builds the neutral surface ramp: the brand ramp's construction in grays only, from grays as light
- * as the two palette backgrounds down to the near-black (`NEAT_NEAR_BLACK`). The dark scheme's
- * surfaces, which carry no hue of their own.
+ * Builds the neutral surface ramp, the dark scheme's surfaces, which carry no hue of their own.
+ *
+ * It is the brand ramp's construction in grays only. It runs from grays as light as the two palette
+ * backgrounds down to the near-black (`NEAT_NEAR_BLACK`).
  */
 export function buildNeutralSurfaceScale(): SurfaceScale {
   return surfaceRamp({

@@ -2,8 +2,10 @@
 export type NeatEasingName = 'ease-in-out' | 'ease-out' | 'ease-in' | 'linear';
 
 /**
- * A curve for `neatEased`: a catalog name, or a function from `t` to the eased share (0 at 0, 1 at
- * 1) for the rare motion no name fits. Prefer a name, so every app moves the same way.
+ * A curve for `neatEased`: a catalog name, or a function.
+ *
+ * Prefer a name, so every app moves the same way. A function, from `t` to the eased share (0 at 0,
+ * 1 at 1), is for the rare motion no name fits.
  */
 export type NeatEasing = NeatEasingName | ((t: number) => number);
 

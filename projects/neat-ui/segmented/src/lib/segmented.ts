@@ -81,9 +81,9 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
  * arrow keys move the choice and wrap, and Home and End jump to the ends. A click on the checked
  * option keeps it checked.
  *
- * It is drawn as an iOS-style switch: a track with a raised thumb that slides under the chosen label.
- * Its width does not move with the choice: every column is as wide as the widest label needs, in
- * semibold.
+ * It is drawn as an iOS-style switch: a track with a raised thumb that slides under the chosen
+ * label. Its width does not move with the choice: every column is as wide as the widest label
+ * needs, in semibold.
  *
  * It never gives up width to its neighbors. In a flex row too narrow for everything in it, the
  * control keeps its labels whole and the text beside it gives way. That text needs `min-width: 0`

@@ -21,17 +21,19 @@ export const NEAT_DANGER_BASE = '#C8372D';
 export const NEAT_WARN_BASE = '#E9A23B';
 
 /**
- * The hue of the highlight tone, which marks a distinct state that is none of the statuses: the
- * palette purple's hue (291° in OKLCH) at about three times its chroma. The palette purple itself is
- * too pale to work from: a row tint of 10% of it on white is #FAFAFD, no tint at all, and no step
- * of its scale is a fill that white text reads on and that still looks purple.
+ * The hue of the highlight tone, which marks a distinct state that is none of the statuses.
+ *
+ * It is the palette purple's hue (291° in OKLCH) at about three times its chroma. The palette
+ * purple itself is too pale to work from. A row tint of 10% of it on white is #FAFAFD, no tint at
+ * all. And no step of its scale is a fill that white text reads on and that still looks purple.
  */
 export const NEAT_HIGHLIGHT_BASE = '#9D93D6';
 
 /**
- * Base of the series teal: the teal of Justin's colors mockup, a hue the palette lacks. Chart
- * series need a fourth hue next to blue, purple and orange that is not a status color (green,
- * amber and red stay free to mean status).
+ * Base of the series teal: the teal of Justin's colors mockup, a hue the palette lacks.
+ *
+ * Chart series need a fourth hue next to blue, purple and orange that is not a status color.
+ * Green, amber and red stay free to mean status.
  */
 export const NEAT_SERIES_TEAL_BASE = '#2A8C9A';
 
