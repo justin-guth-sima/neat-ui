@@ -165,7 +165,7 @@ export function loafLimits(source: LoafSource): string {
   }
 }
 
-/** What the two renderers do not share, and what favours which (design 3.3 and the reviews). */
+/** What the two renderers do not share, and what favors which (design 3.3 and the reviews). */
 export const NOT_COMPARABLE: readonly string[] = [
   'Hover dimming exists only in the kit; vflow would need a bench reimplementation. It is not ' +
     'exercised in either.',
@@ -182,7 +182,7 @@ export const NOT_COMPARABLE: readonly string[] = [
   'The dot layer learns vflow’s transform through the host’s change detection: dots follow a pan ' +
     'one change-detection pass later in vflow, where the kit’s zoom calls the layer as it draws.',
   'Each vflow node has one source and one target handle, not one per port the kit routes ' +
-    'through; the fewer handles favour vflow slightly, in build time only.',
+    'through; the fewer handles favor vflow slightly, in build time only.',
 ];
 
 /** A phase's frame statistics, with its long frames when a collector watched. */
@@ -233,7 +233,7 @@ const REFRESH_SNAP_TOLERANCE = 0.05;
 
 /**
  * A warning where the display's measured interval is not the common rate it was snapped to: a
- * variable-rate display, or a throttled page. Every judgement uses the snapped interval, so a
+ * variable-rate display, or a throttled page. Every judgment uses the snapped interval, so a
  * result from such a run is read with that in mind. Null when they agree (59.94 Hz and 60 do).
  */
 export function refreshWarning(refresh: Refresh): string | null {
@@ -246,7 +246,7 @@ export function refreshWarning(refresh: Refresh): string | null {
   return (
     `The display's measured refresh, ${(1000 / refresh.measuredMs).toFixed(1)} Hz ` +
     `(${refresh.measuredMs.toFixed(2)} ms a frame), was snapped to ${refresh.hz} Hz, the rate ` +
-    'every judgement uses: a variable-rate display or a throttled page.'
+    'every judgment uses: a variable-rate display or a throttled page.'
   );
 }
 

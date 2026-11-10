@@ -51,7 +51,7 @@ export function reducedMotion(): boolean {
  * shows more than the target on the way; the last frame shows the target exactly. The first value,
  * and a value that follows none (null or undefined), appears at once; null and undefined pass
  * through as they are. Under a reduced-motion setting it follows `source` at once. Frames are
- * asked for only while it moves and cancelled when its injector is destroyed. Call in an
+ * asked for only while it moves and canceled when its injector is destroyed. Call in an
  * injection context.
  */
 export function neatEased(

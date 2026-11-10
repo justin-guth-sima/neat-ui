@@ -5,7 +5,7 @@ import {
   boxPlot,
   farthestCorner,
   labelAngle,
-  metresText,
+  metersText,
   objectCorners,
   plotReach,
   plotRect,
@@ -13,13 +13,7 @@ import {
   spokeLength,
   toScreen,
 } from './geometry';
-import {
-  dashOf,
-  GRID_ALPHA,
-  type LabelColours,
-  type LabelLook,
-  OBJECT_FILL_ALPHA,
-} from './colours';
+import { dashOf, GRID_ALPHA, type LabelColors, type LabelLook, OBJECT_FILL_ALPHA } from './colors';
 import type {
   NeatBevFrame,
   NeatBevGrid,
@@ -42,7 +36,7 @@ import type {
  * `'visible'` only at the box. Its owner (`NeatBev`) decides when to draw.
  */
 
-/** The theme's colours and the font, as CSS, for what the plot draws itself. */
+/** The theme's colors and the font, as CSS, for what the plot draws itself. */
 export interface BevTheme {
   /** Rings, grid lines and spokes: see-through, so that over the data they show on top of it. */
   readonly line: string;
@@ -75,7 +69,7 @@ export interface BevInputs {
 
 /** Half the side of a point's square, CSS px. */
 const POINT_HALF = 1;
-/** The vehicle's marker: from its centre to its tip and to its base's corners, CSS px. */
+/** The vehicle's marker: from its center to its tip and to its base's corners, CSS px. */
 const EGO_TIP = 9;
 const EGO_BASE = 6;
 /** Where the grid's labels sit from the plot's (or the box's) left and top: CSS px. */
@@ -107,7 +101,7 @@ interface PointPixels {
 const PIXEL_BYTES = new Uint8Array(4);
 const PIXEL_WORD = new Uint32Array(PIXEL_BYTES.buffer);
 
-/** An opaque colour as one pixel word in the buffer's byte order (RGBA in memory). */
+/** An opaque color as one pixel word in the buffer's byte order (RGBA in memory). */
 export function packRgb([red, green, blue]: readonly [number, number, number]): number {
   const byte = (value: number) => Math.round(Math.min(1, Math.max(0, value)) * 255);
   PIXEL_BYTES[0] = byte(red);
@@ -126,15 +120,15 @@ interface Layer {
 }
 
 /**
- * A grid's pixels, kept until its cells, its colour or the surface change: its tint (the label's
- * colour, see-through) and its backing (the surface, as opaque as each cell's value), which is laid
+ * A grid's pixels, kept until its cells, its color or the surface change: its tint (the label's
+ * color, see-through) and its backing (the surface, as opaque as each cell's value), which is laid
  * first, so that the grid covers what lies under it (guides under the data) while still looking as
  * see-through as its tint over the surface. Every grid's backing goes down before any tint, so
  * overlapping grids still blend.
  */
 interface GridCache {
   cells: Uint8Array | null;
-  colour: string;
+  color: string;
   surface: NeatRgb | null;
   tint: HTMLCanvasElement;
   backing: HTMLCanvasElement;
@@ -157,8 +151,8 @@ export class BevCanvas {
   private layerRatio = 0;
   private layerWidth = 0;
   private layerHeight = 0;
-  /** The colours of the static layers' labels the cached layers were drawn in, in order. */
-  private readonly staticColours: string[] = [];
+  /** The colors of the static layers' labels the cached layers were drawn in, in order. */
+  private readonly staticColors: string[] = [];
   /** How many times the cached layers were drawn: what the tests of the caching read. */
   layerDraws = 0;
 
@@ -195,7 +189,7 @@ export class BevCanvas {
     view: BevView,
     inputs: BevInputs,
     theme: BevTheme,
-    colours: LabelColours,
+    colors: LabelColors,
     frame: NeatBevFrame | null,
     hover: number,
   ): boolean {
@@ -215,18 +209,18 @@ export class BevCanvas {
     if (!(view.ppm > 0)) return false;
     const shown = frame ?? NO_FRAME;
 
-    if (this.layerStale(ratio, view, inputs, theme, colours)) {
-      this.drawLayers(ratio, view, inputs, theme, colours);
+    if (this.layerStale(ratio, view, inputs, theme, colors)) {
+      this.drawLayers(ratio, view, inputs, theme, colors);
     }
 
     this.putLayer(context, this.under);
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
     context.save();
     this.clip(context, view, inputs);
-    this.drawAreas(context, view, shown, colours, theme);
-    this.drawLines(context, view, shown, colours);
-    this.drawPoints(context, view, shown, colours, inputs);
-    this.drawObjects(context, view, shown, colours, hover);
+    this.drawAreas(context, view, shown, colors, theme);
+    this.drawLines(context, view, shown, colors);
+    this.drawPoints(context, view, shown, colors, inputs);
+    this.drawObjects(context, view, shown, colors, hover);
     context.restore();
     this.putLayer(context, this.over);
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
@@ -258,9 +252,9 @@ export class BevCanvas {
   private plotPath(context: CanvasRenderingContext2D, view: BevView, plot: BevPlot): void {
     context.beginPath();
     if (plot.shape === 'round') {
-      const centre = toScreen(view, 0, 0, this.point);
+      const center = toScreen(view, 0, 0, this.point);
       const radius = Math.max(0, plot.range * view.ppm * view.k);
-      context.arc(centre.x, centre.y, radius, 0, 2 * Math.PI);
+      context.arc(center.x, center.y, radius, 0, 2 * Math.PI);
     } else {
       const [[x0, y0], [x1, y1]] = plotRect(view, plot);
       context.rect(x0, y0, x1 - x0, y1 - y0);
@@ -272,7 +266,7 @@ export class BevCanvas {
     view: BevView,
     inputs: BevInputs,
     theme: BevTheme,
-    colours: LabelColours,
+    colors: LabelColors,
   ): boolean {
     let stale =
       this.over.canvas === null ||
@@ -282,13 +276,13 @@ export class BevCanvas {
       inputs !== this.layerInputs ||
       theme !== this.layerTheme ||
       !sameView(view, this.layerView);
-    // A static layer's labels keep their class colours alive on the page; a colour that changed
+    // A static layer's labels keep their class colors alive on the page; a color that changed
     // (a style row, the theme) redraws.
     let i = 0;
     forEachStaticLabel(inputs, (label) => {
-      if (this.staticColours[i++] !== colours.of(label).colour) stale = true;
+      if (this.staticColors[i++] !== colors.of(label).color) stale = true;
     });
-    return stale || i !== this.staticColours.length;
+    return stale || i !== this.staticColors.length;
   }
 
   private drawLayers(
@@ -296,7 +290,7 @@ export class BevCanvas {
     view: BevView,
     inputs: BevInputs,
     theme: BevTheme,
-    colours: LabelColours,
+    colors: LabelColors,
   ): void {
     this.layerRatio = ratio;
     this.layerWidth = this.width;
@@ -304,8 +298,8 @@ export class BevCanvas {
     this.layerView = view;
     this.layerInputs = inputs;
     this.layerTheme = theme;
-    this.staticColours.length = 0;
-    forEachStaticLabel(inputs, (label) => this.staticColours.push(colours.of(label).colour));
+    this.staticColors.length = 0;
+    forEachStaticLabel(inputs, (label) => this.staticColors.push(colors.of(label).color));
     this.layerDraws++;
 
     const step = stepFor(plotReach(inputs.plot), view);
@@ -314,7 +308,7 @@ export class BevCanvas {
     this.under.used = inputs.background !== null || guidesUnder;
     const under = this.under.used ? this.prepare(this.under, ratio) : null;
     if (under) {
-      this.drawStatic(under, view, inputs, inputs.background, colours);
+      this.drawStatic(under, view, inputs, inputs.background, colors);
       if (guidesUnder) this.drawGuides(under, view, inputs, theme, step);
     }
 
@@ -322,7 +316,7 @@ export class BevCanvas {
     const over = this.prepare(this.over, ratio);
     if (!over) return;
     if (!guidesUnder) this.drawGuides(over, view, inputs, theme, step);
-    this.drawStatic(over, view, inputs, inputs.foreground, colours);
+    this.drawStatic(over, view, inputs, inputs.foreground, colors);
     // The labels over everything, and not clipped: one on the plot's edge shows whole.
     this.labelStyle(over, theme);
     if (inputs.plot.shape === 'round') this.ringLabels(over, view, inputs, theme, step);
@@ -380,14 +374,14 @@ export class BevCanvas {
     view: BevView,
     inputs: BevInputs,
     layer: NeatBevLayer | null,
-    colours: LabelColours,
+    colors: LabelColors,
   ): void {
     if (!layer) return;
     context.save();
     this.clip(context, view, inputs);
     if (layer.lines) {
-      this.fillPolygons(context, view, layer.lines, colours, '');
-      this.drawLines(context, view, layer, colours);
+      this.fillPolygons(context, view, layer.lines, colors, '');
+      this.drawLines(context, view, layer, colors);
     }
     for (const set of layer.points ?? []) {
       const xy = set.xy;
@@ -396,7 +390,7 @@ export class BevCanvas {
         const at = toScreen(view, xy[i], xy[i + 1], this.point);
         context.rect(at.x - POINT_HALF, at.y - POINT_HALF, 2 * POINT_HALF, 2 * POINT_HALF);
       }
-      context.fillStyle = colours.of(set.label).colour;
+      context.fillStyle = colors.of(set.label).color;
       context.fill();
     }
     context.restore();
@@ -414,20 +408,20 @@ export class BevCanvas {
     step: number,
   ): void {
     const scale = view.ppm * view.k;
-    const centre = toScreen(view, 0, 0, this.point);
+    const center = toScreen(view, 0, 0, this.point);
     const last = this.ringLimit(view, inputs);
     context.lineWidth = 1;
     context.setLineDash(SOLID);
     context.strokeStyle = theme.line;
     context.beginPath();
     for (let r = step; r < last - step * 1e-6; r += step) {
-      context.moveTo(centre.x + r * scale, centre.y);
-      context.arc(centre.x, centre.y, r * scale, 0, 2 * Math.PI);
+      context.moveTo(center.x + r * scale, center.y);
+      context.arc(center.x, center.y, r * scale, 0, 2 * Math.PI);
     }
     context.stroke();
   }
 
-  /** How far the rings go, metres: the range, or (visible) past the box's farthest corner. */
+  /** How far the rings go, meters: the range, or (visible) past the box's farthest corner. */
   private ringLimit(view: BevView, inputs: BevInputs): number {
     const { plot } = inputs;
     if (inputs.overflow === 'clip') return plot.range;
@@ -460,7 +454,7 @@ export class BevCanvas {
       ) {
         continue;
       }
-      this.label(context, metresText(r), at.x, at.y, theme);
+      this.label(context, metersText(r), at.x, at.y, theme);
     }
   }
 
@@ -481,12 +475,12 @@ export class BevCanvas {
     [left, top, right, bottom]: readonly [number, number, number, number],
   ): readonly [number, number, number, number] {
     const scale = view.ppm * view.k;
-    const centre = toScreen(view, 0, 0, this.point);
+    const center = toScreen(view, 0, 0, this.point);
     return [
-      Math.ceil((centre.y - bottom) / scale / step - 1e-9),
-      Math.floor((centre.y - top) / scale / step + 1e-9),
-      Math.ceil((centre.x - right) / scale / step - 1e-9),
-      Math.floor((centre.x - left) / scale / step + 1e-9),
+      Math.ceil((center.y - bottom) / scale / step - 1e-9),
+      Math.floor((center.y - top) / scale / step + 1e-9),
+      Math.ceil((center.x - right) / scale / step - 1e-9),
+      Math.floor((center.x - left) / scale / step + 1e-9),
     ];
   }
 
@@ -502,18 +496,18 @@ export class BevCanvas {
     const [left, top, right, bottom] = region;
     if (right <= left || bottom <= top) return;
     const [lowX, highX, lowY, highY] = this.gridSpan(view, step, region);
-    const centre = toScreen(view, 0, 0, this.point);
+    const center = toScreen(view, 0, 0, this.point);
     context.lineWidth = 1;
     context.setLineDash(SOLID);
     context.strokeStyle = theme.line;
     context.beginPath();
     for (let n = lowX; n <= highX; n++) {
-      const y = centre.y - n * step * scale;
+      const y = center.y - n * step * scale;
       context.moveTo(left, y);
       context.lineTo(right, y);
     }
     for (let n = lowY; n <= highY; n++) {
-      const x = centre.x - n * step * scale;
+      const x = center.x - n * step * scale;
       context.moveTo(x, top);
       context.lineTo(x, bottom);
     }
@@ -537,20 +531,20 @@ export class BevCanvas {
     const [left, top, right, bottom] = region;
     if (right <= left || bottom <= top) return;
     const [lowX, highX, lowY, highY] = this.gridSpan(view, step, region);
-    const centre = toScreen(view, 0, 0, this.point);
+    const center = toScreen(view, 0, 0, this.point);
     const column = left + GRID_LABEL_LEFT;
     const row = top + GRID_LABEL_TOP;
     context.textAlign = 'left';
     for (let n = lowX; n <= highX; n++) {
-      const y = centre.y - n * step * scale;
+      const y = center.y - n * step * scale;
       if (n === 0 || y < row + LABEL_CLEARANCE || y > bottom - GRID_LABEL_TOP) continue;
-      this.label(context, metresText(Math.abs(n * step)), column, y, theme);
+      this.label(context, metersText(Math.abs(n * step)), column, y, theme);
     }
     context.textAlign = 'center';
     for (let n = lowY; n <= highY; n++) {
-      const x = centre.x - n * step * scale;
+      const x = center.x - n * step * scale;
       if (n === 0 || x < column + CORNER_WIDTH || x > right - CORNER_WIDTH / 2) continue;
-      this.label(context, metresText(Math.abs(n * step)), x, row, theme);
+      this.label(context, metersText(Math.abs(n * step)), x, row, theme);
     }
     context.textAlign = 'center';
   }
@@ -629,7 +623,7 @@ export class BevCanvas {
     context: CanvasRenderingContext2D,
     view: BevView,
     frame: NeatBevFrame,
-    colours: LabelColours,
+    colors: LabelColors,
     theme: BevTheme,
   ): void {
     const { grids, lines } = frame;
@@ -637,7 +631,7 @@ export class BevCanvas {
     this.grids.length = Math.min(this.grids.length, count);
     for (const layer of ['backing', 'tint'] as const) {
       if (lines && (layer === 'tint' || theme.surface)) {
-        this.fillPolygons(context, view, lines, layer === 'tint' ? colours : null, theme.halo);
+        this.fillPolygons(context, view, lines, layer === 'tint' ? colors : null, theme.halo);
       }
       if (!grids) continue;
       context.imageSmoothingEnabled = false;
@@ -648,7 +642,7 @@ export class BevCanvas {
         }
         const cached =
           layer === 'backing'
-            ? this.gridCanvases(i, grid, colours.of(grid.label), theme.surface)
+            ? this.gridCanvases(i, grid, colors.of(grid.label), theme.surface)
             : this.grids[i];
         // No backing without a surface to lay: the tint alone, see-through as before.
         if (!cached || (layer === 'backing' && !cached.surface)) continue;
@@ -664,14 +658,14 @@ export class BevCanvas {
   /**
    * The filled lines, a label at a time: each label's polygons are one path, every polygon wound
    * the same way, so that where they overlap the nonzero rule fills their union once (a road
-   * network given as pieces shows no darker joins). With `colours`, the tint in each label's
-   * colour; without, the backing in `surface`.
+   * network given as pieces shows no darker joins). With `colors`, the tint in each label's
+   * color; without, the backing in `surface`.
    */
   private fillPolygons(
     context: CanvasRenderingContext2D,
     view: BevView,
     lines: readonly NeatBevLine[],
-    colours: LabelColours | null,
+    colors: LabelColors | null,
     surface: string,
   ): void {
     const labels = this.areaLabels;
@@ -680,20 +674,20 @@ export class BevCanvas {
       if (line.fill && line.xy.length >= 6 && !labels.includes(line.label)) labels.push(line.label);
     }
     if (labels.length === 0) return;
-    context.globalAlpha = colours ? GRID_ALPHA : 1;
+    context.globalAlpha = colors ? GRID_ALPHA : 1;
     for (const label of labels) {
       context.beginPath();
       for (const line of lines) {
         if (!line.fill || line.label !== label || line.xy.length < 6) continue;
         this.addPolygon(context, view, line.xy);
       }
-      context.fillStyle = colours ? colours.of(label).colour : surface;
+      context.fillStyle = colors ? colors.of(label).color : surface;
       context.fill('nonzero');
     }
     context.globalAlpha = 1;
   }
 
-  /** Adds a closed polygon to the current path, wound counter-clockwise in metres. */
+  /** Adds a closed polygon to the current path, wound counter-clockwise in meters. */
   private addPolygon(context: CanvasRenderingContext2D, view: BevView, xy: Float32Array): void {
     const pairs = xy.length >> 1;
     const reversed = signedArea(xy) < 0;
@@ -724,7 +718,7 @@ export class BevCanvas {
 
   /**
    * The grid's tint and backing at one pixel per cell, painted again only for new cells, a new
-   * colour or a new surface; null where the colour does not parse or there is no 2D context.
+   * color or a new surface; null where the color does not parse or there is no 2D context.
    */
   private gridCanvases(
     index: number,
@@ -736,7 +730,7 @@ export class BevCanvas {
     if (!cache) {
       cache = {
         cells: null,
-        colour: '',
+        color: '',
         surface: null,
         tint: this.createCanvas(),
         backing: this.createCanvas(),
@@ -745,7 +739,7 @@ export class BevCanvas {
     }
     if (
       cache.cells === grid.cells &&
-      cache.colour === look.colour &&
+      cache.color === look.color &&
       sameRgb(cache.surface, surface)
     ) {
       return cache;
@@ -755,7 +749,7 @@ export class BevCanvas {
     if (!this.paintGrid(cache.tint, grid, look.rgb, GRID_ALPHA)) return null;
     if (surface && !this.paintGrid(cache.backing, grid, surface, 1)) return null;
     cache.cells = grid.cells;
-    cache.colour = look.colour;
+    cache.color = look.color;
     cache.surface = surface;
     return cache;
   }
@@ -791,7 +785,7 @@ export class BevCanvas {
     context: CanvasRenderingContext2D,
     view: BevView,
     frame: Pick<NeatBevFrame, 'lines'>,
-    colours: LabelColours,
+    colors: LabelColors,
   ): void {
     const lines = frame.lines;
     if (!lines) return;
@@ -801,8 +795,8 @@ export class BevCanvas {
       const xy = line.xy;
       // A filled line is an area, drawn with the grids, and has no outline of its own.
       if (xy.length < 4 || line.fill) continue;
-      const look = colours.of(line.label);
-      context.strokeStyle = look.colour;
+      const look = colors.of(line.label);
+      context.strokeStyle = look.color;
       context.lineWidth = look.width;
       context.setLineDash(dashOf(look.style ?? line.style));
       this.linePath(context, view, xy, line.closed === true);
@@ -815,7 +809,7 @@ export class BevCanvas {
     context: CanvasRenderingContext2D,
     view: BevView,
     frame: NeatBevFrame,
-    colours: LabelColours,
+    colors: LabelColors,
     inputs: BevInputs,
   ): void {
     const sets = frame.points;
@@ -837,7 +831,7 @@ export class BevCanvas {
     words.fill(0);
     // The mapping written out, as a cloud has tens of thousands of points, in the buffer's device
     // pixels: each point a square of whole pixels written straight into the buffer. Canvas calls
-    // per point (one path of many rects, or a fillRect each) cost far more to rasterise, with a
+    // per point (one path of many rects, or a fillRect each) cost far more to rasterize, with a
     // GPU or without (the bench's BEV page measured the path at 20 fps, this buffer at 60).
     const scale = view.ppm * view.k * ratio;
     const ox = (view.tx + view.k * view.cx) * ratio - left;
@@ -846,7 +840,7 @@ export class BevCanvas {
     const half = side >> 1;
     for (const set of sets) {
       const xy = set.xy;
-      const rgb = colours.of(set.label).rgb;
+      const rgb = colors.of(set.label).rgb;
       if (xy.length < 2 || !rgb) continue;
       const word = packRgb(rgb);
       for (let i = 0; i + 1 < xy.length; i += 2) {
@@ -895,7 +889,7 @@ export class BevCanvas {
     context: CanvasRenderingContext2D,
     view: BevView,
     frame: NeatBevFrame,
-    colours: LabelColours,
+    colors: LabelColors,
     hover: number,
   ): void {
     const objects = frame.objects;
@@ -906,18 +900,18 @@ export class BevCanvas {
     context.lineJoin = 'round';
     context.lineCap = 'round';
     for (const label of labels) {
-      const look = colours.of(label);
+      const look = colors.of(label);
       context.beginPath();
       for (const object of objects) if (object.label === label) this.addBox(context, view, object);
-      context.fillStyle = look.colour;
+      context.fillStyle = look.color;
       context.globalAlpha = OBJECT_FILL_ALPHA;
       context.fill();
       context.globalAlpha = 1;
-      context.strokeStyle = look.colour;
+      context.strokeStyle = look.color;
       context.lineWidth = look.width;
       context.setLineDash(dashOf(look.style));
       context.stroke();
-      // The headings: from each centre to the middle of its front edge.
+      // The headings: from each center to the middle of its front edge.
       context.setLineDash(SOLID);
       context.beginPath();
       for (const object of objects) {
@@ -927,10 +921,10 @@ export class BevCanvas {
     }
     const hovered = objects[hover];
     if (hovered) {
-      const look = colours.of(hovered.label);
+      const look = colors.of(hovered.label);
       context.beginPath();
       this.addBox(context, view, hovered);
-      context.strokeStyle = look.colour;
+      context.strokeStyle = look.color;
       context.lineWidth = look.width + HOVER_EXTRA;
       context.setLineDash(SOLID);
       context.stroke();
@@ -948,15 +942,15 @@ export class BevCanvas {
     context.closePath();
   }
 
-  /** Adds the object's heading, from its centre to the middle of its front edge, to the path. */
+  /** Adds the object's heading, from its center to the middle of its front edge, to the path. */
   private addHeading(
     context: CanvasRenderingContext2D,
     view: BevView,
     object: NeatBevObject,
   ): void {
     const c = objectCorners(object, this.corners);
-    const centre = toScreen(view, object.x, object.y, this.point);
-    context.moveTo(centre.x, centre.y);
+    const center = toScreen(view, object.x, object.y, this.point);
+    context.moveTo(center.x, center.y);
     const front = toScreen(view, (c[0] + c[2]) / 2, (c[1] + c[3]) / 2, this.other);
     context.lineTo(front.x, front.y);
   }

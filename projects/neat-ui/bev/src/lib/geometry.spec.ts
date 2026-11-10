@@ -7,12 +7,12 @@ import {
   hitObject,
   LABEL_ANGLE,
   labelAngle,
-  metresText,
+  metersText,
   objectCorners,
   onPlot,
   panArea,
   PLOT_INSET,
-  pixelsPerMetre,
+  pixelsPerMeter,
   plotAspect,
   plotReach,
   plotRect,
@@ -83,7 +83,7 @@ describe('the view', () => {
   it('fits the plot within the inset, at the nearer edge', () => {
     const view = defaultView(800, 400, round(50));
     expect(view.ppm).toBeCloseTo((200 - PLOT_INSET) / 50);
-    expect(pixelsPerMetre({ ...view, k: 2 })).toBeCloseTo(view.ppm * 2);
+    expect(pixelsPerMeter({ ...view, k: 2 })).toBeCloseTo(view.ppm * 2);
     // 60 m across and 100 m along: the height limits it in a square box.
     const tall = defaultView(400, 400, rect(-20, 80, -30, 30));
     expect(tall.ppm).toBeCloseTo((400 - 2 * PLOT_INSET) / 100);
@@ -103,7 +103,7 @@ describe('the view', () => {
     expect(defaultView(400, 400, rect(5, 5, -5, 5)).ppm).toBe(0);
   });
 
-  it('puts the vehicle at the centre, forward up and left to the left', () => {
+  it('puts the vehicle at the center, forward up and left to the left', () => {
     const view = defaultView(400, 400, round(47));
     const at = { x: 0, y: 0 };
     expect(toScreen(view, 0, 0, at)).toEqual({ x: 200, y: 200 });
@@ -111,7 +111,7 @@ describe('the view', () => {
     expect(toScreen(view, 0, 10, at)).toEqual({ x: 200 - 10 * view.ppm, y: 200 });
   });
 
-  it('applies the pan and zoom on top, and maps the screen back to metres', () => {
+  it('applies the pan and zoom on top, and maps the screen back to meters', () => {
     const view = { ...defaultView(400, 400, round(47)), k: 2, tx: -150, ty: -120 };
     const screen = toScreen(view, 12.5, -3.25, { x: 0, y: 0 });
     const back = toVehicle(view, screen.x, screen.y, { x: 0, y: 0 });
@@ -168,7 +168,7 @@ describe('the view', () => {
     ]);
   });
 
-  it('finds the box in metres, and its farthest corner from the vehicle', () => {
+  it('finds the box in meters, and its farthest corner from the vehicle', () => {
     const view = defaultView(400, 400, round(47));
     const box = boxPlot(view, 400, 400, 47);
     const edge = 200 / view.ppm;
@@ -224,11 +224,11 @@ describe('stepFor', () => {
   });
 });
 
-describe('metresText', () => {
+describe('metersText', () => {
   it('shows at most one decimal', () => {
-    expect(metresText(10)).toBe('10 m');
-    expect(metresText(2.5)).toBe('2.5 m');
-    expect(metresText(0.30000000000000004)).toBe('0.3 m');
+    expect(metersText(10)).toBe('10 m');
+    expect(metersText(2.5)).toBe('2.5 m');
+    expect(metersText(0.30000000000000004)).toBe('0.3 m');
   });
 });
 
@@ -246,7 +246,7 @@ describe('spokeList', () => {
     expect(spokeList(2.7)).toHaveLength(2);
   });
 
-  it('keeps a list as given, defaulting the origin to the centre and dropping bad angles', () => {
+  it('keeps a list as given, defaulting the origin to the center and dropping bad angles', () => {
     const mount = { x: 1.5, y: 0.4 };
     expect(spokeList([{ angle: 0.3 }, { angle: 1, origin: mount }, { angle: Number.NaN }])).toEqual(
       [
@@ -258,18 +258,18 @@ describe('spokeList', () => {
 });
 
 describe('spokeLength', () => {
-  it('runs from the centre to the range', () => {
+  it('runs from the center to the range', () => {
     expect(spokeLength({ x: 0, y: 0 }, 0.7, round())).toBeCloseTo(60);
     expect(spokeLength({ x: 0, y: 0 }, 0, bevPlot('rect', 60))).toBeCloseTo(60);
     expect(spokeLength({ x: 0, y: 0 }, Math.PI / 4, bevPlot('rect', 60))).toBeCloseTo(
       60 * Math.SQRT2,
     );
-    // Off-centre bounds: 80 m ahead, 20 m behind.
+    // Off-center bounds: 80 m ahead, 20 m behind.
     expect(spokeLength({ x: 0, y: 0 }, 0, rect(-20, 80, -30, 30))).toBeCloseTo(80);
     expect(spokeLength({ x: 0, y: 0 }, Math.PI, rect(-20, 80, -30, 30))).toBeCloseTo(20);
   });
 
-  it('ends on the outer ring from an origin off the centre', () => {
+  it('ends on the outer ring from an origin off the center', () => {
     const origin = { x: 1.5, y: 0.5 };
     for (const angle of [0, 1, 2.5, -2]) {
       const t = spokeLength(origin, angle, round());
@@ -278,7 +278,7 @@ describe('spokeLength', () => {
     }
   });
 
-  it('ends on the square edge from an origin off the centre', () => {
+  it('ends on the square edge from an origin off the center', () => {
     const origin = { x: 1.5, y: -0.5 };
     const angle = 0.2;
     const t = spokeLength(origin, angle, bevPlot('rect', 60));
@@ -299,7 +299,7 @@ describe('objectCorners', () => {
 
   it('turns with the yaw, counter-clockwise', () => {
     const corners = objectCorners(box(0, 0, Math.PI / 2), new Float64Array(8));
-    // Heading left: the front left corner is ahead-left of the centre in the box's frame, which
+    // Heading left: the front left corner is ahead-left of the center in the box's frame, which
     // is now behind and to the left in the vehicle's.
     expect(corners[0]).toBeCloseTo(-1);
     expect(corners[1]).toBeCloseTo(2);

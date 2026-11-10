@@ -117,7 +117,7 @@ describe('NeatStatusChip', () => {
       highlight: ['bg-neat-tint-highlight-accent', 'text-highlight'],
     };
 
-    it('puts each tone’s text in its colour on its tint, neutral on the neutral fill', async () => {
+    it('puts each tone’s text in its color on its tint, neutral on the neutral fill', async () => {
       const { fixture, host, chip, button } = await render();
       host.variant.set('tinted');
       for (const tone of TONES) {
@@ -129,14 +129,14 @@ describe('NeatStatusChip', () => {
       }
     });
 
-    it('keeps the chip’s shape and size: only the colours change', async () => {
+    it('keeps the chip’s shape and size: only the colors change', async () => {
       const { fixture, host, chip } = await render();
       const solid = classesOf(chip);
       host.variant.set('tinted');
       await fixture.whenStable();
-      const colour = /^(bg|text)-(?!\()/;
-      expect(classesOf(chip).filter((name) => !colour.test(name))).toEqual(
-        solid.filter((name) => !colour.test(name)),
+      const color = /^(bg|text)-(?!\()/;
+      expect(classesOf(chip).filter((name) => !color.test(name))).toEqual(
+        solid.filter((name) => !color.test(name)),
       );
     });
 

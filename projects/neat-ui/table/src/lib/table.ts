@@ -15,7 +15,7 @@ import { Directive } from '@angular/core';
 
 /**
  * Full inline size, collapsed borders, the small text size. A cell is padded by the layout tokens,
- * ruled off below by `--border`, start-aligned (but for a numeric one) and vertically centred; a
+ * ruled off below by `--border`, start-aligned (but for a numeric one) and vertically centered; a
  * header cell is medium-weight, and a column heading (a `th` in the `thead`) is muted and extra
  * small. A figure (marked `data-figure`) keeps to one line with tabular digits, and a numeric one
  * (marked `data-numeric`) is end-aligned.

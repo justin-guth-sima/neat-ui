@@ -39,7 +39,7 @@ const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 
 const RENAME: NeatDialogOptions = { title: 'Rename source' };
 
-/** The variants on the colour classes of the dialog and its buttons; none opens a menu. */
+/** The variants on the color classes of the dialog and its buttons; none opens a menu. */
 const VOCABULARY = {
   dark: 'dark',
   hover: 'hover',

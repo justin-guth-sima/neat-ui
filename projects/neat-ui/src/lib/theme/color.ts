@@ -1,5 +1,5 @@
 /**
- * Colour maths for the theme: hex <-> linear sRGB <-> OKLab/OKLCH, and WCAG 2.x contrast.
+ * Color maths for the theme: hex <-> linear sRGB <-> OKLab/OKLCH, and WCAG 2.x contrast.
  * OKLab matrices from Björn Ottosson, "A perceptual color space for image processing" (2020).
  */
 
@@ -14,12 +14,12 @@ export interface Oklch {
 type Vec3 = readonly [number, number, number];
 
 const HEX_PATTERN = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i;
-/** Tolerance for float error when deciding whether a colour lies inside the sRGB cube. */
+/** Tolerance for float error when deciding whether a color lies inside the sRGB cube. */
 const GAMUT_EPSILON = 1e-6;
 
 function parseHex(hex: string): Vec3 {
   const match = HEX_PATTERN.exec(hex);
-  if (!match) throw new Error(`Expected a #RRGGBB colour, got "${hex}"`);
+  if (!match) throw new Error(`Expected a #RRGGBB color, got "${hex}"`);
   return [parseInt(match[1], 16) / 255, parseInt(match[2], 16) / 255, parseInt(match[3], 16) / 255];
 }
 
@@ -102,7 +102,7 @@ export function oklchToHex(color: Oklch): string {
   return oklabToHex(oklchToOklab(color));
 }
 
-/** Whether an OKLCH colour can be shown in sRGB without clamping. */
+/** Whether an OKLCH color can be shown in sRGB without clamping. */
 export function isInSrgbGamut(color: Oklch): boolean {
   return oklabToLinear(oklchToOklab(color)).every(
     (channel) => channel >= -GAMUT_EPSILON && channel <= 1 + GAMUT_EPSILON,
@@ -123,7 +123,7 @@ export function composite(foreground: string, alpha: number, background: string)
 /**
  * `color` mixed into an opaque `background` by `share` (0 to 1), in OKLab, as CSS
  * `color-mix(in oklab, color <share>, background)` does: a perceptually even step from the
- * background towards the colour, for an opaque tint.
+ * background towards the color, for an opaque tint.
  */
 export function mixOklab(color: string, share: number, background: string): string {
   if (!(share >= 0 && share <= 1)) throw new Error(`Expected a share from 0 to 1, got ${share}`);
@@ -152,7 +152,7 @@ export function relativeLuminance(hex: string): number {
 }
 
 /**
- * WCAG 2.x contrast ratio (1 to 21) between two `#RRGGBB` colours, in either order; AA for normal
+ * WCAG 2.x contrast ratio (1 to 21) between two `#RRGGBB` colors, in either order; AA for normal
  * text asks for 4.5:1.
  */
 export function contrastRatio(a: string, b: string): number {

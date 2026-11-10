@@ -22,7 +22,7 @@ export interface Box {
 
 /** Where a gesture lands. Points are client px. */
 export interface GestureTarget {
-  /** The zoom box: pointer paths are a share of it, the zoom centres on it. */
+  /** The zoom box: pointer paths are a share of it, the zoom centers on it. */
   rect(): Box;
   /** The transform the box shows now. */
   transform(): DiagramTransform;
@@ -178,7 +178,7 @@ export class GesturePlayer {
     if (!(durationMs > 0)) throw new RangeError(`a gesture of ${durationMs} ms`);
     const box = this.target.rect();
     const t = this.target.transform();
-    const centre = { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+    const center = { x: box.left + box.width / 2, y: box.top + box.height / 2 };
     switch (phase) {
       case 'idle':
         this.plan = { kind: 'idle' };
@@ -198,7 +198,7 @@ export class GesturePlayer {
         const peak = Math.log2(Math.min(t.k * ZOOM_IN, ZOOM_LIMITS[1]) / t.k);
         this.plan = {
           kind: 'wheel',
-          at: centre,
+          at: center,
           box,
           log2At: (u) => peak * (1 - Math.abs(2 * u - 1)),
         };
@@ -210,7 +210,7 @@ export class GesturePlayer {
         const to = out < 0 ? out - 1 : 0;
         this.plan = {
           kind: 'wheel',
-          at: centre,
+          at: center,
           box,
           log2At: (u) => to * Math.min(1, u / ZOOM_OUT_RAMP),
         };

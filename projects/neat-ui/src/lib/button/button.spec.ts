@@ -36,12 +36,12 @@ const HELM_VARIANT_MARKERS: Record<NeatButtonVariant, string[]> = {
     'aria-expanded:bg-muted',
   ],
   text: ['hover:text-foreground', 'aria-expanded:bg-muted'],
-  // A solid fill in the status colour, like success; helm's destructive (a tint) only supplies the
+  // A solid fill in the status color, like success; helm's destructive (a tint) only supplies the
   // base classes that the fill replaces.
   danger: ['bg-destructive', 'dark:bg-destructive', 'text-destructive-foreground'],
-  // Helm's ghost, as the text variant is, in the danger colour.
+  // Helm's ghost, as the text variant is, in the danger color.
   'danger-text': ['aria-expanded:bg-muted', 'text-destructive'],
-  // A solid fill in the status colour, which helm has no variant for: it starts from default's.
+  // A solid fill in the status color, which helm has no variant for: it starts from default's.
   success: ['bg-success', 'text-success-foreground'],
 };
 
@@ -125,7 +125,7 @@ async function classesOf(variant: NeatButtonVariant, pressed?: boolean): Promise
   return [...button.classList];
 }
 
-// Contrast: the button's colour utilities resolved against the emitted theme tokens.
+// Contrast: the button's color utilities resolved against the emitted theme tokens.
 
 type Tokens = Readonly<Record<string, string>>;
 interface ButtonState {
@@ -133,15 +133,15 @@ interface ButtonState {
   hover: boolean;
 }
 
-/** Non-colour utilities sharing the `bg-` and `text-` prefixes; anything else unknown fails. */
+/** Non-color utilities sharing the `bg-` and `text-` prefixes; anything else unknown fails. */
 const NON_COLOR_VALUES = { bg: ['clip-padding'], text: ['xs', 'sm', 'balance'] };
 const COLOR_MIX = /^\[color-mix\(in_oklch,var\(--([\w-]+)\),var\(--([\w-]+)\)_(\d+)%\)\]$/;
 const TOKEN_COLOR = /^([a-z-]+?)(?:\/(\d+))?$/;
 /** The variant chains the cascade below models. */
-const MODELLED_VARIANTS = ['', 'dark', 'hover', 'dark:hover'];
+const MODELED_VARIANTS = ['', 'dark', 'hover', 'dark:hover'];
 /**
  * States the contrast test does not cover, each one helm's button uses today: an open menu
- * (`aria-expanded`), keyboard focus and pressing. A colour class carrying one is skipped.
+ * (`aria-expanded`), keyboard focus and pressing. A color class carrying one is skipped.
  */
 const UNCOVERED_STATES = ['aria-expanded', 'focus-visible', 'active'];
 /**
@@ -169,10 +169,10 @@ function variantsOf(name: string): { variants: string[]; utility: string } {
 
 /**
  * Fails on a `bg-` or `text-` class whose variants the cascade below does not know, such as
- * `hover:dark:`, `group-hover:` or `not-dark:`, so a helm update cannot slip a colour past the
+ * `hover:dark:`, `group-hover:` or `not-dark:`, so a helm update cannot slip a color past the
  * contrast test.
  */
-function assertModelledVariants(classes: string[]): void {
+function assertModeledVariants(classes: string[]): void {
   for (const name of classes) {
     const { variants, utility } = variantsOf(name);
     if (!/^(bg|text)-/.test(utility)) continue;
@@ -192,7 +192,7 @@ function assertModelledVariants(classes: string[]): void {
         fail();
       }
     }
-    if (!uncovered && !MODELLED_VARIANTS.includes(chain.join(':'))) {
+    if (!uncovered && !MODELED_VARIANTS.includes(chain.join(':'))) {
       fail();
     }
   }
@@ -208,7 +208,7 @@ function winningValue(
   property: 'bg' | 'text',
   { scheme, hover }: ButtonState,
 ): string | undefined {
-  assertModelledVariants(classes);
+  assertModeledVariants(classes);
   const dark = scheme === 'dark';
   const prefixes = [dark && hover && 'dark:hover:', hover && 'hover:', dark && 'dark:', ''].filter(
     (prefix): prefix is string => prefix !== false,
@@ -225,10 +225,10 @@ function winningValue(
   return undefined;
 }
 
-/** CSS `color-mix(in oklch, a, b weight)` for opaque colours, interpolating hue the short way. */
+/** CSS `color-mix(in oklch, a, b weight)` for opaque colors, interpolating hue the short way. */
 function mixOklch(a: string, b: string, weightOfB: number): string {
   const [from, to] = [hexToOklch(a), hexToOklch(b)];
-  // A hue is powerless on an achromatic colour (white, for example): the other colour's applies.
+  // A hue is powerless on an achromatic color (white, for example): the other color's applies.
   const ACHROMATIC = 1e-4;
   const fromHue = from.c < ACHROMATIC ? to.h : from.h;
   const toHue = to.c < ACHROMATIC ? from.h : to.h;
@@ -241,7 +241,7 @@ function mixOklch(a: string, b: string, weightOfB: number): string {
   });
 }
 
-/** A utility value as an opaque colour over `under`. */
+/** A utility value as an opaque color over `under`. */
 function resolveColor(value: string, tokens: Tokens, under: string): string {
   const mixed = COLOR_MIX.exec(value);
   if (mixed) {
@@ -249,7 +249,7 @@ function resolveColor(value: string, tokens: Tokens, under: string): string {
   }
   const [, name, alpha] = TOKEN_COLOR.exec(value) ?? [];
   if (!name || !(name in tokens)) {
-    throw new Error(`Unknown colour utility value "${value}": teach the contrast test about it`);
+    throw new Error(`Unknown color utility value "${value}": teach the contrast test about it`);
   }
   return alpha ? composite(tokens[name], Number(alpha) / 100, under) : tokens[name];
 }
@@ -259,7 +259,7 @@ function token(tokens: Tokens, name: string): string {
   return tokens[name];
 }
 
-/** The fill (composited over the surface) and text colour of a button with `classes`. */
+/** The fill (composited over the surface) and text color of a button with `classes`. */
 function colorsOf(classes: string[], state: ButtonState, surface: Surface) {
   const tokens = spartanThemeTokens(state.scheme);
   const under = tokens[surface];
@@ -267,7 +267,7 @@ function colorsOf(classes: string[], state: ButtonState, surface: Surface) {
   const text = winningValue(classes, 'text', state);
   return {
     fill: bg === undefined ? under : resolveColor(bg, tokens, under),
-    // Without a text utility the button inherits the surface's text colour.
+    // Without a text utility the button inherits the surface's text color.
     text:
       text === undefined
         ? tokens[`${surface === 'card' ? 'card-' : ''}foreground`]
@@ -278,24 +278,24 @@ function colorsOf(classes: string[], state: ButtonState, surface: Surface) {
 // Focus ring: helm draws it on keyboard focus as a box-shadow ring (`focus-visible:ring-3`) around
 // the button's border, so the ring is the part of the indicator next to the surface.
 
-/** The width utility that draws the ring; its colour comes from a `ring-<colour>` utility. */
+/** The width utility that draws the ring; its color comes from a `ring-<color>` utility. */
 const FOCUS_RING_WIDTH = 'focus-visible:ring-3';
 /** The variant chains the focus-ring lookup models. */
-const MODELLED_RING_VARIANTS = ['focus-visible', 'dark:focus-visible'];
+const MODELED_RING_VARIANTS = ['focus-visible', 'dark:focus-visible'];
 /** Rings for a failed form validation, not for focus; skipped. */
 const INVALID_STATE = 'data-[matches-spartan-invalid=true]';
 
 /**
- * The `ring-` colour value a focused button shows, by the same cascade as `winningValue`:
- * `dark:focus-visible:` comes after `focus-visible:`. Fails on a `ring-` colour with variants it
- * does not model, so a helm update cannot slip a ring colour past the test.
+ * The `ring-` color value a focused button shows, by the same cascade as `winningValue`:
+ * `dark:focus-visible:` comes after `focus-visible:`. Fails on a `ring-` color with variants it
+ * does not model, so a helm update cannot slip a ring color past the test.
  */
 function focusRingValue(classes: string[], scheme: NeatColorScheme): string {
   for (const name of classes) {
     const { variants, utility } = variantsOf(name);
     const value = /^ring-(.+)$/.exec(utility)?.[1];
     if (value === undefined || /^\d+$/.test(value) || variants.includes(INVALID_STATE)) continue;
-    if (!MODELLED_RING_VARIANTS.includes(variants.join(':'))) {
+    if (!MODELED_RING_VARIANTS.includes(variants.join(':'))) {
       throw new Error(`Unknown variants on "${name}": teach the focus-ring test about them`);
     }
   }
@@ -310,7 +310,7 @@ function focusRingValue(classes: string[], scheme: NeatColorScheme): string {
       return values[values.length - 1];
     }
   }
-  throw new Error('No focus ring colour');
+  throw new Error('No focus ring color');
 }
 
 describe('the contrast test itself', () => {
@@ -323,14 +323,14 @@ describe('the contrast test itself', () => {
     '[.neat-dark_&]:bg-accent',
     '[&:hover]:text-foreground',
     'data-[state=open]:bg-accent',
-  ])('refuses a colour class with variants it does not model: %s', (name) => {
+  ])('refuses a color class with variants it does not model: %s', (name) => {
     expect(() => winningValue([name], 'bg', { scheme: 'dark', hover: true })).toThrow(
       /Unknown variants/,
     );
   });
 
   it.each(['ring-ring', 'hover:ring-ring', 'focus:ring-ring', 'focus-visible:dark:ring-ring'])(
-    'refuses a ring colour with variants it does not model: %s',
+    'refuses a ring color with variants it does not model: %s',
     (name) => {
       expect(() => focusRingValue([name, 'focus-visible:ring-ring'], 'dark')).toThrow(
         /Unknown variants/,
@@ -338,7 +338,7 @@ describe('the contrast test itself', () => {
     },
   );
 
-  it('finds the focused ring colour, the dark one in dark, and skips widths and invalid rings', () => {
+  it('finds the focused ring color, the dark one in dark, and skips widths and invalid rings', () => {
     const classes = [
       'focus-visible:ring-3',
       'focus-visible:ring-ring/50',
@@ -349,7 +349,7 @@ describe('the contrast test itself', () => {
     expect(focusRingValue(classes, 'dark')).toBe('destructive');
   });
 
-  it('ignores colour classes for states it does not cover', () => {
+  it('ignores color classes for states it does not cover', () => {
     const classes = [
       'bg-primary',
       'aria-expanded:bg-muted',
@@ -672,7 +672,7 @@ describe('NeatButton', () => {
     },
   );
 
-  it('danger-text has the text variant’s shape in the danger colour: no fill or border at rest, red text', async () => {
+  it('danger-text has the text variant’s shape in the danger color: no fill or border at rest, red text', async () => {
     const dangerText = await classesOf('danger-text');
     const text = await classesOf('text');
 
@@ -684,7 +684,7 @@ describe('NeatButton', () => {
       for (const surface of SURFACES) {
         const { fill, text: color } = colorsOf(dangerText, { scheme, hover: false }, surface);
         expect(fill, `${scheme}, over ${surface}: no fill`).toBe(tokens[surface]);
-        expect(color, `${scheme}, over ${surface}: the danger colour`).toBe(tokens['destructive']);
+        expect(color, `${scheme}, over ${surface}: the danger color`).toBe(tokens['destructive']);
       }
     }
   });
@@ -701,8 +701,8 @@ describe('NeatButton', () => {
         expect(hovered.fill, `${label}: the text variant's fill`).toBe(
           colorsOf(text, { scheme, hover: true }, surface).fill,
         );
-        expect(hovered.text, `${label}: the danger colour`).toBe(tokens['destructive']);
-        // About 5.6:1 in light and 5.5:1 in dark: red on the grey hover fill.
+        expect(hovered.text, `${label}: the danger color`).toBe(tokens['destructive']);
+        // About 5.6:1 in light and 5.5:1 in dark: red on the gray hover fill.
         expect(
           contrastRatio(hovered.text, hovered.fill),
           `${label}: ${hovered.text} on ${hovered.fill}`,
@@ -713,13 +713,13 @@ describe('NeatButton', () => {
   });
 
   it('danger-text keeps its text contrast while focused: focus draws only the ring', async () => {
-    // The contrast tests above skip focus-visible colour classes; with none for the fill or the
-    // text, a focused button shows its rest or hover colours, which they hold to 4.5:1.
+    // The contrast tests above skip focus-visible color classes; with none for the fill or the
+    // text, a focused button shows its rest or hover colors, which they hold to 4.5:1.
     const classes = await classesOf('danger-text');
     expect(classes.filter((name) => /^(dark:)?focus-visible:(bg|text)-/.test(name))).toEqual([]);
   });
 
-  it('danger is a solid fill in the danger colour with its foreground, in both schemes, never helm’s tint', async () => {
+  it('danger is a solid fill in the danger color with its foreground, in both schemes, never helm’s tint', async () => {
     const danger = await classesOf('danger');
 
     // Helm's destructive is a 10% tint (20% in dark) that hovers to 20% (30%); none may survive.
@@ -732,7 +732,7 @@ describe('NeatButton', () => {
       const tokens = spartanThemeTokens(scheme);
       for (const surface of SURFACES) {
         const { fill, text } = colorsOf(danger, { scheme, hover: false }, surface);
-        expect(fill, `${scheme}, over ${surface}: the danger colour`).toBe(tokens['destructive']);
+        expect(fill, `${scheme}, over ${surface}: the danger color`).toBe(tokens['destructive']);
         expect(text, `${scheme}, over ${surface}: its foreground`).toBe(
           tokens['destructive-foreground'],
         );
@@ -759,14 +759,14 @@ describe('NeatButton', () => {
     }
   });
 
-  it('success is a solid fill in the success colour with its foreground, in both schemes', async () => {
+  it('success is a solid fill in the success color with its foreground, in both schemes', async () => {
     const success = await classesOf('success');
 
     for (const scheme of SCHEMES) {
       const tokens = spartanThemeTokens(scheme);
       for (const surface of SURFACES) {
         const { fill, text } = colorsOf(success, { scheme, hover: false }, surface);
-        expect(fill, `${scheme}, over ${surface}: the success colour`).toBe(tokens['success']);
+        expect(fill, `${scheme}, over ${surface}: the success color`).toBe(tokens['success']);
         expect(text, `${scheme}, over ${surface}: its foreground`).toBe(
           tokens['success-foreground'],
         );
@@ -774,7 +774,7 @@ describe('NeatButton', () => {
     }
   });
 
-  it('success hovers to 90% of its fill and focuses with the ring colour, as primary does', async () => {
+  it('success hovers to 90% of its fill and focuses with the ring color, as primary does', async () => {
     const success = await classesOf('success');
 
     expect(success).toContain('hover:bg-success/90');

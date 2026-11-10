@@ -267,7 +267,7 @@ export function texts(ctx: RecordingContext): unknown[] {
   return ctx.ops('fillText').map((call) => call.args[0]);
 }
 
-/** The fill colour of the first label containing `needle`. */
+/** The fill color of the first label containing `needle`. */
 export function colorOfText(ctx: RecordingContext, needle: string): string {
   const call = ctx.ops('fillText').find((entry) => String(entry.args[0]).includes(needle));
   if (!call) throw new Error(`expected a label containing "${needle}"`);

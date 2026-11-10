@@ -3,8 +3,8 @@ import { NeatStatusChip, NeatStatusChipButton } from '@sima/neat-ui/status-chip'
 import { CHIPS, SURFACES } from './chips';
 
 /**
- * `variant="tinted"` puts each tone's colour on a tint of itself, for chips that label the parts
- * of a card, as a diagram block's do. `neutral` is the same grey as in the solid variant. A tinted
+ * `variant="tinted"` puts each tone's color on a tint of itself, for chips that label the parts
+ * of a card, as a diagram block's do. `neutral` is the same gray as in the solid variant. A tinted
  * chip belongs on the page or a card, as here, and not on a toned list row.
  */
 @Component({

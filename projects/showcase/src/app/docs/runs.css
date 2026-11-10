@@ -1,4 +1,4 @@
-/* The generator's run kinds, in theme colours that keep 4.5:1 on --muted in both schemes. */
+/* The generator's run kinds, in theme colors that keep 4.5:1 on --muted in both schemes. */
 .keyword {
   color: var(--highlight);
 }

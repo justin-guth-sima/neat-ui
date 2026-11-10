@@ -161,7 +161,7 @@ describe('NeatTileGrid', () => {
     expect(host().layouts).toHaveLength(1);
   });
 
-  it('lays tiles out at the packed size with fixed tracks, centred', async () => {
+  it('lays tiles out at the packed size with fixed tracks, centered', async () => {
     await create();
     await resize(1920, 1000);
 
@@ -171,7 +171,7 @@ describe('NeatTileGrid', () => {
     expect(grid().dataset['ready']).toBe('true');
   });
 
-  it('centres fewer items than fit as a block of their own columns', async () => {
+  it('centers fewer items than fit as a block of their own columns', async () => {
     await create();
     host().count.set(2);
     await resize(1920, 1000);
@@ -271,7 +271,7 @@ describe('NeatTileGrid', () => {
       ]);
     });
 
-    it('is resolved once, when the grid initialises', async () => {
+    it('is resolved once, when the grid initializes', async () => {
       const computed = vi
         .spyOn(window, 'getComputedStyle')
         .mockReturnValue({ columnGap: '12px' } as CSSStyleDeclaration);
@@ -334,7 +334,7 @@ describe('NeatTileGrid', () => {
     expect(observer().disconnected).toBe(true);
   });
 
-  it('centres the block of tiles in both directions', async () => {
+  it('centers the block of tiles in both directions', async () => {
     await create();
     const style = getComputedStyle(grid());
 

@@ -151,7 +151,7 @@ describe('NeatTooltip', () => {
     await settle();
 
     expect(tooltip()?.getAttribute('data-side')).toBe('top');
-    // Inverted colours: the theme's text colour as the fill, its background as the text.
+    // Inverted colors: the theme's text color as the fill, its background as the text.
     expect(tooltip()?.classList).toContain('bg-foreground');
     expect(tooltip()?.classList).toContain('text-background');
   });

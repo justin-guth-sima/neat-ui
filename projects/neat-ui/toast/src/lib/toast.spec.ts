@@ -120,7 +120,7 @@ describe('NeatToasts and the toast host', () => {
 
     expect(items()).toHaveLength(1);
     expect(items()[0].dataset['kind']).toBe('warning');
-    // Outlined as an error is, in the warning colour: the surface and its text, not a fill that
+    // Outlined as an error is, in the warning color: the surface and its text, not a fill that
     // would read louder than an error.
     expect([...items()[0].classList]).toEqual(
       expect.arrayContaining(['bg-popover', 'text-popover-foreground', 'ring-warning']),
@@ -133,7 +133,7 @@ describe('NeatToasts and the toast host', () => {
     expect(items()).toHaveLength(0);
   });
 
-  it('leads an error and a warning with the kit’s icon of their kind, so the kind shows without colour', () => {
+  it('leads an error and a warning with the kit’s icon of their kind, so the kind shows without color', () => {
     toasts.error('Upload failed.');
     toasts.warning('Could not restart src2.');
     toasts.status('Stopped 2 sources.');

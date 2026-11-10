@@ -132,7 +132,7 @@
 }
 
 /*
- * Selected: a ring in the full ring colour (3:1 against the surfaces, WCAG 1.4.11), drawn inside
+ * Selected: a ring in the full ring color (3:1 against the surfaces, WCAG 1.4.11), drawn inside
  * the tile and above the video and bar, so a grid that clips its cells never cuts it.
  */
 :host([data-selected])::before {

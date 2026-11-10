@@ -9,7 +9,7 @@ import { NeatDropZone } from './drop-zone';
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 const SURFACES = ['background', 'card'] as const;
 
-/** The variants on the zone's colour classes. */
+/** The variants on the zone's color classes. */
 const VOCABULARY = {
   dark: 'dark',
   hover: 'hover',
@@ -124,7 +124,7 @@ describe('NeatDropZone', () => {
       expect(host.received).toEqual([[clip, second]]);
     });
 
-    it('allows the drop (dragover is cancelled, as a drop needs) and shows a copy cursor', async () => {
+    it('allows the drop (dragover is canceled, as a drop needs) and shows a copy cursor', async () => {
       const { zone } = await render();
 
       const over = drag('dragover', [clip]);

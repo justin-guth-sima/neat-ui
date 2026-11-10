@@ -216,7 +216,7 @@ describe('PhaseDriver', () => {
     expect(idle.fps).toBeCloseTo((idle.frames * 1000) / ((idle.frames - 1) * HZ60 + 300), 0);
   });
 
-  it('summarises the long frames of each phase over the phase’s own window', () => {
+  it('summarizes the long frames of each phase over the phase’s own window', () => {
     const { driver, start, finish, log } = rig();
     start();
     finish();

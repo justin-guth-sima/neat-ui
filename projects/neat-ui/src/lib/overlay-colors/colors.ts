@@ -27,18 +27,18 @@ function createColorMap(): ColorMap {
   return { holders: new Map(), insertions: 0 };
 }
 
-/** Hands out palette colours to identities; one per tile. */
+/** Hands out palette colors to identities; one per tile. */
 export interface ColorAllocator {
-  /** The colour of `identity`, recording that it was drawn at `now`. */
+  /** The color of `identity`, recording that it was drawn at `now`. */
   colorFor(channelIndex: number, namespace: ColorNamespace, identity: unknown, now: number): string;
-  /** Drops the track and pose colours. Class colours are the page's and stay. */
+  /** Drops the track and pose colors. Class colors are the page's and stay. */
   clear(): void;
   size(channelIndex: number, namespace: ColorNamespace): number;
 }
 
 /**
- * The page's overlay colour memory. Class colours are shared by every tile created with the same
- * instance, so one class has one colour on every tile; track and pose colours stay per tile.
+ * The page's overlay color memory. Class colors are shared by every tile created with the same
+ * instance, so one class has one color on every tile; track and pose colors stay per tile.
  * Provided in root for the page; a test or a second, independent page creates its own. Apps only
  * pass it to `createOverlayState`; it has no members of its own.
  */
@@ -46,8 +46,8 @@ export interface ColorAllocator {
 export class NeatOverlayColors {}
 
 /**
- * Each instance's class colours, kept here so the service exposes nothing to apps. A WeakMap, so a
- * discarded instance takes its colours with it.
+ * Each instance's class colors, kept here so the service exposes nothing to apps. A WeakMap, so a
+ * discarded instance takes its colors with it.
  */
 const classColorsOf = new WeakMap<NeatOverlayColors, ColorMap>();
 
@@ -154,7 +154,7 @@ function sharedSlot(map: ColorMap): number {
 }
 
 /**
- * A tile's allocator: its track and pose colours are its own, its class colours are `colors`'.
+ * A tile's allocator: its track and pose colors are its own, its class colors are `colors`'.
  * Internal; `createOverlayState` calls it. One map per (channel, namespace), or the shared map for
  * classes.
  *
@@ -203,7 +203,7 @@ export function createColorAllocator(colors: NeatOverlayColors): ColorAllocator 
       return OVERLAY_PALETTE[slot];
     },
 
-    // Shared class colours stay: other tiles may be drawing them, and they release after
+    // Shared class colors stay: other tiles may be drawing them, and they release after
     // RELEASE_AFTER_MS like any identity.
     clear() {
       maps.clear();
@@ -216,8 +216,8 @@ export function createColorAllocator(colors: NeatOverlayColors): ColorAllocator 
 }
 
 /**
- * The colour to draw an identity in: its override, then the `default` override for anything
- * unlisted, then the neutral colour for a missing identity, then the allocator's.
+ * The color to draw an identity in: its override, then the `default` override for anything
+ * unlisted, then the neutral color for a missing identity, then the allocator's.
  */
 export function resolveColor({
   allocator,

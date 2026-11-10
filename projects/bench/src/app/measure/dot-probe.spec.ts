@@ -3,7 +3,7 @@ import { DotProbeBuffer } from './dot-probe';
 const MAX_DOTS = 1000;
 
 describe('DotProbeBuffer', () => {
-  it('summarises the draws since a mark: time p50, p95 and worst, dots p50 and largest', () => {
+  it('summarizes the draws since a mark: time p50, p95 and worst, dots p50 and largest', () => {
     const probe = new DotProbeBuffer(1000);
     probe.record(99, 1);
     const mark = probe.mark();

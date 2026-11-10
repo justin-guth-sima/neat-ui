@@ -21,7 +21,7 @@
  */
 @source not '../../video/**';
 
-/* Spartan's variants and colour mapping (with the CDK overlay styles), and its animations. */
+/* Spartan's variants and color mapping (with the CDK overlay styles), and its animations. */
 @import '@spartan-ng/brain/hlm-tailwind-preset.css';
 @import 'tw-animate-css';
 @import '../lib/theme/tokens.generated.css';
@@ -94,7 +94,7 @@
 
 @layer base {
   /*
-   * Borders and focus outlines take the theme's colours. Outlines use the full ring colour, not
+   * Borders and focus outlines take the theme's colors. Outlines use the full ring color, not
    * Spartan's `outline-ring/50`: a focus indicator needs 3:1 (WCAG 1.4.11), which the theme holds
    * --ring to and the 50% mix misses (about 1.85:1 on white). Elements without a focus style of
    * their own show it, such as a neat-page body the browser makes focusable because it scrolls.

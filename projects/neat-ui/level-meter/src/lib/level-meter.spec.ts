@@ -5,7 +5,7 @@ import { meterSegments, NeatLevelMeter, segmentTone } from './level-meter';
 /** requestAnimationFrame under the test's control: a frame runs only when the test says so. */
 class FakeAnimationFrames {
   readonly callbacks = new Map<number, FrameRequestCallback>();
-  readonly cancelled: number[] = [];
+  readonly canceled: number[] = [];
   private nextId = 1;
 
   install(): void {
@@ -15,7 +15,7 @@ class FakeAnimationFrames {
       return id;
     });
     vi.stubGlobal('cancelAnimationFrame', (id: number) => {
-      this.cancelled.push(id);
+      this.canceled.push(id);
       this.callbacks.delete(id);
     });
   }
@@ -194,7 +194,7 @@ describe('NeatLevelMeter', () => {
     host.shown.set(false);
     await fixture.whenStable();
     expect(frames.callbacks.size).toBe(0);
-    expect(frames.cancelled.length).toBeGreaterThanOrEqual(2);
+    expect(frames.canceled.length).toBeGreaterThanOrEqual(2);
     frames.run();
     expect(calls).toBe(2);
     expect(segments.filter((segment) => segment.classList.contains(UNLIT))).toHaveLength(28);
@@ -205,12 +205,12 @@ describe('NeatLevelMeter', () => {
     const { lit } = await render((host) =>
       host.sample.set(() => {
         calls++;
-        if (calls === 1) throw new Error('analyser gone');
+        if (calls === 1) throw new Error('analyzer gone');
         return 0;
       }),
     );
 
-    expect(() => frames.run()).toThrow('analyser gone');
+    expect(() => frames.run()).toThrow('analyzer gone');
     frames.run();
     expect(calls).toBe(2);
     expect(lit()).toBe(28);

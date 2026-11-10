@@ -31,7 +31,7 @@ import {
 import { zoomIdentity, type ZoomTransform } from 'd3-zoom';
 import type { NeatOverlayClassStyle } from '@sima/neat-ui/video';
 import { BevCanvas, type BevInputs, type BevTheme } from './bev-canvas';
-import { GUIDE_ALPHA, LabelColours, OUTLINE_ALPHA } from './colours';
+import { GUIDE_ALPHA, LabelColors, OUTLINE_ALPHA } from './colors';
 import {
   type BevPlot,
   bevPlot,
@@ -82,11 +82,11 @@ const TOKENS = {
 /**
  * A bird's-eye view around a vehicle: what it sees (`frame`: objects, points, lines and grids),
  * what the app draws under and over it (`background`, `foreground`), and rings in a circle or a metric grid in a rectangle to read
- * distances by (`shape`), in the vehicle's own frame (metres, x forward and y left, forward up on
+ * distances by (`shape`), in the vehicle's own frame (meters, x forward and y left, forward up on
  * the screen). The data and the guides stop at the shape's edge, or run on over the whole box
- * (`overflow`); the guides lie over the data or under it (`guides`). Labels pick colours as the
- * video overlays' classes do, from the page's class colours, so "car" has one colour in the view
- * and in every tile; `styles` sets a label's colour and line as the tiles' class rows do. Hovering
+ * (`overflow`); the guides lie over the data or under it (`guides`). Labels pick colors as the
+ * video overlays' classes do, from the page's class colors, so "car" has one color in the view
+ * and in every tile; `styles` sets a label's color and line as the tiles' class rows do. Hovering
  * an object, or tapping it, reads it out beside it: its label, its distance from the vehicle and
  * its `text`. With `zoom`, wheel, pinch and drag zoom and pan it, the shape and all, within
  * `zoomExtent` (in to four times the default by default) and over what the default view shows and
@@ -138,7 +138,7 @@ const TOKENS = {
     <!-- The object under the pointer; filled and placed by each frame, not by change detection. -->
     <div #readout class="readout" aria-hidden="true" hidden [class]="readoutClasses.box">
       <span [class]="readoutClasses.row"
-        ><neat-swatch [color]="readoutColour()" /><span #name></span
+        ><neat-swatch [color]="readoutColor()" /><span #name></span
       ></span>
       <span #distance [class]="readoutClasses.muted"></span>
       <span #text></span>
@@ -162,11 +162,11 @@ export class NeatBev {
    * its cameras, or lines from where they are mounted).
    */
   readonly spokes = input<number | readonly NeatBevSpoke[]>(12);
-  /** Metres from the vehicle to the circle, and to the rectangle's edges without `bounds`. */
+  /** Meters from the vehicle to the circle, and to the rectangle's edges without `bounds`. */
   readonly range = input(60);
   /** The circle of `range` with rings (`'round'`), or the rectangle `bounds` with a grid. */
   readonly shape = input<NeatBevShape>('round');
-  /** The rectangle in metres (`'rect'`), as a grid sets one; null is ±`range`. */
+  /** The rectangle in meters (`'rect'`), as a grid sets one; null is ±`range`. */
   readonly bounds = input<NeatBevBounds | null>(null);
   /** Whether the shape's edge is drawn. */
   readonly outline = input(true, { transform: booleanAttribute });
@@ -177,7 +177,7 @@ export class NeatBev {
   /** Whether wheel, pinch, drag and keys zoom and pan the view; off, the page scrolls over it. */
   readonly zoom = input(false, { transform: booleanAttribute });
   /**
-   * A rectangle in metres the view may also pan over, besides what the default view shows: with a
+   * A rectangle in meters the view may also pan over, besides what the default view shows: with a
    * smaller `range`, a view that starts zoomed in and still reaches further out.
    */
   readonly panBounds = input<NeatBevBounds | null>(null);
@@ -195,11 +195,11 @@ export class NeatBev {
   /** A click or tap on the view that is no drag: the object it hit (or null) and the point. */
   readonly activated = output<NeatBevPick>();
   /**
-   * Where a mouse or pen is over the view, metres, at most once a frame and only when it changed
+   * Where a mouse or pen is over the view, meters, at most once a frame and only when it changed
    * (a zoom moves it too); null when it leaves.
    */
   readonly pointerMove = output<NeatBevPoint | null>();
-  /** A label's colour, line and width, as the video overlays' class rows set them for the tiles. */
+  /** A label's color, line and width, as the video overlays' class rows set them for the tiles. */
   readonly styles = input<readonly NeatOverlayClassStyle[]>([]);
   /** The plot's accessible name. */
   readonly label = input("Bird's-eye view");
@@ -208,24 +208,23 @@ export class NeatBev {
   private readonly document = inject(DOCUMENT);
   private readonly zone = inject(NgZone);
   private readonly canvasElement = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
-  private readonly colours = new LabelColours(inject(NeatOverlayColors));
-  private readonly themeColours = neatThemeColors(TOKENS, () => this.host);
+  private readonly colors = new LabelColors(inject(NeatOverlayColors));
+  private readonly themeColors = neatThemeColors(TOKENS, () => this.host);
   private readonly scheme = inject(ThemeService).scheme;
 
-  /** The plot's own colours and font, as the canvas takes them; a new object for a new theme. */
+  /** The plot's own colors and font, as the canvas takes them; a new object for a new theme. */
   private readonly theme = computed<BevTheme>(() => {
-    const colours = this.themeColours();
+    const colors = this.themeColors();
     const style = getComputedStyle(this.host);
     const fallback = style.color;
-    const css = (rgb: NeatRgb | null, alpha = 1): string =>
-      rgb ? cssColour(rgb, alpha) : fallback;
+    const css = (rgb: NeatRgb | null, alpha = 1): string => (rgb ? cssColor(rgb, alpha) : fallback);
     return {
-      line: css(colours.ego, GUIDE_ALPHA),
-      strong: css(colours.ego, OUTLINE_ALPHA),
-      text: css(colours.text),
-      ego: css(colours.ego),
-      halo: css(colours.halo),
-      surface: colours.halo,
+      line: css(colors.ego, GUIDE_ALPHA),
+      strong: css(colors.ego, OUTLINE_ALPHA),
+      text: css(colors.text),
+      ego: css(colors.ego),
+      halo: css(colors.halo),
+      surface: colors.halo,
       font: `${style.fontSize} ${style.fontFamily}`,
     };
   });
@@ -245,8 +244,8 @@ export class NeatBev {
 
   protected readonly readoutClasses = READOUT_CLASSES;
   private readonly readoutBox = viewChild.required<ElementRef<HTMLElement>>('readout');
-  /** The colour of the object read out, for its swatch: it changes only with another object. */
-  protected readonly readoutColour = signal('');
+  /** The color of the object read out, for its swatch: it changes only with another object. */
+  protected readonly readoutColor = signal('');
   private readonly readoutName = viewChild.required<ElementRef<HTMLElement>>('name');
   private readonly readoutDistance = viewChild.required<ElementRef<HTMLElement>>('distance');
   private readonly readoutText = viewChild.required<ElementRef<HTMLElement>>('text');
@@ -284,7 +283,7 @@ export class NeatBev {
   private transform: ZoomTransform = zoomIdentity;
   /** The box and the pan bounds the zoom was last given, so a frame gives it only new ones. */
   private bounded: { width: number; height: number; pan: ScreenRect } | null = null;
-  /** The style rows the colours were last given. */
+  /** The style rows the colors were last given. */
   private stylesGiven: readonly NeatOverlayClassStyle[] | null = null;
   private width = 0;
   private height = 0;
@@ -300,10 +299,10 @@ export class NeatBev {
       this.hovered();
       this.panBounds();
       this.zoomExtent();
-      // The scheme, not the colours: they are resolved (on a canvas) only when a frame draws.
+      // The scheme, not the colors: they are resolved (on a canvas) only when a frame draws.
       this.scheme();
       untracked(() => {
-        if (styles !== this.stylesGiven) this.colours.setStyles((this.stylesGiven = styles));
+        if (styles !== this.stylesGiven) this.colors.setStyles((this.stylesGiven = styles));
         this.schedule();
       });
     });
@@ -473,7 +472,7 @@ export class NeatBev {
 
   private readonly tick = (): void => {
     this.request = 0;
-    // Nothing to draw on before the box has a size: nothing is resolved either (the colours).
+    // Nothing to draw on before the box has a size: nothing is resolved either (the colors).
     if (this.destroyed || !this.canvas || this.width <= 0 || this.height <= 0) return;
     const ratio =
       typeof devicePixelRatio === 'number' && devicePixelRatio > 0 ? devicePixelRatio : 1;
@@ -497,14 +496,14 @@ export class NeatBev {
     this.drawn = { view, inputs, frame };
     const hover = this.hover(view, inputs, frame);
     this.report(view);
-    this.colours.begin(performance.now());
-    this.canvas.draw(ratio, view, inputs, untracked(this.theme), this.colours, frame, hover);
-    this.summarise(frame, plot);
+    this.colors.begin(performance.now());
+    this.canvas.draw(ratio, view, inputs, untracked(this.theme), this.colors, frame, hover);
+    this.summarize(frame, plot);
     const object = hover >= 0 ? frame?.objects?.[hover] : undefined;
     if (object) {
       const at = toScreen(view, object.x, object.y, this.screenPoint);
-      const colour = this.colours.of(object.label).colour;
-      this.readoutColour.set(colour);
+      const color = this.colors.of(object.label).color;
+      this.readoutColor.set(color);
       this.readout?.show(object, at.x, at.y, this.width, this.height);
     } else {
       this.readout?.hide();
@@ -515,14 +514,14 @@ export class NeatBev {
    * Says what a new frame or range shows, at most once every `SUMMARY_MS`: one sooner waits for
    * its turn, and the newest frame by then is the one summed up.
    */
-  private summarise(frame: NeatBevFrame | null, plot: BevPlot): void {
+  private summarize(frame: NeatBevFrame | null, plot: BevPlot): void {
     if (this.summaryOf?.frame === frame && this.summaryOf.plot === plot) return;
     if (this.summaryTimer !== undefined) return;
     const wait = this.summaryAt + SUMMARY_MS - performance.now();
     if (wait > 0) {
       this.summaryTimer = setTimeout(() => {
         this.summaryTimer = undefined;
-        if (!this.destroyed) this.summarise(untracked(this.frame), untracked(this.inputs).plot);
+        if (!this.destroyed) this.summarize(untracked(this.frame), untracked(this.inputs).plot);
       }, wait);
       return;
     }
@@ -566,7 +565,7 @@ export class NeatBev {
     this.zone.run(() => this.hovered.set(id));
   }
 
-  /** Reports where a mouse or pen is, metres, when that changed; null once it has gone. */
+  /** Reports where a mouse or pen is, meters, when that changed; null once it has gone. */
   private report(view: BevView): void {
     const pointer = this.hovering ? this.pointer : null;
     let point: NeatBevPoint | null = null;
@@ -614,8 +613,8 @@ function sameBounds(
   return a0 === x0 && b0 === y0 && a1 === x1 && b1 === y1;
 }
 
-/** A colour from 0..1 channels as CSS, opaque or see-through by `alpha`. */
-function cssColour([red, green, blue]: NeatRgb, alpha = 1): string {
+/** A color from 0..1 channels as CSS, opaque or see-through by `alpha`. */
+function cssColor([red, green, blue]: NeatRgb, alpha = 1): string {
   const rgb = `${Math.round(red * 255)} ${Math.round(green * 255)} ${Math.round(blue * 255)}`;
   return alpha === 1 ? `rgb(${rgb})` : `rgb(${rgb} / ${alpha})`;
 }

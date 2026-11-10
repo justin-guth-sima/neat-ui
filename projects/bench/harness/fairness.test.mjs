@@ -10,7 +10,7 @@ const GOOD = {
 };
 const BAD = { ...GOOD, ok: false, problems: ['edge e3 differs', 'note n1 is 12 px narrower'] };
 
-test('takes the page’s judgement of the two fingerprints as the report', () => {
+test('takes the page’s judgment of the two fingerprints as the report', () => {
   assert.equal(
     fairnessReport({ ok: true, inspected: undefined }, { ok: true, inspected: GOOD }),
     GOOD,

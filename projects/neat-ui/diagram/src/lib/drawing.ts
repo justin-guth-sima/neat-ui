@@ -22,7 +22,7 @@ import { pointAlong, type Point } from './route';
 
 /*
  * A level as the renderer draws it: each node at its place in the level with its look, each edge
- * with its path, colour, tips and label. Pure, so what is drawn is decided (and tested) apart from
+ * with its path, color, tips and label. Pure, so what is drawn is decided (and tested) apart from
  * the DOM; the component's template only binds it.
  */
 
@@ -57,8 +57,8 @@ export interface DrawnEdge {
   readonly path: string;
   /** Its route's corners, ends included (`EdgeLayout.points`): what the messages sample. */
   readonly points: readonly Point[];
-  /** The CSS colour its line and tips take. */
-  readonly colour: string;
+  /** The CSS color its line and tips take. */
+  readonly color: string;
   readonly line: NeatDiagramLine;
   readonly tips: readonly DrawnTip[];
   /**
@@ -94,7 +94,7 @@ const ARROW_HALF_WIDTH = 3;
 const DOT_RADIUS = 3;
 
 /**
- * The colour of an edge without a series, or with one the palette lacks: its custom property's
+ * The color of an edge without a series, or with one the palette lacks: its custom property's
  * name, which the messaging layer's dots resolve too, and the same for CSS.
  */
 export const MUTED_TOKEN = '--muted-foreground';
@@ -173,7 +173,7 @@ function drawEdge(edge: NeatDiagramEdge, layout: EdgeLayout): DrawnEdge {
     edge,
     path: layout.path,
     points: layout.points,
-    colour: lineColour(edge.series, edge.line, `edge "${edge.id}"`),
+    color: lineColor(edge.series, edge.line, `edge "${edge.id}"`),
     line: edge.line ?? 'solid',
     tips,
     label:
@@ -249,11 +249,11 @@ export function labelCovers(
 }
 
 /**
- * The colour of a line, an edge's or a legend sample's: its series' token, else the muted colour.
+ * The color of a line, an edge's or a legend sample's: its series' token, else the muted color.
  * A ghost is muted whatever its series: it is a part that does not run here, and stays quiet
  * beside the edges that do. `part` names what has the line in the dev-mode message.
  */
-export function lineColour(
+export function lineColor(
   series: number | undefined,
   line: NeatDiagramLine | undefined,
   part: string,
@@ -270,7 +270,7 @@ export function lineColour(
  */
 export function seriesIndex(series: number, part: string): number | null {
   if (Number.isInteger(series) && series >= 1 && series <= 8) return series - 1;
-  reportLeftOut(`${part} is drawn in the muted colour: its series ${series} is not 1 to 8`);
+  reportLeftOut(`${part} is drawn in the muted color: its series ${series} is not 1 to 8`);
   return null;
 }
 

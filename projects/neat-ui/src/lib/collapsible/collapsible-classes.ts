@@ -3,7 +3,7 @@
  * and the page's side list takes on a narrow screen: one definition, so that both read as the
  * same control. Internal to the kit; the primary exports it `ɵ` for the collapsible entry. Class
  * strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading them.
- * Colours are the theme's tokens only; collapsible.spec holds the label and the summary to 4.5:1
+ * Colors are the theme's tokens only; collapsible.spec holds the label and the summary to 4.5:1
  * on every surface. Helm's collapsible has one class, the closed content's `hidden`, which
  * `content` states through the preset's `data-closed` variant, so none is vendored.
  */
@@ -11,7 +11,7 @@ export const COLLAPSIBLE_CLASSES = {
   /**
    * The trigger: a full-width text button, its chevron, label and summary on one line. It draws
    * the kit's focus outline at full `--ring` (held to 3:1 by the theme). Hovering it brings the
-   * chevron from the muted colour to the text's, the only hover cue a button with no fill has.
+   * chevron from the muted color to the text's, the only hover cue a button with no fill has.
    */
   trigger:
     'group flex w-full min-w-0 cursor-pointer items-center gap-(--neat-space-2) rounded-(--radius) py-1 text-start text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring',

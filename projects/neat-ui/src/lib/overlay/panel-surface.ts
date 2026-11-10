@@ -14,10 +14,10 @@ export const POPOVER_HELM_CLASSES = {
 
 /**
  * The surface of a panel in the CDK overlay, which `neat-popover` and the collapsed rail's menu
- * share: helm's, outlined in `--border`, the theme's colour for card outlines and dividers, where
- * helm draws the text colour at 10%. It sets `--neat-surface` to its fill, `--popover`: what the
+ * share: helm's, outlined in `--border`, the theme's color for card outlines and dividers, where
+ * helm draws the text color at 10%. It sets `--neat-surface` to its fill, `--popover`: what the
  * content sits on, so that a part that covers what scrolls under it (a select list's sticky
- * header) fills with the panel's colour, not the page's. Each panel states its own size, padding
+ * header) fills with the panel's color, not the page's. Each panel states its own size, padding
  * and gap after it. Internal to the kit; `ɵPANEL_SURFACE_CLASSES` for the secondary entries.
  */
 export const PANEL_SURFACE_CLASSES = hlm(

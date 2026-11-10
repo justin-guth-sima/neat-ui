@@ -56,7 +56,7 @@ export interface ReadoutRow {
   readonly value: string;
   /**
    * The index of the series whose swatch the row shows, or null for a row without one: a total,
-   * or a chart's only line, which its tone colours and no swatch is needed to tell apart.
+   * or a chart's only line, which its tone colors and no swatch is needed to tell apart.
    */
   readonly series: number | null;
 }

@@ -53,7 +53,7 @@ describe('VflowHost', () => {
     expect(frames).toEqual(nodes.filter((node) => node.role === 'frame').map((node) => node.id));
   });
 
-  it('draws each edge on the kit’s route, in its colour and line', async () => {
+  it('draws each edge on the kit’s route, in its color and line', async () => {
     const { flow } = await render();
     const element = flow.nativeElement as HTMLElement;
     const { drawn } = TestBed.inject(BenchLoad).scene();
@@ -62,7 +62,7 @@ describe('VflowHost', () => {
       const group = element.querySelector(`g.edge[data-edge="${edge.id}"]`) as SVGGElement;
       expect(group.querySelector('path.line')?.getAttribute('d')).toBe(edge.path);
       expect(group.getAttribute('data-line')).toBe(edge.line);
-      expect(group.style.getPropertyValue('--edge')).toBe(edge.colour);
+      expect(group.style.getPropertyValue('--edge')).toBe(edge.color);
       expect(group.querySelectorAll('.tip')).toHaveLength(edge.tips.length);
     }
   });

@@ -110,7 +110,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "data.ts",
         "code": [
-          ["comment","/**\n * IPN Hand's 14 classes; the first is the quiet one. The same list, in the same order, as the\n * score bars example's, so a label has the same colour in both (its spec holds them equal): the\n * docs let an example import only files of its own topic folder, so the list is repeated here.\n */"],
+          ["comment","/**\n * IPN Hand's 14 classes; the first is the quiet one. The same list, in the same order, as the\n * score bars example's, so a label has the same color in both (its spec holds them equal): the\n * docs let an example import only files of its own topic folder, so the list is repeated here.\n */"],
           ["text","\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," CLASSES: "],["keyword","readonly"],["text"," "],["keyword","string"],["text","[] = [\n  "],
           ["string","'No gesture'"],["text",",\n  "],
@@ -197,7 +197,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "data.ts",
         "code": [
-          ["comment","/**\n * IPN Hand's 14 classes; the first is the quiet one. The same list, in the same order, as the\n * score bars example's, so a label has the same colour in both (its spec holds them equal): the\n * docs let an example import only files of its own topic folder, so the list is repeated here.\n */"],
+          ["comment","/**\n * IPN Hand's 14 classes; the first is the quiet one. The same list, in the same order, as the\n * score bars example's, so a label has the same color in both (its spec holds them equal): the\n * docs let an example import only files of its own topic folder, so the list is repeated here.\n */"],
           ["text","\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," CLASSES: "],["keyword","readonly"],["text"," "],["keyword","string"],["text","[] = [\n  "],
           ["string","'No gesture'"],["text",",\n  "],
@@ -300,7 +300,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "data.ts",
         "code": [
-          ["comment","/**\n * IPN Hand's 14 classes; the first is the quiet one. The same list, in the same order, as the\n * score bars example's, so a label has the same colour in both (its spec holds them equal): the\n * docs let an example import only files of its own topic folder, so the list is repeated here.\n */"],
+          ["comment","/**\n * IPN Hand's 14 classes; the first is the quiet one. The same list, in the same order, as the\n * score bars example's, so a label has the same color in both (its spec holds them equal): the\n * docs let an example import only files of its own topic folder, so the list is repeated here.\n */"],
           ["text","\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," CLASSES: "],["keyword","readonly"],["text"," "],["keyword","string"],["text","[] = [\n  "],
           ["string","'No gesture'"],["text",",\n  "],

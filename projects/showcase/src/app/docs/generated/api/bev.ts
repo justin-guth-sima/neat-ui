@@ -47,7 +47,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), in the vehicle's own frame (metres, x forward and y left, forward up on the screen). The data and the guides stop at the shape's edge, or run on over the whole box ("
+              "text": "), in the vehicle's own frame (meters, x forward and y left, forward up on the screen). The data and the guides stop at the shape's edge, or run on over the whole box ("
             },
             {
               "kind": "code",
@@ -63,7 +63,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "). Labels pick colours as the video overlays' classes do, from the page's class colours, so \"car\" has one colour in the view and in every tile; "
+              "text": "). Labels pick colors as the video overlays' classes do, from the page's class colors, so \"car\" has one color in the view and in every tile; "
             },
             {
               "kind": "code",
@@ -71,7 +71,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " sets a label's colour and line as the tiles' class rows do. Hovering an object, or tapping it, reads it out beside it: its label, its distance from the vehicle and its "
+              "text": " sets a label's color and line as the tiles' class rows do. Hovering an object, or tapping it, reads it out beside it: its label, its distance from the vehicle and its "
             },
             {
               "kind": "code",
@@ -220,7 +220,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Metres from the vehicle to the circle, and to the rectangle's edges without "
+                  "text": "Meters from the vehicle to the circle, and to the rectangle's edges without "
                 },
                 {
                   "kind": "code",
@@ -284,7 +284,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The rectangle in metres ("
+                  "text": "The rectangle in meters ("
                 },
                 {
                   "kind": "code",
@@ -390,7 +390,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "A rectangle in metres the view may also pan over, besides what the default view shows: with a smaller "
+                  "text": "A rectangle in meters the view may also pan over, besides what the default view shows: with a smaller "
                 },
                 {
                   "kind": "code",
@@ -430,7 +430,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "A label's colour, line and width, as the video overlays' class rows set them for the tiles."
+                  "text": "A label's color, line and width, as the video overlays' class rows set them for the tiles."
                 }
               ]
             }
@@ -504,7 +504,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Where a mouse or pen is over the view, metres, at most once a frame and only when it changed (a zoom moves it too); null when it leaves."
+                  "text": "Where a mouse or pen is over the view, meters, at most once a frame and only when it changed (a zoom moves it too); null when it leaves."
                 }
               ]
             }
@@ -534,7 +534,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A rectangle around the vehicle in metres, as "
+              "text": "A rectangle around the vehicle in meters, as "
             },
             {
               "kind": "ref",
@@ -551,7 +551,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " its back and front edges (metres forward), "
+              "text": " its back and front edges (meters forward), "
             },
             {
               "kind": "code",
@@ -559,7 +559,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " its right and left edges (metres to the left)."
+              "text": " its right and left edges (meters to the left)."
             }
           ]
         }
@@ -629,7 +629,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "What picks its colour."
+                  "text": "What picks its color."
                 }
               ]
             }
@@ -681,7 +681,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The rectangle's back and front edges, metres forward of the vehicle."
+                  "text": "The rectangle's back and front edges, meters forward of the vehicle."
                 }
               ]
             }
@@ -696,7 +696,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The rectangle's right and left edges, metres to the left of the vehicle."
+                  "text": "The rectangle's right and left edges, meters to the left of the vehicle."
                 }
               ]
             }
@@ -709,7 +709,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A grid of cells over a rectangle (a drivable area, an occupancy map), drawn in its label's colour: each cell's value, 0 to 255, scales the grid's opacity, 0 leaving the cell clear. "
+              "text": "A grid of cells over a rectangle (a drivable area, an occupancy map), drawn in its label's color: each cell's value, 0 to 255, scales the grid's opacity, 0 leaving the cell clear. "
             },
             {
               "kind": "code",
@@ -828,7 +828,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", see-through here) and points, in their labels' colours. Drawn with the view's cached layers, so for what changes rarely: a map's lanes, a camera's field of view, a zone around the vehicle. Give a new object when it changes."
+              "text": ", see-through here) and points, in their labels' colors. Drawn with the view's cached layers, so for what changes rarely: a map's lanes, a camera's field of view, a zone around the vehicle. Give a new object when it changes."
             }
           ]
         }
@@ -848,7 +848,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "What picks its colour."
+                  "text": "What picks its color."
                 }
               ]
             }
@@ -863,7 +863,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "x, y pairs in metres: x forward, y left."
+                  "text": "x, y pairs in meters: x forward, y left."
                 }
               ]
             }
@@ -924,7 +924,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A polyline in one label's colour (a planned path, a lane, a boundary), or with "
+              "text": "A polyline in one label's color (a planned path, a lane, a boundary), or with "
             },
             {
               "kind": "code",
@@ -1000,7 +1000,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Its centre, metres forward of the vehicle."
+                  "text": "Its center, meters forward of the vehicle."
                 }
               ]
             }
@@ -1015,7 +1015,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Its centre, metres to the left of the vehicle."
+                  "text": "Its center, meters to the left of the vehicle."
                 }
               ]
             }
@@ -1030,7 +1030,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Metres along its heading."
+                  "text": "Meters along its heading."
                 }
               ]
             }
@@ -1045,7 +1045,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Metres across its heading."
+                  "text": "Meters across its heading."
                 }
               ]
             }
@@ -1075,7 +1075,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Its class (\"car\"): what picks its colour, and what the readout and the summary name."
+                  "text": "Its class (\"car\"): what picks its color, and what the readout and the summary name."
                 }
               ]
             }
@@ -1128,7 +1128,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " across it, centred on "
+              "text": " across it, centered on "
             },
             {
               "kind": "code",
@@ -1144,7 +1144,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". It is drawn as a rotated rectangle, filled and outlined in its label's colour, with a line from its centre to the middle of its front edge."
+              "text": ". It is drawn as a rotated rectangle, filled and outlined in its label's color, with a line from its center to the middle of its front edge."
             }
           ]
         }
@@ -1304,7 +1304,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A point around the vehicle, metres: x forward, y to the left."
+              "text": "A point around the vehicle, meters: x forward, y to the left."
             }
           ]
         }
@@ -1324,7 +1324,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "What picks the points' colour, and what the summary counts them as."
+                  "text": "What picks the points' color, and what the summary counts them as."
                 }
               ]
             }
@@ -1339,7 +1339,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "x, y pairs in metres: x forward, y left."
+                  "text": "x, y pairs in meters: x forward, y left."
                 }
               ]
             }
@@ -1352,7 +1352,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Points in one label's colour (radar or lidar returns): "
+              "text": "Points in one label's color (radar or lidar returns): "
             },
             {
               "kind": "code",
@@ -1360,7 +1360,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " holds x, y pairs in metres, so a large cloud stays one typed array and nothing is allocated to draw it."
+              "text": " holds x, y pairs in meters, so a large cloud stays one typed array and nothing is allocated to draw it."
             }
           ]
         }
@@ -1438,7 +1438,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (the vehicle's centre by default) at "
+              "text": " (the vehicle's center by default) at "
             },
             {
               "kind": "code",

@@ -8,7 +8,7 @@
 }
 
 /*
- * Fixed tracks at the packed size, centred in both directions so leftover space splits evenly
+ * Fixed tracks at the packed size, centered in both directions so leftover space splits evenly
  * around the block. The grid sets the --grid-* properties from the packing; the gap falls back to
  * the kit's token until it has set its own, which is how the token's pixel value is read.
  */

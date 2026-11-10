@@ -1,15 +1,15 @@
 import type { NeatOverlayLineStyle } from '@sima/neat-ui/video';
 
 /*
- * What `neat-bev` draws, in the vehicle's own frame: metres, x forward and y to the left (nuScenes,
+ * What `neat-bev` draws, in the vehicle's own frame: meters, x forward and y to the left (nuScenes,
  * ROS REP 103), forward up on the screen. Angles are radians, counter-clockwise from x, so a value
  * computed from a calibration or a detector's yaw goes in unchanged.
  */
 
 /**
  * An object seen around the vehicle (a detection, a track): a box `length` long along its heading
- * `yaw` and `width` across it, centred on `x`, `y`. It is drawn as a rotated rectangle, filled
- * and outlined in its label's colour, with a line from its centre to the middle of its front edge.
+ * `yaw` and `width` across it, centered on `x`, `y`. It is drawn as a rotated rectangle, filled
+ * and outlined in its label's color, with a line from its center to the middle of its front edge.
  */
 export interface NeatBevObject {
   /**
@@ -17,17 +17,17 @@ export interface NeatBevObject {
    * every object an id, or none: without one an object is known by its index in `objects`.
    */
   readonly id?: NeatBevObjectId;
-  /** Its centre, metres forward of the vehicle. */
+  /** Its center, meters forward of the vehicle. */
   readonly x: number;
-  /** Its centre, metres to the left of the vehicle. */
+  /** Its center, meters to the left of the vehicle. */
   readonly y: number;
-  /** Metres along its heading. */
+  /** Meters along its heading. */
   readonly length: number;
-  /** Metres across its heading. */
+  /** Meters across its heading. */
   readonly width: number;
   /** Its heading, radians counter-clockwise from the vehicle's forward axis. */
   readonly yaw: number;
-  /** Its class ("car"): what picks its colour, and what the readout and the summary name. */
+  /** Its class ("car"): what picks its color, and what the readout and the summary name. */
   readonly label: string;
   /** More for the readout, after the label and the distance (a score, a speed). */
   readonly text?: string;
@@ -36,7 +36,7 @@ export interface NeatBevObject {
 /** What identifies an object across frames: its `id`, or its index in `objects` without one. */
 export type NeatBevObjectId = string | number;
 
-/** A point around the vehicle, metres: x forward, y to the left. */
+/** A point around the vehicle, meters: x forward, y to the left. */
 export interface NeatBevPoint {
   readonly x: number;
   readonly y: number;
@@ -53,27 +53,27 @@ export interface NeatBevPick extends NeatBevPoint {
 }
 
 /**
- * Points in one label's colour (radar or lidar returns): `xy` holds x, y pairs in metres, so a
+ * Points in one label's color (radar or lidar returns): `xy` holds x, y pairs in meters, so a
  * large cloud stays one typed array and nothing is allocated to draw it.
  */
 export interface NeatBevPoints {
-  /** What picks the points' colour, and what the summary counts them as. */
+  /** What picks the points' color, and what the summary counts them as. */
   readonly label: string;
-  /** x, y pairs in metres: x forward, y left. */
+  /** x, y pairs in meters: x forward, y left. */
   readonly xy: Float32Array;
 }
 
 /**
- * A polyline in one label's colour (a planned path, a lane, a boundary), or with `fill` a polygon
+ * A polyline in one label's color (a planned path, a lane, a boundary), or with `fill` a polygon
  * (a road, a zone, free space from a model): an area, filled as a grid is, a light tint over the
  * surface that covers what lies under it, without an outline. A label's polygons fill as one area,
  * so a road network given as overlapping pieces shows no darker joins; for an outline, give the
  * same points again as a line without `fill`.
  */
 export interface NeatBevLine {
-  /** What picks its colour. */
+  /** What picks its color. */
   readonly label: string;
-  /** x, y pairs in metres: x forward, y left. */
+  /** x, y pairs in meters: x forward, y left. */
   readonly xy: Float32Array;
   /** Whether the last point joins the first. */
   readonly closed?: boolean;
@@ -85,21 +85,21 @@ export interface NeatBevLine {
 
 /**
  * A grid of cells over a rectangle (a drivable area, an occupancy map), drawn in its label's
- * colour: each cell's value, 0 to 255, scales the grid's opacity, 0 leaving the cell clear.
+ * color: each cell's value, 0 to 255, scales the grid's opacity, 0 leaving the cell clear.
  * `cells` is row-major in screen order, so the array reads like the picture: row 0 is the forward
  * edge (`x[1]`), column 0 the left edge (`y[1]`). Give a new array for new cells: the grid is
  * redrawn when its `cells` array changes, not when the same array is written to.
  */
 export interface NeatBevGrid {
-  /** What picks its colour. */
+  /** What picks its color. */
   readonly label: string;
   /** `columns` × `rows` values, 0 to 255, row 0 forward and column 0 left. */
   readonly cells: Uint8Array;
   readonly columns: number;
   readonly rows: number;
-  /** The rectangle's back and front edges, metres forward of the vehicle. */
+  /** The rectangle's back and front edges, meters forward of the vehicle. */
   readonly x: readonly [min: number, max: number];
-  /** The rectangle's right and left edges, metres to the left of the vehicle. */
+  /** The rectangle's right and left edges, meters to the left of the vehicle. */
   readonly y: readonly [min: number, max: number];
 }
 
@@ -113,7 +113,7 @@ export interface NeatBevFrame {
 
 /**
  * What the app draws besides a frame, under the data (`background`) or over it (`foreground`):
- * lines, polygons (lines with `fill`, see-through here) and points, in their labels' colours.
+ * lines, polygons (lines with `fill`, see-through here) and points, in their labels' colors.
  * Drawn with the view's cached layers, so for what changes rarely: a map's lanes, a camera's field
  * of view, a zone around the vehicle. Give a new object when it changes.
  */
@@ -123,7 +123,7 @@ export interface NeatBevLayer {
 }
 
 /**
- * A line out to the plot's edge: from `origin` (the vehicle's centre by default) at `angle`,
+ * A line out to the plot's edge: from `origin` (the vehicle's center by default) at `angle`,
  * radians counter-clockwise from forward.
  */
 export interface NeatBevSpoke {
@@ -138,8 +138,8 @@ export interface NeatBevSpoke {
 export type NeatBevShape = 'round' | 'rect';
 
 /**
- * A rectangle around the vehicle in metres, as `NeatBevGrid` sets one: `x` its back and front
- * edges (metres forward), `y` its right and left edges (metres to the left).
+ * A rectangle around the vehicle in meters, as `NeatBevGrid` sets one: `x` its back and front
+ * edges (meters forward), `y` its right and left edges (meters to the left).
  */
 export interface NeatBevBounds {
   readonly x: readonly [min: number, max: number];

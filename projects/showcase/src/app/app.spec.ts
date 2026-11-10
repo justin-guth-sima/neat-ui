@@ -15,7 +15,7 @@ const PAGES = [
     title: 'Getting started',
   },
   { path: '/theme/tokens', link: 'Theme', heading: 'Theme variables', title: 'Tokens Theme' },
-  { path: '/theme/colours', link: 'Theme', heading: 'ThemeService', title: 'Colours Theme' },
+  { path: '/theme/colors', link: 'Theme', heading: 'ThemeService', title: 'Colors Theme' },
   { path: '/theme/icons', link: 'Theme', heading: 'NeatIcon', title: 'Icons Theme' },
   { path: '/layout/shell', link: 'Layout', heading: 'NeatShell', title: 'Shell Layout' },
   { path: '/layout/page', link: 'Layout', heading: 'NeatPage', title: 'Page Layout' },
@@ -127,7 +127,7 @@ describe('App', () => {
 
   beforeEach(async () => {
     vi.stubGlobal('ResizeObserver', NoopResizeObserver);
-    // jsdom has no canvas, and says so on the console; the theme page resolves colours on one.
+    // jsdom has no canvas, and says so on the console; the theme page resolves colors on one.
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
     TestBed.configureTestingModule({ providers: appConfig.providers });
     router = TestBed.inject(Router);
@@ -171,15 +171,15 @@ describe('App', () => {
   });
 
   it('unfolds Theme’s topics under its rail item', async () => {
-    await navigate('/theme/colours');
+    await navigate('/theme/colors');
     const children = rail().querySelectorAll('a[data-child]');
 
     expect(linksOf(children)).toEqual([
       ['Tokens', '/theme/tokens'],
-      ['Colours', '/theme/colours'],
+      ['Colors', '/theme/colors'],
       ['Icons', '/theme/icons'],
     ]);
-    expect(currentOf(children)).toEqual(['Colours']);
+    expect(currentOf(children)).toEqual(['Colors']);
   });
 
   it('unfolds Components’ seven categories under its rail item, the open one current', async () => {

@@ -18,7 +18,7 @@ async function render() {
 }
 
 describe('NeatStale', () => {
-  it('fades and greys its host while what it shows is stale', async () => {
+  it('fades and grays its host while what it shows is stale', async () => {
     const { value } = await render();
 
     // jsdom applies no Tailwind: the look is its classes, stated once on the directive.

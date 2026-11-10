@@ -4,7 +4,7 @@ import { createColorAllocator, NeatOverlayColors, RELEASE_AFTER_MS, resolveColor
 
 const PALETTE = OVERLAY_PALETTE;
 
-describe('colour allocator', () => {
+describe('color allocator', () => {
   it('keeps the same color for the same identity and differs across identities', () => {
     const allocator = createColorAllocator(new NeatOverlayColors());
     const first = allocator.colorFor(0, 'track', '7', 1);
@@ -245,7 +245,7 @@ describe('colour allocator', () => {
     );
   });
 
-  it('two NeatOverlayColors instances do not share class colours', () => {
+  it('two NeatOverlayColors instances do not share class colors', () => {
     const page = createColorAllocator(new NeatOverlayColors());
     const otherPage = createColorAllocator(new NeatOverlayColors());
     expect(page.colorFor(0, 'class', 'car', 1)).toBe(PALETTE[0]);

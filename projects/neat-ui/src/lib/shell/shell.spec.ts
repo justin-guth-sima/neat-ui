@@ -27,7 +27,7 @@ const LEVEL_ITEMS: NeatNavItem[] = [
     path: '/theme',
     children: [
       { label: 'Tokens', path: '/theme/tokens' },
-      { label: 'Colours', path: '/theme/colours' },
+      { label: 'Colors', path: '/theme/colors' },
       { label: 'Icons', path: '/theme/icons' },
     ],
   },
@@ -187,7 +187,7 @@ const levelRoutes: Routes = [
     children: [
       { path: 'theme', component: StubPage },
       { path: 'theme/tokens', component: StubPage },
-      { path: 'theme/colours', component: StubPage },
+      { path: 'theme/colors', component: StubPage },
       { path: 'theme/icons', component: StubPage },
       { path: 'layout', component: StubPage },
       { path: 'layout/grid', component: StubPage },
@@ -446,7 +446,7 @@ describe('NeatShell', () => {
     expect(railToggle().textContent?.trim()).toBe('Collapse');
   });
 
-  it('switches the colour scheme from the rail’s last end item, named for what a click does', async () => {
+  it('switches the color scheme from the rail’s last end item, named for what a click does', async () => {
     await start();
     const theme = TestBed.inject(ThemeService);
     expect(railBox().contains(themeToggle())).toBe(true);
@@ -1116,7 +1116,7 @@ describe('NeatShell', () => {
     );
   });
 
-  it('centres the logo mark over the collapsed rail’s icon column, whatever the rail does', async () => {
+  it('centers the logo mark over the collapsed rail’s icon column, whatever the rail does', async () => {
     await start();
 
     // The mark is the logo's first 100 units of its 111.34-unit-wide viewBox, as high as the svg
@@ -1367,14 +1367,14 @@ describe('NeatShell', () => {
     beforeEach(() => localStorage.setItem(RAIL_KEY, 'true'));
 
     it('unfolds the active page’s sub-pages under it and marks the open one', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
 
-      expect(childLabels()).toEqual(['Tokens', 'Colours', 'Icons']);
-      expect(link('Theme').parentElement?.contains(link('Colours'))).toBe(true);
+      expect(childLabels()).toEqual(['Tokens', 'Colors', 'Icons']);
+      expect(link('Theme').parentElement?.contains(link('Colors'))).toBe(true);
       expect(
         link('Theme').compareDocumentPosition(link('Tokens')) & Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
-      expect(link('Colours').getAttribute('aria-current')).toBe('page');
+      expect(link('Colors').getAttribute('aria-current')).toBe('page');
       expect(link('Tokens').hasAttribute('aria-current')).toBe(false);
       expect(link('Theme').hasAttribute('aria-current')).toBe(false);
       expect(link('Layout').hasAttribute('aria-current')).toBe(false);
@@ -1391,7 +1391,7 @@ describe('NeatShell', () => {
     it('lets the page’s own item stay current where no sub-page matches', async () => {
       await start('/theme');
 
-      expect(childLabels()).toEqual(['Tokens', 'Colours', 'Icons']);
+      expect(childLabels()).toEqual(['Tokens', 'Colors', 'Icons']);
       expect(link('Theme').getAttribute('aria-current')).toBe('page');
     });
 
@@ -1411,32 +1411,32 @@ describe('NeatShell', () => {
 
     it('shows no sub-pages in the collapsed rail, and shows them once it is expanded', async () => {
       localStorage.setItem(RAIL_KEY, 'false');
-      await start('/theme/colours');
+      await start('/theme/colors');
 
       expect(children()).toEqual([]);
 
       railToggle().click();
       await settle();
 
-      expect(childLabels()).toEqual(['Tokens', 'Colours', 'Icons']);
-      expect(link('Colours').getAttribute('aria-current')).toBe('page');
+      expect(childLabels()).toEqual(['Tokens', 'Colors', 'Icons']);
+      expect(link('Colors').getAttribute('aria-current')).toBe('page');
     });
 
     it('shows them in the floating rail of a narrow screen once it is opened', async () => {
       TestBed.overrideProvider(NeatViewport, { useValue: { narrow: signal(true) } });
       localStorage.setItem(RAIL_KEY, 'false');
-      await start('/theme/colours');
+      await start('/theme/colors');
       expect(children()).toEqual([]);
 
       railToggle().click();
       await settle();
 
-      expect(childLabels()).toEqual(['Tokens', 'Colours', 'Icons']);
-      expect(link('Colours').getAttribute('aria-current')).toBe('page');
+      expect(childLabels()).toEqual(['Tokens', 'Colors', 'Icons']);
+      expect(link('Colors').getAttribute('aria-current')).toBe('page');
     });
 
     it('folds the old sub-pages and unfolds the new ones, the pressed link keeping focus', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const pressed = link('Layout');
       pressed.focus();
 
@@ -1450,9 +1450,9 @@ describe('NeatShell', () => {
     });
 
     it('titles the page with the open sub-page and puts the page beside it', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
 
-      expect(title()).toBe('Colours');
+      expect(title()).toBe('Colors');
       expect(context()).toBe('Theme');
     });
 
@@ -1553,7 +1553,7 @@ describe('NeatShell', () => {
     };
 
     it('keeps a page with sub-pages a link to the page, with a menu that is closed to begin with', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
 
       const item = pageButton('Theme');
       expect(item.getAttribute('href')).toBe('/theme');
@@ -1574,7 +1574,7 @@ describe('NeatShell', () => {
     });
 
     it('shows the menu on mouse hover: the page’s name, then its sub-pages, tied to the item', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const item = pageButton('Theme');
 
       hover(item);
@@ -1585,20 +1585,20 @@ describe('NeatShell', () => {
       expect(heading.textContent?.trim()).toBe('Theme');
       expect(menu()?.getAttribute('aria-labelledby')).toBe(heading.id);
       expect(item.getAttribute('aria-controls')).toBe(menu()?.id);
-      expect(menuLinks().map((a) => a.textContent?.trim())).toEqual(['Tokens', 'Colours', 'Icons']);
+      expect(menuLinks().map((a) => a.textContent?.trim())).toEqual(['Tokens', 'Colors', 'Icons']);
       expect(menuLinks().map((a) => a.getAttribute('href'))).toEqual([
         '/theme/tokens',
-        '/theme/colours',
+        '/theme/colors',
         '/theme/icons',
       ]);
       expect(menuLinks().map((a) => a.getAttribute('aria-current'))).toEqual([null, 'page', null]);
       expect(document.activeElement).not.toBe(menuLinks()[0]);
       expect(tooltip()).toBeNull();
-      expect(url()).toBe('/theme/colours');
+      expect(url()).toBe('/theme/colors');
     });
 
     it('closes after the pointer leaves the item', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const item = pageButton('Theme');
       hover(item);
       await settle();
@@ -1661,7 +1661,7 @@ describe('NeatShell', () => {
     });
 
     it('stays open while the pointer is on the menu, and closes after it leaves it', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const item = pageButton('Theme');
       hover(item);
       await settle();
@@ -1678,7 +1678,7 @@ describe('NeatShell', () => {
     });
 
     it('puts the menu away on a press while it is open, and navigates', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const item = pageButton('Theme');
       hover(item);
       await settle();
@@ -1694,7 +1694,7 @@ describe('NeatShell', () => {
     });
 
     it('does not open on a touch pointer entering: a tap just navigates', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const item = pageButton('Theme');
 
       item.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'touch' }));
@@ -1707,7 +1707,7 @@ describe('NeatShell', () => {
     });
 
     it('shows the menu on keyboard focus, but not on the focus a press gives', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const item = pageButton('Theme');
 
       item.focus();
@@ -1722,7 +1722,7 @@ describe('NeatShell', () => {
     });
 
     it('takes Tab from the focused item to the first link', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const item = pageButton('Theme');
       focusByKeyboard(item);
       await settle();
@@ -1734,7 +1734,7 @@ describe('NeatShell', () => {
     });
 
     it('keeps a menu that keyboard focus shows when the pointer passes over it and leaves', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const item = pageButton('Theme');
       focusByKeyboard(item);
       hover(item);
@@ -1747,7 +1747,7 @@ describe('NeatShell', () => {
     });
 
     it('closes on Escape and leaves the focus on the item', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const item = pageButton('Theme');
       focusByKeyboard(item);
       await settle();
@@ -1761,7 +1761,7 @@ describe('NeatShell', () => {
     });
 
     it('closes on Escape from a link and gives the focus back to the item', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const item = pageButton('Theme');
       focusByKeyboard(item);
       keydown(item, 'Tab');
@@ -1774,7 +1774,7 @@ describe('NeatShell', () => {
     });
 
     it('leaves Tab alone on the item while the menu is closed', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const item = pageButton('Theme');
       item.focus();
 
@@ -1785,7 +1785,7 @@ describe('NeatShell', () => {
     });
 
     it('leaves the focus where it is when Escape closes a menu focus is not in', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       hover(pageButton('Theme'));
       await settle();
       const field = document.createElement('input');
@@ -1803,7 +1803,7 @@ describe('NeatShell', () => {
     });
 
     it('closes when focus lands outside the menu and its item', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       focusByKeyboard(pageButton('Theme'));
       await settle();
       expect(menu()).not.toBeNull();
@@ -1824,7 +1824,7 @@ describe('NeatShell', () => {
     });
 
     it('takes Tab from the item to the first link, also where hover opened the menu', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const item = pageButton('Theme');
       hover(item);
       await settle();
@@ -1837,7 +1837,7 @@ describe('NeatShell', () => {
     });
 
     it('leaves the menu from its last link with Tab, on to the next item, and from its first with Shift+Tab to its own', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const item = pageButton('Theme');
       focusByKeyboard(item);
       keydown(item, 'Tab');
@@ -1859,7 +1859,7 @@ describe('NeatShell', () => {
     });
 
     it('closes on a press outside, which keeps the focus it gave', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       hover(pageButton('Theme'));
       await settle();
       const other = button('Dark theme');
@@ -1874,7 +1874,7 @@ describe('NeatShell', () => {
     });
 
     it('navigates and closes when a link is chosen', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       hover(pageButton('Theme'));
       await settle();
 
@@ -1887,7 +1887,7 @@ describe('NeatShell', () => {
     });
 
     it('leaves a page without sub-pages as it was: a link with a tooltip that navigates', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       const home = link('Home');
 
       expect(home.hasAttribute('aria-haspopup')).toBe(false);
@@ -1902,7 +1902,7 @@ describe('NeatShell', () => {
     });
 
     it('shows no tooltip on the item that shows the menu', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
 
       hover(pageButton('Theme'));
       await tick();
@@ -1922,7 +1922,7 @@ describe('NeatShell', () => {
     });
 
     it('puts the menu away when the rail expands under it', async () => {
-      await start('/theme/colours');
+      await start('/theme/colors');
       hover(pageButton('Theme'));
       await settle();
 

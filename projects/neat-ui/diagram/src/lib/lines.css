@@ -1,8 +1,8 @@
 /*
  * An edge's line, for the diagram's edges and the legend's samples of them, so a legend line and
  * the edges it names cannot differ. Each look is stated once, as the custom properties the line's
- * rule reads, on the element that carries `data-line`; `--edge` is the colour (drawing.ts's
- * `lineColour`). Widths and dashes are diagram units: they scale with the diagram's zoom, and the
+ * rule reads, on the element that carries `data-line`; `--edge` is the color (drawing.ts's
+ * `lineColor`). Widths and dashes are diagram units: they scale with the diagram's zoom, and the
  * legend draws them as at zoom 1.
  */
 .line {

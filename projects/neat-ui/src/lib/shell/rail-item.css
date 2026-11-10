@@ -1,5 +1,5 @@
 /*
- * A rail item: a 2.5rem (40px) row with the icon centred in the collapsed rail's width. Colours are
+ * A rail item: a 2.5rem (40px) row with the icon centered in the collapsed rail's width. Colors are
  * the rail's (Spartan's sidebar): muted text at rest, accent-foreground on the selection fill,
  * which the theme holds to 4.5:1.
  */
@@ -30,7 +30,7 @@
 }
 
 /* A page whose open sub-page shows below it (`data-branch`, set by the shell): its label in full
-   text colour, no fill, so one row alone reads as current. Before the hover rule, which still
+   text color, no fill, so one row alone reads as current. Before the hover rule, which still
    wins for the pointer. */
 :host([data-branch]) {
   color: var(--sidebar-foreground);
@@ -72,12 +72,12 @@
 }
 
 /*
- * Each tone's colours, stated once: the dot's and the detail line's (the rail item spec holds the
+ * Each tone's colors, stated once: the dot's and the detail line's (the rail item spec holds the
  * text to 4.5:1 and the dot to 3:1 on the rail and on the hover fill, in both schemes). A good or
  * neutral state is quiet, so its detail stays the rail's muted text; the others say themselves in
- * their colour. The theme's `--warning` is a fill (2.2:1 on white), too faint for a dot or for
+ * their color. The theme's `--warning` is a fill (2.2:1 on white), too faint for a dot or for
  * text, so warning's dot is the line step of its scale, and its words that step mixed a fifth of
- * the way to the text colour, which holds 4.5:1 on the hover fill where the step alone does not.
+ * the way to the text color, which holds 4.5:1 on the hover fill where the step alone does not.
  */
 :host([data-tone='success']) {
   --rail-item-dot: var(--success);

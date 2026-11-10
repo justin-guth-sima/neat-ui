@@ -102,7 +102,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", labelled by the title), for a card a user should be able to jump to; without a title it takes no role, since a region with no name is no landmark. The card sets "
+              "text": ", labeled by the title), for a card a user should be able to jump to; without a title it takes no role, since a region with no name is no landmark. The card sets "
             },
             {
               "kind": "code",

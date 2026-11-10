@@ -14,7 +14,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The board's eight power rails stacked into its total, one band in each series colour. The DDR rail did not report for a minute, which breaks the whole stack there. The card sets "
+            "text": "The board's eight power rails stacked into its total, one band in each series color. The DDR rail did not report for a minute, which breaks the whole stack there. The card sets "
           },
           {
             "kind": "code",
@@ -64,7 +64,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," SAMPLES = 120;\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," TIMES: "],["keyword","readonly"],["text"," "],["keyword","number"],["text","[] = Array.from(\n  { length: SAMPLES },\n  (_, index) => Date.UTC(2026, 9, 24, 12, 0, 0) + index * 4000,\n);\n\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," watts: NeatChartFormat = (value) => "],["string","`${value.toFixed(1)} W`"],["text",";\n\n"],
-          ["comment","/** Eight rails that sum to about 11 W: the stacked chart uses all eight series colours. */"],["text","\n"],
+          ["comment","/** Eight rails that sum to about 11 W: the stacked chart uses all eight series colors. */"],["text","\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," RAILS: "],["keyword","readonly"],["text"," NeatSeries[] = [\n  { key: "],
           ["string","'core'"],["text",", label: "],["string","'Core'"],["text",", low: 3.2, high: 4.6 },\n  { key: "],
           ["string","'mla'"],["text",", label: "],["string","'MLA'"],["text",", low: 1.5, high: 3.4 },\n  { key: "],
@@ -171,7 +171,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," SAMPLES = 120;\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," TIMES: "],["keyword","readonly"],["text"," "],["keyword","number"],["text","[] = Array.from(\n  { length: SAMPLES },\n  (_, index) => Date.UTC(2026, 9, 24, 12, 0, 0) + index * 4000,\n);\n\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," watts: NeatChartFormat = (value) => "],["string","`${value.toFixed(1)} W`"],["text",";\n\n"],
-          ["comment","/** Eight rails that sum to about 11 W: the stacked chart uses all eight series colours. */"],["text","\n"],
+          ["comment","/** Eight rails that sum to about 11 W: the stacked chart uses all eight series colors. */"],["text","\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," RAILS: "],["keyword","readonly"],["text"," NeatSeries[] = [\n  { key: "],
           ["string","'core'"],["text",", label: "],["string","'Core'"],["text",", low: 3.2, high: 4.6 },\n  { key: "],
           ["string","'mla'"],["text",", label: "],["string","'MLA'"],["text",", low: 1.5, high: 3.4 },\n  { key: "],

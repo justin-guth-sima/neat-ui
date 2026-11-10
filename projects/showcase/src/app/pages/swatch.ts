@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-/** A colour chip with its name and hex value underneath, so labels never depend on the colour. */
+/** A color chip with its name and hex value underneath, so labels never depend on the color. */
 @Component({
   selector: 'app-swatch',
   changeDetection: ChangeDetectionStrategy.OnPush,

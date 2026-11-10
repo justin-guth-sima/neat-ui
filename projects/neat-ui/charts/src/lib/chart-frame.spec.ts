@@ -40,7 +40,7 @@ describe('chart-frame.css', () => {
   // A page's scroll body (neat-page's) is not positioned. Without a positioned host, the visually
   // hidden live region's containing block is the viewport, so a chart below the fold makes the
   // whole document scroll. jsdom does no layout: the app's e2e page-overflow check is the
-  // behaviour test, this pins the rule that makes it pass.
+  // behavior test, this pins the rule that makes it pass.
   it('makes the host the containing block of the chart’s absolutely positioned parts', () => {
     expect(declared(':host', 'position')).toBe('relative');
   });

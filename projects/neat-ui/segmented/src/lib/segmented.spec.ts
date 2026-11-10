@@ -36,8 +36,8 @@ const MIN_THUMB_CONTRAST = 1.1;
 const MIN_EDGE_CONTRAST = 1.5;
 
 /**
- * The variants on the colour classes of the track, the thumb and a segment. Disabled dims the whole
- * group (an opacity, not a colour), so no segment colour class has a disabled variant.
+ * The variants on the color classes of the track, the thumb and a segment. Disabled dims the whole
+ * group (an opacity, not a color), so no segment color class has a disabled variant.
  */
 const VOCABULARY = {
   dark: 'dark',

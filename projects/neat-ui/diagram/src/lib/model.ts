@@ -85,7 +85,7 @@ export interface NeatDiagramNode {
   readonly chips?: readonly NeatDiagramChip[];
   /**
    * Whether what the card shows is stale (the node's diagnostics stopped): the whole card, its
-   * label, chips and the app's content, takes the look of `[neatStale]`, faded and grey with no
+   * label, chips and the app's content, takes the look of `[neatStale]`, faded and gray with no
    * transition, and the hidden list says "stale". The app says in words why, in the card's
    * content. Blocks and brackets only.
    */
@@ -103,7 +103,7 @@ export interface NeatDiagramNode {
 }
 
 /**
- * A line between two nodes of a level, which the kit routes: its colour is a charts series
+ * A line between two nodes of a level, which the kit routes: its color is a charts series
  * (`series`), its look `line`, its ends `start` and `end`, with an optional `label` on it. The app
  * does not place it, only names the nodes it joins. The kit never reads `data`: it is the app's.
  */
@@ -113,7 +113,7 @@ export interface NeatDiagramEdge {
   readonly from: string;
   /** The node it enters. */
   readonly to: string;
-  /** Its colour, the charts' series colour 1 to 8; unset, or on a `ghost` line, muted. */
+  /** Its color, the charts' series color 1 to 8; unset, or on a `ghost` line, muted. */
   readonly series?: number;
   /** Unset: `solid`. */
   readonly line?: NeatDiagramLine;
@@ -178,16 +178,16 @@ export interface NeatDiagramNote {
    * edges' mean x, for a leader into the middle of a bundle of parallel edges.
    */
   readonly anchor?: { readonly x?: number; readonly y: number };
-  /** The box's centre, per axis; unset, the anchor moved by `dx` and `dy`. */
+  /** The box's center, per axis; unset, the anchor moved by `dx` and `dy`. */
   readonly x?: number;
   readonly y?: number;
   readonly dx?: number;
   readonly dy?: number;
   /**
    * Where the leader meets the box: its nearest point (unset; level or upright where it can be),
-   * or its centre, under the box (`centre`; a slanted leader then meets no rounded corner).
+   * or its center, under the box (`center`; a slanted leader then meets no rounded corner).
    */
-  readonly leaderTo?: 'centre';
+  readonly leaderTo?: 'center';
   /** The app's, never read by the kit. */
   readonly data?: unknown;
 }

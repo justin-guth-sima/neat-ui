@@ -37,8 +37,8 @@
 }
 
 /*
- * The Delete bubble, a small popover-coloured card at the pointer; its place is set when it opens.
- * Its outline is the border colour mixed into the text colour, so the card stands out from the
+ * The Delete bubble, a small popover-colored card at the pointer; its place is set when it opens.
+ * Its outline is the border color mixed into the text color, so the card stands out from the
  * video under it as well as from the kit's surfaces.
  */
 .menu {

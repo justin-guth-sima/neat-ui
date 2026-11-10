@@ -3,7 +3,7 @@ import type { CampaignResult, RecordedPhase, RecordedStep } from './result-file'
 
 /*
  * Result files for the results specs, written compactly: a climb is a list of tiers, one per
- * level, and each tier is a phase whose numbers the real judgement (`tierOf`) puts there at 60 Hz.
+ * level, and each tier is a phase whose numbers the real judgment (`tierOf`) puts there at 60 Hz.
  */
 
 export const INTERVAL_MS = 1000 / 60;

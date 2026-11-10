@@ -74,12 +74,12 @@ describe('placeNotes', () => {
   });
 
   describe('the box', () => {
-    it('is centred on the anchor moved by `dx` and `dy`', () => {
+    it('is centered on the anchor moved by `dx` and `dy`', () => {
       const placed = place([{ id: 'above', edges: ['top'], dx: 20, dy: -100 }]);
       expect(placed.get('above')?.box).toEqual({ x: 230, y: -70, w: 80, h: 40 });
     });
 
-    it('is centred on `x` and `y` where it has them, per axis', () => {
+    it('is centered on `x` and `y` where it has them, per axis', () => {
       const placed = place([
         { id: 'fixed', edges: ['top'], x: 600, y: 400, dx: 999, dy: 999 },
         { id: 'fixed-x', edges: ['top'], x: 600, dy: 100 },
@@ -118,11 +118,11 @@ describe('placeNotes', () => {
       ]);
     });
 
-    it('runs on to the box’s centre with `leaderTo: centre`', () => {
+    it('runs on to the box’s center with `leaderTo: center`', () => {
       const placed = place([
-        { id: 'centre', edges: ['top'], dx: 200, dy: 200, leaderTo: 'centre' },
+        { id: 'center', edges: ['top'], dx: 200, dy: 200, leaderTo: 'center' },
       ]);
-      expect(placed.get('centre')?.leader).toEqual([
+      expect(placed.get('center')?.leader).toEqual([
         { x: 250, y: 50 },
         { x: 450, y: 250 },
       ]);
@@ -131,11 +131,11 @@ describe('placeNotes', () => {
     it('is not drawn while the anchor is under the box', () => {
       const placed = place([
         { id: 'over', edges: ['top'], dx: 10 },
-        { id: 'over-centre', edges: ['top'], dy: 5, leaderTo: 'centre' },
+        { id: 'over-center', edges: ['top'], dy: 5, leaderTo: 'center' },
         { id: 'on-its-border', edges: ['top'], dy: -20 },
       ]);
       expect(placed.get('over')?.leader).toBeNull();
-      expect(placed.get('over-centre')?.leader).toBeNull();
+      expect(placed.get('over-center')?.leader).toBeNull();
       expect(placed.get('on-its-border')?.leader).toBeNull();
     });
   });

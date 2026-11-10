@@ -47,7 +47,7 @@ type FrameCallback = (now: number, metadata: Partial<VideoFrameCallbackMetadata>
  */
 class FakeVideoFrames {
   readonly callbacks = new Map<number, FrameCallback>();
-  readonly cancelled: number[] = [];
+  readonly canceled: number[] = [];
   private nextId = 1;
 
   install(): void {
@@ -62,7 +62,7 @@ class FakeVideoFrames {
     Object.defineProperty(HTMLVideoElement.prototype, 'cancelVideoFrameCallback', {
       configurable: true,
       value: (id: number): void => {
-        this.cancelled.push(id);
+        this.canceled.push(id);
         this.callbacks.delete(id);
       },
     });
@@ -315,7 +315,7 @@ describe('NeatVideoTile', () => {
     expect(host().states).toStrictEqual(['playing', 'stopped']);
   });
 
-  it('clears overlays, tracks and colours when stopped, and plays again when frames return', () => {
+  it('clears overlays, tracks and colors when stopped, and plays again when frames return', () => {
     create();
     startStream();
     source.send(tracking(1, ['a', 'b']));
@@ -344,7 +344,7 @@ describe('NeatVideoTile', () => {
     expect(context.ops('stroke'), 'the trails were forgotten').toHaveLength(0);
     expect(
       context.ops('strokeRect').map((call) => call.strokeStyle),
-      'track b takes the first colour again',
+      'track b takes the first color again',
     ).toStrictEqual([OVERLAY_PALETTE[0]]);
   });
 
@@ -416,7 +416,7 @@ describe('NeatVideoTile', () => {
     });
   });
 
-  it('clears overlays, tracks and colours on a callback while the video holds no current frame', () => {
+  it('clears overlays, tracks and colors on a callback while the video holds no current frame', () => {
     create();
     startStream();
     source.send(tracking(1, ['a', 'b']));
@@ -879,7 +879,7 @@ describe('NeatVideoTile', () => {
     render();
 
     expect(source.listeners.size).toBe(0);
-    expect(frames.cancelled).toStrictEqual([pending]);
+    expect(frames.canceled).toStrictEqual([pending]);
     expect(frames.callbacks.size).toBe(0);
     expect(video().srcObject).toBeNull();
     expect(tileState()).toBe('empty');

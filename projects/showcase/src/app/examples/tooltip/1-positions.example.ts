@@ -24,6 +24,6 @@ import { NeatButton, NeatTooltip, type NeatTooltipPosition } from '@sima/neat-ui
   styleUrl: './positions.example.css',
 })
 export class Positions {
-  /** Vim's h j k l; the outer tips point away from the row, so no tip covers a neighbour. */
+  /** Vim's h j k l; the outer tips point away from the row, so no tip covers a neighbor. */
   protected readonly positions: readonly NeatTooltipPosition[] = ['left', 'bottom', 'top', 'right'];
 }

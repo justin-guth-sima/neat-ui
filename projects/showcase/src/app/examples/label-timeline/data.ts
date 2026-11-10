@@ -1,6 +1,6 @@
 /**
  * IPN Hand's 14 classes; the first is the quiet one. The same list, in the same order, as the
- * score bars example's, so a label has the same colour in both (its spec holds them equal): the
+ * score bars example's, so a label has the same color in both (its spec holds them equal): the
  * docs let an example import only files of its own topic folder, so the list is repeated here.
  */
 export const CLASSES: readonly string[] = [

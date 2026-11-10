@@ -11,9 +11,9 @@ import {
 import type { NeatOverlayClassStyle, NeatOverlayLineStyle } from '@sima/neat-ui/video';
 
 /*
- * The colour and line of each label, as the video overlays draw it: a style row for the label (or
- * the `default` row) first, then the page's class colours, which every tile shares, so "car" has
- * one colour in the tiles and in the bird's-eye view. The opacities of the fills are stated here,
+ * The color and line of each label, as the video overlays draw it: a style row for the label (or
+ * the `default` row) first, then the page's class colors, which every tile shares, so "car" has
+ * one color in the tiles and in the bird's-eye view. The opacities of the fills are stated here,
  * once.
  */
 
@@ -24,7 +24,7 @@ export const GUIDE_ALPHA = 0.18;
 /** How opaque the shape's outline is: the foreground, stronger than the guides. */
 export const OUTLINE_ALPHA = 0.5;
 /**
- * How strongly a grid's cell of value 255 is tinted in its label's colour over the surface: light,
+ * How strongly a grid's cell of value 255 is tinted in its label's color over the surface: light,
  * as a grid often covers much of the view (a drivable area) and should not outweigh what is on it.
  */
 export const GRID_ALPHA = 0.18;
@@ -33,9 +33,9 @@ export const LINE_WIDTH = 2;
 
 /** A label's look for one frame. Read, never kept: the next frame may change it. */
 export interface LabelLook {
-  /** The colour as CSS. */
-  colour: string;
-  /** The colour as numbers, for the grids' pixels; null where it does not parse. */
+  /** The color as CSS. */
+  color: string;
+  /** The color as numbers, for the grids' pixels; null where it does not parse. */
   rgb: NeatRgb | null;
   /** The style row's line, when the label has one. */
   style: NeatOverlayLineStyle | null;
@@ -57,13 +57,13 @@ const SOLID: readonly number[] = [];
 const DASHED: readonly number[] = [6, 4];
 const DOTTED: readonly number[] = [2, 2];
 
-export class LabelColours {
+export class LabelColors {
   private readonly allocator: ColorAllocator;
   private styles: Readonly<Record<string, NeatOverlayClassStyle>> = Object.create(null);
   private overrides: Readonly<Record<string, string>> | undefined;
   /** Each label's look, kept so that a frame allocates nothing for a label seen before. */
   private readonly held = new Map<string, Held>();
-  /** Colours resolved to numbers, by CSS text: the palette and the rows, so it stays small. */
+  /** Colors resolved to numbers, by CSS text: the palette and the rows, so it stays small. */
   private readonly rgb = new Map<string, NeatRgb | null>();
   private frame = 0;
   private now = 0;
@@ -86,11 +86,11 @@ export class LabelColours {
     this.now = now;
   }
 
-  /** `label`'s look this frame, telling the page's class colours that it is in use. */
+  /** `label`'s look this frame, telling the page's class colors that it is in use. */
   of(label: string): LabelLook {
     let held = this.held.get(label);
     if (held?.frame === this.frame) return held;
-    const colour = resolveColor({
+    const color = resolveColor({
       allocator: this.allocator,
       channelIndex: 0,
       namespace: 'class',
@@ -100,19 +100,19 @@ export class LabelColours {
     });
     const row = styleFor(this.styles, label);
     if (!held) {
-      held = { frame: 0, colour, rgb: null, style: null, width: LINE_WIDTH };
+      held = { frame: 0, color, rgb: null, style: null, width: LINE_WIDTH };
       this.held.set(label, held);
     }
     held.frame = this.frame;
-    held.colour = colour;
-    held.rgb = this.resolve(colour);
+    held.color = color;
+    held.rgb = this.resolve(color);
     held.style = row?.style ?? null;
     held.width = row?.width ?? LINE_WIDTH;
     return held;
   }
 
-  private resolve(colour: string): NeatRgb | null {
-    if (!this.rgb.has(colour)) this.rgb.set(colour, neatResolveColor(colour));
-    return this.rgb.get(colour) ?? null;
+  private resolve(color: string): NeatRgb | null {
+    if (!this.rgb.has(color)) this.rgb.set(color, neatResolveColor(color));
+    return this.rgb.get(color) ?? null;
   }
 }

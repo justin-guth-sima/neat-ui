@@ -37,7 +37,7 @@ async function render() {
   await fixture.whenStable();
   const root: HTMLElement = fixture.nativeElement;
   const all = (selector: string) => Array.from(root.querySelectorAll<HTMLElement>(selector));
-  // A line or a band holds its colour in `--series`, a swatch in `--swatch`.
+  // A line or a band holds its color in `--series`, a swatch in `--swatch`.
   const series = (selector: string) =>
     all(selector).map(
       (element) =>
@@ -47,11 +47,11 @@ async function render() {
 }
 
 describe('the charts’ series swatches (NeatSeriesSwatch, from the primary)', () => {
-  it('have the colour of the chart line, the band and the legend for the same index, in either theme', async () => {
+  it('have the color of the chart line, the band and the legend for the same index, in either theme', async () => {
     const { series } = await render();
     const chips = series('neat-series-swatch.chip');
 
-    // The same token: each theme defines --neat-series-<n> once, so equal tokens are equal colours
+    // The same token: each theme defines --neat-series-<n> once, so equal tokens are equal colors
     // in light and in dark alike.
     expect(chips).toEqual(['var(--neat-series-1)', 'var(--neat-series-2)', 'var(--neat-series-3)']);
     expect(series('neat-time-chart .series')).toEqual(chips);

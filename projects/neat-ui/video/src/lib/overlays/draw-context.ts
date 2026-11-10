@@ -6,7 +6,7 @@ import type { NeatOverlayClassStyle, NeatOverlaySettings } from './overlay-setti
 import type { RleMaskCanvas } from './rle';
 import type { RoiFrame } from './roi';
 
-/** A track's recent centre positions in video pixels, oldest first. */
+/** A track's recent center positions in video pixels, oldest first. */
 export interface TrackTrail {
   points: { x: number; y: number }[];
   lastSeen: number;
@@ -68,7 +68,7 @@ export function identityColor(
   });
 }
 
-/** A type's class rows by label, and their colours as overrides for `identityColor`; a label's row. */
+/** A type's class rows by label, and their colors as overrides for `identityColor`; a label's row. */
 export { ɵclassStyles as classStyles, ɵstyleFor as styleFor } from '@sima/neat-ui';
 
 export function applyLineStyle(

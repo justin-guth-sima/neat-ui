@@ -14,7 +14,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The load of sixteen cores over eight minutes. The busiest cores' figures at the ends of their rows are in the warning and danger colours. The card sets "
+            "text": "The load of sixteen cores over eight minutes. The busiest cores' figures at the ends of their rows are in the warning and danger colors. The card sets "
           },
           {
             "kind": "code",
@@ -63,7 +63,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," LAST_MINUTE = 15;\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," TIMES: "],["keyword","readonly"],["text"," "],["keyword","number"],["text","[] = Array.from(\n  { length: SAMPLES },\n  (_, index) => Date.UTC(2026, 9, 24, 12, 0, 0) + index * 4000,\n);\n\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," percent: NeatChartFormat = (value) => "],["string","`${value.toFixed(0)}%`"],["text",";\n\n"],
-          ["comment","/**\n * Sixteen cores: some idle, some busy, the last one saturated. The figure at a row's end is the\n * last minute's mean, in the warning colour from 70% and the danger colour from 85%.\n */"],
+          ["comment","/**\n * Sixteen cores: some idle, some busy, the last one saturated. The figure at a row's end is the\n * last minute's mean, in the warning color from 70% and the danger color from 85%.\n */"],
           ["text","\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," CORES: "],["keyword","readonly"],["text"," NeatHeatmapRow[] = Array.from({ length: 16 }, (_, index) => {\n  "],
           ["keyword","const"],["text"," values =\n    index === 15\n      ? sine(SAMPLES, 2, 88, 99)\n      : sine(SAMPLES, 1 + index / 5, 5 + index * 2, 35 + index * 4);\n  "],
@@ -168,7 +168,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," LAST_MINUTE = 15;\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," TIMES: "],["keyword","readonly"],["text"," "],["keyword","number"],["text","[] = Array.from(\n  { length: SAMPLES },\n  (_, index) => Date.UTC(2026, 9, 24, 12, 0, 0) + index * 4000,\n);\n\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," percent: NeatChartFormat = (value) => "],["string","`${value.toFixed(0)}%`"],["text",";\n\n"],
-          ["comment","/**\n * Sixteen cores: some idle, some busy, the last one saturated. The figure at a row's end is the\n * last minute's mean, in the warning colour from 70% and the danger colour from 85%.\n */"],
+          ["comment","/**\n * Sixteen cores: some idle, some busy, the last one saturated. The figure at a row's end is the\n * last minute's mean, in the warning color from 70% and the danger color from 85%.\n */"],
           ["text","\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," CORES: "],["keyword","readonly"],["text"," NeatHeatmapRow[] = Array.from({ length: 16 }, (_, index) => {\n  "],
           ["keyword","const"],["text"," values =\n    index === 15\n      ? sine(SAMPLES, 2, 88, 99)\n      : sine(SAMPLES, 1 + index / 5, 5 + index * 2, 35 + index * 4);\n  "],

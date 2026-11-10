@@ -17,11 +17,11 @@ describe('contrastRatio', () => {
     expect(contrastRatio('#D26728', '#FFFFFF')).toBeCloseTo(3.7, 1);
   });
 
-  it('does not depend on the order of the colours', () => {
+  it('does not depend on the order of the colors', () => {
     expect(contrastRatio('#FFFFFF', '#D26728')).toBe(contrastRatio('#D26728', '#FFFFFF'));
   });
 
-  it('spans 1:1 for identical colours to 21:1 for black on white', () => {
+  it('spans 1:1 for identical colors to 21:1 for black on white', () => {
     expect(contrastRatio('#5998DD', '#5998DD')).toBe(1);
     expect(contrastRatio('#000000', '#FFFFFF')).toBeCloseTo(21, 10);
   });
@@ -42,14 +42,14 @@ describe('composite', () => {
     expect(composite('#C8372D', 0.1, '#FFFFFF')).toBe('#FAEBEA');
   });
 
-  it('returns the background at alpha 0 and the colour at alpha 1', () => {
+  it('returns the background at alpha 0 and the color at alpha 1', () => {
     expect(composite('#D26728', 0, '#0D1D1C')).toBe('#0D1D1C');
     expect(composite('#d26728', 1, '#0D1D1C')).toBe('#D26728');
   });
 });
 
 describe('mixOklab', () => {
-  it('moves the background towards the colour by the share, in OKLab', () => {
+  it('moves the background towards the color by the share, in OKLab', () => {
     const [l, a, b] = hexToOklab(mixOklab('#2A9C4F', 0.1, '#FFFFFF'));
     const green = hexToOklab('#2A9C4F');
     const white = hexToOklab('#FFFFFF');
@@ -57,11 +57,11 @@ describe('mixOklab', () => {
     expect(l).toBeCloseTo(white[0] + (green[0] - white[0]) * 0.1, 2);
     expect(a).toBeCloseTo(white[1] + (green[1] - white[1]) * 0.1, 2);
     expect(b).toBeCloseTo(white[2] + (green[2] - white[2]) * 0.1, 2);
-    // CSS `color-mix(in oklab, #2a9c4f 10%, #ffffff)` gives the same colour.
+    // CSS `color-mix(in oklab, #2a9c4f 10%, #ffffff)` gives the same color.
     expect(mixOklab('#2A9C4F', 0.1, '#FFFFFF')).toBe('#EBF5ED');
   });
 
-  it('returns the background at share 0 and the colour at share 1', () => {
+  it('returns the background at share 0 and the color at share 1', () => {
     expect(mixOklab('#d26728', 0, '#101010')).toBe('#101010');
     expect(mixOklab('#d26728', 1, '#101010')).toBe('#D26728');
   });
@@ -94,7 +94,7 @@ describe('relativeLuminance', () => {
 });
 
 describe('OKLCH conversion', () => {
-  it('round-trips every palette colour exactly, as upper-case #RRGGBB', () => {
+  it('round-trips every palette color exactly, as upper-case #RRGGBB', () => {
     for (const color of Object.values(SIMA_PALETTE)) {
       expect(oklchToHex(hexToOklch(color))).toBe(color);
       expect(oklchToHex(hexToOklch(color.toLowerCase()))).toBe(color);
@@ -107,7 +107,7 @@ describe('OKLCH conversion', () => {
     expect(white.c).toBeCloseTo(0, 4);
   });
 
-  it('tells sRGB colours from out-of-gamut ones', () => {
+  it('tells sRGB colors from out-of-gamut ones', () => {
     expect(isInSrgbGamut(hexToOklch(SIMA_PALETTE.orange))).toBe(true);
     expect(isInSrgbGamut({ l: 0.9, c: 0.3, h: 40 })).toBe(false);
   });

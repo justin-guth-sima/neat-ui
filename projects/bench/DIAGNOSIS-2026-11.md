@@ -44,16 +44,16 @@ has drawn, damages the whole screen on every frame with a dot and stays composit
 
 ms of CPU per second of wall time (1000 = one core busy), then ms per recorded frame.
 
-| Host, phase | fps rec/pres | renderer main | compositor | raster (all) | viz | Xorg |
-| --- | --- | --- | --- | --- | --- | --- |
-| kit idle | 51.1 / - | 75 (1.5) | 25 (0.5) | 11 (0.2) | 225 (4.4) | 89 (1.7) |
-| kit pan | 44.8 / 39.3 | 307 (6.9) | 129 (2.9) | 914 (20.4) | 971 (21.7) | 261 (5.8) |
-| kit zoom | 18.5 / 16.6 | 661 (35.7) | 105 (5.7) | 1416 (76.5) | 844 (45.6) | 222 (12.0) |
-| vflow idle | 56.7 / - | 61 (1.1) | 21 (0.4) | 7 (0.1) | 61 (1.1) | 25 (0.4) |
-| vflow pan | 33.3 / 23.1 | 892 (26.8) | 100 (3.0) | 867 (26.0) | 642 (19.3) | 171 (5.1) |
-| vflow zoom | 19.2 / 15.3 | 683 (35.6) | 89 (4.6) | 1221 (63.7) | 894 (46.6) | 222 (11.6) |
-| none idle | 60.0 / - | 118 (2.0) | 29 (0.5) | 0 | 132 (2.2) | 196 (3.3) |
-| none pan | 60.0 / - | 29 (0.5) | 11 (0.2) | 0 | 14 (0.2) | 0 |
+| Host, phase | fps rec/pres | renderer main | compositor | raster (all) | viz        | Xorg       |
+| ----------- | ------------ | ------------- | ---------- | ------------ | ---------- | ---------- |
+| kit idle    | 51.1 / -     | 75 (1.5)      | 25 (0.5)   | 11 (0.2)     | 225 (4.4)  | 89 (1.7)   |
+| kit pan     | 44.8 / 39.3  | 307 (6.9)     | 129 (2.9)  | 914 (20.4)   | 971 (21.7) | 261 (5.8)  |
+| kit zoom    | 18.5 / 16.6  | 661 (35.7)    | 105 (5.7)  | 1416 (76.5)  | 844 (45.6) | 222 (12.0) |
+| vflow idle  | 56.7 / -     | 61 (1.1)      | 21 (0.4)   | 7 (0.1)      | 61 (1.1)   | 25 (0.4)   |
+| vflow pan   | 33.3 / 23.1  | 892 (26.8)    | 100 (3.0)  | 867 (26.0)   | 642 (19.3) | 171 (5.1)  |
+| vflow zoom  | 19.2 / 15.3  | 683 (35.6)    | 89 (4.6)   | 1221 (63.7)  | 894 (46.6) | 222 (11.6) |
+| none idle   | 60.0 / -     | 118 (2.0)     | 29 (0.5)   | 0            | 132 (2.2)  | 196 (3.3)  |
+| none pan    | 60.0 / -     | 29 (0.5)      | 11 (0.2)   | 0            | 14 (0.2)   | 0          |
 
 Presented rates are from the wide-category traced run. The GPU process's main thread and its
 16 `llvmpipe` threads stay at 0 in every phase; the browser process uses at most 0.1 core.
@@ -83,7 +83,7 @@ What is on a frame's critical path:
 **There are dots in it.** The page shows the host before the climb sets the first step
 (`auto-run.ts`: calibrate, `showHost`, then the phase driver's `apply`), and a host first draws
 `DEFAULT_STEP`, D1 at 400 msg/s (`bench-load.ts`). Its feed pushes a first batch at once; ladder
-A's step then sets 0 msg/s, but the dots already sent keep travelling, with their step dots, for
+A's step then sets 0 msg/s, but the dots already sent keep traveling, with their step dots, for
 about 3.9 s after the build. The warm-up is 3 s, so they run into the first 0.7 to 1 s of the idle
 phase at about 22 fps (each frame a 41 ms viz draw, above), and the phase averages 51 fps. vflow
 and the empty host carry the same dots (all three draw the kit's dot layer): vflow loses
@@ -119,15 +119,15 @@ fewer of its idle frames (57 fps; not followed further), the empty host's frames
 Each built from a throwaway branch, never committed to `bench` or the kit. E2a, E2b and E3 are on
 top of E1; E4 and E3+E4 on the baseline.
 
-| Run | Change | idle | pan rec/pres | zoom rec/pres | main busy idle/pan/zoom | viz ms/s pan/zoom |
-| --- | --- | --- | --- | --- | --- | --- |
-| baseline `mvxdeks5` | none | 51.1 | 44.8 / 39.3 | 18.5 / 16.6 | 8 / 29 / 67 % | 971 / 844 |
-| E1 `mvxe12p9` | hosts start at 0 msg/s (bench) | 60.0 | 52.0 / 45.8 | 20.3 / 18.6 | 4 / 27 / 73 % | 960 / 844 |
-| E2a `mvxe3zoi` | `will-change: transform` on `.content` | 60.0 | 34.1 / 28.5 | 15.0 / 14.4 | 4 / 19 / 57 % | 960 / 938 |
-| E2b `mvxeabax` | the same, only during a gesture | 60.0 | 33.5 / 28.9 | 15.4 / 13.7 | 3 / 18 / 58 % | 950 / 929 |
-| E3 `mvxe7mww` | `--diagram-zoom` set at gesture end only | 60.0 | 49.7 / 45.7 | 25.3 / 23.4 | 3 / 22 / 13 % | 957 / 972 |
-| E4 `mvxegbp6` | dot canvas hidden while no dot moves | 52.0 | 49.7 / 45.0 | 20.0 / 18.3 | 8 / 24 / 69 % | 949 / 844 |
-| E3+E4 `mvxej28y` | both kit changes | 51.1 | 49.5 / 47.7 | 24.8 / 22.7 | 8 / 28 / 16 % | 929 / 966 |
+| Run                 | Change                                   | idle | pan rec/pres | zoom rec/pres | main busy idle/pan/zoom | viz ms/s pan/zoom |
+| ------------------- | ---------------------------------------- | ---- | ------------ | ------------- | ----------------------- | ----------------- |
+| baseline `mvxdeks5` | none                                     | 51.1 | 44.8 / 39.3  | 18.5 / 16.6   | 8 / 29 / 67 %           | 971 / 844         |
+| E1 `mvxe12p9`       | hosts start at 0 msg/s (bench)           | 60.0 | 52.0 / 45.8  | 20.3 / 18.6   | 4 / 27 / 73 %           | 960 / 844         |
+| E2a `mvxe3zoi`      | `will-change: transform` on `.content`   | 60.0 | 34.1 / 28.5  | 15.0 / 14.4   | 4 / 19 / 57 %           | 960 / 938         |
+| E2b `mvxeabax`      | the same, only during a gesture          | 60.0 | 33.5 / 28.9  | 15.4 / 13.7   | 3 / 18 / 58 %           | 950 / 929         |
+| E3 `mvxe7mww`       | `--diagram-zoom` set at gesture end only | 60.0 | 49.7 / 45.7  | 25.3 / 23.4   | 3 / 22 / 13 %           | 957 / 972         |
+| E4 `mvxegbp6`       | dot canvas hidden while no dot moves     | 52.0 | 49.7 / 45.0  | 20.0 / 18.3   | 8 / 24 / 69 %           | 949 / 844         |
+| E3+E4 `mvxej28y`    | both kit changes                         | 51.1 | 49.5 / 47.7  | 24.8 / 22.7   | 8 / 28 / 16 %           | 929 / 966         |
 
 Run names are the result files' (`results/2026-11-01-modalix-devkit-<name>.json`). Zoomed-out
 was 54.5 to 59.5 fps everywhere.

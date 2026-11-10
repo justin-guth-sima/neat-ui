@@ -199,7 +199,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " under the body, the cancelling button first and the confirming one last. Helm's footer: a row at the end on wide screens; stacked on narrow ones, with the confirming button on top."
+              "text": " under the body, the canceling button first and the confirming one last. Helm's footer: a row at the end on wide screens; stacked on narrow ones, with the confirming button on top."
             }
           ]
         }

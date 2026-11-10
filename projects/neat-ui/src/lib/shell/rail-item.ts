@@ -82,7 +82,7 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
  * ```
  *
  * `tone` puts a dot on the icon's corner, `text` is the visible first line (the label by default)
- * and `detail` a smaller second line in the tone's colour, both cut with an ellipsis and hidden
+ * and `detail` a smaller second line in the tone's color, both cut with an ellipsis and hidden
  * with the label while the rail is collapsed. `label` stays the tooltip and the name, so it is the
  * whole sentence, with the state the dot alone shows: brain's tooltip takes its text from the
  * template only, so the kit cannot compose it from the lines. While the lines say other than
@@ -155,7 +155,7 @@ export class NeatRailItem {
   readonly label = input.required<string>();
   /** The visible first line, when it says less than `label` (a board's name, its state aside). */
   readonly text = input<string>();
-  /** A smaller second line under the first (an address, a state), in the tone's colour. */
+  /** A smaller second line under the first (an address, a state), in the tone's color. */
   readonly detail = input<string>();
   /** The state a dot on the icon's corner shows; no dot without it. */
   readonly tone = input<NeatTone>();

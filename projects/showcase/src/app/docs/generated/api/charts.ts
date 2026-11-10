@@ -296,7 +296,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "How a chart draws its line: the default colour, or a threshold's."
+              "text": "How a chart draws its line: the default color, or a threshold's."
             }
           ]
         }
@@ -313,7 +313,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Several metrics over time as rows of coloured cells, such as the load of each core:"
+              "text": "Several metrics over time as rows of colored cells, such as the load of each core:"
             }
           ]
         },
@@ -375,7 +375,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", in the colour of its tone, after them."
+              "text": ", in the color of its tone, after them."
             }
           ]
         },
@@ -510,7 +510,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The values the colour ramp spans, lowest and highest: fixed by the app, so a colour keeps its meaning."
+                  "text": "The values the color ramp spans, lowest and highest: fixed by the app, so a color keeps its meaning."
                 }
               ]
             }
@@ -750,7 +750,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The colour of "
+                  "text": "The color of "
                 },
                 {
                   "kind": "code",
@@ -758,7 +758,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ": the foreground, or the warning or danger line colour (text strength in both)."
+                  "text": ": the foreground, or the warning or danger line color (text strength in both)."
                 }
               ]
             }
@@ -849,7 +849,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A classifier's recent results as a strip of coloured runs, newest at the right:"
+              "text": "A classifier's recent results as a strip of colored runs, newest at the right:"
             }
           ]
         },
@@ -969,12 +969,12 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Colours come from "
+              "text": "Colors come from "
             },
             {
               "kind": "ref",
-              "text": "neatLabelColour",
-              "name": "neatLabelColour"
+              "text": "neatLabelColor",
+              "name": "neatLabelColor"
             },
             {
               "kind": "text",
@@ -1031,8 +1031,8 @@ export const API: DocsEntry = {
             },
             {
               "kind": "ref",
-              "text": "neatLabelColour",
-              "name": "neatLabelColour"
+              "text": "neatLabelColor",
+              "name": "neatLabelColor"
             },
             {
               "kind": "text",
@@ -1138,7 +1138,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The colour order of the labels; empty means the order of first appearance in "
+                  "text": "The color order of the labels; empty means the order of first appearance in "
                 },
                 {
                   "kind": "code",
@@ -1162,7 +1162,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Labels drawn in the muted colour and never named, such as \"No gesture\"."
+                  "text": "Labels drawn in the muted color and never named, such as \"No gesture\"."
                 }
               ]
             }
@@ -1424,12 +1424,12 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", so a bar does not jump about as the scores change. Each row is the label, a bar filled to its score (clamped to 0..1) and the score with two decimals; a value that is not a number draws an empty bar and \"–\". The fill takes its colour from "
+              "text": ", so a bar does not jump about as the scores change. Each row is the label, a bar filled to its score (clamped to 0..1) and the score with two decimals; a value that is not a number draws an empty bar and \"–\". The fill takes its color from "
             },
             {
               "kind": "ref",
-              "text": "neatLabelColour",
-              "name": "neatLabelColour"
+              "text": "neatLabelColor",
+              "name": "neatLabelColor"
             },
             {
               "kind": "text",
@@ -1502,7 +1502,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", so the container needs a height of its own, such as a card a grid row stretches) and shares that height evenly among the rows: each row grows, its label and figure stay centred in it, and its bar thickens with it up to twice its usual thickness. A container shorter than the rows' natural height does not squeeze them: the list keeps that height and overflows, as it does without "
+              "text": ", so the container needs a height of its own, such as a card a grid row stretches) and shares that height evenly among the rows: each row grows, its label and figure stay centered in it, and its bar thickens with it up to twice its usual thickness. A container shorter than the rows' natural height does not squeeze them: the list keeps that height and overflows, as it does without "
             },
             {
               "kind": "code",
@@ -1567,7 +1567,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The colour order of the labels; empty means the order of "
+                  "text": "The color order of the labels; empty means the order of "
                 },
                 {
                   "kind": "code",
@@ -1591,7 +1591,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Labels drawn in the muted colour, such as \"No gesture\"."
+                  "text": "Labels drawn in the muted color, such as \"No gesture\"."
                 }
               ]
             }
@@ -1862,7 +1862,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The stroke: the line colour, or a threshold's."
+                  "text": "The stroke: the line color, or a threshold's."
                 }
               ]
             }
@@ -1984,7 +1984,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The legend lists each band with its current value and its share of the current total, as a whole percent; the share is \"—\" while the total is unknown (a band has no current sample) or nothing. The colours alone do not tell eight bands apart, which is what the legend is for."
+              "text": "The legend lists each band with its current value and its share of the current total, as a whole percent; the share is \"—\" while the total is unknown (a band has no current sample) or nothing. The colors alone do not tell eight bands apart, which is what the legend is for."
             }
           ]
         },
@@ -2411,7 +2411,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is labelled as "
+              "text": " is labeled as "
             },
             {
               "kind": "code",
@@ -2577,7 +2577,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Levels drawn dashed in a warning or danger colour while they lie inside the domain."
+                  "text": "Levels drawn dashed in a warning or danger color while they lie inside the domain."
                 }
               ]
             }
@@ -2609,7 +2609,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The stroke of a single series; several series take the palette's colours instead."
+                  "text": "The stroke of a single series; several series take the palette's colors instead."
                 }
               ]
             }
@@ -2633,7 +2633,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " is labelled as medium, with the plot taking the height the app gives the host."
+                  "text": " is labeled as medium, with the plot taking the height the app gives the host."
                 }
               ]
             }
@@ -2809,16 +2809,16 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/charts/src/lib/label-timeline.ts"
     },
     {
-      "name": "neatLabelColour",
+      "name": "neatLabelColor",
       "kind": "function",
-      "signature": "neatLabelColour(label: string, labels: readonly string[], quiet: readonly string[]): string",
+      "signature": "neatLabelColor(label: string, labels: readonly string[], quiet: readonly string[]): string",
       "doc": [
         {
           "kind": "paragraph",
           "spans": [
             {
               "kind": "text",
-              "text": "The colour of a label that stands for a class, a state or a gesture, as CSS: the series colour at the label's place in "
+              "text": "The color of a label that stands for a class, a state or a gesture, as CSS: the series color at the label's place in "
             },
             {
               "kind": "code",
@@ -2866,7 +2866,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " for a label in neither list. One function, so the score bars and an app's timeline of the same labels cannot colour them differently. The one exception is the timeline's quiet runs: they fill a stretch of the strip, often most of the window, so the timeline fills them with "
+              "text": " for a label in neither list. One function, so the score bars and an app's timeline of the same labels cannot color them differently. The one exception is the timeline's quiet runs: they fill a stretch of the strip, often most of the window, so the timeline fills them with "
             },
             {
               "kind": "code",
@@ -2887,7 +2887,53 @@ export const API: DocsEntry = {
           ]
         }
       ],
-      "source": "projects/neat-ui/charts/src/lib/label-colour.ts"
+      "source": "projects/neat-ui/charts/src/lib/label-color.ts"
+    },
+    {
+      "name": "neatLabelColour",
+      "kind": "const",
+      "type": "(label: string, labels: readonly string[], quiet: readonly string[]) => string",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The British spelling of "
+            },
+            {
+              "kind": "ref",
+              "text": "neatLabelColor",
+              "name": "neatLabelColor"
+            },
+            {
+              "kind": "text",
+              "text": ", kept so apps that import it keep working."
+            }
+          ]
+        }
+      ],
+      "deprecated": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Use "
+            },
+            {
+              "kind": "ref",
+              "text": "neatLabelColor",
+              "name": "neatLabelColor"
+            },
+            {
+              "kind": "text",
+              "text": "; this name goes in a later release."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/charts/src/lib/label-color.ts"
     }
   ]
 };

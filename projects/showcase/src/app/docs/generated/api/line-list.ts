@@ -23,7 +23,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": a flex row, so its parts sit side by side, at least 1.5rem high so that the buttons of neighbouring lines keep their distance."
+              "text": ": a flex row, so its parts sit side by side, at least 1.5rem high so that the buttons of neighboring lines keep their distance."
             }
           ]
         }
@@ -81,7 +81,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". It sets the look only (the rule, the inset, the text size); a line's content, and the roles of the list, are the app's. The text colour is the parent's."
+              "text": ". It sets the look only (the rule, the inset, the text size); a line's content, and the roles of the list, are the app's. The text color is the parent's."
             }
           ]
         }

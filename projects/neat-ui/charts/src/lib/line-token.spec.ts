@@ -7,7 +7,7 @@ describe('lineToken', () => {
     expect(lineToken('danger')).toBe('var(--neat-line-danger)');
   });
 
-  it('maps a tone to a text colour: the foreground by default, the line tokens for warning and danger', () => {
+  it('maps a tone to a text color: the foreground by default, the line tokens for warning and danger', () => {
     expect(textToken('default')).toBe('var(--foreground)');
     expect(textToken('warning')).toBe('var(--neat-line-warning)');
     expect(textToken('danger')).toBe('var(--neat-line-danger)');

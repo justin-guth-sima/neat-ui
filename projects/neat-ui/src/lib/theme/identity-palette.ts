@@ -1,13 +1,13 @@
 /*
- * The identity colours of drawings over live footage: the video overlays' detections, masks,
- * tracks and poses, and the bird's-eye view's labels, which take the page's class colours too. They
+ * The identity colors of drawings over live footage: the video overlays' detections, masks,
+ * tracks and poses, and the bird's-eye view's labels, which take the page's class colors too. They
  * are drawn over video and its kin, not over the kit's surfaces, so they are chosen to stay apart
  * on dark and bright footage rather than taken from the brand palette, and they are the same in
- * both themes. Not for apps: the overlay colour allocator hands them out.
+ * both themes. Not for apps: the overlay color allocator hands them out.
  */
 
 /**
- * Identity colours, handed out by the overlay colour allocator in slot order. The first 20 are
+ * Identity colors, handed out by the overlay color allocator in slot order. The first 20 are
  * hand-picked to stay apart on dark and bright video; the last 20 are overflow. Keep 40 entries;
  * identity-palette.spec.ts checks their separation. Five per row keeps the slot numbers countable.
  */
@@ -25,5 +25,5 @@ export const OVERLAY_PALETTE: readonly string[] = [
   '#ab413e', '#5590f3', '#8fd465', '#1899ec', '#b1cc46',
 ];
 
-/** The colour of an overlay with no identity: a track or pose without an id, a label-less class. */
+/** The color of an overlay with no identity: a track or pose without an id, a label-less class. */
 export const OVERLAY_NEUTRAL_COLOR = '#f8fafc';

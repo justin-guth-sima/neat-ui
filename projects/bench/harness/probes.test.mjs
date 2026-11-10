@@ -62,7 +62,7 @@ test('only reads: the scripts name no command that changes the board', () => {
   }
 });
 
-test('summarises a run: lowest frequency, hottest zone and the load either side', () => {
+test('summarizes a run: lowest frequency, hottest zone and the load either side', () => {
   const before = parseProbe(LAPTOP);
   const after = parseProbe(LAPTOP.replace('61500', '70250').replace('3.50 2.10', '9.00 4.00'));
   assert.deepEqual(summarizeProbes(before, after), {
@@ -75,7 +75,7 @@ test('summarises a run: lowest frequency, hottest zone and the load either side'
   });
 });
 
-test('summarises a board without cpufreq by what it has', () => {
+test('summarizes a board without cpufreq by what it has', () => {
   const s = summarizeProbes(parseProbe(BOARD), parseProbe(BOARD));
   assert.equal(s.cpuMhzMin, undefined);
   assert.equal(s.tempMaxC, 55.125);

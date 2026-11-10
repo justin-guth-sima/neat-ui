@@ -1,15 +1,15 @@
-import { metresText } from './geometry';
+import { metersText } from './geometry';
 import type { NeatBevObject } from './model';
 
 /*
  * The readout of the object under the pointer: its label, its distance from the vehicle and the
  * app's text for it, in a box beside it. Written straight to the DOM from the frame that draws the
  * object, outside change detection, and only what changed, since the object may move on every
- * frame. The swatch of its colour beside the label is the component's (`neat-swatch`), bound to a
+ * frame. The swatch of its color beside the label is the component's (`neat-swatch`), bound to a
  * signal that changes only when another object is read out.
  */
 
-/** How far the box stands from the object's centre, CSS px. */
+/** How far the box stands from the object's center, CSS px. */
 const GAP = 12;
 
 /** Where the box's top left goes: right of `x`, or left of it where it would leave the box. */
@@ -27,9 +27,9 @@ export function readoutPlace(
   return { left: Math.max(0, left), top };
 }
 
-/** The distance of `object`'s centre from the vehicle, as the readout says it. */
+/** The distance of `object`'s center from the vehicle, as the readout says it. */
 export function distanceText(object: NeatBevObject): string {
-  return metresText(Math.hypot(object.x, object.y));
+  return metersText(Math.hypot(object.x, object.y));
 }
 
 export class BevReadout {
@@ -43,7 +43,7 @@ export class BevReadout {
     private readonly text: HTMLElement,
   ) {}
 
-  /** Shows `object`, its centre at (`x`, `y`) in a box `width` × `height` px. */
+  /** Shows `object`, its center at (`x`, `y`) in a box `width` × `height` px. */
   show(object: NeatBevObject, x: number, y: number, width: number, height: number): void {
     this.write('name', this.name, object.label);
     this.write('distance', this.distance, distanceText(object));

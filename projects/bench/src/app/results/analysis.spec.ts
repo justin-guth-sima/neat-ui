@@ -1,5 +1,5 @@
 import {
-  analyseCampaign,
+  analyzeCampaign,
   capacityOf,
   flatTrend,
   median,
@@ -13,7 +13,7 @@ import {
   stat,
   stepMeanFps,
   stepTier,
-  summariseCapacity,
+  summarizeCapacity,
 } from './analysis';
 import { campaign, climb, INTERVAL_MS, phase, step, withPhases } from './results.testing';
 
@@ -103,7 +103,7 @@ describe('a step the presented rate decided', () => {
   it('shows the effective fps and says the presented rate decided the tier', () => {
     const steps = [0, 1, 2].flatMap((repeat) => decided(repeat, 54));
 
-    const cell = analyseCampaign(campaign(steps)).ladders[0].renderers[0].cells[0];
+    const cell = analyzeCampaign(campaign(steps)).ladders[0].renderers[0].cells[0];
 
     expect(cell.tier).toBe('usable');
     expect(cell.presentedDecided).toBe(true);
@@ -114,14 +114,14 @@ describe('a step the presented rate decided', () => {
     // 59.6 of 60: the display kept up as far as a count over a window can tell.
     const steps = [0, 1, 2].flatMap((repeat) => decided(repeat, 59.6));
 
-    const cell = analyseCampaign(campaign(steps)).ladders[0].renderers[0].cells[0];
+    const cell = analyzeCampaign(campaign(steps)).ladders[0].renderers[0].cells[0];
 
     expect(cell.tier).toBe('smooth');
     expect(cell.presentedDecided).toBe(false);
   });
 
   it('says nothing where no run was traced', () => {
-    const cell = analyseCampaign(campaign(decided(0, undefined))).ladders[0].renderers[0].cells[0];
+    const cell = analyzeCampaign(campaign(decided(0, undefined))).ladders[0].renderers[0].cells[0];
 
     expect(cell.presentedDecided).toBe(false);
   });
@@ -131,7 +131,7 @@ describe('a step the presented rate decided', () => {
       index === 2 ? withPhases(s, { pan: phase('smooth', { presentedFps: 45 }) }) : s,
     );
 
-    const vflow = analyseCampaign(campaign(traced)).ladders[0].renderers[0];
+    const vflow = analyzeCampaign(campaign(traced)).ladders[0].renderers[0];
 
     expect(vflow.smooth?.median).toEqual({ level: 2, atCap: false });
     expect(vflow.usable?.median).toEqual({ level: 4, atCap: true });
@@ -193,17 +193,17 @@ describe('capacityOf (the largest load held, with every smaller one held too)', 
   });
 });
 
-describe('summariseCapacity', () => {
+describe('summarizeCapacity', () => {
   const cap = (level: number | null, atCap = false) => ({ level, atCap });
 
   it('takes the lower median, min and max, so a claim is the conservative one', () => {
-    const summary = summariseCapacity([cap(8), cap(4), cap(8), cap(16)]);
+    const summary = summarizeCapacity([cap(8), cap(4), cap(8), cap(16)]);
 
     expect(summary).toMatchObject({ median: cap(8), min: cap(4), max: cap(16), repeats: 4 });
   });
 
   it('puts none below every level, and a climb that never failed above one that did', () => {
-    const summary = summariseCapacity([cap(null), cap(4, true), cap(4)]);
+    const summary = summarizeCapacity([cap(null), cap(4, true), cap(4)]);
 
     expect(summary?.min).toEqual(cap(null));
     expect(summary?.median).toEqual(cap(4));
@@ -212,14 +212,14 @@ describe('summariseCapacity', () => {
 
   it('ranks a refined level above the ladder level it refines, whatever its cap', () => {
     // A refined knee just above a ladder level, against a climb that held the level below it.
-    const summary = summariseCapacity([cap(4.1), cap(4, true)]);
+    const summary = summarizeCapacity([cap(4.1), cap(4, true)]);
 
     expect(summary?.min).toEqual(cap(4, true));
     expect(summary?.max).toEqual(cap(4.1));
   });
 
   it('has nothing without repeats', () => {
-    expect(summariseCapacity([])).toBeNull();
+    expect(summarizeCapacity([])).toBeNull();
   });
 });
 
@@ -262,10 +262,10 @@ function twoRenderers() {
   ]);
 }
 
-describe('analyseCampaign', () => {
+describe('analyzeCampaign', () => {
   it('reads the interval the run measured, and the display’s rate where it has none', () => {
-    expect(analyseCampaign(twoRenderers()).intervalMs).toBe(INTERVAL_MS);
-    expect(analyseCampaign({ ...twoRenderers(), measurement: null }).intervalMs).toBeCloseTo(
+    expect(analyzeCampaign(twoRenderers()).intervalMs).toBe(INTERVAL_MS);
+    expect(analyzeCampaign({ ...twoRenderers(), measurement: null }).intervalMs).toBeCloseTo(
       1000 / 60,
       9,
     );
@@ -279,14 +279,14 @@ describe('analyseCampaign', () => {
       ...climb('kit', 0, ['smooth'], { ladder: 'B' }),
     ]);
 
-    const ladders = analyseCampaign(file).ladders;
+    const ladders = analyzeCampaign(file).ladders;
 
     expect(ladders.map((l) => l.ladder)).toEqual(['A', 'B']);
     expect(ladders[0].renderers.map((r) => r.renderer)).toEqual(['kit', 'vflow', 'none']);
   });
 
   it('gives each renderer’s capacity in both tiers over its repeats', () => {
-    const a = analyseCampaign(twoRenderers()).ladders[0];
+    const a = analyzeCampaign(twoRenderers()).ladders[0];
     const kit = a.renderers.find((r) => r.renderer === 'kit');
     const vflow = a.renderers.find((r) => r.renderer === 'vflow');
 
@@ -297,7 +297,7 @@ describe('analyseCampaign', () => {
   });
 
   it('judges the rule on the ladder: the kit’s smooth capacity two doubling steps below', () => {
-    const a = analyseCampaign(twoRenderers()).ladders[0];
+    const a = analyzeCampaign(twoRenderers()).ladders[0];
 
     expect(a.verdict?.kind).toBe('slower');
     expect(a.verdict?.slowerCount).toBe(3);
@@ -305,7 +305,7 @@ describe('analyseCampaign', () => {
   });
 
   it('has no verdict on a ladder run on one renderer', () => {
-    const a = analyseCampaign(campaign(climb('kit', 0, ['smooth', 'failing']))).ladders[0];
+    const a = analyzeCampaign(campaign(climb('kit', 0, ['smooth', 'failing']))).ladders[0];
 
     expect(a.verdict).toBeNull();
     expect(a.evidence).toBeNull();
@@ -319,7 +319,7 @@ describe('analyseCampaign', () => {
       })),
     );
 
-    const cell = analyseCampaign(campaign(steps)).ladders[0].renderers[0].cells[0];
+    const cell = analyzeCampaign(campaign(steps)).ladders[0].renderers[0].cells[0];
 
     expect(cell.level).toBe(1);
     expect(cell.repeats).toBe(3);
@@ -334,7 +334,7 @@ describe('analyseCampaign', () => {
       zoom: phase('smooth', { cdp: { busyShare: 0.3 } as never }),
     });
 
-    const cell = analyseCampaign(campaign([s])).ladders[0].renderers[0].cells[0];
+    const cell = analyzeCampaign(campaign([s])).ladders[0].renderers[0].cells[0];
 
     expect(cell.tier).toBe('usable');
     expect(cell.p95Ms).toBe(33);
@@ -350,17 +350,17 @@ describe('analyseCampaign', () => {
       ...climb('kit', 2, ['usable']),
     ];
 
-    expect(analyseCampaign(campaign(steps)).ladders[0].renderers[0].cells[0].tier).toBe('usable');
+    expect(analyzeCampaign(campaign(steps)).ladders[0].renderers[0].cells[0].tier).toBe('usable');
   });
 
   it('counts a failed run’s climb as one that never reached the cap, and says it failed', () => {
     const file = campaign(climb('kit', 0, ['smooth', 'smooth'], { failedRun: true }));
 
-    const kit = analyseCampaign(file).ladders[0].renderers[0];
+    const kit = analyzeCampaign(file).ladders[0].renderers[0];
 
     expect(kit.climbs[0].failed).toBe(true);
     expect(kit.smooth?.median).toEqual({ level: 2, atCap: false });
-    expect(analyseCampaign(file).failedRuns).toBe(1);
+    expect(analyzeCampaign(file).failedRuns).toBe(1);
   });
 
   it('counts a repeat whose page load died before any step as a climb with no capacity', () => {
@@ -377,7 +377,7 @@ describe('analyseCampaign', () => {
       ],
     });
 
-    const a = analyseCampaign(file).ladders[0];
+    const a = analyzeCampaign(file).ladders[0];
 
     expect(a.renderers.find((r) => r.renderer === 'kit')?.climbs).toHaveLength(3);
     expect(a.verdict?.pairs).toHaveLength(3);
@@ -388,7 +388,7 @@ describe('analyseCampaign', () => {
   it('lists the trend of median fps by level, for the capacity table’s sparkline', () => {
     const steps = climb('kit', 0, ['smooth', 'usable', 'failing']);
 
-    expect(analyseCampaign(campaign(steps)).ladders[0].renderers[0].trend).toEqual([60, 40, 12]);
+    expect(analyzeCampaign(campaign(steps)).ladders[0].renderers[0].trend).toEqual([60, 40, 12]);
   });
 });
 
@@ -401,14 +401,14 @@ describe('the dropped share where the presented rate decided', () => {
   const shortfall = (1 - 54.7 / 60) * 100;
 
   it('shows a step’s effective dropped share, the recorder’s beside it', () => {
-    const cell = analyseCampaign(campaign(traced())).ladders[0].renderers[0].cells[0];
+    const cell = analyzeCampaign(campaign(traced())).ladders[0].renderers[0].cells[0];
 
     expect(cell.droppedPct).toBeCloseTo(shortfall, 6);
     expect(cell.recorderDroppedPct).toBe(0);
   });
 
   it('shows a phase’s effective dropped share, the recorder’s beside it', () => {
-    const kit = analyseCampaign(campaign(traced())).ladders[0].renderers[0];
+    const kit = analyzeCampaign(campaign(traced())).ladders[0].renderers[0];
 
     const rows = phaseRows(kit.climbs, INTERVAL_MS);
 
@@ -434,7 +434,7 @@ describe('recorderDecisions (levels of a traced renderer with no presented rate)
   it('names a level the traced run did not reach, where it reached others', () => {
     const steps = kitSteps().map((s) => withRate(withRate(s, 1), 2));
 
-    const analysis = analyseCampaign(campaign(steps));
+    const analysis = analyzeCampaign(campaign(steps));
 
     expect(recorderDecisions(analysis)).toEqual([{ ladder: 'A', renderer: 'kit', levels: [4] }]);
     expect(analysis.ladders[0].renderers[0].cells.map((c) => c.recorderDecided)).toEqual([
@@ -445,8 +445,8 @@ describe('recorderDecisions (levels of a traced renderer with no presented rate)
   });
 
   it('does not expect a rate from an idle phase, or from a renderer that was not traced', () => {
-    const untraced = analyseCampaign(campaign(kitSteps()));
-    const panned = analyseCampaign(campaign(kitSteps().map(presented)));
+    const untraced = analyzeCampaign(campaign(kitSteps()));
+    const panned = analyzeCampaign(campaign(kitSteps().map(presented)));
 
     expect(recorderDecisions(untraced)).toEqual([]);
     expect(recorderDecisions(panned)).toEqual([]);
@@ -461,7 +461,7 @@ describe('recorderDecisions (levels of a traced renderer with no presented rate)
       moving(s.level === 1 ? withPhases(s, { idle: phase('smooth', { presentedFps: 59 }) }) : s),
     );
 
-    expect(recorderDecisions(analyseCampaign(campaign(steps)))).toEqual([
+    expect(recorderDecisions(analyzeCampaign(campaign(steps)))).toEqual([
       { ladder: 'A', renderer: 'kit', levels: [1, 2, 4] },
     ]);
   });
@@ -473,7 +473,7 @@ describe('phaseRows', () => {
       ...climb('kit', 0, ['smooth', 'usable']),
       ...climb('kit', 1, ['smooth', 'usable']),
     ];
-    const kit = analyseCampaign(campaign(steps)).ladders[0].renderers[0];
+    const kit = analyzeCampaign(campaign(steps)).ladders[0].renderers[0];
 
     const rows = phaseRows(kit.climbs, INTERVAL_MS);
 
@@ -493,7 +493,7 @@ describe('phaseRows', () => {
   it('leaves out the steps that were aborted before they had a phase', () => {
     const steps = climb('kit', 0, ['smooth', 'smooth']);
     steps[1] = { ...steps[1], phases: {}, aborted: 'watchdog' };
-    const kit = analyseCampaign(campaign(steps)).ladders[0].renderers[0];
+    const kit = analyzeCampaign(campaign(steps)).ladders[0].renderers[0];
 
     expect(new Set(phaseRows(kit.climbs, INTERVAL_MS).map((r) => r.level))).toEqual(new Set([1]));
   });
@@ -506,7 +506,7 @@ describe('phaseRows with the presented rate and the heap', () => {
         withPhases(s, { pan: phase('smooth', { presentedFps: [50, 54, 58][repeat] }) }),
       ),
     );
-    const kit = analyseCampaign(campaign(steps)).ladders[0].renderers[0];
+    const kit = analyzeCampaign(campaign(steps)).ladders[0].renderers[0];
 
     const rows = phaseRows(kit.climbs, INTERVAL_MS);
 
@@ -529,7 +529,7 @@ describe('phaseRows with the presented rate and the heap', () => {
         }),
       ),
     );
-    const kit = analyseCampaign(campaign(steps)).ladders[0].renderers[0];
+    const kit = analyzeCampaign(campaign(steps)).ladders[0].renderers[0];
 
     const rows = phaseRows(kit.climbs, INTERVAL_MS);
 

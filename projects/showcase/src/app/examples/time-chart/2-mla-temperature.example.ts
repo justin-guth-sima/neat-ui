@@ -3,7 +3,7 @@ import { NeatTimeChart } from '@sima/neat-ui/charts';
 import { celsius, TEMPERATURE, TEMPERATURE_THRESHOLDS, TIMES } from './data';
 
 /**
- * A single series in the warning colour (`tone="warning"`), on a domain that starts at 40 so the
+ * A single series in the warning color (`tone="warning"`), on a domain that starts at 40 so the
  * range that matters fills the box. The gap is a daemon that did not answer for a while: a missing
  * sample breaks the line.
  */

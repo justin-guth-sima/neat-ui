@@ -10,7 +10,7 @@
   aspect-ratio: 16 / 9;
 }
 
-/* A swatch and its type's name, as a legend for the editor's colours. */
+/* A swatch and its type's name, as a legend for the editor's colors. */
 .key {
   display: inline-flex;
   align-items: center;

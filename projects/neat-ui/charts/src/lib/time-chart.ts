@@ -43,7 +43,7 @@ import type {
   NeatThreshold,
 } from './types';
 
-/** The reference line is neither a warning nor a danger, so it is the quiet colour. */
+/** The reference line is neither a warning nor a danger, so it is the quiet color. */
 const REFERENCE_TOKEN = 'var(--muted-foreground)';
 /** A line across the plot at `y` (0 to 100 from the top) and, when the chart has room, its label. */
 interface Level {
@@ -83,7 +83,7 @@ interface Level {
  * to the card's fill, as the select list's sticky header asks.
  *
  * `size` sets the plot's height (3.5, 6 or 9.5 rem). `compact` leaves out every label and the time
- * axis, which suits a row among others; `fill` is labelled as `medium` and makes the host a flex
+ * axis, which suits a row among others; `fill` is labeled as `medium` and makes the host a flex
  * column whose plot takes the height left after the title, legend and axis, never under medium's
  * 6 rem, so the app gives the host its height (a grid item that a row stretches, say);
  * `[valueLabels]="false"` leaves out only the grid's values and the levels' labels, keeping their
@@ -170,7 +170,7 @@ interface Level {
           </g>
         }
       </svg>
-      @if (valueLabelled()) {
+      @if (valueLabeled()) {
         @for (tick of gridLabels(); track tick.value) {
           <span
             class="tag grid-label"
@@ -227,7 +227,7 @@ interface Level {
         </span>
       }
     </div>
-    @if (labelled()) {
+    @if (labeled()) {
       <div class="axis" aria-hidden="true">
         @for (tick of timeTicks(); track tick.at) {
           <span [style.--at]="tick.at">{{ tick.text }}</span>
@@ -252,15 +252,15 @@ export class NeatTimeChart {
   readonly times = input.required<readonly (number | null)[]>();
   /** The values the box spans, bottom and top: fixed by the app, so the line never rescales. */
   readonly domain = input.required<readonly [number, number]>();
-  /** Levels drawn dashed in a warning or danger colour while they lie inside the domain. */
+  /** Levels drawn dashed in a warning or danger color while they lie inside the domain. */
   readonly thresholds = input<readonly NeatThreshold[]>([]);
   /** A level that is neither, such as an average or a limit. */
   readonly reference = input<NeatReference | null>(null);
-  /** The stroke of a single series; several series take the palette's colours instead. */
+  /** The stroke of a single series; several series take the palette's colors instead. */
   readonly tone = input<NeatChartTone>('default');
   /**
    * The plot's height: 3.5, 6 or 9.5 rem. Compact also leaves out the labels and the time axis.
-   * `fill` is labelled as medium, with the plot taking the height the app gives the host.
+   * `fill` is labeled as medium, with the plot taking the height the app gives the host.
    */
   readonly size = input<'compact' | 'medium' | 'large' | 'fill'>('medium');
   /**
@@ -299,9 +299,9 @@ export class NeatTimeChart {
   });
 
   /** Compact leaves the labels out: a row of charts has no room for them. */
-  protected readonly labelled = computed(() => this.size() !== 'compact');
+  protected readonly labeled = computed(() => this.size() !== 'compact');
   /** The grid's values and the levels' labels, which `valueLabels` can leave out on their own. */
-  protected readonly valueLabelled = computed(() => this.labelled() && this.valueLabels());
+  protected readonly valueLabeled = computed(() => this.labeled() && this.valueLabels());
 
   private readonly lines = computed(() => foldSeries(this.series()));
   private readonly length = computed(() =>
@@ -311,11 +311,11 @@ export class NeatTimeChart {
 
   /**
    * Whether the chart draws several lines, the one rule for what that changes: the palette's
-   * colours instead of the tone's, no area, a legend, and a swatch on each readout row.
+   * colors instead of the tone's, no area, a legend, and a swatch on each readout row.
    */
   private readonly several = computed(() => this.lines().length > 1);
 
-  /** Each line's colour: its tone when it is alone, else its place in the palette. */
+  /** Each line's color: its tone when it is alone, else its place in the palette. */
   private readonly colors = computed(() =>
     this.several() ? this.lines().map((_, index) => seriesToken(index)) : [lineToken(this.tone())],
   );
@@ -435,7 +435,7 @@ export class NeatTimeChart {
         key: entry.key,
         label: entry.label,
         value: describe(entry.values[index], format),
-        // A lone line is in its tone's colour, not the palette's, and needs no swatch.
+        // A lone line is in its tone's color, not the palette's, and needs no swatch.
         series: several ? line : null,
       })),
     );

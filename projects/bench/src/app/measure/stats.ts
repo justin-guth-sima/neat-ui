@@ -2,7 +2,7 @@
  * What a phase's frame times say: the headline numbers of a run (design 1.1) and the verdicts the
  * ladders stop and refine on. Pure functions over the frame deltas the recorder hands over at a
  * phase's end, never called per frame, so a copy for sorting costs nothing that is measured. Every
- * judgement is against the refresh interval the run measured, never an assumed 60 Hz: the board on
+ * judgment is against the refresh interval the run measured, never an assumed 60 Hz: the board on
  * 4K HDMI 1.4 runs at 30 Hz, and laptops may run at 120 Hz.
  */
 

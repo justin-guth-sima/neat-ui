@@ -210,7 +210,7 @@ export function soakText(soak: SoakTrend): string {
   return `Over ${soak.phases} phases: ${fps}, ${heap}.`;
 }
 
-/** The summary of `campaign`, with `analysis` its `analyseCampaign`. */
+/** The summary of `campaign`, with `analysis` its `analyzeCampaign`. */
 export function summaryMarkdown(campaign: CampaignResult, analysis: CampaignAnalysis): string {
   const out: string[] = [
     `# Rendering bench: ${campaign.machine.label}, ${campaign.startedAt.slice(0, 10)}`,

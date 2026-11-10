@@ -123,7 +123,7 @@ const endOf = (p: Piece): Point => ('line' in p ? p.line : p.curve[2]);
 
 /**
  * The corners rounded: each turn's legs are `bend` long, at most the shorter of its two runs
- * (half of a run between two turns, so neighbouring turns never overlap).
+ * (half of a run between two turns, so neighboring turns never overlap).
  */
 export function roundCorners(points: Point[], bend = BEND): Piece[] {
   const pieces: Piece[] = [];

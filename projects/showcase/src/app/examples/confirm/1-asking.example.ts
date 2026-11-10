@@ -35,7 +35,7 @@ export class Asking {
       confirmLabel: 'Reset',
       tone: 'danger',
     });
-    this.answer.set(`Reset all: ${reset ? 'confirmed' : 'cancelled'}`);
+    this.answer.set(`Reset all: ${reset ? 'confirmed' : 'canceled'}`);
   }
 
   protected async askApplyToAll(): Promise<void> {
@@ -45,6 +45,6 @@ export class Asking {
       confirmLabel: 'Apply',
       cancelLabel: 'Not now',
     });
-    this.answer.set(`Apply to all: ${apply ? 'confirmed' : 'cancelled'}`);
+    this.answer.set(`Apply to all: ${apply ? 'confirmed' : 'canceled'}`);
   }
 }

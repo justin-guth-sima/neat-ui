@@ -3,7 +3,7 @@ import type { DocsToken } from './model';
 import { TypeText } from './type-text';
 
 /**
- * Source as the generator's runs, each coloured by its kind; they spell the file again, so they
+ * Source as the generator's runs, each colored by its kind; they spell the file again, so they
  * can sit in a pre. Every text is its own node, so the template adds no space between runs.
  */
 @Component({
@@ -53,7 +53,7 @@ export class Runs {
 export class CodeBox {
   /** The code as text, when there are no `runs`. */
   readonly code = input('');
-  /** A file as the generator's coloured runs, in place of `code`. */
+  /** A file as the generator's colored runs, in place of `code`. */
   readonly runs = input<readonly DocsToken[] | null>(null);
   readonly linked = input(false, { transform: booleanAttribute });
   readonly overflow = input<'wrap' | 'scroll'>('wrap');

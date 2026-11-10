@@ -1,9 +1,9 @@
 import { NEAT_DANGER_BASE, SIMA_PALETTE } from '@sima/neat-ui';
 
 /*
- * Colours of the video overlays besides the identity colours: the label plate, ROI polygons and
- * the style rows' fallback. The identity colours (detections, masks, tracks, poses) live in the
- * primary entry's theme (`identity-palette.ts`), since the bird's-eye view colours its labels from
+ * Colors of the video overlays besides the identity colors: the label plate, ROI polygons and
+ * the style rows' fallback. The identity colors (detections, masks, tracks, poses) live in the
+ * primary entry's theme (`identity-palette.ts`), since the bird's-eye view colors its labels from
  * them too; they are re-exported here under their old names for the overlays' code. All are the
  * same in both themes.
  */
@@ -12,7 +12,7 @@ export {
   ɵOVERLAY_PALETTE as OVERLAY_PALETTE,
 } from '@sima/neat-ui';
 
-/** The dark plate behind track and pose labels, so the label reads in its identity colour. */
+/** The dark plate behind track and pose labels, so the label reads in its identity color. */
 export const OVERLAY_LABEL_PLATE_COLOR = 'rgba(15, 23, 42, 0.82)';
 
 /** `#rrggbb` with an alpha channel appended: the canvas and SVG both read 8-digit hex. */
@@ -23,11 +23,11 @@ function withAlphaHex(hex: string, alpha: number): string {
 }
 
 /**
- * ROI polygons, unlike the identity colours, use the kit's own green and danger red: the user
+ * ROI polygons, unlike the identity colors, use the kit's own green and danger red: the user
  * draws them, so they belong to the app's chrome rather than to the footage's labels. A faint fill
  * keeps the video visible under them and a full-strength 2px outline marks the edge; a highlighted
  * polygon (the one under the pointer, or the app's pick) takes `fillActive`, the same hue three
- * times as strong, so it stands out from its neighbours while the video still shows through.
+ * times as strong, so it stands out from its neighbors while the video still shows through.
  */
 export const OVERLAY_ROI_COLORS = {
   inclusion: {
@@ -42,5 +42,5 @@ export const OVERLAY_ROI_COLORS = {
   },
 } as const;
 
-/** The colour a class style row resolves to when its stored colour is missing or not a string. */
+/** The color a class style row resolves to when its stored color is missing or not a string. */
 export const NEAT_OVERLAY_STYLE_FALLBACK_COLOR = '#00ff00';

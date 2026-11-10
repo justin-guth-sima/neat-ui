@@ -13,8 +13,8 @@ import { PIPELINE, PIPELINE_LEGEND } from './pipeline-data';
  * steps inside, what feeds it on the left, what it feeds on the right. Every chip says where its
  * part runs, in the kit's tones.
  *
- * The Browser has stopped reporting: its node is `stale`, so the whole card is greyed out, and the
- * same template says why in words, since grey alone tells no one what happened.
+ * The Browser has stopped reporting: its node is `stale`, so the whole card is grayed out, and the
+ * same template says why in words, since gray alone tells no one what happened.
  *
  * The notes are the app's `NeatDiagramNoteTemplate`, here with fixed text where a live pipeline
  * would draw `NeatDiagramRateCard`s of its edges' rates.

@@ -6,7 +6,7 @@ import { percentile } from './stats';
  * once per drawn frame with the draw's milliseconds and the dots it drew, and this keeps them in
  * two arrays allocated once. `record` is one function made once, taking no `this`, so the layer can
  * be handed it as it is and a frame allocates nothing. The draw time is the layer's script cost
- * only; with a software canvas some rasterising happens after it, so the frame time is what counts.
+ * only; with a software canvas some rasterizing happens after it, so the frame time is what counts.
  * A raw-browser-API unit's sibling (AGENTS.md): no Angular, with specs.
  */
 

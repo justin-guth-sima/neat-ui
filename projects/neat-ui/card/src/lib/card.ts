@@ -32,7 +32,7 @@ export const CARD_HELM_CLASSES = {
 /**
  * The kit's card look, from helm's: the frame the chart card has always had, so a card and a chart
  * card are one look. Each part is helm's string merged with the kit's classes (`hlm`, as the
- * dialog's panel is), so a kit class replaces the helm class of its kind and the neutralisers
+ * dialog's panel is), so a kit class replaces the helm class of its kind and the neutralizers
  * (`ring-0`, `shadow-none`, `overflow-visible`, `rounded-t-none`, ...) replace the helm classes
  * the kit has no use for. A helm update that renames one shows up as drift in card.spec, and a
  * class that no longer merges away shows in its look test. Class strings stay literals: Tailwind
@@ -40,7 +40,7 @@ export const CARD_HELM_CLASSES = {
  *
  * - Frame: a 1px `--border` and `--radius` instead of helm's ring, shadow and `rounded-xl`; no
  *   `overflow-hidden`, since a chart's readout can hang below its plot, and no ring or shadow,
- *   since a selected chart card draws a border colour and an inset shadow of its own.
+ *   since a selected chart card draws a border color and an inset shadow of its own.
  * - Spacing: `--card-spacing` is `--neat-space-4` (helm's 1.5rem is roomy for a dashboard), and the
  *   parts sit `--neat-space-2` apart.
  * - Type: the title is `text-sm` (`--neat-text-sm`) as a chart card's heading, the subtitle
@@ -73,15 +73,9 @@ export const CARD_CLASSES = {
   // `text-sm` replaces the line height too, under twMerge: `leading-normal` is set again.
   title: hlm(CARD_HELM_CLASSES.title, 'text-sm leading-normal'),
   description: hlm(CARD_HELM_CLASSES.description, 'text-xs col-start-1'),
-  action: hlm(
-    CARD_HELM_CLASSES.action,
-    'flex items-center gap-(--neat-space-2) empty:hidden',
-  ),
+  action: hlm(CARD_HELM_CLASSES.action, 'flex items-center gap-(--neat-space-2) empty:hidden'),
   content: hlm(CARD_HELM_CLASSES.content, 'flex-1 min-h-0 empty:hidden'),
-  footer: hlm(
-    CARD_HELM_CLASSES.footer,
-    'rounded-b-none gap-(--neat-space-2) empty:hidden',
-  ),
+  footer: hlm(CARD_HELM_CLASSES.footer, 'rounded-b-none gap-(--neat-space-2) empty:hidden'),
 } as const;
 
 /**
@@ -107,7 +101,7 @@ export const CARD_CLASSES = {
  *
  * The title is a real heading (`role="heading"`), at `headingLevel`, 3 by default, as the
  * callout's: pick the level that fits where the card stands. `region` makes the card a landmark
- * (`role="region"`, labelled by the title), for a card a user should be able to jump to; without a
+ * (`role="region"`, labeled by the title), for a card a user should be able to jump to; without a
  * title it takes no role, since a region with no name is no landmark. The card sets
  * `--neat-surface` to its fill, for the charts it holds.
  */

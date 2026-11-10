@@ -37,7 +37,7 @@ export interface NeatOverlayItem {
 }
 
 /**
- * A channel's drawing memory across frames: track trails, its track and pose colours, the
+ * A channel's drawing memory across frames: track trails, its track and pose colors, the
  * warnings it has given. Create it with `createOverlayState` and pass it to `drawFrame`.
  */
 export interface NeatOverlayState {
@@ -98,7 +98,7 @@ function fontsOf(family: string): OverlayFonts {
 }
 
 /**
- * A channel's overlay state. Class colours come from `colors`, shared with every tile created
+ * A channel's overlay state. Class colors come from `colors`, shared with every tile created
  * with the same instance; RLE masks are decoded on the page's one offscreen surface.
  */
 export function createOverlayState(channel: number, colors: NeatOverlayColors): NeatOverlayState {
@@ -133,7 +133,7 @@ function newOverlayState(
   return state as unknown as NeatOverlayState;
 }
 
-/** Forgets the channel's track trails and its track and pose colours, as after the stream stops. */
+/** Forgets the channel's track trails and its track and pose colors, as after the stream stops. */
 export function resetOverlayState(handle: NeatOverlayState): void {
   const state = stateOf(handle);
   state.trackHistory.clear();

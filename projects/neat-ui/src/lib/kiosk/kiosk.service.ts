@@ -16,7 +16,7 @@ function kioskRequested(search: string): boolean {
 
 /**
  * Kiosk mode for expos: the shell hides its rail and top bar, and pages can hide their own chrome
- * while the pointer rests (`pointerIdle`). Kiosk keeps the current colour scheme and is not
+ * while the pointer rests (`pointerIdle`). Kiosk keeps the current color scheme and is not
  * persisted; it comes from the button or from a `?kiosk` URL parameter read once at start.
  *
  * `enter()` also asks for browser fullscreen. The URL parameter does not, because browsers refuse

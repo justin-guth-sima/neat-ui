@@ -4,7 +4,7 @@ import { CHIPS, SURFACES } from './chips';
 
 /**
  * The six tones on the page and on a card, each worded as a stream's slot states are: the words
- * carry the state, the colour repeats it. The grey of `neutral` shows on both surfaces.
+ * carry the state, the color repeats it. The gray of `neutral` shows on both surfaces.
  *
  * The last chip is a `NeatStatusChipButton`: it looks the same, and opens more about the status,
  * here a video tile's "Metadata late".

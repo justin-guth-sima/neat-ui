@@ -4,7 +4,7 @@
 //  2. Runs its `ui` generator (configured by components.json) into projects/neat-ui/src/lib/ui.
 //  3. Restores package.json, package-lock.json and tsconfig.json. The generator adds alias paths
 //     (adoption makes the imports relative instead) and dependencies, which the kit declares
-//     deliberately, after checking their licence. A dependency the workspace does not declare yet
+//     deliberately, after checking their license. A dependency the workspace does not declare yet
 //     fails the run.
 //  4. Runs `npm install`, which puts node_modules back to the lockfile and prunes the CLI (also
 //     after the generator's own `npm install`, which it runs when it adds dependencies).
@@ -50,7 +50,7 @@ const foldersBefore = new Set(helmFolders());
 const addedFolders = () => helmFolders().filter((folder) => !foldersBefore.has(folder));
 
 const DECLARE_HINT =
-  'Check the licence, add it to package.json and to projects/neat-ui/package.json (peer, or ' +
+  'Check the license, add it to package.json and to projects/neat-ui/package.json (peer, or ' +
   'dependency plus allowedNonPeerDependencies in ng-package.json), then run this again.';
 
 /** Packages helm imports that the published library would not bring along. */

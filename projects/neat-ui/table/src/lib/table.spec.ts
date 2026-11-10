@@ -52,7 +52,7 @@ describe('NeatTable', () => {
     );
   });
 
-  it('pads every cell by the layout tokens and rules it off below, centred', async () => {
+  it('pads every cell by the layout tokens and rules it off below, centered', async () => {
     const { table } = await render();
 
     expect(classesOf(table)).toEqual(

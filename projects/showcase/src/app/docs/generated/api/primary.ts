@@ -15,7 +15,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A colour ramp: a hex colour for each step from 50 to 950, as "
+              "text": "A color ramp: a hex color for each step from 50 to 950, as "
             },
             {
               "kind": "ref",
@@ -92,7 +92,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "). Kiosk keeps the current colour scheme and is not persisted; it comes from the button or from a "
+              "text": "). Kiosk keeps the current color scheme and is not persisted; it comes from the button or from a "
             },
             {
               "kind": "code",
@@ -280,7 +280,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Functional colours outside the palette, which has no red or amber but errors and warnings need them."
+              "text": "Functional colors outside the palette, which has no red or amber but errors and warnings need them."
             }
           ]
         }
@@ -348,7 +348,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The dark scheme's darkest surface, its page: a neutral near-black. The dark surfaces are greys from here up ("
+              "text": "The dark scheme's darkest surface, its page: a neutral near-black. The dark surfaces are grays from here up ("
             },
             {
               "kind": "ref",
@@ -391,7 +391,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Base of the series teal: the teal of Justin's colours mockup, a hue the palette lacks. Chart series need a fourth hue next to blue, purple and orange that is not a status colour (green, amber and red stay free to mean status)."
+              "text": "Base of the series teal: the teal of Justin's colors mockup, a hue the palette lacks. Chart series need a fourth hue next to blue, purple and orange that is not a status color (green, amber and red stay free to mean status)."
             }
           ]
         }
@@ -408,7 +408,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Used unchanged as the warning fill (step 500 of its scale), with palette text colour on it."
+              "text": "Used unchanged as the warning fill (step 500 of its scale), with palette text color on it."
             }
           ]
         }
@@ -1414,7 +1414,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The two colour schemes the kit has, which "
+              "text": "The two color schemes the kit has, which "
             },
             {
               "kind": "ref",
@@ -1598,7 +1598,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " when it carries meaning on its own. It takes its colour from the surrounding text. The "
+              "text": " when it carries meaning on its own. It takes its color from the surrounding text. The "
             },
             {
               "kind": "code",
@@ -1779,7 +1779,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A text action set into a line of text, such as \"Use global\" at the end of a list line: medium weight and underlined on hover, as tall as its text, in the font size and colour of its parent. Its label does not wrap, so keep it to a few words. Use "
+              "text": "A text action set into a line of text, such as \"Use global\" at the end of a list line: medium weight and underlined on hover, as tall as its text, in the font size and color of its parent. Its label does not wrap, so keep it to a few words. Use "
             },
             {
               "kind": "code",
@@ -1870,7 +1870,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " the dot beats and a ring grows out of it and fades, once in 1.6 s; without it, or under a reduced-motion setting, it is a still dot. The ring is drawn outside the dot's 0.625rem box and does not move the layout, but an ancestor that clips its overflow clips the ring too. The colour is the theme's "
+              "text": " the dot beats and a ring grows out of it and fades, once in 1.6 s; without it, or under a reduced-motion setting, it is a still dot. The ring is drawn outside the dot's 0.625rem box and does not move the layout, but an ancestor that clips its overflow clips the ring too. The color is the theme's "
             },
             {
               "kind": "code",
@@ -1878,7 +1878,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", a red that reads at 3:1 on the page and on the video scrim (over black to mid-grey video), so a badge over video can use it."
+              "text": ", a red that reads at 3:1 on the page and on the video scrim (over black to mid-gray video), so a badge over video can use it."
             }
           ]
         }
@@ -1936,7 +1936,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "code",
-                  "text": "/theme/colours"
+                  "text": "/theme/colors"
                 },
                 {
                   "kind": "text",
@@ -2087,7 +2087,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A short note under a control or a heading: no margin, in the muted text colour and the small text size, as "
+              "text": "A short note under a control or a heading: no margin, in the muted text color and the small text size, as "
             },
             {
               "kind": "code",
@@ -2103,7 +2103,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " inside takes the note's size and colour, so an action set into the note (\"Show\", \"Use global\") reads like the words around it."
+              "text": " inside takes the note's size and color, so an action set into the note (\"Show\", \"Use global\") reads like the words around it."
             }
           ]
         }
@@ -2929,7 +2929,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " a smaller second line in the tone's colour, both cut with an ellipsis and hidden with the label while the rail is collapsed. "
+              "text": " a smaller second line in the tone's color, both cut with an ellipsis and hidden with the label while the rail is collapsed. "
             },
             {
               "kind": "code",
@@ -3179,7 +3179,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "A smaller second line under the first (an address, a state), in the tone's colour."
+                  "text": "A smaller second line under the first (an address, a state), in the tone's color."
                 }
               ]
             }
@@ -3213,7 +3213,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A colour as sRGB red, green and blue, each from 0 to 1, as WebGL and canvas code take it."
+              "text": "A color as sRGB red, green and blue, each from 0 to 1, as WebGL and canvas code take it."
             }
           ]
         }
@@ -3230,7 +3230,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The colour of a series as a small square, for a label that stands for that series outside the drawing that uses it (a run's chip, a summary row, a chart's or a diagram's legend):"
+              "text": "The color of a series as a small square, for a label that stands for that series outside the drawing that uses it (a run's chip, a summary row, a chart's or a diagram's legend):"
             }
           ]
         },
@@ -3256,7 +3256,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", from 0, and the swatch takes the colour that series is drawn in ("
+              "text": ", from 0, and the swatch takes the color that series is drawn in ("
             },
             {
               "kind": "code",
@@ -3272,7 +3272,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), so a label and its line match in either theme. A chart folds a ninth series and beyond into \"Other\" (index 7), so an index past 7 names no colour. A chart's lone series is drawn in its tone's colour instead and needs no swatch."
+              "text": "), so a label and its line match in either theme. A chart folds a ninth series and beyond into \"Other\" (index 7), so an index past 7 names no color. A chart's lone series is drawn in its tone's color instead and needs no swatch."
             }
           ]
         },
@@ -3313,7 +3313,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "'s (the colour square for any colour): both take that component's sheet, so the size, shape and corners are stated once. It is "
+              "text": "'s (the color square for any color): both take that component's sheet, so the size, shape and corners are stated once. It is "
             },
             {
               "kind": "code",
@@ -3321,7 +3321,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": the text beside it names the series, and a colour alone is not a name."
+              "text": ": the text beside it names the series, and a color alone is not a name."
             }
           ]
         }
@@ -3446,7 +3446,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " unfolds them under its item while it is the active page and the rail shows its labels (expanded, or floating open on a narrow screen): rows of text, indented under a thin line, the open one in the rail's current-page look. The item then keeps its label in full text colour at weight 500 without the fill, so one row alone reads as current, and only that row carries "
+              "text": " unfolds them under its item while it is the active page and the rail shows its labels (expanded, or floating open on a narrow screen): rows of text, indented under a thin line, the open one in the rail's current-page look. The item then keeps its label in full text color at weight 500 without the fill, so one row alone reads as current, and only that row carries "
             },
             {
               "kind": "code",
@@ -3663,7 +3663,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". While true the host is faded and grey; once fresh it is shown as it is. The change is instant, with no transition, so a value that comes back is never shown half-faded as if still in doubt. It is the look only: the app says in words why the value is stale, since grey alone tells no one what happened."
+              "text": ". While true the host is faded and gray; once fresh it is shown as it is. The change is instant, with no transition, so a value that comes back is never shown half-faded as if still in doubt. It is the look only: the app says in words why the value is stale, since gray alone tells no one what happened."
             }
           ]
         }
@@ -3698,14 +3698,14 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A colour as a small square, for a label that stands for something drawn in that colour (a class in the video overlays or the bird's-eye view, an item in an app's own legend):"
+              "text": "A color as a small square, for a label that stands for something drawn in that color (a class in the video overlays or the bird's-eye view, an item in an app's own legend):"
             }
           ]
         },
         {
           "kind": "code",
           "language": "html",
-          "code": "<neat-swatch [color]=\"classColour\" /> {{ label }}"
+          "code": "<neat-swatch [color]=\"classColor\" /> {{ label }}"
         },
         {
           "kind": "paragraph",
@@ -3716,7 +3716,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is any CSS colour. For a chart's series, "
+              "text": " is any CSS color. For a chart's series, "
             },
             {
               "kind": "code",
@@ -3724,7 +3724,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " takes the series' index and finds its colour by the kit's one rule; the two share one look (size, shape, corners), stated once in this component's sheet. It is "
+              "text": " takes the series' index and finds its color by the kit's one rule; the two share one look (size, shape, corners), stated once in this component's sheet. It is "
             },
             {
               "kind": "code",
@@ -3732,7 +3732,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": the text beside it names the thing, and a colour alone is not a name."
+              "text": ": the text beside it names the thing, and a color alone is not a name."
             }
           ]
         }
@@ -3748,7 +3748,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The colour to show, as CSS."
+                  "text": "The color to show, as CSS."
                 }
               ]
             }
@@ -3767,7 +3767,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "What a status colour says: nothing in particular ("
+              "text": "What a status color says: nothing in particular ("
             },
             {
               "kind": "code",
@@ -4033,7 +4033,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A ramp of surface colours, white at step 0 to the darkest at 950, from the surface builders."
+              "text": "A ramp of surface colors, white at step 0 to the darkest at 950, from the surface builders."
             }
           ]
         }
@@ -4146,7 +4146,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Builds the neutral surface ramp: the brand ramp's construction in greys only, from greys as light as the two palette backgrounds down to the near-black ("
+              "text": "Builds the neutral surface ramp: the brand ramp's construction in grays only, from grays as light as the two palette backgrounds down to the near-black ("
             },
             {
               "kind": "ref",
@@ -4197,7 +4197,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " colours, in either order; AA for normal text asks for 4.5:1."
+              "text": " colors, in either order; AA for normal text asks for 4.5:1."
             }
           ]
         }
@@ -4320,7 +4320,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " at once. Frames are asked for only while it moves and cancelled when its injector is destroyed. Call in an injection context."
+              "text": " at once. Frames are asked for only while it moves and canceled when its injector is destroyed. Call in an injection context."
             }
           ]
         }
@@ -4337,7 +4337,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A CSS colour in any notation the browser knows (hex, "
+              "text": "A CSS color in any notation the browser knows (hex, "
             },
             {
               "kind": "code",
@@ -4353,7 +4353,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", a name) as sRGB channels from 0 to 1, resolved by drawing it on a 1×1 canvas and reading the pixel back, so the kit parses no colour syntax of its own. Null where there is no canvas or the colour does not parse. For code that draws outside CSS (three.js, a canvas) in the theme's colours or any other colour an app holds, which such code takes as numbers. Alpha is ignored, so a token with alpha (a scrim) is not a fit."
+              "text": ", a name) as sRGB channels from 0 to 1, resolved by drawing it on a 1×1 canvas and reading the pixel back, so the kit parses no color syntax of its own. Null where there is no canvas or the color does not parse. For code that draws outside CSS (three.js, a canvas) in the theme's colors or any other color an app holds, which such code takes as numbers. Alpha is ignored, so a token with alpha (a scrim) is not a fit."
             }
           ]
         }
@@ -4469,7 +4469,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The theme's colours for code that draws outside CSS: "
+              "text": "The theme's colors for code that draws outside CSS: "
             },
             {
               "kind": "code",
@@ -4494,7 +4494,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), or null where the property is not set or not a colour. They are read from "
+              "text": "), or null where the property is not set or not a color. They are read from "
             },
             {
               "kind": "code",
@@ -4502,7 +4502,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (the document element by default, or while it answers undefined) and read again when the colour scheme changes, which "
+              "text": " (the document element by default, or while it answers undefined) and read again when the color scheme changes, which "
             },
             {
               "kind": "ref",
@@ -4577,7 +4577,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The kit's start-up in one call: it applies the stored colour scheme before the first render. The colours themselves come from the kit stylesheet ("
+              "text": "The kit's start-up in one call: it applies the stored color scheme before the first render. The colors themselves come from the kit stylesheet ("
             },
             {
               "kind": "code",

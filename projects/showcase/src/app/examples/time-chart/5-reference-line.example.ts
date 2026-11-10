@@ -4,7 +4,7 @@ import { POWER, POWER_AVERAGE, TIMES, watts } from './data';
 
 /**
  * A reference is a level that is neither a warning nor a danger, here the session's average, drawn
- * dashed in the quiet colour.
+ * dashed in the quiet color.
  */
 @Component({
   selector: 'app-reference-line',

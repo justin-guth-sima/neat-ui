@@ -56,7 +56,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", so the whole card is greyed out, and the same template says why in words, since grey alone tells no one what happened."
+            "text": ", so the whole card is grayed out, and the same template says why in words, since gray alone tells no one what happened."
           }
         ]
       },
@@ -164,7 +164,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'browser'"],["text",",\n    role: "],
           ["string","'block'"],["text",",\n    label: "],
           ["string","'Browser'"],["text",",\n    "],
-          ["comment","// Its stats stopped: the whole card is greyed out, and the block template says why."],["text","\n    stale: "],
+          ["comment","// Its stats stopped: the whole card is grayed out, and the block template says why."],["text","\n    stale: "],
           ["keyword","true"],["text",",\n    inSide: "],
           ["string","'top'"],["text",",\n    parent: "],
           ["string","'laptop'"],["text",",\n    x: 20,\n    y: 290,\n    w: 130,\n    h: 58,\n  },\n  { id: "],
@@ -213,7 +213,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'detector-tracker'"],["text",", from: "],["string","'detector'"],["text",", to: "],["string","'tracker'"],["text",", series: 4 },\n    ],\n    notes: [\n      "],
           ["comment","// Above the frames (they start at y 0; the card is about 85 high), clear of the Camera."],["text","\n      { id: "],
           ["string","'camera-rate'"],["text",", edges: ["],["string","'camera-decode'"],["text","], x: 215, y: -50 },\n      "],
-          ["comment","// A note's x and y are its centre: below the Modalix frame (which ends at y 360), so the card"],["text","\n      "],
+          ["comment","// A note's x and y are its center: below the Modalix frame (which ends at y 360), so the card"],["text","\n      "],
           ["comment","// straddles no border, and its leader runs clear of it."],["text","\n      { id: "],
           ["string","'tracker-rate'"],["text",", edges: ["],["string","'tracker-gateway'"],["text","], x: 330, y: 410 },\n    ],\n  },\n  levels: {\n    detector: {\n      ...neatDrillDownLevel(PIPELINE_STEPS, "],
           ["string","'detector'"],["text","),\n      "],
@@ -816,7 +816,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'browser'"],["text",",\n    role: "],
           ["string","'block'"],["text",",\n    label: "],
           ["string","'Browser'"],["text",",\n    "],
-          ["comment","// Its stats stopped: the whole card is greyed out, and the block template says why."],["text","\n    stale: "],
+          ["comment","// Its stats stopped: the whole card is grayed out, and the block template says why."],["text","\n    stale: "],
           ["keyword","true"],["text",",\n    inSide: "],
           ["string","'top'"],["text",",\n    parent: "],
           ["string","'laptop'"],["text",",\n    x: 20,\n    y: 290,\n    w: 130,\n    h: 58,\n  },\n  { id: "],
@@ -865,7 +865,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'detector-tracker'"],["text",", from: "],["string","'detector'"],["text",", to: "],["string","'tracker'"],["text",", series: 4 },\n    ],\n    notes: [\n      "],
           ["comment","// Above the frames (they start at y 0; the card is about 85 high), clear of the Camera."],["text","\n      { id: "],
           ["string","'camera-rate'"],["text",", edges: ["],["string","'camera-decode'"],["text","], x: 215, y: -50 },\n      "],
-          ["comment","// A note's x and y are its centre: below the Modalix frame (which ends at y 360), so the card"],["text","\n      "],
+          ["comment","// A note's x and y are its center: below the Modalix frame (which ends at y 360), so the card"],["text","\n      "],
           ["comment","// straddles no border, and its leader runs clear of it."],["text","\n      { id: "],
           ["string","'tracker-rate'"],["text",", edges: ["],["string","'tracker-gateway'"],["text","], x: 330, y: 410 },\n    ],\n  },\n  levels: {\n    detector: {\n      ...neatDrillDownLevel(PIPELINE_STEPS, "],
           ["string","'detector'"],["text","),\n      "],

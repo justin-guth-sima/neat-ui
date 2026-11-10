@@ -6,7 +6,7 @@
 }
 
 /*
- * One ramp: a chip per step, each labelled by text, so no label depends on the colour. A ramp has
+ * One ramp: a chip per step, each labeled by text, so no label depends on the color. A ramp has
  * 11 or 12 steps: one row while all of them fit, otherwise two even rows (6 + 6 or 6 + 5), never a
  * short leftover row. A hex value is about 3.7rem wide, so 12 columns need 57rem, 6 need 27rem;
  * only a container narrower than that, a phone's, falls back to 3 columns.

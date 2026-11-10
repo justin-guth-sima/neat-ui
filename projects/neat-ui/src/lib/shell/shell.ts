@@ -94,7 +94,7 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * A page with `children` unfolds them under its item while it is the active page and the rail shows
  * its labels (expanded, or floating open on a narrow screen): rows of text, indented under a thin
  * line, the open one in the rail's current-page look. The item then keeps its label in full text
- * colour at weight 500 without the fill, so one row alone reads as current, and only that row
+ * color at weight 500 without the fill, so one row alone reads as current, and only that row
  * carries `aria-current="page"`. Only the active page's children show, so the rail does not grow
  * with every page's sub-pages.
  *

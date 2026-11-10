@@ -57,7 +57,7 @@ describe('the confirm examples', () => {
     pressed('Not now');
     await settle();
 
-    expect(answer()).toBe('Apply to all: cancelled');
+    expect(answer()).toBe('Apply to all: canceled');
     expect(document.activeElement).toBe(buttons[1]);
   });
 
@@ -72,7 +72,7 @@ describe('the confirm examples', () => {
     );
     await settle();
 
-    expect(answer()).toBe('Reset all: cancelled');
+    expect(answer()).toBe('Reset all: canceled');
     expect(document.activeElement).toBe(buttons[0]);
   });
 });

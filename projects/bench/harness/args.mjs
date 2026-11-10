@@ -1,5 +1,5 @@
 // The harness's command line (design 4.1): parsed and judged before anything is launched, so a
-// campaign of an hour does not start with an option it cannot honour. Pure.
+// campaign of an hour does not start with an option it cannot honor. Pure.
 import { parseArgs as parseNodeArgs } from 'node:util';
 import { parseBrowserFlags } from './browser-flags.mjs';
 

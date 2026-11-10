@@ -17,7 +17,7 @@ export const PROGRESS_HELM_CLASSES = {
 /**
  * Where the kit departs from helm's bar; each override exists because progress.spec failed
  * without it.
- * - Track: `bg-muted` is 1.10:1 on white and is the card colour itself in dark, so the bar's extent
+ * - Track: `bg-muted` is 1.10:1 on white and is the card color itself in dark, so the bar's extent
  *   vanishes. An outline in `--input`, the theme's form-control boundary, which is held to 3:1 on
  *   every surface, marks it. The outline is outside the track, since the fill covers an inner one.
  * - Track: `flex` for helm's `inline-flex`, which sits on a text baseline and so takes the line's
@@ -32,7 +32,7 @@ const INDICATOR_CLASSES = PROGRESS_HELM_CLASSES.indicator.replace(' transition-a
  * Helm moves the fill with `animate-indeterminate` (a keyframes animation of the preset) while the
  * value is unknown. With reduced motion the segment would sit still and look like a bar stuck at
  * some value, so the fill becomes diagonal stripes of full-strength `--primary` over the track:
- * neither empty, partway nor complete, and the same colour pair the determinate fill is held to
+ * neither empty, partway nor complete, and the same color pair the determinate fill is held to
  * at 3:1 against the track and the surface.
  */
 const STRIPE_CLASSES =

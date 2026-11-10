@@ -39,7 +39,7 @@ const CHARTS_D3 = [
   "export { line } from 'd3-shape';\n",
 ];
 const DIAGRAM_D3 = [
-  "import { zoom } from 'd3-zoom';\nexport const behaviour = zoom;\n",
+  "import { zoom } from 'd3-zoom';\nexport const behavior = zoom;\n",
   "import type { ZoomTransform } from 'd3-zoom';\nexport type Transform = ZoomTransform;\n",
   "export { select } from 'd3-selection';\n",
 ];
@@ -129,7 +129,7 @@ const BENCH_ONLY = [
   "import { SourceMapConsumer } from 'source-map';\nexport const maps = SourceMapConsumer;\n",
   importOf('source-map/lib/util.js'),
 ];
-const D3_DRAG = "import { drag } from 'd3-drag';\nexport const behaviour = drag;\n";
+const D3_DRAG = "import { drag } from 'd3-drag';\nexport const behavior = drag;\n";
 
 test('the bench’s dev dependencies are importable under projects/bench/ only', async () => {
   for (const [config, filePath] of [

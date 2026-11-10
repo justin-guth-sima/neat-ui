@@ -12,7 +12,7 @@ interface DetectionData {
   }>;
 }
 
-/** Boxes with a `label (confidence%)` caption, in the class colour. */
+/** Boxes with a `label (confidence%)` caption, in the class color. */
 export const drawObjectDetection: DrawStrategy = (dc, data) => {
   const objects = (data as DetectionData | null | undefined)?.objects;
   if (!objects) return;

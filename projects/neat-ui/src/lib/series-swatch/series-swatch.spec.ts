@@ -40,7 +40,7 @@ describe('seriesToken', () => {
 });
 
 describe('NeatSeriesSwatch', () => {
-  it('takes the palette colour of its series index, counted from 0, through the one rule', async () => {
+  it('takes the palette color of its series index, counted from 0, through the one rule', async () => {
     const { fixture, host, series } = await render();
 
     expect(series('neat-series-swatch.chip')).toEqual([0, 1, 2].map(seriesToken));

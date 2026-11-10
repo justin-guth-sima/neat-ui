@@ -3,7 +3,7 @@ export type NeatOverlayLineStyle = 'solid' | 'dashed' | 'dotted';
 
 /**
  * A class style row: overlays whose label equals `label` draw in `color` with this line. The row
- * labelled `default` applies to every label without a row of its own.
+ * labeled `default` applies to every label without a row of its own.
  */
 export interface NeatOverlayClassStyle {
   readonly label: string;
@@ -33,7 +33,7 @@ export interface NeatOverlaySettings {
     readonly lineWidth: number;
     /** Draw the ROI polygons under the detection, segmentation and tracking overlays. */
     readonly showRoi: boolean;
-    /** Hide detections, segments and tracks whose box centre falls outside the ROI. */
+    /** Hide detections, segments and tracks whose box center falls outside the ROI. */
     readonly applyRoiFiltering: boolean;
   };
   readonly types: {
@@ -55,7 +55,7 @@ export interface NeatOverlaySettings {
       readonly visible: boolean;
       readonly confidenceThreshold: number;
       readonly history: {
-        /** Draw each track's recent centre positions as a trail. */
+        /** Draw each track's recent center positions as a trail. */
         readonly enabled: boolean;
         /** Positions kept per track. */
         readonly trailLength: number;
@@ -72,8 +72,8 @@ export interface NeatOverlaySettings {
       /** The box and label plate around each pose. */
       readonly showBoxes: boolean;
       /**
-       * Colour, line and width by the pose's label (`person`, `hand`); a pose without a row keeps
-       * its identity colour.
+       * Color, line and width by the pose's label (`person`, `hand`); a pose without a row keeps
+       * its identity color.
        */
       readonly objects: readonly NeatOverlayClassStyle[];
     };

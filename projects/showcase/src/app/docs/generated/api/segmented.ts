@@ -52,7 +52,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It never gives up width to its neighbours: in a flex row too narrow for everything in it, the control keeps its labels whole and the text beside it gives way (that text needs "
+              "text": "It never gives up width to its neighbors: in a flex row too narrow for everything in it, the control keeps its labels whole and the text beside it gives way (that text needs "
             },
             {
               "kind": "code",

@@ -15,9 +15,9 @@ export const SIMA_PALETTE = {
 /** Base of the primary scale. Swapping it (for example to the palette blue) re-derives the whole primary ramp. */
 export const NEAT_PRIMARY_BASE: string = SIMA_PALETTE.orange;
 
-/** Functional colours outside the palette, which has no red or amber but errors and warnings need them. */
+/** Functional colors outside the palette, which has no red or amber but errors and warnings need them. */
 export const NEAT_DANGER_BASE = '#C8372D';
-/** Used unchanged as the warning fill (step 500 of its scale), with palette text colour on it. */
+/** Used unchanged as the warning fill (step 500 of its scale), with palette text color on it. */
 export const NEAT_WARN_BASE = '#E9A23B';
 
 /**
@@ -29,14 +29,14 @@ export const NEAT_WARN_BASE = '#E9A23B';
 export const NEAT_HIGHLIGHT_BASE = '#9D93D6';
 
 /**
- * Base of the series teal: the teal of Justin's colours mockup, a hue the palette lacks. Chart
- * series need a fourth hue next to blue, purple and orange that is not a status colour (green,
+ * Base of the series teal: the teal of Justin's colors mockup, a hue the palette lacks. Chart
+ * series need a fourth hue next to blue, purple and orange that is not a status color (green,
  * amber and red stay free to mean status).
  */
 export const NEAT_SERIES_TEAL_BASE = '#2A8C9A';
 
 /**
- * The dark scheme's darkest surface, its page: a neutral near-black. The dark surfaces are greys
+ * The dark scheme's darkest surface, its page: a neutral near-black. The dark surfaces are grays
  * from here up (`buildNeutralSurfaceScale`) rather than steps towards the palette text, whose teal
  * made a whole dark page read green.
  */

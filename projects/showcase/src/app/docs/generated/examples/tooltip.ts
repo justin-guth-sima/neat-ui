@@ -34,14 +34,14 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["text",",\n  styleUrl: "],
           ["string","'./positions.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Positions {\n  "],
-          ["comment","/** Vim's h j k l; the outer tips point away from the row, so no tip covers a neighbour. */"],["text","\n  "],
+          ["comment","/** Vim's h j k l; the outer tips point away from the row, so no tip covers a neighbor. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," positions: "],["keyword","readonly"],["text"," NeatTooltipPosition[] = ["],["string","'left'"],["text",", "],["string","'bottom'"],["text",", "],["string","'top'"],["text",", "],["string","'right'"],["text","];\n}\n"]
         ]
       },
       {
         "name": "positions.example.css",
         "code": [
-          ["comment","/* Centred, so the outer tips have room to open away from the row. */"],["text","\n.row {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  justify-content: center;\n  gap: var(--neat-space-3);\n}\n"]
+          ["comment","/* Centered, so the outer tips have room to open away from the row. */"],["text","\n.row {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  justify-content: center;\n  gap: var(--neat-space-3);\n}\n"]
         ]
       }
     ]

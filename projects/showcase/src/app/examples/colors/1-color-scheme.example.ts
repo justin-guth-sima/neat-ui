@@ -8,7 +8,7 @@ import { NeatButton, type NeatColorScheme, ThemeService } from '@sima/neat-ui';
  * as it was. Light is the default whatever the operating system prefers.
  */
 @Component({
-  selector: 'app-colour-scheme',
+  selector: 'app-color-scheme',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -26,7 +26,7 @@ import { NeatButton, type NeatColorScheme, ThemeService } from '@sima/neat-ui';
     </div>
   `,
 })
-export class ColourScheme {
+export class ColorScheme {
   protected readonly theme = inject(ThemeService);
   protected readonly other = computed<NeatColorScheme>(() =>
     this.theme.scheme() === 'dark' ? 'light' : 'dark',

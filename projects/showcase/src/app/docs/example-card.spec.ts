@@ -71,11 +71,11 @@ describe('ExampleCard', () => {
   });
 
   it('links the parts it shows, wherever each is documented', async () => {
-    const host = await render(new FakeDocs(['NeatStatusChip'], { NeatTone: '/theme/colours' }));
+    const host = await render(new FakeDocs(['NeatStatusChip'], { NeatTone: '/theme/colors' }));
     const links = Array.from(host.querySelectorAll<HTMLAnchorElement>('.shows a'));
 
     expect(links.map((link) => [link.textContent, link.getAttribute('href')])).toEqual([
-      ['NeatTone', '/theme/colours#api-NeatTone'],
+      ['NeatTone', '/theme/colors#api-NeatTone'],
       ['NeatStatusChip', '/#api-NeatStatusChip'],
     ]);
   });

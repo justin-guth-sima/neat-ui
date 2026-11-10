@@ -65,7 +65,7 @@ describe('stateValue', () => {
     expect(value('ring', [])).toBe('ring');
   });
 
-  it('ignores non-colour utilities of the same family', () => {
+  it('ignores non-color utilities of the same family', () => {
     expect(value('border', [])).toBeUndefined();
     expect(value('text', [])).toBeUndefined();
   });
@@ -77,14 +77,14 @@ describe('stateValue', () => {
     expect(stateValue(underline, 'bg', query([], 'placeholder'))).toBeUndefined();
   });
 
-  it('fails on an unknown variant, a tie with different values, and a default palette colour', () => {
+  it('fails on an unknown variant, a tie with different values, and a default palette color', () => {
     expect(() => stateValue(['focus:bg-primary'], 'bg', query([]))).toThrow(
       /Unknown variant "focus"/,
     );
     expect(() =>
       stateValue(['hover:bg-input', 'data-checked:bg-primary'], 'bg', query(['hover', 'checked'])),
     ).toThrow(/Ambiguous bg/);
-    expect(() => stateValue(['bg-zinc-500'], 'bg', query([]))).toThrow(/not a theme colour/);
+    expect(() => stateValue(['bg-zinc-500'], 'bg', query([]))).toThrow(/not a theme color/);
   });
 
   it('accepts a tie when both classes give the same value', () => {

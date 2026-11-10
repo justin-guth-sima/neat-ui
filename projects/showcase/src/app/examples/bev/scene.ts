@@ -8,15 +8,15 @@ import type {
 } from '@sima/neat-ui/bev';
 
 /*
- * A made-up street scene for the BEV examples, in the vehicle's frame (metres, x forward, y left):
+ * A made-up street scene for the BEV examples, in the vehicle's frame (meters, x forward, y left):
  * the vehicle waits in the right lane of a road that crosses another 22 m ahead, with traffic,
  * people and a cyclist moving around it, a lidar's returns from the buildings, the lane markings,
  * a planned left turn and a six-camera rig. Nothing here comes from a real recording.
  */
 
-/** The road the vehicle is on: its centre line and half its width. */
+/** The road the vehicle is on: its center line and half its width. */
 const ROAD_Y = 1.75;
-/** The crossing road: its centre line, 22 m ahead. */
+/** The crossing road: its center line, 22 m ahead. */
 const CROSS_X = 22;
 const HALF_ROAD = 7;
 const LANE = 3.5;
@@ -71,7 +71,7 @@ function drivableGrid(): NeatBevGrid {
 const pairs = (points: readonly (readonly [number, number])[]): Float32Array =>
   Float32Array.from(points.flat());
 
-/** The dashed centre lines of both roads, broken where they cross. */
+/** The dashed center lines of both roads, broken where they cross. */
 function laneMarkings(): NeatBevLine[] {
   const near = CROSS_X - HALF_ROAD;
   const far = CROSS_X + HALF_ROAD;
@@ -257,7 +257,7 @@ export class StreetScene {
     }
     // A mover's speed is signed along its axis: x for those heading along the road, y across.
     const objects: NeatBevObject[] = this.movers.map((m) => {
-      const travelled = m.speed * seconds;
+      const traveled = m.speed * seconds;
       const along = Math.abs(Math.cos(m.yaw)) > 0.5;
       return {
         id: m.id,
@@ -265,8 +265,8 @@ export class StreetScene {
         length: m.length,
         width: m.width,
         yaw: m.yaw,
-        x: along ? wrap(m.x + travelled) : m.x,
-        y: along ? m.y : wrap(m.y + travelled),
+        x: along ? wrap(m.x + traveled) : m.x,
+        y: along ? m.y : wrap(m.y + traveled),
         text: `Score ${m.score.toFixed(2)}`,
       };
     });
@@ -295,7 +295,7 @@ export function streetFrames(): Signal<NeatBevFrame> {
   return frame.asReadonly();
 }
 
-/** A rectangle, metres: back and front, right and left. */
+/** A rectangle, meters: back and front, right and left. */
 const block = (back: number, front: number, right: number, left: number): Float32Array =>
   pairs([
     [back, right],

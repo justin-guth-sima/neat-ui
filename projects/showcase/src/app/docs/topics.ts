@@ -97,8 +97,8 @@ export const GROUPS: readonly TopicGroup[] = [
         page: () => import('../pages/theme.page').then((m) => m.ThemePage),
       },
       {
-        id: 'colours',
-        label: 'Colours',
+        id: 'colors',
+        label: 'Colors',
         parts: [
           'ThemeService',
           'provideNeatUi',
@@ -126,7 +126,7 @@ export const GROUPS: readonly TopicGroup[] = [
         load: async () => {
           const [api, examples] = await Promise.all([
             import('./generated/api/primary'),
-            import('./generated/examples/colours'),
+            import('./generated/examples/colors'),
           ]);
           return { entries: [api.API], examples: examples.EXAMPLES };
         },
@@ -778,7 +778,7 @@ export const GROUPS: readonly TopicGroup[] = [
           {
             id: 'score-bars',
             label: 'Score bars',
-            parts: ['NeatScoreBars', 'NeatScore', 'neatLabelColour'],
+            parts: ['NeatScoreBars', 'NeatScore', 'neatLabelColor', 'neatLabelColour'],
             leads: ['NeatScoreBars'],
             load: async () => {
               const [api, examples] = await Promise.all([

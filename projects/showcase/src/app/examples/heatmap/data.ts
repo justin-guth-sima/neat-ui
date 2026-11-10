@@ -24,7 +24,7 @@ export const percent: NeatChartFormat = (value) => `${value.toFixed(0)}%`;
 
 /**
  * Sixteen cores: some idle, some busy, the last one saturated. The figure at a row's end is the
- * last minute's mean, in the warning colour from 70% and the danger colour from 85%.
+ * last minute's mean, in the warning color from 70% and the danger color from 85%.
  */
 export const CORES: readonly NeatHeatmapRow[] = Array.from({ length: 16 }, (_, index) => {
   const values =

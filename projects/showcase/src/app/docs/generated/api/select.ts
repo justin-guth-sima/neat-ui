@@ -124,7 +124,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; a value that is not among the options (a deleted file, options that load later) shows the placeholder as well, in its muted colour. The select fills its container's width (inline, the width its label leaves), and its list is as wide as the select."
+              "text": "; a value that is not among the options (a deleted file, options that load later) shows the placeholder as well, in its muted color. The select fills its container's width (inline, the width its label leaves), and its list is as wide as the select."
             }
           ]
         },

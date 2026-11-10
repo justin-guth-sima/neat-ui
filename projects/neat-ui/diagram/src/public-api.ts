@@ -1,7 +1,7 @@
 /*
  * Public API surface of @sima/neat-ui/diagram: hand-placed diagrams in the kit's look, nodes in
  * frames with the edges routed between them, drawn by `neat-diagram`, the legend that names
- * their colours and lines (`neat-diagram-legend`), and the messages moving along the edges
+ * their colors and lines (`neat-diagram-legend`), and the messages moving along the edges
  * (`neat-diagram-messages`), with the rate card for its numbers (`neat-diagram-rate-card`) and the
  * Animation panel for its tuning (`neat-diagram-animation-settings`). A secondary entry point, so
  * an app's main bundle carries it only if a page it loads imports it. It imports the primary, the

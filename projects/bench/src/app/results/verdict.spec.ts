@@ -222,7 +222,7 @@ describe('supportingEvidence (kit under 85 % of vflow’s fps, two steps running
     expect(found.below[0].ratio).toBeCloseTo(50 / 60, 9);
   });
 
-  it('does not count one step, or two that are not neighbours', () => {
+  it('does not count one step, or two that are not neighbors', () => {
     const lone = evidence(
       [
         [1, 60],
@@ -253,7 +253,7 @@ describe('supportingEvidence (kit under 85 % of vflow’s fps, two steps running
     expect(apart.below.map((row) => row.level)).toEqual([1, 4]);
   });
 
-  it('compares only the levels both ran, neighbours among those', () => {
+  it('compares only the levels both ran, neighbors among those', () => {
     const found = evidence(
       [
         [1, 50],

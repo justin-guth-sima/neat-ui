@@ -3,7 +3,7 @@ import type { NeatRoiPolygon } from '../overlays/overlay-settings';
 import { OVERLAY_ROI_COLORS } from '../theme/overlay-palette';
 
 /**
- * A dot in the outline colour of a region type, as `neat-roi-editor` draws it on the video: put
+ * A dot in the outline color of a region type, as `neat-roi-editor` draws it on the video: put
  * it before a region's name in a list (`<neat-roi-swatch [type]="region.type" />`) so the list
  * and the image read alike. It is decoration, hidden from assistive technology, so the name next
  * to it must say the type.
@@ -19,7 +19,7 @@ import { OVERLAY_ROI_COLORS } from '../theme/overlay-palette';
   styleUrl: './roi-swatch.css',
 })
 export class NeatRoiSwatch {
-  /** The region type whose outline colour the dot takes: `inclusion` or `exclusion`. */
+  /** The region type whose outline color the dot takes: `inclusion` or `exclusion`. */
   readonly type = input.required<NeatRoiPolygon['type']>();
 
   protected readonly color = computed(() => OVERLAY_ROI_COLORS[this.type()].stroke);

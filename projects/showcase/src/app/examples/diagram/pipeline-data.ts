@@ -44,7 +44,7 @@ const PIPELINE_NODES: readonly NeatDiagramNode[] = [
     id: 'browser',
     role: 'block',
     label: 'Browser',
-    // Its stats stopped: the whole card is greyed out, and the block template says why.
+    // Its stats stopped: the whole card is grayed out, and the block template says why.
     stale: true,
     inSide: 'top',
     parent: 'laptop',
@@ -148,7 +148,7 @@ export const PIPELINE: NeatDiagramSet = {
     notes: [
       // Above the frames (they start at y 0; the card is about 85 high), clear of the Camera.
       { id: 'camera-rate', edges: ['camera-decode'], x: 215, y: -50 },
-      // A note's x and y are its centre: below the Modalix frame (which ends at y 360), so the card
+      // A note's x and y are its center: below the Modalix frame (which ends at y 360), so the card
       // straddles no border, and its leader runs clear of it.
       { id: 'tracker-rate', edges: ['tracker-gateway'], x: 330, y: 410 },
     ],

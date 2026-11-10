@@ -619,7 +619,7 @@ describe('NeatPage', () => {
         expect(attr('aria-valuenow')).toBe('288');
       });
 
-      it('drops the drag on a cancelled pointer', async () => {
+      it('drops the drag on a canceled pointer', async () => {
         pointer('pointerdown', 600);
         pointer('pointermove', 500);
         pointer('pointercancel', 500);
@@ -720,8 +720,8 @@ describe('NeatPage', () => {
         expect(separatorRule).toMatch(/user-select:\s*none;/);
       });
 
-      it('keeps forced colours from boxing the handle, drawing its transparent outline on focus only', () => {
-        // Forced-colors mode paints a transparent outline in a system colour, since it drops the
+      it('keeps forced colors from boxing the handle, drawing its transparent outline on focus only', () => {
+        // Forced-colors mode paints a transparent outline in a system color, since it drops the
         // line's background: always, that would be a permanent box around the handle.
         expect(rule('\\.separator') ?? '').not.toMatch(/outline/);
         expect(rule('\\.separator:focus-visible') ?? '').toMatch(

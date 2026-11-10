@@ -27,7 +27,7 @@ async function render() {
 }
 
 describe('NeatNote', () => {
-  it('is margin-free, in the muted text colour and the small text size', async () => {
+  it('is margin-free, in the muted text color and the small text size', async () => {
     const { paragraph } = await render();
 
     expect([...paragraph.classList]).toEqual(
@@ -51,7 +51,7 @@ describe('NeatNote', () => {
     expect(own(span)).toEqual(own(paragraph));
   });
 
-  it('leaves the colour and size to an inline button inside, which inherits them', async () => {
+  it('leaves the color and size to an inline button inside, which inherits them', async () => {
     const { button } = await render();
 
     expect([...button.classList]).toEqual(

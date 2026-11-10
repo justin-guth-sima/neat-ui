@@ -44,7 +44,7 @@ function sameLayout(a: NeatTileLayout | null, b: NeatTileLayout | null): boolean
 }
 
 /**
- * Lays its items out as 16:9 tiles of a fixed width in a centred grid, as many as fit into its own box
+ * Lays its items out as 16:9 tiles of a fixed width in a centered grid, as many as fit into its own box
  * without scrolling or overflowing. The tile width comes from the page (a slider, say); the grid
  * works out the columns, rows and tiles per page and reports them through `layout`, so the page
  * can slice its items to `perPage`. The grid never pages itself.
@@ -54,9 +54,9 @@ function sameLayout(a: NeatTileLayout | null, b: NeatTileLayout | null): boolean
  * resize notification.
  *
  * `count` is the number of projected items. When fewer than a row's worth are shown, they form a
- * centred block of their own width instead of hugging the left edge of a full-width row.
+ * centered block of their own width instead of hugging the left edge of a full-width row.
  *
- * The gap defaults to the kit's `--neat-space-2` token, read once when the grid initialises; an
+ * The gap defaults to the kit's `--neat-space-2` token, read once when the grid initializes; an
  * explicit `gap` (in CSS pixels) overrides it.
  */
 @Component({

@@ -1,5 +1,5 @@
 /*
- * Layout shared by the showcase pages, through the kit's tokens as an app would: colours from the
+ * Layout shared by the showcase pages, through the kit's tokens as an app would: colors from the
  * theme, spacing and small type from the --neat-space-* and --neat-text-* set. Widths stay literal:
  * they are measures of this gallery, not spacing. neat-page supplies the page inset.
  */

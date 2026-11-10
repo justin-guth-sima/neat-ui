@@ -4,7 +4,7 @@
 // `--allow-unfair` goes on, and the report and every problem stay in the result's warnings.
 
 /**
- * The report from the two fairness runs: the page's judgement (from the vflow page, which was
+ * The report from the two fairness runs: the page's judgment (from the vflow page, which was
  * given the kit's fingerprint), or a failed report where either run itself failed.
  */
 export function fairnessReport(kit, vflow) {

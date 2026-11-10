@@ -320,7 +320,7 @@ describe('NeatTimeChart', () => {
     expect(height()).toBe('9.5rem');
   });
 
-  it('fill is labelled as medium, with the plot taking the height the host leaves', async () => {
+  it('fill is labeled as medium, with the plot taking the height the host leaves', async () => {
     const chart = await render((host) => {
       host.size.set('fill');
       host.series.set([cpu(10, 20, 30, 40, 50)]);

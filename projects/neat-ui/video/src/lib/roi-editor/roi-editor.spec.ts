@@ -405,7 +405,7 @@ describe('NeatRoiEditor', () => {
     expect(draft()).toBeNull();
   });
 
-  it('draws the open polygon as a dashed polyline in the stroke colour, through the pointer', async () => {
+  it('draws the open polygon as a dashed polyline in the stroke color, through the pointer', async () => {
     await create();
     await clickAt(BOX, 0.1, 0.1);
     await clickAt(BOX, 0.9, 0.1);
@@ -451,7 +451,7 @@ describe('NeatRoiEditor', () => {
       expect(draft()).toBeNull();
       expect(outside).not.toHaveBeenCalled();
 
-      // The cancelled points are gone: a click near the old first point starts a polygon.
+      // The canceled points are gone: a click near the old first point starts a polygon.
       await clickAt(BOX, 0.1, 0.1);
       await clickAt(BOX, 0.9, 0.1);
       await clickAt(BOX, 0.1, 0.1);

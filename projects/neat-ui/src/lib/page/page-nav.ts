@@ -244,7 +244,7 @@ export class NeatPageNav implements AfterViewInit {
   }
 
   /**
-   * Scrolls `box` so the open link shows, centred, when it does not already. The box is the links'
+   * Scrolls `box` so the open link shows, centered, when it does not already. The box is the links'
    * offset parent (`position: relative` in the stylesheet).
    */
   private reveal(box: HTMLElement): void {

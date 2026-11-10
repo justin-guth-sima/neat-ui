@@ -15,7 +15,7 @@ export interface FitTransform {
 
 /**
  * The transform that shows `bounds` (diagram units) as large as fits in `box` (px) less `margin`
- * on every side, the zoom held within `limits`, centred. Null for a box without a size (a hidden
+ * on every side, the zoom held within `limits`, centered. Null for a box without a size (a hidden
  * tab): the caller fits once the box has one. An empty level (zero size) gets the largest zoom; a
  * box smaller than its margins, the smallest.
  */

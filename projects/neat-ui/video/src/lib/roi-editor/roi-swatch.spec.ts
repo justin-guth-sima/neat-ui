@@ -12,7 +12,7 @@ class Host {
   readonly type = signal<NeatRoiPolygon['type']>('inclusion');
 }
 
-/** A colour as the DOM reports it back from a style (hex comes back as `rgb(…)`). */
+/** A color as the DOM reports it back from a style (hex comes back as `rgb(…)`). */
 function asStyled(color: string): string {
   const probe = document.createElement('span');
   probe.style.backgroundColor = color;
@@ -20,7 +20,7 @@ function asStyled(color: string): string {
 }
 
 describe('NeatRoiSwatch', () => {
-  it("neat-roi-swatch draws the type's stroke colour and is hidden from assistive technology", async () => {
+  it("neat-roi-swatch draws the type's stroke color and is hidden from assistive technology", async () => {
     const fixture = TestBed.createComponent(Host);
     await fixture.whenStable();
     const swatch: HTMLElement = fixture.nativeElement.querySelector('neat-roi-swatch');

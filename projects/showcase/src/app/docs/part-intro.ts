@@ -42,7 +42,7 @@ import type { DocsDeclaredPart } from './model';
       }
       <app-doc-text [id]="ids().doc" [blocks]="shown()" />
       @if (cut() < part().doc.length) {
-        <!-- The button takes the paragraph's colour, the links' (an inline button inherits it). -->
+        <!-- The button takes the paragraph's color, the links' (an inline button inherits it). -->
         <p class="more">
           <button
             neatInlineButton

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { isNumber } from './geometry';
-import { neatLabelColour } from './label-colour';
+import { neatLabelColor } from './label-color';
 
 /** One class and the score a classifier gave it, 0 to 1. */
 export interface NeatScore {
@@ -9,7 +9,7 @@ export interface NeatScore {
   readonly value: number;
 }
 
-/** A row as drawn: the clamped score for the bar, the figure beside it, the colour of the fill. */
+/** A row as drawn: the clamped score for the bar, the figure beside it, the color of the fill. */
 interface Row {
   readonly label: string;
   /** The score clamped to 0..1, `0` for a value that is not a number. */
@@ -17,7 +17,7 @@ interface Row {
   readonly text: string;
   /** Whether the value was a number; a row that was not reads "no value", not 0. */
   readonly numeric: boolean;
-  readonly colour: string;
+  readonly color: string;
 }
 
 /**
@@ -34,15 +34,15 @@ interface Row {
  *
  * Rows keep the order of `scores`, so a bar does not jump about as the scores change. Each row is
  * the label, a bar filled to its score (clamped to 0..1) and the score with two decimals; a value
- * that is not a number draws an empty bar and "–". The fill takes its colour from
- * `neatLabelColour`, by the label's place in `labels` (empty means the order of `scores`), and
+ * that is not a number draws an empty bar and "–". The fill takes its color from
+ * `neatLabelColor`, by the label's place in `labels` (empty means the order of `scores`), and
  * `quiet` names the labels that stay muted. The row with the highest score has `data-top` and its
  * label in bold, the first of a tie, and none when no score is a number.
  *
  * `size` says how tall the list is. `auto`, the default, gives each row the height of its text.
  * `fill` makes the host at least as tall as its container (`min-height: 100%`, so the container
  * needs a height of its own, such as a card a grid row stretches) and shares that height evenly
- * among the rows: each row grows, its label and figure stay centred in it, and its bar thickens
+ * among the rows: each row grows, its label and figure stay centered in it, and its bar thickens
  * with it up to twice its usual thickness. A container shorter than the rows' natural height does
  * not squeeze them: the list keeps that height and overflows, as it does without `fill`.
  *
@@ -70,7 +70,7 @@ interface Row {
           [attr.aria-valuetext]="row.numeric ? null : 'no value'"
           [attr.aria-label]="row.label"
         >
-          <span class="fill" [style.width.%]="row.clamped * 100" [style.--fill]="row.colour"></span>
+          <span class="fill" [style.width.%]="row.clamped * 100" [style.--fill]="row.color"></span>
         </span>
         <span class="value">{{ row.text }}</span>
       </div>
@@ -81,9 +81,9 @@ interface Row {
 export class NeatScoreBars {
   /** The classes and their scores, in the order the rows are drawn. */
   readonly scores = input.required<readonly NeatScore[]>();
-  /** The colour order of the labels; empty means the order of `scores`. */
+  /** The color order of the labels; empty means the order of `scores`. */
   readonly labels = input<readonly string[]>([]);
-  /** Labels drawn in the muted colour, such as "No gesture". */
+  /** Labels drawn in the muted color, such as "No gesture". */
   readonly quiet = input<readonly string[]>([]);
   /** Names the group of bars. */
   readonly label = input.required<string>();
@@ -102,7 +102,7 @@ export class NeatScoreBars {
         clamped,
         numeric: isNumber(value),
         text: isNumber(value) ? clamped.toFixed(2) : '–',
-        colour: neatLabelColour(label, order, this.quiet()),
+        color: neatLabelColor(label, order, this.quiet()),
       };
     });
   });

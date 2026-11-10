@@ -24,7 +24,7 @@ import type { NeatDiagramMessageStep } from './dot-model';
 /** requestAnimationFrame under the test's control: a frame runs only when the test says so. */
 class FakeAnimationFrames {
   readonly callbacks = new Map<number, FrameRequestCallback>();
-  readonly cancelled: number[] = [];
+  readonly canceled: number[] = [];
   private nextId = 1;
 
   install(): void {
@@ -34,7 +34,7 @@ class FakeAnimationFrames {
       return id;
     });
     vi.stubGlobal('cancelAnimationFrame', (id: number) => {
-      this.cancelled.push(id);
+      this.canceled.push(id);
       this.callbacks.delete(id);
     });
   }
@@ -51,7 +51,7 @@ type Pixel = [number, number, number];
 
 const ignore = (): void => undefined;
 
-/** A dot drawn: its centre and size on the canvas (CSS px), its alpha and its sprite. */
+/** A dot drawn: its center and size on the canvas (CSS px), its alpha and its sprite. */
 interface Drawn {
   x: number;
   y: number;
@@ -72,7 +72,7 @@ interface Box {
 
 /**
  * A 2D context, as jsdom has none: it records the sprites drawn, and parses `#rrggbb` and the
- * layer's `rgb(r g b)` like a browser's, so the kit's colour probe resolves the theme's tokens.
+ * layer's `rgb(r g b)` like a browser's, so the kit's color probe resolves the theme's tokens.
  */
 class FakeContext {
   readonly drawn: Drawn[] = [];
@@ -158,10 +158,10 @@ function stubCanvas(): void {
   } as unknown as HTMLCanvasElement['getContext']);
 }
 
-/** The colour a sprite's dot is filled with (its first fill; the second is its core). */
-const colourOf = (sprite: HTMLCanvasElement) => fakeOf(sprite).fills[0];
+/** The color a sprite's dot is filled with (its first fill; the second is its core). */
+const colorOf = (sprite: HTMLCanvasElement) => fakeOf(sprite).fills[0];
 
-/** The theme's colours as the kit's stylesheet sets them, in hex for the fake context to parse. */
+/** The theme's colors as the kit's stylesheet sets them, in hex for the fake context to parse. */
 const TOKENS = `
   :root {
     --muted-foreground: #808080;
@@ -259,6 +259,7 @@ const STEPS: Record<string, NeatDiagramMessageStep> = {
       <neat-diagram-messages
         [steps]="steps()"
         [passive]="passive()"
+        [colors]="colors()"
         [colours]="colours()"
         [settings]="settings()"
       />
@@ -269,6 +270,7 @@ class ContextHost {
   readonly shown = signal(true);
   readonly steps = signal(STEPS);
   readonly passive = signal<readonly string[]>([]);
+  readonly colors = signal<Record<string, number>>({});
   readonly colours = signal<Record<string, number>>({});
   readonly settings = signal(SETTINGS);
   readonly layer = viewChild(NeatDiagramMessages);
@@ -334,7 +336,7 @@ describe('NeatDiagramMessages', () => {
     expect(dot.y).toBeCloseTo(0);
     expect(dot.size).toBeCloseTo(SIZE_1KB(REFERENCE_ZOOM));
     expect(dot.alpha).toBe(1);
-    expect(colourOf(dot.sprite)).toBe('rgb(0 0 255)');
+    expect(colorOf(dot.sprite)).toBe('rgb(0 0 255)');
   });
 
   it('sizes the canvas to its own box at the device pixel ratio', async () => {
@@ -444,10 +446,10 @@ describe('NeatDiagramMessages', () => {
     expect(frame(1100)).toEqual([]);
     const [dot, ...more] = frame(1300);
     expect(more).toEqual([]);
-    // A tenth of the way along `step`, in its input's colour.
+    // A tenth of the way along `step`, in its input's color.
     expect(dot.x).toBeCloseTo(330 * REFERENCE_ZOOM);
     expect(dot.y).toBeCloseTo(100 * REFERENCE_ZOOM);
-    expect(colourOf(dot.sprite)).toBe('rgb(0 0 255)');
+    expect(colorOf(dot.sprite)).toBe('rgb(0 0 255)');
   });
 
   it('splits a stage over the steps that share it', async () => {
@@ -469,17 +471,31 @@ describe('NeatDiagramMessages', () => {
     expect(frame(1500)).toEqual([]);
   });
 
-  it("takes an edge's colour from `colours`, else its series, else the muted colour", async () => {
+  it("takes an edge's color from `colors`, else its series, else the muted color", async () => {
     const { fixture, layer, frame } = await renderLayer();
     fixture.componentInstance.steps.set({});
-    fixture.componentInstance.colours.set({ in: 3 });
+    fixture.componentInstance.colors.set({ in: 3 });
     await fixture.whenStable();
     layer.push('in', 1000, 0);
     layer.push('step', 1000, 0);
 
     const [onIn, onStep] = frame(500);
-    expect(colourOf(onIn.sprite)).toBe('rgb(255 0 0)');
-    expect(colourOf(onStep.sprite)).toBe('rgb(128 128 128)');
+    expect(colorOf(onIn.sprite)).toBe('rgb(255 0 0)');
+    expect(colorOf(onStep.sprite)).toBe('rgb(128 128 128)');
+  });
+
+  it('still takes the deprecated British `colours`, with `colors` winning for an edge both name', async () => {
+    const { fixture, layer, frame } = await renderLayer();
+    fixture.componentInstance.steps.set({});
+    fixture.componentInstance.colours.set({ in: 3, step: 3 });
+    fixture.componentInstance.colors.set({ step: 1 });
+    await fixture.whenStable();
+    layer.push('in', 1000, 0);
+    layer.push('step', 1000, 0);
+
+    const [onIn, onStep] = frame(500);
+    expect(colorOf(onIn.sprite)).toBe('rgb(255 0 0)');
+    expect(colorOf(onStep.sprite)).not.toBe('rgb(255 0 0)');
   });
 
   it('moves its dots with the transform, re-mapped in the frame the hook asks for', async () => {
@@ -545,14 +561,14 @@ describe('NeatDiagramMessages', () => {
     expect(fakeOf(canvas).globalCompositeOperation).toBe('source-over');
   });
 
-  it('recolours its dots in the frame after the colour scheme changes', async () => {
+  it('recolors its dots in the frame after the color scheme changes', async () => {
     const { fixture, layer, frame } = await renderLayer();
     layer.push('in', 1000, 0);
-    expect(colourOf(frame(100)[0].sprite)).toBe('rgb(0 0 255)');
+    expect(colorOf(frame(100)[0].sprite)).toBe('rgb(0 0 255)');
 
     TestBed.inject(ThemeService).setScheme('dark', { persist: false });
     await fixture.whenStable();
-    expect(colourOf(frame(200)[0].sprite)).toBe('rgb(0 255 0)');
+    expect(colorOf(frame(200)[0].sprite)).toBe('rgb(0 255 0)');
   });
 
   it('runs its frames only while something moves', async () => {
@@ -636,10 +652,10 @@ describe('NeatDiagramMessages', () => {
     document.dispatchEvent(new Event('visibilitychange'));
     fixture.componentInstance.shown.set(false);
     await fixture.whenStable();
-    expect(frames.cancelled).not.toContain(0);
+    expect(frames.canceled).not.toContain(0);
   });
 
-  it('draws no travelling dots under reduced motion, a brief mark at the end instead', async () => {
+  it('draws no traveling dots under reduced motion, a brief mark at the end instead', async () => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'performance'] });
     reduced = true;
     const { layer, frame } = await renderLayer();
@@ -682,7 +698,7 @@ describe('NeatDiagramMessages', () => {
 });
 
 /**
- * A camera feeding a decoder on the overview, the edge labelled; the decoder opens a level with
+ * A camera feeding a decoder on the overview, the edge labeled; the decoder opens a level with
  * its steps.
  */
 const SYSTEM: NeatDiagramSet = {
@@ -833,7 +849,7 @@ describe('NeatDiagramMessages in neat-diagram', () => {
     expect(Math.hypot(dot.x - expected.x, dot.y - expected.y)).toBeCloseTo(dot.size / 2);
   });
 
-  /** `frames` runs straight from (120, 20) to (400, 20): its label is centred on (260, 20). */
+  /** `frames` runs straight from (120, 20) to (400, 20): its label is centered on (260, 20). */
   const LABEL_AT = { x: 260, y: 20 };
   /** The label's border box as a browser measures it (diagram units: a zoom does not change it). */
   const LABEL_SIZE = { w: 44, h: 18 };
@@ -885,7 +901,7 @@ describe('NeatDiagramMessages in neat-diagram', () => {
     await measureLabel(fixture, host);
     layer.push('frames', 1000, 0);
 
-    // Halfway, the dot is at the label's centre: drawn, then erased with the label's box.
+    // Halfway, the dot is at the label's center: drawn, then erased with the label's box.
     const [dot] = frame(framesTravel() / 2);
     const label = labelOnScreen(host);
     const erased = lastErased(element);

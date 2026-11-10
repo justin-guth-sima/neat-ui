@@ -22,16 +22,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", so it stays muted beside the coloured gestures, and the top row's label is bold. The line below the bars colours its dot with "
+            "text": ", so it stays muted beside the colored gestures, and the top row's label is bold. The line below the bars colors its dot with "
           },
           {
             "kind": "ref",
-            "text": "neatLabelColour",
-            "name": "neatLabelColour"
+            "text": "neatLabelColor",
+            "name": "neatLabelColor"
           },
           {
             "kind": "text",
-            "text": ", so text outside the bars (a timeline's runs, a caption) shows a class in the same colour."
+            "text": ", so text outside the bars (a timeline's runs, a caption) shows a class in the same color."
           }
         ]
       }
@@ -39,7 +39,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "shows": [
       "@sima/neat-ui/charts#NeatScore",
       "@sima/neat-ui/charts#NeatScoreBars",
-      "@sima/neat-ui/charts#neatLabelColour"
+      "@sima/neat-ui/charts#neatLabelColor"
     ],
     "files": [
       {
@@ -47,10 +47,10 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  DestroyRef,\n  inject,\n  signal,\n} "],
           ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatScore, NeatScoreBars, neatLabelColour } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatScore, NeatScoreBars, neatLabelColor } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { CLASSES, NO_GESTURE, scoresAt } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-gesture-scores'"],["text",",\n  imports: [NeatScoreBars],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-score-bars\n      label=\"Gesture probabilities\"\n      [scores]=\"scores()\"\n      [labels]=\"labels\"\n      [quiet]=\"quiet\"\n    />\n    <p class=\"reading\">\n      <span class=\"dot\" [style.background]=\"topColour()\"></span>\n      {{ top().label }}\n    </p>\n  `"],
+          ["string","`\n    <neat-score-bars\n      label=\"Gesture probabilities\"\n      [scores]=\"scores()\"\n      [labels]=\"labels\"\n      [quiet]=\"quiet\"\n    />\n    <p class=\"reading\">\n      <span class=\"dot\" [style.background]=\"topColor()\"></span>\n      {{ top().label }}\n    </p>\n  `"],
           ["text",",\n  styleUrl: "],
           ["string","'./gesture-scores.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," GestureScores {\n  "],
@@ -59,7 +59,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," scores = signal<"],["keyword","readonly"],["text"," NeatScore[]>(scoresAt(0));\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," top = computed(() =>\n    "],
           ["keyword","this"],["text",".scores().reduce((best, score) => (score.value > best.value ? score : best)),\n  );\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," topColour = computed(() =>\n    neatLabelColour("],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," topColor = computed(() =>\n    neatLabelColor("],
           ["keyword","this"],["text",".top().label, "],["keyword","this"],["text",".labels, "],["keyword","this"],["text",".quiet),\n  );\n\n  "],
           ["keyword","constructor"],["text","() {\n    "],
           ["keyword","let"],["text"," step = 0;\n    "],
@@ -122,7 +122,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " the bars share the height the card leaves its content: each row grows, its label and figure stay centred, and its bar thickens up to twice its usual thickness. In a box shorter than the rows need, they keep their usual height and the list overflows."
+            "text": " the bars share the height the card leaves its content: each row grows, its label and figure stay centered, and its bar thickens up to twice its usual thickness. In a box shorter than the rows need, they keep their usual height and the list overflows."
           }
         ]
       }

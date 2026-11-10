@@ -28,7 +28,7 @@ export const DEMO_TREE: readonly NeatFileNode[] = [
       file('clips/indoor/warehouse.mp4'),
       file('clips/indoor/notes.txt', unsupported),
     ]),
-    folder('clips/outdoor', [file('clips/outdoor/highway.mp4'), file('clips/outdoor/Harbour.mkv')]),
+    folder('clips/outdoor', [file('clips/outdoor/highway.mp4'), file('clips/outdoor/Harbor.mkv')]),
     folder('clips/archive', archive),
     folder('clips/empty', []),
     file('clips/overview.mp4'),

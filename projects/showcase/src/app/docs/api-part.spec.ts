@@ -21,7 +21,7 @@ const LISTBOX: DocsDeclaredPart = {
   typeParameters: ['T'],
   selector: 'neat-select',
   exportAs: 'neatSelect',
-  doc: words('A labelled listbox.'),
+  doc: words('A labeled listbox.'),
   source: SOURCE,
   inputs: [
     member('options', { type: 'readonly NeatSelectOption<T>[]', required: true }),
@@ -83,7 +83,7 @@ describe('ApiPart', () => {
       '<neat-select>',
       '#x="neatSelect"',
     ]);
-    expect(text(host)).toContain('A labelled listbox.');
+    expect(text(host)).toContain('A labeled listbox.');
   });
 
   it('lists inputs, two-way bindings, outputs, methods and properties as bound', async () => {
@@ -120,7 +120,7 @@ describe('ApiPart', () => {
   it('leaves out the doc the body already shows', async () => {
     const { host } = await render(LISTBOX, new FakeDocs(), true);
 
-    expect(text(host)).not.toContain('A labelled listbox.');
+    expect(text(host)).not.toContain('A labeled listbox.');
     expect(text(host)).toContain('About options.');
   });
 

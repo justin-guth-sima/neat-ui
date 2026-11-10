@@ -166,7 +166,7 @@ export interface CapacitySummary {
  * The capacities of a renderer's repeats: the lower median, so that what is claimed is the
  * conservative one, with the extremes. Null without a repeat.
  */
-export function summariseCapacity(caps: readonly Capacity[]): CapacitySummary | null {
+export function summarizeCapacity(caps: readonly Capacity[]): CapacitySummary | null {
   if (caps.length === 0) return null;
   const sorted = [...caps].sort(compareCapacity);
   return {
@@ -444,15 +444,15 @@ function rendererLadder(
   return {
     renderer,
     climbs,
-    smooth: summariseCapacity(climbs.map((c) => c.smooth)),
-    usable: summariseCapacity(climbs.map((c) => c.usable)),
+    smooth: summarizeCapacity(climbs.map((c) => c.smooth)),
+    usable: summarizeCapacity(climbs.map((c) => c.usable)),
     cells,
     trend: cells.map((cell) => cell.fps.median),
   };
 }
 
 /** Everything the results view shows of `campaign`. */
-export function analyseCampaign(campaign: CampaignResult): CampaignAnalysis {
+export function analyzeCampaign(campaign: CampaignResult): CampaignAnalysis {
   // One interval for the whole file: the first finished run's (`merge.mjs` takes `measurement`
   // from it, and warns where the runs' rates differ, saying this).
   const intervalMs = campaign.measurement?.refresh.intervalMs ?? 1000 / campaign.machine.refreshHz;

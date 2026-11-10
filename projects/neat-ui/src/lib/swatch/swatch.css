@@ -1,7 +1,7 @@
 /*
- * A colour as a small square: the one definition of the swatch, for the charts' legends and
+ * A color as a small square: the one definition of the swatch, for the charts' legends and
  * readouts, the diagram's legend, the bird's-eye view's readout and an app's labels beside them.
- * `neat-swatch` and `neat-series-swatch` both take this sheet; each fills it with its colour
+ * `neat-swatch` and `neat-series-swatch` both take this sheet; each fills it with its color
  * (`--swatch`) at full strength, so a swatch and what it names cannot differ.
  */
 :host {

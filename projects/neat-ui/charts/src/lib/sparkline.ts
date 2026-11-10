@@ -43,7 +43,7 @@ export class NeatSparkline {
   readonly label = input.required<string>();
   /** Words a value for the description, with its unit. */
   readonly format = input<NeatChartFormat>(String);
-  /** The stroke: the line colour, or a threshold's. */
+  /** The stroke: the line color, or a threshold's. */
   readonly tone = input<NeatChartTone>('default');
 
   /** The numbers among the samples; a sparkline needs two of them to draw anything. */

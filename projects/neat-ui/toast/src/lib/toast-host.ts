@@ -23,8 +23,8 @@ const SCREEN_INSET = '1rem';
 /*
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
  * them. Every toast is the popover's surface. A status or progress toast is outlined in
- * `--border`; an error is outlined and written in the danger colour; a warning is outlined in the
- * warning colour and written in the surface's own, since the theme's warning is a fill only, not
+ * `--border`; an error is outlined and written in the danger color; a warning is outlined in the
+ * warning color and written in the surface's own, since the theme's warning is a fill only, not
  * readable as text. An outline, not a fill, keeps a warning quieter than an error.
  */
 const SHAPE =
@@ -38,8 +38,8 @@ const TOAST_CLASSES: Record<ToastEntry['kind'], string> = {
 };
 
 /**
- * The icon that leads an error and a warning, so that their kind shows without its colour (a
- * warning's outline alone is 2.2:1 on the surface in light). It takes the toast's text colour
+ * The icon that leads an error and a warning, so that their kind shows without its color (a
+ * warning's outline alone is 2.2:1 on the surface in light). It takes the toast's text color
  * and is decorative: the live region says the kind in words.
  */
 const KIND_ICONS: Record<ToastEntry['kind'], NeatIconName | null> = {

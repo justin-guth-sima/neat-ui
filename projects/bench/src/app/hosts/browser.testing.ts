@@ -1,6 +1,6 @@
 /*
  * What jsdom lacks that the hosts' parts create: a ResizeObserver (the dot layer, the kit's notes
- * and vflow observe their boxes) and a 2D canvas (the dot layer's colours and sprites). The
+ * and vflow observe their boxes) and a 2D canvas (the dot layer's colors and sprites). The
  * stand-ins never report a size and give no context, which every part treats as "not laid out
  * yet", so a host renders its DOM and draws nothing. jsdom runs no animation frames either, so
  * vflow never becomes ready here (it would then measure SVG geometry jsdom does not have): what

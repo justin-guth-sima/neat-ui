@@ -26,7 +26,7 @@ const END_CLASSES = 'ms-auto';
  * A short list of small lines under a thin rule, such as the channels that override a setting:
  * `<ul neatLineList><li neatLine>Channel 3 <button neatInlineButton neatLineEnd>Use global</button></li></ul>`.
  * It sets the look only (the rule, the inset, the text size); a line's content, and the roles of
- * the list, are the app's. The text colour is the parent's.
+ * the list, are the app's. The text color is the parent's.
  */
 @Directive({
   selector: 'ul[neatLineList], ol[neatLineList]',
@@ -36,7 +36,7 @@ export class NeatLineList {}
 
 /**
  * One line of a `neatLineList`: a flex row, so its parts sit side by side, at least 1.5rem high so
- * that the buttons of neighbouring lines keep their distance.
+ * that the buttons of neighboring lines keep their distance.
  */
 @Directive({
   selector: 'li[neatLine]',

@@ -17,14 +17,14 @@ describe('NeatLogo', () => {
 
   afterEach(() => document.documentElement.classList.remove('neat-dark'));
 
-  it('renders the full-colour mark in the light scheme', () => {
+  it('renders the full-color mark in the light scheme', () => {
     expect(svg().getAttribute('role')).toBe('img');
     expect(svg().getAttribute('aria-label')).toBe('SiMa.ai');
     expect(fills()).toContain('#d26728');
     expect(fills()).toContain('#010f0e');
   });
 
-  it('renders the same full-colour mark in the dark scheme, under the same name', async () => {
+  it('renders the same full-color mark in the dark scheme, under the same name', async () => {
     const light = fills();
     TestBed.inject(ThemeService).setScheme('dark');
     await fixture.whenStable();

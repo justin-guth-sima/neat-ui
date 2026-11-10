@@ -50,14 +50,14 @@ function useProbe(context: FakeContext | null): void {
 describe('neatResolveColor', () => {
   afterEach(() => (colorProbe.context = undefined));
 
-  it('answers a colour as sRGB channels from 0 to 1, from the pixel the probe draws', () => {
+  it('answers a color as sRGB channels from 0 to 1, from the pixel the probe draws', () => {
     useProbe(new FakeContext({ 'rgb(51, 102, 153)': [51, 102, 153] }));
 
     expect(neatResolveColor('rgb(51, 102, 153)')).toEqual([0.2, 0.4, 0.6]);
     expect(neatResolveColor('#ff0000')).toEqual([1, 0, 0]);
   });
 
-  it('leaves the notation to the browser: an oklch colour goes to the probe as written', () => {
+  it('leaves the notation to the browser: an oklch color goes to the probe as written', () => {
     const context = new FakeContext({ 'oklch(0.6 0.15 250)': [0, 102, 204] });
     useProbe(context);
 
@@ -65,14 +65,14 @@ describe('neatResolveColor', () => {
     expect(context.assigned).toContain('oklch(0.6 0.15 250)');
   });
 
-  it('answers null for a colour the browser does not parse', () => {
+  it('answers null for a color the browser does not parse', () => {
     useProbe(new FakeContext());
 
-    expect(neatResolveColor('not-a-colour')).toBeNull();
+    expect(neatResolveColor('not-a-color')).toBeNull();
     expect(neatResolveColor('')).toBeNull();
   });
 
-  it('answers a colour even when it is the one the probe starts from', () => {
+  it('answers a color even when it is the one the probe starts from', () => {
     useProbe(new FakeContext());
 
     expect(neatResolveColor('#000000')).toEqual([0, 0, 0]);

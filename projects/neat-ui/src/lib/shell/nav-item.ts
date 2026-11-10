@@ -8,7 +8,7 @@ export interface NeatNavChild {
   /** Shown as the link's name and, while it is open, the page title. */
   label: string;
   /**
-   * Absolute app path, for example `/theme/colours`. It is open on its own path and every route
+   * Absolute app path, for example `/theme/colors`. It is open on its own path and every route
    * nested under it, whatever the query; a child whose path is its page's own (a first view at
    * `/stats`, beside `/stats/runs`) is open on that path only, so it is not open on its siblings'
    * routes. Where two children match, the one with the longer path is open.

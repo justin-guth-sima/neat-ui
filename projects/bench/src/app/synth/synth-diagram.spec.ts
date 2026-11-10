@@ -167,7 +167,7 @@ describe('synthDiagram', () => {
     for (const offsets of byEdge.values()) expect(new Set(offsets).size).toBe(offsets.length);
   });
 
-  it('colours the running edges by series 1 to 8 and gives blocks their chips and details', () => {
+  it('colors the running edges by series 1 to 8 and gives blocks their chips and details', () => {
     const { nodes, edges } = synthDiagram(D1, 2).diagram.overview;
     const blocks = nodes.filter((node) => node.role === 'block');
 

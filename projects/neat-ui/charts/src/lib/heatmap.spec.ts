@@ -146,7 +146,7 @@ describe('NeatHeatmap', () => {
     );
   });
 
-  it("shows each row as 1.5 rem tall: its label, its cells, then its end in the tone's colour", async () => {
+  it("shows each row as 1.5 rem tall: its label, its cells, then its end in the tone's color", async () => {
     const chart = await render((host) => {
       host.rows.set([
         core(0, [10, 20, 30]),

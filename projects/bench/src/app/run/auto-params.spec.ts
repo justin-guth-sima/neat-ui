@@ -28,7 +28,7 @@ describe('autoParams', () => {
       ladder: 'A',
       seed: 1,
       steps: undefined,
-      machine: 'unlabelled',
+      machine: 'unlabeled',
       refine: false,
       input: 'page',
       repeat: 0,

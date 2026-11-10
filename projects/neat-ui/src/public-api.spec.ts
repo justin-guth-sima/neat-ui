@@ -93,7 +93,7 @@ describe('the public API', () => {
     expect(listener({ now: 0, messages: [] })).toBeUndefined();
   });
 
-  it('exports the swatches: the series swatch the charts and the diagram’s legend show, and the one for any colour', () => {
+  it('exports the swatches: the series swatch the charts and the diagram’s legend show, and the one for any color', () => {
     expect(Object.keys(primary)).toEqual(
       expect.arrayContaining(['NeatSeriesSwatch', 'NeatSwatch']),
     );
@@ -131,7 +131,7 @@ describe('the public API', () => {
     );
   });
 
-  it('exports the eased number, the theme’s colours as numbers and the stored signal', () => {
+  it('exports the eased number, the theme’s colors as numbers and the stored signal', () => {
     expect(Object.keys(primary)).toEqual(
       expect.arrayContaining([
         'neatEased',
@@ -143,7 +143,7 @@ describe('the public API', () => {
     );
   });
 
-  it('keeps the colour probe, the eased clock and the storage behind them internal', () => {
+  it('keeps the color probe, the eased clock and the storage behind them internal', () => {
     for (const name of ['colorProbe', 'easedBy', 'safeStorage']) {
       expect(name in primary, name).toBe(false);
     }

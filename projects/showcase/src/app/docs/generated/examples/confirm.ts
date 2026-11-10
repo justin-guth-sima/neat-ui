@@ -73,14 +73,14 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","\"4 settings on 3 channels go back to the global values. This can't be undone.\""],["text",",\n      confirmLabel: "],
           ["string","'Reset'"],["text",",\n      tone: "],
           ["string","'danger'"],["text",",\n    });\n    "],
-          ["keyword","this"],["text",".answer.set("],["string","`Reset all: ${reset ? 'confirmed' : 'cancelled'}`"],["text",");\n  }\n\n  "],
+          ["keyword","this"],["text",".answer.set("],["string","`Reset all: ${reset ? 'confirmed' : 'canceled'}`"],["text",");\n  }\n\n  "],
           ["keyword","protected"],["text"," "],["keyword","async"],["text"," askApplyToAll(): Promise<"],["keyword","void"],["text","> {\n    "],
           ["keyword","const"],["text"," apply = "],["keyword","await"],["text"," "],["keyword","this"],["text",".confirm.ask({\n      title: "],
           ["string","'Apply to all channels?'"],["text",",\n      message: "],
           ["string","'Every channel takes the global overlay settings.'"],["text",",\n      confirmLabel: "],
           ["string","'Apply'"],["text",",\n      cancelLabel: "],
           ["string","'Not now'"],["text",",\n    });\n    "],
-          ["keyword","this"],["text",".answer.set("],["string","`Apply to all: ${apply ? 'confirmed' : 'cancelled'}`"],["text",");\n  }\n}\n"]
+          ["keyword","this"],["text",".answer.set("],["string","`Apply to all: ${apply ? 'confirmed' : 'canceled'}`"],["text",");\n  }\n}\n"]
         ]
       }
     ]

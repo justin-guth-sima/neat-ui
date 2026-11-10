@@ -7,7 +7,7 @@ import { streetFrames } from './scene';
  * and the street around a vehicle waiting at a crossing, 20 frames a second. The drivable area is
  * a 128 × 128 grid, the lidar's returns one array of points, the lane markings and the planned
  * turn lines, and every car, cyclist and person a box with its heading. Each label takes its
- * colour from the page's class colours, as a video tile's classes do. Everything stops at the
+ * color from the page's class colors, as a video tile's classes do. Everything stops at the
  * circle, the guides lie over the data, and hovering or tapping a box reads it out.
  */
 @Component({

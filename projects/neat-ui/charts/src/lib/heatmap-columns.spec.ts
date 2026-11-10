@@ -117,7 +117,7 @@ describe('the heatmap columns', () => {
   });
 
   it('reads out what it draws when the history has exactly as many instants as columns', () => {
-    // 48 instants fill the 48 columns centred, the layout the readout derives from the count.
+    // 48 instants fill the 48 columns centered, the layout the readout derives from the count.
     const times = everySecond(48, 20, 0.6);
     const means = columnMeans(indices(48), NEAT_HEATMAP_COLUMNS, times);
     expect(means).toHaveLength(48);

@@ -6,7 +6,7 @@ import type { EdgeGeometry } from './edge-geometry';
 
 /*
  * The messaging layer's canvas: it draws dots, never decides them. Ported from the Autoware demo's
- * dot layer: one canvas at the device's pixel ratio, each colour's dot drawn once as a sprite and
+ * dot layer: one canvas at the device's pixel ratio, each color's dot drawn once as a sprite and
  * scaled per dot, each edge's samples mapped to the screen only when the transform changes, and
  * nothing allocated per dot. Its owner (`NeatDiagramMessages`) runs the frames.
  */
@@ -25,8 +25,8 @@ const SPRITE_R = 7;
 const SPRITE_DETAIL = 4;
 /**
  * The demo's white core: at 55 % over the dot, 0.45 of its radius, so a dot reads on its own
- * line's colour in either theme. Worked out as the dot's colour mixed 55 % toward white, the same
- * pixels without a colour of its own.
+ * line's color in either theme. Worked out as the dot's color mixed 55 % toward white, the same
+ * pixels without a color of its own.
  */
 const CORE_MIX = 0.55;
 const CORE_SIZE = 0.45;
@@ -40,15 +40,15 @@ const SIZE_PER_RADIUS = 2;
 const DIM_FALLBACK = 0.25;
 const RADIUS_FALLBACK = 8;
 
-/** The dots' colours by colour number: 0 the muted colour, 1 to 8 the series. */
+/** The dots' colors by color number: 0 the muted color, 1 to 8 the series. */
 export type DotPalette = readonly (NeatRgb | null)[];
 
-/** A static mark at an edge's end (reduced motion): its latest message's time, radius, colour. */
+/** A static mark at an edge's end (reduced motion): its latest message's time, radius, color. */
 export interface DotMark {
   readonly edge: string;
   at: number;
   r: number;
-  colour: number;
+  color: number;
 }
 
 /** An edge's samples and the same on the screen, for the transform last mapped. */
@@ -65,7 +65,7 @@ export class DotCanvas {
   private width = 0;
   private height = 0;
   private ratio = 0;
-  /** The sprites by colour number, and the palette and ratio they were painted for. */
+  /** The sprites by color number, and the palette and ratio they were painted for. */
   private sprites: (HTMLCanvasElement | null)[] = [];
   private palette: DotPalette | null = null;
   private spriteRatio = 0;
@@ -147,7 +147,7 @@ export class DotCanvas {
     this.findEnds(covers);
     let drawn = 0;
     for (const dot of dots) {
-      if (this.sprite(context, dot.edge, dot.t, dot.r * scale, dot.colour, focus, true)) drawn++;
+      if (this.sprite(context, dot.edge, dot.t, dot.r * scale, dot.color, focus, true)) drawn++;
     }
     this.erase(context, covers);
     return drawn;
@@ -172,7 +172,7 @@ export class DotCanvas {
       if (mark.at <= since || mark.at > now) continue;
       const length = this.mapped.get(mark.edge)?.geometry.length ?? 0;
       const t = length > 0 ? 1 - (mark.r * scale) / this.k / length : 1;
-      if (this.sprite(context, mark.edge, t, mark.r * scale, mark.colour, focus)) drawn++;
+      if (this.sprite(context, mark.edge, t, mark.r * scale, mark.color, focus)) drawn++;
     }
     this.erase(context, covers);
     return drawn;
@@ -233,12 +233,12 @@ export class DotCanvas {
     edge: string,
     t: number,
     r: number,
-    colour: number,
+    color: number,
     focus: ReadonlySet<string> | null,
     runOn = false,
   ): boolean {
     const mapped = this.mapped.get(edge);
-    const sprite = this.sprites[colour] ?? this.sprites[0];
+    const sprite = this.sprites[color] ?? this.sprites[0];
     if (!mapped || !sprite) return false;
     const ends = runOn ? this.ends.get(edge) : undefined;
     const extra = r / this.k;
@@ -278,7 +278,7 @@ export class DotCanvas {
   }
 
   /**
-   * The sprites, painted again only for a new palette (a new colour scheme) or pixel ratio; the
+   * The sprites, painted again only for a new palette (a new color scheme) or pixel ratio; the
    * dim and the corner radius are read with them, from the same tokens' element.
    */
   private paint(palette: DotPalette, ratio: number): void {
@@ -289,8 +289,8 @@ export class DotCanvas {
     this.dim = Number.isFinite(dim) ? dim : DIM_FALLBACK;
     this.radius = pixels(style.getPropertyValue('--radius')) ?? RADIUS_FALLBACK;
     const muted = palette[0];
-    this.sprites = palette.map((colour) => {
-      const fill = colour ?? muted;
+    this.sprites = palette.map((color) => {
+      const fill = color ?? muted;
       return fill ? sprite(fill, ratio * SPRITE_DETAIL) : null;
     });
   }
@@ -318,7 +318,7 @@ function sprite(fill: NeatRgb, ratio: number): HTMLCanvasElement {
   return canvas;
 }
 
-/** A resolved theme colour (`neatThemeColors`) as the canvas takes it. */
+/** A resolved theme color (`neatThemeColors`) as the canvas takes it. */
 function css([red, green, blue]: NeatRgb): string {
   const byte = (v: number) => Math.round(v * 255);
   return `rgb(${byte(red)} ${byte(green)} ${byte(blue)})`;

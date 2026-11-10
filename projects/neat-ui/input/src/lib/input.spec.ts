@@ -12,7 +12,7 @@ import { INPUT_HELM_CLASSES, NeatInput, type NeatInputSize } from './input';
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 const SURFACES = ['background', 'card'] as const;
 
-/** The variants on the input's colour classes; validation and file-button styles never apply. */
+/** The variants on the input's color classes; validation and file-button styles never apply. */
 const VOCABULARY = {
   dark: 'dark',
   'focus-visible': 'focus',
@@ -50,9 +50,9 @@ async function render(setup: (host: InputHost) => void = () => undefined) {
   setup(fixture.componentInstance);
   await fixture.whenStable();
   const root: HTMLElement = fixture.nativeElement;
-  const [input, unlabelled] = Array.from(root.querySelectorAll('input'));
+  const [input, unlabeled] = Array.from(root.querySelectorAll('input'));
   const label = root.querySelector('label')!;
-  return { fixture, host: fixture.componentInstance, input, unlabelled, label };
+  return { fixture, host: fixture.componentInstance, input, unlabeled, label };
 }
 
 describe('NeatInput', () => {
@@ -68,11 +68,11 @@ describe('NeatInput', () => {
   });
 
   it('takes its accessible name from its label or aria-label', async () => {
-    const { input, unlabelled } = await render();
+    const { input, unlabeled } = await render();
 
     expect(input.labels?.[0]?.textContent).toBe('Page');
-    expect(unlabelled.getAttribute('aria-label')).toBe('Jump to channel');
-    expect(unlabelled.type).toBe('text');
+    expect(unlabeled.getAttribute('aria-label')).toBe('Jump to channel');
+    expect(unlabeled.type).toBe('text');
   });
 
   it('keyboard: takes focus and leaves keys to the page, so Enter reaches the app', async () => {

@@ -15,7 +15,7 @@ import { NeatCard } from '@sima/neat-ui/card';
       <div class="frame">
         <img
           class="picture"
-          alt="A grey frame with a lighter square in its middle"
+          alt="A gray frame with a lighter square in its middle"
           src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='160' height='90' fill='%23888'/%3E%3Crect x='60' y='25' width='40' height='40' fill='%23ccc'/%3E%3C/svg%3E"
         />
       </div>

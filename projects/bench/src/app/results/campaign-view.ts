@@ -77,7 +77,7 @@ interface Shot {
  * One loaded result file, as the results page shows it (design 4.3): the machine, its capacities
  * in the two tiers, the verdict of the fallback rule (the kit against vflow, 2 of 3 repeats), the
  * steps and their phases at the median of the repeats, the warnings and what the renderers do not
- * share, with a markdown summary to copy. The numbers come from `analyseCampaign`, once, in the
+ * share, with a markdown summary to copy. The numbers come from `analyzeCampaign`, once, in the
  * page; this only lays them out.
  */
 @Component({

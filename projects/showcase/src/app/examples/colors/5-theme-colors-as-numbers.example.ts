@@ -12,15 +12,15 @@ const TOKENS = {
 } as const;
 
 const format = (rgb: NeatRgb | null): string =>
-  rgb ? rgb.map((channel) => channel.toFixed(3)).join(', ') : 'not a colour';
+  rgb ? rgb.map((channel) => channel.toFixed(3)).join(', ') : 'not a color';
 
 /**
  * Six tokens as the numbers `neatThemeColors` answers, each red, green and blue from 0 to 1, as
- * code that draws outside CSS takes a colour. The signal reads them again when the scheme changes:
+ * code that draws outside CSS takes a color. The signal reads them again when the scheme changes:
  * switch the theme at the bottom of the rail and the numbers follow.
  */
 @Component({
-  selector: 'app-theme-colours-as-numbers',
+  selector: 'app-theme-colors-as-numbers',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <table>
@@ -42,15 +42,15 @@ const format = (rgb: NeatRgb | null): string =>
       </tbody>
     </table>
   `,
-  styleUrl: './theme-colours-as-numbers.example.css',
+  styleUrl: './theme-colors-as-numbers.example.css',
 })
-export class ThemeColoursAsNumbers {
-  private readonly colours = neatThemeColors(TOKENS);
+export class ThemeColorsAsNumbers {
+  private readonly colors = neatThemeColors(TOKENS);
   protected readonly rows = computed(() => {
-    const colours = this.colours();
+    const colors = this.colors();
     return Object.entries(TOKENS).map(([name, token]) => ({
       token,
-      rgb: format(colours[name as keyof typeof TOKENS]),
+      rgb: format(colors[name as keyof typeof TOKENS]),
     }));
   });
 }

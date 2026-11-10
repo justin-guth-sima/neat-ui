@@ -49,7 +49,7 @@ describe('the status chip examples', () => {
     const chips = host.querySelectorAll('[data-slot="status-chip"]');
 
     expect(chips).toHaveLength(14);
-    // The tinted tones read their colour on a tint, which only the tinted variant's classes have.
+    // The tinted tones read their color on a tint, which only the tinted variant's classes have.
     expect(Array.from(chips).every((chip) => /bg-neat-(tint|chip)/.test(chip.className))).toBe(
       true,
     );

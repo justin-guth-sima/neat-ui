@@ -543,7 +543,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { "],["keyword","type"],["text"," NeatTone } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatStatusChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/status-chip'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatColumn, NeatSelectList } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select-list'"],["text",";\n\n"],
-          ["comment","/** A stream: its state's tone tints the row and colours its chip. */"],["text","\n"],
+          ["comment","/** A stream: its state's tone tints the row and colors its chip. */"],["text","\n"],
           ["keyword","interface"],["text"," Stream {\n  "],
           ["keyword","readonly"],["text"," id: "],["keyword","number"],["text",";\n  "],
           ["keyword","readonly"],["text"," name: "],["keyword","string"],["text",";\n  "],

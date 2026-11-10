@@ -4,7 +4,7 @@
  */
 export type NeatChartAxis = 'recent' | 'elapsed';
 
-/** How a chart draws its line: the default colour, or a threshold's. */
+/** How a chart draws its line: the default color, or a threshold's. */
 export type NeatChartTone = 'default' | 'warning' | 'danger';
 
 /** One line or band of a chart. A `null` is a sample that was not taken, which breaks the line. */

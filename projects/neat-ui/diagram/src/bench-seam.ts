@@ -2,7 +2,7 @@
  * The rendering bench's window into this entry's internals (AGENTS.md "The rendering bench"), an
  * agreed exception to "only what an app needs is exported". The bench draws the same diagram with
  * ngx-vflow and puts this entry's own dot layer over it, so it needs what `neat-diagram` uses
- * inside: the level as drawn (the kit's routes, tips and colours), the notes' placement and the fit
+ * inside: the level as drawn (the kit's routes, tips and colors), the notes' placement and the fit
  * (so vflow shows the same picture from the same start), the messaging layer's context token (so
  * the layer draws over another renderer), and its frame probe and dot cap (so the bench times the
  * layer and marks a capped step). Copies of these in the bench would measure different code.

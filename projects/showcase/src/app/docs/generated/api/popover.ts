@@ -45,7 +45,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " lines it up with the trigger's start, centre or end; it flips above the trigger when there is no room below. The content template is created on opening and destroyed on closing, so keep its state (a typed value, a checked switch) in the page. On opening, focus moves to the panel's first enabled control. Escape, a click outside, the trigger, or "
+              "text": " lines it up with the trigger's start, center or end; it flips above the trigger when there is no room below. The content template is created on opening and destroyed on closing, so keep its state (a typed value, a checked switch) in the page. On opening, focus moves to the panel's first enabled control. Escape, a click outside, the trigger, or "
             },
             {
               "kind": "code",

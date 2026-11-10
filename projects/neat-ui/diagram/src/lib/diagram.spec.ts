@@ -274,18 +274,18 @@ describe('NeatDiagramView', () => {
     }
   });
 
-  it('colours an edge by its series token, else the muted colour', async () => {
+  it('colors an edge by its series token, else the muted color', async () => {
     const { edge } = await render();
     expect(edge('decode-detect').style.getPropertyValue('--edge')).toBe('var(--neat-series-3)');
     expect(edge('detect-tracker').style.getPropertyValue('--edge')).toBe('var(--muted-foreground)');
   });
 
-  it('draws a ghost edge in the muted colour whatever its series, its tips with it', async () => {
+  it('draws a ghost edge in the muted color whatever its series, its tips with it', async () => {
     const { edge } = await render();
     // tracker-cable is a ghost with series 8: a part that does not run stays quiet.
     const ghost = edge('tracker-cable');
     expect(ghost.style.getPropertyValue('--edge')).toBe('var(--muted-foreground)');
-    // Line and tips take their colour from the group's --edge (diagram.css), never their own.
+    // Line and tips take their color from the group's --edge (diagram.css), never their own.
     const tips = Array.from(ghost.querySelectorAll('.tip'));
     expect(tips).toHaveLength(1);
     for (const part of [ghost.querySelector('path.line'), ...tips]) {
@@ -294,7 +294,7 @@ describe('NeatDiagramView', () => {
     }
   });
 
-  it('draws a series outside 1 to 8 in the muted colour and says so once', async () => {
+  it('draws a series outside 1 to 8 in the muted color and says so once', async () => {
     const odd: NeatDiagramSet = {
       overview: { ...OVERVIEW, edges: [{ ...OVERVIEW.edges[0], series: 9 }] },
     };
@@ -339,7 +339,7 @@ describe('NeatDiagramView', () => {
   });
 
   it('puts an edge’s label at the middle of its route, or at labelAt', async () => {
-    const labelled: NeatDiagramSet = {
+    const labeled: NeatDiagramSet = {
       overview: {
         ...OVERVIEW,
         edges: OVERVIEW.edges.map((e) =>
@@ -347,8 +347,8 @@ describe('NeatDiagramView', () => {
         ),
       },
     };
-    const { one, all } = await render(labelled);
-    const layouts = layoutEdges(labelled.overview);
+    const { one, all } = await render(labeled);
+    const layouts = layoutEdges(labeled.overview);
     expect(all('.edge-label').map((l) => l.dataset['edge'])).toEqual([
       'decode-detect',
       'detect-tracker',
@@ -1045,7 +1045,7 @@ describe('NeatDiagramView’s hover, levels and words', () => {
       levels: { in: { nodes: [], edges: [] } },
     });
 
-    it('greys out the whole card as [neatStale] does, and says so in the hidden list', async () => {
+    it('grays out the whole card as [neatStale] does, and says so in the hidden list', async () => {
       const view = await renderLevels();
       view.fixture.componentInstance.diagram.set(staleCard(true));
       await view.stable();

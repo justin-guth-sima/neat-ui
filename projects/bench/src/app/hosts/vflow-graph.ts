@@ -10,7 +10,7 @@ import type { Scene } from './scene';
  * 3.2): frames are SVG group templates, blocks and notes HTML templates (in `foreignObject`s), at
  * the kit's ids, positions (relative to their parents, as in the kit's model) and sizes, none
  * draggable. Edges ignore vflow's own geometry: each one's curve is the kit's route, its label at
- * the point the kit centres it on, so the picture is the same to the pixel and only the renderer
+ * the point the kit centers it on, so the picture is the same to the pixel and only the renderer
  * differs. Each note's leader is one more edge, so the element counts stay close to the kit's.
  * Pure; the vflow host binds what this returns.
  */

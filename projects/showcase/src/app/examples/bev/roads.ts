@@ -2,12 +2,12 @@ import { DestroyRef, inject, signal, type Signal } from '@angular/core';
 import type { NeatBevFrame, NeatBevLine, NeatBevObject } from '@sima/neat-ui/bev';
 
 /*
- * A made-up road network for the polygon example, laid out in a world frame of its own (metres,
+ * A made-up road network for the polygon example, laid out in a world frame of its own (meters,
  * X east, Y north) and given as pieces of drivable area the way a map gives them: polygons that
  * overlap where roads meet and fill as one area. A wide four-lane ring road with rounded corners;
  * a narrow road straight through it, crossing it twice with square corners; a narrow side road
  * joining it from the east with rounded corners; and a ramp branching off it in a curve to the
- * south. The vehicle drives round the ring anticlockwise, and every frame the world is turned
+ * south. The vehicle drives round the ring counterclockwise, and every frame the world is turned
  * into the vehicle's frame (x forward, y left), so the roads and the traffic move and turn
  * around it. Nothing here comes from a real recording.
  */
@@ -16,13 +16,13 @@ import type { NeatBevFrame, NeatBevLine, NeatBevObject } from '@sima/neat-ui/bev
 const LANE = 3.5;
 const RING_HALF = 2 * LANE;
 const NARROW = 3;
-/** The ring's centre line: a rectangle 120 × 80 m with rounded corners. */
+/** The ring's center line: a rectangle 120 × 80 m with rounded corners. */
 const RING_X = 60;
 const RING_Y = 40;
 const RING_CORNER = 18;
 /** The road through the ring, north to south, and how far it reaches. */
 const THROUGH_REACH = 80;
-/** The side road, joining the ring's east side: its centre line, its end and its corners' radius. */
+/** The side road, joining the ring's east side: its center line, its end and its corners' radius. */
 const SIDE_Y = 10;
 const SIDE_TO = 120;
 const FILLET = 6;
@@ -30,20 +30,20 @@ const FILLET = 6;
 const RAMP_FROM = 15;
 const RAMP_RADIUS = 25;
 const RAMP_ON = 60;
-/** How finely curves and lines are drawn: metres between points. */
+/** How finely curves and lines are drawn: meters between points. */
 const STEP = 1.5;
 /** The vehicle's speed round the ring, m/s, and how far ahead its planned path reaches. */
 const EGO_SPEED = 12;
 const PLAN_AHEAD = 50;
 
-/** Where something is and which way it heads (radians anticlockwise from east). */
+/** Where something is and which way it heads (radians counterclockwise from east). */
 interface Pose {
   readonly x: number;
   readonly y: number;
   readonly yaw: number;
 }
 
-/** A path things follow: its length, and where it is `s` metres along. */
+/** A path things follow: its length, and where it is `s` meters along. */
 interface Route {
   readonly length: number;
   at(s: number): Pose;
@@ -52,7 +52,7 @@ interface Route {
 /** A straight run, or an arc turning left (positive) or right (negative) by `turn` radians. */
 type Piece = { readonly straight: number } | { readonly radius: number; readonly turn: number };
 
-/** Where `distance` metres along `piece` from `from` is. */
+/** Where `distance` meters along `piece` from `from` is. */
 function along(from: Pose, piece: Piece, distance: number): Pose {
   if ('straight' in piece) {
     return {
@@ -62,7 +62,7 @@ function along(from: Pose, piece: Piece, distance: number): Pose {
     };
   }
   const side = Math.sign(piece.turn);
-  // The arc's centre lies `radius` to the left of the start (to the right for a right turn).
+  // The arc's center lies `radius` to the left of the start (to the right for a right turn).
   const cx = from.x - side * piece.radius * Math.sin(from.yaw);
   const cy = from.y + side * piece.radius * Math.cos(from.yaw);
   const yaw = from.yaw + (side * distance) / piece.radius;
@@ -98,7 +98,7 @@ function path(start: Pose, pieces: readonly Piece[]): Route {
   };
 }
 
-/** `route` moved `offset` metres to its left, and run the other way when `back`. */
+/** `route` moved `offset` meters to its left, and run the other way when `back`. */
 function lane(route: Route, offset: number, back = false): Route {
   return {
     length: route.length,
@@ -113,7 +113,7 @@ function lane(route: Route, offset: number, back = false): Route {
   };
 }
 
-/** The ring's centre line, anticlockwise from the middle of its south side. */
+/** The ring's center line, counterclockwise from the middle of its south side. */
 const QUARTER = { radius: RING_CORNER, turn: Math.PI / 2 } as const;
 const RING = path({ x: 0, y: -RING_Y, yaw: 0 }, [
   { straight: RING_X - RING_CORNER },
@@ -138,7 +138,7 @@ const RAMP = path({ x: RAMP_FROM, y: -RING_Y - 1.5 * LANE, yaw: 0 }, [
   { straight: RAMP_ON },
 ]);
 
-/** Every `STEP` metres along `route` from `from` to `to`, `to` included. */
+/** Every `STEP` meters along `route` from `from` to `to`, `to` included. */
 function stations(route: Route, from = 0, to = route.length): number[] {
   const at: number[] = [];
   for (let s = from; s < to; s += STEP) at.push(s);
@@ -146,7 +146,7 @@ function stations(route: Route, from = 0, to = route.length): number[] {
   return at;
 }
 
-/** The points of `route`, `offset` metres to its left. */
+/** The points of `route`, `offset` meters to its left. */
 function trace(route: Route, offset = 0): [number, number][] {
   const side = lane(route, offset);
   return stations(route).map((s) => {
@@ -161,7 +161,7 @@ const band = (route: Route, half: number): [number, number][] => [
   ...trace(route, half).reverse(),
 ];
 
-/** A rectangle, metres: west and east, south and north. */
+/** A rectangle, meters: west and east, south and north. */
 const box = (west: number, east: number, south: number, north: number): [number, number][] => [
   [west, south],
   [east, south],
@@ -170,7 +170,7 @@ const box = (west: number, east: number, south: number, north: number): [number,
 ];
 
 /**
- * A rounded corner where a road meets another's edge at `corner`: the square `FILLET` metres
+ * A rounded corner where a road meets another's edge at `corner`: the square `FILLET` meters
  * along the edge (`edge`, a unit direction away from the road) and along the road (`road`), less
  * the quarter circle that rounds it.
  */
@@ -313,8 +313,8 @@ export class RoadScene {
   };
 
   frameAt(seconds: number): NeatBevFrame {
-    const travelled = (EGO_SPEED * seconds) % LAP;
-    const ego = EGO.at(travelled);
+    const traveled = (EGO_SPEED * seconds) % LAP;
+    const ego = EGO.at(traveled);
     const cos = Math.cos(ego.yaw);
     const sin = Math.sin(ego.yaw);
     // World to vehicle: about the vehicle, turned so that its heading is forward.
@@ -329,7 +329,7 @@ export class RoadScene {
     for (const { world, line } of this.placed) into(world, line.xy);
 
     stations(EGO, 0, PLAN_AHEAD).forEach((d, i) => {
-      const { x, y } = EGO.at((travelled + d) % LAP);
+      const { x, y } = EGO.at((traveled + d) % LAP);
       this.plan[2 * i] = x;
       this.plan[2 * i + 1] = y;
     });

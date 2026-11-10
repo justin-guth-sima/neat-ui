@@ -37,7 +37,7 @@ export const SLIDER_HELM_CLASSES = {
 /**
  * Where the kit departs from helm's slider; each override exists because slider.spec failed
  * without it.
- * - Track: `bg-muted` is 1.10:1 on white and is the card colour itself in dark, so the extent of
+ * - Track: `bg-muted` is 1.10:1 on white and is the card color itself in dark, so the extent of
  *   the slider vanishes. `--input`, the theme's form-control boundary, is held to 3:1 on every
  *   surface. The filled range is told from it by hue; the thumb marks the value at 3:1 against
  *   both.
@@ -45,7 +45,7 @@ export const SLIDER_HELM_CLASSES = {
  *   out where the range ends. The page background is white in light and reaches 5:1 or more on
  *   the range and on the track in both schemes.
  * - Focus ring: helm's `ring-ring/50` is about 1.85:1 on white; the kit draws full `--ring` on
- *   focus, which the theme holds to 3:1. Helm's hover ring keeps its softer colour.
+ *   focus, which the theme holds to 3:1. Helm's hover ring keeps its softer color.
  */
 const TRACK_CLASSES = hlm(SLIDER_HELM_CLASSES.track, 'bg-input');
 const THUMB_CLASSES = hlm(SLIDER_HELM_CLASSES.thumb, 'bg-background focus-visible:ring-ring');

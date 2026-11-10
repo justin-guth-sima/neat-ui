@@ -9,7 +9,7 @@ const onBox = (t: { k: number; x: number; y: number }, x: number, y: number) => 
 });
 
 describe('fitTransform', () => {
-  it('zooms a level to the box less its margin, the tighter axis deciding, and centres it', () => {
+  it('zooms a level to the box less its margin, the tighter axis deciding, and centers it', () => {
     const t = fitTransform({ x: 0, y: 0, w: 1000, h: 500 }, { w: 500, h: 500 });
     expect(t?.k).toBeCloseTo((500 - 48) / 1000, 10);
     // Its width fills the box between the margins; its height sits in the middle.
@@ -18,11 +18,11 @@ describe('fitTransform', () => {
     expect(onBox(t!, 500, 250).y).toBeCloseTo(250, 10);
   });
 
-  it('centres a level that does not start at the origin', () => {
+  it('centers a level that does not start at the origin', () => {
     const t = fitTransform({ x: -400, y: 200, w: 800, h: 400 }, { w: 1200, h: 900 });
-    const centre = onBox(t!, 0, 400);
-    expect(centre.x).toBeCloseTo(600, 10);
-    expect(centre.y).toBeCloseTo(450, 10);
+    const center = onBox(t!, 0, 400);
+    expect(center.x).toBeCloseTo(600, 10);
+    expect(center.y).toBeCloseTo(450, 10);
   });
 
   it('takes another margin', () => {

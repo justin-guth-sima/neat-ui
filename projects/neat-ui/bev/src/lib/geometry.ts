@@ -7,9 +7,9 @@ import type {
 } from './model';
 
 /*
- * The bird's-eye view's geometry, without the DOM: the plot in metres (a circle or a rectangle),
- * how it fits the component's box, how metres around the vehicle map to CSS pixels and back, the
- * rings' step, the spokes' ends, the objects' corners and what lies under the pointer. Metres are
+ * The bird's-eye view's geometry, without the DOM: the plot in meters (a circle or a rectangle),
+ * how it fits the component's box, how meters around the vehicle map to CSS pixels and back, the
+ * rings' step, the spokes' ends, the objects' corners and what lies under the pointer. Meters are
  * the vehicle's frame (x forward, y left); the screen has forward up and left to the left.
  */
 
@@ -32,7 +32,7 @@ export function zoomLimits(extent: readonly [number, number]): readonly [number,
 export const LABEL_ANGLE = Math.PI / 4;
 
 /**
- * The plot in metres: its shape, the circle's radius (`range`), and the rectangle it fills (the
+ * The plot in meters: its shape, the circle's radius (`range`), and the rectangle it fills (the
  * circle's square of ±`range`, or the rect's bounds) by its back, front, right and left edges.
  */
 export interface BevPlot {
@@ -72,19 +72,19 @@ export function plotAspect(plot: BevPlot): number {
   return hasArea(plot) ? (plot.left - plot.right) / (plot.front - plot.back) : 1;
 }
 
-/** Metres from the plot's middle to its nearer edge: what the rings' or grid's step is made from. */
+/** Meters from the plot's middle to its nearer edge: what the rings' or grid's step is made from. */
 export function plotReach(plot: BevPlot): number {
   return Math.min(plot.left - plot.right, plot.front - plot.back) / 2;
 }
 
-/** Whether the point `x`, `y` (metres) lies on the plot: within the circle, or the rectangle. */
+/** Whether the point `x`, `y` (meters) lies on the plot: within the circle, or the rectangle. */
 export function onPlot(plot: BevPlot, x: number, y: number): boolean {
   if (plot.shape === 'round') return Math.hypot(x, y) <= plot.range;
   return x >= plot.back && x <= plot.front && y >= plot.right && y <= plot.left;
 }
 
 /**
- * How metres map to the screen: the plot's centre (`cx`, `cy`), pixels per metre at the default
+ * How meters map to the screen: the plot's center (`cx`, `cy`), pixels per meter at the default
  * zoom (`ppm`), and the pan and zoom on top (`k`, `tx`, `ty`, a d3-zoom transform of the default
  * view's pixels).
  */
@@ -129,7 +129,7 @@ export type ScreenRect = readonly [readonly [number, number], readonly [number, 
 /**
  * Where the view may pan, in the default view's pixels: what the default view shows, the plot's
  * rectangle with `'clip'` or the whole `width` × `height` box with `'visible'`; with `extra` (an
- * app's `panBounds`, metres), the whole box and that rectangle too, so the start never moves.
+ * app's `panBounds`, meters), the whole box and that rectangle too, so the start never moves.
  */
 export function panArea(
   view: BevView,
@@ -172,7 +172,7 @@ export function plotRect(view: BevView, plot: BevPlot): ScreenRect {
   ];
 }
 
-/** The `width` × `height` box in `view` as a rectangle in metres (a rect plot). */
+/** The `width` × `height` box in `view` as a rectangle in meters (a rect plot). */
 export function boxPlot(view: BevView, width: number, height: number, range: number): BevPlot {
   const scale = view.ppm * view.k;
   const x = view.tx + view.k * view.cx;
@@ -187,7 +187,7 @@ export function boxPlot(view: BevView, width: number, height: number, range: num
   };
 }
 
-/** The distance (metres) from the vehicle to the farthest corner of a rect plot. */
+/** The distance (meters) from the vehicle to the farthest corner of a rect plot. */
 export function farthestCorner(plot: BevPlot): number {
   return Math.hypot(
     Math.max(Math.abs(plot.back), Math.abs(plot.front)),
@@ -213,27 +213,27 @@ export interface MutablePoint {
   y: number;
 }
 
-/** The screen point (CSS px) of `x` metres forward and `y` metres left, into `into`. */
+/** The screen point (CSS px) of `x` meters forward and `y` meters left, into `into`. */
 export function toScreen(view: BevView, x: number, y: number, into: MutablePoint): MutablePoint {
   into.x = view.tx + view.k * (view.cx - y * view.ppm);
   into.y = view.ty + view.k * (view.cy - x * view.ppm);
   return into;
 }
 
-/** The vehicle's point (metres, x forward and y left) at the screen point `sx`, `sy`, into `into`. */
+/** The vehicle's point (meters, x forward and y left) at the screen point `sx`, `sy`, into `into`. */
 export function toVehicle(view: BevView, sx: number, sy: number, into: MutablePoint): MutablePoint {
   into.x = (view.cy - (sy - view.ty) / view.k) / view.ppm;
   into.y = (view.cx - (sx - view.tx) / view.k) / view.ppm;
   return into;
 }
 
-/** Pixels per metre on the screen, the zoom included. */
-export function pixelsPerMetre(view: BevView): number {
+/** Pixels per meter on the screen, the zoom included. */
+export function pixelsPerMeter(view: BevView): number {
   return view.ppm * view.k;
 }
 
 /**
- * The rings' step for a view `range` metres across: 1, 2 or 5 times a power of ten, the one
+ * The rings' step for a view `range` meters across: 1, 2 or 5 times a power of ten, the one
  * nearest (on a log scale) to a sixth of the range, so about six rings show (10 m at 60 m).
  */
 export function ringStep(range: number): number {
@@ -270,17 +270,17 @@ function nextNice(step: number): number {
   return (factor < 2 ? 2 : factor < 5 ? 5 : 10) * power;
 }
 
-/** A distance in metres as the plot labels it: at most one decimal ("10 m", "2.5 m"). */
-export function metresText(value: number): string {
+/** A distance in meters as the plot labels it: at most one decimal ("10 m", "2.5 m"). */
+export function metersText(value: number): string {
   return `${Number(value.toFixed(1))} m`;
 }
 
-const CENTRE = { x: 0, y: 0 } as const;
+const CENTER = { x: 0, y: 0 } as const;
 
 /**
  * The spokes to draw: a number spaces that many evenly from straight ahead (0, or anything not a
  * positive number, draws none; a fraction rounds down); a list is drawn as given, an `origin` it
- * leaves out being the vehicle's centre.
+ * leaves out being the vehicle's center.
  */
 export function spokeList(
   spokes: number | readonly NeatBevSpoke[],
@@ -289,16 +289,16 @@ export function spokeList(
     const count = Number.isFinite(spokes) && spokes > 0 ? Math.floor(spokes) : 0;
     return Array.from({ length: count }, (_, i) => ({
       angle: (2 * Math.PI * i) / count,
-      origin: CENTRE,
+      origin: CENTER,
     }));
   }
   return spokes
     .filter((spoke) => Number.isFinite(spoke.angle))
-    .map((spoke) => ({ angle: spoke.angle, origin: spoke.origin ?? CENTRE }));
+    .map((spoke) => ({ angle: spoke.angle, origin: spoke.origin ?? CENTER }));
 }
 
 /**
- * How far (metres) a spoke from `origin` at `angle` runs before it leaves `plot`: the circle of its
+ * How far (meters) a spoke from `origin` at `angle` runs before it leaves `plot`: the circle of its
  * range around the vehicle, or its rectangle. 0 when it starts outside.
  */
 export function spokeLength(
@@ -325,7 +325,7 @@ export function spokeLength(
 }
 
 /**
- * The four corners of `object` (metres) into `into` as x, y pairs: front left, front right, back
+ * The four corners of `object` (meters) into `into` as x, y pairs: front left, front right, back
  * right, back left. Returns `into`, so a frame reuses one array for every object.
  */
 export function objectCorners(object: NeatBevObject, into: Float64Array): Float64Array {
@@ -343,7 +343,7 @@ export function objectCorners(object: NeatBevObject, into: Float64Array): Float6
 }
 
 /**
- * The index of the object under the point (`x`, `y` metres), allowing `tolerance` metres around
+ * The index of the object under the point (`x`, `y` meters), allowing `tolerance` meters around
  * each, the one drawn last (on top) winning; -1 for none.
  */
 export function hitObject(

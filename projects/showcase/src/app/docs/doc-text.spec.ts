@@ -44,12 +44,12 @@ describe('PartRef', () => {
   });
 
   it("links a part of another page to that topic's section", async () => {
-    const docs = new FakeDocs([], { NeatTone: '/theme/colours' });
+    const docs = new FakeDocs([], { NeatTone: '/theme/colors' });
     const host = await render(PartRef, { name: 'NeatTone', label: 'tones' }, docs);
     const link = host.querySelector('a') as HTMLAnchorElement;
 
     expect(link.textContent).toBe('tones');
-    expect(link.getAttribute('href')).toBe('/theme/colours#api-NeatTone');
+    expect(link.getAttribute('href')).toBe('/theme/colors#api-NeatTone');
 
     link.click();
 
@@ -67,7 +67,7 @@ describe('PartRef', () => {
 describe('TypeText', () => {
   it('spells the type again, its documented names as links', async () => {
     const text = 'Readonly<Record<string, NeatDiagram>> | NeatTone[]';
-    const docs = new FakeDocs(['NeatDiagram'], { NeatTone: '/theme/colours' });
+    const docs = new FakeDocs(['NeatDiagram'], { NeatTone: '/theme/colors' });
     const host = await render(TypeText, { text }, docs);
 
     expect(host.textContent).toBe(text);

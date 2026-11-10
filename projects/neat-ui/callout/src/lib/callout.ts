@@ -12,23 +12,23 @@ let nextCalloutId = 0;
 
 /*
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
- * them. Colours are the theme's tokens only; callout.spec holds the text to 4.5:1 and the icon to
+ * them. Colors are the theme's tokens only; callout.spec holds the text to 4.5:1 and the icon to
  * 3:1 on every tone's fill in both schemes.
  */
 
-/** The box: the fill, a start border in the tone's colour, and the icon beside the text. */
+/** The box: the fill, a start border in the tone's color, and the icon beside the text. */
 const CALLOUT_CLASSES =
   'flex gap-(--neat-space-3) rounded-(--radius) border-s-4 p-(--neat-space-3) text-sm text-foreground';
 
 /**
  * Each tone's fill, start border and icon. The fill is the tone's tint (the select list's row
  * tints, opaque mixes over `--background`), `--muted` for neutral, whose border and icon are the
- * muted text colour. The icon takes the tone's solid colour where that holds 3:1 on the tint;
+ * muted text color. The icon takes the tone's solid color where that holds 3:1 on the tint;
  * warning's (about 2:1 on its light tint) does not, so its icon is `--foreground` in both schemes
- * and the border alone carries the colour. The icon's shape and the words carry the tone too.
+ * and the border alone carries the color. The icon's shape and the words carry the tone too.
  *
  * The tints are opaque mixes over `--background`: on a raised surface (a dialog, a popover) the
- * fill is the page's colour, not the surface's, and neutral's `--muted` is a dark dialog's own
+ * fill is the page's color, not the surface's, and neutral's `--muted` is a dark dialog's own
  * surface. There the border and the icon carry the tone, not the fill.
  */
 const TONES: Record<NeatTone, { readonly classes: string; readonly icon: string }> = {
@@ -69,7 +69,7 @@ const ICONS: Record<NeatTone, NeatIconName> = {
  * dialog's title (a level 2) or a page's section, as heading navigation finds it. Pick the level
  * that fits where the callout stands.
  *
- * The fill is the page's colour mixed with the tone (see TONES), so in a dialog it differs from
+ * The fill is the page's color mixed with the tone (see TONES), so in a dialog it differs from
  * the dialog's own surface, and a neutral callout in a dark one shows by its border and icon.
  *
  * `region` makes the callout a landmark, for a notice a user should be able to jump to (the
@@ -77,7 +77,7 @@ const ICONS: Record<NeatTone, NeatIconName> = {
  * since a region with no name is no landmark. `announce` gives the host the live
  * role to say the note with when it appears instead: `status` for news that can wait, `alert` for
  * a failure that needs attention now; it wins over `region`, since a host has one role. A callout
- * with a role is labelled by its heading (`aria-labelledby`); one with none is simply there. A
+ * with a role is labeled by its heading (`aria-labelledby`); one with none is simply there. A
  * live region speaks what is added to it, so render the callout when its news happens (an `@if`),
  * not hidden beforehand.
  */

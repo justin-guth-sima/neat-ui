@@ -236,9 +236,9 @@ describe('pose estimation overlay', () => {
         overlaySettings({ types: { 'pose-estimation': { objects: person } } }),
       );
       const strokes = ctx.ops('stroke');
-      const grey = strokes.filter((call) => call.strokeStyle === '#888888');
-      expect(grey).toHaveLength(7);
-      grey.forEach((call) => expect(call.lineWidth).toBe(1));
+      const gray = strokes.filter((call) => call.strokeStyle === '#888888');
+      expect(gray).toHaveLength(7);
+      gray.forEach((call) => expect(call.lineWidth).toBe(1));
       const handStrokes = strokes.filter((call) => call.strokeStyle !== '#888888');
       expect(handStrokes).toHaveLength(21);
       handStrokes.forEach((call) => expect(call.lineWidth).not.toBe(1));

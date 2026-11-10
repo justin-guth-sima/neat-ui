@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { EdgeColours } from './1-edge-colours.example';
+import { EdgeColors } from './1-edge-colors.example';
 
 describe('the legend examples', () => {
   it('list the entries as a Legend, a swatch or a line sample before each label', async () => {
-    const fixture = TestBed.createComponent(EdgeColours);
+    const fixture = TestBed.createComponent(EdgeColors);
     await fixture.whenStable();
     const list = (fixture.nativeElement as HTMLElement).querySelector('ul[aria-label="Legend"]')!;
     const items = Array.from(list.querySelectorAll('li'));

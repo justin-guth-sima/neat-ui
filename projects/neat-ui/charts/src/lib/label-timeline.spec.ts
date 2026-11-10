@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ɵBROWSER_CLOCK } from '@sima/neat-ui';
 import { stylesheet } from './css.testing';
-import { neatLabelColour } from './label-colour';
+import { neatLabelColor } from './label-color';
 import { type NeatLabelRun, NeatLabelTimeline, type NeatTimelineMotion } from './label-timeline';
 import timelineStyles from './label-timeline.css' with { loader: 'text' };
 import { resize, stubResizeObserver } from './resize-observer.testing';
@@ -241,7 +241,7 @@ describe('NeatLabelTimeline', () => {
     expect(namesOf(host)).toEqual([]);
   });
 
-  it('colours runs through neatLabelColour', async () => {
+  it('colors runs through neatLabelColor', async () => {
     const { runs } = await render(
       [run('B', 30, 20), run('A', 20, 10), run('Q', 10, 5), run('X', 5, 0)],
       (host) => {
@@ -258,14 +258,14 @@ describe('NeatLabelTimeline', () => {
     ]);
   });
 
-  it('fills a quiet run with --muted, the score bars keeping neatLabelColour', async () => {
+  it('fills a quiet run with --muted, the score bars keeping neatLabelColor', async () => {
     const { runs } = await render([run('Q', 30, 0)], (host) => host.quiet.set(['Q']));
 
     expect(runs[0].style.getPropertyValue('--run')).toBe('var(--neat-track)');
-    expect(neatLabelColour('Q', [], ['Q'])).toBe('var(--muted-foreground)');
+    expect(neatLabelColor('Q', [], ['Q'])).toBe('var(--muted-foreground)');
   });
 
-  it('colours by first appearance when no labels are given', async () => {
+  it('colors by first appearance when no labels are given', async () => {
     const { runs } = await render(
       [run('B', 30, 20), run('Q', 20, 15), run('A', 15, 10), run('B', 10, 0)],
       (host) => host.quiet.set(['Q']),
@@ -279,7 +279,7 @@ describe('NeatLabelTimeline', () => {
     ]);
   });
 
-  it('counts a repeated label once when it orders colours by first appearance', async () => {
+  it('counts a repeated label once when it orders colors by first appearance', async () => {
     const { runs } = await render([run('A', 30, 20), run('A', 20, 10), run('B', 10, 0)]);
 
     expect(runs.map((element) => element.style.getPropertyValue('--run'))).toEqual([
@@ -295,7 +295,7 @@ describe('NeatLabelTimeline', () => {
     }
   });
 
-  it('cuts a name wider than the strip with an ellipsis, and keeps runs of one colour apart', () => {
+  it('cuts a name wider than the strip with an ellipsis, and keeps runs of one color apart', () => {
     expect(declared('.name', 'max-width')).toBe('100%');
     expect(declared('.name', 'overflow')).toBe('hidden');
     expect(declared('.name', 'text-overflow')).toBe('ellipsis');

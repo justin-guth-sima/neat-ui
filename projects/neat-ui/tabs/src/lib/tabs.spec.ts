@@ -17,7 +17,7 @@ const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 const SURFACES = ['background', 'card'] as const;
 
 /**
- * The variants on a tab's colour classes. The kit's tab list is helm's line variant, horizontal;
+ * The variants on a tab's color classes. The kit's tab list is helm's line variant, horizontal;
  * the active tab's underline is its `after:` pseudo-element.
  */
 const VOCABULARY = {
@@ -200,7 +200,7 @@ describe('NeatTabs', () => {
       '',
       '',
     ]);
-    // A closed panel is labelled by its own tab, as the open one is.
+    // A closed panel is labeled by its own tab, as the open one is.
     expect(panels().map((panel) => panel.getAttribute('aria-labelledby'))).toEqual(
       tabs().map((tab) => tab.id),
     );

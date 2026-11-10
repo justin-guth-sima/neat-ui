@@ -288,7 +288,7 @@ export class NeatVideoTile {
       onCleanup(() => observer.disconnect());
     });
     effect(() => {
-      // A new state starts with no tracks, track colours or warnings of its own.
+      // A new state starts with no tracks, track colors or warnings of its own.
       this.overlayState = createOverlayState(this.channel(), this.colors);
     });
 
@@ -499,7 +499,7 @@ export class NeatVideoTile {
     this.setState('stopped');
   }
 
-  /** Forgets what was drawn: the canvas, held overlays, track trails and track colours. */
+  /** Forgets what was drawn: the canvas, held overlays, track trails and track colors. */
   private clearOverlays(): void {
     const ctx = this.context;
     if (ctx !== null) {

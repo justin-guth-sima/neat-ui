@@ -68,9 +68,9 @@ const NUMBERS_MS = 80;
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 
 /**
- * The dots' colours, by colour number (0 the muted colour of an edge without a series, 1 to 8 the
- * series): the tokens `lineColour` in drawing.ts draws the edges in, named where those are, so a
- * dot is its edge's colour.
+ * The dots' colors, by color number (0 the muted color of an edge without a series, 1 to 8 the
+ * series): the tokens `lineColor` in drawing.ts draws the edges in, named where those are, so a
+ * dot is its edge's color.
  */
 const PALETTE_ORDER = ['muted', ...Array.from({ length: 8 }, (_, i) => `series${i + 1}`)];
 const PALETTE_TOKENS: Record<string, string> = Object.fromEntries(
@@ -82,8 +82,8 @@ const NO_DOTS: readonly Dot[] = [];
 const isSeries = (n: unknown): n is number =>
   typeof n === 'number' && Number.isInteger(n) && n >= 1 && n <= 8;
 
-/** An edge's dots' colour number: the app's choice, else the edge's series as it is drawn. */
-function colourOf(edge: MessagesEdge, chosen: unknown): number {
+/** An edge's dots' color number: the app's choice, else the edge's series as it is drawn. */
+function colorOf(edge: MessagesEdge, chosen: unknown): number {
   if (isSeries(chosen)) return chosen;
   return edge.line !== 'ghost' && isSeries(edge.series) ? edge.series : 0;
 }
@@ -103,7 +103,7 @@ const sameRate = (a: NeatDiagramEdgeRate, b: NeatDiagramEdgeRate) =>
  * The app feeds it by id: `push(edgeId, bytes)` for each message on an edge, and
  * `stageMs(nodeId, stage, ms)` for the stage times its step dots take. A message on an edge drawn
  * now is a dot along it, sized by its bytes, as long on its way as the edge's length at `speed`
- * (every Nth message with `every`); its colour is its edge's (`colours` picks another series). A
+ * (every Nth message with `every`); its color is its edge's (`colors` picks another series). A
  * step (`steps`, keyed by edge id) is an edge inside a block that no message feeds: a dot arriving
  * at its start goes on along it once the stage's time has passed, and so on along the chain, so the
  * dots inside a block follow its real input and its measured stages. The edges in `passive` (a
@@ -142,7 +142,14 @@ export class NeatDiagramMessages {
    * and steps alike.
    */
   readonly passive = input<readonly string[]>([]);
-  /** A series (1 to 8) per edge id for its dots, in place of the edge's own colour. */
+  /** A series (1 to 8) per edge id for its dots, in place of the edge's own color. */
+  readonly colors = input<Readonly<Record<string, number>>>({});
+  /**
+   * The British spelling of `colors`, kept so apps that bind it keep working; `colors` wins for an
+   * edge both name.
+   *
+   * @deprecated Use `colors`; this name goes in a later release.
+   */
   readonly colours = input<Readonly<Record<string, number>>>({});
   /**
    * How the dots animate: speed, size, messages per dot and whether they follow the steps. The
@@ -157,13 +164,13 @@ export class NeatDiagramMessages {
   private readonly document = inject(DOCUMENT);
   private readonly zone = inject(NgZone);
   private readonly canvasElement = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
-  /** Read again on a scheme change, so the next frame paints the new colours. */
+  /** Read again on a scheme change, so the next frame paints the new colors. */
   private readonly theme = neatThemeColors(PALETTE_TOKENS, () => this.host);
   private readonly palette = computed(() => {
-    const colours = this.theme();
-    return PALETTE_ORDER.map((name) => colours[name]);
+    const colors = this.theme();
+    return PALETTE_ORDER.map((name) => colors[name]);
   });
-  /** Read by the canvas once it has a box to draw in: resolving the colours draws on a canvas. */
+  /** Read by the canvas once it has a box to draw in: resolving the colors draws on a canvas. */
   private readonly readPalette = () => this.palette();
 
   private readonly rates = new EdgeRates();
@@ -178,7 +185,7 @@ export class NeatDiagramMessages {
   private readonly stages = new Map<string, Map<string, number>>();
   /**
    * Under reduced motion, each drawn edge's latest message, shown at its end: by edge, and in a
-   * list for the frames (an array's for-of is optimised away; a Map's iterator would be an object
+   * list for the frames (an array's for-of is optimized away; a Map's iterator would be an object
    * per frame).
    */
   private readonly marks = new Map<string, DotMark>();
@@ -225,14 +232,14 @@ export class NeatDiagramMessages {
     for (const id of this.passive()) next.delete(id);
     return next;
   });
-  private readonly edgeColours = computed(() => {
-    const chosen = this.colours();
+  private readonly edgeColors = computed(() => {
+    const chosen = { ...this.colours(), ...this.colors() };
     return new Map(
       this.diagram
         .level()
         .edges.map((edge) => [
           edge.id,
-          colourOf(edge, Object.hasOwn(chosen, edge.id) ? chosen[edge.id] : undefined),
+          colorOf(edge, Object.hasOwn(chosen, edge.id) ? chosen[edge.id] : undefined),
         ]),
     );
   });
@@ -286,9 +293,9 @@ export class NeatDiagramMessages {
         return;
       }
       this.every.set(this.settings().every);
-      const colour = this.edgeColours().get(edgeId) ?? 0;
-      this.model.spawn(edgeId, atMs, size, colour, this.every.take(edgeId));
-      if (this.reduced()) this.mark(edgeId, atMs, size, colour);
+      const color = this.edgeColors().get(edgeId) ?? 0;
+      this.model.spawn(edgeId, atMs, size, color, this.every.take(edgeId));
+      if (this.reduced()) this.mark(edgeId, atMs, size, color);
       this.request();
     });
   }
@@ -396,16 +403,16 @@ export class NeatDiagramMessages {
     return shares !== undefined && Number.isFinite(shares) && shares > 0 ? ms / shares : ms;
   };
 
-  private mark(edge: string, at: number, bytes: number, colour: number): void {
+  private mark(edge: string, at: number, bytes: number, color: number): void {
     let mark = this.marks.get(edge);
     if (!mark) {
-      mark = { edge, at, r: 0, colour };
+      mark = { edge, at, r: 0, color };
       this.marks.set(edge, mark);
       this.markList.push(mark);
     }
     mark.at = at;
     mark.r = dotRadius(bytes);
-    mark.colour = colour;
+    mark.color = color;
     this.marksUntil = Math.max(this.marksUntil, at + MARK_MS);
   }
 

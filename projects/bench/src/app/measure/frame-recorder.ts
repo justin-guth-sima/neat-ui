@@ -147,7 +147,7 @@ export class FrameRecorder {
 /** The display's refresh as a run keeps it: snapped for judging, measured for the record. */
 export interface Refresh {
   readonly hz: number;
-  /** The interval every judgement uses: 1000 ÷ `hz`. */
+  /** The interval every judgment uses: 1000 ÷ `hz`. */
   readonly intervalMs: number;
   /** The median frame delta the snap came from. */
   readonly measuredMs: number;

@@ -68,9 +68,9 @@ function anchorOf(note: NeatDiagramNote, edges: ReadonlyMap<string, EdgeLayout>)
 }
 
 /**
- * The box centred on `x`/`y` per axis, else on the anchor moved by `dx`/`dy`; the leader to the
+ * The box centered on `x`/`y` per axis, else on the anchor moved by `dx`/`dy`; the leader to the
  * box's nearest point (level or upright when the anchor is beside, above or below the box, so it
- * reads as pointing straight at it), or to its centre with `leaderTo: 'centre'`, where the box
+ * reads as pointing straight at it), or to its center with `leaderTo: 'center'`, where the box
  * hides its end (a slanted leader then meets no rounded corner).
  */
 function place(
@@ -88,7 +88,7 @@ function place(
     anchor.y >= box.y &&
     anchor.y <= box.y + box.h;
   const end =
-    note.leaderTo === 'centre'
+    note.leaderTo === 'center'
       ? { x: cx, y: cy }
       : { x: clamp(anchor.x, box.x, box.x + box.w), y: clamp(anchor.y, box.y, box.y + box.h) };
   return { box, anchor, leader: under ? null : [anchor, end] };

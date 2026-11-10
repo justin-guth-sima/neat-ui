@@ -28,7 +28,7 @@ describe('readoutPlace', () => {
 });
 
 describe('distanceText', () => {
-  it('says the distance from the vehicle in metres, to a tenth', () => {
+  it('says the distance from the vehicle in meters, to a tenth', () => {
     expect(distanceText(car)).toBe('5 m');
     expect(distanceText({ ...car, x: 10, y: 10 })).toBe('14.1 m');
   });

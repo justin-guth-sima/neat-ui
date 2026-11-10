@@ -633,7 +633,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") tint a row with a soft fill of a status colour, the tone its status chip has ("
+              "text": ") tint a row with a soft fill of a status color, the tone its status chip has ("
             },
             {
               "kind": "ref",
@@ -704,7 +704,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " one greys it. The arrow keys, Home and End move over the rows as shown, never onto a heading, and a click on a heading does nothing. An item whose group is not listed is a mistake in the app: it throws in dev mode, and in production shows after the groups, under no heading and set off from the last group by a rule, rather than going missing."
+              "text": " one grays it. The arrow keys, Home and End move over the rows as shown, never onto a heading, and a click on a heading does nothing. An item whose group is not listed is a mistake in the app: it throws in dev mode, and in production shows after the groups, under no heading and set off from the last group by a rule, rather than going missing."
             }
           ]
         },
@@ -1201,7 +1201,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " greys the heading, for a group with nothing in it."
+              "text": " grays the heading, for a group with nothing in it."
             }
           ]
         }

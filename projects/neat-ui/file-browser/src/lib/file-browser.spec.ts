@@ -256,7 +256,7 @@ describe('NeatFileBrowser', () => {
       expect(listbox().getAttribute('aria-label')).toBe('Library files');
     });
 
-    it('greys an unavailable file and shows its tag as a neutral status chip, yet it stays selectable', async () => {
+    it('grays an unavailable file and shows its tag as a neutral status chip, yet it stays selectable', async () => {
       const { click, row, host } = await render();
       const name = row('Readme.md').querySelector<HTMLElement>('[data-slot="file-name"]')!;
 

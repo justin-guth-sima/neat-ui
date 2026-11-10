@@ -7,7 +7,7 @@ class FakeVideo {
   readyState: number = HTMLMediaElement.HAVE_ENOUGH_DATA;
   totalVideoFrames = 0;
   readonly callbacks = new Map<number, FrameCallback>();
-  readonly cancelled: number[] = [];
+  readonly canceled: number[] = [];
   private nextId = 1;
 
   constructor(private readonly withFrameCallbacks: boolean) {}
@@ -26,7 +26,7 @@ class FakeVideo {
           return id;
         },
         cancelVideoFrameCallback: (id: number) => {
-          this.cancelled.push(id);
+          this.canceled.push(id);
           this.callbacks.delete(id);
         },
       });
@@ -45,7 +45,7 @@ class FakeVideo {
 /** requestAnimationFrame under the test's control. */
 class FakeAnimationFrames {
   readonly callbacks = new Map<number, FrameRequestCallback>();
-  readonly cancelled: number[] = [];
+  readonly canceled: number[] = [];
   private nextId = 1;
 
   install(): void {
@@ -55,7 +55,7 @@ class FakeAnimationFrames {
       return id;
     });
     vi.stubGlobal('cancelAnimationFrame', (id: number) => {
-      this.cancelled.push(id);
+      this.canceled.push(id);
       this.callbacks.delete(id);
     });
   }
@@ -139,7 +139,7 @@ describe('startFrameLoop', () => {
       stop();
       video.present(133);
 
-      expect(video.cancelled).toStrictEqual([pending]);
+      expect(video.canceled).toStrictEqual([pending]);
       expect(frames).toHaveLength(1);
     });
 
@@ -217,7 +217,7 @@ describe('startFrameLoop', () => {
       video.totalVideoFrames = 1;
       animationFrames.run(16);
 
-      expect(animationFrames.cancelled).toStrictEqual([pending]);
+      expect(animationFrames.canceled).toStrictEqual([pending]);
       expect(frames).toStrictEqual([]);
     });
   });

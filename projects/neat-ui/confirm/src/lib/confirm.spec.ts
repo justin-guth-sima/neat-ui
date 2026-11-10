@@ -37,7 +37,7 @@ const RESET_ALL: NeatConfirmOptions = {
 };
 
 /**
- * The variants on the colour classes of the dialog and its buttons. The message's `*:` classes
+ * The variants on the color classes of the dialog and its buttons. The message's `*:` classes
  * style links inside it, which it never has; the buttons never open a menu or fail validation.
  */
 const VOCABULARY = {
@@ -191,10 +191,10 @@ describe('NeatConfirm', () => {
     expect(dialog()).toBeNull();
     expect(document.activeElement).toBe(opener);
 
-    const cancelled = await ask();
+    const canceled = await ask();
     button('Cancel')!.click();
     await settle();
-    expect(cancelled).toEqual({ settled: true, value: false });
+    expect(canceled).toEqual({ settled: true, value: false });
     expect(dialog()).toBeNull();
     expect(document.activeElement).toBe(opener);
 

@@ -1,7 +1,7 @@
 import { drawLevel, LABEL_CORNER, LABEL_GAP, labelCovers } from './drawing';
 import type { NeatDiagram } from './model';
 
-/** Two blocks joined straight across, the edge labelled at its middle, and one unlabelled. */
+/** Two blocks joined straight across, the edge labeled at its middle, and one unlabeled. */
 const LEVEL: NeatDiagram = {
   nodes: [
     { id: 'a', role: 'block', label: 'A', x: 0, y: 0, w: 100, h: 40 },
@@ -19,7 +19,7 @@ describe('labelCovers', () => {
   /** Where the route puts the label: the middle of `tokens`, between the blocks. */
   const at = edges.find((edge) => edge.id === 'tokens')!.label!.at;
 
-  it("is each measured label's border box, centred on its point, with the label's corner", () => {
+  it("is each measured label's border box, centered on its point, with the label's corner", () => {
     expect(at.x).toBeCloseTo(200);
     const [cover, ...more] = labelCovers(edges, new Map([['tokens', { w: 50, h: 18 }]]));
     expect(more).toEqual([]);
@@ -47,7 +47,7 @@ describe('labelCovers', () => {
 
 describe('a label beside its line', () => {
   /** The `tokens` edge's label, its edge given more. */
-  const labelled = (more: object) =>
+  const labeled = (more: object) =>
     drawLevel(
       {
         ...LEVEL,
@@ -55,10 +55,10 @@ describe('a label beside its line', () => {
       },
       new Set(),
     ).edges;
-  const on = labelled({}).find((edge) => edge.id === 'tokens')!.label!.at;
+  const on = labeled({}).find((edge) => edge.id === 'tokens')!.label!.at;
 
   it('stands a gap off the line on its side, its near edge at that point', () => {
-    const edges = labelled({ labelSide: 'below' });
+    const edges = labeled({ labelSide: 'below' });
     const label = edges.find((edge) => edge.id === 'tokens')!.label!;
     expect(label.side).toBe('below');
     expect(label.at).toEqual({ x: on.x, y: on.y + LABEL_GAP });
@@ -69,12 +69,12 @@ describe('a label beside its line', () => {
   });
 
   it('moves further by its offset, and stays on the line for an unknown side', () => {
-    const moved = labelled({ labelSide: 'left', labelOffset: { x: -10, y: 5 } });
+    const moved = labeled({ labelSide: 'left', labelOffset: { x: -10, y: 5 } });
     const label = moved.find((edge) => edge.id === 'tokens')!.label!;
     expect(label.at).toEqual({ x: on.x - LABEL_GAP - 10, y: on.y + 5 });
     const [cover] = labelCovers(moved, new Map([['tokens', { w: 50, h: 18 }]]));
     expect(cover.x + cover.w).toBeCloseTo(label.at.x);
-    const odd = labelled({ labelSide: 'sideways' });
+    const odd = labeled({ labelSide: 'sideways' });
     expect(odd.find((edge) => edge.id === 'tokens')!.label).toEqual({
       text: 'tokens',
       at: on,

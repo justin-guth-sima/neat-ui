@@ -49,7 +49,7 @@ describe('the file browser examples', () => {
     await click('warehouse.mp4');
     expect(readout()).toBe('Picked: clips/indoor/warehouse.mp4 (in /clips/indoor)');
 
-    // An unusable file is greyed and tagged, and can still be picked.
+    // An unusable file is grayed and tagged, and can still be picked.
     expect(row('notes.txt').textContent).toContain('NOT SUPPORTED');
     await click('notes.txt');
     expect(readout()).toBe('Picked: clips/indoor/notes.txt (in /clips/indoor)');

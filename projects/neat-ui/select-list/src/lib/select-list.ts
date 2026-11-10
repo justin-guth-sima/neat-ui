@@ -22,7 +22,7 @@ import { NeatIcon, type NeatTone, NeatTooltip } from '@sima/neat-ui';
 
 /*
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
- * them. Colours are the theme's tokens only; select-list.spec holds each pairing to its contrast.
+ * them. Colors are the theme's tokens only; select-list.spec holds each pairing to its contrast.
  */
 
 /**
@@ -99,7 +99,7 @@ const GROUP_SEPARATOR_CLASSES =
 
 /**
  * A group's heading, across every track, on a `--muted` band: small uppercase medium text in the
- * body colour or, for a group the app mutes (nothing found, not looked for yet), the muted one;
+ * body color or, for a group the app mutes (nothing found, not looked for yet), the muted one;
  * select-list.spec holds both to 4.5:1 on the band. The band runs from edge to edge of the area as
  * a row's fill does, reaching into the grid's padding with the rows' negative margins (see
  * LINE_CLASSES), and pads its text back by as much, so the text starts where the cells' does. It
@@ -125,7 +125,7 @@ const CELL_CLASSES: Record<'start' | 'end', string> = {
 /**
  * A row's fills by its tone, each row taking exactly one set. A neutral row has none at rest and is
  * `--accent` when hovered or active. A toned row is its tone's tint at rest and the tint's accent,
- * more of the same tone, when hovered or active: the plain `--accent` would be a grey about as light
+ * more of the same tone, when hovered or active: the plain `--accent` would be a gray about as light
  * as the tint, which hardly shows on it, and would hide the tone of the row it marks. The theme
  * holds each accent to MIN_FILL_CONTRAST on its tint, and body and muted text to 4.5:1 on both.
  */
@@ -237,7 +237,7 @@ export class NeatColumn {
 /**
  * A group of a `neat-select-list`'s rows under a heading: `key` is what `groupOf` returns for its
  * items, `label` the heading's text (the app's own, a count included if it wants one), and `muted`
- * greys the heading, for a group with nothing in it.
+ * grays the heading, for a group with nothing in it.
  */
 export interface NeatSelectListGroup {
   readonly key: string;
@@ -358,7 +358,7 @@ let nextListId = 0;
  * own text too. Any reason but null blocks, so give a non-empty one: it is what is announced.
  * `canCheck` still means whether a row has a box at all.
  *
- * **Row tones** (`rowTone`) tint a row with a soft fill of a status colour, the tone its status
+ * **Row tones** (`rowTone`) tint a row with a soft fill of a status color, the tone its status
  * chip has (`NeatTone`), so that a state reads along the whole row: the app gives both the same
  * tone. A `neutral` row is untinted. A toned row still shows hover and selection, with more of its
  * tone, and the selected one keeps its bar. The tints are mixed over the content background
@@ -368,7 +368,7 @@ let nextListId = 0;
  * **Groups** (`groups`, with `groupOf` naming an item's group by its key) put the rows under
  * headings, in the groups' order, each item keeping its order within its group. A group is a
  * `group` named by its heading, which spans the columns; an empty group shows its heading alone,
- * and a `muted` one greys it. The arrow keys, Home and End move over the rows as shown, never onto
+ * and a `muted` one grays it. The arrow keys, Home and End move over the rows as shown, never onto
  * a heading, and a click on a heading does nothing. An item whose group is not listed is a mistake
  * in the app: it throws in dev mode, and in production shows after the groups, under no heading
  * and set off from the last group by a rule, rather than going missing.

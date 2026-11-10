@@ -67,7 +67,7 @@ export interface NeatDialogComponentOptions<C> extends NeatDialogOptions {
 }
 
 /**
- * Brain's dialog behaviour on its service, with helm's backdrop: a modal centred on the page that
+ * Brain's dialog behavior on its service, with helm's backdrop: a modal centered on the page that
  * traps focus, hides the page from assistive technology and gives focus back on closing to
  * whatever had it on opening. Closing from outside is switched off here and done by the panel,
  * which can change its mind while the dialog is open (see `NeatDialogPanel`).

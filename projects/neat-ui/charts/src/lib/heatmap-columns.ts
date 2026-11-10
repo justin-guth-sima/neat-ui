@@ -7,9 +7,9 @@ import { isNumber, orderedTimes } from './geometry';
  * ms. Times that cannot place the samples (see `orderedTimes`) put them by count instead.
  *
  * Polls arrive with jitter, a few hundred ms either way, and a sample that lands in its
- * neighbour's column leaves an empty one behind, a gap the board never had. Three rules keep that
+ * neighbor's column leaves an empty one behind, a gap the board never had. Three rules keep that
  * out while a real pause still shows: the sampling interval is the median gap, which one early
- * sample cannot shrink; a short history centres a column on each sampling instant, so a sample has
+ * sample cannot shrink; a short history centers a column on each sampling instant, so a sample has
  * half an interval of slack either way; and an empty column inside a gap of at most two intervals,
  * one late or lost poll rather than a pause, shows its previous column.
  */
@@ -43,7 +43,7 @@ function byCount(length: number, columns: number): number[][] {
  * The samples spread over at most `columns` by their times. A history with more sampling
  * instants (its span in intervals, plus one) than columns cuts its span into equal slots. A
  * shorter one gets one column per instant, so a pause in the samples stays an empty stretch
- * instead of closing up, each column centred on its instant, so a sample up to half an interval
+ * instead of closing up, each column centered on its instant, so a sample up to half an interval
  * early or late stays in its own column. `columns` may be the count an earlier call returned: a
  * short history's count is its number of instants and a long one's is below it, so the same
  * count gives the same layout.
@@ -55,11 +55,11 @@ function byTime(times: number[], columns: number): number[][] {
   const step = samplingInterval(times);
   const instants = Math.round(span / step) + 1;
   const count = Math.min(columns, instants);
-  const centred = count === instants;
+  const centered = count === instants;
   const samples: number[][] = Array.from({ length: count }, () => []);
   times.forEach((time, index) => {
     const place = (time - start) / span;
-    const column = centred
+    const column = centered
       ? Math.round(place * (count - 1))
       : Math.min(count - 1, Math.floor(place * count));
     samples[column].push(index);
@@ -68,8 +68,8 @@ function byTime(times: number[], columns: number): number[][] {
   let after = 1;
   for (let column = 1; column < count; column += 1) {
     if (samples[column].length) continue;
-    const centre = start + span * (centred ? column / (count - 1) : (column + 0.5) / count);
-    while (after < last && times[after] < centre) after += 1;
+    const center = start + span * (centered ? column / (count - 1) : (column + 0.5) / count);
+    while (after < last && times[after] < center) after += 1;
     if (times[after] - times[after - 1] <= 2 * step) samples[column] = samples[column - 1];
   }
   return samples;

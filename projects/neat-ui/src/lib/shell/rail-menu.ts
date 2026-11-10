@@ -35,7 +35,7 @@ const HOVER_CLOSE_DELAY = 150;
 /**
  * Which rail menu is open, which is at most one: the menus share it, so that a menu opening puts
  * the open one away at once, with no delay (the delay is for the pointer reaching its own panel,
- * not for a neighbour). Internal to the kit.
+ * not for a neighbor). Internal to the kit.
  */
 @Injectable({ providedIn: 'root' })
 class OpenRailMenu {
@@ -59,7 +59,7 @@ class OpenRailMenu {
 }
 
 /** The menu's rows are rail items on a rail that shows its labels, whatever the real one does. */
-const LABELLED_RAIL = { expanded: signal(true), collapseWhenNarrow: () => undefined };
+const LABELED_RAIL = { expanded: signal(true), collapseWhenNarrow: () => undefined };
 
 /** Numbers each menu, for the id its heading gives it as a name. */
 let nextMenuId = 0;
@@ -134,9 +134,9 @@ export class RailMenuPanel {
  * says what the tooltip would.
  *
  * Accessibility: the item does not control a popup by a press, so it has no `aria-haspopup` or
- * `aria-expanded`. The menu is a group labelled by its heading, and the item `aria-controls` it
+ * `aria-expanded`. The menu is a group labeled by its heading, and the item `aria-controls` it
  * while it is shown. The tooltip's `aria-describedby` does not fit, as a description is read as
- * text and cannot hold links; a labelled group of links the item points at keeps them reachable,
+ * text and cannot hold links; a labeled group of links the item points at keeps them reachable,
  * and Tab from the item steps into them.
  *
  * On CDK's overlay, not brain's popover, whose positions open below its trigger where this menu
@@ -237,7 +237,7 @@ export class RailMenu {
     });
     const rows = Injector.create({
       parent: this.injector,
-      providers: [{ provide: RailState, useValue: LABELLED_RAIL }],
+      providers: [{ provide: RailState, useValue: LABELED_RAIL }],
     });
     const panel = ref.attach(new ComponentPortal(RailMenuPanel, null, rows));
     panel.setInput('page', this.neatRailMenu());

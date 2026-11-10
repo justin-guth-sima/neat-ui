@@ -1,4 +1,4 @@
-import { analyseCampaign } from './analysis';
+import { analyzeCampaign } from './analysis';
 import { campaign, climb, phase, step, withPhases } from './results.testing';
 import { summaryMarkdown } from './summary';
 
@@ -18,7 +18,7 @@ function slowKit() {
   );
 }
 
-const markdown = (file = slowKit()) => summaryMarkdown(file, analyseCampaign(file));
+const markdown = (file = slowKit()) => summaryMarkdown(file, analyzeCampaign(file));
 
 describe('summaryMarkdown', () => {
   it('heads the page with the machine and the day of the run', () => {

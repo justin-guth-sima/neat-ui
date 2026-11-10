@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { CoreLoad } from './1-core-load.example';
 
 describe('the heatmap examples', () => {
-  it('draw a row per core, the saturated core’s figure in the danger colour', async () => {
+  it('draw a row per core, the saturated core’s figure in the danger color', async () => {
     const fixture = TestBed.createComponent(CoreLoad);
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;

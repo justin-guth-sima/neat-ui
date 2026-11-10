@@ -61,7 +61,7 @@ function drawing(name: string, node: LucideIconNode[]): LucideIconData {
 }
 
 /**
- * A glyph drawn filled with the text colour. Media controls are the one place the kit fills an
+ * A glyph drawn filled with the text color. Media controls are the one place the kit fills an
  * icon: play, pause and stop are solid shapes by convention (a player's transport reads as solid
  * whatever its size), while every other glyph is an outline, so nothing else uses this.
  */

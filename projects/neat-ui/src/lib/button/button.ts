@@ -26,7 +26,7 @@ type SpartanSize = NonNullable<ButtonVariants['size']>;
  * of helm's. Helm's own states break the theme's guarantees, so each override below exists
  * because button.spec failed without it.
  *
- * Focus: helm's 3px ring is the ring colour at 50% (`ring-ring/50`), and danger's is the red at
+ * Focus: helm's 3px ring is the ring color at 50% (`ring-ring/50`), and danger's is the red at
  * 20% (40% in dark); composited over the page or a card neither reaches the 3:1 a focus indicator
  * needs (WCAG 1.4.11). The kit draws the ring at full strength: `--ring` is held to 3:1 on every
  * surface by the theme, and danger keeps its red, which the theme holds to text contrast.
@@ -35,19 +35,19 @@ type SpartanSize = NonNullable<ButtonVariants['size']>;
  * - primary: `bg-primary/80` lightens the fill under white text to 3.5:1. The theme's
  *   `--primary-hover` is the next scale step away from the background, so text gains contrast.
  * - outlined, text: `bg-muted` is 1.10:1 against white in light, and in dark ghost's `bg-muted/50`
- *   is the card colour itself. `--accent`, the theme's hover and selection fill, is visible on
+ *   is the card color itself. `--accent`, the theme's hover and selection fill, is visible on
  *   every surface. Outlined keeps helm's dark hover (`bg-input/50`), which already is.
- * Secondary keeps helm's hover (5% towards the text colour), which keeps its text readable.
+ * Secondary keeps helm's hover (5% towards the text color), which keeps its text readable.
  *
- * `danger-text` is the text variant (helm's ghost: no fill, no border) in the danger colour, for a
+ * `danger-text` is the text variant (helm's ghost: no fill, no border) in the danger color, for a
  * destructive action among text buttons (a Delete beside Rename). Its label is `--destructive`,
  * which the theme holds to text contrast on the page and on a card. It hovers quietly, as the text
  * buttons beside it do: their `--accent` fill, with the label kept red (`hover:text-destructive`
- * replaces ghost's `hover:text-foreground`, a grey label), which button.spec holds to 4.5:1 on that
+ * replaces ghost's `hover:text-foreground`, a gray label), which button.spec holds to 4.5:1 on that
  * fill. It focuses with danger's red ring. Focus changes neither fill nor text, so the rest and
  * hover contrast hold while focused.
  *
- * `danger` is a solid fill in the status colour (`--destructive` under `--destructive-foreground`),
+ * `danger` is a solid fill in the status color (`--destructive` under `--destructive-foreground`),
  * for the action that stops or discards something (Stop recording), as `success` is for the one
  * that starts it; the quiet red is `danger-text`. Helm's destructive is a 10% tint (20% in dark)
  * that hovers to 20% (30%), so the rest classes replace both the tint and its dark twin, and the
@@ -55,10 +55,10 @@ type SpartanSize = NonNullable<ButtonVariants['size']>;
  * which keeps the foreground readable (the spec holds that in both schemes), and focuses with its
  * red ring, which `--destructive` holds at 3:1 on the page and on a card.
  *
- * `success` is a solid fill in the status colour (`--success` under `--success-foreground`), for a
+ * `success` is a solid fill in the status color (`--success` under `--success-foreground`), for a
  * main action that starts something, such as Start recording. Helm has no such variant, so it
- * starts from default's and replaces the colours. It hovers to 90% of its fill: the foreground stays
- * readable on it, which the spec holds in both schemes. It focuses with the ring colour, as primary
+ * starts from default's and replaces the colors. It hovers to 90% of its fill: the foreground stays
+ * readable on it, which the spec holds in both schemes. It focuses with the ring color, as primary
  * does, since the ring must read against the page and not against the fill.
  *
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading them.
@@ -128,7 +128,7 @@ const SIZES: Record<
  * Hover fills are not compared: the pressed fill against a hovered primary is lower (2.07:1 in
  * dark).
  *
- * It sets the colour in all four chains the variants use (rest, hover, dark, dark hover) so that
+ * It sets the color in all four chains the variants use (rest, hover, dark, dark hover) so that
  * the merge replaces whatever the variant's classes set there. Hover does not change a pressed
  * button: a lighter or darker fill would fall back towards the rest look.
  */

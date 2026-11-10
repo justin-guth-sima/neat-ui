@@ -930,7 +930,7 @@ const indent = (text, spaces) => text.replace(/\n/g, `\n${' '.repeat(spaces)}`);
 /**
  * `text` as runs of one kind each, `[kind, text]`, which spell the text again: keywords, strings
  * (a template string, `${}` parts included, is one run), comments, and the rest as `text`. The
- * scanner alone, with no parse, so the showcase colours code with the theme's tokens and needs no
+ * scanner alone, with no parse, so the showcase colors code with the theme's tokens and needs no
  * highlighter.
  */
 export function highlight(text) {
@@ -960,9 +960,9 @@ export function highlight(text) {
     token = scanner.scan();
   }
 
-  // Each token's significant neighbours (not whitespace or a comment), for `kindOf`.
+  // Each token's significant neighbors (not whitespace or a comment), for `kindOf`.
   const significant = tokens.map((_, i) => i).filter((i) => !ts.isTrivia(tokens[i].token));
-  const neighbours = new Map(
+  const neighbors = new Map(
     significant.map((i, k) => [
       i,
       [tokens[significant[k - 1]]?.token, tokens[significant[k + 1]]?.token],
@@ -970,7 +970,7 @@ export function highlight(text) {
   );
   const runs = [];
   for (const [i, entry] of tokens.entries()) {
-    const kind = entry.kind ?? kindOf(entry.token, neighbours.get(i));
+    const kind = entry.kind ?? kindOf(entry.token, neighbors.get(i));
     const piece = text.slice(entry.from, entry.to);
     if (runs.at(-1)?.[0] === kind) runs.at(-1)[1] += piece;
     else runs.push([kind, piece]);
@@ -980,7 +980,7 @@ export function highlight(text) {
 
 /**
  * A stylesheet as runs: its comments, and the rest as `text`. Not the TypeScript scanner's job:
- * a CSS property named like a keyword (`content`, `in`) would be coloured as one.
+ * a CSS property named like a keyword (`content`, `in`) would be colored as one.
  */
 export function highlightCss(text) {
   const runs = [];
@@ -990,7 +990,7 @@ export function highlightCss(text) {
   return runs;
 }
 
-/** What colour a token that is not inside a template string gets. */
+/** What color a token that is not inside a template string gets. */
 function kindOf(token, [before, after] = []) {
   if (
     token === ts.SyntaxKind.SingleLineCommentTrivia ||

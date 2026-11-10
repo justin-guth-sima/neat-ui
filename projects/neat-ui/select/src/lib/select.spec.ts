@@ -25,7 +25,7 @@ import {
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 const SURFACES = ['background', 'card'] as const;
 
-/** The variants on the select's colour classes; validation never applies in these states. */
+/** The variants on the select's color classes; validation never applies in these states. */
 const VOCABULARY = {
   dark: 'dark',
   hover: 'hover',
@@ -488,7 +488,7 @@ describe('NeatSelect', () => {
     expect(trigger.disabled).toBe(false);
   });
 
-  it('a value that is not among the options shows the placeholder in the muted colour, not as a choice', async () => {
+  it('a value that is not among the options shows the placeholder in the muted color, not as a choice', async () => {
     const { fixture, host, trigger } = await render((host) => host.source.set('gone'));
     const value = trigger.querySelector('[data-slot="select-value"]')!;
 

@@ -34,7 +34,7 @@ function isDrawable(track: unknown): track is Track {
 }
 
 /**
- * Appends each track's centre to its trail and drops the trails of tracks gone for longer than
+ * Appends each track's center to its trail and drops the trails of tracks gone for longer than
  * `lostTrackTtlMs`. With history off, every trail is dropped.
  */
 function updateTrackHistory(
@@ -89,7 +89,7 @@ function drawTrail(
   ctx.restore();
 }
 
-/** Boxes with labelled plates and fading trails, each in its track id's colour. */
+/** Boxes with labeled plates and fading trails, each in its track id's color. */
 export const drawTracking: DrawStrategy = (dc, data) => {
   const tracks = (data as TrackingData | null | undefined)?.tracks;
   if (!Array.isArray(tracks)) return;

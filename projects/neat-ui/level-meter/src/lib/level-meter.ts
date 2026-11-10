@@ -37,7 +37,7 @@ export function segmentTone(index: number, count: number): MeterTone {
 /*
  * A segment holds exactly one fill class at a time: the template gives it the unlit one, and
  * lighting it swaps that for its tone's, so no class has to outweigh another. Literals, so that
- * Tailwind finds them. Unlit is the border colour, not `--muted`, which is faint on the light
+ * Tailwind finds them. Unlit is the border color, not `--muted`, which is faint on the light
  * page and is the card, dialog and popover fill in dark, where the bar would vanish.
  */
 const UNLIT_FILL = 'bg-border';
@@ -66,7 +66,7 @@ function everyAnimationFrame(onFrame: () => void): () => void {
 
 /**
  * A live audio level as a bar of 28 segments, from -50 dBFS (dark) to full scale (all lit), green
- * to 70 % of the bar, amber to 90 %, red above; the segments not lit are in the border colour:
+ * to 70 % of the bar, amber to 90 %, red above; the segments not lit are in the border color:
  *
  * ```html
  * <neat-level-meter [sample]="micTest.level" />
@@ -74,7 +74,7 @@ function everyAnimationFrame(onFrame: () => void): () => void {
  *
  * `sample` reads the current level in dBFS, or null for none (the meter is dark). While it is set
  * and the meter is rendered, the meter calls it once per animation frame, so one input serves a
- * value the app polls and keeps in a field as well as a Web Audio analyser read on demand. Pass
+ * value the app polls and keeps in a field as well as a Web Audio analyzer read on demand. Pass
  * null to stop. The meter calls the function on its own, never as a method of the app's object:
  * give it an arrow function (`readonly level = () => this.lastLevel`), not a method. Return null
  * when the source is gone (an audio context closed) rather than throw: the loop outlives a throw,
@@ -85,7 +85,7 @@ function everyAnimationFrame(onFrame: () => void): () => void {
  * (`@if (recording || playing)`) instead of hiding it.
  *
  * Each frame writes the segments straight to the DOM, outside change detection: sixty change
- * detections a second for a bar of colour would cost more than everything else on the page.
+ * detections a second for a bar of color would cost more than everything else on the page.
  *
  * The meter is `aria-hidden`: a level read out every frame would be noise. Say what is happening
  * (recording, playing, silence) in text beside it.
@@ -138,7 +138,7 @@ export class NeatLevelMeter {
     for (let index = Math.min(lit, this.lit); index < Math.max(lit, this.lit); index++) {
       const on = index < lit;
       // Remove, then add: `replace` does nothing when the old class is missing, which would
-      // leave a segment in the wrong colour without a sign.
+      // leave a segment in the wrong color without a sign.
       const { classList } = elements[index].nativeElement;
       classList.remove(on ? UNLIT_FILL : LIT_FILLS[index]);
       classList.add(on ? LIT_FILLS[index] : UNLIT_FILL);

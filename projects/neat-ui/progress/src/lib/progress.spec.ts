@@ -16,7 +16,7 @@ const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 /** The page, a card and the toasts' popover surface. */
 const SURFACES = ['background', 'card', 'popover'] as const;
 
-/** The variants on the bar's colour classes. */
+/** The variants on the bar's color classes. */
 const VOCABULARY = { dark: 'dark', 'motion-reduce': 'motion-reduce' };
 
 @Component({
@@ -258,8 +258,8 @@ describe('NeatProgress', () => {
         const { track, fill } = await render(null);
         const classes = [...fill.classList];
         expect(classes).toContain('motion-reduce:animate-none');
-        // The fill is transparent between stripes of `--primary`; a gradient is no colour a
-        // utility's value resolves to, so the stripes' colour is read from the class itself.
+        // The fill is transparent between stripes of `--primary`; a gradient is no color a
+        // utility's value resolves to, so the stripes' color is read from the class itself.
         expect(classes).toContain('motion-reduce:bg-transparent');
         const stripes = classes.find((name) => name.startsWith('motion-reduce:bg-[repeating'))!;
         expect(stripes).toContain('(135deg,var(--primary)_0_6px,transparent_6px_12px)');

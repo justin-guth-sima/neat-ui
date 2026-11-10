@@ -14,9 +14,9 @@ import { NEAT_NEAR_BLACK, SIMA_PALETTE } from './palette';
  * Step 0 exists only in a surface ramp, where it is white.
  */
 export type ColorStep = 0 | 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950;
-/** A colour ramp: a hex colour for each step from 50 to 950, as `buildColorScale` makes it. */
+/** A color ramp: a hex color for each step from 50 to 950, as `buildColorScale` makes it. */
 export type ColorScale = Record<Exclude<ColorStep, 0>, string>;
-/** A ramp of surface colours, white at step 0 to the darkest at 950, from the surface builders. */
+/** A ramp of surface colors, white at step 0 to the darkest at 950, from the surface builders. */
 export type SurfaceScale = Record<ColorStep, string>;
 
 type LighterStep = 50 | 100 | 200 | 300 | 400;
@@ -59,7 +59,7 @@ const SURFACE_FRACTIONS: Record<InterpolatedSurfaceStep, number> = {
   900: 0.92,
 };
 
-/** Reduces chroma, keeping lightness and hue, until the colour fits in sRGB. */
+/** Reduces chroma, keeping lightness and hue, until the color fits in sRGB. */
 function fitToSrgb(color: Oklch): Oklch {
   if (isInSrgbGamut(color)) return color;
   let inside = 0;
@@ -137,8 +137,8 @@ function surfaceRamp({ background, backgroundAlt, darkest }: SurfaceAnchors): Su
   };
 }
 
-/** The grey as light as `hex` in OKLab: the colour with its chroma removed. */
-function grey(hex: string): string {
+/** The gray as light as `hex` in OKLab: the color with its chroma removed. */
+function gray(hex: string): string {
   return oklabToHex([hexToOklab(hex)[0], 0, 0]);
 }
 
@@ -156,14 +156,14 @@ export function buildSurfaceScale(): SurfaceScale {
 }
 
 /**
- * Builds the neutral surface ramp: the brand ramp's construction in greys only, from greys as light
+ * Builds the neutral surface ramp: the brand ramp's construction in grays only, from grays as light
  * as the two palette backgrounds down to the near-black (`NEAT_NEAR_BLACK`). The dark scheme's
  * surfaces, which carry no hue of their own.
  */
 export function buildNeutralSurfaceScale(): SurfaceScale {
   return surfaceRamp({
-    background: grey(SIMA_PALETTE.background),
-    backgroundAlt: grey(SIMA_PALETTE.backgroundAlt),
+    background: gray(SIMA_PALETTE.background),
+    backgroundAlt: gray(SIMA_PALETTE.backgroundAlt),
     darkest: NEAT_NEAR_BLACK,
   });
 }

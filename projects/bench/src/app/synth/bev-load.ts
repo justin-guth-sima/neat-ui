@@ -22,7 +22,7 @@ export const BEV_LOAD = {
   gridCells: 128,
   /** Frames a second the load is fed at. */
   hz: 20,
-  /** Metres the view reaches. */
+  /** Meters the view reaches. */
   range: 60,
 } as const;
 

@@ -197,7 +197,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Brain's tabs are the host directive; its list, trigger and content directives give the tab roles, the keyboard handling and the panel's labelling. Brain derives element ids from the tab keys alone ("
+              "text": "Brain's tabs are the host directive; its list, trigger and content directives give the tab roles, the keyboard handling and the panel's labeling. Brain derives element ids from the tab keys alone ("
             },
             {
               "kind": "code",

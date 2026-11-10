@@ -133,7 +133,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A single series in the warning colour ("
+            "text": "A single series in the warning color ("
           },
           {
             "kind": "code",
@@ -475,7 +475,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A reference is a level that is neither a warning nor a danger, here the session's average, drawn dashed in the quiet colour."
+            "text": "A reference is a level that is neither a warning nor a danger, here the session's average, drawn dashed in the quiet color."
           }
         ]
       }

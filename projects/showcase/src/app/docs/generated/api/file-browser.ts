@@ -221,7 +221,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " node is greyed, and a "
+                "text": " node is grayed, and a "
               },
               {
                 "kind": "code",
@@ -849,7 +849,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Greys the row without hiding it: a file the app cannot use for its main purpose (one the streamer does not accept), shown so the user knows it is there. It does not stop the row from being selected, opened or checked, so it is not "
+                  "text": "Grays the row without hiding it: a file the app cannot use for its main purpose (one the streamer does not accept), shown so the user knows it is there. It does not stop the row from being selected, opened or checked, so it is not "
                 },
                 {
                   "kind": "code",
@@ -873,7 +873,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "A short text after the name, such as the reason the row is greyed."
+                  "text": "A short text after the name, such as the reason the row is grayed."
                 }
               ]
             }

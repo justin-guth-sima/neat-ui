@@ -44,10 +44,10 @@ export interface Dot {
   /** Its radius in diagram units. */
   r: number;
   /**
-   * The caller's colour, passed on to the step dots it starts: a whole number from 0 to 255, since
+   * The caller's color, passed on to the step dots it starts: a whole number from 0 to 255, since
    * the pool keeps it in a byte (the layer's series 1 to 8 fit).
    */
-  colour: number;
+  color: number;
 }
 
 /** Told every dot spawned (step dots too), with the time it starts and its message's bytes. */
@@ -86,7 +86,7 @@ export class DotModel {
   private readonly edges: string[];
   private readonly starts: Float64Array;
   private readonly radii: Float32Array;
-  private readonly colours: Uint8Array;
+  private readonly colors: Uint8Array;
   private readonly shown: Uint8Array;
   private readonly out: Dot[] = [];
   private readonly frame: Dot[] = [];
@@ -115,7 +115,7 @@ export class DotModel {
     this.edges = new Array<string>(capacity).fill('');
     this.starts = new Float64Array(capacity);
     this.radii = new Float32Array(capacity);
-    this.colours = new Uint8Array(capacity);
+    this.colors = new Uint8Array(capacity);
     this.shown = new Uint8Array(capacity);
   }
 
@@ -153,9 +153,9 @@ export class DotModel {
    * no dot, see `DotEvery`) it is placed all the same, with its step dots, so the listener counts
    * it, but `advance` does not return it.
    */
-  spawn(edge: string, atMs: number, bytes: number, colour = 0, visible = true): void {
+  spawn(edge: string, atMs: number, bytes: number, color = 0, visible = true): void {
     this.budget = MAX_CHAIN;
-    this.place(edge, atMs, dotRadius(bytes), colour, bytes, visible);
+    this.place(edge, atMs, dotRadius(bytes), color, bytes, visible);
   }
 
   /**
@@ -183,7 +183,7 @@ export class DotModel {
         this.edges[to] = this.edges[i];
         this.starts[to] = this.starts[i];
         this.radii[to] = this.radii[i];
-        this.colours[to] = this.colours[i];
+        this.colors[to] = this.colors[i];
         this.shown[to] = this.shown[i];
       }
       if (t >= 0 && this.shown[to]) {
@@ -191,7 +191,7 @@ export class DotModel {
         dot.edge = this.edges[to];
         dot.t = t;
         dot.r = this.radii[to];
-        dot.colour = this.colours[to];
+        dot.color = this.colors[to];
         frame[n++] = dot;
       }
       kept++;
@@ -215,7 +215,7 @@ export class DotModel {
 
   /** The `n`th reused dot object, made the first time a frame holds that many. */
   private dotAt(n: number): Dot {
-    if (n === this.out.length) this.out.push({ edge: '', t: 0, r: 0, colour: 0 });
+    if (n === this.out.length) this.out.push({ edge: '', t: 0, r: 0, color: 0 });
     return this.out[n];
   }
 
@@ -227,7 +227,7 @@ export class DotModel {
     edge: string,
     atMs: number,
     r: number,
-    colour: number,
+    color: number,
     bytes: number,
     visible: boolean,
   ): void {
@@ -244,7 +244,7 @@ export class DotModel {
     this.edges[i] = edge;
     this.starts[i] = atMs;
     this.radii[i] = r;
-    this.colours[i] = colour;
+    this.colors[i] = color;
     this.shown[i] = visible ? 1 : 0;
     if (visible) {
       this.spawned++;
@@ -257,7 +257,7 @@ export class DotModel {
     for (const step of following) {
       const delay = this.delayOf(step);
       const start = arrival + (Number.isFinite(delay) ? delay : 0);
-      this.place(step, start, r, colour, bytes, visible);
+      this.place(step, start, r, color, bytes, visible);
     }
   }
 }

@@ -89,7 +89,7 @@ const NEXT = GROUPS.map((group) => ({
             <h2>Provide the kit</h2>
             <p>
               In <code neatCode>app.config.ts</code>: <code neatCode>provideNeatUi()</code> applies
-              the stored colour scheme before the first render, and
+              the stored color scheme before the first render, and
               <code neatCode>provideNeatTitles</code> titles the browser tab
               <code neatCode>My demo · &lt;page&gt;</code> from each route's title.
             </p>

@@ -1,4 +1,4 @@
-import { type BevPlot, metresText, onPlot } from './geometry';
+import { type BevPlot, metersText, onPlot } from './geometry';
 import type { NeatBevObject } from './model';
 
 /*
@@ -27,14 +27,14 @@ export function summaryText(objects: readonly NeatBevObject[] | undefined, plot:
 /** Where the plot reaches, in words: "within 60 m", or a rectangle's edges. */
 function plotText(plot: BevPlot): string {
   const { back, front, right, left } = plot;
-  if (plot.shape === 'round') return `within ${metresText(plot.range)}`;
-  if (front === -back && left === -right && front === left) return `within ${metresText(front)}`;
+  if (plot.shape === 'round') return `within ${metersText(plot.range)}`;
+  if (front === -back && left === -right && front === left) return `within ${metersText(front)}`;
   return `${span(back, front, 'behind', 'ahead')}, ${side(right, left)}`;
 }
 
 /** An extent along one axis: "from 20 m behind to 80 m ahead", "from 10 m to 80 m ahead". */
 function span(low: number, high: number, below: string, above: string): string {
-  const m = (value: number) => metresText(Math.abs(value));
+  const m = (value: number) => metersText(Math.abs(value));
   if (low < 0 && high > 0) return `from ${m(low)} ${below} to ${m(high)} ${above}`;
   if (low >= 0) return `from ${m(low)} to ${m(high)} ${above}`;
   return `from ${m(high)} to ${m(low)} ${below}`;
@@ -42,6 +42,6 @@ function span(low: number, high: number, below: string, above: string): string {
 
 /** The extent across: "30 m either side", or as `span` has it. */
 function side(right: number, left: number): string {
-  if (right < 0 && left === -right) return `${metresText(left)} either side`;
+  if (right < 0 && left === -right) return `${metersText(left)} either side`;
   return span(right, left, 'right', 'left');
 }

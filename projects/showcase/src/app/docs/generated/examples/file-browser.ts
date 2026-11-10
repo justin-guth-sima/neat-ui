@@ -30,7 +30,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " is tagged and greyed but can still be selected. A click on a folder only highlights it: open it with a double click, its chevron or Enter. Move over a folder with the arrow keys or a click and the selection stays on the file it was on."
+            "text": " is tagged and grayed but can still be selected. A click on a folder only highlights it: open it with a double click, its chevron or Enter. Move over a folder with the arrow keys or a click and the selection stays on the file it was on."
           }
         ]
       }
@@ -77,7 +77,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'clips/indoor/lobby'"],["text",", [file("],["string","'clips/indoor/lobby/entrance.mp4'"],["text",")]),\n      file("],
           ["string","'clips/indoor/warehouse.mp4'"],["text","),\n      file("],
           ["string","'clips/indoor/notes.txt'"],["text",", unsupported),\n    ]),\n    folder("],
-          ["string","'clips/outdoor'"],["text",", [file("],["string","'clips/outdoor/highway.mp4'"],["text","), file("],["string","'clips/outdoor/Harbour.mkv'"],["text",")]),\n    folder("],
+          ["string","'clips/outdoor'"],["text",", [file("],["string","'clips/outdoor/highway.mp4'"],["text","), file("],["string","'clips/outdoor/Harbor.mkv'"],["text",")]),\n    folder("],
           ["string","'clips/archive'"],["text",", archive),\n    folder("],
           ["string","'clips/empty'"],["text",", []),\n    file("],
           ["string","'clips/overview.mp4'"],["text","),\n  ]),\n  folder("],
@@ -178,7 +178,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'clips/indoor/lobby'"],["text",", [file("],["string","'clips/indoor/lobby/entrance.mp4'"],["text",")]),\n      file("],
           ["string","'clips/indoor/warehouse.mp4'"],["text","),\n      file("],
           ["string","'clips/indoor/notes.txt'"],["text",", unsupported),\n    ]),\n    folder("],
-          ["string","'clips/outdoor'"],["text",", [file("],["string","'clips/outdoor/highway.mp4'"],["text","), file("],["string","'clips/outdoor/Harbour.mkv'"],["text",")]),\n    folder("],
+          ["string","'clips/outdoor'"],["text",", [file("],["string","'clips/outdoor/highway.mp4'"],["text","), file("],["string","'clips/outdoor/Harbor.mkv'"],["text",")]),\n    folder("],
           ["string","'clips/archive'"],["text",", archive),\n    folder("],
           ["string","'clips/empty'"],["text",", []),\n    file("],
           ["string","'clips/overview.mp4'"],["text","),\n  ]),\n  folder("],

@@ -13,7 +13,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Inline buttons set into a note and into the lines of a list, each taking the size and colour of its line. The actions do nothing; the third list line's is disabled, and the link leads back to this page."
+            "text": "Inline buttons set into a note and into the lines of a list, each taking the size and color of its line. The actions do nothing; the third list line's is disabled, and the link leads back to this page."
           }
         ]
       }
@@ -43,7 +43,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "in-a-line.example.css",
         "code": [
-          ["comment","/*\n * Inline buttons take their line's size and colour, so the card sets a small one and a width a\n * list line fits.\n */"],
+          ["comment","/*\n * Inline buttons take their line's size and color, so the card sets a small one and a width a\n * list line fits.\n */"],
           ["text","\n.card {\n  --neat-surface: var(--card);\n\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  width: 18rem;\n  padding: var(--neat-space-4);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n  color: var(--card-foreground);\n  font-size: var(--neat-text-xs);\n}\n"]
         ]
       }

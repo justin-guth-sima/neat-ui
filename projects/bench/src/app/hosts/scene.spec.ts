@@ -8,7 +8,7 @@ describe('sceneOf', () => {
   const overview = synth.diagram.overview;
   const scene = sceneOf(synth);
 
-  it('draws the level as the kit does: its routes, tips and colours', () => {
+  it('draws the level as the kit does: its routes, tips and colors', () => {
     expect(scene.drawn).toEqual(drawLevel(overview, new Set()));
   });
 
@@ -27,7 +27,7 @@ describe('sceneOf', () => {
     expect(scene.edgeIds).toEqual(new Set(overview.edges.map((edge) => edge.id)));
   });
 
-  it('places every note at the note box, centred off its edge as the kit centres it', () => {
+  it('places every note at the note box, centered off its edge as the kit centers it', () => {
     expect(scene.notes.size).toBe(D1.notes);
     for (const note of overview.notes ?? []) {
       const { box, anchor } = scene.notes.get(note.id)!;

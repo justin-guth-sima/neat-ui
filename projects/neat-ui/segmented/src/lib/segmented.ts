@@ -43,14 +43,14 @@ const THUMB_CLASSES =
 
 /**
  * A segment, transparent above the thumb; the chosen one is the semibold primary label (primary on
- * the thumb is a pair the segmented spec holds to 4.5:1). Between two unchosen neighbours a 1px
+ * the thumb is a pair the segmented spec holds to 4.5:1). Between two unchosen neighbors a 1px
  * divider is drawn on the segment's start edge (`before`), and hidden by `opacity` so that it fades
  * with the thumb's slide: not on the first segment (`first-of-type`: the thumb is the group's first
  * child), nor on the chosen one, nor on the one after it. The divider is `--muted-foreground` at
- * 40%, not `--border`, which in dark is the very colour of the track and would vanish. The focus
+ * 40%, not `--border`, which in dark is the very color of the track and would vanish. The focus
  * ring is the full `--ring` (3:1) rather than a faint mix. The label sits in one grid cell with an
  * invisible, `aria-hidden` semibold copy of itself (the template), so that every column is as wide
- * as semibold needs and the control keeps its width, and its neighbours their places, as the
+ * as semibold needs and the control keeps its width, and its neighbors their places, as the
  * choice moves; the copy is not part of the accessible name. The cell may shrink below the label
  * (`min-w-0` in the segment's flex row, one column with a 0 minimum) and both copies `truncate`
  * in it: a narrow container clips the labels with an ellipsis instead of overlapping them, and
@@ -80,7 +80,7 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
  * Its width does not move with the choice: every column is as wide as the widest label needs, in
  * semibold.
  *
- * It never gives up width to its neighbours: in a flex row too narrow for everything in it, the
+ * It never gives up width to its neighbors: in a flex row too narrow for everything in it, the
  * control keeps its labels whole and the text beside it gives way (that text needs `min-width: 0`
  * to shrink). It is never wider than its container, though: in one narrower than its labels (a
  * side panel dragged narrow) the options shrink together, still equal, and each label ends in an

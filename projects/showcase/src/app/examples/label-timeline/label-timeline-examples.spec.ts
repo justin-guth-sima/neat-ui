@@ -69,7 +69,7 @@ describe("the label timeline example's strips", () => {
 });
 
 describe("the label timeline example's classes", () => {
-  it("are the score bars example's, so a label has the same colour in both", () => {
+  it("are the score bars example's, so a label has the same color in both", () => {
     expect(CLASSES).toEqual(SCORE_BARS_CLASSES);
   });
 });

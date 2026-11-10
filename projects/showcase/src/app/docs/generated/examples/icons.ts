@@ -32,7 +32,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", drawn at 24 px. An icon takes its colour from the text around it."
+            "text": ", drawn at 24 px. An icon takes its color from the text around it."
           }
         ]
       }

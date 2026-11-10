@@ -90,8 +90,8 @@ function hasId(id: unknown): boolean {
 }
 
 /**
- * Skeletons, joints and a labelled box per pose, in the pose id's colour; a label's row in
- * `objects` sets that colour, the line and the width instead, as it does for detections.
+ * Skeletons, joints and a labeled box per pose, in the pose id's color; a label's row in
+ * `objects` sets that color, the line and the width instead, as it does for detections.
  */
 export const drawPoseEstimation: DrawStrategy = (dc, data) => {
   const poses = (data as PoseData | null | undefined)?.poses;

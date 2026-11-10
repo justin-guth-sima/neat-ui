@@ -265,7 +265,7 @@ describe('DiagramZoom', () => {
   });
 
   describe('a bar over the top of the box', () => {
-    /** A level much wider than tall, in a short box: centred, its top would sit under the bar. */
+    /** A level much wider than tall, in a short box: centered, its top would sit under the bar. */
     const WIDE: Rect = { x: 0, y: 0, w: 1000, h: 100 };
     const top = () => view.now().y + view.now().k * WIDE.y;
 
@@ -377,19 +377,19 @@ describe('DiagramZoom', () => {
       expectAt(view.now(), panned(48, 0));
     });
 
-    it('zooms 1.25× about the box’s centre by + and =, and back by -, over 250 ms', () => {
+    it('zooms 1.25× about the box’s center by + and =, and back by -, over 250 ms', () => {
       vi.useFakeTimers({
         toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'],
       });
       const start = view.now();
-      const centre = start.invert([400, 300]);
+      const center = start.invert([400, 300]);
 
       expect(view.key('+').defaultPrevented).toBe(true);
       expect(view.now().k).toBeCloseTo(start.k, 6);
       vi.advanceTimersByTime(300);
       expect(view.now().k).toBeCloseTo(start.k * 1.25, 6);
-      expect(view.now().apply(centre)[0]).toBeCloseTo(400, 6);
-      expect(view.now().apply(centre)[1]).toBeCloseTo(300, 6);
+      expect(view.now().apply(center)[0]).toBeCloseTo(400, 6);
+      expect(view.now().apply(center)[1]).toBeCloseTo(300, 6);
 
       view.key('=');
       vi.advanceTimersByTime(300);
@@ -398,7 +398,7 @@ describe('DiagramZoom', () => {
       view.key('-');
       vi.advanceTimersByTime(300);
       expect(view.now().k).toBeCloseTo(start.k * 1.25, 6);
-      expect(view.now().apply(centre)[0]).toBeCloseTo(400, 6);
+      expect(view.now().apply(center)[0]).toBeCloseTo(400, 6);
     });
 
     it('zooms on from where a zoom in flight is going, so quick presses add up', () => {

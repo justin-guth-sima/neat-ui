@@ -65,8 +65,8 @@ export const SELECT_HELM_CLASSES = {
  * - Trigger focus ring and dark fill: as on `neatInput`. Helm's `ring-ring/50` is about 1.85:1 on
  *   white, where a focus indicator needs 3:1, and its dark tint (`--input` at 30%, 50% on hover)
  *   takes the placeholder under 4.5:1.
- * - Panel outline: `--border`, the theme's colour for outlines, as on the popover, where helm
- *   draws the text colour at 10%.
+ * - Panel outline: `--border`, the theme's color for outlines, as on the popover, where helm
+ *   draws the text color at 10%.
  */
 const TRIGGER_CLASSES = hlm(
   SELECT_HELM_CLASSES.trigger,
@@ -110,7 +110,7 @@ let nextSelectId = 0;
  * `{ value, label, disabled? }`; the selected value is `value`, `null` while there is none, and
  * the trigger shows the selected option's label or, without one, `placeholder`; a value that is
  * not among the options (a deleted file, options that load later) shows the placeholder as well,
- * in its muted colour. The select fills its container's width (inline, the width its label
+ * in its muted color. The select fills its container's width (inline, the width its label
  * leaves), and its list is as wide as the select.
  *
  * It follows the WAI-ARIA select-only combobox. On the trigger, Down, Up, Enter and Space open the

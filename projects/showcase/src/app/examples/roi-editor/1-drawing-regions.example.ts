@@ -30,8 +30,8 @@ const MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
 ];
 
 /**
- * The box crosses the middle of the image, which is 640 by 360, with its centre at mid height; this
- * exclusion region straddles that line, so the box vanishes as its centre enters the region and
+ * The box crosses the middle of the image, which is 640 by 360, with its center at mid height; this
+ * exclusion region straddles that line, so the box vanishes as its center enters the region and
  * returns as it leaves.
  */
 const STARTING_REGIONS: readonly NeatRoiPolygon[] = [
@@ -80,7 +80,7 @@ const STARTING_REGIONS: readonly NeatRoiPolygon[] = [
       </neat-video-tile>
     </div>
     <p class="rule showcase-muted">
-      A box shows while its centre is in an inclusion region, or there is none, and in no exclusion
+      A box shows while its center is in an inclusion region, or there is none, and in no exclusion
       region.
     </p>
   `,

@@ -100,7 +100,7 @@ describe('NeatDetails', () => {
   describe('contrast, from the emitted theme tokens', () => {
     const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
     const SURFACES = ['background', 'card'] as const;
-    // What a child variant means: the term's colour is measured on a dt, the value's on a dd.
+    // What a child variant means: the term's color is measured on a dt, the value's on a dd.
     const VOCABULARY = { dark: 'dark', '[&>dt]': 'dt', '[&>dd]': 'dd' };
 
     for (const scheme of SCHEMES) {

@@ -40,7 +40,7 @@ export const TABS_HELM_CLASSES = {
 } as const;
 
 /**
- * Helm's line variant: the active tab is marked by an underline in the text colour, which reaches
+ * Helm's line variant: the active tab is marked by an underline in the text color, which reaches
  * 3:1 on every surface. Helm's default variant marks it with a white fill on `--muted`, 1.10:1 on
  * white, too faint to show which tab is open.
  */
@@ -122,7 +122,7 @@ let nextTabsId = 0;
  * view when it changes.
  *
  * Brain's tabs are the host directive; its list, trigger and content directives give the tab
- * roles, the keyboard handling and the panel's labelling. Brain derives element ids from the tab
+ * roles, the keyboard handling and the panel's labeling. Brain derives element ids from the tab
  * keys alone (`brn-tabs-label-<key>`) and puts them in ids and `aria-controls` as they are. The
  * kit's keys are the instance's prefix and the tab's place in the list, so two tab sets with the
  * same values do not share ids and a value with spaces ("Board 1") is still a valid id; `value`

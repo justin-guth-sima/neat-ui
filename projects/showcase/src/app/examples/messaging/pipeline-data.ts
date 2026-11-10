@@ -141,14 +141,14 @@ export const PIPELINE: NeatDiagramSet = {
     nodes: PIPELINE_NODES,
     edges: [
       ...PIPELINE_EDGES,
-      // Labelled, so the dots are seen passing behind an edge label.
+      // Labeled, so the dots are seen passing behind an edge label.
       { id: 'decode-detector', from: 'decode', to: 'detector', series: 1, label: 'frames' },
       { id: 'detector-tracker', from: 'detector', to: 'tracker', series: 4 },
     ],
     notes: [
       // Above the frames (they start at y 0; the card is about 85 high), clear of the Camera.
       { id: 'camera-rate', edges: ['camera-decode'], x: 215, y: -50 },
-      // A note's x and y are its centre: below the Modalix frame (which ends at y 360), so the card
+      // A note's x and y are its center: below the Modalix frame (which ends at y 360), so the card
       // straddles no border, and its leader runs clear of it.
       { id: 'tracker-rate', edges: ['detector-tracker'], x: 330, y: 410 },
     ],

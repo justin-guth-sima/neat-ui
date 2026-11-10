@@ -1,26 +1,26 @@
 import { composite } from './color';
 
 /**
- * Spec support: the colour a control shows in a state, read from its rendered utility classes and
+ * Spec support: the color a control shows in a state, read from its rendered utility classes and
  * resolved against the emitted theme tokens (`spartanThemeTokens`). Internal, like those tokens:
  * the control specs measure contrast with it, nothing uses it at runtime.
  */
 
 export type ThemeTokens = Readonly<Record<string, string>>;
 
-/** The utility families that carry a colour a contrast rule applies to. */
+/** The utility families that carry a color a contrast rule applies to. */
 export type ColorProperty = 'bg' | 'text' | 'border' | 'ring';
 
 /**
- * What a variant on a colour class means for the states a spec models: the name of the state that
+ * What a variant on a color class means for the states a spec models: the name of the state that
  * turns it on (`'checked'`, `'dark'`, `'hover'`), `true` for a condition that always holds on that
  * element (a fixed attribute such as the tab list's line variant), or `false` for one that never
- * does in the modelled states (a failed form validation, a size the control does not use).
+ * does in the modeled states (a failed form validation, a size the control does not use).
  */
 export type VariantMeaning = string | boolean;
 export type VariantVocabulary = Readonly<Record<string, VariantMeaning>>;
 
-/** Colour values that are not theme tokens but still colours. */
+/** Color values that are not theme tokens but still colors. */
 const KEYWORD_COLORS = new Set(['transparent', 'white', 'black', 'current', 'inherit']);
 /** Tailwind's default palette (`zinc-500`): never part of the kit's theme, so a helm leak. */
 const PALETTE_COLOR = /^[a-z]+-\d{2,3}$/;
@@ -42,9 +42,9 @@ export function splitVariants(name: string): { variants: string[]; utility: stri
 }
 
 /**
- * The colour value (`primary`, `input/80`, `transparent`) of a `<property>-` utility, or undefined
- * for a non-colour utility of the same family (`border-s-0`, `text-sm`, `ring-3`). Widths, sizes
- * and arbitrary values are not colours; a value of Tailwind's default palette fails.
+ * The color value (`primary`, `input/80`, `transparent`) of a `<property>-` utility, or undefined
+ * for a non-color utility of the same family (`border-s-0`, `text-sm`, `ring-3`). Widths, sizes
+ * and arbitrary values are not colors; a value of Tailwind's default palette fails.
  */
 function colorValue(utility: string, property: ColorProperty, tokens: ThemeTokens) {
   if (!utility.startsWith(`${property}-`)) return undefined;
@@ -52,7 +52,7 @@ function colorValue(utility: string, property: ColorProperty, tokens: ThemeToken
   const name = value.split('/')[0];
   if (name in tokens || KEYWORD_COLORS.has(name)) return value;
   if (PALETTE_COLOR.test(name)) {
-    throw new Error(`"${utility}" is not a theme colour: the kit's colours come from the theme`);
+    throw new Error(`"${utility}" is not a theme color: the kit's colors come from the theme`);
   }
   return undefined;
 }
@@ -71,15 +71,15 @@ export interface ColorQuery {
 }
 
 /**
- * The colour utility value a property takes in a state.
+ * The color utility value a property takes in a state.
  *
- * Of the colour classes whose variants all hold, the one with the most variants wins: a class that
+ * Of the color classes whose variants all hold, the one with the most variants wins: a class that
  * names more of the state is the more specific statement about it, which is how helm and the kit
  * wrappers write overrides (`data-unchecked:bg-input` then `dark:data-unchecked:bg-input/80`).
  * Two winners with different values fail instead of guessing at Tailwind's cascade order: a
  * wrapper then states the combined state outright. Undefined when no class sets the property.
  *
- * A variant missing from the vocabulary fails, so a helm update cannot slip a colour past a test.
+ * A variant missing from the vocabulary fails, so a helm update cannot slip a color past a test.
  */
 export function stateValue(
   classes: readonly string[],
@@ -115,19 +115,19 @@ export function stateValue(
   return best ? [...best.values][0] : undefined;
 }
 
-/** A colour utility value as an opaque `#RRGGBB` over `under` (what shows through alpha). */
+/** A color utility value as an opaque `#RRGGBB` over `under` (what shows through alpha). */
 export function resolveColor(value: string, tokens: ThemeTokens, under: string): string {
   const [name, alpha] = value.split('/');
   if (name === 'transparent') return under;
   const color = name === 'white' ? '#ffffff' : name === 'black' ? '#000000' : tokens[name];
   if (color === undefined) {
-    throw new Error(`Cannot resolve the colour "${value}" (current and inherit depend on context)`);
+    throw new Error(`Cannot resolve the color "${value}" (current and inherit depend on context)`);
   }
   return alpha === undefined ? color : composite(color, Number(alpha) / 100, under);
 }
 
 /**
- * The opaque colour a property shows in a state, over `under`; `fallback` (the colour inherited or
+ * The opaque color a property shows in a state, over `under`; `fallback` (the color inherited or
  * shown through) when no class sets it.
  */
 export function stateColor(

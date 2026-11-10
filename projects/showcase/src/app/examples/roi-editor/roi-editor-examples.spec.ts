@@ -27,7 +27,7 @@ describe('the ROI editor examples', () => {
     expect(host.querySelector('neat-video-tile neat-roi-editor')).not.toBeNull();
   });
 
-  it('name the colours of both region types, as the editor draws them', async () => {
+  it('name the colors of both region types, as the editor draws them', async () => {
     const { host } = await render();
     const keys = Array.from(host.querySelectorAll('.key'));
 
@@ -84,14 +84,14 @@ describe('the ROI editor examples', () => {
       expect(tile().settings().roi).toEqual([]);
     });
 
-    it('place the starting exclusion region where the box passes, centre height included', async () => {
+    it('place the starting exclusion region where the box passes, center height included', async () => {
       const { tile } = await render();
       const [region] = tile().settings().roi;
       const xs = region.points.map((point) => point.x);
       const ys = region.points.map((point) => point.y);
 
       expect(region.type).toBe('exclusion');
-      // The box bounces over the whole width at mid height, so its centre crosses mid-image.
+      // The box bounces over the whole width at mid height, so its center crosses mid-image.
       expect(Math.min(...xs)).toBeLessThan(0.5);
       expect(Math.max(...xs)).toBeGreaterThan(0.5);
       expect(Math.min(...ys)).toBeLessThan(0.5);
@@ -104,7 +104,7 @@ describe('the ROI editor examples', () => {
     it('say the rule in a caption', async () => {
       const { host } = await render();
 
-      expect(host.querySelector('.rule')?.textContent).toContain('centre');
+      expect(host.querySelector('.rule')?.textContent).toContain('center');
       expect(host.querySelector('.rule')?.textContent).toContain('exclusion');
     });
   });

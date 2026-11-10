@@ -59,8 +59,8 @@ const PANEL_CLASSES = hlm(
  * panel's gap above and below, so two rows touch; beside other content the gap that is left is
  * half the inset. The fill on hover and keyboard focus is `--accent`, the theme's hover fill, held
  * to text contrast under the label; keyboard focus adds the full-strength `--ring` inside the
- * row, which the row's neighbours cannot paint over (an outer ring would be clipped by them), and
- * a transparent outline that forced-colours mode paints in place of the ring. A disabled row
+ * row, which the row's neighbors cannot paint over (an outer ring would be clipped by them), and
+ * a transparent outline that forced-colors mode paints in place of the ring. A disabled row
  * keeps its place and its text in `--muted-foreground`, takes no hover fill and no focus (a
  * disabled button is no tab stop). It stands on its own: not combined with `neatButton`, whose
  * classes would compete with these.
@@ -147,7 +147,7 @@ export class NeatPopoverDivider {
  * ```
  *
  * The panel is a non-modal dialog named by `label`, on the popover surface. `align` lines it up
- * with the trigger's start, centre or end; it flips above the trigger when there is no room below.
+ * with the trigger's start, center or end; it flips above the trigger when there is no room below.
  * The content template is created on opening and destroyed on closing, so keep its state (a typed
  * value, a checked switch) in the page. On opening, focus moves to the panel's first enabled
  * control. Escape, a click outside, the trigger, or `open` set to false close it; focus then goes

@@ -4,7 +4,7 @@ import { describeContrast } from './contrast';
 import { Swatch } from './swatch';
 import { injectThemeVariables } from './theme-variables';
 
-/** Spartan's colour variables, as its components use them. */
+/** Spartan's color variables, as its components use them. */
 const SPARTAN_VARIABLES = [
   'background',
   'foreground',
@@ -117,7 +117,7 @@ const SIZES = [
         <section class="showcase-section">
           <h2>Theme variables</h2>
           <p class="showcase-muted">
-            The CSS variables the kit stylesheet sets, read from this page in the current colour
+            The CSS variables the kit stylesheet sets, read from this page in the current color
             scheme. Switch the scheme in the top bar to see the other one.
           </p>
           <h3>Spartan</h3>
@@ -137,7 +137,7 @@ const SIZES = [
         <section class="showcase-section">
           <h2>Contrast</h2>
           <p class="showcase-muted">
-            WCAG 2.x ratios of the text pairs the components draw, in the current colour scheme. AA
+            WCAG 2.x ratios of the text pairs the components draw, in the current color scheme. AA
             for normal text is 4.5:1.
           </p>
           <table>

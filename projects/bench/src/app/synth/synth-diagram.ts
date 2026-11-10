@@ -23,7 +23,7 @@ export interface SynthParams {
   /** Spread over the frames as evenly as they go, the first frames taking one more. */
   readonly blocks: number;
   readonly edges: number;
-  /** Blocks that send to `fanOut` blocks each, in their frame or a neighbouring one. */
+  /** Blocks that send to `fanOut` blocks each, in their frame or a neighboring one. */
   readonly fanOuts: number;
   readonly fanOut: number;
   /** Edges that carry a label. */
@@ -201,7 +201,7 @@ export function synthDiagram(params: SynthParams, seed: number): SynthDiagram {
   }
 
   const raw = placeEdges(params, frameBlocks, columns, cellOf, rand);
-  const labelled = new Set(
+  const labeled = new Set(
     shuffled(
       rand,
       raw.map((_, i) => i),
@@ -216,7 +216,7 @@ export function synthDiagram(params: SynthParams, seed: number): SynthDiagram {
       to,
       ...(ghost ? { line: 'ghost' as const } : { series: (i % 8) + 1 }),
       ...(dashed ? { line: 'dashed' as const } : {}),
-      ...(labelled.has(i) ? { label: `/topic/${i}` } : {}),
+      ...(labeled.has(i) ? { label: `/topic/${i}` } : {}),
       data: { kind },
     };
   });
@@ -256,9 +256,9 @@ interface RawEdge {
 
 /**
  * The edges, in rounds until `params.edges` are placed: the fan-outs first (they are asked for
- * exactly), then one edge per pair of neighbouring frames, then chains inside the frames and then
+ * exactly), then one edge per pair of neighboring frames, then chains inside the frames and then
  * skips over one block, each round a step at a time through every frame so a partial round is
- * spread evenly, the neighbouring frames' further pairs, and last, only for a diagram too small
+ * spread evenly, the neighboring frames' further pairs, and last, only for a diagram too small
  * for those, every pair left. Throws when they run out first.
  */
 function placeEdges(
@@ -280,10 +280,10 @@ function placeEdges(
     return true;
   };
 
-  // Neighbouring frames, the lower index first, with the block pairs that face across their gap:
+  // Neighboring frames, the lower index first, with the block pairs that face across their gap:
   // row by row for a frame to the right, column by column for one below.
   const facing: [string, string][][] = [];
-  const neighbours = frameBlocks.map((): number[] => []);
+  const neighbors = frameBlocks.map((): number[] => []);
   for (let a = 0; a < frameBlocks.length; a++) {
     for (let b = a + 1; b < frameBlocks.length; b++) {
       const ca = cellOf(a);
@@ -291,8 +291,8 @@ function placeEdges(
       const right = ca.row === cb.row && cb.column === ca.column + 1;
       const below = ca.column === cb.column && cb.row === ca.row + 1;
       if (!right && !below) continue;
-      neighbours[a].push(b);
-      neighbours[b].push(a);
+      neighbors[a].push(b);
+      neighbors[b].push(a);
       const from = frameBlocks[a];
       const to = frameBlocks[b];
       const lines: [string, string][] = [];
@@ -320,7 +320,7 @@ function placeEdges(
   const frameOf = new Map(frameBlocks.flatMap((ids, frame) => ids.map((id) => [id, frame])));
   for (const source of shuffled(rand, blocks).slice(0, params.fanOuts)) {
     const frame = frameOf.get(source) as number;
-    const near = [frame, ...neighbours[frame]].flatMap((f) => frameBlocks[f]);
+    const near = [frame, ...neighbors[frame]].flatMap((f) => frameBlocks[f]);
     const nearSet = new Set(near);
     const far = blocks.filter((id) => !nearSet.has(id));
     let placed = 0;

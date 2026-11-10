@@ -22,7 +22,7 @@ import {
   ɵREADOUT_CLASSES,
 } from '@sima/neat-ui';
 import { isNumber } from './geometry';
-import { neatLabelColour } from './label-colour';
+import { neatLabelColor } from './label-color';
 import { type NameBox, placeNames } from './name-rows';
 import { fractionAcross, linkHovered, ReadoutCursor } from './readout';
 import type { NeatRunPick } from './types';
@@ -43,14 +43,14 @@ export interface NeatLabelRun {
  */
 export type NeatTimelineMotion = 'step' | 'smooth';
 
-/** A run as drawn: its place in the window in percent, its colour and its span in words. */
+/** A run as drawn: its place in the window in percent, its color and its span in words. */
 interface Bar {
   readonly label: string;
   /** The run's own start, which tells it apart for the readout's cursor as the strip moves. */
   readonly startMs: number;
   readonly left: number;
   readonly width: number;
-  readonly colour: string;
+  readonly color: string;
   readonly quiet: boolean;
   /** When it was, "20 s to 10 s ago", as the readout shows it. */
   readonly span: string;
@@ -105,7 +105,7 @@ interface Drawn {
 }
 
 /**
- * A quiet run's fill. `neatLabelColour` gives a quiet label `--muted-foreground`, a colour for
+ * A quiet run's fill. `neatLabelColor` gives a quiet label `--muted-foreground`, a color for
  * text; here the label fills a stretch of the strip, and a quiet class often fills most of the
  * window, so it takes the light `--neat-track` (the muted surface, in dark the neutral chip fill that
  * shows on a card) and is never the strip's heaviest mark.
@@ -116,7 +116,7 @@ const QUIET_FILL = 'var(--neat-track)';
 const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
 
 /**
- * A classifier's recent results as a strip of coloured runs, newest at the right:
+ * A classifier's recent results as a strip of colored runs, newest at the right:
  *
  * ```html
  * <neat-label-timeline
@@ -151,9 +151,9 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
  * it still points at its own run. The names are measured as drawn and laid out again when the
  * strip's width changes.
  *
- * Colours come from `neatLabelColour`, by the label's place in `labels` (empty means the order in
+ * Colors come from `neatLabelColor`, by the label's place in `labels` (empty means the order in
  * which labels first appear in `runs`), as in `NeatScoreBars`. The one difference is a `quiet`
- * label: its run is filled with `--muted`, not the `--muted-foreground` that `neatLabelColour`
+ * label: its run is filled with `--muted`, not the `--muted-foreground` that `neatLabelColor`
  * returns for text and the score bars use, because a quiet class fills most of the window and must
  * not be its heaviest mark.
  *
@@ -223,7 +223,7 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
           [attr.data-label]="bar.label"
           [style.left.%]="bar.left"
           [style.width.%]="bar.width"
-          [style.--run]="bar.colour"
+          [style.--run]="bar.color"
         >
           <span class="sr-only">{{ bar.spoken }}</span>
         </li>
@@ -266,9 +266,9 @@ export class NeatLabelTimeline {
   readonly hovered = model<number | null>(null);
   /** A click on the strip, or Enter with focus: the run under it, if any, and the moment. */
   readonly activated = output<NeatRunPick>();
-  /** The colour order of the labels; empty means the order of first appearance in `runs`. */
+  /** The color order of the labels; empty means the order of first appearance in `runs`. */
   readonly labels = input<readonly string[]>([]);
-  /** Labels drawn in the muted colour and never named, such as "No gesture". */
+  /** Labels drawn in the muted color and never named, such as "No gesture". */
   readonly quiet = input<readonly string[]>([]);
   /** Names the strip. */
   readonly label = input.required<string>();
@@ -401,7 +401,7 @@ export class NeatLabelTimeline {
         startMs,
         left: ((start - from) / window) * 100,
         width: width * 100,
-        colour: quiet.includes(label) ? QUIET_FILL : neatLabelColour(label, order, quiet),
+        color: quiet.includes(label) ? QUIET_FILL : neatLabelColor(label, order, quiet),
         quiet: quiet.includes(label),
         span,
         spoken: `${label}, ${span}`,

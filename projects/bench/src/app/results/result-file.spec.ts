@@ -1,4 +1,4 @@
-import { analyseCampaign } from './analysis';
+import { analyzeCampaign } from './analysis';
 import { parseCampaign } from './result-file';
 import { campaign, climb } from './results.testing';
 import { summaryMarkdown } from './summary';
@@ -59,7 +59,7 @@ describe('parseCampaign', () => {
 
     expect(parsed.ok).toBe(true);
     if (!parsed.ok) return;
-    const analysis = analyseCampaign(parsed.campaign);
+    const analysis = analyzeCampaign(parsed.campaign);
     expect(summaryMarkdown(parsed.campaign, analysis)).toContain('## Capacity');
   });
 

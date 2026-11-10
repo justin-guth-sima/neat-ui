@@ -63,7 +63,7 @@ describe('NeatInlineButton', () => {
     }
   });
 
-  it('takes the font size and colour of its line instead of helm’s', async () => {
+  it('takes the font size and color of its line instead of helm’s', async () => {
     const { button } = await render();
 
     expect([...button.classList]).toEqual(

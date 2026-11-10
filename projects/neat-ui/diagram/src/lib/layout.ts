@@ -85,7 +85,7 @@ interface End {
   side: NeatDiagramSide;
   /** From the side's middle, down or right. */
   offset: number;
-  /** The edge's direction, from its source's centre to its target's. */
+  /** The edge's direction, from its source's center to its target's. */
   along: Point;
   /** 1 at the edge's source, -1 at its target. */
   sign: 1 | -1;
@@ -131,12 +131,12 @@ const OPPOSITE: Record<NeatDiagramSide, NeatDiagramSide> = {
 const dot = (a: Point, b: Point) => a.x * b.x + a.y * b.y;
 const horizontal = (side: NeatDiagramSide) => side === 'left' || side === 'right';
 
-/** Most room between neighbouring ports on a side, and the share of the side they may take. */
+/** Most room between neighboring ports on a side, and the share of the side they may take. */
 const PORT_STEP = 10;
 const PORT_SPAN = 0.8;
 
 /**
- * How far apart the middle runs of neighbouring Z edges are at most; they keep to the middle half
+ * How far apart the middle runs of neighboring Z edges are at most; they keep to the middle half
  * of their corridor, clear of the nodes (and frame borders) on either side.
  */
 const JOG_STEP = 24;
@@ -173,7 +173,7 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
     return missing.length === 0;
   });
   const rectOf = (id: string) => rects.get(id) as Rect;
-  const centre = (id: string): Point => {
+  const center = (id: string): Point => {
     const r = rectOf(id);
     return { x: r.x + r.w / 2, y: r.y + r.h / 2 };
   };
@@ -194,8 +194,8 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
   // the node and the node's side facing that border, so the edge runs inside the frame. A frame's
   // own `outSide` and `inSide` are for the nodes around it, so they do not move that end.
   const ends = edges.map((edge, order) => {
-    const a = centre(edge.from);
-    const b = centre(edge.to);
+    const a = center(edge.from);
+    const b = center(edge.to);
     const frame = holds(edge.from, edge.to)
       ? edge.from
       : holds(edge.to, edge.from)
@@ -335,9 +335,9 @@ function spreadPorts(ends: End[], rects: Map<string, Rect>): Map<string, End[]> 
  * spans across that way overlap runs straight: both ports move to one coordinate inside the
  * overlap, clear of both boxes' corners, instead of drawing a Z whose bends lie a few units apart.
  * The coordinate is the spread port's of the end whose side has several ports (the source's when
- * both have), so a fan keeps its order; else the target's centre, or the overlap's middle when the
- * centre lies outside it; held to the overlap either way. A port moves only while it stays
- * `PORT_GAP` from its neighbours on its side, so no side's order changes and no fan crosses
+ * both have), so a fan keeps its order; else the target's center, or the overlap's middle when the
+ * center lies outside it; held to the overlap either way. A port moves only while it stays
+ * `PORT_GAP` from its neighbors on its side, so no side's order changes and no fan crosses
  * itself; an edge that cannot move both its ports keeps its route, as does one already straight.
  * `sides` are each side's ends in their order along it, as `spreadPorts` leaves them.
  */
@@ -371,15 +371,15 @@ function straightenFacing(
     const high = Math.min(a[across] + a[size], b[across] + b[size]) - CORNER;
     if (low > high) continue;
     const fanning = [source, target].find((end) => (sides.get(sideKey(end)) as End[]).length > 1);
-    const centre = b[across] + b[size] / 2;
+    const center = b[across] + b[size] / 2;
     const wanted =
       fanning === source
         ? from[across]
         : fanning === target
           ? to[across]
-          : centre < low || centre > high
+          : center < low || center > high
             ? (low + high) / 2
-            : centre;
+            : center;
     const at = Math.min(high, Math.max(low, wanted));
     const sourceOffset = at - (a[across] + a[size] / 2);
     const targetOffset = at - (b[across] + b[size] / 2);

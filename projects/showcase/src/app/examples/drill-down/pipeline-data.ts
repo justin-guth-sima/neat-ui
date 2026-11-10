@@ -33,7 +33,7 @@ const step = (id: string, label: string, i: number): NeatDiagramNode => ({
 
 /**
  * The same pipeline with the Detector's steps inside it: the diagram a level is placed from. The
- * Camera and the Tracker are the Detector's neighbours, and the edges that end in a step are the
+ * Camera and the Tracker are the Detector's neighbors, and the edges that end in a step are the
  * ones the level draws.
  */
 export const WITH_STEPS: NeatDiagram = {

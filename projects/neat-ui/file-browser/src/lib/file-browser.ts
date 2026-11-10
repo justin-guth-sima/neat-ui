@@ -151,7 +151,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
  *   is; the browser adds no hint of its own. Paths that are no longer in `root` leave `checked`;
  *   `selected` is not pruned, since an app may select a file before the tree that holds it has
  *   loaded.
- * - **Unavailable and tagged nodes**: an `unavailable` node is greyed, and a `tag` shows after
+ * - **Unavailable and tagged nodes**: an `unavailable` node is grayed, and a `tag` shows after
  *   the name as a neutral `neat-status-chip`; such nodes can still be selected, opened and
  *   checked.
  * - **Columns.** `neatColumn` templates (from `@sima/neat-ui/select-list`) add columns after the

@@ -70,7 +70,7 @@ function contains(polygon: MappedPolygon, x: number, y: number): boolean {
 }
 
 /**
- * Whether an overlay with video-pixel box `[x, y, w, h]` is shown: its centre lies in an inclusion
+ * Whether an overlay with video-pixel box `[x, y, w, h]` is shown: its center lies in an inclusion
  * polygon (or there is none) and in no exclusion polygon. Always true with filtering off.
  */
 export function passesRoiFilter(

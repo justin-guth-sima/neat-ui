@@ -25,7 +25,7 @@ export const TIMES: readonly number[] = Array.from(
 
 export const watts: NeatChartFormat = (value) => `${value.toFixed(1)} W`;
 
-/** Eight rails that sum to about 11 W: the stacked chart uses all eight series colours. */
+/** Eight rails that sum to about 11 W: the stacked chart uses all eight series colors. */
 export const RAILS: readonly NeatSeries[] = [
   { key: 'core', label: 'Core', low: 3.2, high: 4.6 },
   { key: 'mla', label: 'MLA', low: 1.5, high: 3.4 },

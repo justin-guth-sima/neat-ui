@@ -1,7 +1,7 @@
 import { DOCUMENT, inject, Injectable, Signal, signal } from '@angular/core';
 import { safeStorage } from '../storage';
 
-/** The two colour schemes the kit has, which `ThemeService` switches between. */
+/** The two color schemes the kit has, which `ThemeService` switches between. */
 export type NeatColorScheme = 'light' | 'dark';
 
 const STORAGE_KEY = 'neat-ui:color-scheme';

@@ -156,7 +156,7 @@ describe('NeatCallout', () => {
     expect(callout.getAttribute('role')).toBe('region');
   });
 
-  it('labels a live callout by its heading too, and leaves a callout with no role unlabelled', async () => {
+  it('labels a live callout by its heading too, and leaves a callout with no role unlabeled', async () => {
     const { fixture, host, callout, slot } = await render();
     expect(callout.hasAttribute('aria-labelledby')).toBe(false);
 
@@ -194,10 +194,10 @@ describe('NeatCallout', () => {
     expect(body.classList).toContain('empty:hidden');
   });
 
-  it('keeps the warning icon in the text colour in both schemes, the border carrying the tone', async () => {
+  it('keeps the warning icon in the text color in both schemes, the border carrying the tone', async () => {
     const { icon } = await render();
 
-    // One statement, no dark variant: warning's solid colour fails 3:1 on its light tint (F30).
+    // One statement, no dark variant: warning's solid color fails 3:1 on its light tint (F30).
     expect([...icon().nativeElement.classList]).toContain('text-foreground');
     expect([...icon().nativeElement.classList].filter((name) => name.includes('warning'))).toEqual(
       [],

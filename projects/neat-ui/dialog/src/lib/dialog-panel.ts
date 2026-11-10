@@ -50,14 +50,14 @@ export const DIALOG_HELM_CLASSES = {
 /**
  * What the panel adds to helm's, as one merge (tailwind-merge drops the helm class each one
  * replaces):
- * - the outline in `--border`, where helm draws the text colour at 10%, as the popover's panel is;
+ * - the outline in `--border`, where helm draws the text color at 10%, as the popover's panel is;
  * - a column of flex items instead of a grid, so that the body can shrink and scroll between the
  *   title and the actions, within the height of the screen;
  * - the width: helm's `sm:max-w-md` cap becomes the screen's width less the margins, and the size
  *   sets the width up to it. Below `sm` the panel is as wide as the screen allows, as helm's is;
  * - `--neat-surface` set to the panel's fill, `--popover`: what the content sits on, so that a part
  *   that covers what scrolls under it (a select list's sticky header) fills with the panel's
- *   colour, not the page's.
+ *   color, not the page's.
  */
 const PANEL_CLASSES = hlm(
   DIALOG_HELM_CLASSES.content,

@@ -6,14 +6,14 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { NeatScore, NeatScoreBars, neatLabelColour } from '@sima/neat-ui/charts';
+import { NeatScore, NeatScoreBars, neatLabelColor } from '@sima/neat-ui/charts';
 import { CLASSES, NO_GESTURE, scoresAt } from './data';
 
 /**
  * The output of a gesture classifier, a score per IPN Hand class. The scores change every 1.5 s;
- * "No gesture" is `quiet`, so it stays muted beside the coloured gestures, and the top row's label
- * is bold. The line below the bars colours its dot with `neatLabelColour`, so text outside the
- * bars (a timeline's runs, a caption) shows a class in the same colour.
+ * "No gesture" is `quiet`, so it stays muted beside the colored gestures, and the top row's label
+ * is bold. The line below the bars colors its dot with `neatLabelColor`, so text outside the
+ * bars (a timeline's runs, a caption) shows a class in the same color.
  */
 @Component({
   selector: 'app-gesture-scores',
@@ -27,7 +27,7 @@ import { CLASSES, NO_GESTURE, scoresAt } from './data';
       [quiet]="quiet"
     />
     <p class="reading">
-      <span class="dot" [style.background]="topColour()"></span>
+      <span class="dot" [style.background]="topColor()"></span>
       {{ top().label }}
     </p>
   `,
@@ -40,8 +40,8 @@ export class GestureScores {
   protected readonly top = computed(() =>
     this.scores().reduce((best, score) => (score.value > best.value ? score : best)),
   );
-  protected readonly topColour = computed(() =>
-    neatLabelColour(this.top().label, this.labels, this.quiet),
+  protected readonly topColor = computed(() =>
+    neatLabelColor(this.top().label, this.labels, this.quiet),
   );
 
   constructor() {

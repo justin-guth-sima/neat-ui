@@ -42,7 +42,7 @@ function drawnCrossings(diagram: NeatDiagram): [string, string][] {
  */
 const NEAR = 2;
 const OVERLAP_MAX = 4;
-/** The first and last px of an edge, at its ports, are left out (neighbouring ports are close). */
+/** The first and last px of an edge, at its ports, are left out (neighboring ports are close). */
 const END_SKIP = 6;
 
 /** Points 1 px apart along a polyline, with the distance from its start. */
@@ -356,7 +356,7 @@ describe('layoutEdges', () => {
     expect(throughCards(diagram)).toEqual([]);
   });
 
-  it('keeps a frame’s own sides for its outside neighbours, not for the nodes inside it', () => {
+  it('keeps a frame’s own sides for its outside neighbors, not for the nodes inside it', () => {
     // outSide and inSide say where the frame meets the nodes around it; inside, the nearest border.
     const diagram: NeatDiagram = {
       nodes: [
@@ -576,7 +576,7 @@ describe('layoutEdges, facing boxes that overlap across', () => {
   const edgeById = (diagram: NeatDiagram, id: string) =>
     diagram.edges.find((e) => e.id === id) as NeatDiagramEdge;
 
-  // A node with two outputs on its right, one to a box straight across whose centre is 4 below.
+  // A node with two outputs on its right, one to a box straight across whose center is 4 below.
   const fan: NeatDiagram = {
     nodes: [block('hub', 0, 0), block('near', 300, 4), block('far', 300, 300)],
     edges: [edge('near', 'hub', 'near'), edge('far', 'hub', 'far')],
@@ -610,17 +610,17 @@ describe('layoutEdges, facing boxes that overlap across', () => {
     expect(edges.get('low')?.points).toHaveLength(4);
   });
 
-  it('meets a lone port at the target’s centre, or the overlap’s middle when that is outside it', () => {
-    const centred = layoutEdges({
+  it('meets a lone port at the target’s center, or the overlap’s middle when that is outside it', () => {
+    const centered = layoutEdges({
       nodes: [block('a', 0, 0), block('b', 300, 6)],
       edges: [edge('ab', 'a', 'b')],
     }).get('ab') as EdgeLayout;
-    expect(centred.points).toEqual([
+    expect(centered.points).toEqual([
       { x: 100, y: 56 },
       { x: 300, y: 56 },
     ]);
 
-    // b spans 70..170 and a 0..100: b's centre (120) is outside the overlap, clear of the corners
+    // b spans 70..170 and a 0..100: b's center (120) is outside the overlap, clear of the corners
     // (78..92), so the edge runs at its middle.
     const offset = layoutEdges({
       nodes: [block('a', 0, 0), block('b', 300, 70)],

@@ -1,4 +1,4 @@
-/* Centred, so the outer tips have room to open away from the row. */
+/* Centered, so the outer tips have room to open away from the row. */
 .row {
   display: flex;
   flex-wrap: wrap;

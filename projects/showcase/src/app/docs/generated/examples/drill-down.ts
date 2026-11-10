@@ -67,7 +67,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," step = (id: "],["keyword","string"],["text",", label: "],["keyword","string"],["text",", i: "],["keyword","number"],["text","): NeatDiagramNode => ({\n  id,\n  role: "],
           ["string","'block'"],["text",",\n  label,\n  parent: "],
           ["string","'detector'"],["text",",\n  x: 20 + i * 170,\n  y: 72,\n  w: 130,\n  h: 40,\n});\n\n"],
-          ["comment","/**\n * The same pipeline with the Detector's steps inside it: the diagram a level is placed from. The\n * Camera and the Tracker are the Detector's neighbours, and the edges that end in a step are the\n * ones the level draws.\n */"],
+          ["comment","/**\n * The same pipeline with the Detector's steps inside it: the diagram a level is placed from. The\n * Camera and the Tracker are the Detector's neighbors, and the edges that end in a step are the\n * ones the level draws.\n */"],
           ["text","\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," WITH_STEPS: NeatDiagram = {\n  nodes: [\n    ...OVERVIEW_NODES,\n    step("],
           ["string","'resize'"],["text",", "],["string","'Resize'"],["text",", 0),\n    step("],

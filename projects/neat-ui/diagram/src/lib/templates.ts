@@ -84,7 +84,7 @@ export class NeatDiagramNoteTemplate {
 }
 
 /**
- * The tip of the edge under the pointer, by the pointer, in the popover's colours and kept inside
+ * The tip of the edge under the pointer, by the pointer, in the popover's colors and kept inside
  * the diagram's box:
  *
  * ```html

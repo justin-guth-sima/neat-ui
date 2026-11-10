@@ -67,11 +67,11 @@ describe('BevZoom', () => {
     expect(isDefault(zoom.transform)).toBe(true);
   });
 
-  it('zooms about the plot centre with + and -, within its limits', () => {
+  it('zooms about the plot center with + and -, within its limits', () => {
     expect(key('+').defaultPrevented).toBe(true);
     const zoomed = zoom.transform;
     expect(zoomed.k).toBeCloseTo(1.25);
-    // The plot's centre stays where it is.
+    // The plot's center stays where it is.
     expect(zoomed.apply([300, 200])).toEqual([300, 200]);
     for (let i = 0; i < 20; i++) key('=');
     expect(zoom.transform.k).toBe(ZOOM_EXTENT[1]);

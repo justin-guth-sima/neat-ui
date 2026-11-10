@@ -39,7 +39,7 @@ const chromaticBases = [
 ];
 
 describe('buildColorScale', () => {
-  it('keeps the base colour exactly as step 500', () => {
+  it('keeps the base color exactly as step 500', () => {
     const s = buildColorScale(SIMA_PALETTE.orange);
     expect(s[500]).toBe('#D26728');
     for (const base of chromaticBases) expect(buildColorScale(base)[500]).toBe(base);
@@ -60,7 +60,7 @@ describe('buildColorScale', () => {
     }
   });
 
-  it('keeps the base hue on steps 50 to 900 when pulling colours into sRGB', () => {
+  it('keeps the base hue on steps 50 to 900 when pulling colors into sRGB', () => {
     for (const base of chromaticBases) {
       const hue = hexToOklch(base).h;
       const s = buildColorScale(base);
@@ -132,17 +132,17 @@ describe('buildSurfaceScale', () => {
 });
 
 describe('buildNeutralSurfaceScale', () => {
-  /** A grey: equal channels, which is zero chroma in OKLab up to 8-bit rounding. */
-  const isGrey = (hex: string) =>
+  /** A gray: equal channels, which is zero chroma in OKLab up to 8-bit rounding. */
+  const isGray = (hex: string) =>
     hex.slice(1, 3) === hex.slice(3, 5) && hex.slice(3, 5) === hex.slice(5, 7);
 
-  it('is grey at every step, with no hue of its own', () => {
+  it('is gray at every step, with no hue of its own', () => {
     for (const [step, hex] of Object.entries(buildNeutralSurfaceScale())) {
-      expect(isGrey(hex), `${step}: ${hex}`).toBe(true);
+      expect(isGray(hex), `${step}: ${hex}`).toBe(true);
     }
   });
 
-  it('anchors on white, greys as light as the two palette backgrounds, and the near-black', () => {
+  it('anchors on white, grays as light as the two palette backgrounds, and the near-black', () => {
     const neutral = buildNeutralSurfaceScale();
     expect(neutral[0]).toBe('#FFFFFF');
     expect(neutral[950]).toBe(NEAT_NEAR_BLACK);
@@ -182,7 +182,7 @@ describe('buildNeutralSurfaceScale', () => {
 });
 
 describe('NEAT_HIGHLIGHT_BASE', () => {
-  it('has the palette purple’s hue, with more chroma than the pale palette colour', () => {
+  it('has the palette purple’s hue, with more chroma than the pale palette color', () => {
     const base = hexToOklch(NEAT_HIGHLIGHT_BASE);
     const purple = hexToOklch(SIMA_PALETTE.purple);
     expect(hueDistance(base.h, purple.h)).toBeLessThan(2);

@@ -7,7 +7,7 @@ export const MIN_CONTRAST = 4.5;
 
 /**
  * WCAG 2.x AA for non-text contrast (1.4.11): what a user needs to see to identify a control or
- * its state, such as a form control's boundary or a focus indicator, against the colours next to
+ * its state, such as a form control's boundary or a focus indicator, against the colors next to
  * it.
  */
 export const MIN_NON_TEXT_CONTRAST = 3;
@@ -29,13 +29,13 @@ export const MIN_CHIP_FILL_CONTRAST = 1.2;
 
 type ScaleStep = keyof ColorScale;
 
-/** Where a colour scheme puts text, and in which order it searches scales for a readable step. */
+/** Where a color scheme puts text, and in which order it searches scales for a readable step. */
 export interface SchemeContrastRules {
   /** Surface step of the content background. */
   readonly background: ColorStep;
   /** Surface step of body text. */
   readonly text: ColorStep;
-  /** Surface step of text on a filled colour (a primary button, for example). */
+  /** Surface step of text on a filled color (a primary button, for example). */
   readonly onColor: ColorStep;
   /**
    * Every surface step text sits on; text steps must reach MIN_CONTRAST on all of them.
@@ -44,23 +44,23 @@ export interface SchemeContrastRules {
    */
   readonly textBackgrounds: readonly ColorStep[];
   /**
-   * The tint a status colour puts behind its own text: badges, alerts and soft buttons are a
+   * The tint a status color puts behind its own text: badges, alerts and soft buttons are a
    * design-system pattern (helm's destructive button is `text-destructive` on `bg-destructive/10`,
-   * `dark:bg-destructive/20`). The colour at `alpha`, composited over each of the `over` surfaces.
+   * `dark:bg-destructive/20`). The color at `alpha`, composited over each of the `over` surfaces.
    */
   readonly tint: { readonly alpha: number; readonly over: readonly ColorStep[] };
-  /** Colour-scale steps from the base away from the background, in search order. */
+  /** Color-scale steps from the base away from the background, in search order. */
   readonly colorWalk: readonly ScaleStep[];
-  /** Surface steps from mid grey away from the background, in search order. */
+  /** Surface steps from mid gray away from the background, in search order. */
   readonly surfaceWalk: readonly ColorStep[];
 }
 
 /**
- * The contrast rules every theme layer derives its text colours, form-control boundaries and focus
+ * The contrast rules every theme layer derives its text colors, form-control boundaries and focus
  * rings from. Each scheme's steps are of its own surface scale: the brand scale in light, the
- * neutral (grey) scale in dark. Light text sits on white and on the palette background (50) used
+ * neutral (gray) scale in dark. Light text sits on white and on the palette background (50) used
  * by the shell and pages; dark text on the content background (950, the near-black) and the raised
- * surface (900). Filled colours carry white text in light and the near-black in dark.
+ * surface (900). Filled colors carry white text in light and the near-black in dark.
  */
 export const CONTRAST_RULES: Record<NeatColorScheme, SchemeContrastRules> = {
   light: {
@@ -83,7 +83,7 @@ export const CONTRAST_RULES: Record<NeatColorScheme, SchemeContrastRules> = {
   },
 };
 
-/** Backgrounds a colour must be readable on; a function when they depend on the colour (its tint). */
+/** Backgrounds a color must be readable on; a function when they depend on the color (its tint). */
 export type Backgrounds = readonly string[] | ((color: string) => readonly string[]);
 
 /**

@@ -24,7 +24,7 @@ const OUTSIDE_GAP = 220;
  * The level that opens on `blockId`: the block as its frame at the origin, sized to its children
  * with a padding, and everything inside the block, however deep, as placed (positions are
  * relative to the parent, so nothing moves); the nodes the edges from inside reach, in a column
- * left of the frame (senders) and right of it (receivers), vertically centred on it; and the edges
+ * left of the frame (senders) and right of it (receivers), vertically centered on it; and the edges
  * with an end inside. A node that both sends and receives goes in the senders' column only, so it
  * is on the level once. The outside nodes and the frame get their sides afresh (an overview's
  * `inSide` and `outSide` suit its placement, not this one), and the frame opens nothing (it is the

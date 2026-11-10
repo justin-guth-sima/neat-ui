@@ -298,7 +298,7 @@ describe('NeatRailItem', () => {
     });
   });
 
-  describe('its state colours, from the stylesheet and the emitted theme tokens', () => {
+  describe('its state colors, from the stylesheet and the emitted theme tokens', () => {
     /** The custom properties a `:host([data-tone='…'])` block of the stylesheet sets. */
     function toneBlock(tone: NeatTone): Record<string, string> {
       const block = new RegExp(`:host\\(\\[data-tone='${tone}'\\]\\)\\s*\\{([^}]*)\\}`).exec(
@@ -313,7 +313,7 @@ describe('NeatRailItem', () => {
       );
     }
 
-    /** A colour the stylesheet writes: a token, or a `color-mix` in OKLab of two tokens. */
+    /** A color the stylesheet writes: a token, or a `color-mix` in OKLab of two tokens. */
     function resolve(value: string, tokens: Record<string, string>): string {
       const token = /^var\(--([\w-]+)\)$/.exec(value);
       if (token) return tokens[token[1]];
@@ -415,7 +415,7 @@ describe('NeatRailItem', () => {
 });
 
 describe('NeatRailDivider', () => {
-  it('is a line in the rail’s colours, a quarter step from the items around it, and decorative', async () => {
+  it('is a line in the rail’s colors, a quarter step from the items around it, and decorative', async () => {
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
     const fixture = TestBed.createComponent(RailHost);
     await fixture.whenStable();

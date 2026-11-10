@@ -522,7 +522,7 @@ describe('drawFrame', () => {
       };
       const ctx = drawMessages(overlayState(), settings, [both], { view: mirrored });
 
-      // The polygon and the box centres are mapped alike, so the left object stays, drawn right.
+      // The polygon and the box centers are mapped alike, so the left object stays, drawn right.
       expect(texts(ctx)).toStrictEqual(['left (100%)']);
       expect(ctx.ops('strokeRect')[0].args[0]).toBe(630);
     });

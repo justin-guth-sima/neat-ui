@@ -121,7 +121,7 @@ describe('ROI', () => {
         { now: frame * 33 },
       );
       expect(roiFills(ctx)).toBe(1);
-      // The second box's centre lies outside the inclusion square in every type.
+      // The second box's center lies outside the inclusion square in every type.
       expect(ctx.ops('strokeRect')).toHaveLength(3);
     });
   });

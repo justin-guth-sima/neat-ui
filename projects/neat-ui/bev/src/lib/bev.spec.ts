@@ -6,7 +6,7 @@ import { colorProbe } from '../../../src/lib/theme/theme-colors';
 import { NeatBev } from './bev';
 import { BevCanvas, type BevInputs, type BevTheme } from './bev-canvas';
 import { FakeAnimationFrames, resize, stubCanvases, stubResizeObserver } from './canvas.testing';
-import type { LabelColours } from './colours';
+import type { LabelColors } from './colors';
 import type { BevView } from './geometry';
 import type {
   NeatBevBounds,
@@ -52,7 +52,7 @@ class Host {
   readonly styles = signal<readonly NeatOverlayClassStyle[]>([]);
 }
 
-type DrawArgs = [number, BevView, BevInputs, BevTheme, LabelColours, NeatBevFrame | null, number];
+type DrawArgs = [number, BevView, BevInputs, BevTheme, LabelColors, NeatBevFrame | null, number];
 
 describe('NeatBev', () => {
   const frames = new FakeAnimationFrames();
@@ -181,7 +181,7 @@ describe('NeatBev', () => {
   });
 
   describe('the readout', () => {
-    // In the 400 × 300 box the round plot's centre is (200, 150), at (150 - 12) / 60 px per metre.
+    // In the 400 × 300 box the round plot's center is (200, 150), at (150 - 12) / 60 px per meter.
     const ppm = (150 - 12) / 60;
     const car = { x: 10, y: 0, length: 4, width: 2, yaw: 0, label: 'car', text: 'Score 0.9' };
     const readout = () => element.querySelector<HTMLElement>('.readout')!;
@@ -207,10 +207,10 @@ describe('NeatBev', () => {
       expect(readout().textContent).toContain('10 m');
       expect(readout().textContent).toContain('Score 0.9');
       expect(readout().getAttribute('aria-hidden')).toBe('true');
-      // The kit's swatch, in the label's colour.
+      // The kit's swatch, in the label's color.
       await settle();
       const swatch = readout().querySelector<HTMLElement>('neat-swatch')!;
-      expect(swatch.style.getPropertyValue('--swatch')).toBe(draws.at(-1)![4].of('car').colour);
+      expect(swatch.style.getPropertyValue('--swatch')).toBe(draws.at(-1)![4].of('car').color);
     });
 
     it('puts it away when the pointer leaves the object or the box, or on Escape', () => {
@@ -308,7 +308,7 @@ describe('NeatBev', () => {
       expect(readout().hidden).toBe(true);
     });
 
-    it('tells the app what a click hit, and where, in metres', () => {
+    it('tells the app what a click hit, and where, in meters', () => {
       const click = (x: number, y: number) =>
         element.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: x, clientY: y }));
       click(200, 150 - 10 * ppm);
@@ -320,7 +320,7 @@ describe('NeatBev', () => {
       expect(host.picks[1].y).toBeCloseTo(20);
     });
 
-    it('reports where a mouse is, in metres, once a frame and only when it moved', () => {
+    it('reports where a mouse is, in meters, once a frame and only when it moved', () => {
       pointer('pointermove', 200, 150 - 5 * ppm);
       pointer('pointermove', 200, 150 - 6 * ppm);
       frames.run();
@@ -396,12 +396,12 @@ describe('NeatBev', () => {
       expect(wheel.defaultPrevented).toBe(false);
     });
 
-    it("draws the view zoomed about the plot's centre", () => {
+    it("draws the view zoomed about the plot's center", () => {
       key('+');
       frames.run();
       const [, view] = draws.at(-1)!;
       expect(view.k).toBeCloseTo(1.25);
-      // The plot's centre (200, 150) stays put: k · cx + tx = cx.
+      // The plot's center (200, 150) stays put: k · cx + tx = cx.
       expect(view.k * view.cx + view.tx).toBeCloseTo(200);
     });
 
@@ -508,11 +508,11 @@ describe('NeatBev', () => {
     expect(draws).toHaveLength(2);
   });
 
-  it('colours a label by its style row', async () => {
+  it('colors a label by its style row', async () => {
     host.styles.set([{ label: 'car', color: '#123456', style: 'solid', width: 3 }]);
     await settle();
     frames.run();
-    expect(draws[1][4].of('car')).toMatchObject({ colour: '#123456', width: 3 });
+    expect(draws[1][4].of('car')).toMatchObject({ color: '#123456', width: 3 });
   });
 
   it('stops drawing once destroyed', () => {

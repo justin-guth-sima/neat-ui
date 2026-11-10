@@ -49,7 +49,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The colour a class style row resolves to when its stored colour is missing or not a string."
+              "text": "The color a class style row resolves to when its stored color is missing or not a string."
             }
           ]
         }
@@ -556,7 +556,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " with this line. The row labelled "
+              "text": " with this line. The row labeled "
             },
             {
               "kind": "code",
@@ -594,12 +594,12 @@ export const API: DocsEntry = {
       "members": [
         {
           "name": "general",
-          "type": "{ /** Line width in CSS pixels for every overlay line a class row does not override. */ readonly lineWidth: number; /** Draw the ROI polygons under the detection, segmentation and tracking overlays. */ readonly showRoi: boolean; /** Hide detections, segments and tracks whose box centre falls outside the ROI. */ readonly applyRoiFiltering: boolean; }",
+          "type": "{ /** Line width in CSS pixels for every overlay line a class row does not override. */ readonly lineWidth: number; /** Draw the ROI polygons under the detection, segmentation and tracking overlays. */ readonly showRoi: boolean; /** Hide detections, segments and tracks whose box center falls outside the ROI. */ readonly applyRoiFiltering: boolean; }",
           "doc": []
         },
         {
           "name": "types",
-          "type": "{ readonly 'object-detection': { readonly visible: boolean; /** 0..1; an object without a confidence always passes. */ readonly confidenceThreshold: number; readonly objects: readonly NeatOverlayClassStyle[]; }; readonly segmentation: { readonly visible: boolean; /** 0..1; a segment without a confidence counts as fully confident. */ readonly confidenceThreshold: number; /** 0..1, the alpha of mask fills. */ readonly maskOpacity: number; readonly objects: readonly NeatOverlayClassStyle[]; }; readonly tracking: { readonly visible: boolean; readonly confidenceThreshold: number; readonly history: { /** Draw each track's recent centre positions as a trail. */ readonly enabled: boolean; /** Positions kept per track. */ readonly trailLength: number; /** How long the trail of a track that left the frame stays, in milliseconds. */ readonly lostTrackTtlMs: number; }; }; readonly 'pose-estimation': { readonly visible: boolean; /** Dots on the joints. */ readonly showKeypoints: boolean; /** Joint names next to the dots. */ readonly showKeypointLabels: boolean; /** The box and label plate around each pose. */ readonly showBoxes: boolean; /** * Colour, line and width by the pose's label (`person`, `hand`); a pose without a row keeps * its identity colour. */ readonly objects: readonly NeatOverlayClassStyle[]; }; readonly classification: { readonly visible: boolean }; }",
+          "type": "{ readonly 'object-detection': { readonly visible: boolean; /** 0..1; an object without a confidence always passes. */ readonly confidenceThreshold: number; readonly objects: readonly NeatOverlayClassStyle[]; }; readonly segmentation: { readonly visible: boolean; /** 0..1; a segment without a confidence counts as fully confident. */ readonly confidenceThreshold: number; /** 0..1, the alpha of mask fills. */ readonly maskOpacity: number; readonly objects: readonly NeatOverlayClassStyle[]; }; readonly tracking: { readonly visible: boolean; readonly confidenceThreshold: number; readonly history: { /** Draw each track's recent center positions as a trail. */ readonly enabled: boolean; /** Positions kept per track. */ readonly trailLength: number; /** How long the trail of a track that left the frame stays, in milliseconds. */ readonly lostTrackTtlMs: number; }; }; readonly 'pose-estimation': { readonly visible: boolean; /** Dots on the joints. */ readonly showKeypoints: boolean; /** Joint names next to the dots. */ readonly showKeypointLabels: boolean; /** The box and label plate around each pose. */ readonly showBoxes: boolean; /** * Color, line and width by the pose's label (`person`, `hand`); a pose without a row keeps * its identity color. */ readonly objects: readonly NeatOverlayClassStyle[]; }; readonly classification: { readonly visible: boolean }; }",
           "doc": []
         },
         {
@@ -1004,7 +1004,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A dot in the outline colour of a region type, as "
+              "text": "A dot in the outline color of a region type, as "
             },
             {
               "kind": "code",
@@ -1036,7 +1036,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The region type whose outline colour the dot takes: "
+                  "text": "The region type whose outline color the dot takes: "
                 },
                 {
                   "kind": "code",
@@ -1189,7 +1189,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Lays its items out as 16:9 tiles of a fixed width in a centred grid, as many as fit into its own box without scrolling or overflowing. The tile width comes from the page (a slider, say); the grid works out the columns, rows and tiles per page and reports them through "
+              "text": "Lays its items out as 16:9 tiles of a fixed width in a centered grid, as many as fit into its own box without scrolling or overflowing. The tile width comes from the page (a slider, say); the grid works out the columns, rows and tiles per page and reports them through "
             },
             {
               "kind": "code",
@@ -1235,7 +1235,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the number of projected items. When fewer than a row's worth are shown, they form a centred block of their own width instead of hugging the left edge of a full-width row."
+              "text": " is the number of projected items. When fewer than a row's worth are shown, they form a centered block of their own width instead of hugging the left edge of a full-width row."
             }
           ]
         },
@@ -1252,7 +1252,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " token, read once when the grid initialises; an explicit "
+              "text": " token, read once when the grid initializes; an explicit "
             },
             {
               "kind": "code",

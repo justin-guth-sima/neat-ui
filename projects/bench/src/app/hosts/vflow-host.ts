@@ -35,7 +35,7 @@ const OPTIMIZATION: Optimization = { detachedGroupsLayer: true };
  * The fallback (design 3.1, `vflow`): ngx-vflow set up as the Autoware demo used it, drawing the
  * kit's scene (vflow-graph.ts): frames as SVG group templates, blocks and notes as HTML templates
  * with the kit block's and note's paint (vflow-host.css), each edge on the kit's route in its
- * colour, line and tips (bound from the scene, not from vflow's path, which waits for vflow to
+ * color, line and tips (bound from the scene, not from vflow's path, which waits for vflow to
  * measure the handles), and labels in vflow's HTML label template. The kit's own dot layer draws
  * over it, through `BenchDiagramContext` fed from vflow's viewport, so the dots cost the same on
  * both sides by construction.
@@ -137,7 +137,7 @@ const OPTIMIZATION: Optimization = { detachedGroupsLayer: true };
               class="edge"
               [attr.data-edge]="line.edge.id"
               [attr.data-line]="line.edge.line"
-              [style.--edge]="line.edge.colour"
+              [style.--edge]="line.edge.color"
             >
               <svg:path class="hit" [attr.d]="line.edge.path" />
               <svg:path class="line" [attr.d]="line.edge.path" />

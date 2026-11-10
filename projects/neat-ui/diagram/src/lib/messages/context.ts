@@ -21,7 +21,7 @@ export interface DiagramTransform {
 /** The transform before any pan or zoom. */
 export const IDENTITY_TRANSFORM: DiagramTransform = Object.freeze({ k: 1, x: 0, y: 0 });
 
-/** A drawn edge as the layer needs it: its ends (for the step chains), colour and route. */
+/** A drawn edge as the layer needs it: its ends (for the step chains), color and route. */
 export interface MessagesEdge extends Pick<
   NeatDiagramEdge,
   'id' | 'from' | 'to' | 'series' | 'line'

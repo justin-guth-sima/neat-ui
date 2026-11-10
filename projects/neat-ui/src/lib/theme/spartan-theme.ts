@@ -52,7 +52,7 @@ const SURFACE_ROLES: Record<NeatColorScheme, SurfaceRoles> = {
 };
 /**
  * Each scheme's surfaces: the brand ramp in light; in dark, the neutral ramp, so the dark page is a
- * near-black grey rather than a step towards the palette text's teal.
+ * near-black gray rather than a step towards the palette text's teal.
  */
 const SURFACES: Record<NeatColorScheme, SurfaceScale> = {
   light: buildSurfaceScale(),
@@ -64,8 +64,8 @@ const SURFACES: Record<NeatColorScheme, SurfaceScale> = {
  */
 const VIDEO_SCRIM_ALPHA = 0.6;
 /**
- * The video the live dot is held to under the scrim: black and mid grey. A red is darker than light
- * video, and past mid grey no red reaches the non-text minimum on the scrim and on a white page at
+ * The video the live dot is held to under the scrim: black and mid gray. A red is darker than light
+ * video, and past mid gray no red reaches the non-text minimum on the scrim and on a white page at
  * once; there the badge's word ("Live") carries the state.
  */
 const LIVE_VIDEO = ['#000000', '#808080'] as const;
@@ -96,7 +96,7 @@ const NEUTRAL_CHIP_STEPS: Record<NeatColorScheme, readonly [from: ColorStep, to:
 };
 /** How finely the neutral chip's share of the step past `--accent` is searched, least first. */
 const NEUTRAL_CHIP_SHARE_STEP = 0.1;
-/** How finely the share of `--foreground` in warning's text colour is searched, least first. */
+/** How finely the share of `--foreground` in warning's text color is searched, least first. */
 const WARNING_TEXT_STEP = 0.05;
 
 /**
@@ -117,9 +117,9 @@ const scales = {
   info: buildColorScale(SIMA_PALETTE.blue),
   highlight: buildColorScale(NEAT_HIGHLIGHT_BASE),
 };
-/** The chart series' fourth hue, which is not a status colour. */
+/** The chart series' fourth hue, which is not a status color. */
 const SERIES_TEAL = buildColorScale(NEAT_SERIES_TEAL_BASE);
-/** The steps of a colour scale, lightest to darkest. */
+/** The steps of a color scale, lightest to darkest. */
 const SCALE_STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;
 /** How many places a series' darker or lighter shade sits from its hue's line step. */
 const SERIES_SHADE_OFFSET = 2;
@@ -128,7 +128,7 @@ const HEAT_STEPS: Record<NeatColorScheme, { low: keyof ColorScale; high: keyof C
   light: { low: 100, high: 800 },
   dark: { low: 900, high: 300 },
 };
-/** Each tinted tone's scale; its base (step 500), the tone's own colour, is what tints a row. */
+/** Each tinted tone's scale; its base (step 500), the tone's own color, is what tints a row. */
 const TONE_SCALES: Record<TintedTone, ColorScale> = {
   success: scales.success,
   warning: scales.warning,
@@ -153,12 +153,12 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
   const text = surface[rules.text];
 
   /**
-   * A colour that is both text on the page (`text-primary`) and a fill under `onColor`
+   * A color that is both text on the page (`text-primary`) and a fill under `onColor`
    * (`bg-primary text-primary-foreground`): the first step readable in both roles.
    */
   const asTextAndFill = [onColor, ...textBackgrounds];
   /**
-   * Status colours other than warning are also text on a tint of themselves (see `tint` in the
+   * Status colors other than warning are also text on a tint of themselves (see `tint` in the
    * contrast rules).
    */
   const withOwnTint = (color: string) => [
@@ -178,7 +178,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     ];
   /**
    * Form-control boundaries (`--input`) and focus rings (`--ring`) identify a control and its
-   * state, so they take the non-text minimum wherever text sits: the first grey step, and the first
+   * state, so they take the non-text minimum wherever text sits: the first gray step, and the first
    * primary step, of the scheme's walks that reach it.
    */
   const nonText = <S extends number>(scale: Record<S, string>, walk: readonly S[]) =>
@@ -206,7 +206,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     'popover-foreground': text,
     primary,
     'primary-foreground': onColor,
-    // Spartan has no hover colours; helm's `bg-primary/80` takes white text below 4.5:1.
+    // Spartan has no hover colors; helm's `bg-primary/80` takes white text below 4.5:1.
     'primary-hover': primaryHover,
     secondary: surface[roles.secondary],
     'secondary-foreground': text,
@@ -222,7 +222,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     // Warning is a fill only, in both schemes: the scale's base with the scheme's darkest surface
     // on it (the palette text in light, the near-black in dark; about 9:1). Derived like the
     // others, as text on the page, it darkened to brown under white text. It is not readable as
-    // text on the page or on its own tint; warning-coloured text is `neat-warning-text`.
+    // text on the page or on its own tint; warning-colored text is `neat-warning-text`.
     warning: scales.warning[500],
     'warning-foreground': surface[950],
     info: status(scales.info),
@@ -245,7 +245,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     'sidebar-border': border,
     'sidebar-ring': ring,
     // Video tiles: a scrim over the video for bar text and stopped frames. Video looks the same in
-    // both schemes, so the scrim is the palette text colour with light text in both, whatever the
+    // both schemes, so the scrim is the palette text color with light text in both, whatever the
     // dark scheme's surfaces are.
     'neat-video-scrim': withAlpha(SIMA_PALETTE.text, VIDEO_SCRIM_ALPHA),
     'neat-video-scrim-foreground': SIMA_PALETTE.white,
@@ -254,7 +254,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     ...tints,
     'neat-chip-neutral': chipNeutral,
     // An empty track or a quiet stretch inside a card (score bars, label timeline): the muted
-    // surface in light; in dark the muted surface is the card's own colour, so the neutral chip's
+    // surface in light; in dark the muted surface is the card's own color, so the neutral chip's
     // fill, which is chosen to show on cards.
     'neat-track': scheme === 'dark' ? chipNeutral : surface[roles.muted],
     'neat-warning-text': warningText(charts['neat-line-warning'], text, [
@@ -267,7 +267,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
 
 /**
  * The live dot's red (`--neat-live`): a mark on the page and on a badge over video, where
- * `--destructive`, a text colour, is too dark on the scrim. The danger step nearest the base that
+ * `--destructive`, a text color, is too dark on the scrim. The danger step nearest the base that
  * reaches the non-text minimum on both schemes' text backgrounds and on the scrim over LIVE_VIDEO,
  * so it is one red in both schemes, as video looks the same in either.
  */
@@ -290,10 +290,10 @@ const SEGMENTED_EDGE_CONTRAST = 1.5;
 
 /**
  * The segmented control's track, its raised thumb (which the chosen `--primary` label sits on) and
- * the thumb's hairline edge. Light: the accent step, white and a faint grey edge that the shadow
+ * the thumb's hairline edge. Light: the accent step, white and a faint gray edge that the shadow
  * backs. Dark: the thumb is lighter than the track, as on iOS, but only as light as keeps the
  * primary label at the text minimum on it, a mix of the next step up over the accent step, which
- * leaves the fill about 1.1:1 from the track; so the edge is the first grey step further up that
+ * leaves the fill about 1.1:1 from the track; so the edge is the first gray step further up that
  * reaches SEGMENTED_EDGE_CONTRAST on the track, and a shadow would not show there.
  */
 function segmentedTokens(scheme: NeatColorScheme, surface: SurfaceScale, primary: string) {
@@ -323,8 +323,8 @@ function segmentedTokens(scheme: NeatColorScheme, surface: SurfaceScale, primary
 }
 
 /**
- * The step of `scale` that is a line or a mark on the page: the first along the scheme's colour
- * walk that reaches the non-text minimum on every text background. Series, lines and heat colours
+ * The step of `scale` that is a line or a mark on the page: the first along the scheme's color
+ * walk that reaches the non-text minimum on every text background. Series, lines and heat colors
  * are shapes, not text, so they take 3:1 (WCAG 1.4.11) and not 4.5:1.
  */
 function lineStep(scale: ColorScale, scheme: NeatColorScheme): keyof ColorScale {
@@ -342,9 +342,9 @@ function shifted(step: keyof ColorScale, offset: number): keyof ColorScale {
 }
 
 /**
- * The tokens a chart draws with: eight series colours, the single-metric and threshold lines, and
+ * The tokens a chart draws with: eight series colors, the single-metric and threshold lines, and
  * the heatmap ramp's ends (`danger` is the theme's own `--destructive`). Series 1 to 4 are four hues (blue, purple, orange, teal) at their line
- * step, and 5 to 8 are the "darker and lighter shade" set of the colours mockup: blue two steps
+ * step, and 5 to 8 are the "darker and lighter shade" set of the colors mockup: blue two steps
  * darker, then purple, orange and blue two steps lighter. Green, amber and red are left out on
  * purpose: they mean status, and a series in one of them would read as a state.
  *
@@ -376,7 +376,7 @@ function chartTokens(scheme: NeatColorScheme, danger: string): SpartanTokens {
 
 /**
  * A select-list row's tint for each tone that has one, and its hover and selection fill
- * (`-accent`): the tone's own colour mixed in OKLab over the content background, by `share` for
+ * (`-accent`): the tone's own color mixed in OKLab over the content background, by `share` for
  * the tint and by as much more as it takes to show on the tint for the accent. The tints are opaque
  * and mixed over `--background`, so a toned list belongs on the content background.
  */
@@ -427,9 +427,9 @@ function neutralChipFill(
 }
 
 /**
- * Warning-coloured text (a tinted warning chip's), which `--warning`, a fill, cannot be: the
+ * Warning-colored text (a tinted warning chip's), which `--warning`, a fill, cannot be: the
  * warning line mixed toward `--foreground` by the least share that reads on the warning tints.
- * Dark's line already does, so there it is the line itself; light's needs some of the text colour.
+ * Dark's line already does, so there it is the line itself; light's needs some of the text color.
  */
 function warningText(line: string, foreground: string, tints: readonly string[]): string {
   for (let step = 0; step * WARNING_TEXT_STEP <= 1; step++) {
@@ -449,9 +449,9 @@ const customProperties = (tokens: SpartanTokens): [string, string][] =>
   Object.entries(tokens).map(([name, value]) => [`--${name}`, value]);
 
 /**
- * The kit's colours as Spartan's CSS variables plus the kit extensions: light on `:root`, dark on
+ * The kit's colors as Spartan's CSS variables plus the kit extensions: light on `:root`, dark on
  * `:root.<darkClass>`, the class ThemeService puts on `<html>`. `npm run theme:emit` writes it to
- * tokens.generated.css, which the kit stylesheet compiles in, so colour literals stay in `theme/`.
+ * tokens.generated.css, which the kit stylesheet compiles in, so color literals stay in `theme/`.
  */
 export function buildSpartanThemeCss(darkClass: string): string {
   const light = customProperties(spartanThemeTokens('light'));

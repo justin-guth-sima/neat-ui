@@ -3,7 +3,7 @@ import { NEAT_ICON_NAMES, NeatIcon } from '@sima/neat-ui';
 
 /**
  * Every name `neat-icon` accepts, in the order of `NEAT_ICON_NAMES`, drawn at 24 px. An icon takes
- * its colour from the text around it.
+ * its color from the text around it.
  */
 @Component({
   selector: 'app-gallery',

@@ -140,7 +140,7 @@ export class NeatDropZone {
 
   protected dragOver(event: Event): void {
     if (this.disabled() || !carriesFiles(event)) return;
-    // A drop only happens on an element whose dragover was cancelled.
+    // A drop only happens on an element whose dragover was canceled.
     event.preventDefault();
     (event as DragEvent).dataTransfer!.dropEffect = 'copy';
   }

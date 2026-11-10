@@ -204,7 +204,7 @@ describe('GesturePlayer', () => {
   });
 
   describe('zoom', () => {
-    it('wheels in to 2.5× the start about the box’s centre, then out to the start', () => {
+    it('wheels in to 2.5× the start about the box’s center, then out to the start', () => {
       const { target, calls, transform } = recording();
       const player = new GesturePlayer(target, FREE_SPOT);
       player.begin('zoom', 0, 2000);

@@ -41,7 +41,7 @@ export interface LadderPlan {
   readonly levels: readonly number[];
   readonly phases: readonly PhaseSpec[];
   readonly warmupMs: number;
-  /** Bisect the knee after the climb, so capacities are not quantised to the ladder's steps. */
+  /** Bisect the knee after the climb, so capacities are not quantized to the ladder's steps. */
   readonly refine: boolean;
   readonly stopFps: number;
 }

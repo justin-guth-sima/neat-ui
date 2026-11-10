@@ -16,7 +16,7 @@ const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 const SURFACES = ['background', 'card'] as const;
 const STATES = ['unchecked', 'checked'] as const;
 
-/** The variants on the switch's colour classes. Helm draws focus and validity on its button. */
+/** The variants on the switch's color classes. Helm draws focus and validity on its button. */
 const VOCABULARY = {
   dark: 'dark',
   'data-checked': 'checked',
@@ -51,12 +51,12 @@ async function render(setup: (host: SwitchHost) => void = () => undefined) {
   const fixture = TestBed.createComponent(SwitchHost);
   setup(fixture.componentInstance);
   await fixture.whenStable();
-  const [labelled, iconOnly]: HTMLButtonElement[] = Array.from(
+  const [labeled, iconOnly]: HTMLButtonElement[] = Array.from(
     fixture.nativeElement.querySelectorAll('button'),
   );
-  const track = labelled.querySelector<HTMLElement>('[data-slot="switch-track"]')!;
-  const thumb = labelled.querySelector<HTMLElement>('[data-slot="switch-thumb"]')!;
-  return { fixture, host: fixture.componentInstance, button: labelled, iconOnly, track, thumb };
+  const track = labeled.querySelector<HTMLElement>('[data-slot="switch-track"]')!;
+  const thumb = labeled.querySelector<HTMLElement>('[data-slot="switch-thumb"]')!;
+  return { fixture, host: fixture.componentInstance, button: labeled, iconOnly, track, thumb };
 }
 
 describe('NeatSwitch', () => {
@@ -91,7 +91,7 @@ describe('NeatSwitch', () => {
   });
 
   it('keyboard: sits in the tab order as a native button, so Space and Enter toggle it', async () => {
-    // A native button turns Space and Enter into a click; jsdom does not synthesise that click,
+    // A native button turns Space and Enter into a click; jsdom does not synthesize that click,
     // so the test checks the parts the browser relies on and then fires the click it would. The
     // keys themselves are checked in a real browser (the task's browser pass).
     const { fixture, host, button } = await render();
@@ -196,7 +196,7 @@ describe('NeatSwitch', () => {
         const { button } = await render();
         const classes = [...button.classList];
         expect(classes).toContain('focus-visible:ring-3');
-        // Unfocused, the host draws no ring colour of its own.
+        // Unfocused, the host draws no ring color of its own.
         expect(stateValue(classes, 'ring', q(on('rest')))).toBeUndefined();
         for (const surface of SURFACES) {
           const under = tokens[surface];

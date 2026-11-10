@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { OnAndOff } from './1-on-and-off.example';
 
 describe('the switch examples', () => {
-  it('toggle the labelled switches, the unlabelled one sharing the first’s value', async () => {
+  it('toggle the labeled switches, the unlabeled one sharing the first’s value', async () => {
     const fixture = TestBed.createComponent(OnAndOff);
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;

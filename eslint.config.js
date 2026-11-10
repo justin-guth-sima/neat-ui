@@ -62,7 +62,7 @@ module.exports = defineConfig([
     processor: angular.processInlineTemplates,
     rules: {
       // Component styles live in .css files (styleUrl) because Stylelint reads only stylesheets:
-      // an inline `styles` block would escape the colour-literal rules. Inline templates stay
+      // an inline `styles` block would escape the color-literal rules. Inline templates stay
       // allowed at any length; the rule has no off switch per kind, hence the unreachable limit.
       '@angular-eslint/component-max-inline-declarations': [
         'error',

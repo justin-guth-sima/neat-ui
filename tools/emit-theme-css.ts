@@ -1,4 +1,4 @@
-// Writes the kit's colour tokens (Spartan's CSS variables) to the committed tokens.generated.css,
+// Writes the kit's color tokens (Spartan's CSS variables) to the committed tokens.generated.css,
 // which the kit stylesheet compiles in. Run `npm run theme:emit` after changing anything in
 // projects/neat-ui/src/lib/theme/; a spec fails while the file and the TypeScript disagree.
 import { writeFileSync } from 'node:fs';

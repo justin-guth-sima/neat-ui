@@ -15,7 +15,7 @@ import type { DocsExampleFile } from './model';
 
 /**
  * An example's code, closed until asked for: the live example comes first, and a closed snippet
- * renders none of its runs. Open, an example of several files shows them as tabs labelled "Files",
+ * renders none of its runs. Open, an example of several files shows them as tabs labeled "Files",
  * in the order given, which choosing one does not change; an example of one file shows its code
  * directly. The trigger's row copies the file shown, and below the code is a line naming where
  * the `showcase-*` classes it uses are defined, since no snippet carries them.

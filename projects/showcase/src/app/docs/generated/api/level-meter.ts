@@ -15,7 +15,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A live audio level as a bar of 28 segments, from -50 dBFS (dark) to full scale (all lit), green to 70 % of the bar, amber to 90 %, red above; the segments not lit are in the border colour:"
+              "text": "A live audio level as a bar of 28 segments, from -50 dBFS (dark) to full scale (all lit), green to 70 % of the bar, amber to 90 %, red above; the segments not lit are in the border color:"
             }
           ]
         },
@@ -33,7 +33,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " reads the current level in dBFS, or null for none (the meter is dark). While it is set and the meter is rendered, the meter calls it once per animation frame, so one input serves a value the app polls and keeps in a field as well as a Web Audio analyser read on demand. Pass null to stop. The meter calls the function on its own, never as a method of the app's object: give it an arrow function ("
+              "text": " reads the current level in dBFS, or null for none (the meter is dark). While it is set and the meter is rendered, the meter calls it once per animation frame, so one input serves a value the app polls and keeps in a field as well as a Web Audio analyzer read on demand. Pass null to stop. The meter calls the function on its own, never as a method of the app's object: give it an arrow function ("
             },
             {
               "kind": "code",
@@ -75,7 +75,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Each frame writes the segments straight to the DOM, outside change detection: sixty change detections a second for a bar of colour would cost more than everything else on the page."
+              "text": "Each frame writes the segments straight to the DOM, outside change detection: sixty change detections a second for a bar of color would cost more than everything else on the page."
             }
           ]
         },

@@ -9,7 +9,7 @@ function universalBaseUtilities(): string[] {
 }
 
 describe('the kit stylesheet', () => {
-  it('draws browser focus outlines in the full ring colour, which the theme holds to 3:1', () => {
+  it('draws browser focus outlines in the full ring color, which the theme holds to 3:1', () => {
     // A focus outline is a focus indicator (WCAG 1.4.11). Spartan's default, the ring at 50%,
     // composites to about 1.85:1 on white; the theme spec holds --ring itself to 3:1 on every
     // surface text sits on. It matters for elements without their own focus style, such as a
@@ -34,16 +34,16 @@ describe('the kit stylesheet', () => {
     expect(stylesheet).toMatch(/--neat-text-base:\s*--theme\(--text-base inline\);/);
   });
 
-  it('maps the highlight tone, every row tint and the chips’ colours to a Tailwind colour, so their utilities exist', () => {
+  it('maps the highlight tone, every row tint and the chips’ colors to a Tailwind color, so their utilities exist', () => {
     // Spartan's preset maps its own variables; the kit's extensions need a mapping each, or a
     // class such as `bg-neat-tint-success` compiles to nothing.
-    const chipColours = ['neat-chip-neutral', 'neat-warning-text'];
+    const chipColors = ['neat-chip-neutral', 'neat-warning-text'];
     const names = Object.keys(spartanThemeTokens('light')).filter(
       (name) =>
-        name.startsWith('highlight') || name.startsWith('neat-tint-') || chipColours.includes(name),
+        name.startsWith('highlight') || name.startsWith('neat-tint-') || chipColors.includes(name),
     );
     expect(names).toEqual(
-      expect.arrayContaining(['highlight', 'neat-tint-success-accent', ...chipColours]),
+      expect.arrayContaining(['highlight', 'neat-tint-success-accent', ...chipColors]),
     );
     for (const name of names) {
       expect(stylesheet, name).toContain(`--color-${name}: var(--${name});`);

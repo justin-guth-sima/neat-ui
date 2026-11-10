@@ -58,7 +58,12 @@ function page(origin = { left: 0, top: 0 }): HTMLElement {
     styled(drawn('div', { class: 'block', 'data-node': 'b0' }, [20, 40, 230, 46], origin)),
     styled(drawn('div', { class: 'block', 'data-node': 'b1' }, [300, 40, 230, 58], origin)),
     styled(
-      drawn('div', { class: 'note', 'data-note': 'n0' }, [100, 200, NOTE_BOX.w, NOTE_BOX.h], origin),
+      drawn(
+        'div',
+        { class: 'note', 'data-note': 'n0' },
+        [100, 200, NOTE_BOX.w, NOTE_BOX.h],
+        origin,
+      ),
     ),
     // The kit repeats a note's id on its leader and an edge's on its label: neither is a box.
     drawn('g', { class: 'leader', 'data-note': 'n0' }, [0, 0, 1, 1], origin),
@@ -143,7 +148,7 @@ describe('fingerprintOf', () => {
     expect(a.filter((id) => id.startsWith('node:')).length).toBeGreaterThanOrEqual(3);
     expect(a.filter((id) => id.startsWith('node:')).length).toBeLessThan(10);
     expect(a.filter((id) => id.startsWith('note:')).length).toBeGreaterThanOrEqual(2);
-    // Spread, not the first few: the last block's neighbourhood is in it.
+    // Spread, not the first few: the last block's neighborhood is in it.
     expect(a.some((id) => Number(id.slice(6)) >= 30 && id.startsWith('node:b'))).toBe(true);
   });
 

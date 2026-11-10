@@ -15,7 +15,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The six tones on the page and on a card, each worded as a stream's slot states are: the words carry the state, the colour repeats it. The grey of "
+            "text": "The six tones on the page and on a card, each worded as a stream's slot states are: the words carry the state, the color repeats it. The gray of "
           },
           {
             "kind": "code",
@@ -107,7 +107,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " puts each tone's colour on a tint of itself, for chips that label the parts of a card, as a diagram block's do. "
+            "text": " puts each tone's color on a tint of itself, for chips that label the parts of a card, as a diagram block's do. "
           },
           {
             "kind": "code",
@@ -115,7 +115,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " is the same grey as in the solid variant. A tinted chip belongs on the page or a card, as here, and not on a toned list row."
+            "text": " is the same gray as in the solid variant. A tinted chip belongs on the page or a card, as here, and not on a toned list row."
           }
         ]
       }

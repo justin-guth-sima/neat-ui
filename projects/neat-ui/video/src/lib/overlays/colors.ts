@@ -1,6 +1,6 @@
 /*
- * The page's class colours, which the overlays draw with: they live in the primary entry, since
- * the bird's-eye view (`bev`) colours its labels from them too, so a class has one colour in every
+ * The page's class colors, which the overlays draw with: they live in the primary entry, since
+ * the bird's-eye view (`bev`) colors its labels from them too, so a class has one color in every
  * tile and in the view. Re-exported here under their own names for the overlays' code.
  */
 export {

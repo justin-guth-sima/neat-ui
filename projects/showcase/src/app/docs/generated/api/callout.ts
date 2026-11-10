@@ -128,7 +128,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The fill is the page's colour mixed with the tone (see TONES), so in a dialog it differs from the dialog's own surface, and a neutral callout in a dark one shows by its border and icon."
+              "text": "The fill is the page's color mixed with the tone (see TONES), so in a dialog it differs from the dialog's own surface, and a neutral callout in a dark one shows by its border and icon."
             }
           ]
         },
@@ -173,7 +173,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", since a host has one role. A callout with a role is labelled by its heading ("
+              "text": ", since a host has one role. A callout with a role is labeled by its heading ("
             },
             {
               "kind": "code",

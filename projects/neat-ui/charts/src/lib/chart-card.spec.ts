@@ -108,7 +108,7 @@ const { rule, declared } = stylesheet(cardStyles);
 const tokenOf = (value: string | undefined): string => /^var\(--([\w-]+)\)$/.exec(value ?? '')![1];
 
 /**
- * The token a text colour comes from: the first of the rules, innermost first, that sets `color`
+ * The token a text color comes from: the first of the rules, innermost first, that sets `color`
  * to something but `inherit`, else the card's own (card.spec holds it to `--card-foreground`).
  */
 const colorToken = (...chain: string[]): string =>
@@ -308,7 +308,7 @@ describe('NeatChartCard', () => {
     expect(declared(':host', 'background')).toBeUndefined();
     expect(rule(':host')).not.toMatch(CLIPS_OR_STACKS);
     expect(declared(':host', 'position')).toBeUndefined();
-    // `overflow-visible` is the card's neutraliser of helm's `overflow-hidden`: no clipping.
+    // `overflow-visible` is the card's neutralizer of helm's `overflow-hidden`: no clipping.
     expect(card.className).not.toMatch(/overflow-(?!visible)|z-\d|isolat|transform|opacity/);
   });
 

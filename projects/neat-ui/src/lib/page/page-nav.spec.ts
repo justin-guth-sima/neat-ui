@@ -202,7 +202,7 @@ describe('NeatPageNav', () => {
     vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(400);
     const { nav } = await open();
 
-    // Centred: 900 less half of what the box shows beside the link.
+    // Centered: 900 less half of what the box shows beside the link.
     expect(nav.scrollTop).toBe(900 - (400 - 28) / 2);
     expect(scrolled).toEqual([]);
   });
@@ -243,7 +243,7 @@ describe('NeatPageNav', () => {
     await harness.navigateByUrl('/table');
     await harness.fixture.whenStable();
 
-    // Centred in what shows below the filter.
+    // Centered in what shows below the filter.
     expect(nav.scrollTop).toBe(300 - 40 - (400 - 40 - 28) / 2);
   });
 

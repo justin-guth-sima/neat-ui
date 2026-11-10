@@ -47,7 +47,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "). The words are the app's; the colour repeats them and is never the only way a state is told. A chip truncates rather than widen the cell or bar that holds it. "
+              "text": "). The words are the app's; the color repeats them and is never the only way a state is told. A chip truncates rather than widen the cell or bar that holds it. "
             },
             {
               "kind": "code",
@@ -55,7 +55,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " softens the chip to its tone's colour on a tint; a tinted chip belongs on the card or the page, not on a toned list row, whose selected fill is the same tint."
+              "text": " softens the chip to its tone's color on a tint; a tinted chip belongs on the card or the page, not on a toned list row, whose selected fill is the same tint."
             }
           ]
         }
@@ -71,7 +71,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The status the chip states, which sets its colours; "
+                  "text": "The status the chip states, which sets its colors; "
                 },
                 {
                   "kind": "code",
@@ -158,7 +158,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The status the chip states, which sets its colours; "
+                  "text": "The status the chip states, which sets its colors; "
                 },
                 {
                   "kind": "code",
@@ -229,7 +229,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", the tone's colour on a light tint of itself, for chips that label parts of a card (a diagram block's) rather than state a status beside a value."
+              "text": ", the tone's color on a light tint of itself, for chips that label parts of a card (a diagram block's) rather than state a status beside a value."
             }
           ]
         }

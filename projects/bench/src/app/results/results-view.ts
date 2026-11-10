@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { NeatNote } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
 import { NeatDropZone } from '@sima/neat-ui/drop-zone';
-import { analyseCampaign, type CampaignAnalysis } from './analysis';
+import { analyzeCampaign, type CampaignAnalysis } from './analysis';
 import { CampaignView } from './campaign-view';
 import { type CampaignResult, parseCampaign } from './result-file';
 
@@ -144,7 +144,7 @@ export class ResultsView {
     try {
       const parsed = parseCampaign(await file.text());
       if (!parsed.ok) return [{ name: file.name, error: parsed.error }];
-      const analysis = analyseCampaign(parsed.campaign);
+      const analysis = analyzeCampaign(parsed.campaign);
       this.loaded.update((all) => [
         ...all,
         { id: this.nextId++, name: file.name, campaign: parsed.campaign, analysis },

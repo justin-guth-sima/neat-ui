@@ -24,7 +24,7 @@ export interface NeatHeatmapRow {
   readonly values: readonly (number | null)[];
   /** The figure at the row's end as the app words it, such as a one-minute average. */
   readonly end: string;
-  /** The colour of `end`: the foreground, or the warning or danger line colour (text strength in both). */
+  /** The color of `end`: the foreground, or the warning or danger line color (text strength in both). */
   readonly endTone: NeatChartTone;
 }
 
@@ -49,7 +49,7 @@ interface CellReadout extends Cell {
 }
 
 /**
- * Several metrics over time as rows of coloured cells, such as the load of each core:
+ * Several metrics over time as rows of colored cells, such as the load of each core:
  *
  * ```html
  * <neat-heatmap
@@ -67,7 +67,7 @@ interface CellReadout extends Cell {
  * `--neat-heat-low` and `--neat-heat-high` by where its value lies in `domain` (0 to 100 by
  * default, clamped); an empty cell is transparent. A ramp in the head shows the domain's two
  * ends, worded by `format`. A row is 1.5 rem tall, with its label before the cells and `end`,
- * in the colour of its tone, after them.
+ * in the color of its tone, after them.
  *
  * The grid is one tab stop named "<label>: <headline>, over the last <window>". Its readout,
  * which the pointer shows over a cell and the keys over the cursor's, reads "<row label> · <how
@@ -163,7 +163,7 @@ export class NeatHeatmap {
   readonly rows = input.required<readonly NeatHeatmapRow[]>();
   /** When each sample was taken, in ms, oldest first; `null` for one without a time. */
   readonly times = input<readonly (number | null)[]>([]);
-  /** The values the colour ramp spans, lowest and highest: fixed by the app, so a colour keeps its meaning. */
+  /** The values the color ramp spans, lowest and highest: fixed by the app, so a color keeps its meaning. */
   readonly domain = input<readonly [number, number]>([0, 100]);
   /** Words a value with its unit, for the ramp's ends and the readout. */
   readonly format = input<NeatChartFormat>(String);

@@ -65,7 +65,7 @@ describe('vflowGraph', () => {
     }
   });
 
-  it('draws every edge on the kit’s route, with its label where the kit centres it', () => {
+  it('draws every edge on the kit’s route, with its label where the kit centers it', () => {
     const lines = edges.filter((edge) => edge.data?.().kind === 'edge');
     expect(lines.map((edge) => edge.id)).toEqual(scene.drawn.edges.map((drawn) => drawn.id));
     for (const [i, drawn] of scene.drawn.edges.entries()) {

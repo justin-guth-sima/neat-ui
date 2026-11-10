@@ -56,7 +56,7 @@ export const CONFIRM_HELM_CLASSES = {
 } as const;
 
 /**
- * The panel: helm's, outlined in `--border` where helm draws the text colour at 10%, as the
+ * The panel: helm's, outlined in `--border` where helm draws the text color at 10%, as the
  * popover's panel is.
  */
 const CONTENT_CLASSES = hlm(CONFIRM_HELM_CLASSES.content, 'ring-border');
@@ -68,8 +68,8 @@ const CONTENT_CLASSES = hlm(CONFIRM_HELM_CLASSES.content, 'ring-border');
 const CANCEL_ATTRIBUTE = 'data-neat-confirm-cancel';
 
 /**
- * Brain's alert-dialog behaviour (role `alertdialog`, a backdrop click does not close it) on its
- * dialog service: a modal centred on the page that traps focus, closes on Escape and gives focus
+ * Brain's alert-dialog behavior (role `alertdialog`, a backdrop click does not close it) on its
+ * dialog service: a modal centered on the page that traps focus, closes on Escape and gives focus
  * back on closing to whatever had it on opening.
  */
 const DIALOG_OPTIONS = {
@@ -183,7 +183,7 @@ export class NeatConfirm {
   ask(options: NeatConfirmOptions): Promise<boolean> {
     // Closed without its exit animation, so that focus is back on the opener before the next
     // dialog notes where focus was. A button pressed during the animation (brain's `forceClose`
-    // replaces the result of a closing dialog too) keeps its answer; an open dialog is cancelled.
+    // replaces the result of a closing dialog too) keeps its answer; an open dialog is canceled.
     this.current?.dialogRef.forceClose(this.current.answer ?? false);
 
     const context: ConfirmContext = {

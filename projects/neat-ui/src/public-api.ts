@@ -76,7 +76,7 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
  * of a panel in the overlay (the popover's, shared with the shell's collapsed-rail menu, and the
  * helm classes its drift spec reads), the series' token rule (which `charts` and `diagram`
  * share with the swatch) and the browser's frame clock and reduced-motion check (which `charts`'
- * label timeline shares with `neatEased`), and the page's class colours with their identity palette and
+ * label timeline shares with `neatEased`), and the page's class colors with their identity palette and
  * style rows (which `video`'s overlays share with `bev`), and the readout's look (which `charts` and `bev`
  * share) reach them only through here. Angular marks its own
  * private API the same way; these may change or go in any release.

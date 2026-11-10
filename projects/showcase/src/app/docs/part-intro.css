@@ -15,7 +15,7 @@ section {
   gap: var(--neat-space-3);
 }
 
-/* In the description's size, in the links' colour. */
+/* In the description's size, in the links' color. */
 .more {
   color: var(--primary);
   font-size: var(--neat-text-sm);

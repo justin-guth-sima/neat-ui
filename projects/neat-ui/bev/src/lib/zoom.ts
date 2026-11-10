@@ -46,7 +46,7 @@ const ZOOM_KEYS: Readonly<Record<string, number>> = {
 /** Cubic ease in and out, d3's default for a transition. */
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2);
 
-/** Whether `transform` is the default view: the whole range, the vehicle at the centre. */
+/** Whether `transform` is the default view: the whole range, the vehicle at the center. */
 export function isDefault({ k, x, y }: ZoomTransform): boolean {
   return k === 1 && Math.abs(x) < 0.5 && Math.abs(y) < 0.5;
 }
@@ -119,7 +119,7 @@ export class BevZoom {
     this.behavior.scaleExtent([min, max]);
     const now = this.transform;
     const k = Math.min(Math.max(now.k, min), max);
-    if (k !== now.k) this.jump(this.constrained(this.scaledAboutCentre(now, k / now.k)));
+    if (k !== now.k) this.jump(this.constrained(this.scaledAboutCenter(now, k / now.k)));
   }
 
   /** Back to the default view, animated. */
@@ -192,7 +192,7 @@ export class BevZoom {
 
   /**
    * The keys, while the box itself has focus: arrows pan, `+`/`=` and `-` zoom about the plot's
-   * centre, `0` resets. A key with Ctrl, Meta or Alt is the browser's (Ctrl `+` zooms the page).
+   * center, `0` resets. A key with Ctrl, Meta or Alt is the browser's (Ctrl `+` zooms the page).
    */
   private readonly keydown = (event: KeyboardEvent): void => {
     if (event.target !== this.box || event.ctrlKey || event.metaKey || event.altKey) return;
@@ -205,7 +205,7 @@ export class BevZoom {
     } else if (by) {
       // On from where a zoom in flight is going, so quick presses add up.
       const from = this.animation?.to ?? this.transform;
-      this.animate(this.constrained(this.scaledAboutCentre(from, by)));
+      this.animate(this.constrained(this.scaledAboutCenter(from, by)));
     } else if (event.key === '0') {
       this.reset();
     } else {
@@ -218,12 +218,12 @@ export class BevZoom {
     return this.behavior.constrain()(transform, this.extentOf(), this.translateExtent());
   }
 
-  /** `from` zoomed by `by` within the limits, the plot's centre staying where it is. */
-  private scaledAboutCentre(from: ZoomTransform, by: number): ZoomTransform {
+  /** `from` zoomed by `by` within the limits, the plot's center staying where it is. */
+  private scaledAboutCenter(from: ZoomTransform, by: number): ZoomTransform {
     const k = Math.min(Math.max(from.k * by, this.limits[0]), this.limits[1]);
     const [[x0, y0], [x1, y1]] = this.extentOf();
-    const centre: [number, number] = [(x0 + x1) / 2, (y0 + y1) / 2];
-    const [px, py] = from.invert(centre);
-    return zoomIdentity.translate(centre[0] - px * k, centre[1] - py * k).scale(k);
+    const center: [number, number] = [(x0 + x1) / 2, (y0 + y1) / 2];
+    const [px, py] = from.invert(center);
+    return zoomIdentity.translate(center[0] - px * k, center[1] - py * k).scale(k);
   }
 }

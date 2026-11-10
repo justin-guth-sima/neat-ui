@@ -50,7 +50,7 @@ describe('Snippet', () => {
     expect(host.querySelector('pre')).toBeNull();
   });
 
-  it('shows the file exactly as written, its runs coloured by kind', async () => {
+  it('shows the file exactly as written, its runs colored by kind', async () => {
     const { host, open } = await render([MAIN]);
     await open();
 

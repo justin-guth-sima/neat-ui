@@ -26,15 +26,15 @@ look happens in one place. Every rule here protects that.
     diagram's level bar use it), `NeatTooltip`, `NeatNote`, `NeatLiveDot` (a
     red dot for something live, still or, with `pulse`, beating with a ring that grows out of it;
     its red is `--neat-live`, not `--destructive`, held to 3:1 on the page and on the video scrim
-    over black to mid-grey video, so a "Live" badge over a picture can use it),
-    `NeatSeriesSwatch` (a series' colour as a small square beside a label outside the drawing that
+    over black to mid-gray video, so a "Live" badge over a picture can use it),
+    `NeatSeriesSwatch` (a series' color as a small square beside a label outside the drawing that
     uses it: the charts' legends and readouts, the diagram's legend, an app's chip; in the primary
     so the diagram shows it without the charts' d3, and still exported by `charts`, where apps
-    imported it first), `NeatSwatch` (the same square for any colour: a class's colour in a legend,
+    imported it first), `NeatSwatch` (the same square for any color: a class's color in a legend,
     the bird's-eye view's readout; it holds the swatch's one look, which `NeatSeriesSwatch` shares
     by taking its sheet) and `neatSecondsAgo` (the kit's one relative-time style, "just now",
     "12 s ago", "3 min ago"),
-    `NeatStale` (`[neatStale]`: what its host shows is stale, faded to 0.55 and grey, with no
+    `NeatStale` (`[neatStale]`: what its host shows is stale, faded to 0.55 and gray, with no
     transition; the words beside it say why) and `provideNeatTitles(appName)` (the document's
     title, `<appName> · <route title>`, or the app name alone on an untitled route).
     `neatEased` (a number signal that eases to each new value in 400 ms, ease-in-out cubic by
@@ -44,16 +44,16 @@ look happens in one place. Every rule here protects that.
     `linear`), so every app moves the same way; a custom function only where no name fits. The
     curve may be switched while a value moves, and the last frame always shows the target exactly.
     `neatThemeColors` (the theme's tokens as `NeatRgb`, sRGB from 0 to 1, read again when the
-    scheme changes) and `neatResolveColor` (any CSS colour, resolved on a 1×1 canvas) are for code
-    that draws outside CSS (three.js, a canvas), which takes colours as numbers: any CSS colour a
-    token or an app holds, resolved by the browser, so the kit has no colour parser of its own.
+    scheme changes) and `neatResolveColor` (any CSS color, resolved on a 1×1 canvas) are for code
+    that draws outside CSS (three.js, a canvas), which takes colors as numbers: any CSS color a
+    token or an app holds, resolved by the browser, so the kit has no color parser of its own.
     `neatStoredSignal(key, initial, parse)` is a signal kept in localStorage as JSON, the app's
     `parse` judging what it reads back; storage that refuses never throws.
     Public API is
     `projects/neat-ui/src/public-api.ts`.
   - one secondary entry point per other component, `@sima/neat-ui/<name>`: `switch`, `slider`,
     `segmented`, `tabs`, `popover`, `confirm`, `input`, `number-field`, `line-list`, `select`
-    (`NeatSelect`, a labelled listbox combobox, its label shown above it with `showLabel` or, with
+    (`NeatSelect`, a labeled listbox combobox, its label shown above it with `showLabel` or, with
     `labelPosition="inline"`, before it on its row), `progress` (`NeatProgress`, a bar or, with a
     `heading`, a titled readout, which the progress toast renders through), `drop-zone`
     (`NeatDropZone`, files by drop or by the system's chooser), `dialog` (`NeatDialog`, the general
@@ -65,11 +65,11 @@ look happens in one place. Every rule here protects that.
     `input` and the primary's `NeatBreadcrumbs`; `NeatFileNode` is its tree), `status-chip`
     (`NeatStatusChip`, a short status on a status fill, and `NeatStatusChipButton`, the same as a
     button; their `NeatTone` is the primary's, since a select list's `rowTone` takes the same
-    tones; `variant="tinted"` puts the tone's colour on its `--neat-tint-<tone>-accent`, for chips
+    tones; `variant="tinted"` puts the tone's color on its `--neat-tint-<tone>-accent`, for chips
     that label a card's parts such as a diagram block's, `solid` staying the default; a tinted
     chip belongs on a card or the page, not on a toned list row, whose selected fill is the same
     tint; warning's tinted text is `--neat-warning-text`, and neutral is muted text on
-    `--neat-chip-neutral` in both, a grey that shows on the card, the page and a hovered or
+    `--neat-chip-neutral` in both, a gray that shows on the card, the page and a hovered or
     selected row's `--accent` in both schemes), `details` (`NeatDetails`, the
     key/value list of a side panel; `--neat-details-term-width` on an ancestor lines several up, and
     a term wider than a fixed column breaks inside the word),
@@ -80,7 +80,7 @@ look happens in one place. Every rule here protects that.
     know the container),
     `field` (`NeatField`, a control under its visible name with
     a hint and an error, and `NeatErrorNote`, a failure said in place), `collapsible`
-    (`NeatCollapsible`, a section a labelled button opens and closes, with a summary while closed),
+    (`NeatCollapsible`, a section a labeled button opens and closes, with a summary while closed),
     `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
     `card` (`NeatCard`, a card on Spartan's helm card with an optional `title` (a heading at
     `headingLevel`, 3 by default; `region` makes the card a landmark named by it, opt-in as the
@@ -93,9 +93,9 @@ look happens in one place. Every rule here protects that.
     metric charts, drawn as SVG but for the heatmap, the score bars and the label timeline, which are
     HTML: `NeatSparkline`, `NeatTimeChart`,
     `NeatStackedChart` and `NeatHeatmap`, `NeatChartCard`, the card they sit on, `NeatScoreBars`
-    (a classifier's scores as labelled bars, with `NeatScore` and `neatLabelColour`, the one rule
-    that colours a label like the bars do), `NeatLabelTimeline` (the classifier's recent results
-    as coloured runs over a time axis, with `NeatLabelRun`, coloured by the same rule, and
+    (a classifier's scores as labeled bars, with `NeatScore` and `neatLabelColor`, the one rule
+    that colors a label like the bars do), `NeatLabelTimeline` (the classifier's recent results
+    as colored runs over a time axis, with `NeatLabelRun`, colored by the same rule, and
     `NeatTimelineMotion`, `step` or `smooth` for whether it scrolls between updates) and the
     primary's `NeatSeriesSwatch` again; with `diagram` and `bev`, the only code that imports d3),
     `bev` (`NeatBev`, `neat-bev`: a bird's-eye view around a vehicle, with its model types
@@ -189,7 +189,7 @@ is the doc comment, and the snippet under an example is the file that renders it
   it and left out of the snippet. Its title is the class name in words (`CPUUsage` is "CPU usage"),
   and the kit parts it imports are the "Shows" links. The data files it imports and the
   stylesheets it names (`styleUrl`) must be files of the topic folder, and are shown as further
-  files of the snippet. It is real code: built, linted, and given a spec where it has behaviour.
+  files of the snippet. It is real code: built, linted, and given a spec where it has behavior.
   A caption names only what an app can import: a code span or an identifier-shaped word in it
   that names something the kit declares but does not export (or a `ɵ` name) is a doc problem, as
   in a part's doc comment. The showcase's own `app.ts` is one more example of the `shell` topic
@@ -255,10 +255,10 @@ through the entry its lazy route imports, and the apps draw through the kit's co
 through d3. The diagram's rate card draws its history with `NeatSparkline`, imported from `charts`
 by package name as any entry may: in a production build only a page that uses the rate card carries
 `charts` and its two d3 packages (about 16 kB minified); an unoptimized build loads the whole entry.
-Licences: `d3-scale`, `d3-shape`, `d3-zoom` and `d3-selection` are ISC licensed runtime
+Licenses: `d3-scale`, `d3-shape`, `d3-zoom` and `d3-selection` are ISC licensed runtime
 `dependencies` of the package, listed in `allowedNonPeerDependencies`; what `d3-zoom` brings with it
 is ISC too (`d3-dispatch`, `d3-drag`, `d3-interpolate`, `d3-timer`, `d3-transition`) but for
-`d3-ease`, which is BSD-3-Clause. A new d3 package is a new dependency: check its licence and its
+`d3-ease`, which is BSD-3-Clause. A new d3 package is a new dependency: check its license and its
 own dependencies' before adding it here and to the rule.
 
 **The rendering bench (`projects/bench`) is measured, never published.** It finds how much diagram
@@ -266,7 +266,7 @@ own dependencies' before adding it here and to the rule.
 ngx-vflow under the same load, on a laptop and on the Modalix board (the design is insight-next's
 `docs/superpowers/specs/2026-10-31-bench-design.md`). Its dev dependencies sit in the root
 `package.json`, the workspace's one manifest, and never in `projects/neat-ui/package.json`, the
-published one. Licences, all bench-only: `ngx-vflow` MIT, `d3-drag` ISC (vflow's peer),
+published one. Licenses, all bench-only: `ngx-vflow` MIT, `d3-drag` ISC (vflow's peer),
 `@types/d3-drag` MIT, `playwright` and the `playwright-core` it wraps Apache-2.0, `source-map`
 BSD-3-Clause. ESLint (`BENCH_ONLY` in the root `eslint.config.js`) fails an import of any of them
 outside `projects/bench/`, where `d3-drag` is the one d3 package allowed, and `npm run check:dist`
@@ -275,7 +275,7 @@ is covered by `check:dist` alone. Why: apps install the kit, never the bench's t
 **The diagram's bench seam is an agreed exception** to exporting only what an app needs.
 `projects/neat-ui/diagram/src/bench-seam.ts` re-exports, for the bench alone, the internals it
 needs to draw the kit's picture with vflow and put the kit's own dot layer over it: `drawLevel`
-(the routes, tips and colours), `placeNotes`, `levelExtent`, `fitTransform` and `ZOOM_LIMITS` (the
+(the routes, tips and colors), `placeNotes`, `levelExtent`, `fitTransform` and `ZOOM_LIMITS` (the
 same notes and the same start), the messaging layer's context token and its types, `DOT_FRAME_PROBE`
 and `MAX_DOTS`. Why not public: a testing entry would be a promise to every app, and bench copies
 of the routing or the painter would measure different code. It is not in `public-api.ts`, so
@@ -292,7 +292,7 @@ the seam's header.
 frame's script in its animation-frame callbacks (`measure/callback-timer.ts`, which wraps
 `requestAnimationFrame`, so it reaches into nothing of the kit's), shown on the page and as
 `window.benchBev`. It is not part of the ladders. Measure in a browser with a display and a GPU:
-headless Chrome rasterises the canvas in software, and with a GPU but no display it gets about one
+headless Chrome rasterizes the canvas in software, and with a GPU but no display it gets about one
 frame a second.
 Run files go to `projects/bench/results/`, which is gitignored; each campaign's summary is
 published as a page. **A board campaign is one command shape:** `npm run bench:build`, then
@@ -315,14 +315,14 @@ the verdict rule; `projects/bench/VALIDATION.md` for the numbers, the rulings an
 whatever box its host has, and its strokes carry `vector-effect: non-scaling-stroke`, so a
 stretched box does not thicken them. What must not stretch (labels, the newest point's dot, the
 crosshair, the readout) is an HTML overlay positioned in percent of the box, so nothing measures
-the chart. Colours are named in `line-token.ts`, the one place a tone or a series index becomes a
+the chart. Colors are named in `line-token.ts`, the one place a tone or a series index becomes a
 token (the reference line's `--muted-foreground`, `REFERENCE_TOKEN` in `time-chart.ts`, and the
 heatmap's `color-mix` in `fillOf` aside), and reach the CSS as a custom property the stroke or
 fill reads (`--series`, `--level`, `--tone`, `--cell`, `--sparkline-stroke`), so a variant (a
 tone) is stated once. A series' swatch is the primary's `NeatSeriesSwatch` (its `index` from 0,
 through `seriesToken`, the kit's one rule from a series to its token, which the primary keeps
 beside the swatch and shares with `charts` and `diagram` as `ɵseriesToken`, and its custom
-property's name for code that resolves colours itself as `ɵseriesTokenName`; `line-token.ts`
+property's name for code that resolves colors itself as `ɵseriesTokenName`; `line-token.ts`
 re-exports it), which the legends and readouts render and an app shows beside its own labels (a
 run's chip), so a label outside the chart matches its line by the same rule and its look is
 stated once. The paths come from `charts/src/lib/geometry.ts` (d3-shape's `line` and
@@ -357,7 +357,7 @@ accessible name) is `frame.ts`, and their styles are `chart-frame.css` (host, he
 are `stackedPaths` (bottom first; a sample where any band is missing breaks the whole stack, since a
 partial sum was never measured, and for the same reason a sample of "Other", the sum of the series
 folded beyond eight, is null where any folded value is), at 0.85 opacity with a hairline in
-`--neat-surface`; its legend carries each band's value and share as text, because eight colours
+`--neat-surface`; its legend carries each band's value and share as text, because eight colors
 alone are not enough. The heatmap is an HTML grid, not an SVG: a cell is a `<span>` whose `--cell`
 is a `color-mix` of `--neat-heat-low` and `--neat-heat-high` by the value's place in the domain
 (transparent when empty), its rows are columns of time from `heatmap-columns.ts` (at most 48, one
@@ -379,7 +379,7 @@ included: the readout follows the pointer without a click, and the plot is most 
 a control in the content (a button, a link, a form field) keeps its click; the plot's keys move the
 readout and choose nothing. A chart in a card can drop its value labels (`[valueLabels]="false"`):
 the grid and level lines, the time axis and the readout stay.
-A time chart's `size="fill"` is labelled as `medium` and takes the height its host is given: the
+A time chart's `size="fill"` is labeled as `medium` and takes the height its host is given: the
 host is a flex column and the plot takes what the title, legend and axis leave, never under
 medium's 6 rem. The app gives the host that height (a grid item its row stretches), so it needs no
 `::ng-deep` to make the plot grow.
@@ -396,7 +396,7 @@ the whole in the kit's look.
   siblings); its `look` is `default`, `accent`, `dashed`, `ghost` (a part not running) or `muted`.
   Its `chips` are the kit's status chips, drawn tinted. Its `stale` (a block's or a bracket's
   diagnostics stopped) gives the whole card the look of `[neatStale]`, the primary's
-  `ɵSTALE_CLASSES` applied to the card, so the label, chips and the app's content grey out
+  `ɵSTALE_CLASSES` applied to the card, so the label, chips and the app's content gray out
   together, with no transition, and the hidden list adds "stale"; the app says why in its content.
   **Where a part runs is said by a chip in one convention**, documented here rather than enforced,
   so every demo reads alike: the hardware decoder `HW` in `success`, `EV74` in `highlight`, `MLA` in
@@ -407,7 +407,7 @@ the whole in the kit's look.
   end), and its `label` a small mono chip at `labelAt` along it. A note is anchored to its `edges`
   (the mean of their points at `along`, 0.5 unset) or to an `anchor` point, placed at `x`/`y` or
   moved `dx`/`dy` from the anchor, and joined to it by a dotted leader that meets the box's nearest
-  point, or its centre with `leaderTo: 'centre'`. A node's, an edge's and a note's `data` is the
+  point, or its center with `leaderTo: 'center'`. A node's, an edge's and a note's `data` is the
   app's and never read. A part whose ids name nothing (an edge's end, a node's parent, a block's
   `opens`, a note's edge) is left out and named once in dev mode; the diagram never throws for it.
 - **The drawing:** `neat-diagram` is a `figure` named by its `label`. Frames and bands are
@@ -432,8 +432,8 @@ the whole in the kit's look.
   inside the frame, from the frame's border nearest the node (the frame's own `outSide` and `inSide`
   are for the nodes around it). An edge end goes on the side its edge's `fromSide` or `toSide`
   names, else its node's `outSide` or `inSide`, else the side facing the other end; the route and
-  the label follow it (an end inside a frame stays on the frame's border). An edge's colour comes
-  from `lineColour` in `drawing.ts`, through `seriesIndex` and the kit's `seriesToken`, and each
+  the label follow it (an end inside a frame stays on the frame's border). An edge's color comes
+  from `lineColor` in `drawing.ts`, through `seriesIndex` and the kit's `seriesToken`, and each
   line look is stated once in `lines.css`, which the edges and the legend's samples both read. A
   visually hidden list after the drawing says the level's nodes (label, detail, chips) and edges
   ("Camera to Decode, image") in words.
@@ -454,7 +454,7 @@ the whole in the kit's look.
   (and `w`) for the body it renders. A block the template renders nothing for keeps its card as it
   is, a note it renders nothing for is not drawn (nor its leader; without the template no note is),
   and an edge it renders nothing for shows no tip. The tip sits by the pointer in the popover's
-  colours, kept inside the box, and is hidden from assistive technology, so it must hold nothing a
+  colors, kept inside the box, and is hidden from assistive technology, so it must hold nothing a
   reader needs that the hidden list or a note does not say.
 - **Focus:** by `highlight`, `'none'` by default, a block or an edge under the pointer, or a block
   whose open button has the keyboard's focus (`:focus-visible`; a press that focuses it does not
@@ -467,7 +467,7 @@ the whole in the kit's look.
   Touch and a drag put nothing in focus.
 - **An opening block's border** is one 2px primary border with no box-shadow ring, and its padding
   gives up the 1px, so the content stays put. Why: a 1px border with a 1px ring round it
-  rasterises as two lines that drift apart under a fractional zoom. Do not add a ring to show
+  rasterizes as two lines that drift apart under a fractional zoom. Do not add a ring to show
   "opens"; if a look needs one, draw it with the border.
 - **An example's drawing box** is sized for the drawing, not for a phone: 4:3 up to `40rem` (2:1
   up to `30rem` for the drill-down's wide level), kept in each example's own stylesheet because
@@ -493,7 +493,7 @@ the whole in the kit's look.
   (the drill-down example, `examples/drill-down/`, uses it, from a copy of the pipeline that has
   the Detector's steps).
 - **Pan, zoom and fit** (`zoom.ts`, d3-zoom on the box): drag, wheel, pinch and double-click; the
-  box is a tab stop whose arrow keys pan 48 px, `+`/`=` and `-` zoom 1.25× about its centre and `0`
+  box is a tab stop whose arrow keys pan 48 px, `+`/`=` and `-` zoom 1.25× about its center and `0`
   fits; zoom 0.2 to 3. It fits its level to its box by itself (on its first size, a resize, a new
   extent or level) until the user pans or zooms, as the demo does (a press that moves 3 px or less
   is a click, not a pan). Its `fit()`, for an app's Fit button, fits again, over 250 ms or at once
@@ -503,7 +503,7 @@ the whole in the kit's look.
   `line?`, `label`) and shows them as the demo's legend chip, a list named "Legend". A series
   without a `line` shows the kit's `NeatSeriesSwatch` (from the primary, so no d3 comes with it);
   any other item shows a short sample of its line (solid when unset) drawn by the edges' own rules
-  in the colour its edges take, muted for a ghost, without a series or for a series not 1 to 8.
+  in the color its edges take, muted for a ghost, without a series or for a series not 1 to 8.
   The app places the legend: above the diagram, or over it in a corner the level bar (top left)
   does not take, as the Filling its card example does.
 - **The messages** (`messages/`): `neat-diagram-messages`, projected into `neat-diagram`, draws the
@@ -511,7 +511,7 @@ the whole in the kit's look.
   `performance.now()` clock) and `stageMs(nodeId, stage, ms)` for the stage times. A message on a
   drawn edge is a dot along it, radius by bytes, travel time by the edge's length at `speed`
   (`NeatDiagramMessageSettings { speed, size, every, steps }`, the demo's 270 units/s, every Nth
-  message with `every`), in its edge's colour or the series `colours` names. `steps` (keyed by edge
+  message with `every`), in its edge's color or the series `colors` names. `steps` (keyed by edge
   id, `NeatDiagramMessageStep { from, stage, shares? }`) are edges inside a block no message feeds:
   a dot arriving at a step's start goes on once the stage's time has passed, along the chain, and
   a message places at most `MAX_CHAIN` (32) dots in all, so steps that loop or fan out cannot grow
@@ -524,14 +524,14 @@ the whole in the kit's look.
   with its numbers; the step edges count only while their level is drawn and the page is visible, as
   their dots place them. An id that is no edge of the diagram is ignored, which keeps the rates'
   memory bounded by the diagram. The performance rules: one canvas over the drawing, sized to the
-  layer's own box at the device pixel ratio, sprites per colour, edge shapes sampled once per layout
+  layer's own box at the device pixel ratio, sprites per color, edge shapes sampled once per layout
   and mapped to the screen once per pan or zoom, nothing allocated and no signal written per dot or
   per frame, at most `MAX_DOTS` (16 384) dots with the oldest dropped, frames only while a visible
   dot moves (messages that get no dot, see `every`, run none) and never while the page is hidden.
   Dots go behind the blocks, notes and edge labels (a label's measured border box with its own
   corner, as the edge's line goes under it); at an end on a block a dot runs on a radius into it,
   so it comes out of and goes into the block whole instead of popping at the port; they fade with the hover (`--diagram-dim`), scale with the zoom
-  and recolour with the scheme (`neatThemeColors`); under reduced motion each message is a brief
+  and recolor with the scheme (`neatThemeColors`); under reduced motion each message is a brief
   mark at its edge's end. `neat-diagram-rate-card` (`label`, `rate` the signal's value, `stageMs?`,
   `showBytes`, a `[neatRateCardThumbnails]` slot the app lays out) is the demo's card for a note's
   content: the label, whole msg/s, MB/s in hundredths from units of 10 kB, and a `NeatSparkline` of
@@ -574,7 +574,7 @@ look, which `diagram` gives a node's card), `ɵOverlayFocus` and `ɵPANEL_SURFAC
 classes, which the popover's drift spec reads), `ɵBROWSER_CLOCK` and `ɵreducedMotion` (the
 browser's frame clock and the reduced-motion check, which `charts`' label timeline shares with
 `neatEased`), `ɵREADOUT_CLASSES` (the readout's look, which `charts` shares with `bev`), and the
-page's class colours, which `video`'s overlays share with `bev`: `ɵNeatOverlayColors`,
+page's class colors, which `video`'s overlays share with `bev`: `ɵNeatOverlayColors`,
 `ɵcreateColorAllocator`, `ɵresolveColor`, the identity palette (`ɵOVERLAY_PALETTE`,
 `ɵOVERLAY_NEUTRAL_COLOR`, in `lib/theme/identity-palette.ts`) and the style-row lookup
 (`ɵclassStyles`, `ɵstyleFor`); `video` re-exports them to its own code under their old names. They
@@ -587,7 +587,7 @@ second entry needs is exported the same way, never by a relative path. `lib/ui/`
 **How the bird's-eye view is drawn.** `bev` draws what a vehicle sees around it (`neat-bev`),
 for driving demos such as the FastBEV one.
 
-- Coordinates are the vehicle's own frame in metres, x forward and y to the left (nuScenes, ROS
+- Coordinates are the vehicle's own frame in meters, x forward and y to the left (nuScenes, ROS
   REP 103), forward up on the screen; angles are radians counter-clockwise from x, so a detector's
   yaw or a calibration's angles go in unchanged. A grid's `cells` are row-major in screen order:
   row 0 forward, column 0 left.
@@ -604,12 +604,12 @@ for driving demos such as the FastBEV one.
   its proportions (`aspect-ratio`) unless the app gives it a height. Give a new `frame` object for
   each moment and a new grid `cells` array for new cells: the view redraws on a new frame and
   repaints a grid only for a new array.
-- Labels take their colours from the page's class colours (`ɵNeatOverlayColors`), the allocator
-  the video tiles use, so a class has one colour in every tile and in the view; `styles` takes the
+- Labels take their colors from the page's class colors (`ɵNeatOverlayColors`), the allocator
+  the video tiles use, so a class has one color in every tile and in the view; `styles` takes the
   overlays' class rows (`NeatOverlayClassStyle`), so the same rows give the same look in both. The
   plot's own parts follow the theme (`--muted-foreground`, `--foreground`, `--neat-surface` for the
   labels' halo), read through `neatThemeColors`. The guides and the outline are the foreground,
-  see-through (`GUIDE_ALPHA`, `OUTLINE_ALPHA` in `colours.ts`): over the data they darken (dark:
+  see-through (`GUIDE_ALPHA`, `OUTLINE_ALPHA` in `colors.ts`): over the data they darken (dark:
   lighten) what they cross, so they read as on top; an opaque line as light as `--border` read as
   a gap in a fill, the guides seeming under it.
 - Drawing (`bev-canvas.ts`, outside change detection, at the next animation frame after a change,
@@ -621,7 +621,7 @@ for driving demos such as the FastBEV one.
   data it must not hide it), its points small squares, one path a label; it is redrawn with the
   cached layers (on a zoom too), so a dense cloud belongs in the frame. Between them a frame draws its grids (small canvases per grid, scaled without
   smoothing) and filled lines as areas: every area's backing, opaque in `--neat-surface` (a grid's
-  as far as each cell's value goes), then every area's tint in its label's colour at `GRID_ALPHA`,
+  as far as each cell's value goes), then every area's tint in its label's color at `GRID_ALPHA`,
   so an area covers what lies under it, guides under the data included, still looks see-through
   over the surface, and overlapping areas still blend; a label's filled lines are one path, each
   polygon wound the same way, filled once by the nonzero rule, so pieces of one area (a road
@@ -630,7 +630,7 @@ for driving demos such as the FastBEV one.
   Points are squares of whole device pixels written into a buffer that covers only the shape's
   rectangle within the box (the box with `visible`), kept in memory (`willReadFrequently`) and
   put over the plot once per frame: one canvas call per point, or one path of them all, cost
-  several times as much to rasterise (the bench's BEV page, above). Objects are drawn a label at a
+  several times as much to rasterize (the bench's BEV page, above). Objects are drawn a label at a
   time, one path for a label's boxes and one for their headings. Ring and grid steps widen until
   their labels sit at least 44 px apart; labels are drawn unclipped, ring labels halfway between
   forward and left (towards the box's middle once the vehicle is panned out of it), grid labels
@@ -640,17 +640,17 @@ for driving demos such as the FastBEV one.
   wheel, pinch, drag and double-click zoom the whole view, the shape with it, within `zoomExtent`
   (relative to the default view, `[1, 4]` by default, always taking in 1; a min below 1 zooms out
   beyond the default), and pan only within what the default view shows (the shape's rectangle with
-  `clip`, the box with `visible`) and `panBounds` (metres) when given: a smaller `range` with wider
+  `clip`, the box with `visible`) and `panBounds` (meters) when given: a smaller `range` with wider
   `panBounds` starts zoomed in and still reaches further out. Every wheel over the host is prevented, at the zoom's limits too, where
   d3-zoom alone lets the page scroll. The host is then a tab stop whose arrows pan, `+`/`=` and `-`
-  zoom about the box's centre and `0` resets; a "Reset view" button shows while the view is zoomed
+  zoom about the box's center and `0` resets; a "Reset view" button shows while the view is zoomed
   or panned. The kit stores nothing.
 - Interaction (the rule "A widget tells the app what happens on it"): `hovered`, a model of the
   outlined object's id (an object's `id`, or its index without one), set by the pointer while it
   is over the view (null when it leaves) and by the app otherwise, changing only when another
   object comes under the pointer; `activated`, a click or tap that is no drag (`NeatBevPick`: the
-  object or null, its id, the point in metres, the event; the reset button's clicks excluded);
-  `pointerMove`, a mouse or pen's point in metres once a frame when it changed, null on leaving.
+  object or null, its id, the point in meters, the event; the reset button's clicks excluded);
+  `pointerMove`, a mouse or pen's point in meters once a frame when it changed, null on leaving.
   An object the app hovers is outlined and read out only where the view shows it.
 - The readout (`readout.ts`): a mouse or pen hovering an object, or a finger tapping it, outlines it
   and shows the kit's readout beside it (`ɵREADOUT_CLASSES`): a swatch and its label, its distance,
@@ -684,7 +684,7 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   to be exported (NG3001). Bind the classes with Angular's `[class]` host binding, not helm's
   `classes()`, which rewrites `className` and can drop an app's `[class.x]` binding. Where helm
   keeps its classes inline rather than as constants, the wrapper copies them verbatim into a
-  table labelled with the helm file, and its spec reads that file as text
+  table labeled with the helm file, and its spec reads that file as text
   (`import src from '…/hlm-x.ts?source' with { loader: 'text' }`) and checks each copied string is
   still there, so a helm update that changes them fails until the wrapper is reviewed.
   `NeatDialog` follows the same pattern as `NeatConfirm` (brain's dialog service, helm's dialog
@@ -728,27 +728,27 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   tints, one look for the banners, problems and guides of every app. Its heading is a real heading
   (`role="heading"`, `headingLevel`, 3 by default), and with `region` (a landmark, which needs a
   heading to be named and takes no role without one) or `announce` (a live role) the callout is
-  labelled by it; the role and the label are the callout's, so an app's notice never builds its own
+  labeled by it; the role and the label are the callout's, so an app's notice never builds its own
   around it. Its fills are the tints the select list's rows have, opaque mixes over `--background`,
-  so on a raised surface (a dialog, a popover) a tinted callout is the page's colour mixed, not the
+  so on a raised surface (a dialog, a popover) a tinted callout is the page's color mixed, not the
   surface's, and a neutral one's `--muted` fill is a dark dialog's own surface: there the start
   border and the icon carry the tone (with the words), and the fill alone does not. Its icon takes
-  the tone's solid colour where that holds 3:1 on the tint; warning's does not on its light tint, so
+  the tone's solid color where that holds 3:1 on the tint; warning's does not on its light tint, so
   its icon is `--foreground` and the start border carries the tone.
 
   `NeatLevelMeter` hosts no brain primitive (brain has none); it is the kit's own bar of 28
-  segments over -50…0 dBFS, lit in the theme's status colours (`--success`, `--warning`,
+  segments over -50…0 dBFS, lit in the theme's status colors (`--success`, `--warning`,
   `--destructive`) and dark in `--border` (`--muted` would vanish on a dark card, whose fill it
   is). Its `sample` is a function, not a value: the meter calls it once per animation frame while
   it is set and the meter is rendered, and writes each segment's fill straight to the DOM,
   outside change detection (the per-frame rule below), so a level the app polls and a Web Audio
-  analyser both feed it without a signal write per frame. It calls the function on its own, so an
+  analyzer both feed it without a signal write per frame. It calls the function on its own, so an
   app passes an arrow-function property, never a method, which returns null rather than throw
   when its source is gone (a throw repeats every frame). A rendered meter samples even when
   hidden, so an app renders it only while there is a level (`@if`). It is `aria-hidden`; the app
   says the state in text.
 
-  `NeatSelectList` and `NeatFileBrowser` own their behaviour too. Brain has no listbox on its own
+  `NeatSelectList` and `NeatFileBrowser` own their behavior too. Brain has no listbox on its own
   (its select's list lives in a popover, and `command` is a palette), so the list owns its roles
   and keys as `NeatSegmented` does: a `listbox` that holds the focus and names the selected row in
   `aria-activedescendant`, with selection following focus. Its checked mode (`checkable`) is the
@@ -813,7 +813,7 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   Backspace, which the list has no use for, is handled on the list's host. A checked list adds no
   hint of its own: the multi-selectable listbox says what checking is. A node's `tag` is a neutral
   `neat-status-chip`, the kit's one look for a fact beside a value, and an `unavailable` node is
-  greyed but usable (so not `disabled`, which in the kit means "cannot be used"). The browser says
+  grayed but usable (so not `disabled`, which in the kit means "cannot be used"). The browser says
   nothing of its own that an app cannot replace (`labels`), and its tree helpers are the helpers of
   the media browser it was extracted from (`file-tree.ts`, not exported). `filter` is a model so
   that an app can show a note about its folder (how many files it left out) only while no filter is
@@ -824,14 +824,14 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   conveniences: a cell button that is a tab stop needs an `aria-label` naming its row; if every
   row's controls must be keyboard-reachable on their own, the list should become a grid.
 
-  Three wrappers own their behaviour instead of hosting a brain primitive, each for a stated reason:
+  Three wrappers own their behavior instead of hosting a brain primitive, each for a stated reason:
   - `NeatSwitch` is a native `button` with `role="switch"`: brain's switch is a component that
     renders its own button, so it cannot be a host directive.
   - `NeatSegmented` owns its radios (roles, roving tabindex, arrow keys): brain's toggle item
     re-writes `aria-pressed` on every change, which contradicts the radio roles.
     It is drawn as an iOS-style switch: a track (`--neat-segmented-track`) with a raised thumb
     (`--neat-segmented-thumb`) that slides under the chosen label, which is semibold in `--primary`,
-    and a divider between two unchosen neighbours. The options are equal-width grid columns, so the
+    and a divider between two unchosen neighbors. The options are equal-width grid columns, so the
     thumb is pure CSS from two custom properties on the group (`--neat-segmented-count` and
     `--neat-segmented-index`), never measured. The control is 32 px tall (28 px segments in a 2 px
     inset), the height of the small buttons, icon buttons and pills beside it in a toolbar. It sizes to its widest label times the count and
@@ -866,7 +866,7 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   disabled button. An app has no stylesheet of its own to say any of this, and the look is the
   kit's.
 
-- **Customise in this order: theme tokens, then wrapper inputs and classes, never helm.** Tokens
+- **Customize in this order: theme tokens, then wrapper inputs and classes, never helm.** Tokens
   come from `lib/theme/*.ts`; `npm run theme:emit` regenerates `tokens.generated.css`, and the theme
   spec checks the contrast of every text pair it emits. A wrapper overrides a helm class only where
   its spec shows a failure (the button's hover states are the example), with the reason in a comment.
@@ -884,7 +884,7 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
 - **`NeatButton` has seven variants: `primary`, `secondary`, `outlined`, `text`, `danger`,
   `danger-text` and `success`.** `success` is a solid `--success` fill under `--success-foreground`
   for the action that starts something (Start recording), hovering to 90% of the fill and focusing
-  with the ring colour as `primary` does. `danger` is its counterpart, a solid `--destructive` fill
+  with the ring color as `primary` does. `danger` is its counterpart, a solid `--destructive` fill
   under `--destructive-foreground` for the action that stops or discards (Stop recording), hovering
   to 90% and focusing with its red ring; the quiet red, for a destructive action among text
   buttons, is `danger-text`. `button.spec` holds the text of both to 4.5:1 at rest and on hover in
@@ -893,7 +893,7 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
 - **The kit's icons are outlines, except `play`, `pause` and `stop`, which are filled.** Why: media
   controls are solid by convention, and a filled glyph reads at the sizes a transport is drawn at.
   `lib/icon/icon-registry.ts` makes them through `filled(...)` (`fill: currentColor` on each shape);
-  no other glyph is filled, so do not use it to emphasise one. `spinner` is the one glyph that
+  no other glyph is filled, so do not use it to emphasize one. `spinner` is the one glyph that
   moves: `icon.css` turns it once a second, and only for a user who has not asked for reduced
   motion (otherwise it is a still glyph), so an app's busy control never animates it itself and
   says that it waits in text or state (`aria-busy`), since the icon is decorative.
@@ -926,7 +926,7 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
 ## Rules
 
 **Reuse what the kit offers.**
-Why: each component carries the theme, accessibility and behaviour decisions already made. A
+Why: each component carries the theme, accessibility and behavior decisions already made. A
 re-implementation drifts from them and from every other app.
 Escape hatch: if nothing fits, go to the next rule.
 
@@ -939,8 +939,8 @@ workaround in the meantime.
 
 **Style only through theme tokens and component inputs.**
 Why: tokens are what make light/dark and later rebranding work. Overrides (deep selectors,
-`!important`, hard-coded sizes or colours) silently break in one theme or after a Spartan update.
-The tokens are the theme's colours (Spartan's variables such as `--primary`, `--muted-foreground`,
+`!important`, hard-coded sizes or colors) silently break in one theme or after a Spartan update.
+The tokens are the theme's colors (Spartan's variables such as `--primary`, `--muted-foreground`,
 `--border`), `--radius`, and a short layout set from Tailwind's scale, defined once in the kit
 stylesheet: `--neat-space-2`, `--neat-space-3`, `--neat-space-4`, `--neat-space-6` (0.5, 0.75, 1
 and 1.5rem, for gaps and insets), `--neat-text-xs`, `--neat-text-sm`, `--neat-text-base` (0.75,
@@ -958,11 +958,11 @@ as fills whose values the legend carries as text. Page insets come from `neat-pa
 from a page's own stylesheet. Escape hatch: if a look cannot be reached through tokens and inputs,
 that is a kit gap. Treat it as a proposal under the previous rule, not as a reason to override.
 
-**No colour literals outside the theme directories: `projects/neat-ui/src/lib/theme/`, and
+**No color literals outside the theme directories: `projects/neat-ui/src/lib/theme/`, and
 `projects/neat-ui/video/src/lib/theme/` for the video overlay palette.**
 No hex, `rgb()`, `rgba()`, `hsl()` or `hsla()` anywhere else, in CSS, TypeScript or templates.
 Why: the palette is fixed and lives in the theme so both themes stay coherent. Stylelint enforces
-this for stylesheets (`npm run lint`). Escape hatch: if you need a colour that is not a token, add a
+this for stylesheets (`npm run lint`). Escape hatch: if you need a color that is not a token, add a
 token in the theme directory through a kit change; never inline the value.
 The only exception: official brand-asset SVGs (the SiMa.ai logo) keep their own `fill` attributes.
 
@@ -974,13 +974,13 @@ clips only the descendants whose containing block lies inside it, and a page's s
 (neat-page's) is not positioned. A part whose containing block falls back to the viewport escapes
 every scroll body and, below the fold, makes the whole document scroll. Use `position: relative`
 without a z-index, so the box makes no stacking context and a part that hangs out of it (a
-readout below its plot) still paints over its neighbours. Escape hatch: a part that must leave its
+readout below its plot) still paints over its neighbors. Escape hatch: a part that must leave its
 component (a popover, a tooltip, a toast) goes through the CDK overlay, never through a
 positioned ancestor of the app's.
 
 **Component styles live in a `.css` file next to the component, referenced with `styleUrl`.**
 Why: Stylelint reads only stylesheets, so a style written inline in the decorator (`styles:`)
-escapes the colour-literal rules above without anyone noticing. ESLint rejects inline styles
+escapes the color-literal rules above without anyone noticing. ESLint rejects inline styles
 (`component-max-inline-declarations`); templates may stay inline. Escape hatch: none; a component
 that needs no styles simply has no stylesheet.
 
@@ -1053,13 +1053,13 @@ place, so every app reads the same way.
   may not import a secondary entry, so what both need lives in the primary); its rows are the
   rail's own `data-child` rows.
 - An app's item is a `button[neatRailItem]` or `a[neatRailItem]` with a `label`, the look and
-  behaviour the page links have (they are rail items too): the content is the icon (a
+  behavior the page links have (they are rail items too): the content is the icon (a
   `neat-icon`), the label shows beside it while the rail is expanded, and while it is collapsed
   stays as visually hidden text (the item's name) and shows as a tooltip on the right.
 - An item with a state (a board, a connection) says it with `tone` (a `NeatTone`: a 0.5rem dot on
   the icon's corner, ringed in the surface it sits on, the rail's or the hover and current-page
   fill), `text` (the visible first line, the label by default) and `detail` (a smaller second line
-  in the tone's colour, muted for success, neutral or no tone), as the board item of the shell
+  in the tone's color, muted for success, neutral or no tone), as the board item of the shell
   topic's Rail items example and the device items after it, one per other tone, do.
   Both lines ellipsize and hide with the label while the rail is collapsed. `label` stays the
   tooltip and the name, so the app writes the whole sentence there, the state the dot alone shows
@@ -1069,7 +1069,7 @@ place, so every app reads the same way.
   kit `aria-label` binding would remove one the app sets. So `label` must contain the visible
   `text` and `detail` as they read: the name is all assistive technology gets, and someone who
   speaks what they see ("click DevKit") must find it there (WCAG 2.5.3, label in name). Each
-  tone's dot and detail colour is stated once in `rail-item.css`, and its spec holds the detail
+  tone's dot and detail color is stated once in `rail-item.css`, and its spec holds the detail
   text to 4.5:1 and the dot to 3:1 on `--sidebar` and `--sidebar-accent` in both schemes.
 - Visible text the inputs cannot say goes in an element marked `neatRailItemLabel` inside the item,
   which takes the label's place; `label` stays the tooltip, so it should say at least as much, and
@@ -1129,7 +1129,7 @@ number of tools and a switch in it moves too.
   15rem, as high as the page and scrolling on its own with every `scroll` mode, the filter sticky
   at its top, the side panel at the other end; on a narrow screen it is a closed section above the
   body, with `NeatCollapsible`'s look (the primary cannot import the collapsible entry, so the look
-  is shared from the primary as `ɵCOLLAPSIBLE_CLASSES` and brain's collapsible is the behaviour),
+  is shared from the primary as `ɵCOLLAPSIBLE_CLASSES` and brain's collapsible is the behavior),
   the landmark's name as its label and the open link as its summary; opened, its list scrolls
   inside it up to the page's height, and choosing a link closes it with the focus on its button.
   It scrolls only its own box to show the open link whenever a navigation leaves it out of view,
@@ -1195,7 +1195,7 @@ in the PR and agree the exception before merging.
 State the app may also set (what is hovered, what is selected) is a `model()`, so the app can bind
 it both ways and drive the widget from outside (a row hovered in a list outlines the item in the
 view). Events are `output()`s carrying the widget's own item and a position in the widget's own
-units (metres, a time, a cell), not a DOM event alone. An item is named by an id the app gives,
+units (meters, a time, a cell), not a DOM event alone. An item is named by an id the app gives,
 stable across updates, not by an index into data that changes. Listeners that run outside change
 detection hand events back inside Angular's zone (`NgZone.run`), so an app's handler runs as any
 other; continuous events (a pointer moving) at most once per animation frame, and only when they

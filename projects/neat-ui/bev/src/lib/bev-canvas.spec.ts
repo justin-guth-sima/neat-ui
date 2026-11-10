@@ -1,6 +1,6 @@
 import { BevCanvas, type BevInputs, type BevTheme, packRgb } from './bev-canvas';
 import { calls, type Recorded, type Recording, sets, stubCanvases } from './canvas.testing';
-import { GRID_ALPHA, type LabelColours, type LabelLook, OBJECT_FILL_ALPHA } from './colours';
+import { GRID_ALPHA, type LabelColors, type LabelLook, OBJECT_FILL_ALPHA } from './colors';
 import { bevPlot, type BevView, defaultView, spokeList } from './geometry';
 import type { NeatBevFrame, NeatBevObject } from './model';
 
@@ -14,19 +14,19 @@ const THEME: BevTheme = {
   font: '12px sans-serif',
 };
 
-/** Each label's look, as the page's class colours would give it. */
-function colours(looks: Record<string, Partial<LabelLook>> = {}): LabelColours {
+/** Each label's look, as the page's class colors would give it. */
+function colors(looks: Record<string, Partial<LabelLook>> = {}): LabelColors {
   const held = new Map<string, LabelLook>();
   return {
     of(label: string): LabelLook {
       let look = held.get(label);
       if (!look) {
-        look = { colour: `#${label}`, rgb: [1, 0.5, 0], style: null, width: 2, ...looks[label] };
+        look = { color: `#${label}`, rgb: [1, 0.5, 0], style: null, width: 2, ...looks[label] };
         held.set(label, look);
       }
       return look;
     },
-  } as unknown as LabelColours;
+  } as unknown as LabelColors;
 }
 
 /** Each straight segment drawn, a `moveTo` and the `lineTo` after it: x0, y0, x1, y1. */
@@ -72,7 +72,7 @@ const car = (x: number, y: number, yaw = 0): NeatBevObject => ({
 });
 
 describe('packRgb', () => {
-  it('packs an opaque colour as the pixel word the buffer holds, red first in memory', () => {
+  it('packs an opaque color as the pixel word the buffer holds, red first in memory', () => {
     const bytes = new Uint8Array(new Uint32Array([packRgb([1, 0.5, 0])]).buffer);
     expect([...bytes]).toEqual([255, 128, 0, 255]);
   });
@@ -104,13 +104,13 @@ describe('BevCanvas', () => {
   /** The layer over the data: the first canvas the renderer made, while nothing goes under. */
   const layer = (): Recorded[] => recordingOf(created[0]).log;
   const draw = (frame: NeatBevFrame | null, over: Partial<BevInputs> = {}, hover = -1, at = view) =>
-    bev.draw(2, at, inputs(over), THEME, colours(), frame, hover);
+    bev.draw(2, at, inputs(over), THEME, colors(), frame, hover);
 
   it('draws nothing without a box or a scale', () => {
     bev.size(0, 0);
     expect(draw(null)).toBe(false);
     bev.size(400, 400);
-    expect(bev.draw(2, { ...view, ppm: 0 }, inputs(), THEME, colours(), null, -1)).toBe(false);
+    expect(bev.draw(2, { ...view, ppm: 0 }, inputs(), THEME, colors(), null, -1)).toBe(false);
     expect(draw(null)).toBe(true);
   });
 
@@ -124,7 +124,7 @@ describe('BevCanvas', () => {
       draw(null);
       const arcs = calls(layer(), 'arc').map((c) => c.args[2] as number);
       const ppm = view.ppm;
-      // At 3.1 px per metre, rings 10 m apart would sit 31 px apart: the step grows to 20 m.
+      // At 3.1 px per meter, rings 10 m apart would sit 31 px apart: the step grows to 20 m.
       // The clip, two rings, then the outline drawn outside the clip.
       expect(arcs.map((r) => Math.round(r / ppm))).toEqual([60, 20, 40, 60]);
       expect(sets(layer(), 'strokeStyle')).toContain(THEME.strong);
@@ -152,13 +152,13 @@ describe('BevCanvas', () => {
       expect(calls(layer(), 'clip')).toHaveLength(0);
       expect(calls(main(), 'clip')).toHaveLength(0);
       const radii = calls(layer(), 'arc').map((c) => Math.round((c.args[2] as number) / view.ppm));
-      // The corners lie 200·√2 px out, 90 m at 3.1 px per metre: rings to 80 m, the outline at 60.
+      // The corners lie 200·√2 px out, 90 m at 3.1 px per meter: rings to 80 m, the outline at 60.
       expect(radii).toEqual([20, 40, 60, 80, 60]);
       const labels = calls(layer(), 'fillText').map((c) => c.args[0]);
       expect(labels).toEqual(['20 m', '40 m', '60 m', '80 m']);
     });
 
-    it('labels the rings in metres halfway between forward and left', () => {
+    it('labels the rings in meters halfway between forward and left', () => {
       draw(null);
       const labels = calls(layer(), 'fillText');
       expect(labels.map((c) => c.args[0])).toEqual(['20 m', '40 m', '60 m']);
@@ -169,7 +169,7 @@ describe('BevCanvas', () => {
     });
 
     it('steps every 10 m once the zoom leaves room, and labels only the rings in the box', () => {
-      // Zoomed twice about the plot's centre, as d3-zoom's transform does it.
+      // Zoomed twice about the plot's center, as d3-zoom's transform does it.
       draw(null, {}, -1, { ...view, k: 2, tx: -200, ty: -200 });
       const labels = calls(layer(), 'fillText').map((c) => c.args[0]);
       // Halfway between forward and left the box's corner is 43 m out: 50 m and 60 m are not.
@@ -193,7 +193,7 @@ describe('BevCanvas', () => {
       expect(lastLabel).toBeGreaterThan(restored);
     });
 
-    it('draws the spokes from the centre to the range, the first straight ahead', () => {
+    it('draws the spokes from the center to the range, the first straight ahead', () => {
       draw(null, { spokes: spokeList(12) });
       expect(
         calls(layer(), 'moveTo').filter((c) => c.args[0] === 200 && c.args[1] === 200),
@@ -285,7 +285,7 @@ describe('BevCanvas', () => {
       view = defaultView(600, 400, bevPlot('rect', 60));
     });
 
-    it('draws grid lines inside the rectangle every step, labelled at its edges, and its outline', () => {
+    it('draws grid lines inside the rectangle every step, labeled at its edges, and its outline', () => {
       draw(null, { plot: bevPlot('rect', 60) });
       const labels = calls(layer(), 'fillText').map((c) => c.args[0]);
       expect(labels).toContain('20 m');
@@ -316,7 +316,7 @@ describe('BevCanvas', () => {
       expect(calls(layer(), 'clip')).toHaveLength(0);
     });
 
-    it('fits off-centre bounds, the vehicle off the middle, spokes to their edges', () => {
+    it('fits off-center bounds, the vehicle off the middle, spokes to their edges', () => {
       bev.size(400, 400);
       const plot = rect(-20, 80, -30, 30);
       view = defaultView(400, 400, plot);
@@ -332,14 +332,14 @@ describe('BevCanvas', () => {
   describe('the cached layer', () => {
     it('is drawn once for an unchanged view, inputs and theme', () => {
       const same = inputs();
-      bev.draw(2, view, same, THEME, colours(), null, -1);
-      bev.draw(2, view, same, THEME, colours(), { objects: [car(5, 0)] }, -1);
+      bev.draw(2, view, same, THEME, colors(), null, -1);
+      bev.draw(2, view, same, THEME, colors(), { objects: [car(5, 0)] }, -1);
       expect(bev.layerDraws).toBe(1);
     });
 
     it('is drawn again for a new view, new inputs, a new theme or a new size', () => {
       const same = inputs();
-      const look = colours();
+      const look = colors();
       bev.draw(2, view, same, THEME, look, null, -1);
       bev.draw(2, { ...view, k: 2 }, same, THEME, look, null, -1);
       bev.draw(2, { ...view, k: 2 }, inputs(), THEME, look, null, -1);
@@ -349,18 +349,18 @@ describe('BevCanvas', () => {
       expect(bev.layerDraws).toBe(5);
     });
 
-    it('is drawn again when a static layer label changes colour', () => {
+    it('is drawn again when a static layer label changes color', () => {
       const xy = new Float32Array([0, 0, 10, 0]);
       const same = inputs({ background: { lines: [{ label: 'lane', xy }] } });
-      bev.draw(2, view, same, THEME, colours(), null, -1);
-      bev.draw(2, view, same, THEME, colours(), null, -1);
-      bev.draw(2, view, same, THEME, colours({ lane: { colour: '#other' } }), null, -1);
+      bev.draw(2, view, same, THEME, colors(), null, -1);
+      bev.draw(2, view, same, THEME, colors(), null, -1);
+      bev.draw(2, view, same, THEME, colors({ lane: { color: '#other' } }), null, -1);
       expect(bev.layerDraws).toBe(2);
     });
   });
 
   describe('a frame', () => {
-    it('draws a grid with row 0 forward and column 0 left, in its colour', () => {
+    it('draws a grid with row 0 forward and column 0 left, in its color', () => {
       const cells = new Uint8Array([255, 0, 0, 0, 0, 128]); // 3 columns, 2 rows
       draw({ grids: [{ label: 'road', cells, columns: 3, rows: 2, x: [-20, 20], y: [-30, 30] }] });
       // The layer is the first canvas made, the grid's the second.
@@ -390,7 +390,7 @@ describe('BevCanvas', () => {
       expect(order.slice(0, 4)).toEqual([roadBacking, parkBacking, roadTint, parkTint]);
     });
 
-    it('draws a grid as its tint alone without a surface colour', () => {
+    it('draws a grid as its tint alone without a surface color', () => {
       const grid = {
         label: 'road',
         cells: new Uint8Array([255]),
@@ -399,7 +399,7 @@ describe('BevCanvas', () => {
         x: [-1, 1],
         y: [-1, 1],
       } as const;
-      bev.draw(2, view, inputs(), { ...THEME, surface: null }, colours(), { grids: [grid] }, -1);
+      bev.draw(2, view, inputs(), { ...THEME, surface: null }, colors(), { grids: [grid] }, -1);
       expect(calls(main(), 'drawImage').map((c) => c.args[0])).toEqual([created[1], created[0]]);
     });
 
@@ -428,7 +428,7 @@ describe('BevCanvas', () => {
       expect(firstCorner?.args[0]).toBeCloseTo(200 - 1 * view.ppm);
       expect(sets(log, 'globalAlpha')).toContain(OBJECT_FILL_ALPHA);
       expect(sets(log, 'fillStyle')).toContain('#car');
-      // The heading runs from the centre to the front edge's middle.
+      // The heading runs from the center to the front edge's middle.
       const heading = calls(log, 'lineTo').find(
         (c) =>
           Math.abs((c.args[0] as number) - 200) < 1e-9 &&
@@ -584,14 +584,14 @@ describe('BevCanvas', () => {
       expect(ways.slice(0, 3)).toEqual(ways.slice(3, 6));
     });
 
-    it('lays no backing under a filled line without a surface colour', () => {
+    it('lays no backing under a filled line without a surface color', () => {
       const zone = new Float32Array([5, 5, 10, 5, 10, 10]);
       bev.draw(
         2,
         view,
         inputs(),
         { ...THEME, surface: null },
-        colours(),
+        colors(),
         { lines: [{ label: 'zone', xy: zone, fill: true }] },
         -1,
       );
@@ -606,7 +606,7 @@ describe('BevCanvas', () => {
         view,
         inputs(),
         THEME,
-        colours({ lane: { style: 'dotted' } }),
+        colors({ lane: { style: 'dotted' } }),
         {
           lines: [{ label: 'lane', xy, style: 'dashed' }],
         },

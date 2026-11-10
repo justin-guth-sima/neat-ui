@@ -13,6 +13,8 @@ describe('the charts entry', () => {
       'NeatSparkline',
       'NeatStackedChart',
       'NeatTimeChart',
+      'neatLabelColor',
+      // The British name, deprecated, kept for apps that import it.
       'neatLabelColour',
     ]);
     // The swatch moved to the primary; it stays here, the same class, for the apps importing it.

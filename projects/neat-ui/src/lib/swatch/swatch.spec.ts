@@ -15,7 +15,7 @@ class SwatchHost {
 const hostRule = /(?:^|\n):host\s*\{([^}]*)\}/.exec(swatchStyles)?.[1] ?? '';
 
 describe('NeatSwatch', () => {
-  it('shows the colour it is given, and follows it', async () => {
+  it('shows the color it is given, and follows it', async () => {
     const fixture = TestBed.createComponent(SwatchHost);
     await fixture.whenStable();
     const swatch = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
@@ -34,7 +34,7 @@ describe('NeatSwatch', () => {
     expect(swatch.getAttribute('aria-hidden')).toBe('true');
   });
 
-  it('states its look once: a 0.625rem square with 2px corners in its colour at full strength', () => {
+  it('states its look once: a 0.625rem square with 2px corners in its color at full strength', () => {
     expect(hostRule).toMatch(/(?:^|[;\s])width:\s*0\.625rem;/);
     expect(hostRule).toMatch(/(?:^|[;\s])height:\s*0\.625rem;/);
     expect(hostRule).toMatch(/(?:^|[;\s])border-radius:\s*2px;/);

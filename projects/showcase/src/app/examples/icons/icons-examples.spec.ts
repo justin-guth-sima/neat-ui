@@ -5,7 +5,7 @@ import { SizesAndLabels } from './2-sizes-and-labels.example';
 import { AnyLucideGlyph } from './3-any-lucide-glyph.example';
 
 describe('the icon examples', () => {
-  it('draw every name of the set once, labelled with it', async () => {
+  it('draw every name of the set once, labeled with it', async () => {
     const fixture = TestBed.createComponent(Gallery);
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;

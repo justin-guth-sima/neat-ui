@@ -780,7 +780,7 @@ function along(): number {
  * - \`fit()\` fits.
  *
  * A **\`manage\` mode** paragraph
- * joined from two lines, colours as in \`TONE_CLASSES\`.
+ * joined from two lines, colors as in \`TONE_CLASSES\`.
  */
 @Component({ selector: 'neat-view', template: '' })
 export class NeatView {
@@ -797,7 +797,7 @@ export class NeatView {
    * @deprecated Use \`tone\`
    *   instead.
    */
-  readonly colour = input('neutral');
+  readonly color = input('neutral');
 
   /** Fits. */
   fit(): void {
@@ -876,14 +876,14 @@ test('Markdown blocks: paragraphs joined from lines, lists, strong text, code sp
     { kind: 'text', text: 'A ' },
     { kind: 'code', text: 'manage', strong: true },
     { kind: 'text', text: ' mode', strong: true },
-    { kind: 'text', text: ' paragraph joined from two lines, colours as in ' },
+    { kind: 'text', text: ' paragraph joined from two lines, colors as in ' },
   ]);
 });
 
 test('a deprecated member carries its text as blocks', () => {
-  const colour = view().inputs.find((m) => m.name === 'colour');
-  assert.deepEqual(colour.doc, plain('The old name.'));
-  assert.deepEqual(colour.deprecated, [
+  const color = view().inputs.find((m) => m.name === 'color');
+  assert.deepEqual(color.doc, plain('The old name.'));
+  assert.deepEqual(color.deprecated, [
     {
       kind: 'paragraph',
       spans: [
@@ -934,7 +934,7 @@ export class NeatOne {
   /** @internal Read by the host only. */
   readonly template = inject(TemplateRef);
   /** @deprecated Use \`tone\`. */
-  readonly colour = input('neutral');
+  readonly color = input('neutral');
   /** The tone. */
   readonly tone = input('neutral');
   /** @unknown Not a tag the docs know. */
@@ -958,9 +958,9 @@ test('a tag alone on a one-line doc comment is read as a tag: @internal hides th
 });
 
 test('a one-line @deprecated is the deprecation, not the body; an unknown one-line tag is a problem', () => {
-  const colour = one().inputs.find((m) => m.name === 'colour');
-  assert.deepEqual(colour.doc, []);
-  assert.deepEqual(colour.deprecated, [
+  const color = one().inputs.find((m) => m.name === 'color');
+  assert.deepEqual(color.doc, []);
+  assert.deepEqual(color.deprecated, [
     {
       kind: 'paragraph',
       spans: [
@@ -1677,7 +1677,7 @@ test('highlighting is lossless: keywords, strings, comments, and a template stri
     template,
     /^`\n {4}@for \(tone of tones; track tone\) \{\n[\s\S]*\{\{ tone \}\}[\s\S]*\n {2}`$/,
   );
-  // Neighbours never share a kind, so runs are as long as they can be.
+  // Neighbors never share a kind, so runs are as long as they can be.
   tokens.slice(1).forEach(([kind], i) => assert.notEqual(kind, tokens[i][0]));
 });
 

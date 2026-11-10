@@ -346,7 +346,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Its colour, the charts' series colour 1 to 8; unset, or on a "
+                  "text": "Its color, the charts' series color 1 to 8; unset, or on a "
                 },
                 {
                   "kind": "code",
@@ -775,7 +775,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A line between two nodes of a level, which the kit routes: its colour is a charts series ("
+              "text": "A line between two nodes of a level, which the kit routes: its color is a charts series ("
             },
             {
               "kind": "code",
@@ -883,7 +883,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The tip of the edge under the pointer, by the pointer, in the popover's colours and kept inside the diagram's box:"
+              "text": "The tip of the edge under the pointer, by the pointer, in the popover's colors and kept inside the diagram's box:"
             }
           ]
         },
@@ -979,7 +979,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "What a diagram's colours and lines stand for, as the Autoware demo's legend chip:"
+              "text": "What a diagram's colors and lines stand for, as the Autoware demo's legend chip:"
             }
           ]
         },
@@ -1010,7 +1010,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " for it, as the charts' legends do. Any other item shows a short sample of its line (solid when unset), drawn by the edges' own rules in the colour its edges take: muted for a ghost, without a series, or for a series that is not 1 to 8. Samples and swatches are "
+              "text": " for it, as the charts' legends do. Any other item shows a short sample of its line (solid when unset), drawn by the edges' own rules in the color its edges take: muted for a ghost, without a series, or for a series that is not 1 to 8. Samples and swatches are "
             },
             {
               "kind": "code",
@@ -1018,7 +1018,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": the label names what they stand for, and a colour alone is not a name."
+              "text": ": the label names what they stand for, and a color alone is not a name."
             }
           ]
         }
@@ -1057,7 +1057,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The series (1 to 8) whose colour it names, as an edge's "
+                  "text": "The series (1 to 8) whose color it names, as an edge's "
                 },
                 {
                   "kind": "code",
@@ -1107,7 +1107,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "One entry of a diagram's legend: what a series colour or a line look stands for."
+              "text": "One entry of a diagram's legend: what a series color or a line look stands for."
             }
           ]
         }
@@ -1403,11 +1403,11 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "); its colour is its edge's ("
+              "text": "); its color is its edge's ("
             },
             {
               "kind": "code",
-              "text": "colours"
+              "text": "colors"
             },
             {
               "kind": "text",
@@ -1505,6 +1505,22 @@ export const API: DocsEntry = {
           ]
         },
         {
+          "name": "colors",
+          "type": "Readonly<Record<string, number>>",
+          "default": "{}",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A series (1 to 8) per edge id for its dots, in place of the edge's own color."
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "colours",
           "type": "Readonly<Record<string, number>>",
           "default": "{}",
@@ -1514,7 +1530,42 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "A series (1 to 8) per edge id for its dots, in place of the edge's own colour."
+                  "text": "The British spelling of "
+                },
+                {
+                  "kind": "code",
+                  "text": "colors"
+                },
+                {
+                  "kind": "text",
+                  "text": ", kept so apps that bind it keep working; "
+                },
+                {
+                  "kind": "code",
+                  "text": "colors"
+                },
+                {
+                  "kind": "text",
+                  "text": " wins for an edge both name."
+                }
+              ]
+            }
+          ],
+          "deprecated": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Use "
+                },
+                {
+                  "kind": "code",
+                  "text": "colors"
+                },
+                {
+                  "kind": "text",
+                  "text": "; this name goes in a later release."
                 }
               ]
             }
@@ -1798,7 +1849,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ", faded and grey with no transition, and the hidden list says \"stale\". The app says in words why, in the card's content. Blocks and brackets only."
+                  "text": ", faded and gray with no transition, and the hidden list says \"stale\". The app says in words why, in the card's content. Blocks and brackets only."
                 }
               ]
             }
@@ -2045,7 +2096,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The box's centre, per axis; unset, the anchor moved by "
+                  "text": "The box's center, per axis; unset, the anchor moved by "
                 },
                 {
                   "kind": "code",
@@ -2087,7 +2138,7 @@ export const API: DocsEntry = {
         },
         {
           "name": "leaderTo",
-          "type": "'centre'",
+          "type": "'center'",
           "optional": true,
           "doc": [
             {
@@ -2095,11 +2146,11 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Where the leader meets the box: its nearest point (unset; level or upright where it can be), or its centre, under the box ("
+                  "text": "Where the leader meets the box: its nearest point (unset; level or upright where it can be), or its center, under the box ("
                 },
                 {
                   "kind": "code",
-                  "text": "centre"
+                  "text": "center"
                 },
                 {
                   "kind": "text",
@@ -2975,7 +3026,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": the block as its frame at the origin, sized to its children with a padding, and everything inside the block, however deep, as placed (positions are relative to the parent, so nothing moves); the nodes the edges from inside reach, in a column left of the frame (senders) and right of it (receivers), vertically centred on it; and the edges with an end inside. A node that both sends and receives goes in the senders' column only, so it is on the level once. The outside nodes and the frame get their sides afresh (an overview's "
+              "text": ": the block as its frame at the origin, sized to its children with a padding, and everything inside the block, however deep, as placed (positions are relative to the parent, so nothing moves); the nodes the edges from inside reach, in a column left of the frame (senders) and right of it (receivers), vertically centered on it; and the edges with an end inside. A node that both sends and receives goes in the senders' column only, so it is on the level once. The outside nodes and the frame get their sides afresh (an overview's "
             },
             {
               "kind": "code",

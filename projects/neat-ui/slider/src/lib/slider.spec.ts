@@ -12,7 +12,7 @@ import { NeatSlider, SLIDER_HELM_CLASSES } from './slider';
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 const SURFACES = ['background', 'card'] as const;
 
-/** The variants on the slider's colour classes. */
+/** The variants on the slider's color classes. */
 const VOCABULARY = {
   dark: 'dark',
   hover: 'hover',

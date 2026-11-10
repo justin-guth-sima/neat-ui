@@ -75,7 +75,7 @@ describe('the diagram examples on the diagram topic', () => {
     );
   });
 
-  it('greys out the pipeline’s Browser card whole, and says why in its body', () => {
+  it('grays out the pipeline’s Browser card whole, and says why in its body', () => {
     const browser = figure('A messaging pipeline').querySelector('[data-node="browser"]');
     expect(browser?.classList).toContain('opacity-55');
     expect(browser?.querySelector('.body')?.textContent?.trim()).toBe('No data for 5 s');

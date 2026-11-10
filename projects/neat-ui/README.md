@@ -9,7 +9,7 @@ itself.
 For app authors and their coding agents: the rules, each with its why.
 
 - **Import UI only from the kit.** Use its components instead of writing your own or reaching for
-  another library. Why: each one carries the theme, accessibility and behaviour decisions already
+  another library. Why: each one carries the theme, accessibility and behavior decisions already
   made; a re-implementation drifts from them and from every other app.
 - **Import each part from its own entry.** `@sima/neat-ui/video`, `@sima/neat-ui/charts` and so
   on, not everything from `@sima/neat-ui`. Why: the main bundle then carries only the entries the

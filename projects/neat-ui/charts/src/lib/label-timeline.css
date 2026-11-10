@@ -71,7 +71,7 @@
   list-style: none;
 }
 
-/* A bar with an edge on its right in the surface it sits on, so runs of one colour side by side stay apart. */
+/* A bar with an edge on its right in the surface it sits on, so runs of one color side by side stay apart. */
 .run {
   position: absolute;
   top: 0;

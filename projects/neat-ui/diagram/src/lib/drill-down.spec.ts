@@ -85,9 +85,9 @@ describe('neatDrillDownLevel', () => {
     expect(absoluteRects(level).get('step3')).toEqual({ x: 380, y: 60, w: 160, h: 60 });
   });
 
-  it('puts the senders in a column left of the frame, the receivers right of it, centred', () => {
+  it('puts the senders in a column left of the frame, the receivers right of it, centered', () => {
     const senders = ['cam1', 'cam2'].map((id) => byId(level, id) as NeatDiagramNode);
-    // Two blocks of 64 with 24 between them, centred on the frame's 220: from y 34.
+    // Two blocks of 64 with 24 between them, centered on the frame's 220: from y 34.
     expect(senders.map(({ x, y, w, h }) => ({ x, y, w, h }))).toEqual([
       { x: -520, y: 34, w: 300, h: 64 },
       { x: -520, y: 122, w: 300, h: 64 },

@@ -107,14 +107,14 @@ describe('NeatScoreBars', () => {
     ]);
   });
 
-  it('colours each fill by the label’s place in the colour order', async () => {
+  it('colors each fill by the label’s place in the color order', async () => {
     const { fixture, rows } = await render([0.4, 0.3, 0.2, 0.1], ['Row 1', 'Row 0']);
     fixture.componentInstance.quiet.set(['Row 2']);
     await fixture.whenStable();
-    const colour = (row: HTMLElement) =>
+    const color = (row: HTMLElement) =>
       row.querySelector<HTMLElement>('.fill')!.style.getPropertyValue('--fill');
 
-    expect(rows.map(colour)).toEqual([
+    expect(rows.map(color)).toEqual([
       'var(--neat-series-2)',
       'var(--neat-series-1)',
       'var(--muted-foreground)',
@@ -122,7 +122,7 @@ describe('NeatScoreBars', () => {
     ]);
   });
 
-  it('counts a repeated label once when it orders colours by first appearance', async () => {
+  it('counts a repeated label once when it orders colors by first appearance', async () => {
     const fixture = TestBed.createComponent(ScoreBarsHost);
     fixture.componentInstance.scores.set([
       { label: 'A', value: 0.5 },
@@ -139,12 +139,12 @@ describe('NeatScoreBars', () => {
     ]);
   });
 
-  it('colours by the order of the scores when no colour order is given', async () => {
+  it('colors by the order of the scores when no color order is given', async () => {
     const { rows } = await render([0.4, 0.3]);
-    const colour = (row: HTMLElement) =>
+    const color = (row: HTMLElement) =>
       row.querySelector<HTMLElement>('.fill')!.style.getPropertyValue('--fill');
 
-    expect(rows.map(colour)).toEqual(['var(--neat-series-1)', 'var(--neat-series-2)']);
+    expect(rows.map(color)).toEqual(['var(--neat-series-1)', 'var(--neat-series-2)']);
   });
 
   it('fills its container with size="fill", rows sharing the height, and keeps its look without it', async () => {

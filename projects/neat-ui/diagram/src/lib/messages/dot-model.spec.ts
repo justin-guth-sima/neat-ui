@@ -77,7 +77,7 @@ describe('DotModel', () => {
     // The input dot ends at 600 ms; s1 starts 20 ms later, s2 5 ms after s1 ends.
     expect(model.advance(600 + 19).map((d) => d.edge)).toEqual([]);
     const s1 = model.advance(600 + 20);
-    expect(s1.map((d) => [d.edge, d.t, d.colour])).toEqual([['s1', 0, 2]]);
+    expect(s1.map((d) => [d.edge, d.t, d.color])).toEqual([['s1', 0, 2]]);
     expect(s1[0].r).toBeCloseTo(dotRadius(50_000));
     expect(model.advance(2 * 600 + 24)).toHaveLength(0);
     expect(model.advance(2 * 600 + 25).map((d) => d.edge)).toEqual(['s2']);

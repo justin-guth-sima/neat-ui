@@ -14,7 +14,7 @@ function stubReducedMotion(reduce: boolean) {
 function setup(initial: number | null | undefined, easing?: NeatEasing | Signal<NeatEasing>) {
   let clock = 1000;
   const frames: (() => void)[] = [];
-  const cancelled: number[] = [];
+  const canceled: number[] = [];
   const source = signal<number | null | undefined>(initial);
   const injector = createEnvironmentInjector([], TestBed.inject(EnvironmentInjector));
   const value = injector.runInContext(() =>
@@ -22,7 +22,7 @@ function setup(initial: number | null | undefined, easing?: NeatEasing | Signal<
       {
         now: () => clock,
         request: (callback) => frames.push(callback),
-        cancel: (handle) => cancelled.push(handle),
+        cancel: (handle) => canceled.push(handle),
       },
       source,
       { easing },
@@ -39,7 +39,7 @@ function setup(initial: number | null | undefined, easing?: NeatEasing | Signal<
     clock += ms;
     frames.splice(0).forEach((callback) => callback());
   };
-  return { value, change, advance, frames, cancelled, injector };
+  return { value, change, advance, frames, canceled, injector };
 }
 
 describe('neatEased', () => {
@@ -170,14 +170,14 @@ describe('neatEased', () => {
   });
 
   it('cancels the frame it waits for when its injector is destroyed', () => {
-    const { change, frames, cancelled, injector } = setup(10);
+    const { change, frames, canceled, injector } = setup(10);
 
     change(18);
     expect(frames).toHaveLength(1);
     injector.destroy();
 
     // The fake's handle is the frame's place in the queue, from 1.
-    expect(cancelled).toEqual([1]);
+    expect(canceled).toEqual([1]);
   });
 
   it('runs on the browser’s clock and frames, for as long as it is told', () => {

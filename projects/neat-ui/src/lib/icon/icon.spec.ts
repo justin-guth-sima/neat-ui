@@ -37,7 +37,7 @@ describe('NeatIcon', () => {
     expect(svg().hasAttribute('aria-label')).toBe(false);
   });
 
-  it('is exposed as a labelled image with a label', async () => {
+  it('is exposed as a labeled image with a label', async () => {
     fixture.componentRef.setInput('label', 'Viewer');
     await fixture.whenStable();
 
@@ -82,7 +82,7 @@ describe('NeatIcon', () => {
   });
 
   it.each(['play', 'pause', 'stop'] as const)(
-    'draws %s filled with the text colour, where the other glyphs are outlines',
+    'draws %s filled with the text color, where the other glyphs are outlines',
     async (name) => {
       fixture.componentRef.setInput('name', name);
       await fixture.whenStable();

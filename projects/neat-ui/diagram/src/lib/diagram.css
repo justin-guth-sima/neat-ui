@@ -90,8 +90,8 @@
 
 /* --- edge labels and notes, in front of the blocks --- */
 
-/* A short mono chip centred on its point of the route. */
-/* A label stands at its point by its side: centred on it, or with an edge on it (drawing.ts). */
+/* A short mono chip centered on its point of the route. */
+/* A label stands at its point by its side: centered on it, or with an edge on it (drawing.ts). */
 .edge-label {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -122,7 +122,7 @@
 }
 
 /*
- * The app's content in a box. Opaque: a leader may run on to its centre underneath (`leaderTo`).
+ * The app's content in a box. Opaque: a leader may run on to its center underneath (`leaderTo`).
  * Hidden until it is measured and placed, so it never shows at the corner first.
  */
 .note {
@@ -196,7 +196,7 @@ button.block:focus-visible {
 }
 
 /*
- * The app's tip for the edge under the pointer, in the popover's colours and the charts' readout
+ * The app's tip for the edge under the pointer, in the popover's colors and the charts' readout
  * box (no shadow); placed by hover.ts, in the box, over the bar as well (it comes after it). It
  * never catches the pointer, so it does not take the hover from the edge.
  */

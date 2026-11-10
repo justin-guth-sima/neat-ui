@@ -197,7 +197,7 @@ describe('NeatCard', () => {
     expect(slot('card-footer')!.querySelector('p')).not.toBeNull();
   });
 
-  it('sets the surface and the text colour of the card it draws', async () => {
+  it('sets the surface and the text color of the card it draws', async () => {
     const { card } = await render();
 
     expect(declared(':host', '--neat-surface')).toBe('var(--card)');
@@ -219,9 +219,7 @@ describe('NeatCard', () => {
       ['card-content', 'content'],
       ['card-footer', 'footer'],
     ] as const) {
-      expect(Array.from(slot(name)!.classList).sort()).toEqual(
-        CARD_CLASSES[key].split(' ').sort(),
-      );
+      expect(Array.from(slot(name)!.classList).sort()).toEqual(CARD_CLASSES[key].split(' ').sort());
     }
   });
 

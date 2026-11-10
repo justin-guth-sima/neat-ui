@@ -51,7 +51,7 @@ import type { NeatChartFormat, NeatSamplePick, NeatSeries } from './types';
  *
  * The legend lists each band with its current value and its share of the current total, as a
  * whole percent; the share is "—" while the total is unknown (a band has no current sample) or
- * nothing. The colours alone do not tell eight bands apart, which is what the legend is for.
+ * nothing. The colors alone do not tell eight bands apart, which is what the legend is for.
  *
  * The plot is a tab stop that reads out like the time chart's: "Total", then each band, at the
  * sample the pointer or the keys chose, with the same keys and the same announcements, and
@@ -107,7 +107,7 @@ import type { NeatChartFormat, NeatSamplePick, NeatSeries } from './types';
           <path class="band" [attr.d]="band.path" [style.--series]="band.color" />
         }
       </svg>
-      @if (labelled() && valueLabels()) {
+      @if (labeled() && valueLabels()) {
         @for (tick of gridLabels(); track tick.value) {
           <span
             class="tag grid-label"
@@ -142,7 +142,7 @@ import type { NeatChartFormat, NeatSamplePick, NeatSeries } from './types';
         </span>
       }
     </div>
-    @if (labelled()) {
+    @if (labeled()) {
       <div class="axis" aria-hidden="true">
         @for (tick of axis(); track tick.at) {
           <span [style.--at]="tick.at">{{ tick.text }}</span>
@@ -189,7 +189,7 @@ export class NeatStackedChart {
   protected readonly flipBelow = FLIP_BELOW;
 
   /** Compact leaves the labels out: a row of charts has no room for them. */
-  protected readonly labelled = computed(() => this.size() !== 'compact');
+  protected readonly labeled = computed(() => this.size() !== 'compact');
 
   private readonly lines = computed(() => foldSeries(this.series()));
   private readonly length = computed(() =>

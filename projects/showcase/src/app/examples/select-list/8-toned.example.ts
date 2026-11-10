@@ -3,7 +3,7 @@ import { type NeatTone } from '@sima/neat-ui';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
 import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
 
-/** A stream: its state's tone tints the row and colours its chip. */
+/** A stream: its state's tone tints the row and colors its chip. */
 interface Stream {
   readonly id: number;
   readonly name: string;

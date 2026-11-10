@@ -21,7 +21,7 @@ import { DIALOG_HELM_CLASSES } from './dialog-panel';
 export class NeatDialogBody {}
 
 /**
- * The dialog's buttons: `<neat-dialog-actions>` under the body, the cancelling button first and the
+ * The dialog's buttons: `<neat-dialog-actions>` under the body, the canceling button first and the
  * confirming one last. Helm's footer: a row at the end on wide screens; stacked on narrow ones,
  * with the confirming button on top.
  */

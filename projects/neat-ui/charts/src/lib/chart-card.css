@@ -26,7 +26,7 @@
   box-shadow: inset 0 0 0 1px var(--primary);
 }
 
-/* The chip sits centred on the heading's line (the heading's `text-sm` over its normal leading). */
+/* The chip sits centered on the heading's line (the heading's `text-sm` over its normal leading). */
 .chip-slot {
   display: flex;
   align-items: center;

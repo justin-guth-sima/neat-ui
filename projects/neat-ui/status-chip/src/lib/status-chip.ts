@@ -3,13 +3,13 @@ import type { NeatTone } from '@sima/neat-ui';
 
 /*
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
- * them. Colours are the theme's tokens only; status-chip.spec holds each tone's text to 4.5:1 on
+ * them. Colors are the theme's tokens only; status-chip.spec holds each tone's text to 4.5:1 on
  * its fill in both schemes and both variants.
  */
 
 /**
  * How a chip carries its tone: `solid`, the default, on the tone's status fill; `tinted`, the
- * tone's colour on a light tint of itself, for chips that label parts of a card (a diagram
+ * tone's color on a light tint of itself, for chips that label parts of a card (a diagram
  * block's) rather than state a status beside a value.
  */
 export type NeatStatusChipVariant = 'solid' | 'tinted';
@@ -23,13 +23,13 @@ const CHIP_CLASSES =
   'inline-block max-w-full truncate rounded-(--radius) px-(--neat-space-2) align-middle text-(length:--neat-text-xs) leading-normal font-medium';
 
 /**
- * Each variant gives each tone a fill and a text colour. Solid: the tone's status fill and the
+ * Each variant gives each tone a fill and a text color. Solid: the tone's status fill and the
  * text the theme pairs with it. Tinted: the tone's row-tint accent (`--neat-tint-<tone>-accent`,
- * opaque) under the tone's own colour; warning's own colour is a fill, so its text is
+ * opaque) under the tone's own color; warning's own color is a fill, so its text is
  * `--neat-warning-text`, the warning line mixed toward `--foreground` as far as reads on its tint.
- * Neutral is the same in both: muted text on `--neat-chip-neutral`, a grey that shows on the card,
+ * Neutral is the same in both: muted text on `--neat-chip-neutral`, a gray that shows on the card,
  * the page and a hovered or selected row's `--accent` in both schemes (dark `--muted` is the
- * card's own grey).
+ * card's own gray).
  */
 const TONE_CLASSES: Record<NeatStatusChipVariant, Record<NeatTone, string>> = {
   solid: {
@@ -67,9 +67,9 @@ const BUTTON_CLASSES =
  * a panel (Live, Idle, External), or a fact to note beside a value (a codec that cannot be
  * decoded). `highlight` is for a state that is none of the statuses but should stand out (a stream
  * that someone else publishes); a `neat-select-list` row can take the same tone as its chip
- * (`rowTone`). The words are the app's; the colour repeats them and is never the only way a state
+ * (`rowTone`). The words are the app's; the color repeats them and is never the only way a state
  * is told. A chip truncates rather than widen the cell or bar that holds it. `variant="tinted"`
- * softens the chip to its tone's colour on a tint; a tinted chip belongs on the card or the page,
+ * softens the chip to its tone's color on a tint; a tinted chip belongs on the card or the page,
  * not on a toned list row, whose selected fill is the same tint.
  */
 @Component({
@@ -79,7 +79,7 @@ const BUTTON_CLASSES =
   template: '<ng-content />',
 })
 export class NeatStatusChip {
-  /** The status the chip states, which sets its colours; `neutral` for a plain label. */
+  /** The status the chip states, which sets its colors; `neutral` for a plain label. */
   readonly tone = input<NeatTone>('neutral');
   /** `solid` (the default) fills the chip with the tone; `tinted` shows it on a light tint. */
   readonly variant = input<NeatStatusChipVariant>('solid');
@@ -100,7 +100,7 @@ export class NeatStatusChip {
   host: { 'data-slot': 'status-chip', '[class]': 'classes()' },
 })
 export class NeatStatusChipButton {
-  /** The status the chip states, which sets its colours; `neutral` for a plain label. */
+  /** The status the chip states, which sets its colors; `neutral` for a plain label. */
   readonly tone = input<NeatTone>('neutral');
   /** `solid` (the default) fills the chip with the tone; `tinted` shows it on a light tint. */
   readonly variant = input<NeatStatusChipVariant>('solid');

@@ -88,7 +88,7 @@ export function autoParams(search: string): AutoParams | null {
     ladder: ladder as LadderId,
     seed: whole(query.get('seed'), 'seed', 0) ?? 1,
     steps: whole(query.get('steps'), 'steps', 1),
-    machine: query.get('machine') ?? 'unlabelled',
+    machine: query.get('machine') ?? 'unlabeled',
     refine: refine === '1' || refine === 'true',
     input: input as AutoInput,
     repeat: whole(query.get('repeat'), 'repeat', 0) ?? 0,

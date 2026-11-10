@@ -45,8 +45,8 @@ const DARK_SELECTOR = `:root.${NEAT_DARK_CLASS}`;
 const schemes = { light: rules.get(':root')!, dark: rules.get(DARK_SELECTOR)! };
 
 /**
- * Coloured text that sits directly on the page's surfaces rather than on its own fill. Warning is
- * a fill-only colour (amber with dark text); its text is `neat-warning-text`.
+ * Colored text that sits directly on the page's surfaces rather than on its own fill. Warning is
+ * a fill-only color (amber with dark text); its text is `neat-warning-text`.
  */
 const COLORED_TEXT = [
   'muted-foreground',
@@ -60,7 +60,7 @@ const COLORED_TEXT = [
 /** The surfaces text sits on. */
 const TEXT_SURFACES = ['background', 'card', 'popover', 'muted'];
 /**
- * Status colours are also text on a tint of themselves (badges, alerts, soft buttons such as helm's
+ * Status colors are also text on a tint of themselves (badges, alerts, soft buttons such as helm's
  * destructive button: `bg-destructive/10`, `dark:bg-destructive/20`), composited over these surfaces.
  */
 const STATUS_TEXT = ['destructive', 'success', 'info', 'highlight'];
@@ -73,7 +73,7 @@ const TINTS = {
  * muted cells.
  */
 const MUTED_ON_FILLS = ['accent', 'neat-chip-neutral'];
-/** Each tinted tone's own colour, the scale base its row tint is mixed from. */
+/** Each tinted tone's own color, the scale base its row tint is mixed from. */
 const ROW_TINT_BASES = {
   success: SIMA_PALETTE.green,
   warning: NEAT_WARN_BASE,
@@ -132,7 +132,7 @@ const LIGHT_0_8_0 = {
   'neat-video-scrim': '#010f0e99',
   'neat-video-scrim-foreground': '#ffffff',
 };
-/** Surface tokens of the dark scheme, which are greys of the neutral scale. */
+/** Surface tokens of the dark scheme, which are grays of the neutral scale. */
 const DARK_SURFACES = [
   'background',
   'card',
@@ -147,12 +147,12 @@ const DARK_SURFACES = [
   'sidebar-accent',
   'sidebar-border',
 ];
-/** Hover fills (kit extensions) keep the resting fill's text colour. */
+/** Hover fills (kit extensions) keep the resting fill's text color. */
 const HOVER_FILLS = { 'primary-hover': 'primary-foreground' } as const;
 /** Surfaces a hover or selection fill (`--accent`) sits on. */
 const FILL_SURFACES = ['background', 'card', 'popover'];
 /**
- * Non-text colours that identify a control or its state (WCAG 1.4.11): form-control boundaries
+ * Non-text colors that identify a control or its state (WCAG 1.4.11): form-control boundaries
  * and focus indicators. They sit wherever text does, so they are measured on the text surfaces.
  */
 const NON_TEXT = ['input', 'ring', 'sidebar-ring'];
@@ -162,7 +162,7 @@ const NON_TEXT = ['input', 'ring', 'sidebar-ring'];
  */
 const OVER_VIDEO = ['neat-video-scrim'];
 
-/** The steps of a colour scale, lightest to darkest. */
+/** The steps of a color scale, lightest to darkest. */
 const SCALE_STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;
 const SURFACE_SCALES = { light: buildSurfaceScale(), dark: buildNeutralSurfaceScale() };
 const HUES: Record<'blue' | 'purple' | 'orange' | 'teal', ColorScale> = {
@@ -175,7 +175,7 @@ const HUES: Record<'blue' | 'purple' | 'orange' | 'teal', ColorScale> = {
 const SERIES_HUES = ['blue', 'purple', 'orange', 'teal'] as const;
 
 /**
- * The index into SCALE_STEPS of a scale's line step: the first step along the scheme's colour walk
+ * The index into SCALE_STEPS of a scale's line step: the first step along the scheme's color walk
  * that reaches 3:1 on every text background, found here step by step rather than with the theme's
  * own `firstReadable`, so the spec does not repeat the code it checks.
  */
@@ -216,7 +216,7 @@ interface TextPair {
 }
 
 /**
- * Every text/background pair a scheme emits: each `--x-foreground` on `--x`, coloured text on
+ * Every text/background pair a scheme emits: each `--x-foreground` on `--x`, colored text on
  * every surface, and status text on its own tint.
  */
 function textPairs(scheme: keyof typeof schemes): TextPair[] {
@@ -271,7 +271,7 @@ describe('buildSpartanThemeCss', () => {
     expect(schemes.dark.get('color-scheme')).toBe('dark');
     expect(schemes.light.get('--background')).toBe(buildSurfaceScale()[0].toLowerCase());
     expect(schemes.dark.get('--background')).toBe(buildNeutralSurfaceScale()[950].toLowerCase());
-    // Dark redefines every colour, so nothing from light leaks into it; only the radius is shared.
+    // Dark redefines every color, so nothing from light leaks into it; only the radius is shared.
     const lightColors = [...schemes.light.keys()].filter((name) => name !== '--radius');
     expect([...schemes.dark.keys()]).toEqual(lightColors);
   });
@@ -285,7 +285,7 @@ describe('buildSpartanThemeCss', () => {
     expect(light.map(([name]) => name)).toEqual(before);
   });
 
-  it('draws the dark surfaces in neutral near-black greys: page #101010, raised #1e1e1e, hover and borders #2e2e2e', () => {
+  it('draws the dark surfaces in neutral near-black grays: page #101010, raised #1e1e1e, hover and borders #2e2e2e', () => {
     const dark = schemes.dark;
     expect(dark.get('--background')).toBe('#101010');
     for (const name of ['--card', '--popover', '--secondary', '--muted']) {
@@ -296,7 +296,7 @@ describe('buildSpartanThemeCss', () => {
     }
     expect(dark.get('--muted-foreground')).toBe('#b3b3b3');
     expect(dark.get('--input')).toBe('#929292');
-    // Text on a coloured fill is the page's near-black too, not the palette's dark teal.
+    // Text on a colored fill is the page's near-black too, not the palette's dark teal.
     for (const name of ['--primary-foreground', '--success-foreground', '--warning-foreground']) {
       expect(dark.get(name), name).toBe('#101010');
     }
@@ -418,7 +418,7 @@ describe('buildSpartanThemeCss', () => {
     ).toBeGreaterThanOrEqual(MIN_CHIP_FILL_CONTRAST);
   });
 
-  it('gives warning a text colour: its line mixed toward --foreground by the least 5% step that reads at 4.5:1 on the warning tints', () => {
+  it('gives warning a text color: its line mixed toward --foreground by the least 5% step that reads at 4.5:1 on the warning tints', () => {
     const shareStep = 0.05;
     for (const scheme of ['light', 'dark'] as const) {
       const tokens = schemes[scheme];
@@ -479,7 +479,7 @@ describe('buildSpartanThemeCss', () => {
     }
   });
 
-  it('makes the video scrim of the palette text colour in both schemes: video looks the same in either', () => {
+  it('makes the video scrim of the palette text color in both schemes: video looks the same in either', () => {
     for (const scheme of ['light', 'dark'] as const) {
       expect(schemes[scheme].get('--neat-video-scrim')!.slice(0, 7), scheme).toBe(
         SIMA_PALETTE.text.toLowerCase(),
@@ -497,7 +497,7 @@ describe('buildSpartanThemeCss', () => {
       const alpha = parseInt(scrim.slice(7), 16) / 255;
       expect(alpha, `${scheme}: the scrim lets the video show through`).toBeLessThan(1);
       // The scrim's text is light, so white video is the worst case; black is checked as well so
-      // a dark text colour could not pass.
+      // a dark text color could not pass.
       for (const video of ['#000000', '#ffffff']) {
         const ratio = contrastRatio(text, composite(color, alpha, video));
         expect(ratio, `${scheme}: scrim text over ${video}`).toBeGreaterThanOrEqual(4.5);
@@ -505,7 +505,7 @@ describe('buildSpartanThemeCss', () => {
     }
   });
 
-  it('gives the live dot a red that reads at 3:1 on the page and on the video scrim, over black to mid-grey video', () => {
+  it('gives the live dot a red that reads at 3:1 on the page and on the video scrim, over black to mid-gray video', () => {
     for (const scheme of ['light', 'dark'] as const) {
       const tokens = schemes[scheme];
       const live = tokens.get('--neat-live')!;
@@ -518,7 +518,7 @@ describe('buildSpartanThemeCss', () => {
           `${scheme}: on surface ${step}`,
         ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
       }
-      // A red is darker than light video: past mid grey no red reaches 3:1 on the scrim and on a
+      // A red is darker than light video: past mid gray no red reaches 3:1 on the scrim and on a
       // white page at once, so the badge's word ("Live") carries the state there.
       for (const video of ['#000000', '#808080']) {
         const backdrop = composite(scrim.slice(0, 7), alpha, video);

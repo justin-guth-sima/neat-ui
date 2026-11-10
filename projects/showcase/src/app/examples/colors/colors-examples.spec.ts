@@ -6,16 +6,16 @@ import {
   SIMA_PALETTE,
   ThemeService,
 } from '@sima/neat-ui';
-import { ColourScheme } from './1-colour-scheme.example';
+import { ColorScheme } from './1-color-scheme.example';
 import { Palette } from './2-palette.example';
-import { ColourScales } from './3-colour-scales.example';
+import { ColorScales } from './3-color-scales.example';
 import { SurfaceScales } from './4-surface-scales.example';
-import { ThemeColoursAsNumbers } from './5-theme-colours-as-numbers.example';
-import { ResolveAColour } from './6-resolve-a-colour.example';
+import { ThemeColorsAsNumbers } from './5-theme-colors-as-numbers.example';
+import { ResolveAColor } from './6-resolve-a-color.example';
 import { Contrast } from './7-contrast.example';
 
 /**
- * A canvas context that parses `#rrggbb` only and keeps the last colour it was given when it is
+ * A canvas context that parses `#rrggbb` only and keeps the last color it was given when it is
  * given another, as a real one does, which is all `neatResolveColor` needs of it: jsdom has none.
  */
 function fakeContext(): CanvasRenderingContext2D {
@@ -47,7 +47,7 @@ async function render<T>(component: new () => T): Promise<ComponentFixture<T>> {
   return fixture;
 }
 
-describe('the colour examples', () => {
+describe('the color examples', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     localStorage.clear();
@@ -57,7 +57,7 @@ describe('the colour examples', () => {
 
   it('switch the scheme and store the choice, or show the other for this visit only', async () => {
     const theme = TestBed.inject(ThemeService);
-    const fixture = await render(ColourScheme);
+    const fixture = await render(ColorScheme);
     const host = fixture.nativeElement as HTMLElement;
     const [switchTo, tryOther] = Array.from(host.querySelectorAll('button'));
     expect(host.querySelector('strong')?.textContent).toBe('light');
@@ -77,15 +77,15 @@ describe('the colour examples', () => {
     expect(localStorage.getItem('neat-ui:color-scheme')).toBe('light');
   });
 
-  it('draw the palette, one chip per colour with its value', async () => {
+  it('draw the palette, one chip per color with its value', async () => {
     const host = (await render(Palette)).nativeElement as HTMLElement;
 
     expect(texts(host, '.name')).toEqual(Object.keys(SIMA_PALETTE));
     expect(texts(host, '.showcase-code')).toEqual(Object.values(SIMA_PALETTE));
   });
 
-  it('draw a ramp for each base colour, the base as its step 500', async () => {
-    const host = (await render(ColourScales)).nativeElement as HTMLElement;
+  it('draw a ramp for each base color, the base as its step 500', async () => {
+    const host = (await render(ColorScales)).nativeElement as HTMLElement;
     const ramps = Array.from(host.querySelectorAll('section'));
 
     expect(ramps.map((ramp) => ramp.querySelector('h4 .showcase-code')?.textContent)).toEqual([
@@ -125,26 +125,26 @@ describe('the colour examples', () => {
     expect(ramps.map((ramp) => ramp.querySelectorAll('.chip').length)).toEqual([12, 12]);
   });
 
-  describe('with a canvas to resolve colours on', () => {
+  describe('with a canvas to resolve colors on', () => {
     beforeEach(() => {
       vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(fakeContext());
     });
 
-    it('give the theme’s tokens as numbers, and say so for one that is no colour', async () => {
+    it('give the theme’s tokens as numbers, and say so for one that is no color', async () => {
       document.documentElement.style.setProperty('--primary', '#336699');
-      const host = (await render(ThemeColoursAsNumbers)).nativeElement as HTMLElement;
+      const host = (await render(ThemeColorsAsNumbers)).nativeElement as HTMLElement;
       const rows = Array.from(host.querySelectorAll('tbody tr'), (row) =>
         Array.from(row.querySelectorAll('th, td'), (cell) => cell.textContent?.trim()),
       );
 
       expect(rows).toContainEqual(['--primary', '', '0.200, 0.400, 0.600']);
-      // The test's page has no kit stylesheet, so a token it does not set is no colour.
-      expect(rows).toContainEqual(['--success', '', 'not a colour']);
+      // The test's page has no kit stylesheet, so a token it does not set is no color.
+      expect(rows).toContainEqual(['--success', '', 'not a color']);
       expect(rows).toHaveLength(6);
     });
 
-    it('resolve what is typed, as numbers, and answer for text that is no colour', async () => {
-      const fixture = await render(ResolveAColour);
+    it('resolve what is typed, as numbers, and answer for text that is no color', async () => {
+      const fixture = await render(ResolveAColor);
       const host = fixture.nativeElement as HTMLElement;
       const input = host.querySelector('input') as HTMLInputElement;
       const result = (): string | undefined => host.querySelector('.showcase-code')?.textContent;
@@ -157,12 +157,12 @@ describe('the colour examples', () => {
       await type('#336699');
       expect(result()?.trim()).toBe('0.200, 0.400, 0.600');
 
-      await type('not a colour at all');
-      expect(result()?.trim()).toBe('not a colour');
+      await type('not a color at all');
+      expect(result()?.trim()).toBe('not a color');
     });
   });
 
-  it('measure the contrast of two colours and ask for #RRGGBB otherwise', async () => {
+  it('measure the contrast of two colors and ask for #RRGGBB otherwise', async () => {
     const fixture = await render(Contrast);
     const host = fixture.nativeElement as HTMLElement;
     const [text, fill] = Array.from(host.querySelectorAll('input'));
@@ -183,6 +183,6 @@ describe('the colour examples', () => {
     expect(result()).toMatch(/below AA$/);
 
     await type(fill, 'orange');
-    expect(result()).toBe('Both colours as #RRGGBB.');
+    expect(result()).toBe('Both colors as #RRGGBB.');
   });
 });

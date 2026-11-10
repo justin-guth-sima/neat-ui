@@ -303,7 +303,7 @@ export class DiagramZoom {
 
   /**
    * The keys, while the box itself has focus (an app's control inside it keeps its keys): arrows
-   * pan, `+`/`=` and `-` zoom about the centre, `0` fits. A key with Ctrl, Meta or Alt is the
+   * pan, `+`/`=` and `-` zoom about the center, `0` fits. A key with Ctrl, Meta or Alt is the
    * browser's (Ctrl `+` zooms the page).
    */
   /** Every wheel over the box zooms the diagram, and never scrolls the page, at a limit too. */
@@ -323,7 +323,7 @@ export class DiagramZoom {
       // On from where a zoom in flight is going, so quick presses add up.
       const from = this.animation?.to ?? zoomTransform(this.box);
       this.moved();
-      this.animate(this.scaledAboutCentre(from, by));
+      this.animate(this.scaledAboutCenter(from, by));
     } else if (event.key === '0') {
       this.fit();
     } else {
@@ -355,11 +355,11 @@ export class DiagramZoom {
     this.jump(zoomIdentity.translate(x + dx, y + dy).scale(k));
   };
 
-  /** `from` zoomed by `by` within the limits, the point at the box's centre staying there. */
-  private scaledAboutCentre(from: ZoomTransform, by: number): ZoomTransform {
+  /** `from` zoomed by `by` within the limits, the point at the box's center staying there. */
+  private scaledAboutCenter(from: ZoomTransform, by: number): ZoomTransform {
     const k = Math.min(Math.max(from.k * by, ZOOM_LIMITS[0]), ZOOM_LIMITS[1]);
-    const centre: [number, number] = [this.box.clientWidth / 2, this.box.clientHeight / 2];
-    const [px, py] = from.invert(centre);
-    return zoomIdentity.translate(centre[0] - px * k, centre[1] - py * k).scale(k);
+    const center: [number, number] = [this.box.clientWidth / 2, this.box.clientHeight / 2];
+    const [px, py] = from.invert(center);
+    return zoomIdentity.translate(center[0] - px * k, center[1] - py * k).scale(k);
   }
 }

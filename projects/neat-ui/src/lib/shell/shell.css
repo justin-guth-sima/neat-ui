@@ -1,7 +1,7 @@
 /*
  * The top bar spans the full width at the top; below it the rail stands on the left, beside the
  * content area. Whatever the rail does, the logo, the app name and the top bar's tools stay where
- * they are. Colours are the theme's Spartan variables: the rail is Spartan's
+ * they are. Colors are the theme's Spartan variables: the rail is Spartan's
  * sidebar. Chrome text sits only where the theme guarantees 4.5:1: body and muted text on the
  * background, and accent-foreground on the hover and selection fill (accent).
  */
@@ -158,7 +158,7 @@ nav {
   min-width: 0;
   border-block-end: 1px solid var(--border);
   /* The mark (the logo's first 100 of its 111.34 units, 1.75rem high: 0.875rem to its middle)
-     is centred over the collapsed rail's icon column below, whatever the rail's width is. */
+     is centered over the collapsed rail's icon column below, whatever the rail's width is. */
   padding-inline-start: calc(var(--neat-rail-width) / 2 - 0.875rem);
 }
 
@@ -204,7 +204,7 @@ nav {
   text-overflow: ellipsis;
 }
 
-/* The page the title belongs to, beside it: the title's size, the muted text colour. */
+/* The page the title belongs to, beside it: the title's size, the muted text color. */
 .page-context {
   margin-inline-start: 0.5rem;
   color: var(--muted-foreground);

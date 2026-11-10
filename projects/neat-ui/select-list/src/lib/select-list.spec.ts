@@ -525,7 +525,7 @@ describe('NeatSelectList', () => {
       const element: HTMLElement = fixture.nativeElement;
 
       // A subgrid's margin, border and padding at an edge become margin on the cells in that edge's
-      // track, so uncancelled they would leave the 1rem box track 2px for the box (jsdom has no
+      // track, so uncanceled they would leave the 1rem box track 2px for the box (jsdom has no
       // layout, so the classes are what holds it). The grid's padding makes the room.
       const grid = element.querySelector('[data-slot="select-list-grid"]')!;
       expect([...grid.classList]).toEqual(
@@ -2013,7 +2013,7 @@ describe('NeatSelectList', () => {
   });
 
   describe('groups', () => {
-    it('renders each listed group as a labelled group under its heading, in order, rows in item order within it', async () => {
+    it('renders each listed group as a labeled group under its heading, in order, rows in item order within it', async () => {
       const { element, groups, names } = await renderGrouped();
 
       expect(groups()).toHaveLength(3);

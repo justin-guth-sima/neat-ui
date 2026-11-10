@@ -1,17 +1,17 @@
 /*
  * A label's style row, as the video overlays' class rows and the bird's-eye view's `styles` give
- * them: the row for the label, else the row labelled `default`. Kept with the class colours, which
- * the rows' colours override.
+ * them: the row for the label, else the row labeled `default`. Kept with the class colors, which
+ * the rows' colors override.
  */
 
-/** What a style row has at least: the label it styles and its colour. */
-export interface LabelledRow {
+/** What a style row has at least: the label it styles and its color. */
+export interface LabeledRow {
   readonly label: string;
   readonly color: string;
 }
 
-/** Rows by label, and their colours as overrides for `resolveColor`. */
-export function classStyles<R extends LabelledRow>(
+/** Rows by label, and their colors as overrides for `resolveColor`. */
+export function classStyles<R extends LabeledRow>(
   rows: readonly R[],
 ): {
   styles: Readonly<Record<string, R>>;

@@ -69,8 +69,8 @@
 }
 
 /* The line below is the focus indicator; the transparent outline is what forced-colors mode paints
-   in its place, since that mode drops backgrounds. Only on focus: forced colours draws a
-   transparent outline in a system colour, so a static one would box the handle for good. */
+   in its place, since that mode drops backgrounds. Only on focus: forced colors draws a
+   transparent outline in a system color, so a static one would box the handle for good. */
 .separator:focus-visible {
   outline: var(--neat-focus-ring-width) solid transparent;
 }
@@ -98,7 +98,7 @@
 }
 
 /* A panel with its own scroll context and inset, divided from the body by the theme's border
-   colour. Narrower than a page, so a smaller inset than the page's. Its width and place come from
+   color. Narrower than a page, so a smaller inset than the page's. Its width and place come from
    whether it sits beside the body or over it. */
 aside {
   box-sizing: border-box;

@@ -299,15 +299,15 @@ describe('NeatPopover', () => {
     expect(trigger.hasAttribute('aria-controls')).toBe(false);
   });
 
-  it('opens below the trigger, centred on it by default', async () => {
+  it('opens below the trigger, centered on it by default', async () => {
     const { trigger, settle } = await render();
 
     trigger.click();
     await settle();
 
     const box = panel()!.closest<HTMLElement>('.cdk-overlay-connected-position-bounding-box')!;
-    // From the trigger's bottom edge (368 + 32 = 400) down, 4px apart, centred on the trigger's
-    // middle: CDK spans the box evenly around 472 + 40 = 512 and centres the pane in it.
+    // From the trigger's bottom edge (368 + 32 = 400) down, 4px apart, centered on the trigger's
+    // middle: CDK spans the box evenly around 472 + 40 = 512 and centers the pane in it.
     expect(box.style.top).toBe('400px');
     expect(box.style.justifyContent).toBe('flex-start');
     expect((box.firstElementChild as HTMLElement).style.transform).toBe('translateY(4px)');
@@ -829,7 +829,7 @@ describe('NeatPopover', () => {
           'focus-visible:ring-inset',
           'focus-visible:ring-ring',
           'focus-visible:bg-accent',
-          // Forced colours drop the ring: the transparent outline is what they paint instead.
+          // Forced colors drop the ring: the transparent outline is what they paint instead.
           'outline-hidden',
         ]),
       );
@@ -906,7 +906,7 @@ describe('NeatPopover', () => {
   describe('contrast, from the emitted theme tokens', () => {
     for (const scheme of SCHEMES) {
       const tokens = spartanThemeTokens(scheme);
-      // The panel's colour classes carry no state variants: it looks the same open and closing.
+      // The panel's color classes carry no state variants: it looks the same open and closing.
       const q = { tokens, vocabulary: {}, on: [] };
 
       it(`${scheme}: panel text and border meet the theme contrast rules`, async () => {
