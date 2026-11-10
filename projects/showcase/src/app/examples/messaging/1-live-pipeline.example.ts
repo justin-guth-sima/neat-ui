@@ -57,6 +57,8 @@ const BURST_MESSAGES = 400;
  *
  * The top bar's Fit calls `NeatDiagramView.fit`, which fits the drawing to its box again after it
  * was panned or zoomed.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-live-pipeline',

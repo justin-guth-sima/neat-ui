@@ -1826,6 +1826,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "interaction",
     "title": "Interaction",
     "component": Interaction,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

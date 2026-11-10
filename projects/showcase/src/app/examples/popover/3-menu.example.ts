@@ -14,6 +14,7 @@ import {
  * menu opens.
  *
  * @capture click [neatPopoverTrigger]
+ * @gallery
  */
 @Component({
   selector: 'app-menu',

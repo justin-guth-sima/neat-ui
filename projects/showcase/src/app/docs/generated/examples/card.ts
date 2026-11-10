@@ -101,6 +101,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "filling-the-row",
     "title": "Filling the row example",
     "component": FillingTheRowExample,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

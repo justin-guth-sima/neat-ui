@@ -18,6 +18,8 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
 /**
  * A choice with icons, one with labels only, and a disabled one. The button calls `focus()`, which
  * lands on the checked option of the tile shape.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-choices',

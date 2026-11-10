@@ -8,6 +8,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "run-chips",
     "title": "Run chips",
     "component": RunChips,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

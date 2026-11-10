@@ -8,6 +8,8 @@ import { CHIPS, SURFACES } from './chips';
  *
  * The last chip is a `NeatStatusChipButton`: it looks the same, and opens more about the status,
  * here a video tile's "Metadata late".
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-tones',

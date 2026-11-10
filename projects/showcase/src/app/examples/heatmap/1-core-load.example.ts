@@ -6,6 +6,8 @@ import { CORES, percent, TIMES } from './data';
  * The load of sixteen cores over eight minutes. The busiest cores' figures at the ends of their
  * rows are in the warning and danger colors. The card sets `--neat-surface` to its fill, for the
  * labels' halos.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-core-load',

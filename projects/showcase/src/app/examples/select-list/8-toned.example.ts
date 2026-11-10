@@ -34,6 +34,8 @@ const STREAMS: readonly Stream[] = (
  * Streams with each row tinted by its state, and the same tone on its chip. The fourth is
  * selected: hover another row and compare the two, the selected one keeping its bar. The neutral
  * rows have no tint.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-toned',

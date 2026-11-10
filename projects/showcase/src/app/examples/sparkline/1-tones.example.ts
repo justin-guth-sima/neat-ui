@@ -5,6 +5,8 @@ import { celsius, sine, withGap } from './data';
 /**
  * A card for each tone, then a series with a gap, which splits the line, and a single sample,
  * which draws no line but keeps the box.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-tones',

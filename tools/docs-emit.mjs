@@ -1112,11 +1112,12 @@ function exportedComponent(sourceFile, report) {
 
 /**
  * How the docs show an example, each a bare tag in its class doc: `@unpadded`, its live area
- * without the inset (a drawing that fills its card), and `@page`, a route of its own that the card
- * links to (an example that needs the whole page: its own toolbar, tabs, panel or shell). One
- * more tag takes words, `@capture` (`parseCapture`).
+ * without the inset (a drawing that fills its card), `@page`, a route of its own that the card
+ * links to (an example that needs the whole page: its own toolbar, tabs, panel or shell), and
+ * `@gallery`, the one example whose picture stands for its topic in the README's gallery
+ * (`tools/readme-gallery.mjs`). One more tag takes words, `@capture` (`parseCapture`).
  */
-const EXAMPLE_OPTIONS = ['unpadded', 'page'];
+const EXAMPLE_OPTIONS = ['unpadded', 'page', 'gallery'];
 
 /** What `@capture` may do before the example's picture is taken (`tools/docs-capture.mjs`). */
 export const CAPTURE_ACTIONS = ['click', 'hover'];
@@ -1275,6 +1276,7 @@ function readTopic({ root, topic, kit, found }) {
   const examples = [];
   const ids = new Map();
   const classes = new Map();
+  let gallery = null;
   const names = readdirSync(dir)
     .filter((name) => name.endsWith('.example.ts'))
     .sort(byExampleName);
@@ -1299,6 +1301,10 @@ function readTopic({ root, topic, kit, found }) {
     classes.set(className, name);
 
     const { caption, options, text } = readCaption({ cls, sourceFile, kit, report });
+    if (options.gallery && gallery) {
+      report(cls, `${className} is @gallery, and so is ${gallery}; a topic has one`);
+      delete options.gallery;
+    } else if (options.gallery) gallery = name;
     const files = [{ path, name, text }];
     addImports(sourceFile, files);
     addStyles(cls, files);

@@ -1,7 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { NeatSlider } from '@sima/neat-ui/slider';
 
-/** A slider described by the note beside it, and a disabled one. */
+/**
+ * A slider described by the note beside it, and a disabled one.
+ *
+ * @gallery
+ */
 @Component({
   selector: 'app-described-and-disabled',
   imports: [NeatSlider],

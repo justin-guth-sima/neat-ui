@@ -7,6 +7,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "detector-level",
     "title": "Detector level",
     "component": DetectorLevel,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

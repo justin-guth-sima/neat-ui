@@ -5,6 +5,8 @@ import { NeatDetails } from '@sima/neat-ui/details';
 /**
  * The facts of a source in a panel's width. The URL's value holds a code span and an inline
  * button.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-source-facts',

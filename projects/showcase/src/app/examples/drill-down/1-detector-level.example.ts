@@ -6,6 +6,8 @@ import { OVERVIEW, WITH_STEPS } from './pipeline-data';
  * A three-block pipeline whose Detector opens a level that `neatDrillDownLevel` placed: its
  * steps inside, the Camera that feeds it in a column on the left and the Tracker it feeds in one
  * on the right. Open the Detector to see it.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-detector-level',

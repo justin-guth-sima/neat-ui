@@ -7,6 +7,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "under-a-control",
     "title": "Under a control",
     "component": UnderAControl,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

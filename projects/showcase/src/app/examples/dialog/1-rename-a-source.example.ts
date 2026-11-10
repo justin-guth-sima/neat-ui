@@ -25,6 +25,7 @@ import { NeatSwitch } from '@sima/neat-ui/switch';
  * dismissing off and on by hand.
  *
  * @capture click button[neatButton]
+ * @gallery
  */
 @Component({
   selector: 'app-rename-a-source',

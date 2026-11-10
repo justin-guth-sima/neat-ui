@@ -8,6 +8,8 @@ const PAGE_COUNT = 9;
  * A page field that accepts 1 to 9, with "of 9" after the input. Type 12 or a word and press
  * Enter: the shown number comes back and the count stays. Commit 5, or the shown number again,
  * and the count goes up. The button calls `focus()`.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-page-with-a-limit',

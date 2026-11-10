@@ -7,6 +7,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "drawing-regions",
     "title": "Drawing regions",
     "component": DrawingRegions,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

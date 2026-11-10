@@ -7,6 +7,8 @@ import { celsius, CPU, CPU_THRESHOLDS, percent, TEMPERATURE, TIMES } from './dat
  * Three selectable cards and one that is not; the readout says which is chosen. Click the first
  * card's chart, not only its heading, to choose it. The second holds a chip and a sparkline, the
  * third has nothing to show, and the fourth takes no click.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-selectable-cards',

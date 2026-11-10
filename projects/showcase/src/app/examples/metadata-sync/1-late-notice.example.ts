@@ -31,6 +31,8 @@ const BLOCKED: Record<NeatLateNoticeBlocker, string> = {
  * measures. Move the late share across the thresholds, and the buffer, to see the warning come,
  * go and be held off. The notice's buttons use the suggested buffer here and either raise the
  * shared buffer or follow it.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-late-notice',

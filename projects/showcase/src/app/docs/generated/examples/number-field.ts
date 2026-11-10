@@ -8,6 +8,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "page-with-a-limit",
     "title": "Page with a limit",
     "component": PageWithALimit,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

@@ -7,6 +7,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "accepted-files",
     "title": "Accepted files",
     "component": AcceptedFiles,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

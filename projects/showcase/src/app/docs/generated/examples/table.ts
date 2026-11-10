@@ -7,6 +7,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "run-metrics",
     "title": "Run metrics",
     "component": RunMetrics,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

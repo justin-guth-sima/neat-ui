@@ -126,6 +126,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "menu",
     "title": "Menu",
     "component": Menu,
+    "gallery": true,
     "capture": {"action":"click","target":"[neatPopoverTrigger]"},
     "caption": [
       {

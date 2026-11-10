@@ -13,6 +13,7 @@ import { NeatToastHost } from '@sima/neat-ui/toast';
 import { signal } from '@angular/core';
 import kit from '../../../../neat-ui/package.json' with { type: 'json' };
 import readme from '../../../../neat-ui/README.md' with { loader: 'text' };
+import repositoryReadme from '../../../../../README.md' with { loader: 'text' };
 import { KIT_ENTRIES } from '../docs/docs.testing';
 import {
   APP_COMPONENT,
@@ -97,9 +98,7 @@ describe('GettingStartedPage', () => {
   it('finds the navigation rule it names in the README’s rules for an app', () => {
     const rules = readme.slice(readme.indexOf('## Using the kit in an app')).replace(/\s+/g, ' ');
 
-    expect(rules).toContain(
-      "**Navigate with the rail and the page nav, never with tabs.**",
-    );
+    expect(rules).toContain('**Navigate with the rail and the page nav, never with tabs.**');
     for (const part of ['`children`', '`nav[neatPageNav]`', 'route-linked tabs', '`neat-tabs`']) {
       expect(rules).toContain(part);
     }
@@ -158,6 +157,18 @@ describe('GettingStartedPage', () => {
         entry?.parts.some((part) => part.name === name),
         `${name} from ${from}`,
       ).toBe(true);
+    }
+  });
+
+  // The repository README's quick start is these four steps, indented under its numbered list.
+  it('has the same snippets as the repository README’s quick start', () => {
+    const indented = (snippet: string) =>
+      snippet
+        .split('\n')
+        .map((line) => (line ? `   ${line}` : line))
+        .join('\n');
+    for (const snippet of [INSTALL, APP_CONFIG, STYLES, APP_COMPONENT]) {
+      expect(repositoryReadme).toContain(indented(snippet));
     }
   });
 

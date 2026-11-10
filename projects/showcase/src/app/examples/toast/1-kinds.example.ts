@@ -7,6 +7,7 @@ import { NeatToasts } from '@sima/neat-ui/toast';
  * (see the shell topic's last example).
  *
  * @capture click button
+ * @gallery
  */
 @Component({
   selector: 'app-kinds',

@@ -7,6 +7,8 @@ const REGIONS = ['Inclusion 1', 'Exclusion 1', 'Exclusion 2'];
 /**
  * The regions of a channel, each with a Delete at the end of its line. Delete one to see the list
  * shrink; with none left a note takes its place, and Restore regions brings them back.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-regions',

@@ -1506,6 +1506,24 @@ test('@capture says what the picture does first, and a bad one is a problem', ()
   assert.match(text, /^ {4}"capture": \{"action":"click","target":"button\[aria-haspopup\]"\},$/m);
 });
 
+test('@gallery marks one example of a topic, and a second is a problem', () => {
+  const kit = kitWithExamples({
+    'a/1-first.example.ts': documented('First', ['First.', '@gallery']),
+    'a/2-second.example.ts': documented('Second', ['Second.', '@gallery']),
+    'a/3-third.example.ts': component('Third'),
+  });
+  const { topics, problems } = extractExamples(kit);
+  const [first, second, third] = topics[0].examples;
+  assert.equal(first.gallery, true);
+  assert.equal(second.gallery, undefined);
+  assert.equal(third.gallery, undefined);
+  assert.deepEqual(problems, [
+    `${EXAMPLES_DIR}/a/2-second.example.ts:6: Second is @gallery, and so is 1-first.example.ts; a topic has one`,
+  ]);
+  const text = generate(kit).files.get(`${EXAMPLES_OUTPUT_DIR}/a.ts`);
+  assert.equal(text.match(/^ {4}"gallery": true,$/gm).length, 1);
+});
+
 test('parseCapture reads the action and the rest of the line as the selector', () => {
   assert.deepEqual(parseCapture(['click  .row:nth-child(2) button ', '']), {
     action: 'click',

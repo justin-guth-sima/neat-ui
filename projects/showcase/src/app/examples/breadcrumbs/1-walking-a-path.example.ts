@@ -11,6 +11,8 @@ const PLACES: readonly NeatBreadcrumb[] = [
 /**
  * A model's levels as a path. `go` emits the index of the crumb pressed, and the app cuts the path
  * there; press Deeper to walk it forward again. The last crumb shows its detail, muted.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-walking-a-path',

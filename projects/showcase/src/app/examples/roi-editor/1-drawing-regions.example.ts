@@ -52,6 +52,8 @@ const STARTING_REGIONS: readonly NeatRoiPolygon[] = [
  * it to delete it. While drawing, a right-click or Backspace takes back the last point. The tile
  * gets the same regions to filter with, so a box shows only where the regions let it. Pause the
  * source and the tile stops, and the editor keeps working on the tile's whole box.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-drawing-regions',

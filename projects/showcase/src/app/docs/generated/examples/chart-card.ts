@@ -7,6 +7,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "selectable-cards",
     "title": "Selectable cards",
     "component": SelectableCards,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

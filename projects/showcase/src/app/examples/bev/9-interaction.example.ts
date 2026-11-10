@@ -31,6 +31,8 @@ const VEHICLES = new Set(['car', 'truck', 'bicycle']);
  * is bound to `hovered` both ways: hover a car in the view and its row is selected; select a row
  * and the view outlines that car and reads it out, until the pointer comes back over the view.
  * The objects carry their tracks' ids, so a car is the same car from frame to frame.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-interaction',

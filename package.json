@@ -20,6 +20,7 @@
     "lint": "ng lint && stylelint \"projects/**/*.{css,scss}\" --allow-empty-input",
     "theme:emit": "tsx tools/emit-theme-css.ts",
     "docs:emit": "node tools/docs-emit.mjs",
+    "docs:gallery": "node --no-warnings=MODULE_TYPELESS_PACKAGE_JSON tools/readme-gallery.mjs",
     "docs:capture": "npm run -s build:showcase && node --no-warnings=MODULE_TYPELESS_PACKAGE_JSON tools/docs-capture.mjs",
     "helm:add": "node tools/helm-add.mjs",
     "check:dist": "node tools/check-dist.mjs",

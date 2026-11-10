@@ -142,6 +142,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "name-rows",
     "title": "Name rows",
     "component": NameRows,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

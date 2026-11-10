@@ -5,6 +5,7 @@ import { NeatButton, NeatTooltip, type NeatTooltipPosition } from '@sima/neat-ui
  * A tooltip on each of the four sides of its button; hover a button or focus it with Tab.
  *
  * @capture hover button
+ * @gallery
  */
 @Component({
   selector: 'app-positions',

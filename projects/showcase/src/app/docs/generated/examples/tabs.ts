@@ -7,6 +7,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "channel-settings",
     "title": "Channel settings",
     "component": ChannelSettings,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

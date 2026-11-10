@@ -8,6 +8,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "label-positions",
     "title": "Label positions",
     "component": LabelPositions,
+    "gallery": true,
     "capture": {"action":"click","target":"neat-select:first-of-type button"},
     "caption": [
       {

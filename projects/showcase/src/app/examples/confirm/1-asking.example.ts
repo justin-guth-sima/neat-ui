@@ -9,6 +9,7 @@ import { NeatConfirm } from '@sima/neat-ui/confirm';
  * two answer `false`, the backdrop does nothing.
  *
  * @capture click button:first-of-type
+ * @gallery
  */
 @Component({
   selector: 'app-asking',

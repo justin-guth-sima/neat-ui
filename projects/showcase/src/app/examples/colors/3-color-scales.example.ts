@@ -27,6 +27,8 @@ const BASES = [
  * the base is step 500 unchanged, the lighter steps move from it in OKLCH towards near-white and
  * the darker towards near-black, with the chroma pulled back into sRGB. The primary ramp is the
  * accent's; the others are the functional colors the palette lacks and the chart series' teal.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-color-scales',

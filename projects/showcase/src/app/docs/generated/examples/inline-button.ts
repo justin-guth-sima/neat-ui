@@ -7,6 +7,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "in-a-line",
     "title": "In a line",
     "component": InALine,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

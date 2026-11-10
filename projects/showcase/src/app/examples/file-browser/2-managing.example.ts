@@ -8,6 +8,8 @@ import { DEMO_TREE, demoSize } from './demo-tree';
  * folders' counts say "videos" and follow their names. A double click or the chevron opens a
  * folder. Check files in several folders and filter: the checked ones stay checked, and the line
  * under the browser counts them.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-managing',

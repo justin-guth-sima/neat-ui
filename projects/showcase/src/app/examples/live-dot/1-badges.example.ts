@@ -4,6 +4,8 @@ import { NeatLiveDot } from '@sima/neat-ui';
 /**
  * A still dot, a pulsing one before "Recording 0:34", and a pulsing one in a badge on the video
  * scrim.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-badges',

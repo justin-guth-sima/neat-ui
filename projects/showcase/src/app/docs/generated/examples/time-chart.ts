@@ -240,6 +240,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "several-series",
     "title": "Several series",
     "component": SeveralSeries,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

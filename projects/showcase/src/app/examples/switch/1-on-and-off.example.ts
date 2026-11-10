@@ -4,6 +4,8 @@ import { NeatSwitch } from '@sima/neat-ui/switch';
 /**
  * Two switches with a label, a third without content that takes an `aria-label` and shares its
  * value with the first (toggle either), and two disabled ones, off and on.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-on-and-off',

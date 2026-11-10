@@ -14,6 +14,8 @@ import { CLASSES, NO_GESTURE, scoresAt } from './data';
  * "No gesture" is `quiet`, so it stays muted beside the colored gestures, and the top row's label
  * is bold. The line below the bars colors its dot with `neatLabelColor`, so text outside the
  * bars (a timeline's runs, a caption) shows a class in the same color.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-gesture-scores',

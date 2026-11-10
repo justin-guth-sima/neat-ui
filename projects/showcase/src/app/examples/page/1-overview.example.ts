@@ -35,6 +35,7 @@ const PAGE_NAV: readonly NeatPageNavGroup[] = [
  * list fold into a section above the body.
  *
  * @page
+ * @gallery
  */
 @Component({
   selector: 'app-overview',

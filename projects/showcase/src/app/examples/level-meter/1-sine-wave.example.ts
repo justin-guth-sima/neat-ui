@@ -5,6 +5,8 @@ import { NeatLevelMeter } from '@sima/neat-ui/level-meter';
 /**
  * A meter fed a sine wave, as a microphone test is fed a level. Stop passes `null` and the meter
  * goes dark.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-sine-wave',

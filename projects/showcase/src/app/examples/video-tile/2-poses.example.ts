@@ -25,6 +25,8 @@ import { PoseSource } from './pose-source';
  * and hides the box and label plate around each pose. Mirror flips the picture and the poses, not
  * their labels. The line under the switches is fed by the tile's `frameListener`, which gets each
  * frame's matched messages outside Angular, so it writes its signal only when the count changes.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-poses',

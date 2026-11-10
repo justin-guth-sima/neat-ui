@@ -4,7 +4,8 @@ Guidance for anyone (human or agent) working in this repository or building an a
 The rules below come with their reasons; if a reason does not apply to your situation, the escape
 hatch says what to do instead of working around the rule. Everything you write for people to read
 (docs, doc comments, examples, this file) follows [docs/writing.md](docs/writing.md) and calls
-things by their names in [docs/glossary.md](docs/glossary.md).
+things by their names in [docs/glossary.md](docs/glossary.md). [CONTRIBUTING.md](CONTRIBUTING.md)
+is the way in for people; it links here for the details, so a rule lives here once.
 
 ## What this repo is
 
@@ -201,7 +202,10 @@ is the doc comment, and the snippet under an example is the file that renders it
   its line: `@unpadded`, its live area without the inset, for an example that fills it to its
   edges (the diagram's Filling its card), and `@page`, a route of its own at
   `/demo/<topic>/<example>` that its card links to, for an example that needs the whole page (its
-  own toolbar, page nav, panel or shell, which a docs page keeps for itself). Why per example: how
+  own toolbar, page nav, panel or shell, which a docs page keeps for itself), and `@gallery`, the
+  one example of its topic whose picture stands for the topic in the README's gallery (a second
+  in a topic is a doc problem; a topic with no example that makes a good picture has none and is
+  named under its section instead). Why per example: how
   an example shows is a fact of that example, beside the code that needs it, so no stylesheet
   outweighs the card's padding and no topic sends examples that fit a card off to a page. Any
   other tag, or text after one of these, is a doc problem. Escape hatch: a new way to show an
@@ -228,8 +232,15 @@ is the doc comment, and the snippet under an example is the file that renders it
   motion, the docs page's side panel closed, the corners transparent; Chrome's canvas encodes, so
   there is no image library. It warns past its size budget (150 kB a picture, 25 MB in all) and
   never fails for it, and it lists the pictures no example makes any more rather than deleting
-  them. Pictures are committed with the docs page that first shows them and retaken at a release,
-  not on every change: a picture is a few dozen kB that git keeps forever. It is not run in CI.
+  them. `-- --gallery` takes only the `@gallery` examples. Pictures are committed with the page
+  that first shows them (the README gallery's now) and retaken at a release, not on every change:
+  a picture is a few dozen kB that git keeps forever. It is not run in CI.
+- **The README's gallery** is written by `npm run docs:gallery` (`tools/readme-gallery.mjs`)
+  between its two markers, from `topics.ts` (sections in rail order, a group's own topics or each
+  category) and the `@gallery` examples, each picture light and dark in a `<picture>` and linked to
+  its topic's examples. `npm run test:tools` fails when it is stale or a pick has no picture. The
+  README's quick start repeats the Getting started page's four snippets, and that page's spec
+  holds them to it.
 - `provideNeatUi` and `provideNeatTitles` configure an app once, in its `app.config.ts`, and
   `NeatToastHost` is rendered once, in its root template, so no example can show them without
   faking their use (a second host would show every toast twice); `docs.spec.ts` names them as
@@ -1280,6 +1291,7 @@ Node 24 is required (`.node-version`; Angular 22 supports `^22.22.3 || ^24.15.0`
 | `npm run theme:emit`     | Regenerate `lib/theme/tokens.generated.css` from the theme sources              |
 | `npm run docs:emit`      | Regenerate the docs (`-- --check` only checks, `-- --watch` follows)            |
 | `npm run docs:capture`   | Build the showcase and picture its examples into `docs/images` (`-- --help`)    |
+| `npm run docs:gallery`   | Write the README's gallery from the `@gallery` examples (`-- --check` checks)   |
 | `npm run helm:add`       | Add a Spartan helm component to `lib/ui/` (`-- <name>`), the only way in        |
 | `npm run build:showcase` | Build the showcase app                                                          |
 | `npm run bench`          | Rendering bench dev server, on port 4300                                        |

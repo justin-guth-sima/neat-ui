@@ -4,6 +4,8 @@ import { NeatInput } from '@sima/neat-ui/input';
 /**
  * A text field, a small number field that keeps the native `type`, `inputmode` and `min`, and a
  * disabled one, each named by the label around it. The fields sit level at their bottom edge.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-sizes-and-states',

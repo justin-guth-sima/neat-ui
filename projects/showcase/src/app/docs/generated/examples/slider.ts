@@ -48,6 +48,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "described-and-disabled",
     "title": "Described and disabled",
     "component": DescribedAndDisabled,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

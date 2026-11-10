@@ -50,6 +50,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "titled-readout",
     "title": "Titled readout",
     "component": TitledReadout,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

@@ -8,6 +8,7 @@ import { SOURCES } from './sources';
  * pick in any of them shows in the others and in the line below.
  *
  * @capture click neat-select:first-of-type button
+ * @gallery
  */
 @Component({
   selector: 'app-label-positions',

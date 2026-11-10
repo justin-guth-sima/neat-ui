@@ -7,6 +7,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "walking-a-path",
     "title": "Walking a path",
     "component": WalkingAPath,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

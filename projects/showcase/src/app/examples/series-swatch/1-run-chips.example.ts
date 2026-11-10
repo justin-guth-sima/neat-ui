@@ -6,6 +6,8 @@ import { percent, RUNS, TIMES } from './data';
 /**
  * A chip for each of three compared runs, over the chart that draws them: the chip's swatch is
  * the run's place in `series`, so it matches the run's line in both themes.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-run-chips',

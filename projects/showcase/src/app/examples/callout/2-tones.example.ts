@@ -1,7 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NeatCallout } from '@sima/neat-ui/callout';
 
-/** One callout per tone, with no heading: the icon, the start border and the fill change. */
+/**
+ * One callout per tone, with no heading: the icon, the start border and the fill change.
+ *
+ * @gallery
+ */
 @Component({
   selector: 'app-tones',
   imports: [NeatCallout],

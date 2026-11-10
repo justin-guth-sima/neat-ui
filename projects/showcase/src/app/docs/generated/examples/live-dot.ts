@@ -7,6 +7,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "badges",
     "title": "Badges",
     "component": Badges,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

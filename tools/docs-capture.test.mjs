@@ -20,6 +20,7 @@ describe('parseArgs', () => {
     const options = parseArgs([]);
     assert.equal(options.out, DEFAULTS.out);
     assert.equal(options.topics, null);
+    assert.equal(options.gallery, false);
     assert.equal(options.help, false);
   });
 
@@ -41,6 +42,7 @@ describe('parseArgs', () => {
     assert.equal(options.dist, 'y');
     assert.equal(options.channel, 'chromium');
     assert.equal(options.settleMs, 0);
+    assert.equal(parseArgs(['--gallery']).gallery, true);
   });
 
   it('refuses an unknown option, a missing value and a settle time that is no number', () => {

@@ -5,6 +5,8 @@ import { NeatInput } from '@sima/neat-ui/input';
 /**
  * A hint under the first field and an error under the second, whose control is drawn invalid. Each
  * control is named by its field's label, and described by the note under it.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-hint-and-error',

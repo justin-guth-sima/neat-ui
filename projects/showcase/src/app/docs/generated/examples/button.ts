@@ -12,6 +12,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "variants",
     "title": "Variants",
     "component": Variants,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

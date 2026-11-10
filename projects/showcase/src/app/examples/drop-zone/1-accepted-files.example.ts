@@ -4,6 +4,8 @@ import { NeatDropZone } from '@sima/neat-ui/drop-zone';
 /**
  * Three zones: the first takes one video, so drop a text file on it and the log says it was not
  * accepted; the second takes any files; the third is disabled. The log is newest first.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-accepted-files',

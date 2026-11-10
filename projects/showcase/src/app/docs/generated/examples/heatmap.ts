@@ -8,6 +8,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "core-load",
     "title": "Core load",
     "component": CoreLoad,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

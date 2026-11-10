@@ -109,6 +109,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "managing",
     "title": "Managing",
     "component": Managing,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

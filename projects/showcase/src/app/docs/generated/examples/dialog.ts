@@ -9,6 +9,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "rename-a-source",
     "title": "Rename a source",
     "component": RenameASource,
+    "gallery": true,
     "capture": {"action":"click","target":"button[neatButton]"},
     "caption": [
       {

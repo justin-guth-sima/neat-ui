@@ -7,6 +7,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "on-and-off",
     "title": "On and off",
     "component": OnAndOff,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

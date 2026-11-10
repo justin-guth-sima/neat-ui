@@ -10,6 +10,7 @@ import { PIPELINE, PIPELINE_LEGEND } from './pipeline-data';
  * drawing to its rounded corners, and the top bar's Fit still fits it (`NeatDiagramView.fit`).
  *
  * @unpadded
+ * @gallery
  */
 @Component({
   selector: 'app-filling-its-card',

@@ -202,6 +202,11 @@ export interface DocsExample {
    */
   readonly page?: true;
   /**
+   * The example whose picture stands for its topic in the README's gallery, at most one per
+   * topic; the bare tag `@gallery`. The page itself does not read it.
+   */
+  readonly gallery?: true;
+  /**
    * What the docs' picture of the example does first (`@capture click <selector>` or `hover`),
    * for an example whose content opens in an overlay; the page itself does not read it.
    */

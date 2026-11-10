@@ -135,6 +135,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "color-scales",
     "title": "Color scales",
     "component": ColorScales,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

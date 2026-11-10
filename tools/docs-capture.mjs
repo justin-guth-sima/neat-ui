@@ -4,6 +4,7 @@
  *
  *   npm run docs:capture                         build the showcase, then capture every example
  *   npm run docs:capture -- --topic button,bev   only these topics
+ *   npm run docs:capture -- --gallery            only the README gallery's pictures (`@gallery`)
  *   node tools/docs-capture.mjs --help           the options, without building first
  *
  * How it works: it serves the built showcase (`dist/showcase/browser`) on a local port and opens
@@ -68,6 +69,7 @@ Captures every example of the built showcase in light and dark as WebP under doc
 Build the showcase first (npm run docs:capture does both).
 
   --topic <ids>      only these topics, comma-separated (button,bev)
+  --gallery          only the examples marked @gallery, the README gallery's pictures
   --out <dir>        where the pictures go (${DEFAULTS.out})
   --dist <dir>       the built showcase (${DEFAULTS.dist})
   --channel <name>   Playwright's browser channel (${DEFAULTS.channel}: the installed Google
@@ -77,7 +79,7 @@ Build the showcase first (npm run docs:capture does both).
 
 /** The options from the command line's arguments; throws with the reason for one it cannot read. */
 export function parseArgs(argv) {
-  const options = { ...DEFAULTS, topics: null, help: false };
+  const options = { ...DEFAULTS, topics: null, gallery: false, help: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     const value = () => {
@@ -87,6 +89,7 @@ export function parseArgs(argv) {
     };
     if (arg === '--help' || arg === '-h') options.help = true;
     else if (arg === '--topic') options.topics = value().split(',').filter(Boolean);
+    else if (arg === '--gallery') options.gallery = true;
     else if (arg === '--out') options.out = value();
     else if (arg === '--dist') options.dist = value();
     else if (arg === '--channel') options.channel = value();
@@ -359,7 +362,8 @@ async function settle(page, ms) {
 }
 
 /** Captures one scheme of every topic; resolves with the pictures written. */
-async function captureScheme(browser, { scheme, url, topics, captures, options, encoder, log }) {
+async function captureScheme(browser, run) {
+  const { scheme, url, topics, examplesOf, options, encoder, log } = run;
   const context = await browser.newContext({
     viewport: options.viewport,
     deviceScaleFactor: options.dpr,
@@ -394,7 +398,7 @@ async function captureScheme(browser, { scheme, url, topics, captures, options, 
   // An example's picture: its area, or with `@capture` what it opens, framed by `pictureFrame`.
   const take = async (topic, example, selector) => {
     const area = page.locator(selector).first();
-    const capture = captures.get(`${topic.id}/${example.id}`);
+    const capture = examplesOf.get(`${topic.id}/${example.id}`)?.capture;
     if (!capture) {
       // The area alone, whole even when it is taller than the viewport.
       await area.scrollIntoViewIfNeeded();
@@ -421,7 +425,9 @@ async function captureScheme(browser, { scheme, url, topics, captures, options, 
 
   for (const topic of topics) {
     await openTopic(topic);
-    const examples = await page.evaluate(examplesInPage);
+    const examples = (await page.evaluate(examplesInPage)).filter(
+      (example) => !options.gallery || examplesOf.get(`${topic.id}/${example.id}`)?.gallery,
+    );
     for (const example of examples.filter((e) => e.live)) {
       const selector = `app-example-card article:has(h3#example-${example.id}) .live`;
       // What an example opened stays open, so the next one starts on a fresh page.
@@ -437,16 +443,14 @@ async function captureScheme(browser, { scheme, url, topics, captures, options, 
   return pictures;
 }
 
-/** What each example's `@capture` does, by `<topic>/<example>`, as docs:emit reads it. */
-async function examplesCaptures() {
+/** Each example as docs:emit reads it (its `capture` and `gallery`), by `<topic>/<example>`. */
+async function readExamples() {
   const { extractExamples } = await import('./docs-emit.mjs');
-  const captures = new Map();
+  const examplesOf = new Map();
   for (const { topic, examples } of extractExamples(ROOT).topics) {
-    for (const example of examples) {
-      if (example.capture) captures.set(`${topic}/${example.id}`, example.capture);
-    }
+    for (const example of examples) examplesOf.set(`${topic}/${example.id}`, example);
   }
-  return captures;
+  return examplesOf;
 }
 
 /** The whole run: serve, capture both schemes, then report the budget and stale pictures. */
@@ -456,8 +460,13 @@ export async function capture(options, log = console.log) {
     import(pathToFileURL(join(ROOT, 'projects/showcase/src/app/docs/docs-routes.ts')).href),
     import('playwright'),
   ]);
-  const topics = topicsToCapture(GROUPS, placedTopics, options.topics);
-  const captures = await examplesCaptures();
+  const examplesOf = await readExamples();
+  const picked = new Set(
+    [...examplesOf].filter(([, e]) => e.gallery).map(([key]) => key.split('/')[0]),
+  );
+  const topics = topicsToCapture(GROUPS, placedTopics, options.topics).filter(
+    ({ id }) => !options.gallery || picked.has(id),
+  );
   const dist = resolve(ROOT, options.dist);
   if (!(await stat(join(dist, 'index.html')).catch(() => null))) {
     throw new Error(`no built showcase in ${options.dist}: run npm run build:showcase first`);
@@ -473,14 +482,15 @@ export async function capture(options, log = console.log) {
     log(`Capturing ${topics.length} topics from ${server.url}`);
     const pictures = [];
     for (const scheme of SCHEMES) {
-      const run = { scheme, url: server.url, topics, captures, encoder, log };
+      const run = { scheme, url: server.url, topics, examplesOf, encoder, log };
       run.options = { ...options, out };
       pictures.push(...(await captureScheme(browser, run)));
     }
     const total = pictures.reduce((sum, { bytes }) => sum + bytes, 0);
     log(`Wrote ${pictures.length} pictures, ${Math.round(total / 1024)} kB, to ${options.out}`);
     for (const warning of budgetWarnings(pictures, options.budget)) log(`warning: ${warning}`);
-    if (!options.topics) {
+    // Only a whole run knows every picture; a part of one would call the rest stale.
+    if (!options.topics && !options.gallery) {
       const stale = stalePictures(
         await filesUnder(out),
         pictures.map(({ path }) => path),

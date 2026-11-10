@@ -10,6 +10,8 @@ const WINDOW_MS = 30_000;
  * goes into the first row where it keeps clear of the newer names, so the latest gesture is always
  * named. `labelRows` of 2 names about twice as many; a name that fits in no row is left out, and
  * the readout and the screen reader's list still say it.
+ *
+ * @gallery
  */
 @Component({
   selector: 'app-name-rows',

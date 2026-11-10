@@ -732,6 +732,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "title": "Filling its card",
     "component": FillingItsCard,
     "unpadded": true,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

@@ -8,6 +8,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "power-rails",
     "title": "Power rails",
     "component": PowerRails,
+    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",
