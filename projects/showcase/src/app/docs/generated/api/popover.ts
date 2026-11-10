@@ -408,23 +408,6 @@ export const API: DocsEntry = {
               "text": " while it is open."
             }
           ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "The kit's own rather than brain's trigger: brain's points "
-            },
-            {
-              "kind": "code",
-              "text": "aria-controls"
-            },
-            {
-              "kind": "text",
-              "text": " at the panel while it is closed too, when no element has that id."
-            }
-          ]
         }
       ],
       "source": "projects/neat-ui/popover/src/lib/popover.ts"

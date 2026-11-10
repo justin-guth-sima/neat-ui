@@ -38,11 +38,6 @@ const HOST_CLASSES =
  * `<button neatSwitch [(checked)]="bars">Bars</button>`. The content is the visible label and the
  * accessible name; without content, give it an `aria-label`. Space and Enter toggle it as they
  * click any button.
- *
- * A component rather than a directive on brain's switch: brain's switch is itself a component that
- * renders its own button, so it cannot sit on this one. The host is the native button, which
- * brings focus, keyboard activation and `disabled`; the switch adds the role, the state and the
- * track drawn with helm's classes.
  */
 @Component({
   // An attribute selector keeps the native button as the host, as `button[neatButton]` does.
@@ -72,6 +67,10 @@ const HOST_CLASSES =
   `,
 })
 export class NeatSwitch {
+  // A component rather than a directive on brain's switch: brain's switch is itself a component
+  // that renders its own button, so it cannot sit on this one. The host is the native button, which
+  // brings focus, keyboard activation and `disabled`; the switch adds the role, the state and the
+  // track drawn with helm's classes.
   /** Whether the switch is on; off by default. Bind it two-way, `[(checked)]`. */
   readonly checked = model(false);
   /** Turns the switch off: dimmed, out of the Tab order and not toggled by a click. */

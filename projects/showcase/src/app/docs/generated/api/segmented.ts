@@ -60,32 +60,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " to shrink). It is never wider than its container, though: in one narrower than its labels (a aside dragged narrow) the options shrink together, still equal, and each label ends in an ellipsis, its full text still the option's name and shown as a tooltip on hover."
-            }
-          ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "Not built on brain's toggle group: brain makes its items pressed toggle buttons ("
-            },
-            {
-              "kind": "code",
-              "text": "aria-pressed"
-            },
-            {
-              "kind": "text",
-              "text": ", rewritten on every change) with no arrow keys, while a choice of one is a radio group. The roles, the roving tab stop, the keys and "
-            },
-            {
-              "kind": "code",
-              "text": "data-state"
-            },
-            {
-              "kind": "text",
-              "text": " are the kit's."
+              "text": " to shrink). It is never wider than its container, though: in one narrower than its labels (an aside dragged narrow) the options shrink together, still equal, and each label ends in an ellipsis, its full text still the option's name and shown as a tooltip on hover."
             }
           ]
         }

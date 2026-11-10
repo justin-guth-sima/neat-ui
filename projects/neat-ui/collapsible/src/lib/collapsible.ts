@@ -63,9 +63,6 @@ const HEADING_CLASSES = 'min-w-0 grow';
  * trigger's width is both in full, so a long summary wraps the controls before it truncates. They
  * show whether the section is open or closed; an app shows them only while open with an `@if`.
  *
- * Brain's collapsible is the host directive and its trigger and content directives sit in the
- * template; `open` is brain's `expanded` under the kit's name.
- *
  * @input open Whether the section is open; closed by default. Bind it two-way, `[(open)]`, to
  * keep the state in the page or to open or close the section from code.
  */
@@ -122,6 +119,8 @@ const HEADING_CLASSES = 'min-w-0 grow';
   `,
 })
 export class NeatCollapsible {
+  // Brain's collapsible is the host directive and its trigger and content directives sit in the
+  // template; `open` is brain's `expanded` under the kit's name.
   /** The trigger's text, which names the section. */
   readonly label = input.required<string>();
   /** What the section holds, shown beside the label while it is closed; none if empty. */

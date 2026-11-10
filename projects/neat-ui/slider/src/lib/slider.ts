@@ -61,12 +61,8 @@ const THUMB_CLASSES = hlm(SLIDER_HELM_CLASSES.thumb, 'bg-background focus-visibl
  *
  * `describedBy` is the id of the element that describes the slider (a note on where its value
  * applies, say); it goes on the thumb, the focusable element, like the name. The disabled state is
- * mirrored on the thumb as `aria-disabled` too: brain sets it on the root only, which assistive
- * technology never reaches from the thumb.
- *
- * Brain's slider is the host directive; its track, range and thumb directives draw it with helm's
- * classes. Brain holds a list of values (it also does ranges), so the kit's single number is kept
- * in step with it here.
+ * on the thumb as `aria-disabled` too, since assistive technology reaches the slider through its
+ * thumb.
  *
  * @input disabled Turns the slider off: it ignores the pointer and the keys and is dimmed.
  */
@@ -98,6 +94,9 @@ const THUMB_CLASSES = hlm(SLIDER_HELM_CLASSES.thumb, 'bg-background focus-visibl
   `,
 })
 export class NeatSlider {
+  // Brain's slider is the host directive; its track, range and thumb directives draw it with helm's
+  // classes. Brain holds a list of values (it also does ranges), so the kit's single number is kept
+  // in step with it here.
   /** The number, 0 until set; bind it two-way, `[(value)]`. Changes while a drag is under way. */
   readonly value = model(0);
   /** The smallest value, at the start of the track. */

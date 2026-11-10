@@ -73,7 +73,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the id of the element that describes the slider (a note on where its value applies, say); it goes on the thumb, the focusable element, like the name. The disabled state is mirrored on the thumb as "
+              "text": " is the id of the element that describes the slider (a note on where its value applies, say); it goes on the thumb, the focusable element, like the name. The disabled state is on the thumb as "
             },
             {
               "kind": "code",
@@ -81,16 +81,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " too: brain sets it on the root only, which assistive technology never reaches from the thumb."
-            }
-          ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "Brain's slider is the host directive; its track, range and thumb directives draw it with helm's classes. Brain holds a list of values (it also does ranges), so the kit's single number is kept in step with it here."
+              "text": " too, since assistive technology reaches the slider through its thumb."
             }
           ]
         }

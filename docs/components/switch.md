@@ -78,8 +78,6 @@ export class OnAndOff {
 
 Component from `@sima/neat-ui/switch`, selector `button[neatSwitch]`.
 
-A component rather than a directive on brain's switch: brain's switch is itself a component that renders its own button, so it cannot sit on this one. The host is the native button, which brings focus, keyboard activation and `disabled`; the switch adds the role, the state and the track drawn with helm's classes.
-
 **Inputs**
 
 - **`disabled`** `boolean`, default `false`, transform `booleanAttribute`

@@ -4,7 +4,7 @@
 
 _Components › Data_ · [All topics](../README.md)
 
-A card on Spartan's, with an optional title and subtitle, actions beside them and a footer:
+A card: a surface with an optional title and subtitle, actions beside them and a footer:
 
 ```html
 <neat-card title="Detections" subtitle="Last minute">

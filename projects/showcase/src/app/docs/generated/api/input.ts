@@ -69,7 +69,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Brain's input is the host directive. Its "
+              "text": "An "
             },
             {
               "kind": "code",
@@ -77,15 +77,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " input is exposed so that an "
-            },
-            {
-              "kind": "code",
-              "text": "id"
-            },
-            {
-              "kind": "text",
-              "text": " the app sets stays on the element (brain would otherwise replace it with its own) and a label can point at it."
+              "text": " the app sets stays on the element, so a label can point at it."
             }
           ]
         }

@@ -79,7 +79,7 @@ export const CARD_CLASSES = {
 } as const;
 
 /**
- * A card on Spartan's, with an optional title and subtitle, actions beside them and a footer:
+ * A card: a surface with an optional title and subtitle, actions beside them and a footer:
  *
  * ```html
  * <neat-card title="Detections" subtitle="Last minute">

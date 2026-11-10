@@ -2922,7 +2922,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " stays the tooltip and the name, so it is the whole sentence, with the state the dot alone shows: brain's tooltip takes its text from the template only, so the kit cannot compose it from the lines. While the lines say other than "
+              "text": " stays the tooltip and the name, so it is the whole sentence, with the state the dot alone shows: the tooltip takes its text from "
+            },
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": " alone, so the kit cannot compose it from the lines. While the lines say other than "
             },
             {
               "kind": "code",
@@ -3815,15 +3823,6 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": ") because a host-directive alias keeps the primitive's input type; templates are not supported."
-            }
-          ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "Built like helm's tooltip (brain primitive plus helm's classes) rather than on top of it: a host directive cannot re-expose inputs of its own host directives, and every host directive of a public directive becomes public API."
             }
           ]
         }

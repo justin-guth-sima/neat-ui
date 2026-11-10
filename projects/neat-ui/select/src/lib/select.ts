@@ -123,10 +123,6 @@ let nextSelectId = 0;
  * around the select (or a page shortcut on Escape) never sees the key that closed the list. With
  * the list closed, Escape goes on to whatever is listening. The list is a popup on the overlay
  * layer, above a dialog that holds the select.
- *
- * A component that wraps brain's select rather than hosting it: brain finds its options by content
- * query, so its directives must sit around the options in this template, not on the host element.
- * The popover brain places the list with is the same as the kit's popover uses.
  */
 @Component({
   selector: 'neat-select',
@@ -206,6 +202,9 @@ let nextSelectId = 0;
   `,
 })
 export class NeatSelect<T> {
+  // A component that wraps brain's select rather than hosting it: brain finds its options by
+  // content query, so its directives must sit around the options in this template, not on the host
+  // element. The popover brain places the list with is the same as the kit's popover uses.
   /**
    * The accessible name of the select and its list; shown with `showLabel`, or always when
    * `labelPosition` is `inline`.

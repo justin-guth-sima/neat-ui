@@ -153,9 +153,7 @@ Component from `@sima/neat-ui/slider`, selector `neat-slider`.
 
 `value` changes on every step of a drag, not only when the pointer is released, so whatever it drives (the tile grid's repacking, for one) previews live. A value outside `min`..`max` is shown clamped and stays as it is until the user moves the slider.
 
-`describedBy` is the id of the element that describes the slider (a note on where its value applies, say); it goes on the thumb, the focusable element, like the name. The disabled state is mirrored on the thumb as `aria-disabled` too: brain sets it on the root only, which assistive technology never reaches from the thumb.
-
-Brain's slider is the host directive; its track, range and thumb directives draw it with helm's classes. Brain holds a list of values (it also does ranges), so the kit's single number is kept in step with it here.
+`describedBy` is the id of the element that describes the slider (a note on where its value applies, say); it goes on the thumb, the focusable element, like the name. The disabled state is on the thumb as `aria-disabled` too, since assistive technology reaches the slider through its thumb.
 
 **Inputs**
 

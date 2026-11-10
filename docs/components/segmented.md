@@ -216,9 +216,7 @@ Component from `@sima/neat-ui/segmented`, selector `neat-segmented`.
 
 Drawn as an iOS-style switch: a track with a raised thumb that slides under the chosen label. Its width does not move with the choice: every column is as wide as the widest label needs, in semibold.
 
-It never gives up width to its neighbors: in a flex row too narrow for everything in it, the control keeps its labels whole and the text beside it gives way (that text needs `min-width: 0` to shrink). It is never wider than its container, though: in one narrower than its labels (a aside dragged narrow) the options shrink together, still equal, and each label ends in an ellipsis, its full text still the option's name and shown as a tooltip on hover.
-
-Not built on brain's toggle group: brain makes its items pressed toggle buttons (`aria-pressed`, rewritten on every change) with no arrow keys, while a choice of one is a radio group. The roles, the roving tab stop, the keys and `data-state` are the kit's.
+It never gives up width to its neighbors: in a flex row too narrow for everything in it, the control keeps its labels whole and the text beside it gives way (that text needs `min-width: 0` to shrink). It is never wider than its container, though: in one narrower than its labels (an aside dragged narrow) the options shrink together, still equal, and each label ends in an ellipsis, its full text still the option's name and shown as a tooltip on hover.
 
 **Inputs**
 

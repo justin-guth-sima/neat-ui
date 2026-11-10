@@ -251,7 +251,7 @@ Directive from `@sima/neat-ui/input`, selector `input[neatInput]`.
 
 `size` is the kit's height, not the native character width: bind it (`[size]="'small'"`) or set it as an attribute, which the browser ignores as a width since it is not a number.
 
-Brain's input is the host directive. Its `id` input is exposed so that an `id` the app sets stays on the element (brain would otherwise replace it with its own) and a label can point at it.
+An `id` the app sets stays on the element, so a label can point at it.
 
 **Inputs**
 

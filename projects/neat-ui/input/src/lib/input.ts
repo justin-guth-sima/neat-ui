@@ -22,9 +22,7 @@ export const INPUT_HELM_CLASSES = HELM_CLASSES;
  * `size` is the kit's height, not the native character width: bind it (`[size]="'small'"`) or set
  * it as an attribute, which the browser ignores as a width since it is not a number.
  *
- * Brain's input is the host directive. Its `id` input is exposed so that an `id` the app sets
- * stays on the element (brain would otherwise replace it with its own) and a label can point at
- * it.
+ * An `id` the app sets stays on the element, so a label can point at it.
  *
  * @input id The field's `id`, for a `<label for>` to point at; without one the field gets an id
  * of its own.

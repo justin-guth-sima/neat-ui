@@ -85,8 +85,6 @@ Directive from `@sima/neat-ui`, selector `[neatTooltip]`.
 
 `neatTooltip` takes a string only. Its declared type is brain's (`string | TemplateRef | null`) because a host-directive alias keeps the primitive's input type; templates are not supported.
 
-Built like helm's tooltip (brain primitive plus helm's classes) rather than on top of it: a host directive cannot re-expose inputs of its own host directives, and every host directive of a public directive becomes public API.
-
 **Inputs**
 
 - **`neatTooltip`** `string | TemplateRef<void> | null`

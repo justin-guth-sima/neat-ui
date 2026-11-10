@@ -237,8 +237,6 @@ It follows the WAI-ARIA select-only combobox. On the trigger, Down, Up, Enter an
 
 Escape is handled here first. An open select takes it, closes, and stops it there: a dialog around the select (or a page shortcut on Escape) never sees the key that closed the list. With the list closed, Escape goes on to whatever is listening. The list is a popup on the overlay layer, above a dialog that holds the select.
 
-A component that wraps brain's select rather than hosting it: brain finds its options by content query, so its directives must sit around the options in this template, not on the host element. The popover brain places the list with is the same as the kit's popover uses.
-
 **Inputs**
 
 - **`label`** `string`, required

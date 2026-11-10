@@ -154,31 +154,6 @@ export const API: DocsEntry = {
               "text": "."
             }
           ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "Brain's collapsible is the host directive and its trigger and content directives sit in the template; "
-            },
-            {
-              "kind": "code",
-              "text": "open"
-            },
-            {
-              "kind": "text",
-              "text": " is brain's "
-            },
-            {
-              "kind": "code",
-              "text": "expanded"
-            },
-            {
-              "kind": "text",
-              "text": " under the kit's name."
-            }
-          ]
         }
       ],
       "inputs": [

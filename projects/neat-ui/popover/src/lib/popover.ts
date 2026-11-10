@@ -94,9 +94,6 @@ export class NeatPopoverContent {
  * The button that opens and closes a `neat-popover`: `<button neatPopoverTrigger>` inside it. It
  * can be a `neatButton` with a tooltip as well. It announces the dialog it opens
  * (`aria-haspopup`, `aria-expanded`) and names the panel in `aria-controls` while it is open.
- *
- * The kit's own rather than brain's trigger: brain's points `aria-controls` at the panel while it
- * is closed too, when no element has that id.
  */
 @Directive({
   selector: 'button[neatPopoverTrigger]',
@@ -109,6 +106,8 @@ export class NeatPopoverContent {
   },
 })
 export class NeatPopoverTrigger {
+  // The kit's own rather than brain's trigger: brain's points `aria-controls` at the panel while it
+  // is closed too, when no element has that id.
   protected readonly popover = inject(NeatPopover);
   /**
    * @internal The button, which `neat-popover` anchors its panel to and returns the focus to;

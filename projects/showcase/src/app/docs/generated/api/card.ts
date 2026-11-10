@@ -15,7 +15,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A card on Spartan's, with an optional title and subtitle, actions beside them and a footer:"
+              "text": "A card: a surface with an optional title and subtitle, actions beside them and a footer:"
             }
           ]
         },
