@@ -7,6 +7,7 @@ import { Highlight } from '../../../examples/diagram/4-highlight.example';
 import { FillingItsCard } from '../../../examples/diagram/5-filling-its-card.example';
 import { EdgeSides } from '../../../examples/diagram/6-edge-sides.example';
 import { DiagramFromTheApp } from '../../../examples/diagram/7-from-the-app.example';
+import { ParallelLoops } from '../../../examples/diagram/8-parallel-loops.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -1187,6 +1188,68 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "from-the-app.example.css",
         "code": [
           ["comment","/* The drawing beside a card that reports on it; one above the other where there is no room. */"],["text","\n.beside {\n  display: grid;\n  grid-template-columns: minmax(0, 2fr) minmax(12rem, 1fr);\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n@media (width < 48rem) {\n  .beside {\n    grid-template-columns: minmax(0, 1fr);\n  }\n}\n\n.report {\n  padding: var(--neat-space-4);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n  color: var(--card-foreground);\n  font-size: var(--neat-text-sm);\n}\n\n.blocks {\n  margin: 0 0 var(--neat-space-4);\n  padding: 0;\n  list-style: none;\n}\n\n.blocks button {\n  display: block;\n  width: 100%;\n  padding: var(--neat-space-2) var(--neat-space-3);\n  border: 0;\n  border-radius: var(--radius);\n  background: none;\n  color: inherit;\n  font: inherit;\n  text-align: start;\n}\n\n.blocks button[data-current] {\n  background: var(--accent);\n  color: var(--accent-foreground);\n}\n\n.blocks button:focus-visible {\n  outline: 2px solid var(--ring);\n  outline-offset: -2px;\n}\n\n.report dl {\n  display: grid;\n  grid-template-columns: auto 1fr;\n  gap: var(--neat-space-2) var(--neat-space-4);\n  margin: 0;\n}\n\n.report dt {\n  color: var(--muted-foreground);\n}\n\n.report dd {\n  margin: 0;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "parallel-loops",
+    "title": "Parallel loops",
+    "component": ParallelLoops,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Edges that share a loop are drawn as parallel offsets of one another, so their runs never lie on one another and none crosses another. Above, two edges leave the Camera's top and enter the Encoder's top: their ports nest, and the outer one turns higher. Below, two edges leave the Encoder's right side for the Recorder's left, which lies behind it: each takes the longer stub at one end and the shorter at the other, and their runs back across lie apart."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/diagram#NeatDiagramView",
+      "@sima/neat-ui/diagram#NeatDiagramSet"
+    ],
+    "files": [
+      {
+        "name": "8-parallel-loops.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatDiagramView, "],["keyword","type"],["text"," NeatDiagramSet } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
+          ["comment","/** Two blocks on a row, joined twice over their tops, and twice back behind the first. */"],["text","\n"],
+          ["keyword","const"],["text"," LOOPS: NeatDiagramSet = {\n  overview: {\n    nodes: [\n      { id: "],
+          ["string","'camera'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Camera'"],["text",", x: 0, y: 80, w: 150, h: 46 },\n      { id: "],
+          ["string","'encoder'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Encoder'"],["text",", x: 300, y: 80, w: 150, h: 46 },\n      { id: "],
+          ["string","'recorder'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Recorder'"],["text",", x: 0, y: 240, w: 150, h: 46 },\n    ],\n    edges: [\n      { id: "],
+          ["string","'frames'"],["text",", from: "],["string","'camera'"],["text",", to: "],["string","'encoder'"],["text",", series: 1, fromSide: "],["string","'top'"],["text",", toSide: "],["string","'top'"],["text"," },\n      { id: "],
+          ["string","'stats'"],["text",", from: "],["string","'camera'"],["text",", to: "],["string","'encoder'"],["text",", series: 2, fromSide: "],["string","'top'"],["text",", toSide: "],["string","'top'"],["text"," },\n      {\n        id: "],
+          ["string","'video'"],["text",",\n        from: "],
+          ["string","'encoder'"],["text",",\n        to: "],
+          ["string","'recorder'"],["text",",\n        series: 3,\n        fromSide: "],
+          ["string","'right'"],["text",",\n        toSide: "],
+          ["string","'left'"],["text",",\n      },\n      {\n        id: "],
+          ["string","'index'"],["text",",\n        from: "],
+          ["string","'encoder'"],["text",",\n        to: "],
+          ["string","'recorder'"],["text",",\n        series: 4,\n        fromSide: "],
+          ["string","'right'"],["text",",\n        toSide: "],
+          ["string","'left'"],["text",",\n      },\n    ],\n  },\n};\n\n@Component({\n  selector: "],
+          ["string","'app-parallel-loops'"],["text",",\n  imports: [NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`<neat-diagram class=\"diagram\" [diagram]=\"loops\" label=\"Edges that share a loop\" />`"],["text",",\n  styleUrl: "],
+          ["string","'./diagram-box.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," ParallelLoops {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," loops = LOOPS;\n}\n"]
+        ]
+      },
+      {
+        "name": "diagram-box.css",
+        "code": [
+          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
+          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
+          ["text","\n.diagram {\n  "],
+          ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
+          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n\n"],
+          ["comment","/* A figure the app puts after a bracket's label: small, quiet, steady digits. */"],["text","\n.bracket-figure {\n  font-size: var(--neat-text-xs);\n  color: var(--muted-foreground);\n  font-variant-numeric: tabular-nums;\n}\n"]
         ]
       }
     ]

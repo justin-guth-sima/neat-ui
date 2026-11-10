@@ -478,6 +478,43 @@ describe('layoutEdges', () => {
   });
 });
 
+describe('layoutEdges, edges that share a loop', () => {
+  const side = (e: NeatDiagramEdge, fromSide: NeatDiagramEdge['fromSide'], toSide = fromSide) => ({
+    ...e,
+    fromSide,
+    toSide,
+  });
+
+  it('spreads U routes between the same sides, nested so they do not cross', () => {
+    // Two blocks on one row; two edges leave the first's top and enter the second's top.
+    const level: NeatDiagram = {
+      nodes: [block('a', 0, 100), block('b', 300, 100)],
+      edges: [side(edge('one', 'a', 'b'), 'top'), side(edge('two', 'a', 'b'), 'top')],
+    };
+    expect(drawnOverlaps(level)).toEqual([]);
+    expect(drawnCrossings(level)).toEqual([]);
+    // The outer pair of ports (the wider span) loops higher.
+    const routes = layoutEdges(level);
+    const top = (id: string) => Math.min(...routes.get(id)!.points.map((p) => p.y));
+    const span = (id: string) => Math.abs(routes.get(id)!.target.x - routes.get(id)!.source.x);
+    const [outer, inner] = span('one') > span('two') ? ['one', 'two'] : ['two', 'one'];
+    expect(top(outer)).toBeLessThan(top(inner));
+  });
+
+  it('spreads routes that run back behind their source between facing sides', () => {
+    // The target lies behind: out of the first's right side, into the second's left side.
+    const level: NeatDiagram = {
+      nodes: [block('a', 300, 0), block('b', 0, 300)],
+      edges: [
+        side(edge('one', 'a', 'b'), 'right', 'left'),
+        side(edge('two', 'a', 'b'), 'right', 'left'),
+      ],
+    };
+    expect(drawnOverlaps(level)).toEqual([]);
+    expect(drawnCrossings(level)).toEqual([]);
+  });
+});
+
 describe('layoutEdges, facing boxes that overlap across', () => {
   /** Whether a port lies on its node's side, within the side's extent. */
   const onItsSide = (diagram: NeatDiagram, id: string, end: 'source' | 'target'): boolean => {

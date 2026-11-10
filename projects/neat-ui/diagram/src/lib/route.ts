@@ -34,7 +34,9 @@ const length = (a: Point) => Math.hypot(a.x, a.y);
  * through `targetSide`), ends included. One turn when the sides are at right angles (an L), two
  * when they face each other (a Z, its middle run `jog` further along the way than halfway; 0
  * when the ports are level, a straight line), and stubs out of both ports when the target lies
- * behind the source.
+ * behind the source. Edges that share a loop are drawn as parallel offsets of one another (the
+ * layout's `spreadLoops`): a U goes `jog` further out than `STUB`, and a route behind its source
+ * takes `stubs` more at each end and moves its run across `jog` (in the level's coordinates).
  */
 export function routePoints(
   source: Point,
@@ -42,6 +44,7 @@ export function routePoints(
   target: Point,
   targetSide: NeatDiagramSide,
   jog = 0,
+  stubs: readonly [number, number] = [0, 0],
 ): Point[] {
   const out = OUT[sourceSide];
   const back = OUT[targetSide];
@@ -62,30 +65,34 @@ export function routePoints(
     return [source, { x: source.x, y }, { x: target.x, y }, target];
   } else if (dot(out, back) > 0) {
     // Both ports face the same way: out past the farther one and back (a U).
+    const reach = STUB + jog;
     if (horizontal) {
       const x =
-        out.x > 0 ? Math.max(source.x, target.x) + STUB : Math.min(source.x, target.x) - STUB;
+        out.x > 0 ? Math.max(source.x, target.x) + reach : Math.min(source.x, target.x) - reach;
       return [source, { x, y: source.y }, { x, y: target.y }, target];
     }
-    const y = out.y > 0 ? Math.max(source.y, target.y) + STUB : Math.min(source.y, target.y) - STUB;
+    const y =
+      out.y > 0 ? Math.max(source.y, target.y) + reach : Math.min(source.y, target.y) - reach;
     return [source, { x: source.x, y }, { x: target.x, y }, target];
   }
   // Otherwise the target lies behind: a stub out of each port, joined by one corner (sides at
   // right angles) or by a run across halfway between the ports (sides facing each other).
-  const a = { x: source.x + out.x * STUB, y: source.y + out.y * STUB };
-  const b = { x: target.x + back.x * STUB, y: target.y + back.y * STUB };
+  const outStub = STUB + stubs[0];
+  const backStub = STUB + stubs[1];
+  const a = { x: source.x + out.x * outStub, y: source.y + out.y * outStub };
+  const b = { x: target.x + back.x * backStub, y: target.y + back.y * backStub };
   if (dot(out, back) === 0) {
     const corner = horizontal ? { x: a.x, y: b.y } : { x: b.x, y: a.y };
     return simplify([source, a, corner, b, target]);
   }
   const across = horizontal
     ? [
-        { x: a.x, y: (a.y + b.y) / 2 },
-        { x: b.x, y: (a.y + b.y) / 2 },
+        { x: a.x, y: (a.y + b.y) / 2 + jog },
+        { x: b.x, y: (a.y + b.y) / 2 + jog },
       ]
     : [
-        { x: (a.x + b.x) / 2, y: a.y },
-        { x: (a.x + b.x) / 2, y: b.y },
+        { x: (a.x + b.x) / 2 + jog, y: a.y },
+        { x: (a.x + b.x) / 2 + jog, y: b.y },
       ];
   return simplify([source, a, ...across, b, target]);
 }

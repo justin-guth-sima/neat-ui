@@ -91,6 +91,8 @@ interface End {
   sign: 1 | -1;
   /** The edge's place in the level's list. */
   order: number;
+  /** Whether its edge leaves and enters through sides that face one way (a U). */
+  loop: boolean;
 }
 
 /**
@@ -104,6 +106,8 @@ interface Route {
   target: Point;
   targetSide: NeatDiagramSide;
   jog: number;
+  /** How much longer than `STUB` its stubs out of the source and into the target are. */
+  stubs: [number, number];
 }
 
 /**
@@ -136,6 +140,8 @@ const PORT_SPAN = 0.8;
  * of their corridor, clear of the nodes (and frame borders) on either side.
  */
 const JOG_STEP = 24;
+/** How far apart edges that share a loop (a U, or a route behind its source) run. */
+const LOOP_STEP = 12;
 
 /**
  * How far from a box's corner a straightened edge meets it at least, so a straight edge never
@@ -209,6 +215,7 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
       along,
       sign: 1,
       order,
+      loop: false,
     };
     const target: End = {
       node: edge.to,
@@ -217,7 +224,9 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
       along,
       sign: -1,
       order,
+      loop: false,
     };
+    source.loop = target.loop = source.side === target.side;
     return { edge, source, target, inward };
   });
   const sides = spreadPorts(
@@ -243,12 +252,14 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
     target: portPoint(rectOf(target.node), target),
     targetSide: inward === 'target' ? OPPOSITE[target.side] : target.side,
     jog: 0,
+    stubs: [0, 0],
   }));
   spreadCorridors(routes);
+  spreadLoops(routes);
 
   return new Map(
-    routes.map(({ edge, source, sourceSide, target, targetSide, jog }) => {
-      const points = routePoints(source, sourceSide, target, targetSide, jog);
+    routes.map(({ edge, source, sourceSide, target, targetSide, jog, stubs }) => {
+      const points = routePoints(source, sourceSide, target, targetSide, jog, stubs);
       const path = pathThrough(points);
       return [edge.id, { source, sourceSide, target, targetSide, path, points }];
     }),
@@ -261,7 +272,9 @@ const sideKey = (end: End) => `${end.node}\u0000${end.side}`;
 /**
  * Ports on one side are spread along it in the order of the directions their edges leave in, so
  * edges fanning out from a side do not cross; parallel edges between the same two nodes keep one
- * order seen from both ends (by the side of the edge each port lies on). `ends` are in the order
+ * order seen from both ends (by the side of the edge each port lies on), except loops (a U, both
+ * sides facing one way), whose order turns round at the target so they nest: two Us with ports in
+ * one order at both ends cross wherever they turn. `ends` are in the order
  * of their edges, which breaks the remaining ties. Returns each side's ends in their order along
  * it, by `sideKey`.
  */
@@ -276,7 +289,8 @@ function spreadPorts(ends: End[], rects: Map<string, Rect>): Map<string, End[]> 
     const { t, n } = SIDE_AXES[side];
     // The way to the other end is the edge's direction, reversed at its target.
     const angle = (e: End) => Math.atan2(e.sign * dot(e.along, t), e.sign * dot(e.along, n));
-    const tie = (e: End) => e.order * Math.sign(t.x * -e.along.y + t.y * e.along.x || 1);
+    const tie = (e: End) =>
+      e.order * Math.sign(t.x * -e.along.y + t.y * e.along.x || 1) * (e.loop ? e.sign : 1);
     onSide.sort((p, q) => angle(p) - angle(q) || tie(p) - tie(q));
     const rect = rects.get(node) as Rect;
     const length = horizontal(side) ? rect.h : rect.w;
@@ -423,6 +437,70 @@ function spreadCorridors(routes: Route[]): void {
     list.sort((p, q) => key(q) - key(p));
     list.forEach((r, i) => (r.jog = (i - (list.length - 1) / 2) * step));
   }
+}
+
+/**
+ * Routes that loop between the same two sides, which `spreadCorridors` does not reach: Us (both
+ * ports facing one way, as two edges leaving one block's top for another's top) and routes that
+ * run back behind their source between facing sides. Those that share a side at either end are
+ * drawn as parallel offsets of one another, `LOOP_STEP` apart, so their runs never lie on one
+ * another and an inner one never crosses an outer one: the inner U turns lower than the outer, and
+ * a route behind takes the longer stub at one end and the shorter at the other, as an offset of a
+ * staircase does. Which is outer follows the ports the layout already placed.
+ */
+function spreadLoops(routes: Route[]): void {
+  for (const group of groupsBySide(routes, (r) => r.sourceSide === r.targetSide)) {
+    // The narrower span is the inner U: closest to the blocks.
+    const along = (r: Route) => (horizontal(r.sourceSide) ? 'y' : 'x');
+    const span = (r: Route) => Math.abs(r.target[along(r)] - r.source[along(r)]);
+    group.sort((p, q) => span(p) - span(q));
+    group.forEach((r, i) => (r.jog = i * LOOP_STEP));
+  }
+  for (const group of groupsBySide(routes, isBehind)) {
+    // Across the sides (y for left and right), the way the route steps from source to target.
+    const across = (r: Route) => (horizontal(r.sourceSide) ? 'y' : 'x');
+    const way = (r: Route) => Math.sign(r.target[across(r)] - r.source[across(r)]) || 1;
+    // The outer route leaves from the port furthest back from the way it steps.
+    group.sort((p, q) => p.source[across(p)] * way(p) - q.source[across(q)] * way(q));
+    const last = group.length - 1;
+    // Their runs across lie `LOOP_STEP` apart from one middle, the group's, not each its own.
+    const middle = (r: Route) => (r.source[across(r)] + r.target[across(r)]) / 2;
+    const shared = group.reduce((sum, r) => sum + middle(r), 0) / group.length;
+    group.forEach((r, i) => {
+      const outer = (last - i) * LOOP_STEP;
+      r.stubs = [outer, i * LOOP_STEP];
+      r.jog = shared - middle(r) + (outer - (last * LOOP_STEP) / 2) * way(r);
+    });
+  }
+}
+
+/** The routes `test` picks, grouped where they share a node's side at either end. */
+function groupsBySide(routes: Route[], test: (route: Route) => boolean): Route[][] {
+  const groups: Route[][] = [];
+  const bySide = new Map<string, Route[]>();
+  for (const route of routes) {
+    if (!test(route)) continue;
+    const keys = [
+      `${route.edge.from}\u0000${route.sourceSide}`,
+      `${route.edge.to}\u0000${route.targetSide}`,
+    ];
+    const joined = new Set(keys.flatMap((key) => (bySide.get(key) ? [bySide.get(key)!] : [])));
+    const group = [route, ...[...joined].flat()];
+    for (const old of joined) groups.splice(groups.indexOf(old), 1);
+    groups.push(group);
+    for (const r of group) {
+      bySide.set(`${r.edge.from}\u0000${r.sourceSide}`, group);
+      bySide.set(`${r.edge.to}\u0000${r.targetSide}`, group);
+    }
+  }
+  return groups.filter((group) => group.length > 1);
+}
+
+/** True when the ports face each other with the target behind the source: stubs and a run across. */
+function isBehind(r: Route): boolean {
+  if (OPPOSITE[r.sourceSide] !== r.targetSide) return false;
+  const n = SIDE_AXES[r.sourceSide].n;
+  return dot({ x: r.target.x - r.source.x, y: r.target.y - r.source.y }, n) <= 0;
 }
 
 /** True when the ports face each other with the target ahead and not level: drawn as a Z. */
