@@ -499,11 +499,13 @@ describe('NeatBev', () => {
     expect(draws[1][3]).not.toBe(draws[0][3]);
   });
 
-  it('draws again on a resize', () => {
+  it('draws again on a resize at once, before the browser paints the new size', () => {
     resize(element, 600, 300);
-    frames.run();
+    // In the resize's own callback, not at the next frame: no stretched old picture shows.
     expect(draws).toHaveLength(2);
     expect(draws[1][1].cx).toBe(300);
+    frames.run();
+    expect(draws).toHaveLength(2);
   });
 
   it('colours a label by its style row', async () => {

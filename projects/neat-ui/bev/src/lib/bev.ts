@@ -336,7 +336,9 @@ export class NeatBev {
           this.width = box.inlineSize;
           this.height = box.blockSize;
           this.canvas?.size(this.width, this.height);
-          this.schedule();
+          // Now, not at the next frame: the browser paints this frame at the new size, and an
+          // old picture would show stretched to it for a frame (squished while resizing).
+          this.drawNow();
         });
         observer.observe(this.host);
         this.document.addEventListener('visibilitychange', this.visibility);
@@ -395,6 +397,17 @@ export class NeatBev {
   private schedule(): void {
     if (this.request !== 0 || this.destroyed || !this.canvas || this.document.hidden) return;
     this.request = this.zone.runOutsideAngular(() => requestAnimationFrame(this.tick));
+  }
+
+  /**
+   * Draws at once, in place of a frame that may be coming: from a `ResizeObserver`'s callback,
+   * which runs after layout and before the paint, so the canvas is the new size when it is shown.
+   */
+  private drawNow(): void {
+    if (this.request !== 0) cancelAnimationFrame(this.request);
+    this.request = 0;
+    if (this.destroyed || !this.canvas || this.document.hidden) return;
+    this.tick();
   }
 
   /** Where `event` is over the box, CSS px. */
