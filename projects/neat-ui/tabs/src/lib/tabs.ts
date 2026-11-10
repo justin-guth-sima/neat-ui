@@ -118,7 +118,7 @@ let nextTabsId = 0;
  *
  * A panel taller than the space it has is for the surrounding page or pane to scroll, which keeps
  * one scroll context. The tab list is the one part that scrolls itself: tabs that do not fit their
- * container's width (a side panel's) scroll sideways, never wrap, and the open tab is brought into
+ * container's width (an aside's) scroll sideways, never wrap, and the open tab is brought into
  * view when it changes.
  *
  * Brain's tabs are the host directive; its list, trigger and content directives give the tab

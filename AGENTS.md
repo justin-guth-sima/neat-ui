@@ -3,7 +3,8 @@
 Guidance for anyone (human or agent) working in this repository or building an app on `@sima/neat-ui`.
 The rules below come with their reasons; if a reason does not apply to your situation, the escape
 hatch says what to do instead of working around the rule. Everything you write for people to read
-(docs, doc comments, examples, this file) follows [docs/writing.md](docs/writing.md).
+(docs, doc comments, examples, this file) follows [docs/writing.md](docs/writing.md) and calls
+things by their names in [docs/glossary.md](docs/glossary.md).
 
 ## What this repo is
 
@@ -16,8 +17,8 @@ look happens in one place. Every rule here protects that.
   - `@sima/neat-ui` (the primary): what the shell and every page need: theme, `NeatIcon`,
     `NeatShell` with `NeatRailItem` and `NeatRailDivider` (an item of its rail and the line between
     groups of items, for the app's items at its bottom),
-    `NeatPageToolbar`, `NeatPage` with its side list (`NeatPageNav`, with `NeatPageNavGroup` and
-    `NeatPageNavLink`) and its side panel's parts (`NeatAsideToggle`, `NeatAsidePanel`,
+    `NeatPageToolbar`, `NeatPage` with its page nav (`NeatPageNav`, with `NeatPageNavGroup` and
+    `NeatPageNavLink`) and its aside's parts (`NeatAsideToggle`, `NeatAsidePanel`,
     `NeatAsideTitle`, `NeatAsideHeading`, `NeatAsideActions`), `neatAsideOpen`
     (a page's panel state, closed on a narrow screen) and `NeatViewport` (the kit's one answer to
     "is this screen narrow", below 48rem), `NeatCode`,
@@ -72,7 +73,7 @@ look happens in one place. Every rule here protects that.
     tint; warning's tinted text is `--neat-warning-text`, and neutral is muted text on
     `--neat-chip-neutral` in both, a gray that shows on the card, the page and a hovered or
     selected row's `--accent` in both schemes), `details` (`NeatDetails`, the
-    key/value list of a side panel; `--neat-details-term-width` on an ancestor lines several up, and
+    key/value list of an aside; `--neat-details-term-width` on an ancestor lines several up, and
     a term wider than a fixed column breaks inside the word),
     `table` (`NeatTable`, the data table's look on a `table`: cells, rules, column headings; and
     `NeatNumeric`, which end-aligns a column's figures on one line with tabular digits, and
@@ -172,8 +173,8 @@ is the doc comment, and the snippet under an example is the file that renders it
   the package README's rules for an app. A group is a rail item, navigated as the kit says an app
   is (below): Theme's and Layout's few topics (`topics`) are its `children` in the rail;
   Components' categories (`categories`: Actions, Forms, Status, Data, Charts, Diagram, Video) are
-  its `children`, and each category's topics are the side list (`nav[neatPageNav]`, with a filter)
-  of its pages, the API panel still the page's side panel. `/<group>` goes to its first topic and
+  its `children`, and each category's topics are the page nav (`nav[neatPageNav]`, with a filter)
+  of its pages, the API panel still the page's aside. `/<group>` goes to its first topic and
   `/components/<category>` to the category's first, the routes the rail's links need; an address
   that changed has no redirect, and only the catch-all, to Getting started, takes an unknown one.
   Why categories and not more rail items: a rail item per category read as an area of an app when
@@ -200,7 +201,7 @@ is the doc comment, and the snippet under an example is the file that renders it
   its line: `@unpadded`, its live area without the inset, for an example that fills it to its
   edges (the diagram's Filling its card), and `@page`, a route of its own at
   `/demo/<topic>/<example>` that its card links to, for an example that needs the whole page (its
-  own toolbar, side list, panel or shell, which a docs page keeps for itself). Why per example: how
+  own toolbar, page nav, panel or shell, which a docs page keeps for itself). Why per example: how
   an example shows is a fact of that example, beside the code that needs it, so no stylesheet
   outweighs the card's padding and no topic sends examples that fit a card off to a page. Any
   other tag, or text after one of these, is a doc problem. Escape hatch: a new way to show an
@@ -567,8 +568,8 @@ yet the secondary entries need them, and an entry sees the primary only through 
 the primary exports `ɵhlm`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
 `ɵFIELD_LABEL_CLASSES` (the field label's look, which `select` and `field` share so that their
 fields line up), `ɵINPUT_CLASSES` and `ɵINPUT_HELM_CLASSES` (the text field's look, which `input`
-shares with the page's side list's filter), `ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
-look, which `collapsible` shares with the side list on a narrow screen), `ɵSTALE_CLASSES` (the stale
+shares with the page nav's filter), `ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
+look, which `collapsible` shares with the page nav on a narrow screen), `ɵSTALE_CLASSES` (the stale
 look, which `diagram` gives a node's card), `ɵOverlayFocus` and `ɵPANEL_SURFACE_CLASSES` and
 `ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel in the overlay, which
 `neat-popover` shares with the shell's collapsed-rail menu; the second is the helm popover's own
@@ -852,7 +853,7 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   `hidden`. Brain's ids come from the keys alone, so the kit's keys are the instance's prefix and
   the tab's index, never its `value`: a value with spaces ("Board 1") would be an invalid id.
   The tab list sits in a strip that scrolls sideways (`overflow-x-auto`) when the tabs do not fit
-  their container, as in a side panel: the tabs neither wrap nor push the page sideways, and the
+  their container, as in an aside: the tabs neither wrap nor push the page sideways, and the
   strip, not the page, moves to show the open tab.
   Inside a `neat-popover`'s panel, a menu's items are `button[neatPopoverItem]`, full-width rows
   with the text at the start and no gap to the next row, and `hr[neatPopoverDivider]` (a
@@ -945,7 +946,7 @@ The tokens are the theme's colors (Spartan's variables such as `--primary`, `--m
 `--border`), `--radius`, and a short layout set from Tailwind's scale, defined once in the kit
 stylesheet: `--neat-space-2`, `--neat-space-3`, `--neat-space-4`, `--neat-space-6` (0.5, 0.75, 1
 and 1.5rem, for gaps and insets), `--neat-text-xs`, `--neat-text-sm`, `--neat-text-base` (0.75,
-0.875 and 1rem), `--neat-aside-width` (22rem, the width of a page's side panel) and `--neat-surface`
+0.875 and 1rem), `--neat-aside-width` (22rem, the width of a page's aside) and `--neat-surface`
 (the fill of the surface a component sits on, for a part that covers what scrolls under it:
 `--background`, set to `--popover` by a dialog panel and a popover, and to its fill by an app's own
 surface such as a card). Charts draw with `--neat-series-1` to `--neat-series-8` (four hues, blue,
@@ -988,23 +989,23 @@ that needs no styles simply has no stylesheet.
 **Pages fill the shell's content area and own at most one scroll context.**
 Why: nested scroll containers and hard-coded heights break on other screen sizes and in kiosk mode,
 where the shell's size is not yours to know. Do not measure or hard-code the shell's size. The
-supported other scroll contexts are the page's side panel and its side list (below). Escape hatch:
+supported other scroll contexts are the page's aside and its page nav (below). Escape hatch:
 if a page needs another independently scrolling region (for example a log pane beside a form), raise
 it as a kit change so the layout is a supported component, not an ad hoc one. The shell fills the
 viewport, or the bounded box it is placed in (its `max-height` is 100% of the parent, which does
 nothing at the root); that is for a demo or an embedded frame, not a way for a page to size the
 shell.
 
-**Navigation is the rail and the page's side list; tabs are not navigation.**
+**Navigation is the rail and the page nav; tabs are not navigation.**
 Pages are the rail's items (`navItems`); a page's sub-pages are its item's `children`; more than a
-few sub-pages (about six), groups of them or a level below a sub-page are the page's side list
+few sub-pages (about six), groups of them or a level below a sub-page are the page nav
 (`nav[neatPageNav]`). Never route-linked tabs: `neat-tabs` is for views inside one page that are
 not addresses (a dialog's sections, say). The package README's "Using the kit in an app" states
 this rule for apps, and the showcase follows it. Why: an app's coding agent copies what the kit
 shows, and two ways to navigate (tabs on some pages, the rail on others) drift into as many as
 there are apps; one model also lets the kit keep each level reachable on every screen and to a
 screen reader. `NeatPageTabs` and `NeatPageTab` were removed in 0.26.0 for this: a page's
-route-linked views are its rail item's `children`, or links in its side list. Escape hatch: a
+route-linked views are its rail item's `children`, or links in its page nav. Escape hatch: a
 level the three do not cover is a change to this rule, raised with the maintainer, never a row of
 links an app draws itself.
 
@@ -1033,7 +1034,7 @@ place, so every app reads the same way.
   The top bar's title is the open child's label with the page's label beside it, muted; on a route
   deeper than the child with its own route `title` it is that title beside "page › child".
   Deeper levels are not the rail's: more than a few sub-pages, groups or nesting belong in the
-  page's side list (`nav[neatPageNav]`, below).
+  page nav (`nav[neatPageNav]`, below).
 - **Collapsed, a page with `children` stays a link; hover and keyboard focus show their menu.** The
   collapsed rail has no room for sub-pages, so a menu beside the rail offers the choice among them,
   but only as a companion: a press (click, tap, Enter, Space) navigates to the page's `path`, as on
@@ -1088,12 +1089,12 @@ place, so every app reads the same way.
 - The top bar holds the logo, the app name and the page title, then at its right the page's tools
   (`*neatPageToolbar`, below), elements marked `neatTopbarEnd` (kept for an app that needs one),
   the kiosk button (the one app control there: it changes how the page is shown), and last, at the
-  right edge above the side panel, the page's side-panel toggle, in a cell of its own set apart by
+  right edge above the aside, the page's aside toggle, in a cell of its own set apart by
   a divider. The page title is the label of the nav item the route belongs to, else the route's
   own `title` (a page with no rail item), else none.
 
-**A page's toolbar goes through `*neatPageToolbar`, its side-panel toggle through
-`neat-aside-toggle`, its side list through `nav[neatPageNav]`, its side panel through
+**A page's toolbar goes through `*neatPageToolbar`, its aside toggle through
+`neat-aside-toggle`, its page nav through `nav[neatPageNav]`, its aside through
 `[neatPageAside]`.**
 Why: the shell owns the top bar and kiosk mode, and `neat-page` owns the page's layout; a page that
 builds its own bar, row of views or panel duplicates both and breaks in one of them. Views do not
@@ -1108,7 +1109,7 @@ number of tools and a switch in it moves too.
   The region gives up width first and scrolls sideways rather than push the end slot out, so keep
   a toolbar narrow enough to fit at the screen sizes the app supports. One toolbar at a time; a
   second throws in dev mode. On a narrow screen (below 48rem) the shell wraps its top bar into two
-  rows: the logo, the end slot, the kiosk button and the side-panel toggle share the first (the end
+  rows: the logo, the end slot, the kiosk button and the aside toggle share the first (the end
   slot has a zero basis and grows, so a long pill truncates inside it instead of wrapping onto a
   row of its own; the toggle is the row's last item), and the toolbar takes the whole last row (the
   host's `data-narrow` says which). A page without tools keeps the wide bar's height. The markup
@@ -1116,7 +1117,7 @@ number of tools and a switch in it moves too.
   rule that the toggle leads the tools on a phone is gone with the toggle's place in the first row,
   where it stays in view and the visual order is the tab order.
 - `<nav neatPageNav aria-label="Components" [groups]="groups" filterLabel="Filter">` as a direct
-  child of `neat-page` is the page's side list, the third level of navigation after the rail's
+  child of `neat-page` is the page nav, the third level of navigation after the rail's
   pages and their `children`: for more than a few of a page's links, links in groups, or a level
   below a sub-page. Data, not content: `groups` (`NeatPageNavGroup`, an optional heading `label`
   and its `items`, each `NeatPageNavLink` a `label` and an absolute `path`) and an optional
@@ -1128,7 +1129,7 @@ number of tools and a switch in it moves too.
   muted until hovered. The landmark's name is the app's `aria-label` (a nav without a name throws
   in dev mode). On a wide screen the page draws it as the body's start column,
   15rem, as high as the page and scrolling on its own with every `scroll` mode, the filter sticky
-  at its top, the side panel at the other end; on a narrow screen it is a closed section above the
+  at its top, the aside at the other end; on a narrow screen it is a closed section above the
   body, with `NeatCollapsible`'s look (the primary cannot import the collapsible entry, so the look
   is shared from the primary as `ɵCOLLAPSIBLE_CLASSES` and brain's collapsible is the behavior),
   the landmark's name as its label and the open link as its summary; opened, its list scrolls
@@ -1221,6 +1222,15 @@ rule and reason below it or one link away: layered, not trimmed. Why: many who r
 without an agent, and an agent loses nothing when the detail stays. `npm run test:tools` fails on
 the British spellings the repo used to have (`tools/spelling.mjs`); HTML's `aria-labelledby` and the
 deprecated aliases `neatLabelColour` and the diagram messages' `colours` are the only exceptions.
+
+**Call each thing by its name in [docs/glossary.md](docs/glossary.md); add a new term there before
+using it.** This holds for prose, doc comments, example captions, test names and commit messages,
+and for new public names, which take the glossary's word (a diagram's `group`, not a frame). Where
+the wider UI world has an established name (card, dialog, tooltip), it wins over one of our own.
+Name the thing, not its shape: "the block" or "the object", and "box" only for a rectangle. Why: one
+name per thing lets a reader, or an agent, find every place that talks about it, and a second name
+reads as a second thing (the diagram's "tip" was both a tooltip and an end marker). Escape hatch: a
+thing the glossary lacks gets its entry in the same change that first names it.
 
 **Every public part has a doc comment, and appears in the docs.**
 Why: the docs are generated from the comments, so an undocumented part is an empty entry, and a

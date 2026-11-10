@@ -25,7 +25,7 @@ export interface NeatNavItem {
   path: string;
   /**
    * The page's sub-pages, the only second level of the rail's navigation (more than a few, or
-   * deeper levels, belong in the page's own side list). They unfold under the item while the page
+   * deeper levels, belong in the page nav). They unfold under the item while the page
    * is active and the rail shows its labels; the open one carries `aria-current="page"` and the
    * item then does not. The item's link still goes to `path`: the app routes it to the first
    * sub-page, or gives the first sub-page the page's own path. The kit does not redirect.

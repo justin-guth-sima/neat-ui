@@ -105,16 +105,16 @@ describe('the public API', () => {
     );
   });
 
-  it('exports the viewport and the side panel state beside the page', () => {
+  it('exports the viewport and the aside state beside the page', () => {
     expect(Object.keys(primary)).toEqual(
       expect.arrayContaining(['NeatPage', 'NeatViewport', 'neatAsideOpen']),
     );
   });
 
-  it("exports the page's side list, the primary entry's page navigation, and no page tabs", () => {
+  it("exports the page nav, the primary entry's page navigation, and no page tabs", () => {
     expect(Object.keys(primary)).toContain('NeatPageNav');
     // Removed in 0.26.0: tabs are not navigation, so a page's sub-pages are its rail item's
-    // `children` and more links than that its side list.
+    // `children` and more links than that its page nav.
     expect(Object.keys(primary)).not.toContain('NeatPageTabs');
     expect(Object.keys(primary)).not.toContain('NeatPageTab');
   });

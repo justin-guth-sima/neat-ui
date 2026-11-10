@@ -85,7 +85,7 @@ describe('GettingStartedPage', () => {
     for (const rule of [
       'import UI only from the kit',
       'one entry per part',
-      "pages in the rail, a page's sub-pages as its rail item's children, more in the page's side list, never tabs that change the address",
+      "pages in the rail, a page's sub-pages as its rail item's children, more in the page nav, never tabs that change the address",
       'icon names and curve names first',
       'propose a kit change instead of a workaround',
     ]) {
@@ -98,7 +98,7 @@ describe('GettingStartedPage', () => {
     const rules = readme.slice(readme.indexOf('## Using the kit in an app')).replace(/\s+/g, ' ');
 
     expect(rules).toContain(
-      "**Navigate with the rail and the page's side list, never with tabs.**",
+      "**Navigate with the rail and the page nav, never with tabs.**",
     );
     for (const part of ['`children`', '`nav[neatPageNav]`', 'route-linked tabs', '`neat-tabs`']) {
       expect(rules).toContain(part);

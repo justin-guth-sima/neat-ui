@@ -8,7 +8,7 @@ const THEME: BevTheme = {
   line: 'rgb(200 200 200)',
   strong: 'rgb(120 120 120)',
   text: 'rgb(90 90 90)',
-  ego: 'rgb(10 10 10)',
+  vehicle: 'rgb(10 10 10)',
   halo: 'rgb(255 255 255)',
   surface: [1, 1, 1],
   font: '12px sans-serif',

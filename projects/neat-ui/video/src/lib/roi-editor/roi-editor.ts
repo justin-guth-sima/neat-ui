@@ -77,7 +77,7 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
 
 /**
  * Draws regions of interest on the image of the `neat-video-tile` it is placed in, and lets the
- * user add polygons by clicking points on it. Project it into the tile with `neatTileOverlay`:
+ * user add regions by clicking points on it. Project it into the tile with `neatTileOverlay`:
  *
  * ```html
  * <neat-video-tile>
@@ -201,11 +201,11 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
   styleUrl: './roi-editor.css',
 })
 export class NeatRoiEditor {
-  /** The polygons to draw. Open polygons are not part of it until `regionsChange` brings them. */
+  /** The regions to draw. One being drawn is not part of it until `regionsChange` brings it. */
   readonly regions = input.required<readonly NeatRoiPolygon[]>();
   /** What a click does; `off` leaves the tile to what is under the editor, but for the regions. */
   readonly mode = input<NeatRoiDrawMode>('off');
-  /** A closed polygon appended to `regions`, or `regions` without a deleted one, in a new array. */
+  /** A new region appended to `regions`, or `regions` without a deleted one, in a new array. */
   readonly regionsChange = output<readonly NeatRoiPolygon[]>();
   /** The index in `regions` of the region to highlight, as the pointer or the app set it. */
   readonly highlighted = model<number | null>(null);

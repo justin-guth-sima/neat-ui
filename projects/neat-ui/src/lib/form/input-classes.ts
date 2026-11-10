@@ -1,7 +1,7 @@
 import { hlm } from '../ui/utils/src';
 
 /*
- * A text field's look, which `neatInput` draws and the page's side list gives its filter: one
+ * A text field's look, which `neatInput` draws and the page nav gives its filter: one
  * definition, so that every field in the kit looks the same. Internal to the kit; the primary
  * exports it `ɵ` for the input entry. Class strings stay literals: Tailwind finds the classes the
  * kit stylesheet needs by reading them.

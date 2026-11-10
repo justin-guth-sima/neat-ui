@@ -20,10 +20,10 @@ const PAGES = [
   { path: '/layout/shell', link: 'Layout', heading: 'NeatShell', title: 'Shell Layout' },
   { path: '/layout/page', link: 'Layout', heading: 'NeatPage', title: 'Page Layout' },
   {
-    path: '/layout/side-panel',
+    path: '/layout/aside',
     link: 'Layout',
     heading: 'NeatAsidePanel',
-    title: 'Side panel Layout',
+    title: 'Aside Layout',
   },
   {
     path: '/components/actions/button',
@@ -229,7 +229,7 @@ describe('App', () => {
     expect(router.url).toBe('/getting-started');
   });
 
-  it('lists a category’s topics in the page’s side list, with a filter', async () => {
+  it('lists a category’s topics in the page nav, with a filter', async () => {
     await navigate('/components/data/select-list');
     const list = content().querySelector('neat-page > nav[neatPageNav]') as HTMLElement;
     const links = () => Array.from(list.querySelectorAll('a'), (link) => link.textContent?.trim());

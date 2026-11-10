@@ -75,7 +75,7 @@ const HIT_TOLERANCE_PX = 4;
  */
 const TOKENS = {
   text: '--muted-foreground',
-  ego: '--foreground',
+  vehicle: '--foreground',
   halo: '--neat-surface',
 } as const;
 
@@ -219,10 +219,10 @@ export class NeatBev {
     const fallback = style.color;
     const css = (rgb: NeatRgb | null, alpha = 1): string => (rgb ? cssColor(rgb, alpha) : fallback);
     return {
-      line: css(colors.ego, GUIDE_ALPHA),
-      strong: css(colors.ego, OUTLINE_ALPHA),
+      line: css(colors.vehicle, GUIDE_ALPHA),
+      strong: css(colors.vehicle, OUTLINE_ALPHA),
       text: css(colors.text),
-      ego: css(colors.ego),
+      vehicle: css(colors.vehicle),
       halo: css(colors.halo),
       surface: colors.halo,
       font: `${style.fontSize} ${style.fontFamily}`,

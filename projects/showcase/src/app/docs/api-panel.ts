@@ -8,7 +8,7 @@ import { PartRef } from './part-ref';
 const JUMP_LINKS = 8;
 
 /**
- * The topic's API in the page's side panel: the entry it comes from, a jump list of its parts,
+ * The topic's API in the page's aside: the entry it comes from, a jump list of its parts,
  * then a section per part in the same order, the lead parts (those its examples show) first.
  */
 @Component({

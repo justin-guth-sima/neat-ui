@@ -7,7 +7,7 @@ import {
 } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { NeatViewport } from '@sima/neat-ui';
-import { DOCS_TOPIC_OF, type DocsSideList, type DocsTopic } from './docs-context';
+import { DOCS_TOPIC_OF, type DocsPageNav, type DocsTopic } from './docs-context';
 import { DOCS_ASIDE_OPEN_KEY, DOCS_ASIDE_WIDTH_KEY, DocsPage, topicParts } from './docs-page';
 import type { DocBlock, DocsEntry } from './model';
 
@@ -88,8 +88,8 @@ const TOPICS: Record<string, DocsTopic> = {
   short: { ...TOPIC, parts: ['NeatDiagramView'] },
   full: TOPIC,
 };
-/** A category's topics, which its pages show in their side list. */
-const SIDE_LIST: DocsSideList = {
+/** A category's topics, which its pages show in their page nav. */
+const PAGE_NAV: DocsPageNav = {
   label: 'Diagram topics',
   groups: [
     {
@@ -113,27 +113,27 @@ describe('DocsPage', () => {
   async function open(url = '/diagram', narrow = false) {
     TestBed.configureTestingModule({
       providers: [
-        // The routes as the topics config gives them: the topic and its side list as route data.
+        // The routes as the topics config gives them: the topic and its page nav as route data.
         provideRouter(
           [
             {
               path: 'diagram',
               component: DocsPage,
-              data: { topic: TOPIC, sideList: null },
+              data: { topic: TOPIC, pageNav: null },
             },
             { path: 'legend', children: [] },
             {
               path: 'listed',
               title: 'Listed',
               component: DocsPage,
-              data: { topic: TOPIC, sideList: SIDE_LIST },
+              data: { topic: TOPIC, pageNav: PAGE_NAV },
             },
             {
               path: 'pages',
               component: DocsPage,
               data: {
                 topic: { ...TOPIC, examples: [{ ...TOPIC.examples[0], page: true }] },
-                sideList: null,
+                pageNav: null,
               },
             },
           ],
@@ -166,7 +166,7 @@ describe('DocsPage', () => {
     delete (Element.prototype as Partial<Element>).scrollIntoView;
   });
 
-  it('shows a category’s topics in the page’s side list, with a filter, and no tabs', async () => {
+  it('shows a category’s topics in the page nav, with a filter, and no tabs', async () => {
     const { host } = await open('/listed');
     const page = host.querySelector('neat-page') as HTMLElement;
     const nav = page.querySelector(':scope > nav[neatPageNav]') as HTMLElement;
@@ -188,7 +188,7 @@ describe('DocsPage', () => {
     expect(page.querySelector('aside app-api-panel')).not.toBeNull();
   });
 
-  it('collapses the side list above the topic on a narrow screen', async () => {
+  it('collapses the page nav above the topic on a narrow screen', async () => {
     const { host } = await open('/listed', true);
     const nav = host.querySelector('neat-page > nav[neatPageNav]') as HTMLElement;
     const trigger = nav.querySelector('button[aria-expanded]') as HTMLElement;
@@ -199,7 +199,7 @@ describe('DocsPage', () => {
     expect(trigger.textContent).toContain('Listed');
   });
 
-  it('shows no side list, and no tabs, for a topic without one', async () => {
+  it('shows no page nav, and no tabs, for a topic without one', async () => {
     const { host } = await open();
 
     expect(host.querySelector('nav[neatPageNav]')).toBeNull();
@@ -321,7 +321,7 @@ describe('DocsPage', () => {
             {
               path: 'topic/:id',
               component: DocsPage,
-              data: { sideList: null },
+              data: { pageNav: null },
               resolve: { topic: (route: ActivatedRouteSnapshot) => TOPICS[route.params['id']] },
             },
           ],

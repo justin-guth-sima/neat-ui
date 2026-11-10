@@ -30,7 +30,7 @@ import { isReexportStub } from './display';
 import {
   DOCS_TOPIC_OF,
   DocsContext,
-  type DocsSideList,
+  type DocsPageNav,
   type DocsTarget,
   type DocsTopic,
   type DocsTopicPart,
@@ -69,11 +69,11 @@ function hasFit(instance: unknown): instance is { fit(): void } {
 }
 
 /**
- * One topic of the docs: a category's topics in the page's side list (`sideList`, Components'),
+ * One topic of the docs: a category's topics in the page nav (`pageNav`, Components'),
  * a body that introduces the parts its examples show and then the examples, and the topic's API in
- * the page's side panel, open by default on a wide screen, resizable, both remembered for every
+ * the page's aside, open by default on a wide screen, resizable, both remembered for every
  * topic. The topic may ask for a Fit button in the top bar (`DocsTopic.fit`), the page's one
- * toolbar. A group's own topics have no side list: the rail lists them under the group's item.
+ * toolbar. A group's own topics have no page nav: the rail lists them under the group's item.
  *
  * The URL's fragment `#api-<Name>`, as the page opens and each time it changes (a link to another
  * topic, a shared link, back and forward), opens the panel on the part's section; `#example-<id>`
@@ -111,7 +111,7 @@ function hasFit(instance: unknown): instance is { fit(): void } {
       [asideWidth]="asideWidth() ?? defaultAsideWidth"
       (asideWidthChange)="asideWidth.set($event)"
     >
-      @if (sideList(); as list) {
+      @if (pageNav(); as list) {
         <nav
           neatPageNav
           [attr.aria-label]="list.label"
@@ -144,8 +144,8 @@ function hasFit(instance: unknown): instance is { fit(): void } {
 })
 export class DocsPage extends DocsContext {
   readonly topic = input.required<DocsTopic>();
-  /** The topics of the page's category, in the page's side list; none for a group's own topic. */
-  readonly sideList = input<DocsSideList | null>(null);
+  /** The topics of the page's category, in the page nav; none for a group's own topic. */
+  readonly pageNav = input<DocsPageNav | null>(null);
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);

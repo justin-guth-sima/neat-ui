@@ -60,7 +60,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " to shrink). It is never wider than its container, though: in one narrower than its labels (a side panel dragged narrow) the options shrink together, still equal, and each label ends in an ellipsis, its full text still the option's name and shown as a tooltip on hover."
+              "text": " to shrink). It is never wider than its container, though: in one narrower than its labels (a aside dragged narrow) the options shrink together, still equal, and each label ends in an ellipsis, its full text still the option's name and shown as a tooltip on hover."
             }
           ]
         },

@@ -22,14 +22,14 @@ import { ShellSlot } from '../shell/shell-slot';
 import { NeatTooltip } from '../tooltip/tooltip';
 
 /*
- * The parts of a page's side panel (`neat-page`'s aside) that every page draws the same way: the
+ * The parts of a page's aside (`neat-page`'s aside) that every page draws the same way: the
  * top-bar button that opens and closes it, and the panel's column, title, section headings, action
  * rows and inline code. Class strings stay literals: Tailwind finds the classes the kit stylesheet
  * needs by reading them. Sizes and gaps come from the kit's scale only.
  */
 
 /**
- * Where the active page's side-panel toggle is handed to the shell, which draws it at the top
+ * Where the active page's aside toggle is handed to the shell, which draws it at the top
  * bar's right edge (or in kiosk mode's floating bar). Internal to the kit: pages declare
  * `neat-aside-toggle`, the shell renders `portal`.
  */
@@ -37,13 +37,13 @@ import { NeatTooltip } from '../tooltip/tooltip';
 export class AsideToggleSlot extends ShellSlot {
   constructor() {
     super(
-      'neat-ui: only one side-panel toggle at a time; remove the other neat-aside-toggle first.',
+      'neat-ui: only one aside toggle at a time; remove the other neat-aside-toggle first.',
     );
   }
 }
 
 /**
- * The button that opens and closes the page's side panel, which the shell draws at the top bar's
+ * The button that opens and closes the page's aside, which the shell draws at the top bar's
  * right edge, after the kiosk button and above the panel:
  *
  * ```html
@@ -97,7 +97,7 @@ export class AsideToggleSlot extends ShellSlot {
 export class NeatAsideToggle implements OnInit {
   /** The button's name and tooltip. */
   readonly label = input('Side panel');
-  /** Whether the page's side panel is open. */
+  /** Whether the page's aside is open. */
   readonly open = model(false);
 
   private readonly slot = inject(AsideToggleSlot);
@@ -130,7 +130,7 @@ export class NeatAsideToggle implements OnInit {
 }
 
 /**
- * The column of a side panel's content, on the element the page marks `neatPageAside` (or its
+ * The column of an aside's content, on the element the page marks `neatPageAside` (or its
  * root inside): its parts stacked one gap apart (`--neat-space-3`). The aside gives it its width,
  * inset and scrolling.
  */

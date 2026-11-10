@@ -122,7 +122,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A container 16rem wide, the content width of a side panel at its narrowest: look at the clipped \"Stream URL\"."
+            "text": "A container 16rem wide, the content width of an aside at its narrowest: look at the clipped \"Stream URL\"."
           }
         ]
       }
@@ -137,7 +137,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSegmented, "],["keyword","type"],["text"," NeatSegmentedOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/segmented'"],["text",";\n\n"],
-          ["comment","/** The labels of Insight's source switch, too wide together for a narrow side panel. */"],["text","\n"],
+          ["comment","/** The labels of Insight's source switch, too wide together for a narrow aside. */"],["text","\n"],
           ["keyword","const"],["text"," SOURCES: NeatSegmentedOption<"],["keyword","string"],["text",">[] = [\n  { value: "],
           ["string","'file'"],["text",", label: "],["string","'File'"],["text"," },\n  { value: "],
           ["string","'camera'"],["text",", label: "],["string","'Camera'"],["text"," },\n  { value: "],
@@ -154,7 +154,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "in-a-narrow-panel.example.css",
         "code": [
-          ["comment","/* The content width of a side panel at its 18rem minimum: narrower than the labels. */"],["text","\n.panel {\n  width: 16rem;\n}\n"]
+          ["comment","/* The content width of an aside at its 18rem minimum: narrower than the labels. */"],["text","\n.panel {\n  width: 16rem;\n}\n"]
         ]
       }
     ]

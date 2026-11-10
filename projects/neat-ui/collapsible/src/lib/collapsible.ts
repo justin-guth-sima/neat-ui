@@ -18,7 +18,7 @@ import { NeatIcon, ɵCOLLAPSIBLE_CLASSES as CLASSES } from '@sima/neat-ui';
 
 /*
  * The trigger, chevron, label, summary and content are the primary's collapsible look
- * (`ɵCOLLAPSIBLE_CLASSES`), which the page's side list shares on a narrow screen. Class strings
+ * (`ɵCOLLAPSIBLE_CLASSES`), which the page nav shares on a narrow screen. Class strings
  * stay literals: Tailwind finds the classes the kit stylesheet needs by reading them.
  */
 

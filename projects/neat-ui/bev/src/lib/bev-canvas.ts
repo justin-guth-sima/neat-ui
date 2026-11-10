@@ -45,7 +45,7 @@ export interface BevTheme {
   /** The labels. */
   readonly text: string;
   /** The vehicle's marker. */
-  readonly ego: string;
+  readonly vehicle: string;
   /** The surface the plot sits on: the halo around labels and the marker. */
   readonly halo: string;
   /** The surface as numbers, for the grids' backing; null where it does not parse. */
@@ -70,8 +70,8 @@ export interface BevInputs {
 /** Half the side of a point's square, CSS px. */
 const POINT_HALF = 1;
 /** The vehicle's marker: from its center to its tip and to its base's corners, CSS px. */
-const EGO_TIP = 9;
-const EGO_BASE = 6;
+const MARKER_TIP = 9;
+const MARKER_BASE = 6;
 /** Where the grid's labels sit from the plot's (or the box's) left and top: CSS px. */
 const GRID_LABEL_LEFT = 4;
 const GRID_LABEL_TOP = 10;
@@ -958,11 +958,11 @@ export class BevCanvas {
   private drawEgo(context: CanvasRenderingContext2D, view: BevView, theme: BevTheme): void {
     const at = toScreen(view, 0, 0, this.point);
     context.beginPath();
-    context.moveTo(at.x, at.y - EGO_TIP);
-    context.lineTo(at.x - EGO_BASE, at.y + EGO_BASE);
-    context.lineTo(at.x + EGO_BASE, at.y + EGO_BASE);
+    context.moveTo(at.x, at.y - MARKER_TIP);
+    context.lineTo(at.x - MARKER_BASE, at.y + MARKER_BASE);
+    context.lineTo(at.x + MARKER_BASE, at.y + MARKER_BASE);
     context.closePath();
-    context.fillStyle = theme.ego;
+    context.fillStyle = theme.vehicle;
     context.strokeStyle = theme.halo;
     context.lineWidth = 1.5;
     context.setLineDash(SOLID);

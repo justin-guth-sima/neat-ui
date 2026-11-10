@@ -524,7 +524,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The state of a page's side panel, as "
+              "text": "The state of a page's aside, as "
             },
             {
               "kind": "ref",
@@ -550,7 +550,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The column of a side panel's content, on the element the page marks "
+              "text": "The column of an aside's content, on the element the page marks "
             },
             {
               "kind": "code",
@@ -608,7 +608,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The button that opens and closes the page's side panel, which the shell draws at the top bar's right edge, after the kiosk button and above the panel:"
+              "text": "The button that opens and closes the page's aside, which the shell draws at the top bar's right edge, after the kiosk button and above the panel:"
             }
           ]
         },
@@ -721,7 +721,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Whether the page's side panel is open."
+                  "text": "Whether the page's aside is open."
                 }
               ]
             }
@@ -2033,7 +2033,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The page's sub-pages, the only second level of the rail's navigation (more than a few, or deeper levels, belong in the page's own side list). They unfold under the item while the page is active and the rail shows its labels; the open one carries "
+                  "text": "The page's sub-pages, the only second level of the rail's navigation (more than a few, or deeper levels, belong in the page nav). They unfold under the item while the page is active and the rail shows its labels; the open one carries "
                 },
                 {
                   "kind": "code",
@@ -2187,7 +2187,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") as a direct child is the page's side list: the body's start column, as high as the page and scrolling on its own whatever "
+              "text": ") as a direct child is the page nav: the body's start column, as high as the page and scrolling on its own whatever "
             },
             {
               "kind": "code",
@@ -2195,7 +2195,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " says, with the side panel at the other end; on a narrow screen a closed section above the body, under which the floating panel opens. Without one, the body starts at the page's edge."
+              "text": " says, with the aside at the other end; on a narrow screen a closed section above the body, under which the floating panel opens. Without one, the body starts at the page's edge."
             }
           ]
         },
@@ -2212,7 +2212,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " form the page's side panel (an inspector, say), shown on the right while "
+              "text": " form the page's aside (an inspector, say), shown on the right while "
             },
             {
               "kind": "code",
@@ -2228,7 +2228,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " wide and scrolls on its own; the body narrows beside it rather than being covered, keeping its own scroll setting. The aside and the side list are the supported other scroll contexts of a page: a page that needs another region of its own that scrolls independently is a kit change, so that the layout becomes a supported component, not a workaround. Closed, the panel and its content are out of the DOM, but projected content is still instantiated (content projection always creates it): gate expensive content with an "
+              "text": " wide and scrolls on its own; the body narrows beside it rather than being covered, keeping its own scroll setting. The aside and the page nav are the supported other scroll contexts of a page: a page that needs another region of its own that scrolls independently is a kit change, so that the layout becomes a supported component, not a workaround. Closed, the panel and its content are out of the DOM, but projected content is still instantiated (content projection always creates it): gate expensive content with an "
             },
             {
               "kind": "code",
@@ -2400,7 +2400,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Whether the side panel (the elements marked "
+                  "text": "Whether the aside (the elements marked "
                 },
                 {
                   "kind": "code",
@@ -2486,7 +2486,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The page's side list, the third level of the kit's navigation: pages are rail items, a page's sub-pages its item's "
+              "text": "The page nav, the third level of the kit's navigation: pages are rail items, a page's sub-pages its item's "
             },
             {
               "kind": "code",
@@ -2586,7 +2586,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "On a wide screen the page draws it as its body's start column, as high as the page, with the side panel at the other end. It scrolls on its own whatever the page's "
+              "text": "On a wide screen the page draws it as its body's start column, as high as the page, with the aside at the other end. It scrolls on its own whatever the page's "
             },
             {
               "kind": "code",
@@ -2692,7 +2692,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A group of the side list's links, under a heading when it has a "
+              "text": "A group of the page nav's links, under a heading when it has a "
             },
             {
               "kind": "code",
@@ -2756,7 +2756,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "One link of the page's side list."
+              "text": "One link of the page nav."
             }
           ]
         }
@@ -3504,7 +3504,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", the kiosk button (the one app control there, since it changes how the page is shown), and last, at the right edge above the side panel, the page's side-panel toggle ("
+              "text": ", the kiosk button (the one app control there, since it changes how the page is shown), and last, at the right edge above the aside, the page's aside toggle ("
             },
             {
               "kind": "code",
@@ -3562,7 +3562,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") drops the rail and the top bar, gives the content area the whole viewport and floats an exit control over its top right corner while the pointer moves; the page toolbar, then the side-panel toggle, float beside it on the same terms. Their views are re-created on entering and leaving kiosk mode, so the page keeps their state."
+              "text": ") drops the rail and the top bar, gives the content area the whole viewport and floats an exit control over its top right corner while the pointer moves; the page toolbar, then the aside toggle, float beside it on the same terms. Their views are re-created on entering and leaving kiosk mode, so the page keeps their state."
             }
           ]
         },
@@ -3588,7 +3588,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; the name beside the logo, which is also named \"SiMa.ai\"). The logo, the end slot, the kiosk button and the side-panel toggle share the first row, the end slot growing from a zero basis and the toggle last, and the page toolbar takes its own full-width second row. An expanded rail floats over the content, below the top bar, instead of squeezing it, starts collapsed without touching the remembered choice, and collapses when one of its links is followed. The host's "
+              "text": "; the name beside the logo, which is also named \"SiMa.ai\"). The logo, the end slot, the kiosk button and the aside toggle share the first row, the end slot growing from a zero basis and the toggle last, and the page toolbar takes its own full-width second row. An expanded rail floats over the content, below the top bar, instead of squeezing it, starts collapsed without touching the remembered choice, and collapses when one of its links is followed. The host's "
             },
             {
               "kind": "code",
@@ -4214,7 +4214,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The open state of a page's side panel, for a page that remembers the choice ("
+              "text": "The open state of a page's aside, for a page that remembers the choice ("
             },
             {
               "kind": "code",

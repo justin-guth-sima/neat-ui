@@ -69,6 +69,11 @@ A reader stops when they have enough. An agent reads on.
 
 ## Words we use
 
+**Use the [glossary](glossary.md)'s name for each thing, and add a new term there before you use
+it.** Why: one name per thing lets a reader find every place that talks about it; a second name
+makes it look like a second thing. Established UI names (card, dialog, tooltip) win over our own.
+Name the thing, not its shape: "the block", not "the box".
+
 | Write               | Not                               |
 | ------------------- | --------------------------------- |
 | the kit             | the library, neat-ui (in prose)   |

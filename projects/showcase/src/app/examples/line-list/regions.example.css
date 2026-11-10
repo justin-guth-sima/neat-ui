@@ -1,4 +1,4 @@
-/* The example's parts one gap apart, in a column the width of a side panel's list. */
+/* The example's parts one gap apart, in a column the width of an aside's list. */
 :host {
   display: flex;
   flex-direction: column;

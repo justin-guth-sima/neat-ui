@@ -48,7 +48,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "under-a-control.example.css",
         "code": [
-          ["comment","/* A column the width of a side panel's control, so the note wraps as it does under one. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  width: 18rem;\n}\n"]
+          ["comment","/* A column the width of an aside's control, so the note wraps as it does under one. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  width: 18rem;\n}\n"]
         ]
       }
     ]

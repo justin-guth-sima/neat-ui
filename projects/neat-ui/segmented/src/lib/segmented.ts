@@ -83,7 +83,7 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
  * It never gives up width to its neighbors: in a flex row too narrow for everything in it, the
  * control keeps its labels whole and the text beside it gives way (that text needs `min-width: 0`
  * to shrink). It is never wider than its container, though: in one narrower than its labels (a
- * side panel dragged narrow) the options shrink together, still equal, and each label ends in an
+ * aside dragged narrow) the options shrink together, still equal, and each label ends in an
  * ellipsis, its full text still the option's name and shown as a tooltip on hover.
  *
  * Not built on brain's toggle group: brain makes its items pressed toggle buttons (`aria-pressed`,

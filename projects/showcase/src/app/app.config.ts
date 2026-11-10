@@ -11,7 +11,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(
       routes,
-      // The docs page reads its topic and side list from the route's data and resolvers as inputs.
+      // The docs page reads its topic and page nav from the route's data and resolvers as inputs.
       withComponentInputBinding(),
     ),
     { provide: DOCS_TOPIC_OF, useValue: partTopicPath(GROUPS) },

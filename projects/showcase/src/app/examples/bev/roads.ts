@@ -33,7 +33,7 @@ const RAMP_ON = 60;
 /** How finely curves and lines are drawn: meters between points. */
 const STEP = 1.5;
 /** The vehicle's speed round the ring, m/s, and how far ahead its planned path reaches. */
-const EGO_SPEED = 12;
+const VEHICLE_SPEED = 12;
 const PLAN_AHEAD = 50;
 
 /** Where something is and which way it heads (radians counterclockwise from east). */
@@ -278,8 +278,8 @@ const TRAFFIC: readonly {
   readonly speed: number;
   readonly label: string;
 }[] = [
-  { id: 'car 1', route: 'ring', at: 40, speed: EGO_SPEED, label: 'car' },
-  { id: 'car 2', route: 'ring', at: 250, speed: EGO_SPEED, label: 'car' },
+  { id: 'car 1', route: 'ring', at: 40, speed: VEHICLE_SPEED, label: 'car' },
+  { id: 'car 2', route: 'ring', at: 250, speed: VEHICLE_SPEED, label: 'car' },
   { id: 'truck 1', route: 'ringOuter', at: 60, speed: 8, label: 'truck' },
   { id: 'car 3', route: 'ringOuter', at: 200, speed: 9, label: 'car' },
   { id: 'car 4', route: 'ringBack', at: 30, speed: 11, label: 'car' },
@@ -298,10 +298,10 @@ const SIZES: Readonly<Record<string, readonly [length: number, width: number]>> 
 };
 
 /** The vehicle's own lane round the ring, and the length of its lap. */
-const EGO = ROUTES.ring;
-export const LAP = EGO.length;
+const OWN_LANE = ROUTES.ring;
+export const LAP = OWN_LANE.length;
 /** How many points the planned path has. */
-const PLAN_POINTS = stations(EGO, 0, PLAN_AHEAD).length;
+const PLAN_POINTS = stations(OWN_LANE, 0, PLAN_AHEAD).length;
 
 /** The network as the vehicle sees it `seconds` into its laps. */
 export class RoadScene {
@@ -313,23 +313,23 @@ export class RoadScene {
   };
 
   frameAt(seconds: number): NeatBevFrame {
-    const traveled = (EGO_SPEED * seconds) % LAP;
-    const ego = EGO.at(traveled);
-    const cos = Math.cos(ego.yaw);
-    const sin = Math.sin(ego.yaw);
+    const traveled = (VEHICLE_SPEED * seconds) % LAP;
+    const vehicle = OWN_LANE.at(traveled);
+    const cos = Math.cos(vehicle.yaw);
+    const sin = Math.sin(vehicle.yaw);
     // World to vehicle: about the vehicle, turned so that its heading is forward.
     const into = (world: Float32Array, out: Float32Array) => {
       for (let i = 0; i + 1 < world.length; i += 2) {
-        const dx = world[i] - ego.x;
-        const dy = world[i + 1] - ego.y;
+        const dx = world[i] - vehicle.x;
+        const dy = world[i + 1] - vehicle.y;
         out[i] = dx * cos + dy * sin;
         out[i + 1] = -dx * sin + dy * cos;
       }
     };
     for (const { world, line } of this.placed) into(world, line.xy);
 
-    stations(EGO, 0, PLAN_AHEAD).forEach((d, i) => {
-      const { x, y } = EGO.at((traveled + d) % LAP);
+    stations(OWN_LANE, 0, PLAN_AHEAD).forEach((d, i) => {
+      const { x, y } = OWN_LANE.at((traveled + d) % LAP);
       this.plan[2 * i] = x;
       this.plan[2 * i + 1] = y;
     });
@@ -339,14 +339,14 @@ export class RoadScene {
       const route = ROUTES[mover.route];
       const pose = route.at((mover.at + mover.speed * seconds) % route.length);
       const [length, width] = SIZES[mover.label];
-      const dx = pose.x - ego.x;
-      const dy = pose.y - ego.y;
+      const dx = pose.x - vehicle.x;
+      const dy = pose.y - vehicle.y;
       return {
         id: mover.id,
         label: mover.label,
         x: dx * cos + dy * sin,
         y: -dx * sin + dy * cos,
-        yaw: pose.yaw - ego.yaw,
+        yaw: pose.yaw - vehicle.yaw,
         length,
         width,
         text: `${mover.speed} m/s`,

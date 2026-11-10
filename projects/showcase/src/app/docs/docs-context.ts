@@ -28,8 +28,8 @@ export interface DocsTopic {
   readonly fit?: true;
 }
 
-/** A category's topics, which each of its pages lists in its side list (`nav[neatPageNav]`). */
-export interface DocsSideList {
+/** A category's topics, which each of its pages lists in its page nav (`nav[neatPageNav]`). */
+export interface DocsPageNav {
   /** The list's name, and its label on a narrow screen: "Data topics". */
   readonly label: string;
   readonly groups: readonly NeatPageNavGroup[];

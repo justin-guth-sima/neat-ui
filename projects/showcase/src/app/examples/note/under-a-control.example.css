@@ -1,4 +1,4 @@
-/* A column the width of a side panel's control, so the note wraps as it does under one. */
+/* A column the width of an aside's control, so the note wraps as it does under one. */
 :host {
   display: flex;
   flex-direction: column;

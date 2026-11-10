@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NeatPage, NeatPageNav, type NeatPageNavGroup } from '@sima/neat-ui';
 
-const SIDE_LIST: readonly NeatPageNavGroup[] = [
+const PAGE_NAV: readonly NeatPageNavGroup[] = [
   {
     label: 'Views',
     items: [
@@ -19,7 +19,7 @@ const SIDE_LIST: readonly NeatPageNavGroup[] = [
 ];
 
 /**
- * The second view of the side list: a route of its own, so the list is declared again and its
+ * The second view of the page nav: a route of its own, so the list is declared again and its
  * open link follows the route. Network and Storage are routes nested under this one, which keep
  * this example rendered: of the links whose path the route is under, the longest is the open one,
  * so on `…/details/network` it is Network, not Details. The list stays where it is when the view
@@ -33,7 +33,7 @@ const SIDE_LIST: readonly NeatPageNavGroup[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-page>
-      <nav neatPageNav aria-label="Page example" [groups]="sideList"></nav>
+      <nav neatPageNav aria-label="Page example" [groups]="pageNav"></nav>
       <div class="showcase-page">
         <section class="showcase-section">
           <h2>Details</h2>
@@ -44,5 +44,5 @@ const SIDE_LIST: readonly NeatPageNavGroup[] = [
   `,
 })
 export class Details {
-  protected readonly sideList = SIDE_LIST;
+  protected readonly pageNav = PAGE_NAV;
 }

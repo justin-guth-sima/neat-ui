@@ -14,7 +14,7 @@ class NoopResizeObserver {
 
 const REMEMBERED_KEY = 'neat-ui-showcase:remembered-panel';
 
-describe('the side panel examples, each routed on a page of its own', () => {
+describe('the aside examples, each routed on a page of its own', () => {
   let fixture: ComponentFixture<App>;
   let router: Router;
 
@@ -46,7 +46,7 @@ describe('the side panel examples, each routed on a page of its own', () => {
   });
 
   it('open and close the panel from the top bar toggle, saying the width is default', async () => {
-    await open('/demo/side-panel/source-panel');
+    await open('/demo/aside/source-panel');
 
     expect(toggle().getAttribute('aria-pressed')).toBe('true');
     expect(aside()?.querySelector('h2')?.textContent).toBe('src3');
@@ -62,7 +62,7 @@ describe('the side panel examples, each routed on a page of its own', () => {
   });
 
   it('put the reset button in the top bar, disabled while the width is the default', async () => {
-    await open('/demo/side-panel/source-panel');
+    await open('/demo/aside/source-panel');
     const reset = root().querySelector(
       'header [aria-label="Page tools"] button',
     ) as HTMLButtonElement;
@@ -72,7 +72,7 @@ describe('the side panel examples, each routed on a page of its own', () => {
   });
 
   it('remember the panel on a wide screen: closing is stored and comes back closed', async () => {
-    await open('/demo/side-panel/remembered-panel');
+    await open('/demo/aside/remembered-panel');
     expect(aside()).not.toBeNull();
 
     toggle().click();
@@ -82,13 +82,13 @@ describe('the side panel examples, each routed on a page of its own', () => {
     expect(localStorage.getItem(REMEMBERED_KEY)).toBe('false');
 
     TestBed.resetTestingModule();
-    await open('/demo/side-panel/remembered-panel');
+    await open('/demo/aside/remembered-panel');
 
     expect(aside()).toBeNull();
   });
 
   it('start closed on a narrow screen, and not remember what is opened there', async () => {
-    await open('/demo/side-panel/remembered-panel', [
+    await open('/demo/aside/remembered-panel', [
       { provide: NeatViewport, useValue: { narrow: signal(true) } },
     ]);
     expect(aside()).toBeNull();

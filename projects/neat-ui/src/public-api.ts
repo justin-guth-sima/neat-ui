@@ -71,7 +71,7 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
  * ng-packagr gives each entry the built primary and nothing else, so the vendored helm code in
  * `lib/ui/` (never exported otherwise), the shell's toolbar token, the field label's classes
  * (which `select` and `field` share), the text field's and the collapsible section's looks
- * (which `input` and `collapsible` share with the page's side list), the stale look (which
+ * (which `input` and `collapsible` share with the page nav), the stale look (which
  * `diagram` gives a node's card), the focus rules and surface
  * of a panel in the overlay (the popover's, shared with the shell's collapsed-rail menu, and the
  * helm classes its drift spec reads), the series' token rule (which `charts` and `diagram`

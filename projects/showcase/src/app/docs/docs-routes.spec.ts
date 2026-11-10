@@ -77,7 +77,7 @@ const THINGS = {
   ],
 } satisfies TopicGroup;
 
-/** A group whose sub-pages are categories, each with its topics in a side list beside its pages. */
+/** A group whose sub-pages are categories, each with its topics in a page nav beside its pages. */
 const PARTS = {
   id: 'parts',
   label: 'Parts',
@@ -221,7 +221,7 @@ describe('the docs routes', () => {
     expect(router.url).toBe('/things/thing');
   });
 
-  it('titles a page with its topic, and hands the docs page its topic and no side list', async () => {
+  it('titles a page with its topic, and hands the docs page its topic and no page nav', async () => {
     const harness = await RouterTestingHarness.create();
     const page = await harness.navigateByUrl('/things/thing', DocsPage);
     await harness.fixture.whenStable();
@@ -233,7 +233,7 @@ describe('the docs routes', () => {
       leads: ['NeatThing'],
       fit: true,
     });
-    expect(page.sideList()).toBeNull();
+    expect(page.pageNav()).toBeNull();
   });
 
   it('routes a hand-made topic’s component, not a docs page', async () => {
@@ -254,13 +254,13 @@ describe('the docs routes', () => {
     expect(router.url).toBe('/hand/made');
   });
 
-  it('hands the pages of a category its topics as their side list', async () => {
+  it('hands the pages of a category its topics as their page nav', async () => {
     const harness = await RouterTestingHarness.create();
     const page = await harness.navigateByUrl('/parts/small/nut', DocsPage);
     await harness.fixture.whenStable();
 
     expect(docsRoutes(GROUPS).find((route) => route.path === 'parts/small/nut')?.title).toBe('Nut');
-    expect(page.sideList()).toEqual({
+    expect(page.pageNav()).toEqual({
       label: 'Small topics',
       groups: [
         {

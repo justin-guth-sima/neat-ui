@@ -40,7 +40,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "panel.css",
         "code": [
-          ["comment","/* A list's habitat is a side panel, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n"]
+          ["comment","/* A list's habitat is an aside, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n"]
         ]
       },
       {
@@ -93,7 +93,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "panel.css",
         "code": [
-          ["comment","/* A list's habitat is a side panel, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n"]
+          ["comment","/* A list's habitat is an aside, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n"]
         ]
       },
       {

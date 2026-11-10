@@ -79,7 +79,7 @@ describe('NeatPage', () => {
   const page = (): HTMLElement => fixture.nativeElement.querySelector('neat-page');
   const body = (): HTMLElement => page().querySelector('.body') as HTMLElement;
   const aside = (): HTMLElement | null => page().querySelector('aside');
-  /** The row of the body and the aside, beside or below the side list. */
+  /** The row of the body and the aside, beside or below the page nav. */
   const content = (): HTMLElement => page().querySelector('.content') as HTMLElement;
   // jsdom computes the stylesheet's `overflow` shorthand but does not expand it into
   // `overflow-x`/`overflow-y`, so the shorthand is what can be asserted.
@@ -108,7 +108,7 @@ describe('NeatPage', () => {
     vi.stubGlobal('ResizeObserver', FakeResizeObserver);
     narrow.set(false);
     TestBed.configureTestingModule({
-      // The side list's links need a router; nothing here navigates.
+      // The page nav's links need a router; nothing here navigates.
       providers: [provideRouter([]), { provide: NeatViewport, useValue: { narrow } }],
     });
     fixture = TestBed.createComponent(Host);
@@ -222,7 +222,7 @@ describe('NeatPage', () => {
 
     expect(page().dataset['aside']).toBe('overlay');
     // The row is the aside's containing block, so it floats over that box (not over the narrow
-    // screen's side list) and the body keeps its whole width (it is the only item left in it).
+    // screen's page nav) and the body keeps its whole width (it is the only item left in it).
     expect(getComputedStyle(content()).position).toBe('relative');
     expect(getComputedStyle(aside() as HTMLElement).position).toBe('absolute');
     // jsdom resolves no var() or min(), so the rest is asserted as the stylesheet's rule.
@@ -235,7 +235,7 @@ describe('NeatPage', () => {
     expect((aside() as HTMLElement).className).toContain('shadow-md');
   });
 
-  it('draws nothing beside or above the content on a page without a side list', () => {
+  it('draws nothing beside or above the content on a page without a page nav', () => {
     expect(page().querySelector('nav')).toBeNull();
     expect([...page().children]).toEqual([content()]);
   });
@@ -247,7 +247,7 @@ describe('NeatPage', () => {
     expect(getComputedStyle(content()).minWidth).toBe('0px');
   });
 
-  describe('side list', () => {
+  describe('page nav', () => {
     async function render(setup?: (host: NavHost) => void) {
       const navFixture = TestBed.createComponent(NavHost);
       setup?.(navFixture.componentInstance);
@@ -261,7 +261,7 @@ describe('NeatPage', () => {
       };
     }
 
-    it('places [neatPageNav] before the body, beside it, with the side panel after the body', async () => {
+    it('places [neatPageNav] before the body, beside it, with the aside after the body', async () => {
       const { navPage, nav, row } = await render();
 
       expect(navPage.dataset['nav']).toBe('beside');
@@ -291,7 +291,7 @@ describe('NeatPage', () => {
       expect([...navPage.children]).toEqual([nav, row]);
       expect(nav.dataset['layout']).toBe('collapsible');
       expect(nav.querySelector('button[aria-expanded="false"]')?.textContent).toContain('Settings');
-      // The floating side panel stays over the body, below the section.
+      // The floating aside stays over the body, below the section.
       expect((row.querySelector('aside') as HTMLElement).parentElement).toBe(row);
     });
   });
@@ -317,7 +317,7 @@ describe('NeatPage', () => {
     expect(plain.nativeElement.querySelector('aside')).toBeNull();
   });
 
-  describe('resizing the side panel', () => {
+  describe('resizing the aside', () => {
     const separator = (): HTMLElement | null =>
       page().querySelector<HTMLElement>('[role="separator"]');
     const host = (): Host => fixture.componentInstance;

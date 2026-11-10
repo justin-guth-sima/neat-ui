@@ -108,7 +108,7 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * The top bar holds the logo, the app name and the page title, then at its right the active page's
  * tools (`*neatPageToolbar`), elements marked `neatTopbarEnd`, the kiosk button (the one app
  * control there, since it changes how the page is shown), and last, at the right edge above the
- * side panel, the page's side-panel toggle (`neat-aside-toggle`) when the page has one. The page
+ * aside, the page's aside toggle (`neat-aside-toggle`) when the page has one. The page
  * title is the matching nav item's label, else the route's `title`; on a page with sub-pages it is
  * the open sub-page's label with the page's label beside it, muted, or, on a route deeper than the
  * sub-page whose own `title` is set (not an ancestor's), that title with "page › sub-page" beside
@@ -116,13 +116,13 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  *
  * Kiosk mode (`KioskService`, entered from the top bar or with `?kiosk`) drops the rail and the
  * top bar, gives the content area the whole viewport and floats an exit control over its top
- * right corner while the pointer moves; the page toolbar, then the side-panel toggle, float beside
+ * right corner while the pointer moves; the page toolbar, then the aside toggle, float beside
  * it on the same terms. Their views are re-created on entering and leaving kiosk mode, so the page
  * keeps their state.
  *
  * On a narrow screen (`NeatViewport`, below 48rem) the app name and the page title are visually
  * hidden but stay for screen readers (the title as the page's `h1`; the name beside the logo,
- * which is also named "SiMa.ai"). The logo, the end slot, the kiosk button and the side-panel
+ * which is also named "SiMa.ai"). The logo, the end slot, the kiosk button and the aside
  * toggle share the first row, the end slot growing from a zero basis and the toggle last, and the
  * page toolbar takes its own full-width second row. An expanded rail floats over the content,
  * below the top bar, instead of squeezing it, starts collapsed without touching the remembered

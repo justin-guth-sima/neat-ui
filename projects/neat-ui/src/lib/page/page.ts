@@ -13,7 +13,7 @@ import {
 import { NeatViewport } from './viewport';
 
 /*
- * The side panel's bounds and the keyboard step, stated here and nowhere else. The panel is at
+ * The aside's bounds and the keyboard step, stated here and nowhere else. The panel is at
  * least 18rem, so its content stays usable, and at most what leaves the body 20rem: there is no
  * other cap, since a wide screen is the reason to widen the panel (a table of columns, say) and a
  * share of the page or a fixed width would stop it short. On a page too small for both the
@@ -36,15 +36,15 @@ const KEY_STEP = 16;
  * area's edges, so every app's pages line up; `padding="none"` lets full-bleed content (a video
  * grid, a map) reach the edges.
  *
- * A `nav[neatPageNav]` (see `NeatPageNav`) as a direct child is the page's side list: the body's
+ * A `nav[neatPageNav]` (see `NeatPageNav`) as a direct child is the page nav: the body's
  * start column, as high as the page and scrolling on its own whatever `scroll` says, with the
- * side panel at the other end; on a narrow screen a closed section above the body, under which
+ * aside at the other end; on a narrow screen a closed section above the body, under which
  * the floating panel opens. Without one, the body starts at the page's edge.
  *
- * Elements marked `neatPageAside` form the page's side panel (an inspector, say), shown on the
+ * Elements marked `neatPageAside` form the page's aside (an inspector, say), shown on the
  * right while `aside="open"`. The panel is `--neat-aside-width` wide and scrolls on its own; the
  * body narrows beside it rather than being covered, keeping its own scroll setting. The aside and
- * the side list are the supported other scroll contexts of a page: a page that needs another
+ * the page nav are the supported other scroll contexts of a page: a page that needs another
  * region of its own that scrolls independently is a kit change, so that the layout becomes a
  * supported component, not a workaround. Closed, the panel and its content are out of the DOM,
  * but projected content is still instantiated (content projection always creates it): gate
@@ -131,7 +131,7 @@ export class NeatPage {
    */
   readonly padding = input<'page' | 'none'>('page');
   /**
-   * Whether the side panel (the elements marked `neatPageAside`) is shown: `closed` (the default)
+   * Whether the aside (the elements marked `neatPageAside`) is shown: `closed` (the default)
    * or `open`. The page owns no state: bind it to yours, or to `neatAsideOpen`.
    */
   readonly aside = input<'open' | 'closed'>('closed');

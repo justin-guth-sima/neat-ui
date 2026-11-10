@@ -1,4 +1,4 @@
-/* The side list, if the page has one, and the content row; the page itself never scrolls. */
+/* The page nav, if the page has one, and the content row; the page itself never scrolls. */
 :host {
   display: flex;
   height: 100%;
@@ -15,9 +15,9 @@
   flex-direction: column;
 }
 
-/* The body and, while open, the aside side by side, in what the side list leaves of the page. It
+/* The body and, while open, the aside side by side, in what the page nav leaves of the page. It
    is the containing block of the floating aside, so the aside stays inside this box, below the
-   narrow screen's side list. It may shrink below its content's size so the body scrolls inside it
+   narrow screen's page nav. It may shrink below its content's size so the body scrolls inside it
    instead of growing it. */
 .content {
   position: relative;

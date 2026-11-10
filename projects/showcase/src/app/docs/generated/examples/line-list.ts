@@ -48,7 +48,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "regions.example.css",
         "code": [
-          ["comment","/* The example's parts one gap apart, in a column the width of a side panel's list. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n  width: 18rem;\n}\n"]
+          ["comment","/* The example's parts one gap apart, in a column the width of an aside's list. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n  width: 18rem;\n}\n"]
         ]
       }
     ]

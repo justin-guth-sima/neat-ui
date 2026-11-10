@@ -14,7 +14,7 @@ import {
 import { NeatDetails } from '@sima/neat-ui/details';
 
 /**
- * A page's side panel as an inspector: the toggle in the top bar opens and closes it, and the
+ * A page's aside as an inspector: the toggle in the top bar opens and closes it, and the
  * panel is a column of a title, actions, headings, notes and details. The body narrows beside it
  * and each scrolls on its own. `[(asideWidth)]` is the panel's width, which the page only exposes
  * (here in the text below, and reset to the default by the toolbar's button); drag the line on
@@ -57,7 +57,7 @@ import { NeatDetails } from '@sima/neat-ui/details';
     <neat-page [aside]="asideOpen() ? 'open' : 'closed'" [(asideWidth)]="asideWidth">
       <div class="showcase-page">
         <section class="showcase-section">
-          <h2>Side panel</h2>
+          <h2>Aside</h2>
           <p>The panel's width is {{ asideWidth() ?? 'null, the default' }}.</p>
           <p class="showcase-muted">
             The panel stays between 18rem and the page's width less 20rem, so the body keeps room.

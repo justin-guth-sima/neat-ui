@@ -1,7 +1,7 @@
 import { computed, inject, linkedSignal, type Signal } from '@angular/core';
 import { NeatViewport } from './viewport';
 
-/** The state of a page's side panel, as `neatAsideOpen` keeps it. */
+/** The state of a page's aside, as `neatAsideOpen` keeps it. */
 export interface NeatAsideOpen {
   /** Whether the panel is open now: bind it to the page's `aside` and the toggle's `open`. */
   readonly open: Signal<boolean>;
@@ -10,7 +10,7 @@ export interface NeatAsideOpen {
 }
 
 /**
- * The open state of a page's side panel, for a page that remembers the choice (`remembered`, with
+ * The open state of a page's aside, for a page that remembers the choice (`remembered`, with
  * `remember` writing it where the page keeps it, such as local storage). Call it in an injection
  * context.
  *

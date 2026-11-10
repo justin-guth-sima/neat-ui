@@ -25,7 +25,7 @@ import { NeatIcon } from '../icon/icon';
 import { openLink } from './open-link';
 import { NeatViewport } from './viewport';
 
-/** One link of the page's side list. */
+/** One link of the page nav. */
 export interface NeatPageNavLink {
   /** The link's text, which the filter matches. */
   label: string;
@@ -37,7 +37,7 @@ export interface NeatPageNavLink {
   path: string;
 }
 
-/** A group of the side list's links, under a heading when it has a `label`. */
+/** A group of the page nav's links, under a heading when it has a `label`. */
 export interface NeatPageNavGroup {
   /** The group's heading; a group without one shows its links with no heading above them. */
   label?: string;
@@ -47,7 +47,7 @@ export interface NeatPageNavGroup {
 let nextNavId = 0;
 
 /**
- * The page's side list, the third level of the kit's navigation: pages are rail items, a page's
+ * The page nav, the third level of the kit's navigation: pages are rail items, a page's
  * sub-pages its item's `children`, and anything more (more than a few links, groups of them, or a
  * level below a sub-page) is this list, as a direct child of `neat-page`:
  *
@@ -71,7 +71,7 @@ let nextNavId = 0;
  * dev mode. The name is read once, when the list is first drawn.
  *
  * On a wide screen the page draws it as its body's start column, as high as the page, with the
- * side panel at the other end. It scrolls on its own whatever the page's `scroll`, so it stays in
+ * aside at the other end. It scrolls on its own whatever the page's `scroll`, so it stays in
  * view while the body scrolls, with the filter fixed at its top; it scrolls itself, never with
  * `scrollIntoView` (which would scroll the page around it too), to show the open link whenever a
  * navigation leaves that link out of view. On a narrow screen (`NeatViewport`) it is a closed

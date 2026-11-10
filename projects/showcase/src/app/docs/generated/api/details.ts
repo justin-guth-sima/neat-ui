@@ -15,7 +15,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Facts about the selected thing, as a side panel shows them: a native description list whose terms are muted and whose values sit beside them:"
+              "text": "Facts about the selected thing, as an aside shows them: a native description list whose terms are muted and whose values sit beside them:"
             }
           ]
         },

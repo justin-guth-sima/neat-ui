@@ -1,6 +1,6 @@
 /*
  * The look of a section that a full-width button opens and closes, which `NeatCollapsible` draws
- * and the page's side list takes on a narrow screen: one definition, so that both read as the
+ * and the page nav takes on a narrow screen: one definition, so that both read as the
  * same control. Internal to the kit; the primary exports it `ɵ` for the collapsible entry. Class
  * strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading them.
  * Colors are the theme's tokens only; collapsible.spec holds the label and the summary to 4.5:1

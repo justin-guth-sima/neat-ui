@@ -8,7 +8,7 @@ import {
   NeatViewport,
 } from '@sima/neat-ui';
 
-const SIDE_LIST: readonly NeatPageNavGroup[] = [
+const PAGE_NAV: readonly NeatPageNavGroup[] = [
   {
     label: 'Views',
     items: [
@@ -29,7 +29,7 @@ const SIDE_LIST: readonly NeatPageNavGroup[] = [
  * A page that fills the shell's content area and owns the one scroll context below it. It is
  * longer than any screen on purpose: the shell, the top bar and the rail stay put while only the
  * body scrolls. Its tools are in the top bar (`*neatPageToolbar`), where in kiosk mode they float
- * beside the exit control, and its side list (`nav[neatPageNav]`) links its views: a column of its
+ * beside the exit control, and its page nav (`nav[neatPageNav]`) links its views: a column of its
  * own beside the body that stays put while the body scrolls, with a filter over its links at the
  * top (a long list wants one; this short one has it to show it). Make the window narrow to see the
  * list fold into a section above the body.
@@ -51,7 +51,7 @@ const SIDE_LIST: readonly NeatPageNavGroup[] = [
       <nav
         neatPageNav
         aria-label="Page example"
-        [groups]="sideList"
+        [groups]="pageNav"
         filterLabel="Filter views"
       ></nav>
       <div class="showcase-page">
@@ -78,7 +78,7 @@ const SIDE_LIST: readonly NeatPageNavGroup[] = [
   `,
 })
 export class Overview {
-  protected readonly sideList = SIDE_LIST;
+  protected readonly pageNav = PAGE_NAV;
   protected readonly narrow = inject(NeatViewport).narrow;
   protected readonly many = signal(true);
   protected readonly sections = computed(() =>

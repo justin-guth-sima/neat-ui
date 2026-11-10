@@ -5,7 +5,7 @@ import { containsTree, Router, UrlTree } from '@angular/router';
  * path counts, never the query, matrix parameters or fragment. A link whose path is `exactPath`
  * is open on that path alone: a first view on its page's own path would otherwise stay open on
  * every sibling's route. Parsed with the router's own serializer, so every level of the kit's
- * navigation (the rail's sub-pages, the collapsed rail's menu, the page's side list) agrees.
+ * navigation (the rail's sub-pages, the collapsed rail's menu, the page nav) agrees.
  * Internal to the kit.
  */
 export function openLink<T extends { readonly path: string }>(

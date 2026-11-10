@@ -656,7 +656,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " it is placed in, and lets the user add polygons by clicking points on it. Project it into the tile with "
+              "text": " it is placed in, and lets the user add regions by clicking points on it. Project it into the tile with "
             },
             {
               "kind": "code",
@@ -866,7 +866,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The polygons to draw. Open polygons are not part of it until "
+                  "text": "The regions to draw. One being drawn is not part of it until "
                 },
                 {
                   "kind": "code",
@@ -874,7 +874,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " brings them."
+                  "text": " brings it."
                 }
               ]
             }
@@ -941,7 +941,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "A closed polygon appended to "
+                  "text": "A new region appended to "
                 },
                 {
                   "kind": "code",

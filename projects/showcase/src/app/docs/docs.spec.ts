@@ -206,7 +206,7 @@ describe('every docs topic in the app', () => {
   it.each(
     topics.map(({ group, topic, path, category }) => [path, group, topic, category] as const),
   )(
-    'renders %s with its page and sub-page in the rail, and a category’s topics in its side list',
+    'renders %s with its page and sub-page in the rail, and a category’s topics in its page nav',
     async (path, group, topic, category) => {
       await router.navigateByUrl(path);
       await fixture.whenStable();
@@ -230,7 +230,7 @@ describe('every docs topic in the app', () => {
       );
       expect(current(children)).toEqual([category?.label ?? topic.label]);
 
-      // The page: a category's topics in its side list, a group's own topics in none.
+      // The page: a category's topics in its page nav, a group's own topics in none.
       const list = content().querySelector('neat-page > nav[neatPageNav]');
       expect(content().querySelector('[neatPageTabs]')).toBeNull();
       if (!category) {

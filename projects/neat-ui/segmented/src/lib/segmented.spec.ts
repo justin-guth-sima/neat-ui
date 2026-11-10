@@ -14,7 +14,7 @@ const OPTIONS: NeatSegmentedOption<Shape>[] = [
   { value: 'square', label: '1:1', icon: 'aspect-square' },
   { value: 'tall', label: '9:16' },
 ];
-/** Labels too long for a narrow container, as Insight's source switch in a narrow side panel. */
+/** Labels too long for a narrow container, as Insight's source switch in a narrow aside. */
 const LONG_OPTIONS: NeatSegmentedOption<string>[] = [
   { value: 'file', label: 'File' },
   { value: 'camera', label: 'Camera' },

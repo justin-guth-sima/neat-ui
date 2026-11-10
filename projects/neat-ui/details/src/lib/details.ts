@@ -22,7 +22,7 @@ const DETAILS_CLASSES =
   'm-0 grid grid-cols-[var(--neat-details-term-width,auto)_1fr] gap-x-(--neat-space-3) gap-y-(--neat-space-2) text-(length:--neat-text-sm) [&>dt]:wrap-break-word [&>dt]:text-muted-foreground [&>dd]:m-0 [&>dd]:min-w-0 [&>dd]:wrap-anywhere [&>dd]:tabular-nums';
 
 /**
- * Facts about the selected thing, as a side panel shows them: a native description list whose
+ * Facts about the selected thing, as an aside shows them: a native description list whose
  * terms are muted and whose values sit beside them:
  *
  * ```html

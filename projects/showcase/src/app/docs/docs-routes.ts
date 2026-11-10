@@ -1,6 +1,6 @@
 import type { Route, Routes } from '@angular/router';
 import type { NeatNavItem } from '@sima/neat-ui';
-import type { DocsSideList, DocsTopic } from './docs-context';
+import type { DocsPageNav, DocsTopic } from './docs-context';
 import type { LoadTopic, TopicCategory, TopicConfig, TopicGroup } from './topics';
 
 /** A topic with the address it is routed at, and the category it is filed under, if any. */
@@ -34,7 +34,7 @@ export const demoPath = (topic: string, example: string): string => `/demo/${top
 
 /**
  * The shell's rail items, one per group, with the group's sub-pages as the item's children: its
- * topics, or its categories, whose topics are then the side list of each category's pages.
+ * topics, or its categories, whose topics are then the page nav of each category's pages.
  */
 export function groupNavItems(groups: readonly TopicGroup[]): NeatNavItem[] {
   return groups.map((group) => ({
@@ -79,7 +79,7 @@ async function resolveTopic(topic: TopicConfig & { load: LoadTopic }): Promise<D
  * The routes of the docs: `/<group>` to its first topic, `/<group>/<category>` to the category's
  * first topic, a page for every topic at its address (`placedTopics`), and
  * `/demo/<topic>/<example>` for each page example (`DocsExample.page`), its own route with the
- * example as the page (it sits in the shell like any page, and may declare the toolbar, side list
+ * example as the page (it sits in the shell like any page, and may declare the toolbar, page nav
  * or shell a docs page keeps for itself).
  *
  * The group's and the categories' routes are where the rail's item and children go. An earlier
@@ -102,7 +102,7 @@ export function docsRoutes(groups: readonly TopicGroup[]): Routes {
 
 /**
  * A category's route, to its first topic, and its topics' pages, each with the category's topics
- * as its side list, under no heading since the rail names the category.
+ * as its page nav, under no heading since the rail names the category.
  */
 function categoryRoutes(
   group: TopicGroup,
@@ -110,7 +110,7 @@ function categoryRoutes(
   placed: readonly PlacedTopic[],
 ): Route[] {
   const filed = placed.filter((each) => each.category === category);
-  const list: DocsSideList = {
+  const list: DocsPageNav = {
     label: `${category.label} topics`,
     groups: [{ items: filed.map(({ topic, path }) => ({ label: topic.label, path })) }],
   };
@@ -125,16 +125,16 @@ function categoryRoutes(
 }
 
 /**
- * A topic's page: the docs page with the topic resolved and its side list, if any, or the topic's
+ * A topic's page: the docs page with the topic resolved and its page nav, if any, or the topic's
  * own component, which takes no inputs.
  */
-function topicRoute({ topic, path }: PlacedTopic, sideList: DocsSideList | null): Route {
+function topicRoute({ topic, path }: PlacedTopic, pageNav: DocsPageNav | null): Route {
   const route = { path: path.slice(1), title: topic.label };
   if (topic.page) return { ...route, loadComponent: topic.page };
   return {
     ...route,
     // Every input the page takes, since the router binds one the data leaves out to undefined.
-    data: { sideList },
+    data: { pageNav },
     loadComponent: () => import('./docs-page').then((m) => m.DocsPage),
     resolve: { topic: () => resolveTopic(topic) },
   };

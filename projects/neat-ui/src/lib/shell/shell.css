@@ -286,7 +286,7 @@ nav {
 }
 
 /*
- * The page's side-panel toggle, last in the bar on wide and narrow screens alike (on a phone the
+ * The page's aside toggle, last in the bar on wide and narrow screens alike (on a phone the
  * last item of the first row: the toolbar's `order` moves only the toolbar). A cell as wide as the
  * bar is high, set apart by a divider the height of its row, so the toggle reads as the panel's
  * and not as one of the page's tools. It reaches back across the bar's end inset (the same

@@ -45,7 +45,7 @@ describe('the page examples, each routed on a page of its own', () => {
     vi.restoreAllMocks();
   });
 
-  it('link their views in a side list, the open one marked', async () => {
+  it('link their views in a page nav, the open one marked', async () => {
     start();
     await open('/demo/page/overview');
 

@@ -112,7 +112,7 @@ class ToolbarPage {
 })
 class OtherToolbarPage {}
 
-/** A page with tools and a side panel, whose toggle it declares beside its toolbar. */
+/** A page with tools and an aside, whose toggle it declares beside its toolbar. */
 @Component({
   imports: [NeatAsideToggle, NeatPageToolbar],
   template: `
@@ -125,7 +125,7 @@ class AsidePage {
   readonly open = signal(true);
 }
 
-/** A page with a side panel and no other tools. */
+/** A page with an aside and no other tools. */
 @Component({
   imports: [NeatAsideToggle],
   template: `<neat-aside-toggle label="Inspector" />`,
@@ -663,7 +663,7 @@ describe('NeatShell', () => {
     expect(tooltip()?.getAttribute('data-side')).toBe('bottom');
   });
 
-  it('puts the page’s side-panel toggle at the top bar’s right edge, after the kiosk button', async () => {
+  it('puts the page’s aside toggle at the top bar’s right edge, after the kiosk button', async () => {
     await start('/viewer/panel');
     const edge = asideEdge() as HTMLElement;
 
@@ -698,7 +698,7 @@ describe('NeatShell', () => {
     );
   });
 
-  it('shows no edge on a page without a side panel, and drops it when the page goes', async () => {
+  it('shows no edge on a page without an aside, and drops it when the page goes', async () => {
     await start('/viewer/panel');
     expect(asideEdge()).not.toBeNull();
 
@@ -1306,7 +1306,7 @@ describe('NeatShell', () => {
       expect(end.justifyContent).toBe('flex-end');
     });
 
-    it('makes the side-panel toggle the last item of the first row, after the kiosk button', async () => {
+    it('makes the aside toggle the last item of the first row, after the kiosk button', async () => {
       await start('/viewer/panel');
       const region = getComputedStyle(toolbarRegion() as HTMLElement);
       const edge = asideEdge() as HTMLElement;

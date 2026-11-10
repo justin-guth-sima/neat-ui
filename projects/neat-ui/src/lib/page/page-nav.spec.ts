@@ -27,7 +27,7 @@ const GROUPS: readonly NeatPageNavGroup[] = [
   },
 ];
 
-/** The page each route opens: the side list, named as an app names it. */
+/** The page each route opens: the page nav, named as an app names it. */
 @Component({
   imports: [NeatPageNav],
   template: `<nav

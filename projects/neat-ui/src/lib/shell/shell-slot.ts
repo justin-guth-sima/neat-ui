@@ -3,7 +3,7 @@ import { TemplatePortal } from '@angular/cdk/portal';
 
 /**
  * A place in the shell that the active page fills with a template of its own: the page toolbar
- * (`*neatPageToolbar`) and the side-panel toggle (`neat-aside-toggle`). Internal to the kit: the
+ * (`*neatPageToolbar`) and the aside toggle (`neat-aside-toggle`). Internal to the kit: the
  * page side registers a portal, the shell renders `portal`, and the content stays the page's
  * (bindings, injection).
  */

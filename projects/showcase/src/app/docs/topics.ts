@@ -17,7 +17,7 @@ export type LoadTopic = () => Promise<{
 export type TopicConfig = {
   /** The route's last segment, and the name of the topic's folder under `examples/`. */
   readonly id: string;
-  /** Its link's text, in the rail or in its category's side list, and the document's title. */
+  /** Its link's text, in the rail or in its category's page nav, and the document's title. */
   readonly label: string;
   /** Export names in the order the topic reads, each in exactly one topic; none for a `page`. */
   readonly parts: readonly string[];
@@ -35,7 +35,7 @@ export type TopicConfig = {
       /**
        * The page's component, for a topic that is no part's docs (the theme's tokens). It is
        * routed as it is, with no inputs, so it belongs to a group's own `topics`: a category's
-       * topic gets its side list from the docs page. It has no examples module, so the examples
+       * topic gets its page nav from the docs page. It has no examples module, so the examples
        * rules of `docs.spec.ts` leave it out.
        */
       readonly page: () => Promise<Type<unknown>>;
@@ -44,11 +44,11 @@ export type TopicConfig = {
     }
 );
 
-/** A sub-page of a group with categories, and the topics its pages list in their side list. */
+/** A sub-page of a group with categories, and the topics its pages list in their page nav. */
 export interface TopicCategory {
   /** The route's second segment: `/components/data/select-list`. */
   readonly id: string;
-  /** The rail child's text, and the side list's name ("Data topics"). */
+  /** The rail child's text, and the page nav's name ("Data topics"). */
   readonly label: string;
   /** In list order; the first is where the category's rail child goes. */
   readonly topics: readonly TopicConfig[];
@@ -57,7 +57,7 @@ export interface TopicCategory {
 /**
  * A rail item and the topics it opens, the kit's navigation applied to the docs: a few topics as
  * the item's sub-pages (`topics`), or categories as its sub-pages, each with its many topics in a
- * side list beside its pages (`categories`), as Components has. Why not a rail item per category:
+ * page nav beside its pages (`categories`), as Components has. Why not a rail item per category:
  * seven of them read as seven areas of an app when they are only filing.
  */
 export type TopicGroup = {
@@ -195,8 +195,8 @@ export const GROUPS: readonly TopicGroup[] = [
         },
       },
       {
-        id: 'side-panel',
-        label: 'Side panel',
+        id: 'aside',
+        label: 'Aside',
         parts: [
           'NeatAsidePanel',
           'NeatAsideHeading',
@@ -211,7 +211,7 @@ export const GROUPS: readonly TopicGroup[] = [
         load: async () => {
           const [api, examples] = await Promise.all([
             import('./generated/api/primary'),
-            import('./generated/examples/side-panel'),
+            import('./generated/examples/aside'),
           ]);
           return { entries: [api.API], examples: examples.EXAMPLES };
         },

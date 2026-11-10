@@ -193,14 +193,14 @@ describe('NeatAsideToggle', () => {
     expect(TestBed.inject(AsideToggleSlot).portal()).toBeNull();
   });
 
-  it('a second toggle throws in dev mode: one page, one side panel', async () => {
+  it('a second toggle throws in dev mode: one page, one aside', async () => {
     const fixture = TestBed.createComponent(TwoToggles);
     await fixture.whenStable();
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     fixture.componentInstance.second.set(true);
 
     try {
-      await expect(fixture.whenStable()).rejects.toThrow(/one side-panel toggle at a time/);
+      await expect(fixture.whenStable()).rejects.toThrow(/one aside toggle at a time/);
     } finally {
       error.mockRestore();
     }
@@ -219,7 +219,7 @@ describe('NeatAsideToggle', () => {
   });
 });
 
-describe('the side panel’s parts', () => {
+describe('the aside’s parts', () => {
   async function render() {
     const fixture = TestBed.createComponent(PanelHost);
     await fixture.whenStable();

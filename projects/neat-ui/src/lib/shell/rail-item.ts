@@ -26,7 +26,7 @@ const RAIL_EXPANDED_KEY = 'neat-ui:rail-expanded';
  *
  * On a wide screen it is the remembered choice; on a narrow one, where the rail floats over the
  * content, a transient flag that starts collapsed and never overwrites the wide screen's choice
- * (the rule of a page's side panel, `neatAsideOpen`).
+ * (the rule of a page's aside, `neatAsideOpen`).
  */
 @Injectable()
 export class RailState {
