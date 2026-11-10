@@ -45,7 +45,25 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " lines it up with the trigger's start, center or end; it flips above the trigger when there is no room below. The content template is created on opening and destroyed on closing, so keep its state (a typed value, a checked switch) in the page. On opening, focus moves to the panel's first enabled control. Escape, a click outside, the trigger, or "
+              "text": " lines it up with the trigger's start, center or end. It flips above the trigger when there is no room below."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The content template is created on opening and destroyed on closing. So keep its state, such as a typed value or a checked switch, in the page."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "On opening, focus moves to the panel's first enabled control. Escape, a click outside, the trigger, or "
             },
             {
               "kind": "code",
@@ -53,7 +71,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " set to false close it; focus then goes back to the trigger, unless the closing click put it somewhere else. Setting "
+              "text": " set to false close it. Focus then goes back to the trigger, unless the closing click put it somewhere else. Setting "
             },
             {
               "kind": "code",
@@ -70,17 +88,46 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The panel is rendered at the end of the document, so the browser's Tab order does not pass through it from the trigger. The kit carries it across by hand: Tab from the panel's last control closes it and focuses the first tabbable element after the trigger, and Shift+Tab from its first control closes it and focuses the trigger. Focus arriving anywhere else outside the trigger and the panel (a click on another control, Tab from the trigger, a second popover opening) closes it too, and focus stays where it went. Focus arriving in an overlay opened from the panel, such as a "
-            },
-            {
-              "kind": "ref",
-              "text": "NeatConfirm",
-              "name": "NeatConfirm"
-            },
-            {
-              "kind": "text",
-              "text": ", does not close it."
+              "text": "The panel is rendered at the end of the document, so the browser's Tab order does not pass through it from the trigger. The kit carries the focus across by hand:"
             }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "Tab from the panel's last control closes it and focuses the first tabbable element after the trigger."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Shift+Tab from its first control closes it and focuses the trigger."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Focus arriving anywhere else outside the trigger and the panel closes it too, and stays where it went. It arrives there by a click on another control, Tab from the trigger, or a second popover opening."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Focus arriving in an overlay opened from the panel, such as a "
+              },
+              {
+                "kind": "ref",
+                "text": "NeatConfirm",
+                "name": "NeatConfirm"
+              },
+              {
+                "kind": "text",
+                "text": ", does not close it."
+              }
+            ]
           ]
         },
         {
@@ -98,16 +145,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "): the panel lies outside the bar, so a pointer resting on it would otherwise fade the bar out."
-            }
-          ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "Brain's popover is the host directive: it places the panel, closes it on Escape and outside clicks and moves focus in and out. The kit renders the dialog element itself, so that it can name it, and gives the overlay pane around it no role."
+              "text": "). The panel lies outside the bar, so a pointer resting on it would otherwise fade the bar out."
             }
           ]
         }

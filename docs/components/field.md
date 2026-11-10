@@ -219,11 +219,15 @@ export class ErrorNote {
 
 Component from `@sima/neat-ui/field`, selector `neat-field`.
 
-The control is the content, one `input neatInput` inside a `label` whose text is `label`: the label names it, and a click on the name focuses it. The app may swap it (an `@if` in the content); the field follows the control it has. `neat-select` shows its own name with `showLabel` instead, drawn the same way.
+The control is the content: one `input neatInput`, inside a `label` whose text is `label`. The label names the control, and a click on the name focuses it. The app may swap the control with an `@if` in the content, and the field follows the control it has. `neat-select` shows its own name with `showLabel` instead, drawn the same way.
 
-`hint` is a note under the control and `error` a `neat-error-note` under that, both outside the label so that they are not part of the control's name. The field describes the control by them (`aria-describedby`) and marks it `aria-invalid` while there is an error, so it owns those two attributes of its control: do not bind them yourself.
+`hint` is a note under the control, and `error` a `neat-error-note` under that. Both sit outside the label, so they are not part of the control's name.
 
-Lining up in a row: the name's text and the gap under it are `neat-select`'s, and the control's height is its own `size` (`neatInput`, `neat-select` and `neatButton` share `small` and `medium`; `neat-number-field` is `small`). A row of fields and a button of one size aligned at their bottom edge (`align-items: end`) has its names on one baseline and its controls' edges level. A hint or an error makes its field taller, so a row that must stay level shows them under the row instead.
+The field describes the control by them (`aria-describedby`), and marks it `aria-invalid` while there is an error. So it owns those two attributes of its control: do not bind them yourself.
+
+Fields line up in a row with other controls. The name's text and the gap under it are `neat-select`'s. The control's height is its own `size`: `neatInput`, `neat-select` and `neatButton` share `small` and `medium`, and `neat-number-field` is `small`.
+
+Align a row of fields and a button of one size at their bottom edge (`align-items: end`). Its names then sit on one baseline, and its controls' edges are level. A hint or an error makes its field taller, so a row that must stay level shows them under the row instead.
 
 **Inputs**
 
@@ -243,6 +247,16 @@ Lining up in a row: the name's text and the gap under it are `neat-select`'s, an
 
 Component from `@sima/neat-ui/field`, selector `neat-error-note`.
 
-A failure said in place, under the form or the work it belongs to: `<neat-error-note>{{ message }}</neat-error-note>`. It is an `alert`, so a screen reader reads it as it appears: render it when there is a failure (`@if`), not as an empty note waiting for one. A message of several lines (a server's diagnostics) keeps its line breaks, and a long unbroken string (a URL) wraps rather than widen the form. The words are the app's.
+A failure said in place, under the form or the work it belongs to.
+
+```html
+@if (error(); as message) {
+  <neat-error-note>{{ message }}</neat-error-note>
+}
+```
+
+It is an `alert`, so a screen reader reads it as it appears. Render it when there is a failure (`@if`), not as an empty note waiting for one.
+
+A message of several lines, such as a server's diagnostics, keeps its line breaks. A long unbroken string, such as a URL, wraps rather than widen the form. The words are the app's.
 
 `neat-field` shows one under its control for its `error`.

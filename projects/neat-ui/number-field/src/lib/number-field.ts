@@ -81,8 +81,9 @@ export class NeatNumberField {
   }
 
   /**
-   * Focuses the input with its number selected, so what the user types replaces it: for a
-   * shortcut that jumps to the field, such as "g" for the page.
+   * Focuses the input with its number selected, so what the user types replaces it.
+   *
+   * Call it from a shortcut that jumps to the field, such as "g" for the page.
    */
   focus(): void {
     const field = this.field().nativeElement;

@@ -36,7 +36,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the accessible name of the select and of its list; "
+              "text": " is the accessible name of the select and of its list. "
             },
             {
               "kind": "code",
@@ -44,7 +44,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " also shows it above the select, and "
+              "text": " also shows it above the select. "
             },
             {
               "kind": "code",
@@ -52,7 +52,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " shows it before the select on the same row instead (for a select in a toolbar or a heading); a click on the shown label opens the list. The shown label is drawn as "
+              "text": " shows it before the select on the same row instead, for a select in a toolbar or a heading. A click on the shown label opens the list."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The shown label is drawn as "
             },
             {
               "kind": "code",
@@ -84,8 +93,13 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "'s, so a select in a row of fields and buttons of the same size lines up with them. "
-            },
+              "text": "'s. So a select in a row of fields and buttons of the same size lines up with them."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "options"
@@ -100,7 +114,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; the selected value is "
+              "text": ". The selected value is "
             },
             {
               "kind": "code",
@@ -116,7 +130,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " while there is none, and the trigger shows the selected option's label or, without one, "
+              "text": " while there is none. The trigger shows the selected option's label or, without one, "
             },
             {
               "kind": "code",
@@ -124,7 +138,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; a value that is not among the options (a deleted file, options that load later) shows the placeholder as well, in its muted color. The select fills its container's width (inline, the width its label leaves), and its list is as wide as the select."
+              "text": ". A value that is not among the options shows the placeholder as well, in its muted color. That is a deleted file, say, or options that load later."
             }
           ]
         },
@@ -133,7 +147,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It follows the WAI-ARIA select-only combobox. On the trigger, Down, Up, Enter and Space open the list; open, Down, Up, Home, End and Page Up and Down move through the options (disabled ones are skipped), typing a few letters jumps to the option whose label starts with them, Enter or Space picks the active option, Tab closes the list and moves on, and Escape closes it without picking. Focus stays on the trigger throughout; "
+              "text": "The select fills its container's width, or inline the width its label leaves. Its list is as wide as the select."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It follows the WAI-ARIA select-only combobox. Focus stays on the trigger throughout, and "
             },
             {
               "kind": "code",
@@ -146,11 +169,43 @@ export const API: DocsEntry = {
           ]
         },
         {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "On the trigger, Down, Up, Enter and Space open the list."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "In the open list, Down, Up, Home, End, Page Up and Page Down move through the options, skipping disabled ones. Typing a few letters jumps to the option whose label starts with them."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Enter or Space picks the active option. Tab closes the list and moves on. Escape closes it without picking."
+              }
+            ]
+          ]
+        },
+        {
           "kind": "paragraph",
           "spans": [
             {
               "kind": "text",
-              "text": "Escape is handled here first. An open select takes it, closes, and stops it there: a dialog around the select (or a page shortcut on Escape) never sees the key that closed the list. With the list closed, Escape goes on to whatever is listening. The list is a popup on the overlay layer, above a dialog that holds the select."
+              "text": "Escape is handled here first. An open select takes it, closes, and stops it there. So a dialog around the select, or a page shortcut on Escape, never sees the key that closed the list. With the list closed, Escape goes on to whatever is listening."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The list is a popup on the overlay layer, above a dialog that holds the select."
             }
           ]
         }
@@ -271,15 +326,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " (the default), as a field's and only with "
-                },
-                {
-                  "kind": "code",
-                  "text": "showLabel"
-                },
-                {
-                  "kind": "text",
-                  "text": ", or "
+                  "text": " (the default) or "
                 },
                 {
                   "kind": "code",
@@ -287,7 +334,36 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ", which shows it before the trigger on its row by itself. It is the same "
+                  "text": "."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "code",
+                  "text": "above"
+                },
+                {
+                  "kind": "text",
+                  "text": " places it as a field's, and only with "
+                },
+                {
+                  "kind": "code",
+                  "text": "showLabel"
+                },
+                {
+                  "kind": "text",
+                  "text": ". "
+                },
+                {
+                  "kind": "code",
+                  "text": "inline"
+                },
+                {
+                  "kind": "text",
+                  "text": " shows it before the trigger, on its row, by itself. It is the same "
                 },
                 {
                   "kind": "code",

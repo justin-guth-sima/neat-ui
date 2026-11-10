@@ -89,21 +89,29 @@ export const CARD_CLASSES = {
  * </neat-card>
  * ```
  *
- * The title stands at the start of the header, the subtitle under it; elements with the attribute
- * `neatCardActions` go to the header's end, elements with `neatCardFooter` to the footer, and
- * everything else is the content. An element with `neatCardTitle` stands in the title's place (a
- * button, say), as it is, inside the title's element: with `title` text as well, that element is
- * in the heading and names the region, and without it the card has no heading role. The attributes
- * are selectors of the card, not directives, so they need no import and cannot be forgotten into
- * silence. The header, the footer and the actions area are always in the template and leave the
- * layout while empty: a card without a title, a subtitle or actions has no header, and actions
- * alone still sit at the header's end.
+ * The title stands at the start of the header, with the subtitle under it. Elements marked
+ * `neatCardActions` go to the header's end, and elements marked `neatCardFooter` to the footer.
+ * Everything else is the content.
+ *
+ * An element marked `neatCardTitle`, such as a button, stands in the title's place as it is,
+ * inside the title's element. With `title` text as well, that element is in the heading and names
+ * the region. Without it, the card has no heading role.
+ *
+ * The attributes are selectors of the card, not directives, so they need no import and cannot be
+ * forgotten into silence.
+ *
+ * The header, the footer and the actions area are always in the template, and leave the layout
+ * while empty. So a card without a title, a subtitle or actions has no header, and actions alone
+ * still sit at the header's end.
  *
  * The title is a real heading (`role="heading"`), at `headingLevel`, 3 by default, as the
- * callout's: pick the level that fits where the card stands. `region` makes the card a landmark
- * (`role="region"`, labeled by the title), for a card a user should be able to jump to; without a
- * title it takes no role, since a region with no name is no landmark. The card sets
- * `--neat-surface` to its fill, for the charts it holds.
+ * callout's is. Pick the level that fits where the card stands.
+ *
+ * `region` makes the card a landmark (`role="region"`, labeled by the title), for a card a user
+ * should be able to jump to. Without a title it takes no role, since a region with no name is no
+ * landmark.
+ *
+ * The card sets `--neat-surface` to its fill, for the charts it holds.
  */
 @Component({
   selector: 'neat-card',

@@ -231,11 +231,23 @@ export const SOURCES: NeatSelectOption<string>[] = [
 
 Component from `@sima/neat-ui/select`, selector `neat-select`.
 
-`label` is the accessible name of the select and of its list; `showLabel` also shows it above the select, and `labelPosition="inline"` shows it before the select on the same row instead (for a select in a toolbar or a heading); a click on the shown label opens the list. The shown label is drawn as `neat-field`'s is, and `size` matches `neatInput`'s and `neatButton`'s, so a select in a row of fields and buttons of the same size lines up with them. `options` are `{ value, label, disabled? }`; the selected value is `value`, `null` while there is none, and the trigger shows the selected option's label or, without one, `placeholder`; a value that is not among the options (a deleted file, options that load later) shows the placeholder as well, in its muted color. The select fills its container's width (inline, the width its label leaves), and its list is as wide as the select.
+`label` is the accessible name of the select and of its list. `showLabel` also shows it above the select. `labelPosition="inline"` shows it before the select on the same row instead, for a select in a toolbar or a heading. A click on the shown label opens the list.
 
-It follows the WAI-ARIA select-only combobox. On the trigger, Down, Up, Enter and Space open the list; open, Down, Up, Home, End and Page Up and Down move through the options (disabled ones are skipped), typing a few letters jumps to the option whose label starts with them, Enter or Space picks the active option, Tab closes the list and moves on, and Escape closes it without picking. Focus stays on the trigger throughout; `aria-activedescendant` names the active option.
+The shown label is drawn as `neat-field`'s is, and `size` matches `neatInput`'s and `neatButton`'s. So a select in a row of fields and buttons of the same size lines up with them.
 
-Escape is handled here first. An open select takes it, closes, and stops it there: a dialog around the select (or a page shortcut on Escape) never sees the key that closed the list. With the list closed, Escape goes on to whatever is listening. The list is a popup on the overlay layer, above a dialog that holds the select.
+`options` are `{ value, label, disabled? }`. The selected value is `value`, `null` while there is none. The trigger shows the selected option's label or, without one, `placeholder`. A value that is not among the options shows the placeholder as well, in its muted color. That is a deleted file, say, or options that load later.
+
+The select fills its container's width, or inline the width its label leaves. Its list is as wide as the select.
+
+It follows the WAI-ARIA select-only combobox. Focus stays on the trigger throughout, and `aria-activedescendant` names the active option.
+
+- On the trigger, Down, Up, Enter and Space open the list.
+- In the open list, Down, Up, Home, End, Page Up and Page Down move through the options, skipping disabled ones. Typing a few letters jumps to the option whose label starts with them.
+- Enter or Space picks the active option. Tab closes the list and moves on. Escape closes it without picking.
+
+Escape is handled here first. An open select takes it, closes, and stops it there. So a dialog around the select, or a page shortcut on Escape, never sees the key that closed the list. With the list closed, Escape goes on to whatever is listening.
+
+The list is a popup on the overlay layer, above a dialog that holds the select.
 
 **Inputs**
 
@@ -257,7 +269,9 @@ Escape is handled here first. An open select takes it, closes, and stops it ther
 
 - **`labelPosition`** `NeatSelectLabelPosition`, default `'above'`
 
-  Where the label sits: `above` (the default), as a field's and only with `showLabel`, or `inline`, which shows it before the trigger on its row by itself. It is the same `label` element, for the trigger, either way.
+  Where the label sits: `above` (the default) or `inline`.
+
+  `above` places it as a field's, and only with `showLabel`. `inline` shows it before the trigger, on its row, by itself. It is the same `label` element, for the trigger, either way.
 
 - **`disabled`** `boolean`, default `false`, transform `booleanAttribute`
 

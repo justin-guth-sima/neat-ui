@@ -74,19 +74,24 @@ function everyAnimationFrame(onFrame: () => void): () => void {
  * The bar has 28 segments, from -50 dBFS (dark) to full scale (all lit). They light green to 70 %
  * of the bar, amber to 90 %, and red above. The segments not lit are in the border color.
  *
- * `sample` reads the current level in dBFS, or null for none (the meter is dark). While it is set
- * and the meter is rendered, the meter calls it once per animation frame, so one input serves a
- * value the app polls and keeps in a field as well as a Web Audio analyzer read on demand. Pass
- * null to stop. The meter calls the function on its own, never as a method of the app's object:
- * give it an arrow function (`readonly level = () => this.lastLevel`), not a method. Return null
- * when the source is gone (an audio context closed) rather than throw: the loop outlives a throw,
- * so a sample that keeps throwing reports an error every frame.
+ * `sample` reads the current level in dBFS, or null for none, which leaves the meter dark. Pass
+ * null instead of a function to stop.
  *
- * A meter that is rendered samples even where it cannot be seen (under a `display: none`
- * ancestor, in a closed collapsible), so render it only while there is a level to show
- * (`@if (recording || playing)`) instead of hiding it.
+ * While `sample` is set and the meter is rendered, the meter calls it once per animation frame. So
+ * one input serves both a value the app polls and keeps in a field, and a Web Audio analyzer read
+ * on demand.
  *
- * Each frame writes the segments straight to the DOM, outside change detection: sixty change
+ * The meter calls the function on its own, never as a method of the app's object. So give it an
+ * arrow function (`readonly level = () => this.lastLevel`), not a method.
+ *
+ * Return null when the source is gone, such as an audio context that closed, rather than throw.
+ * The loop outlives a throw, so a sample that keeps throwing reports an error every frame.
+ *
+ * A meter that is rendered samples even where it cannot be seen: under a `display: none`
+ * ancestor, or in a closed collapsible. So render it only while there is a level to show
+ * (`@if (recording || playing)`), instead of hiding it.
+ *
+ * Each frame writes the segments straight to the DOM, outside change detection. Sixty change
  * detections a second for a bar of color would cost more than everything else on the page.
  *
  * The meter is `aria-hidden`: a level read out every frame would be noise. Say what is happening

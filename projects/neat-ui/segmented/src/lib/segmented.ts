@@ -85,11 +85,13 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
  * Its width does not move with the choice: every column is as wide as the widest label needs, in
  * semibold.
  *
- * It never gives up width to its neighbors: in a flex row too narrow for everything in it, the
- * control keeps its labels whole and the text beside it gives way (that text needs `min-width: 0`
- * to shrink). It is never wider than its container, though: in one narrower than its labels (an
- * aside dragged narrow) the options shrink together, still equal, and each label ends in an
- * ellipsis, its full text still the option's name and shown as a tooltip on hover.
+ * It never gives up width to its neighbors. In a flex row too narrow for everything in it, the
+ * control keeps its labels whole and the text beside it gives way. That text needs `min-width: 0`
+ * to shrink.
+ *
+ * It is never wider than its container, though. In one narrower than its labels, such as an aside
+ * dragged narrow, the options shrink together and stay equal. Each label then ends in an ellipsis.
+ * Its full text is still the option's name, and shows as a tooltip on hover.
  */
 @Component({
   selector: 'neat-segmented',

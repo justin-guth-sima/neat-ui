@@ -19,7 +19,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Shows how far the work is: a line of detail (\"clip.mp4 · file 1 of 3\") and a percent from 0 to 100, or "
+                  "text": "Shows how far the work is, as a line of detail and a percent."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The detail reads like \"clip.mp4 · file 1 of 3\". The percent is 0 to 100, or "
                 },
                 {
                   "kind": "code",
@@ -27,7 +36,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " while it cannot say. Values outside the range are held to it."
+                  "text": " while the work cannot say. Values outside the range are held to it."
                 }
               ]
             }
@@ -137,7 +146,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "): render it once, beside the shell, and nowhere else:"
+              "text": "). Render it once, beside the shell, and nowhere else."
             }
           ]
         },
@@ -151,7 +160,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Not inside the shell: the shell is the kit's primary entry point, which cannot import this one, and an app that shows no toasts should not carry them."
+              "text": "It is not inside the shell for two reasons. The shell is the kit's primary entry point, which cannot import this one. And an app that shows no toasts should not carry them."
             }
           ]
         },
@@ -160,7 +169,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The toasts stack in the bottom-right corner, the newest last, at most three at a time. When more exist, the oldest error, warning and status toasts are hidden first and the oldest progress toasts last (work in progress is what the user is waiting for); a hidden toast shows again if it is still there when the others clear."
+              "text": "The toasts stack in the bottom-right corner, the newest last, at most three at a time. When more exist, the oldest error, warning and status toasts are hidden first. The oldest progress toasts go last, since work in progress is what the user is waiting for. A hidden toast shows again if it is still there when the others clear."
             }
           ]
         },
@@ -169,31 +178,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "What the user sees and what a screen reader announces are two layers. The visible stack is "
-            },
-            {
-              "kind": "code",
-              "text": "aria-hidden"
-            },
-            {
-              "kind": "text",
-              "text": ". A second overlay, never re-shown and never hidden, holds a visually hidden "
-            },
-            {
-              "kind": "code",
-              "text": "aria-live=\"polite\""
-            },
-            {
-              "kind": "text",
-              "text": " region with one entry per toast: the message (\"Error: \" or \"Warning: \" in front of an error or a warning), or a progress toast's title. An entry is added when its toast is, so each toast is announced once, as it appears. A progress toast's changing detail and percent are in a nested "
-            },
-            {
-              "kind": "code",
-              "text": "aria-live=\"off\""
-            },
-            {
-              "kind": "text",
-              "text": " part: a screen reader finds the current value when it reads the region, but a long upload is not read out every second. The two layers are separate because bringing the stack to the front (below) hides and shows it, which takes a live region out of the accessibility tree and back with its content already in it, and that is not announced."
+              "text": "A screen reader announces each toast once, as it appears. It hears the message, with \"Error: \" or \"Warning: \" in front of an error or a warning, or a progress toast's title. A progress toast's changing detail and percent are not read out every second during a long upload. A screen reader still finds the current value when it reads the toast."
             }
           ]
         },
@@ -202,7 +187,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Both layers are rendered in the CDK overlay layer rather than where the host stands, for two reasons: a modal dialog hides everything outside that layer from assistive technology, which would silence a toast raised by the dialog's own action, and the stack must show above the dialog (as #170's toasts showed above its modals). Overlays stack in the order they were last brought to the front, so each new toast brings the stack to the front again: an error raised by a dialog's own action shows above the dialog, though the host is older. A toast that was on screen before a dialog opened stays under the dialog until it clears or a newer toast arrives."
+              "text": "Toasts show above a modal dialog and are announced while it is open, so a toast raised by the dialog's own action is seen and heard. Each new toast brings the stack to the front. A toast that was on screen before a dialog opened stays under the dialog until it clears or a newer toast arrives."
             }
           ]
         },
@@ -211,7 +196,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The stack takes no pointer events: it has nothing to click, and a progress toast that stays for as long as an upload runs must not sit on a dialog's buttons. Clicks pass through to whatever is under a toast; the cost is that toast text cannot be selected."
+              "text": "The stack takes no pointer events. It has nothing to click, and a progress toast that stays for as long as an upload runs must not sit on a dialog's buttons. Clicks pass through to whatever is under a toast. The cost is that toast text cannot be selected."
             }
           ]
         }
@@ -241,7 +226,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "An error or warning toast, each led by the icon of its kind, clears after 4.6 seconds and a status toast after 3.2. A progress toast stays until "
+              "text": "An error or warning toast, each led by the icon of its kind, clears after 4.6 seconds, and a status toast after 3.2. A progress toast stays until "
             },
             {
               "kind": "code",
@@ -257,7 +242,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " turns it into an error or a status, so work that outlives the page or dialog that started it keeps reporting, or until "
+              "text": " turns it into an error or a status, or until "
             },
             {
               "kind": "code",
@@ -265,7 +250,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " removes it. They show in the "
+              "text": " removes it. So work that outlives the page or dialog that started it keeps reporting."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "They show in the "
             },
             {
               "kind": "code",
@@ -312,7 +306,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Reports something that went partly wrong or needs the user's notice, short of a failure: the upload went through, but a slot using the file could not restart."
+                  "text": "Reports something that went partly wrong or needs the user's notice, short of a failure."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The upload went through, say, but a slot using the file could not restart."
                 }
               ]
             }

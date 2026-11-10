@@ -43,8 +43,9 @@ const END_CLASSES = 'ms-auto';
 export class NeatLineList {}
 
 /**
- * One line of a `neatLineList`: a flex row, so its parts sit side by side, at least 1.5rem high so
- * that the buttons of neighboring lines keep their distance.
+ * One line of a `neatLineList`, its parts side by side.
+ *
+ * It is a flex row, at least 1.5rem high, so the buttons of neighboring lines keep their distance.
  */
 @Directive({
   selector: 'li[neatLine]',
@@ -53,8 +54,10 @@ export class NeatLineList {}
 export class NeatLine {}
 
 /**
- * Marks the element of a `neatLine` that sits at the line's end, such as its action (usually a
- * `neatInlineButton`): it is pushed there, whatever the text before it takes.
+ * Marks the element of a `neatLine` that sits at the line's end, such as its action.
+ *
+ * The action is usually a `neatInlineButton`. It is pushed to the end, whatever the text before it
+ * takes.
  */
 @Directive({
   selector: '[neatLineEnd]',

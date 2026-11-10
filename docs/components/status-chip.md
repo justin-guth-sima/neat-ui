@@ -247,7 +247,7 @@ export class NarrowColumn {}
 
 Component from `@sima/neat-ui/status-chip`, selector `neat-status-chip`.
 
-Use it for a state in a list's cell or over a panel (Live, Idle, External), or for a fact beside a value (a codec that cannot be decoded). The words are the app's. The color repeats them and is never the only way a state is told.
+Use it for a state in a list's cell or over a panel: Live, Idle, External. Or use it for a fact beside a value, such as a codec that cannot be decoded. The words are the app's. The color repeats them and is never the only way a state is told.
 
 `highlight` is for a state that is none of the statuses but should stand out, such as a stream that someone else publishes. A `neat-select-list` row can take the same tone as its chip, with `rowTone`.
 
@@ -291,7 +291,9 @@ A video tile's "Metadata late", which shows why when pressed, is one. It looks l
 
 Type from `@sima/neat-ui/status-chip`.
 
-How a chip carries its tone: `solid`, the default, on the tone's status fill; `tinted`, the tone's color on a light tint of itself, for chips that label parts of a card (a diagram block's) rather than state a status beside a value.
+How a chip carries its tone: `solid` (the default) or `tinted`.
+
+`solid` is on the tone's status fill. `tinted` is the tone's color on a light tint of itself. Use it for chips that label parts of a card, such as a diagram block's, rather than state a status beside a value.
 
 ```ts
 type NeatStatusChipVariant = 'solid' | 'tinted'

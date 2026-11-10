@@ -66,9 +66,15 @@ const TRIGGER_CLASSES = hlm(
 );
 
 /**
- * One tab of a `neat-tabs`. Its panel goes in an `<ng-template>`, so its content is created only
- * while the tab is open and destroyed when another one opens:
- * `<neat-tab label="General" value="general"><ng-template>…</ng-template></neat-tab>`.
+ * One tab of a `neat-tabs`, its panel in an `<ng-template>`.
+ *
+ * ```html
+ * <neat-tab label="General" value="general">
+ *   <ng-template>…</ng-template>
+ * </neat-tab>
+ * ```
+ *
+ * The panel's content is created only while the tab is open, and destroyed when another one opens.
  */
 @Component({
   selector: 'neat-tab',
@@ -134,12 +140,12 @@ let nextTabsId = 0;
  * tab's panel holds its content: the others are empty and `hidden`.
  *
  * A panel taller than the space it has is for the surrounding page or pane to scroll, which keeps
- * one scroll context. The tab list is the one part that scrolls itself: tabs that do not fit their
- * container's width (an aside's) scroll sideways, never wrap, and the open tab is brought into
- * view when it changes.
+ * one scroll context. The tab list is the one part that scrolls itself. Tabs that do not fit their
+ * container's width, such as an aside's, scroll sideways and never wrap. The open tab is brought
+ * into view when it changes.
  *
- * Two tab sets with the same values do not share element ids, and a value with spaces
- * ("Board 1") works as any other: `value` stays in the app's terms.
+ * Two tab sets with the same values do not share element ids. A value with spaces ("Board 1")
+ * works as any other, so `value` stays in the app's terms.
  */
 @Component({
   selector: 'neat-tabs',
@@ -182,6 +188,7 @@ export class NeatTabs {
   // list is built anew when the set of tabs changes, so the keys follow tabs added or removed while
   // mounted. Brain's lazy content keeps a visited panel alive, so the kit puts the open tab's
   // template in its panel itself.
+
   /** The open tab's `value`. */
   readonly value = model<string>();
   /** The tab list's accessible name. */

@@ -71,16 +71,17 @@ const DETAIL_CLASSES =
  * <neat-progress heading="Uploading 3 files" [detail]="'clip.mp4 · file 1 of 3'" [value]="41" />
  * ```
  *
- * The heading is a polite `role="status"`: a screen reader hears it when it changes ("Uploading" to
- * "Preparing"), but not the percent or the detail, which change too often to be read out. It is
- * named `heading` rather than `title` so that a static attribute does not also become the native
- * tooltip of the whole element.
+ * The heading is a polite `role="status"`. A screen reader hears it when it changes, from
+ * "Uploading" to "Preparing" say. It does not hear the percent or the detail, which change too
+ * often to be read out. The input is named `heading` rather than `title`, so that a static
+ * attribute does not also become the native tooltip of the whole element.
  *
- * `label` is the bar's accessible name; it defaults to the heading. The bar is `role="progressbar"`
+ * `label` is the bar's accessible name, the heading by default. The bar is `role="progressbar"`,
  * with `aria-valuenow` (left out while unknown), `aria-valuemin` and `aria-valuemax`, and a percent
- * as `aria-valuetext`. A bar alone announces nothing as it changes, which is a progressbar's way;
- * give a bar without a heading a `label`. It fills the width its container gives it, from the
- * left: the kit has no right-to-left layout.
+ * as `aria-valuetext`. A bar alone announces nothing as it changes, which is a progressbar's way.
+ * So give a bar without a heading a `label`.
+ *
+ * It fills the width its container gives it, from the left: the kit has no right-to-left layout.
  */
 @Component({
   selector: 'neat-progress',
@@ -127,6 +128,7 @@ const DETAIL_CLASSES =
 export class NeatProgress {
   // Brain's progress is the element inside, which owns the role and the values; its range check
   // throws for a value out of range, which is why the kit's own input, held to the range, feeds it.
+
   /** 0 to 100, or `null` while unknown. */
   readonly value = input.required<number | null>();
   /** The bar's accessible name, announced with the value; the heading by default. */

@@ -46,7 +46,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " changes on every step of a drag, not only when the pointer is released, so whatever it drives (the tile grid's repacking, for one) previews live. A value outside "
+              "text": " changes on every step of a drag, not only when the pointer is released. So whatever it drives previews live, such as the tile grid's repacking. A value outside "
             },
             {
               "kind": "code",

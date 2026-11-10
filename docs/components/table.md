@@ -109,7 +109,7 @@ Directive from `@sima/neat-ui/table`, selector `table[neatTable]`.
 
 The table is full width, with a rule under every row and its column headings muted and small.
 
-It sets the look only. The columns, what a cell holds and how a table gives up a column when its container is narrow are the app's: the kit cannot know the container, or which columns matter. The table's name for assistive technology is the app's too (`aria-label`).
+It sets the look only. The columns and what a cell holds are the app's. So is how a table gives up a column when its container is narrow: the kit cannot know the container, or which columns matter. The table's name for assistive technology is the app's too (`aria-label`).
 
 ### `NeatNumeric`
 
@@ -121,4 +121,8 @@ A figure's cell or heading as `neatFigure`, end-aligned as well. Put it on a col
 
 Directive from `@sima/neat-ui/table`, selector `td[neatFigure], th[neatFigure]`.
 
-A figure's cell or heading, `th` or `td` of a `neatTable`, that keeps to one line with tabular digits so that the figures of a column line up, and starts where any cell does. It only marks the cell; the look is the table's, which is why the cell does nothing outside one. Use it where the figures cannot end-align (a cell that holds something after the figure); otherwise use `neatNumeric`.
+A figure's cell or heading in a `neatTable`, on one line with tabular digits, not end-aligned.
+
+Put it on a `th` or `td`. The figures of a column line up, and the cell starts where any cell does. Use it where the figures cannot end-align, such as a cell that holds something after the figure. Otherwise use `neatNumeric`.
+
+It only marks the cell. The look is the table's, which is why the cell does nothing outside one.

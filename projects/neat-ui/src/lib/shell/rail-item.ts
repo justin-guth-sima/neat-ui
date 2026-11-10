@@ -150,6 +150,7 @@ export class NeatRailItem {
   // Brain's tooltip is a host directive here, not `neatTooltip`, because the item names its own
   // tooltip from `label`: a host directive's inputs come from the template that uses the element,
   // and `label` feeds both the item and the tooltip.
+
   /**
    * The item's name and tooltip, and its visible text while the rail is expanded unless `text` or
    * `detail` say otherwise.

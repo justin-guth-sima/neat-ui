@@ -15,7 +15,24 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A figure's cell or heading, "
+              "text": "A figure's cell or heading in a "
+            },
+            {
+              "kind": "code",
+              "text": "neatTable"
+            },
+            {
+              "kind": "text",
+              "text": ", on one line with tabular digits, not end-aligned."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Put it on a "
             },
             {
               "kind": "code",
@@ -31,15 +48,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " of a "
-            },
-            {
-              "kind": "code",
-              "text": "neatTable"
-            },
-            {
-              "kind": "text",
-              "text": ", that keeps to one line with tabular digits so that the figures of a column line up, and starts where any cell does. It only marks the cell; the look is the table's, which is why the cell does nothing outside one. Use it where the figures cannot end-align (a cell that holds something after the figure); otherwise use "
+              "text": ". The figures of a column line up, and the cell starts where any cell does. Use it where the figures cannot end-align, such as a cell that holds something after the figure. Otherwise use "
             },
             {
               "kind": "code",
@@ -48,6 +57,15 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It only marks the cell. The look is the table's, which is why the cell does nothing outside one."
             }
           ]
         }
@@ -128,7 +146,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It sets the look only. The columns, what a cell holds and how a table gives up a column when its container is narrow are the app's: the kit cannot know the container, or which columns matter. The table's name for assistive technology is the app's too ("
+              "text": "It sets the look only. The columns and what a cell holds are the app's. So is how a table gives up a column when its container is narrow: the kit cannot know the container, or which columns matter. The table's name for assistive technology is the app's too ("
             },
             {
               "kind": "code",

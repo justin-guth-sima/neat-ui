@@ -165,15 +165,17 @@ class NeatConfirmDialog {
  * ```
  *
  * `ask` shows a modal alert dialog, named by the title and described by the message, with a cancel
- * and a confirm button. It resolves `true` when the confirm button is pressed and `false` on
- * cancel or Escape, once the dialog has closed and focus is back on the element that had it. A
- * click on the backdrop does nothing: the question needs an answer. Focus starts on cancel, the
+ * and a confirm button. It resolves `true` when the confirm button is pressed, and `false` on
+ * cancel or Escape. It does so once the dialog has closed and focus is back on the element that had
+ * it.
+ *
+ * A click on the backdrop does nothing: the question needs an answer. Focus starts on cancel, the
  * choice that changes nothing, and stays inside the dialog. A `tone: 'danger'` confirm button is
  * the danger `neatButton`, otherwise the primary one.
  *
- * One question at a time: an `ask` while a dialog is open resolves that one `false` and closes it
- * at once, then shows the new one, which gives focus back where the first came from. A dialog
- * still closing after a button press keeps that answer.
+ * It asks one question at a time. An `ask` while a dialog is open resolves that one `false` and
+ * closes it at once. Then it shows the new one, which gives focus back where the first came from.
+ * A dialog still closing after a button press keeps that answer.
  */
 @Injectable({ providedIn: 'root' })
 export class NeatConfirm {

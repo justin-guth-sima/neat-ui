@@ -42,7 +42,33 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " reads the current level in dBFS, or null for none (the meter is dark). While it is set and the meter is rendered, the meter calls it once per animation frame, so one input serves a value the app polls and keeps in a field as well as a Web Audio analyzer read on demand. Pass null to stop. The meter calls the function on its own, never as a method of the app's object: give it an arrow function ("
+              "text": " reads the current level in dBFS, or null for none, which leaves the meter dark. Pass null instead of a function to stop."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "While "
+            },
+            {
+              "kind": "code",
+              "text": "sample"
+            },
+            {
+              "kind": "text",
+              "text": " is set and the meter is rendered, the meter calls it once per animation frame. So one input serves both a value the app polls and keeps in a field, and a Web Audio analyzer read on demand."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The meter calls the function on its own, never as a method of the app's object. So give it an arrow function ("
             },
             {
               "kind": "code",
@@ -50,7 +76,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), not a method. Return null when the source is gone (an audio context closed) rather than throw: the loop outlives a throw, so a sample that keeps throwing reports an error every frame."
+              "text": "), not a method."
             }
           ]
         },
@@ -59,7 +85,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A meter that is rendered samples even where it cannot be seen (under a "
+              "text": "Return null when the source is gone, such as an audio context that closed, rather than throw. The loop outlives a throw, so a sample that keeps throwing reports an error every frame."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A meter that is rendered samples even where it cannot be seen: under a "
             },
             {
               "kind": "code",
@@ -67,7 +102,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " ancestor, in a closed collapsible), so render it only while there is a level to show ("
+              "text": " ancestor, or in a closed collapsible. So render it only while there is a level to show ("
             },
             {
               "kind": "code",
@@ -75,7 +110,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") instead of hiding it."
+              "text": "), instead of hiding it."
             }
           ]
         },
@@ -84,7 +119,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Each frame writes the segments straight to the DOM, outside change detection: sixty change detections a second for a bar of color would cost more than everything else on the page."
+              "text": "Each frame writes the segments straight to the DOM, outside change detection. Sixty change detections a second for a bar of color would cost more than everything else on the page."
             }
           ]
         },

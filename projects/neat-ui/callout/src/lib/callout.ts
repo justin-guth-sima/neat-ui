@@ -65,21 +65,24 @@ const ICONS: Record<NeatTone, NeatIconName> = {
  * danger, `warning`, `check` for success, `info` otherwise. The content is the body; elements
  * marked `neatCalloutActions` go to a row under it.
  *
- * The heading is a real heading (`role="heading"`), at `headingLevel`, 3 by default: under a
- * dialog's title (a level 2) or a page's section, as heading navigation finds it. Pick the level
- * that fits where the callout stands.
+ * The heading is a real heading (`role="heading"`), at `headingLevel`, 3 by default. That puts it
+ * under a dialog's title (a level 2) or a page's section, where heading navigation finds it. Pick
+ * the level that fits where the callout stands.
  *
- * The fill is the page's color mixed with the tone (see TONES), so in a dialog it differs from
- * the dialog's own surface, and a neutral callout in a dark one shows by its border and icon.
+ * The fill is the page's color mixed with the tone, so in a dialog it differs from the dialog's own
+ * surface. A neutral callout in a dark dialog shows by its border and icon.
  *
- * `region` makes the callout a landmark, for a notice a user should be able to jump to (the
- * Viewer's late notice); the heading names it, and without a heading the callout takes no role,
- * since a region with no name is no landmark. `announce` gives the host the live
- * role to say the note with when it appears instead: `status` for news that can wait, `alert` for
- * a failure that needs attention now; it wins over `region`, since a host has one role. A callout
- * with a role is labeled by its heading (`aria-labelledby`); one with none is simply there. A
- * live region speaks what is added to it, so render the callout when its news happens (an `@if`),
- * not hidden beforehand.
+ * `region` makes the callout a landmark, for a notice a user should be able to jump to, such as
+ * the Viewer's late notice. The heading names it. Without a heading the callout takes no role,
+ * since a region with no name is no landmark.
+ *
+ * `announce` instead gives the host a live role, to say the note with when it appears. Use
+ * `status` for news that can wait, and `alert` for a failure that needs attention now. It wins over
+ * `region`, since a host has one role.
+ *
+ * A callout with a role is labeled by its heading (`aria-labelledby`). One without a role is a
+ * plain note. A live region speaks what is added to it, so render the callout when its news
+ * happens (an `@if`), not hidden beforehand.
  */
 @Component({
   selector: 'neat-callout',

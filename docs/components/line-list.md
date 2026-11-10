@@ -115,10 +115,14 @@ It sets the look only: the rule, the inset, the text size. A line's content, and
 
 Directive from `@sima/neat-ui/line-list`, selector `li[neatLine]`.
 
-One line of a `neatLineList`: a flex row, so its parts sit side by side, at least 1.5rem high so that the buttons of neighboring lines keep their distance.
+One line of a `neatLineList`, its parts side by side.
+
+It is a flex row, at least 1.5rem high, so the buttons of neighboring lines keep their distance.
 
 ### `NeatLineEnd`
 
 Directive from `@sima/neat-ui/line-list`, selector `[neatLineEnd]`.
 
-Marks the element of a `neatLine` that sits at the line's end, such as its action (usually a `neatInlineButton`): it is pushed there, whatever the text before it takes.
+Marks the element of a `neatLine` that sits at the line's end, such as its action.
+
+The action is usually a `neatInlineButton`. It is pushed to the end, whatever the text before it takes.

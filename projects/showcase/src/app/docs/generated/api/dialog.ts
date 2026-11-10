@@ -28,7 +28,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The content is a template or a component. It is rendered under the title the options name the dialog by, and is built from "
+              "text": "The content is a template or a component. It is rendered under the title the options name the dialog by. It is built from "
             },
             {
               "kind": "code",
@@ -36,7 +36,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (the part that scrolls) and "
+              "text": ", the part that scrolls, and "
             },
             {
               "kind": "code",
@@ -44,7 +44,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (the buttons). It gets the "
+              "text": ", the buttons."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The content gets the "
             },
             {
               "kind": "ref",
@@ -53,7 +62,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", to close the dialog with a result or to block dismissing it while it is busy: a template as its implicit context ("
+              "text": ", to close the dialog with a result or to block dismissing it while it is busy. A template gets it as its implicit context ("
             },
             {
               "kind": "code",
@@ -109,39 +118,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The dialog is modal: focus moves into it and stays inside, the page behind is hidden from assistive technology, and Escape or a click on the backdrop close it while it is dismissible. On closing, focus goes back to the element that had it on opening. Dialogs can stack; Escape closes the topmost, and a handled Escape stops there: it never reaches "
-            },
-            {
-              "kind": "code",
-              "text": "document"
-            },
-            {
-              "kind": "text",
-              "text": " or "
-            },
-            {
-              "kind": "code",
-              "text": "window"
-            },
-            {
-              "kind": "text",
-              "text": " listeners. Navigation (the browser's Back button, a route change) closes a dialog even when it is not dismissible, and "
-            },
-            {
-              "kind": "code",
-              "text": "closed"
-            },
-            {
-              "kind": "text",
-              "text": " then settles with "
-            },
-            {
-              "kind": "code",
-              "text": "undefined"
-            },
-            {
-              "kind": "text",
-              "text": ". For a yes/no question use "
+              "text": "For a yes/no question use "
             },
             {
               "kind": "ref",
@@ -159,7 +136,66 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "In kiosk mode a dialog does not hold the floating toolbar (as "
+              "text": "The dialog is modal. Focus moves into it and stays inside, and the page behind is hidden from assistive technology. Escape or a click on the backdrop close it while it is dismissible. On closing, focus goes back to the element that had it on opening."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Dialogs can stack. Escape closes the topmost, and a handled Escape stops there: it never reaches "
+            },
+            {
+              "kind": "code",
+              "text": "document"
+            },
+            {
+              "kind": "text",
+              "text": " or "
+            },
+            {
+              "kind": "code",
+              "text": "window"
+            },
+            {
+              "kind": "text",
+              "text": " listeners."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Navigation, such as the browser's Back button or a route change, closes a dialog even when it is not dismissible. "
+            },
+            {
+              "kind": "code",
+              "text": "closed"
+            },
+            {
+              "kind": "text",
+              "text": " then settles with "
+            },
+            {
+              "kind": "code",
+              "text": "undefined"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "In kiosk mode a dialog does not hold the floating toolbar, as "
             },
             {
               "kind": "code",
@@ -167,7 +203,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " does): the dialog covers the page, and the toolbar behind it fading is as it should be. Closing returns focus to the button in the toolbar, which shows the toolbar again."
+              "text": " does. The dialog covers the page, and the toolbar behind it fading is as it should be. Closing returns focus to the button in the toolbar, which shows the toolbar again."
             }
           ]
         }
@@ -250,7 +286,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Values for the component's inputs, set as it is created, before its first change detection, as a template's bindings would be: the component sees them in its template, in "
+                  "text": "Values for the component's inputs, set once as it is created."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "They are set before its first change detection, as a template's bindings would be. The component sees them in its template, in "
                 },
                 {
                   "kind": "code",
@@ -274,7 +319,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " on, but not in a field initializer or its constructor. They are set once; the dialog does not follow later changes."
+                  "text": " on. It does not see them in a field initializer or its constructor. The dialog does not follow later changes."
                 }
               ]
             }
@@ -335,7 +380,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " can set: each signal input ("
+              "text": " can set, by property name."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Each signal input is there with the type it takes: "
             },
             {
               "kind": "code",
@@ -359,7 +413,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", which is one too) by its property name, with the type it takes. All are optional here, since the type cannot tell a required input from one with a default; a required one left out fails when the component reads it, as it would in a template."
+              "text": ", which is one too. All are optional here, since the type cannot tell a required input from one with a default. A required one left out fails when the component reads it, as it would in a template."
             }
           ]
         },
@@ -376,7 +430,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "): the type names inputs by property, Angular binds them by alias, and an aliased one passed here throws as the dialog opens. The alias lives in the component's metadata, out of the type's reach."
+              "text": "). The type names inputs by property, but Angular binds them by alias, so an aliased one passed here throws as the dialog opens. The alias lives in the component's metadata, out of the type's reach."
             }
           ]
         }
@@ -555,7 +609,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Settles once the dialog has closed and focus is back on the element that had it: with the result given to "
+                  "text": "Settles once the dialog has closed and focus is back on the element that had it."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It settles with the result given to "
                 },
                 {
                   "kind": "code",
@@ -563,7 +626,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ", or "
+                  "text": ". It settles with "
                 },
                 {
                   "kind": "code",
@@ -571,7 +634,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " when it was dismissed (Escape, the backdrop, the close button) or closed by navigation. Navigating (the browser's Back button, a route change) closes every dialog, dismissible or not; code that must not lose work to it has to guard the navigation itself."
+                  "text": " when the dialog was dismissed (Escape, the backdrop, the close button) or closed by navigation."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Navigating, such as the browser's Back button or a route change, closes every dialog, dismissible or not. Code that must not lose work to it has to guard the navigation itself."
                 }
               ]
             }
@@ -626,7 +698,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Allows or blocks closing from outside the dialog's own controls: while "
+                  "text": "Allows or blocks closing from outside the dialog's own controls."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "While "
                 },
                 {
                   "kind": "code",
@@ -634,7 +715,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ", Escape and a click on the backdrop do nothing and the close button is dimmed ("
+                  "text": ", Escape and a click on the backdrop do nothing. The close button is dimmed ("
                 },
                 {
                   "kind": "code",
@@ -642,7 +723,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ") and does nothing. For a dialog that is busy and would lose work if it closed; "
+                  "text": ") and does nothing. Use it for a dialog that is busy and would lose work if it closed. "
                 },
                 {
                   "kind": "code",
@@ -650,7 +731,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " still works, since the code that is busy calls it. Navigation still closes it (see "
+                  "text": " still works, since the code that is busy calls it. Navigation still closes the dialog (see "
                 },
                 {
                   "kind": "code",

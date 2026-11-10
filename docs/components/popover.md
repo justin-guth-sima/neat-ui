@@ -269,13 +269,20 @@ export class Menu {}
 
 Component from `@sima/neat-ui/popover`, selector `neat-popover`.
 
-The panel is a non-modal dialog named by `label`, on the popover surface. `align` lines it up with the trigger's start, center or end; it flips above the trigger when there is no room below. The content template is created on opening and destroyed on closing, so keep its state (a typed value, a checked switch) in the page. On opening, focus moves to the panel's first enabled control. Escape, a click outside, the trigger, or `open` set to false close it; focus then goes back to the trigger, unless the closing click put it somewhere else. Setting `open` to true opens it as the trigger does, which is how a keyboard shortcut opens it.
+The panel is a non-modal dialog named by `label`, on the popover surface. `align` lines it up with the trigger's start, center or end. It flips above the trigger when there is no room below.
 
-The panel is rendered at the end of the document, so the browser's Tab order does not pass through it from the trigger. The kit carries it across by hand: Tab from the panel's last control closes it and focuses the first tabbable element after the trigger, and Shift+Tab from its first control closes it and focuses the trigger. Focus arriving anywhere else outside the trigger and the panel (a click on another control, Tab from the trigger, a second popover opening) closes it too, and focus stays where it went. Focus arriving in an overlay opened from the panel, such as a [`NeatConfirm`](../components/confirm.md#neatconfirm), does not close it.
+The content template is created on opening and destroyed on closing. So keep its state, such as a typed value or a checked switch, in the page.
 
-In the page toolbar, an open popover keeps the kiosk bar shown ([`KioskService.holdToolbar`](../layout/shell.md#kioskservice)): the panel lies outside the bar, so a pointer resting on it would otherwise fade the bar out.
+On opening, focus moves to the panel's first enabled control. Escape, a click outside, the trigger, or `open` set to false close it. Focus then goes back to the trigger, unless the closing click put it somewhere else. Setting `open` to true opens it as the trigger does, which is how a keyboard shortcut opens it.
 
-Brain's popover is the host directive: it places the panel, closes it on Escape and outside clicks and moves focus in and out. The kit renders the dialog element itself, so that it can name it, and gives the overlay pane around it no role.
+The panel is rendered at the end of the document, so the browser's Tab order does not pass through it from the trigger. The kit carries the focus across by hand:
+
+- Tab from the panel's last control closes it and focuses the first tabbable element after the trigger.
+- Shift+Tab from its first control closes it and focuses the trigger.
+- Focus arriving anywhere else outside the trigger and the panel closes it too, and stays where it went. It arrives there by a click on another control, Tab from the trigger, or a second popover opening.
+- Focus arriving in an overlay opened from the panel, such as a [`NeatConfirm`](../components/confirm.md#neatconfirm), does not close it.
+
+In the page toolbar, an open popover keeps the kiosk bar shown ([`KioskService.holdToolbar`](../layout/shell.md#kioskservice)). The panel lies outside the bar, so a pointer resting on it would otherwise fade the bar out.
 
 **Inputs**
 

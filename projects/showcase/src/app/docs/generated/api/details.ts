@@ -15,7 +15,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Facts about the selected thing, as an aside shows them: a native description list whose terms are muted and whose values sit beside them:"
+              "text": "Facts about the selected thing, as an aside shows them, on a native description list."
             }
           ]
         },
@@ -29,7 +29,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It sets the look only; the pairs, their words and what a value holds (a code span, an inline button beside a URL) are the app's. Write each "
+              "text": "It sets the look only. The pairs, their words and what a value holds are the app's, such as a code span, or an inline button beside a URL. Write each "
             },
             {
               "kind": "code",
@@ -54,7 +54,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The terms are muted and as wide as the widest; the values take the rest of the width, wrap anywhere when long and keep their figures aligned. Several lists line up on one term column when an ancestor sets "
+              "text": "The terms are muted, and as wide as the widest. The values sit beside them and take the rest of the width. They wrap anywhere when long, and keep their figures aligned."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Several lists line up on one term column when an ancestor sets "
             },
             {
               "kind": "code",
@@ -62,7 +71,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (a length, say "
+              "text": ", a length such as "
             },
             {
               "kind": "code",
@@ -70,7 +79,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "); a term wider than that column breaks inside the word."
+              "text": ". A term wider than that column breaks inside the word."
             }
           ]
         }

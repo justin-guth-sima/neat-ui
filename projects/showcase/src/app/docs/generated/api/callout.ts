@@ -119,7 +119,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", 3 by default: under a dialog's title (a level 2) or a page's section, as heading navigation finds it. Pick the level that fits where the callout stands."
+              "text": ", 3 by default. That puts it under a dialog's title (a level 2) or a page's section, where heading navigation finds it. Pick the level that fits where the callout stands."
             }
           ]
         },
@@ -128,7 +128,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The fill is the page's color mixed with the tone (see TONES), so in a dialog it differs from the dialog's own surface, and a neutral callout in a dark one shows by its border and icon."
+              "text": "The fill is the page's color mixed with the tone, so in a dialog it differs from the dialog's own surface. A neutral callout in a dark dialog shows by its border and icon."
             }
           ]
         },
@@ -141,15 +141,20 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " makes the callout a landmark, for a notice a user should be able to jump to (the Viewer's late notice); the heading names it, and without a heading the callout takes no role, since a region with no name is no landmark. "
-            },
+              "text": " makes the callout a landmark, for a notice a user should be able to jump to, such as the Viewer's late notice. The heading names it. Without a heading the callout takes no role, since a region with no name is no landmark."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "announce"
             },
             {
               "kind": "text",
-              "text": " gives the host the live role to say the note with when it appears instead: "
+              "text": " instead gives the host a live role, to say the note with when it appears. Use "
             },
             {
               "kind": "code",
@@ -157,7 +162,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " for news that can wait, "
+              "text": " for news that can wait, and "
             },
             {
               "kind": "code",
@@ -165,7 +170,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " for a failure that needs attention now; it wins over "
+              "text": " for a failure that needs attention now. It wins over "
             },
             {
               "kind": "code",
@@ -173,7 +178,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", since a host has one role. A callout with a role is labeled by its heading ("
+              "text": ", since a host has one role."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A callout with a role is labeled by its heading ("
             },
             {
               "kind": "code",
@@ -181,7 +195,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "); one with none is simply there. A live region speaks what is added to it, so render the callout when its news happens (an "
+              "text": "). One without a role is a plain note. A live region speaks what is added to it, so render the callout when its news happens (an "
             },
             {
               "kind": "code",

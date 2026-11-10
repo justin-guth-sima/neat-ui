@@ -8,11 +8,19 @@ const ERROR_NOTE_CLASSES =
   'block text-destructive text-(length:--neat-text-sm) whitespace-pre-line wrap-anywhere';
 
 /**
- * A failure said in place, under the form or the work it belongs to:
- * `<neat-error-note>{{ message }}</neat-error-note>`. It is an `alert`, so a screen reader reads
- * it as it appears: render it when there is a failure (`@if`), not as an empty note waiting for
- * one. A message of several lines (a server's diagnostics) keeps its line breaks, and a long
- * unbroken string (a URL) wraps rather than widen the form. The words are the app's.
+ * A failure said in place, under the form or the work it belongs to.
+ *
+ * ```html
+ * @if (error(); as message) {
+ *   <neat-error-note>{{ message }}</neat-error-note>
+ * }
+ * ```
+ *
+ * It is an `alert`, so a screen reader reads it as it appears. Render it when there is a failure
+ * (`@if`), not as an empty note waiting for one.
+ *
+ * A message of several lines, such as a server's diagnostics, keeps its line breaks. A long
+ * unbroken string, such as a URL, wraps rather than widen the form. The words are the app's.
  *
  * `neat-field` shows one under its control for its `error`.
  */

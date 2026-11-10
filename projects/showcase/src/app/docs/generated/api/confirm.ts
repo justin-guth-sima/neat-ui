@@ -40,7 +40,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " when the confirm button is pressed and "
+              "text": " when the confirm button is pressed, and "
             },
             {
               "kind": "code",
@@ -48,7 +48,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " on cancel or Escape, once the dialog has closed and focus is back on the element that had it. A click on the backdrop does nothing: the question needs an answer. Focus starts on cancel, the choice that changes nothing, and stays inside the dialog. A "
+              "text": " on cancel or Escape. It does so once the dialog has closed and focus is back on the element that had it."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A click on the backdrop does nothing: the question needs an answer. Focus starts on cancel, the choice that changes nothing, and stays inside the dialog. A "
             },
             {
               "kind": "code",
@@ -73,7 +82,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "One question at a time: an "
+              "text": "It asks one question at a time. An "
             },
             {
               "kind": "code",
@@ -89,7 +98,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " and closes it at once, then shows the new one, which gives focus back where the first came from. A dialog still closing after a button press keeps that answer."
+              "text": " and closes it at once. Then it shows the new one, which gives focus back where the first came from. A dialog still closing after a button press keeps that answer."
             }
           ]
         }

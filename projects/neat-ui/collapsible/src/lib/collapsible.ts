@@ -42,26 +42,34 @@ const HEADING_CLASSES = 'min-w-0 grow';
  * <neat-collapsible label="Details" [summary]="mode()" [(open)]="detailsOpen">…</neat-collapsible>
  * ```
  *
- * The trigger shows the `next` chevron (turned a quarter while open), `label` and, only while
- * closed, `summary` in muted text that truncates, for what the section holds at a glance. It is a
- * native button that names the content in `aria-controls` and says whether it is open in
- * `aria-expanded`; Enter and Space work as on any button. `open` is two-way bound. With
- * `headingLevel`, the button sits in a heading of that level (the WAI-ARIA disclosure and accordion
- * patterns), so the section's title is in the page's outline.
+ * The trigger shows the `next` chevron, turned a quarter while open, and `label`. Only while
+ * closed, it also shows `summary` in muted text that truncates, for what the section holds at a
+ * glance.
  *
- * The content stays instantiated while closed (hidden and `inert`), so its state survives a close;
- * gate expensive content (a live preview) on `open` with an `@if` of your own. When the section
- * closes with the focus inside it (a Save that closes it, the app setting `open` to false), the
- * focus moves to the trigger: inert content would otherwise drop it to the page. So it does when
- * the focus was on an end control that the close removed (one shown only while open); an end
- * control that stays keeps the focus.
+ * The trigger is a native button. It names the content in `aria-controls`, and says whether it is
+ * open in `aria-expanded`. Enter and Space work as on any button. `open` is two-way bound.
  *
- * Elements marked `neatCollapsibleEnd` sit at the end of the trigger's row, outside the trigger
- * and its heading: the section's own controls (a copy button over a code sample, a file choice),
- * which act without opening or closing it. The trigger takes the rest of the row, and the
- * controls drop to a second line where they would leave the label and summary no room: the
- * trigger's width is both in full, so a long summary wraps the controls before it truncates. They
- * show whether the section is open or closed; an app shows them only while open with an `@if`.
+ * With `headingLevel`, the button sits in a heading of that level, as in the WAI-ARIA disclosure
+ * and accordion patterns. So the section's title is in the page's outline.
+ *
+ * The content stays instantiated while closed, hidden and `inert`, so its state survives a close.
+ * Gate expensive content, such as a live preview, on `open` with an `@if` of your own.
+ *
+ * When the section closes with the focus inside it, the focus moves to the trigger. Inert content
+ * would otherwise drop it to the page. That happens on a Save that closes the section, say, or
+ * when the app sets `open` to false. It happens too when the focus was on an end control that the
+ * close removed, one shown only while open. An end control that stays keeps the focus.
+ *
+ * Elements marked `neatCollapsibleEnd` sit at the end of the trigger's row, outside the trigger and
+ * its heading. They are the section's own controls, which act without opening or closing it: a
+ * copy button over a code sample, a file choice.
+ *
+ * The trigger takes the rest of the row. The controls drop to a second line where they would
+ * leave the label and summary no room. The trigger's width is both in full, so a long summary
+ * wraps the controls before it truncates.
+ *
+ * The end controls show whether the section is open or closed. An app shows them only while open
+ * with an `@if`.
  *
  * @input open Whether the section is open; closed by default. Bind it two-way, `[(open)]`, to
  * keep the state in the page or to open or close the section from code.
@@ -126,8 +134,10 @@ export class NeatCollapsible {
   /** What the section holds, shown beside the label while it is closed; none if empty. */
   readonly summary = input('');
   /**
-   * The level of the heading the trigger sits in, for a section that is part of an outline (System
-   * Info's); none by default, for a disclosure such as a panel's "Details".
+   * The level of the heading the trigger sits in, for a section that is part of an outline.
+   *
+   * System Info's sections have one. Leave it unset, the default, for a disclosure such as a
+   * panel's "Details".
    */
   readonly headingLevel = input<2 | 3 | 4 | 5 | 6 | null>(null);
 

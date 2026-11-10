@@ -23,7 +23,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". Its panel goes in an "
+              "text": ", its panel in an "
             },
             {
               "kind": "code",
@@ -31,15 +31,21 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", so its content is created only while the tab is open and destroyed when another one opens: "
-            },
-            {
-              "kind": "code",
-              "text": "<neat-tab label=\"General\" value=\"general\"><ng-template>…</ng-template></neat-tab>"
-            },
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-tab label=\"General\" value=\"general\">\n  <ng-template>…</ng-template>\n</neat-tab>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": "."
+              "text": "The panel's content is created only while the tab is open, and destroyed when another one opens."
             }
           ]
         }
@@ -221,7 +227,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A panel taller than the space it has is for the surrounding page or pane to scroll, which keeps one scroll context. The tab list is the one part that scrolls itself: tabs that do not fit their container's width (an aside's) scroll sideways, never wrap, and the open tab is brought into view when it changes."
+              "text": "A panel taller than the space it has is for the surrounding page or pane to scroll, which keeps one scroll context. The tab list is the one part that scrolls itself. Tabs that do not fit their container's width, such as an aside's, scroll sideways and never wrap. The open tab is brought into view when it changes."
             }
           ]
         },
@@ -230,7 +236,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Two tab sets with the same values do not share element ids, and a value with spaces (\"Board 1\") works as any other: "
+              "text": "Two tab sets with the same values do not share element ids. A value with spaces (\"Board 1\") works as any other, so "
             },
             {
               "kind": "code",

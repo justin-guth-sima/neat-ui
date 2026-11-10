@@ -10,11 +10,13 @@ import { signal, type Signal, type WritableSignal } from '@angular/core';
  */
 export abstract class NeatDialogRef<R = unknown> {
   /**
-   * Settles once the dialog has closed and focus is back on the element that had it: with the
-   * result given to `close`, or `undefined` when it was dismissed (Escape, the backdrop, the close
-   * button) or closed by navigation. Navigating (the browser's Back button, a route change)
-   * closes every dialog, dismissible or not; code that must not lose work to it has to guard the
-   * navigation itself.
+   * Settles once the dialog has closed and focus is back on the element that had it.
+   *
+   * It settles with the result given to `close`. It settles with `undefined` when the dialog was
+   * dismissed (Escape, the backdrop, the close button) or closed by navigation.
+   *
+   * Navigating, such as the browser's Back button or a route change, closes every dialog,
+   * dismissible or not. Code that must not lose work to it has to guard the navigation itself.
    */
   abstract readonly closed: Promise<R | undefined>;
   /** Whether Escape, the backdrop and the close button close the dialog right now. */
@@ -27,10 +29,12 @@ export abstract class NeatDialogRef<R = unknown> {
   abstract close(result?: R): void;
 
   /**
-   * Allows or blocks closing from outside the dialog's own controls: while `false`, Escape and a
-   * click on the backdrop do nothing and the close button is dimmed (`aria-disabled`) and does
-   * nothing. For a dialog that is busy and would lose work if it closed; `close()` still works,
-   * since the code that is busy calls it. Navigation still closes it (see `closed`).
+   * Allows or blocks closing from outside the dialog's own controls.
+   *
+   * While `false`, Escape and a click on the backdrop do nothing. The close button is dimmed
+   * (`aria-disabled`) and does nothing. Use it for a dialog that is busy and would lose work if it
+   * closed. `close()` still works, since the code that is busy calls it. Navigation still closes
+   * the dialog (see `closed`).
    */
   abstract setDismissible(dismissible: boolean): void;
 }

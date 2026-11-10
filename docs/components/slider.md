@@ -157,7 +157,7 @@ Component from `@sima/neat-ui/slider`, selector `neat-slider`.
 
 `label` is the accessible name, and is not displayed. The arrow keys step. Page Up and Page Down step by ten, as do the arrow keys with Shift. Home and End jump to the ends.
 
-`value` changes on every step of a drag, not only when the pointer is released, so whatever it drives (the tile grid's repacking, for one) previews live. A value outside `min`..`max` is shown clamped and stays as it is until the user moves the slider.
+`value` changes on every step of a drag, not only when the pointer is released. So whatever it drives previews live, such as the tile grid's repacking. A value outside `min`..`max` is shown clamped and stays as it is until the user moves the slider.
 
 `describedBy` is the id of the element that describes the slider, such as a note on where its value applies. It goes on the thumb, the focusable element, like the name. The disabled state is on the thumb as `aria-disabled` too, since assistive technology reaches the slider through its thumb.
 

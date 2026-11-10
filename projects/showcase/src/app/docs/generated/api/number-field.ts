@@ -202,7 +202,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Focuses the input with its number selected, so what the user types replaces it: for a shortcut that jumps to the field, such as \"g\" for the page."
+                  "text": "Focuses the input with its number selected, so what the user types replaces it."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Call it from a shortcut that jumps to the field, such as \"g\" for the page."
                 }
               ]
             }

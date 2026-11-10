@@ -33,13 +33,15 @@ export interface NeatDialogOptions {
 }
 
 /**
- * The inputs of a component `C` that `NeatDialog.open` can set: each signal input (`input()`,
- * `input.required()`, and `model()`, which is one too) by its property name, with the type it
- * takes. All are optional here, since the type cannot tell a required input from one with a
- * default; a required one left out fails when the component reads it, as it would in a template.
+ * The inputs of a component `C` that `NeatDialog.open` can set, by property name.
  *
- * Do not alias an input of a dialog component (`input(…, { alias })`): the type names inputs by
- * property, Angular binds them by alias, and an aliased one passed here throws as the dialog
+ * Each signal input is there with the type it takes: `input()`, `input.required()`, and
+ * `model()`, which is one too. All are optional here, since the type cannot tell a required input
+ * from one with a default. A required one left out fails when the component reads it, as it would
+ * in a template.
+ *
+ * Do not alias an input of a dialog component (`input(…, { alias })`). The type names inputs by
+ * property, but Angular binds them by alias, so an aliased one passed here throws as the dialog
  * opens. The alias lives in the component's metadata, out of the type's reach.
  */
 export type NeatDialogInputs<C> = {
@@ -58,10 +60,12 @@ type InputValue<S> =
 /** What `NeatDialog.open` takes for a component whose inputs the opener sets. */
 export interface NeatDialogComponentOptions<C> extends NeatDialogOptions {
   /**
-   * Values for the component's inputs, set as it is created, before its first change detection,
-   * as a template's bindings would be: the component sees them in its template, in `computed`
-   * and `linkedSignal`, and from `ngOnInit` on, but not in a field initializer or its constructor.
-   * They are set once; the dialog does not follow later changes.
+   * Values for the component's inputs, set once as it is created.
+   *
+   * They are set before its first change detection, as a template's bindings would be. The
+   * component sees them in its template, in `computed` and `linkedSignal`, and from `ngOnInit` on.
+   * It does not see them in a field initializer or its constructor. The dialog does not follow
+   * later changes.
    */
   readonly inputs: NeatDialogInputs<C>;
 }
@@ -87,10 +91,12 @@ const DIALOG_OPTIONS: Partial<BrnDialogOptions> = {
  * ```
  *
  * The content is a template or a component. It is rendered under the title the options name the
- * dialog by, and is built from `<neat-dialog-body>` (the part that scrolls) and
- * `<neat-dialog-actions>` (the buttons). It gets the `NeatDialogRef`, to close the dialog with a
- * result or to block dismissing it while it is busy: a template as its implicit context
- * (`<ng-template let-dialog>`), a component by injection.
+ * dialog by. It is built from `<neat-dialog-body>`, the part that scrolls, and
+ * `<neat-dialog-actions>`, the buttons.
+ *
+ * The content gets the `NeatDialogRef`, to close the dialog with a result or to block dismissing
+ * it while it is busy. A template gets it as its implicit context (`<ng-template let-dialog>`), a
+ * component by injection.
  *
  * A component can take inputs from the opener, typed by the component (a template needs none: it
  * sees the opener's own fields):
@@ -105,15 +111,19 @@ const DIALOG_OPTIONS: Partial<BrnDialogOptions> = {
  * With `inputs` the type arguments are the component's, then the result's; both are inferred when
  * none is given, the result as `unknown`.
  *
- * The dialog is modal: focus moves into it and stays inside, the page behind is hidden from
- * assistive technology, and Escape or a click on the backdrop close it while it is dismissible.
- * On closing, focus goes back to the element that had it on opening. Dialogs can stack; Escape
- * closes the topmost, and a handled Escape stops there: it never reaches `document` or `window`
- * listeners. Navigation (the browser's Back button, a route change) closes a dialog even when it
- * is not dismissible, and `closed` then settles with `undefined`. For a yes/no question use
- * `NeatConfirm`, which this does not replace.
+ * For a yes/no question use `NeatConfirm`, which this does not replace.
  *
- * In kiosk mode a dialog does not hold the floating toolbar (as `neat-popover` does): the dialog
+ * The dialog is modal. Focus moves into it and stays inside, and the page behind is hidden from
+ * assistive technology. Escape or a click on the backdrop close it while it is dismissible. On
+ * closing, focus goes back to the element that had it on opening.
+ *
+ * Dialogs can stack. Escape closes the topmost, and a handled Escape stops there: it never reaches
+ * `document` or `window` listeners.
+ *
+ * Navigation, such as the browser's Back button or a route change, closes a dialog even when it is
+ * not dismissible. `closed` then settles with `undefined`.
+ *
+ * In kiosk mode a dialog does not hold the floating toolbar, as `neat-popover` does. The dialog
  * covers the page, and the toolbar behind it fading is as it should be. Closing returns focus to
  * the button in the toolbar, which shows the toolbar again.
  */

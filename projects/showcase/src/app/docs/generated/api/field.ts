@@ -15,15 +15,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A failure said in place, under the form or the work it belongs to: "
-            },
-            {
-              "kind": "code",
-              "text": "<neat-error-note>{{ message }}</neat-error-note>"
-            },
+              "text": "A failure said in place, under the form or the work it belongs to."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "@if (error(); as message) {\n  <neat-error-note>{{ message }}</neat-error-note>\n}"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ". It is an "
+              "text": "It is an "
             },
             {
               "kind": "code",
@@ -31,7 +37,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", so a screen reader reads it as it appears: render it when there is a failure ("
+              "text": ", so a screen reader reads it as it appears. Render it when there is a failure ("
             },
             {
               "kind": "code",
@@ -39,7 +45,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), not as an empty note waiting for one. A message of several lines (a server's diagnostics) keeps its line breaks, and a long unbroken string (a URL) wraps rather than widen the form. The words are the app's."
+              "text": "), not as an empty note waiting for one."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A message of several lines, such as a server's diagnostics, keeps its line breaks. A long unbroken string, such as a URL, wraps rather than widen the form. The words are the app's."
             }
           ]
         },
@@ -91,7 +106,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The control is the content, one "
+              "text": "The control is the content: one "
             },
             {
               "kind": "code",
@@ -99,7 +114,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " inside a "
+              "text": ", inside a "
             },
             {
               "kind": "code",
@@ -115,7 +130,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": the label names it, and a click on the name focuses it. The app may swap it (an "
+              "text": ". The label names the control, and a click on the name focuses it. The app may swap the control with an "
             },
             {
               "kind": "code",
@@ -123,7 +138,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " in the content); the field follows the control it has. "
+              "text": " in the content, and the field follows the control it has. "
             },
             {
               "kind": "code",
@@ -152,7 +167,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is a note under the control and "
+              "text": " is a note under the control, and "
             },
             {
               "kind": "code",
@@ -168,23 +183,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " under that, both outside the label so that they are not part of the control's name. The field describes the control by them ("
-            },
-            {
-              "kind": "code",
-              "text": "aria-describedby"
-            },
-            {
-              "kind": "text",
-              "text": ") and marks it "
-            },
-            {
-              "kind": "code",
-              "text": "aria-invalid"
-            },
-            {
-              "kind": "text",
-              "text": " while there is an error, so it owns those two attributes of its control: do not bind them yourself."
+              "text": " under that. Both sit outside the label, so they are not part of the control's name."
             }
           ]
         },
@@ -193,7 +192,32 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Lining up in a row: the name's text and the gap under it are "
+              "text": "The field describes the control by them ("
+            },
+            {
+              "kind": "code",
+              "text": "aria-describedby"
+            },
+            {
+              "kind": "text",
+              "text": "), and marks it "
+            },
+            {
+              "kind": "code",
+              "text": "aria-invalid"
+            },
+            {
+              "kind": "text",
+              "text": " while there is an error. So it owns those two attributes of its control: do not bind them yourself."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Fields line up in a row with other controls. The name's text and the gap under it are "
             },
             {
               "kind": "code",
@@ -201,7 +225,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "'s, and the control's height is its own "
+              "text": "'s. The control's height is its own "
             },
             {
               "kind": "code",
@@ -209,7 +233,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " ("
+              "text": ": "
             },
             {
               "kind": "code",
@@ -249,7 +273,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; "
+              "text": ", and "
             },
             {
               "kind": "code",
@@ -265,7 +289,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "). A row of fields and a button of one size aligned at their bottom edge ("
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Align a row of fields and a button of one size at their bottom edge ("
             },
             {
               "kind": "code",
@@ -273,7 +306,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") has its names on one baseline and its controls' edges level. A hint or an error makes its field taller, so a row that must stay level shows them under the row instead."
+              "text": "). Its names then sit on one baseline, and its controls' edges are level. A hint or an error makes its field taller, so a row that must stay level shows them under the row instead."
             }
           ]
         }

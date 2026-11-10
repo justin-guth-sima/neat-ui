@@ -58,7 +58,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the kit's height, not the native character width: bind it ("
+              "text": " is the kit's height, not the native character width. Bind it ("
             },
             {
               "kind": "code",
@@ -66,7 +66,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") or set it as an attribute, which the browser ignores as a width since it is not a number."
+              "text": ") or set it as an attribute: the browser ignores it as a width, since it is not a number."
             }
           ]
         },

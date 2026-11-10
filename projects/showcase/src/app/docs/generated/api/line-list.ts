@@ -23,7 +23,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": a flex row, so its parts sit side by side, at least 1.5rem high so that the buttons of neighboring lines keep their distance."
+              "text": ", its parts side by side."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is a flex row, at least 1.5rem high, so the buttons of neighboring lines keep their distance."
             }
           ]
         }
@@ -48,7 +57,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " that sits at the line's end, such as its action (usually a "
+              "text": " that sits at the line's end, such as its action."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The action is usually a "
             },
             {
               "kind": "code",
@@ -56,7 +74,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "): it is pushed there, whatever the text before it takes."
+              "text": ". It is pushed to the end, whatever the text before it takes."
             }
           ]
         }

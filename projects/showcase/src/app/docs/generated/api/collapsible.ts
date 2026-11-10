@@ -37,7 +37,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " chevron (turned a quarter while open), "
+              "text": " chevron, turned a quarter while open, and "
             },
             {
               "kind": "code",
@@ -45,7 +45,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " and, only while closed, "
+              "text": ". Only while closed, it also shows "
             },
             {
               "kind": "code",
@@ -53,39 +53,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " in muted text that truncates, for what the section holds at a glance. It is a native button that names the content in "
-            },
-            {
-              "kind": "code",
-              "text": "aria-controls"
-            },
-            {
-              "kind": "text",
-              "text": " and says whether it is open in "
-            },
-            {
-              "kind": "code",
-              "text": "aria-expanded"
-            },
-            {
-              "kind": "text",
-              "text": "; Enter and Space work as on any button. "
-            },
-            {
-              "kind": "code",
-              "text": "open"
-            },
-            {
-              "kind": "text",
-              "text": " is two-way bound. With "
-            },
-            {
-              "kind": "code",
-              "text": "headingLevel"
-            },
-            {
-              "kind": "text",
-              "text": ", the button sits in a heading of that level (the WAI-ARIA disclosure and accordion patterns), so the section's title is in the page's outline."
+              "text": " in muted text that truncates, for what the section holds at a glance."
             }
           ]
         },
@@ -94,7 +62,57 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The content stays instantiated while closed (hidden and "
+              "text": "The trigger is a native button. It names the content in "
+            },
+            {
+              "kind": "code",
+              "text": "aria-controls"
+            },
+            {
+              "kind": "text",
+              "text": ", and says whether it is open in "
+            },
+            {
+              "kind": "code",
+              "text": "aria-expanded"
+            },
+            {
+              "kind": "text",
+              "text": ". Enter and Space work as on any button. "
+            },
+            {
+              "kind": "code",
+              "text": "open"
+            },
+            {
+              "kind": "text",
+              "text": " is two-way bound."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "With "
+            },
+            {
+              "kind": "code",
+              "text": "headingLevel"
+            },
+            {
+              "kind": "text",
+              "text": ", the button sits in a heading of that level, as in the WAI-ARIA disclosure and accordion patterns. So the section's title is in the page's outline."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The content stays instantiated while closed, hidden and "
             },
             {
               "kind": "code",
@@ -102,7 +120,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), so its state survives a close; gate expensive content (a live preview) on "
+              "text": ", so its state survives a close. Gate expensive content, such as a live preview, on "
             },
             {
               "kind": "code",
@@ -118,7 +136,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " of your own. When the section closes with the focus inside it (a Save that closes it, the app setting "
+              "text": " of your own."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "When the section closes with the focus inside it, the focus moves to the trigger. Inert content would otherwise drop it to the page. That happens on a Save that closes the section, say, or when the app sets "
             },
             {
               "kind": "code",
@@ -126,7 +153,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " to false), the focus moves to the trigger: inert content would otherwise drop it to the page. So it does when the focus was on an end control that the close removed (one shown only while open); an end control that stays keeps the focus."
+              "text": " to false. It happens too when the focus was on an end control that the close removed, one shown only while open. An end control that stays keeps the focus."
             }
           ]
         },
@@ -143,7 +170,25 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " sit at the end of the trigger's row, outside the trigger and its heading: the section's own controls (a copy button over a code sample, a file choice), which act without opening or closing it. The trigger takes the rest of the row, and the controls drop to a second line where they would leave the label and summary no room: the trigger's width is both in full, so a long summary wraps the controls before it truncates. They show whether the section is open or closed; an app shows them only while open with an "
+              "text": " sit at the end of the trigger's row, outside the trigger and its heading. They are the section's own controls, which act without opening or closing it: a copy button over a code sample, a file choice."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The trigger takes the rest of the row. The controls drop to a second line where they would leave the label and summary no room. The trigger's width is both in full, so a long summary wraps the controls before it truncates."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The end controls show whether the section is open or closed. An app shows them only while open with an "
             },
             {
               "kind": "code",
@@ -199,7 +244,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The level of the heading the trigger sits in, for a section that is part of an outline (System Info's); none by default, for a disclosure such as a panel's \"Details\"."
+                  "text": "The level of the heading the trigger sits in, for a section that is part of an outline."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "System Info's sections have one. Leave it unset, the default, for a disclosure such as a panel's \"Details\"."
                 }
               ]
             }

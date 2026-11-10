@@ -22,8 +22,7 @@ const DETAILS_CLASSES =
   'm-0 grid grid-cols-[var(--neat-details-term-width,auto)_1fr] gap-x-(--neat-space-3) gap-y-(--neat-space-2) text-(length:--neat-text-sm) [&>dt]:wrap-break-word [&>dt]:text-muted-foreground [&>dd]:m-0 [&>dd]:min-w-0 [&>dd]:wrap-anywhere [&>dd]:tabular-nums';
 
 /**
- * Facts about the selected thing, as an aside shows them: a native description list whose
- * terms are muted and whose values sit beside them:
+ * Facts about the selected thing, as an aside shows them, on a native description list.
  *
  * ```html
  * <dl neatDetails>
@@ -34,14 +33,15 @@ const DETAILS_CLASSES =
  * </dl>
  * ```
  *
- * It sets the look only; the pairs, their words and what a value holds (a code span, an inline
- * button beside a URL) are the app's. Write each `dt` and `dd` as a direct child of the list, one
- * value per term: the two columns are the list's grid.
+ * It sets the look only. The pairs, their words and what a value holds are the app's, such as a
+ * code span, or an inline button beside a URL. Write each `dt` and `dd` as a direct child of the
+ * list, one value per term: the two columns are the list's grid.
  *
- * The terms are muted and as wide as the widest; the values take the rest of the width, wrap
- * anywhere when long and keep their figures aligned. Several lists line up on one term column when
- * an ancestor sets `--neat-details-term-width` (a length, say `7rem`); a term wider than that
- * column breaks inside the word.
+ * The terms are muted, and as wide as the widest. The values sit beside them and take the rest of
+ * the width. They wrap anywhere when long, and keep their figures aligned.
+ *
+ * Several lists line up on one term column when an ancestor sets `--neat-details-term-width`, a
+ * length such as `7rem`. A term wider than that column breaks inside the word.
  */
 @Directive({
   selector: 'dl[neatDetails]',

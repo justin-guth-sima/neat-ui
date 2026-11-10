@@ -33,8 +33,13 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the visible text and the accessible name. The zone is a native button: Tab focuses it, Enter and Space (like a click) open the chooser. "
-            },
+              "text": " is the visible text and the accessible name. The zone is a native button: Tab focuses it, and Enter and Space open the chooser, as a click does."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "files"
@@ -49,8 +54,13 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " allows several; without it, only the first file is taken. "
-            },
+              "text": " allows several. Without it, only the first file is taken."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "accept"
@@ -65,15 +75,20 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "); the chooser applies it itself, and the zone applies it to what is dropped, which the browser leaves unfiltered. "
-            },
+              "text": "). The chooser applies it itself. The zone applies it to what is dropped, which the browser leaves unfiltered."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "rejected"
             },
             {
               "kind": "text",
-              "text": " emits the dropped files that were not taken (not allowed by "
+              "text": " emits the dropped files that were not taken: those "
             },
             {
               "kind": "code",
@@ -81,7 +96,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", or beyond the first without "
+              "text": " does not allow, and those beyond the first without "
             },
             {
               "kind": "code",
@@ -89,7 +104,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), before "
+              "text": ". It comes before "
             },
             {
               "kind": "code",
@@ -97,7 +112,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " and even when "
+              "text": ", and even when "
             },
             {
               "kind": "code",
@@ -105,7 +120,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " has nothing to emit, so the app can say what it did not take. While "
+              "text": " has nothing to emit, so the app can say what it did not take."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "While "
             },
             {
               "kind": "code",
@@ -113,7 +137,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " it does not react to clicks, drags or drops."
+              "text": ", it does not react to clicks, drags or drops."
             }
           ]
         },
@@ -252,15 +276,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The dropped files that were left out, once per drop that left any out and before "
-                },
-                {
-                  "kind": "code",
-                  "text": "files"
-                },
-                {
-                  "kind": "text",
-                  "text": ": those "
+                  "text": "The dropped files that were left out: those "
                 },
                 {
                   "kind": "code",
@@ -276,7 +292,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " is off. An app says why nothing (or not everything) was taken from this. Emitted even when "
+                  "text": " is off. It emits once per drop that left any out, before "
                 },
                 {
                   "kind": "code",
@@ -284,7 +300,15 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " is not."
+                  "text": ", and even when "
+                },
+                {
+                  "kind": "code",
+                  "text": "files"
+                },
+                {
+                  "kind": "text",
+                  "text": " does not. An app says from it why nothing, or not everything, was taken."
                 }
               ]
             }

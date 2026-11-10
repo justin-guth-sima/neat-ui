@@ -106,7 +106,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": a screen reader hears it when it changes (\"Uploading\" to \"Preparing\"), but not the percent or the detail, which change too often to be read out. It is named "
+              "text": ". A screen reader hears it when it changes, from \"Uploading\" to \"Preparing\" say. It does not hear the percent or the detail, which change too often to be read out. The input is named "
             },
             {
               "kind": "code",
@@ -122,7 +122,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " so that a static attribute does not also become the native tooltip of the whole element."
+              "text": ", so that a static attribute does not also become the native tooltip of the whole element."
             }
           ]
         },
@@ -135,7 +135,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the bar's accessible name; it defaults to the heading. The bar is "
+              "text": " is the bar's accessible name, the heading by default. The bar is "
             },
             {
               "kind": "code",
@@ -143,7 +143,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " with "
+              "text": ", with "
             },
             {
               "kind": "code",
@@ -175,7 +175,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". A bar alone announces nothing as it changes, which is a progressbar's way; give a bar without a heading a "
+              "text": ". A bar alone announces nothing as it changes, which is a progressbar's way. So give a bar without a heading a "
             },
             {
               "kind": "code",
@@ -183,7 +183,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". It fills the width its container gives it, from the left: the kit has no right-to-left layout."
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It fills the width its container gives it, from the left: the kit has no right-to-left layout."
             }
           ]
         }

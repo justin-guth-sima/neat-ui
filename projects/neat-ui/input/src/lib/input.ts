@@ -24,8 +24,8 @@ export const INPUT_HELM_CLASSES = HELM_CLASSES;
  * Every native attribute (type, inputmode, min, max, placeholder, id, disabled) keeps its meaning.
  * The kit only styles the field. Name it with a `<label for>` or an `aria-label`.
  *
- * `size` is the kit's height, not the native character width: bind it (`[size]="'small'"`) or set
- * it as an attribute, which the browser ignores as a width since it is not a number.
+ * `size` is the kit's height, not the native character width. Bind it (`[size]="'small'"`) or set
+ * it as an attribute: the browser ignores it as a width, since it is not a number.
  *
  * An `id` the app sets stays on the element, so a label can point at it.
  *

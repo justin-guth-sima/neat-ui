@@ -89,9 +89,9 @@ The arrow keys move to the next or previous tab and open it, skipping disabled t
 
 Every tab has a panel element, so each tab's `aria-controls` names one that exists. Only the open tab's panel holds its content: the others are empty and `hidden`.
 
-A panel taller than the space it has is for the surrounding page or pane to scroll, which keeps one scroll context. The tab list is the one part that scrolls itself: tabs that do not fit their container's width (an aside's) scroll sideways, never wrap, and the open tab is brought into view when it changes.
+A panel taller than the space it has is for the surrounding page or pane to scroll, which keeps one scroll context. The tab list is the one part that scrolls itself. Tabs that do not fit their container's width, such as an aside's, scroll sideways and never wrap. The open tab is brought into view when it changes.
 
-Two tab sets with the same values do not share element ids, and a value with spaces ("Board 1") works as any other: `value` stays in the app's terms.
+Two tab sets with the same values do not share element ids. A value with spaces ("Board 1") works as any other, so `value` stays in the app's terms.
 
 **Inputs**
 
@@ -109,7 +109,15 @@ Two tab sets with the same values do not share element ids, and a value with spa
 
 Component from `@sima/neat-ui/tabs`, selector `neat-tab`.
 
-One tab of a `neat-tabs`. Its panel goes in an `<ng-template>`, so its content is created only while the tab is open and destroyed when another one opens: `<neat-tab label="General" value="general"><ng-template>…</ng-template></neat-tab>`.
+One tab of a `neat-tabs`, its panel in an `<ng-template>`.
+
+```html
+<neat-tab label="General" value="general">
+  <ng-template>…</ng-template>
+</neat-tab>
+```
+
+The panel's content is created only while the tab is open, and destroyed when another one opens.
 
 **Inputs**
 

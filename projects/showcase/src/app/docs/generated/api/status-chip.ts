@@ -29,7 +29,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Use it for a state in a list's cell or over a panel (Live, Idle, External), or for a fact beside a value (a codec that cannot be decoded). The words are the app's. The color repeats them and is never the only way a state is told."
+              "text": "Use it for a state in a list's cell or over a panel: Live, Idle, External. Or use it for a fact beside a value, such as a codec that cannot be decoded. The words are the app's. The color repeats them and is never the only way a state is told."
             }
           ]
         },
@@ -252,7 +252,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", the default, on the tone's status fill; "
+              "text": " (the default) or "
             },
             {
               "kind": "code",
@@ -260,7 +260,28 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", the tone's color on a light tint of itself, for chips that label parts of a card (a diagram block's) rather than state a status beside a value."
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "solid"
+            },
+            {
+              "kind": "text",
+              "text": " is on the tone's status fill. "
+            },
+            {
+              "kind": "code",
+              "text": "tinted"
+            },
+            {
+              "kind": "text",
+              "text": " is the tone's color on a light tint of itself. Use it for chips that label parts of a card, such as a diagram block's, rather than state a status beside a value."
             }
           ]
         }

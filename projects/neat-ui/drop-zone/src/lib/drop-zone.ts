@@ -53,14 +53,19 @@ function isAccepted(file: File, accept: string | undefined): boolean {
  * ```
  *
  * `label` is the visible text and the accessible name. The zone is a native button: Tab focuses
- * it, Enter and Space (like a click) open the chooser. `files` emits the files that were dropped
- * or chosen, as one array per drop or choice. `multiple` allows several; without it, only the
- * first file is taken. `accept` is the native attribute's list (`video/*,.mkv`); the chooser
- * applies it itself, and the zone applies it to what is dropped, which the browser leaves
- * unfiltered. `rejected` emits the dropped files that were not taken (not allowed by `accept`,
- * or beyond the first without `multiple`), before `files` and even when `files` has nothing to
- * emit, so the app can say what it did not take. While `disabled` it does not react to clicks,
- * drags or drops.
+ * it, and Enter and Space open the chooser, as a click does.
+ *
+ * `files` emits the files that were dropped or chosen, as one array per drop or choice. `multiple`
+ * allows several. Without it, only the first file is taken.
+ *
+ * `accept` is the native attribute's list (`video/*,.mkv`). The chooser applies it itself. The
+ * zone applies it to what is dropped, which the browser leaves unfiltered.
+ *
+ * `rejected` emits the dropped files that were not taken: those `accept` does not allow, and those
+ * beyond the first without `multiple`. It comes before `files`, and even when `files` has nothing
+ * to emit, so the app can say what it did not take.
+ *
+ * While `disabled`, it does not react to clicks, drags or drops.
  *
  * Files dragged over the zone light it up (`--primary` outline on an `--accent` tint). Only drags
  * that carry files do; text or a link dragged over it is ignored and the browser treats it as
@@ -117,9 +122,9 @@ export class NeatDropZone {
   /** The files that were dropped or chosen and taken, once per drop or choice. */
   readonly files = output<File[]>();
   /**
-   * The dropped files that were left out, once per drop that left any out and before `files`:
-   * those `accept` does not allow, and the ones after the first when `multiple` is off. An app
-   * says why nothing (or not everything) was taken from this. Emitted even when `files` is not.
+   * The dropped files that were left out: those `accept` does not allow, and the ones after the
+   * first when `multiple` is off. It emits once per drop that left any out, before `files`, and
+   * even when `files` does not. An app says from it why nothing, or not everything, was taken.
    */
   readonly rejected = output<File[]>();
 

@@ -57,42 +57,34 @@ const ANNOUNCED_KIND: Record<MessageKind, string> = {
 };
 
 /**
- * Shows the app's toasts (`NeatToasts`): render it once, beside the shell, and nowhere else:
+ * Shows the app's toasts (`NeatToasts`). Render it once, beside the shell, and nowhere else.
  *
  * ```html
  * <neat-shell …>…</neat-shell>
  * <neat-toast-host />
  * ```
  *
- * Not inside the shell: the shell is the kit's primary entry point, which cannot import this one,
- * and an app that shows no toasts should not carry them.
+ * It is not inside the shell for two reasons. The shell is the kit's primary entry point, which
+ * cannot import this one. And an app that shows no toasts should not carry them.
  *
- * The toasts stack in the bottom-right corner, the newest last, at most three at a time. When
- * more exist, the oldest error, warning and status toasts are hidden first and the oldest
- * progress toasts last (work in progress is what the user is waiting for); a hidden toast shows
- * again if it is still there when the others clear.
+ * The toasts stack in the bottom-right corner, the newest last, at most three at a time. When more
+ * exist, the oldest error, warning and status toasts are hidden first. The oldest progress toasts
+ * go last, since work in progress is what the user is waiting for. A hidden toast shows again if it
+ * is still there when the others clear.
  *
- * What the user sees and what a screen reader announces are two layers. The visible stack is
- * `aria-hidden`. A second overlay, never re-shown and never hidden, holds a visually hidden
- * `aria-live="polite"` region with one entry per toast: the message ("Error: " or "Warning: " in
- * front of an error or a warning), or a progress toast's title. An entry is added when its toast
- * is, so each toast is announced once, as it appears. A progress toast's changing detail and
- * percent are in a nested `aria-live="off"` part: a screen reader finds the current value when it
- * reads the region, but a long upload is not read out every second. The two layers are separate
- * because bringing the stack to the front (below) hides and shows it, which takes a live region out
- * of the accessibility tree and back with its content already in it, and that is not announced.
+ * A screen reader announces each toast once, as it appears. It hears the message, with "Error: " or
+ * "Warning: " in front of an error or a warning, or a progress toast's title. A progress toast's
+ * changing detail and percent are not read out every second during a long upload. A screen reader
+ * still finds the current value when it reads the toast.
  *
- * Both layers are rendered in the CDK overlay layer rather than where the host stands, for two
- * reasons: a modal dialog hides everything outside that layer from assistive technology, which
- * would silence a toast raised by the dialog's own action, and the stack must show above the
- * dialog (as #170's toasts showed above its modals). Overlays stack in the order they were last
- * brought to the front, so each new toast brings the stack to the front again: an error raised by
- * a dialog's own action shows above the dialog, though the host is older. A toast that was on
- * screen before a dialog opened stays under the dialog until it clears or a newer toast arrives.
+ * Toasts show above a modal dialog and are announced while it is open, so a toast raised by the
+ * dialog's own action is seen and heard. Each new toast brings the stack to the front. A toast that
+ * was on screen before a dialog opened stays under the dialog until it clears or a newer toast
+ * arrives.
  *
- * The stack takes no pointer events: it has nothing to click, and a progress toast that stays for
+ * The stack takes no pointer events. It has nothing to click, and a progress toast that stays for
  * as long as an upload runs must not sit on a dialog's buttons. Clicks pass through to whatever is
- * under a toast; the cost is that toast text cannot be selected.
+ * under a toast. The cost is that toast text cannot be selected.
  */
 @Component({
   selector: 'neat-toast-host',
@@ -150,6 +142,21 @@ const ANNOUNCED_KIND: Record<MessageKind, string> = {
   `,
 })
 export class NeatToastHost {
+  // What the user sees and what a screen reader announces are two layers. The visible stack is
+  // `aria-hidden`. A second overlay, never re-shown and never hidden, holds a visually hidden
+  // `aria-live="polite"` region with one entry per toast, added when its toast is. A progress
+  // toast's changing detail and percent are in a nested `aria-live="off"` part. The two layers are
+  // separate because bringing the stack to the front hides and shows it, which takes a live region
+  // out of the accessibility tree and back with its content already in it, and that is not
+  // announced.
+  //
+  // Both layers are rendered in the CDK overlay layer rather than where the host stands, for two
+  // reasons: a modal dialog hides everything outside that layer from assistive technology, which
+  // would silence a toast raised by the dialog's own action, and the stack must show above the
+  // dialog (as #170's toasts showed above its modals). Overlays stack in the order they were last
+  // brought to the front, so each new toast brings the stack to the front again: an error raised
+  // by a dialog's own action shows above the dialog, though the host is older.
+
   private readonly store = inject(ToastStore);
   private readonly announcer = viewChild.required<TemplateRef<unknown>>('announcer');
   private readonly stack = viewChild.required<TemplateRef<unknown>>('stack');
