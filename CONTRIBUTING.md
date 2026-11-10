@@ -61,7 +61,8 @@ Each of these is in [Rules](AGENTS.md#rules) with its reason and its escape hatc
 4. Add a topic for it in `projects/showcase/src/app/docs/topics.ts`, and examples in
    `projects/showcase/src/app/examples/<topic>/`, one `*.example.ts` each. The class doc is the
    example's caption.
-5. Run `npm run docs:emit`, then look at the topic in the showcase in both themes.
+5. Run `npm run docs:emit` and `npm run docs:pages`, then look at the topic in the showcase in both
+   themes.
 6. If an example makes a good picture for the README's gallery, mark it `@gallery` (one per
    topic), then run `npm run docs:capture -- --gallery` and `npm run docs:gallery`.
 
@@ -72,6 +73,8 @@ Each of these is in [Rules](AGENTS.md#rules) with its reason and its escape hatc
 - `npm run docs:capture` builds the showcase and takes a picture of each example, light and dark,
   into `docs/images`. `-- --gallery` takes only the README gallery's pictures. An example whose
   content opens in an overlay says what to click with `@capture click <selector>`.
+- `npm run docs:pages` writes the Markdown docs, `docs/README.md` and a page per topic, from the
+  same sources as the showcase. Never edit them; their check runs in `npm run test:tools`.
 - `npm run docs:gallery` writes the README's gallery from the `@gallery` examples. Its check runs
   in `npm run test:tools`.
 
@@ -101,8 +104,8 @@ build the kit; they keep the released tarball in their repository.
    `fesm2022/sima-neat-ui-<name>.mjs`), the types, `styles/neat-ui.css` and
    `styles/neat-ui.tailwind.css`. Every build empties `dist/neat-ui`, tarball included, so the
    GitHub release (step 6) is the tarball's lasting home, not the checkout.
-3. Retake the README gallery's pictures, `npm run docs:capture -- --gallery`, and commit them if
-   they changed.
+3. Retake the pictures, `npm run docs:capture`, then `npm run docs:pages`, and commit what
+   changed.
 4. Commit the bump as `Release neat-ui <version>` and tag it `v<version>`.
 5. Push with the tag: `git push --follow-tags`.
 6. Create the GitHub release with the tarball attached:

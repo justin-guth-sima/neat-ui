@@ -1,3 +1,9 @@
 # Written by `npm run docs:emit` as JSON-style literals, and compared with its output byte for byte
 # by `--check`: formatting them would make them stale.
 projects/showcase/src/app/docs/generated/
+
+# Written by `npm run docs:pages` and compared byte for byte by `--check`, as above.
+docs/README.md
+docs/theme/
+docs/layout/
+docs/components/

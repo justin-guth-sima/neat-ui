@@ -9,8 +9,9 @@
  * The topics, their labels and order come from the showcase's `topics.ts` and `docs-routes.ts`,
  * the picks from the examples' class docs (docs:emit reads them), and the pictures from
  * `docs/images`, which `npm run docs:capture -- --gallery` takes. Each picture is light and dark
- * (`<picture>`, so GitHub shows the reader's theme) and links to its topic's examples. A topic
- * without a pick is named on the line under its section, so every topic stays one link away.
+ * (`<picture>`, so GitHub shows the reader's theme) and links to its topic's docs page
+ * (`npm run docs:pages`). A topic without a pick is named on the line under its section, so every
+ * topic stays one link away.
  *
  * It fails when a pick has no picture yet: a README with a broken image is worse than one without
  * the topic, and the fix is one capture away.
@@ -26,7 +27,6 @@ export const START =
   '<!-- gallery: written by `npm run docs:gallery` from the @gallery examples -->';
 export const END = '<!-- gallery end -->';
 export const IMAGES = 'docs/images';
-const EXAMPLES = 'projects/showcase/src/app/examples';
 /** Pictures per row: three fit GitHub's column at a size where a component still reads. */
 const COLUMNS = 3;
 
@@ -34,22 +34,26 @@ const COLUMNS = 3;
 export function sectionsOf(groups) {
   return groups.flatMap((group) =>
     group.topics
-      ? [{ label: group.label, topics: group.topics }]
-      : group.categories.map((category) => ({ label: category.label, topics: category.topics })),
+      ? [{ label: group.label, group: group.id, topics: group.topics }]
+      : group.categories.map((category) => ({
+          label: category.label,
+          group: group.id,
+          topics: category.topics,
+        })),
   );
 }
 
 const escape = (text) =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-/** Where a topic links: its examples' folder (its docs page once the docs are Markdown). */
-const topicLink = (id) => `${EXAMPLES}/${id}/`;
+/** Where a topic links: its docs page (`docs/<group>/<topic>.md`, `npm run docs:pages`). */
+const pageLink = (group, id) => `docs/${group}/${id}.md`;
 
-/** One cell: the pick's picture in both schemes, linked, with the topic's name under it. */
-function cell(topic, example) {
+/** One cell: the pick's picture in both schemes, linked to its page, with the topic's name. */
+function cell(group, topic, example) {
   const picture = (scheme) => `${IMAGES}/${topic.id}/${example.id}.${scheme}.webp`;
   const alt = escape(`${topic.label}: ${example.title}`);
-  const link = topicLink(topic.id);
+  const link = pageLink(group, topic.id);
   return [
     '<td align="center" valign="top" width="33%">',
     `<a href="${link}"><picture>`,
@@ -64,9 +68,10 @@ function cell(topic, example) {
 /**
  * The gallery's Markdown: per section a heading, a table of its picks' pictures and a line naming
  * its other topics; a section with neither is left out. `picks` maps a topic id to its `@gallery`
- * example (`id`, `title`); `hasExamples` tells whether a topic has an examples folder to link.
+ * example (`id`, `title`); `hasPage(topic)` tells whether a topic has a docs page to link (a
+ * topic generated from the kit, `load`; not a hand-made one such as the theme's tokens).
  */
-export function galleryMarkdown({ sections, picks, hasExamples }) {
+export function galleryMarkdown({ sections, picks, hasPage = (topic) => Boolean(topic.load) }) {
   const parts = [];
   for (const section of sections) {
     const shown = section.topics.filter((topic) => picks.has(topic.id));
@@ -76,14 +81,16 @@ export function galleryMarkdown({ sections, picks, hasExamples }) {
     if (shown.length) {
       const rows = [];
       for (let i = 0; i < shown.length; i += COLUMNS) {
-        const cells = shown.slice(i, i + COLUMNS).map((topic) => cell(topic, picks.get(topic.id)));
+        const cells = shown
+          .slice(i, i + COLUMNS)
+          .map((topic) => cell(section.group, topic, picks.get(topic.id)));
         rows.push(`<tr>\n${cells.join('\n')}\n</tr>`);
       }
       parts.push(`<table>\n${rows.join('\n')}\n</table>`);
     }
     if (others.length) {
       const names = others.map((topic) =>
-        hasExamples(topic.id) ? `[${topic.label}](${topicLink(topic.id)})` : topic.label,
+        hasPage(topic) ? `[${topic.label}](${pageLink(section.group, topic.id)})` : topic.label,
       );
       parts.push(`${shown.length ? 'Also' : 'In this section'}: ${names.join(', ')}.`);
     }
@@ -124,12 +131,7 @@ export async function gallery(root = ROOT) {
     const pick = examples.find((example) => example.gallery);
     if (pick) picks.set(topic, pick);
   }
-  const folders = new Set(topics.map(({ topic }) => topic));
-  const markdown = galleryMarkdown({
-    sections: sectionsOf(GROUPS),
-    picks,
-    hasExamples: (id) => folders.has(id),
-  });
+  const markdown = galleryMarkdown({ sections: sectionsOf(GROUPS), picks });
   const current = readFileSync(join(root, README), 'utf8');
   return { wanted: withGallery(current, markdown), current, missing: missingPictures(root, picks) };
 }

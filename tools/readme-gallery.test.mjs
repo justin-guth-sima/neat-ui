@@ -14,13 +14,15 @@ import {
   withGallery,
 } from './readme-gallery.mjs';
 
-const topic = (id, label) => ({ id, label });
+const load = async () => ({});
+const topic = (id, label, page = true) => (page ? { id, label, load } : { id, label });
 
 describe('sectionsOf', () => {
   it('takes a group’s own topics as one section, and a group with categories as one each', () => {
     const groups = [
-      { label: 'Theme', topics: [topic('colors', 'Colors')] },
+      { id: 'theme', label: 'Theme', topics: [topic('colors', 'Colors')] },
       {
+        id: 'components',
         label: 'Components',
         categories: [
           { label: 'Actions', topics: [topic('button', 'Button')] },
@@ -29,11 +31,15 @@ describe('sectionsOf', () => {
       },
     ];
     assert.deepEqual(
-      sectionsOf(groups).map((section) => [section.label, section.topics.map((t) => t.id)]),
+      sectionsOf(groups).map((section) => [
+        section.label,
+        section.group,
+        section.topics.map((t) => t.id),
+      ]),
       [
-        ['Theme', ['colors']],
-        ['Actions', ['button']],
-        ['Forms', ['switch']],
+        ['Theme', 'theme', ['colors']],
+        ['Actions', 'components', ['button']],
+        ['Forms', 'components', ['switch']],
       ],
     );
   });
@@ -43,6 +49,7 @@ describe('galleryMarkdown', () => {
   const sections = [
     {
       label: 'Actions',
+      group: 'components',
       topics: [
         topic('button', 'Button'),
         topic('toast', 'Toast'),
@@ -51,7 +58,7 @@ describe('galleryMarkdown', () => {
         topic('motion', 'Motion'),
       ],
     },
-    { label: 'Theme', topics: [topic('tokens', 'Tokens')] },
+    { label: 'Theme', group: 'theme', topics: [topic('tokens', 'Tokens', false)] },
   ];
   const picks = new Map([
     ['button', { id: 'variants', title: 'Variants' }],
@@ -59,9 +66,9 @@ describe('galleryMarkdown', () => {
     ['tooltip', { id: 'positions', title: 'Positions' }],
     ['popover', { id: 'menu', title: 'Menu & more' }],
   ]);
-  const text = galleryMarkdown({ sections, picks, hasExamples: (id) => id !== 'tokens' });
+  const text = galleryMarkdown({ sections, picks });
 
-  it('shows each pick in both schemes, linked to its topic, three to a row', () => {
+  it('shows each pick in both schemes, linked to its page, three to a row', () => {
     assert.match(text, /^### Actions$/m);
     assert.equal(text.match(/<tr>/g).length, 2);
     assert.match(
@@ -72,15 +79,12 @@ describe('galleryMarkdown', () => {
       text,
       /<img src="docs\/images\/button\/variants\.light\.webp" alt="Button: Variants">/,
     );
-    assert.match(
-      text,
-      /<a href="projects\/showcase\/src\/app\/examples\/button\/"><b>Button<\/b><\/a>/,
-    );
+    assert.match(text, /<a href="docs\/components\/button\.md"><b>Button<\/b><\/a>/);
     assert.match(text, /alt="Popover: Menu &amp; more"/);
   });
 
-  it('names the topics without a pick under their section, linked where they have examples', () => {
-    assert.match(text, /^Also: \[Motion\]\(projects\/showcase\/src\/app\/examples\/motion\/\)\.$/m);
+  it('names the topics without a pick under their section, linked where they have a page', () => {
+    assert.match(text, /^Also: \[Motion\]\(docs\/components\/motion\.md\)\.$/m);
     assert.match(text, /^### Theme\n\nIn this section: Tokens\.$/m);
   });
 });

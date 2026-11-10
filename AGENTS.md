@@ -232,13 +232,23 @@ is the doc comment, and the snippet under an example is the file that renders it
   motion, the docs page's side panel closed, the corners transparent; Chrome's canvas encodes, so
   there is no image library. It warns past its size budget (150 kB a picture, 25 MB in all) and
   never fails for it, and it lists the pictures no example makes any more rather than deleting
-  them. `-- --gallery` takes only the `@gallery` examples. Pictures are committed with the page
-  that first shows them (the README gallery's now) and retaken at a release, not on every change:
-  a picture is a few dozen kB that git keeps forever. It is not run in CI.
+  them. `-- --gallery` takes only the `@gallery` examples. Pictures are committed (the docs pages
+  and the README's gallery show them) and retaken at a release, not on every change: a picture is a
+  few dozen kB that git keeps forever. It is not run in CI.
+- **The Markdown docs** are written by `npm run docs:pages` (`tools/docs-pages.mjs`):
+  `docs/README.md`, the index, and `docs/<group>/<topic>.md` for each topic generated from the kit
+  (a hand-made one, the theme's tokens, has none). A page is the writing guide's page shape: the
+  lead part's first paragraph, a picture, the import, each example (caption, picture, code folded
+  in `<details>`), then each part's API (kind, entry, selector, doc, inputs, models, outputs and the
+  rest, a part's name linked to the page that documents it). It shows an example's picture only when
+  `docs/images` has it, so a new example never waits for a capture. The pages are generated: never
+  edit them, and Prettier leaves them alone (`.prettierignore`); `npm run test:tools` fails when
+  they are stale, and a page of a topic that is gone is removed (only a `.md` file directly in a
+  group's folder, `removablePage`).
 - **The README's gallery** is written by `npm run docs:gallery` (`tools/readme-gallery.mjs`)
   between its two markers, from `topics.ts` (sections in rail order, a group's own topics or each
   category) and the `@gallery` examples, each picture light and dark in a `<picture>` and linked to
-  its topic's examples. `npm run test:tools` fails when it is stale or a pick has no picture. The
+  its topic's docs page. `npm run test:tools` fails when it is stale or a pick has no picture. The
   README's quick start repeats the Getting started page's four snippets, and that page's spec
   holds them to it.
 - `provideNeatUi` and `provideNeatTitles` configure an app once, in its `app.config.ts`, and
@@ -1291,6 +1301,7 @@ Node 24 is required (`.node-version`; Angular 22 supports `^22.22.3 || ^24.15.0`
 | `npm run theme:emit`     | Regenerate `lib/theme/tokens.generated.css` from the theme sources              |
 | `npm run docs:emit`      | Regenerate the docs (`-- --check` only checks, `-- --watch` follows)            |
 | `npm run docs:capture`   | Build the showcase and picture its examples into `docs/images` (`-- --help`)    |
+| `npm run docs:pages`     | Write the Markdown docs in `docs/` from the kit and its examples (`-- --check`) |
 | `npm run docs:gallery`   | Write the README's gallery from the `@gallery` examples (`-- --check` checks)   |
 | `npm run helm:add`       | Add a Spartan helm component to `lib/ui/` (`-- <name>`), the only way in        |
 | `npm run build:showcase` | Build the showcase app                                                          |
