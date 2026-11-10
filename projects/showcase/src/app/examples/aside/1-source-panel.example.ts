@@ -21,7 +21,6 @@ import { NeatDetails } from '@sima/neat-ui/details';
  * its left edge, or focus it and use the arrow keys, Home and End, to change it.
  *
  * @page
- * @gallery
  */
 @Component({
   selector: 'app-source-panel',

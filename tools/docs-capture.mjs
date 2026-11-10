@@ -150,6 +150,37 @@ const near = (a, b, reach) =>
   a.y - reach < b.y + b.height;
 
 /**
+ * The part of an example's live `area` its picture shows: the `content` (the box around what the
+ * example draws) with the area's own `padding` around it, inside the area's `border`, which the
+ * picture leaves out so that no edge of it is cut in half. A wide area whose example draws a row of
+ * small controls becomes a picture of the controls, not of an empty strip. No content (nothing
+ * measured) keeps the whole area, inside its border.
+ */
+export function trimToContent(area, content, { border = 0, padding = 0 } = {}) {
+  const inner = {
+    x: area.x + border,
+    y: area.y + border,
+    right: area.x + area.width - border,
+    bottom: area.y + area.height - border,
+  };
+  const box = content
+    ? {
+        x: Math.max(inner.x, content.x - padding),
+        y: Math.max(inner.y, content.y - padding),
+        right: Math.min(inner.right, content.x + content.width + padding),
+        bottom: Math.min(inner.bottom, content.y + content.height + padding),
+      }
+    : inner;
+  return {
+    x: box.x,
+    y: box.y,
+    width: Math.max(0, box.right - box.x),
+    height: Math.max(0, box.bottom - box.y),
+    radius: Math.max(0, area.radius - border),
+  };
+}
+
+/**
  * Where the picture of an example opened by `@capture` is taken (`clip`, CSS px of the viewport,
  * kept inside it) and what of it is drawn (`shapes`, rounded boxes relative to the clip; the rest
  * is transparent): the example's `area` with the overlay's `surfaces` when they open beside it (a
@@ -249,20 +280,29 @@ async function filesUnder(dir) {
 }
 
 /**
- * In the page: the PNG (base64) as WebP (base64), drawn only inside `shapes` (rounded boxes in CSS
- * px), the rest transparent. Runs in Chrome, whose canvas encodes WebP.
+ * In the page: the PNG (base64) as WebP (base64), cut to `crop` (CSS px of the PNG; all of it when
+ * null) and drawn only inside `shapes` (rounded boxes in CSS px of the crop), the rest transparent.
+ * Runs in Chrome, whose canvas encodes WebP.
  */
-async function encodeInPage({ png, shapes, dpr, quality }) {
+async function encodeInPage({ png, crop, shapes, dpr, quality }) {
   const bytes = Uint8Array.from(atob(png), (c) => c.charCodeAt(0));
   const image = await createImageBitmap(new Blob([bytes], { type: 'image/png' }));
-  const canvas = new OffscreenCanvas(image.width, image.height);
+  const cut = crop
+    ? {
+        x: Math.round(crop.x * dpr),
+        y: Math.round(crop.y * dpr),
+        width: Math.round(crop.width * dpr),
+        height: Math.round(crop.height * dpr),
+      }
+    : { x: 0, y: 0, width: image.width, height: image.height };
+  const canvas = new OffscreenCanvas(cut.width, cut.height);
   const context = canvas.getContext('2d');
   context.beginPath();
   for (const { x, y, width, height, radius } of shapes) {
     context.roundRect(x * dpr, y * dpr, width * dpr, height * dpr, radius * dpr);
   }
   context.clip();
-  context.drawImage(image, 0, 0);
+  context.drawImage(image, -cut.x, -cut.y);
   const blob = await canvas.convertToBlob({ type: 'image/webp', quality });
   if (blob.type !== 'image/webp') throw new Error(`the browser encoded ${blob.type}, not WebP`);
   const out = new Uint8Array(await blob.arrayBuffer());
@@ -289,7 +329,7 @@ function examplesInPage() {
  * background, so a stack of toasts is its toasts and not the gaps between them), and whether a
  * modal's backdrop is showing. Hidden parts (the toasts' announcer) are too small to count.
  */
-function framingInPage(selector) {
+function framingInPage({ selector, trim }) {
   const shape = (element) => {
     const { x, y, width, height } = element.getBoundingClientRect();
     const radius = parseFloat(getComputedStyle(element).borderTopLeftRadius) || 0;
@@ -327,8 +367,55 @@ function framingInPage(selector) {
     else for (const child of element.children) visit(child);
   };
   for (const pane of document.querySelectorAll('.cdk-overlay-pane')) visit(pane);
+
+  // What the example draws: its text, its painted boxes and its drawings (a canvas, an SVG, a
+  // video), each taken whole, and nothing hidden (a visually hidden live region is 1 px).
+  const target = document.querySelector(selector);
+  const DRAWN = new Set(['svg', 'canvas', 'img', 'video', 'input', 'select', 'textarea', 'button']);
+  const drawn = [];
+  const add = (r) => r.width > 1 && r.height > 1 && drawn.push(r);
+  const walk = (node) => {
+    for (const child of node.childNodes) {
+      if (child.nodeType === Node.TEXT_NODE) {
+        if (!child.textContent.trim()) continue;
+        const range = document.createRange();
+        range.selectNodeContents(child);
+        add(range.getBoundingClientRect());
+      } else if (child.nodeType === Node.ELEMENT_NODE) {
+        const style = getComputedStyle(child);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+          continue;
+        }
+        const r = child.getBoundingClientRect();
+        // A box with no size of its own (`display: contents`, a host of absolutely placed
+        // parts) can still hold what is drawn; one that clips to nothing (visually hidden) cannot.
+        const empty = r.width <= 1 || r.height <= 1;
+        if (empty && style.overflow !== 'visible') continue;
+        if (!empty && (DRAWN.has(child.localName) || painted(child))) add(surface(child));
+        else walk(child);
+      }
+    }
+  };
+  if (trim) walk(target);
+  const content = drawn.length
+    ? (() => {
+        const x = Math.min(...drawn.map((r) => r.x));
+        const y = Math.min(...drawn.map((r) => r.y));
+        const right = Math.max(...drawn.map((r) => r.x + r.width));
+        const bottom = Math.max(...drawn.map((r) => r.y + r.height));
+        return { x, y, width: right - x, height: bottom - y };
+      })()
+    : null;
+  const style = getComputedStyle(target);
   return {
-    area: shape(document.querySelector(selector)),
+    area: shape(target),
+    content,
+    inset: trim
+      ? {
+          border: parseFloat(style.borderTopWidth) || 0,
+          padding: parseFloat(style.paddingTop) || 0,
+        }
+      : { border: 0, padding: 0 },
     surfaces: surfaces.filter(({ width, height }) => width > 8 && height > 8),
     modal: Boolean(document.querySelector('.cdk-overlay-backdrop-showing')),
   };
@@ -380,9 +467,10 @@ async function captureScheme(browser, run) {
   const page = await context.newPage();
   page.on('pageerror', (error) => log(`  page error: ${error.message}`));
   const pictures = [];
-  const write = async (topic, example, png, shapes) => {
+  const write = async (topic, example, png, crop, shapes) => {
     const webp = await encoder.evaluate(encodeInPage, {
       png: png.toString('base64'),
+      crop,
       shapes,
       dpr: options.dpr,
       quality: options.quality,
@@ -396,16 +484,23 @@ async function captureScheme(browser, run) {
   };
 
   // An example's picture: its area, or with `@capture` what it opens, framed by `pictureFrame`.
-  const take = async (topic, example, selector) => {
+  // A live area is trimmed to what its example draws; a page example's content area is the page.
+  const take = async (topic, example, selector, trim) => {
     const area = page.locator(selector).first();
     const capture = examplesOf.get(`${topic.id}/${example.id}`)?.capture;
+    const framing = async () => {
+      const framed = await page.evaluate(framingInPage, { selector, trim });
+      return { ...framed, area: trimToContent(framed.area, framed.content, framed.inset) };
+    };
     if (!capture) {
-      // The area alone, whole even when it is taller than the viewport.
+      // The area alone, whole even when it is taller than the viewport, then cut to its part.
       await area.scrollIntoViewIfNeeded();
       await settle(page, options.settleMs);
-      const { area: box } = await page.evaluate(framingInPage, selector);
-      const shape = { ...box, x: 0, y: 0 };
-      await write(topic.id, example.id, await area.screenshot(), [shape]);
+      const box = await area.boundingBox();
+      const { area: part } = await framing();
+      const crop = { x: part.x - box.x, y: part.y - box.y, width: part.width, height: part.height };
+      const shape = { x: 0, y: 0, width: part.width, height: part.height, radius: part.radius };
+      await write(topic.id, example.id, await area.screenshot(), crop, [shape]);
       return false;
     }
     // In the middle of the viewport, so what it opens has room on every side.
@@ -413,9 +508,8 @@ async function captureScheme(browser, run) {
     await settle(page, options.settleMs);
     await act(area, capture, log);
     await settle(page, options.settleMs);
-    const framing = await page.evaluate(framingInPage, selector);
-    const { clip, shapes } = pictureFrame({ ...framing, viewport: options.viewport });
-    await write(topic.id, example.id, await page.screenshot({ clip }), shapes);
+    const { clip, shapes } = pictureFrame({ ...(await framing()), viewport: options.viewport });
+    await write(topic.id, example.id, await page.screenshot({ clip }), null, shapes);
     return true;
   };
   const openTopic = async (topic) => {
@@ -431,11 +525,11 @@ async function captureScheme(browser, run) {
     for (const example of examples.filter((e) => e.live)) {
       const selector = `app-example-card article:has(h3#example-${example.id}) .live`;
       // What an example opened stays open, so the next one starts on a fresh page.
-      if (await take(topic, example, selector)) await openTopic(topic);
+      if (await take(topic, example, selector, true)) await openTopic(topic);
     }
     for (const example of examples.filter((e) => e.page)) {
       await page.goto(`${url}${example.page}`);
-      await take(topic, example, 'main.content');
+      await take(topic, example, 'main.content', false);
     }
     log(`  ${scheme} ${topic.id}: ${examples.filter((e) => e.live || e.page).length}`);
   }

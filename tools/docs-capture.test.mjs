@@ -13,6 +13,7 @@ import {
   serve,
   stalePictures,
   topicsToCapture,
+  trimToContent,
 } from './docs-capture.mjs';
 
 describe('parseArgs', () => {
@@ -121,6 +122,41 @@ describe('budgetWarnings', () => {
     assert.match(warnings[0], /^c is 4 kB/);
     assert.match(warnings[1], /^a is 2 kB/);
     assert.match(warnings[2], /6 kB in all/);
+  });
+});
+
+describe('trimToContent', () => {
+  const area = { x: 100, y: 200, width: 900, height: 300, radius: 9 };
+  const inset = { border: 1, padding: 16 };
+
+  it('cuts a wide area down to what its example draws, with the padding around it', () => {
+    const controls = { x: 117, y: 217, width: 200, height: 32 };
+    assert.deepEqual(trimToContent(area, controls, inset), {
+      x: 101,
+      y: 201,
+      width: 232,
+      height: 64,
+      radius: 8,
+    });
+  });
+
+  it('trims every side, for content in the middle of its area', () => {
+    const centered = { x: 400, y: 300, width: 100, height: 40 };
+    assert.deepEqual(trimToContent(area, centered, inset), {
+      x: 384,
+      y: 284,
+      width: 132,
+      height: 72,
+      radius: 8,
+    });
+  });
+
+  it('never leaves the area inside its border, and keeps it all without content', () => {
+    const spilling = { x: 50, y: 150, width: 2000, height: 1000 };
+    const inner = { x: 101, y: 201, width: 898, height: 298, radius: 8 };
+    assert.deepEqual(trimToContent(area, spilling, inset), inner);
+    assert.deepEqual(trimToContent(area, null, inset), inner);
+    assert.deepEqual(trimToContent(area, null), { ...area });
   });
 });
 

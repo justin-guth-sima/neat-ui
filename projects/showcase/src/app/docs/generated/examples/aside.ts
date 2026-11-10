@@ -9,7 +9,6 @@ export const EXAMPLES: readonly DocsExample[] = [
     "title": "Source panel",
     "component": SourcePanel,
     "page": true,
-    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

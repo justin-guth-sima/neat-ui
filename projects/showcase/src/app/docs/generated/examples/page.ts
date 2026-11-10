@@ -10,7 +10,6 @@ export const EXAMPLES: readonly DocsExample[] = [
     "title": "Overview",
     "component": Overview,
     "page": true,
-    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

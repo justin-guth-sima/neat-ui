@@ -33,26 +33,7 @@ Also: Tokens.
 
 ### Layout
 
-<table>
-<tr>
-<td align="center" valign="top" width="33%">
-<a href="projects/showcase/src/app/examples/page/"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/page/overview.dark.webp">
-<img src="docs/images/page/overview.light.webp" alt="Page: Overview">
-</picture></a><br>
-<a href="projects/showcase/src/app/examples/page/"><b>Page</b></a>
-</td>
-<td align="center" valign="top" width="33%">
-<a href="projects/showcase/src/app/examples/aside/"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/aside/source-panel.dark.webp">
-<img src="docs/images/aside/source-panel.light.webp" alt="Aside: Source panel">
-</picture></a><br>
-<a href="projects/showcase/src/app/examples/aside/"><b>Aside</b></a>
-</td>
-</tr>
-</table>
-
-Also: [Shell](projects/showcase/src/app/examples/shell/).
+In this section: [Shell](projects/showcase/src/app/examples/shell/), [Page](projects/showcase/src/app/examples/page/), [Aside](projects/showcase/src/app/examples/aside/).
 
 ### Actions
 
