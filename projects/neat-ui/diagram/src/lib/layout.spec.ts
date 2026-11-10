@@ -112,7 +112,7 @@ function drawnOverlaps(diagram: NeatDiagram): [string, string][] {
   return found;
 }
 
-/** The edges whose drawn shape runs through a card: a block or a bracket (frames hold edges). */
+/** The edges whose drawn shape runs through a card: a block or a bracket (groups hold edges). */
 function throughCards(diagram: NeatDiagram): string[] {
   const rects = absoluteRects(diagram);
   const cards = diagram.nodes
@@ -145,24 +145,24 @@ const edge = (id: string, from: string, to: string): NeatDiagramEdge => ({ id, f
 afterEach(() => resetReported());
 
 describe('absoluteRects', () => {
-  it('positions are relative to the parent: a child is placed in its frame', () => {
+  it('positions are relative to the parent: a child is placed in its group', () => {
     const rects = absoluteRects({
       nodes: [
-        block('frame', 1000, 0, { role: 'frame', w: 300, h: 300 }),
-        block('child', 10, 10, { parent: 'frame' }),
+        block('group', 1000, 0, { role: 'group', w: 300, h: 300 }),
+        block('child', 10, 10, { parent: 'group' }),
       ],
       edges: [],
     });
-    expect(rects.get('frame')).toEqual({ x: 1000, y: 0, w: 300, h: 300 });
+    expect(rects.get('group')).toEqual({ x: 1000, y: 0, w: 300, h: 300 });
     expect(rects.get('child')).toEqual({ x: 1010, y: 10, w: 100, h: 100 });
   });
 
-  it('adds up the parents three frames deep, whatever order the nodes come in', () => {
+  it('adds up the parents three groups deep, whatever order the nodes come in', () => {
     const rects = absoluteRects({
       nodes: [
         block('c', 2, 1, { parent: 'b' }),
-        block('b', 5, 1, { parent: 'a', role: 'frame' }),
-        block('a', 10, 1, { role: 'frame' }),
+        block('b', 5, 1, { parent: 'a', role: 'group' }),
+        block('a', 10, 1, { role: 'group' }),
       ],
       edges: [],
     });
@@ -320,11 +320,11 @@ describe('layoutEdges', () => {
     expect(drawnCrossings(diagram)).toEqual([]);
   });
 
-  it('places the ends of a node nested three frames deep at its absolute position', () => {
+  it('places the ends of a node nested three groups deep at its absolute position', () => {
     const edges = layoutEdges({
       nodes: [
-        block('a', 10, 0, { role: 'frame', w: 600, h: 600 }),
-        block('b', 5, 0, { parent: 'a', role: 'frame', w: 500, h: 500 }),
+        block('a', 10, 0, { role: 'group', w: 600, h: 600 }),
+        block('b', 5, 0, { parent: 'a', role: 'group', w: 500, h: 500 }),
         block('c', 2, 0, { parent: 'b' }),
         block('outside', -400, 0),
       ],
@@ -333,18 +333,18 @@ describe('layoutEdges', () => {
     expect(edges.get('in')).toMatchObject({ targetSide: 'left', target: { x: 17, y: 50 } });
   });
 
-  it('runs an edge between a frame and a node inside it inside the frame, from its nearest border', () => {
-    // The drilled block as its level's frame, with an edge to one of its own children and back.
+  it('runs an edge between a group and a node inside it inside the group, from its nearest border', () => {
+    // The drilled block as its level's group, with an edge to one of its own children and back.
     const diagram: NeatDiagram = {
       nodes: [
-        block('frame', 0, 0, { role: 'frame', w: 500, h: 160 }),
-        block('first', 20, 20, { parent: 'frame', w: 100, h: 40 }),
-        block('inner', 200, 80, { parent: 'frame', w: 100, h: 40 }),
+        block('group', 0, 0, { role: 'group', w: 500, h: 160 }),
+        block('first', 20, 20, { parent: 'group', w: 100, h: 40 }),
+        block('inner', 200, 80, { parent: 'group', w: 100, h: 40 }),
       ],
-      edges: [edge('down', 'frame', 'inner'), edge('up', 'inner', 'frame')],
+      edges: [edge('down', 'group', 'inner'), edge('up', 'inner', 'group')],
     };
     const edges = layoutEdges(diagram);
-    // The frame's bottom border is 40 below the node, nearer than its other borders.
+    // The group's bottom border is 40 below the node, nearer than its other borders.
     expect(edges.get('down')).toMatchObject({ targetSide: 'bottom' });
     expect(edges.get('down')?.source.y).toBe(160);
     expect(edges.get('up')).toMatchObject({ sourceSide: 'bottom' });
@@ -356,18 +356,18 @@ describe('layoutEdges', () => {
     expect(throughCards(diagram)).toEqual([]);
   });
 
-  it('keeps a frame’s own sides for its outside neighbors, not for the nodes inside it', () => {
-    // outSide and inSide say where the frame meets the nodes around it; inside, the nearest border.
+  it('keeps a group’s own sides for its outside neighbors, not for the nodes inside it', () => {
+    // outSide and inSide say where the group meets the nodes around it; inside, the nearest border.
     const diagram: NeatDiagram = {
       nodes: [
-        block('frame', 0, 0, { role: 'frame', w: 500, h: 160, outSide: 'right', inSide: 'left' }),
-        block('inner', 200, 80, { parent: 'frame', w: 100, h: 40 }),
+        block('group', 0, 0, { role: 'group', w: 500, h: 160, outSide: 'right', inSide: 'left' }),
+        block('inner', 200, 80, { parent: 'group', w: 100, h: 40 }),
         block('sink', 700, 50, { w: 100, h: 40 }),
       ],
       edges: [
-        edge('down', 'frame', 'inner'),
-        edge('up', 'inner', 'frame'),
-        edge('out', 'frame', 'sink'),
+        edge('down', 'group', 'inner'),
+        edge('up', 'inner', 'group'),
+        edge('out', 'group', 'sink'),
       ],
     };
     const edges = layoutEdges(diagram);
@@ -376,17 +376,17 @@ describe('layoutEdges', () => {
     expect(edges.get('out')).toMatchObject({ sourceSide: 'right', source: { x: 500 } });
   });
 
-  it('runs an edge from a frame to a node two frames inside it within the outer frame', () => {
+  it('runs an edge from a group to a node two groups inside it within the outer group', () => {
     const diagram: NeatDiagram = {
       nodes: [
-        block('outer', 0, 0, { role: 'frame', w: 600, h: 300 }),
-        block('group', 100, 60, { parent: 'outer', role: 'frame', w: 400, h: 200 }),
+        block('outer', 0, 0, { role: 'group', w: 600, h: 300 }),
+        block('group', 100, 60, { parent: 'outer', role: 'group', w: 400, h: 200 }),
         block('deep', 150, 40, { parent: 'group', w: 100, h: 40 }),
       ],
       edges: [edge('in', 'outer', 'deep')],
     };
     const edges = layoutEdges(diagram);
-    // `deep` sits at 250..350 × 100..140: the outer frame's top border, 100 above it, is nearest.
+    // `deep` sits at 250..350 × 100..140: the outer group's top border, 100 above it, is nearest.
     expect(edges.get('in')).toMatchObject({ targetSide: 'top', source: { y: 0 } });
     const points = drawnEdges(diagram).get('in') ?? [];
     expect(points.filter((p) => p.x < 0 || p.x > 600 || p.y < 0 || p.y > 300)).toEqual([]);

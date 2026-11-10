@@ -1,3 +1,4 @@
+import { isGroup } from './model';
 import type { NeatDiagram, NeatDiagramEdge, NeatDiagramNode, NeatDiagramSide } from './model';
 import { firstOfEachId, reportLeftOut } from './report';
 import { pathThrough, type Point, routePoints } from './route';
@@ -25,12 +26,12 @@ export interface Cover extends Rect {
 export interface EdgeLayout {
   /**
    * Its port on `from`, in the level's coordinates, and the side of `from` it leaves through. An
-   * edge between a frame and a node inside it has its frame end on the border nearest the node and
+   * edge between a group and a node inside it has its group end on the border nearest the node and
    * runs inward: that end's side is the way it runs (`top` for a port on the bottom border).
    */
   source: Point;
   sourceSide: NeatDiagramSide;
-  /** Its port on `to` and the side of `to` it enters through (for a frame, as above). */
+  /** Its port on `to` and the side of `to` it enters through (for a group, as above). */
   target: Point;
   targetSide: NeatDiagramSide;
   /** The SVG path of its rounded shape. */
@@ -137,7 +138,7 @@ const PORT_SPAN = 0.8;
 
 /**
  * How far apart the middle runs of neighboring Z edges are at most; they keep to the middle half
- * of their corridor, clear of the nodes (and frame borders) on either side.
+ * of their corridor, clear of the nodes (and group borders) on either side.
  */
 const JOG_STEP = 24;
 /** How far apart edges that share a loop (a U, or a route behind its source) run. */
@@ -190,22 +191,22 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
   };
 
   // Each edge end goes on the side its edge names, else its node names for it, else on the side
-  // that faces the other end; between a frame and a node inside it, on the frame's border nearest
-  // the node and the node's side facing that border, so the edge runs inside the frame. A frame's
+  // that faces the other end; between a group and a node inside it, on the group's border nearest
+  // the node and the node's side facing that border, so the edge runs inside the group. A group's
   // own `outSide` and `inSide` are for the nodes around it, so they do not move that end.
   const ends = edges.map((edge, order) => {
     const a = center(edge.from);
     const b = center(edge.to);
-    const frame = holds(edge.from, edge.to)
+    const group = holds(edge.from, edge.to)
       ? edge.from
       : holds(edge.to, edge.from)
         ? edge.to
         : null;
-    const inward = frame === null ? null : frame === edge.from ? 'source' : 'target';
+    const inward = group === null ? null : group === edge.from ? 'source' : 'target';
     const border =
-      frame === null
+      group === null
         ? null
-        : nearestBorder(rectOf(frame), rectOf(frame === edge.from ? edge.to : edge.from));
+        : nearestBorder(rectOf(group), rectOf(group === edge.from ? edge.to : edge.from));
     const [out, into] = border === null ? facingSides(a, b) : [border, border];
     const along = { x: b.x - a.x, y: b.y - a.y };
     const source: End = {
@@ -240,8 +241,8 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
         edge.fromAt === undefined &&
         edge.toAt === undefined &&
         edge.via === undefined &&
-        nodes.get(edge.from)?.role !== 'frame' &&
-        nodes.get(edge.to)?.role !== 'frame',
+        !isGroup(nodes.get(edge.from)) &&
+        !isGroup(nodes.get(edge.to)),
     ),
     sides,
     rects,
@@ -252,7 +253,7 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
     pin(target, edge.toAt, rectOf(target.node));
   }
 
-  // A frame's port on its own border leads inward: the route takes the border's opposite side.
+  // A group's port on its own border leads inward: the route takes the border's opposite side.
   const routes: Route[] = ends.map(({ edge, source, target, inward }) => ({
     edge,
     source: portPoint(rectOf(source.node), source),

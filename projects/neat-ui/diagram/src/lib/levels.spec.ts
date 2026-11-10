@@ -43,10 +43,10 @@ describe('walkLevels', () => {
   });
 
   it('takes no node but a block as a level’s opener', () => {
-    const framed: NeatDiagramSet = {
+    const grouped: NeatDiagramSet = {
       ...SET,
-      overview: { nodes: [{ ...block('decode', 'Decode', 'stages'), role: 'frame' }], edges: [] },
+      overview: { nodes: [{ ...block('decode', 'Decode', 'stages'), role: 'group' }], edges: [] },
     };
-    expect(walkLevels(framed, ['stages']).path).toEqual([]);
+    expect(walkLevels(grouped, ['stages']).path).toEqual([]);
   });
 });

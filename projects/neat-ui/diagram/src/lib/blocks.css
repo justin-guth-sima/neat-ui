@@ -1,5 +1,5 @@
 /*
- * Blocks and brackets, drawn in front of the edges (frames and bands are in frames.css, the rest of
+ * Blocks and brackets, drawn in front of the edges (groups and bands are in groups.css, the rest of
  * the diagram in diagram.css), from the reference sheet and the Autoware demo's System page, in
  * the theme's tokens. Each look is stated once, as the custom properties the block's rule reads,
  * so no look outweighs another and a block that opens takes its open border whatever its look.

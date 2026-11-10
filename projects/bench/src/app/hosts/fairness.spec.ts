@@ -54,7 +54,7 @@ function drawn(
 function page(origin = { left: 0, top: 0 }): HTMLElement {
   const root = document.createElement('div');
   root.append(
-    drawn('div', { class: 'frame', 'data-node': 'f0' }, [0, 0, 600, 400], origin),
+    drawn('div', { class: 'group', 'data-node': 'f0' }, [0, 0, 600, 400], origin),
     styled(drawn('div', { class: 'block', 'data-node': 'b0' }, [20, 40, 230, 46], origin)),
     styled(drawn('div', { class: 'block', 'data-node': 'b1' }, [300, 40, 230, 58], origin)),
     styled(

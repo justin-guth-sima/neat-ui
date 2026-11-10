@@ -20,7 +20,7 @@ const edge = (id: string, from: string, to: string): NeatDiagramEdge => ({ id, f
  */
 const STEP1 = node('step1', 20, 40, 120, 60, { parent: 'proc' });
 const STEP2 = node('step2', 200, 40, 120, 60, { parent: 'proc' });
-const GROUP = node('group', 360, 20, 200, 160, { parent: 'proc', role: 'frame', look: 'dashed' });
+const GROUP = node('group', 360, 20, 200, 160, { parent: 'proc', role: 'group', look: 'dashed' });
 const STEP3 = node('step3', 20, 40, 160, 60, { parent: 'group' });
 const DIAGRAM: NeatDiagram = {
   nodes: [
@@ -58,26 +58,26 @@ afterEach(() => resetReported());
 
 describe('neatDrillDownLevel', () => {
   const level = neatDrillDownLevel(DIAGRAM, 'proc');
-  const frame = byId(level, 'proc') as NeatDiagramNode;
+  const group = byId(level, 'proc') as NeatDiagramNode;
 
-  it('makes the block the level’s frame at the origin, its children inside a padding of 40', () => {
+  it('makes the block the level’s group at the origin, its children inside a padding of 40', () => {
     // The group reaches furthest: right to 360 + 200, down to 20 + 160.
-    expect(frame).toMatchObject({
+    expect(group).toMatchObject({
       id: 'proc',
       label: 'proc',
       detail: 'on the board',
-      role: 'frame',
+      role: 'group',
       look: 'accent',
       x: 0,
       y: 0,
       w: 600,
       h: 220,
     });
-    expect(frame.parent).toBeUndefined();
+    expect(group.parent).toBeUndefined();
     // It is the level now: it opens nothing, and its sides were the overview's.
-    expect(frame.opens).toBeUndefined();
-    expect(frame.inSide).toBeUndefined();
-    expect(frame.outSide).toBeUndefined();
+    expect(group.opens).toBeUndefined();
+    expect(group.inSide).toBeUndefined();
+    expect(group.outSide).toBeUndefined();
   });
 
   it('keeps what is inside the block as it is, however deep', () => {
@@ -85,9 +85,9 @@ describe('neatDrillDownLevel', () => {
     expect(absoluteRects(level).get('step3')).toEqual({ x: 380, y: 60, w: 160, h: 60 });
   });
 
-  it('puts the senders in a column left of the frame, the receivers right of it, centered', () => {
+  it('puts the senders in a column left of the group, the receivers right of it, centered', () => {
     const senders = ['cam1', 'cam2'].map((id) => byId(level, id) as NeatDiagramNode);
-    // Two blocks of 64 with 24 between them, centered on the frame's 220: from y 34.
+    // Two blocks of 64 with 24 between them, centered on the group's 220: from y 34.
     expect(senders.map(({ x, y, w, h }) => ({ x, y, w, h }))).toEqual([
       { x: -520, y: 34, w: 300, h: 64 },
       { x: -520, y: 122, w: 300, h: 64 },
@@ -148,7 +148,7 @@ describe('neatDrillDownLevel', () => {
     };
     const drilled = neatDrillDownLevel(broken, 'proc');
     expect(drilled.nodes.some((n) => n.id === 'ghost')).toBe(false);
-    // The single sender sits at the frame's middle.
+    // The single sender sits at the group's middle.
     expect(byId(drilled, 'cam1')?.y).toBe(78);
   });
 

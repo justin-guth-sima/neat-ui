@@ -15,7 +15,7 @@ import { NOTE_BOX } from './bench-note';
 /*
  * What a host other than the kit draws for a synthetic diagram, computed by the kit's own code
  * through the seam, so vflow and the bare dot layer show the kit's picture: the level as drawn
- * (routes, tips, colors), the notes placed at the note box, and the messaging layer's context as
+ * (routes, end markers, colors), the notes placed at the note box, and the messaging layer's context as
  * `neat-diagram` builds it (diagram.ts, `messagesContext`). Pure; the hosts bind it.
  */
 

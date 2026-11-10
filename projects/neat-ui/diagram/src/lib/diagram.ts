@@ -42,7 +42,7 @@ import { placeNotes } from './notes';
 import { firstOfEachId } from './report';
 import {
   NeatDiagramBlockTemplate,
-  NeatDiagramEdgeTipTemplate,
+  NeatDiagramEdgeTooltipTemplate,
   NeatDiagramNoteTemplate,
 } from './templates';
 import { DiagramZoom } from './zoom';
@@ -63,9 +63,9 @@ import { DiagramZoom } from './zoom';
  * out and named once in dev mode; the rest is drawn.
  *
  * The host is a `figure` named by `label`; it fills the box the app gives it and clips what lies
- * outside. Chips are the kit's status chips; a block's body, the notes' content and the tip of
+ * outside. Chips are the kit's status chips; a block's body, the notes' content and the tooltip of
  * the edge under the pointer are the app's templates (`neatDiagramBlock`, `neatDiagramNote`,
- * `neatDiagramEdgeTip`). A visually hidden list after the drawing says the level's nodes and
+ * `neatDiagramEdgeTooltip`). A visually hidden list after the drawing says the level's nodes and
  * edges in words.
  *
  * With `highlight` set, a block or an edge under the pointer, or a block whose open button has the
@@ -107,7 +107,7 @@ import { DiagramZoom } from './zoom';
     '(click)': 'onClick($event)',
   },
   templateUrl: './diagram.html',
-  styleUrls: ['./frames.css', './blocks.css', './lines.css', './diagram.css'],
+  styleUrls: ['./groups.css', './blocks.css', './lines.css', './diagram.css'],
 })
 export class NeatDiagramView {
   /** The overview and its drill-down levels. */
@@ -123,7 +123,7 @@ export class NeatDiagramView {
    * What dims the rest while something is under the pointer: nothing by default, since dimming
    * without a reason to look is noise that every pass of the pointer over the drawing makes;
    * `edges` for a drawing whose links are what the reader follows (the dim then says which blocks
-   * a link joins); `all` when a block's links are worth tracing too. An edge's tip shows whatever
+   * a link joins); `all` when a block's links are worth tracing too. An edge's tooltip shows whatever
    * this is.
    */
   readonly highlight = input<NeatDiagramHighlight>('none');
@@ -137,12 +137,12 @@ export class NeatDiagramView {
 
   protected readonly blockTemplate = contentChild(NeatDiagramBlockTemplate);
   protected readonly noteTemplate = contentChild(NeatDiagramNoteTemplate);
-  private readonly edgeTipTemplate = contentChild(NeatDiagramEdgeTipTemplate);
+  private readonly edgeTooltipTemplate = contentChild(NeatDiagramEdgeTooltipTemplate);
   private readonly noteSizes = inject(NoteSizes);
   private readonly labelSizes = inject(EdgeLabelSizes);
   private readonly content = viewChild.required<ElementRef<HTMLElement>>('content');
   private readonly edges = viewChild.required<ElementRef<SVGElement>>('edges');
-  private readonly tipBox = viewChild<ElementRef<HTMLElement>>('tip');
+  private readonly tooltipBox = viewChild<ElementRef<HTMLElement>>('tooltip');
   private readonly bar = viewChild<ElementRef<HTMLElement>>('bar');
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly injector = inject(Injector);
@@ -151,7 +151,7 @@ export class NeatDiagramView {
   /** The messaging layer's listeners for a new transform (`DiagramMessagesContext`). */
   private readonly transformListeners = new Set<() => void>();
   private readonly hover = this.zone.runOutsideAngular(
-    () => new DiagramHover(this.host, () => this.tipBox()?.nativeElement),
+    () => new DiagramHover(this.host, () => this.tooltipBox()?.nativeElement),
   );
 
   protected readonly BRACE_HEIGHT = BRACE_HEIGHT;
@@ -202,10 +202,10 @@ export class NeatDiagramView {
     focusedParts(this.shown(), highlighted(this.hover.focus() ?? this.hovered(), this.highlight())),
   );
 
-  /** The tip of the edge under the pointer, while the app has a tip template. */
-  protected readonly edgeTip = computed(() => {
-    const template = this.edgeTipTemplate()?.template;
-    const id = this.hover.tipEdge();
+  /** The tooltip of the edge under the pointer, while the app has a tooltip template. */
+  protected readonly edgeTooltip = computed(() => {
+    const template = this.edgeTooltipTemplate()?.template;
+    const id = this.hover.tooltipEdge();
     const edge = this.drawn().edges.find((drawn) => drawn.id === id)?.edge;
     return template && edge ? { template, edge } : null;
   });
@@ -267,9 +267,9 @@ export class NeatDiagramView {
       });
     });
 
-    // The tip, once rendered for a new edge, goes by the pointer.
+    // The tooltip, once rendered for a new edge, goes by the pointer.
     afterRenderEffect(() => {
-      this.edgeTip();
+      this.edgeTooltip();
       untracked(() => this.hover.place());
     });
 

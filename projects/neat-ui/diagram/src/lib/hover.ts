@@ -5,10 +5,10 @@ import type { Point } from './route';
 /*
  * What is in focus on a diagram, ported from the Autoware demo's System page (`link-hover.ts`): a
  * block (the pointer over it, or the keyboard on its open button) or an edge (the pointer over its
- * hit path or its label), and the tip of that edge by the pointer. While something is in focus
+ * hit path or its label), and the tooltip of that edge by the pointer. While something is in focus
  * the rest is dimmed, as far as the diagram's `highlight` allows (`highlighted`). The listeners
  * stay in `DiagramHover`, outside change detection; a signal changes only when what is in focus
- * does, and the tip follows the pointer by a style write.
+ * does, and the tooltip follows the pointer by a style write.
  */
 
 /** What the pointer or the keyboard is on. */
@@ -24,12 +24,12 @@ export interface FocusedParts {
   readonly notes: ReadonlySet<string>;
 }
 
-/** The gap between the pointer and its tip, px on screen (the demo's). */
-export const TIP_GAP = 14;
+/** The gap between the pointer and its tooltip, px on screen (the demo's). */
+export const TOOLTIP_GAP = 14;
 
 /**
  * What `highlight` lets dim the diagram out of `focus`: nothing for `none`, an edge only for
- * `edges`, anything for `all`. The tip of an edge follows the pointer whatever this answers.
+ * `edges`, anything for `all`. The tooltip of an edge follows the pointer whatever this answers.
  */
 export function highlighted(
   focus: DiagramFocus | null,
@@ -66,19 +66,19 @@ export function focusedParts(level: NeatDiagram, focus: DiagramFocus | null): Fo
 }
 
 /**
- * Where a tip of `size` goes for the pointer `at`, in a box of `box` (px from its corner): below
+ * Where a tooltip of `size` goes for the pointer `at`, in a box of `box` (px from its corner): below
  * and right of the pointer, a gap away; on the other side on an axis where that leaves the box;
  * and pushed into the box where neither side has room, so it is never cut off.
  */
-export function placeTip(
+export function placeTooltip(
   at: Point,
   size: { readonly w: number; readonly h: number },
   box: { readonly w: number; readonly h: number },
 ): { left: number; top: number } {
   const axis = (p: number, length: number, room: number) => {
-    const after = p + TIP_GAP;
+    const after = p + TOOLTIP_GAP;
     if (after + length <= room) return after;
-    const before = p - TIP_GAP - length;
+    const before = p - TOOLTIP_GAP - length;
     if (before >= 0) return before;
     return Math.max(0, Math.min(after, room - length));
   };
@@ -97,7 +97,7 @@ export class DiagramHover {
   private readonly pointer = signal<DiagramFocus | null>(null, { equal: sameFocus });
   /** The block whose open button has the focus. */
   private readonly keyboard = signal<string | null>(null);
-  /** The pointer, px from the box's padding corner, for the tip. */
+  /** The pointer, px from the box's padding corner, for the tooltip. */
   private at: Point = { x: 0, y: 0 };
 
   /** The pointer's part, else the keyboard's block. */
@@ -106,16 +106,16 @@ export class DiagramHover {
     return this.pointer() ?? (block === null ? null : { kind: 'block', id: block });
   });
 
-  /** The edge whose tip shows: the one under the pointer. */
-  readonly tipEdge = computed(() => {
+  /** The edge whose tooltip shows: the one under the pointer. */
+  readonly tooltipEdge = computed(() => {
     const focus = this.pointer();
     return focus?.kind === 'edge' ? focus.id : null;
   });
 
   constructor(
     private readonly box: HTMLElement,
-    /** The tip's element while it is rendered. */
-    private readonly tip: () => HTMLElement | undefined,
+    /** The tooltip's element while it is rendered. */
+    private readonly tooltip: () => HTMLElement | undefined,
   ) {
     box.addEventListener('pointerover', this.over, { passive: true });
     box.addEventListener('pointermove', this.over, { passive: true });
@@ -124,17 +124,17 @@ export class DiagramHover {
     box.addEventListener('focusout', this.focusOut);
   }
 
-  /** Puts the tip by the pointer, inside the box. Called on each move and once it renders. */
+  /** Puts the tooltip by the pointer, inside the box. Called on each move and once it renders. */
   place(): void {
-    const tip = this.tip();
-    if (!tip) return;
-    const size = { w: tip.offsetWidth, h: tip.offsetHeight };
-    const { left, top } = placeTip(this.at, size, {
+    const tooltip = this.tooltip();
+    if (!tooltip) return;
+    const size = { w: tooltip.offsetWidth, h: tooltip.offsetHeight };
+    const { left, top } = placeTooltip(this.at, size, {
       w: this.box.clientWidth,
       h: this.box.clientHeight,
     });
-    tip.style.left = `${left}px`;
-    tip.style.top = `${top}px`;
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
   }
 
   /** Nothing is in focus: a new level has other parts. */

@@ -1,6 +1,6 @@
 /*
  * The diagram's box and layers, its edges, edge labels and notes, from the reference sheet and the
- * Autoware demo's System page, in the theme's tokens; the nodes' look is in frames.css and
+ * Autoware demo's System page, in the theme's tokens; the nodes' look is in groups.css and
  * blocks.css, the edges' lines (which the legend draws too) in lines.css. Sizes in px are diagram
  * units (px at zoom 1), the space the app places its nodes in.
  */
@@ -10,7 +10,7 @@
  * (blocks and notes, as the demo's) is stated here once. The box is what the user drags, wheels
  * and pinches (d3-zoom), so the browser's own touch panning and pinch-zoom stay off it; it is a
  * tab stop for the keys. It clips without being a scroll container (`clip`, not `hidden`): a
- * focused part out of view would otherwise scroll the drawing, the bar and the tip inside it, and
+ * focused part out of view would otherwise scroll the drawing, the bar and the tooltip inside it, and
  * nothing would scroll them back; pan and zoom bring a focused part into view instead.
  */
 :host {
@@ -43,7 +43,7 @@
   width: max-content;
 }
 
-/* --- edges, in one SVG between the frames and the blocks --- */
+/* --- edges, in one SVG between the groups and the blocks --- */
 
 /*
  * A point to draw from: what it draws overflows it. Only the edges' hit paths catch the pointer.
@@ -72,7 +72,7 @@
   pointer-events: stroke;
 }
 
-.tip {
+.marker {
   fill: var(--edge);
   fill-opacity: 0.85;
 }
@@ -142,11 +142,11 @@
   visibility: hidden;
 }
 
-/* --- focus, the level bar and the edge tip, over the drawing --- */
+/* --- focus, the level bar and the edge tooltip, over the drawing --- */
 
 /*
  * While a block or an edge is in focus (hover.ts), what it is not joined to fades: nodes but
- * frames, edges, edge labels, notes and their leaders. A frame is the ground the parts stand on,
+ * groups, edges, edge labels, notes and their leaders. A group is the ground the parts stand on,
  * and fading it would fade the picture's layout with the parts.
  */
 .dim {
@@ -196,11 +196,11 @@ button.block:focus-visible {
 }
 
 /*
- * The app's tip for the edge under the pointer, in the popover's colors and the charts' readout
+ * The app's tooltip for the edge under the pointer, in the popover's colors and the charts' readout
  * box (no shadow); placed by hover.ts, in the box, over the bar as well (it comes after it). It
  * never catches the pointer, so it does not take the hover from the edge.
  */
-.edge-tip {
+.edge-tooltip {
   --neat-surface: var(--popover);
 
   position: absolute;
@@ -220,7 +220,7 @@ button.block:focus-visible {
   pointer-events: none;
 }
 
-/* An edge the app's template renders nothing for shows no tip. */
-.edge-tip:empty {
+/* An edge the app's template renders nothing for shows no tooltip. */
+.edge-tooltip:empty {
   display: none;
 }

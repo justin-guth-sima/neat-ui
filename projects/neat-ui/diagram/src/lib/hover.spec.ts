@@ -1,4 +1,4 @@
-import { focusedParts, highlighted, placeTip, TIP_GAP } from './hover';
+import { focusedParts, highlighted, placeTooltip, TOOLTIP_GAP } from './hover';
 import type { NeatDiagram } from './model';
 
 /** Camera → Decode → Sink, a note on each edge and one on a point of its own. */
@@ -53,28 +53,31 @@ describe('focusedParts', () => {
   });
 });
 
-describe('placeTip', () => {
+describe('placeTooltip', () => {
   const box = { w: 800, h: 600 };
   const size = { w: 200, h: 100 };
 
-  it('puts the tip below and right of the pointer, a gap away', () => {
-    expect(placeTip({ x: 100, y: 50 }, size, box)).toEqual({
-      left: 100 + TIP_GAP,
-      top: 50 + TIP_GAP,
+  it('puts the tooltip below and right of the pointer, a gap away', () => {
+    expect(placeTooltip({ x: 100, y: 50 }, size, box)).toEqual({
+      left: 100 + TOOLTIP_GAP,
+      top: 50 + TOOLTIP_GAP,
     });
   });
 
   it('puts it left of or above the pointer where it would leave the box', () => {
-    expect(placeTip({ x: 700, y: 550 }, size, box)).toEqual({
-      left: 700 - TIP_GAP - 200,
-      top: 550 - TIP_GAP - 100,
+    expect(placeTooltip({ x: 700, y: 550 }, size, box)).toEqual({
+      left: 700 - TOOLTIP_GAP - 200,
+      top: 550 - TOOLTIP_GAP - 100,
     });
   });
 
   it('keeps it inside the box where neither side has room', () => {
-    expect(placeTip({ x: 120, y: 60 }, size, { w: 260, h: 140 })).toEqual({ left: 60, top: 40 });
-    // A tip larger than the box starts at its corner.
-    expect(placeTip({ x: 50, y: 50 }, size, { w: 100, h: 80 })).toEqual({ left: 0, top: 0 });
+    expect(placeTooltip({ x: 120, y: 60 }, size, { w: 260, h: 140 })).toEqual({
+      left: 60,
+      top: 40,
+    });
+    // A tooltip larger than the box starts at its corner.
+    expect(placeTooltip({ x: 50, y: 50 }, size, { w: 100, h: 80 })).toEqual({ left: 0, top: 0 });
   });
 });
 

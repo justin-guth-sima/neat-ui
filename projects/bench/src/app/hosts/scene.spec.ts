@@ -8,7 +8,7 @@ describe('sceneOf', () => {
   const overview = synth.diagram.overview;
   const scene = sceneOf(synth);
 
-  it('draws the level as the kit does: its routes, tips and colors', () => {
+  it('draws the level as the kit does: its routes, end markers and colors', () => {
     expect(scene.drawn).toEqual(drawLevel(overview, new Set()));
   });
 

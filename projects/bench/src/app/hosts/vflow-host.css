@@ -1,7 +1,7 @@
 /*
  * The kit's paint on vflow's elements (design 3.2: the same picture, so only the renderer
- * differs): the diagram's default-look frame, block, note, edge label and leader, and its edge
- * lines and tips, from projects/neat-ui/diagram/src/lib/ (frames.css, blocks.css, lines.css,
+ * differs): the diagram's default-look group, block, note, edge label and leader, and its edge
+ * lines and end markers, from projects/neat-ui/diagram/src/lib/ (groups.css, blocks.css, lines.css,
  * diagram.css), in the same theme tokens. The kit keeps them private to `neat-diagram`, so they
  * are repeated here; the fairness check compares a block's computed styles in both hosts. The
  * synthetic diagram uses the default look only, so only it is repeated.
@@ -13,8 +13,8 @@ vflow {
   inset: 0;
 }
 
-/* A frame as an SVG rect: its 1 px border drawn inside the box, as an HTML border is. */
-.frame {
+/* A group as an SVG rect: its 1 px border drawn inside the box, as an HTML border is. */
+.group {
   x: 0.5px;
   y: 0.5px;
   rx: var(--radius);
@@ -119,7 +119,7 @@ handle {
   pointer-events: stroke;
 }
 
-.tip {
+.marker {
   fill: var(--edge);
   fill-opacity: 0.85;
 }

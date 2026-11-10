@@ -168,7 +168,7 @@ export function synthDiagram(params: SynthParams, seed: number): SynthDiagram {
     const { column, row } = cellOf(frame);
     nodes.push({
       id,
-      role: 'frame',
+      role: 'group',
       label: `Frame ${frame + 1}`,
       x: column * (frameW + FRAME_GAP),
       y: row * (frameH + FRAME_GAP),

@@ -48,7 +48,7 @@ export const MODEL_GRAPH: NeatDiagramSet = {
       },
       {
         id: 'backbone',
-        role: 'frame',
+        role: 'group',
         look: 'dashed',
         label: 'Backbone',
         detail: 'CSPDarknet',
@@ -126,7 +126,7 @@ export const MODEL_GRAPH: NeatDiagramSet = {
       nodes: [
         {
           id: 'stages',
-          role: 'frame',
+          role: 'group',
           look: 'dashed',
           label: 'Stages',
           detail: 'CSPDarknet, four stages',
@@ -161,7 +161,7 @@ export const MODEL_GRAPH: NeatDiagramSet = {
       nodes: [
         {
           id: 'dark5',
-          role: 'frame',
+          role: 'group',
           look: 'dashed',
           label: 'Dark5',
           detail: 'stride 32',
@@ -188,8 +188,8 @@ export const MODEL_LEGEND: readonly NeatDiagramLegendItem[] = [
   { series: 3, label: 'boxes' },
 ];
 
-/** What the tip of an edge of the model graph says, by its id; an edge without one shows none. */
-export const MODEL_EDGE_TIPS: Readonly<Record<string, string>> = {
+/** What the tooltip of an edge of the model graph says, by its id; an edge without one shows none. */
+export const MODEL_EDGE_TOOLTIPS: Readonly<Record<string, string>> = {
   'input-stem': 'The camera frame, letterboxed to 640 × 640',
   'stages-head': 'Three feature maps, at strides 8, 16 and 32',
   'head-nms': 'Boxes, objectness and 80 class scores per cell',

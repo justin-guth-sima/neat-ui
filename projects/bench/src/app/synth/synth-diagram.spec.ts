@@ -43,7 +43,7 @@ describe('synthDiagram', () => {
     const { diagram } = synthDiagram(params, 1);
     const { nodes, edges, notes = [] } = diagram.overview;
 
-    expect(nodes.filter((node) => node.role === 'frame').length).toBe(params.frames);
+    expect(nodes.filter((node) => node.role === 'group').length).toBe(params.frames);
     expect(nodes.filter((node) => node.role === 'block').length).toBe(params.blocks);
     expect(edges.length).toBe(params.edges);
     expect(edges.filter((edge) => edge.label !== undefined).length).toBe(params.labels);
@@ -72,13 +72,13 @@ describe('synthDiagram', () => {
   it('gives the pinned diagram for D1 and seed 1, so runs on any machine and day compare', () => {
     // Changing the generator changes every run's load: re-pin only on purpose, and say so in the
     // commit, since results from before and after no longer compare.
-    expect(fingerprint(synthDiagram(D1, 1))).toBe('586c271f');
+    expect(fingerprint(synthDiagram(D1, 1))).toBe('d4fe1c4b');
   });
 
   it.each([
-    [1 / 8, '073e6c5a'],
-    [1 / 4, '822cd28e'],
-    [1 / 2, 'e58140ea'],
+    [1 / 8, '3f93459e'],
+    [1 / 4, '658a8bd2'],
+    [1 / 2, '8dd00346'],
   ])('gives the pinned diagram for D1 × %s and seed 1, on every machine', (scale, pinned) => {
     expect(fingerprint(synthDiagram(scaledParams(D1, scale), 1))).toBe(pinned);
     expect(synthDiagram(scaledParams(D1, scale), 1)).toEqual(
@@ -88,7 +88,7 @@ describe('synthDiagram', () => {
 
   it('places the blocks of a frame inside it without overlapping one another', () => {
     const { nodes } = synthDiagram(scaledParams(D1, 2), 3).diagram.overview;
-    const frames = nodes.filter((node) => node.role === 'frame');
+    const frames = nodes.filter((node) => node.role === 'group');
 
     for (const frame of frames) {
       const blocks = nodes.filter((node) => node.parent === frame.id);
@@ -112,7 +112,7 @@ describe('synthDiagram', () => {
     const { diagram, freeSpot } = synthDiagram(D1, 1);
     const { nodes } = diagram.overview;
     const boxes = nodes.map((node) => absolute(node, nodes));
-    const frame = nodes.find((node) => node.role === 'frame') as NeatDiagramNode;
+    const frame = nodes.find((node) => node.role === 'group') as NeatDiagramNode;
     const margin = Math.min(frame.w, frame.h) / 2;
 
     expect(freeSpot.x).toBeGreaterThan(Math.min(...boxes.map((box) => box.x)));

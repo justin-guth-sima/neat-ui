@@ -28,9 +28,9 @@
 <div class="content" #content>
   <div class="behind">
     @for (part of drawn().behind; track part.node.id) {
-      @if (part.node.role === 'frame') {
+      @if (part.node.role !== 'band') {
         <div
-          class="frame"
+          class="group"
           [attr.data-node]="part.node.id"
           [attr.data-look]="part.look"
           [style.left.px]="part.rect.x"
@@ -71,17 +71,22 @@
       >
         <path class="hit" [attr.d]="edge.path" />
         <path class="line" [attr.d]="edge.path" />
-        @for (tip of edge.tips; track tip.end) {
-          @if (tip.shape === 'arrow') {
-            <path class="tip" data-shape="arrow" [attr.data-tip]="tip.end" [attr.d]="tip.d" />
+        @for (marker of edge.markers; track marker.end) {
+          @if (marker.shape === 'arrow') {
+            <path
+              class="marker"
+              data-shape="arrow"
+              [attr.data-marker]="marker.end"
+              [attr.d]="marker.d"
+            />
           } @else {
             <circle
-              class="tip"
+              class="marker"
               data-shape="dot"
-              [attr.data-tip]="tip.end"
-              [attr.cx]="tip.cx"
-              [attr.cy]="tip.cy"
-              [attr.r]="tip.r"
+              [attr.data-marker]="marker.end"
+              [attr.cx]="marker.cx"
+              [attr.cy]="marker.cy"
+              [attr.r]="marker.r"
             />
           }
         }
@@ -214,7 +219,7 @@
 
 <!--
   The messaging layer, over the whole drawing in the box's own coordinates (it maps through the
-  transform itself), under the bar and the tip.
+  transform itself), under the bar and the tooltip.
 -->
 <ng-content select="neat-diagram-messages" />
 
@@ -256,8 +261,8 @@
 </div>
 
 <!-- Placed by the pointer (hover.ts), in the box; presentational, as the list has the words. -->
-@if (edgeTip(); as tip) {
-  <div class="edge-tip" #tip aria-hidden="true">
-    <ng-container *ngTemplateOutlet="tip.template; context: { $implicit: tip.edge }" />
+@if (edgeTooltip(); as tooltip) {
+  <div class="edge-tooltip" #tooltip aria-hidden="true">
+    <ng-container *ngTemplateOutlet="tooltip.template; context: { $implicit: tooltip.edge }" />
   </div>
 }

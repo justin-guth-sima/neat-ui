@@ -123,7 +123,7 @@ describe('the diagram examples on the diagram topic', () => {
     await press(pipeline, 'Open Detector');
     // Its steps inside, what feeds it on the left, what it feeds on the right.
     expect(blocks(pipeline).sort()).toEqual(['decode', 'nms', 'resize', 'tracker', 'yolox']);
-    expect(pipeline.querySelector('.frame[data-node="detector"]')).not.toBeNull();
+    expect(pipeline.querySelector('.group[data-node="detector"]')).not.toBeNull();
     expect(crumbs(pipeline)).toEqual(['Detector']);
     expect(pipeline.querySelector('[data-note="yolox-rate"]')?.textContent).toContain('14.8 ms');
   });

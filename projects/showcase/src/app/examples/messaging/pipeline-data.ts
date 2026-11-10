@@ -16,7 +16,7 @@ import { A65, EV74, HW, MLA } from './chips';
  */
 
 const PIPELINE_NODES: readonly NeatDiagramNode[] = [
-  { id: 'laptop', role: 'frame', label: 'Laptop', x: 0, y: 0, w: 170, h: 360 },
+  { id: 'laptop', role: 'group', label: 'Laptop', x: 0, y: 0, w: 170, h: 360 },
   {
     id: 'camera',
     role: 'block',
@@ -52,7 +52,7 @@ const PIPELINE_NODES: readonly NeatDiagramNode[] = [
     h: 46,
   },
   { id: 'ethernet', role: 'band', label: 'Ethernet', x: 186, y: 0, w: 30, h: 360 },
-  { id: 'modalix', role: 'frame', look: 'accent', label: 'Modalix', x: 232, y: 0, w: 300, h: 360 },
+  { id: 'modalix', role: 'group', look: 'accent', label: 'Modalix', x: 232, y: 0, w: 300, h: 360 },
   {
     id: 'decode',
     role: 'block',
@@ -102,7 +102,7 @@ const PIPELINE_EDGES: readonly NeatDiagramEdge[] = [
   { id: 'gateway-browser', from: 'gateway', to: 'browser', series: 4 },
 ];
 
-/** A step of the Detector, in a row inside it below the level frame's title. */
+/** A step of the Detector, in a row inside it below the level group's title. */
 const step = (id: string, label: string, chip: NeatDiagramChip, i: number): NeatDiagramNode => ({
   id,
   role: 'block',
@@ -146,9 +146,9 @@ export const PIPELINE: NeatDiagramSet = {
       { id: 'detector-tracker', from: 'detector', to: 'tracker', series: 4 },
     ],
     notes: [
-      // Above the frames (they start at y 0; the card is about 85 high), clear of the Camera.
+      // Above the groups (they start at y 0; the card is about 85 high), clear of the Camera.
       { id: 'camera-rate', edges: ['camera-decode'], x: 215, y: -50 },
-      // A note's x and y are its center: below the Modalix frame (which ends at y 360), so the card
+      // A note's x and y are its center: below the Modalix group (which ends at y 360), so the card
       // straddles no border, and its leader runs clear of it.
       { id: 'tracker-rate', edges: ['detector-tracker'], x: 330, y: 410 },
     ],
@@ -156,7 +156,7 @@ export const PIPELINE: NeatDiagramSet = {
   levels: {
     detector: {
       ...neatDrillDownLevel(PIPELINE_STEPS, 'detector'),
-      // The card of a step: its stage time in place of the megabytes. Below the level's frame
+      // The card of a step: its stage time in place of the megabytes. Below the level's group
       // (which ends at y 152), under the edge it is about.
       notes: [{ id: 'yolox-rate', edges: ['yolox-nms'], x: 340, y: 235 }],
     },

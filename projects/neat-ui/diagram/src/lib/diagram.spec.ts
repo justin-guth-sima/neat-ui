@@ -6,10 +6,10 @@ import { zoomTransform } from 'd3-zoom';
 import { ɵSTALE_CLASSES } from '@sima/neat-ui';
 import { NeatDiagramView } from './diagram';
 import diagramStyles from './diagram.css' with { loader: 'text' };
-import frameStyles from './frames.css' with { loader: 'text' };
+import groupStyles from './groups.css' with { loader: 'text' };
 import { fitTransform } from './fit';
 import { layoutEdges } from './layout';
-import { TIP_GAP } from './hover';
+import { TOOLTIP_GAP } from './hover';
 import type {
   NeatDiagram,
   NeatDiagramHighlight,
@@ -21,7 +21,7 @@ import type {
 import { resetReported } from './report';
 import { resize, stubResizeObserver } from './resize-observer.testing';
 import { pointAlong } from './route';
-import { NeatDiagramEdgeTipTemplate, NeatDiagramNoteTemplate } from './templates';
+import { NeatDiagramEdgeTooltipTemplate, NeatDiagramNoteTemplate } from './templates';
 
 @Component({
   imports: [NeatDiagramView],
@@ -32,15 +32,15 @@ class DiagramHost {
 }
 
 /**
- * A board (accent frame) holding a dashed group three frames deep with a block in it, a ghost block
+ * A board (accent group) holding a dashed group three groups deep with a block in it, a ghost block
  * that opens a level, a band below and a bracket under the blocks; edges with and without a series,
- * a label and tips.
+ * a label and markers.
  */
 const OVERVIEW: NeatDiagram = {
   nodes: [
     {
       id: 'board',
-      role: 'frame',
+      role: 'group',
       look: 'accent',
       label: 'Modalix',
       detail: 'DevKit',
@@ -49,7 +49,7 @@ const OVERVIEW: NeatDiagram = {
       w: 500,
       h: 300,
     },
-    { id: 'group', role: 'frame', look: 'dashed', label: 'Neat', parent: 'board', x: 20, y: 60 },
+    { id: 'group', role: 'group', look: 'dashed', label: 'Neat', parent: 'board', x: 20, y: 60 },
     {
       id: 'decode',
       role: 'block',
@@ -165,7 +165,7 @@ describe('NeatDiagramView', () => {
 
   it('draws each role with its class at its place in the level, parents added up', async () => {
     const { node } = await render();
-    expect(node('board').classList).toContain('frame');
+    expect(node('board').classList).toContain('group');
     expect(box(node('board'))).toEqual({ x: 100, y: 50, w: 500, h: 300 });
     expect(box(node('group'))).toEqual({ x: 120, y: 110, w: 300, h: 200 });
     expect(node('decode').classList).toContain('block');
@@ -177,14 +177,14 @@ describe('NeatDiagramView', () => {
     expect(box(node('graph'))).toEqual({ x: 130, y: 210, w: 390, h: 40 });
   });
 
-  it('puts frames and bands behind the edges, blocks and brackets in front of them', async () => {
+  it('puts groups and bands behind the edges, blocks and brackets in front of them', async () => {
     const { one, node } = await render();
     const svg = one('svg.edges');
     const before = (a: Node, b: Node) =>
       Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
     for (const id of ['board', 'group', 'cable']) expect(before(node(id), svg), id).toBe(true);
     for (const id of ['decode', 'graph']) expect(before(svg, node(id)), id).toBe(true);
-    // A frame inside another comes after it, so it is drawn over its parent's fill.
+    // A group inside another comes after it, so it is drawn over its parent's fill.
     expect(before(node('board'), node('group'))).toBe(true);
     // One container holds every layer, for pan and zoom to move as one.
     const content = one('.content');
@@ -192,7 +192,7 @@ describe('NeatDiagramView', () => {
       expect(content.contains(part)).toBe(true);
   });
 
-  it('draws a frame’s title and detail, and a band’s label along its long side', async () => {
+  it('draws a group’s title and detail, and a band’s label along its long side', async () => {
     const { node } = await render();
     expect(node('board').querySelector('.title')?.textContent?.trim()).toBe('Modalix');
     expect(node('board').querySelector('.detail')?.textContent?.trim()).toBe('DevKit');
@@ -224,10 +224,10 @@ describe('NeatDiagramView', () => {
     expect(node('detect').querySelector('neat-status-chip')).toBeNull();
   });
 
-  it('titles a frame in the base text size, a step above the blocks’ labels', async () => {
+  it('titles a group in the base text size, a step above the blocks’ labels', async () => {
     const { node } = await render();
     expect(node('board').querySelector('.title')).not.toBeNull();
-    const rule = /\n\.frame \.title \{([^}]*)\}/.exec(frameStyles)?.[1] ?? '';
+    const rule = /\n\.group \.title \{([^}]*)\}/.exec(groupStyles)?.[1] ?? '';
     expect(rule).toMatch(/font-size:\s*var\(--neat-text-base\);/);
   });
 
@@ -280,15 +280,15 @@ describe('NeatDiagramView', () => {
     expect(edge('detect-tracker').style.getPropertyValue('--edge')).toBe('var(--muted-foreground)');
   });
 
-  it('draws a ghost edge in the muted color whatever its series, its tips with it', async () => {
+  it('draws a ghost edge in the muted color whatever its series, its markers with it', async () => {
     const { edge } = await render();
     // tracker-cable is a ghost with series 8: a part that does not run stays quiet.
     const ghost = edge('tracker-cable');
     expect(ghost.style.getPropertyValue('--edge')).toBe('var(--muted-foreground)');
-    // Line and tips take their color from the group's --edge (diagram.css), never their own.
-    const tips = Array.from(ghost.querySelectorAll('.tip'));
-    expect(tips).toHaveLength(1);
-    for (const part of [ghost.querySelector('path.line'), ...tips]) {
+    // Line and markers take their color from the group's --edge (diagram.css), never their own.
+    const markers = Array.from(ghost.querySelectorAll('.marker'));
+    expect(markers).toHaveLength(1);
+    for (const part of [ghost.querySelector('path.line'), ...markers]) {
       expect(part?.parentElement).toBe(ghost);
       expect((part as SVGElement).style.getPropertyValue('--edge')).toBe('');
     }
@@ -316,8 +316,8 @@ describe('NeatDiagramView', () => {
     const { edge } = await render();
     const layouts = layoutEdges(OVERVIEW);
     const plain = edge('decode-detect');
-    expect(plain.querySelector('[data-tip="start"]')).toBeNull();
-    const arrow = plain.querySelector('[data-tip="end"]') as SVGPathElement;
+    expect(plain.querySelector('[data-marker="start"]')).toBeNull();
+    const arrow = plain.querySelector('[data-marker="end"]') as SVGPathElement;
     expect(arrow.dataset['shape']).toBe('arrow');
     // Its point is the target's port; its base lies back along the edge, outside the target.
     const { target } = layouts.get('decode-detect')!;
@@ -326,8 +326,8 @@ describe('NeatDiagramView', () => {
     expect(base.filter((_, i) => i % 2 === 0).every((x) => x < target.x)).toBe(true);
 
     const dotted = edge('tracker-cable');
-    expect(dotted.querySelector('[data-tip="end"]')).toBeNull();
-    const dot = dotted.querySelector('[data-tip="start"]') as SVGCircleElement;
+    expect(dotted.querySelector('[data-marker="end"]')).toBeNull();
+    const dot = dotted.querySelector('[data-marker="start"]') as SVGCircleElement;
     expect(dot.dataset['shape']).toBe('dot');
     // The dot sits against the source's side (its left), outside it.
     const { source, sourceSide } = layouts.get('tracker-cable')!;
@@ -551,13 +551,13 @@ const block = (id: string, label: string, x: number, more: Partial<NeatDiagramNo
   ({ id, role: 'block', label, x, y: 0, w: 120, h: 40, ...more }) as NeatDiagramNode;
 
 /**
- * A board frame behind Camera → Decode → Sink, Decode opening "stages", which opens "inner";
+ * A board group behind Camera → Decode → Sink, Decode opening "stages", which opens "inner";
  * a note on the second edge. "orphan" is a level no block opens.
  */
 const LEVELS: NeatDiagramSet = {
   overview: {
     nodes: [
-      { id: 'board', role: 'frame', label: 'Board', x: -20, y: -40, w: 580, h: 120 },
+      { id: 'board', role: 'group', label: 'Board', x: -20, y: -40, w: 580, h: 120 },
       block('camera', 'Camera', 0, { detail: 'USB' }),
       block('decode', 'Decode', 200, {
         opens: 'stages',
@@ -585,7 +585,7 @@ const LEVELS: NeatDiagramSet = {
 };
 
 @Component({
-  imports: [NeatDiagramView, NeatDiagramEdgeTipTemplate, NeatDiagramNoteTemplate],
+  imports: [NeatDiagramView, NeatDiagramEdgeTooltipTemplate, NeatDiagramNoteTemplate],
   template: `
     <neat-diagram
       [diagram]="diagram()"
@@ -595,7 +595,7 @@ const LEVELS: NeatDiagramSet = {
       [(hovered)]="hovered"
       (activated)="picks.push($event)"
     >
-      <ng-template neatDiagramEdgeTip let-edge
+      <ng-template neatDiagramEdgeTooltip let-edge
         ><b class="said">About {{ edge.id }}</b></ng-template
       >
       <ng-template neatDiagramNote let-note>Note {{ note.id }}</ng-template>
@@ -671,7 +671,7 @@ describe('NeatDiagramView’s hover, levels and words', () => {
 
       await view.pointer('pointerover', view.node('camera').querySelector('.label')!);
 
-      // Its edge and that edge's label stay; the other blocks, edges and notes fade. A frame is
+      // Its edge and that edge's label stay; the other blocks, edges and notes fade. A group is
       // the ground the parts sit on and never fades.
       expect(view.dimmed().sort()).toEqual(['decode', 'g:images', 'rate', 'sink']);
       expect(view.node('board').classList).not.toContain('dim');
@@ -757,7 +757,7 @@ describe('NeatDiagramView’s hover, levels and words', () => {
       expect(fixture.componentInstance.highlight()).toBe('none');
     });
 
-    it('none: dims nothing for a block, an edge or a focused open button, but still tips', async () => {
+    it('none: dims nothing for a block, an edge or a focused open button, but still markers', async () => {
       const view = await renderLevels();
       view.fixture.componentInstance.highlight.set('none');
       await view.stable();
@@ -767,7 +767,7 @@ describe('NeatDiagramView’s hover, levels and words', () => {
 
       await view.pointer('pointerover', view.edge('images').querySelector('.hit')!);
       expect(view.dimmed()).toEqual([]);
-      expect(view.one('.edge-tip').textContent?.trim()).toBe('About images');
+      expect(view.one('.edge-tooltip').textContent?.trim()).toBe('About images');
 
       await view.pointer('pointerleave', view.host);
       tab(view);
@@ -839,28 +839,28 @@ describe('NeatDiagramView’s hover, levels and words', () => {
     });
   });
 
-  describe('the edge tip', () => {
+  describe('the edge tooltip', () => {
     it('shows the app’s template for the edge under the pointer, and only then', async () => {
       const view = await renderLevels();
-      expect(view.one('.edge-tip')).toBeNull();
+      expect(view.one('.edge-tooltip')).toBeNull();
 
       await view.pointer('pointerover', view.edge('images').querySelector('.hit')!);
-      expect(view.one('.edge-tip').textContent?.trim()).toBe('About images');
+      expect(view.one('.edge-tooltip').textContent?.trim()).toBe('About images');
       // Presentational: the hidden list says each edge in words.
-      expect(view.one('.edge-tip').getAttribute('aria-hidden')).toBe('true');
+      expect(view.one('.edge-tooltip').getAttribute('aria-hidden')).toBe('true');
 
       // An edge's label is the edge too.
       await view.pointer('pointerover', view.label('frames'));
-      expect(view.one('.edge-tip').textContent?.trim()).toBe('About frames');
+      expect(view.one('.edge-tooltip').textContent?.trim()).toBe('About frames');
 
       await view.pointer('pointerover', view.node('sink'));
-      expect(view.one('.edge-tip')).toBeNull();
+      expect(view.one('.edge-tooltip')).toBeNull();
       await view.pointer('pointerover', view.edge('frames').querySelector('.hit')!);
       await view.pointer('pointerleave', view.host);
-      expect(view.one('.edge-tip')).toBeNull();
+      expect(view.one('.edge-tooltip')).toBeNull();
     });
 
-    it('places the tip by the pointer, in the box, outside the zoomed content', async () => {
+    it('places the tooltip by the pointer, in the box, outside the zoomed content', async () => {
       const view = await renderLevels();
       for (const [name, value] of [
         ['clientWidth', 800],
@@ -870,15 +870,15 @@ describe('NeatDiagramView’s hover, levels and words', () => {
       }
       const hit = view.edge('frames').querySelector('.hit')!;
       await view.pointer('pointerover', hit, { clientX: 50, clientY: 30 });
-      const tip = view.one('.edge-tip');
-      expect(tip.parentElement).toBe(view.host);
-      expect({ left: tip.style.left, top: tip.style.top }).toEqual({
-        left: `${50 + TIP_GAP}px`,
-        top: `${30 + TIP_GAP}px`,
+      const tooltip = view.one('.edge-tooltip');
+      expect(tooltip.parentElement).toBe(view.host);
+      expect({ left: tooltip.style.left, top: tooltip.style.top }).toEqual({
+        left: `${50 + TOOLTIP_GAP}px`,
+        top: `${30 + TOOLTIP_GAP}px`,
       });
 
       await view.pointer('pointermove', hit, { clientX: 70, clientY: 40 });
-      expect(tip.style.left).toBe(`${70 + TIP_GAP}px`);
+      expect(tooltip.style.left).toBe(`${70 + TOOLTIP_GAP}px`);
     });
   });
 

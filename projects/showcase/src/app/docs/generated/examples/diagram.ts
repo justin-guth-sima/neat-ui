@@ -21,7 +21,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Frames for the machines, a band for the cable, and a figure line in Decode from the app's "
+            "text": "Groups for the machines, a band for the cable, and a figure line in Decode from the app's "
           },
           {
             "kind": "ref",
@@ -149,7 +149,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/*\n * The reference sheet's messaging pipeline (insight-next, docs/superpowers/reference/diagram):\n * laptop, cable, board, placed after the sheet with room for the kit's type and edge labels. The\n * diagram fits each level to its box, so where a level starts does not matter.\n */"],
           ["text","\n\n"],
           ["keyword","const"],["text"," PIPELINE_NODES: "],["keyword","readonly"],["text"," NeatDiagramNode[] = [\n  { id: "],
-          ["string","'laptop'"],["text",", role: "],["string","'frame'"],["text",", label: "],["string","'Laptop'"],["text",", x: 0, y: 0, w: 170, h: 360 },\n  {\n    id: "],
+          ["string","'laptop'"],["text",", role: "],["string","'group'"],["text",", label: "],["string","'Laptop'"],["text",", x: 0, y: 0, w: 170, h: 360 },\n  {\n    id: "],
           ["string","'camera'"],["text",",\n    role: "],
           ["string","'block'"],["text",",\n    label: "],
           ["string","'Camera'"],["text",",\n    detail: "],
@@ -169,7 +169,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'top'"],["text",",\n    parent: "],
           ["string","'laptop'"],["text",",\n    x: 20,\n    y: 290,\n    w: 130,\n    h: 58,\n  },\n  { id: "],
           ["string","'ethernet'"],["text",", role: "],["string","'band'"],["text",", label: "],["string","'Ethernet'"],["text",", x: 186, y: 0, w: 30, h: 360 },\n  { id: "],
-          ["string","'modalix'"],["text",", role: "],["string","'frame'"],["text",", look: "],["string","'accent'"],["text",", label: "],["string","'Modalix'"],["text",", x: 232, y: 0, w: 300, h: 360 },\n  {\n    id: "],
+          ["string","'modalix'"],["text",", role: "],["string","'group'"],["text",", look: "],["string","'accent'"],["text",", label: "],["string","'Modalix'"],["text",", x: 232, y: 0, w: 300, h: 360 },\n  {\n    id: "],
           ["string","'decode'"],["text",",\n    role: "],
           ["string","'block'"],["text",",\n    label: "],
           ["string","'Decode'"],["text",",\n    chips: [HW],\n    outSide: "],
@@ -193,7 +193,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'camera-decode'"],["text",", from: "],["string","'camera'"],["text",", to: "],["string","'decode'"],["text",", series: 1 },\n  { id: "],
           ["string","'tracker-gateway'"],["text",", from: "],["string","'tracker'"],["text",", to: "],["string","'gateway'"],["text",", series: 4 },\n  { id: "],
           ["string","'gateway-browser'"],["text",", from: "],["string","'gateway'"],["text",", to: "],["string","'browser'"],["text",", series: 4 },\n];\n\n"],
-          ["comment","/** A step of the Detector, in a row inside it below the level frame's title. */"],["text","\n"],
+          ["comment","/** A step of the Detector, in a row inside it below the level group's title. */"],["text","\n"],
           ["keyword","const"],["text"," step = (id: "],["keyword","string"],["text",", label: "],["keyword","string"],["text",", chip: NeatDiagramChip, i: "],["keyword","number"],["text","): NeatDiagramNode => ({\n  id,\n  role: "],
           ["string","'block'"],["text",",\n  label,\n  chips: [chip],\n  parent: "],
           ["string","'detector'"],["text",",\n  x: 20 + i * 170,\n  y: 72,\n  w: 130,\n  h: 40,\n});\n\n"],
@@ -211,13 +211,13 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","export"],["text"," "],["keyword","const"],["text"," PIPELINE: NeatDiagramSet = {\n  overview: {\n    nodes: PIPELINE_NODES,\n    edges: [\n      ...PIPELINE_EDGES,\n      { id: "],
           ["string","'decode-detector'"],["text",", from: "],["string","'decode'"],["text",", to: "],["string","'detector'"],["text",", series: 1 },\n      { id: "],
           ["string","'detector-tracker'"],["text",", from: "],["string","'detector'"],["text",", to: "],["string","'tracker'"],["text",", series: 4 },\n    ],\n    notes: [\n      "],
-          ["comment","// Above the frames (they start at y 0; the card is about 85 high), clear of the Camera."],["text","\n      { id: "],
+          ["comment","// Above the groups (they start at y 0; the card is about 85 high), clear of the Camera."],["text","\n      { id: "],
           ["string","'camera-rate'"],["text",", edges: ["],["string","'camera-decode'"],["text","], x: 215, y: -50 },\n      "],
-          ["comment","// A note's x and y are its center: below the Modalix frame (which ends at y 360), so the card"],["text","\n      "],
+          ["comment","// A note's x and y are its center: below the Modalix group (which ends at y 360), so the card"],["text","\n      "],
           ["comment","// straddles no border, and its leader runs clear of it."],["text","\n      { id: "],
           ["string","'tracker-rate'"],["text",", edges: ["],["string","'tracker-gateway'"],["text","], x: 330, y: 410 },\n    ],\n  },\n  levels: {\n    detector: {\n      ...neatDrillDownLevel(PIPELINE_STEPS, "],
           ["string","'detector'"],["text","),\n      "],
-          ["comment","// The card of a step: its stage time in place of the megabytes. Below the level's frame"],["text","\n      "],
+          ["comment","// The card of a step: its stage time in place of the megabytes. Below the level's group"],["text","\n      "],
           ["comment","// (which ends at y 152), under the edge it is about."],["text","\n      notes: [{ id: "],
           ["string","'yolox-rate'"],["text",", edges: ["],["string","'yolox-nms'"],["text","], x: 340, y: 235 }],\n    },\n  },\n};\n\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," PIPELINE_LEGEND: "],["keyword","readonly"],["text"," NeatDiagramLegendItem[] = [\n  { series: 1, label: "],
@@ -398,12 +398,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " tells a bracket from a block), the tip of an edge from the app's "
+            "text": " tells a bracket from a block), the tooltip of an edge from the app's "
           },
           {
             "kind": "ref",
-            "text": "NeatDiagramEdgeTipTemplate",
-            "name": "NeatDiagramEdgeTipTemplate"
+            "text": "NeatDiagramEdgeTooltipTemplate",
+            "name": "NeatDiagramEdgeTooltipTemplate"
           },
           {
             "kind": "text",
@@ -424,7 +424,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     ],
     "shows": [
       "@sima/neat-ui/diagram#NeatDiagramBlockTemplate",
-      "@sima/neat-ui/diagram#NeatDiagramEdgeTipTemplate",
+      "@sima/neat-ui/diagram#NeatDiagramEdgeTooltipTemplate",
       "@sima/neat-ui/diagram#NeatDiagramLegend",
       "@sima/neat-ui/diagram#NeatDiagramView"
     ],
@@ -433,17 +433,17 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "3-model-graph.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, computed, signal, viewChild } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," {\n  NeatDiagramBlockTemplate,\n  NeatDiagramEdgeTipTemplate,\n  NeatDiagramLegend,\n  NeatDiagramView,\n} "],
+          ["keyword","import"],["text"," {\n  NeatDiagramBlockTemplate,\n  NeatDiagramEdgeTooltipTemplate,\n  NeatDiagramLegend,\n  NeatDiagramView,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
-          ["keyword","import"],["text"," { MODEL_EDGE_TIPS, MODEL_GRAPH, MODEL_LEGEND } "],["keyword","from"],["text"," "],["string","'./model-graph-data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-model-graph'"],["text",",\n  imports: [\n    NeatDiagramBlockTemplate,\n    NeatDiagramEdgeTipTemplate,\n    NeatDiagramLegend,\n    NeatDiagramView,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram\n      class=\"diagram\"\n      [diagram]=\"graph\"\n      label=\"A detector’s model graph\"\n      [(level)]=\"level\"\n    >\n      <ng-template neatDiagramBlock let-node>\n        @if (node.role === 'bracket') {\n          <span class=\"bracket-figure\">3 tensors</span>\n        }\n      </ng-template>\n      <ng-template neatDiagramEdgeTip let-edge>\n        @if (tips[edge.id]; as tip) {\n          {{ tip }}\n        }\n      </ng-template>\n    </neat-diagram>\n    <span class=\"showcase-muted\">Open levels: {{ levelText() }}</span>\n  `"],
+          ["keyword","import"],["text"," { MODEL_EDGE_TOOLTIPS, MODEL_GRAPH, MODEL_LEGEND } "],["keyword","from"],["text"," "],["string","'./model-graph-data'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-model-graph'"],["text",",\n  imports: [\n    NeatDiagramBlockTemplate,\n    NeatDiagramEdgeTooltipTemplate,\n    NeatDiagramLegend,\n    NeatDiagramView,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram\n      class=\"diagram\"\n      [diagram]=\"graph\"\n      label=\"A detector’s model graph\"\n      [(level)]=\"level\"\n    >\n      <ng-template neatDiagramBlock let-node>\n        @if (node.role === 'bracket') {\n          <span class=\"bracket-figure\">3 tensors</span>\n        }\n      </ng-template>\n      <ng-template neatDiagramEdgeTooltip let-edge>\n        @if (tooltips[edge.id]; as tooltip) {\n          {{ tooltip }}\n        }\n      </ng-template>\n    </neat-diagram>\n    <span class=\"showcase-muted\">Open levels: {{ levelText() }}</span>\n  `"],
           ["text",",\n  styleUrl: "],
           ["string","'./diagram-box.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ModelGraph {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," graph = MODEL_GRAPH;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," legend = MODEL_LEGEND;\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," tips = MODEL_EDGE_TIPS;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," tooltips = MODEL_EDGE_TOOLTIPS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," level = signal<"],["keyword","string"],["text","[]>([]);\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," levelText = computed(() => JSON.stringify("],["keyword","this"],["text",".level()));\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," diagram = viewChild.required(NeatDiagramView);\n\n  "],
@@ -472,7 +472,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'Input'"],["text",",\n        outSide: "],
           ["string","'bottom'"],["text",",\n        x: 110,\n        y: 0,\n        w: 120,\n        h: 40,\n      },\n      {\n        id: "],
           ["string","'backbone'"],["text",",\n        role: "],
-          ["string","'frame'"],["text",",\n        look: "],
+          ["string","'group'"],["text",",\n        look: "],
           ["string","'dashed'"],["text",",\n        label: "],
           ["string","'Backbone'"],["text",",\n        detail: "],
           ["string","'CSPDarknet'"],["text",",\n        x: 0,\n        y: 70,\n        w: 410,\n        h: 150,\n      },\n      {\n        id: "],
@@ -505,7 +505,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'head-nms'"],["text",", from: "],["string","'head'"],["text",", to: "],["string","'nms'"],["text",", series: 4, label: "],["string","'3 × 1×85×80²'"],["text"," },\n      { id: "],
           ["string","'nms-boxes'"],["text",", from: "],["string","'nms'"],["text",", to: "],["string","'boxes'"],["text",", series: 3 },\n    ],\n  },\n  levels: {\n    stages: {\n      nodes: [\n        {\n          id: "],
           ["string","'stages'"],["text",",\n          role: "],
-          ["string","'frame'"],["text",",\n          look: "],
+          ["string","'group'"],["text",",\n          look: "],
           ["string","'dashed'"],["text",",\n          label: "],
           ["string","'Stages'"],["text",",\n          detail: "],
           ["string","'CSPDarknet, four stages'"],["text",",\n          x: 0,\n          y: 0,\n          w: 960,\n          h: 176,\n        },\n        dark("],
@@ -522,7 +522,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'dark3-dark4'"],["text",", from: "],["string","'dark3'"],["text",", to: "],["string","'dark4'"],["text",", series: 1, label: "],["string","'1×256×80²'"],["text"," },\n        { id: "],
           ["string","'dark4-dark5'"],["text",", from: "],["string","'dark4'"],["text",", to: "],["string","'dark5'"],["text",", series: 1, label: "],["string","'1×512×40²'"],["text"," },\n      ],\n    },\n    dark5: {\n      nodes: [\n        {\n          id: "],
           ["string","'dark5'"],["text",",\n          role: "],
-          ["string","'frame'"],["text",",\n          look: "],
+          ["string","'group'"],["text",",\n          look: "],
           ["string","'dashed'"],["text",",\n          label: "],
           ["string","'Dark5'"],["text",",\n          detail: "],
           ["string","'stride 32'"],["text",",\n          x: 0,\n          y: 0,\n          w: 750,\n          h: 140,\n        },\n        layer("],
@@ -535,8 +535,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'feature maps'"],["text"," },\n  { series: 4, label: "],
           ["string","'predictions'"],["text"," },\n  { series: 3, label: "],
           ["string","'boxes'"],["text"," },\n];\n\n"],
-          ["comment","/** What the tip of an edge of the model graph says, by its id; an edge without one shows none. */"],["text","\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," MODEL_EDGE_TIPS: Readonly<Record<"],["keyword","string"],["text",", "],["keyword","string"],["text",">> = {\n  "],
+          ["comment","/** What the tooltip of an edge of the model graph says, by its id; an edge without one shows none. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," MODEL_EDGE_TOOLTIPS: Readonly<Record<"],["keyword","string"],["text",", "],["keyword","string"],["text",">> = {\n  "],
           ["string","'input-stem'"],["text",": "],["string","'The camera frame, letterboxed to 640 × 640'"],["text",",\n  "],
           ["string","'stages-head'"],["text",": "],["string","'Three feature maps, at strides 8, 16 and 32'"],["text",",\n  "],
           ["string","'head-nms'"],["text",": "],["string","'Boxes, objectness and 80 class scores per cell'"],["text",",\n  "],
@@ -612,7 +612,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " also traces a block's links, for a dense drawing in which they are hard to follow by eye. An edge's tip shows in every mode."
+            "text": " also traces a block's links, for a dense drawing in which they are hard to follow by eye. An edge's tooltip shows in every mode."
           }
         ]
       }
@@ -801,7 +801,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/*\n * The reference sheet's messaging pipeline (insight-next, docs/superpowers/reference/diagram):\n * laptop, cable, board, placed after the sheet with room for the kit's type and edge labels. The\n * diagram fits each level to its box, so where a level starts does not matter.\n */"],
           ["text","\n\n"],
           ["keyword","const"],["text"," PIPELINE_NODES: "],["keyword","readonly"],["text"," NeatDiagramNode[] = [\n  { id: "],
-          ["string","'laptop'"],["text",", role: "],["string","'frame'"],["text",", label: "],["string","'Laptop'"],["text",", x: 0, y: 0, w: 170, h: 360 },\n  {\n    id: "],
+          ["string","'laptop'"],["text",", role: "],["string","'group'"],["text",", label: "],["string","'Laptop'"],["text",", x: 0, y: 0, w: 170, h: 360 },\n  {\n    id: "],
           ["string","'camera'"],["text",",\n    role: "],
           ["string","'block'"],["text",",\n    label: "],
           ["string","'Camera'"],["text",",\n    detail: "],
@@ -821,7 +821,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'top'"],["text",",\n    parent: "],
           ["string","'laptop'"],["text",",\n    x: 20,\n    y: 290,\n    w: 130,\n    h: 58,\n  },\n  { id: "],
           ["string","'ethernet'"],["text",", role: "],["string","'band'"],["text",", label: "],["string","'Ethernet'"],["text",", x: 186, y: 0, w: 30, h: 360 },\n  { id: "],
-          ["string","'modalix'"],["text",", role: "],["string","'frame'"],["text",", look: "],["string","'accent'"],["text",", label: "],["string","'Modalix'"],["text",", x: 232, y: 0, w: 300, h: 360 },\n  {\n    id: "],
+          ["string","'modalix'"],["text",", role: "],["string","'group'"],["text",", look: "],["string","'accent'"],["text",", label: "],["string","'Modalix'"],["text",", x: 232, y: 0, w: 300, h: 360 },\n  {\n    id: "],
           ["string","'decode'"],["text",",\n    role: "],
           ["string","'block'"],["text",",\n    label: "],
           ["string","'Decode'"],["text",",\n    chips: [HW],\n    outSide: "],
@@ -845,7 +845,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'camera-decode'"],["text",", from: "],["string","'camera'"],["text",", to: "],["string","'decode'"],["text",", series: 1 },\n  { id: "],
           ["string","'tracker-gateway'"],["text",", from: "],["string","'tracker'"],["text",", to: "],["string","'gateway'"],["text",", series: 4 },\n  { id: "],
           ["string","'gateway-browser'"],["text",", from: "],["string","'gateway'"],["text",", to: "],["string","'browser'"],["text",", series: 4 },\n];\n\n"],
-          ["comment","/** A step of the Detector, in a row inside it below the level frame's title. */"],["text","\n"],
+          ["comment","/** A step of the Detector, in a row inside it below the level group's title. */"],["text","\n"],
           ["keyword","const"],["text"," step = (id: "],["keyword","string"],["text",", label: "],["keyword","string"],["text",", chip: NeatDiagramChip, i: "],["keyword","number"],["text","): NeatDiagramNode => ({\n  id,\n  role: "],
           ["string","'block'"],["text",",\n  label,\n  chips: [chip],\n  parent: "],
           ["string","'detector'"],["text",",\n  x: 20 + i * 170,\n  y: 72,\n  w: 130,\n  h: 40,\n});\n\n"],
@@ -863,13 +863,13 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","export"],["text"," "],["keyword","const"],["text"," PIPELINE: NeatDiagramSet = {\n  overview: {\n    nodes: PIPELINE_NODES,\n    edges: [\n      ...PIPELINE_EDGES,\n      { id: "],
           ["string","'decode-detector'"],["text",", from: "],["string","'decode'"],["text",", to: "],["string","'detector'"],["text",", series: 1 },\n      { id: "],
           ["string","'detector-tracker'"],["text",", from: "],["string","'detector'"],["text",", to: "],["string","'tracker'"],["text",", series: 4 },\n    ],\n    notes: [\n      "],
-          ["comment","// Above the frames (they start at y 0; the card is about 85 high), clear of the Camera."],["text","\n      { id: "],
+          ["comment","// Above the groups (they start at y 0; the card is about 85 high), clear of the Camera."],["text","\n      { id: "],
           ["string","'camera-rate'"],["text",", edges: ["],["string","'camera-decode'"],["text","], x: 215, y: -50 },\n      "],
-          ["comment","// A note's x and y are its center: below the Modalix frame (which ends at y 360), so the card"],["text","\n      "],
+          ["comment","// A note's x and y are its center: below the Modalix group (which ends at y 360), so the card"],["text","\n      "],
           ["comment","// straddles no border, and its leader runs clear of it."],["text","\n      { id: "],
           ["string","'tracker-rate'"],["text",", edges: ["],["string","'tracker-gateway'"],["text","], x: 330, y: 410 },\n    ],\n  },\n  levels: {\n    detector: {\n      ...neatDrillDownLevel(PIPELINE_STEPS, "],
           ["string","'detector'"],["text","),\n      "],
-          ["comment","// The card of a step: its stage time in place of the megabytes. Below the level's frame"],["text","\n      "],
+          ["comment","// The card of a step: its stage time in place of the megabytes. Below the level's group"],["text","\n      "],
           ["comment","// (which ends at y 152), under the edge it is about."],["text","\n      notes: [{ id: "],
           ["string","'yolox-rate'"],["text",", edges: ["],["string","'yolox-nms'"],["text","], x: 340, y: 235 }],\n    },\n  },\n};\n\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," PIPELINE_LEGEND: "],["keyword","readonly"],["text"," NeatDiagramLegendItem[] = [\n  { series: 1, label: "],
@@ -1297,7 +1297,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "), here over the Encoder from the Camera's top to the Archive's. Labels, the tips, hover and the messages follow the route as they do the kit's own."
+            "text": "), here over the Encoder from the Camera's top to the Archive's. Labels, the end markers, hover and the messages follow the route as they do the kit's own."
           }
         ]
       }

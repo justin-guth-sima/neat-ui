@@ -1,0 +1,88 @@
+/*
+ * Groups and bands, drawn behind the edges (blocks and brackets are in blocks.css, the rest of the
+ * diagram in diagram.css), from the reference sheet and the Autoware demo's System page, in the
+ * theme's tokens. Each look is stated once, as the custom properties the group's rule reads, so no
+ * look outweighs another.
+ */
+
+.group {
+  position: absolute;
+  box-sizing: border-box;
+  padding: var(--neat-space-2) var(--neat-space-3);
+  border: var(--group-line) var(--group-edge);
+  border-radius: var(--radius);
+  background: var(--group-fill);
+}
+
+.group[data-look='default'] {
+  --group-line: 1px solid;
+  --group-edge: var(--border);
+  --group-fill: color-mix(in oklab, var(--muted) 35%, transparent);
+  --group-ink: var(--foreground);
+  --group-weight: 600;
+}
+
+/* The primary tint: the main device. */
+.group[data-look='accent'] {
+  --group-line: 1px solid;
+  --group-edge: color-mix(in oklab, var(--primary) 45%, transparent);
+  --group-fill: color-mix(in oklab, var(--primary) 5%, transparent);
+  --group-ink: var(--foreground);
+  --group-weight: 600;
+}
+
+/* A group. */
+.group[data-look='dashed'] {
+  --group-line: 1px dashed;
+  --group-edge: var(--border);
+  --group-fill: color-mix(in oklab, var(--card) 60%, transparent);
+  --group-ink: var(--foreground);
+  --group-weight: 600;
+}
+
+/* A part that does not run here: no fill, a dashed line, a quiet title; clear in either theme. */
+.group[data-look='ghost'] {
+  --group-line: 2px dashed;
+  --group-edge: var(--muted-foreground);
+  --group-fill: transparent;
+  --group-ink: var(--muted-foreground);
+  --group-weight: 400;
+}
+
+.group[data-look='muted'] {
+  --group-line: 1px solid;
+  --group-edge: var(--border);
+  --group-fill: var(--muted);
+  --group-ink: var(--muted-foreground);
+  --group-weight: 600;
+}
+
+/* A group's title is a step above its blocks' labels, so the group reads before its parts. */
+.group .title {
+  font-size: var(--neat-text-base);
+  font-weight: var(--group-weight);
+  color: var(--group-ink);
+}
+
+.group .detail {
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+}
+
+/* A strip such as a cable or a bus, its label along it (down the strip when it stands upright). */
+.band {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.band.upright {
+  writing-mode: vertical-rl;
+}

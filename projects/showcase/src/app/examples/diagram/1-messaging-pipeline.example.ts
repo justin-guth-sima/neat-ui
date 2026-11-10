@@ -8,7 +8,7 @@ import {
 import { PIPELINE, PIPELINE_LEGEND } from './pipeline-data';
 
 /**
- * Frames for the machines, a band for the cable, and a figure line in Decode from the app's
+ * Groups for the machines, a band for the cable, and a figure line in Decode from the app's
  * `NeatDiagramBlockTemplate`. The Detector opens a level that `neatDrillDownLevel` placed: its
  * steps inside, what feeds it on the left, what it feeds on the right. Every chip says where its
  * part runs, in the kit's tones.

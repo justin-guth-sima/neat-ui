@@ -19,7 +19,7 @@ const OVERVIEW_NODES: readonly NeatDiagramNode[] = [
   { id: 'tracker', role: 'block', label: 'Tracker', inSide: 'top', x: 0, y: 200, w: 170, h: 46 },
 ];
 
-/** A step of the Detector, in a row inside it below the level frame's title. */
+/** A step of the Detector, in a row inside it below the level group's title. */
 const step = (id: string, label: string, i: number): NeatDiagramNode => ({
   id,
   role: 'block',

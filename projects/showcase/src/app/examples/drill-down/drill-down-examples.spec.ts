@@ -23,9 +23,9 @@ describe('the drill-down examples', () => {
     diagram.querySelector<HTMLElement>('button[aria-label="Open Detector"]')!.click();
     await fixture.whenStable();
 
-    // Its steps inside a frame, what feeds it on the left, what it feeds on the right.
+    // Its steps inside a group, what feeds it on the left, what it feeds on the right.
     expect(blocks()).toEqual(['camera', 'nms', 'resize', 'tracker', 'yolox']);
-    expect(diagram.querySelector('.frame[data-node="detector"]')).not.toBeNull();
+    expect(diagram.querySelector('.group[data-node="detector"]')).not.toBeNull();
     expect(diagram.querySelector('neat-breadcrumbs li')?.textContent).toContain('Detector');
     expect(diagram.querySelector('button[aria-label="Back to Overview"]')).not.toBeNull();
   });

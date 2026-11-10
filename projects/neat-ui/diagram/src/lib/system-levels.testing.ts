@@ -4,7 +4,7 @@ import type { NeatDiagram, NeatDiagramEdge, NeatDiagramLine, NeatDiagramNode } f
  * The Autoware demo's System page as its layout specs saw it (2026-10-30): the overview and the
  * drill-downs into YOLOX multi, the traffic light detector and CenterPoint's four shapes (the EV74
  * casts around its encoder and/or backbone, or none), with the demo's positions and sizes. On the
- * generic model: the machines and groups are frames, the cable a band, the processes and steps
+ * generic model: the machines and groups are groups, the cable a band, the processes and steps
  * blocks, the stage braces brackets, the parts of Autoware it does not run ghosts. The realistic
  * case the layout's checks run on: no crossings, no edge along another, none through a card.
  */
@@ -30,10 +30,10 @@ const e = (id: string, from: string, to: string, line?: NeatDiagramLine): NeatDi
 
 const OVERVIEW: NeatDiagram = {
   nodes: [
-    n('frame', 'laptop', 0, 0, 880, 1260),
+    n('group', 'laptop', 0, 0, 880, 1260),
     n('block', 'browser', 570, 20, 290, 90, 'laptop'),
     n('block', 'gateway', 570, 270, 290, 110, 'laptop'),
-    n('frame', 'sensors', 340, 560, 460, 680, 'laptop', { look: 'dashed' }),
+    n('group', 'sensors', 340, 560, 460, 680, 'laptop', { look: 'dashed' }),
     n('block', 'camera0', 20, 72, 420, 64, 'sensors'),
     n('block', 'camera1', 20, 146, 420, 64, 'sensors'),
     n('block', 'camera2', 20, 220, 420, 64, 'sensors'),
@@ -43,12 +43,12 @@ const OVERVIEW: NeatDiagram = {
     n('block', 'lidar', 20, 516, 420, 64, 'sensors'),
     n('block', 'pose', 20, 590, 420, 64, 'sensors'),
     n('band', 'cable', 900, 0, 60, 1260),
-    n('frame', 'modalix', 980, 0, 1360, 1260, undefined, { look: 'accent' }),
+    n('group', 'modalix', 980, 0, 1360, 1260, undefined, { look: 'accent' }),
     n('block', 'traffic_light', 40, 420, 260, 140, 'modalix', { inSide: 'bottom', outSide: 'top' }),
     n('block', 'yolox_multi', 380, 420, 260, 140, 'modalix', { inSide: 'bottom', outSide: 'top' }),
     n('block', 'centerpoint', 720, 420, 260, 140, 'modalix', { inSide: 'bottom', outSide: 'top' }),
     n('block', 'sysmon', 1060, 420, 260, 140, 'modalix', { inSide: 'bottom', outSide: 'top' }),
-    n('frame', 'autoware', 60, 290, 410, 192, 'laptop', { look: 'ghost' }),
+    n('group', 'autoware', 60, 290, 410, 192, 'laptop', { look: 'ghost' }),
     n('block', 'fusion', 224, 44, 170, 56, 'autoware', { look: 'ghost' }),
     n('block', 'arbiter', 224, 120, 170, 56, 'autoware', { look: 'ghost' }),
     n('block', 'planning', 16, 82, 170, 56, 'autoware', { look: 'ghost' }),
@@ -101,7 +101,7 @@ const OVERVIEW: NeatDiagram = {
 
 const YOLOX_MULTI: NeatDiagram = {
   nodes: [
-    n('frame', 'yolox_multi', 0, 0, 1384, 592, undefined, { inSide: 'bottom', outSide: 'top' }),
+    n('group', 'yolox_multi', 0, 0, 1384, 592, undefined, { inSide: 'bottom', outSide: 'top' }),
     n('block', 'yolox_multi.slots', 40, 392, 184, 92, 'yolox_multi'),
     n('block', 'yolox_multi.decoder', 264, 80, 184, 92, 'yolox_multi'),
     n('block', 'yolox_multi.preprocess', 488, 184, 184, 92, 'yolox_multi'),
@@ -145,7 +145,7 @@ const YOLOX_MULTI: NeatDiagram = {
 
 const TRAFFIC_LIGHT: NeatDiagram = {
   nodes: [
-    n('frame', 'traffic_light', 0, 0, 1384, 316, undefined, { inSide: 'bottom', outSide: 'top' }),
+    n('group', 'traffic_light', 0, 0, 1384, 316, undefined, { inSide: 'bottom', outSide: 'top' }),
     n('block', 'traffic_light.slot', 40, 184, 184, 92, 'traffic_light'),
     n('block', 'traffic_light.decode', 264, 184, 184, 92, 'traffic_light'),
     n('block', 'traffic_light.detector', 488, 80, 184, 92, 'traffic_light'),
@@ -184,7 +184,7 @@ const TRAFFIC_LIGHT: NeatDiagram = {
 
 const CENTERPOINT_FP32_BOTH: NeatDiagram = {
   nodes: [
-    n('frame', 'centerpoint', 0, 0, 2952, 488, undefined, { inSide: 'bottom', outSide: 'top' }),
+    n('group', 'centerpoint', 0, 0, 2952, 488, undefined, { inSide: 'bottom', outSide: 'top' }),
     n('block', 'centerpoint.slot', 40, 288, 184, 92, 'centerpoint'),
     n('block', 'centerpoint.densify', 264, 288, 184, 92, 'centerpoint'),
     n('block', 'centerpoint.voxelize', 488, 288, 184, 92, 'centerpoint'),
@@ -270,7 +270,7 @@ const CENTERPOINT_FP32_BOTH: NeatDiagram = {
 
 const CENTERPOINT_BF16_ENCODER: NeatDiagram = {
   nodes: [
-    n('frame', 'centerpoint', 0, 0, 2504, 488, undefined, { inSide: 'bottom', outSide: 'top' }),
+    n('group', 'centerpoint', 0, 0, 2504, 488, undefined, { inSide: 'bottom', outSide: 'top' }),
     n('block', 'centerpoint.slot', 40, 288, 184, 92, 'centerpoint'),
     n('block', 'centerpoint.densify', 264, 288, 184, 92, 'centerpoint'),
     n('block', 'centerpoint.voxelize', 488, 288, 184, 92, 'centerpoint'),
@@ -331,7 +331,7 @@ const CENTERPOINT_BF16_ENCODER: NeatDiagram = {
 
 const CENTERPOINT_BF16_BACKBONE: NeatDiagram = {
   nodes: [
-    n('frame', 'centerpoint', 0, 0, 2504, 488, undefined, { inSide: 'bottom', outSide: 'top' }),
+    n('group', 'centerpoint', 0, 0, 2504, 488, undefined, { inSide: 'bottom', outSide: 'top' }),
     n('block', 'centerpoint.slot', 40, 288, 184, 92, 'centerpoint'),
     n('block', 'centerpoint.densify', 264, 288, 184, 92, 'centerpoint'),
     n('block', 'centerpoint.voxelize', 488, 288, 184, 92, 'centerpoint'),
@@ -392,7 +392,7 @@ const CENTERPOINT_BF16_BACKBONE: NeatDiagram = {
 
 const CENTERPOINT_BF16_BOTH: NeatDiagram = {
   nodes: [
-    n('frame', 'centerpoint', 0, 0, 2056, 316, undefined, { inSide: 'bottom', outSide: 'top' }),
+    n('group', 'centerpoint', 0, 0, 2056, 316, undefined, { inSide: 'bottom', outSide: 'top' }),
     n('block', 'centerpoint.slot', 40, 184, 184, 92, 'centerpoint'),
     n('block', 'centerpoint.densify', 264, 184, 184, 92, 'centerpoint'),
     n('block', 'centerpoint.voxelize', 488, 184, 184, 92, 'centerpoint'),

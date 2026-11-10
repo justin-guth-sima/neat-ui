@@ -53,7 +53,7 @@ export function vflowGraph(overview: NeatDiagram, scene: Scene): VflowGraph {
   // Frames first, a frame after those it sits in (`behind`'s order): vflow needs a node's parent
   // before it.
   const frames = scene.drawn.behind
-    .filter(({ node }) => node.role === 'frame')
+    .filter(({ node }) => node.role === 'group')
     .map(({ node }) => placed('frame', node));
   const blocks = scene.drawn.front
     .filter(({ node }) => node.role === 'block')

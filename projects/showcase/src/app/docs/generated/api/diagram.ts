@@ -386,7 +386,7 @@ export const API: DocsEntry = {
         },
         {
           "name": "start",
-          "type": "NeatDiagramTip",
+          "type": "NeatDiagramMarker",
           "optional": true,
           "doc": [
             {
@@ -394,7 +394,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Its tip at "
+                  "text": "Its marker at "
                 },
                 {
                   "kind": "code",
@@ -418,7 +418,7 @@ export const API: DocsEntry = {
         },
         {
           "name": "end",
-          "type": "NeatDiagramTip",
+          "type": "NeatDiagramMarker",
           "optional": true,
           "doc": [
             {
@@ -426,7 +426,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Its tip at "
+                  "text": "Its marker at "
                 },
                 {
                   "kind": "code",
@@ -538,7 +538,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ", else the side facing the other end. The route and the label follow it. An end inside a frame stays on the frame's border nearest the node, as the node's sides do."
+                  "text": ", else the side facing the other end. The route and the label follow it. An end inside a group stays on the group's border nearest the node, as the node's sides do."
                 }
               ]
             }
@@ -875,29 +875,75 @@ export const API: DocsEntry = {
     },
     {
       "name": "NeatDiagramEdgeTipTemplate",
-      "kind": "template",
-      "selector": "ng-template[neatDiagramEdgeTip]",
+      "kind": "const",
+      "type": "typeof NeatDiagramEdgeTooltipTemplate",
       "doc": [
         {
           "kind": "paragraph",
           "spans": [
             {
               "kind": "text",
-              "text": "The tip of the edge under the pointer, by the pointer, in the popover's colors and kept inside the diagram's box:"
+              "text": "The old name of "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatDiagramEdgeTooltipTemplate",
+              "name": "NeatDiagramEdgeTooltipTemplate"
+            },
+            {
+              "kind": "text",
+              "text": ", kept so apps that import it keep working."
+            }
+          ]
+        }
+      ],
+      "deprecated": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Use "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatDiagramEdgeTooltipTemplate",
+              "name": "NeatDiagramEdgeTooltipTemplate"
+            },
+            {
+              "kind": "text",
+              "text": "; this name goes in a later release."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/templates.ts"
+    },
+    {
+      "name": "NeatDiagramEdgeTooltipTemplate",
+      "kind": "template",
+      "selector": "ng-template[neatDiagramEdgeTooltip], ng-template[neatDiagramEdgeTip]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The tooltip of the edge under the pointer, by the pointer, in the popover's colors and kept inside the diagram's box:"
             }
           ]
         },
         {
           "kind": "code",
           "language": "html",
-          "code": "<ng-template neatDiagramEdgeTip let-edge>\n  <b>{{ edge.label }}</b> {{ rate(edge.id) }} msg/s\n</ng-template>"
+          "code": "<ng-template neatDiagramEdgeTooltip let-edge>\n  <b>{{ edge.label }}</b> {{ rate(edge.id) }} msg/s\n</ng-template>"
         },
         {
           "kind": "paragraph",
           "spans": [
             {
               "kind": "text",
-              "text": "It follows a mouse or a pen, never touch (which has no hover), and is hidden from assistive technology: the diagram's hidden list says each edge in words, so a tip must not hold anything a reader needs that the list or a note does not say. An edge it renders nothing for shows no tip."
+              "text": "It follows a mouse or a pen, never touch (which has no hover), and is hidden from assistive technology: the diagram's hidden list says each edge in words, so a tooltip must not hold anything a reader needs that the list or a note does not say. An edge it renders nothing for shows no tooltip."
             }
           ]
         }
@@ -1182,6 +1228,23 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": "."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/model.ts"
+    },
+    {
+      "name": "NeatDiagramMarker",
+      "kind": "type",
+      "definition": "'none' | 'arrow' | 'dot'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How an edge ends: plain, with an arrowhead, or with a dot."
             }
           ]
         }
@@ -1942,7 +2005,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "One node of a diagram level: a frame, block, band or bracket ("
+              "text": "One node of a diagram level: a group, block, band or bracket ("
             },
             {
               "kind": "code",
@@ -2484,7 +2547,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatDiagramRole",
       "kind": "type",
-      "definition": "'frame' | 'block' | 'band' | 'bracket'",
+      "definition": "'group' | 'block' | 'band' | 'bracket' | 'frame'",
       "doc": [
         {
           "kind": "paragraph",
@@ -2495,7 +2558,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "code",
-              "text": "frame"
+              "text": "group"
             },
             {
               "kind": "text",
@@ -2523,7 +2586,31 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " spans a row of siblings below them (a curly line and a label)."
+              "text": " spans a row of siblings below them (a curly line and a label). "
+            },
+            {
+              "kind": "code",
+              "text": "frame"
+            },
+            {
+              "kind": "text",
+              "text": " is the old name of "
+            },
+            {
+              "kind": "code",
+              "text": "group"
+            },
+            {
+              "kind": "text",
+              "text": ", still drawn as one: deprecated, use "
+            },
+            {
+              "kind": "code",
+              "text": "group"
+            },
+            {
+              "kind": "text",
+              "text": "."
             }
           ]
         }
@@ -2587,14 +2674,43 @@ export const API: DocsEntry = {
     {
       "name": "NeatDiagramTip",
       "kind": "type",
-      "definition": "'none' | 'arrow' | 'dot'",
+      "definition": "NeatDiagramMarker",
       "doc": [
         {
           "kind": "paragraph",
           "spans": [
             {
               "kind": "text",
-              "text": "How an edge ends: plain, with an arrowhead, or with a dot."
+              "text": "The old name of "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatDiagramMarker",
+              "name": "NeatDiagramMarker"
+            },
+            {
+              "kind": "text",
+              "text": ", kept so apps that use it keep working."
+            }
+          ]
+        }
+      ],
+      "deprecated": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Use "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatDiagramMarker",
+              "name": "NeatDiagramMarker"
+            },
+            {
+              "kind": "text",
+              "text": "; this name goes in a later release."
             }
           ]
         }
@@ -2650,7 +2766,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; it fills the box the app gives it and clips what lies outside. Chips are the kit's status chips; a block's body, the notes' content and the tip of the edge under the pointer are the app's templates ("
+              "text": "; it fills the box the app gives it and clips what lies outside. Chips are the kit's status chips; a block's body, the notes' content and the tooltip of the edge under the pointer are the app's templates ("
             },
             {
               "kind": "code",
@@ -2670,7 +2786,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "code",
-              "text": "neatDiagramEdgeTip"
+              "text": "neatDiagramEdgeTooltip"
             },
             {
               "kind": "text",
@@ -2853,7 +2969,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " when a block's links are worth tracing too. An edge's tip shows whatever this is."
+                  "text": " when a block's links are worth tracing too. An edge's tooltip shows whatever this is."
                 }
               ]
             }
@@ -3026,7 +3142,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": the block as its frame at the origin, sized to its children with a padding, and everything inside the block, however deep, as placed (positions are relative to the parent, so nothing moves); the nodes the edges from inside reach, in a column left of the frame (senders) and right of it (receivers), vertically centered on it; and the edges with an end inside. A node that both sends and receives goes in the senders' column only, so it is on the level once. The outside nodes and the frame get their sides afresh (an overview's "
+              "text": ": the block as its group at the origin, sized to its children with a padding, and everything inside the block, however deep, as placed (positions are relative to the parent, so nothing moves); the nodes the edges from inside reach, in a column left of the group (senders) and right of it (receivers), vertically centered on it; and the edges with an end inside. A node that both sends and receives goes in the senders' column only, so it is on the level once. The outside nodes and the group get their sides afresh (an overview's "
             },
             {
               "kind": "code",
@@ -3042,7 +3158,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " suit its placement, not this one), and the frame opens nothing (it is the level). The diagram's notes are left behind: they are placed for it. A block that is not on the diagram or holds nothing gives an empty level, named once."
+              "text": " suit its placement, not this one), and the group opens nothing (it is the level). The diagram's notes are left behind: they are placed for it. A block that is not on the diagram or holds nothing gives an empty level, named once."
             }
           ]
         }

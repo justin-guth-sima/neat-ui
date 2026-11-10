@@ -28,14 +28,14 @@ import { BenchNote, NOTE_BOX } from './bench-note';
 import { startTransform } from './scene';
 import { vflowGraph } from './vflow-graph';
 
-/** The Autoware demo's setting: frames in a layer behind the edges. No virtualization. */
+/** The Autoware demo's setting: groups in a layer behind the edges. No virtualization. */
 const OPTIMIZATION: Optimization = { detachedGroupsLayer: true };
 
 /**
  * The fallback (design 3.1, `vflow`): ngx-vflow set up as the Autoware demo used it, drawing the
- * kit's scene (vflow-graph.ts): frames as SVG group templates, blocks and notes as HTML templates
+ * kit's scene (vflow-graph.ts): groups as SVG group templates, blocks and notes as HTML templates
  * with the kit block's and note's paint (vflow-host.css), each edge on the kit's route in its
- * color, line and tips (bound from the scene, not from vflow's path, which waits for vflow to
+ * color, line and end markers (bound from the scene, not from vflow's path, which waits for vflow to
  * measure the handles), and labels in vflow's HTML label template. The kit's own dot layer draws
  * over it, through `BenchDiagramContext` fed from vflow's viewport, so the dots cost the same on
  * both sides by construction.
@@ -86,7 +86,7 @@ const OPTIMIZATION: Optimization = { detachedGroupsLayer: true };
       >
         <ng-template let-ctx groupNode>
           <svg:rect
-            class="frame"
+            class="group"
             [attr.data-node]="ctx.data().node.id"
             [attr.width]="ctx.width() - 1"
             [attr.height]="ctx.height() - 1"
@@ -141,11 +141,16 @@ const OPTIMIZATION: Optimization = { detachedGroupsLayer: true };
             >
               <svg:path class="hit" [attr.d]="line.edge.path" />
               <svg:path class="line" [attr.d]="line.edge.path" />
-              @for (tip of line.edge.tips; track tip.end) {
-                @if (tip.shape === 'arrow') {
-                  <svg:path class="tip" [attr.d]="tip.d" />
+              @for (marker of line.edge.markers; track marker.end) {
+                @if (marker.shape === 'arrow') {
+                  <svg:path class="marker" [attr.d]="marker.d" />
                 } @else {
-                  <svg:circle class="tip" [attr.cx]="tip.cx" [attr.cy]="tip.cy" [attr.r]="tip.r" />
+                  <svg:circle
+                    class="marker"
+                    [attr.cx]="marker.cx"
+                    [attr.cy]="marker.cy"
+                    [attr.r]="marker.r"
+                  />
                 }
               }
             </svg:g>

@@ -6,7 +6,9 @@ describe('the diagram entry', () => {
       'NEAT_DIAGRAM_MESSAGE_DEFAULTS',
       'NeatDiagramAnimationSettings',
       'NeatDiagramBlockTemplate',
+      // The old name, deprecated, kept for apps that import it.
       'NeatDiagramEdgeTipTemplate',
+      'NeatDiagramEdgeTooltipTemplate',
       'NeatDiagramLegend',
       'NeatDiagramMessages',
       'NeatDiagramNoteTemplate',

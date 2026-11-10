@@ -276,7 +276,7 @@ is covered by `check:dist` alone. Why: apps install the kit, never the bench's t
 **The diagram's bench seam is an agreed exception** to exporting only what an app needs.
 `projects/neat-ui/diagram/src/bench-seam.ts` re-exports, for the bench alone, the internals it
 needs to draw the kit's picture with vflow and put the kit's own dot layer over it: `drawLevel`
-(the routes, tips and colors), `placeNotes`, `levelExtent`, `fitTransform` and `ZOOM_LIMITS` (the
+(the routes, end markers and colors), `placeNotes`, `levelExtent`, `fitTransform` and `ZOOM_LIMITS` (the
 same notes and the same start), the messaging layer's context token and its types, `DOT_FRAME_PROBE`
 and `MAX_DOTS`. Why not public: a testing entry would be a promise to every app, and bench copies
 of the routing or the painter would measure different code. It is not in `public-api.ts`, so
@@ -392,7 +392,7 @@ the whole in the kit's look.
 - **The model** (`model.ts`) is plain data an app may recompute on every poll. A `NeatDiagramSet`
   is an overview and its drill-down levels, each a `NeatDiagram` of nodes, edges and notes.
   Coordinates are diagram units (px at zoom 1), and a node's `x` and `y` are relative to its
-  `parent`. A node's `role` is `frame` (holds nodes, behind the edges, its title a size above a
+  `parent`. A node's `role` is `group` (holds nodes, behind the edges, its title a size above a
   block's label), `block` (a card), `band` (a cable or a bus) or `bracket` (a brace under a row of
   siblings); its `look` is `default`, `accent`, `dashed`, `ghost` (a part not running) or `muted`.
   Its `chips` are the kit's status chips, drawn tinted. Its `stale` (a block's or a bracket's
@@ -404,14 +404,14 @@ the whole in the kit's look.
   `info`, `A65` in `neutral`. An edge's `series` is 1 to 8, the charts' `--neat-series-1` to `-8`
   (counted from 1, unlike `NeatSeriesSwatch`'s index from 0, and converted in one place,
   `seriesIndex` in `drawing.ts`); unset, or on a `ghost` line, it is muted. Its `line` is `solid`,
-  `dashed` or `ghost`, its tips `none`, `arrow` or `dot` (unset: none at the start, an arrow at the
+  `dashed` or `ghost`, its end markers `none`, `arrow` or `dot` (unset: none at the start, an arrow at the
   end), and its `label` a small mono chip at `labelAt` along it. A note is anchored to its `edges`
   (the mean of their points at `along`, 0.5 unset) or to an `anchor` point, placed at `x`/`y` or
   moved `dx`/`dy` from the anchor, and joined to it by a dotted leader that meets the box's nearest
   point, or its center with `leaderTo: 'center'`. A node's, an edge's and a note's `data` is the
   app's and never read. A part whose ids name nothing (an edge's end, a node's parent, a block's
   `opens`, a note's edge) is left out and named once in dev mode; the diagram never throws for it.
-- **The drawing:** `neat-diagram` is a `figure` named by its `label`. Frames and bands are
+- **The drawing:** `neat-diagram` is a `figure` named by its `label`. Groups and bands are
   positioned HTML behind one SVG of edges; blocks, brackets, edge labels and notes are HTML in front
   of it; one container holds them all, which is what pan and zoom move. Every part is keyed by its
   id, so an equal diagram recomputed on every poll changes nothing in the DOM and a moved node is
@@ -426,14 +426,14 @@ the whole in the kit's look.
   the outer one turns higher, and a route behind takes the longer stub at one end and the shorter
   at the other, as an offset staircase does. Where the kit's routing is not what an app wants, an
   edge says it itself: `fromAt` and `toAt` pin its ends along their sides (0 to 1), `via` gives the
-  corners it runs through (the kit then spreads no corridor or loop for it, and the label, tips,
+  corners it runs through (the kit then spreads no corridor or loop for it, and the label, end markers,
   hover and messages follow those points), and `labelSide` (`on`, `above`, `below`, `left`,
   `right`) with `labelOffset` places its label beside the line, the dots' covers following the
-  label's box; an edge between a frame and a node inside it runs
-  inside the frame, from the frame's border nearest the node (the frame's own `outSide` and `inSide`
+  label's box; an edge between a group and a node inside it runs
+  inside the group, from the group's border nearest the node (the group's own `outSide` and `inSide`
   are for the nodes around it). An edge end goes on the side its edge's `fromSide` or `toSide`
   names, else its node's `outSide` or `inSide`, else the side facing the other end; the route and
-  the label follow it (an end inside a frame stays on the frame's border). An edge's color comes
+  the label follow it (an end inside a group stays on the group's border). An edge's color comes
   from `lineColor` in `drawing.ts`, through `seriesIndex` and the kit's `seriesToken`, and each
   line look is stated once in `lines.css`, which the edges and the legend's samples both read. A
   visually hidden list after the drawing says the level's nodes (label, detail, chips) and edges
@@ -446,7 +446,7 @@ the whole in the kit's look.
   where it would catch the wheel meant for the page.
 - **The app's content comes in through templates, one per kind, each given its part as
   `$implicit`:** `ng-template[neatDiagramBlock]` (a block's body below its label),
-  `ng-template[neatDiagramNote]` (a note's content) and `ng-template[neatDiagramEdgeTip]` (the tip
+  `ng-template[neatDiagramNote]` (a note's content) and `ng-template[neatDiagramEdgeTooltip]` (the tooltip
   of the edge under a mouse or a pen). The app matches parts inside the template, by id or by `data`
   (`@if (note.id === 'rate') { … }`): one template per kind rather than one per id keeps the
   diagram's input plain data. A bracket renders the block template too, after its label and detail
@@ -454,16 +454,16 @@ the whole in the kit's look.
   in its card below the label, and the card keeps the size the node gives it, so the app sizes `h`
   (and `w`) for the body it renders. A block the template renders nothing for keeps its card as it
   is, a note it renders nothing for is not drawn (nor its leader; without the template no note is),
-  and an edge it renders nothing for shows no tip. The tip sits by the pointer in the popover's
+  and an edge it renders nothing for shows no tooltip. The tooltip sits by the pointer in the popover's
   colors, kept inside the box, and is hidden from assistive technology, so it must hold nothing a
   reader needs that the hidden list or a note does not say.
 - **Focus:** by `highlight`, `'none'` by default, a block or an edge under the pointer, or a block
   whose open button has the keyboard's focus (`:focus-visible`; a press that focuses it does not
   count), stays as it is with what it is joined to (a block's edges, an edge's ends, the notes on
-  those edges) while the rest but the frames fades to 0.25 (`hover.ts`). `'edges'` lets only an
+  those edges) while the rest but the groups fades to 0.25 (`hover.ts`). `'edges'` lets only an
   edge do this, `'all'` a block too. Why none: dimming everything on every pass of the pointer is
   noise unless the drawing is read by its links; an app opts in where it is (the Autoware demo
-  limited it to links). The edge's tip does not depend on it. A note anchored by `anchor` alone
+  limited it to links). The edge's tooltip does not depend on it. A note anchored by `anchor` alone
   belongs to no edge, so it is never in focus with one and fades whenever anything is in focus.
   Touch and a drag put nothing in focus.
 - **An opening block's border** is one 2px primary border with no box-shadow ring, and its padding
@@ -489,7 +489,7 @@ the whole in the kit's look.
   the focus on the box, and a part the keyboard focuses is panned into view (the box clips with
   `overflow: clip` and never scrolls). `neatDrillDownLevel(diagram, blockId)` places the level a
   block opens from a diagram that holds the block's insides, as the demo does: the block as the
-  frame, what it holds inside as placed, the nodes it exchanges edges with in a column left
+  group, what it holds inside as placed, the nodes it exchanges edges with in a column left
   (senders) and right (receivers), at the demo's sizes; an app may use it or place a level by hand
   (the drill-down example, `examples/drill-down/`, uses it, from a copy of the pipeline that has
   the Detector's steps).

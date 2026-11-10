@@ -11,12 +11,17 @@ import type { NeatTone } from '@sima/neat-ui';
 export type NeatDiagramSide = 'left' | 'right' | 'top' | 'bottom';
 
 /**
- * What a node is in the drawing: `frame` holds other nodes (drawn behind the edges, its title and
+ * What a node is in the drawing: `group` holds other nodes (drawn behind the edges, its title and
  * detail top left), `block` is a card (label, detail, chips), `band` a strip such as a cable or a
  * bus (its label along it), `bracket` spans a row of siblings below them (a curly line and a
- * label).
+ * label). `frame` is the old name of `group`, still drawn as one: deprecated, use `group`.
  */
-export type NeatDiagramRole = 'frame' | 'block' | 'band' | 'bracket';
+export type NeatDiagramRole = 'group' | 'block' | 'band' | 'bracket' | 'frame';
+
+/** Whether `node` is a group: `role: 'group'`, or the deprecated `'frame'` it used to be called. */
+export function isGroup(node: { readonly role: NeatDiagramRole } | undefined): boolean {
+  return node?.role === 'group' || node?.role === 'frame';
+}
 
 /**
  * How a node is drawn within its role: `accent` is the primary tint (e.g. the main device),
@@ -26,7 +31,14 @@ export type NeatDiagramRole = 'frame' | 'block' | 'band' | 'bracket';
 export type NeatDiagramLook = 'default' | 'accent' | 'dashed' | 'ghost' | 'muted';
 
 /** How an edge ends: plain, with an arrowhead, or with a dot. */
-export type NeatDiagramTip = 'none' | 'arrow' | 'dot';
+export type NeatDiagramMarker = 'none' | 'arrow' | 'dot';
+
+/**
+ * The old name of `NeatDiagramMarker`, kept so apps that use it keep working.
+ *
+ * @deprecated Use `NeatDiagramMarker`; this name goes in a later release.
+ */
+export type NeatDiagramTip = NeatDiagramMarker;
 
 /**
  * What dims the rest of a diagram while the pointer or the keyboard is on a part: `none`, nothing;
@@ -63,7 +75,7 @@ export interface NeatDiagramChip {
 }
 
 /**
- * One node of a diagram level: a frame, block, band or bracket (`role`), placed by hand at `x`,
+ * One node of a diagram level: a group, block, band or bracket (`role`), placed by hand at `x`,
  * `y` with the size `w` by `h`, in diagram units. A node with a `parent` sits inside it and is
  * placed relative to it; a block with `opens` is a button that opens that level. The kit never
  * reads `data`: it is the app's, handed back to the app's templates.
@@ -117,10 +129,10 @@ export interface NeatDiagramEdge {
   readonly series?: number;
   /** Unset: `solid`. */
   readonly line?: NeatDiagramLine;
-  /** Its tip at `from`; unset, `none`. */
-  readonly start?: NeatDiagramTip;
-  /** Its tip at `to`; unset, `arrow`. */
-  readonly end?: NeatDiagramTip;
+  /** Its marker at `from`; unset, `none`. */
+  readonly start?: NeatDiagramMarker;
+  /** Its marker at `to`; unset, `arrow`. */
+  readonly end?: NeatDiagramMarker;
   /** A short label on the edge, at `labelAt`. */
   readonly label?: string;
   /** Where the label sits along the edge, 0 at `from` to 1 at `to`; unset, 0.5. */
@@ -128,7 +140,7 @@ export interface NeatDiagramEdge {
   /**
    * The side of `from` this edge leaves on, over the node's `outSide` for this edge only; unset,
    * the node's `outSide`, else the side facing the other end. The route and the label follow it.
-   * An end inside a frame stays on the frame's border nearest the node, as the node's sides do.
+   * An end inside a group stays on the group's border nearest the node, as the node's sides do.
    */
   readonly fromSide?: NeatDiagramSide;
   /** The side of `to` this edge enters on, as `fromSide` is for the leaving end (`inSide`). */

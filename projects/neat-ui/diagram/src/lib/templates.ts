@@ -3,7 +3,7 @@ import type { NeatDiagramEdge, NeatDiagramNode, NeatDiagramNote } from './model'
 
 /*
  * The app's content in a diagram: one template for every block's body, one for every note and one
- * for the tip of the edge under the pointer, each given the part it renders for, so the app
+ * for the tooltip of the edge under the pointer, each given the part it renders for, so the app
  * decides per part (by id, by its `data`) what it shows. One template per kind rather than one per
  * id keeps the diagram's input plain data that an app can recompute on every poll.
  */
@@ -13,8 +13,8 @@ export interface NeatDiagramBlockContext {
   readonly $implicit: NeatDiagramNode;
 }
 
-/** What the edge tip's template is given: the edge. */
-export interface NeatDiagramEdgeTipContext {
+/** What the edge tooltip's template is given: the edge. */
+export interface NeatDiagramEdgeTooltipContext {
   readonly $implicit: NeatDiagramEdge;
 }
 
@@ -84,33 +84,43 @@ export class NeatDiagramNoteTemplate {
 }
 
 /**
- * The tip of the edge under the pointer, by the pointer, in the popover's colors and kept inside
+ * The tooltip of the edge under the pointer, by the pointer, in the popover's colors and kept inside
  * the diagram's box:
  *
  * ```html
- * <ng-template neatDiagramEdgeTip let-edge>
+ * <ng-template neatDiagramEdgeTooltip let-edge>
  *   <b>{{ edge.label }}</b> {{ rate(edge.id) }} msg/s
  * </ng-template>
  * ```
  *
  * It follows a mouse or a pen, never touch (which has no hover), and is hidden from assistive
- * technology: the diagram's hidden list says each edge in words, so a tip must not hold anything
+ * technology: the diagram's hidden list says each edge in words, so a tooltip must not hold anything
  * a reader needs that the list or a note does not say. An edge it renders nothing for shows no
- * tip.
+ * tooltip.
  */
-@Directive({ selector: 'ng-template[neatDiagramEdgeTip]' })
-export class NeatDiagramEdgeTipTemplate {
+// `neatDiagramEdgeTip` is its old name, still matched: deprecated, use `neatDiagramEdgeTooltip`.
+@Directive({ selector: 'ng-template[neatDiagramEdgeTooltip], ng-template[neatDiagramEdgeTip]' })
+export class NeatDiagramEdgeTooltipTemplate {
   /**
    * @internal The template the diagram renders; apps never read it.
    */
-  readonly template = inject<TemplateRef<NeatDiagramEdgeTipContext>>(TemplateRef);
+  readonly template = inject<TemplateRef<NeatDiagramEdgeTooltipContext>>(TemplateRef);
 
   static ngTemplateContextGuard(
-    _directive: NeatDiagramEdgeTipTemplate,
+    _directive: NeatDiagramEdgeTooltipTemplate,
     // Only its type is read: the guard tells the template compiler what `let-` variables hold.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     context: unknown,
-  ): context is NeatDiagramEdgeTipContext {
+  ): context is NeatDiagramEdgeTooltipContext {
     return true;
   }
 }
+
+/**
+ * The old name of `NeatDiagramEdgeTooltipTemplate`, kept so apps that import it keep working.
+ *
+ * @deprecated Use `NeatDiagramEdgeTooltipTemplate`; this name goes in a later release.
+ */
+export const NeatDiagramEdgeTipTemplate = NeatDiagramEdgeTooltipTemplate;
+/** @deprecated Use `NeatDiagramEdgeTooltipTemplate`; this name goes in a later release. */
+export type NeatDiagramEdgeTipTemplate = NeatDiagramEdgeTooltipTemplate;

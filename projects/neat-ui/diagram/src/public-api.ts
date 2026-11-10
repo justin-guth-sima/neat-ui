@@ -25,6 +25,7 @@ export type {
   NeatDiagramNote,
   NeatDiagramRole,
   NeatDiagramSet,
+  NeatDiagramMarker,
   NeatDiagramSide,
   NeatDiagramTip,
 } from './lib/model';
@@ -46,5 +47,6 @@ export { NeatDiagramRateCard } from './lib/messages/rate-card';
 export {
   NeatDiagramBlockTemplate,
   NeatDiagramEdgeTipTemplate,
+  NeatDiagramEdgeTooltipTemplate,
   NeatDiagramNoteTemplate,
 } from './lib/templates';

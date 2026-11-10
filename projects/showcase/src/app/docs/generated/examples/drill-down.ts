@@ -63,7 +63,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'top'"],["text",",\n    outSide: "],
           ["string","'bottom'"],["text",",\n    x: 0,\n    y: 100,\n    w: 170,\n    h: 46,\n  },\n  { id: "],
           ["string","'tracker'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Tracker'"],["text",", inSide: "],["string","'top'"],["text",", x: 0, y: 200, w: 170, h: 46 },\n];\n\n"],
-          ["comment","/** A step of the Detector, in a row inside it below the level frame's title. */"],["text","\n"],
+          ["comment","/** A step of the Detector, in a row inside it below the level group's title. */"],["text","\n"],
           ["keyword","const"],["text"," step = (id: "],["keyword","string"],["text",", label: "],["keyword","string"],["text",", i: "],["keyword","number"],["text","): NeatDiagramNode => ({\n  id,\n  role: "],
           ["string","'block'"],["text",",\n  label,\n  parent: "],
           ["string","'detector'"],["text",",\n  x: 20 + i * 170,\n  y: 72,\n  w: 130,\n  h: 40,\n});\n\n"],

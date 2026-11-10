@@ -15,14 +15,15 @@ import type {
   NeatDiagramLook,
   NeatDiagramNode,
   NeatDiagramSide,
-  NeatDiagramTip,
+  NeatDiagramMarker,
 } from './model';
+import { isGroup } from './model';
 import { firstOfEachId, reportLeftOut } from './report';
 import { pointAlong, type Point } from './route';
 
 /*
  * A level as the renderer draws it: each node at its place in the level with its look, each edge
- * with its path, color, tips and label. Pure, so what is drawn is decided (and tested) apart from
+ * with its path, color, markers and label. Pure, so what is drawn is decided (and tested) apart from
  * the DOM; the component's template only binds it.
  */
 
@@ -38,8 +39,8 @@ export interface DrawnNode {
   readonly brace: string | null;
 }
 
-/** An edge's tip: an arrowhead (a closed path) or a dot, at the edge's `start` or `end`. */
-export type DrawnTip =
+/** An edge's marker: an arrowhead (a closed path) or a dot, at the edge's `start` or `end`. */
+export type DrawnMarker =
   | { readonly end: 'start' | 'end'; readonly shape: 'arrow'; readonly d: string }
   | {
       readonly end: 'start' | 'end';
@@ -52,15 +53,15 @@ export type DrawnTip =
 /** An edge as drawn. */
 export interface DrawnEdge {
   readonly id: string;
-  /** The app's edge, for its tip's template and its words. */
+  /** The app's edge, for its tooltip's template and its words. */
   readonly edge: NeatDiagramEdge;
   readonly path: string;
   /** Its route's corners, ends included (`EdgeLayout.points`): what the messages sample. */
   readonly points: readonly Point[];
-  /** The CSS color its line and tips take. */
+  /** The CSS color its line and markers take. */
   readonly color: string;
   readonly line: NeatDiagramLine;
-  readonly tips: readonly DrawnTip[];
+  readonly markers: readonly DrawnMarker[];
   /**
    * Its label: the point it stands at (its route's point at `labelAt`, moved `LABEL_GAP` off the
    * line for a side and by `labelOffset`), and which of its edges or its middle is there: the
@@ -75,7 +76,7 @@ export interface DrawnEdge {
 }
 
 export interface DrawnLevel {
-  /** Frames and bands, drawn behind the edges; a frame after the frames it sits in. */
+  /** Groups and bands, drawn behind the edges; a group after the groups it sits in. */
   readonly behind: readonly DrawnNode[];
   /** Blocks and brackets, drawn in front of the edges. */
   readonly front: readonly DrawnNode[];
@@ -90,7 +91,7 @@ export const BRACE_HEIGHT = 18;
 /** An arrowhead's length along its edge and half its width (diagram units). */
 const ARROW_LENGTH = 6;
 const ARROW_HALF_WIDTH = 3;
-/** A dot tip's radius (diagram units). */
+/** A dot marker's radius (diagram units). */
 const DOT_RADIUS = 3;
 
 /**
@@ -115,7 +116,7 @@ export function drawLevel(diagram: NeatDiagram, levels: ReadonlySet<string>): Dr
   };
   const drawn = nodes.map((node) => drawNode(node, rects.get(node.id) as Rect, levels));
   const behind = drawn
-    .filter(({ node }) => node.role === 'frame' || node.role === 'band')
+    .filter(({ node }) => isGroup(node) || node.role === 'band')
     .map((part, order) => ({ part, order, depth: depth(part.node) }))
     .sort((a, b) => a.depth - b.depth || a.order - b.order)
     .map(({ part }) => part);
@@ -164,10 +165,10 @@ function bracePath(w: number): string {
 }
 
 function drawEdge(edge: NeatDiagramEdge, layout: EdgeLayout): DrawnEdge {
-  const tips = [
-    tip(edge.start ?? 'none', 'start', layout.source, layout.sourceSide),
-    tip(edge.end ?? 'arrow', 'end', layout.target, layout.targetSide),
-  ].filter((t): t is DrawnTip => t !== null);
+  const markers = [
+    marker(edge.start ?? 'none', 'start', layout.source, layout.sourceSide),
+    marker(edge.end ?? 'arrow', 'end', layout.target, layout.targetSide),
+  ].filter((t): t is DrawnMarker => t !== null);
   return {
     id: edge.id,
     edge,
@@ -175,7 +176,7 @@ function drawEdge(edge: NeatDiagramEdge, layout: EdgeLayout): DrawnEdge {
     points: layout.points,
     color: lineColor(edge.series, edge.line, `edge "${edge.id}"`),
     line: edge.line ?? 'solid',
-    tips,
+    markers,
     label:
       edge.label === undefined
         ? null
@@ -313,16 +314,16 @@ export function describeLevel(level: DrawnLevel): {
 const n = (v: number) => Math.round(v * 100) / 100;
 
 /**
- * An edge's tip at its port on `side`: an arrowhead pointing into the node, its point on the
+ * An edge's marker at its port on `side`: an arrowhead pointing into the node, its point on the
  * port; or a dot against the side, outside it, so the node (drawn over the edges) hides none of
  * it.
  */
-function tip(
-  kind: NeatDiagramTip,
+function marker(
+  kind: NeatDiagramMarker,
   end: 'start' | 'end',
   port: Point,
   side: NeatDiagramSide,
-): DrawnTip | null {
+): DrawnMarker | null {
   const { t, n: out } = SIDE_AXES[side];
   if (kind === 'dot') {
     return {

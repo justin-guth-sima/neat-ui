@@ -36,7 +36,7 @@ describe('VflowHost', () => {
     const { flow } = await render();
     const element = flow.nativeElement as HTMLElement;
 
-    expect(element.querySelectorAll('rect.frame')).toHaveLength(D1.frames);
+    expect(element.querySelectorAll('rect.group')).toHaveLength(D1.frames);
     expect(element.querySelectorAll('foreignObject .block')).toHaveLength(D1.blocks);
     expect(element.querySelectorAll('foreignObject .note bench-note')).toHaveLength(D1.notes);
     expect(element.querySelectorAll('g.edge path.line')).toHaveLength(D1.edges);
@@ -47,10 +47,10 @@ describe('VflowHost', () => {
     const element = flow.nativeElement as HTMLElement;
     const { nodes } = TestBed.inject(BenchLoad).synth().diagram.overview;
 
-    const frames = Array.from(element.querySelectorAll('rect.frame')).map((frame) =>
+    const frames = Array.from(element.querySelectorAll('rect.group')).map((frame) =>
       frame.getAttribute('data-node'),
     );
-    expect(frames).toEqual(nodes.filter((node) => node.role === 'frame').map((node) => node.id));
+    expect(frames).toEqual(nodes.filter((node) => node.role === 'group').map((node) => node.id));
   });
 
   it('draws each edge on the kit’s route, in its color and line', async () => {
@@ -63,7 +63,7 @@ describe('VflowHost', () => {
       expect(group.querySelector('path.line')?.getAttribute('d')).toBe(edge.path);
       expect(group.getAttribute('data-line')).toBe(edge.line);
       expect(group.style.getPropertyValue('--edge')).toBe(edge.color);
-      expect(group.querySelectorAll('.tip')).toHaveLength(edge.tips.length);
+      expect(group.querySelectorAll('.marker')).toHaveLength(edge.markers.length);
     }
   });
 

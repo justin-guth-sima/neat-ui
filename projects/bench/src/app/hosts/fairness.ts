@@ -104,7 +104,7 @@ function styleOf(element: Element): StyleSample {
 
 /**
  * Reads `root` as the host `host` draws it, at `transform`, with `box` the zoom box on the page.
- * The synthetic diagram has frames and blocks only (`.frame`, `.block`), and notes (`.note`); the
+ * The synthetic diagram has frames and blocks only (`.group`, `.block`), and notes (`.note`); the
  * kit repeats a note's id on its leader and an edge's on its label, which are not boxes.
  */
 export function fingerprintOf(
@@ -123,7 +123,7 @@ export function fingerprintOf(
     };
   };
   const boxes: Record<string, UnitRect> = {};
-  for (const element of root.querySelectorAll('.frame[data-node], .block[data-node]')) {
+  for (const element of root.querySelectorAll('.group[data-node], .block[data-node]')) {
     boxes[`node:${element.getAttribute('data-node')}`] = unit(element);
   }
   for (const element of root.querySelectorAll('.note[data-note]')) {

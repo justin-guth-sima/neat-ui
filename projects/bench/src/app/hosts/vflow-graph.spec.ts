@@ -44,11 +44,11 @@ describe('vflowGraph', () => {
   });
 
   it('draws frames as SVG groups and blocks as HTML, as the demo did, frames first', () => {
-    const frames = overview.nodes.filter((node) => node.role === 'frame');
+    const frames = overview.nodes.filter((node) => node.role === 'group');
     for (const node of overview.nodes) {
       const drawn = byId.get(node.id)!;
-      expect(drawn.type).toBe(node.role === 'frame' ? 'template-group' : 'html-template');
-      expect(dataOf(drawn)).toEqual({ kind: node.role === 'frame' ? 'frame' : 'block', node });
+      expect(drawn.type).toBe(node.role === 'group' ? 'template-group' : 'html-template');
+      expect(dataOf(drawn)).toEqual({ kind: node.role === 'group' ? 'frame' : 'block', node });
     }
     expect(nodes.slice(0, frames.length).map((node) => node.id)).toEqual(frames.map((f) => f.id));
   });
