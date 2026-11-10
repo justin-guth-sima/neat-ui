@@ -210,13 +210,15 @@ describe('topicMarkdown', () => {
 });
 
 describe('openingOf', () => {
-  it('takes the first paragraph, and the code it leads into with a colon', () => {
+  it('takes the first paragraph, and the usage right after it', () => {
     const use = { kind: 'code', language: 'html', code: '<x />' };
-    assert.deepEqual(openingOf([paragraph(text('Used as:')), use, paragraph(text('More.'))]), [
-      paragraph(text('Used as:')),
+    assert.deepEqual(openingOf([paragraph(text('A thing.')), use, paragraph(text('More.'))]), [
+      paragraph(text('A thing.')),
       use,
     ]);
-    assert.deepEqual(openingOf([paragraph(text('A thing.')), use]), [paragraph(text('A thing.'))]);
+    assert.deepEqual(openingOf([paragraph(text('A thing.')), paragraph(text('More.')), use]), [
+      paragraph(text('A thing.')),
+    ]);
     assert.deepEqual(openingOf([use]), []);
   });
 });

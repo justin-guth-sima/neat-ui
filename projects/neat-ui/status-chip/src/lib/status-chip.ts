@@ -62,15 +62,24 @@ const BUTTON_CLASSES =
   'shrink-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50';
 
 /**
- * A short status on one of the theme's status fills, the text being the content:
- * `<neat-status-chip tone="success">Live</neat-status-chip>`. For a state in a list's cell or over
- * a panel (Live, Idle, External), or a fact to note beside a value (a codec that cannot be
- * decoded). `highlight` is for a state that is none of the statuses but should stand out (a stream
- * that someone else publishes); a `neat-select-list` row can take the same tone as its chip
- * (`rowTone`). The words are the app's; the color repeats them and is never the only way a state
- * is told. A chip truncates rather than widen the cell or bar that holds it. `variant="tinted"`
- * softens the chip to its tone's color on a tint; a tinted chip belongs on the card or the page,
- * not on a toned list row, whose selected fill is the same tint.
+ * A short status on a status color, such as Live or Idle.
+ *
+ * ```html
+ * <neat-status-chip tone="success">Live</neat-status-chip>
+ * ```
+ *
+ * Use it for a state in a list's cell or over a panel (Live, Idle, External), or for a fact beside
+ * a value (a codec that cannot be decoded). The words are the app's. The color repeats them and is
+ * never the only way a state is told.
+ *
+ * `highlight` is for a state that is none of the statuses but should stand out, such as a stream
+ * that someone else publishes. A `neat-select-list` row can take the same tone as its chip, with
+ * `rowTone`.
+ *
+ * A chip truncates rather than widen the cell or bar that holds it.
+ *
+ * `variant="tinted"` softens the chip to its tone's color on a tint. A tinted chip belongs on a
+ * card or the page, not on a toned list row, whose selected fill is the same tint.
  */
 @Component({
   selector: 'neat-status-chip',

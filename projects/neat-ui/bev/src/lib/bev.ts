@@ -80,26 +80,40 @@ const TOKENS = {
 } as const;
 
 /**
- * A bird's-eye view around a vehicle: what it sees (`frame`: objects, points, lines and grids),
- * what the app draws under and over it (`background`, `foreground`), and rings in a circle or a metric grid in a rectangle to read
- * distances by (`shape`), in the vehicle's own frame (meters, x forward and y left, forward up on
- * the screen). The data and the guides stop at the shape's edge, or run on over the whole box
- * (`overflow`); the guides lie over the data or under it (`guides`). Labels pick colors as the
- * video overlays' classes do, from the page's class colors, so "car" has one color in the view
- * and in every tile; `styles` sets a label's color and line as the tiles' class rows do. Hovering
- * an object, or tapping it, reads it out beside it: its label, its distance from the vehicle and
- * its `text`. With `zoom`, wheel, pinch and drag zoom and pan it, the shape and all, within
- * `zoomExtent` (in to four times the default by default) and over what the default view shows and
- * `panBounds`; with focus, the arrows pan, `+` and `-` zoom
- * and `0` resets, as a button does while it is zoomed. It draws on one canvas outside change
- * detection, at the next animation frame after anything changes and never while the page is
- * hidden. A screen reader hears it as a figure named by `label` with a summary of what it shows
- * ("18 car, 51 pedestrian within 60 m"), which changes at most once a second. Give it a height, or
- * it takes the shape's proportions.
+ * A bird's-eye view: what a vehicle sees around it, drawn from above.
  *
  * ```html
  * <neat-bev [frame]="frame()" [background]="map" [range]="60" zoom />
  * ```
+ *
+ * It draws three things:
+ * - what the vehicle sees, `frame`: objects, points, lines and grids;
+ * - what the app draws under it and over it, `background` and `foreground`;
+ * - guides to read distances by, `shape`: rings in a circle, or a metric grid in a rectangle.
+ *
+ * Positions are in the vehicle's own frame: meters, x forward and y to the left. Forward is up on
+ * the screen. Give the view a height, or it takes the shape's proportions.
+ *
+ * The data and the guides stop at the shape's edge, or run on over the whole box with `overflow`.
+ * The guides lie over the data, or under it with `guides`.
+ *
+ * Labels take their colors from the page's class colors, as the video overlays' classes do, so
+ * "car" has one color in the view and in every tile. `styles` sets a label's color and line, as
+ * the tiles' class rows do.
+ *
+ * Hovering an object, or tapping it, reads it out beside it: its label, its distance from the
+ * vehicle and its `text`.
+ *
+ * With `zoom`, the wheel, a pinch and a drag zoom and pan the view, the shape and all. The zoom
+ * stays within `zoomExtent`, up to four times the default view unless it says otherwise. Panning
+ * stays within what the default view shows and `panBounds`. With focus, the arrow keys pan, `+` and
+ * `-` zoom, and `0` resets, as the reset button does while the view is zoomed.
+ *
+ * A screen reader hears the view as a figure named by `label`, with a summary of what it shows
+ * ("18 car, 51 pedestrian within 60 m"). The summary changes at most once a second.
+ *
+ * It draws on one canvas, outside change detection: at the next animation frame after anything
+ * changes, and never while the page is hidden.
  */
 @Component({
   selector: 'neat-bev',

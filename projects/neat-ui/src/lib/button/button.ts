@@ -147,21 +147,21 @@ const PRESSED =
 const HELD = 'aria-disabled:cursor-not-allowed aria-disabled:opacity-50';
 
 /**
- * A button or link styled as a kit button. Content is the label and/or a `neat-icon`; an
- * icon-only button needs an `aria-label` (and usually a `neatTooltip` with the same text).
+ * A button, or a link that looks like one.
  *
- * Built from Spartan's brain primitive and helm's class map rather than on helm's directive:
- * every host directive of a public directive becomes public API, and helm stays internal.
- * The classes go through Angular's `[class]` binding, not helm's `classes()`, which rewrites
- * `className` and can drop a `[class.x]` binding that changes in the same render.
+ * ```html
+ * <button neatButton type="button" (click)="save()">Save</button>
+ * ```
  *
- * A toggle button binds `pressed`: it sets `aria-pressed` and the pressed look. Leave it undefined
- * on a button that is not a toggle, since `aria-pressed="false"` would announce one.
+ * Its content is the label, a `neat-icon`, or both. An icon-only button needs an `aria-label`, and
+ * usually a `neatTooltip` with the same text.
  *
- * `[attr.aria-disabled]="true"` dims the button with a not-allowed cursor while it stays focusable
- * and its tooltip still opens on hover, for a button that waits and must not drop the focus. The
- * kit only styles it: a click, Enter and Space all still fire `click`, so the handler ignores
- * presses while it waits.
+ * A toggle button binds `pressed`, which sets `aria-pressed` and the pressed look. Leave `pressed`
+ * unset on a button that is no toggle: `aria-pressed="false"` would announce it as one.
+ *
+ * A button that waits keeps the focus with `[attr.aria-disabled]="true"`: it is dimmed with a
+ * not-allowed cursor, stays focusable, and its tooltip still opens on hover. The kit only styles
+ * it. A click, Enter and Space still fire `click`, so the handler ignores presses while it waits.
  *
  * @input disabled Turns the button off: dimmed, out of the Tab order and not clickable (a link
  * gets no `disabled` attribute but the same look and `tabindex="-1"`). It loses the focus; use
@@ -177,6 +177,10 @@ const HELD = 'aria-disabled:cursor-not-allowed aria-disabled:opacity-50';
   },
 })
 export class NeatButton {
+  // Built from Spartan's brain primitive and helm's class map rather than on helm's directive:
+  // every host directive of a public directive becomes public API, and helm stays internal. The
+  // classes go through Angular's `[class]` binding, not helm's `classes()`, which rewrites
+  // `className` and can drop a `[class.x]` binding that changes in the same render.
   /** The look of the button, by the kind of action it starts; `primary` is the main one. */
   readonly variant = input<NeatButtonVariant>('primary');
   /** The button's height: `small`, `medium`, `large` or `touch` (3rem), for touch screens. */

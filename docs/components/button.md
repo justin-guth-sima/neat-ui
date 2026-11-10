@@ -4,7 +4,11 @@
 
 _Components › Actions_ · [All topics](../README.md)
 
-A button or link styled as a kit button. Content is the label and/or a `neat-icon`; an icon-only button needs an `aria-label` (and usually a `neatTooltip` with the same text).
+A button, or a link that looks like one.
+
+```html
+<button neatButton type="button" (click)="save()">Save</button>
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/button/variants.dark.webp">
@@ -472,11 +476,11 @@ export const VARIANTS: readonly NeatButtonVariant[] = [
 
 Directive from `@sima/neat-ui`, selector `button[neatButton], a[neatButton]`.
 
-Built from Spartan's brain primitive and helm's class map rather than on helm's directive: every host directive of a public directive becomes public API, and helm stays internal. The classes go through Angular's `[class]` binding, not helm's `classes()`, which rewrites `className` and can drop a `[class.x]` binding that changes in the same render.
+Its content is the label, a `neat-icon`, or both. An icon-only button needs an `aria-label`, and usually a `neatTooltip` with the same text.
 
-A toggle button binds `pressed`: it sets `aria-pressed` and the pressed look. Leave it undefined on a button that is not a toggle, since `aria-pressed="false"` would announce one.
+A toggle button binds `pressed`, which sets `aria-pressed` and the pressed look. Leave `pressed` unset on a button that is no toggle: `aria-pressed="false"` would announce it as one.
 
-`[attr.aria-disabled]="true"` dims the button with a not-allowed cursor while it stays focusable and its tooltip still opens on hover, for a button that waits and must not drop the focus. The kit only styles it: a click, Enter and Space all still fire `click`, so the handler ignores presses while it waits.
+A button that waits keeps the focus with `[attr.aria-disabled]="true"`: it is dimmed with a not-allowed cursor, stays focusable, and its tooltip still opens on hover. The kit only styles it. A click, Enter and Space still fire `click`, so the handler ignores presses while it waits.
 
 **Inputs**
 

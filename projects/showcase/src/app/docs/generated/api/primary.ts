@@ -910,7 +910,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A button or link styled as a kit button. Content is the label and/or a "
+              "text": "A button, or a link that looks like one."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<button neatButton type=\"button\" (click)=\"save()\">Save</button>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Its content is the label, a "
             },
             {
               "kind": "code",
@@ -918,7 +932,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; an icon-only button needs an "
+              "text": ", or both. An icon-only button needs an "
             },
             {
               "kind": "code",
@@ -926,7 +940,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (and usually a "
+              "text": ", and usually a "
             },
             {
               "kind": "code",
@@ -934,48 +948,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " with the same text)."
-            }
-          ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "Built from Spartan's brain primitive and helm's class map rather than on helm's directive: every host directive of a public directive becomes public API, and helm stays internal. The classes go through Angular's "
-            },
-            {
-              "kind": "code",
-              "text": "[class]"
-            },
-            {
-              "kind": "text",
-              "text": " binding, not helm's "
-            },
-            {
-              "kind": "code",
-              "text": "classes()"
-            },
-            {
-              "kind": "text",
-              "text": ", which rewrites "
-            },
-            {
-              "kind": "code",
-              "text": "className"
-            },
-            {
-              "kind": "text",
-              "text": " and can drop a "
-            },
-            {
-              "kind": "code",
-              "text": "[class.x]"
-            },
-            {
-              "kind": "text",
-              "text": " binding that changes in the same render."
+              "text": " with the same text."
             }
           ]
         },
@@ -992,7 +965,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": it sets "
+              "text": ", which sets "
             },
             {
               "kind": "code",
@@ -1000,7 +973,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " and the pressed look. Leave it undefined on a button that is not a toggle, since "
+              "text": " and the pressed look. Leave "
+            },
+            {
+              "kind": "code",
+              "text": "pressed"
+            },
+            {
+              "kind": "text",
+              "text": " unset on a button that is no toggle: "
             },
             {
               "kind": "code",
@@ -1008,7 +989,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " would announce one."
+              "text": " would announce it as one."
             }
           ]
         },
@@ -1016,12 +997,16 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "text",
+              "text": "A button that waits keeps the focus with "
+            },
+            {
               "kind": "code",
               "text": "[attr.aria-disabled]=\"true\""
             },
             {
               "kind": "text",
-              "text": " dims the button with a not-allowed cursor while it stays focusable and its tooltip still opens on hover, for a button that waits and must not drop the focus. The kit only styles it: a click, Enter and Space all still fire "
+              "text": ": it is dimmed with a not-allowed cursor, stays focusable, and its tooltip still opens on hover. The kit only styles it. A click, Enter and Space still fire "
             },
             {
               "kind": "code",

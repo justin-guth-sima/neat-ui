@@ -213,16 +213,14 @@ function exampleMarkdown({ topic, example, link, imagesFrom, pictureWidth }) {
 }
 
 /**
- * What a page opens with from its lead part's doc: the first paragraph, and the code block after it
- * when the paragraph leads into it with a colon ("…, as in:"). The part's own section leaves them
+ * What a page opens with from its lead part's doc: the first paragraph, and the code block right
+ * after it, the shortest usage the writing guide puts there. The part's own section leaves them
  * out, so they are said once.
  */
 export function openingOf(doc) {
   const [first, second] = doc;
   if (first?.kind !== 'paragraph') return [];
-  const last = first.spans.at(-1);
-  const leadsOn = last?.kind === 'text' && last.text.trimEnd().endsWith(':');
-  return leadsOn && second?.kind === 'code' ? [first, second] : [first];
+  return second?.kind === 'code' ? [first, second] : [first];
 }
 
 /**

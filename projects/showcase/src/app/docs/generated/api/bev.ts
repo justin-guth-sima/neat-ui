@@ -15,39 +15,94 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A bird's-eye view around a vehicle: what it sees ("
-            },
-            {
-              "kind": "code",
-              "text": "frame"
-            },
-            {
-              "kind": "text",
-              "text": ": objects, points, lines and grids), what the app draws under and over it ("
-            },
-            {
-              "kind": "code",
-              "text": "background"
-            },
+              "text": "A bird's-eye view: what a vehicle sees around it, drawn from above."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-bev [frame]=\"frame()\" [background]=\"map\" [range]=\"60\" zoom />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ", "
-            },
-            {
-              "kind": "code",
-              "text": "foreground"
-            },
+              "text": "It draws three things:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "what the vehicle sees, "
+              },
+              {
+                "kind": "code",
+                "text": "frame"
+              },
+              {
+                "kind": "text",
+                "text": ": objects, points, lines and grids;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "what the app draws under it and over it, "
+              },
+              {
+                "kind": "code",
+                "text": "background"
+              },
+              {
+                "kind": "text",
+                "text": " and "
+              },
+              {
+                "kind": "code",
+                "text": "foreground"
+              },
+              {
+                "kind": "text",
+                "text": ";"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "guides to read distances by, "
+              },
+              {
+                "kind": "code",
+                "text": "shape"
+              },
+              {
+                "kind": "text",
+                "text": ": rings in a circle, or a metric grid in a rectangle."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": "), and rings in a circle or a metric grid in a rectangle to read distances by ("
-            },
-            {
-              "kind": "code",
-              "text": "shape"
-            },
+              "text": "Positions are in the vehicle's own frame: meters, x forward and y to the left. Forward is up on the screen. Give the view a height, or it takes the shape's proportions."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": "), in the vehicle's own frame (meters, x forward and y left, forward up on the screen). The data and the guides stop at the shape's edge, or run on over the whole box ("
+              "text": "The data and the guides stop at the shape's edge, or run on over the whole box with "
             },
             {
               "kind": "code",
@@ -55,7 +110,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "); the guides lie over the data or under it ("
+              "text": ". The guides lie over the data, or under it with "
             },
             {
               "kind": "code",
@@ -63,7 +118,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "). Labels pick colors as the video overlays' classes do, from the page's class colors, so \"car\" has one color in the view and in every tile; "
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Labels take their colors from the page's class colors, as the video overlays' classes do, so \"car\" has one color in the view and in every tile. "
             },
             {
               "kind": "code",
@@ -71,7 +135,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " sets a label's color and line as the tiles' class rows do. Hovering an object, or tapping it, reads it out beside it: its label, its distance from the vehicle and its "
+              "text": " sets a label's color and line, as the tiles' class rows do."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Hovering an object, or tapping it, reads it out beside it: its label, its distance from the vehicle and its "
             },
             {
               "kind": "code",
@@ -79,7 +152,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". With "
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "With "
             },
             {
               "kind": "code",
@@ -87,7 +169,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", wheel, pinch and drag zoom and pan it, the shape and all, within "
+              "text": ", the wheel, a pinch and a drag zoom and pan the view, the shape and all. The zoom stays within "
             },
             {
               "kind": "code",
@@ -95,7 +177,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (in to four times the default by default) and over what the default view shows and "
+              "text": ", up to four times the default view unless it says otherwise. Panning stays within what the default view shows and "
             },
             {
               "kind": "code",
@@ -103,7 +185,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; with focus, the arrows pan, "
+              "text": ". With focus, the arrow keys pan, "
             },
             {
               "kind": "code",
@@ -119,7 +201,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " zoom and "
+              "text": " zoom, and "
             },
             {
               "kind": "code",
@@ -127,7 +209,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " resets, as a button does while it is zoomed. It draws on one canvas outside change detection, at the next animation frame after anything changes and never while the page is hidden. A screen reader hears it as a figure named by "
+              "text": " resets, as the reset button does while the view is zoomed."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A screen reader hears the view as a figure named by "
             },
             {
               "kind": "code",
@@ -135,14 +226,18 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " with a summary of what it shows (\"18 car, 51 pedestrian within 60 m\"), which changes at most once a second. Give it a height, or it takes the shape's proportions."
+              "text": ", with a summary of what it shows (\"18 car, 51 pedestrian within 60 m\"). The summary changes at most once a second."
             }
           ]
         },
         {
-          "kind": "code",
-          "language": "html",
-          "code": "<neat-bev [frame]=\"frame()\" [background]=\"map\" [range]=\"60\" zoom />"
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It draws on one canvas, outside change detection: at the next animation frame after anything changes, and never while the page is hidden."
+            }
+          ]
         }
       ],
       "inputs": [
