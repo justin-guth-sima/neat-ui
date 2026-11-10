@@ -750,6 +750,22 @@ export const API: DocsEntry = {
           ]
         },
         {
+          "name": "fill",
+          "type": "boolean",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether it is filled as an area, as a grid is; a filled line is closed."
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "style",
           "type": "NeatOverlayLineStyle",
           "optional": true,
@@ -772,7 +788,15 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A polyline in one label's colour (a planned path, a lane, a boundary)."
+              "text": "A polyline in one label's colour (a planned path, a lane, a boundary), or with "
+            },
+            {
+              "kind": "code",
+              "text": "fill"
+            },
+            {
+              "kind": "text",
+              "text": " a polygon (a zone, a parking space, free space from a model): filled as a grid is, a light tint over the surface that covers what lies under it, and outlined."
             }
           ]
         }

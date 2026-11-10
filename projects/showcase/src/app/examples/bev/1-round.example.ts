@@ -5,8 +5,9 @@ import { streetFrames } from './scene';
 /**
  * The round view, as a radar shows it: rings every 10 m out to the 60 m range, spokes every 30°,
  * and the street around a vehicle waiting at a crossing, 20 frames a second. The drivable area is
- * a 128 × 128 grid, the lidar's returns one array of points, the lane markings and the planned
- * turn lines, and every car, cyclist and person a box with its heading. Each label takes its
+ * a 128 × 128 grid, the crosswalk a filled polygon, the lidar's returns one array of points, the
+ * lane markings and the planned turn lines, and every car, cyclist and person a box with its
+ * heading. Each label takes its
  * colour from the page's class colours, as a video tile's classes do. Everything stops at the
  * circle, the guides lie over the data, and hovering or tapping a box reads it out.
  */

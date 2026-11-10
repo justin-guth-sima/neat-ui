@@ -69,6 +69,14 @@ describe('the street scene', () => {
     expect(at(40, -20)).toBe(0);
   });
 
+  it('gives the crosswalk as a filled polygon across the road, before the crossing', () => {
+    const [crosswalk] = new StreetScene().frameAt(0).lines!;
+    expect(crosswalk).toMatchObject({ label: 'crosswalk', fill: true });
+    const xs = [...crosswalk.xy].filter((_, i) => i % 2 === 0);
+    expect(Math.max(...xs)).toBeLessThan(15);
+    expect(Math.min(...xs)).toBeGreaterThan(5);
+  });
+
   it('moves traffic on and keeps the grid, so it is not painted again', () => {
     const scene = new StreetScene();
     const before = scene.frameAt(0);

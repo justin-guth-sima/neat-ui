@@ -580,7 +580,7 @@ for driving demos such as the FastBEV one.
   yaw or a calibration's angles go in unchanged. A grid's `cells` are row-major in screen order:
   row 0 forward, column 0 left.
 - What it draws comes from `frame` (objects as rotated boxes with a heading line, point sets as
-  `Float32Array` x,y pairs, polylines, grids) and from inputs that change rarely: `sensors` (wedges
+  `Float32Array` x,y pairs, polylines, polygons as lines with `fill`, grids) and from inputs that change rarely: `sensors` (wedges
   from their mounts, drawn as their edges in their labels' colours, their arc when they give their
   own range, filled faintly only with `fill`), `spokes` (a number spaced from straight ahead, or a
   list of angles each with an optional origin, such as a rig's seams), `range`, `shape` (`round`,
@@ -605,10 +605,10 @@ for driving demos such as the FastBEV one.
   guides when they go under) and one over it (the guides when they go over: rings or grid lines,
   spokes, sensor edges, the outline; and always their labels), each drawn only when it holds
   something. Between them a frame draws its grids (small canvases per grid, scaled without
-  smoothing: every grid's backing, opaque in `--neat-surface` as far as each cell's value goes,
-  then every grid's tint in its label's colour at `GRID_ALPHA`, so a grid covers what lies under it,
-  guides under the data included, still looks see-through over the surface, and overlapping grids
-  still blend), lines, points and objects without allocating per item, clipped to the shape as the
+  smoothing) and filled lines as areas: every area's backing, opaque in `--neat-surface` (a grid's
+  as far as each cell's value goes), then every area's tint in its label's colour at `GRID_ALPHA`,
+  so an area covers what lies under it, guides under the data included, still looks see-through
+  over the surface, and overlapping areas still blend. Then the lines (filled ones outlined), points and objects without allocating per item, clipped to the shape as the
   view shows it (zoom included) unless overflow is visible; the vehicle's marker goes on top.
   Points are squares of whole device pixels written into a buffer that covers only the shape's
   rectangle within the box (the box with `visible`), kept in memory (`willReadFrequently`) and

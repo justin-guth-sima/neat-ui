@@ -220,7 +220,7 @@ export class BevCanvas {
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
     context.save();
     this.clip(context, view, inputs);
-    this.drawGrids(context, view, shown.grids, colours, theme.surface);
+    this.drawAreas(context, view, shown, colours, theme);
     this.drawLines(context, view, shown, colours);
     this.drawPoints(context, view, shown, colours, inputs);
     this.drawObjects(context, view, shown, colours, hover);
@@ -655,19 +655,34 @@ export class BevCanvas {
     context.fillText(text, x, y);
   }
 
-  /** The grids: every backing first, then every tint (`GridCache`). */
-  private drawGrids(
+  /**
+   * The areas, the grids and the filled lines: every backing first, then every tint (`GridCache`),
+   * so an area covers what lies under it and overlapping areas still blend.
+   */
+  private drawAreas(
     context: CanvasRenderingContext2D,
     view: BevView,
-    grids: readonly NeatBevGrid[] | undefined,
+    frame: NeatBevFrame,
     colours: LabelColours,
-    surface: NeatRgb | null,
+    theme: BevTheme,
   ): void {
+    const { grids, lines } = frame;
     const count = grids?.length ?? 0;
     this.grids.length = Math.min(this.grids.length, count);
-    if (!grids) return;
-    context.imageSmoothingEnabled = false;
     for (const layer of ['backing', 'tint'] as const) {
+      if (layer === 'tint' || theme.surface) {
+        if (layer === 'backing') context.fillStyle = theme.halo;
+        context.globalAlpha = layer === 'tint' ? GRID_ALPHA : 1;
+        for (const line of lines ?? []) {
+          if (!line.fill || line.xy.length < 6) continue;
+          if (layer === 'tint') context.fillStyle = colours.of(line.label).colour;
+          this.linePath(context, view, line.xy, true);
+          context.fill();
+        }
+        context.globalAlpha = 1;
+      }
+      if (!grids) continue;
+      context.imageSmoothingEnabled = false;
       for (let i = 0; i < count; i++) {
         const grid = grids[i];
         if (grid.columns <= 0 || grid.rows <= 0 || grid.cells.length < grid.columns * grid.rows) {
@@ -675,7 +690,7 @@ export class BevCanvas {
         }
         const cached =
           layer === 'backing'
-            ? this.gridCanvases(i, grid, colours.of(grid.label), surface)
+            ? this.gridCanvases(i, grid, colours.of(grid.label), theme.surface)
             : this.grids[i];
         // No backing without a surface to lay: the tint alone, see-through as before.
         if (!cached || (layer === 'backing' && !cached.surface)) continue;
@@ -684,8 +699,24 @@ export class BevCanvas {
         const image = cached[layer];
         context.drawImage(image, corner.x, corner.y, opposite.x - corner.x, opposite.y - corner.y);
       }
+      context.imageSmoothingEnabled = true;
     }
-    context.imageSmoothingEnabled = true;
+  }
+
+  /** A line's points as the current path, closed when asked. */
+  private linePath(
+    context: CanvasRenderingContext2D,
+    view: BevView,
+    xy: Float32Array,
+    closed: boolean,
+  ): void {
+    context.beginPath();
+    for (let i = 0; i + 1 < xy.length; i += 2) {
+      const at = toScreen(view, xy[i], xy[i + 1], this.point);
+      if (i === 0) context.moveTo(at.x, at.y);
+      else context.lineTo(at.x, at.y);
+    }
+    if (closed) context.closePath();
   }
 
   /**
@@ -770,13 +801,7 @@ export class BevCanvas {
       context.strokeStyle = look.colour;
       context.lineWidth = look.width;
       context.setLineDash(dashOf(look.style ?? line.style));
-      context.beginPath();
-      for (let i = 0; i + 1 < xy.length; i += 2) {
-        const at = toScreen(view, xy[i], xy[i + 1], this.point);
-        if (i === 0) context.moveTo(at.x, at.y);
-        else context.lineTo(at.x, at.y);
-      }
-      if (line.closed) context.closePath();
+      this.linePath(context, view, xy, line.closed === true || line.fill === true);
       context.stroke();
     }
     context.setLineDash(SOLID);

@@ -517,6 +517,54 @@ describe('BevCanvas', () => {
       expect(calls(main(), 'closePath').length).toBeGreaterThan(0);
     });
 
+    it('fills a filled line as an area: its backing, then its tint with the grids, then its outline', () => {
+      const zone = new Float32Array([5, 5, 10, 5, 10, 10]);
+      const grid = {
+        label: 'road',
+        cells: new Uint8Array([255]),
+        columns: 1,
+        rows: 1,
+        x: [-1, 1],
+        y: [-1, 1],
+      } as const;
+      draw({ grids: [grid], lines: [{ label: 'zone', xy: zone, fill: true }] });
+      const log = main();
+      const fills = calls(log, 'fill').map((c) => log.indexOf(c));
+      const images = calls(log, 'drawImage').map((c) => log.indexOf(c));
+      // The zone's backing, the grid's backing, the zone's tint, the grid's tint.
+      expect(fills[0]).toBeLessThan(images[0]);
+      expect(images[0]).toBeLessThan(fills[1]);
+      expect(fills[1]).toBeLessThan(images[1]);
+      expect(sets(log, 'fillStyle').slice(0, 2)).toEqual([THEME.halo, '#zone']);
+      // The backing opaque, the tint as light as a grid's.
+      const alphaAt = (index: number) =>
+        log
+          .slice(0, index)
+          .filter((entry) => entry.name === 'globalAlpha' && 'value' in entry)
+          .at(-1)?.value;
+      expect(alphaAt(fills[0])).toBe(1);
+      expect(alphaAt(fills[1])).toBe(GRID_ALPHA);
+      // Outlined and closed, though it does not say `closed`.
+      const stroke = calls(log, 'stroke').map((c) => log.indexOf(c))[0];
+      expect(stroke).toBeGreaterThan(fills[1]);
+      expect(calls(log, 'closePath').length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('lays no backing under a filled line without a surface colour', () => {
+      const zone = new Float32Array([5, 5, 10, 5, 10, 10]);
+      bev.draw(
+        2,
+        view,
+        inputs(),
+        { ...THEME, surface: null },
+        colours(),
+        { lines: [{ label: 'zone', xy: zone, fill: true }] },
+        -1,
+      );
+      expect(sets(main(), 'fillStyle')[0]).toBe('#zone');
+      expect(calls(main(), 'fill').length).toBe(2); // the tint and the vehicle's marker
+    });
+
     it("lets the label style row win over the line's own style", () => {
       const xy = new Float32Array([0, 0, 10, 0]);
       bev.draw(
