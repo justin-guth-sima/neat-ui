@@ -7,11 +7,20 @@ import { computed, Directive, input } from '@angular/core';
 export const STALE_CLASSES = 'opacity-55 grayscale';
 
 /**
- * Shows that what the host shows is stale (a figure from before a connection dropped, a frame of
- * a stream that stopped): `<span [neatStale]="lost()">12.4 fps</span>`. While true the host is
- * faded and gray; once fresh it is shown as it is. The change is instant, with no transition, so a
- * value that comes back is never shown half-faded as if still in doubt. It is the look only: the
- * app says in words why the value is stale, since gray alone tells no one what happened.
+ * Shows that what the host shows is stale, faded and gray.
+ *
+ * ```html
+ * <span [neatStale]="lost()">12.4 fps</span>
+ * ```
+ *
+ * Use it for a figure from before a connection dropped, or a frame of a stream that stopped. While
+ * true, the host is faded and gray. Once fresh, it is shown as it is.
+ *
+ * The change is instant, with no transition, so a value that comes back is never shown half-faded
+ * as if still in doubt.
+ *
+ * It is the look only. The app says in words why the value is stale, since gray alone tells no one
+ * what happened.
  */
 @Directive({
   selector: '[neatStale]',

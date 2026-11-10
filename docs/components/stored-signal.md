@@ -4,7 +4,13 @@
 
 _Components › Data_ · [All topics](../README.md)
 
-A signal kept in localStorage under `key`, for a setting an app remembers per browser (a panel's choices, a view's options). It starts at what is stored, as `parse` accepts it: `parse` gets the stored JSON, of any shape an older version of the app may have written, and answers the value or undefined to refuse it. Nothing stored, text that is not JSON, or a refusal starts it at `initial`. `set` and `update` store the new value as JSON. Storage that is missing, refuses or cannot hold the value never throws: the signal then holds its value for this page load only. Needs no injection context.
+A signal kept in localStorage, for a setting an app remembers per browser.
+
+```ts
+readonly bars = neatStoredSignal('my-app:bars', true, (stored) =>
+  typeof stored === 'boolean' ? stored : undefined,
+);
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/stored-signal/press-counter.dark.webp">
@@ -71,6 +77,12 @@ export class PressCounter {
 ### `neatStoredSignal`
 
 Function from `@sima/neat-ui`.
+
+Use it for a panel's choices or a view's options. It needs no injection context.
+
+It starts at what is stored under `key`, as `parse` accepts it. `parse` gets the stored JSON, of any shape an older version of the app may have written. It answers the value, or undefined to refuse it. Nothing stored, text that is not JSON, or a refusal starts the signal at `initial`.
+
+`set` and `update` store the new value as JSON. Storage that is missing, refuses or cannot hold the value never throws: the signal then holds its value for this page load only.
 
 ```ts
 neatStoredSignal<T>(key: string, initial: T, parse: (stored: unknown) => T | undefined): WritableSignal<T>

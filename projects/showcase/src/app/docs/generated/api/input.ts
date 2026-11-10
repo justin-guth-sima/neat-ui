@@ -15,15 +15,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A text or number field: "
-            },
-            {
-              "kind": "code",
-              "text": "<input neatInput type=\"number\" inputmode=\"numeric\" min=\"1\">"
-            },
+              "text": "A text or number field."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<input neatInput type=\"number\" inputmode=\"numeric\" min=\"1\" aria-label=\"Copies\" />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ". Every native attribute (type, inputmode, min, max, placeholder, id, disabled) keeps its meaning; the kit only styles the field. Name it with a "
+              "text": "Every native attribute (type, inputmode, min, max, placeholder, id, disabled) keeps its meaning. The kit only styles the field. Name it with a "
             },
             {
               "kind": "code",

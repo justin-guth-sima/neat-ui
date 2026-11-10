@@ -131,43 +131,42 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Tabs with one open panel: "
+              "text": "Tabs that show one panel at a time, for views inside one page."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-tabs label=\"Channel settings\" [(value)]=\"tab\">\n  <neat-tab label=\"Metadata\" value=\"metadata\">\n    <ng-template>…</ng-template>\n  </neat-tab>\n  <neat-tab label=\"General\" value=\"general\">\n    <ng-template>…</ng-template>\n  </neat-tab>\n</neat-tabs>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Use tabs for views that are not addresses, such as a dialog's sections. A page's route-linked views are its rail item's "
             },
             {
               "kind": "code",
-              "text": "<neat-tabs label=\"Channel settings\" [(value)]=\"tab\">"
+              "text": "children"
             },
             {
               "kind": "text",
-              "text": " around "
-            },
-            {
-              "kind": "code",
-              "text": "neat-tab"
-            },
+              "text": " or links in its page nav, never tabs."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": " children; the open tab is underlined. The tab list is named by "
+              "text": "The open tab is underlined. The tab list is named by "
             },
             {
               "kind": "code",
               "text": "label"
-            },
-            {
-              "kind": "text",
-              "text": ". Arrow keys move to the next or previous tab and open it, skipping disabled tabs and wrapping; Home and End jump to the ends; the open tab is the only tab stop. Every tab has a panel element, so each tab's "
-            },
-            {
-              "kind": "code",
-              "text": "aria-controls"
-            },
-            {
-              "kind": "text",
-              "text": " names one that exists, but only the open tab's holds its content: the others are empty and "
-            },
-            {
-              "kind": "code",
-              "text": "hidden"
             },
             {
               "kind": "text",
@@ -179,7 +178,41 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " names no tab (or is unset), the first enabled tab is open, so the list stays reachable."
+              "text": " names no tab, or is unset, the first enabled tab is open, so the list stays reachable."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The arrow keys move to the next or previous tab and open it, skipping disabled tabs and wrapping. Home and End jump to the ends. The open tab is the only tab stop."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Every tab has a panel element, so each tab's "
+            },
+            {
+              "kind": "code",
+              "text": "aria-controls"
+            },
+            {
+              "kind": "text",
+              "text": " names one that exists. Only the open tab's panel holds its content: the others are empty and "
+            },
+            {
+              "kind": "code",
+              "text": "hidden"
+            },
+            {
+              "kind": "text",
+              "text": "."
             }
           ]
         },
@@ -197,23 +230,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Brain's tabs are the host directive; its list, trigger and content directives give the tab roles, the keyboard handling and the panel's labeling. Brain derives element ids from the tab keys alone ("
-            },
-            {
-              "kind": "code",
-              "text": "brn-tabs-label-<key>"
-            },
-            {
-              "kind": "text",
-              "text": ") and puts them in ids and "
-            },
-            {
-              "kind": "code",
-              "text": "aria-controls"
-            },
-            {
-              "kind": "text",
-              "text": " as they are. The kit's keys are the instance's prefix and the tab's place in the list, so two tab sets with the same values do not share ids and a value with spaces (\"Board 1\") is still a valid id; "
+              "text": "Two tab sets with the same values do not share element ids, and a value with spaces (\"Board 1\") works as any other: "
             },
             {
               "kind": "code",
@@ -221,7 +238,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " stays in the app's terms. The tab list is built anew when the set of tabs changes, so the keys follow tabs added or removed while mounted. Brain's lazy content keeps a visited panel alive, so the kit puts the open tab's template in its panel itself."
+              "text": " stays in the app's terms."
             }
           ]
         }

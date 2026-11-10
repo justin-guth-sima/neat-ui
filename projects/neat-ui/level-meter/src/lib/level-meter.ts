@@ -65,12 +65,14 @@ function everyAnimationFrame(onFrame: () => void): () => void {
 }
 
 /**
- * A live audio level as a bar of 28 segments, from -50 dBFS (dark) to full scale (all lit), green
- * to 70 % of the bar, amber to 90 %, red above; the segments not lit are in the border color:
+ * A live audio level, as a bar of segments.
  *
  * ```html
  * <neat-level-meter [sample]="micTest.level" />
  * ```
+ *
+ * The bar has 28 segments, from -50 dBFS (dark) to full scale (all lit). They light green to 70 %
+ * of the bar, amber to 90 %, and red above. The segments not lit are in the border color.
  *
  * `sample` reads the current level in dBFS, or null for none (the meter is dark). While it is set
  * and the meter is rendered, the meter calls it once per animation frame, so one input serves a

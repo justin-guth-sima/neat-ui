@@ -15,7 +15,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A live audio level as a bar of 28 segments, from -50 dBFS (dark) to full scale (all lit), green to 70 % of the bar, amber to 90 %, red above; the segments not lit are in the border color:"
+              "text": "A live audio level, as a bar of segments."
             }
           ]
         },
@@ -23,6 +23,15 @@ export const API: DocsEntry = {
           "kind": "code",
           "language": "html",
           "code": "<neat-level-meter [sample]=\"micTest.level\" />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The bar has 28 segments, from -50 dBFS (dark) to full scale (all lit). They light green to 70 % of the bar, amber to 90 %, and red above. The segments not lit are in the border color."
+            }
+          ]
         },
         {
           "kind": "paragraph",

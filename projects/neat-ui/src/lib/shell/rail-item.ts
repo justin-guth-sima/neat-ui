@@ -59,14 +59,16 @@ export class RailState {
 export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-menu');
 
 /**
- * An item of the shell's rail, the one look of the page links, the theme item, the rail's own
- * control and an app's items at the bottom of the rail (`[neatRailEnd]`):
+ * An app's own item in the shell's rail, at its bottom below the pages.
  *
  * ```html
  * <button neatRailEnd neatRailItem type="button" label="System information" (click)="…">
  *   <neat-icon name="info" />
  * </button>
  * ```
+ *
+ * It has the look of every rail item: the page links, the theme item and the rail's own control.
+ * Mark it `neatRailEnd` to place it at the rail's bottom.
  *
  * The content is the icon. `label` is the visible text while the rail is expanded; collapsed, it
  * stays as the item's visually hidden text, so the name is kept, and shows as a tooltip on the
@@ -104,11 +106,8 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
  * followed on a narrow screen puts the floating rail away; a button leaves it, since its action
  * may want the rail (a theme switch) or open a dialog over it.
  *
- * Brain's tooltip is a host directive here, not `neatTooltip`, because the item names its own
- * tooltip from `label`: a host directive's inputs come from the template that uses the element,
- * and `label` feeds both the item and the tooltip. It is switched off while the labels show, and
- * on the shell's items that show a menu of sub-pages on hover and focus (a collapsed page with
- * `children`), whose menu names the page itself.
+ * The tooltip is off while the labels show. It is off too on a collapsed page item with
+ * `children`, whose menu of sub-pages names the page itself.
  */
 @Component({
   // An attribute selector keeps the native button or link as the host, as `button[neatSwitch]`
@@ -148,6 +147,9 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
   styleUrl: './rail-item.css',
 })
 export class NeatRailItem {
+  // Brain's tooltip is a host directive here, not `neatTooltip`, because the item names its own
+  // tooltip from `label`: a host directive's inputs come from the template that uses the element,
+  // and `label` feeds both the item and the tooltip.
   /**
    * The item's name and tooltip, and its visible text while the rail is expanded unless `text` or
    * `detail` say otherwise.

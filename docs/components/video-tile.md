@@ -4,7 +4,11 @@
 
 _Components › Video_ · [All topics](../README.md)
 
-Plays a source's video with its metadata drawn as overlays, each frame with the metadata that describes it. It fills the box it is given.
+Plays a source's video, with its metadata drawn over it as overlays.
+
+```html
+<neat-video-tile [source]="source" label="1" status="640×360 · 30 fps" />
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/video-tile/poses.dark.webp">
@@ -519,11 +523,13 @@ export class PoseSource implements NeatTileSource {
 
 Component from `@sima/neat-ui/video`, selector `neat-video-tile`.
 
-The frame loop runs outside Angular and touches no signal: per frame it matches the queued metadata to the presented frame, holds a type that is missing for a moment, and draws. The component sees a state change and, at most once a second, `frameStats`. Inputs the loop needs are copied into fields when they change, so a frame never reads an input or resolves settings.
+Each frame is drawn with the metadata that describes it. The tile fills the box it is given.
 
 With `bars` on, a bar along the bottom shows `label`, `status` and the chips projected with `neatTileChip`, and a tile without video says so. With `bars` off it is only video and overlay.
 
 Content projected with `neatTileOverlay` fills a layer over the tile, above the overlay canvas and below the bar; `videoBox` says where the image is inside it and `barHeight` how tall the bar is. Without video the layer stays above what covers the image and below the no-video note, which lets pointer input through. The layer itself catches no pointer input, so the video under it keeps its hits; its content takes them only where it sets `pointer-events: auto`.
+
+The frame loop runs outside Angular and touches no signal: per frame it matches the queued metadata to the presented frame, holds a type that is missing for a moment, and draws. The component sees a state change and, at most once a second, `frameStats`. Inputs the loop needs are copied into fields when they change, so a frame never reads an input or resolves settings.
 
 **Inputs**
 

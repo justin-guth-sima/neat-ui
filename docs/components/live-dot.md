@@ -4,7 +4,11 @@
 
 _Components › Status_ · [All topics](../README.md)
 
-A small red dot that says something is live or recording, as `<neat-live-dot pulse />` before the words "Recording 0:34". Hidden from assistive technology: the text beside it carries the meaning, so give it text. With `pulse` the dot beats and a ring grows out of it and fades, once in 1.6 s; without it, or under a reduced-motion setting, it is a still dot. The ring is drawn outside the dot's 0.625rem box and does not move the layout, but an ancestor that clips its overflow clips the ring too. The color is the theme's `--neat-live`, a red that reads at 3:1 on the page and on the video scrim (over black to mid-gray video), so a badge over video can use it.
+A small red dot that says something is live or recording.
+
+```html
+<neat-live-dot pulse /> Recording 0:34
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/live-dot/badges.dark.webp">
@@ -70,6 +74,12 @@ export class Badges {}
 ### `NeatLiveDot`
 
 Component from `@sima/neat-ui`, selector `neat-live-dot`.
+
+It is hidden from assistive technology. The text beside it carries the meaning, so give it text.
+
+With `pulse`, the dot beats and a ring grows out of it and fades, once in 1.6 s. Without it, or under a reduced-motion setting, it is a still dot. The ring is drawn outside the dot's 0.625rem box and does not move the layout. An ancestor that clips its overflow clips the ring too.
+
+The color is the theme's `--neat-live`, a red that reads at 3:1 on the page and on the video scrim, over black to mid-gray video. So a badge over video can use it.
 
 **Inputs**
 

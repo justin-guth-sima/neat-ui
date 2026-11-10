@@ -3,9 +3,15 @@ import { neatEased } from './eased';
 import type { NeatEasing } from './easing';
 
 /**
- * A figure that eases to each new value (`neatEased`) instead of jumping, as
- * `<neat-eased-number [value]="fps()" [digits]="1" /> fps`: its first value shows at once, and
- * "–" stands in while there is none. Its digits are tabular, so a moving value keeps its width.
+ * A figure that eases to each new value instead of jumping.
+ *
+ * ```html
+ * <neat-eased-number [value]="fps()" [digits]="1" /> fps
+ * ```
+ *
+ * It moves as `neatEased` does. Its first value shows at once, and "–" stands in while there is
+ * none. Its digits are tabular, so a moving value keeps its width.
+ *
  * It is the number only: the unit and the words around it are the app's.
  */
 @Component({

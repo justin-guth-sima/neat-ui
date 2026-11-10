@@ -4,7 +4,7 @@
 
 _Components › Charts_ · [All topics](../README.md)
 
-A color as a small square, for a label that stands for something drawn in that color (a class in the video overlays or the bird's-eye view, an item in an app's own legend):
+A color as a small square, beside a label that stands for something drawn in that color.
 
 ```html
 <neat-swatch [color]="classColor" /> {{ label }}
@@ -238,7 +238,11 @@ export class AnyColor {
 
 Component from `@sima/neat-ui`, selector `neat-swatch`.
 
-`color` is any CSS color. For a chart's series, `neat-series-swatch` takes the series' index and finds its color by the kit's one rule; the two share one look (size, shape, corners), stated once in this component's sheet. It is `aria-hidden`: the text beside it names the thing, and a color alone is not a name.
+Such a label names a class in the video overlays or the bird's-eye view, or an item in an app's own legend. `color` is any CSS color.
+
+For a chart's series, `neat-series-swatch` takes the series' index and finds its color by the kit's one rule. The two share one look: size, shape and corners.
+
+It is `aria-hidden`: the text beside it names the thing, and a color alone is not a name.
 
 **Inputs**
 
@@ -250,15 +254,21 @@ Component from `@sima/neat-ui`, selector `neat-swatch`.
 
 Component from `@sima/neat-ui`, selector `neat-series-swatch`.
 
-The color of a series as a small square, for a label that stands for that series outside the drawing that uses it (a run's chip, a summary row, a chart's or a diagram's legend):
+A series' color as a small square, beside a label outside the chart that stands for the series.
 
 ```html
 <neat-series-swatch [index]="i" /> {{ run.name }}
 ```
 
-`index` is the series' place in the chart's `series`, from 0, and the swatch takes the color that series is drawn in (`--neat-series-1` to `-8`), so a label and its line match in either theme. A chart folds a ninth series and beyond into "Other" (index 7), so an index past 7 names no color. A chart's lone series is drawn in its tone's color instead and needs no swatch.
+Such a label is a run's chip, a summary row, or a chart's or a diagram's legend.
 
-In the primary, not in `charts`, so the diagram's legend shows it without the charts' d3 (and `@sima/neat-ui/charts` still exports it for the apps that import it from there). The time and stacked charts draw their legends' and readouts' swatches with it, and so does `neat-diagram-legend`. Its look is `neat-swatch`'s (the color square for any color): both take that component's sheet, so the size, shape and corners are stated once. It is `aria-hidden`: the text beside it names the series, and a color alone is not a name.
+`index` is the series' place in the chart's `series`, from 0. The swatch takes the color that series is drawn in (`--neat-series-1` to `-8`), so a label and its line match in either theme. A chart folds a ninth series and beyond into "Other" (index 7), so an index past 7 names no color. A chart's lone series is drawn in its tone's color instead, and needs no swatch.
+
+It is in the primary entry point, not in `charts`, so the diagram's legend shows it without the charts' d3. `@sima/neat-ui/charts` still exports it, for the apps that import it from there.
+
+The time and stacked charts draw their legends' and readouts' swatches with it, and so does `neat-diagram-legend`. It has the look of `neat-swatch`, the square for any color.
+
+It is `aria-hidden`: the text beside it names the series, and a color alone is not a name.
 
 **Inputs**
 

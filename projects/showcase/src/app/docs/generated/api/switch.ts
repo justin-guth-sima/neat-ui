@@ -15,15 +15,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "An on/off switch on a native button, for a setting that applies at once, as it is toggled: "
-            },
-            {
-              "kind": "code",
-              "text": "<button neatSwitch [(checked)]=\"bars\">Bars</button>"
-            },
+              "text": "An on/off switch, for a setting that applies at once, as it is toggled."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<button neatSwitch [(checked)]=\"bars\">Bars</button>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ". The content is the visible label and the accessible name; without content, give it an "
+              "text": "It is a native button. The content is the visible label and the accessible name. Without content, give it an "
             },
             {
               "kind": "code",
@@ -31,7 +37,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". Space and Enter toggle it as they click any button."
+              "text": ". Space and Enter toggle it, as they click any button."
             }
           ]
         }

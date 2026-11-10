@@ -50,16 +50,22 @@ const DETAIL_CLASSES =
   'm-0 truncate text-muted-foreground tabular-nums text-(length:--neat-text-xs)';
 
 /**
- * A horizontal progress bar: `<neat-progress label="Uploading clip.mp4" [value]="percent" />`.
- * `value` is 0 to 100, or `null` while the work cannot say how far along it is (the bar then
- * moves on its own; under a reduced-motion setting it is a still bar of stripes). A value outside
- * the range is held to it, and one that is not a number counts as unknown, so a sloppy caller gets
- * a bar, not an error.
+ * A horizontal progress bar.
  *
- * With a `heading` it is a titled readout, for work the user watches (an import, an encode, a
- * progress toast): the heading with the whole percent at its line's end, the `detail` under it
- * (one line, cut with its full text as a tooltip; left out while empty), then the bar; the
- * progress toast of `NeatToasts` renders through it:
+ * ```html
+ * <neat-progress label="Uploading clip.mp4" [value]="percent" />
+ * ```
+ *
+ * `value` is 0 to 100, or `null` while the work cannot say how far along it is. The bar then moves
+ * on its own. Under a reduced-motion setting it is a still bar of stripes.
+ *
+ * A value outside the range is held to it, and one that is not a number counts as unknown. So a
+ * sloppy caller gets a bar, not an error.
+ *
+ * With a `heading` it is a titled readout, for work the user watches: an import, an encode, a
+ * progress toast. It shows the heading with the whole percent at its line's end, the `detail`
+ * under it, then the bar. The detail is one line, cut with its full text as a tooltip, and left out
+ * while empty. The progress toast of `NeatToasts` renders through it:
  *
  * ```html
  * <neat-progress heading="Uploading 3 files" [detail]="'clip.mp4 · file 1 of 3'" [value]="41" />
@@ -75,9 +81,6 @@ const DETAIL_CLASSES =
  * as `aria-valuetext`. A bar alone announces nothing as it changes, which is a progressbar's way;
  * give a bar without a heading a `label`. It fills the width its container gives it, from the
  * left: the kit has no right-to-left layout.
- *
- * Brain's progress is the element inside, which owns the role and the values; its range check
- * throws for a value out of range, which is why the kit's own input, held to the range, feeds it.
  */
 @Component({
   selector: 'neat-progress',
@@ -122,6 +125,8 @@ const DETAIL_CLASSES =
   `,
 })
 export class NeatProgress {
+  // Brain's progress is the element inside, which owns the role and the values; its range check
+  // throws for a value out of range, which is why the kit's own input, held to the range, feeds it.
   /** 0 to 100, or `null` while unknown. */
   readonly value = input.required<number | null>();
   /** The bar's accessible name, announced with the value; the heading by default. */

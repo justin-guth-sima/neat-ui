@@ -10,18 +10,27 @@ import {
 import { NeatInput } from '@sima/neat-ui/input';
 
 /**
- * A small field for one whole number, with its label before it: `<neat-number-field label="Page"
- * [value]="page" [accept]="inRange" (commit)="goTo($event)"><span neatNumberFieldSuffix>of
- * 9</span></neat-number-field>`. It is for jumping to a number, as a page or a channel.
+ * A small field for one whole number, for jumping to a number such as a page or a channel.
  *
- * The field shows `value`. Typing changes nothing outside until the user commits with Enter or by
- * leaving the field; `commit` then carries the number if it is whole digits that `accept` takes,
- * even when it equals `value`, so an owner can treat a number the user typed as a choice. Anything
- * else puts `value` back in the field and emits nothing. Leaving a field that was not typed in
- * emits nothing, so tabbing past it chooses nothing; Enter always commits what is shown.
+ * ```html
+ * <neat-number-field label="Page" [value]="page" [accept]="inRange" (commit)="goTo($event)">
+ *   <span neatNumberFieldSuffix>of 9</span>
+ * </neat-number-field>
+ * ```
  *
- * The owner is expected to take what it accepted: after a commit the field shows that number
- * until `value` changes. Content marked `neatNumberFieldSuffix` follows the input, such as "of 9".
+ * Its label sits before it. Content marked `neatNumberFieldSuffix` follows the input, such as
+ * "of 9".
+ *
+ * The field shows `value`. Typing changes nothing outside until the user commits, with Enter or by
+ * leaving the field. `commit` then carries the number if it is whole digits that `accept` takes.
+ * It does so even when the number equals `value`, so an owner can treat a number the user typed as
+ * a choice. Anything else puts `value` back in the field and emits nothing.
+ *
+ * Leaving a field that was not typed in emits nothing, so tabbing past it chooses nothing. Enter
+ * always commits what is shown.
+ *
+ * The owner is expected to take what it accepted: after a commit, the field shows that number until
+ * `value` changes.
  */
 @Component({
   selector: 'neat-number-field',

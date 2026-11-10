@@ -24,8 +24,7 @@ const TABLE_CLASSES =
   'w-full border-collapse text-(length:--neat-text-sm) [&_:where(th,td)]:px-(--neat-space-3) [&_:where(th,td)]:py-(--neat-space-2) [&_:where(th,td)]:border-be [&_:where(th,td)]:border-border [&_:where(th,td)]:align-middle [&_:where(th,td):where(:not([data-numeric]))]:text-start [&_:where([data-numeric])]:text-end [&_:where([data-figure])]:whitespace-nowrap [&_:where([data-figure])]:tabular-nums [&_:where(th)]:font-medium [&_:where(thead_th)]:text-muted-foreground [&_:where(thead_th)]:text-(length:--neat-text-xs)';
 
 /**
- * A data table's look (full width, a rule under every row, the column headings muted and small),
- * on a native `table` whose rows and cells the app writes:
+ * A data table's look, on a native `table` whose rows and cells the app writes.
  *
  * ```html
  * <table neatTable aria-label="Metrics of the run">
@@ -38,9 +37,11 @@ const TABLE_CLASSES =
  * </table>
  * ```
  *
- * It sets the look only: the columns, what a cell holds and how a table gives up a column when
- * its container is narrow are the app's (the kit cannot know the container, or which columns
- * matter). The table's name for assistive technology is the app's too (`aria-label`).
+ * The table is full width, with a rule under every row and its column headings muted and small.
+ *
+ * It sets the look only. The columns, what a cell holds and how a table gives up a column when its
+ * container is narrow are the app's: the kit cannot know the container, or which columns matter.
+ * The table's name for assistive technology is the app's too (`aria-label`).
  */
 @Directive({
   selector: 'table[neatTable]',

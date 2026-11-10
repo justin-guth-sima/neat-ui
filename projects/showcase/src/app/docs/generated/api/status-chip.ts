@@ -151,15 +151,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The chip as a button, for a status that opens more about itself, such as a video tile's \"Metadata late\" that shows why: "
-            },
-            {
-              "kind": "code",
-              "text": "<button neatStatusChip tone=\"warning\" type=\"button\">"
-            },
+              "text": "The chip as a button, for a status that opens more about itself."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<button neatStatusChip tone=\"warning\" type=\"button\" (click)=\"showWhy()\">Metadata late</button>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ". It looks like the chip of its tone and stays a native button (focus, Enter and Space, "
+              "text": "A video tile's \"Metadata late\", which shows why when pressed, is one. It looks like the chip of its tone, with a pointer and a focus outline. It stays a native button, with its focus, Enter and Space, and "
             },
             {
               "kind": "code",
@@ -167,7 +173,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), with a pointer and a focus outline. Its name is its text."
+              "text": ". Its name is its text."
             }
           ]
         }

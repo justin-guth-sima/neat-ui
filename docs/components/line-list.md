@@ -4,7 +4,15 @@
 
 _Components › Data_ · [All topics](../README.md)
 
-A short list of small lines under a thin rule, such as the channels that override a setting: `<ul neatLineList><li neatLine>Channel 3 <button neatInlineButton neatLineEnd>Use global</button></li></ul>`. It sets the look only (the rule, the inset, the text size); a line's content, and the roles of the list, are the app's. The text color is the parent's.
+A short list of small lines under a thin rule, such as the channels that override a setting.
+
+```html
+<ul neatLineList>
+  <li neatLine>
+    Channel 3 <button neatInlineButton neatLineEnd type="button">Use global</button>
+  </li>
+</ul>
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/line-list/regions.dark.webp">
@@ -100,6 +108,8 @@ export class Regions {
 ### `NeatLineList`
 
 Directive from `@sima/neat-ui/line-list`, selector `ul[neatLineList], ol[neatLineList]`.
+
+It sets the look only: the rule, the inset, the text size. A line's content, and the roles of the list, are the app's. The text color is the parent's.
 
 ### `NeatLine`
 

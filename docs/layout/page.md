@@ -4,7 +4,13 @@
 
 _Layout_ · [All topics](../README.md)
 
-A page in the shell's content area. It fills its parent and owns at most one scroll context: with `scroll="body"` (the default) its body is the single scroll container; with `scroll="none"` nothing scrolls and the content sizes itself to the page (for example a grid that fits the screen). The content takes its size from the page and neither measures the shell nor sets a height, so the same page works in a small window, on a wall display and in kiosk mode, where the rail and the top bar are gone and the page gets the whole viewport.
+A page in the shell's content area: it fills the area and owns at most one scroll context.
+
+```html
+<neat-page>
+  <app-recordings />
+</neat-page>
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/page/overview.dark.webp">
@@ -243,6 +249,10 @@ export class FullBleed {
 ### `NeatPage`
 
 Component from `@sima/neat-ui`, selector `neat-page`.
+
+With `scroll="body"` (the default) its body is the single scroll container. With `scroll="none"` nothing scrolls, and the content sizes itself to the page, such as a grid that fits the screen.
+
+The content takes its size from the page, and never measures the shell or sets a height. So the same page works in a small window, on a wall display and in kiosk mode, where the rail and the top bar are gone and the page gets the whole viewport.
 
 With `padding="page"` (the default) the content keeps the kit's page inset from the content area's edges, so every app's pages line up; `padding="none"` lets full-bleed content (a video grid, a map) reach the edges.
 

@@ -15,15 +15,29 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A small field for one whole number, with its label before it: "
+              "text": "A small field for one whole number, for jumping to a number such as a page or a channel."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-number-field label=\"Page\" [value]=\"page\" [accept]=\"inRange\" (commit)=\"goTo($event)\">\n  <span neatNumberFieldSuffix>of 9</span>\n</neat-number-field>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Its label sits before it. Content marked "
             },
             {
               "kind": "code",
-              "text": "<neat-number-field label=\"Page\" [value]=\"page\" [accept]=\"inRange\" (commit)=\"goTo($event)\"><span neatNumberFieldSuffix>of 9</span></neat-number-field>"
+              "text": "neatNumberFieldSuffix"
             },
             {
               "kind": "text",
-              "text": ". It is for jumping to a number, as a page or a channel."
+              "text": " follows the input, such as \"of 9\"."
             }
           ]
         },
@@ -40,7 +54,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". Typing changes nothing outside until the user commits with Enter or by leaving the field; "
+              "text": ". Typing changes nothing outside until the user commits, with Enter or by leaving the field. "
             },
             {
               "kind": "code",
@@ -56,7 +70,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " takes, even when it equals "
+              "text": " takes. It does so even when the number equals "
             },
             {
               "kind": "code",
@@ -72,7 +86,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " back in the field and emits nothing. Leaving a field that was not typed in emits nothing, so tabbing past it chooses nothing; Enter always commits what is shown."
+              "text": " back in the field and emits nothing."
             }
           ]
         },
@@ -81,7 +95,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The owner is expected to take what it accepted: after a commit the field shows that number until "
+              "text": "Leaving a field that was not typed in emits nothing, so tabbing past it chooses nothing. Enter always commits what is shown."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The owner is expected to take what it accepted: after a commit, the field shows that number until "
             },
             {
               "kind": "code",
@@ -89,15 +112,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " changes. Content marked "
-            },
-            {
-              "kind": "code",
-              "text": "neatNumberFieldSuffix"
-            },
-            {
-              "kind": "text",
-              "text": " follows the input, such as \"of 9\"."
+              "text": " changes."
             }
           ]
         }

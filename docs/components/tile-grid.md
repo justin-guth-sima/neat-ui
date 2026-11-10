@@ -4,7 +4,15 @@
 
 _Components › Video_ · [All topics](../README.md)
 
-Lays its items out as 16:9 tiles of a fixed width in a centered grid, as many as fit into its own box without scrolling or overflowing. The tile width comes from the page (a slider, say); the grid works out the columns, rows and tiles per page and reports them through `layout`, so the page can slice its items to `perPage`. The grid never pages itself.
+Lays its items out as 16:9 tiles of one width, as many as fit its box without scrolling.
+
+```html
+<neat-tile-grid [tileWidth]="tileWidth()" [count]="shown().length" (layout)="layout.set($event)">
+  @for (channel of shown(); track channel.id) {
+    <neat-video-tile [source]="channel.source" [label]="channel.name" />
+  }
+</neat-tile-grid>
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/tile-grid/packing.dark.webp">
@@ -247,6 +255,8 @@ neat-slider {
 ### `NeatTileGrid`
 
 Component from `@sima/neat-ui/video`, selector `neat-tile-grid`.
+
+The grid is centered. The tile width comes from the page, from a slider say. The grid works out the columns, rows and tiles per page, and reports them through `layout`, so the page can slice its items to `perPage`. The grid never pages itself.
 
 It fills its parent and measures its own box, never the shell's, so it repacks when the parent changes size for any reason. `layout` is emitted when a value of it changes, not on every resize notification.
 

@@ -648,7 +648,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Draws regions of interest on the image of the "
+              "text": "Draws regions of interest on a video tile's image, and lets the user add regions by clicking."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Project it into the "
             },
             {
               "kind": "code",
@@ -656,7 +665,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " it is placed in, and lets the user add regions by clicking points on it. Project it into the tile with "
+              "text": " with "
             },
             {
               "kind": "code",
@@ -1189,7 +1198,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Lays its items out as 16:9 tiles of a fixed width in a centered grid, as many as fit into its own box without scrolling or overflowing. The tile width comes from the page (a slider, say); the grid works out the columns, rows and tiles per page and reports them through "
+              "text": "Lays its items out as 16:9 tiles of one width, as many as fit its box without scrolling."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-tile-grid [tileWidth]=\"tileWidth()\" [count]=\"shown().length\" (layout)=\"layout.set($event)\">\n  @for (channel of shown(); track channel.id) {\n    <neat-video-tile [source]=\"channel.source\" [label]=\"channel.name\" />\n  }\n</neat-tile-grid>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The grid is centered. The tile width comes from the page, from a slider say. The grid works out the columns, rows and tiles per page, and reports them through "
             },
             {
               "kind": "code",
@@ -1633,24 +1656,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Plays a source's video with its metadata drawn as overlays, each frame with the metadata that describes it. It fills the box it is given."
+              "text": "Plays a source's video, with its metadata drawn over it as overlays."
             }
           ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-video-tile [source]=\"source\" label=\"1\" status=\"640×360 · 30 fps\" />"
         },
         {
           "kind": "paragraph",
           "spans": [
             {
               "kind": "text",
-              "text": "The frame loop runs outside Angular and touches no signal: per frame it matches the queued metadata to the presented frame, holds a type that is missing for a moment, and draws. The component sees a state change and, at most once a second, "
-            },
-            {
-              "kind": "code",
-              "text": "frameStats"
-            },
-            {
-              "kind": "text",
-              "text": ". Inputs the loop needs are copied into fields when they change, so a frame never reads an input or resolves settings."
+              "text": "Each frame is drawn with the metadata that describes it. The tile fills the box it is given."
             }
           ]
         },
@@ -1741,6 +1761,23 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The frame loop runs outside Angular and touches no signal: per frame it matches the queued metadata to the presented frame, holds a type that is missing for a moment, and draws. The component sees a state change and, at most once a second, "
+            },
+            {
+              "kind": "code",
+              "text": "frameStats"
+            },
+            {
+              "kind": "text",
+              "text": ". Inputs the loop needs are copied into fields when they change, so a frame never reads an input or resolves settings."
             }
           ]
         }
@@ -2252,15 +2289,25 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "What the \"metadata late\" notice says and offers for "
-            },
+              "text": "What the \"metadata late\" notice says and offers, from the lateness figures and the sync buffer."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "const notice = lateNoticeDetails(snapshot, bufferMs, bufferSupported, followedBufferMs);"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "snapshot"
             },
             {
               "kind": "text",
-              "text": ", the lateness window ("
+              "text": " is the lateness window, "
             },
             {
               "kind": "ref",
@@ -2277,7 +2324,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " figures), when the video sync buffer is "
+              "text": " figures. "
             },
             {
               "kind": "code",
@@ -2285,7 +2332,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". "
+              "text": " is the video sync buffer. "
             },
             {
               "kind": "code",
@@ -2293,15 +2340,29 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is whether the browser can set a buffer at all, and "
-            },
+              "text": " is whether the browser can set a buffer at all."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "followedBufferMs"
             },
             {
               "kind": "text",
-              "text": " the value the app's channels follow, if it has one, which decides whether the second button raises it or only lets this channel adopt it. The suggested buffer covers the slowest tenth of the messages (the 90th percentile) plus a margin, in steps of 50 ms, up to the 4000 ms maximum."
+              "text": " is the value the app's channels follow, if it has one. It decides whether the second button raises it, or only lets this channel adopt it."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The suggested buffer covers the slowest tenth of the messages (the 90th percentile) plus a margin. It goes in steps of 50 ms, up to the 4000 ms maximum."
             }
           ]
         }

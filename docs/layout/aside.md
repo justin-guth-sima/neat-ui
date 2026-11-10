@@ -4,7 +4,14 @@
 
 _Layout_ · [All topics](../README.md)
 
-The column of an aside's content, on the element the page marks `neatPageAside` (or its root inside): its parts stacked one gap apart (`--neat-space-3`). The aside gives it its width, inset and scrolling.
+The column of an aside's content: its parts stacked one gap apart.
+
+```html
+<section neatPageAside neatAsidePanel>
+  <h2 neatAsideTitle>Inspector</h2>
+  <p>…</p>
+</section>
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/aside/source-panel.dark.webp">
@@ -196,6 +203,8 @@ export class RememberedPanel {
 ### `NeatAsidePanel`
 
 Directive from `@sima/neat-ui`, selector `[neatAsidePanel]`.
+
+Put it on the element marked `neatPageAside`, or on that element's root inside. The gap is `--neat-space-3`. The aside gives the column its width, inset and scrolling.
 
 ### `NeatAsideHeading`
 

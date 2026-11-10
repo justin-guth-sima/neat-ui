@@ -365,15 +365,29 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": "
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-popover label=\"View options\">\n  <button neatButton neatPopoverTrigger type=\"button\">View</button>\n  <ng-template neatPopoverContent>…</ng-template>\n</neat-popover>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Put it inside the "
             },
             {
               "kind": "code",
-              "text": "<button neatPopoverTrigger>"
+              "text": "neat-popover"
             },
             {
               "kind": "text",
-              "text": " inside it. It can be a "
+              "text": ". It can be a "
             },
             {
               "kind": "code",
@@ -397,7 +411,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") and names the panel in "
+              "text": "), and names the panel in "
             },
             {
               "kind": "code",

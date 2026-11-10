@@ -76,8 +76,9 @@ function polylinePoints(points: readonly RoiPoint[], box: NeatVideoBox): string 
 }
 
 /**
- * Draws regions of interest on the image of the `neat-video-tile` it is placed in, and lets the
- * user add regions by clicking points on it. Project it into the tile with `neatTileOverlay`:
+ * Draws regions of interest on a video tile's image, and lets the user add regions by clicking.
+ *
+ * Project it into the `neat-video-tile` with `neatTileOverlay`:
  *
  * ```html
  * <neat-video-tile>

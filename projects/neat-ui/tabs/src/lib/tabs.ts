@@ -108,27 +108,38 @@ function reveal(trigger: HTMLElement, strip: HTMLElement): void {
 let nextTabsId = 0;
 
 /**
- * Tabs with one open panel: `<neat-tabs label="Channel settings" [(value)]="tab">` around
- * `neat-tab` children; the open tab is underlined. The tab list is named by `label`. Arrow keys
- * move to the next or previous tab and open it, skipping disabled tabs and wrapping; Home and End
- * jump to the ends; the open tab is the only tab stop. Every tab has a panel element, so each tab's
- * `aria-controls` names one that exists, but only the open tab's holds its content: the others are
- * empty and `hidden`. When `value` names no tab (or is unset), the first enabled tab is open, so
- * the list stays reachable.
+ * Tabs that show one panel at a time, for views inside one page.
+ *
+ * ```html
+ * <neat-tabs label="Channel settings" [(value)]="tab">
+ *   <neat-tab label="Metadata" value="metadata">
+ *     <ng-template>…</ng-template>
+ *   </neat-tab>
+ *   <neat-tab label="General" value="general">
+ *     <ng-template>…</ng-template>
+ *   </neat-tab>
+ * </neat-tabs>
+ * ```
+ *
+ * Use tabs for views that are not addresses, such as a dialog's sections. A page's route-linked
+ * views are its rail item's `children` or links in its page nav, never tabs.
+ *
+ * The open tab is underlined. The tab list is named by `label`. When `value` names no tab, or is
+ * unset, the first enabled tab is open, so the list stays reachable.
+ *
+ * The arrow keys move to the next or previous tab and open it, skipping disabled tabs and wrapping.
+ * Home and End jump to the ends. The open tab is the only tab stop.
+ *
+ * Every tab has a panel element, so each tab's `aria-controls` names one that exists. Only the open
+ * tab's panel holds its content: the others are empty and `hidden`.
  *
  * A panel taller than the space it has is for the surrounding page or pane to scroll, which keeps
  * one scroll context. The tab list is the one part that scrolls itself: tabs that do not fit their
  * container's width (an aside's) scroll sideways, never wrap, and the open tab is brought into
  * view when it changes.
  *
- * Brain's tabs are the host directive; its list, trigger and content directives give the tab
- * roles, the keyboard handling and the panel's labeling. Brain derives element ids from the tab
- * keys alone (`brn-tabs-label-<key>`) and puts them in ids and `aria-controls` as they are. The
- * kit's keys are the instance's prefix and the tab's place in the list, so two tab sets with the
- * same values do not share ids and a value with spaces ("Board 1") is still a valid id; `value`
- * stays in the app's terms. The tab list is built anew when the set of tabs changes, so the keys
- * follow tabs added or removed while mounted. Brain's lazy content keeps a visited panel alive, so the kit puts the
- * open tab's template in its panel itself.
+ * Two tab sets with the same values do not share element ids, and a value with spaces
+ * ("Board 1") works as any other: `value` stays in the app's terms.
  */
 @Component({
   selector: 'neat-tabs',
@@ -163,6 +174,14 @@ let nextTabsId = 0;
   `,
 })
 export class NeatTabs {
+  // Brain's tabs are the host directive; its list, trigger and content directives give the tab
+  // roles, the keyboard handling and the panel's labeling. Brain derives element ids from the tab
+  // keys alone (`brn-tabs-label-<key>`) and puts them in ids and `aria-controls` as they are. The
+  // kit's keys are the instance's prefix and the tab's place in the list, so two tab sets with the
+  // same values do not share ids and a value with spaces ("Board 1") is still a valid id. The tab
+  // list is built anew when the set of tabs changes, so the keys follow tabs added or removed while
+  // mounted. Brain's lazy content keeps a visited panel alive, so the kit puts the open tab's
+  // template in its panel itself.
   /** The open tab's `value`. */
   readonly value = model<string>();
   /** The tab list's accessible name. */

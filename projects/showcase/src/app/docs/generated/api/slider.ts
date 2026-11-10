@@ -15,23 +15,25 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A horizontal slider for one number: "
-            },
-            {
-              "kind": "code",
-              "text": "<neat-slider label=\"Tile width\" [min]=\"120\" [max]=\"480\" [step]=\"10\" [(value)]=\"width\" />"
-            },
-            {
-              "kind": "text",
-              "text": ". "
-            },
+              "text": "A horizontal slider for one number."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-slider label=\"Tile width\" [min]=\"120\" [max]=\"480\" [step]=\"10\" [(value)]=\"width\" />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "label"
             },
             {
               "kind": "text",
-              "text": " is the accessible name (it is not displayed); arrows step, Page Up and Down and Shift step by ten, Home and End jump to the ends."
+              "text": " is the accessible name, and is not displayed. The arrow keys step. Page Up and Page Down step by ten, as do the arrow keys with Shift. Home and End jump to the ends."
             }
           ]
         },
@@ -73,7 +75,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the id of the element that describes the slider (a note on where its value applies, say); it goes on the thumb, the focusable element, like the name. The disabled state is on the thumb as "
+              "text": " is the id of the element that describes the slider, such as a note on where its value applies. It goes on the thumb, the focusable element, like the name. The disabled state is on the thumb as "
             },
             {
               "kind": "code",

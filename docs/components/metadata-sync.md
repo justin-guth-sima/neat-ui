@@ -4,7 +4,11 @@
 
 _Components › Video_ · [All topics](../README.md)
 
-What the "metadata late" notice says and offers for `snapshot`, the lateness window ([`NeatMetadataSnapshot`](../components/metadata-sync.md#neatmetadatasnapshot)'s `recent` figures), when the video sync buffer is `currentBufferMs`. `bufferSupported` is whether the browser can set a buffer at all, and `followedBufferMs` the value the app's channels follow, if it has one, which decides whether the second button raises it or only lets this channel adopt it. The suggested buffer covers the slowest tenth of the messages (the 90th percentile) plus a margin, in steps of 50 ms, up to the 4000 ms maximum.
+What the "metadata late" notice says and offers, from the lateness figures and the sync buffer.
+
+```ts
+const notice = lateNoticeDetails(snapshot, bufferMs, bufferSupported, followedBufferMs);
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/metadata-sync/late-notice.dark.webp">
@@ -219,6 +223,12 @@ export class LateNotice {
 ### `lateNoticeDetails`
 
 Function from `@sima/neat-ui/video`.
+
+`snapshot` is the lateness window, [`NeatMetadataSnapshot`](../components/metadata-sync.md#neatmetadatasnapshot)'s `recent` figures. `currentBufferMs` is the video sync buffer. `bufferSupported` is whether the browser can set a buffer at all.
+
+`followedBufferMs` is the value the app's channels follow, if it has one. It decides whether the second button raises it, or only lets this channel adopt it.
+
+The suggested buffer covers the slowest tenth of the messages (the 90th percentile) plus a margin. It goes in steps of 50 ms, up to the 4000 ms maximum.
 
 ```ts
 lateNoticeDetails(snapshot: NeatLatenessSnapshot, currentBufferMs: number, bufferSupported: boolean, followedBufferMs?: number | null): NeatLateNoticeDetails

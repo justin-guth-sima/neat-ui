@@ -73,15 +73,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A short list of small lines under a thin rule, such as the channels that override a setting: "
-            },
-            {
-              "kind": "code",
-              "text": "<ul neatLineList><li neatLine>Channel 3 <button neatInlineButton neatLineEnd>Use global</button></li></ul>"
-            },
+              "text": "A short list of small lines under a thin rule, such as the channels that override a setting."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<ul neatLineList>\n  <li neatLine>\n    Channel 3 <button neatInlineButton neatLineEnd type=\"button\">Use global</button>\n  </li>\n</ul>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ". It sets the look only (the rule, the inset, the text size); a line's content, and the roles of the list, are the app's. The text color is the parent's."
+              "text": "It sets the look only: the rule, the inset, the text size. A line's content, and the roles of the list, are the app's. The text color is the parent's."
             }
           ]
         }

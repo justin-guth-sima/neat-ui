@@ -4,7 +4,11 @@
 
 _Components › Forms_ · [All topics](../README.md)
 
-A row of mutually exclusive choices, such as a tile shape: `<neat-segmented label="Tile shape" [options]="shapes" [(value)]="shape" />`. It is a radio group named by `label`: one tab stop (the checked option, else the first), arrow keys move the choice and wrap, Home and End jump to the ends, and a click on the checked option keeps it checked.
+A row of mutually exclusive choices, such as a tile shape.
+
+```html
+<neat-segmented label="Tile shape" [options]="shapes" [(value)]="shape" />
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/segmented/choices.dark.webp">
@@ -214,7 +218,9 @@ export class InANarrowPanel {
 
 Component from `@sima/neat-ui/segmented`, selector `neat-segmented`.
 
-Drawn as an iOS-style switch: a track with a raised thumb that slides under the chosen label. Its width does not move with the choice: every column is as wide as the widest label needs, in semibold.
+It is a radio group named by `label`, with one tab stop: the checked option, else the first. The arrow keys move the choice and wrap, and Home and End jump to the ends. A click on the checked option keeps it checked.
+
+It is drawn as an iOS-style switch: a track with a raised thumb that slides under the chosen label. Its width does not move with the choice: every column is as wide as the widest label needs, in semibold.
 
 It never gives up width to its neighbors: in a flex row too narrow for everything in it, the control keeps its labels whole and the text beside it gives way (that text needs `min-width: 0` to shrink). It is never wider than its container, though: in one narrower than its labels (an aside dragged narrow) the options shrink together, still equal, and each label ends in an ellipsis, its full text still the option's name and shown as a tooltip on hover.
 

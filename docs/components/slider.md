@@ -4,7 +4,11 @@
 
 _Components › Forms_ · [All topics](../README.md)
 
-A horizontal slider for one number: `<neat-slider label="Tile width" [min]="120" [max]="480" [step]="10" [(value)]="width" />`. `label` is the accessible name (it is not displayed); arrows step, Page Up and Down and Shift step by ten, Home and End jump to the ends.
+A horizontal slider for one number.
+
+```html
+<neat-slider label="Tile width" [min]="120" [max]="480" [step]="10" [(value)]="width" />
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/slider/described-and-disabled.dark.webp">
@@ -151,9 +155,11 @@ neat-slider {
 
 Component from `@sima/neat-ui/slider`, selector `neat-slider`.
 
+`label` is the accessible name, and is not displayed. The arrow keys step. Page Up and Page Down step by ten, as do the arrow keys with Shift. Home and End jump to the ends.
+
 `value` changes on every step of a drag, not only when the pointer is released, so whatever it drives (the tile grid's repacking, for one) previews live. A value outside `min`..`max` is shown clamped and stays as it is until the user moves the slider.
 
-`describedBy` is the id of the element that describes the slider (a note on where its value applies, say); it goes on the thumb, the focusable element, like the name. The disabled state is on the thumb as `aria-disabled` too, since assistive technology reaches the slider through its thumb.
+`describedBy` is the id of the element that describes the slider, such as a note on where its value applies. It goes on the thumb, the focusable element, like the name. The disabled state is on the thumb as `aria-disabled` too, since assistive technology reaches the slider through its thumb.
 
 **Inputs**
 

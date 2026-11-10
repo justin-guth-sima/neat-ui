@@ -91,9 +91,18 @@ export class NeatPopoverContent {
 }
 
 /**
- * The button that opens and closes a `neat-popover`: `<button neatPopoverTrigger>` inside it. It
- * can be a `neatButton` with a tooltip as well. It announces the dialog it opens
- * (`aria-haspopup`, `aria-expanded`) and names the panel in `aria-controls` while it is open.
+ * The button that opens and closes a `neat-popover`.
+ *
+ * ```html
+ * <neat-popover label="View options">
+ *   <button neatButton neatPopoverTrigger type="button">View</button>
+ *   <ng-template neatPopoverContent>…</ng-template>
+ * </neat-popover>
+ * ```
+ *
+ * Put it inside the `neat-popover`. It can be a `neatButton` with a tooltip as well. It announces
+ * the dialog it opens (`aria-haspopup`, `aria-expanded`), and names the panel in `aria-controls`
+ * while it is open.
  */
 @Directive({
   selector: 'button[neatPopoverTrigger]',

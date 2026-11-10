@@ -4,7 +4,7 @@
 
 _Components › Data_ · [All topics](../README.md)
 
-A data table's look (full width, a rule under every row, the column headings muted and small), on a native `table` whose rows and cells the app writes:
+A data table's look, on a native `table` whose rows and cells the app writes.
 
 ```html
 <table neatTable aria-label="Metrics of the run">
@@ -107,7 +107,9 @@ export class RunMetrics {
 
 Directive from `@sima/neat-ui/table`, selector `table[neatTable]`.
 
-It sets the look only: the columns, what a cell holds and how a table gives up a column when its container is narrow are the app's (the kit cannot know the container, or which columns matter). The table's name for assistive technology is the app's too (`aria-label`).
+The table is full width, with a rule under every row and its column headings muted and small.
+
+It sets the look only. The columns, what a cell holds and how a table gives up a column when its container is narrow are the app's: the kit cannot know the container, or which columns matter. The table's name for assistive technology is the app's too (`aria-label`).
 
 ### `NeatNumeric`
 

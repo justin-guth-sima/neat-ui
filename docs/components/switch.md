@@ -4,7 +4,11 @@
 
 _Components › Forms_ · [All topics](../README.md)
 
-An on/off switch on a native button, for a setting that applies at once, as it is toggled: `<button neatSwitch [(checked)]="bars">Bars</button>`. The content is the visible label and the accessible name; without content, give it an `aria-label`. Space and Enter toggle it as they click any button.
+An on/off switch, for a setting that applies at once, as it is toggled.
+
+```html
+<button neatSwitch [(checked)]="bars">Bars</button>
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/switch/on-and-off.dark.webp">
@@ -77,6 +81,8 @@ export class OnAndOff {
 ### `NeatSwitch`
 
 Component from `@sima/neat-ui/switch`, selector `button[neatSwitch]`.
+
+It is a native button. The content is the visible label and the accessible name. Without content, give it an `aria-label`. Space and Enter toggle it, as they click any button.
 
 **Inputs**
 

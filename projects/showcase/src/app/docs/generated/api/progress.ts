@@ -15,16 +15,18 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A horizontal progress bar: "
-            },
-            {
-              "kind": "code",
-              "text": "<neat-progress label=\"Uploading clip.mp4\" [value]=\"percent\" />"
-            },
-            {
-              "kind": "text",
-              "text": ". "
-            },
+              "text": "A horizontal progress bar."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-progress label=\"Uploading clip.mp4\" [value]=\"percent\" />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "value"
@@ -39,7 +41,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " while the work cannot say how far along it is (the bar then moves on its own; under a reduced-motion setting it is a still bar of stripes). A value outside the range is held to it, and one that is not a number counts as unknown, so a sloppy caller gets a bar, not an error."
+              "text": " while the work cannot say how far along it is. The bar then moves on its own. Under a reduced-motion setting it is a still bar of stripes."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A value outside the range is held to it, and one that is not a number counts as unknown. So a sloppy caller gets a bar, not an error."
             }
           ]
         },
@@ -56,7 +67,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " it is a titled readout, for work the user watches (an import, an encode, a progress toast): the heading with the whole percent at its line's end, the "
+              "text": " it is a titled readout, for work the user watches: an import, an encode, a progress toast. It shows the heading with the whole percent at its line's end, the "
             },
             {
               "kind": "code",
@@ -64,7 +75,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " under it (one line, cut with its full text as a tooltip; left out while empty), then the bar; the progress toast of "
+              "text": " under it, then the bar. The detail is one line, cut with its full text as a tooltip, and left out while empty. The progress toast of "
             },
             {
               "kind": "ref",
@@ -173,15 +184,6 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": ". It fills the width its container gives it, from the left: the kit has no right-to-left layout."
-            }
-          ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "Brain's progress is the element inside, which owns the role and the values; its range check throws for a value out of range, which is why the kit's own input, held to the range, feeds it."
             }
           ]
         }

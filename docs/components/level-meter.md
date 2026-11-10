@@ -4,7 +4,7 @@
 
 _Components › Status_ · [All topics](../README.md)
 
-A live audio level as a bar of 28 segments, from -50 dBFS (dark) to full scale (all lit), green to 70 % of the bar, amber to 90 %, red above; the segments not lit are in the border color:
+A live audio level, as a bar of segments.
 
 ```html
 <neat-level-meter [sample]="micTest.level" />
@@ -79,6 +79,8 @@ export class SineWave {
 ### `NeatLevelMeter`
 
 Component from `@sima/neat-ui/level-meter`, selector `neat-level-meter`.
+
+The bar has 28 segments, from -50 dBFS (dark) to full scale (all lit). They light green to 70 % of the bar, amber to 90 %, and red above. The segments not lit are in the border color.
 
 `sample` reads the current level in dBFS, or null for none (the meter is dark). While it is set and the meter is rendered, the meter calls it once per animation frame, so one input serves a value the app polls and keeps in a field as well as a Web Audio analyzer read on demand. Pass null to stop. The meter calls the function on its own, never as a method of the app's object: give it an arrow function (`readonly level = () => this.lastLevel`), not a method. Return null when the source is gone (an audio context closed) rather than throw: the loop outlives a throw, so a sample that keeps throwing reports an error every frame.
 

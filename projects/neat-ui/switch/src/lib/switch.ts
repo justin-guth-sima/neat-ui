@@ -34,10 +34,14 @@ const HOST_CLASSES =
   'inline-flex items-center gap-2 rounded-md text-sm font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50';
 
 /**
- * An on/off switch on a native button, for a setting that applies at once, as it is toggled:
- * `<button neatSwitch [(checked)]="bars">Bars</button>`. The content is the visible label and the
- * accessible name; without content, give it an `aria-label`. Space and Enter toggle it as they
- * click any button.
+ * An on/off switch, for a setting that applies at once, as it is toggled.
+ *
+ * ```html
+ * <button neatSwitch [(checked)]="bars">Bars</button>
+ * ```
+ *
+ * It is a native button. The content is the visible label and the accessible name. Without
+ * content, give it an `aria-label`. Space and Enter toggle it, as they click any button.
  */
 @Component({
   // An attribute selector keeps the native button as the host, as `button[neatButton]` does.

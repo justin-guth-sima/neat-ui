@@ -4,7 +4,13 @@
 
 _Layout_ · [All topics](../README.md)
 
-The app frame: the top bar, which is the page's, across the full width at the top, and below it the rail on the left, which is the app's, and the content area for the routed page. The top bar comes first in the DOM, so the tab order is the visual one: top bar, rail, content. It fills the viewport, or the bounded box it is placed in; the content area gives its page the remaining space and never scrolls itself, so pages own their scrolling (see `neat-page`).
+The app frame: a top bar, a rail of pages on the left, and the content area for the page.
+
+```html
+<neat-shell appName="Insight" [navItems]="navItems">
+  <router-outlet />
+</neat-shell>
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/shell/kiosk.dark.webp">
@@ -263,11 +269,15 @@ export class App {
 
 Component from `@sima/neat-ui`, selector `neat-shell`.
 
+The top bar is the page's, across the full width. The rail below it is the app's. The top bar comes first in the DOM, so the tab order is the visual one: top bar, rail, content.
+
+The shell fills the viewport, or the bounded box it is placed in. The content area gives its page the remaining space and never scrolls itself, so pages own their scrolling (see `neat-page`).
+
 The rail holds the pages (`navItems`) and, at its bottom below a divider, the app's own items (elements marked `neatRailEnd`: `neatRailItem`s, and `neatRailDivider`s between groups of them), then the kit's theme item, then the rail's control. Expanded, its items show icon and label; collapsed, the icon with the label as a tooltip and as hidden text. The theme item and the control are actions named for what a click does: "Dark theme" or "Light theme", "Show labels" or "Collapse".
 
 A page with `children` unfolds them under its item while it is the active page and the rail shows its labels (expanded, or floating open on a narrow screen): rows of text, indented under a thin line, the open one in the rail's current-page look. The item then keeps its label in full text color at weight 500 without the fill, so one row alone reads as current, and only that row carries `aria-current="page"`. Only the active page's children show, so the rail does not grow with every page's sub-pages.
 
-Collapsed, the rail has no room for them: its item for a page with `children` stays a link to the page's `path`, and a press just navigates, as on any rail item. The menu of the sub-pages beside the rail is a companion of mouse hover and keyboard focus only (Tab steps from the item into its links, Escape closes it); a tap shows none, as the rail can be expanded. The item keeps the current-page look while the route belongs to the page. The menu's heading is the page's label, which is why that item has no tooltip.
+Collapsed, the rail has no room for them: its item for a page with `children` stays a link to the page's `path`, and a press navigates, as on any rail item. The menu of the sub-pages beside the rail is a companion of mouse hover and keyboard focus only (Tab steps from the item into its links, Escape closes it); a tap shows none, as the rail can be expanded. The item keeps the current-page look while the route belongs to the page. The menu's heading is the page's label, which is why that item has no tooltip.
 
 The top bar holds the logo, the app name and the page title, then at its right the active page's tools (`*neatPageToolbar`), elements marked `neatTopbarEnd`, the kiosk button (the one app control there, since it changes how the page is shown), and last, at the right edge above the aside, the page's aside toggle (`neat-aside-toggle`) when the page has one. The page title is the matching nav item's label, else the route's `title`; on a page with sub-pages it is the open sub-page's label with the page's label beside it, muted, or, on a route deeper than the sub-page whose own `title` is set (not an ancestor's), that title with "page › sub-page" beside it. The default slot is the content area (usually a `<router-outlet />`).
 
@@ -289,13 +299,15 @@ On a narrow screen ([`NeatViewport`](../layout/page.md#neatviewport), below 48re
 
 Component from `@sima/neat-ui`, selector `button[neatRailItem], a[neatRailItem]`.
 
-An item of the shell's rail, the one look of the page links, the theme item, the rail's own control and an app's items at the bottom of the rail (`[neatRailEnd]`):
+An app's own item in the shell's rail, at its bottom below the pages.
 
 ```html
 <button neatRailEnd neatRailItem type="button" label="System information" (click)="…">
   <neat-icon name="info" />
 </button>
 ```
+
+It has the look of every rail item: the page links, the theme item and the rail's own control. Mark it `neatRailEnd` to place it at the rail's bottom.
 
 The content is the icon. `label` is the visible text while the rail is expanded; collapsed, it stays as the item's visually hidden text, so the name is kept, and shows as a tooltip on the right.
 
@@ -316,7 +328,7 @@ An item is an action, never a toggle: its label says what a click does ("Dark th
 
 The host stays the native button or link, with its own click, focus and `routerLink`. A link followed on a narrow screen puts the floating rail away; a button leaves it, since its action may want the rail (a theme switch) or open a dialog over it.
 
-Brain's tooltip is a host directive here, not `neatTooltip`, because the item names its own tooltip from `label`: a host directive's inputs come from the template that uses the element, and `label` feeds both the item and the tooltip. It is switched off while the labels show, and on the shell's items that show a menu of sub-pages on hover and focus (a collapsed page with `children`), whose menu names the page itself.
+The tooltip is off while the labels show. It is off too on a collapsed page item with `children`, whose menu of sub-pages names the page itself.
 
 **Inputs**
 

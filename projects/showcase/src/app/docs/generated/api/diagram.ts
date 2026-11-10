@@ -3134,15 +3134,39 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The level that opens on "
-            },
-            {
-              "kind": "code",
-              "text": "blockId"
-            },
+              "text": "The level a block opens, placed from a diagram that holds the block's insides."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "const set = { overview, levels: { detector: neatDrillDownLevel(pipeline, 'detector') } };"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ": the block as its group at the origin, sized to its children with a padding, and everything inside the block, however deep, as placed (positions are relative to the parent, so nothing moves); the nodes the edges from inside reach, in a column left of the group (senders) and right of it (receivers), vertically centered on it; and the edges with an end inside. A node that both sends and receives goes in the senders' column only, so it is on the level once. The outside nodes and the group get their sides afresh (an overview's "
+              "text": "The block becomes the level's group, at the origin, sized to its children with a padding. Everything inside the block, however deep, stays as placed: positions are relative to the parent, so nothing moves."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The nodes that the edges from inside reach go in a column left of the group (senders) and right of it (receivers), centered on it vertically. A node that both sends and receives goes in the senders' column only, so it is on the level once. The level holds the edges with an end inside."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The outside nodes and the group get their sides afresh, since an overview's "
             },
             {
               "kind": "code",
@@ -3158,7 +3182,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " suit its placement, not this one), and the group opens nothing (it is the level). The diagram's notes are left behind: they are placed for it. A block that is not on the diagram or holds nothing gives an empty level, named once."
+              "text": " suit its placement, not this one. The group opens nothing: it is the level. The diagram's notes are left behind, since they are placed for it."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A block that is not on the diagram, or holds nothing, gives an empty level, named once."
             }
           ]
         }

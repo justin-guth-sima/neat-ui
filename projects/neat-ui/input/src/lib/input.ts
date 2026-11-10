@@ -15,9 +15,14 @@ export type NeatInputSize = 'small' | 'medium';
 export const INPUT_HELM_CLASSES = HELM_CLASSES;
 
 /**
- * A text or number field: `<input neatInput type="number" inputmode="numeric" min="1">`. Every
- * native attribute (type, inputmode, min, max, placeholder, id, disabled) keeps its meaning; the
- * kit only styles the field. Name it with a `<label for>` or an `aria-label`.
+ * A text or number field.
+ *
+ * ```html
+ * <input neatInput type="number" inputmode="numeric" min="1" aria-label="Copies" />
+ * ```
+ *
+ * Every native attribute (type, inputmode, min, max, placeholder, id, disabled) keeps its meaning.
+ * The kit only styles the field. Name it with a `<label for>` or an `aria-label`.
  *
  * `size` is the kit's height, not the native character width: bind it (`[size]="'small'"`) or set
  * it as an attribute, which the browser ignores as a width since it is not a number.

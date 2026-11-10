@@ -78,11 +78,19 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
 }
 
 /**
- * The app frame: the top bar, which is the page's, across the full width at the top, and below it
- * the rail on the left, which is the app's, and the content area for the routed page. The top bar
- * comes first in the DOM, so the tab order is the visual one: top bar, rail, content. It fills the
- * viewport, or the bounded box it is placed in; the content area gives its page the remaining space
- * and never scrolls itself, so pages own their scrolling (see `neat-page`).
+ * The app frame: a top bar, a rail of pages on the left, and the content area for the page.
+ *
+ * ```html
+ * <neat-shell appName="Insight" [navItems]="navItems">
+ *   <router-outlet />
+ * </neat-shell>
+ * ```
+ *
+ * The top bar is the page's, across the full width. The rail below it is the app's. The top bar
+ * comes first in the DOM, so the tab order is the visual one: top bar, rail, content.
+ *
+ * The shell fills the viewport, or the bounded box it is placed in. The content area gives its page
+ * the remaining space and never scrolls itself, so pages own their scrolling (see `neat-page`).
  *
  * The rail holds the pages (`navItems`) and, at its bottom below a divider, the app's own items
  * (elements marked `neatRailEnd`: `neatRailItem`s, and `neatRailDivider`s between groups of them),
@@ -99,7 +107,7 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * with every page's sub-pages.
  *
  * Collapsed, the rail has no room for them: its item for a page with `children` stays a link to the
- * page's `path`, and a press just navigates, as on any rail item. The menu of the sub-pages beside
+ * page's `path`, and a press navigates, as on any rail item. The menu of the sub-pages beside
  * the rail is a companion of mouse hover and keyboard focus only (Tab steps from the item into its
  * links, Escape closes it); a tap shows none, as the rail can be expanded. The item keeps the
  * current-page look while the route belongs to the page. The menu's heading is the page's label,

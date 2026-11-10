@@ -550,7 +550,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The column of an aside's content, on the element the page marks "
+              "text": "The column of an aside's content: its parts stacked one gap apart."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<section neatPageAside neatAsidePanel>\n  <h2 neatAsideTitle>Inspector</h2>\n  <p>…</p>\n</section>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Put it on the element marked "
             },
             {
               "kind": "code",
@@ -558,7 +572,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (or its root inside): its parts stacked one gap apart ("
+              "text": ", or on that element's root inside. The gap is "
             },
             {
               "kind": "code",
@@ -566,7 +580,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "). The aside gives it its width, inset and scrolling."
+              "text": ". The aside gives the column its width, inset and scrolling."
             }
           ]
         }
@@ -1425,7 +1439,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A figure that eases to each new value ("
+              "text": "A figure that eases to each new value instead of jumping."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-eased-number [value]=\"fps()\" [digits]=\"1\" /> fps"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It moves as "
             },
             {
               "kind": "ref",
@@ -1434,15 +1462,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") instead of jumping, as "
-            },
-            {
-              "kind": "code",
-              "text": "<neat-eased-number [value]=\"fps()\" [digits]=\"1\" /> fps"
-            },
+              "text": " does. Its first value shows at once, and \"–\" stands in while there is none. Its digits are tabular, so a moving value keeps its width."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ": its first value shows at once, and \"–\" stands in while there is none. Its digits are tabular, so a moving value keeps its width. It is the number only: the unit and the words around it are the app's."
+              "text": "It is the number only: the unit and the words around it are the app's."
             }
           ]
         }
@@ -1567,7 +1596,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "An icon: a name from the kit's curated set, or where no name fits a glyph from "
+              "text": "An icon from the kit's set, named for what it means."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-icon name=\"info\" />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Where no name of the set fits, give it a glyph from "
             },
             {
               "kind": "code",
@@ -1575,7 +1618,32 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". Decorative by default (hidden from assistive technology); give it a "
+              "text": " instead: "
+            },
+            {
+              "kind": "code",
+              "text": "<neat-icon [name]=\"Rocket\" />"
+            },
+            {
+              "kind": "text",
+              "text": ", with "
+            },
+            {
+              "kind": "code",
+              "text": "Rocket"
+            },
+            {
+              "kind": "text",
+              "text": " imported from that entry point."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An icon is decorative by default, hidden from assistive technology. Give it a "
             },
             {
               "kind": "code",
@@ -1583,7 +1651,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " when it carries meaning on its own. It takes its color from the surrounding text. The "
+              "text": " when it carries meaning on its own. It takes its color from the surrounding text."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The "
             },
             {
               "kind": "code",
@@ -1591,15 +1668,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " turns (see "
-            },
-            {
-              "kind": "code",
-              "text": "icon.css"
-            },
-            {
-              "kind": "text",
-              "text": "), still for a user who asked for reduced motion; it says nothing of waiting, so the control it sits in does (an "
+              "text": " turns, and stays still for a user who asked for reduced motion. It says nothing of waiting, so the control it sits in does, with "
             },
             {
               "kind": "code",
@@ -1607,7 +1676,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", a held state)."
+              "text": " or a held state."
             }
           ]
         }
@@ -1764,7 +1833,30 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A text action set into a line of text, such as \"Use global\" at the end of a list line: medium weight and underlined on hover, as tall as its text, in the font size and color of its parent. Its label does not wrap, so keep it to a few words. Use "
+              "text": "A text action set into a line of text, such as \"Use global\" at the end of a list line."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<button neatInlineButton type=\"button\" (click)=\"useGlobal()\">Use global</button>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is medium weight and underlined on hover, as tall as its text, in the font size and color of its parent. Its label does not wrap, so keep it to a few words."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Use "
             },
             {
               "kind": "code",
@@ -1772,7 +1864,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " for actions that stand on their own; this one is for dense lines where a "
+              "text": " for actions that stand on their own. This one is for dense lines, where a "
             },
             {
               "kind": "code",
@@ -1780,7 +1872,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "'s 2rem height would set the line height. Keep lines at least 1.5rem high ("
+              "text": "'s 2rem height would set the line height. When several lines sit in a column, keep each at least 1.5rem high ("
             },
             {
               "kind": "code",
@@ -1788,7 +1880,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") when several sit in a column, so the targets stay apart (WCAG 2.5.8)."
+              "text": "), so the targets stay apart (WCAG 2.5.8)."
             }
           ]
         }
@@ -1839,15 +1931,30 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A small red dot that says something is live or recording, as "
-            },
-            {
-              "kind": "code",
-              "text": "<neat-live-dot pulse />"
-            },
+              "text": "A small red dot that says something is live or recording."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-live-dot pulse /> Recording 0:34"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": " before the words \"Recording 0:34\". Hidden from assistive technology: the text beside it carries the meaning, so give it text. With "
+              "text": "It is hidden from assistive technology. The text beside it carries the meaning, so give it text."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "With "
             },
             {
               "kind": "code",
@@ -1855,7 +1962,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " the dot beats and a ring grows out of it and fades, once in 1.6 s; without it, or under a reduced-motion setting, it is a still dot. The ring is drawn outside the dot's 0.625rem box and does not move the layout, but an ancestor that clips its overflow clips the ring too. The color is the theme's "
+              "text": ", the dot beats and a ring grows out of it and fades, once in 1.6 s. Without it, or under a reduced-motion setting, it is a still dot. The ring is drawn outside the dot's 0.625rem box and does not move the layout. An ancestor that clips its overflow clips the ring too."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The color is the theme's "
             },
             {
               "kind": "code",
@@ -1863,7 +1979,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", a red that reads at 3:1 on the page and on the video scrim (over black to mid-gray video), so a badge over video can use it."
+              "text": ", a red that reads at 3:1 on the page and on the video scrim, over black to mid-gray video. So a badge over video can use it."
             }
           ]
         }
@@ -2072,15 +2188,30 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A short note under a control or a heading: no margin, in the muted text color and the small text size, as "
-            },
-            {
-              "kind": "code",
-              "text": "<p neatNote>Applies to every channel without its own value.</p>"
-            },
+              "text": "A short note under a control or a heading, in small muted text."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<p neatNote>Applies to every channel without its own value.</p>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ". It sets the look only; the words, and any role, are the app's. A "
+              "text": "It has no margin. It sets the look only: the words, and any role, are the app's."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A "
             },
             {
               "kind": "code",
@@ -2088,7 +2219,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " inside takes the note's size and color, so an action set into the note (\"Show\", \"Use global\") reads like the words around it."
+              "text": " inside takes the note's size and color. So an action set into the note (\"Show\", \"Use global\") reads like the words around it."
             }
           ]
         }
@@ -2105,7 +2236,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A page in the shell's content area. It fills its parent and owns at most one scroll context: with "
+              "text": "A page in the shell's content area: it fills the area and owns at most one scroll context."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-page>\n  <app-recordings />\n</neat-page>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "With "
             },
             {
               "kind": "code",
@@ -2113,7 +2258,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (the default) its body is the single scroll container; with "
+              "text": " (the default) its body is the single scroll container. With "
             },
             {
               "kind": "code",
@@ -2121,7 +2266,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " nothing scrolls and the content sizes itself to the page (for example a grid that fits the screen). The content takes its size from the page and neither measures the shell nor sets a height, so the same page works in a small window, on a wall display and in kiosk mode, where the rail and the top bar are gone and the page gets the whole viewport."
+              "text": " nothing scrolls, and the content sizes itself to the page, such as a grid that fits the screen."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The content takes its size from the page, and never measures the shell or sets a height. So the same page works in a small window, on a wall display and in kiosk mode, where the rail and the top bar are gone and the page gets the whole viewport."
             }
           ]
         },
@@ -2841,15 +2995,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "An item of the shell's rail, the one look of the page links, the theme item, the rail's own control and an app's items at the bottom of the rail ("
-            },
-            {
-              "kind": "code",
-              "text": "[neatRailEnd]"
-            },
-            {
-              "kind": "text",
-              "text": "):"
+              "text": "An app's own item in the shell's rail, at its bottom below the pages."
             }
           ]
         },
@@ -2857,6 +3003,23 @@ export const API: DocsEntry = {
           "kind": "code",
           "language": "html",
           "code": "<button neatRailEnd neatRailItem type=\"button\" label=\"System information\" (click)=\"…\">\n  <neat-icon name=\"info\" />\n</button>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It has the look of every rail item: the page links, the theme item and the rail's own control. Mark it "
+            },
+            {
+              "kind": "code",
+              "text": "neatRailEnd"
+            },
+            {
+              "kind": "text",
+              "text": " to place it at the rail's bottom."
+            }
+          ]
         },
         {
           "kind": "paragraph",
@@ -3070,31 +3233,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Brain's tooltip is a host directive here, not "
-            },
-            {
-              "kind": "code",
-              "text": "neatTooltip"
-            },
-            {
-              "kind": "text",
-              "text": ", because the item names its own tooltip from "
-            },
-            {
-              "kind": "code",
-              "text": "label"
-            },
-            {
-              "kind": "text",
-              "text": ": a host directive's inputs come from the template that uses the element, and "
-            },
-            {
-              "kind": "code",
-              "text": "label"
-            },
-            {
-              "kind": "text",
-              "text": " feeds both the item and the tooltip. It is switched off while the labels show, and on the shell's items that show a menu of sub-pages on hover and focus (a collapsed page with "
+              "text": "The tooltip is off while the labels show. It is off too on a collapsed page item with "
             },
             {
               "kind": "code",
@@ -3102,7 +3241,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), whose menu names the page itself."
+              "text": ", whose menu of sub-pages names the page itself."
             }
           ]
         }
@@ -3223,7 +3362,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The color of a series as a small square, for a label that stands for that series outside the drawing that uses it (a run's chip, a summary row, a chart's or a diagram's legend):"
+              "text": "A series' color as a small square, beside a label outside the chart that stands for the series."
             }
           ]
         },
@@ -3231,6 +3370,15 @@ export const API: DocsEntry = {
           "kind": "code",
           "language": "html",
           "code": "<neat-series-swatch [index]=\"i\" /> {{ run.name }}"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Such a label is a run's chip, a summary row, or a chart's or a diagram's legend."
+            }
+          ]
         },
         {
           "kind": "paragraph",
@@ -3249,7 +3397,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", from 0, and the swatch takes the color that series is drawn in ("
+              "text": ", from 0. The swatch takes the color that series is drawn in ("
             },
             {
               "kind": "code",
@@ -3265,7 +3413,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), so a label and its line match in either theme. A chart folds a ninth series and beyond into \"Other\" (index 7), so an index past 7 names no color. A chart's lone series is drawn in its tone's color instead and needs no swatch."
+              "text": "), so a label and its line match in either theme. A chart folds a ninth series and beyond into \"Other\" (index 7), so an index past 7 names no color. A chart's lone series is drawn in its tone's color instead, and needs no swatch."
             }
           ]
         },
@@ -3274,7 +3422,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "In the primary, not in "
+              "text": "It is in the primary entry point, not in "
             },
             {
               "kind": "code",
@@ -3282,7 +3430,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", so the diagram's legend shows it without the charts' d3 (and "
+              "text": ", so the diagram's legend shows it without the charts' d3. "
             },
             {
               "kind": "code",
@@ -3290,7 +3438,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " still exports it for the apps that import it from there). The time and stacked charts draw their legends' and readouts' swatches with it, and so does "
+              "text": " still exports it, for the apps that import it from there."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The time and stacked charts draw their legends' and readouts' swatches with it, and so does "
             },
             {
               "kind": "code",
@@ -3298,7 +3455,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". Its look is "
+              "text": ". It has the look of "
             },
             {
               "kind": "code",
@@ -3306,7 +3463,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "'s (the color square for any color): both take that component's sheet, so the size, shape and corners are stated once. It is "
+              "text": ", the square for any color."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is "
             },
             {
               "kind": "code",
@@ -3373,7 +3539,30 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The app frame: the top bar, which is the page's, across the full width at the top, and below it the rail on the left, which is the app's, and the content area for the routed page. The top bar comes first in the DOM, so the tab order is the visual one: top bar, rail, content. It fills the viewport, or the bounded box it is placed in; the content area gives its page the remaining space and never scrolls itself, so pages own their scrolling (see "
+              "text": "The app frame: a top bar, a rail of pages on the left, and the content area for the page."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-shell appName=\"Insight\" [navItems]=\"navItems\">\n  <router-outlet />\n</neat-shell>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The top bar is the page's, across the full width. The rail below it is the app's. The top bar comes first in the DOM, so the tab order is the visual one: top bar, rail, content."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The shell fills the viewport, or the bounded box it is placed in. The content area gives its page the remaining space and never scrolls itself, so pages own their scrolling (see "
             },
             {
               "kind": "code",
@@ -3472,7 +3661,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", and a press just navigates, as on any rail item. The menu of the sub-pages beside the rail is a companion of mouse hover and keyboard focus only (Tab steps from the item into its links, Escape closes it); a tap shows none, as the rail can be expanded. The item keeps the current-page look while the route belongs to the page. The menu's heading is the page's label, which is why that item has no tooltip."
+              "text": ", and a press navigates, as on any rail item. The menu of the sub-pages beside the rail is a companion of mouse hover and keyboard focus only (Tab steps from the item into its links, Escape closes it); a tap shows none, as the rail can be expanded. The item keeps the current-page look while the route belongs to the page. The menu's heading is the page's label, which is why that item has no tooltip."
             }
           ]
         },
@@ -3648,15 +3837,39 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Shows that what the host shows is stale (a figure from before a connection dropped, a frame of a stream that stopped): "
-            },
-            {
-              "kind": "code",
-              "text": "<span [neatStale]=\"lost()\">12.4 fps</span>"
-            },
+              "text": "Shows that what the host shows is stale, faded and gray."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<span [neatStale]=\"lost()\">12.4 fps</span>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ". While true the host is faded and gray; once fresh it is shown as it is. The change is instant, with no transition, so a value that comes back is never shown half-faded as if still in doubt. It is the look only: the app says in words why the value is stale, since gray alone tells no one what happened."
+              "text": "Use it for a figure from before a connection dropped, or a frame of a stream that stopped. While true, the host is faded and gray. Once fresh, it is shown as it is."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The change is instant, with no transition, so a value that comes back is never shown half-faded as if still in doubt."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is the look only. The app says in words why the value is stale, since gray alone tells no one what happened."
             }
           ]
         }
@@ -3691,7 +3904,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A color as a small square, for a label that stands for something drawn in that color (a class in the video overlays or the bird's-eye view, an item in an app's own legend):"
+              "text": "A color as a small square, beside a label that stands for something drawn in that color."
             }
           ]
         },
@@ -3704,12 +3917,25 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "text",
+              "text": "Such a label names a class in the video overlays or the bird's-eye view, or an item in an app's own legend. "
+            },
+            {
               "kind": "code",
               "text": "color"
             },
             {
               "kind": "text",
-              "text": " is any CSS color. For a chart's series, "
+              "text": " is any CSS color."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "For a chart's series, "
             },
             {
               "kind": "code",
@@ -3717,7 +3943,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " takes the series' index and finds its color by the kit's one rule; the two share one look (size, shape, corners), stated once in this component's sheet. It is "
+              "text": " takes the series' index and finds its color by the kit's one rule. The two share one look: size, shape and corners."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is "
             },
             {
               "kind": "code",
@@ -3793,7 +4028,21 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A short text label shown on mouse or pen hover and on keyboard focus, hidden on leave, blur and Escape; the host carries "
+              "text": "A short text label shown on hover and on keyboard focus."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<button neatButton type=\"button\" variant=\"text\" iconOnly aria-label=\"View options\"\n        neatTooltip=\"View options\">\n  <neat-icon name=\"more\" />\n</button>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It shows on mouse or pen hover and on keyboard focus, and hides on leave, blur and Escape. The host carries "
             },
             {
               "kind": "code",
@@ -3801,7 +4050,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " while it is shown. It never opens on touch (a tap would trigger the host's action too), so it must not carry anything the host's accessible name does not."
+              "text": " while it is shown."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It never opens on touch, since a tap would trigger the host's action too. So it must not carry anything the host's accessible name does not."
             }
           ]
         },
@@ -4264,7 +4522,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A number that eases toward "
+              "text": "A number signal that eases to each new value of "
             },
             {
               "kind": "code",
@@ -4272,7 +4530,30 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "'s latest value over 400 ms ("
+              "text": " instead of jumping."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "readonly shownFps = neatEased(this.fps);"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A figure that updates twice a second then reads as moving rather than flickering. Call it in an injection context."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It takes 400 ms, or "
             },
             {
               "kind": "code",
@@ -4280,7 +4561,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") instead of jumping, so a figure that updates twice a second reads as moving rather than flickering. The curve is "
+              "text": ". The curve is "
             },
             {
               "kind": "code",
@@ -4296,7 +4577,25 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " unless told otherwise: a catalog name comes first, one motion language across apps, a function only where no name fits; a signal of either may switch the curve while a value is moving, and the next frame follows the new one. A curve that overshoots shows more than the target on the way; the last frame shows the target exactly. The first value, and a value that follows none (null or undefined), appears at once; null and undefined pass through as they are. Under a reduced-motion setting it follows "
+              "text": " unless told otherwise. Take a catalog name first, so apps share one way of moving, and a function only where no name fits. A signal of either may switch the curve while a value is moving, and the next frame follows the new one."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A curve that overshoots shows more than the target on the way. The last frame shows the target exactly."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The first value, and a value that follows none (null or undefined), appears at once. Null and undefined pass through as they are. Under a reduced-motion setting it follows "
             },
             {
               "kind": "code",
@@ -4304,7 +4603,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " at once. Frames are asked for only while it moves and canceled when its injector is destroyed. Call in an injection context."
+              "text": " at once."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Frames are asked for only while it moves, and canceled when its injector is destroyed."
             }
           ]
         }
@@ -4354,15 +4662,34 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "How long ago something was, said in the kit's one relative-time style: \"just now\" under 10 s, then \"12 s ago\", \"3 min ago\", \"2 h ago\" and \"4 d ago\", each cut to whole units (a minute is 60 whole seconds, an hour 60 minutes). "
-            },
+              "text": "How long ago something was, in the kit's one relative-time style: \"just now\", \"12 s ago\"."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "neatSecondsAgo((Date.now() - lastSeen) / 1000); // \"3 min ago\""
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It says \"just now\" under 10 s, then \"12 s ago\", \"3 min ago\", \"2 h ago\" and \"4 d ago\". Each is cut to whole units: a minute is 60 whole seconds, an hour 60 minutes."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "seconds"
             },
             {
               "kind": "text",
-              "text": " is first rounded to a whole second; a time ahead of now (a clock that stepped back) reads as \"just now\"."
+              "text": " is first rounded to a whole second. A time ahead of now, from a clock that stepped back, reads as \"just now\"."
             }
           ]
         },
@@ -4388,7 +4715,30 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A signal kept in localStorage under "
+              "text": "A signal kept in localStorage, for a setting an app remembers per browser."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "readonly bars = neatStoredSignal('my-app:bars', true, (stored) =>\n  typeof stored === 'boolean' ? stored : undefined,\n);"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Use it for a panel's choices or a view's options. It needs no injection context."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It starts at what is stored under "
             },
             {
               "kind": "code",
@@ -4396,7 +4746,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", for a setting an app remembers per browser (a panel's choices, a view's options). It starts at what is stored, as "
+              "text": ", as "
             },
             {
               "kind": "code",
@@ -4404,7 +4754,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " accepts it: "
+              "text": " accepts it. "
             },
             {
               "kind": "code",
@@ -4412,7 +4762,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " gets the stored JSON, of any shape an older version of the app may have written, and answers the value or undefined to refuse it. Nothing stored, text that is not JSON, or a refusal starts it at "
+              "text": " gets the stored JSON, of any shape an older version of the app may have written. It answers the value, or undefined to refuse it. Nothing stored, text that is not JSON, or a refusal starts the signal at "
             },
             {
               "kind": "code",
@@ -4420,8 +4770,13 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". "
-            },
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "set"
@@ -4436,7 +4791,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " store the new value as JSON. Storage that is missing, refuses or cannot hold the value never throws: the signal then holds its value for this page load only. Needs no injection context."
+              "text": " store the new value as JSON. Storage that is missing, refuses or cannot hold the value never throws: the signal then holds its value for this page load only."
             }
           ]
         }

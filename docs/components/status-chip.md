@@ -269,7 +269,13 @@ A chip truncates rather than widen the cell or bar that holds it.
 
 Directive from `@sima/neat-ui/status-chip`, selector `button[neatStatusChip]`.
 
-The chip as a button, for a status that opens more about itself, such as a video tile's "Metadata late" that shows why: `<button neatStatusChip tone="warning" type="button">`. It looks like the chip of its tone and stays a native button (focus, Enter and Space, `disabled`), with a pointer and a focus outline. Its name is its text.
+The chip as a button, for a status that opens more about itself.
+
+```html
+<button neatStatusChip tone="warning" type="button" (click)="showWhy()">Metadata late</button>
+```
+
+A video tile's "Metadata late", which shows why when pressed, is one. It looks like the chip of its tone, with a pointer and a focus outline. It stays a native button, with its focus, Enter and Space, and `disabled`. Its name is its text.
 
 **Inputs**
 

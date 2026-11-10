@@ -130,9 +130,17 @@ export class NeatAsideToggle implements OnInit {
 }
 
 /**
- * The column of an aside's content, on the element the page marks `neatPageAside` (or its
- * root inside): its parts stacked one gap apart (`--neat-space-3`). The aside gives it its width,
- * inset and scrolling.
+ * The column of an aside's content: its parts stacked one gap apart.
+ *
+ * ```html
+ * <section neatPageAside neatAsidePanel>
+ *   <h2 neatAsideTitle>Inspector</h2>
+ *   <p>…</p>
+ * </section>
+ * ```
+ *
+ * Put it on the element marked `neatPageAside`, or on that element's root inside. The gap is
+ * `--neat-space-3`. The aside gives the column its width, inset and scrolling.
  */
 @Directive({
   selector: '[neatAsidePanel]',

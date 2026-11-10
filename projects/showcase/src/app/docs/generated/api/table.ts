@@ -97,7 +97,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A data table's look (full width, a rule under every row, the column headings muted and small), on a native "
+              "text": "A data table's look, on a native "
             },
             {
               "kind": "code",
@@ -105,7 +105,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " whose rows and cells the app writes:"
+              "text": " whose rows and cells the app writes."
             }
           ]
         },
@@ -119,7 +119,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It sets the look only: the columns, what a cell holds and how a table gives up a column when its container is narrow are the app's (the kit cannot know the container, or which columns matter). The table's name for assistive technology is the app's too ("
+              "text": "The table is full width, with a rule under every row and its column headings muted and small."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It sets the look only. The columns, what a cell holds and how a table gives up a column when its container is narrow are the app's: the kit cannot know the container, or which columns matter. The table's name for assistive technology is the app's too ("
             },
             {
               "kind": "code",

@@ -21,15 +21,25 @@ const OUTSIDE_SPACING = 24;
 const OUTSIDE_GAP = 220;
 
 /**
- * The level that opens on `blockId`: the block as its group at the origin, sized to its children
- * with a padding, and everything inside the block, however deep, as placed (positions are
- * relative to the parent, so nothing moves); the nodes the edges from inside reach, in a column
- * left of the group (senders) and right of it (receivers), vertically centered on it; and the edges
- * with an end inside. A node that both sends and receives goes in the senders' column only, so it
- * is on the level once. The outside nodes and the group get their sides afresh (an overview's
- * `inSide` and `outSide` suit its placement, not this one), and the group opens nothing (it is the
- * level). The diagram's notes are left behind: they are placed for it. A block that is not on the
- * diagram or holds nothing gives an empty level, named once.
+ * The level a block opens, placed from a diagram that holds the block's insides.
+ *
+ * ```ts
+ * const set = { overview, levels: { detector: neatDrillDownLevel(pipeline, 'detector') } };
+ * ```
+ *
+ * The block becomes the level's group, at the origin, sized to its children with a padding.
+ * Everything inside the block, however deep, stays as placed: positions are relative to the
+ * parent, so nothing moves.
+ *
+ * The nodes that the edges from inside reach go in a column left of the group (senders) and right
+ * of it (receivers), centered on it vertically. A node that both sends and receives goes in the
+ * senders' column only, so it is on the level once. The level holds the edges with an end inside.
+ *
+ * The outside nodes and the group get their sides afresh, since an overview's `inSide` and
+ * `outSide` suit its placement, not this one. The group opens nothing: it is the level. The
+ * diagram's notes are left behind, since they are placed for it.
+ *
+ * A block that is not on the diagram, or holds nothing, gives an empty level, named once.
  */
 export function neatDrillDownLevel(diagram: NeatDiagram, blockId: string): NeatDiagram {
   const block = diagram.nodes.find((node) => node.id === blockId);

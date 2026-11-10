@@ -4,19 +4,7 @@
 
 _Components › Video_ · [All topics](../README.md)
 
-Draws regions of interest on the image of the `neat-video-tile` it is placed in, and lets the user add regions by clicking points on it. Project it into the tile with `neatTileOverlay`:
-
-```html
-<neat-video-tile>
-  <neat-roi-editor
-    neatTileOverlay
-    [regions]="regions"
-    [mode]="mode"
-    [(highlighted)]="highlighted"
-    (regionsChange)="…"
-  />
-</neat-video-tile>
-```
+Draws regions of interest on a video tile's image, and lets the user add regions by clicking.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/roi-editor/drawing-regions.dark.webp">
@@ -301,6 +289,20 @@ export class TestPatternSource implements NeatTileSource {
 ### `NeatRoiEditor`
 
 Component from `@sima/neat-ui/video`, selector `neat-roi-editor`.
+
+Project it into the `neat-video-tile` with `neatTileOverlay`:
+
+```html
+<neat-video-tile>
+  <neat-roi-editor
+    neatTileOverlay
+    [regions]="regions"
+    [mode]="mode"
+    [(highlighted)]="highlighted"
+    (regionsChange)="…"
+  />
+</neat-video-tile>
+```
 
 While the tile plays, it sits on the tile's video box, so a point is a position on the image, not on the letterbox, and it stays there when the tile resizes. Without video (none yet, or stopped) it uses the tile's full box instead, so regions can be seen and drawn before a stream plays; points are normalized to whichever box was used, which is exact for a stream of the tile's shape. Until it knows either box it draws nothing and takes no input. The full box is meant for a tile with `bars` off: with bars on, the no-video note and the bar paint above the editor and cover what lies under them.
 

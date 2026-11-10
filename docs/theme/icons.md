@@ -4,7 +4,11 @@
 
 _Theme_ · [All topics](../README.md)
 
-An icon: a name from the kit's curated set, or where no name fits a glyph from `@sima/neat-ui/lucide`. Decorative by default (hidden from assistive technology); give it a `label` when it carries meaning on its own. It takes its color from the surrounding text. The `spinner` turns (see `icon.css`), still for a user who asked for reduced motion; it says nothing of waiting, so the control it sits in does (an `aria-busy`, a held state).
+An icon from the kit's set, named for what it means.
+
+```html
+<neat-icon name="info" />
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/icons/gallery.dark.webp">
@@ -209,6 +213,12 @@ export class AnyLucideGlyph {
 ### `NeatIcon`
 
 Component from `@sima/neat-ui`, selector `neat-icon`.
+
+Where no name of the set fits, give it a glyph from `@sima/neat-ui/lucide` instead: `<neat-icon [name]="Rocket" />`, with `Rocket` imported from that entry point.
+
+An icon is decorative by default, hidden from assistive technology. Give it a `label` when it carries meaning on its own. It takes its color from the surrounding text.
+
+The `spinner` turns, and stays still for a user who asked for reduced motion. It says nothing of waiting, so the control it sits in does, with `aria-busy` or a held state.
 
 **Inputs**
 

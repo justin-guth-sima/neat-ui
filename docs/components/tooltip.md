@@ -4,7 +4,14 @@
 
 _Components › Actions_ · [All topics](../README.md)
 
-A short text label shown on mouse or pen hover and on keyboard focus, hidden on leave, blur and Escape; the host carries `aria-describedby` while it is shown. It never opens on touch (a tap would trigger the host's action too), so it must not carry anything the host's accessible name does not.
+A short text label shown on hover and on keyboard focus.
+
+```html
+<button neatButton type="button" variant="text" iconOnly aria-label="View options"
+        neatTooltip="View options">
+  <neat-icon name="more" />
+</button>
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/tooltip/positions.dark.webp">
@@ -82,6 +89,10 @@ export class Positions {
 ### `NeatTooltip`
 
 Directive from `@sima/neat-ui`, selector `[neatTooltip]`.
+
+It shows on mouse or pen hover and on keyboard focus, and hides on leave, blur and Escape. The host carries `aria-describedby` while it is shown.
+
+It never opens on touch, since a tap would trigger the host's action too. So it must not carry anything the host's accessible name does not.
 
 `neatTooltip` takes a string only. Its declared type is brain's (`string | TemplateRef | null`) because a host-directive alias keeps the primitive's input type; templates are not supported.
 

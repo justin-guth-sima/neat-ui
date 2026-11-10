@@ -4,7 +4,11 @@
 
 _Components › Status_ · [All topics](../README.md)
 
-A short note under a control or a heading: no margin, in the muted text color and the small text size, as `<p neatNote>Applies to every channel without its own value.</p>`. It sets the look only; the words, and any role, are the app's. A `neatInlineButton` inside takes the note's size and color, so an action set into the note ("Show", "Use global") reads like the words around it.
+A short note under a control or a heading, in small muted text.
+
+```html
+<p neatNote>Applies to every channel without its own value.</p>
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/note/under-a-control.dark.webp">
@@ -74,3 +78,7 @@ export class UnderAControl {}
 ### `NeatNote`
 
 Directive from `@sima/neat-ui`, selector `[neatNote]`.
+
+It has no margin. It sets the look only: the words, and any role, are the app's.
+
+A `neatInlineButton` inside takes the note's size and color. So an action set into the note ("Show", "Use global") reads like the words around it.

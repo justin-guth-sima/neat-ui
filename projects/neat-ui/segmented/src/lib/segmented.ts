@@ -71,12 +71,17 @@ const MOVES: Record<string, (index: number, count: number) => number> = {
 };
 
 /**
- * A row of mutually exclusive choices, such as a tile shape: `<neat-segmented label="Tile shape"
- * [options]="shapes" [(value)]="shape" />`. It is a radio group named by `label`: one tab stop
- * (the checked option, else the first), arrow keys move the choice and wrap, Home and End jump to
- * the ends, and a click on the checked option keeps it checked.
+ * A row of mutually exclusive choices, such as a tile shape.
  *
- * Drawn as an iOS-style switch: a track with a raised thumb that slides under the chosen label.
+ * ```html
+ * <neat-segmented label="Tile shape" [options]="shapes" [(value)]="shape" />
+ * ```
+ *
+ * It is a radio group named by `label`, with one tab stop: the checked option, else the first. The
+ * arrow keys move the choice and wrap, and Home and End jump to the ends. A click on the checked
+ * option keeps it checked.
+ *
+ * It is drawn as an iOS-style switch: a track with a raised thumb that slides under the chosen label.
  * Its width does not move with the choice: every column is as wide as the widest label needs, in
  * semibold.
  *

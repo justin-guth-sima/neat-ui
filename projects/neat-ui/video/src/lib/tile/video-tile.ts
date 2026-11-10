@@ -119,13 +119,13 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
 }
 
 /**
- * Plays a source's video with its metadata drawn as overlays, each frame with the metadata that
- * describes it. It fills the box it is given.
+ * Plays a source's video, with its metadata drawn over it as overlays.
  *
- * The frame loop runs outside Angular and touches no signal: per frame it matches the queued
- * metadata to the presented frame, holds a type that is missing for a moment, and draws. The
- * component sees a state change and, at most once a second, `frameStats`. Inputs the loop needs
- * are copied into fields when they change, so a frame never reads an input or resolves settings.
+ * ```html
+ * <neat-video-tile [source]="source" label="1" status="640×360 · 30 fps" />
+ * ```
+ *
+ * Each frame is drawn with the metadata that describes it. The tile fills the box it is given.
  *
  * With `bars` on, a bar along the bottom shows `label`, `status` and the chips projected with
  * `neatTileChip`, and a tile without video says so. With `bars` off it is only video and overlay.
@@ -135,6 +135,11 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
  * is. Without video the layer stays above what covers the image and below the no-video note, which
  * lets pointer input through. The layer itself catches no pointer input, so the video under it
  * keeps its hits; its content takes them only where it sets `pointer-events: auto`.
+ *
+ * The frame loop runs outside Angular and touches no signal: per frame it matches the queued
+ * metadata to the presented frame, holds a type that is missing for a moment, and draws. The
+ * component sees a state change and, at most once a second, `frameStats`. Inputs the loop needs
+ * are copied into fields when they change, so a frame never reads an input or resolves settings.
  */
 @Component({
   selector: 'neat-video-tile',

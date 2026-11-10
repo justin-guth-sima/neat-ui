@@ -4,7 +4,11 @@
 
 _Components › Status_ · [All topics](../README.md)
 
-A number that eases toward `source`'s latest value over 400 ms (`durationMs`) instead of jumping, so a figure that updates twice a second reads as moving rather than flickering. The curve is `easing`, `'ease-in-out'` unless told otherwise: a catalog name comes first, one motion language across apps, a function only where no name fits; a signal of either may switch the curve while a value is moving, and the next frame follows the new one. A curve that overshoots shows more than the target on the way; the last frame shows the target exactly. The first value, and a value that follows none (null or undefined), appears at once; null and undefined pass through as they are. Under a reduced-motion setting it follows `source` at once. Frames are asked for only while it moves and canceled when its injector is destroyed. Call in an injection context.
+A number signal that eases to each new value of `source` instead of jumping.
+
+```ts
+readonly shownFps = neatEased(this.fps);
+```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/motion/eased-number.dark.webp">
@@ -211,6 +215,16 @@ button {
 
 Function from `@sima/neat-ui`.
 
+A figure that updates twice a second then reads as moving rather than flickering. Call it in an injection context.
+
+It takes 400 ms, or `durationMs`. The curve is `easing`, `'ease-in-out'` unless told otherwise. Take a catalog name first, so apps share one way of moving, and a function only where no name fits. A signal of either may switch the curve while a value is moving, and the next frame follows the new one.
+
+A curve that overshoots shows more than the target on the way. The last frame shows the target exactly.
+
+The first value, and a value that follows none (null or undefined), appears at once. Null and undefined pass through as they are. Under a reduced-motion setting it follows `source` at once.
+
+Frames are asked for only while it moves, and canceled when its injector is destroyed.
+
 ```ts
 neatEased(source: Signal<number | null | undefined>, options: { durationMs?: number; easing?: NeatEasing | Signal<NeatEasing> } = {}): Signal<number | null | undefined>
 ```
@@ -219,7 +233,15 @@ neatEased(source: Signal<number | null | undefined>, options: { durationMs?: num
 
 Component from `@sima/neat-ui`, selector `neat-eased-number`.
 
-A figure that eases to each new value ([`neatEased`](../components/motion.md#neateased)) instead of jumping, as `<neat-eased-number [value]="fps()" [digits]="1" /> fps`: its first value shows at once, and "–" stands in while there is none. Its digits are tabular, so a moving value keeps its width. It is the number only: the unit and the words around it are the app's.
+A figure that eases to each new value instead of jumping.
+
+```html
+<neat-eased-number [value]="fps()" [digits]="1" /> fps
+```
+
+It moves as [`neatEased`](../components/motion.md#neateased) does. Its first value shows at once, and "–" stands in while there is none. Its digits are tabular, so a moving value keeps its width.
+
+It is the number only: the unit and the words around it are the app's.
 
 **Inputs**
 

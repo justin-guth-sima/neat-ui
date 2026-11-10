@@ -20,12 +20,18 @@ const CLASSES = hlm(
 );
 
 /**
- * A text action set into a line of text, such as "Use global" at the end of a list line: medium
- * weight and underlined on hover, as tall as its text, in the font size and color of its parent.
- * Its label does not wrap, so keep it to a few words. Use `neatButton` for actions that stand on
- * their own; this one is for dense lines where a `neatButton`'s 2rem height would set the line
- * height. Keep lines at least 1.5rem high (`min-block-size`) when several sit in a column, so the
- * targets stay apart (WCAG 2.5.8).
+ * A text action set into a line of text, such as "Use global" at the end of a list line.
+ *
+ * ```html
+ * <button neatInlineButton type="button" (click)="useGlobal()">Use global</button>
+ * ```
+ *
+ * It is medium weight and underlined on hover, as tall as its text, in the font size and color of
+ * its parent. Its label does not wrap, so keep it to a few words.
+ *
+ * Use `neatButton` for actions that stand on their own. This one is for dense lines, where a
+ * `neatButton`'s 2rem height would set the line height. When several lines sit in a column, keep
+ * each at least 1.5rem high (`min-block-size`), so the targets stay apart (WCAG 2.5.8).
  *
  * @input disabled Turns the action off: dimmed, out of the Tab order and not clickable (a link
  * gets no `disabled` attribute but the same look and `tabindex="-1"`).
