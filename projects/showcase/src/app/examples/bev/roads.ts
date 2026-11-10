@@ -2,212 +2,293 @@ import { DestroyRef, inject, signal, type Signal } from '@angular/core';
 import type { NeatBevFrame, NeatBevLine, NeatBevObject } from '@sima/neat-ui/bev';
 
 /*
- * A made-up road network for the polygon example, in the vehicle's frame (metres, x forward,
- * y left), given as pieces of drivable area the way a map gives them: polygons that overlap where
- * roads meet and fill as one area. The vehicle drives in the right lane of a wide four-lane road.
- * Behind it a narrow side road joins from the left with rounded corners; ahead a narrow road
- * crosses with straight corners; past the crossing a ramp branches off to the right in a curve,
- * which the planned path takes. Traffic moves on every road. Nothing here comes from a real
- * recording.
+ * A made-up road network for the polygon example, laid out in a world frame of its own (metres,
+ * X east, Y north) and given as pieces of drivable area the way a map gives them: polygons that
+ * overlap where roads meet and fill as one area. A wide four-lane ring road with rounded corners;
+ * a narrow road straight through it, crossing it twice with square corners; a narrow side road
+ * joining it from the east with rounded corners; and a ramp branching off it in a curve to the
+ * south. The vehicle drives round the ring anticlockwise, and every frame the world is turned
+ * into the vehicle's frame (x forward, y left), so the roads and the traffic move and turn
+ * around it. Nothing here comes from a real recording.
  */
 
-/** The main road: four lanes, the vehicle in the rightmost, from far behind to far ahead. */
+/** Lanes, and the roads' half widths: the ring's four lanes, the narrow roads' two of 3 m. */
 const LANE = 3.5;
-const MAIN_RIGHT = -LANE / 2;
-const MAIN_LEFT = MAIN_RIGHT + 4 * LANE;
-const MAIN_FROM = -70;
-const MAIN_TO = 80;
-/** The narrow roads: two lanes of 3 m. */
+const RING_HALF = 2 * LANE;
 const NARROW = 3;
-/** The crossing road's centre line, ahead, and how far it reaches either side. */
-const CROSS_X = 22;
-const CROSS_REACH = 70;
-/** The side road's centre line, behind, its rounded corners' radius and how far it reaches. */
-const SIDE_X = -25;
-const CORNER = 6;
-const SIDE_REACH = 70;
-/** The ramp: where it leaves the main road, how sharply it turns right, and its straight after. */
-const RAMP_AT = 32;
-const RAMP_RADIUS = 18;
-const RAMP_EXIT = 50;
-/** How finely curves are drawn: metres between points. */
+/** The ring's centre line: a rectangle 120 × 80 m with rounded corners. */
+const RING_X = 60;
+const RING_Y = 40;
+const RING_CORNER = 18;
+/** The road through the ring, north to south, and how far it reaches. */
+const THROUGH_REACH = 80;
+/** The side road, joining the ring's east side: its centre line, its end and its corners' radius. */
+const SIDE_Y = 10;
+const SIDE_TO = 120;
+const FILLET = 6;
+/** The ramp: where it leaves the ring's south side, how sharply it turns, how far it runs on. */
+const RAMP_FROM = 15;
+const RAMP_RADIUS = 25;
+const RAMP_ON = 60;
+/** How finely curves and lines are drawn: metres between points. */
 const STEP = 1.5;
+/** The vehicle's speed round the ring, m/s, and how far ahead its planned path reaches. */
+const EGO_SPEED = 12;
+const PLAN_AHEAD = 50;
 
-/** x, y pairs from a list of points. */
-const pairs = (points: readonly (readonly [number, number])[]): Float32Array =>
-  Float32Array.from(points.flat());
-
-/** A rectangle, metres: back and front, right and left. */
-const box = (back: number, front: number, right: number, left: number): Float32Array =>
-  pairs([
-    [back, right],
-    [front, right],
-    [front, left],
-    [back, left],
-  ]);
-
-/** A point on a route `s` metres along it, and its heading. */
-interface Along {
+/** Where something is and which way it heads (radians anticlockwise from east). */
+interface Pose {
   readonly x: number;
   readonly y: number;
   readonly yaw: number;
 }
 
-/** A route traffic and lines follow: its length and where it is `s` metres along. */
+/** A path things follow: its length, and where it is `s` metres along. */
 interface Route {
   readonly length: number;
-  at(s: number): Along;
+  at(s: number): Pose;
 }
 
-/** A straight route from `x`, `y` heading `yaw`. */
-function straight(x: number, y: number, yaw: number, length: number): Route {
+/** A straight run, or an arc turning left (positive) or right (negative) by `turn` radians. */
+type Piece = { readonly straight: number } | { readonly radius: number; readonly turn: number };
+
+/** Where `distance` metres along `piece` from `from` is. */
+function along(from: Pose, piece: Piece, distance: number): Pose {
+  if ('straight' in piece) {
+    return {
+      x: from.x + distance * Math.cos(from.yaw),
+      y: from.y + distance * Math.sin(from.yaw),
+      yaw: from.yaw,
+    };
+  }
+  const side = Math.sign(piece.turn);
+  // The arc's centre lies `radius` to the left of the start (to the right for a right turn).
+  const cx = from.x - side * piece.radius * Math.sin(from.yaw);
+  const cy = from.y + side * piece.radius * Math.cos(from.yaw);
+  const yaw = from.yaw + (side * distance) / piece.radius;
   return {
-    length,
-    at: (s) => ({ x: x + s * Math.cos(yaw), y: y + s * Math.sin(yaw), yaw }),
+    x: cx + side * piece.radius * Math.sin(yaw),
+    y: cy - side * piece.radius * Math.cos(yaw),
+    yaw,
   };
 }
 
-/** The ramp's centre line: along the main road's right lane, a quarter turn right, then straight. */
-const RAMP_BEND = (RAMP_RADIUS * Math.PI) / 2;
-const ramp: Route = {
-  length: RAMP_BEND + RAMP_EXIT,
-  at(s) {
-    if (s <= RAMP_BEND) {
-      const a = s / RAMP_RADIUS;
-      return {
-        x: RAMP_AT + RAMP_RADIUS * Math.sin(a),
-        y: -RAMP_RADIUS * (1 - Math.cos(a)),
-        yaw: -a,
-      };
-    }
-    return {
-      x: RAMP_AT + RAMP_RADIUS,
-      y: -RAMP_RADIUS - (s - RAMP_BEND),
-      yaw: -Math.PI / 2,
-    };
-  },
-};
-
-/** The point `offset` metres to the left of `route` at `s`. */
-function beside(route: Route, s: number, offset: number): [number, number] {
-  const { x, y, yaw } = route.at(s);
-  return [x - offset * Math.sin(yaw), y + offset * Math.cos(yaw)];
+/** A route from `start` along `pieces`, one after the other. */
+function path(start: Pose, pieces: readonly Piece[]): Route {
+  const starts: Pose[] = [];
+  const lengths: number[] = [];
+  let pose = start;
+  for (const piece of pieces) {
+    starts.push(pose);
+    const length = 'straight' in piece ? piece.straight : piece.radius * Math.abs(piece.turn);
+    lengths.push(length);
+    pose = along(pose, piece, length);
+  }
+  const length = lengths.reduce((a, b) => a + b, 0);
+  return {
+    length,
+    at(s) {
+      let rest = Math.min(Math.max(s, 0), length);
+      for (let i = 0; i < pieces.length - 1; i++) {
+        if (rest <= lengths[i]) return along(starts[i], pieces[i], rest);
+        rest -= lengths[i];
+      }
+      return along(starts[pieces.length - 1], pieces[pieces.length - 1], rest);
+    },
+  };
 }
 
-/** Every `STEP` metres along `route`, its end included. */
-function stations(route: Route): number[] {
+/** `route` moved `offset` metres to its left, and run the other way when `back`. */
+function lane(route: Route, offset: number, back = false): Route {
+  return {
+    length: route.length,
+    at(s) {
+      const pose = route.at(back ? route.length - s : s);
+      return {
+        x: pose.x - offset * Math.sin(pose.yaw),
+        y: pose.y + offset * Math.cos(pose.yaw),
+        yaw: back ? pose.yaw + Math.PI : pose.yaw,
+      };
+    },
+  };
+}
+
+/** The ring's centre line, anticlockwise from the middle of its south side. */
+const QUARTER = { radius: RING_CORNER, turn: Math.PI / 2 } as const;
+const RING = path({ x: 0, y: -RING_Y, yaw: 0 }, [
+  { straight: RING_X - RING_CORNER },
+  QUARTER,
+  { straight: 2 * (RING_Y - RING_CORNER) },
+  QUARTER,
+  { straight: 2 * (RING_X - RING_CORNER) },
+  QUARTER,
+  { straight: 2 * (RING_Y - RING_CORNER) },
+  QUARTER,
+  { straight: RING_X - RING_CORNER },
+]);
+const THROUGH = path({ x: 0, y: -THROUGH_REACH, yaw: Math.PI / 2 }, [
+  { straight: 2 * THROUGH_REACH },
+]);
+const SIDE = path({ x: RING_X + RING_HALF, y: SIDE_Y, yaw: 0 }, [
+  { straight: SIDE_TO - RING_X - RING_HALF },
+]);
+/** The ramp leaves the ring's outer eastbound lane and turns south. */
+const RAMP = path({ x: RAMP_FROM, y: -RING_Y - 1.5 * LANE, yaw: 0 }, [
+  { radius: RAMP_RADIUS, turn: -Math.PI / 2 },
+  { straight: RAMP_ON },
+]);
+
+/** Every `STEP` metres along `route` from `from` to `to`, `to` included. */
+function stations(route: Route, from = 0, to = route.length): number[] {
   const at: number[] = [];
-  for (let s = 0; s < route.length; s += STEP) at.push(s);
-  at.push(route.length);
+  for (let s = from; s < to; s += STEP) at.push(s);
+  at.push(to);
   return at;
 }
 
-/** A road of `half` width either side of `route`'s centre: up its right edge, back down its left. */
-function band(route: Route, half: number): Float32Array {
-  const right = stations(route).map((s) => beside(route, s, -half));
-  const left = stations(route)
-    .reverse()
-    .map((s) => beside(route, s, half));
-  return pairs([...right, ...left]);
+/** The points of `route`, `offset` metres to its left. */
+function trace(route: Route, offset = 0): [number, number][] {
+  const side = lane(route, offset);
+  return stations(route).map((s) => {
+    const { x, y } = side.at(s);
+    return [x, y];
+  });
 }
 
+/** A road `half` wide either side of `route`: up its right edge and back down its left. */
+const band = (route: Route, half: number): [number, number][] => [
+  ...trace(route, -half),
+  ...trace(route, half).reverse(),
+];
+
+/** A rectangle, metres: west and east, south and north. */
+const box = (west: number, east: number, south: number, north: number): [number, number][] => [
+  [west, south],
+  [east, south],
+  [east, north],
+  [west, north],
+];
+
 /**
- * A rounded corner where a road leaving at `x` meets the main road's left edge, on the side
- * `toward` (-1 behind it, +1 ahead of it): the square of `CORNER` metres there, less the quarter
- * circle that rounds it.
+ * A rounded corner where a road meets another's edge at `corner`: the square `FILLET` metres
+ * along the edge (`edge`, a unit direction away from the road) and along the road (`road`), less
+ * the quarter circle that rounds it.
  */
-function roundedCorner(x: number, toward: -1 | 1): Float32Array {
-  const cx = x + toward * CORNER;
-  const cy = MAIN_LEFT + CORNER;
+function fillet(
+  corner: readonly [number, number],
+  edge: readonly [number, number],
+  road: readonly [number, number],
+): [number, number][] {
+  const [px, py] = corner;
+  const cx = px + FILLET * (edge[0] + road[0]);
+  const cy = py + FILLET * (edge[1] + road[1]);
   const points: [number, number][] = [
-    [cx, MAIN_LEFT],
-    [x, MAIN_LEFT],
-    [x, cy],
+    [px + FILLET * edge[0], py + FILLET * edge[1]],
+    [px, py],
+    [px + FILLET * road[0], py + FILLET * road[1]],
   ];
-  // The arc from the side road's edge back to the main road's, bulging towards the corner.
+  // Round from the road's edge back to the other edge, bulging towards the corner.
   for (let i = 1; i < 12; i++) {
     const a = (i / 12) * (Math.PI / 2);
-    points.push([cx - toward * CORNER * Math.cos(a), cy - CORNER * Math.sin(a)]);
+    points.push([
+      cx - FILLET * (Math.cos(a) * edge[0] + Math.sin(a) * road[0]),
+      cy - FILLET * (Math.cos(a) * edge[1] + Math.sin(a) * road[1]),
+    ]);
   }
-  return pairs(points);
+  return points;
 }
 
-const area = (xy: Float32Array): NeatBevLine => ({ label: 'drivable area', fill: true, xy });
+/** A line in the world, and the line the view draws: its points in the vehicle's frame. */
+interface Placed {
+  readonly world: Float32Array;
+  readonly line: NeatBevLine;
+}
+
+function placed(
+  points: readonly (readonly [number, number])[],
+  line: Omit<NeatBevLine, 'xy'>,
+): Placed {
+  const world = Float32Array.from(points.flat());
+  return { world, line: { ...line, xy: new Float32Array(world.length) } };
+}
 
 /** The drivable area, as pieces that overlap where the roads meet. */
-function drivableArea(): NeatBevLine[] {
-  const sideLeft = SIDE_X - NARROW;
-  const sideRight = SIDE_X + NARROW;
+function drivableArea(): Placed[] {
+  const edge = RING_X + RING_HALF;
+  const area = { label: 'drivable area', fill: true } as const;
   return [
-    area(box(MAIN_FROM, MAIN_TO, MAIN_RIGHT, MAIN_LEFT)),
-    area(box(CROSS_X - NARROW, CROSS_X + NARROW, -CROSS_REACH, CROSS_REACH)),
-    area(box(sideLeft, sideRight, MAIN_LEFT - 1, SIDE_REACH)),
-    area(roundedCorner(sideLeft, -1)),
-    area(roundedCorner(sideRight, 1)),
-    area(band(ramp, NARROW)),
+    band(RING, RING_HALF),
+    box(-NARROW, NARROW, -THROUGH_REACH, THROUGH_REACH),
+    box(edge - 1, SIDE_TO, SIDE_Y - NARROW, SIDE_Y + NARROW),
+    fillet([edge, SIDE_Y + NARROW], [0, 1], [1, 0]),
+    fillet([edge, SIDE_Y - NARROW], [0, -1], [1, 0]),
+    band(RAMP, NARROW),
+  ].map((points) => placed(points, area));
+}
+
+/** The lane lines: the ring's, the through road's (broken where it crosses) and the side road's. */
+function laneMarkings(): Placed[] {
+  const dashed = { label: 'lane marking', style: 'dashed' } as const;
+  const outside = RING_Y + RING_HALF;
+  const inside = RING_Y - RING_HALF;
+  return [
+    placed(trace(RING, -LANE), { ...dashed, closed: true }),
+    placed(trace(RING, LANE), { ...dashed, closed: true }),
+    placed(trace(RING), { label: 'lane marking', style: 'solid', closed: true }),
+    ...[
+      [-THROUGH_REACH, -outside],
+      [-inside, inside],
+      [outside, THROUGH_REACH],
+    ].map(([from, to]) =>
+      placed(
+        [
+          [0, from],
+          [0, to],
+        ],
+        dashed,
+      ),
+    ),
+    placed(
+      [
+        [RING_X + RING_HALF, SIDE_Y],
+        [SIDE_TO, SIDE_Y],
+      ],
+      dashed,
+    ),
   ];
 }
 
-/** The main road's dashed lane lines, broken where the crossing road crosses it. */
-function laneMarkings(): NeatBevLine[] {
-  const lines: NeatBevLine[] = [];
-  for (let lane = 1; lane < 4; lane++) {
-    const y = MAIN_RIGHT + lane * LANE;
-    for (const [from, to] of [
-      [MAIN_FROM, CROSS_X - NARROW],
-      [CROSS_X + NARROW, MAIN_TO],
-    ]) {
-      lines.push({
-        label: 'lane marking',
-        style: 'dashed',
-        xy: pairs([
-          [from, y],
-          [to, y],
-        ]),
-      });
-    }
-  }
-  return lines;
-}
-
-/** The vehicle's planned path: on along its lane, through the crossing, and off by the ramp. */
-function plannedPath(): NeatBevLine {
-  const points: [number, number][] = [[0, 0]];
-  for (const s of stations(ramp)) points.push(beside(ramp, s, 0));
-  return { label: 'planned path', xy: pairs(points) };
-}
-
-/**
- * Each lane traffic follows, as a route with its lane offset applied: on the right of the road in
- * its direction, as the vehicle drives.
- */
+/** The lanes traffic follows, on the right of each road in its direction. */
 const ROUTES = {
-  ahead: straight(MAIN_FROM, 0, 0, MAIN_TO - MAIN_FROM),
-  aheadLeft: straight(MAIN_FROM, LANE, 0, MAIN_TO - MAIN_FROM),
-  oncoming: straight(MAIN_TO, 3 * LANE, Math.PI, MAIN_TO - MAIN_FROM),
-  oncomingRight: straight(MAIN_TO, 2 * LANE, Math.PI, MAIN_TO - MAIN_FROM),
-  crossingLeft: straight(CROSS_X + NARROW / 2, -CROSS_REACH, Math.PI / 2, 2 * CROSS_REACH),
-  crossingRight: straight(CROSS_X - NARROW / 2, CROSS_REACH, -Math.PI / 2, 2 * CROSS_REACH),
-  side: straight(SIDE_X - NARROW / 2, SIDE_REACH, -Math.PI / 2, SIDE_REACH - MAIN_LEFT),
-  ramp,
+  ring: lane(RING, -LANE / 2),
+  ringOuter: lane(RING, -1.5 * LANE),
+  ringBack: lane(RING, LANE / 2, true),
+  ringBackOuter: lane(RING, 1.5 * LANE, true),
+  north: lane(THROUGH, -NARROW / 2),
+  south: lane(THROUGH, NARROW / 2, true),
+  side: lane(SIDE, NARROW / 2, true),
+  ramp: RAMP,
 } as const satisfies Record<string, Route>;
 
-/** Traffic: its route, where along it it starts, and how fast it goes, m/s. */
+/** Traffic: its track's id, its route, where along it it starts, its speed (m/s) and label. */
 const TRAFFIC: readonly {
+  readonly id: string;
   readonly route: keyof typeof ROUTES;
   readonly at: number;
   readonly speed: number;
   readonly label: string;
 }[] = [
-  { route: 'ahead', at: 95, speed: 8, label: 'car' },
-  { route: 'aheadLeft', at: 40, speed: 11, label: 'car' },
-  { route: 'aheadLeft', at: 120, speed: 10, label: 'truck' },
-  { route: 'oncoming', at: 20, speed: 12, label: 'car' },
-  { route: 'oncomingRight', at: 90, speed: 10, label: 'car' },
-  { route: 'crossingLeft', at: 30, speed: 7, label: 'car' },
-  { route: 'crossingRight', at: 80, speed: 6, label: 'bicycle' },
-  { route: 'side', at: 10, speed: 5, label: 'car' },
-  { route: 'ramp', at: 20, speed: 7, label: 'car' },
+  { id: 'car 1', route: 'ring', at: 40, speed: EGO_SPEED, label: 'car' },
+  { id: 'car 2', route: 'ring', at: 250, speed: EGO_SPEED, label: 'car' },
+  { id: 'truck 1', route: 'ringOuter', at: 60, speed: 8, label: 'truck' },
+  { id: 'car 3', route: 'ringOuter', at: 200, speed: 9, label: 'car' },
+  { id: 'car 4', route: 'ringBack', at: 30, speed: 11, label: 'car' },
+  { id: 'car 5', route: 'ringBack', at: 180, speed: 11, label: 'car' },
+  { id: 'car 6', route: 'ringBackOuter', at: 120, speed: 9, label: 'car' },
+  { id: 'car 7', route: 'north', at: 20, speed: 8, label: 'car' },
+  { id: 'bicycle 1', route: 'south', at: 60, speed: 5, label: 'bicycle' },
+  { id: 'car 8', route: 'side', at: 10, speed: 7, label: 'car' },
+  { id: 'car 9', route: 'ramp', at: 30, speed: 9, label: 'car' },
 ];
 
 const SIZES: Readonly<Record<string, readonly [length: number, width: number]>> = {
@@ -216,19 +297,62 @@ const SIZES: Readonly<Record<string, readonly [length: number, width: number]>> 
   bicycle: [1.8, 0.6],
 };
 
-/** The network at `seconds`: the roads and lines stay; the traffic moves along its routes. */
+/** The vehicle's own lane round the ring, and the length of its lap. */
+const EGO = ROUTES.ring;
+export const LAP = EGO.length;
+/** How many points the planned path has. */
+const PLAN_POINTS = stations(EGO, 0, PLAN_AHEAD).length;
+
+/** The network as the vehicle sees it `seconds` into its laps. */
 export class RoadScene {
-  private readonly lines = [...drivableArea(), ...laneMarkings(), plannedPath()];
+  private readonly placed = [...drivableArea(), ...laneMarkings()];
+  private readonly plan = new Float32Array(2 * PLAN_POINTS);
+  private readonly path: NeatBevLine = {
+    label: 'planned path',
+    xy: new Float32Array(2 * PLAN_POINTS),
+  };
 
   frameAt(seconds: number): NeatBevFrame {
+    const travelled = (EGO_SPEED * seconds) % LAP;
+    const ego = EGO.at(travelled);
+    const cos = Math.cos(ego.yaw);
+    const sin = Math.sin(ego.yaw);
+    // World to vehicle: about the vehicle, turned so that its heading is forward.
+    const into = (world: Float32Array, out: Float32Array) => {
+      for (let i = 0; i + 1 < world.length; i += 2) {
+        const dx = world[i] - ego.x;
+        const dy = world[i + 1] - ego.y;
+        out[i] = dx * cos + dy * sin;
+        out[i + 1] = -dx * sin + dy * cos;
+      }
+    };
+    for (const { world, line } of this.placed) into(world, line.xy);
+
+    stations(EGO, 0, PLAN_AHEAD).forEach((d, i) => {
+      const { x, y } = EGO.at((travelled + d) % LAP);
+      this.plan[2 * i] = x;
+      this.plan[2 * i + 1] = y;
+    });
+    into(this.plan, this.path.xy);
+
     const objects: NeatBevObject[] = TRAFFIC.map((mover) => {
       const route = ROUTES[mover.route];
-      const s = (mover.at + mover.speed * seconds) % route.length;
-      const { x, y, yaw } = route.at(s);
+      const pose = route.at((mover.at + mover.speed * seconds) % route.length);
       const [length, width] = SIZES[mover.label];
-      return { label: mover.label, x, y, yaw, length, width, text: `${mover.speed} m/s` };
+      const dx = pose.x - ego.x;
+      const dy = pose.y - ego.y;
+      return {
+        id: mover.id,
+        label: mover.label,
+        x: dx * cos + dy * sin,
+        y: -dx * sin + dy * cos,
+        yaw: pose.yaw - ego.yaw,
+        length,
+        width,
+        text: `${mover.speed} m/s`,
+      };
     });
-    return { lines: this.lines, objects };
+    return { lines: [...this.placed.map(({ line }) => line), this.path], objects };
   }
 }
 

@@ -233,14 +233,6 @@ export function pixelsPerMetre(view: BevView): number {
 }
 
 /**
- * The canvas angle (clockwise from the screen's +x, as `arc` takes it) of the vehicle's angle `a`
- * (counter-clockwise from forward).
- */
-export function canvasAngle(a: number): number {
-  return -Math.PI / 2 - a;
-}
-
-/**
  * The rings' step for a view `range` metres across: 1, 2 or 5 times a power of ten, the one
  * nearest (on a log scale) to a sixth of the range, so about six rings show (10 m at 60 m).
  */

@@ -112,29 +112,19 @@ export interface NeatBevFrame {
 }
 
 /**
- * What a sensor sees: a wedge from `origin` between the angles `from` and `to` (counter-clockwise
- * from `from`), out to `range`. Its edges are drawn as lines in its label's colour (and its arc
- * when it reaches less far than the view); `fill` also fills it faintly.
+ * What the app draws besides a frame, under the data (`background`) or over it (`foreground`):
+ * lines, polygons (lines with `fill`, see-through here) and points, in their labels' colours.
+ * Drawn with the view's cached layers, so for what changes rarely: a map's lanes, a camera's field
+ * of view, a zone around the vehicle. Give a new object when it changes.
  */
-export interface NeatBevSensor {
-  /** What picks its colour (the camera's name, say). */
-  readonly label: string;
-  /** Its right edge, radians counter-clockwise from forward. */
-  readonly from: number;
-  /** Its left edge, radians counter-clockwise from forward. */
-  readonly to: number;
-  /** Where it is mounted, metres; the vehicle's centre by default. */
-  readonly origin?: { readonly x: number; readonly y: number };
-  /** How far it reaches, metres; the view's range by default. */
-  readonly range?: number;
-  /** Whether the wedge is also filled faintly in its label's colour; only its edges by default. */
-  readonly fill?: boolean;
+export interface NeatBevLayer {
+  readonly lines?: readonly NeatBevLine[];
+  readonly points?: readonly NeatBevPoints[];
 }
 
 /**
  * A line out to the plot's edge: from `origin` (the vehicle's centre by default) at `angle`,
- * radians counter-clockwise from forward. A rig's seams between its cameras, or lines from where
- * its sensors are mounted.
+ * radians counter-clockwise from forward.
  */
 export interface NeatBevSpoke {
   readonly angle: number;

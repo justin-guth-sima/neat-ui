@@ -97,7 +97,7 @@ look happens in one place. Every rule here protects that.
     `NeatTimelineMotion`, `step` or `smooth` for whether it scrolls between updates) and the
     primary's `NeatSeriesSwatch` again; with `diagram` and `bev`, the only code that imports d3),
     `bev` (`NeatBev`, `neat-bev`: a bird's-eye view around a vehicle, with its model types
-    `NeatBevFrame`, `NeatBevObject`, `NeatBevPoints`, `NeatBevLine`, `NeatBevGrid`, `NeatBevSensor`,
+    `NeatBevFrame`, `NeatBevObject`, `NeatBevPoints`, `NeatBevLine`, `NeatBevGrid`, `NeatBevLayer`,
     `NeatBevSpoke`, `NeatBevShape`, `NeatBevBounds`, `NeatBevOverflow`, `NeatBevGuides`,
     `NeatBevObjectId`, `NeatBevPick` and `NeatBevPoint`; how it draws is under "How the bird's-eye
     view is drawn" below), `diagram`
@@ -581,10 +581,11 @@ for driving demos such as the FastBEV one.
   yaw or a calibration's angles go in unchanged. A grid's `cells` are row-major in screen order:
   row 0 forward, column 0 left.
 - What it draws comes from `frame` (objects as rotated boxes with a heading line, point sets as
-  `Float32Array` x,y pairs, polylines, polygons as lines with `fill`, grids) and from inputs that change rarely: `sensors` (wedges
-  from their mounts, drawn as their edges in their labels' colours, their arc when they give their
-  own range, filled faintly only with `fill`), `spokes` (a number spaced from straight ahead, or a
-  list of angles each with an optional origin, such as a rig's seams), `range`, `shape` (`round`,
+  `Float32Array` x,y pairs, polylines, polygons as lines with `fill`, grids) and from inputs that
+  change rarely: `background` and `foreground` (`NeatBevLayer`: lines, polygons and points the app
+  draws under or over the data, such as a map's lanes, a camera's field of view or a zone; there is
+  no sensor type of the view's own), `spokes` (a number spaced from straight ahead, or a list of
+  angles each with an optional origin), `range`, `shape` (`round`,
   the circle of `range` with rings, as a radar; `rect`, the rectangle `bounds` with a grid, ±`range`
   without), `outline` (the shape's edge), `overflow` (`clip` cuts the data and the guides at the
   shape; `visible` lets them run on over the box), `guides` (`over` or `under` the data), `zoom` and
@@ -602,10 +603,12 @@ for driving demos such as the FastBEV one.
   a gap in a fill, the guides seeming under it.
 - Drawing (`bev-canvas.ts`, outside change detection, at the next animation frame after a change,
   never while the page is hidden or before the box has a size): what changes only with the size,
-  view, theme or inputs goes into two cached layers, one under the data (sensor fills, and the
+  view, theme or inputs goes into two cached layers, one under the data (`background`, then the
   guides when they go under) and one over it (the guides when they go over: rings or grid lines,
-  spokes, sensor edges, the outline; and always their labels), each drawn only when it holds
-  something. Between them a frame draws its grids (small canvases per grid, scaled without
+  spokes, the outline; then `foreground`; and always the guides' labels), each drawn only when it
+  holds something. A static layer's polygons are see-through tints without a backing (over the
+  data it must not hide it), its points small squares, one path a label; it is redrawn with the
+  cached layers (on a zoom too), so a dense cloud belongs in the frame. Between them a frame draws its grids (small canvases per grid, scaled without
   smoothing) and filled lines as areas: every area's backing, opaque in `--neat-surface` (a grid's
   as far as each cell's value goes), then every area's tint in its label's colour at `GRID_ALPHA`,
   so an area covers what lies under it, guides under the data included, still looks see-through

@@ -51,12 +51,12 @@ import type {
   NeatBevBounds,
   NeatBevFrame,
   NeatBevGuides,
+  NeatBevLayer,
   NeatBevObject,
   NeatBevObjectId,
   NeatBevPick,
   NeatBevPoint,
   NeatBevOverflow,
-  NeatBevSensor,
   NeatBevShape,
   NeatBevSpoke,
 } from './model';
@@ -80,7 +80,7 @@ const TOKENS = {
 
 /**
  * A bird's-eye view around a vehicle: what it sees (`frame`: objects, points, lines and grids),
- * what its sensors cover (`sensors`), and rings in a circle or a metric grid in a rectangle to read
+ * what the app draws under and over it (`background`, `foreground`), and rings in a circle or a metric grid in a rectangle to read
  * distances by (`shape`), in the vehicle's own frame (metres, x forward and y left, forward up on
  * the screen). The data and the guides stop at the shape's edge, or run on over the whole box
  * (`overflow`); the guides lie over the data or under it (`guides`). Labels pick colours as the
@@ -97,7 +97,7 @@ const TOKENS = {
  * it takes the shape's proportions.
  *
  * ```html
- * <neat-bev [frame]="frame()" [sensors]="cameras" [range]="60" zoom />
+ * <neat-bev [frame]="frame()" [background]="map" [range]="60" zoom />
  * ```
  */
 @Component({
@@ -148,8 +148,13 @@ const TOKENS = {
 export class NeatBev {
   /** What to draw now; null draws only the plot. Give a new object for each moment. */
   readonly frame = input<NeatBevFrame | null>(null);
-  /** The sensors' wedges: their edges as lines in their labels' colours, filled if they ask. */
-  readonly sensors = input<readonly NeatBevSensor[]>([]);
+  /**
+   * Lines, polygons and points drawn under the data, which change rarely: a map's lanes, a
+   * camera's field of view. Give a new object when it changes.
+   */
+  readonly background = input<NeatBevLayer | null>(null);
+  /** The same, drawn over the data (and the guides): a zone around the vehicle, say. */
+  readonly foreground = input<NeatBevLayer | null>(null);
   /**
    * The spokes: a number spaces that many evenly from straight ahead (12, every 30°, by default;
    * 0 for none); a list places each one, from its own origin if it has one (a rig's seams between
@@ -166,7 +171,7 @@ export class NeatBev {
   readonly outline = input(true, { transform: booleanAttribute });
   /** Whether the data and the guides stop at the shape (`'clip'`) or run on over the box. */
   readonly overflow = input<NeatBevOverflow>('clip');
-  /** Whether rings or grid lines, spokes, sensors' edges and the outline lie over the data. */
+  /** Whether rings or grid lines, spokes and the outline lie over the data. */
   readonly guides = input<NeatBevGuides>('over');
   /** Whether wheel, pinch, drag and keys zoom and pan the view; off, the page scrolls over it. */
   readonly zoom = input(false, { transform: booleanAttribute });
@@ -226,7 +231,8 @@ export class NeatBev {
 
   private readonly inputs = computed<BevInputs>(() => ({
     plot: bevPlot(this.shape(), this.range(), this.bounds()),
-    sensors: this.sensors(),
+    background: this.background(),
+    foreground: this.foreground(),
     spokes: spokeList(this.spokes()),
     outline: this.outline(),
     overflow: this.overflow(),

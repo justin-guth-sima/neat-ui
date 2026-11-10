@@ -23,11 +23,19 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": objects, points, lines and grids), what its sensors cover ("
+              "text": ": objects, points, lines and grids), what the app draws under and over it ("
             },
             {
               "kind": "code",
-              "text": "sensors"
+              "text": "background"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "foreground"
             },
             {
               "kind": "text",
@@ -134,7 +142,7 @@ export const API: DocsEntry = {
         {
           "kind": "code",
           "language": "html",
-          "code": "<neat-bev [frame]=\"frame()\" [sensors]=\"cameras\" [range]=\"60\" zoom />"
+          "code": "<neat-bev [frame]=\"frame()\" [background]=\"map\" [range]=\"60\" zoom />"
         }
       ],
       "inputs": [
@@ -155,16 +163,32 @@ export const API: DocsEntry = {
           ]
         },
         {
-          "name": "sensors",
-          "type": "readonly NeatBevSensor[]",
-          "default": "[]",
+          "name": "background",
+          "type": "NeatBevLayer | null",
+          "default": "null",
           "doc": [
             {
               "kind": "paragraph",
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The sensors' wedges: their edges as lines in their labels' colours, filled if they ask."
+                  "text": "Lines, polygons and points drawn under the data, which change rarely: a map's lanes, a camera's field of view. Give a new object when it changes."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "foreground",
+          "type": "NeatBevLayer | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The same, drawn over the data (and the guides): a zone around the vehicle, say."
                 }
               ]
             }
@@ -333,7 +357,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Whether rings or grid lines, spokes, sensors' edges and the outline lie over the data."
+                  "text": "Whether rings or grid lines, spokes and the outline lie over the data."
                 }
               ]
             }
@@ -751,6 +775,60 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": " it. Their labels and the vehicle's marker are always on top."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/bev/src/lib/model.ts"
+    },
+    {
+      "name": "NeatBevLayer",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "lines",
+          "type": "readonly NeatBevLine[]",
+          "optional": true,
+          "doc": []
+        },
+        {
+          "name": "points",
+          "type": "readonly NeatBevPoints[]",
+          "optional": true,
+          "doc": []
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What the app draws besides a frame, under the data ("
+            },
+            {
+              "kind": "code",
+              "text": "background"
+            },
+            {
+              "kind": "text",
+              "text": ") or over it ("
+            },
+            {
+              "kind": "code",
+              "text": "foreground"
+            },
+            {
+              "kind": "text",
+              "text": "): lines, polygons (lines with "
+            },
+            {
+              "kind": "code",
+              "text": "fill"
+            },
+            {
+              "kind": "text",
+              "text": ", see-through here) and points, in their labels' colours. Drawn with the view's cached layers, so for what changes rarely: a map's lanes, a camera's field of view, a zone around the vehicle. Give a new object when it changes."
             }
           ]
         }
@@ -1290,165 +1368,6 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/bev/src/lib/model.ts"
     },
     {
-      "name": "NeatBevSensor",
-      "kind": "interface",
-      "members": [
-        {
-          "name": "label",
-          "type": "string",
-          "doc": [
-            {
-              "kind": "paragraph",
-              "spans": [
-                {
-                  "kind": "text",
-                  "text": "What picks its colour (the camera's name, say)."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "from",
-          "type": "number",
-          "doc": [
-            {
-              "kind": "paragraph",
-              "spans": [
-                {
-                  "kind": "text",
-                  "text": "Its right edge, radians counter-clockwise from forward."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "to",
-          "type": "number",
-          "doc": [
-            {
-              "kind": "paragraph",
-              "spans": [
-                {
-                  "kind": "text",
-                  "text": "Its left edge, radians counter-clockwise from forward."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "origin",
-          "type": "{ readonly x: number; readonly y: number }",
-          "optional": true,
-          "doc": [
-            {
-              "kind": "paragraph",
-              "spans": [
-                {
-                  "kind": "text",
-                  "text": "Where it is mounted, metres; the vehicle's centre by default."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "range",
-          "type": "number",
-          "optional": true,
-          "doc": [
-            {
-              "kind": "paragraph",
-              "spans": [
-                {
-                  "kind": "text",
-                  "text": "How far it reaches, metres; the view's range by default."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "fill",
-          "type": "boolean",
-          "optional": true,
-          "doc": [
-            {
-              "kind": "paragraph",
-              "spans": [
-                {
-                  "kind": "text",
-                  "text": "Whether the wedge is also filled faintly in its label's colour; only its edges by default."
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "doc": [
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "What a sensor sees: a wedge from "
-            },
-            {
-              "kind": "code",
-              "text": "origin"
-            },
-            {
-              "kind": "text",
-              "text": " between the angles "
-            },
-            {
-              "kind": "code",
-              "text": "from"
-            },
-            {
-              "kind": "text",
-              "text": " and "
-            },
-            {
-              "kind": "code",
-              "text": "to"
-            },
-            {
-              "kind": "text",
-              "text": " (counter-clockwise from "
-            },
-            {
-              "kind": "code",
-              "text": "from"
-            },
-            {
-              "kind": "text",
-              "text": "), out to "
-            },
-            {
-              "kind": "code",
-              "text": "range"
-            },
-            {
-              "kind": "text",
-              "text": ". Its edges are drawn as lines in its label's colour (and its arc when it reaches less far than the view); "
-            },
-            {
-              "kind": "code",
-              "text": "fill"
-            },
-            {
-              "kind": "text",
-              "text": " also fills it faintly."
-            }
-          ]
-        }
-      ],
-      "source": "projects/neat-ui/bev/src/lib/model.ts"
-    },
-    {
       "name": "NeatBevShape",
       "kind": "type",
       "definition": "'round' | 'rect'",
@@ -1527,7 +1446,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", radians counter-clockwise from forward. A rig's seams between its cameras, or lines from where its sensors are mounted."
+              "text": ", radians counter-clockwise from forward."
             }
           ]
         }

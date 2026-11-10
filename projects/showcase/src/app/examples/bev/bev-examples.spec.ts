@@ -6,13 +6,13 @@ import { Round } from './1-round.example';
 import { Rect } from './2-rect.example';
 import { Overflow } from './3-overflow.example';
 import { OverflowZoom } from './4-overflow-zoom.example';
-import { CameraSeams } from './5-camera-seams.example';
+import { Layers } from './5-layers.example';
 import { Zoom } from './6-zoom.example';
 import { SharedStyles } from './7-shared-styles.example';
 import { Polygons } from './8-polygons.example';
 import { Interaction } from './9-interaction.example';
-import { RoadScene } from './roads';
-import { CAMERAS, SEAMS, StreetScene } from './scene';
+import { LAP, RoadScene } from './roads';
+import { BUILDINGS, SAFETY_ZONE, StreetScene } from './scene';
 
 describe('the BEV examples', () => {
   beforeEach(() => {
@@ -34,7 +34,7 @@ describe('the BEV examples', () => {
     Rect,
     Overflow,
     OverflowZoom,
-    CameraSeams,
+    Layers,
     Zoom,
     SharedStyles,
     Polygons,
@@ -99,34 +99,50 @@ describe('the interaction example', () => {
 });
 
 describe('the road network', () => {
-  const frame = new RoadScene().frameAt(3);
-  const areas = frame.lines!.filter((line) => line.fill);
-  const onRoad = (x: number, y: number) => areas.some((area) => inside(area.xy, x, y));
+  const scene = new RoadScene();
+  const onRoad = (frame: ReturnType<RoadScene['frameAt']>, x: number, y: number) =>
+    frame.lines!.some((line) => line.fill && inside(line.xy, x, y));
 
-  it('gives the drivable area as filled pieces the vehicle and every mover are on', () => {
-    expect(areas.length).toBeGreaterThan(3);
-    expect(areas.every((area) => area.label === 'drivable area')).toBe(true);
-    expect(onRoad(0, 0)).toBe(true);
-    for (const object of frame.objects!) expect(onRoad(object.x, object.y)).toBe(true);
+  it('keeps the vehicle and every mover on the drivable area all round the lap', () => {
+    for (const seconds of [0, 3.3, 7.9, 12.4, 19, 26.5]) {
+      const frame = scene.frameAt(seconds);
+      expect(onRoad(frame, 0, 0)).toBe(true);
+      for (const object of frame.objects!) expect(onRoad(frame, object.x, object.y)).toBe(true);
+    }
   });
 
-  it("rounds the side road's corners and leaves the crossing's square", () => {
-    // Behind, where the side road meets the main road's left edge (12.25 m): a rounded corner
-    // fills the angle near the edge, and leaves its outer corner clear.
-    expect(onRoad(-29.5, 12.75)).toBe(true);
-    expect(onRoad(-33.5, 17.5)).toBe(false);
-    // Ahead, the crossing's corner is square: just beside the narrow road, off it.
-    expect(onRoad(18.5, 13)).toBe(false);
-    expect(onRoad(19.5, 13)).toBe(true);
+  it('comes round to where it started after a lap', () => {
+    const start = [...scene.frameAt(0).lines![0].xy];
+    const lap = [...scene.frameAt(LAP / 12).lines![0].xy];
+    lap.forEach((value, i) => expect(value).toBeCloseTo(start[i], 3));
   });
 
-  it('branches a ramp off to the right that the planned path takes', () => {
-    const path = frame.lines!.find((line) => line.label === 'planned path')!;
-    const end = [path.xy[path.xy.length - 2], path.xy[path.xy.length - 1]];
-    expect(end[1]).toBeLessThan(-50);
-    expect(onRoad(end[0], end[1])).toBe(true);
-    // Beside the main road on the right, short of the ramp: off the road.
-    expect(onRoad(28, -10)).toBe(false);
+  it('turns the world as the vehicle turns: a quarter of the way round, the road heads on', () => {
+    // At the start the vehicle heads east, so the world is only moved; in the first corner it
+    // turns, and the ring's lines turn with it, still ahead of it.
+    const corner = scene.frameAt(52 / 12);
+    const path = corner.lines!.find((line) => line.label === 'planned path')!;
+    expect(path.xy[0]).toBeCloseTo(0, 1);
+    expect(path.xy[1]).toBeCloseTo(0, 1);
+    const end = path.xy.length - 2;
+    expect(path.xy[end]).toBeGreaterThan(20);
+  });
+
+  it('has square crossings, rounded corners elsewhere, and a ramp to the south', () => {
+    // At the start the vehicle heads east, 41.75 m south of the ring's middle: the world moved.
+    const frame = scene.frameAt(0);
+    const at = (x: number, y: number) => onRoad(frame, x, y + 41.75);
+    // The through road meets the ring's inner edge (33 m south) at a square corner.
+    expect(at(2.5, -32)).toBe(true);
+    expect(at(3.3, -32.7)).toBe(false);
+    // The side road meets the ring's east edge with rounded corners.
+    expect(at(67.5, 13.5)).toBe(true);
+    expect(at(72.5, 18.5)).toBe(false);
+    // The ring's own corners are rounded.
+    expect(at(66, 46)).toBe(false);
+    // The ramp runs south on its own, east of the through road.
+    expect(at(40, -100)).toBe(true);
+    expect(at(20, -100)).toBe(false);
   });
 });
 
@@ -155,16 +171,24 @@ describe('the street scene', () => {
     expect(oncoming(after)[0].x).toBeCloseTo(oncoming(before)[0].x - 9);
   });
 
-  it('has six cameras, each from its mount, and a seam between each two neighbours', () => {
-    expect(CAMERAS).toHaveLength(6);
-    expect(CAMERAS.every((camera) => camera.origin !== undefined && !camera.fill)).toBe(true);
-    expect(SEAMS).toHaveLength(6);
-    // The back camera is wider, so the seams are not evenly spaced.
-    const gaps = SEAMS.map((seam, i) => {
-      const next = SEAMS[(i + 1) % SEAMS.length].angle;
-      return (((next - seam.angle) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-    });
-    expect(new Set(gaps.map((g) => g.toFixed(3))).size).toBeGreaterThan(1);
-    expect(gaps.reduce((a, b) => a + b, 0)).toBeCloseTo(2 * Math.PI);
+  it('keeps its buildings off the road, and the safety zone around the vehicle', () => {
+    const [grid] = new StreetScene().frameAt(0).grids!;
+    const size = 102.4 / 128;
+    const onRoad = (x: number, y: number) =>
+      grid.cells[Math.floor((51.2 - x) / size) * 128 + Math.floor((51.2 - y) / size)] === 255;
+    for (const building of BUILDINGS.lines!) {
+      expect(building.fill).toBe(true);
+      const xy = building.xy;
+      // Each footprint's corners, a little inside it, are off the road.
+      const xs = [xy[0], xy[2]];
+      const ys = [xy[1], xy[5]];
+      const inX = [Math.min(...xs) + 1, Math.max(...xs) - 1];
+      const inY = [Math.min(...ys) + 1, Math.max(...ys) - 1];
+      for (const x of inX)
+        for (const y of inY)
+          if (Math.abs(x) < 50 && Math.abs(y) < 50) expect(onRoad(x, y)).toBe(false);
+    }
+    const [zone] = SAFETY_ZONE.lines!;
+    expect(zone).toMatchObject({ closed: true, style: 'dashed' });
   });
 });

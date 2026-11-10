@@ -1,12 +1,6 @@
 import { BevCanvas, type BevInputs, type BevTheme, packRgb } from './bev-canvas';
 import { calls, type Recorded, type Recording, sets, stubCanvases } from './canvas.testing';
-import {
-  GRID_ALPHA,
-  type LabelColours,
-  type LabelLook,
-  OBJECT_FILL_ALPHA,
-  SENSOR_FILL_ALPHA,
-} from './colours';
+import { GRID_ALPHA, type LabelColours, type LabelLook, OBJECT_FILL_ALPHA } from './colours';
 import { bevPlot, type BevView, defaultView, spokeList } from './geometry';
 import type { NeatBevFrame, NeatBevObject } from './model';
 
@@ -59,7 +53,8 @@ const byte = (value: number): number => Uint8ClampedArray.of(value)[0];
 
 const inputs = (over: Partial<BevInputs> = {}): BevInputs => ({
   plot: bevPlot('round', 60),
-  sensors: [],
+  background: null,
+  foreground: null,
   spokes: spokeList(0),
   outline: true,
   overflow: 'clip',
@@ -218,49 +213,50 @@ describe('BevCanvas', () => {
       const [x, y] = end.args as [number, number];
       expect(Math.hypot(x - 200, y - 200)).toBeCloseTo(60 * view.ppm);
     });
+  });
 
-    it('draws the edges of a sensor from its origin, and its arc when it has its own range', () => {
-      draw(null, {
-        sensors: [
-          { label: 'front', from: -0.5, to: 0.5, range: 30 },
-          { label: 'back', from: 2.5, to: 3.5 },
-        ],
-      });
-      const wedge = calls(layer(), 'arc').find(
-        (c) => Math.abs((c.args[2] as number) - 30 * view.ppm) < 1e-9,
-      );
-      expect(wedge?.args.slice(0, 2)).toEqual([200, 200]);
-      // Back from the left edge to the right edge, clockwise on the screen.
-      expect(wedge?.args[3]).toBeCloseTo(-Math.PI / 2 - 0.5);
-      expect(wedge?.args[4]).toBeCloseTo(-Math.PI / 2 + 0.5);
-      expect(wedge?.args[5]).toBe(false);
-      // The back sensor reaches the range, where the outline is: no arc of its own.
-      expect(
-        calls(layer(), 'arc').map((c) => Math.round((c.args[2] as number) / view.ppm)),
-      ).toEqual([60, 20, 40, 30, 60]);
-      expect(sets(layer(), 'strokeStyle')).toEqual(expect.arrayContaining(['#front', '#back']));
-      expect(sets(layer(), 'fillStyle')).not.toContain('#front');
-      // Nothing goes under the data: one layer only.
-      expect(created).toHaveLength(1);
-    });
+  describe('background and foreground', () => {
+    const zone = new Float32Array([5, -2, 15, -2, 15, 2, 5, 2]);
+    const edge = new Float32Array([0, 0, 30, 10]);
+    const points = new Float32Array([10, 0, 20, 0]);
 
-    it('fills a sensor that asks, faintly and under the data', () => {
+    it('draws the background under the data, and the foreground over it and the guides', () => {
       draw(
         { objects: [car(10, 0)] },
-        { sensors: [{ label: 'front', from: -0.5, to: 0.5, fill: true }] },
+        {
+          background: {
+            lines: [{ label: 'zone', xy: zone, fill: true }],
+            points: [{ label: 'map', xy: points }],
+          },
+          foreground: { lines: [{ label: 'edge', xy: edge }] },
+        },
       );
       const [under, over] = created;
-      const fills = recordingOf(under).log;
-      expect(sets(fills, 'fillStyle')).toEqual(['#front']);
-      expect(sets(fills, 'globalAlpha')).toContain(SENSOR_FILL_ALPHA);
-      expect(sets(recordingOf(over).log, 'strokeStyle')).toContain('#front');
+      const below = recordingOf(under).log;
+      // The zone as a see-through area (no backing), its points as one path of squares.
+      expect(sets(below, 'fillStyle')).toEqual(['#zone', '#map']);
+      expect(sets(below, 'globalAlpha')).toContain(GRID_ALPHA);
+      expect(calls(below, 'rect')).toHaveLength(2);
+      expect(calls(below, 'clip')).toHaveLength(1);
+      // Over the data: the guides first, then the foreground's line, then the labels.
+      const above = recordingOf(over).log;
+      const edgeAt = above.findIndex(
+        (entry) => entry.name === 'strokeStyle' && entry.value === '#edge',
+      );
+      const ringsAt = above.findIndex((entry) => entry.name === 'arc');
+      const labelsAt = above.findIndex((entry) => entry.name === 'fillText');
+      expect(ringsAt).toBeLessThan(edgeAt);
+      expect(edgeAt).toBeLessThan(labelsAt);
       const log = main();
-      const images = log.filter((entry) => entry.name === 'drawImage');
+      const images = calls(log, 'drawImage').map((c) => log.indexOf(c));
       const firstFill = log.findIndex((entry) => entry.name === 'fill');
-      expect(images[0].args[0]).toBe(under);
-      expect(log.indexOf(images[0])).toBeLessThan(firstFill);
-      expect(log.indexOf(images.at(-1)!)).toBeGreaterThan(firstFill);
-      expect(images.at(-1)!.args[0]).toBe(over);
+      expect(images[0]).toBeLessThan(firstFill);
+      expect(images.at(-1)).toBeGreaterThan(firstFill);
+    });
+
+    it('makes no layer under the data without a background', () => {
+      draw(null, { foreground: { lines: [{ label: 'edge', xy: edge }] } });
+      expect(created).toHaveLength(1);
     });
   });
 
@@ -353,10 +349,12 @@ describe('BevCanvas', () => {
       expect(bev.layerDraws).toBe(5);
     });
 
-    it('is drawn again when a sensor label changes colour', () => {
-      const same = inputs({ sensors: [{ label: 'front', from: 0, to: 1 }] });
+    it('is drawn again when a static layer label changes colour', () => {
+      const xy = new Float32Array([0, 0, 10, 0]);
+      const same = inputs({ background: { lines: [{ label: 'lane', xy }] } });
       bev.draw(2, view, same, THEME, colours(), null, -1);
-      bev.draw(2, view, same, THEME, colours({ front: { colour: '#other' } }), null, -1);
+      bev.draw(2, view, same, THEME, colours(), null, -1);
+      bev.draw(2, view, same, THEME, colours({ lane: { colour: '#other' } }), null, -1);
       expect(bev.layerDraws).toBe(2);
     });
   });

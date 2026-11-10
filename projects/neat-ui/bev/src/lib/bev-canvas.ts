@@ -3,7 +3,6 @@ import {
   type BevPlot,
   type BevView,
   boxPlot,
-  canvasAngle,
   farthestCorner,
   labelAngle,
   metresText,
@@ -20,24 +19,23 @@ import {
   type LabelColours,
   type LabelLook,
   OBJECT_FILL_ALPHA,
-  SENSOR_FILL_ALPHA,
 } from './colours';
 import type {
   NeatBevFrame,
   NeatBevGrid,
   NeatBevGuides,
+  NeatBevLayer,
   NeatBevLine,
   NeatBevObject,
   NeatBevOverflow,
-  NeatBevSensor,
   NeatBevSpoke,
 } from './model';
 
 /*
  * The bird's-eye view's canvas: it draws, never decides. One canvas at the device's pixel ratio.
  * What changes only with the size, the view, the theme or the inputs is drawn into two cached
- * layers: under the data, the sensors' fills (and the guides when they go under); over it, the
- * guides (rings or grid lines, spokes, sensors' edges, the outline) when they go over, and their
+ * layers: under the data, the app's `background` (and the guides when they go under); over it, the
+ * guides (rings or grid lines, spokes, the outline) when they go over, the app's `foreground`, and their
  * labels. What a frame brings (grids, lines, points, objects) is drawn between the two each time,
  * without allocating per item, and the vehicle's marker on top. With `'clip'` the data and the
  * guides are cut at the plot (the circle or the rectangle, zoomed as the view is); with
@@ -65,7 +63,9 @@ export interface BevTheme {
 /** What the plot is drawn from, besides a frame: changes rarely, and redraws the cached layers. */
 export interface BevInputs {
   readonly plot: BevPlot;
-  readonly sensors: readonly NeatBevSensor[];
+  /** What the app draws under the data, and over it: static lines, polygons and points. */
+  readonly background: NeatBevLayer | null;
+  readonly foreground: NeatBevLayer | null;
   readonly spokes: readonly Required<NeatBevSpoke>[];
   /** Whether the plot's edge is drawn. */
   readonly outline: boolean;
@@ -157,8 +157,8 @@ export class BevCanvas {
   private layerRatio = 0;
   private layerWidth = 0;
   private layerHeight = 0;
-  /** The sensors' colours the layer was drawn in, by index. */
-  private readonly sensorColours: string[] = [];
+  /** The colours of the static layers' labels the cached layers were drawn in, in order. */
+  private readonly staticColours: string[] = [];
   /** How many times the cached layers were drawn: what the tests of the caching read. */
   layerDraws = 0;
 
@@ -282,13 +282,13 @@ export class BevCanvas {
       inputs !== this.layerInputs ||
       theme !== this.layerTheme ||
       !sameView(view, this.layerView);
-    // A sensor's label keeps its class colour alive on the page; a colour that changed redraws.
-    const sensors = inputs.sensors;
-    for (let i = 0; i < sensors.length; i++) {
-      const colour = colours.of(sensors[i].label).colour;
-      if (this.sensorColours[i] !== colour) stale = true;
-    }
-    return stale;
+    // A static layer's labels keep their class colours alive on the page; a colour that changed
+    // (a style row, the theme) redraws.
+    let i = 0;
+    forEachStaticLabel(inputs, (label) => {
+      if (this.staticColours[i++] !== colours.of(label).colour) stale = true;
+    });
+    return stale || i !== this.staticColours.length;
   }
 
   private drawLayers(
@@ -304,28 +304,25 @@ export class BevCanvas {
     this.layerView = view;
     this.layerInputs = inputs;
     this.layerTheme = theme;
-    this.sensorColours.length = 0;
-    for (const sensor of inputs.sensors) this.sensorColours.push(colours.of(sensor.label).colour);
+    this.staticColours.length = 0;
+    forEachStaticLabel(inputs, (label) => this.staticColours.push(colours.of(label).colour));
     this.layerDraws++;
 
     const step = stepFor(plotReach(inputs.plot), view);
     const guidesUnder = inputs.guides === 'under';
-    const fills = inputs.sensors.some((sensor) => sensor.fill);
 
-    this.under.used = fills || guidesUnder;
+    this.under.used = inputs.background !== null || guidesUnder;
     const under = this.under.used ? this.prepare(this.under, ratio) : null;
     if (under) {
-      under.save();
-      this.clip(under, view, inputs);
-      this.drawSensorFills(under, view, inputs, colours);
-      under.restore();
-      if (guidesUnder) this.drawGuides(under, view, inputs, theme, colours, step);
+      this.drawStatic(under, view, inputs, inputs.background, colours);
+      if (guidesUnder) this.drawGuides(under, view, inputs, theme, step);
     }
 
     this.over.used = true;
     const over = this.prepare(this.over, ratio);
     if (!over) return;
-    if (!guidesUnder) this.drawGuides(over, view, inputs, theme, colours, step);
+    if (!guidesUnder) this.drawGuides(over, view, inputs, theme, step);
+    this.drawStatic(over, view, inputs, inputs.foreground, colours);
     // The labels over everything, and not clipped: one on the plot's edge shows whole.
     this.labelStyle(over, theme);
     if (inputs.plot.shape === 'round') this.ringLabels(over, view, inputs, theme, step);
@@ -353,15 +350,14 @@ export class BevCanvas {
   }
 
   /**
-   * The guides: within the plot, the rings or the grid's lines, the spokes and the sensors' edges;
-   * then the plot's edge, unclipped so that its line shows whole.
+   * The guides: within the plot, the rings or the grid's lines and the spokes; then the plot's
+   * edge, unclipped so that its line shows whole.
    */
   private drawGuides(
     context: CanvasRenderingContext2D,
     view: BevView,
     inputs: BevInputs,
     theme: BevTheme,
-    colours: LabelColours,
     step: number,
   ): void {
     context.save();
@@ -369,74 +365,41 @@ export class BevCanvas {
     if (inputs.plot.shape === 'round') this.drawRings(context, view, inputs, theme, step);
     else this.drawGridLines(context, view, inputs, theme, step);
     this.drawSpokes(context, view, inputs, theme);
-    this.drawSensorEdges(context, view, inputs, colours);
     context.restore();
     if (inputs.outline) this.drawOutline(context, view, inputs.plot, theme);
   }
 
-  /** The sensors' wedges that ask to be filled, faintly in their labels' colours. */
-  private drawSensorFills(
+  /**
+   * A static layer (`background` or `foreground`), clipped as the data is: its polygons as
+   * see-through areas (no backing: over the data it must not hide it), its lines, and its points
+   * as small squares, one path a label. It is redrawn only with the cached layers, so it suits
+   * what changes rarely and is not too large; a dense cloud belongs in the frame.
+   */
+  private drawStatic(
     context: CanvasRenderingContext2D,
     view: BevView,
     inputs: BevInputs,
+    layer: NeatBevLayer | null,
     colours: LabelColours,
   ): void {
-    context.globalAlpha = SENSOR_FILL_ALPHA;
-    for (const sensor of inputs.sensors) {
-      if (!sensor.fill || !this.wedgePath(context, view, sensor, inputs.plot.range, true)) continue;
-      context.closePath();
-      context.fillStyle = colours.of(sensor.label).colour;
+    if (!layer) return;
+    context.save();
+    this.clip(context, view, inputs);
+    if (layer.lines) {
+      this.fillPolygons(context, view, layer.lines, colours, '');
+      this.drawLines(context, view, layer, colours);
+    }
+    for (const set of layer.points ?? []) {
+      const xy = set.xy;
+      context.beginPath();
+      for (let i = 0; i + 1 < xy.length; i += 2) {
+        const at = toScreen(view, xy[i], xy[i + 1], this.point);
+        context.rect(at.x - POINT_HALF, at.y - POINT_HALF, 2 * POINT_HALF, 2 * POINT_HALF);
+      }
+      context.fillStyle = colours.of(set.label).colour;
       context.fill();
     }
-    context.globalAlpha = 1;
-  }
-
-  /**
-   * Each sensor's edges, from its mount out to its reach, in its label's colour, and its arc when
-   * it gives its own range (without one it reaches the plot's range, where the outline is).
-   */
-  private drawSensorEdges(
-    context: CanvasRenderingContext2D,
-    view: BevView,
-    inputs: BevInputs,
-    colours: LabelColours,
-  ): void {
-    context.lineWidth = 1;
-    context.setLineDash(SOLID);
-    context.lineJoin = 'round';
-    for (const sensor of inputs.sensors) {
-      const arc = sensor.range !== undefined;
-      if (!this.wedgePath(context, view, sensor, inputs.plot.range, arc)) continue;
-      context.strokeStyle = colours.of(sensor.label).colour;
-      context.stroke();
-    }
-  }
-
-  /**
-   * The sensor's wedge as the current path: in along `from` to its mount, out along `to`, and with
-   * `arc` back around to `from`. False when it reaches nowhere.
-   */
-  private wedgePath(
-    context: CanvasRenderingContext2D,
-    view: BevView,
-    sensor: NeatBevSensor,
-    range: number,
-    arc: boolean,
-  ): boolean {
-    const scale = view.ppm * view.k;
-    const reach = (sensor.range ?? range) * scale;
-    if (!(reach > 0)) return false;
-    const origin = toScreen(view, sensor.origin?.x ?? 0, sensor.origin?.y ?? 0, this.point);
-    const from = canvasAngle(sensor.from);
-    const to = canvasAngle(sensor.to);
-    context.beginPath();
-    context.moveTo(origin.x + reach * Math.cos(from), origin.y + reach * Math.sin(from));
-    context.lineTo(origin.x, origin.y);
-    context.lineTo(origin.x + reach * Math.cos(to), origin.y + reach * Math.sin(to));
-    // Counter-clockwise from `from` to `to` around the vehicle is anticlockwise on the screen, so
-    // back from `to` to `from` is clockwise.
-    if (arc) context.arc(origin.x, origin.y, reach, to, from, false);
-    return true;
+    context.restore();
   }
 
   /**
@@ -827,7 +790,7 @@ export class BevCanvas {
   private drawLines(
     context: CanvasRenderingContext2D,
     view: BevView,
-    frame: NeatBevFrame,
+    frame: Pick<NeatBevFrame, 'lines'>,
     colours: LabelColours,
   ): void {
     const lines = frame.lines;
@@ -1021,6 +984,15 @@ function signedArea(xy: Float32Array): number {
     sum += xy[j] * xy[i + 1] - xy[i] * xy[j + 1];
   }
   return sum;
+}
+
+/** Calls `visit` with each label of the static layers' lines and points, in order. */
+function forEachStaticLabel(inputs: BevInputs, visit: (label: string) => void): void {
+  for (const layer of [inputs.background, inputs.foreground]) {
+    if (!layer) continue;
+    for (const line of layer.lines ?? []) visit(line.label);
+    for (const set of layer.points ?? []) visit(set.label);
+  }
 }
 
 function sameRgb(a: NeatRgb | null, b: NeatRgb | null): boolean {

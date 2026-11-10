@@ -19,8 +19,6 @@ import type { NeatOverlayClassStyle, NeatOverlayLineStyle } from '@sima/neat-ui/
 
 /** How opaque an object's fill is under its outline. */
 export const OBJECT_FILL_ALPHA = 0.25;
-/** How opaque a sensor's wedge is. */
-export const SENSOR_FILL_ALPHA = 0.07;
 /** How opaque the guides (rings, grid lines, spokes) are: the foreground, faint. */
 export const GUIDE_ALPHA = 0.18;
 /** How opaque the shape's outline is: the foreground, stronger than the guides. */

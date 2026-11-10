@@ -12,6 +12,7 @@ export type {
   NeatBevFrame,
   NeatBevGrid,
   NeatBevGuides,
+  NeatBevLayer,
   NeatBevLine,
   NeatBevObject,
   NeatBevObjectId,
@@ -19,7 +20,6 @@ export type {
   NeatBevPoint,
   NeatBevOverflow,
   NeatBevPoints,
-  NeatBevSensor,
   NeatBevShape,
   NeatBevSpoke,
 } from './lib/model';

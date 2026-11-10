@@ -4,8 +4,7 @@ import type {
   NeatBevGrid,
   NeatBevLine,
   NeatBevObject,
-  NeatBevSensor,
-  NeatBevSpoke,
+  NeatBevLayer,
 } from '@sima/neat-ui/bev';
 
 /*
@@ -24,6 +23,13 @@ const LANE = 3.5;
 /** How far the drivable grid reaches, and its cells: 128 × 128 at 0.8 m. */
 const GRID_REACH = 51.2;
 const GRID_CELLS = 128;
+/** The buildings' walls at the four corners of the crossing, where the lidar sees them. */
+const WALLS = {
+  left: ROAD_Y + HALF_ROAD + 3.5,
+  right: ROAD_Y - HALF_ROAD - 3.5,
+  near: CROSS_X - HALF_ROAD - 3.5,
+  far: CROSS_X + HALF_ROAD + 3.5,
+} as const;
 /** How far moving things travel before they wrap around. */
 const WRAP = 56;
 
@@ -113,12 +119,7 @@ function plannedPath(): NeatBevLine {
 /** The lidar's returns from the buildings' walls at the four corners of the crossing. */
 function wallReturns(next: () => number): Float32Array {
   const points: number[] = [];
-  const walls = {
-    left: ROAD_Y + HALF_ROAD + 3.5,
-    right: ROAD_Y - HALF_ROAD - 3.5,
-    near: CROSS_X - HALF_ROAD - 3.5,
-    far: CROSS_X + HALF_ROAD + 3.5,
-  };
+  const walls = WALLS;
   const along = (fixed: 'x' | 'y', at: number, from: number, to: number, count: number) => {
     for (let i = 0; i < count; i++) {
       const t = from + (to - from) * next();
@@ -294,45 +295,36 @@ export function streetFrames(): Signal<NeatBevFrame> {
   return frame.asReadonly();
 }
 
-/** A camera of the rig: which way it looks, how wide, and where it is mounted. */
-interface Camera {
-  readonly label: string;
-  readonly yaw: number;
-  readonly fov: number;
-  readonly mount: { readonly x: number; readonly y: number };
-}
-
-const degrees = (value: number): number => (value * Math.PI) / 180;
-
-/**
- * Six cameras around the vehicle, in order around it from the front, counter-clockwise: wider
- * at the back, so the seams between them are irregular. Mounts are metres from the rear axle.
- */
-const RIG: readonly Camera[] = [
-  { label: 'Front', yaw: 0, fov: degrees(70), mount: { x: 1.7, y: 0 } },
-  { label: 'Front left', yaw: degrees(55), fov: degrees(70), mount: { x: 1.5, y: 0.5 } },
-  { label: 'Back left', yaw: degrees(110), fov: degrees(70), mount: { x: 1, y: 0.5 } },
-  { label: 'Back', yaw: degrees(180), fov: degrees(110), mount: { x: 0, y: 0 } },
-  { label: 'Back right', yaw: degrees(-110), fov: degrees(70), mount: { x: 1, y: -0.5 } },
-  { label: 'Front right', yaw: degrees(-55), fov: degrees(70), mount: { x: 1.5, y: -0.5 } },
-];
-
-/** Each camera's wedge, from its mount between its edges. */
-export const CAMERAS: readonly NeatBevSensor[] = RIG.map((camera) => ({
-  label: camera.label,
-  from: camera.yaw - camera.fov / 2,
-  to: camera.yaw + camera.fov / 2,
-  origin: camera.mount,
-}));
+/** A rectangle, metres: back and front, right and left. */
+const block = (back: number, front: number, right: number, left: number): Float32Array =>
+  pairs([
+    [back, right],
+    [front, right],
+    [front, left],
+    [back, left],
+  ]);
 
 /**
- * The seams between neighbouring cameras, from the vehicle's centre: each halfway between one
- * camera's left edge and the next one's right edge.
+ * What a map knows of the street, which does not move: the buildings' footprints, as polygons
+ * for a view's `background`.
  */
-export const SEAMS: readonly NeatBevSpoke[] = RIG.map((camera, i) => {
-  const next = RIG[(i + 1) % RIG.length];
-  const left = camera.yaw + camera.fov / 2;
-  let right = next.yaw - next.fov / 2;
-  while (right < left - Math.PI) right += 2 * Math.PI;
-  return { angle: (left + right) / 2 };
-});
+export const BUILDINGS: NeatBevLayer = {
+  lines: [
+    block(-50, WALLS.near, WALLS.left, 30),
+    block(-50, WALLS.near, -30, WALLS.right),
+    block(WALLS.far, 60, WALLS.left, 30),
+    block(WALLS.far, 60, -30, WALLS.right),
+  ].map((xy) => ({ label: 'building', fill: true, xy })),
+};
+
+/** A zone the vehicle keeps clear ahead of it, dashed, for a view's `foreground`. */
+export const SAFETY_ZONE: NeatBevLayer = {
+  lines: [
+    {
+      label: 'safety zone',
+      closed: true,
+      style: 'dashed',
+      xy: block(-1.5, 7, -1.6, 1.6),
+    },
+  ],
+};

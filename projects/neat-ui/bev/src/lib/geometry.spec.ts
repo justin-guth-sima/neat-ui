@@ -1,7 +1,6 @@
 import {
   bevPlot,
   boxPlot,
-  canvasAngle,
   defaultView,
   farthestCorner,
   hasArea,
@@ -118,12 +117,6 @@ describe('the view', () => {
     const back = toVehicle(view, screen.x, screen.y, { x: 0, y: 0 });
     expect(back.x).toBeCloseTo(12.5);
     expect(back.y).toBeCloseTo(-3.25);
-  });
-
-  it('turns the vehicle angle into the canvas angle', () => {
-    expect(canvasAngle(0)).toBeCloseTo(-Math.PI / 2); // forward is up
-    expect(Math.cos(canvasAngle(Math.PI / 2))).toBeCloseTo(-1); // left is left
-    expect(Math.sin(canvasAngle(Math.PI))).toBeCloseTo(1); // back is down
   });
 
   it('pans within the plot with clip, and within the box with visible', () => {

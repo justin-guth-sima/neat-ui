@@ -836,7 +836,7 @@ export const GROUPS: readonly TopicGroup[] = [
               'NeatBevPoints',
               'NeatBevLine',
               'NeatBevGrid',
-              'NeatBevSensor',
+              'NeatBevLayer',
               'NeatBevSpoke',
               'NeatBevShape',
               'NeatBevBounds',
