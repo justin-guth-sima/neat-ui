@@ -62,8 +62,11 @@ function setup() {
       return event;
     },
     /** A wheel turn away from the user: zooms in 2^0.2× about the pointer (the box's corner). */
+    /** A wheel turn over the box; true when the page's scroll was prevented. */
     wheel(deltaY = -100) {
-      box.dispatchEvent(new WheelEvent('wheel', { deltaY, bubbles: true, cancelable: true }));
+      const event = new WheelEvent('wheel', { deltaY, bubbles: true, cancelable: true });
+      box.dispatchEvent(event);
+      return event.defaultPrevented;
     },
     /** A mouse press at (10, 10), moved by (dx, dy) unless both are 0, then released. */
     drag(dx: number, dy: number) {
@@ -163,6 +166,18 @@ describe('DiagramZoom', () => {
       view.size(400, 300);
       view.zoom.setExtent({ x: 0, y: 0, w: 900, h: 300 });
       expectAt(view.now(), zoomed);
+    });
+
+    it('takes every wheel over the box, at the zoom limits too, and none once destroyed', () => {
+      view.zoom.setExtent(EXTENT);
+      view.size(800, 600);
+      // Zoomed out as far as it goes, a wheel out changes nothing; the page still must not scroll.
+      for (let i = 0; i < 60; i++) view.wheel(400);
+      expect(view.wheel(400)).toBe(true);
+      for (let i = 0; i < 60; i++) view.wheel(-400);
+      expect(view.wheel(-400)).toBe(true);
+      view.zoom.destroy();
+      expect(view.wheel(-400)).toBe(false);
     });
 
     it('keeps fitting after a click or a press that does not move the view', () => {

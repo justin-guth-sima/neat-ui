@@ -15,7 +15,8 @@ import type { Rect } from './layout';
  * the level by itself (on its first size, a resize, a new extent, a new level, a new height of
  * what covers its top) until the user pans or zooms; Fit fits again and hands the view back.
  * d3-zoom handles the pointer (drag, wheel, pinch, double-click) on the box; the keys are this
- * unit's. The transform is written to the
+ * unit's, and so is the wheel's default: every wheel over the box is the diagram's, also at the
+ * zoom's limits, where d3-zoom alone lets the page scroll away under the pointer. The transform is written to the
  * content container's style, never through a signal, and every listener, the box's
  * ResizeObserver and the animation frames stay here (AGENTS.md: raw browser APIs stay isolated,
  * outside change detection).
@@ -132,6 +133,7 @@ export class DiagramZoom {
     this.selection = select(box).call(this.behavior);
     box.addEventListener('keydown', this.keydown);
     box.addEventListener('focusin', this.focusIn);
+    box.addEventListener('wheel', this.wheel, { passive: false });
     // Its first report is the box's first size: the first fit, or none while it has none. It
     // watches the top inset too (`setTopInset`).
     this.observer = new ResizeObserver(() => this.autoFit());
@@ -189,6 +191,7 @@ export class DiagramZoom {
     this.observer.disconnect();
     this.box.removeEventListener('keydown', this.keydown);
     this.box.removeEventListener('focusin', this.focusIn);
+    this.box.removeEventListener('wheel', this.wheel);
     this.motion?.removeEventListener('change', this.syncDuration);
     this.selection.on('.zoom', null);
   }
@@ -303,6 +306,11 @@ export class DiagramZoom {
    * pan, `+`/`=` and `-` zoom about the centre, `0` fits. A key with Ctrl, Meta or Alt is the
    * browser's (Ctrl `+` zooms the page).
    */
+  /** Every wheel over the box zooms the diagram, and never scrolls the page, at a limit too. */
+  private readonly wheel = (event: WheelEvent): void => {
+    event.preventDefault();
+  };
+
   private readonly keydown = (event: KeyboardEvent): void => {
     if (event.target !== this.box || event.ctrlKey || event.metaKey || event.altKey) return;
     const pan = PAN_KEYS[event.key];
