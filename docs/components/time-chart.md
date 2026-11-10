@@ -1665,17 +1665,28 @@ export const ROWS = [
 
 Component from `@sima/neat-ui/charts`, selector `neat-time-chart`.
 
-`times` (ms, oldest first) place the samples, so a delayed poll shows as a gap; without usable times they are spaced evenly. `domain` is the value range the box shows, and the app picks it (a percentage is 0 to 100, a temperature a fixed range), so the line never rescales under the reader. `format` words a value with its unit; the chart knows no units.
+`times` (ms, oldest first) place the samples, so a delayed poll shows as a gap. Without usable times, the samples are spaced evenly.
+
+`domain` is the value range the box shows, and the app picks it, so the line never rescales under the reader. A percentage is 0 to 100, say, and a temperature a fixed range. `format` words a value with its unit: the chart knows no units.
 
 One series strokes in `--neat-line`, or `--neat-line-warning` and `--neat-line-danger` by `tone`, with a faint area under it. Several take `--neat-series-1` to `-8` in order, and are listed in a legend with their current values; a ninth series and beyond fold into "Other". A `null` is a sample that was not taken and breaks the line. The newest sample has a dot. Thresholds and the reference are dashed lines, drawn while their value lies in the domain.
 
-The labels are drawn over the lines with a halo in `--neat-surface`, so inside a card set that to the card's fill, as the select list's sticky header asks.
+The labels are drawn over the lines with a halo in `--neat-surface`. So inside a card, set that to the card's fill, as the select list's sticky header asks.
 
-`size` sets the plot's height (3.5, 6 or 9.5 rem). `compact` leaves out every label and the time axis, which suits a row among others; `fill` is labeled as `medium` and makes the host a flex column whose plot takes the height left after the title, legend and axis, never under medium's 6 rem, so the app gives the host its height (a grid item that a row stretches, say); `[valueLabels]="false"` leaves out only the grid's values and the levels' labels, keeping their lines and the time axis, which suits a card in a grid; `headless` leaves out the title and headline, for a chart that sits under a heading of its own. None changes the accessible name or the readout. A grid label that would sit on a level's label or on the grid label below it is left out.
+`size` sets the plot's height: 3.5, 6 or 9.5 rem. Other inputs leave parts out:
 
-The plot is a group in the tab order named "&lt;label>: &lt;headline, or the current values>, over the last &lt;window>" ("over &lt;span>" on the elapsed axis). The readout follows the pointer; with focus it shows the newest sample, and the arrow keys, Home and End move it and Escape hides it. Each key press is repeated in a polite live region, so a screen reader hears the sample; pointer moves are not.
+- `compact` leaves out every label and the time axis, which suits a row among others.
+- `fill` is labeled as `medium`, and makes the host a flex column. Its plot takes the height left after the title, legend and axis, never under medium's 6 rem. So the app gives the host its height, such as a grid item that a row stretches.
+- `[valueLabels]="false"` leaves out only the grid's values and the levels' labels. It keeps their lines and the time axis, which suits a card in a grid.
+- `headless` leaves out the title and headline, for a chart under a heading of its own.
 
-`hovered` is the moment the readout is on, both ways: the chart sets it while the pointer or the keys hold a sample, and the app may set it, so several charts bound to one signal share a crosshair. `activated` reports a click (or Enter): the sample's time and values.
+None of them changes the accessible name or the readout. A grid label that would sit on a level's label, or on the grid label below it, is left out.
+
+The plot is a group in the tab order, named "&lt;label>: &lt;headline, or the current values>, over the last &lt;window>". On the elapsed axis it ends "over &lt;span>".
+
+The readout follows the pointer. With focus, it shows the newest sample. The arrow keys, Home and End move it, and Escape hides it. Each key press is repeated in a polite live region, so a screen reader hears the sample. Pointer moves are not repeated.
+
+`hovered` is the moment the readout is on, both ways. The chart sets it while the pointer or the keys hold a sample, and the app may set it. So several charts bound to one signal share a crosshair. `activated` reports a click, or Enter, with the sample's time and values.
 
 **Inputs**
 
@@ -1717,7 +1728,9 @@ The plot is a group in the tab order named "&lt;label>: &lt;headline, or the cur
 
 - **`axis`** `NeatChartAxis`, default `'recent'`
 
-  What the x axis, the readout and the accessible name count: `recent` back from the newest sample ("−8 min … now", "2 min ago"), for a live window, or `elapsed` forward from the first ("0 s … 33.9 s", "at 17 s"), for a run read from its start or several laid over each other.
+  What the x axis, the readout and the accessible name count: `recent` or `elapsed`.
+
+  `recent` counts back from the newest sample ("−8 min … now", "2 min ago"), for a live window. `elapsed` counts forward from the first ("0 s … 33.9 s", "at 17 s"). It is for a run read from its start, or several runs laid over each other.
 
 - **`headless`** `boolean`, default `false`, transform `booleanAttribute`
 
@@ -1725,7 +1738,9 @@ The plot is a group in the tab order named "&lt;label>: &lt;headline, or the cur
 
 - **`valueLabels`** `boolean`, default `true`, transform `booleanAttribute`
 
-  Whether the grid lines and the levels carry their values. Without them the lines, the time axis, the readout and the accessible name stay: for a small chart among others, such as a card's, where the labels would crowd the plot.
+  Whether the grid lines and the levels carry their values.
+
+  Without them, the lines, the time axis, the readout and the accessible name stay. Turn them off for a small chart among others, such as a card's, where the labels would crowd the plot.
 
 - **`format`** `NeatChartFormat`, default `String`
 
@@ -1735,7 +1750,9 @@ The plot is a group in the tab order named "&lt;label>: &lt;headline, or the cur
 
 - **`hovered`** `number | null`, default `null`
 
-  The moment the readout is on (ms, a sample's time): the pointer's or the keys' sample while they hold one (null once they let go), or one the app sets, shown at the nearest sample, so charts bound to one `hovered` share a crosshair. Changes only when the sample does.
+  The moment the readout is on, in ms: a sample's time.
+
+  It is the pointer's or the keys' sample while they hold one, and null once they let go. Otherwise it is one the app sets, shown at the nearest sample. So charts bound to one `hovered` share a crosshair. It changes only when the sample does.
 
 **Outputs**
 
@@ -1797,7 +1814,9 @@ type NeatChartFormat = (value: number) => string
 
 Type from `@sima/neat-ui/charts`.
 
-What a time chart's x axis counts: `recent` back from the newest sample ("−8 min … now"), for a live window, or `elapsed` forward from the first ("0 s … 33.9 s"), for a run read from its start.
+What a time chart's x axis counts: `recent` or `elapsed`.
+
+`recent` counts back from the newest sample ("−8 min … now"), for a live window. `elapsed` counts forward from the first ("0 s … 33.9 s"), for a run read from its start.
 
 ```ts
 type NeatChartAxis = 'recent' | 'elapsed'
@@ -1817,7 +1836,9 @@ type NeatChartTone = 'default' | 'warning' | 'danger'
 
 Interface from `@sima/neat-ui/charts`.
 
-A sample of a time chart or a stacked chart that a click (or Enter) chose: when it was taken (ms, as `times` has it; null for a sample without a time) and each line's or band's value there, by its key (a ninth series and beyond as "other").
+A sample of a time chart or a stacked chart that a click, or Enter, chose.
+
+It holds when the sample was taken, in ms as `times` has it, or null for a sample without a time. It holds each line's or band's value there, by its key, with a ninth series and beyond as "other".
 
 **Members**
 

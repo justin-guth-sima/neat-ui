@@ -249,11 +249,17 @@ export function scoresAt(step: number): readonly NeatScore[] {
 
 Component from `@sima/neat-ui/charts`, selector `neat-score-bars`.
 
-Rows keep the order of `scores`, so a bar does not jump about as the scores change. Each row is the label, a bar filled to its score (clamped to 0..1) and the score with two decimals; a value that is not a number draws an empty bar and "–". The fill takes its color from [`neatLabelColor`](../components/score-bars.md#neatlabelcolor), by the label's place in `labels` (empty means the order of `scores`), and `quiet` names the labels that stay muted. The row with the highest score has `data-top` and its label in bold, the first of a tie, and none when no score is a number.
+Rows keep the order of `scores`, so a bar does not jump about as the scores change. Each row is the label, a bar filled to its score, and the score with two decimals. The score is clamped to 0..1. A value that is not a number draws an empty bar and "–".
 
-`size` says how tall the list is. `auto`, the default, gives each row the height of its text. `fill` makes the host at least as tall as its container (`min-height: 100%`, so the container needs a height of its own, such as a card a grid row stretches) and shares that height evenly among the rows: each row grows, its label and figure stay centered in it, and its bar thickens with it up to twice its usual thickness. A container shorter than the rows' natural height does not squeeze them: the list keeps that height and overflows, as it does without `fill`.
+The fill takes its color from [`neatLabelColor`](../components/score-bars.md#neatlabelcolor), by the label's place in `labels`. An empty `labels` means the order of `scores`. `quiet` names the labels that stay muted.
 
-The host is a group named by `label`. Each bar is a `role="meter"` from 0 to 1 named by its class, so a screen reader gets every value; the top row has no state of its own for it.
+The row with the highest score has `data-top` and its label in bold. In a tie it is the first, and when no score is a number there is none.
+
+`size` says how tall the list is. `auto`, the default, gives each row the height of its text. `fill` makes the host at least as tall as its container (`min-height: 100%`). So the container needs a height of its own, such as a card a grid row stretches.
+
+With `fill`, the rows share that height evenly. Each row grows, its label and figure stay centered in it, and its bar thickens with it, up to twice its usual thickness. A container shorter than the rows' natural height does not squeeze them. The list keeps that height and overflows, as it does without `fill`.
+
+The host is a group named by `label`. Each bar is a `role="meter"` from 0 to 1, named by its class, so a screen reader gets every value. The top row has no state of its own for it.
 
 **Inputs**
 
@@ -295,7 +301,19 @@ One class and the score a classifier gave it, 0 to 1.
 
 Function from `@sima/neat-ui/charts`.
 
-The color of a label that stands for a class, a state or a gesture, as CSS: the series color at the label's place in `labels` (`--neat-series-1` to `-8`, the palette starting again after eight), `--muted-foreground` for a label in `quiet` (the "nothing here" class, which should not compete with the others), and `--neat-chip-neutral` for a label in neither list. One function, so the score bars and an app's timeline of the same labels cannot color them differently. The one exception is the timeline's quiet runs: they fill a stretch of the strip, often most of the window, so the timeline fills them with `--muted` instead and the quiet class is never its heaviest mark; the score bars' quiet fill stays `--muted-foreground`.
+The color of a label that stands for a class, a state or a gesture, as CSS.
+
+```ts
+neatLabelColor('Palm', ['Fist', 'Palm'], ['No gesture']); // 'var(--neat-series-2)'
+```
+
+- A label in `quiet` takes `--muted-foreground`, even when `labels` has it too. It is the "nothing here" class, which should not compete with the others.
+- A label in `labels` takes the series color at its place: `--neat-series-1` to `-8`, the palette starting again after eight.
+- A label in neither list takes `--neat-chip-neutral`.
+
+It is one function, so the score bars and an app's timeline of the same labels cannot color them differently.
+
+The one exception is the timeline's quiet runs. They fill a stretch of the strip, often most of the window. So the timeline fills them with `--muted` instead, and the quiet class is never its heaviest mark. The score bars' quiet fill stays `--muted-foreground`.
 
 ```ts
 neatLabelColor(label: string, labels: readonly string[], quiet: readonly string[]): string

@@ -61,24 +61,29 @@ interface CellReadout extends Cell {
  * />
  * ```
  *
- * A row's samples are split into at most 48 columns of time, each cell the mean of its samples;
- * `times` (ms, oldest first) place them, so a pause in the polling stays an empty stretch, and a
- * history shorter than the columns gets one column per sampling interval. A cell mixes
- * `--neat-heat-low` and `--neat-heat-high` by where its value lies in `domain` (0 to 100 by
- * default, clamped); an empty cell is transparent. A ramp in the head shows the domain's two
- * ends, worded by `format`. A row is 1.5 rem tall, with its label before the cells and `end`,
- * in the color of its tone, after them.
+ * A row's samples are split into at most 48 columns of time, each cell the mean of its samples.
+ * `times` (ms, oldest first) place them, so a pause in the polling stays an empty stretch. A
+ * history shorter than the columns gets one column per sampling interval.
  *
- * The grid is one tab stop named "<label>: <headline>, over the last <window>". Its readout,
- * which the pointer shows over a cell and the keys over the cursor's, reads "<row label> · <how
- * long ago the column's newest sample was>: <mean> average". The arrow keys move the cursor
- * (Left and Right by column, Up and Down by row), Home and End go to the ends of its row, and
- * Escape hides the readout. Like the time chart's, each key press, and only a key press, is
- * repeated in a polite live region.
+ * A cell mixes `--neat-heat-low` and `--neat-heat-high` by where its value lies in `domain`: 0 to
+ * 100 by default, clamped. An empty cell is transparent. A ramp in the head shows the domain's two
+ * ends, worded by `format`.
  *
- * `hovered` is the cell the readout is on, both ways (`NeatHeatmapCell`: its row's key and its
- * column's time, so it needs `times`): the heatmap sets it while the pointer or the keys hold a
- * cell, and the app may set it. `activated` reports a click (or Enter): the cell and its mean.
+ * A row is 1.5 rem tall, with its label before the cells, and `end` after them in the color of its
+ * tone.
+ *
+ * The grid is one tab stop, named "<label>: <headline>, over the last <window>". The pointer shows
+ * the readout over a cell, and the keys over the cursor's. It reads "<row label> · <how long ago
+ * the column's newest sample was>: <mean> average".
+ * - The arrow keys move the cursor: Left and Right by column, Up and Down by row.
+ * - Home and End go to the ends of its row.
+ * - Escape hides the readout.
+ *
+ * As on the time chart, each key press, and only a key press, is repeated in a polite live region.
+ *
+ * `hovered` is the cell the readout is on, both ways. It is a `NeatHeatmapCell`: its row's key and
+ * its column's time, so it needs `times`. The heatmap sets it while the pointer or the keys hold a
+ * cell, and the app may set it. `activated` reports a click, or Enter, with the cell and its mean.
  */
 @Component({
   selector: 'neat-heatmap',
@@ -168,8 +173,10 @@ export class NeatHeatmap {
   /** Words a value with its unit, for the ramp's ends and the readout. */
   readonly format = input<NeatChartFormat>(String);
   /**
-   * The cell the readout is on: the pointer's or the keys' while they hold one (null once they let
-   * go), or one the app sets, by its row's key and a time its column covers. Needs `times`.
+   * The cell the readout is on, by its row's key and a time its column covers. Needs `times`.
+   *
+   * It is the pointer's or the keys' cell while they hold one, and null once they let go. Otherwise
+   * it is one the app sets.
    */
   readonly hovered = model<NeatHeatmapCell | null>(null);
   /** A click on a cell, or Enter with focus: its row, its time and its mean. */

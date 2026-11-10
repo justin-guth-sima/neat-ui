@@ -23,7 +23,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " back from the newest sample (\"−8 min … now\"), for a live window, or "
+              "text": " or "
             },
             {
               "kind": "code",
@@ -31,7 +31,28 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " forward from the first (\"0 s … 33.9 s\"), for a run read from its start."
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "recent"
+            },
+            {
+              "kind": "text",
+              "text": " counts back from the newest sample (\"−8 min … now\"), for a live window. "
+            },
+            {
+              "kind": "code",
+              "text": "elapsed"
+            },
+            {
+              "kind": "text",
+              "text": " counts forward from the first (\"0 s … 33.9 s\"), for a run read from its start."
             }
           ]
         }
@@ -62,15 +83,53 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Top to bottom: the heading with the "
-            },
-            {
-              "kind": "code",
-              "text": "[neatChartCardChip]"
-            },
+              "text": "From top to bottom it shows:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "the heading, with the "
+              },
+              {
+                "kind": "code",
+                "text": "[neatChartCardChip]"
+              },
+              {
+                "kind": "text",
+                "text": " content beside it at the end;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "the value, large, with its unit smaller and muted after it;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "the caption;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "the default content, the chart."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": " content beside it at the end, the value (large, with its unit smaller and muted after it), the caption, and the default content, the chart. The value and the caption are left out while they are empty."
+              "text": "The value and the caption are left out while they are empty."
             }
           ]
         },
@@ -87,7 +146,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", the card is one choice among its siblings: the heading is a button (so it is the keyboard's way in, and "
+              "text": ", the card is one choice among its siblings. The heading is a button, so it is the keyboard's way in, and "
             },
             {
               "kind": "code",
@@ -103,7 +162,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") and a click anywhere on the card emits "
+              "text": ". A click anywhere on the card emits "
             },
             {
               "kind": "code",
@@ -111,7 +170,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " as well, its chart's plot included: the plot reads out a sample as the pointer moves over it, so a click there takes nothing from the readout, and the plot is most of the card. The plot's keys stay the chart's (they move the readout and choose nothing). A control in the content (a button, a link, a form field) handles its own click and leaves the card alone. Not selectable, the heading is text and the card handles no clicks."
+              "text": " as well, its chart's plot included. The plot reads out a sample as the pointer moves over it, so a click there takes nothing from the readout, and the plot is most of the card."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The plot's keys stay the chart's: they move the readout and choose nothing. A control in the content, such as a button, a link or a form field, handles its own click and leaves the card alone. Not selectable, the heading is text and the card handles no clicks."
             }
           ]
         },
@@ -129,7 +197,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (the frame, the "
+              "text": ": the frame, the "
             },
             {
               "kind": "code",
@@ -137,7 +205,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " fill, "
+              "text": " fill, and "
             },
             {
               "kind": "code",
@@ -145,7 +213,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " for the charts' label halos, no clipping and no stacking context: a readout can hang below its plot); the chart card adds the selected look and what goes in it."
+              "text": " for the charts' label halos. It has no clipping and no stacking context, so a readout can hang below its plot. The chart card adds the selected look and what goes in it."
             }
           ]
         }
@@ -327,7 +395,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A row's samples are split into at most 48 columns of time, each cell the mean of its samples; "
+              "text": "A row's samples are split into at most 48 columns of time, each cell the mean of its samples. "
             },
             {
               "kind": "code",
@@ -335,7 +403,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (ms, oldest first) place them, so a pause in the polling stays an empty stretch, and a history shorter than the columns gets one column per sampling interval. A cell mixes "
+              "text": " (ms, oldest first) place them, so a pause in the polling stays an empty stretch. A history shorter than the columns gets one column per sampling interval."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A cell mixes "
             },
             {
               "kind": "code",
@@ -359,7 +436,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (0 to 100 by default, clamped); an empty cell is transparent. A ramp in the head shows the domain's two ends, worded by "
+              "text": ": 0 to 100 by default, clamped. An empty cell is transparent. A ramp in the head shows the domain's two ends, worded by "
             },
             {
               "kind": "code",
@@ -367,15 +444,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". A row is 1.5 rem tall, with its label before the cells and "
-            },
-            {
-              "kind": "code",
-              "text": "end"
-            },
-            {
-              "kind": "text",
-              "text": ", in the color of its tone, after them."
+              "text": "."
             }
           ]
         },
@@ -384,7 +453,56 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The grid is one tab stop named \"<label>: <headline>, over the last <window>\". Its readout, which the pointer shows over a cell and the keys over the cursor's, reads \"<row label> · <how long ago the column's newest sample was>: <mean> average\". The arrow keys move the cursor (Left and Right by column, Up and Down by row), Home and End go to the ends of its row, and Escape hides the readout. Like the time chart's, each key press, and only a key press, is repeated in a polite live region."
+              "text": "A row is 1.5 rem tall, with its label before the cells, and "
+            },
+            {
+              "kind": "code",
+              "text": "end"
+            },
+            {
+              "kind": "text",
+              "text": " after them in the color of its tone."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The grid is one tab stop, named \"<label>: <headline>, over the last <window>\". The pointer shows the readout over a cell, and the keys over the cursor's. It reads \"<row label> · <how long ago the column's newest sample was>: <mean> average\"."
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "The arrow keys move the cursor: Left and Right by column, Up and Down by row."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Home and End go to the ends of its row."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Escape hides the readout."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "As on the time chart, each key press, and only a key press, is repeated in a polite live region."
             }
           ]
         },
@@ -397,7 +515,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the cell the readout is on, both ways ("
+              "text": " is the cell the readout is on, both ways. It is a "
             },
             {
               "kind": "ref",
@@ -414,7 +532,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "): the heatmap sets it while the pointer or the keys hold a cell, and the app may set it. "
+              "text": ". The heatmap sets it while the pointer or the keys hold a cell, and the app may set it. "
             },
             {
               "kind": "code",
@@ -422,7 +540,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " reports a click (or Enter): the cell and its mean."
+              "text": " reports a click, or Enter, with the cell and its mean."
             }
           ]
         }
@@ -544,7 +662,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The cell the readout is on: the pointer's or the keys' while they hold one (null once they let go), or one the app sets, by its row's key and a time its column covers. Needs "
+                  "text": "The cell the readout is on, by its row's key and a time its column covers. Needs "
                 },
                 {
                   "kind": "code",
@@ -553,6 +671,15 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is the pointer's or the keys' cell while they hold one, and null once they let go. Otherwise it is one the app sets."
                 }
               ]
             }
@@ -879,7 +1006,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", left to right, under an axis of four ticks (−30 s, −20 s, −10 s and now for the default window). The app moves the window by passing a later "
+              "text": ", left to right. The axis under it has four ticks: −30 s, −20 s, −10 s and now for the default window. The app moves the window by passing a later "
             },
             {
               "kind": "code",
@@ -887,7 +1014,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", so a test or a replay sets the time. With the default "
+              "text": ", so a test or a replay sets the time."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "With the default "
             },
             {
               "kind": "code",
@@ -895,7 +1031,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " that is all there is: the strip jumps at the app's update rate. With "
+              "text": ", that is all there is: the strip jumps at the app's update rate. With "
             },
             {
               "kind": "code",
@@ -903,23 +1039,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " it also scrolls between two updates, on animation frames at real time, so an app that updates once a second still reads as moving. It never runs more than a second past the last "
-            },
-            {
-              "kind": "code",
-              "text": "nowMs"
-            },
-            {
-              "kind": "text",
-              "text": " (a stalled stream stops the strip), and never moves backwards: a "
-            },
-            {
-              "kind": "code",
-              "text": "nowMs"
-            },
-            {
-              "kind": "text",
-              "text": " behind what is drawn holds the strip until real time catches up. A reduced-motion setting forces "
+              "text": ", it also scrolls between two updates, on animation frames at real time. So an app that updates once a second still reads as moving. A reduced-motion setting forces "
             },
             {
               "kind": "code",
@@ -927,7 +1047,41 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". A run is placed by its times and clipped to the window; one that ends before it starts, lies outside the window or has a time that is not a number is not drawn. Runs that overlap are drawn in the order of "
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A smooth strip never runs more than a second past the last "
+            },
+            {
+              "kind": "code",
+              "text": "nowMs"
+            },
+            {
+              "kind": "text",
+              "text": ", so a stalled stream stops it. It never moves backwards: a "
+            },
+            {
+              "kind": "code",
+              "text": "nowMs"
+            },
+            {
+              "kind": "text",
+              "text": " behind what is drawn holds the strip until real time catches up."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A run is placed by its times and clipped to the window. A run is not drawn when it ends before it starts, lies outside the window, or has a time that is not a number. Runs that overlap are drawn in the order of "
             },
             {
               "kind": "code",
@@ -944,23 +1098,73 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The runs' names stand above the strip, outside the runs, each from a rule at its run's start (held back from the strip's right end) and as wide as it needs, so a gesture of a second still has its name. They are laid out in "
-            },
-            {
-              "kind": "code",
-              "text": "labelRows"
-            },
+              "text": "The runs' names stand above the strip, outside the runs. Each starts from a rule at its run's start, held back from the strip's right end, and is as wide as it needs. So a gesture of a second still has its name."
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "The names are laid out in "
+              },
+              {
+                "kind": "code",
+                "text": "labelRows"
+              },
+              {
+                "kind": "text",
+                "text": " rows, 1 by default, the first next to the strip."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "From the newest run back, each name goes into the first row where it keeps a gap from the newer names. So the latest result is the one named."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A name that fits in no row is not drawn. The readout and the hidden list still say it."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A "
+              },
+              {
+                "kind": "code",
+                "text": "quiet"
+              },
+              {
+                "kind": "text",
+                "text": " label is never named."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "While the strip scrolls, a name keeps its row as long as it fits there, so names do not hop between rows from frame to frame."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A name held back from the right end keeps its rule at its run's start, below its text, so it still points at its own run."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": " rows, 1 by default, the first next to the strip: from the newest run back, each name goes into the first row where it keeps a gap from the newer names, so the latest result is the one named. A name that fits in no row is not drawn; the readout and the hidden list still say it. A "
-            },
-            {
-              "kind": "code",
-              "text": "quiet"
-            },
-            {
-              "kind": "text",
-              "text": " label is never named. While the strip scrolls a name keeps its row as long as it fits there, so names do not hop between rows from frame to frame. A name held back from the right end keeps its rule at its run's start, below its text, so it still points at its own run. The names are measured as drawn and laid out again when the strip's width changes."
+              "text": "The names are measured as drawn, and laid out again when the strip's width changes."
             }
           ]
         },
@@ -986,20 +1190,28 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (empty means the order in which labels first appear in "
-            },
-            {
-              "kind": "code",
-              "text": "runs"
-            },
-            {
-              "kind": "text",
-              "text": "), as in "
+              "text": ", as in "
             },
             {
               "kind": "ref",
               "text": "NeatScoreBars",
               "name": "NeatScoreBars"
+            },
+            {
+              "kind": "text",
+              "text": ". An empty "
+            },
+            {
+              "kind": "code",
+              "text": "labels"
+            },
+            {
+              "kind": "text",
+              "text": " means the order in which labels first appear in "
+            },
+            {
+              "kind": "code",
+              "text": "runs"
             },
             {
               "kind": "text",
@@ -1011,7 +1223,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " label: its run is filled with "
+              "text": " label. Its run is filled with "
             },
             {
               "kind": "code",
@@ -1036,7 +1248,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " returns for text and the score bars use, because a quiet class fills most of the window and must not be its heaviest mark."
+              "text": " returns for text and the score bars use. A quiet class fills most of the window, and must not be its heaviest mark."
             }
           ]
         },
@@ -1053,7 +1265,63 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " that holds a list with one item per drawn run, named by its label and its span in seconds (as visually hidden text in the item), so a screen reader gets the runs the label text leaves out. The pointer over a run, quiet ones included, shows a readout beside its middle with its label, as the other charts read out what lies under the pointer; it follows the run while the strip scrolls, and the pointer on a run's name shows the same. The strip is one tab stop: focus reads out the newest run, Left and Right step to the run before or after it in time, Home and End go to the oldest and the newest, and Escape hides the readout. Each key press, and only a key press, is repeated in a polite live region."
+              "text": ". It holds a list with one item per drawn run, named by its label and its span in seconds, as visually hidden text in the item. So a screen reader gets the runs the label text leaves out."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The pointer over a run, quiet ones included, shows a readout beside its middle with its label, as the other charts read out what lies under the pointer. The readout follows the run while the strip scrolls. The pointer on a run's name shows the same."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The strip is one tab stop:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "Focus reads out the newest run."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Left and Right step to the run before or after it in time."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Home and End go to the oldest and the newest."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Escape hides the readout."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Each key press, and only a key press, is repeated in a polite live region."
             }
           ]
         },
@@ -1066,7 +1334,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is a moment (ms), both ways, as on the time charts: the strip sets it to the moment under the pointer (a run's middle while the keys hold one), and the app may set it, which reads out the run covering that moment, so a timeline shares a crosshair with time charts bound to the same signal. "
+              "text": " is a moment (ms), both ways, as on the time charts. The strip sets it to the moment under the pointer, or to a run's middle while the keys hold one. The app may set it, which reads out the run covering that moment. So a timeline shares a crosshair with time charts bound to the same signal. "
             },
             {
               "kind": "code",
@@ -1074,7 +1342,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " reports a click (or Enter): the run under it, if any, and the moment."
+              "text": " reports a click, or Enter, with the run under it, if any, and the moment."
             }
           ]
         }
@@ -1218,7 +1486,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "How many rows of names stand above the strip, a positive whole number. More rows name more of a busy strip; a name that fits in none is left out, and the readout and the hidden list still say it."
+                  "text": "How many rows of names stand above the strip, a positive whole number."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "More rows name more of a busy strip. A name that fits in none is left out, and the readout and the hidden list still say it."
                 }
               ]
             }
@@ -1236,7 +1513,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The moment the readout is on (ms): under the pointer, or a run's middle while the keys hold one (null once they let go), or one the app sets, which reads out the run covering it."
+                  "text": "The moment the readout is on, in ms."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is the moment under the pointer, or a run's middle while the keys hold one, and null once they let go. Otherwise it is one the app sets, which reads out the run covering it."
                 }
               ]
             }
@@ -1339,7 +1625,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A sample of a time chart or a stacked chart that a click (or Enter) chose: when it was taken (ms, as "
+              "text": "A sample of a time chart or a stacked chart that a click, or Enter, chose."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It holds when the sample was taken, in ms as "
             },
             {
               "kind": "code",
@@ -1347,7 +1642,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " has it; null for a sample without a time) and each line's or band's value there, by its key (a ninth series and beyond as \"other\")."
+              "text": " has it, or null for a sample without a time. It holds each line's or band's value there, by its key, with a ninth series and beyond as \"other\"."
             }
           ]
         }
@@ -1424,7 +1719,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", so a bar does not jump about as the scores change. Each row is the label, a bar filled to its score (clamped to 0..1) and the score with two decimals; a value that is not a number draws an empty bar and \"–\". The fill takes its color from "
+              "text": ", so a bar does not jump about as the scores change. Each row is the label, a bar filled to its score, and the score with two decimals. The score is clamped to 0..1. A value that is not a number draws an empty bar and \"–\"."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The fill takes its color from "
             },
             {
               "kind": "ref",
@@ -1441,7 +1745,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (empty means the order of "
+              "text": ". An empty "
+            },
+            {
+              "kind": "code",
+              "text": "labels"
+            },
+            {
+              "kind": "text",
+              "text": " means the order of "
             },
             {
               "kind": "code",
@@ -1449,7 +1761,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), and "
+              "text": ". "
             },
             {
               "kind": "code",
@@ -1457,7 +1769,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " names the labels that stay muted. The row with the highest score has "
+              "text": " names the labels that stay muted."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The row with the highest score has "
             },
             {
               "kind": "code",
@@ -1465,7 +1786,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " and its label in bold, the first of a tie, and none when no score is a number."
+              "text": " and its label in bold. In a tie it is the first, and when no score is a number there is none."
             }
           ]
         },
@@ -1502,7 +1823,24 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", so the container needs a height of its own, such as a card a grid row stretches) and shares that height evenly among the rows: each row grows, its label and figure stay centered in it, and its bar thickens with it up to twice its usual thickness. A container shorter than the rows' natural height does not squeeze them: the list keeps that height and overflows, as it does without "
+              "text": "). So the container needs a height of its own, such as a card a grid row stretches."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "With "
+            },
+            {
+              "kind": "code",
+              "text": "fill"
+            },
+            {
+              "kind": "text",
+              "text": ", the rows share that height evenly. Each row grows, its label and figure stay centered in it, and its bar thickens with it, up to twice its usual thickness. A container shorter than the rows' natural height does not squeeze them. The list keeps that height and overflows, as it does without "
             },
             {
               "kind": "code",
@@ -1535,7 +1873,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " from 0 to 1 named by its class, so a screen reader gets every value; the top row has no state of its own for it."
+              "text": " from 0 to 1, named by its class, so a screen reader gets every value. The top row has no state of its own for it."
             }
           ]
         }
@@ -1725,7 +2063,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The samples are spread evenly, the lowest at the bottom of the box and the highest at the top, so the line shows the shape of the last minutes and not a level (the card says the value). A "
+              "text": "The samples are spread evenly, the lowest at the bottom of the box and the highest at the top. So the line shows the shape of the last minutes, not a level: the card says the value. A "
             },
             {
               "kind": "code",
@@ -1733,7 +2071,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is a sample that was not taken and splits the line. Fewer than two numbers draw nothing but the box keeps its size, so a card does not jump when its first samples arrive."
+              "text": " is a sample that was not taken, and splits the line. Fewer than two numbers draw nothing but the box keeps its size, so a card does not jump when its first samples arrive."
             }
           ]
         },
@@ -1895,7 +2233,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The series stack bottom first in the order given, each band in "
+              "text": "The series stack bottom first, in the order given. Each band is in "
             },
             {
               "kind": "code",
@@ -1911,7 +2249,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " at 0.85 opacity with a hairline in "
+              "text": " at 0.85 opacity, with a hairline in "
             },
             {
               "kind": "code",
@@ -1919,8 +2257,22 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " between them, so inside a card set that to the card's fill. More than eight fold into \"Other\", as on the time chart. A sample where any band is missing breaks the whole stack: a partial sum would draw a total that was never measured. "
-            },
+              "text": " between bands. So inside a card, set that to the card's fill. More than eight fold into \"Other\", as on the time chart."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A sample where any band is missing breaks the whole stack: a partial sum would draw a total that was never measured."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "times"
@@ -1967,7 +2319,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " are as on the time chart, and "
+              "text": " are as on the time chart. "
             },
             {
               "kind": "code",
@@ -1975,7 +2327,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " must reach the largest total or the top of the stack is cut off."
+              "text": " must reach the largest total, or the top of the stack is cut off."
             }
           ]
         },
@@ -1984,7 +2336,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The legend lists each band with its current value and its share of the current total, as a whole percent; the share is \"—\" while the total is unknown (a band has no current sample) or nothing. The colors alone do not tell eight bands apart, which is what the legend is for."
+              "text": "The legend lists each band with its current value, and its share of the current total as a whole percent. The share is \"—\" while the total is nothing, or unknown because a band has no current sample. The colors alone do not tell eight bands apart, which is what the legend is for."
             }
           ]
         },
@@ -1993,7 +2345,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The plot is a tab stop that reads out like the time chart's: \"Total\", then each band, at the sample the pointer or the keys chose, with the same keys and the same announcements, and "
+              "text": "The plot is a tab stop that reads out like the time chart's: \"Total\", then each band, at the sample the pointer or the keys chose. It has the same keys and the same announcements. "
             },
             {
               "kind": "code",
@@ -2189,7 +2541,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The moment the readout is on (ms, a sample's time): the pointer's or the keys' sample while they hold one (null once they let go), or one the app sets, shown at the nearest sample, so charts bound to one "
+                  "text": "The moment the readout is on, in ms: a sample's time."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is the pointer's or the keys' sample while they hold one, and null once they let go. Otherwise it is one the app sets, shown at the nearest sample. So charts bound to one "
                 },
                 {
                   "kind": "code",
@@ -2197,7 +2558,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " share a crosshair. Changes only when the sample does."
+                  "text": " share a crosshair. It changes only when the sample does."
                 }
               ]
             }
@@ -2284,15 +2645,20 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (ms, oldest first) place the samples, so a delayed poll shows as a gap; without usable times they are spaced evenly. "
-            },
+              "text": " (ms, oldest first) place the samples, so a delayed poll shows as a gap. Without usable times, the samples are spaced evenly."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "domain"
             },
             {
               "kind": "text",
-              "text": " is the value range the box shows, and the app picks it (a percentage is 0 to 100, a temperature a fixed range), so the line never rescales under the reader. "
+              "text": " is the value range the box shows, and the app picks it, so the line never rescales under the reader. A percentage is 0 to 100, say, and a temperature a fixed range. "
             },
             {
               "kind": "code",
@@ -2300,7 +2666,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " words a value with its unit; the chart knows no units."
+              "text": " words a value with its unit: the chart knows no units."
             }
           ]
         },
@@ -2382,7 +2748,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", so inside a card set that to the card's fill, as the select list's sticky header asks."
+              "text": ". So inside a card, set that to the card's fill, as the select list's sticky header asks."
             }
           ]
         },
@@ -2395,47 +2761,69 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " sets the plot's height (3.5, 6 or 9.5 rem). "
-            },
-            {
-              "kind": "code",
-              "text": "compact"
-            },
+              "text": " sets the plot's height: 3.5, 6 or 9.5 rem. Other inputs leave parts out:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "compact"
+              },
+              {
+                "kind": "text",
+                "text": " leaves out every label and the time axis, which suits a row among others."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "fill"
+              },
+              {
+                "kind": "text",
+                "text": " is labeled as "
+              },
+              {
+                "kind": "code",
+                "text": "medium"
+              },
+              {
+                "kind": "text",
+                "text": ", and makes the host a flex column. Its plot takes the height left after the title, legend and axis, never under medium's 6 rem. So the app gives the host its height, such as a grid item that a row stretches."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "[valueLabels]=\"false\""
+              },
+              {
+                "kind": "text",
+                "text": " leaves out only the grid's values and the levels' labels. It keeps their lines and the time axis, which suits a card in a grid."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "headless"
+              },
+              {
+                "kind": "text",
+                "text": " leaves out the title and headline, for a chart under a heading of its own."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": " leaves out every label and the time axis, which suits a row among others; "
-            },
-            {
-              "kind": "code",
-              "text": "fill"
-            },
-            {
-              "kind": "text",
-              "text": " is labeled as "
-            },
-            {
-              "kind": "code",
-              "text": "medium"
-            },
-            {
-              "kind": "text",
-              "text": " and makes the host a flex column whose plot takes the height left after the title, legend and axis, never under medium's 6 rem, so the app gives the host its height (a grid item that a row stretches, say); "
-            },
-            {
-              "kind": "code",
-              "text": "[valueLabels]=\"false\""
-            },
-            {
-              "kind": "text",
-              "text": " leaves out only the grid's values and the levels' labels, keeping their lines and the time axis, which suits a card in a grid; "
-            },
-            {
-              "kind": "code",
-              "text": "headless"
-            },
-            {
-              "kind": "text",
-              "text": " leaves out the title and headline, for a chart that sits under a heading of its own. None changes the accessible name or the readout. A grid label that would sit on a level's label or on the grid label below it is left out."
+              "text": "None of them changes the accessible name or the readout. A grid label that would sit on a level's label, or on the grid label below it, is left out."
             }
           ]
         },
@@ -2444,7 +2832,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The plot is a group in the tab order named \"<label>: <headline, or the current values>, over the last <window>\" (\"over <span>\" on the elapsed axis). The readout follows the pointer; with focus it shows the newest sample, and the arrow keys, Home and End move it and Escape hides it. Each key press is repeated in a polite live region, so a screen reader hears the sample; pointer moves are not."
+              "text": "The plot is a group in the tab order, named \"<label>: <headline, or the current values>, over the last <window>\". On the elapsed axis it ends \"over <span>\"."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The readout follows the pointer. With focus, it shows the newest sample. The arrow keys, Home and End move it, and Escape hides it. Each key press is repeated in a polite live region, so a screen reader hears the sample. Pointer moves are not repeated."
             }
           ]
         },
@@ -2457,7 +2854,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the moment the readout is on, both ways: the chart sets it while the pointer or the keys hold a sample, and the app may set it, so several charts bound to one signal share a crosshair. "
+              "text": " is the moment the readout is on, both ways. The chart sets it while the pointer or the keys hold a sample, and the app may set it. So several charts bound to one signal share a crosshair. "
             },
             {
               "kind": "code",
@@ -2465,7 +2862,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " reports a click (or Enter): the sample's time and values."
+              "text": " reports a click, or Enter, with the sample's time and values."
             }
           ]
         }
@@ -2657,7 +3054,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " back from the newest sample (\"−8 min … now\", \"2 min ago\"), for a live window, or "
+                  "text": " or "
                 },
                 {
                   "kind": "code",
@@ -2665,7 +3062,28 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " forward from the first (\"0 s … 33.9 s\", \"at 17 s\"), for a run read from its start or several laid over each other."
+                  "text": "."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "code",
+                  "text": "recent"
+                },
+                {
+                  "kind": "text",
+                  "text": " counts back from the newest sample (\"−8 min … now\", \"2 min ago\"), for a live window. "
+                },
+                {
+                  "kind": "code",
+                  "text": "elapsed"
+                },
+                {
+                  "kind": "text",
+                  "text": " counts forward from the first (\"0 s … 33.9 s\", \"at 17 s\"). It is for a run read from its start, or several runs laid over each other."
                 }
               ]
             }
@@ -2699,7 +3117,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Whether the grid lines and the levels carry their values. Without them the lines, the time axis, the readout and the accessible name stay: for a small chart among others, such as a card's, where the labels would crowd the plot."
+                  "text": "Whether the grid lines and the levels carry their values."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Without them, the lines, the time axis, the readout and the accessible name stay. Turn them off for a small chart among others, such as a card's, where the labels would crowd the plot."
                 }
               ]
             }
@@ -2733,7 +3160,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The moment the readout is on (ms, a sample's time): the pointer's or the keys' sample while they hold one (null once they let go), or one the app sets, shown at the nearest sample, so charts bound to one "
+                  "text": "The moment the readout is on, in ms: a sample's time."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is the pointer's or the keys' sample while they hold one, and null once they let go. Otherwise it is one the app sets, shown at the nearest sample. So charts bound to one "
                 },
                 {
                   "kind": "code",
@@ -2741,7 +3177,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " share a crosshair. Changes only when the sample does."
+                  "text": " share a crosshair. It changes only when the sample does."
                 }
               ]
             }
@@ -2818,55 +3254,109 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The color of a label that stands for a class, a state or a gesture, as CSS: the series color at the label's place in "
-            },
-            {
-              "kind": "code",
-              "text": "labels"
-            },
+              "text": "The color of a label that stands for a class, a state or a gesture, as CSS."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "neatLabelColor('Palm', ['Fist', 'Palm'], ['No gesture']); // 'var(--neat-series-2)'"
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "A label in "
+              },
+              {
+                "kind": "code",
+                "text": "quiet"
+              },
+              {
+                "kind": "text",
+                "text": " takes "
+              },
+              {
+                "kind": "code",
+                "text": "--muted-foreground"
+              },
+              {
+                "kind": "text",
+                "text": ", even when "
+              },
+              {
+                "kind": "code",
+                "text": "labels"
+              },
+              {
+                "kind": "text",
+                "text": " has it too. It is the \"nothing here\" class, which should not compete with the others."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A label in "
+              },
+              {
+                "kind": "code",
+                "text": "labels"
+              },
+              {
+                "kind": "text",
+                "text": " takes the series color at its place: "
+              },
+              {
+                "kind": "code",
+                "text": "--neat-series-1"
+              },
+              {
+                "kind": "text",
+                "text": " to "
+              },
+              {
+                "kind": "code",
+                "text": "-8"
+              },
+              {
+                "kind": "text",
+                "text": ", the palette starting again after eight."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A label in neither list takes "
+              },
+              {
+                "kind": "code",
+                "text": "--neat-chip-neutral"
+              },
+              {
+                "kind": "text",
+                "text": "."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": " ("
-            },
-            {
-              "kind": "code",
-              "text": "--neat-series-1"
-            },
-            {
-              "kind": "text",
-              "text": " to "
-            },
-            {
-              "kind": "code",
-              "text": "-8"
-            },
+              "text": "It is one function, so the score bars and an app's timeline of the same labels cannot color them differently."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ", the palette starting again after eight), "
-            },
-            {
-              "kind": "code",
-              "text": "--muted-foreground"
-            },
-            {
-              "kind": "text",
-              "text": " for a label in "
-            },
-            {
-              "kind": "code",
-              "text": "quiet"
-            },
-            {
-              "kind": "text",
-              "text": " (the \"nothing here\" class, which should not compete with the others), and "
-            },
-            {
-              "kind": "code",
-              "text": "--neat-chip-neutral"
-            },
-            {
-              "kind": "text",
-              "text": " for a label in neither list. One function, so the score bars and an app's timeline of the same labels cannot color them differently. The one exception is the timeline's quiet runs: they fill a stretch of the strip, often most of the window, so the timeline fills them with "
+              "text": "The one exception is the timeline's quiet runs. They fill a stretch of the strip, often most of the window. So the timeline fills them with "
             },
             {
               "kind": "code",
@@ -2874,7 +3364,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " instead and the quiet class is never its heaviest mark; the score bars' quiet fill stays "
+              "text": " instead, and the quiet class is never its heaviest mark. The score bars' quiet fill stays "
             },
             {
               "kind": "code",

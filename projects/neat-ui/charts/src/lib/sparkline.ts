@@ -10,9 +10,9 @@ import type { NeatChartFormat, NeatChartTone } from './types';
  * <neat-sparkline [values]="temperatures" label="MLA RTSN-0" [format]="celsius" tone="warning" />
  * ```
  *
- * The samples are spread evenly, the lowest at the bottom of the box and the highest at the top,
- * so the line shows the shape of the last minutes and not a level (the card says the value). A
- * `null` is a sample that was not taken and splits the line. Fewer than two numbers draw nothing
+ * The samples are spread evenly, the lowest at the bottom of the box and the highest at the top.
+ * So the line shows the shape of the last minutes, not a level: the card says the value. A `null`
+ * is a sample that was not taken, and splits the line. Fewer than two numbers draw nothing
  * but the box keeps its size, so a card does not jump when its first samples arrive.
  *
  * The box fills the width it is given and is 1.75 rem high. The host is an image named by

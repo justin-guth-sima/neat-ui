@@ -1,6 +1,8 @@
 /**
- * What a time chart's x axis counts: `recent` back from the newest sample ("−8 min … now"), for a
- * live window, or `elapsed` forward from the first ("0 s … 33.9 s"), for a run read from its start.
+ * What a time chart's x axis counts: `recent` or `elapsed`.
+ *
+ * `recent` counts back from the newest sample ("−8 min … now"), for a live window. `elapsed`
+ * counts forward from the first ("0 s … 33.9 s"), for a run read from its start.
  */
 export type NeatChartAxis = 'recent' | 'elapsed';
 
@@ -31,9 +33,11 @@ export interface NeatReference {
 export type NeatChartFormat = (value: number) => string;
 
 /**
- * A sample of a time chart or a stacked chart that a click (or Enter) chose: when it was taken
- * (ms, as `times` has it; null for a sample without a time) and each line's or band's value there,
- * by its key (a ninth series and beyond as "other").
+ * A sample of a time chart or a stacked chart that a click, or Enter, chose.
+ *
+ * It holds when the sample was taken, in ms as `times` has it, or null for a sample without a
+ * time. It holds each line's or band's value there, by its key, with a ninth series and beyond as
+ * "other".
  */
 export interface NeatSamplePick {
   readonly time: number | null;

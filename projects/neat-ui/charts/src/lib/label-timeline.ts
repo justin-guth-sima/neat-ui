@@ -128,48 +128,64 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
  * />
  * ```
  *
- * It draws the window from `nowMs - windowMs` to `nowMs`, left to right, under an axis of four
- * ticks (−30 s, −20 s, −10 s and now for the default window). The app moves the window by
- * passing a later `nowMs`, so a test or a replay sets the time. With the default `motion="step"`
- * that is all there is: the strip jumps at the app's update rate. With `motion="smooth"` it also
- * scrolls between two updates, on animation frames at real time, so an app that updates once a
- * second still reads as moving. It never runs more than a second past the last `nowMs` (a stalled
- * stream stops the strip), and never moves backwards: a `nowMs` behind what is drawn holds the
- * strip until real time catches up. A reduced-motion setting forces `step`.
- * A run is placed by its times and clipped to the window; one that ends before it starts, lies
- * outside the window or has a time that is not a number is not drawn. Runs that overlap are drawn
+ * It draws the window from `nowMs - windowMs` to `nowMs`, left to right. The axis under it has
+ * four ticks: −30 s, −20 s, −10 s and now for the default window. The app moves the window by
+ * passing a later `nowMs`, so a test or a replay sets the time.
+ *
+ * With the default `motion="step"`, that is all there is: the strip jumps at the app's update
+ * rate. With `motion="smooth"`, it also scrolls between two updates, on animation frames at real
+ * time. So an app that updates once a second still reads as moving. A reduced-motion setting
+ * forces `step`.
+ *
+ * A smooth strip never runs more than a second past the last `nowMs`, so a stalled stream stops
+ * it. It never moves backwards: a `nowMs` behind what is drawn holds the strip until real time
+ * catches up.
+ *
+ * A run is placed by its times and clipped to the window. A run is not drawn when it ends before it
+ * starts, lies outside the window, or has a time that is not a number. Runs that overlap are drawn
  * in the order of `runs`, the later on top, so the app decides which wins.
  *
- * The runs' names stand above the strip, outside the runs, each from a rule at its run's start
- * (held back from the strip's right end) and as wide as it needs, so a gesture of a second still
- * has its name. They are laid out in `labelRows` rows, 1 by default, the first next to the strip:
- * from the newest run back, each name goes into the first row where it keeps a gap from the newer
- * names, so the latest result is the one named. A name that fits in no row is not drawn; the
- * readout and the hidden list still say it. A `quiet` label is never named. While the strip scrolls
- * a name keeps its row as long as it fits there, so names do not hop between rows from frame to
- * frame. A name held back from the right end keeps its rule at its run's start, below its text, so
- * it still points at its own run. The names are measured as drawn and laid out again when the
- * strip's width changes.
+ * The runs' names stand above the strip, outside the runs. Each starts from a rule at its run's
+ * start, held back from the strip's right end, and is as wide as it needs. So a gesture of a second
+ * still has its name.
+ * - The names are laid out in `labelRows` rows, 1 by default, the first next to the strip.
+ * - From the newest run back, each name goes into the first row where it keeps a gap from the
+ *   newer names. So the latest result is the one named.
+ * - A name that fits in no row is not drawn. The readout and the hidden list still say it.
+ * - A `quiet` label is never named.
+ * - While the strip scrolls, a name keeps its row as long as it fits there, so names do not hop
+ *   between rows from frame to frame.
+ * - A name held back from the right end keeps its rule at its run's start, below its text, so it
+ *   still points at its own run.
  *
- * Colors come from `neatLabelColor`, by the label's place in `labels` (empty means the order in
- * which labels first appear in `runs`), as in `NeatScoreBars`. The one difference is a `quiet`
- * label: its run is filled with `--muted`, not the `--muted-foreground` that `neatLabelColor`
- * returns for text and the score bars use, because a quiet class fills most of the window and must
- * not be its heaviest mark.
+ * The names are measured as drawn, and laid out again when the strip's width changes.
  *
- * The host is a group named by `label` that holds a list with one item per drawn run, named by its
- * label and its span in seconds (as visually hidden text in the item), so a screen reader gets the
- * runs the label text leaves out. The pointer over a run, quiet ones included, shows a readout
- * beside its middle with its label, as the other charts read out what lies under the pointer; it
- * follows the run while the strip scrolls, and the pointer on a run's name shows the same. The strip is one tab stop: focus reads out the newest
- * run, Left and Right step to the run before or after it in time, Home and End go to the oldest and
- * the newest, and Escape hides the readout. Each key press, and only a key press, is repeated in a
- * polite live region.
+ * Colors come from `neatLabelColor`, by the label's place in `labels`, as in `NeatScoreBars`. An
+ * empty `labels` means the order in which labels first appear in `runs`. The one difference is a
+ * `quiet` label. Its run is filled with `--muted`, not the `--muted-foreground` that
+ * `neatLabelColor` returns for text and the score bars use. A quiet class fills most of the window,
+ * and must not be its heaviest mark.
  *
- * `hovered` is a moment (ms), both ways, as on the time charts: the strip sets it to the moment
- * under the pointer (a run's middle while the keys hold one), and the app may set it, which reads
- * out the run covering that moment, so a timeline shares a crosshair with time charts bound to the
- * same signal. `activated` reports a click (or Enter): the run under it, if any, and the moment.
+ * The host is a group named by `label`. It holds a list with one item per drawn run, named by its
+ * label and its span in seconds, as visually hidden text in the item. So a screen reader gets the
+ * runs the label text leaves out.
+ *
+ * The pointer over a run, quiet ones included, shows a readout beside its middle with its label, as
+ * the other charts read out what lies under the pointer. The readout follows the run while the
+ * strip scrolls. The pointer on a run's name shows the same.
+ *
+ * The strip is one tab stop:
+ * - Focus reads out the newest run.
+ * - Left and Right step to the run before or after it in time.
+ * - Home and End go to the oldest and the newest.
+ * - Escape hides the readout.
+ *
+ * Each key press, and only a key press, is repeated in a polite live region.
+ *
+ * `hovered` is a moment (ms), both ways, as on the time charts. The strip sets it to the moment
+ * under the pointer, or to a run's middle while the keys hold one. The app may set it, which reads
+ * out the run covering that moment. So a timeline shares a crosshair with time charts bound to the
+ * same signal. `activated` reports a click, or Enter, with the run under it, if any, and the moment.
  */
 @Component({
   selector: 'neat-label-timeline',
@@ -260,8 +276,10 @@ export class NeatLabelTimeline {
   /** How much time the strip shows, in milliseconds. */
   readonly windowMs = input(30_000);
   /**
-   * The moment the readout is on (ms): under the pointer, or a run's middle while the keys hold
-   * one (null once they let go), or one the app sets, which reads out the run covering it.
+   * The moment the readout is on, in ms.
+   *
+   * It is the moment under the pointer, or a run's middle while the keys hold one, and null once
+   * they let go. Otherwise it is one the app sets, which reads out the run covering it.
    */
   readonly hovered = model<number | null>(null);
   /** A click on the strip, or Enter with focus: the run under it, if any, and the moment. */
@@ -275,9 +293,10 @@ export class NeatLabelTimeline {
   /** Whether the strip scrolls between updates (`smooth`) or only at them. */
   readonly motion = input<NeatTimelineMotion>('step');
   /**
-   * How many rows of names stand above the strip, a positive whole number. More rows name more of
-   * a busy strip; a name that fits in none is left out, and the readout and the hidden list still
-   * say it.
+   * How many rows of names stand above the strip, a positive whole number.
+   *
+   * More rows name more of a busy strip. A name that fits in none is left out, and the readout and
+   * the hidden list still say it.
    */
   readonly labelRows = input(1);
 

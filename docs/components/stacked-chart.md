@@ -350,11 +350,15 @@ export const RAILS: readonly NeatSeries[] = [
 
 Component from `@sima/neat-ui/charts`, selector `neat-stacked-chart`.
 
-The series stack bottom first in the order given, each band in `--neat-series-1` to `-8` at 0.85 opacity with a hairline in `--neat-surface` between them, so inside a card set that to the card's fill. More than eight fold into "Other", as on the time chart. A sample where any band is missing breaks the whole stack: a partial sum would draw a total that was never measured. `times`, `domain`, `format`, `size`, `headless` and `valueLabels` are as on the time chart, and `domain` must reach the largest total or the top of the stack is cut off.
+The series stack bottom first, in the order given. Each band is in `--neat-series-1` to `-8` at 0.85 opacity, with a hairline in `--neat-surface` between bands. So inside a card, set that to the card's fill. More than eight fold into "Other", as on the time chart.
 
-The legend lists each band with its current value and its share of the current total, as a whole percent; the share is "—" while the total is unknown (a band has no current sample) or nothing. The colors alone do not tell eight bands apart, which is what the legend is for.
+A sample where any band is missing breaks the whole stack: a partial sum would draw a total that was never measured.
 
-The plot is a tab stop that reads out like the time chart's: "Total", then each band, at the sample the pointer or the keys chose, with the same keys and the same announcements, and `hovered` and `activated` are the time chart's: a moment both ways, and a click's sample.
+`times`, `domain`, `format`, `size`, `headless` and `valueLabels` are as on the time chart. `domain` must reach the largest total, or the top of the stack is cut off.
+
+The legend lists each band with its current value, and its share of the current total as a whole percent. The share is "—" while the total is nothing, or unknown because a band has no current sample. The colors alone do not tell eight bands apart, which is what the legend is for.
+
+The plot is a tab stop that reads out like the time chart's: "Total", then each band, at the sample the pointer or the keys chose. It has the same keys and the same announcements. `hovered` and `activated` are the time chart's: a moment both ways, and a click's sample.
 
 **Inputs**
 
@@ -398,7 +402,9 @@ The plot is a tab stop that reads out like the time chart's: "Total", then each 
 
 - **`hovered`** `number | null`, default `null`
 
-  The moment the readout is on (ms, a sample's time): the pointer's or the keys' sample while they hold one (null once they let go), or one the app sets, shown at the nearest sample, so charts bound to one `hovered` share a crosshair. Changes only when the sample does.
+  The moment the readout is on, in ms: a sample's time.
+
+  It is the pointer's or the keys' sample while they hold one, and null once they let go. Otherwise it is one the app sets, shown at the nearest sample. So charts bound to one `hovered` share a crosshair. It changes only when the sample does.
 
 **Outputs**
 

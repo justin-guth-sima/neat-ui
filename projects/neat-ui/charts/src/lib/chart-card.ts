@@ -23,21 +23,26 @@ const CONTROLS = 'a[href], button, input, select, textarea, summary, [contentedi
  * </neat-chart-card>
  * ```
  *
- * Top to bottom: the heading with the `[neatChartCardChip]` content beside it at the end, the value
- * (large, with its unit smaller and muted after it), the caption, and the default content, the
- * chart. The value and the caption are left out while they are empty.
+ * From top to bottom it shows:
+ * - the heading, with the `[neatChartCardChip]` content beside it at the end;
+ * - the value, large, with its unit smaller and muted after it;
+ * - the caption;
+ * - the default content, the chart.
  *
- * With `selectable`, the card is one choice among its siblings: the heading is a button (so it is
- * the keyboard's way in, and `aria-current` marks it while `selected`) and a click anywhere on the
- * card emits `activate` as well, its chart's plot included: the plot reads out a sample as the
- * pointer moves over it, so a click there takes nothing from the readout, and the plot is most of
- * the card. The plot's keys stay the chart's (they move the readout and choose nothing). A control
- * in the content (a button, a link, a form field) handles its own click and leaves the card alone.
- * Not selectable, the heading is text and the card handles no clicks.
+ * The value and the caption are left out while they are empty.
  *
- * The card is a `NeatCard` (the frame, the `--card` fill, `--neat-surface` for the charts' label
- * halos, no clipping and no stacking context: a readout can hang below its plot); the chart card
- * adds the selected look and what goes in it.
+ * With `selectable`, the card is one choice among its siblings. The heading is a button, so it is
+ * the keyboard's way in, and `aria-current` marks it while `selected`. A click anywhere on the card
+ * emits `activate` as well, its chart's plot included. The plot reads out a sample as the pointer
+ * moves over it, so a click there takes nothing from the readout, and the plot is most of the card.
+ *
+ * The plot's keys stay the chart's: they move the readout and choose nothing. A control in the
+ * content, such as a button, a link or a form field, handles its own click and leaves the card
+ * alone. Not selectable, the heading is text and the card handles no clicks.
+ *
+ * The card is a `NeatCard`: the frame, the `--card` fill, and `--neat-surface` for the charts'
+ * label halos. It has no clipping and no stacking context, so a readout can hang below its plot.
+ * The chart card adds the selected look and what goes in it.
  */
 @Component({
   selector: 'neat-chart-card',

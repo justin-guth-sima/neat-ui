@@ -131,7 +131,7 @@ export const celsius: NeatChartFormat = (value) => `${value.toFixed(1)} °C`;
 
 Component from `@sima/neat-ui/charts`, selector `neat-sparkline`.
 
-The samples are spread evenly, the lowest at the bottom of the box and the highest at the top, so the line shows the shape of the last minutes and not a level (the card says the value). A `null` is a sample that was not taken and splits the line. Fewer than two numbers draw nothing but the box keeps its size, so a card does not jump when its first samples arrive.
+The samples are spread evenly, the lowest at the bottom of the box and the highest at the top. So the line shows the shape of the last minutes, not a level: the card says the value. A `null` is a sample that was not taken, and splits the line. Fewer than two numbers draw nothing but the box keeps its size, so a card does not jump when its first samples arrive.
 
 The box fills the width it is given and is 1.75 rem high. The host is an image named by `label` and, in words, by how many samples there are and their range, worded by `format`. The stroke is `--neat-line`, or `--neat-line-warning` and `--neat-line-danger` by `tone`.
 
