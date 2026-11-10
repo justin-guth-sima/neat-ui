@@ -11,6 +11,8 @@ import { NeatDialog, NeatDialogActions, NeatDialogBody } from '@sima/neat-ui/dia
 /**
  * A `large` dialog whose content is taller than the screen allows: the body scrolls, and the title
  * and the actions stay in view.
+ *
+ * @capture click button[neatButton]
  */
 @Component({
   selector: 'app-long-content',

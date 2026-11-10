@@ -27,6 +27,7 @@ import {
   highlight,
   highlightCss,
   OUTPUT_DIR,
+  parseCapture,
   SHELL_EXTRA,
   writeDocs,
 } from './docs-emit.mjs';
@@ -1473,6 +1474,44 @@ test('text after @unpadded or @page is a problem, and any other tag still is', (
     `${base}/2-more.example.ts:7: More's @page has text after it; the tag stands alone`,
     `${base}/3-other.example.ts:6: Other's doc has the tag @padded; an example's doc is its caption`,
   ]);
+});
+
+test('@capture says what the picture does first, and a bad one is a problem', () => {
+  const kit = kitWithExamples({
+    'a/1-menu.example.ts': documented('Menu', [
+      'A menu.',
+      '',
+      '@capture click button[aria-haspopup]',
+    ]),
+    'a/2-tip.example.ts': documented('Tip', ['A tip.', '@capture hover .start']),
+    'a/3-bare.example.ts': documented('Bare', ['Bare.', '@capture']),
+    'a/4-drag.example.ts': documented('Drag', ['Drag.', '@capture drag .handle']),
+    'a/5-more.example.ts': documented('More', ['More.', '@capture click a', 'More prose.']),
+  });
+  const { topics, problems } = extractExamples(kit);
+  const [menu, tip, bare] = topics[0].examples;
+  assert.deepEqual(menu.capture, { action: 'click', target: 'button[aria-haspopup]' });
+  assert.deepEqual(menu.caption, plain('A menu.'));
+  assert.doesNotMatch(spelled(menu.files[0].code), /@capture/);
+  assert.deepEqual(tip.capture, { action: 'hover', target: '.start' });
+  assert.equal(bare.capture, undefined);
+  const base = `${EXAMPLES_DIR}/a`;
+  assert.deepEqual(problems, [
+    `${base}/3-bare.example.ts:6: Bare's @capture needs an action and a selector: @capture click|hover <selector>`,
+    `${base}/4-drag.example.ts:6: Drag's @capture has the action drag; it is click or hover`,
+    `${base}/5-more.example.ts:7: More's @capture has text after it; the tag is one line`,
+  ]);
+
+  const text = generate(kit).files.get(`${EXAMPLES_OUTPUT_DIR}/a.ts`);
+  assert.match(text, /^ {4}"capture": \{"action":"click","target":"button\[aria-haspopup\]"\},$/m);
+});
+
+test('parseCapture reads the action and the rest of the line as the selector', () => {
+  assert.deepEqual(parseCapture(['click  .row:nth-child(2) button ', '']), {
+    action: 'click',
+    target: '.row:nth-child(2) button',
+  });
+  assert.equal(typeof parseCapture(['click']), 'string');
 });
 
 // --- the caption check ----------------------------------------------------------------------

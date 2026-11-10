@@ -201,6 +201,11 @@ export interface DocsExample {
    * `/demo/<topic>/<id>` and its card links there instead of rendering it; the bare tag `@page`.
    */
   readonly page?: true;
+  /**
+   * What the docs' picture of the example does first (`@capture click <selector>` or `hover`),
+   * for an example whose content opens in an overlay; the page itself does not read it.
+   */
+  readonly capture?: { readonly action: 'click' | 'hover'; readonly target: string };
   /** The component's doc comment less those tags: prose for the page, left out of the snippet. */
   readonly caption: readonly DocBlock[];
   /**

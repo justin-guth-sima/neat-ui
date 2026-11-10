@@ -1113,13 +1113,36 @@ function exportedComponent(sourceFile, report) {
 /**
  * How the docs show an example, each a bare tag in its class doc: `@unpadded`, its live area
  * without the inset (a drawing that fills its card), and `@page`, a route of its own that the card
- * links to (an example that needs the whole page: its own toolbar, tabs, panel or shell).
+ * links to (an example that needs the whole page: its own toolbar, tabs, panel or shell). One
+ * more tag takes words, `@capture` (`parseCapture`).
  */
 const EXAMPLE_OPTIONS = ['unpadded', 'page'];
 
+/** What `@capture` may do before the example's picture is taken (`tools/docs-capture.mjs`). */
+export const CAPTURE_ACTIONS = ['click', 'hover'];
+
+/**
+ * An example's `@capture` tag, `@capture click <selector>` or `@capture hover <selector>`, read
+ * from its lines (the first is the tag's own, the rest run on to the next tag or the comment's
+ * end): the action and its CSS selector, or the reason it cannot be read. The picture of an
+ * example whose content opens in an overlay (a popover, a dialog, a toast) shows that content.
+ */
+export function parseCapture(lines) {
+  const [first = '', ...rest] = lines;
+  if (rest.some((line) => line.trim())) return 'has text after it; the tag is one line';
+  const match = first.trim().match(/^(\S+)\s+(.+)$/);
+  if (!match)
+    return `needs an action and a selector: @capture ${CAPTURE_ACTIONS.join('|')} <selector>`;
+  const [, action, target] = match;
+  if (!CAPTURE_ACTIONS.includes(action)) {
+    return `has the action ${action}; it is ${CAPTURE_ACTIONS.join(' or ')}`;
+  }
+  return { action, target: target.trim() };
+}
+
 /**
  * An example's caption (its class doc, which is prose and nothing else but the bare tags of
- * `EXAMPLE_OPTIONS`), those options, and the file's text less that doc, since the page shows the
+ * `EXAMPLE_OPTIONS` and `@capture`), those options, and the file's text less that doc, since the page shows the
  * caption above the example and the snippet is what is left. A caption names only what an app can
  * import: the kit's hidden names are a problem here as in the doc comments of parts (`isHidden`),
  * so prose moved onto a page cannot leak internals.
@@ -1129,7 +1152,11 @@ function readCaption({ cls, sourceFile, kit, report }) {
   const { body, tags } = rawDoc(cls);
   const options = {};
   for (const tag of tags) {
-    if (!EXAMPLE_OPTIONS.includes(tag.name)) {
+    if (tag.name === 'capture') {
+      const capture = parseCapture(tag.lines);
+      if (typeof capture === 'string') report(cls, `${className}'s @capture ${capture}`);
+      else options.capture = capture;
+    } else if (!EXAMPLE_OPTIONS.includes(tag.name)) {
       report(cls, `${className}'s doc has the tag @${tag.name}; an example's doc is its caption`);
     } else if (tag.lines.some((line) => line.trim())) {
       // A tag runs on to the next one, so prose after it would be lost from the caption.
@@ -1332,6 +1359,7 @@ function renderExamples(topic, examples) {
       `    "title": ${JSON.stringify(example.title)},`,
       ...(example.component ? [`    "component": ${example.component},`] : []),
       ...EXAMPLE_OPTIONS.filter((name) => example[name]).map((name) => `    "${name}": true,`),
+      ...(example.capture ? [`    "capture": ${JSON.stringify(example.capture)},`] : []),
       `    "caption": ${json(example.caption)},`,
       `    "shows": ${json(example.shows)},`,
       `    "files": [\n${files.join(',\n')}\n    ]`,

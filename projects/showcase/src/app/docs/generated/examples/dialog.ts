@@ -9,6 +9,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "rename-a-source",
     "title": "Rename a source",
     "component": RenameASource,
+    "capture": {"action":"click","target":"button[neatButton]"},
     "caption": [
       {
         "kind": "paragraph",
@@ -145,6 +146,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "long-content",
     "title": "Long content",
     "component": LongContent,
+    "capture": {"action":"click","target":"button[neatButton]"},
     "caption": [
       {
         "kind": "paragraph",
@@ -205,6 +207,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "component-with-inputs",
     "title": "Component with inputs",
     "component": ComponentWithInputs,
+    "capture": {"action":"click","target":"button[neatButton]"},
     "caption": [
       {
         "kind": "paragraph",

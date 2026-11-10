@@ -10,6 +10,8 @@ type Outcome = 'done' | 'fail' | 'unknown' | 'dismiss';
  * (`null` for the percent), and dismissed halfway, as when a dialog takes the work back. The work
  * is simulated and runs on its own, as an upload does, so leaving the page does not stop the toast
  * from reporting the outcome.
+ *
+ * @capture click button:first-of-type
  */
 @Component({
   selector: 'app-progress',

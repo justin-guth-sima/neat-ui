@@ -9,6 +9,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "switches-in-a-panel",
     "title": "Switches in a panel",
     "component": SwitchesInAPanel,
+    "capture": {"action":"click","target":"[neatPopoverTrigger]"},
     "caption": [
       {
         "kind": "paragraph",
@@ -67,6 +68,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "aligned-to-the-end",
     "title": "Aligned to the end",
     "component": AlignedToTheEnd,
+    "capture": {"action":"click","target":"[neatPopoverTrigger]"},
     "caption": [
       {
         "kind": "paragraph",
@@ -124,6 +126,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "menu",
     "title": "Menu",
     "component": Menu,
+    "capture": {"action":"click","target":"[neatPopoverTrigger]"},
     "caption": [
       {
         "kind": "paragraph",

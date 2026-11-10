@@ -7,6 +7,8 @@ import { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } from '@sima/neat-
  * A number field in a panel with `align="end"`, for a trigger at the right edge of a toolbar: the
  * panel lines up with the trigger's end and opens inward. Focus moves to the field when the panel
  * opens.
+ *
+ * @capture click [neatPopoverTrigger]
  */
 @Component({
   selector: 'app-aligned-to-the-end',

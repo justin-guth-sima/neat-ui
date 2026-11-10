@@ -8,6 +8,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "label-positions",
     "title": "Label positions",
     "component": LabelPositions,
+    "capture": {"action":"click","target":"neat-select:first-of-type button"},
     "caption": [
       {
         "kind": "paragraph",
@@ -69,6 +70,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "in-a-dialog",
     "title": "In a dialog",
     "component": InADialog,
+    "capture": {"action":"click","target":"button[neatButton]"},
     "caption": [
       {
         "kind": "paragraph",

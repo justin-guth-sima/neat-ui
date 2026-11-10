@@ -15,6 +15,12 @@
  * the list cannot drift from the routes. Hand-made topics (the theme's tokens) have no examples
  * and are left out.
  *
+ * An example whose content opens in an overlay (a popover, a tooltip, a dialog, a toast) says what
+ * to do first in its class doc, `@capture click <selector>` or `@capture hover <selector>`, which
+ * docs:emit checks: the tool clicks every element the selector matches in the example (or hovers
+ * the first) and pictures the example with what opened beside it, or what opened alone when it is
+ * modal or far from it (`pictureFrame`).
+ *
  * Chrome encodes the WebP (a canvas's `toBlob`), so there is no image library to install. The
  * live area's rounded corners are cut out of the picture, transparent, so it sits on GitHub's page
  * in either theme without the showcase's card around it.
@@ -48,6 +54,9 @@ export const DEFAULTS = {
 };
 
 export const SCHEMES = ['light', 'dark'];
+
+/** How long an action of `@capture` may wait for its target. */
+const ACT_TIMEOUT_MS = 5000;
 
 /** The kit's stored color scheme (ThemeService) and the docs page's side panel (docs-page.ts). */
 const SCHEME_KEY = 'neat-ui:color-scheme';
@@ -121,6 +130,53 @@ export function budgetWarnings(pictures, budget = DEFAULTS.budget) {
   return warnings;
 }
 
+/** The smallest box around `rects`. */
+const union = (rects) => {
+  const x = Math.min(...rects.map((r) => r.x));
+  const y = Math.min(...rects.map((r) => r.y));
+  const right = Math.max(...rects.map((r) => r.x + r.width));
+  const bottom = Math.max(...rects.map((r) => r.y + r.height));
+  return { x, y, width: right - x, height: bottom - y };
+};
+
+/** Whether `a` and `b` overlap once `a` is grown by `reach` on every side. */
+const near = (a, b, reach) =>
+  b.x < a.x + a.width + reach &&
+  a.x - reach < b.x + b.width &&
+  b.y < a.y + a.height + reach &&
+  a.y - reach < b.y + b.height;
+
+/**
+ * Where the picture of an example opened by `@capture` is taken (`clip`, CSS px of the viewport,
+ * kept inside it) and what of it is drawn (`shapes`, rounded boxes relative to the clip; the rest
+ * is transparent): the example's `area` with the overlay's `surfaces` when they open beside it (a
+ * popover, a tooltip, a select's list, which touch their trigger); the surfaces alone when they
+ * are `modal` (a dialog, over a dimmed page) or open away from it (toasts in the screen's corner);
+ * the area alone when nothing opened. So the picture holds the example and what it opened, never
+ * the docs page around them.
+ */
+export function pictureFrame({ area, surfaces, modal, viewport, reach = 32 }) {
+  let shapes = [area];
+  if (surfaces.length) {
+    shapes = !modal && near(area, union(surfaces), reach) ? [area, ...surfaces] : surfaces;
+  }
+  const frame = union(shapes);
+  const x = Math.max(0, Math.floor(frame.x));
+  const y = Math.max(0, Math.floor(frame.y));
+  const right = Math.min(viewport.width, Math.ceil(frame.x + frame.width));
+  const bottom = Math.min(viewport.height, Math.ceil(frame.y + frame.height));
+  return {
+    clip: { x, y, width: right - x, height: bottom - y },
+    shapes: shapes.map(({ x: sx, y: sy, width, height, radius }) => ({
+      x: sx - x,
+      y: sy - y,
+      width,
+      height,
+      radius,
+    })),
+  };
+}
+
 /** The pictures in `existing` (paths relative to the output folder) that this run did not make. */
 export function stalePictures(existing, made) {
   const madeSet = new Set(made);
@@ -190,19 +246,19 @@ async function filesUnder(dir) {
 }
 
 /**
- * In the page: the PNG (base64) as WebP (base64), its corners cut to `radius` CSS px, transparent.
- * Runs in Chrome, whose canvas encodes WebP.
+ * In the page: the PNG (base64) as WebP (base64), drawn only inside `shapes` (rounded boxes in CSS
+ * px), the rest transparent. Runs in Chrome, whose canvas encodes WebP.
  */
-async function encodeInPage({ png, radius, dpr, quality }) {
+async function encodeInPage({ png, shapes, dpr, quality }) {
   const bytes = Uint8Array.from(atob(png), (c) => c.charCodeAt(0));
   const image = await createImageBitmap(new Blob([bytes], { type: 'image/png' }));
   const canvas = new OffscreenCanvas(image.width, image.height);
   const context = canvas.getContext('2d');
-  if (radius > 0) {
-    context.beginPath();
-    context.roundRect(0, 0, image.width, image.height, radius * dpr);
-    context.clip();
+  context.beginPath();
+  for (const { x, y, width, height, radius } of shapes) {
+    context.roundRect(x * dpr, y * dpr, width * dpr, height * dpr, radius * dpr);
   }
+  context.clip();
   context.drawImage(image, 0, 0);
   const blob = await canvas.convertToBlob({ type: 'image/webp', quality });
   if (blob.type !== 'image/webp') throw new Error(`the browser encoded ${blob.type}, not WebP`);
@@ -214,15 +270,87 @@ async function encodeInPage({ png, radius, dpr, quality }) {
   return btoa(text);
 }
 
-/** In the page: the examples of the open topic, each with whether it is a page and its radius. */
+/** In the page: the examples of the open topic, each rendered in its card or a page's link. */
 function examplesInPage() {
   return [...document.querySelectorAll('app-example-card article')].map((article) => {
     const id = article.querySelector('h3')?.id.replace(/^example-/, '') ?? '';
-    const live = article.querySelector('.live');
+    const live = Boolean(article.querySelector('.live'));
     const page = article.querySelector('a[href^="/demo/"]')?.getAttribute('href') ?? null;
-    const radius = live ? parseFloat(getComputedStyle(live).borderTopLeftRadius) || 0 : 0;
-    return { id, live: Boolean(live), page, radius };
+    return { id, live, page };
   });
+}
+
+/**
+ * In the page: the box of `selector`'s first match with its corner radius, the surfaces of the
+ * open overlay (in the CDK's panes, as every overlay of the kit is: each outermost element with a
+ * background, so a stack of toasts is its toasts and not the gaps between them), and whether a
+ * modal's backdrop is showing. Hidden parts (the toasts' announcer) are too small to count.
+ */
+function framingInPage(selector) {
+  const shape = (element) => {
+    const { x, y, width, height } = element.getBoundingClientRect();
+    const radius = parseFloat(getComputedStyle(element).borderTopLeftRadius) || 0;
+    return { x, y, width, height, radius };
+  };
+  const clear = (color) => {
+    const c = color.replace(/\s+/g, '');
+    return c === 'transparent' || /,0\)$|\/0\)$/.test(c);
+  };
+  // A surface has a fill, or a border or a ring of its own.
+  const painted = (element) => {
+    const style = getComputedStyle(element);
+    const bordered = parseFloat(style.borderTopWidth) > 0 && !clear(style.borderTopColor);
+    const filled = !clear(style.backgroundColor) || style.backgroundImage !== 'none';
+    return filled || bordered || ring(element) > 0;
+  };
+  // A ring (Tailwind's `ring`, the kit's panels' edge) is a box-shadow with no offset and no blur,
+  // drawn outside the box: the surface grows by its spread so the picture keeps it.
+  const ring = (element) => {
+    const shadows = getComputedStyle(element).boxShadow.split(/,(?![^(]*\))/);
+    const spreads = shadows.map((shadow) => {
+      const px = shadow.match(/(-?[\d.]+)px/g)?.map(parseFloat) ?? [];
+      return px.length === 4 && px[0] === 0 && px[1] === 0 && px[2] === 0 ? px[3] : 0;
+    });
+    return Math.max(0, ...spreads);
+  };
+  const surface = (element) => {
+    const { x, y, width, height, radius } = shape(element);
+    const r = ring(element);
+    return { x: x - r, y: y - r, width: width + 2 * r, height: height + 2 * r, radius: radius + r };
+  };
+  const surfaces = [];
+  const visit = (element) => {
+    if (painted(element)) surfaces.push(surface(element));
+    else for (const child of element.children) visit(child);
+  };
+  for (const pane of document.querySelectorAll('.cdk-overlay-pane')) visit(pane);
+  return {
+    area: shape(document.querySelector(selector)),
+    surfaces: surfaces.filter(({ width, height }) => width > 8 && height > 8),
+    modal: Boolean(document.querySelector('.cdk-overlay-backdrop-showing')),
+  };
+}
+
+/**
+ * Does what the example's `@capture` says inside `scope`: clicks every element the selector
+ * matches, in order (each of a toast example's buttons), or hovers the first. Says so when it
+ * matches nothing, and the picture is taken as the example is.
+ */
+async function act(scope, capture, log) {
+  const targets = scope.locator(capture.target);
+  const count = await targets.count();
+  if (!count) {
+    log(`  warning: @capture ${capture.action} ${capture.target} matches nothing`);
+    return;
+  }
+  // A target that cannot take the action (covered by a modal the first click opened, disabled)
+  // is said once, and the picture shows what the actions so far opened.
+  try {
+    if (capture.action === 'hover') await targets.first().hover({ timeout: ACT_TIMEOUT_MS });
+    else for (let i = 0; i < count; i++) await targets.nth(i).click({ timeout: ACT_TIMEOUT_MS });
+  } catch (error) {
+    log(`  warning: @capture ${capture.action} ${capture.target}: ${error.message.split('\n')[0]}`);
+  }
 }
 
 async function settle(page, ms) {
@@ -231,7 +359,7 @@ async function settle(page, ms) {
 }
 
 /** Captures one scheme of every topic; resolves with the pictures written. */
-async function captureScheme(browser, { scheme, url, topics, options, encoder, log }) {
+async function captureScheme(browser, { scheme, url, topics, captures, options, encoder, log }) {
   const context = await browser.newContext({
     viewport: options.viewport,
     deviceScaleFactor: options.dpr,
@@ -248,10 +376,10 @@ async function captureScheme(browser, { scheme, url, topics, options, encoder, l
   const page = await context.newPage();
   page.on('pageerror', (error) => log(`  page error: ${error.message}`));
   const pictures = [];
-  const write = async (topic, example, png, radius) => {
+  const write = async (topic, example, png, shapes) => {
     const webp = await encoder.evaluate(encodeInPage, {
       png: png.toString('base64'),
-      radius,
+      shapes,
       dpr: options.dpr,
       quality: options.quality,
     });
@@ -263,25 +391,62 @@ async function captureScheme(browser, { scheme, url, topics, options, encoder, l
     pictures.push({ path, bytes: bytes.length });
   };
 
-  for (const topic of topics) {
-    await page.goto(`${url}${topic.path}`);
-    await page.locator('app-example-card article').first().waitFor();
-    const examples = await page.evaluate(examplesInPage);
-    for (const example of examples.filter((e) => e.live)) {
-      const area = page.locator(`app-example-card article:has(h3#example-${example.id}) .live`);
+  // An example's picture: its area, or with `@capture` what it opens, framed by `pictureFrame`.
+  const take = async (topic, example, selector) => {
+    const area = page.locator(selector).first();
+    const capture = captures.get(`${topic.id}/${example.id}`);
+    if (!capture) {
+      // The area alone, whole even when it is taller than the viewport.
       await area.scrollIntoViewIfNeeded();
       await settle(page, options.settleMs);
-      await write(topic.id, example.id, await area.screenshot(), example.radius);
+      const { area: box } = await page.evaluate(framingInPage, selector);
+      const shape = { ...box, x: 0, y: 0 };
+      await write(topic.id, example.id, await area.screenshot(), [shape]);
+      return false;
+    }
+    // In the middle of the viewport, so what it opens has room on every side.
+    await area.evaluate((element) => element.scrollIntoView({ block: 'center' }));
+    await settle(page, options.settleMs);
+    await act(area, capture, log);
+    await settle(page, options.settleMs);
+    const framing = await page.evaluate(framingInPage, selector);
+    const { clip, shapes } = pictureFrame({ ...framing, viewport: options.viewport });
+    await write(topic.id, example.id, await page.screenshot({ clip }), shapes);
+    return true;
+  };
+  const openTopic = async (topic) => {
+    await page.goto(`${url}${topic.path}`);
+    await page.locator('app-example-card article').first().waitFor();
+  };
+
+  for (const topic of topics) {
+    await openTopic(topic);
+    const examples = await page.evaluate(examplesInPage);
+    for (const example of examples.filter((e) => e.live)) {
+      const selector = `app-example-card article:has(h3#example-${example.id}) .live`;
+      // What an example opened stays open, so the next one starts on a fresh page.
+      if (await take(topic, example, selector)) await openTopic(topic);
     }
     for (const example of examples.filter((e) => e.page)) {
       await page.goto(`${url}${example.page}`);
-      await settle(page, options.settleMs);
-      await write(topic.id, example.id, await page.locator('main.content').first().screenshot(), 0);
+      await take(topic, example, 'main.content');
     }
     log(`  ${scheme} ${topic.id}: ${examples.filter((e) => e.live || e.page).length}`);
   }
   await context.close();
   return pictures;
+}
+
+/** What each example's `@capture` does, by `<topic>/<example>`, as docs:emit reads it. */
+async function examplesCaptures() {
+  const { extractExamples } = await import('./docs-emit.mjs');
+  const captures = new Map();
+  for (const { topic, examples } of extractExamples(ROOT).topics) {
+    for (const example of examples) {
+      if (example.capture) captures.set(`${topic}/${example.id}`, example.capture);
+    }
+  }
+  return captures;
 }
 
 /** The whole run: serve, capture both schemes, then report the budget and stale pictures. */
@@ -292,6 +457,7 @@ export async function capture(options, log = console.log) {
     import('playwright'),
   ]);
   const topics = topicsToCapture(GROUPS, placedTopics, options.topics);
+  const captures = await examplesCaptures();
   const dist = resolve(ROOT, options.dist);
   if (!(await stat(join(dist, 'index.html')).catch(() => null))) {
     throw new Error(`no built showcase in ${options.dist}: run npm run build:showcase first`);
@@ -307,7 +473,8 @@ export async function capture(options, log = console.log) {
     log(`Capturing ${topics.length} topics from ${server.url}`);
     const pictures = [];
     for (const scheme of SCHEMES) {
-      const run = { scheme, url: server.url, topics, options: { ...options, out }, encoder, log };
+      const run = { scheme, url: server.url, topics, captures, encoder, log };
+      run.options = { ...options, out };
       pictures.push(...(await captureScheme(browser, run)));
     }
     const total = pictures.reduce((sum, { bytes }) => sum + bytes, 0);

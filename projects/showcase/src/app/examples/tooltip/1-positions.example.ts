@@ -1,7 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NeatButton, NeatTooltip, type NeatTooltipPosition } from '@sima/neat-ui';
 
-/** A tooltip on each of the four sides of its button; hover a button or focus it with Tab. */
+/**
+ * A tooltip on each of the four sides of its button; hover a button or focus it with Tab.
+ *
+ * @capture hover button
+ */
 @Component({
   selector: 'app-positions',
   imports: [NeatButton, NeatTooltip],

@@ -7,6 +7,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "positions",
     "title": "Positions",
     "component": Positions,
+    "capture": {"action":"hover","target":"button"},
     "caption": [
       {
         "kind": "paragraph",

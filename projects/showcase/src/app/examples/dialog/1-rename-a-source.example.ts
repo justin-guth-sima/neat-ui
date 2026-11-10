@@ -23,6 +23,8 @@ import { NeatSwitch } from '@sima/neat-ui/switch';
  * `aria-disabled` rather than `disabled`: the button that was pressed has focus, and a disabled
  * control loses it, which would leave the keyboard outside the dialog. The switch turns the
  * dismissing off and on by hand.
+ *
+ * @capture click button[neatButton]
  */
 @Component({
   selector: 'app-rename-a-source',

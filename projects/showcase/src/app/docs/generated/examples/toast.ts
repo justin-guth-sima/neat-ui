@@ -8,6 +8,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "kinds",
     "title": "Kinds",
     "component": Kinds,
+    "capture": {"action":"click","target":"button"},
     "caption": [
       {
         "kind": "paragraph",
@@ -43,6 +44,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "progress",
     "title": "Progress",
     "component": Progress,
+    "capture": {"action":"click","target":"button:first-of-type"},
     "caption": [
       {
         "kind": "paragraph",

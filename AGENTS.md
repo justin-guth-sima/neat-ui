@@ -207,6 +207,12 @@ is the doc comment, and the snippet under an example is the file that renders it
   other tag, or text after one of these, is a doc problem. Escape hatch: a new way to show an
   example is a new tag (`EXAMPLE_OPTIONS` in `tools/docs-emit.mjs`, `DocsExample`, the example
   card), never a rule in an example's stylesheet that reaches into the card.
+  One tag takes words: `@capture click <selector>` or `@capture hover <selector>`, for an example
+  whose content opens in an overlay (a popover, a tooltip, a dialog, a toast, an open select). The
+  page ignores it; the docs' pictures (below) click every element of the example the CSS selector
+  matches, or hover the first, and show what opened: beside the example, or alone when it is modal
+  or opened away from it. `docs:emit` checks its action and that it is one line; a selector that
+  matches nothing is a warning of the capture, which then pictures the example as it is.
 - `npm run docs:emit -- --check` (which `npm run test:tools` runs, so CI does) fails on a stale,
   missing or extra module and on doc problems: a part or an own input, model or output without a
   doc, an example without a caption or with a tag that is not one of its options, a caption naming

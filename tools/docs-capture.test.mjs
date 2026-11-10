@@ -8,6 +8,7 @@ import {
   budgetWarnings,
   fileFor,
   parseArgs,
+  pictureFrame,
   picturePath,
   serve,
   stalePictures,
@@ -118,6 +119,55 @@ describe('budgetWarnings', () => {
     assert.match(warnings[0], /^c is 4 kB/);
     assert.match(warnings[1], /^a is 2 kB/);
     assert.match(warnings[2], /6 kB in all/);
+  });
+});
+
+describe('pictureFrame', () => {
+  const viewport = { width: 1000, height: 800 };
+  const area = { x: 100, y: 200, width: 400, height: 100, radius: 8 };
+  const frame = (surfaces, modal = false, at = area) =>
+    pictureFrame({ area: at, surfaces, modal, viewport });
+
+  it('takes the area alone when nothing opened', () => {
+    assert.deepEqual(frame([]), {
+      clip: { x: 100, y: 200, width: 400, height: 100 },
+      shapes: [{ x: 0, y: 0, width: 400, height: 100, radius: 8 }],
+    });
+  });
+
+  it('takes the area with a panel that opens beside it, drawing only the two', () => {
+    const panel = { x: 40, y: 304, width: 200, height: 150, radius: 6 };
+    assert.deepEqual(frame([panel]), {
+      clip: { x: 40, y: 200, width: 460, height: 254 },
+      shapes: [
+        { x: 60, y: 0, width: 400, height: 100, radius: 8 },
+        { x: 0, y: 104, width: 200, height: 150, radius: 6 },
+      ],
+    });
+  });
+
+  it('takes a modal, or what opened away from the area, alone', () => {
+    const dialog = { x: 300, y: 250, width: 400, height: 300, radius: 12 };
+    assert.deepEqual(frame([dialog], true), {
+      clip: { x: 300, y: 250, width: 400, height: 300 },
+      shapes: [{ x: 0, y: 0, width: 400, height: 300, radius: 12 }],
+    });
+    const toasts = [
+      { x: 700, y: 600, width: 280, height: 60, radius: 6 },
+      { x: 700, y: 670, width: 280, height: 110, radius: 6 },
+    ];
+    assert.deepEqual(frame(toasts), {
+      clip: { x: 700, y: 600, width: 280, height: 180 },
+      shapes: [
+        { x: 0, y: 0, width: 280, height: 60, radius: 6 },
+        { x: 0, y: 70, width: 280, height: 110, radius: 6 },
+      ],
+    });
+  });
+
+  it('keeps the clip inside the viewport, on whole pixels', () => {
+    const tall = { x: -0.5, y: 700.4, width: 400.2, height: 300, radius: 0 };
+    assert.deepEqual(frame([], false, tall).clip, { x: 0, y: 700, width: 400, height: 100 });
   });
 });
 

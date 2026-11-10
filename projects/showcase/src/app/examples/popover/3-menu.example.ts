@@ -12,6 +12,8 @@ import {
  * A ⋯ menu: the rows are `neatPopoverItem` buttons, a `neatPopoverDivider` sets the destructive
  * one apart, and a disabled row keeps its place. The first enabled row takes the focus when the
  * menu opens.
+ *
+ * @capture click [neatPopoverTrigger]
  */
 @Component({
   selector: 'app-menu',

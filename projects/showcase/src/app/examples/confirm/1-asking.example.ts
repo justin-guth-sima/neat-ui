@@ -7,6 +7,8 @@ import { NeatConfirm } from '@sima/neat-ui/confirm';
  * be undone, so its confirm button is the danger one; the second keeps the default tone and words
  * its cancel button with `cancelLabel`. Try Cancel, Escape and a click on the backdrop: the first
  * two answer `false`, the backdrop does nothing.
+ *
+ * @capture click button:first-of-type
  */
 @Component({
   selector: 'app-asking',

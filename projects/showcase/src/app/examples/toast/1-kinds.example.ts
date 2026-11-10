@@ -5,6 +5,8 @@ import { NeatToasts } from '@sima/neat-ui/toast';
 /**
  * One toast of each short kind. They show in the host the showcase renders once, beside its shell
  * (see the shell topic's last example).
+ *
+ * @capture click button
  */
 @Component({
   selector: 'app-kinds',

@@ -13,6 +13,8 @@ import { SOURCES } from './sources';
 /**
  * A select in a dialog that assigns a source to a channel. Press Escape with its list open, then
  * once more, and see what each one closes; the line below says how the dialog ended.
+ *
+ * @capture click button[neatButton]
  */
 @Component({
   selector: 'app-in-a-dialog',
