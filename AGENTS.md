@@ -98,8 +98,8 @@ look happens in one place. Every rule here protects that.
     primary's `NeatSeriesSwatch` again; with `diagram` and `bev`, the only code that imports d3),
     `bev` (`NeatBev`, `neat-bev`: a bird's-eye view around a vehicle, with its model types
     `NeatBevFrame`, `NeatBevObject`, `NeatBevPoints`, `NeatBevLine`, `NeatBevGrid`, `NeatBevSensor`,
-    `NeatBevSpoke` and `NeatBevShape`; how it draws is under "How the bird's-eye view is drawn"
-    below), `diagram`
+    `NeatBevSpoke`, `NeatBevShape`, `NeatBevBounds`, `NeatBevOverflow` and `NeatBevGuides`; how it
+    draws is under "How the bird's-eye view is drawn" below), `diagram`
     (hand-placed diagrams: their model, `NeatDiagramView` (`neat-diagram`) with its templates,
     `NeatDiagramLegend` (`neat-diagram-legend`), `NeatDiagramMessages` (`neat-diagram-messages`)
     with its `NeatDiagramRateCard` (`neat-diagram-rate-card`) and `NeatDiagramAnimationSettings`
@@ -580,12 +580,17 @@ for driving demos such as the FastBEV one.
   yaw or a calibration's angles go in unchanged. A grid's `cells` are row-major in screen order:
   row 0 forward, column 0 left.
 - What it draws comes from `frame` (objects as rotated boxes with a heading line, point sets as
-  `Float32Array` x,y pairs, polylines, grids) and from inputs that change rarely: `sensors` (wedges),
-  `spokes` (a number spaced from straight ahead, or a list of angles each with an optional origin:
-  a rig's seams, or its cameras' edges from their mounts), `range`, `shape` (`round`, rings in the
-  largest square that fits, as a radar; `square`, a grid filling the box) and `styles`. Give a new
-  `frame` object for each moment and a new grid `cells` array for new cells: the view redraws on
-  a new frame and repaints a grid only for a new array.
+  `Float32Array` x,y pairs, polylines, grids) and from inputs that change rarely: `sensors` (wedges
+  from their mounts, drawn as their edges in their labels' colours, their arc when they give their
+  own range, filled faintly only with `fill`), `spokes` (a number spaced from straight ahead, or a
+  list of angles each with an optional origin, such as a rig's seams), `range`, `shape` (`round`,
+  the circle of `range` with rings, as a radar; `rect`, the rectangle `bounds` with a grid, ±`range`
+  without), `outline` (the shape's edge), `overflow` (`clip` cuts the data and the guides at the
+  shape; `visible` lets them run on over the box), `guides` (`over` or `under` the data), `zoom` and
+  `styles`. The shape is fitted into the box with a 12 px inset and sets the scale; the host takes
+  its proportions (`aspect-ratio`) unless the app gives it a height. Give a new `frame` object for
+  each moment and a new grid `cells` array for new cells: the view redraws on a new frame and
+  repaints a grid only for a new array.
 - Labels take their colours from the page's class colours (`ɵNeatOverlayColors`), the allocator
   the video tiles use, so a class has one colour in every tile and in the view; `styles` takes the
   overlays' class rows (`NeatOverlayClassStyle`), so the same rows give the same look in both. The
@@ -593,23 +598,34 @@ for driving demos such as the FastBEV one.
   `--neat-surface` for the labels' halo), read through `neatThemeColors`.
 - Drawing (`bev-canvas.ts`, outside change detection, at the next animation frame after a change,
   never while the page is hidden or before the box has a size): what changes only with the size,
-  view, theme or inputs (sensor wedges, rings or grid lines, spokes, their labels) goes into a
-  cached layer; a frame draws its grids (a small canvas per grid, scaled without smoothing), lines,
-  points and objects over it without allocating per item. Points are squares of whole device
-  pixels written into a buffer that covers only the plot, kept in memory (`willReadFrequently`) and
+  view, theme or inputs goes into two cached layers, one under the data (sensor fills, and the
+  guides when they go under) and one over it (the guides when they go over: rings or grid lines,
+  spokes, sensor edges, the outline; and always their labels), each drawn only when it holds
+  something. Between them a frame draws its grids (a small canvas per grid, scaled without
+  smoothing), lines, points and objects without allocating per item, clipped to the shape as the
+  view shows it (zoom included) unless overflow is visible; the vehicle's marker goes on top.
+  Points are squares of whole device pixels written into a buffer that covers only the shape's
+  rectangle within the box (the box with `visible`), kept in memory (`willReadFrequently`) and
   put over the plot once per frame: one canvas call per point, or one path of them all, cost
   several times as much to rasterise (the bench's BEV page, above). Objects are drawn a label at a
   time, one path for a label's boxes and one for their headings. Ring and grid steps widen until
-  their labels sit at least 44 px apart, and labels are drawn unclipped where they fall on the plot.
-- Pan and zoom (`zoom.ts`, d3-zoom on the host, as the diagram's): wheel, pinch, drag and
-  double-click, from the whole range in to a quarter of it, and only within the plot; the host is a
-  tab stop whose arrows pan, `+`/`=` and `-` zoom about the plot's centre and `0` resets; a "Reset
-  view" button shows while the view is zoomed or panned. The kit stores nothing.
+  their labels sit at least 44 px apart; labels are drawn unclipped, ring labels halfway between
+  forward and left (towards the box's middle once the vehicle is panned out of it), grid labels
+  along the shape's left and top edges or the box's.
+- Pan and zoom (`zoom.ts`, d3-zoom on the host, as the diagram's), only while `zoom` is on (off by
+  default; `BevZoom` is made when it turns on and destroyed, listeners and all, when it turns off):
+  wheel, pinch, drag and double-click zoom the whole view, the shape with it, in to four times the
+  default, and pan only within what the default view shows (the shape's rectangle with `clip`, the
+  box with `visible`). Every wheel over the host is prevented, at the zoom's limits too, where
+  d3-zoom alone lets the page scroll. The host is then a tab stop whose arrows pan, `+`/`=` and `-`
+  zoom about the box's centre and `0` resets; a "Reset view" button shows while the view is zoomed
+  or panned. The kit stores nothing.
 - The readout (`readout.ts`): a mouse or pen hovering an object, or a finger tapping it, outlines it
   and shows the kit's readout beside it (`ɵREADOUT_CLASSES`): a swatch and its label, its distance,
   the app's `text`. It is filled and placed by the frames, straight in the DOM, and re-tested at the
-  pointer every frame. The host is a figure named by `label`, with a visually hidden summary of the
-  counts per label within the range (`summary.ts`), rewritten at most once a second.
+  pointer every frame, only within the shape unless overflow is visible. The host is a figure named
+  by `label`, with a visually hidden summary of the counts per label on the shape (`summary.ts`:
+  "within 60 m", or a rectangle's edges), rewritten at most once a second.
 
 ## How the kit is built on Spartan
 
