@@ -387,6 +387,44 @@ export const API: DocsEntry = {
               "text": "The grid is one tab stop named \"<label>: <headline>, over the last <window>\". Its readout, which the pointer shows over a cell and the keys over the cursor's, reads \"<row label> · <how long ago the column's newest sample was>: <mean> average\". The arrow keys move the cursor (Left and Right by column, Up and Down by row), Home and End go to the ends of its row, and Escape hides the readout. Like the time chart's, each key press, and only a key press, is repeated in a polite live region."
             }
           ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "hovered"
+            },
+            {
+              "kind": "text",
+              "text": " is the cell the readout is on, both ways ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatHeatmapCell",
+              "name": "NeatHeatmapCell"
+            },
+            {
+              "kind": "text",
+              "text": ": its row's key and its column's time, so it needs "
+            },
+            {
+              "kind": "code",
+              "text": "times"
+            },
+            {
+              "kind": "text",
+              "text": "): the heatmap sets it while the pointer or the keys hold a cell, and the app may set it. "
+            },
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": " reports a click (or Enter): the cell and its mean."
+            }
+          ]
         }
       ],
       "inputs": [
@@ -495,7 +533,143 @@ export const API: DocsEntry = {
           ]
         }
       ],
+      "models": [
+        {
+          "name": "hovered",
+          "type": "NeatHeatmapCell | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The cell the readout is on: the pointer's or the keys' while they hold one (null once they let go), or one the app sets, by its row's key and a time its column covers. Needs "
+                },
+                {
+                  "kind": "code",
+                  "text": "times"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "activated",
+          "type": "NeatHeatmapPick",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A click on a cell, or Enter with focus: its row, its time and its mean."
+                }
+              ]
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/charts/src/lib/heatmap.ts"
+    },
+    {
+      "name": "NeatHeatmapCell",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "row",
+          "type": "string",
+          "doc": []
+        },
+        {
+          "name": "time",
+          "type": "number",
+          "doc": []
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A heatmap cell as "
+            },
+            {
+              "kind": "code",
+              "text": "hovered"
+            },
+            {
+              "kind": "text",
+              "text": " names it: its row's "
+            },
+            {
+              "kind": "code",
+              "text": "key"
+            },
+            {
+              "kind": "text",
+              "text": ", and the time of the newest sample its column shows (ms, as "
+            },
+            {
+              "kind": "code",
+              "text": "times"
+            },
+            {
+              "kind": "text",
+              "text": " has it)."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/charts/src/lib/types.ts"
+    },
+    {
+      "name": "NeatHeatmapPick",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "row",
+          "type": "string",
+          "doc": []
+        },
+        {
+          "name": "time",
+          "type": "number | null",
+          "doc": []
+        },
+        {
+          "name": "value",
+          "type": "number | null",
+          "doc": []
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A heatmap cell a click (or Enter) chose: its row, its time when "
+            },
+            {
+              "kind": "code",
+              "text": "times"
+            },
+            {
+              "kind": "text",
+              "text": " give one, and its mean."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/charts/src/lib/types.ts"
     },
     {
       "name": "NeatHeatmapRow",
@@ -882,6 +1056,27 @@ export const API: DocsEntry = {
               "text": " that holds a list with one item per drawn run, named by its label and its span in seconds (as visually hidden text in the item), so a screen reader gets the runs the label text leaves out. The pointer over a run, quiet ones included, shows a readout beside its middle with its label, as the other charts read out what lies under the pointer; it follows the run while the strip scrolls, and the pointer on a run's name shows the same. The strip is one tab stop: focus reads out the newest run, Left and Right step to the run before or after it in time, Home and End go to the oldest and the newest, and Escape hides the readout. Each key press, and only a key press, is repeated in a polite live region."
             }
           ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "hovered"
+            },
+            {
+              "kind": "text",
+              "text": " is a moment (ms), both ways, as on the time charts: the strip sets it to the moment under the pointer (a run's middle while the keys hold one), and the app may set it, which reads out the run covering that moment, so a timeline shares a crosshair with time charts bound to the same signal. "
+            },
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": " reports a click (or Enter): the run under it, if any, and the moment."
+            }
+          ]
         }
       ],
       "inputs": [
@@ -1030,6 +1225,41 @@ export const API: DocsEntry = {
           ]
         }
       ],
+      "models": [
+        {
+          "name": "hovered",
+          "type": "number | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The moment the readout is on (ms): under the pointer, or a run's middle while the keys hold one (null once they let go), or one the app sets, which reads out the run covering it."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "activated",
+          "type": "NeatRunPick",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A click on the strip, or Enter with focus: the run under it, if any, and the moment."
+                }
+              ]
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/charts/src/lib/label-timeline.ts"
     },
     {
@@ -1054,6 +1284,70 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": "A level the chart marks that is neither, such as a limit or a target."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/charts/src/lib/types.ts"
+    },
+    {
+      "name": "NeatRunPick",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "run",
+          "type": "{ readonly label: string; readonly startMs: number; readonly endMs: number } | null",
+          "doc": []
+        },
+        {
+          "name": "time",
+          "type": "number",
+          "doc": []
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A click (or Enter) on a label timeline: the run under it, if any, and the moment (ms)."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/charts/src/lib/types.ts"
+    },
+    {
+      "name": "NeatSamplePick",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "time",
+          "type": "number | null",
+          "doc": []
+        },
+        {
+          "name": "values",
+          "type": "readonly { readonly key: string; readonly value: number | null }[]",
+          "doc": []
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A sample of a time chart or a stacked chart that a click (or Enter) chose: when it was taken (ms, as "
+            },
+            {
+              "kind": "code",
+              "text": "times"
+            },
+            {
+              "kind": "text",
+              "text": " has it; null for a sample without a time) and each line's or band's value there, by its key (a ninth series and beyond as \"other\")."
             }
           ]
         }
@@ -1699,7 +1993,23 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The plot is a tab stop that reads out like the time chart's: \"Total\", then each band, at the sample the pointer or the keys chose, with the same keys and the same announcements."
+              "text": "The plot is a tab stop that reads out like the time chart's: \"Total\", then each band, at the sample the pointer or the keys chose, with the same keys and the same announcements, and "
+            },
+            {
+              "kind": "code",
+              "text": "hovered"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": " are the time chart's: a moment both ways, and a click's sample."
             }
           ]
         }
@@ -1862,6 +2172,49 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "Words a value with its unit, for the legend, the readout and the accessible name."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "models": [
+        {
+          "name": "hovered",
+          "type": "number | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The moment the readout is on (ms, a sample's time): the pointer's or the keys' sample while they hold one (null once they let go), or one the app sets, shown at the nearest sample, so charts bound to one "
+                },
+                {
+                  "kind": "code",
+                  "text": "hovered"
+                },
+                {
+                  "kind": "text",
+                  "text": " share a crosshair. Changes only when the sample does."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "activated",
+          "type": "NeatSamplePick",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A click on the plot, or Enter with focus: the sample, when it was taken and its values."
                 }
               ]
             }
@@ -2092,6 +2445,27 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": "The plot is a group in the tab order named \"<label>: <headline, or the current values>, over the last <window>\" (\"over <span>\" on the elapsed axis). The readout follows the pointer; with focus it shows the newest sample, and the arrow keys, Home and End move it and Escape hides it. Each key press is repeated in a polite live region, so a screen reader hears the sample; pointer moves are not."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "hovered"
+            },
+            {
+              "kind": "text",
+              "text": " is the moment the readout is on, both ways: the chart sets it while the pointer or the keys hold a sample, and the app may set it, so several charts bound to one signal share a crosshair. "
+            },
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": " reports a click (or Enter): the sample's time and values."
             }
           ]
         }
@@ -2342,6 +2716,49 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "Words a value with its unit, for the legend, the readout and the accessible name."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "models": [
+        {
+          "name": "hovered",
+          "type": "number | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The moment the readout is on (ms, a sample's time): the pointer's or the keys' sample while they hold one (null once they let go), or one the app sets, shown at the nearest sample, so charts bound to one "
+                },
+                {
+                  "kind": "code",
+                  "text": "hovered"
+                },
+                {
+                  "kind": "text",
+                  "text": " share a crosshair. Changes only when the sample does."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "activated",
+          "type": "NeatSamplePick",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A click on the plot, or Enter with focus: the sample, when it was taken and its values."
                 }
               ]
             }

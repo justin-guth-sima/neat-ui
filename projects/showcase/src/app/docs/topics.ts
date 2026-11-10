@@ -738,6 +738,7 @@ export const GROUPS: readonly TopicGroup[] = [
               'NeatChartFormat',
               'NeatChartAxis',
               'NeatChartTone',
+              'NeatSamplePick',
             ],
             leads: ['NeatTimeChart'],
             load: async () => {
@@ -764,7 +765,7 @@ export const GROUPS: readonly TopicGroup[] = [
           {
             id: 'heatmap',
             label: 'Heatmap',
-            parts: ['NeatHeatmap', 'NeatHeatmapRow'],
+            parts: ['NeatHeatmap', 'NeatHeatmapRow', 'NeatHeatmapCell', 'NeatHeatmapPick'],
             leads: ['NeatHeatmap'],
             load: async () => {
               const [api, examples] = await Promise.all([
@@ -790,7 +791,7 @@ export const GROUPS: readonly TopicGroup[] = [
           {
             id: 'label-timeline',
             label: 'Label timeline',
-            parts: ['NeatLabelTimeline', 'NeatLabelRun', 'NeatTimelineMotion'],
+            parts: ['NeatLabelTimeline', 'NeatLabelRun', 'NeatTimelineMotion', 'NeatRunPick'],
             leads: ['NeatLabelTimeline'],
             load: async () => {
               const [api, examples] = await Promise.all([

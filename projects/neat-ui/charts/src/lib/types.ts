@@ -29,3 +29,35 @@ export interface NeatReference {
 
 /** How a chart words a value: the app's unit and precision, which the charts know nothing of. */
 export type NeatChartFormat = (value: number) => string;
+
+/**
+ * A sample of a time chart or a stacked chart that a click (or Enter) chose: when it was taken
+ * (ms, as `times` has it; null for a sample without a time) and each line's or band's value there,
+ * by its key (a ninth series and beyond as "other").
+ */
+export interface NeatSamplePick {
+  readonly time: number | null;
+  readonly values: readonly { readonly key: string; readonly value: number | null }[];
+}
+
+/**
+ * A heatmap cell as `hovered` names it: its row's `key`, and the time of the newest sample its
+ * column shows (ms, as `times` has it).
+ */
+export interface NeatHeatmapCell {
+  readonly row: string;
+  readonly time: number;
+}
+
+/** A heatmap cell a click (or Enter) chose: its row, its time when `times` give one, and its mean. */
+export interface NeatHeatmapPick {
+  readonly row: string;
+  readonly time: number | null;
+  readonly value: number | null;
+}
+
+/** A click (or Enter) on a label timeline: the run under it, if any, and the moment (ms). */
+export interface NeatRunPick {
+  readonly run: { readonly label: string; readonly startMs: number; readonly endMs: number } | null;
+  readonly time: number;
+}

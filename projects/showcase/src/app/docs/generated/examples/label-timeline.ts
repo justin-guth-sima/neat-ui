@@ -2,6 +2,7 @@
 import type { DocsExample } from '../../model';
 import { GestureTimeline } from '../../../examples/label-timeline/1-label-timeline.example';
 import { NameRows } from '../../../examples/label-timeline/2-name-rows.example';
+import { TimelineFromTheApp } from '../../../examples/label-timeline/3-from-the-app.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -220,6 +221,115 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** The class at a step: a gesture, then \"No gesture\" between two gestures. */"],["text","\n"],
           ["keyword","export"],["text"," "],["keyword","function"],["text"," classAt(step: "],["keyword","number"],["text","): "],["keyword","string"],["text"," {\n  "],
           ["keyword","return"],["text"," step % 2 === 0 ? NO_GESTURE : CLASSES[1 + (((step >> 1) * 3) % (CLASSES.length - 1))];\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "from-the-app",
+    "title": "Timeline from the app",
+    "component": TimelineFromTheApp,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The app reads the strip and sets it: "
+          },
+          {
+            "kind": "code",
+            "text": "hovered"
+          },
+          {
+            "kind": "text",
+            "text": " is a moment (the one under the pointer, or a run's middle while the keys hold it, or one the app sets, which reads out the run covering it), and "
+          },
+          {
+            "kind": "code",
+            "text": "activated"
+          },
+          {
+            "kind": "text",
+            "text": " reports a click or Enter with the run under it and the moment. The card shows both, and its buttons set the moment from outside, as a time chart bound to the same signal would."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui#NeatButton",
+      "@sima/neat-ui/charts#NeatLabelRun",
+      "@sima/neat-ui/charts#NeatLabelTimeline",
+      "@sima/neat-ui/charts#NeatRunPick"
+    ],
+    "files": [
+      {
+        "name": "3-from-the-app.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, computed, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { "],["keyword","type"],["text"," NeatLabelRun, NeatLabelTimeline, "],["keyword","type"],["text"," NeatRunPick } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
+          ["keyword","import"],["text"," { CLASSES, NO_GESTURE } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n"],
+          ["comment","/** A fixed moment the strip ends at, so the example stands still. */"],["text","\n"],
+          ["keyword","const"],["text"," NOW = Date.UTC(2026, 9, 24, 12, 0, 30);\n"],
+          ["keyword","const"],["text"," WINDOW_MS = 30_000;\n\n"],
+          ["comment","/** Thirty seconds of results, fixed. */"],["text","\n"],
+          ["keyword","const"],["text"," RUNS: "],["keyword","readonly"],["text"," NeatLabelRun[] = [\n  { label: NO_GESTURE, startMs: NOW - 30_000, endMs: NOW - 24_000 },\n  { label: CLASSES[5], startMs: NOW - 24_000, endMs: NOW - 19_000 },\n  { label: NO_GESTURE, startMs: NOW - 19_000, endMs: NOW - 15_000 },\n  { label: CLASSES[1], startMs: NOW - 15_000, endMs: NOW - 8_000 },\n  { label: NO_GESTURE, startMs: NOW - 8_000, endMs: NOW - 4_000 },\n  { label: CLASSES[12], startMs: NOW - 4_000, endMs: NOW },\n];\n\n@Component({\n  selector: "],
+          ["string","'app-timeline-from-the-app'"],["text",",\n  imports: [NeatButton, NeatLabelTimeline],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <div class=\"beside\">\n      <neat-label-timeline\n        label=\"Last 30 s\"\n        [runs]=\"runs\"\n        [nowMs]=\"now\"\n        [windowMs]=\"windowMs\"\n        [labels]=\"labels\"\n        [quiet]=\"quiet\"\n        [(hovered)]=\"moment\"\n        (activated)=\"picked.set($event)\"\n      />\n      <div class=\"report\">\n        <dl>\n          <dt>Hovered</dt>\n          <dd>{{ momentText() }}</dd>\n          <dt>Last click</dt>\n          <dd>{{ pickedText() }}</dd>\n        </dl>\n        <div class=\"actions\">\n          <button\n            neatButton\n            type=\"button\"\n            size=\"small\"\n            variant=\"secondary\"\n            (click)=\"moment.set(now - 20_000)\"\n          >\n            Show 20 s ago\n          </button>\n          <button\n            neatButton\n            type=\"button\"\n            size=\"small\"\n            variant=\"outlined\"\n            (click)=\"moment.set(null)\"\n          >\n            Clear\n          </button>\n        </div>\n      </div>\n    </div>\n  `"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./report.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," TimelineFromTheApp {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," runs = RUNS;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," now = NOW;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," windowMs = WINDOW_MS;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," labels = CLASSES;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," quiet = [NO_GESTURE];\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," moment = signal<"],["keyword","number"],["text"," | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," picked = signal<NeatRunPick | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," momentText = computed(() => {\n    "],
+          ["keyword","const"],["text"," time = "],["keyword","this"],["text",".moment();\n    "],
+          ["keyword","return"],["text"," time === "],["keyword","null"],["text"," ? "],["string","'None'"],["text"," : "],["string","`${((NOW - time) / 1000).toFixed(1)} s ago`"],["text",";\n  });\n\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pickedText = computed(() => {\n    "],
+          ["keyword","const"],["text"," pick = "],["keyword","this"],["text",".picked();\n    "],
+          ["keyword","if"],["text"," (!pick) "],["keyword","return"],["text"," "],["string","'None yet'"],["text",";\n    "],
+          ["keyword","const"],["text"," ago = "],["string","`${((NOW - pick.time) / 1000).toFixed(1)} s ago`"],["text",";\n    "],
+          ["keyword","return"],["text"," "],["string","`${pick.run?.label ?? 'Nothing'}, ${ago}`"],["text",";\n  });\n}\n"]
+        ]
+      },
+      {
+        "name": "data.ts",
+        "code": [
+          ["comment","/**\n * IPN Hand's 14 classes; the first is the quiet one. The same list, in the same order, as the\n * score bars example's, so a label has the same colour in both (its spec holds them equal): the\n * docs let an example import only files of its own topic folder, so the list is repeated here.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," CLASSES: "],["keyword","readonly"],["text"," "],["keyword","string"],["text","[] = [\n  "],
+          ["string","'No gesture'"],["text",",\n  "],
+          ["string","'Pointing with one finger'"],["text",",\n  "],
+          ["string","'Pointing with two fingers'"],["text",",\n  "],
+          ["string","'Click with one finger'"],["text",",\n  "],
+          ["string","'Click with two fingers'"],["text",",\n  "],
+          ["string","'Throw up'"],["text",",\n  "],
+          ["string","'Throw down'"],["text",",\n  "],
+          ["string","'Throw left'"],["text",",\n  "],
+          ["string","'Throw right'"],["text",",\n  "],
+          ["string","'Open twice'"],["text",",\n  "],
+          ["string","'Double click with one finger'"],["text",",\n  "],
+          ["string","'Double click with two fingers'"],["text",",\n  "],
+          ["string","'Zoom in'"],["text",",\n  "],
+          ["string","'Zoom out'"],["text",",\n];\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," NO_GESTURE = CLASSES[0];\n\n"],
+          ["comment","/** How long the demo's classifier keeps one result, in milliseconds, at a step. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","function"],["text"," durationAt(step: "],["keyword","number"],["text","): "],["keyword","number"],["text"," {\n  "],
+          ["keyword","return"],["text"," 1500 + ((step * 7) % 5) * 1100;\n}\n\n"],
+          ["comment","/** The class at a step: a gesture, then \"No gesture\" between two gestures. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","function"],["text"," classAt(step: "],["keyword","number"],["text","): "],["keyword","string"],["text"," {\n  "],
+          ["keyword","return"],["text"," step % 2 === 0 ? NO_GESTURE : CLASSES[1 + (((step >> 1) * 3) % (CLASSES.length - 1))];\n}\n"]
+        ]
+      },
+      {
+        "name": "report.example.css",
+        "code": [
+          ["comment","/* The chart beside a card that reports on it; one above the other where there is no room. */"],["text","\n.beside {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n.report {\n  padding: var(--neat-space-4);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n  color: var(--card-foreground);\n}\n\n.report dl {\n  display: grid;\n  grid-template-columns: auto 1fr;\n  gap: var(--neat-space-2) var(--neat-space-4);\n  margin: 0 0 var(--neat-space-4);\n  font-size: var(--neat-text-sm);\n}\n\n.report dt {\n  color: var(--muted-foreground);\n}\n\n.report dd {\n  margin: 0;\n  font-variant-numeric: tabular-nums;\n}\n\n.actions {\n  display: flex;\n  flex-wrap: wrap;\n  gap: var(--neat-space-2);\n}\n"]
         ]
       }
     ]

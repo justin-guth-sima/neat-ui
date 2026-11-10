@@ -1,12 +1,13 @@
-import { computed, signal } from '@angular/core';
+import { computed, effect, type ModelSignal, signal, untracked } from '@angular/core';
 import { neatSecondsAgo } from '@sima/neat-ui';
 import { elapsedText, indexAt, isNumber } from './geometry';
-import type { NeatChartAxis, NeatChartFormat } from './types';
+import type { NeatChartAxis, NeatChartFormat, NeatSamplePick } from './types';
 
 /*
  * What the charts that read out a sample share: the cursor that the pointer and the keys move,
- * and what a readout says. The keys, Escape and the announce rule live here once, so the time
- * chart, the stacked chart and the heatmap cannot drift apart.
+ * what a readout says, and how the cursor meets a chart's `hovered` model (`linkHovered`). The
+ * keys, Escape and the announce rule live here once, so the time chart, the stacked chart, the
+ * heatmap and the label timeline cannot drift apart.
  */
 
 /** What a readout shows for a sample that was not taken. */
@@ -81,6 +82,54 @@ export function readoutAt(at: number, when: string | null, rows: readonly Readou
 }
 
 /**
+ * The index of the sample nearest `time` among the first `length` of `times`, or -1 when `time` is
+ * null or lies outside the span they cover: how a chart finds the sample an app's `hovered` names,
+ * so charts sampled at different moments still meet on one crosshair.
+ */
+export function sampleNear(
+  times: readonly (number | null)[],
+  length: number,
+  time: number | null,
+): number {
+  if (!isNumber(time)) return -1;
+  let best = -1;
+  let gap = Infinity;
+  let first = Infinity;
+  let last = -Infinity;
+  for (let i = 0; i < Math.min(length, times.length); i++) {
+    const taken = times[i];
+    if (!isNumber(taken)) continue;
+    first = Math.min(first, taken);
+    last = Math.max(last, taken);
+    const distance = Math.abs(taken - time);
+    if (distance < gap) {
+      gap = distance;
+      best = i;
+    }
+  }
+  return time < first || time > last ? -1 : best;
+}
+
+/** The sample at `index` as a click reports it: its time, and each line's value there. */
+export function samplePick(
+  index: number,
+  times: readonly (number | null)[],
+  lines: readonly { readonly key: string; readonly values: readonly (number | null)[] }[],
+): NeatSamplePick {
+  const time = times[index];
+  return {
+    time: isNumber(time) ? time : null,
+    values: lines.map((line) => ({ key: line.key, value: line.values[index] ?? null })),
+  };
+}
+
+/** The time of the sample at `index`, as a chart's `hovered` names it; null without one. */
+export function sampleTime(times: readonly (number | null)[], index: number): number | null {
+  const time = times[index];
+  return isNumber(time) ? time : null;
+}
+
+/**
  * The sample a key moves a cursor over `length` samples to, or null for a key the chart does not
  * use. `current` is null while the readout is hidden, and any arrow then brings it up at the
  * newest sample.
@@ -129,17 +178,22 @@ export function sampleCursor(chart: {
   length: () => number;
   fractions: () => readonly number[];
   spoken: (index: number) => string;
+  /** The sample the app names through `hovered`, shown while the pointer and the keys hold none. */
+  outside?: () => number | null;
 }): ReadoutCursor<number, number> {
-  return new ReadoutCursor<number, number>({
-    under: (pointer) => {
-      const index = indexAt(pointer, chart.length(), chart.fractions());
-      return index < 0 ? null : index;
+  return new ReadoutCursor<number, number>(
+    {
+      under: (pointer) => {
+        const index = indexAt(pointer, chart.length(), chart.fractions());
+        return index < 0 ? null : index;
+      },
+      fit: (index) => (chart.length() ? Math.min(index, chart.length() - 1) : null),
+      start: () => (chart.length() ? chart.length() - 1 : null),
+      after: (key, current) => sampleAfter(key, current, chart.length()),
+      spoken: chart.spoken,
     },
-    fit: (index) => (chart.length() ? Math.min(index, chart.length() - 1) : null),
-    start: () => (chart.length() ? chart.length() - 1 : null),
-    after: (key, current) => sampleAfter(key, current, chart.length()),
-    spoken: chart.spoken,
-  });
+    chart.outside,
+  );
 }
 
 /**
@@ -151,6 +205,9 @@ export function sampleCursor(chart: {
  * Each key press, and only a key press, writes `announcement`, which the chart renders in a polite
  * live region: a pointer move announced at every pixel would be noise, and focus alone lands on
  * the chart without a sentence in the reader's ear.
+ *
+ * `outside`, when given, is what the app names through the chart's `hovered` model: the readout
+ * shows it while neither the pointer nor the keys hold the cursor (`own`).
  */
 export class ReadoutCursor<P, C> {
   private readonly pointer = signal<P | null>(null);
@@ -159,15 +216,26 @@ export class ReadoutCursor<P, C> {
   /** The readout as of the last key press: the live region's text. */
   readonly announcement = signal('');
 
-  /** What the readout reads, or null while it is hidden. */
-  readonly active = computed<C | null>(() => {
+  /** What the pointer or the keys hold, or null while they hold nothing. */
+  readonly own = computed<C | null>(() => {
     const keyed = this.keyed();
     if (keyed !== null) return this.shape.fit(keyed);
     const pointer = this.pointer();
     return pointer === null ? null : this.shape.under(pointer);
   });
 
-  constructor(private readonly shape: CursorShape<P, C>) {}
+  /** What the readout reads: what the pointer or the keys hold, else what the app names; or null. */
+  readonly active = computed<C | null>(() => this.own() ?? this.outside?.() ?? null);
+
+  constructor(
+    private readonly shape: CursorShape<P, C>,
+    private readonly outside?: () => C | null,
+  ) {}
+
+  /** What the pointer at `pointer` is over, as a click there chose it: null for nothing. */
+  at(pointer: P): C | null {
+    return this.shape.under(pointer);
+  }
 
   pointerTo(pointer: P): void {
     this.keyed.set(null);
@@ -209,4 +277,35 @@ export class ReadoutCursor<P, C> {
     const now = this.active();
     this.announcement.set(now === null ? '' : this.shape.spoken(now));
   }
+}
+
+/**
+ * Ties a chart's `hovered` model to its cursor, by the kit's rule for widget interaction
+ * (AGENTS.md): while the pointer or the keys hold the cursor, `hovered` follows it, named as
+ * `nameOf` names it (a time, a cell), and it changes only when that name does; when they let go
+ * (the pointer leaves, Escape, blur) it goes back to null. Otherwise the app may set it, and the
+ * cursor shows it (the `outside` the chart gave its cursor). A chart's own names never come back
+ * to it as the app's, so charts bound to one `hovered` do not answer each other. Call in an
+ * injection context.
+ */
+export function linkHovered<C, N>(
+  cursor: ReadoutCursor<unknown, C>,
+  hovered: ModelSignal<N | null>,
+  nameOf: (cursor: C) => N | null,
+  same: (a: N | null, b: N | null) => boolean = Object.is,
+): void {
+  let held = false;
+  effect(() => {
+    const own = cursor.own();
+    const name = own === null ? null : nameOf(own);
+    untracked(() => {
+      if (own !== null) {
+        held = true;
+        if (!same(hovered(), name)) hovered.set(name);
+      } else if (held) {
+        held = false;
+        if (hovered() !== null) hovered.set(null);
+      }
+    });
+  });
 }

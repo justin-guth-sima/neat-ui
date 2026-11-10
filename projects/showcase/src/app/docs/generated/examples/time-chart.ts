@@ -7,6 +7,7 @@ import { ElapsedAxis } from '../../../examples/time-chart/4-elapsed-axis.example
 import { ReferenceLine } from '../../../examples/time-chart/5-reference-line.example';
 import { FillingACard } from '../../../examples/time-chart/6-filling-a-card.example';
 import { CompactRows } from '../../../examples/time-chart/7-compact-rows.example';
+import { SharedCrosshair } from '../../../examples/time-chart/8-shared-crosshair.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -794,6 +795,168 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["text",".rows {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
           ["comment","/* The rows of a list of metrics: a name, a compact chart that takes what is left, a value. */"],["text","\n.row {\n  display: grid;\n  grid-template-columns: 6rem 1fr 3rem;\n  align-items: center;\n  gap: var(--neat-space-3);\n  font-size: var(--neat-text-sm);\n}\n\n.row span:last-child {\n  text-align: end;\n  font-variant-numeric: tabular-nums;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "shared-crosshair",
+    "title": "Shared crosshair",
+    "component": SharedCrosshair,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "One moment, shared: the time chart, the stacked chart and the label timeline bind one signal to "
+          },
+          {
+            "kind": "code",
+            "text": "hovered"
+          },
+          {
+            "kind": "text",
+            "text": ", so hovering any of them shows the same moment on all three (each at its nearest sample, or the run covering it). The heatmap names a cell, its row and a time; the app keeps the row it was last on, so the heatmap follows the shared moment too. The card shows the moment and the last click on any of the charts, and its buttons set the moment from outside."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui#NeatButton",
+      "@sima/neat-ui/charts#NeatHeatmapCell",
+      "@sima/neat-ui/charts#NeatHeatmapRow",
+      "@sima/neat-ui/charts#NeatHeatmap",
+      "@sima/neat-ui/charts#NeatLabelRun",
+      "@sima/neat-ui/charts#NeatLabelTimeline",
+      "@sima/neat-ui/charts#NeatStackedChart",
+      "@sima/neat-ui/charts#NeatTimeChart"
+    ],
+    "files": [
+      {
+        "name": "8-shared-crosshair.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, computed, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," {\n  "],
+          ["keyword","type"],["text"," NeatHeatmapCell,\n  "],
+          ["keyword","type"],["text"," NeatHeatmapRow,\n  NeatHeatmap,\n  "],
+          ["keyword","type"],["text"," NeatLabelRun,\n  NeatLabelTimeline,\n  NeatStackedChart,\n  NeatTimeChart,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
+          ["keyword","import"],["text"," { CLUSTERS, CORES, CPU, percent, TIMES } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n"],
+          ["comment","/** The board's state over the eight minutes, as a classifier of its own would report it. */"],["text","\n"],
+          ["keyword","const"],["text"," STATES = ["],["string","'idle'"],["text",", "],["string","'warm-up'"],["text",", "],["string","'inference'"],["text",", "],["string","'idle'"],["text",", "],["string","'inference'"],["text",", "],["string","'cool-down'"],["text","];\n"],
+          ["keyword","const"],["text"," START = TIMES[0];\n"],
+          ["keyword","const"],["text"," END = TIMES[TIMES.length - 1];\n"],
+          ["keyword","const"],["text"," RUNS: "],["keyword","readonly"],["text"," NeatLabelRun[] = STATES.map((label, index) => ({\n  label,\n  startMs: START + ((END - START) * index) / STATES.length,\n  endMs: START + ((END - START) * (index + 1)) / STATES.length,\n}));\n\n"],
+          ["comment","/** Six of the cores as heatmap rows, from the same samples as the chart above them. */"],["text","\n"],
+          ["keyword","const"],["text"," ROWS: "],["keyword","readonly"],["text"," NeatHeatmapRow[] = CORES.slice(0, 6).map((core) => ({\n  key: core.key,\n  label: core.label,\n  values: core.values,\n  end: "],
+          ["string","''"],["text",",\n  endTone: "],
+          ["string","'default'"],["text",",\n}));\n\n"],
+          ["comment","/** A moment as the card says it: the time of day, in UTC like the demo's data. */"],["text","\n"],
+          ["keyword","const"],["text"," clock = (time: "],["keyword","number"],["text",") => "],["keyword","new"],["text"," Date(time).toISOString().slice(11, 19);\n\n@Component({\n  selector: "],
+          ["string","'app-shared-crosshair'"],["text",",\n  imports: [NeatButton, NeatHeatmap, NeatLabelTimeline, NeatStackedChart, NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <div class=\"dashboard\">\n      <div class=\"chart-card\">\n        <neat-time-chart\n          label=\"CPU\"\n          [series]=\"cpu\"\n          [times]=\"times\"\n          [domain]=\"[0, 100]\"\n          [format]=\"percent\"\n          [(hovered)]=\"moment\"\n          (activated)=\"clicked.set('CPU at ' + when($event.time))\"\n        />\n      </div>\n      <div class=\"chart-card\">\n        <neat-stacked-chart\n          label=\"Clusters\"\n          [series]=\"clusters\"\n          [times]=\"times\"\n          [domain]=\"[0, 220]\"\n          [format]=\"percent\"\n          [(hovered)]=\"moment\"\n          (activated)=\"clicked.set('Clusters at ' + when($event.time))\"\n        />\n      </div>\n      <div class=\"chart-card\">\n        <neat-heatmap\n          label=\"Cores\"\n          [rows]=\"rows\"\n          [times]=\"times\"\n          [format]=\"percent\"\n          [hovered]=\"cell()\"\n          (hoveredChange)=\"onCell($event)\"\n          (activated)=\"clicked.set($event.row + ' at ' + when($event.time))\"\n        />\n      </div>\n      <div class=\"chart-card\">\n        <neat-label-timeline\n          label=\"Board state\"\n          [runs]=\"runs\"\n          [nowMs]=\"end\"\n          [windowMs]=\"end - start\"\n          [(hovered)]=\"moment\"\n          (activated)=\"clicked.set(($event.run?.label ?? 'nothing') + ' at ' + when($event.time))\"\n        />\n      </div>\n      <div class=\"chart-card report\">\n        <dl>\n          <dt>Moment</dt>\n          <dd>{{ momentText() }}</dd>\n          <dt>Last click</dt>\n          <dd>{{ clicked() }}</dd>\n        </dl>\n        <div class=\"actions\">\n          <button\n            neatButton\n            type=\"button\"\n            size=\"small\"\n            variant=\"secondary\"\n            (click)=\"moment.set(start + 120_000)\"\n          >\n            Show 12:02\n          </button>\n          <button\n            neatButton\n            type=\"button\"\n            size=\"small\"\n            variant=\"secondary\"\n            (click)=\"moment.set(end)\"\n          >\n            Show the newest\n          </button>\n          <button\n            neatButton\n            type=\"button\"\n            size=\"small\"\n            variant=\"outlined\"\n            (click)=\"moment.set(null)\"\n          >\n            Clear\n          </button>\n        </div>\n      </div>\n    </div>\n  `"],
+          ["text",",\n  styleUrls: ["],
+          ["string","'./chart-card.css'"],["text",", "],["string","'./shared-crosshair.example.css'"],["text","],\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," SharedCrosshair {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," cpu = CPU;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," clusters = CLUSTERS;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," rows = ROWS;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," runs = RUNS;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," times = TIMES;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," start = START;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," end = END;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," percent = percent;\n\n  "],
+          ["comment","/** The moment every chart shows, or null for none. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," moment = signal<"],["keyword","number"],["text"," | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
+          ["comment","/** The heatmap row the pointer was last on, where the heatmap shows the shared moment. */"],["text","\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," row = signal(ROWS[0].key);\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," clicked = signal("],["string","'None yet'"],["text",");\n\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," cell = computed((): NeatHeatmapCell | "],["keyword","null"],["text"," => {\n    "],
+          ["keyword","const"],["text"," time = "],["keyword","this"],["text",".moment();\n    "],
+          ["keyword","return"],["text"," time === "],["keyword","null"],["text"," ? "],["keyword","null"],["text"," : { row: "],["keyword","this"],["text",".row(), time };\n  });\n\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," momentText = computed(() => {\n    "],
+          ["keyword","const"],["text"," time = "],["keyword","this"],["text",".moment();\n    "],
+          ["keyword","return"],["text"," time === "],["keyword","null"],["text"," ? "],["string","'None'"],["text"," : clock(time);\n  });\n\n  "],
+          ["keyword","protected"],["text"," onCell(cell: NeatHeatmapCell | "],["keyword","null"],["text","): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","if"],["text"," (cell) "],["keyword","this"],["text",".row.set(cell.row);\n    "],
+          ["keyword","this"],["text",".moment.set(cell?.time ?? "],["keyword","null"],["text",");\n  }\n\n  "],
+          ["keyword","protected"],["text"," when(time: "],["keyword","number"],["text"," | "],["keyword","null"],["text","): "],["keyword","string"],["text"," {\n    "],
+          ["keyword","return"],["text"," time === "],["keyword","null"],["text"," ? "],["string","'an unknown time'"],["text"," : clock(time);\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "data.ts",
+        "code": [
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," {\n  NeatChartFormat,\n  NeatReference,\n  NeatSeries,\n  NeatThreshold,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n\n"],
+          ["comment","/** A sine wave of `count` samples, the demo data of every chart: a plausible, smooth metric. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","function"],["text"," sine(count: "],["keyword","number"],["text",", cycles: "],["keyword","number"],["text",", low: "],["keyword","number"],["text",", high: "],["keyword","number"],["text","): "],["keyword","number"],["text","[] {\n  "],
+          ["keyword","return"],["text"," Array.from({ length: count }, (_, index) => {\n    "],
+          ["keyword","const"],["text"," wave = (Math.sin((index / count) * cycles * 2 * Math.PI) + 1) / 2;\n    "],
+          ["keyword","return"],["text"," Number((low + wave * (high - low)).toFixed(2));\n  });\n}\n\n"],
+          ["comment","/** The same with `gap` samples missing from `from`: a daemon that did not answer for a while. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","function"],["text"," withGap(values: "],["keyword","number"],["text","[], from: "],["keyword","number"],["text",", gap: "],["keyword","number"],["text","): ("],["keyword","number"],["text"," | "],["keyword","null"],["text",")[] {\n  "],
+          ["keyword","return"],["text"," values.map((value, index) => (index >= "],["keyword","from"],["text"," && index < "],["keyword","from"],["text"," + gap ? "],["keyword","null"],["text"," : value));\n}\n\n"],
+          ["comment","/**\n * Eight minutes of samples four seconds apart, ending at a fixed instant so the demo stands\n * still.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," SAMPLES = 120;\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," TIMES: "],["keyword","readonly"],["text"," "],["keyword","number"],["text","[] = Array.from(\n  { length: SAMPLES },\n  (_, index) => Date.UTC(2026, 9, 24, 12, 0, 0) + index * 4000,\n);\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," percent: NeatChartFormat = (value) => "],["string","`${value.toFixed(0)}%`"],["text",";\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," celsius: NeatChartFormat = (value) => "],["string","`${value.toFixed(1)} °C`"],["text",";\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," watts: NeatChartFormat = (value) => "],["string","`${value.toFixed(1)} W`"],["text",";\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," CPU: "],["keyword","readonly"],["text"," NeatSeries[] = [\n  { key: "],
+          ["string","'cpu'"],["text",", label: "],["string","'CPU'"],["text",", values: sine(SAMPLES, 3, 20, 62) },\n];\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," CPU_THRESHOLDS: "],["keyword","readonly"],["text"," NeatThreshold[] = [\n  { value: 70, tone: "],
+          ["string","'warning'"],["text",", label: "],["string","'Warning 70%'"],["text"," },\n  { value: 90, tone: "],
+          ["string","'danger'"],["text",", label: "],["string","'Critical 90%'"],["text"," },\n];\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," TEMPERATURE: "],["keyword","readonly"],["text"," NeatSeries[] = [\n  { key: "],
+          ["string","'mla'"],["text",", label: "],["string","'MLA'"],["text",", values: withGap(sine(SAMPLES, 2, 62, 80), 50, 14) },\n];\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," TEMPERATURE_THRESHOLDS: "],["keyword","readonly"],["text"," NeatThreshold[] = [\n  { value: 70, tone: "],
+          ["string","'warning'"],["text",", label: "],["string","'Warning 70 °C'"],["text"," },\n  { value: 85, tone: "],
+          ["string","'danger'"],["text",", label: "],["string","'Critical 85 °C'"],["text"," },\n];\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," CLUSTERS: "],["keyword","readonly"],["text"," NeatSeries[] = [\n  { key: "],
+          ["string","'a'"],["text",", label: "],["string","'Cluster A'"],["text",", values: sine(SAMPLES, 2, 30, 70) },\n  { key: "],
+          ["string","'b'"],["text",", label: "],["string","'Cluster B'"],["text",", values: sine(SAMPLES, 3, 10, 50) },\n  { key: "],
+          ["string","'c'"],["text",", label: "],["string","'Cluster C'"],["text",", values: sine(SAMPLES, 1.5, 40, 90) },\n];\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," CORES: "],["keyword","readonly"],["text"," NeatSeries[] = Array.from({ length: 10 }, (_, index) => ({\n  key: "],
+          ["string","`core${index}`"],["text",",\n  label: "],
+          ["string","`Core ${index}`"],["text",",\n  values: sine(SAMPLES, 1 + index / 4, 5 + index * 3, 25 + index * 6),\n}));\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: "],["keyword","readonly"],["text"," NeatSeries[] = [\n  { key: "],
+          ["string","'mla'"],["text",", label: "],["string","'MLA'"],["text",", values: sine(SAMPLES, 3, 30, 90) },\n];\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," POWER: "],["keyword","readonly"],["text"," NeatSeries[] = [\n  { key: "],
+          ["string","'power'"],["text",", label: "],["string","'Power'"],["text",", values: sine(SAMPLES, 2.5, 8, 13) },\n];\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," POWER_AVERAGE: NeatReference = { value: 10.5, label: "],["string","'Session average 10.5 W'"],["text"," };\n\n"],
+          ["comment","/** A list of metrics, one compact chart a row: two that fill the window and one just started. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," ROWS = [\n  {\n    label: "],
+          ["string","'Core 0'"],["text",",\n    series: [{ key: "],
+          ["string","'core0'"],["text",", label: "],["string","'Core 0'"],["text",", values: sine(SAMPLES, 2, 20, 60) }],\n    times: TIMES,\n    value: "],
+          ["string","'42%'"],["text",",\n  },\n  {\n    label: "],
+          ["string","'Core 1'"],["text",",\n    series: [{ key: "],
+          ["string","'core1'"],["text",", label: "],["string","'Core 1'"],["text",", values: sine(SAMPLES, 3, 30, 70) }],\n    times: TIMES,\n    value: "],
+          ["string","'57%'"],["text",",\n  },\n  {\n    label: "],
+          ["string","'One sample'"],["text",",\n    series: [{ key: "],
+          ["string","'lone'"],["text",", label: "],["string","'One sample'"],["text",", values: [48] }],\n    times: [TIMES[0]],\n    value: "],
+          ["string","'48%'"],["text",",\n  },\n] "],
+          ["keyword","satisfies"],["text"," "],["keyword","readonly"],["text"," {\n  label: "],
+          ["keyword","string"],["text",";\n  series: "],
+          ["keyword","readonly"],["text"," NeatSeries[];\n  times: "],
+          ["keyword","readonly"],["text"," "],["keyword","number"],["text","[];\n  value: "],
+          ["keyword","string"],["text",";\n}[];\n"]
+        ]
+      },
+      {
+        "name": "chart-card.css",
+        "code": [
+          ["text",":host {\n  display: block;\n}\n\n"],
+          ["comment","/* The chart's labels carry a halo in the fill of the surface they sit on, so a card says which. */"],["text","\n.chart-card {\n  --neat-surface: var(--card);\n\n  padding: var(--neat-space-4);\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n  color: var(--card-foreground);\n}\n\n.chart-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));\n  gap: var(--neat-space-4);\n}\n"]
+        ]
+      },
+      {
+        "name": "shared-crosshair.example.css",
+        "code": [
+          ["comment","/* Four charts and the card that reports on them, two a row where there is room. */"],["text","\n.dashboard {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));\n  gap: var(--neat-space-4);\n}\n\n.report dl {\n  display: grid;\n  grid-template-columns: auto 1fr;\n  gap: var(--neat-space-2) var(--neat-space-4);\n  margin: 0 0 var(--neat-space-4);\n  font-size: var(--neat-text-sm);\n}\n\n.report dt {\n  color: var(--muted-foreground);\n}\n\n.report dd {\n  margin: 0;\n  font-variant-numeric: tabular-nums;\n}\n\n.actions {\n  display: flex;\n  flex-wrap: wrap;\n  gap: var(--neat-space-2);\n}\n"]
         ]
       }
     ]

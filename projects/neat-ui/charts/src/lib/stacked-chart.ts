@@ -5,6 +5,8 @@ import {
   computed,
   ElementRef,
   input,
+  model,
+  output,
   viewChild,
 } from '@angular/core';
 import { NeatSeriesSwatch, ɵREADOUT_CLASSES } from '@sima/neat-ui';
@@ -17,10 +19,14 @@ import {
   MISSING,
   type Readout,
   readoutAt,
+  linkHovered,
   sampleCursor,
+  sampleNear,
+  samplePick,
+  sampleTime,
   whenText,
 } from './readout';
-import type { NeatChartFormat, NeatSeries } from './types';
+import type { NeatChartFormat, NeatSamplePick, NeatSeries } from './types';
 
 /**
  * A total split into its parts over time, as bands stacked into one area:
@@ -48,7 +54,8 @@ import type { NeatChartFormat, NeatSeries } from './types';
  * nothing. The colours alone do not tell eight bands apart, which is what the legend is for.
  *
  * The plot is a tab stop that reads out like the time chart's: "Total", then each band, at the
- * sample the pointer or the keys chose, with the same keys and the same announcements.
+ * sample the pointer or the keys chose, with the same keys and the same announcements, and
+ * `hovered` and `activated` are the time chart's: a moment both ways, and a click's sample.
  */
 @Component({
   selector: 'neat-stacked-chart',
@@ -89,7 +96,8 @@ import type { NeatChartFormat, NeatSeries } from './types';
       (pointerleave)="cursor.pointerLeave()"
       (focus)="cursor.focus()"
       (blur)="cursor.blur()"
-      (keydown)="cursor.keydown($event)"
+      (keydown)="onKeydown($event)"
+      (click)="onClick($event)"
     >
       <svg viewBox="0 0 600 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
         @for (tick of grid(); track tick.value) {
@@ -165,6 +173,14 @@ export class NeatStackedChart {
   readonly headless = input(false, { transform: booleanAttribute });
   /** Whether the grid lines carry their values; the lines, the time axis and the readout stay. */
   readonly valueLabels = input(true, { transform: booleanAttribute });
+  /**
+   * The moment the readout is on (ms, a sample's time): the pointer's or the keys' sample while
+   * they hold one (null once they let go), or one the app sets, shown at the nearest sample, so
+   * charts bound to one `hovered` share a crosshair. Changes only when the sample does.
+   */
+  readonly hovered = model<number | null>(null);
+  /** A click on the plot, or Enter with focus: the sample, when it was taken and its values. */
+  readonly activated = output<NeatSamplePick>();
   /** Words a value with its unit, for the legend, the readout and the accessible name. */
   readonly format = input<NeatChartFormat>(String);
 
@@ -231,7 +247,15 @@ export class NeatStackedChart {
     length: this.length,
     fractions: this.fractions,
     spoken: (index) => this.readoutFor(index).spoken,
+    outside: () => {
+      const index = sampleNear(this.times(), this.length(), this.hovered());
+      return index < 0 ? null : index;
+    },
   });
+
+  constructor() {
+    linkHovered(this.cursor, this.hovered, (index) => sampleTime(this.times(), index));
+  }
 
   protected readonly readout = computed((): Readout | null => {
     const index = this.cursor.active();
@@ -254,5 +278,23 @@ export class NeatStackedChart {
   protected onPointerMove(event: MouseEvent): void {
     const fraction = fractionAcross(event, this.plot().nativeElement);
     if (fraction !== null) this.cursor.pointerTo(fraction);
+  }
+
+  /** A click reports the sample under it. */
+  protected onClick(event: MouseEvent): void {
+    const fraction = fractionAcross(event, this.plot().nativeElement);
+    const index = fraction === null ? null : this.cursor.at(fraction);
+    if (index !== null) this.activated.emit(samplePick(index, this.times(), this.lines()));
+  }
+
+  /** Enter reports the sample the readout is on, as a click would; the other keys move it. */
+  protected onKeydown(event: KeyboardEvent): void {
+    const index = this.cursor.active();
+    if (event.key === 'Enter' && index !== null) {
+      event.preventDefault();
+      this.activated.emit(samplePick(index, this.times(), this.lines()));
+      return;
+    }
+    this.cursor.keydown(event);
   }
 }

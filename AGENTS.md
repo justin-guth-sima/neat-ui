@@ -1192,8 +1192,14 @@ detection hand events back inside Angular's zone (`NgZone.run`), so an app's han
 other; continuous events (a pointer moving) at most once per animation frame, and only when they
 changed. Every widget that gets them gets a showcase example in which another component (a card)
 shows the state and drives it. Why: an app reacts to the widget without reaching into it, and
-every widget does it the same way. `neat-bev` is the first (`hovered`, `activated`,
-`pointerMove`).
+every widget does it the same way. `neat-bev` has `hovered`, `activated` and `pointerMove`. The
+time chart, the stacked chart and the label timeline name a moment (ms) in `hovered`, so charts
+bound to one signal share a crosshair (each shows its nearest sample, or the run covering the
+moment), and the heatmap names a cell (`NeatHeatmapCell`: row key and time); their `activated`
+reports a click or Enter (`NeatSamplePick`, `NeatHeatmapPick`, `NeatRunPick`). The charts share
+it through `charts/readout.ts`: the cursor's `own` (pointer or keys) and `outside` (the app's),
+and `linkHovered`, which writes `hovered` only from the chart's own cursor, so charts bound
+together never answer each other.
 
 **Every public part has a doc comment, and appears in the docs.**
 Why: the docs are generated from the comments, so an undocumented part is an empty entry, and a

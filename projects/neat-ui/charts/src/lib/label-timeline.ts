@@ -9,6 +9,8 @@ import {
   type ElementRef,
   inject,
   input,
+  model,
+  output,
   linkedSignal,
   signal,
   untracked,
@@ -22,7 +24,8 @@ import {
 import { isNumber } from './geometry';
 import { neatLabelColour } from './label-colour';
 import { type NameBox, placeNames } from './name-rows';
-import { fractionAcross, ReadoutCursor } from './readout';
+import { fractionAcross, linkHovered, ReadoutCursor } from './readout';
+import type { NeatRunPick } from './types';
 import { textWidth, watchWidth } from './strip-measure';
 
 /** A stretch of time in which a classifier kept giving one label. */
@@ -162,6 +165,11 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
  * run, Left and Right step to the run before or after it in time, Home and End go to the oldest and
  * the newest, and Escape hides the readout. Each key press, and only a key press, is repeated in a
  * polite live region.
+ *
+ * `hovered` is a moment (ms), both ways, as on the time charts: the strip sets it to the moment
+ * under the pointer (a run's middle while the keys hold one), and the app may set it, which reads
+ * out the run covering that moment, so a timeline shares a crosshair with time charts bound to the
+ * same signal. `activated` reports a click (or Enter): the run under it, if any, and the moment.
  */
 @Component({
   selector: 'neat-label-timeline',
@@ -172,7 +180,8 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
     '[attr.aria-label]': 'label()',
     '(focus)': 'cursor.focus()',
     '(blur)': 'cursor.blur()',
-    '(keydown)': 'cursor.keydown($event)',
+    '(keydown)': 'onKeydown($event)',
+    '(click)': 'onClick($event)',
   },
   template: `
     <div
@@ -180,7 +189,7 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
       class="names"
       aria-hidden="true"
       [style.--rows]="rows()"
-      (pointerleave)="cursor.pointerLeave()"
+      (pointerleave)="onPointerLeave()"
     >
       @for (name of names(); track name.key) {
         <span
@@ -205,7 +214,7 @@ const inSeconds = (ms: number) => Number((ms / 1000).toFixed(1));
       class="runs"
       role="list"
       (pointermove)="onPointerMove($event)"
-      (pointerleave)="cursor.pointerLeave()"
+      (pointerleave)="onPointerLeave()"
     >
       @for (bar of bars(); track $index) {
         <li
@@ -250,6 +259,13 @@ export class NeatLabelTimeline {
   readonly nowMs = input.required<number>();
   /** How much time the strip shows, in milliseconds. */
   readonly windowMs = input(30_000);
+  /**
+   * The moment the readout is on (ms): under the pointer, or a run's middle while the keys hold
+   * one (null once they let go), or one the app sets, which reads out the run covering it.
+   */
+  readonly hovered = model<number | null>(null);
+  /** A click on the strip, or Enter with focus: the run under it, if any, and the moment. */
+  readonly activated = output<NeatRunPick>();
   /** The colour order of the labels; empty means the order of first appearance in `runs`. */
   readonly labels = input<readonly string[]>([]);
   /** Labels drawn in the muted colour and never named, such as "No gesture". */
@@ -319,6 +335,11 @@ export class NeatLabelTimeline {
   private readonly loopFor = computed(() => (this.drawn().smooth ? this.drawn().update : -1));
 
   constructor() {
+    // `hovered` follows the cursor: the moment under the pointer, or a keyed run's middle.
+    linkHovered(this.cursor, this.hovered, (startMs) => {
+      const at = this.pointerAt();
+      return at !== null ? this.timeAt(at) : this.middleOf(startMs);
+    });
     const destroyRef = inject(DestroyRef);
     // The strip's width now, at each resize and once the fonts are in, each time with every name
     // measured again, since a resize may come with another font or zoom; read after rendering and
@@ -457,40 +478,108 @@ export class NeatLabelTimeline {
    * moves and older runs leave; the pointer is a place across the strip (0 to 1), so the readout
    * shows whichever run is under it as the runs slide by.
    */
-  protected readonly cursor = new ReadoutCursor<number, number>({
-    // The topmost run under the place: later runs are drawn over earlier ones.
-    under: (fraction) =>
-      lastOf(
-        this.bars(),
-        (bar) => fraction * 100 >= bar.left && fraction * 100 <= bar.left + bar.width,
-      )?.startMs ?? null,
-    // A chosen run that has left the strip hands over to the oldest one still on it.
-    fit: (startMs) => {
-      const runs = this.inTime();
-      if (!runs.length) return null;
-      if (this.barAt(startMs)) return startMs;
-      return (runs.find((bar) => bar.startMs >= startMs) ?? runs[runs.length - 1]).startMs;
+  protected readonly cursor = new ReadoutCursor<number, number>(
+    {
+      // The topmost run under the place: later runs are drawn over earlier ones.
+      under: (fraction) =>
+        lastOf(
+          this.bars(),
+          (bar) => fraction * 100 >= bar.left && fraction * 100 <= bar.left + bar.width,
+        )?.startMs ?? null,
+      // A chosen run that has left the strip hands over to the oldest one still on it.
+      fit: (startMs) => {
+        const runs = this.inTime();
+        if (!runs.length) return null;
+        if (this.barAt(startMs)) return startMs;
+        return (runs.find((bar) => bar.startMs >= startMs) ?? runs[runs.length - 1]).startMs;
+      },
+      start: () => {
+        const runs = this.inTime();
+        return runs.length ? runs[runs.length - 1].startMs : null;
+      },
+      after: (key, current) => {
+        const runs = this.inTime();
+        const last = runs.length - 1;
+        if (last < 0) return null;
+        // Hidden, an arrow brings the readout up at the newest run.
+        const index = current === null ? null : runs.findIndex((bar) => bar.startMs === current);
+        const next = {
+          ArrowLeft: index === null ? last : index - 1,
+          ArrowRight: index === null ? last : index + 1,
+          Home: 0,
+          End: last,
+        }[key];
+        return next === undefined ? null : runs[Math.min(last, Math.max(0, next))].startMs;
+      },
+      spoken: (startMs) => this.barAt(startMs)?.spoken ?? '',
     },
-    start: () => {
-      const runs = this.inTime();
-      return runs.length ? runs[runs.length - 1].startMs : null;
-    },
-    after: (key, current) => {
-      const runs = this.inTime();
-      const last = runs.length - 1;
-      if (last < 0) return null;
-      // Hidden, an arrow brings the readout up at the newest run.
-      const index = current === null ? null : runs.findIndex((bar) => bar.startMs === current);
-      const next = {
-        ArrowLeft: index === null ? last : index - 1,
-        ArrowRight: index === null ? last : index + 1,
-        Home: 0,
-        End: last,
-      }[key];
-      return next === undefined ? null : runs[Math.min(last, Math.max(0, next))].startMs;
-    },
-    spoken: (startMs) => this.barAt(startMs)?.spoken ?? '',
-  });
+    () => this.runCovering(this.hovered()),
+  );
+
+  /** Where the pointer is across the strip (0 to 1), for the moment `hovered` names. */
+  private readonly pointerAt = signal<number | null>(null);
+
+  /** The moment at `fraction` across the strip as drawn now, or null without a window. */
+  private timeAt(fraction: number): number | null {
+    const now = this.drawnNow();
+    const window = this.windowMs();
+    return isNumber(now) && isNumber(window) && window > 0 ? now - window * (1 - fraction) : null;
+  }
+
+  /** The middle of the drawn part of the run that starts at `startMs`. */
+  private middleOf(startMs: number): number | null {
+    const bar = this.barAt(startMs);
+    return bar ? this.timeAt((bar.left + bar.width / 2) / 100) : null;
+  }
+
+  /** The drawn run covering the moment `time` (its `startMs`), the later of two; null for none. */
+  private runCovering(time: number | null): number | null {
+    if (!isNumber(time)) return null;
+    let found: number | null = null;
+    for (const run of this.runs()) {
+      if (run.startMs <= time && time < run.endMs && this.barAt(run.startMs)) found = run.startMs;
+    }
+    return found;
+  }
+
+  /** What a click or Enter reports for the moment `time`: the run there, if any. */
+  private pick(time: number, startMs: number | null): NeatRunPick {
+    const bar = startMs === null ? undefined : this.barAt(startMs);
+    let run: NeatLabelRun | null = null;
+    if (bar) {
+      for (const each of this.runs()) {
+        if (each.startMs === startMs && each.label === bar.label) run = each;
+      }
+    }
+    return { run: run ? { label: run.label, startMs: run.startMs, endMs: run.endMs } : null, time };
+  }
+
+  protected onPointerLeave(): void {
+    this.pointerAt.set(null);
+    this.cursor.pointerLeave();
+  }
+
+  /** A click on the strip reports the run under it, if any, and the moment; elsewhere, nothing. */
+  protected onClick(event: MouseEvent): void {
+    const strip = event.target instanceof Element ? event.target.closest('.runs') : null;
+    if (!(strip instanceof HTMLElement)) return;
+    const fraction = fractionAcross(event, strip);
+    const time = fraction === null ? null : this.timeAt(fraction);
+    if (fraction === null || time === null) return;
+    this.activated.emit(this.pick(time, this.cursor.at(fraction)));
+  }
+
+  /** Enter reports the run the readout is on, at its middle, as a click there would. */
+  protected onKeydown(event: KeyboardEvent): void {
+    const startMs = this.cursor.active();
+    const time = startMs === null ? null : this.middleOf(startMs);
+    if (event.key === 'Enter' && startMs !== null && time !== null) {
+      event.preventDefault();
+      this.activated.emit(this.pick(time, startMs));
+      return;
+    }
+    this.cursor.keydown(event);
+  }
 
   protected readonly readout = computed((): RunReadout | null => {
     const startMs = this.cursor.active();
@@ -501,12 +590,17 @@ export class NeatLabelTimeline {
   /** The pointer on a run's name reads out that run, as the pointer at the run's middle would. */
   protected pointAtRun(startMs: number): void {
     const bar = this.barAt(startMs);
-    if (bar) this.cursor.pointerTo((bar.left + bar.width / 2) / 100);
+    if (!bar) return;
+    const middle = (bar.left + bar.width / 2) / 100;
+    this.pointerAt.set(middle);
+    this.cursor.pointerTo(middle);
   }
 
   protected onPointerMove(event: MouseEvent): void {
     const fraction = fractionAcross(event, event.currentTarget as HTMLElement);
-    if (fraction !== null) this.cursor.pointerTo(fraction);
+    if (fraction === null) return;
+    this.pointerAt.set(fraction);
+    this.cursor.pointerTo(fraction);
   }
 
   /** The axis, oldest tick first; the last is "now". */

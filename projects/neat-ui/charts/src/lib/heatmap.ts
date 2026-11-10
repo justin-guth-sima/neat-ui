@@ -1,11 +1,19 @@
 import { ɵREADOUT_CLASSES } from '@sima/neat-ui';
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, model, output } from '@angular/core';
 import { chartName, timeAxis } from './frame';
 import { isNumber } from './geometry';
-import { columnMeans, NEAT_HEATMAP_COLUMNS, newestInColumn } from './heatmap-columns';
+import { columnMeans, columnOf, NEAT_HEATMAP_COLUMNS, newestInColumn } from './heatmap-columns';
 import { textToken } from './line-token';
-import { describe, fractionAcross, ReadoutCursor, whenText } from './readout';
-import type { NeatChartFormat, NeatChartTone } from './types';
+import {
+  describe,
+  fractionAcross,
+  linkHovered,
+  ReadoutCursor,
+  sampleNear,
+  sampleTime,
+  whenText,
+} from './readout';
+import type { NeatChartFormat, NeatChartTone, NeatHeatmapCell, NeatHeatmapPick } from './types';
 
 /** One row of a heatmap: its samples become the cells, and `end` is the figure beside them. */
 export interface NeatHeatmapRow {
@@ -67,6 +75,10 @@ interface CellReadout extends Cell {
  * (Left and Right by column, Up and Down by row), Home and End go to the ends of its row, and
  * Escape hides the readout. Like the time chart's, each key press, and only a key press, is
  * repeated in a polite live region.
+ *
+ * `hovered` is the cell the readout is on, both ways (`NeatHeatmapCell`: its row's key and its
+ * column's time, so it needs `times`): the heatmap sets it while the pointer or the keys hold a
+ * cell, and the app may set it. `activated` reports a click (or Enter): the cell and its mean.
  */
 @Component({
   selector: 'neat-heatmap',
@@ -95,7 +107,8 @@ interface CellReadout extends Cell {
       (pointerleave)="cursor.pointerLeave()"
       (focus)="cursor.focus()"
       (blur)="cursor.blur()"
-      (keydown)="cursor.keydown($event)"
+      (keydown)="onKeydown($event)"
+      (click)="onClick($event)"
     >
       @for (row of shown(); track row.key; let r = $index) {
         <span class="name">{{ row.label }}</span>
@@ -154,6 +167,13 @@ export class NeatHeatmap {
   readonly domain = input<readonly [number, number]>([0, 100]);
   /** Words a value with its unit, for the ramp's ends and the readout. */
   readonly format = input<NeatChartFormat>(String);
+  /**
+   * The cell the readout is on: the pointer's or the keys' while they hold one (null once they let
+   * go), or one the app sets, by its row's key and a time its column covers. Needs `times`.
+   */
+  readonly hovered = model<NeatHeatmapCell | null>(null);
+  /** A click on a cell, or Enter with focus: its row, its time and its mean. */
+  readonly activated = output<NeatHeatmapPick>();
 
   /** Each row's cells: the mean of every column, and the fill that mean's place in the domain gives. */
   private readonly cells = computed(() => {
@@ -191,26 +211,87 @@ export class NeatHeatmap {
     chartName(this.label(), this.headline(), this.times(), this.length()),
   );
 
-  protected readonly cursor = new ReadoutCursor<Pointer, Cell>({
-    under: (pointer) => {
-      const row = Math.min(this.rows().length - 1, pointer.row);
-      const count = this.cells()[row]?.length ?? 0;
-      return count
-        ? { row, column: Math.min(count - 1, Math.floor(pointer.fraction * count)) }
-        : null;
+  protected readonly cursor = new ReadoutCursor<Pointer, Cell>(
+    {
+      under: (pointer) => {
+        const row = Math.min(this.rows().length - 1, pointer.row);
+        const count = this.cells()[row]?.length ?? 0;
+        return count
+          ? { row, column: Math.min(count - 1, Math.floor(pointer.fraction * count)) }
+          : null;
+      },
+      fit: (cell) => {
+        const row = Math.min(this.rows().length - 1, cell.row);
+        const count = this.cells()[row]?.length ?? 0;
+        return count ? { row, column: Math.min(count - 1, cell.column) } : null;
+      },
+      start: () => this.newestOf(0),
+      after: (key, current) => this.cellAfter(key, current),
+      spoken: (cell) => {
+        const { head, value } = this.readoutFor(cell);
+        return `${head}: ${value}`;
+      },
     },
-    fit: (cell) => {
-      const row = Math.min(this.rows().length - 1, cell.row);
-      const count = this.cells()[row]?.length ?? 0;
-      return count ? { row, column: Math.min(count - 1, cell.column) } : null;
-    },
-    start: () => this.newestOf(0),
-    after: (key, current) => this.cellAfter(key, current),
-    spoken: (cell) => {
-      const { head, value } = this.readoutFor(cell);
-      return `${head}: ${value}`;
-    },
-  });
+    () => this.cellNamed(this.hovered()),
+  );
+
+  constructor() {
+    linkHovered(this.cursor, this.hovered, (cell) => this.nameOf(cell), sameCell);
+  }
+
+  /** The cell `cell` names: its row by key, its column by the sample nearest its time. */
+  private cellNamed(cell: NeatHeatmapCell | null): Cell | null {
+    if (!cell) return null;
+    const row = this.rows().findIndex((each) => each.key === cell.row);
+    const means = this.cells()[row];
+    if (row < 0 || !means) return null;
+    const length = this.rows()[row].values.length;
+    const sample = sampleNear(this.times(), length, cell.time);
+    const column = columnOf(sample, length, means.length, this.times());
+    return column < 0 ? null : { row, column };
+  }
+
+  /** The time of the newest sample a cell's column shows, or null without one. */
+  private timeOf({ row, column }: Cell): number | null {
+    const length = this.rows()[row].values.length;
+    const means = this.cells()[row];
+    return sampleTime(this.times(), newestInColumn(column, length, means.length, this.times()));
+  }
+
+  /** A cell as `hovered` names it, or null when `times` do not place it. */
+  private nameOf(cell: Cell): NeatHeatmapCell | null {
+    const time = this.timeOf(cell);
+    return time === null ? null : { row: this.rows()[cell.row].key, time };
+  }
+
+  private pick(cell: Cell): NeatHeatmapPick {
+    return {
+      row: this.rows()[cell.row].key,
+      time: this.timeOf(cell),
+      value: this.cells()[cell.row][cell.column] ?? null,
+    };
+  }
+
+  /** A click on a row's cells reports the cell under it; one beside them reports nothing. */
+  protected onClick(event: MouseEvent): void {
+    const cells = event.target instanceof Element ? event.target.closest('.cells') : null;
+    if (!(cells instanceof HTMLElement)) return;
+    const row = Array.from(cells.parentElement?.querySelectorAll('.cells') ?? []).indexOf(cells);
+    const fraction = fractionAcross(event, cells);
+    const cell = row < 0 || fraction === null ? null : this.cursor.at({ row, fraction });
+    if (cell) this.activated.emit(this.pick(cell));
+  }
+
+  /** Enter reports the cell the readout is on, as a click would; the other keys move it. */
+  protected onKeydown(event: KeyboardEvent): void {
+    const cell = this.cursor.active();
+    if (event.key === 'Enter' && cell) {
+      event.preventDefault();
+      this.activated.emit(this.pick(cell));
+      return;
+    }
+    this.cursor.keydown(event);
+  }
 
   protected readonly readout = computed((): CellReadout | null => {
     const cell = this.cursor.active();
@@ -286,6 +367,11 @@ export class NeatHeatmap {
     const fraction = fractionAcross(event, event.currentTarget as HTMLElement);
     if (fraction !== null) this.cursor.pointerTo({ row, fraction });
   }
+}
+
+/** Whether two cells as `hovered` names them are the same. */
+function sameCell(a: NeatHeatmapCell | null, b: NeatHeatmapCell | null): boolean {
+  return a === b || (a !== null && b !== null && a.row === b.row && a.time === b.time);
 }
 
 /** The fill of a cell: the heat tokens mixed by the mean's place in the domain, or none for an empty cell. */

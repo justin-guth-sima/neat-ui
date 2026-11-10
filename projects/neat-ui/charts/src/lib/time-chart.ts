@@ -5,6 +5,8 @@ import {
   computed,
   ElementRef,
   input,
+  model,
+  output,
   viewChild,
 } from '@angular/core';
 import { NeatSeriesSwatch, ɵREADOUT_CLASSES } from '@sima/neat-ui';
@@ -24,7 +26,11 @@ import {
   fractionAcross,
   type Readout,
   readoutAt,
+  linkHovered,
   sampleCursor,
+  sampleNear,
+  samplePick,
+  sampleTime,
   whenText,
 } from './readout';
 import type {
@@ -32,6 +38,7 @@ import type {
   NeatChartFormat,
   NeatChartTone,
   NeatReference,
+  NeatSamplePick,
   NeatSeries,
   NeatThreshold,
 } from './types';
@@ -90,6 +97,10 @@ interface Level {
  * focus it shows the newest sample, and the arrow keys, Home and End move it and Escape hides it.
  * Each key press is repeated in a polite live region, so a screen reader hears the sample;
  * pointer moves are not.
+ *
+ * `hovered` is the moment the readout is on, both ways: the chart sets it while the pointer or the
+ * keys hold a sample, and the app may set it, so several charts bound to one signal share a
+ * crosshair. `activated` reports a click (or Enter): the sample's time and values.
  */
 @Component({
   selector: 'neat-time-chart',
@@ -130,7 +141,8 @@ interface Level {
       (pointerleave)="cursor.pointerLeave()"
       (focus)="cursor.focus()"
       (blur)="cursor.blur()"
-      (keydown)="cursor.keydown($event)"
+      (keydown)="onKeydown($event)"
+      (click)="onClick($event)"
     >
       <svg viewBox="0 0 600 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
         @for (tick of grid(); track tick.value) {
@@ -265,6 +277,14 @@ export class NeatTimeChart {
    * card's, where the labels would crowd the plot.
    */
   readonly valueLabels = input(true, { transform: booleanAttribute });
+  /**
+   * The moment the readout is on (ms, a sample's time): the pointer's or the keys' sample while
+   * they hold one (null once they let go), or one the app sets, shown at the nearest sample, so
+   * charts bound to one `hovered` share a crosshair. Changes only when the sample does.
+   */
+  readonly hovered = model<number | null>(null);
+  /** A click on the plot, or Enter with focus: the sample, when it was taken and its values. */
+  readonly activated = output<NeatSamplePick>();
   /** Words a value with its unit, for the legend, the readout and the accessible name. */
   readonly format = input<NeatChartFormat>(String);
 
@@ -390,7 +410,15 @@ export class NeatTimeChart {
     length: this.length,
     fractions: this.fractions,
     spoken: (index) => this.readoutFor(index).spoken,
+    outside: () => {
+      const index = sampleNear(this.times(), this.length(), this.hovered());
+      return index < 0 ? null : index;
+    },
   });
+
+  constructor() {
+    linkHovered(this.cursor, this.hovered, (index) => sampleTime(this.times(), index));
+  }
 
   protected readonly readout = computed((): Readout | null => {
     const index = this.cursor.active();
@@ -416,5 +444,23 @@ export class NeatTimeChart {
   protected onPointerMove(event: MouseEvent): void {
     const fraction = fractionAcross(event, this.plot().nativeElement);
     if (fraction !== null) this.cursor.pointerTo(fraction);
+  }
+
+  /** A click reports the sample under it. */
+  protected onClick(event: MouseEvent): void {
+    const fraction = fractionAcross(event, this.plot().nativeElement);
+    const index = fraction === null ? null : this.cursor.at(fraction);
+    if (index !== null) this.activated.emit(samplePick(index, this.times(), this.lines()));
+  }
+
+  /** Enter reports the sample the readout is on, as a click would; the other keys move it. */
+  protected onKeydown(event: KeyboardEvent): void {
+    const index = this.cursor.active();
+    if (event.key === 'Enter' && index !== null) {
+      event.preventDefault();
+      this.activated.emit(samplePick(index, this.times(), this.lines()));
+      return;
+    }
+    this.cursor.keydown(event);
   }
 }

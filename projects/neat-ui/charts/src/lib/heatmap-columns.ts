@@ -122,3 +122,19 @@ export function newestInColumn(
   const ordered = orderedTimes(times, length);
   return columnSamples(length, columns, ordered)[column]?.at(-1) ?? -1;
 }
+
+/**
+ * The column that shows the sample at `sample`, the first of two that show it (a jitter hole
+ * repeats its previous column); -1 when none does. The inverse of `newestInColumn`, for finding the
+ * cell an app names by a time.
+ */
+export function columnOf(
+  sample: number,
+  length: number,
+  columns: number,
+  times: readonly (number | null)[] = [],
+): number {
+  if (sample < 0) return -1;
+  const ordered = orderedTimes(times, length);
+  return columnSamples(length, columns, ordered).findIndex((indices) => indices.includes(sample));
+}

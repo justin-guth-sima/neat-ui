@@ -1,0 +1,29 @@
+/* Four charts and the card that reports on them, two a row where there is room. */
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--neat-space-4);
+}
+
+.report dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--neat-space-2) var(--neat-space-4);
+  margin: 0 0 var(--neat-space-4);
+  font-size: var(--neat-text-sm);
+}
+
+.report dt {
+  color: var(--muted-foreground);
+}
+
+.report dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--neat-space-2);
+}

@@ -23,7 +23,11 @@ export type {
   NeatChartAxis,
   NeatChartFormat,
   NeatChartTone,
+  NeatHeatmapCell,
+  NeatHeatmapPick,
   NeatReference,
+  NeatRunPick,
+  NeatSamplePick,
   NeatSeries,
   NeatThreshold,
 } from './lib/types';
