@@ -251,6 +251,9 @@ is the doc comment, and the snippet under an example is the file that renders it
   its topic's docs page. `npm run test:tools` fails when it is stale or a pick has no picture. The
   README's quick start repeats the Getting started page's four snippets, and that page's spec
   holds them to it.
+- **Links stay whole:** `tools/markdown-links.mjs`, in `npm run test:tools`, fails a relative link
+  or picture in README.md, CONTRIBUTING.md, AGENTS.md or `docs/` that names no file, or an
+  `#anchor` that names no heading of its Markdown file (anchors as GitHub makes them).
 - `provideNeatUi` and `provideNeatTitles` configure an app once, in its `app.config.ts`, and
   `NeatToastHost` is rendered once, in its root template, so no example can show them without
   faking their use (a second host would show every toast twice); `docs.spec.ts` names them as
