@@ -185,6 +185,7 @@
           [neatDiagramEdgeLabelBox]="edge.id"
           [class.dim]="focus !== null && !focus.edges.has(edge.id)"
           [attr.data-edge]="edge.id"
+          [attr.data-side]="label.side"
           [style.left.px]="label.at.x"
           [style.top.px]="label.at.y"
           >{{ label.text }}</code

@@ -515,6 +515,43 @@ describe('layoutEdges, edges that share a loop', () => {
   });
 });
 
+describe('layoutEdges, placed by the app', () => {
+  it('pins a port where `fromAt` and `toAt` say along its side', () => {
+    const level: NeatDiagram = {
+      nodes: [block('a', 0, 0), block('b', 300, 0)],
+      edges: [{ ...edge('one', 'a', 'b'), fromAt: 0.25, toAt: 1 }, edge('two', 'a', 'b')],
+    };
+    const one = layoutEdges(level).get('one')!;
+    // Right side of a (x 100, y 0 to 100), a quarter down; left side of b, at its bottom.
+    expect(one.source).toEqual({ x: 100, y: 25 });
+    expect(one.target).toEqual({ x: 300, y: 100 });
+  });
+
+  it('runs an edge with `via` through its corners, and spreads no corridor for it', () => {
+    const via = [
+      { x: 150, y: 50 },
+      { x: 150, y: -60 },
+      { x: 250, y: -60 },
+      { x: 250, y: 50 },
+    ];
+    const level: NeatDiagram = {
+      nodes: [block('a', 0, 0), block('b', 300, 0)],
+      edges: [{ ...edge('one', 'a', 'b'), via }],
+    };
+    const one = layoutEdges(level).get('one')!;
+    expect(one.points).toEqual([one.source, ...via, one.target]);
+    expect(one.path.startsWith(`M ${one.source.x} ${one.source.y}`)).toBe(true);
+  });
+
+  it('routes an edge itself when its `via` holds a point that is no number', () => {
+    const level: NeatDiagram = {
+      nodes: [block('a', 0, 0), block('b', 300, 0)],
+      edges: [{ ...edge('one', 'a', 'b'), via: [{ x: Number.NaN, y: 0 }] }],
+    };
+    expect(layoutEdges(level).get('one')!.points).toHaveLength(2);
+  });
+});
+
 describe('layoutEdges, facing boxes that overlap across', () => {
   /** Whether a port lies on its node's side, within the side's extent. */
   const onItsSide = (diagram: NeatDiagram, id: string, end: 'source' | 'target'): boolean => {

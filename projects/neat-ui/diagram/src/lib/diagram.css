@@ -91,6 +91,7 @@
 /* --- edge labels and notes, in front of the blocks --- */
 
 /* A short mono chip centred on its point of the route. */
+/* A label stands at its point by its side: centred on it, or with an edge on it (drawing.ts). */
 .edge-label {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -102,6 +103,22 @@
   font-size: var(--neat-text-xs);
   line-height: 1.4;
   white-space: nowrap;
+}
+
+.edge-label[data-side='above'] {
+  transform: translate(-50%, -100%);
+}
+
+.edge-label[data-side='below'] {
+  transform: translate(-50%, 0);
+}
+
+.edge-label[data-side='left'] {
+  transform: translate(-100%, -50%);
+}
+
+.edge-label[data-side='right'] {
+  transform: translate(0, -50%);
 }
 
 /*

@@ -8,6 +8,7 @@ import { FillingItsCard } from '../../../examples/diagram/5-filling-its-card.exa
 import { EdgeSides } from '../../../examples/diagram/6-edge-sides.example';
 import { DiagramFromTheApp } from '../../../examples/diagram/7-from-the-app.example';
 import { ParallelLoops } from '../../../examples/diagram/8-parallel-loops.example';
+import { PlacedByTheApp } from '../../../examples/diagram/9-placed-by-the-app.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -1239,6 +1240,102 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'./diagram-box.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ParallelLoops {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," loops = LOOPS;\n}\n"]
+        ]
+      },
+      {
+        "name": "diagram-box.css",
+        "code": [
+          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
+          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 4:3 up to 40rem, so a\n * phone's narrow box does not stand tall and empty around a drawing its width shrinks.\n */"],
+          ["text","\n.diagram {\n  "],
+          ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
+          ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n\n"],
+          ["comment","/* A figure the app puts after a bracket's label: small, quiet, steady digits. */"],["text","\n.bracket-figure {\n  font-size: var(--neat-text-xs);\n  color: var(--muted-foreground);\n  font-variant-numeric: tabular-nums;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "placed-by-the-app",
+    "title": "Placed by the app",
+    "component": PlacedByTheApp,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "What an app places itself, where the kit's routing is not what it wants: an edge's label beside its line ("
+          },
+          {
+            "kind": "code",
+            "text": "labelSide"
+          },
+          {
+            "kind": "text",
+            "text": ", here below a long one so it keeps the line's height free), an end pinned along its side ("
+          },
+          {
+            "kind": "code",
+            "text": "fromAt"
+          },
+          {
+            "kind": "text",
+            "text": ", "
+          },
+          {
+            "kind": "code",
+            "text": "toAt"
+          },
+          {
+            "kind": "text",
+            "text": "), and a route through corners of the app's ("
+          },
+          {
+            "kind": "code",
+            "text": "via"
+          },
+          {
+            "kind": "text",
+            "text": "), here over the Encoder from the Camera's top to the Archive's. Labels, the tips, hover and the messages follow the route as they do the kit's own."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/diagram#NeatDiagramView",
+      "@sima/neat-ui/diagram#NeatDiagramSet"
+    ],
+    "files": [
+      {
+        "name": "9-placed-by-the-app.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatDiagramView, "],["keyword","type"],["text"," NeatDiagramSet } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
+          ["comment","/** A camera feeding an encoder, and a copy routed by hand round the encoder to the archive. */"],["text","\n"],
+          ["keyword","const"],["text"," PLACED: NeatDiagramSet = {\n  overview: {\n    nodes: [\n      { id: "],
+          ["string","'camera'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Camera'"],["text",", x: 0, y: 60, w: 150, h: 46 },\n      { id: "],
+          ["string","'encoder'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Encoder'"],["text",", x: 400, y: 60, w: 150, h: 46 },\n      { id: "],
+          ["string","'archive'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Archive'"],["text",", x: 800, y: 60, w: 150, h: 46 },\n    ],\n    edges: [\n      {\n        id: "],
+          ["string","'frames'"],["text",",\n        from: "],
+          ["string","'camera'"],["text",",\n        to: "],
+          ["string","'encoder'"],["text",",\n        series: 1,\n        label: "],
+          ["string","'raw frames, 1080p at 30 fps'"],["text",",\n        labelSide: "],
+          ["string","'below'"],["text",",\n      },\n      { id: "],
+          ["string","'stream'"],["text",", from: "],["string","'encoder'"],["text",", to: "],["string","'archive'"],["text",", series: 2, label: "],["string","'H.264'"],["text"," },\n      {\n        id: "],
+          ["string","'copy'"],["text",",\n        from: "],
+          ["string","'camera'"],["text",",\n        to: "],
+          ["string","'archive'"],["text",",\n        series: 3,\n        label: "],
+          ["string","'untouched copy'"],["text",",\n        labelSide: "],
+          ["string","'above'"],["text",",\n        fromSide: "],
+          ["string","'top'"],["text",",\n        toSide: "],
+          ["string","'top'"],["text",",\n        fromAt: 0.75,\n        toAt: 0.25,\n        via: [\n          { x: 112.5, y: 0 },\n          { x: 837.5, y: 0 },\n        ],\n      },\n    ],\n  },\n};\n\n@Component({\n  selector: "],
+          ["string","'app-placed-by-the-app'"],["text",",\n  imports: [NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`<neat-diagram\n    class=\"diagram\"\n    [diagram]=\"placed\"\n    label=\"Edges placed by the app\"\n    highlight=\"edges\"\n  />`"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./diagram-box.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," PlacedByTheApp {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," placed = PLACED;\n}\n"]
         ]
       },
       {

@@ -1,4 +1,4 @@
-import { drawLevel, LABEL_CORNER, labelCovers } from './drawing';
+import { drawLevel, LABEL_CORNER, LABEL_GAP, labelCovers } from './drawing';
 import type { NeatDiagram } from './model';
 
 /** Two blocks joined straight across, the edge labelled at its middle, and one unlabelled. */
@@ -42,5 +42,43 @@ describe('labelCovers', () => {
   it('has nothing for a label not measured yet, nor for an edge without a label', () => {
     expect(labelCovers(edges, new Map())).toEqual([]);
     expect(labelCovers(edges, new Map([['plain', { w: 50, h: 18 }]]))).toEqual([]);
+  });
+});
+
+describe('a label beside its line', () => {
+  /** The `tokens` edge's label, its edge given more. */
+  const labelled = (more: object) =>
+    drawLevel(
+      {
+        ...LEVEL,
+        edges: [{ ...LEVEL.edges[0], ...more }, LEVEL.edges[1]],
+      },
+      new Set(),
+    ).edges;
+  const on = labelled({}).find((edge) => edge.id === 'tokens')!.label!.at;
+
+  it('stands a gap off the line on its side, its near edge at that point', () => {
+    const edges = labelled({ labelSide: 'below' });
+    const label = edges.find((edge) => edge.id === 'tokens')!.label!;
+    expect(label.side).toBe('below');
+    expect(label.at).toEqual({ x: on.x, y: on.y + LABEL_GAP });
+    // Its top edge is at the point: the line, a gap above, stays clear of it.
+    const [cover] = labelCovers(edges, new Map([['tokens', { w: 50, h: 18 }]]));
+    expect(cover).toEqual({ x: on.x - 25, y: on.y + LABEL_GAP, w: 50, h: 18, corner: 0.5 });
+    expect(cover.y).toBeGreaterThan(on.y);
+  });
+
+  it('moves further by its offset, and stays on the line for an unknown side', () => {
+    const moved = labelled({ labelSide: 'left', labelOffset: { x: -10, y: 5 } });
+    const label = moved.find((edge) => edge.id === 'tokens')!.label!;
+    expect(label.at).toEqual({ x: on.x - LABEL_GAP - 10, y: on.y + 5 });
+    const [cover] = labelCovers(moved, new Map([['tokens', { w: 50, h: 18 }]]));
+    expect(cover.x + cover.w).toBeCloseTo(label.at.x);
+    const odd = labelled({ labelSide: 'sideways' });
+    expect(odd.find((edge) => edge.id === 'tokens')!.label).toEqual({
+      text: 'tokens',
+      at: on,
+      side: 'on',
+    });
   });
 });

@@ -10,6 +10,7 @@ import {
 import type {
   NeatDiagram,
   NeatDiagramEdge,
+  NeatDiagramLabelSide,
   NeatDiagramLine,
   NeatDiagramLook,
   NeatDiagramNode,
@@ -60,8 +61,17 @@ export interface DrawnEdge {
   readonly colour: string;
   readonly line: NeatDiagramLine;
   readonly tips: readonly DrawnTip[];
-  /** Its label and the point of the route it is centred on. */
-  readonly label: { readonly text: string; readonly at: Point } | null;
+  /**
+   * Its label: the point it stands at (its route's point at `labelAt`, moved `LABEL_GAP` off the
+   * line for a side and by `labelOffset`), and which of its edges or its middle is there: the
+   * middle for `on`, its bottom edge for `above`, its top for `below`, its right for `left` and
+   * its left for `right` (`.edge-label[data-side]`).
+   */
+  readonly label: {
+    readonly text: string;
+    readonly at: Point;
+    readonly side: NeatDiagramLabelSide;
+  } | null;
 }
 
 export interface DrawnLevel {
@@ -169,7 +179,36 @@ function drawEdge(edge: NeatDiagramEdge, layout: EdgeLayout): DrawnEdge {
     label:
       edge.label === undefined
         ? null
-        : { text: edge.label, at: pointAlong(layout.points, edge.labelAt ?? 0.5) },
+        : labelAt(edge.label, pointAlong(layout.points, edge.labelAt ?? 0.5), edge),
+  };
+}
+
+/** How far a label beside its line stands off it, in diagram units. */
+export const LABEL_GAP = 4;
+
+/** The way a label beside its line is moved off it, by side. */
+const OFF: Record<NeatDiagramLabelSide, Point> = {
+  on: { x: 0, y: 0 },
+  above: { x: 0, y: -1 },
+  below: { x: 0, y: 1 },
+  left: { x: -1, y: 0 },
+  right: { x: 1, y: 0 },
+};
+
+/** A label at the point `on` of its route, placed by its edge's `labelSide` and `labelOffset`. */
+function labelAt(
+  text: string,
+  on: Point,
+  edge: NeatDiagramEdge,
+): { text: string; at: Point; side: NeatDiagramLabelSide } {
+  const side = edge.labelSide && edge.labelSide in OFF ? edge.labelSide : 'on';
+  const offset = edge.labelOffset;
+  const dx = offset && Number.isFinite(offset.x) ? offset.x : 0;
+  const dy = offset && Number.isFinite(offset.y) ? offset.y : 0;
+  return {
+    text,
+    side,
+    at: { x: on.x + OFF[side].x * LABEL_GAP + dx, y: on.y + OFF[side].y * LABEL_GAP + dy },
   };
 }
 
@@ -178,9 +217,9 @@ export const LABEL_CORNER = 0.5;
 
 /**
  * The boxes the dots pass behind for the edge labels, in diagram units: each measured label's
- * border box (`sizes`, by edge id; centred on its point, as `.edge-label` is) with the label's own
- * corner radius, so a dot is hidden exactly where the label is drawn, as the edge's line is under
- * it. A label not measured yet has none.
+ * border box (`sizes`, by edge id; at its point by its side, as `.edge-label[data-side]` is) with
+ * the label's own corner radius, so a dot is hidden exactly where the label is drawn, as the edge's
+ * line is under it. A label not measured yet has none.
  */
 export function labelCovers(
   edges: readonly DrawnEdge[],
@@ -189,10 +228,18 @@ export function labelCovers(
   return edges.flatMap(({ id, label }) => {
     const size = label && sizes.get(id);
     if (!label || !size) return [];
+    // Where the point lies in the box, 0 to 1 across and down: the same as the CSS's translate.
+    const [fx, fy] = {
+      on: [0.5, 0.5],
+      above: [0.5, 1],
+      below: [0.5, 0],
+      left: [1, 0.5],
+      right: [0, 0.5],
+    }[label.side];
     return [
       {
-        x: label.at.x - size.w / 2,
-        y: label.at.y - size.h / 2,
+        x: label.at.x - size.w * fx,
+        y: label.at.y - size.h * fy,
         w: size.w,
         h: size.h,
         corner: LABEL_CORNER,

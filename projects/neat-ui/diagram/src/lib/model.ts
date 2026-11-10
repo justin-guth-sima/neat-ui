@@ -35,6 +35,9 @@ export type NeatDiagramTip = 'none' | 'arrow' | 'dot';
  */
 export type NeatDiagramHighlight = 'none' | 'edges' | 'all';
 
+/** Where an edge's label sits at its point: on the line, or beside it. */
+export type NeatDiagramLabelSide = 'on' | 'above' | 'below' | 'left' | 'right';
+
 /** A part of a diagram as `hovered` and `activated` name it: a block or an edge, by its id. */
 export interface NeatDiagramPart {
   readonly kind: 'block' | 'edge';
@@ -130,6 +133,30 @@ export interface NeatDiagramEdge {
   readonly fromSide?: NeatDiagramSide;
   /** The side of `to` this edge enters on, as `fromSide` is for the leaving end (`inSide`). */
   readonly toSide?: NeatDiagramSide;
+  /**
+   * Where along its side the edge leaves `from`, 0 at the side's start (its top, or its left) to
+   * 1 at its end; unset, the kit spreads the side's ports itself. The other ports on the side keep
+   * their places, so two edges pinned to one place meet there.
+   */
+  readonly fromAt?: number;
+  /** Where along its side the edge enters `to`, as `fromAt` is for the leaving end. */
+  readonly toAt?: number;
+  /**
+   * The corners the edge runs through between its ports, in order, in the level's coordinates
+   * (as the level's top nodes are placed); drawn straight from one to the next with the kit's
+   * rounded turns, so corners in line with each other give an axis-parallel route. Unset, the kit
+   * routes the edge itself. An edge with `via` is the app's: the kit spreads no corridor or loop
+   * for it.
+   */
+  readonly via?: readonly { readonly x: number; readonly y: number }[];
+  /**
+   * Where the label sits at its point (`labelAt`): `on` the line (the default, the line passing
+   * under it), or beside it, `above`, `below`, `left` or `right`, a small gap away, the line
+   * showing past it.
+   */
+  readonly labelSide?: NeatDiagramLabelSide;
+  /** Moves the label further, in diagram units, after `labelSide` has placed it. */
+  readonly labelOffset?: { readonly x: number; readonly y: number };
   /** The app's, never read by the kit. */
   readonly data?: unknown;
 }

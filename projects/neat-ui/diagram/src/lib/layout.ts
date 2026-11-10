@@ -237,12 +237,20 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
     ends.filter(
       ({ edge, inward }) =>
         inward === null &&
+        edge.fromAt === undefined &&
+        edge.toAt === undefined &&
+        edge.via === undefined &&
         nodes.get(edge.from)?.role !== 'frame' &&
         nodes.get(edge.to)?.role !== 'frame',
     ),
     sides,
     rects,
   );
+  // An end the app pins goes where it says along its side; the side's other ports stay.
+  for (const { edge, source, target } of ends) {
+    pin(source, edge.fromAt, rectOf(source.node));
+    pin(target, edge.toAt, rectOf(target.node));
+  }
 
   // A frame's port on its own border leads inward: the route takes the border's opposite side.
   const routes: Route[] = ends.map(({ edge, source, target, inward }) => ({
@@ -259,11 +267,32 @@ export function layoutEdges(diagram: NeatDiagram): Map<string, EdgeLayout> {
 
   return new Map(
     routes.map(({ edge, source, sourceSide, target, targetSide, jog, stubs }) => {
-      const points = routePoints(source, sourceSide, target, targetSide, jog, stubs);
+      const via = validVia(edge);
+      const points = via
+        ? [source, ...via, target]
+        : routePoints(source, sourceSide, target, targetSide, jog, stubs);
       const path = pathThrough(points);
       return [edge.id, { source, sourceSide, target, targetSide, path, points }];
     }),
   );
+}
+
+/** `end` at `at` along its side (0 at its top or left, 1 at its bottom or right), when given. */
+function pin(end: End, at: number | undefined, rect: Rect): void {
+  if (at === undefined || !Number.isFinite(at)) return;
+  const length = horizontal(end.side) ? rect.h : rect.w;
+  end.offset = (Math.min(1, Math.max(0, at)) - 0.5) * length;
+}
+
+/** An edge's `via` as points, when it gives any that are all finite; else null (the kit routes). */
+function validVia(edge: NeatDiagramEdge): Point[] | null {
+  const via = edge.via;
+  if (!via?.length) return null;
+  if (!via.every((p) => Number.isFinite(p.x) && Number.isFinite(p.y))) {
+    reportLeftOut(`edge "${edge.id}" has a "via" point that is no number: the kit routes it`);
+    return null;
+  }
+  return via.map(({ x, y }) => ({ x, y }));
 }
 
 /** The key of a node's side, for the ports on it. */
@@ -412,7 +441,7 @@ function spreadCorridors(routes: Route[]): void {
   };
   const bySide = new Map<string, Route>();
   for (const route of routes) {
-    if (!isZ(route)) continue;
+    if (!isZ(route) || route.edge.via?.length) continue;
     corridor.set(route, route);
     const { from, to } = route.edge;
     for (const key of [`${from}\u0000${route.sourceSide}`, `${to}\u0000${route.targetSide}`]) {
@@ -449,14 +478,15 @@ function spreadCorridors(routes: Route[]): void {
  * staircase does. Which is outer follows the ports the layout already placed.
  */
 function spreadLoops(routes: Route[]): void {
-  for (const group of groupsBySide(routes, (r) => r.sourceSide === r.targetSide)) {
+  const sameWay = (r: Route) => r.sourceSide === r.targetSide && !validVia(r.edge);
+  for (const group of groupsBySide(routes, sameWay)) {
     // The narrower span is the inner U: closest to the blocks.
     const along = (r: Route) => (horizontal(r.sourceSide) ? 'y' : 'x');
     const span = (r: Route) => Math.abs(r.target[along(r)] - r.source[along(r)]);
     group.sort((p, q) => span(p) - span(q));
     group.forEach((r, i) => (r.jog = i * LOOP_STEP));
   }
-  for (const group of groupsBySide(routes, isBehind)) {
+  for (const group of groupsBySide(routes, (r) => isBehind(r) && !validVia(r.edge))) {
     // Across the sides (y for left and right), the way the route steps from source to target.
     const across = (r: Route) => (horizontal(r.sourceSide) ? 'y' : 'x');
     const way = (r: Route) => Math.sign(r.target[across(r)] - r.source[across(r)]) || 1;

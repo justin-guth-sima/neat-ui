@@ -585,6 +585,174 @@ export const API: DocsEntry = {
           ]
         },
         {
+          "name": "fromAt",
+          "type": "number",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Where along its side the edge leaves "
+                },
+                {
+                  "kind": "code",
+                  "text": "from"
+                },
+                {
+                  "kind": "text",
+                  "text": ", 0 at the side's start (its top, or its left) to 1 at its end; unset, the kit spreads the side's ports itself. The other ports on the side keep their places, so two edges pinned to one place meet there."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "toAt",
+          "type": "number",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Where along its side the edge enters "
+                },
+                {
+                  "kind": "code",
+                  "text": "to"
+                },
+                {
+                  "kind": "text",
+                  "text": ", as "
+                },
+                {
+                  "kind": "code",
+                  "text": "fromAt"
+                },
+                {
+                  "kind": "text",
+                  "text": " is for the leaving end."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "via",
+          "type": "readonly { readonly x: number; readonly y: number }[]",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The corners the edge runs through between its ports, in order, in the level's coordinates (as the level's top nodes are placed); drawn straight from one to the next with the kit's rounded turns, so corners in line with each other give an axis-parallel route. Unset, the kit routes the edge itself. An edge with "
+                },
+                {
+                  "kind": "code",
+                  "text": "via"
+                },
+                {
+                  "kind": "text",
+                  "text": " is the app's: the kit spreads no corridor or loop for it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "labelSide",
+          "type": "NeatDiagramLabelSide",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Where the label sits at its point ("
+                },
+                {
+                  "kind": "code",
+                  "text": "labelAt"
+                },
+                {
+                  "kind": "text",
+                  "text": "): "
+                },
+                {
+                  "kind": "code",
+                  "text": "on"
+                },
+                {
+                  "kind": "text",
+                  "text": " the line (the default, the line passing under it), or beside it, "
+                },
+                {
+                  "kind": "code",
+                  "text": "above"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "below"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "left"
+                },
+                {
+                  "kind": "text",
+                  "text": " or "
+                },
+                {
+                  "kind": "code",
+                  "text": "right"
+                },
+                {
+                  "kind": "text",
+                  "text": ", a small gap away, the line showing past it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "labelOffset",
+          "type": "{ readonly x: number; readonly y: number }",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Moves the label further, in diagram units, after "
+                },
+                {
+                  "kind": "code",
+                  "text": "labelSide"
+                },
+                {
+                  "kind": "text",
+                  "text": " has placed it."
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "data",
           "type": "unknown",
           "optional": true,
@@ -778,6 +946,23 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": ", the same for a block and the edges that join it too."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/model.ts"
+    },
+    {
+      "name": "NeatDiagramLabelSide",
+      "kind": "type",
+      "definition": "'on' | 'above' | 'below' | 'left' | 'right'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Where an edge's label sits at its point: on the line, or beside it."
             }
           ]
         }
