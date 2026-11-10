@@ -2,7 +2,8 @@
 
 Guidance for anyone (human or agent) working in this repository or building an app on `@sima/neat-ui`.
 The rules below come with their reasons; if a reason does not apply to your situation, the escape
-hatch says what to do instead of working around the rule.
+hatch says what to do instead of working around the rule. Everything you write for people to read
+(docs, doc comments, examples, this file) follows [docs/writing.md](docs/writing.md).
 
 ## What this repo is
 
@@ -1212,6 +1213,14 @@ together never answer each other. The diagram's `hovered` is the part in focus
 (`NeatDiagramPart`: a block or an edge by id), the pointer's or the keyboard's, or the app's while
 they are on none, shown as `highlight` allows; its `activated` reports a click on a block or an
 edge (`NeatDiagramPick`).
+
+**Write for people first, in American English, as [docs/writing.md](docs/writing.md) says.**
+The README, the docs, the showcase's text, doc comments and example descriptions open with what a
+person needs (what it is, a picture, the shortest example, when to use it) and keep every detail,
+rule and reason below it or one link away: layered, not trimmed. Why: many who read the kit work
+without an agent, and an agent loses nothing when the detail stays. `npm run test:tools` fails on
+the British spellings the repo used to have (`tools/spelling.mjs`); HTML's `aria-labelledby` and the
+deprecated aliases `neatLabelColour` and the diagram messages' `colours` are the only exceptions.
 
 **Every public part has a doc comment, and appears in the docs.**
 Why: the docs are generated from the comments, so an undocumented part is an empty entry, and a
