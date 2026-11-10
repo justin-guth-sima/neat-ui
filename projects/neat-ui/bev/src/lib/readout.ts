@@ -2,10 +2,11 @@ import { metresText } from './geometry';
 import type { NeatBevObject } from './model';
 
 /*
- * The readout of the object under the pointer: its label beside a swatch of its colour, its
- * distance from the vehicle and the app's text for it, in a box beside it. Written straight to the
- * DOM from the frame that draws the object, outside change detection, and only what changed, since
- * the object may move on every frame.
+ * The readout of the object under the pointer: its label, its distance from the vehicle and the
+ * app's text for it, in a box beside it. Written straight to the DOM from the frame that draws the
+ * object, outside change detection, and only what changed, since the object may move on every
+ * frame. The swatch of its colour beside the label is the component's (`neat-swatch`), bound to a
+ * signal that changes only when another object is read out.
  */
 
 /** How far the box stands from the object's centre, CSS px. */
@@ -33,33 +34,21 @@ export function distanceText(object: NeatBevObject): string {
 
 export class BevReadout {
   private shown = false;
-  private readonly lines = { name: '', distance: '', text: '', colour: '' };
+  private readonly lines = { name: '', distance: '', text: '' };
 
   constructor(
     private readonly box: HTMLElement,
-    private readonly swatch: HTMLElement,
     private readonly name: HTMLElement,
     private readonly distance: HTMLElement,
     private readonly text: HTMLElement,
   ) {}
 
-  /** Shows `object` in `colour`, its centre at (`x`, `y`) in a box `width` × `height` px. */
-  show(
-    object: NeatBevObject,
-    colour: string,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-  ): void {
+  /** Shows `object`, its centre at (`x`, `y`) in a box `width` × `height` px. */
+  show(object: NeatBevObject, x: number, y: number, width: number, height: number): void {
     this.write('name', this.name, object.label);
     this.write('distance', this.distance, distanceText(object));
     this.write('text', this.text, object.text ?? '');
     this.text.hidden = !object.text;
-    if (colour !== this.lines.colour) {
-      this.lines.colour = colour;
-      this.swatch.style.background = colour;
-    }
     if (!this.shown) {
       this.shown = true;
       this.box.hidden = false;

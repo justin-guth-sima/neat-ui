@@ -22,6 +22,7 @@ import {
   NeatIcon,
   neatThemeColors,
   type NeatRgb,
+  NeatSwatch,
   NeatTooltip,
   ThemeService,
   ɵNeatOverlayColors as NeatOverlayColors,
@@ -103,7 +104,7 @@ const TOKENS = {
 @Component({
   selector: 'neat-bev',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NeatButton, NeatIcon, NeatTooltip],
+  imports: [NeatButton, NeatIcon, NeatSwatch, NeatTooltip],
   host: {
     role: 'figure',
     '[attr.aria-label]': 'label()',
@@ -137,7 +138,7 @@ const TOKENS = {
     <!-- The object under the pointer; filled and placed by each frame, not by change detection. -->
     <div #readout class="readout" aria-hidden="true" hidden [class]="readoutClasses.box">
       <span [class]="readoutClasses.row"
-        ><span #swatch class="swatch"></span><span #name></span
+        ><neat-swatch [color]="readoutColour()" /><span #name></span
       ></span>
       <span #distance [class]="readoutClasses.muted"></span>
       <span #text></span>
@@ -244,7 +245,8 @@ export class NeatBev {
 
   protected readonly readoutClasses = READOUT_CLASSES;
   private readonly readoutBox = viewChild.required<ElementRef<HTMLElement>>('readout');
-  private readonly readoutSwatch = viewChild.required<ElementRef<HTMLElement>>('swatch');
+  /** The colour of the object read out, for its swatch: it changes only with another object. */
+  protected readonly readoutColour = signal('');
   private readonly readoutName = viewChild.required<ElementRef<HTMLElement>>('name');
   private readonly readoutDistance = viewChild.required<ElementRef<HTMLElement>>('distance');
   private readonly readoutText = viewChild.required<ElementRef<HTMLElement>>('text');
@@ -317,7 +319,6 @@ export class NeatBev {
         this.canvas = new BevCanvas(this.canvasElement().nativeElement);
         this.readout = new BevReadout(
           this.readoutBox().nativeElement,
-          this.readoutSwatch().nativeElement,
           this.readoutName().nativeElement,
           this.readoutDistance().nativeElement,
           this.readoutText().nativeElement,
@@ -490,7 +491,8 @@ export class NeatBev {
     if (object) {
       const at = toScreen(view, object.x, object.y, this.screenPoint);
       const colour = this.colours.of(object.label).colour;
-      this.readout?.show(object, colour, at.x, at.y, this.width, this.height);
+      this.readoutColour.set(colour);
+      this.readout?.show(object, at.x, at.y, this.width, this.height);
     } else {
       this.readout?.hide();
     }

@@ -815,9 +815,9 @@ export const GROUPS: readonly TopicGroup[] = [
           },
           {
             id: 'series-swatch',
-            label: 'Series swatch',
-            parts: ['NeatSeriesSwatch'],
-            leads: ['NeatSeriesSwatch'],
+            label: 'Swatch',
+            parts: ['NeatSwatch', 'NeatSeriesSwatch'],
+            leads: ['NeatSwatch', 'NeatSeriesSwatch'],
             load: async () => {
               const [api, examples] = await Promise.all([
                 import('./generated/api/primary'),

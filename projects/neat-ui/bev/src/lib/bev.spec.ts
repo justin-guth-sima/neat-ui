@@ -197,7 +197,7 @@ describe('NeatBev', () => {
       frames.run();
     });
 
-    it('reads out the object a mouse hovers, outlined, beside it', () => {
+    it('reads out the object a mouse hovers, outlined, beside it', async () => {
       expect(readout().hidden).toBe(true);
       pointer('pointermove', 200, 150 - 10 * ppm);
       frames.run();
@@ -207,6 +207,10 @@ describe('NeatBev', () => {
       expect(readout().textContent).toContain('10 m');
       expect(readout().textContent).toContain('Score 0.9');
       expect(readout().getAttribute('aria-hidden')).toBe('true');
+      // The kit's swatch, in the label's colour.
+      await settle();
+      const swatch = readout().querySelector<HTMLElement>('neat-swatch')!;
+      expect(swatch.style.getPropertyValue('--swatch')).toBe(draws.at(-1)![4].of('car').colour);
     });
 
     it('puts it away when the pointer leaves the object or the box, or on Escape', () => {

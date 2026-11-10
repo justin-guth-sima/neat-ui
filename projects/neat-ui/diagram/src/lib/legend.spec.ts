@@ -45,7 +45,7 @@ describe('NeatDiagramLegend', () => {
     const { items } = await render();
     const [image] = items();
     const swatch = image.querySelector<HTMLElement>('neat-series-swatch');
-    expect(swatch?.style.getPropertyValue('--series')).toBe('var(--neat-series-1)');
+    expect(swatch?.style.getPropertyValue('--swatch')).toBe('var(--neat-series-1)');
     expect(image.querySelector('svg')).toBeNull();
   });
 

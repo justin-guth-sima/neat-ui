@@ -1,7 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NeatSeriesSwatch, seriesToken, seriesTokenName } from './series-swatch';
-import swatchStyles from './series-swatch.css' with { loader: 'text' };
 
 @Component({
   imports: [NeatSeriesSwatch],
@@ -22,12 +21,9 @@ async function render() {
   const root: HTMLElement = fixture.nativeElement;
   const all = (selector: string) => Array.from(root.querySelectorAll<HTMLElement>(selector));
   const series = (selector: string) =>
-    all(selector).map((element) => element.style.getPropertyValue('--series'));
+    all(selector).map((element) => element.style.getPropertyValue('--swatch'));
   return { fixture, host: fixture.componentInstance, all, series };
 }
-
-/** The declarations of the sheet's `:host` rule. */
-const hostRule = /(?:^|\n):host\s*\{([^}]*)\}/.exec(swatchStyles)?.[1] ?? '';
 
 describe('seriesToken', () => {
   it('counts series from 0 into the palette, which counts from 1', () => {
@@ -60,13 +56,5 @@ describe('NeatSeriesSwatch', () => {
     for (const swatch of all('neat-series-swatch')) {
       expect(swatch.getAttribute('aria-hidden')).toBe('true');
     }
-  });
-
-  it('states its look once: a 0.625rem square with 2px corners in the token at full strength', () => {
-    expect(hostRule).toMatch(/(?:^|[;\s])width:\s*0\.625rem;/);
-    expect(hostRule).toMatch(/(?:^|[;\s])height:\s*0\.625rem;/);
-    expect(hostRule).toMatch(/(?:^|[;\s])border-radius:\s*2px;/);
-    expect(hostRule).toMatch(/(?:^|[;\s])flex:\s*none;/);
-    expect(hostRule).toMatch(/(?:^|[;\s])background:\s*var\(--series\);/);
   });
 });

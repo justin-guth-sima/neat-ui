@@ -35,18 +35,20 @@ export function seriesToken(index: number): string {
  * In the primary, not in `charts`, so the diagram's legend shows it without the charts' d3 (and
  * `@sima/neat-ui/charts` still exports it for the apps that import it from there). The time and
  * stacked charts draw their legends' and readouts' swatches with it, and so does
- * `neat-diagram-legend`, so its size, shape and colour are stated here once. It is
- * `aria-hidden`: the text beside it names the series, and a colour alone is not a name.
+ * `neat-diagram-legend`. Its look is `neat-swatch`'s (the colour square for any colour): both take
+ * that component's sheet, so the size, shape and corners are stated once. It is `aria-hidden`: the
+ * text beside it names the series, and a colour alone is not a name.
  */
 @Component({
   selector: 'neat-series-swatch',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     'aria-hidden': 'true',
-    '[style.--series]': 'color()',
+    '[style.--swatch]': 'color()',
   },
   template: '',
-  styleUrl: './series-swatch.css',
+  // The swatch's one look, shared with `neat-swatch`.
+  styleUrl: '../swatch/swatch.css',
 })
 export class NeatSeriesSwatch {
   /** The series' place in the chart's `series`, from 0. */

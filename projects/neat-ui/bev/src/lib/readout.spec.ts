@@ -1,5 +1,6 @@
 import type { NeatBevObject } from './model';
 import { BevReadout, distanceText, readoutPlace } from './readout';
+import bevStyles from './bev.css' with { loader: 'text' };
 
 const car: NeatBevObject = {
   x: 3,
@@ -35,37 +36,33 @@ describe('distanceText', () => {
 
 describe('BevReadout', () => {
   const make = () => {
-    const parts = ['box', 'swatch', 'name', 'distance', 'text'].map(() =>
-      document.createElement('span'),
-    );
+    const parts = ['box', 'name', 'distance', 'text'].map(() => document.createElement('span'));
     parts[0].hidden = true;
-    const [box, swatch, name, distance, text] = parts;
+    const [box, name, distance, text] = parts;
     return {
       box,
-      swatch,
       name,
       distance,
       text,
-      readout: new BevReadout(box, swatch, name, distance, text),
+      readout: new BevReadout(box, name, distance, text),
     };
   };
 
-  it("shows the label, the distance and the text, in the label's colour, placed by a transform", () => {
-    const { box, swatch, name, distance, text, readout } = make();
-    readout.show(car, 'rgb(1 2 3)', 100, 100, 400, 300);
+  it('shows the label, the distance and the text, placed by a transform', () => {
+    const { box, name, distance, text, readout } = make();
+    readout.show(car, 100, 100, 400, 300);
     expect(box.hidden).toBe(false);
     expect([name.textContent, distance.textContent, text.textContent]).toEqual([
       'car',
       '5 m',
       'Score 0.91',
     ]);
-    expect(swatch.style.background).toBe('rgb(1, 2, 3)');
     expect(box.style.transform).toBe('translate(112px, 88px)');
   });
 
   it('hides the text line for an object without text, and the box on hide', () => {
     const { box, text, readout } = make();
-    readout.show({ ...car, text: undefined }, 'red', 100, 100, 400, 300);
+    readout.show({ ...car, text: undefined }, 100, 100, 400, 300);
     expect(text.hidden).toBe(true);
     readout.hide();
     expect(box.hidden).toBe(true);
@@ -73,9 +70,15 @@ describe('BevReadout', () => {
 
   it('writes a line only when it changes', () => {
     const { name, readout } = make();
-    readout.show(car, 'red', 100, 100, 400, 300);
+    readout.show(car, 100, 100, 400, 300);
     const node = name.firstChild;
-    readout.show({ ...car, x: 5 }, 'red', 110, 100, 400, 300);
+    readout.show({ ...car, x: 5 }, 110, 100, 400, 300);
     expect(name.firstChild).toBe(node);
+  });
+});
+
+describe('the swatch of the readout', () => {
+  it('is the kit swatch, not restated in the view stylesheet', () => {
+    expect(bevStyles).not.toMatch(/\.swatch\b/);
   });
 });

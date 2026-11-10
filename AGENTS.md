@@ -30,7 +30,9 @@ look happens in one place. Every rule here protects that.
     `NeatSeriesSwatch` (a series' colour as a small square beside a label outside the drawing that
     uses it: the charts' legends and readouts, the diagram's legend, an app's chip; in the primary
     so the diagram shows it without the charts' d3, and still exported by `charts`, where apps
-    imported it first) and `neatSecondsAgo` (the kit's one relative-time style, "just now",
+    imported it first), `NeatSwatch` (the same square for any colour: a class's colour in a legend,
+    the bird's-eye view's readout; it holds the swatch's one look, which `NeatSeriesSwatch` shares
+    by taking its sheet) and `neatSecondsAgo` (the kit's one relative-time style, "just now",
     "12 s ago", "3 min ago"),
     `NeatStale` (`[neatStale]`: what its host shows is stale, faded to 0.55 and grey, with no
     transition; the words beside it say why) and `provideNeatTitles(appName)` (the document's

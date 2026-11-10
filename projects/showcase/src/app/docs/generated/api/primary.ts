@@ -3305,7 +3305,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", so its size, shape and colour are stated here once. It is "
+              "text": ". Its look is "
+            },
+            {
+              "kind": "code",
+              "text": "neat-swatch"
+            },
+            {
+              "kind": "text",
+              "text": "'s (the colour square for any colour): both take that component's sheet, so the size, shape and corners are stated once. It is "
             },
             {
               "kind": "code",
@@ -3679,6 +3687,75 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/src/lib/stale/stale.ts"
+    },
+    {
+      "name": "NeatSwatch",
+      "kind": "component",
+      "selector": "neat-swatch",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A colour as a small square, for a label that stands for something drawn in that colour (a class in the video overlays or the bird's-eye view, an item in an app's own legend):"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-swatch [color]=\"classColour\" /> {{ label }}"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "color"
+            },
+            {
+              "kind": "text",
+              "text": " is any CSS colour. For a chart's series, "
+            },
+            {
+              "kind": "code",
+              "text": "neat-series-swatch"
+            },
+            {
+              "kind": "text",
+              "text": " takes the series' index and finds its colour by the kit's one rule; the two share one look (size, shape, corners), stated once in this component's sheet. It is "
+            },
+            {
+              "kind": "code",
+              "text": "aria-hidden"
+            },
+            {
+              "kind": "text",
+              "text": ": the text beside it names the thing, and a colour alone is not a name."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "color",
+          "type": "string",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The colour to show, as CSS."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/swatch/swatch.ts"
     },
     {
       "name": "NeatTone",

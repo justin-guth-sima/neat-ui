@@ -47,12 +47,3 @@ canvas {
 .readout[hidden] {
   display: none;
 }
-
-/* The label's colour as a small square, as a chart's readout shows its series. */
-.swatch {
-  display: inline-block;
-  flex: none;
-  width: 0.625rem;
-  height: 0.625rem;
-  border-radius: 2px;
-}

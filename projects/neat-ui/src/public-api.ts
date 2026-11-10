@@ -55,6 +55,7 @@ export type { NeatBreadcrumb } from './lib/breadcrumbs/breadcrumbs';
 export { NeatBreadcrumbs } from './lib/breadcrumbs/breadcrumbs';
 export { NeatLiveDot } from './lib/live-dot/live-dot';
 export { NeatSeriesSwatch } from './lib/series-swatch/series-swatch';
+export { NeatSwatch } from './lib/swatch/swatch';
 export { NeatNote } from './lib/note/note';
 export { NeatStale, STALE_CLASSES as ɵSTALE_CLASSES } from './lib/stale/stale';
 export { neatSecondsAgo } from './lib/time/seconds-ago';

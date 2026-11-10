@@ -37,8 +37,12 @@ async function render() {
   await fixture.whenStable();
   const root: HTMLElement = fixture.nativeElement;
   const all = (selector: string) => Array.from(root.querySelectorAll<HTMLElement>(selector));
+  // A line or a band holds its colour in `--series`, a swatch in `--swatch`.
   const series = (selector: string) =>
-    all(selector).map((element) => element.style.getPropertyValue('--series'));
+    all(selector).map(
+      (element) =>
+        element.style.getPropertyValue('--series') || element.style.getPropertyValue('--swatch'),
+    );
   return { series };
 }
 

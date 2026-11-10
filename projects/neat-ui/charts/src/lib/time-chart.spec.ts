@@ -135,7 +135,7 @@ describe('NeatTimeChart', () => {
     expect(
       several
         .all('.readout neat-series-swatch')
-        .map((swatch) => swatch.style.getPropertyValue('--series')),
+        .map((swatch) => swatch.style.getPropertyValue('--swatch')),
       'the readout shows each line by its swatch',
     ).toEqual(['var(--neat-series-1)', 'var(--neat-series-2)', 'var(--neat-series-3)']);
     await one.point(1);
@@ -145,7 +145,7 @@ describe('NeatTimeChart', () => {
     expect(
       several
         .all('.legend neat-series-swatch')
-        .map((swatch) => swatch.style.getPropertyValue('--series')),
+        .map((swatch) => swatch.style.getPropertyValue('--swatch')),
     ).toEqual(['var(--neat-series-1)', 'var(--neat-series-2)', 'var(--neat-series-3)']);
   });
 

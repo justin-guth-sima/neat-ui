@@ -93,8 +93,10 @@ describe('the public API', () => {
     expect(listener({ now: 0, messages: [] })).toBeUndefined();
   });
 
-  it('exports the series swatch, which the charts and the diagram’s legend both show', () => {
-    expect(Object.keys(primary)).toEqual(expect.arrayContaining(['NeatSeriesSwatch']));
+  it('exports the swatches: the series swatch the charts and the diagram’s legend show, and the one for any colour', () => {
+    expect(Object.keys(primary)).toEqual(
+      expect.arrayContaining(['NeatSeriesSwatch', 'NeatSwatch']),
+    );
   });
 
   it('exports the series teal beside the other palette bases', () => {
