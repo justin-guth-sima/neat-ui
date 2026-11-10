@@ -200,6 +200,7 @@ export class NeatBev {
       text: css(colours.text),
       ego: css(colours.ego),
       halo: css(colours.halo),
+      surface: colours.halo,
       font: `${style.fontSize} ${style.fontFamily}`,
     };
   });

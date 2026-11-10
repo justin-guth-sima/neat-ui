@@ -25,8 +25,11 @@ export const SENSOR_FILL_ALPHA = 0.07;
 export const GUIDE_ALPHA = 0.18;
 /** How opaque the shape's outline is: the foreground, stronger than the guides. */
 export const OUTLINE_ALPHA = 0.5;
-/** How opaque a grid's cell of value 255 is. */
-export const GRID_ALPHA = 0.3;
+/**
+ * How strongly a grid's cell of value 255 is tinted in its label's colour over the surface: light,
+ * as a grid often covers much of the view (a drivable area) and should not outweigh what is on it.
+ */
+export const GRID_ALPHA = 0.18;
 /** The width of objects' outlines and lines without a style row, CSS px. */
 export const LINE_WIDTH = 2;
 

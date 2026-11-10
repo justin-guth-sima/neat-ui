@@ -16,6 +16,7 @@ const THEME: BevTheme = {
   text: 'rgb(90 90 90)',
   ego: 'rgb(10 10 10)',
   halo: 'rgb(255 255 255)',
+  surface: [1, 1, 1],
   font: '12px sans-serif',
 };
 
@@ -375,6 +376,33 @@ describe('BevCanvas', () => {
       expect(image.args[2]).toBeCloseTo(200 - 20 * view.ppm);
       expect(image.args[3]).toBeCloseTo(60 * view.ppm);
       expect(image.args[4]).toBeCloseTo(40 * view.ppm);
+    });
+
+    it('lays the backing of every grid, opaque in the surface, before any tint', () => {
+      const cells = new Uint8Array([255, 0, 128, 0]); // 2 columns, 2 rows
+      const grid = { label: 'road', cells, columns: 2, rows: 2, x: [-1, 1], y: [-1, 1] } as const;
+      draw({ grids: [grid, { ...grid, label: 'parking' }] });
+      // The layer, then each grid's tint and backing.
+      const [, roadTint, roadBacking, parkTint, parkBacking] = created;
+      const backing = calls(recordingOf(roadBacking).log, 'putImageData')[0].args[0] as ImageData;
+      expect([...backing.data.slice(0, 4)]).toEqual([255, 255, 255, 255]);
+      expect(backing.data[4 * 2 + 3]).toBe(128);
+      expect(backing.data[4 * 1 + 3]).toBe(0);
+      const order = calls(main(), 'drawImage').map((c) => c.args[0]);
+      expect(order.slice(0, 4)).toEqual([roadBacking, parkBacking, roadTint, parkTint]);
+    });
+
+    it('draws a grid as its tint alone without a surface colour', () => {
+      const grid = {
+        label: 'road',
+        cells: new Uint8Array([255]),
+        columns: 1,
+        rows: 1,
+        x: [-1, 1],
+        y: [-1, 1],
+      } as const;
+      bev.draw(2, view, inputs(), { ...THEME, surface: null }, colours(), { grids: [grid] }, -1);
+      expect(calls(main(), 'drawImage').map((c) => c.args[0])).toEqual([created[1], created[0]]);
     });
 
     it('paints a grid again only for a new cells array', () => {

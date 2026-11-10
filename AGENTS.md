@@ -604,8 +604,11 @@ for driving demos such as the FastBEV one.
   view, theme or inputs goes into two cached layers, one under the data (sensor fills, and the
   guides when they go under) and one over it (the guides when they go over: rings or grid lines,
   spokes, sensor edges, the outline; and always their labels), each drawn only when it holds
-  something. Between them a frame draws its grids (a small canvas per grid, scaled without
-  smoothing), lines, points and objects without allocating per item, clipped to the shape as the
+  something. Between them a frame draws its grids (small canvases per grid, scaled without
+  smoothing: every grid's backing, opaque in `--neat-surface` as far as each cell's value goes,
+  then every grid's tint in its label's colour at `GRID_ALPHA`, so a grid covers what lies under it,
+  guides under the data included, still looks see-through over the surface, and overlapping grids
+  still blend), lines, points and objects without allocating per item, clipped to the shape as the
   view shows it (zoom included) unless overflow is visible; the vehicle's marker goes on top.
   Points are squares of whole device pixels written into a buffer that covers only the shape's
   rectangle within the box (the box with `visible`), kept in memory (`willReadFrequently`) and

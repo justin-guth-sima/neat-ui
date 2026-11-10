@@ -1,3 +1,4 @@
+import type { NeatRgb } from '@sima/neat-ui';
 import {
   type BevPlot,
   type BevView,
@@ -54,6 +55,8 @@ export interface BevTheme {
   readonly ego: string;
   /** The surface the plot sits on: the halo around labels and the marker. */
   readonly halo: string;
+  /** The surface as numbers, for the grids' backing; null where it does not parse. */
+  readonly surface: NeatRgb | null;
   /** The labels' font, as the canvas takes it. */
   readonly font: string;
 }
@@ -121,11 +124,19 @@ interface Layer {
   used: boolean;
 }
 
-/** A grid's pixels, kept until its cells or its colour change. */
+/**
+ * A grid's pixels, kept until its cells, its colour or the surface change: its tint (the label's
+ * colour, see-through) and its backing (the surface, as opaque as each cell's value), which is laid
+ * first, so that the grid covers what lies under it (guides under the data) while still looking as
+ * see-through as its tint over the surface. Every grid's backing goes down before any tint, so
+ * overlapping grids still blend.
+ */
 interface GridCache {
   cells: Uint8Array | null;
   colour: string;
-  canvas: HTMLCanvasElement;
+  surface: NeatRgb | null;
+  tint: HTMLCanvasElement;
+  backing: HTMLCanvasElement;
 }
 
 export class BevCanvas {
@@ -209,7 +220,7 @@ export class BevCanvas {
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
     context.save();
     this.clip(context, view, inputs);
-    this.drawGrids(context, view, shown.grids, colours);
+    this.drawGrids(context, view, shown.grids, colours, theme.surface);
     this.drawLines(context, view, shown, colours);
     this.drawPoints(context, view, shown, colours, inputs);
     this.drawObjects(context, view, shown, colours, hover);
@@ -644,46 +655,89 @@ export class BevCanvas {
     context.fillText(text, x, y);
   }
 
+  /** The grids: every backing first, then every tint (`GridCache`). */
   private drawGrids(
     context: CanvasRenderingContext2D,
     view: BevView,
     grids: readonly NeatBevGrid[] | undefined,
     colours: LabelColours,
+    surface: NeatRgb | null,
   ): void {
     const count = grids?.length ?? 0;
     this.grids.length = Math.min(this.grids.length, count);
     if (!grids) return;
     context.imageSmoothingEnabled = false;
-    for (let i = 0; i < count; i++) {
-      const grid = grids[i];
-      if (grid.columns <= 0 || grid.rows <= 0 || grid.cells.length < grid.columns * grid.rows) {
-        continue;
+    for (const layer of ['backing', 'tint'] as const) {
+      for (let i = 0; i < count; i++) {
+        const grid = grids[i];
+        if (grid.columns <= 0 || grid.rows <= 0 || grid.cells.length < grid.columns * grid.rows) {
+          continue;
+        }
+        const cached =
+          layer === 'backing'
+            ? this.gridCanvases(i, grid, colours.of(grid.label), surface)
+            : this.grids[i];
+        // No backing without a surface to lay: the tint alone, see-through as before.
+        if (!cached || (layer === 'backing' && !cached.surface)) continue;
+        const corner = toScreen(view, grid.x[1], grid.y[1], this.point);
+        const opposite = toScreen(view, grid.x[0], grid.y[0], this.other);
+        const image = cached[layer];
+        context.drawImage(image, corner.x, corner.y, opposite.x - corner.x, opposite.y - corner.y);
       }
-      const look = colours.of(grid.label);
-      const cached = this.gridCanvas(i, grid, look);
-      if (!cached) continue;
-      const corner = toScreen(view, grid.x[1], grid.y[1], this.point);
-      const opposite = toScreen(view, grid.x[0], grid.y[0], this.other);
-      context.drawImage(cached, corner.x, corner.y, opposite.x - corner.x, opposite.y - corner.y);
     }
     context.imageSmoothingEnabled = true;
   }
 
-  /** The grid's pixels at one per cell, painted again only for new cells or a new colour. */
-  private gridCanvas(index: number, grid: NeatBevGrid, look: LabelLook): HTMLCanvasElement | null {
+  /**
+   * The grid's tint and backing at one pixel per cell, painted again only for new cells, a new
+   * colour or a new surface; null where the colour does not parse or there is no 2D context.
+   */
+  private gridCanvases(
+    index: number,
+    grid: NeatBevGrid,
+    look: LabelLook,
+    surface: NeatRgb | null,
+  ): GridCache | null {
     let cache: GridCache | undefined = this.grids[index];
     if (!cache) {
-      cache = { cells: null, colour: '', canvas: this.createCanvas() };
+      cache = {
+        cells: null,
+        colour: '',
+        surface: null,
+        tint: this.createCanvas(),
+        backing: this.createCanvas(),
+      };
       this.grids[index] = cache;
     }
-    if (cache.cells === grid.cells && cache.colour === look.colour) return cache.canvas;
-    const { canvas } = cache;
+    if (
+      cache.cells === grid.cells &&
+      cache.colour === look.colour &&
+      sameRgb(cache.surface, surface)
+    ) {
+      return cache;
+    }
+    cache.cells = null;
+    if (!look.rgb) return null;
+    if (!this.paintGrid(cache.tint, grid, look.rgb, GRID_ALPHA)) return null;
+    if (surface && !this.paintGrid(cache.backing, grid, surface, 1)) return null;
+    cache.cells = grid.cells;
+    cache.colour = look.colour;
+    cache.surface = surface;
+    return cache;
+  }
+
+  /** Paints `grid`'s cells in `rgb`, each as opaque as its value times `alpha`. */
+  private paintGrid(
+    canvas: HTMLCanvasElement,
+    grid: NeatBevGrid,
+    [red, green, blue]: NeatRgb,
+    alpha: number,
+  ): boolean {
     canvas.width = grid.columns;
     canvas.height = grid.rows;
     const context = canvas.getContext('2d');
-    if (!context || !look.rgb) return null;
+    if (!context) return false;
     const image = context.createImageData(grid.columns, grid.rows);
-    const [red, green, blue] = look.rgb;
     const data = image.data;
     const cells = grid.cells;
     for (let i = 0; i < grid.columns * grid.rows; i++) {
@@ -693,12 +747,10 @@ export class BevCanvas {
       data[o] = red * 255;
       data[o + 1] = green * 255;
       data[o + 2] = blue * 255;
-      data[o + 3] = value * GRID_ALPHA;
+      data[o + 3] = value * alpha;
     }
     context.putImageData(image, 0, 0);
-    cache.cells = grid.cells;
-    cache.colour = look.colour;
-    return canvas;
+    return true;
   }
 
   private drawLines(
@@ -894,6 +946,10 @@ export class BevCanvas {
     context.fill();
     context.stroke();
   }
+}
+
+function sameRgb(a: NeatRgb | null, b: NeatRgb | null): boolean {
+  return a === b || (a !== null && b !== null && a[0] === b[0] && a[1] === b[1] && a[2] === b[2]);
 }
 
 function sameView(a: BevView, b: BevView | null): boolean {
