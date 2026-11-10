@@ -8,10 +8,13 @@
  */
 export { NeatBev } from './lib/bev';
 export type {
+  NeatBevBounds,
   NeatBevFrame,
   NeatBevGrid,
+  NeatBevGuides,
   NeatBevLine,
   NeatBevObject,
+  NeatBevOverflow,
   NeatBevPoints,
   NeatBevSensor,
   NeatBevShape,

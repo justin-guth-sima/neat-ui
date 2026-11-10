@@ -1,5 +1,5 @@
 import type { ZoomTransform } from 'd3-zoom';
-import { plotArea, ZOOM_MAX } from './geometry';
+import { type ScreenRect, ZOOM_MAX } from './geometry';
 import { BevZoom, isDefault } from './zoom';
 
 /** `matchMedia` answering the reduced-motion query, so moves jump instead of animating. */
@@ -22,6 +22,12 @@ function mouse(type: string, clientX: number, clientY: number): MouseEvent {
   return event;
 }
 
+/** The round plot in the middle 400 × 400 of a 600 × 400 box: where the view pans. */
+const PLOT: ScreenRect = [
+  [100, 0],
+  [500, 400],
+];
+
 describe('BevZoom', () => {
   let box: HTMLElement;
   let zoom: BevZoom;
@@ -37,7 +43,7 @@ describe('BevZoom', () => {
     Object.defineProperty(box, 'clientHeight', { configurable: true, value: 400 });
     seen = [];
     zoom = new BevZoom(box, (t) => seen.push(t));
-    zoom.setPlot(plotArea(600, 400, 'round'));
+    zoom.setBounds(600, 400, PLOT);
   });
 
   afterEach(() => {
@@ -83,10 +89,32 @@ describe('BevZoom', () => {
     key('ArrowLeft');
     const panned = zoom.transform;
     expect(panned.x).toBeGreaterThan(300 * (1 - panned.k));
-    // However far it goes, the plot's edge stops it: the plot's left edge (100) stays at or
-    // left of the screen's plot edge.
+    // However far it goes, the plot's edge stops it at the box's: the plot grows past the box,
+    // and its left edge (100) comes no further right than the box's left edge.
     for (let i = 0; i < 50; i++) key('ArrowLeft');
-    expect(zoom.transform.apply([100, 200])[0]).toBeCloseTo(100);
+    expect(zoom.transform.apply([100, 200])[0]).toBeCloseTo(0);
+  });
+
+  it('keeps the plot in the middle while it is narrower than the box', () => {
+    key('+');
+    for (let i = 0; i < 50; i++) key('ArrowLeft');
+    // 1.25 × 400 = 500 px wide in a 600 px box: no room to pan sideways.
+    expect(zoom.transform.apply([300, 200])[0]).toBeCloseTo(300);
+  });
+
+  it('takes every wheel over the box, at the zoom limits too, and none once destroyed', () => {
+    const wheel = (deltaY: number) => {
+      const event = new WheelEvent('wheel', { deltaY, bubbles: true, cancelable: true });
+      box.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+    // Zoomed out as far as it goes, a wheel out changes nothing; the page still must not scroll.
+    expect(wheel(100)).toBe(true);
+    for (let i = 0; i < 20; i++) key('=');
+    expect(wheel(-100)).toBe(true);
+    zoom.destroy();
+    expect(wheel(100)).toBe(false);
+    expect(box.style.getPropertyValue('-webkit-tap-highlight-color')).toBe('');
   });
 
   it('resets with 0', () => {
@@ -107,8 +135,8 @@ describe('BevZoom', () => {
   });
 
   it('pans by dragging once zoomed', () => {
-    key('+');
-    key('+');
+    // Zoomed until the plot is wider than the box, so that it has room to pan sideways.
+    for (let i = 0; i < 4; i++) key('+');
     const before = zoom.transform;
     box.dispatchEvent(mouse('mousedown', 300, 200));
     window.dispatchEvent(mouse('mousemove', 320, 210));
@@ -122,7 +150,10 @@ describe('BevZoom', () => {
     key('+');
     for (let i = 0; i < 50; i++) key('ArrowLeft');
     // The box narrows: the plot is now 300 × 300 around (150, 200).
-    zoom.setPlot(plotArea(300, 400, 'round'));
+    zoom.setBounds(300, 400, [
+      [0, 50],
+      [300, 350],
+    ]);
     const t = zoom.transform;
     expect(t.k).toBeCloseTo(1.5625);
     expect(t.apply([0, 200])[0]).toBeLessThanOrEqual(0 + 1e-9);
@@ -140,7 +171,7 @@ describe('BevZoom', () => {
     vi.spyOn(performance, 'now').mockImplementation(() => now);
     zoom.destroy();
     zoom = new BevZoom(box, () => undefined);
-    zoom.setPlot(plotArea(600, 400, 'round'));
+    zoom.setBounds(600, 400, PLOT);
     const run = (at: number) => {
       now = at;
       frames.splice(0).forEach((frame) => frame(at));

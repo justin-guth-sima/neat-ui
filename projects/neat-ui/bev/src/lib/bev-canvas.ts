@@ -1,11 +1,14 @@
 import {
-  canvasAngle,
-  LABEL_ANGLE,
+  type BevPlot,
   type BevView,
+  boxPlot,
+  canvasAngle,
+  farthestCorner,
+  labelAngle,
   metresText,
   objectCorners,
-  PLOT_INSET,
-  plotArea,
+  plotReach,
+  plotRect,
   stepFor,
   spokeLength,
   toScreen,
@@ -21,18 +24,22 @@ import {
 import type {
   NeatBevFrame,
   NeatBevGrid,
+  NeatBevGuides,
   NeatBevObject,
+  NeatBevOverflow,
   NeatBevSensor,
-  NeatBevShape,
   NeatBevSpoke,
 } from './model';
 
 /*
  * The bird's-eye view's canvas: it draws, never decides. One canvas at the device's pixel ratio.
- * What changes only with the size, the view, the theme or the inputs (sensor wedges, rings or grid
- * lines, spokes, their labels) is drawn into a cached layer; what a frame brings (grids, lines,
- * points, objects) is drawn over it each time, without allocating per item. Its owner (`NeatBev`)
- * decides when to draw.
+ * What changes only with the size, the view, the theme or the inputs is drawn into two cached
+ * layers: under the data, the sensors' fills (and the guides when they go under); over it, the
+ * guides (rings or grid lines, spokes, sensors' edges, the outline) when they go over, and their
+ * labels. What a frame brings (grids, lines, points, objects) is drawn between the two each time,
+ * without allocating per item, and the vehicle's marker on top. With `'clip'` the data and the
+ * guides are cut at the plot (the circle or the rectangle, zoomed as the view is); with
+ * `'visible'` only at the box. Its owner (`NeatBev`) decides when to draw.
  */
 
 /** The theme's colours and the font, as CSS, for what the plot draws itself. */
@@ -51,12 +58,15 @@ export interface BevTheme {
   readonly font: string;
 }
 
-/** What the plot is drawn from, besides a frame: changes rarely, and redraws the cached layer. */
+/** What the plot is drawn from, besides a frame: changes rarely, and redraws the cached layers. */
 export interface BevInputs {
-  readonly shape: NeatBevShape;
-  readonly range: number;
+  readonly plot: BevPlot;
   readonly sensors: readonly NeatBevSensor[];
   readonly spokes: readonly Required<NeatBevSpoke>[];
+  /** Whether the plot's edge is drawn. */
+  readonly outline: boolean;
+  readonly overflow: NeatBevOverflow;
+  readonly guides: NeatBevGuides;
 }
 
 /** Half the side of a point's square, CSS px. */
@@ -64,7 +74,7 @@ const POINT_HALF = 1;
 /** The vehicle's marker: from its centre to its tip and to its base's corners, CSS px. */
 const EGO_TIP = 9;
 const EGO_BASE = 6;
-/** Where the square grid's labels sit: their left edge and their middle, CSS px. */
+/** Where the grid's labels sit from the plot's (or the box's) left and top: CSS px. */
 const GRID_LABEL_LEFT = 4;
 const GRID_LABEL_TOP = 10;
 /** Room the corner keeps free of the top labels, and the left labels keep below the top row. */
@@ -74,6 +84,8 @@ const LABEL_CLEARANCE = 12;
 const HALO_WIDTH = 3;
 /** How much wider the hovered object's outline is, CSS px. */
 const HOVER_EXTRA = 2;
+/** How far inside the box a ring's label must sit to be drawn, CSS px. */
+const LABEL_MARGIN = 8;
 
 const NO_FRAME: NeatBevFrame = {};
 /** No dash, kept so that drawing allocates no empty array. */
@@ -101,6 +113,14 @@ export function packRgb([red, green, blue]: readonly [number, number, number]): 
   return PIXEL_WORD[0];
 }
 
+/** A cached layer: its canvas, made at its first use. */
+interface Layer {
+  canvas: HTMLCanvasElement | null;
+  context: CanvasRenderingContext2D | null;
+  /** Whether it holds anything this time: an empty layer is not drawn. */
+  used: boolean;
+}
+
 /** A grid's pixels, kept until its cells or its colour change. */
 interface GridCache {
   cells: Uint8Array | null;
@@ -116,9 +136,9 @@ export class BevCanvas {
   private height = 0;
   private ratio = 0;
 
-  /** The cached layer and what it was drawn for. */
-  private layer: HTMLCanvasElement | null = null;
-  private layerContext: CanvasRenderingContext2D | null = null;
+  /** The cached layers and what they were drawn for. */
+  private readonly under: Layer = { canvas: null, context: null, used: false };
+  private readonly over: Layer = { canvas: null, context: null, used: false };
   private layerView: BevView | null = null;
   private layerInputs: BevInputs | null = null;
   private layerTheme: BevTheme | null = null;
@@ -127,7 +147,7 @@ export class BevCanvas {
   private layerHeight = 0;
   /** The sensors' colours the layer was drawn in, by index. */
   private readonly sensorColours: string[] = [];
-  /** How many times the cached layer was drawn: what the tests of the caching read. */
+  /** How many times the cached layers were drawn: what the tests of the caching read. */
   layerDraws = 0;
 
   private readonly grids: GridCache[] = [];
@@ -152,8 +172,9 @@ export class BevCanvas {
   }
 
   /**
-   * Draws `frame` over the cached layer in `view`, the object at index `hover` outlined. False
-   * while there is nothing to draw on (no size, no 2D context, no scale).
+   * Draws `frame` between the cached layers in `view`, the object at index `hover` outlined. False
+   * while there is nothing to draw on (no size, no 2D context) or nothing to draw (no scale: the
+   * canvas is then cleared).
    */
   draw(
     ratio: number,
@@ -164,7 +185,7 @@ export class BevCanvas {
     frame: NeatBevFrame | null,
     hover: number,
   ): boolean {
-    if (this.boxWidth <= 0 || this.boxHeight <= 0 || view.ppm <= 0) return false;
+    if (this.boxWidth <= 0 || this.boxHeight <= 0) return false;
     if (this.boxWidth !== this.width || this.boxHeight !== this.height || ratio !== this.ratio) {
       this.width = this.boxWidth;
       this.height = this.boxHeight;
@@ -175,47 +196,61 @@ export class BevCanvas {
     this.context ??= this.canvas.getContext('2d');
     const context = this.context;
     if (!context) return false;
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    if (!(view.ppm > 0)) return false;
     const shown = frame ?? NO_FRAME;
 
     if (this.layerStale(ratio, view, inputs, theme, colours)) {
-      this.drawLayer(ratio, view, inputs, theme, colours);
+      this.drawLayers(ratio, view, inputs, theme, colours);
     }
 
-    context.setTransform(1, 0, 0, 1, 0, 0);
-    context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.putLayer(context, this.under);
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
     context.save();
-    this.clip(context, inputs.shape);
+    this.clip(context, view, inputs);
     this.drawGrids(context, view, shown.grids, colours);
-    context.restore();
-
-    if (this.layer) {
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.drawImage(this.layer, 0, 0);
-      context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    }
-
-    context.save();
-    this.clip(context, inputs.shape);
     this.drawLines(context, view, shown, colours);
-    this.drawPoints(context, view, shown, colours, inputs.shape);
+    this.drawPoints(context, view, shown, colours, inputs);
     this.drawObjects(context, view, shown, colours, hover);
+    context.restore();
+    this.putLayer(context, this.over);
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    context.save();
+    this.clip(context, view, inputs);
     this.drawEgo(context, view, theme);
     context.restore();
     return true;
   }
 
-  /** Clips to the plot: the range's circle at the default zoom (round), or the box (square). */
-  private clip(context: CanvasRenderingContext2D, shape: NeatBevShape): void {
-    context.beginPath();
-    if (shape === 'round') {
-      const area = plotArea(this.width, this.height, shape);
-      const radius = Math.max(0, area.halfWidth - PLOT_INSET);
-      context.arc(area.cx, area.cy, radius, 0, 2 * Math.PI);
-    } else {
-      context.rect(0, 0, this.width, this.height);
-    }
+  /** Copies a cached layer that holds something onto the canvas, pixel for pixel. */
+  private putLayer(context: CanvasRenderingContext2D, layer: Layer): void {
+    if (!layer.used || !layer.canvas) return;
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.drawImage(layer.canvas, 0, 0);
+  }
+
+  /**
+   * Clips to the plot as `view` shows it, zoom included: the circle of the range around the
+   * vehicle, or the rectangle. Nothing beyond the box with `'visible'`.
+   */
+  private clip(context: CanvasRenderingContext2D, view: BevView, inputs: BevInputs): void {
+    if (inputs.overflow === 'visible') return;
+    this.plotPath(context, view, inputs.plot);
     context.clip();
+  }
+
+  /** The plot's edge as the current path: the circle, or the rectangle. */
+  private plotPath(context: CanvasRenderingContext2D, view: BevView, plot: BevPlot): void {
+    context.beginPath();
+    if (plot.shape === 'round') {
+      const centre = toScreen(view, 0, 0, this.point);
+      const radius = Math.max(0, plot.range * view.ppm * view.k);
+      context.arc(centre.x, centre.y, radius, 0, 2 * Math.PI);
+    } else {
+      const [[x0, y0], [x1, y1]] = plotRect(view, plot);
+      context.rect(x0, y0, x1 - x0, y1 - y0);
+    }
   }
 
   private layerStale(
@@ -226,7 +261,7 @@ export class BevCanvas {
     colours: LabelColours,
   ): boolean {
     let stale =
-      this.layer === null ||
+      this.over.canvas === null ||
       ratio !== this.layerRatio ||
       this.width !== this.layerWidth ||
       this.height !== this.layerHeight ||
@@ -242,21 +277,13 @@ export class BevCanvas {
     return stale;
   }
 
-  private drawLayer(
+  private drawLayers(
     ratio: number,
     view: BevView,
     inputs: BevInputs,
     theme: BevTheme,
     colours: LabelColours,
   ): void {
-    this.layer ??= this.createCanvas();
-    const layer = this.layer;
-    if (layer.width !== this.canvas.width || layer.height !== this.canvas.height) {
-      layer.width = this.canvas.width;
-      layer.height = this.canvas.height;
-    }
-    this.layerContext ??= layer.getContext('2d');
-    const context = this.layerContext;
     this.layerRatio = ratio;
     this.layerWidth = this.width;
     this.layerHeight = this.height;
@@ -265,53 +292,84 @@ export class BevCanvas {
     this.layerTheme = theme;
     this.sensorColours.length = 0;
     for (const sensor of inputs.sensors) this.sensorColours.push(colours.of(sensor.label).colour);
-    if (!context) return;
     this.layerDraws++;
 
-    context.setTransform(1, 0, 0, 1, 0, 0);
-    context.clearRect(0, 0, layer.width, layer.height);
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    const step = stepFor(inputs.range, view);
-    context.save();
-    this.clip(context, inputs.shape);
-    this.drawSensors(context, view, inputs, colours);
-    if (inputs.shape === 'round') this.drawRings(context, view, inputs, theme, step);
-    else this.drawGridLines(context, view, theme, step);
-    this.drawSpokes(context, view, inputs, theme);
-    context.restore();
-    // The labels over the lines and spokes, and not clipped: one on the edge shows whole.
-    this.labelStyle(context, theme);
-    if (inputs.shape === 'round') {
-      this.drawEdge(context, theme);
-      this.ringLabels(context, view, inputs, theme, step);
-    } else {
-      this.gridLabels(context, view, theme, step);
+    const step = stepFor(plotReach(inputs.plot), view);
+    const guidesUnder = inputs.guides === 'under';
+    const fills = inputs.sensors.some((sensor) => sensor.fill);
+
+    this.under.used = fills || guidesUnder;
+    const under = this.under.used ? this.prepare(this.under, ratio) : null;
+    if (under) {
+      under.save();
+      this.clip(under, view, inputs);
+      this.drawSensorFills(under, view, inputs, colours);
+      under.restore();
+      if (guidesUnder) this.drawGuides(under, view, inputs, theme, colours, step);
     }
+
+    this.over.used = true;
+    const over = this.prepare(this.over, ratio);
+    if (!over) return;
+    if (!guidesUnder) this.drawGuides(over, view, inputs, theme, colours, step);
+    // The labels over everything, and not clipped: one on the plot's edge shows whole.
+    this.labelStyle(over, theme);
+    if (inputs.plot.shape === 'round') this.ringLabels(over, view, inputs, theme, step);
+    else this.gridLabels(over, view, inputs, theme, step);
   }
 
-  private drawSensors(
+  /** A layer's context, its canvas as large as the main one and cleared; null without 2D. */
+  private prepare(layer: Layer, ratio: number): CanvasRenderingContext2D | null {
+    layer.canvas ??= this.createCanvas();
+    const canvas = layer.canvas;
+    if (canvas.width !== this.canvas.width || canvas.height !== this.canvas.height) {
+      canvas.width = this.canvas.width;
+      canvas.height = this.canvas.height;
+    }
+    layer.context ??= canvas.getContext('2d');
+    const context = layer.context;
+    if (!context) {
+      layer.used = false;
+      return null;
+    }
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    return context;
+  }
+
+  /**
+   * The guides: within the plot, the rings or the grid's lines, the spokes and the sensors' edges;
+   * then the plot's edge, unclipped so that its line shows whole.
+   */
+  private drawGuides(
+    context: CanvasRenderingContext2D,
+    view: BevView,
+    inputs: BevInputs,
+    theme: BevTheme,
+    colours: LabelColours,
+    step: number,
+  ): void {
+    context.save();
+    this.clip(context, view, inputs);
+    if (inputs.plot.shape === 'round') this.drawRings(context, view, inputs, theme, step);
+    else this.drawGridLines(context, view, inputs, theme, step);
+    this.drawSpokes(context, view, inputs, theme);
+    this.drawSensorEdges(context, view, inputs, colours);
+    context.restore();
+    if (inputs.outline) this.drawOutline(context, view, inputs.plot, theme);
+  }
+
+  /** The sensors' wedges that ask to be filled, faintly in their labels' colours. */
+  private drawSensorFills(
     context: CanvasRenderingContext2D,
     view: BevView,
     inputs: BevInputs,
     colours: LabelColours,
   ): void {
-    const scale = view.ppm * view.k;
     context.globalAlpha = SENSOR_FILL_ALPHA;
     for (const sensor of inputs.sensors) {
-      const origin = toScreen(view, sensor.origin?.x ?? 0, sensor.origin?.y ?? 0, this.point);
-      const reach = (sensor.range ?? inputs.range) * scale;
-      if (!(reach > 0)) continue;
-      context.beginPath();
-      context.moveTo(origin.x, origin.y);
-      // Counter-clockwise from `from` to `to` around the vehicle is anticlockwise on the screen.
-      context.arc(
-        origin.x,
-        origin.y,
-        reach,
-        canvasAngle(sensor.from),
-        canvasAngle(sensor.to),
-        true,
-      );
+      if (!sensor.fill || !this.wedgePath(context, view, sensor, inputs.plot.range, true)) continue;
       context.closePath();
       context.fillStyle = colours.of(sensor.label).colour;
       context.fill();
@@ -319,6 +377,58 @@ export class BevCanvas {
     context.globalAlpha = 1;
   }
 
+  /**
+   * Each sensor's edges, from its mount out to its reach, in its label's colour, and its arc when
+   * it gives its own range (without one it reaches the plot's range, where the outline is).
+   */
+  private drawSensorEdges(
+    context: CanvasRenderingContext2D,
+    view: BevView,
+    inputs: BevInputs,
+    colours: LabelColours,
+  ): void {
+    context.lineWidth = 1;
+    context.setLineDash(SOLID);
+    context.lineJoin = 'round';
+    for (const sensor of inputs.sensors) {
+      const arc = sensor.range !== undefined;
+      if (!this.wedgePath(context, view, sensor, inputs.plot.range, arc)) continue;
+      context.strokeStyle = colours.of(sensor.label).colour;
+      context.stroke();
+    }
+  }
+
+  /**
+   * The sensor's wedge as the current path: in along `from` to its mount, out along `to`, and with
+   * `arc` back around to `from`. False when it reaches nowhere.
+   */
+  private wedgePath(
+    context: CanvasRenderingContext2D,
+    view: BevView,
+    sensor: NeatBevSensor,
+    range: number,
+    arc: boolean,
+  ): boolean {
+    const scale = view.ppm * view.k;
+    const reach = (sensor.range ?? range) * scale;
+    if (!(reach > 0)) return false;
+    const origin = toScreen(view, sensor.origin?.x ?? 0, sensor.origin?.y ?? 0, this.point);
+    const from = canvasAngle(sensor.from);
+    const to = canvasAngle(sensor.to);
+    context.beginPath();
+    context.moveTo(origin.x + reach * Math.cos(from), origin.y + reach * Math.sin(from));
+    context.lineTo(origin.x, origin.y);
+    context.lineTo(origin.x + reach * Math.cos(to), origin.y + reach * Math.sin(to));
+    // Counter-clockwise from `from` to `to` around the vehicle is anticlockwise on the screen, so
+    // back from `to` to `from` is clockwise.
+    if (arc) context.arc(origin.x, origin.y, reach, to, from, false);
+    return true;
+  }
+
+  /**
+   * The rings, every `step` from the vehicle: inside the range with `'clip'`, on to the box's
+   * farthest corner with `'visible'`. The range's own ring is the outline.
+   */
   private drawRings(
     context: CanvasRenderingContext2D,
     view: BevView,
@@ -326,25 +436,31 @@ export class BevCanvas {
     theme: BevTheme,
     step: number,
   ): void {
-    const { range } = inputs;
     const scale = view.ppm * view.k;
     const centre = toScreen(view, 0, 0, this.point);
+    const last = this.ringLimit(view, inputs);
     context.lineWidth = 1;
     context.setLineDash(SOLID);
     context.strokeStyle = theme.line;
     context.beginPath();
-    for (let r = step; r < range - step * 1e-6; r += step) {
+    for (let r = step; r < last - step * 1e-6; r += step) {
       context.moveTo(centre.x + r * scale, centre.y);
       context.arc(centre.x, centre.y, r * scale, 0, 2 * Math.PI);
     }
     context.stroke();
-    context.strokeStyle = theme.strong;
-    context.beginPath();
-    context.arc(centre.x, centre.y, range * scale, 0, 2 * Math.PI);
-    context.stroke();
   }
 
-  /** Each ring's distance, halfway between forward and left, where it falls on the plot. */
+  /** How far the rings go, metres: the range, or (visible) past the box's farthest corner. */
+  private ringLimit(view: BevView, inputs: BevInputs): number {
+    const { plot } = inputs;
+    if (inputs.overflow === 'clip') return plot.range;
+    return farthestCorner(boxPlot(view, this.width, this.height, plot.range)) + 1;
+  }
+
+  /**
+   * Each ring's distance where it crosses the labels' direction (`labelAngle`), while that point is
+   * in the box: up to the range with `'clip'`, every ring with `'visible'`.
+   */
   private ringLabels(
     context: CanvasRenderingContext2D,
     view: BevView,
@@ -352,37 +468,63 @@ export class BevCanvas {
     theme: BevTheme,
     step: number,
   ): void {
-    const area = plotArea(this.width, this.height, 'round');
-    const radius = area.halfWidth - PLOT_INSET;
-    const cos = Math.cos(LABEL_ANGLE);
-    const sin = Math.sin(LABEL_ANGLE);
-    for (let r = step; r <= inputs.range + step * 1e-6; r += step) {
+    const { range } = inputs.plot;
+    const angle = labelAngle(view, this.width, this.height);
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const last = inputs.overflow === 'clip' ? range + step * 1e-6 : this.ringLimit(view, inputs);
+    for (let r = step; r <= last; r += step) {
       const at = toScreen(view, r * cos, r * sin, this.other);
-      if (Math.hypot(at.x - area.cx, at.y - area.cy) > radius + 1) continue;
-      this.label(context, metresText(Math.min(r, inputs.range)), at.x, at.y, theme);
+      if (
+        at.x < LABEL_MARGIN ||
+        at.y < LABEL_MARGIN ||
+        at.x > this.width - LABEL_MARGIN ||
+        at.y > this.height - LABEL_MARGIN
+      ) {
+        continue;
+      }
+      this.label(context, metresText(r), at.x, at.y, theme);
     }
   }
 
-  /** The grid's lines through the box, every `step` from the vehicle in both directions. */
-  private gridSpan(view: BevView, step: number): readonly [number, number, number, number] {
+  /**
+   * Where the grid and the points are drawn, CSS px (left, top, right, bottom): the plot's
+   * rectangle within the box with `'clip'`, the box with `'visible'`.
+   */
+  private region(view: BevView, inputs: BevInputs): readonly [number, number, number, number] {
+    if (inputs.overflow === 'visible') return [0, 0, this.width, this.height];
+    const [[x0, y0], [x1, y1]] = plotRect(view, inputs.plot);
+    return [Math.max(0, x0), Math.max(0, y0), Math.min(this.width, x1), Math.min(this.height, y1)];
+  }
+
+  /** The grid's lines through `region`, every `step` from the vehicle in both directions. */
+  private gridSpan(
+    view: BevView,
+    step: number,
+    [left, top, right, bottom]: readonly [number, number, number, number],
+  ): readonly [number, number, number, number] {
     const scale = view.ppm * view.k;
     const centre = toScreen(view, 0, 0, this.point);
     return [
-      Math.ceil((centre.y - this.height) / scale / step),
-      Math.floor(centre.y / scale / step),
-      Math.ceil((centre.x - this.width) / scale / step),
-      Math.floor(centre.x / scale / step),
+      Math.ceil((centre.y - bottom) / scale / step - 1e-9),
+      Math.floor((centre.y - top) / scale / step + 1e-9),
+      Math.ceil((centre.x - right) / scale / step - 1e-9),
+      Math.floor((centre.x - left) / scale / step + 1e-9),
     ];
   }
 
   private drawGridLines(
     context: CanvasRenderingContext2D,
     view: BevView,
+    inputs: BevInputs,
     theme: BevTheme,
     step: number,
   ): void {
     const scale = view.ppm * view.k;
-    const [lowX, highX, lowY, highY] = this.gridSpan(view, step);
+    const region = this.region(view, inputs);
+    const [left, top, right, bottom] = region;
+    if (right <= left || bottom <= top) return;
+    const [lowX, highX, lowY, highY] = this.gridSpan(view, step, region);
     const centre = toScreen(view, 0, 0, this.point);
     context.lineWidth = 1;
     context.setLineDash(SOLID);
@@ -390,41 +532,48 @@ export class BevCanvas {
     context.beginPath();
     for (let n = lowX; n <= highX; n++) {
       const y = centre.y - n * step * scale;
-      context.moveTo(0, y);
-      context.lineTo(this.width, y);
+      context.moveTo(left, y);
+      context.lineTo(right, y);
     }
     for (let n = lowY; n <= highY; n++) {
       const x = centre.x - n * step * scale;
-      context.moveTo(x, 0);
-      context.lineTo(x, this.height);
+      context.moveTo(x, top);
+      context.lineTo(x, bottom);
     }
     context.stroke();
   }
 
   /**
-   * The lines' distances from the vehicle: forward and back along the left edge, left and right
-   * along the top, leaving the corner where the two would meet to neither.
+   * The lines' distances from the vehicle: forward and back along the grid's left edge, left and
+   * right along its top (the box's where the plot's edge is out of it), leaving the corner where
+   * the two would meet to neither.
    */
   private gridLabels(
     context: CanvasRenderingContext2D,
     view: BevView,
+    inputs: BevInputs,
     theme: BevTheme,
     step: number,
   ): void {
     const scale = view.ppm * view.k;
-    const [lowX, highX, lowY, highY] = this.gridSpan(view, step);
+    const region = this.region(view, inputs);
+    const [left, top, right, bottom] = region;
+    if (right <= left || bottom <= top) return;
+    const [lowX, highX, lowY, highY] = this.gridSpan(view, step, region);
     const centre = toScreen(view, 0, 0, this.point);
+    const column = left + GRID_LABEL_LEFT;
+    const row = top + GRID_LABEL_TOP;
     context.textAlign = 'left';
     for (let n = lowX; n <= highX; n++) {
       const y = centre.y - n * step * scale;
-      if (n === 0 || y < GRID_LABEL_TOP + LABEL_CLEARANCE) continue;
-      this.label(context, metresText(Math.abs(n * step)), GRID_LABEL_LEFT, y, theme);
+      if (n === 0 || y < row + LABEL_CLEARANCE || y > bottom - GRID_LABEL_TOP) continue;
+      this.label(context, metresText(Math.abs(n * step)), column, y, theme);
     }
     context.textAlign = 'center';
     for (let n = lowY; n <= highY; n++) {
       const x = centre.x - n * step * scale;
-      if (n === 0 || x < GRID_LABEL_LEFT + CORNER_WIDTH) continue;
-      this.label(context, metresText(Math.abs(n * step)), x, GRID_LABEL_TOP, theme);
+      if (n === 0 || x < column + CORNER_WIDTH || x > right - CORNER_WIDTH / 2) continue;
+      this.label(context, metresText(Math.abs(n * step)), x, row, theme);
     }
     context.textAlign = 'center';
   }
@@ -439,8 +588,13 @@ export class BevCanvas {
     context.setLineDash(SOLID);
     context.strokeStyle = theme.line;
     context.beginPath();
+    // To the plot's edge, or with `'visible'` to the box's.
+    const plot =
+      inputs.overflow === 'visible'
+        ? boxPlot(view, this.width, this.height, inputs.plot.range)
+        : inputs.plot;
     for (const { angle, origin } of inputs.spokes) {
-      const length = spokeLength(origin, angle, inputs.shape, inputs.range);
+      const length = spokeLength(origin, angle, plot);
       if (length <= 0) continue;
       const from = toScreen(view, origin.x, origin.y, this.point);
       context.moveTo(from.x, from.y);
@@ -455,16 +609,17 @@ export class BevCanvas {
     context.stroke();
   }
 
-  /** The round plot's edge, which stays put while the view zooms and pans. */
-  private drawEdge(context: CanvasRenderingContext2D, theme: BevTheme): void {
-    const area = plotArea(this.width, this.height, 'round');
-    const radius = area.halfWidth - PLOT_INSET;
-    if (radius <= 0) return;
+  /** The plot's edge, the circle or the rectangle, zoomed and panned as the view is. */
+  private drawOutline(
+    context: CanvasRenderingContext2D,
+    view: BevView,
+    plot: BevPlot,
+    theme: BevTheme,
+  ): void {
     context.lineWidth = 1;
     context.setLineDash(SOLID);
     context.strokeStyle = theme.strong;
-    context.beginPath();
-    context.arc(area.cx, area.cy, radius, 0, 2 * Math.PI);
+    this.plotPath(context, view, plot);
     context.stroke();
   }
 
@@ -580,18 +735,19 @@ export class BevCanvas {
     view: BevView,
     frame: NeatBevFrame,
     colours: LabelColours,
-    shape: NeatBevShape,
+    inputs: BevInputs,
   ): void {
     const sets = frame.points;
     if (!sets?.some((set) => set.xy.length >= 2)) return;
-    // The buffer covers the plot alone (for a round plot, the square around its circle), in
-    // device pixels, so a wide box clears and uploads no more than it shows points in.
+    // The buffer covers the plot's rectangle within the box (with `'visible'`, the box) in device
+    // pixels, so a wide box clears and copies no more than it shows points in.
     const ratio = this.ratio;
-    const area = plotArea(this.width, this.height, shape);
-    const left = Math.max(0, Math.floor((area.cx - area.halfWidth) * ratio));
-    const top = Math.max(0, Math.floor((area.cy - area.halfHeight) * ratio));
-    const right = Math.min(this.canvas.width, Math.ceil((area.cx + area.halfWidth) * ratio));
-    const bottom = Math.min(this.canvas.height, Math.ceil((area.cy + area.halfHeight) * ratio));
+    const [x0, y0, x1, y1] = this.region(view, inputs);
+    const left = Math.max(0, Math.floor(x0 * ratio));
+    const top = Math.max(0, Math.floor(y0 * ratio));
+    const right = Math.min(this.canvas.width, Math.ceil(x1 * ratio));
+    const bottom = Math.min(this.canvas.height, Math.ceil(y1 * ratio));
+    if (right <= left || bottom <= top) return;
     const pixels = this.pointPixels(right - left, bottom - top);
     if (!pixels) return;
     const { image, words, canvas, context: pointsContext } = pixels;

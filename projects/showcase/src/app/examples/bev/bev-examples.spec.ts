@@ -3,10 +3,12 @@ import { TestBed } from '@angular/core/testing';
 import { NeatBev } from '@sima/neat-ui/bev';
 import { By } from '@angular/platform-browser';
 import { Round } from './1-round.example';
-import { Square } from './2-square.example';
-import { CameraSeams } from './3-camera-seams.example';
-import { SharedStyles } from './4-shared-styles.example';
-import { CAMERAS, MOUNT_EDGES, SEAMS, StreetScene } from './scene';
+import { Rect } from './2-rect.example';
+import { Overflow } from './3-overflow.example';
+import { CameraSeams } from './4-camera-seams.example';
+import { Zoom } from './5-zoom.example';
+import { SharedStyles } from './6-shared-styles.example';
+import { CAMERAS, SEAMS, StreetScene } from './scene';
 
 describe('the BEV examples', () => {
   beforeEach(() => {
@@ -23,7 +25,14 @@ describe('the BEV examples', () => {
     vi.unstubAllGlobals();
   });
 
-  const examples: readonly Type<unknown>[] = [Round, Square, CameraSeams, SharedStyles];
+  const examples: readonly Type<unknown>[] = [
+    Round,
+    Rect,
+    Overflow,
+    CameraSeams,
+    Zoom,
+    SharedStyles,
+  ];
   for (const example of examples) {
     it(`${example.name} moves its scene on while shown, and stops when gone`, async () => {
       const fixture = TestBed.createComponent(example);
@@ -68,10 +77,10 @@ describe('the street scene', () => {
     expect(oncoming(after)[0].x).toBeCloseTo(oncoming(before)[0].x - 9);
   });
 
-  it('has six cameras, a seam between each two neighbours, and two edges per mount', () => {
+  it('has six cameras, each from its mount, and a seam between each two neighbours', () => {
     expect(CAMERAS).toHaveLength(6);
+    expect(CAMERAS.every((camera) => camera.origin !== undefined && !camera.fill)).toBe(true);
     expect(SEAMS).toHaveLength(6);
-    expect(MOUNT_EDGES).toHaveLength(12);
     // The back camera is wider, so the seams are not evenly spaced.
     const gaps = SEAMS.map((seam, i) => {
       const next = SEAMS[(i + 1) % SEAMS.length].angle;

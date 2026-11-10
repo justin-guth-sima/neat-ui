@@ -1,12 +1,22 @@
 import {
+  bevPlot,
+  boxPlot,
   canvasAngle,
   defaultView,
+  farthestCorner,
+  hasArea,
   hitObject,
+  LABEL_ANGLE,
+  labelAngle,
   metresText,
   objectCorners,
+  onPlot,
+  panBounds,
   PLOT_INSET,
   pixelsPerMetre,
-  plotArea,
+  plotAspect,
+  plotReach,
+  plotRect,
   ringStep,
   stepFor,
   spokeLength,
@@ -25,50 +35,76 @@ const box = (x: number, y: number, yaw = 0, label = 'car'): NeatBevObject => ({
   label,
 });
 
-describe('plotArea', () => {
-  it('puts a round plot in the largest centred square', () => {
-    expect(plotArea(800, 400, 'round')).toEqual({
-      cx: 400,
-      cy: 200,
-      halfWidth: 200,
-      halfHeight: 200,
-    });
-    expect(plotArea(300, 500, 'round')).toEqual({
-      cx: 150,
-      cy: 250,
-      halfWidth: 150,
-      halfHeight: 150,
+const round = (range = 60) => bevPlot('round', range);
+const rect = (back: number, front: number, right: number, left: number) =>
+  bevPlot('rect', 60, { x: [back, front], y: [right, left] });
+
+describe('bevPlot', () => {
+  it('gives the circle the square of ±range around it', () => {
+    expect(round(40)).toEqual({
+      shape: 'round',
+      range: 40,
+      back: -40,
+      front: 40,
+      right: -40,
+      left: 40,
     });
   });
 
-  it('lets a square plot fill the whole box', () => {
-    expect(plotArea(800, 400, 'square')).toEqual({
-      cx: 400,
-      cy: 200,
-      halfWidth: 400,
-      halfHeight: 200,
-    });
+  it('takes the rect from its bounds, or ±range without', () => {
+    expect(rect(-20, 80, -30, 30)).toMatchObject({ back: -20, front: 80, right: -30, left: 30 });
+    expect(bevPlot('rect', 25)).toMatchObject({ back: -25, front: 25, right: -25, left: 25 });
+    // The circle has no bounds.
+    expect(bevPlot('round', 25, { x: [0, 1], y: [0, 1] })).toMatchObject({ front: 25 });
   });
 
-  it('treats a negative size as none', () => {
-    expect(plotArea(-5, 100, 'round').halfWidth).toBe(0);
+  it('has an area only with a positive range or a min below each max', () => {
+    expect(hasArea(round())).toBe(true);
+    expect(hasArea(round(0))).toBe(false);
+    expect(hasArea(round(Number.NaN))).toBe(false);
+    expect(hasArea(rect(10, 10, -5, 5))).toBe(false);
+    expect(hasArea(rect(0, 10, 5, -5))).toBe(false);
+    expect(hasArea(rect(0, Infinity, -5, 5))).toBe(false);
+  });
+
+  it('knows its proportions, its reach and what lies on it', () => {
+    expect(plotAspect(round())).toBe(1);
+    expect(plotAspect(rect(-20, 80, -30, 30))).toBeCloseTo(0.6);
+    expect(plotAspect(rect(0, 0, 0, 0))).toBe(1);
+    expect(plotReach(rect(-20, 80, -30, 30))).toBe(30);
+    expect(onPlot(round(), 40, 40)).toBe(true);
+    expect(onPlot(round(), 50, 40)).toBe(false);
+    expect(onPlot(rect(-20, 80, -30, 30), 70, 25)).toBe(true);
+    expect(onPlot(rect(-20, 80, -30, 30), -25, 0)).toBe(false);
   });
 });
 
 describe('the view', () => {
-  it('reaches the range at the nearer edge, less the inset', () => {
-    const view = defaultView(plotArea(800, 400, 'square'), 50);
+  it('fits the plot within the inset, at the nearer edge', () => {
+    const view = defaultView(800, 400, round(50));
     expect(view.ppm).toBeCloseTo((200 - PLOT_INSET) / 50);
     expect(pixelsPerMetre({ ...view, k: 2 })).toBeCloseTo(view.ppm * 2);
+    // 60 m across and 100 m along: the height limits it in a square box.
+    const tall = defaultView(400, 400, rect(-20, 80, -30, 30));
+    expect(tall.ppm).toBeCloseTo((400 - 2 * PLOT_INSET) / 100);
+  });
+
+  it('puts the middle of the rectangle at the middle of the box, the vehicle off it', () => {
+    const view = defaultView(400, 400, rect(-20, 80, -30, 30));
+    const at = toScreen(view, 30, 0, { x: 0, y: 0 });
+    expect(at.x).toBeCloseTo(200);
+    expect(at.y).toBeCloseTo(200);
+    expect(toScreen(view, 0, 0, at).y).toBeCloseTo(200 + 30 * view.ppm);
   });
 
   it('has no scale without room or range', () => {
-    expect(defaultView(plotArea(10, 10, 'round'), 50).ppm).toBe(0);
-    expect(defaultView(plotArea(400, 400, 'round'), 0).ppm).toBe(0);
+    expect(defaultView(10, 10, round(50)).ppm).toBe(0);
+    expect(defaultView(400, 400, round(0)).ppm).toBe(0);
+    expect(defaultView(400, 400, rect(5, 5, -5, 5)).ppm).toBe(0);
   });
 
   it('puts the vehicle at the centre, forward up and left to the left', () => {
-    const view = defaultView(plotArea(400, 400, 'round'), 47);
+    const view = defaultView(400, 400, round(47));
     const at = { x: 0, y: 0 };
     expect(toScreen(view, 0, 0, at)).toEqual({ x: 200, y: 200 });
     expect(toScreen(view, 10, 0, at)).toEqual({ x: 200, y: 200 - 10 * view.ppm });
@@ -76,7 +112,7 @@ describe('the view', () => {
   });
 
   it('applies the pan and zoom on top, and maps the screen back to metres', () => {
-    const view = { ...defaultView(plotArea(400, 400, 'round'), 47), k: 2, tx: -150, ty: -120 };
+    const view = { ...defaultView(400, 400, round(47)), k: 2, tx: -150, ty: -120 };
     const screen = toScreen(view, 12.5, -3.25, { x: 0, y: 0 });
     const back = toVehicle(view, screen.x, screen.y, { x: 0, y: 0 });
     expect(back.x).toBeCloseTo(12.5);
@@ -87,6 +123,51 @@ describe('the view', () => {
     expect(canvasAngle(0)).toBeCloseTo(-Math.PI / 2); // forward is up
     expect(Math.cos(canvasAngle(Math.PI / 2))).toBeCloseTo(-1); // left is left
     expect(Math.sin(canvasAngle(Math.PI))).toBeCloseTo(1); // back is down
+  });
+
+  it('pans within the plot with clip, and within the box with visible', () => {
+    const view = defaultView(600, 400, round(50));
+    const r = 200 - PLOT_INSET;
+    expect(panBounds(view, round(50), 'clip', 600, 400)).toEqual([
+      [300 - r, 200 - r],
+      [300 + r, 200 + r],
+    ]);
+    expect(panBounds(view, round(50), 'visible', 600, 400)).toEqual([
+      [0, 0],
+      [600, 400],
+    ]);
+  });
+
+  it('finds the rectangle of the plot on the screen, zoomed and panned', () => {
+    const plot = round(50);
+    const view = { ...defaultView(600, 400, plot), k: 2, tx: -300, ty: -200 };
+    const [[x0, y0], [x1, y1]] = plotRect(view, plot);
+    const r = 2 * (200 - PLOT_INSET);
+    expect([x0, y0, x1, y1].map((v) => Math.round(v))).toEqual([
+      300 - r,
+      200 - r,
+      300 + r,
+      200 + r,
+    ]);
+  });
+
+  it('finds the box in metres, and its farthest corner from the vehicle', () => {
+    const view = defaultView(400, 400, round(47));
+    const box = boxPlot(view, 400, 400, 47);
+    const edge = 200 / view.ppm;
+    expect(box.front).toBeCloseTo(edge);
+    expect(box.back).toBeCloseTo(-edge);
+    expect(box.left).toBeCloseTo(edge);
+    expect(box.right).toBeCloseTo(-edge);
+    expect(farthestCorner(box)).toBeCloseTo(edge * Math.SQRT2);
+  });
+
+  it('puts the ring labels towards the box once the vehicle is out of it', () => {
+    const view = defaultView(400, 400, round(50));
+    expect(labelAngle(view, 400, 400)).toBe(LABEL_ANGLE);
+    // Zoomed in and panned so the vehicle lies below the box: the labels point forward.
+    const below = { ...view, k: 4, tx: -600, ty: -200 };
+    expect(labelAngle(below, 400, 400)).toBeCloseTo(0);
   });
 });
 
@@ -109,7 +190,7 @@ describe('ringStep', () => {
 });
 
 describe('stepFor', () => {
-  const view = defaultView(plotArea(800, 800, 'round'), 60);
+  const view = defaultView(800, 800, round());
 
   it('keeps the ring step while the rings sit far enough apart', () => {
     expect(stepFor(60, view)).toBe(10);
@@ -118,10 +199,10 @@ describe('stepFor', () => {
   });
 
   it('coarsens the step while the rings would crowd their labels', () => {
-    const small = defaultView(plotArea(300, 300, 'round'), 60);
+    const small = defaultView(300, 300, round());
     // 138 px for 60 m: 10 m would be 23 px, 20 m 46 px.
     expect(stepFor(60, small)).toBe(20);
-    const tiny = defaultView(plotArea(100, 100, 'round'), 60);
+    const tiny = defaultView(100, 100, round());
     expect(stepFor(60, tiny)).toBe(100);
   });
 });
@@ -161,15 +242,20 @@ describe('spokeList', () => {
 
 describe('spokeLength', () => {
   it('runs from the centre to the range', () => {
-    expect(spokeLength({ x: 0, y: 0 }, 0.7, 'round', 60)).toBeCloseTo(60);
-    expect(spokeLength({ x: 0, y: 0 }, 0, 'square', 60)).toBeCloseTo(60);
-    expect(spokeLength({ x: 0, y: 0 }, Math.PI / 4, 'square', 60)).toBeCloseTo(60 * Math.SQRT2);
+    expect(spokeLength({ x: 0, y: 0 }, 0.7, round())).toBeCloseTo(60);
+    expect(spokeLength({ x: 0, y: 0 }, 0, bevPlot('rect', 60))).toBeCloseTo(60);
+    expect(spokeLength({ x: 0, y: 0 }, Math.PI / 4, bevPlot('rect', 60))).toBeCloseTo(
+      60 * Math.SQRT2,
+    );
+    // Off-centre bounds: 80 m ahead, 20 m behind.
+    expect(spokeLength({ x: 0, y: 0 }, 0, rect(-20, 80, -30, 30))).toBeCloseTo(80);
+    expect(spokeLength({ x: 0, y: 0 }, Math.PI, rect(-20, 80, -30, 30))).toBeCloseTo(20);
   });
 
   it('ends on the outer ring from an origin off the centre', () => {
     const origin = { x: 1.5, y: 0.5 };
     for (const angle of [0, 1, 2.5, -2]) {
-      const t = spokeLength(origin, angle, 'round', 60);
+      const t = spokeLength(origin, angle, round());
       const end = { x: origin.x + t * Math.cos(angle), y: origin.y + t * Math.sin(angle) };
       expect(Math.hypot(end.x, end.y)).toBeCloseTo(60);
     }
@@ -178,13 +264,14 @@ describe('spokeLength', () => {
   it('ends on the square edge from an origin off the centre', () => {
     const origin = { x: 1.5, y: -0.5 };
     const angle = 0.2;
-    const t = spokeLength(origin, angle, 'square', 60);
+    const t = spokeLength(origin, angle, bevPlot('rect', 60));
     expect(origin.x + t * Math.cos(angle)).toBeCloseTo(60);
   });
 
   it('is 0 for an origin outside the plot', () => {
-    expect(spokeLength({ x: 70, y: 0 }, 0, 'round', 60)).toBe(0);
-    expect(spokeLength({ x: 0, y: -61 }, 0, 'square', 60)).toBe(0);
+    expect(spokeLength({ x: 70, y: 0 }, 0, round())).toBe(0);
+    expect(spokeLength({ x: 0, y: -61 }, 0, bevPlot('rect', 60))).toBe(0);
+    expect(spokeLength({ x: -25, y: 0 }, 0, rect(-20, 80, -30, 30))).toBe(0);
   });
 });
 

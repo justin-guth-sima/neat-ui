@@ -8,7 +8,7 @@ import { BevCanvas, type BevInputs, type BevTheme } from './bev-canvas';
 import { FakeAnimationFrames, resize, stubCanvases, stubResizeObserver } from './canvas.testing';
 import type { LabelColours } from './colours';
 import type { BevView } from './geometry';
-import type { NeatBevFrame, NeatBevShape } from './model';
+import type { NeatBevBounds, NeatBevFrame, NeatBevOverflow, NeatBevShape } from './model';
 
 @Component({
   imports: [NeatBev],
@@ -16,14 +16,20 @@ import type { NeatBevFrame, NeatBevShape } from './model';
     [frame]="frame()"
     [range]="range()"
     [shape]="shape()"
+    [bounds]="bounds()"
+    [overflow]="overflow()"
     [spokes]="spokes()"
     [styles]="styles()"
+    [zoom]="zoom()"
   />`,
 })
 class Host {
   readonly frame = signal<NeatBevFrame | null>(null);
   readonly range = signal(60);
   readonly shape = signal<NeatBevShape>('round');
+  readonly bounds = signal<NeatBevBounds | null>(null);
+  readonly overflow = signal<NeatBevOverflow>('clip');
+  readonly zoom = signal(false);
   readonly spokes = signal<number>(12);
   readonly styles = signal<readonly NeatOverlayClassStyle[]>([]);
 }
@@ -79,11 +85,36 @@ describe('NeatBev', () => {
   /** Lets change detection run the inputs' effects. */
   const settle = (): Promise<void> => fixture.whenStable();
 
-  it('is a figure named by its label, and a tab stop for its keys', () => {
+  it('is a figure named by its label, a tab stop only while it zooms', async () => {
     expect(element.getAttribute('role')).toBe('figure');
     expect(element.getAttribute('aria-label')).toBe("Bird's-eye view");
-    expect(element.tabIndex).toBe(0);
+    expect(element.hasAttribute('tabindex')).toBe(false);
     expect(element.querySelector('canvas')?.getAttribute('aria-hidden')).toBe('true');
+    host.zoom.set(true);
+    await settle();
+    expect(element.tabIndex).toBe(0);
+  });
+
+  it("takes the shape's proportions for its height", async () => {
+    expect(element.style.aspectRatio).toBe('1 / 1');
+    host.shape.set('rect');
+    host.bounds.set({ x: [-20, 80], y: [-30, 30] });
+    await settle();
+    expect(element.style.aspectRatio).toBe('0.6 / 1');
+  });
+
+  describe('without zoom', () => {
+    it('leaves the wheel and the keys to the page, and shows no reset button', () => {
+      const wheel = new WheelEvent('wheel', { deltaY: -100, bubbles: true, cancelable: true });
+      element.dispatchEvent(wheel);
+      expect(wheel.defaultPrevented).toBe(false);
+      const plus = new KeyboardEvent('keydown', { key: '+', bubbles: true, cancelable: true });
+      element.dispatchEvent(plus);
+      expect(plus.defaultPrevented).toBe(false);
+      frames.run();
+      expect(draws.at(-1)![1].k).toBe(1);
+      expect(element.querySelector('button.reset')).toBeNull();
+    });
   });
 
   describe('the summary', () => {
@@ -200,11 +231,28 @@ describe('NeatBev', () => {
       expect(readout().hidden).toBe(false);
     });
 
-    it('reads out nothing outside the round plot', async () => {
+    it('reads out nothing outside the round plot, unless overflow is visible', async () => {
       host.frame.set({ objects: [{ ...car, x: 0, y: 70, length: 20, width: 20 }] });
       await settle();
       // 70 m to the left is beyond the 60 m edge; the box's left edge is.
       pointer('pointermove', 200 - 70 * ppm, 150);
+      frames.run();
+      expect(readout().hidden).toBe(true);
+      host.overflow.set('visible');
+      await settle();
+      frames.run();
+      expect(readout().hidden).toBe(false);
+    });
+
+    it('reads out nothing outside the rectangle', async () => {
+      host.shape.set('rect');
+      host.bounds.set({ x: [-60, 60], y: [-5, 5] });
+      host.frame.set({ objects: [{ ...car, x: 0, y: 8, length: 4, width: 4 }] });
+      await settle();
+      frames.run();
+      const view = draws.at(-1)![1];
+      // 8 m to the left, beyond the rectangle's 5 m.
+      pointer('pointermove', view.cx - 8 * view.ppm, view.cy);
       frames.run();
       expect(readout().hidden).toBe(true);
     });
@@ -214,6 +262,33 @@ describe('NeatBev', () => {
     const key = (name: string) =>
       element.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true }));
     const resetButton = () => element.querySelector<HTMLButtonElement>('button.reset');
+
+    beforeEach(async () => {
+      host.zoom.set(true);
+      await settle();
+      frames.run();
+    });
+
+    it('takes every wheel over the view', () => {
+      const wheel = new WheelEvent('wheel', { deltaY: 100, bubbles: true, cancelable: true });
+      element.dispatchEvent(wheel);
+      // Already zoomed out as far as it goes: the page still does not scroll.
+      expect(wheel.defaultPrevented).toBe(true);
+    });
+
+    it('goes back to the default view, and lets go of the wheel, when zoom turns off', async () => {
+      key('+');
+      frames.run();
+      host.zoom.set(false);
+      await settle();
+      frames.run();
+      expect(draws.at(-1)![1].k).toBe(1);
+      expect(resetButton()).toBeNull();
+      expect(element.hasAttribute('tabindex')).toBe(false);
+      const wheel = new WheelEvent('wheel', { deltaY: 100, bubbles: true, cancelable: true });
+      element.dispatchEvent(wheel);
+      expect(wheel.defaultPrevented).toBe(false);
+    });
 
     it("draws the view zoomed about the plot's centre", () => {
       key('+');
@@ -260,14 +335,14 @@ describe('NeatBev', () => {
     const frame: NeatBevFrame = { objects: [] };
     host.frame.set(frame);
     host.range.set(30);
-    host.shape.set('square');
+    host.shape.set('rect');
     await settle();
     expect(draws).toHaveLength(1);
     frames.run();
     expect(draws).toHaveLength(2);
     const [, view, inputs, , , drawn] = draws[1];
     expect(drawn).toBe(frame);
-    expect(inputs).toMatchObject({ range: 30, shape: 'square' });
+    expect(inputs.plot).toMatchObject({ range: 30, shape: 'rect', front: 30, left: 30 });
     expect(view.ppm).toBeCloseTo((150 - 12) / 30);
     frames.run();
     expect(draws).toHaveLength(2);

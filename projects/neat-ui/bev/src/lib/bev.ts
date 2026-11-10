@@ -1,5 +1,6 @@
 import {
   afterNextRender,
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -29,17 +30,28 @@ import type { NeatOverlayClassStyle } from '@sima/neat-ui/video';
 import { BevCanvas, type BevInputs, type BevTheme } from './bev-canvas';
 import { LabelColours } from './colours';
 import {
+  type BevPlot,
+  bevPlot,
   type BevView,
   defaultView,
   hitObject,
-  PLOT_INSET,
-  type PlotArea,
-  plotArea,
+  onPlot,
+  panBounds,
+  plotAspect,
+  type ScreenRect,
   spokeList,
   toScreen,
   toVehicle,
 } from './geometry';
-import type { NeatBevFrame, NeatBevSensor, NeatBevShape, NeatBevSpoke } from './model';
+import type {
+  NeatBevBounds,
+  NeatBevFrame,
+  NeatBevGuides,
+  NeatBevOverflow,
+  NeatBevSensor,
+  NeatBevShape,
+  NeatBevSpoke,
+} from './model';
 import { BevReadout } from './readout';
 import { SUMMARY_MS, summaryText } from './summary';
 import { BevZoom, isDefault } from './zoom';
@@ -58,27 +70,35 @@ const TOKENS = {
 
 /**
  * A bird's-eye view around a vehicle: what it sees (`frame`: objects, points, lines and grids),
- * what its sensors cover (`sensors`), and rings or a metric grid to read distances by (`shape`),
- * in the vehicle's own frame (metres, x forward and y left, forward up on the screen). Labels pick
- * colours as the video overlays' classes do, from the page's class colours, so "car" has one colour
- * in the view and in every tile; `styles` sets a label's colour and line as the tiles' class rows
- * do. Hovering an object, or tapping it, reads it out beside it: its label, its distance from the
- * vehicle and its `text`. Wheel, pinch and drag zoom and pan it, from the whole range in to a quarter of it and only
- * within the plot; with focus, the arrows pan, `+` and `-` zoom and `0` resets, as a button does
- * while it is zoomed. It draws on one canvas outside change detection, at the next animation frame
- * after anything changes and never while the page is hidden. A screen reader hears it as a figure
- * named by `label` with a summary of what it shows ("18 car, 51 pedestrian within 60 m"), which
- * changes at most once a second. Give it a height, or it is as tall as it is wide.
+ * what its sensors cover (`sensors`), and rings in a circle or a metric grid in a rectangle to read
+ * distances by (`shape`), in the vehicle's own frame (metres, x forward and y left, forward up on
+ * the screen). The data and the guides stop at the shape's edge, or run on over the whole box
+ * (`overflow`); the guides lie over the data or under it (`guides`). Labels pick colours as the
+ * video overlays' classes do, from the page's class colours, so "car" has one colour in the view
+ * and in every tile; `styles` sets a label's colour and line as the tiles' class rows do. Hovering
+ * an object, or tapping it, reads it out beside it: its label, its distance from the vehicle and
+ * its `text`. With `zoom`, wheel, pinch and drag zoom and pan it, the shape and all, in to four
+ * times the default and within what the default shows; with focus, the arrows pan, `+` and `-` zoom
+ * and `0` resets, as a button does while it is zoomed. It draws on one canvas outside change
+ * detection, at the next animation frame after anything changes and never while the page is
+ * hidden. A screen reader hears it as a figure named by `label` with a summary of what it shows
+ * ("18 car, 51 pedestrian within 60 m"), which changes at most once a second. Give it a height, or
+ * it takes the shape's proportions.
  *
  * ```html
- * <neat-bev [frame]="frame()" [sensors]="cameras" [spokes]="seams" [range]="60" />
+ * <neat-bev [frame]="frame()" [sensors]="cameras" [range]="60" zoom />
  * ```
  */
 @Component({
   selector: 'neat-bev',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NeatButton, NeatIcon, NeatTooltip],
-  host: { role: 'figure', '[attr.aria-label]': 'label()', tabindex: '0' },
+  host: {
+    role: 'figure',
+    '[attr.aria-label]': 'label()',
+    '[attr.tabindex]': 'zoom() ? 0 : null',
+    '[style.aspect-ratio]': 'aspect()',
+  },
   template: `
     <canvas #canvas aria-hidden="true"></canvas>
     <!-- What the picture shows, for a screen reader: written by the frames, at most once a second. -->
@@ -117,7 +137,7 @@ const TOKENS = {
 export class NeatBev {
   /** What to draw now; null draws only the plot. Give a new object for each moment. */
   readonly frame = input<NeatBevFrame | null>(null);
-  /** The sensors' wedges, drawn faintly under everything else. */
+  /** The sensors' wedges: their edges as lines in their labels' colours, filled if they ask. */
   readonly sensors = input<readonly NeatBevSensor[]>([]);
   /**
    * The spokes: a number spaces that many evenly from straight ahead (12, every 30°, by default;
@@ -125,10 +145,20 @@ export class NeatBev {
    * its cameras, or lines from where they are mounted).
    */
   readonly spokes = input<number | readonly NeatBevSpoke[]>(12);
-  /** Metres from the vehicle to the plot's nearer edge. */
+  /** Metres from the vehicle to the circle, and to the rectangle's edges without `bounds`. */
   readonly range = input(60);
-  /** Rings around the vehicle in the largest square that fits (`'round'`), or a grid that fills the box. */
+  /** The circle of `range` with rings (`'round'`), or the rectangle `bounds` with a grid. */
   readonly shape = input<NeatBevShape>('round');
+  /** The rectangle in metres (`'rect'`), as a grid sets one; null is ±`range`. */
+  readonly bounds = input<NeatBevBounds | null>(null);
+  /** Whether the shape's edge is drawn. */
+  readonly outline = input(true, { transform: booleanAttribute });
+  /** Whether the data and the guides stop at the shape (`'clip'`) or run on over the box. */
+  readonly overflow = input<NeatBevOverflow>('clip');
+  /** Whether rings or grid lines, spokes, sensors' edges and the outline lie over the data. */
+  readonly guides = input<NeatBevGuides>('over');
+  /** Whether wheel, pinch, drag and keys zoom and pan the view; off, the page scrolls over it. */
+  readonly zoom = input(false, { transform: booleanAttribute });
   /** A label's colour, line and width, as the video overlays' class rows set them for the tiles. */
   readonly styles = input<readonly NeatOverlayClassStyle[]>([]);
   /** The plot's accessible name. */
@@ -159,11 +189,16 @@ export class NeatBev {
   });
 
   private readonly inputs = computed<BevInputs>(() => ({
-    shape: this.shape(),
-    range: this.range(),
+    plot: bevPlot(this.shape(), this.range(), this.bounds()),
     sensors: this.sensors(),
     spokes: spokeList(this.spokes()),
+    outline: this.outline(),
+    overflow: this.overflow(),
+    guides: this.guides(),
   }));
+
+  /** The host's proportions without a height of the app's: the shape's. */
+  protected readonly aspect = computed(() => `${plotAspect(this.inputs().plot)} / 1`);
 
   protected readonly readoutClasses = READOUT_CLASSES;
   private readonly readoutBox = viewChild.required<ElementRef<HTMLElement>>('readout');
@@ -182,18 +217,21 @@ export class NeatBev {
   private pointer: { x: number; y: number } | null = null;
   /** The kind of the last press: a touch reads out by a tap, a mouse or pen by hovering. */
   private pressedBy = '';
-  /** The summary written, the frame and range it was made from, when, and the one waiting. */
+  /** The summary written, the frame and plot it was made from, when, and the one waiting. */
   private summary = '';
-  private summaryOf: { frame: NeatBevFrame | null; range: number } | null = null;
+  private summaryOf: { frame: NeatBevFrame | null; plot: BevPlot } | null = null;
   private summaryAt = -Infinity;
   private summaryTimer: ReturnType<typeof setTimeout> | undefined;
   private readonly vehiclePoint = { x: 0, y: 0 };
   private readonly screenPoint = { x: 0, y: 0 };
-  private zoom: BevZoom | null = null;
+  /** The pan and zoom, while `zoom` is on and the view is rendered. */
+  private zoomer: BevZoom | null = null;
+  /** Whether the view has rendered: the zoom is made from then on. */
+  private rendered = false;
   /** The pan and zoom on top of the default view. */
   private transform: ZoomTransform = zoomIdentity;
-  /** The plot the zoom was last given, so a frame gives it only a new one. */
-  private area: PlotArea | null = null;
+  /** The box and the pan bounds the zoom was last given, so a frame gives it only new ones. */
+  private bounded: { width: number; height: number; pan: ScreenRect } | null = null;
   /** The style rows the colours were last given. */
   private stylesGiven: readonly NeatOverlayClassStyle[] | null = null;
   private width = 0;
@@ -214,6 +252,11 @@ export class NeatBev {
         this.schedule();
       });
     });
+    // The zoom is made while it is on, and goes with its listeners when it turns off.
+    effect(() => {
+      const on = this.zoom();
+      untracked(() => this.syncZoom(on));
+    });
     let observer: ResizeObserver | null = null;
     afterNextRender(() =>
       this.zone.runOutsideAngular(() => {
@@ -231,11 +274,8 @@ export class NeatBev {
         this.host.addEventListener('pointerdown', this.pointerDown);
         this.host.addEventListener('click', this.click);
         this.host.addEventListener('keydown', this.escape);
-        this.zoom = new BevZoom(this.host, (transform) => {
-          this.transform = transform;
-          this.zoomed.set(!isDefault(transform));
-          this.schedule();
-        });
+        this.rendered = true;
+        this.syncZoom(untracked(this.zoom));
         observer = new ResizeObserver((entries) => {
           const box = entries.at(-1)?.borderBoxSize?.[0];
           if (!box) return;
@@ -254,7 +294,7 @@ export class NeatBev {
       if (this.request !== 0) cancelAnimationFrame(this.request);
       this.request = 0;
       observer?.disconnect();
-      this.zoom?.destroy();
+      this.zoomer?.destroy();
       clearTimeout(this.summaryTimer);
       this.host.removeEventListener('pointermove', this.pointerMove);
       this.host.removeEventListener('pointerleave', this.pointerLeave);
@@ -265,10 +305,36 @@ export class NeatBev {
     });
   }
 
-  /** Back to the whole range around the vehicle. */
+  /** Back to the default view. */
   protected reset(): void {
-    this.zoom?.reset();
+    this.zoomer?.reset();
     this.host.focus();
+  }
+
+  /**
+   * Makes the zoom when it turns on (once the view has rendered), outside change detection, or
+   * takes it away when it turns off, the view back at the default.
+   */
+  private syncZoom(on: boolean): void {
+    if (!this.rendered || this.destroyed || on === (this.zoomer !== null)) return;
+    if (on) {
+      this.zoomer = this.zone.runOutsideAngular(
+        () =>
+          new BevZoom(this.host, (transform) => {
+            this.transform = transform;
+            this.zoomed.set(!isDefault(transform));
+            this.schedule();
+          }),
+      );
+    } else {
+      this.zoomer?.destroy();
+      this.zoomer = null;
+      this.transform = zoomIdentity;
+      this.zoomed.set(false);
+    }
+    // The next frame gives a new zoom its bounds.
+    this.bounded = null;
+    this.schedule();
   }
 
   /** A frame, unless one is coming, the page is hidden, there is no canvas yet or it is gone. */
@@ -324,19 +390,23 @@ export class NeatBev {
     const ratio =
       typeof devicePixelRatio === 'number' && devicePixelRatio > 0 ? devicePixelRatio : 1;
     const inputs = untracked(this.inputs);
-    const area = plotArea(this.width, this.height, inputs.shape);
-    if (!sameArea(area, this.area)) {
-      this.area = area;
-      // May move the view back inside a smaller plot, setting `transform` before it is read.
-      this.zoom?.setPlot(area);
+    const { plot } = inputs;
+    const start = defaultView(this.width, this.height, plot);
+    if (this.zoomer) {
+      const pan = panBounds(start, plot, inputs.overflow, this.width, this.height);
+      if (!sameBounds(this.bounded, this.width, this.height, pan)) {
+        this.bounded = { width: this.width, height: this.height, pan };
+        // May move the view back inside smaller bounds, setting `transform` before it is read.
+        this.zoomer.setBounds(this.width, this.height, pan);
+      }
     }
     const { k, x, y } = this.transform;
-    const view: BevView = { ...defaultView(area, inputs.range), k, tx: x, ty: y };
+    const view: BevView = { ...start, k, tx: x, ty: y };
     const frame = untracked(this.frame);
-    const hover = this.hovered(view, area, frame);
+    const hover = this.hovered(view, inputs, frame);
     this.colours.begin(performance.now());
     this.canvas.draw(ratio, view, inputs, untracked(this.theme), this.colours, frame, hover);
-    this.summarise(frame, inputs.range);
+    this.summarise(frame, plot);
     const object = hover >= 0 ? frame?.objects?.[hover] : undefined;
     if (object) {
       const at = toScreen(view, object.x, object.y, this.screenPoint);
@@ -351,47 +421,45 @@ export class NeatBev {
    * Says what a new frame or range shows, at most once every `SUMMARY_MS`: one sooner waits for
    * its turn, and the newest frame by then is the one summed up.
    */
-  private summarise(frame: NeatBevFrame | null, range: number): void {
-    if (this.summaryOf?.frame === frame && this.summaryOf.range === range) return;
+  private summarise(frame: NeatBevFrame | null, plot: BevPlot): void {
+    if (this.summaryOf?.frame === frame && this.summaryOf.plot === plot) return;
     if (this.summaryTimer !== undefined) return;
     const wait = this.summaryAt + SUMMARY_MS - performance.now();
     if (wait > 0) {
       this.summaryTimer = setTimeout(() => {
         this.summaryTimer = undefined;
-        if (!this.destroyed) this.summarise(untracked(this.frame), untracked(this.range));
+        if (!this.destroyed) this.summarise(untracked(this.frame), untracked(this.inputs).plot);
       }, wait);
       return;
     }
-    this.summaryOf = { frame, range };
+    this.summaryOf = { frame, plot };
     this.summaryAt = performance.now();
-    const text = summaryText(frame?.objects, range);
+    const text = summaryText(frame?.objects, plot);
     if (text === this.summary) return;
     this.summary = text;
     this.summaryElement().nativeElement.textContent = text;
   }
 
-  /** The index of the object under the pointer, on the plot; -1 for none. */
-  private hovered(view: BevView, area: PlotArea, frame: NeatBevFrame | null): number {
+  /** The index of the object under the pointer, where the view shows objects; -1 for none. */
+  private hovered(view: BevView, inputs: BevInputs, frame: NeatBevFrame | null): number {
     const objects = frame?.objects;
     const pointer = this.pointer;
-    if (!pointer || !objects?.length) return -1;
-    if (untracked(this.shape) === 'round') {
-      const radius = area.halfWidth - PLOT_INSET;
-      if (Math.hypot(pointer.x - area.cx, pointer.y - area.cy) > radius) return -1;
-    }
+    if (!pointer || !objects?.length || !(view.ppm > 0)) return -1;
     const at = toVehicle(view, pointer.x, pointer.y, this.vehiclePoint);
+    if (inputs.overflow === 'clip' && !onPlot(inputs.plot, at.x, at.y)) return -1;
     return hitObject(objects, at.x, at.y, HIT_TOLERANCE_PX / (view.ppm * view.k));
   }
 }
 
-function sameArea(a: PlotArea, b: PlotArea | null): boolean {
-  return (
-    b !== null &&
-    a.cx === b.cx &&
-    a.cy === b.cy &&
-    a.halfWidth === b.halfWidth &&
-    a.halfHeight === b.halfHeight
-  );
+function sameBounds(
+  given: { width: number; height: number; pan: ScreenRect } | null,
+  width: number,
+  height: number,
+  [[x0, y0], [x1, y1]]: ScreenRect,
+): boolean {
+  if (!given || given.width !== width || given.height !== height) return false;
+  const [[a0, b0], [a1, b1]] = given.pan;
+  return a0 === x0 && b0 === y0 && a1 === x1 && b1 === y1;
 }
 
 /** A colour from 0..1 channels as CSS. */

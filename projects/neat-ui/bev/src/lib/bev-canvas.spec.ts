@@ -1,7 +1,13 @@
 import { BevCanvas, type BevInputs, type BevTheme, packRgb } from './bev-canvas';
 import { calls, type Recorded, type Recording, sets, stubCanvases } from './canvas.testing';
-import { GRID_ALPHA, type LabelColours, type LabelLook, OBJECT_FILL_ALPHA } from './colours';
-import { type BevView, defaultView, plotArea, spokeList } from './geometry';
+import {
+  GRID_ALPHA,
+  type LabelColours,
+  type LabelLook,
+  OBJECT_FILL_ALPHA,
+  SENSOR_FILL_ALPHA,
+} from './colours';
+import { bevPlot, type BevView, defaultView, spokeList } from './geometry';
 import type { NeatBevFrame, NeatBevObject } from './model';
 
 const THEME: BevTheme = {
@@ -28,14 +34,35 @@ function colours(looks: Record<string, Partial<LabelLook>> = {}): LabelColours {
   } as unknown as LabelColours;
 }
 
+/** Each straight segment drawn, a `moveTo` and the `lineTo` after it: x0, y0, x1, y1. */
+function segments(log: readonly Recorded[]): (readonly [number, number, number, number])[] {
+  const found: (readonly [number, number, number, number])[] = [];
+  let from: readonly unknown[] | null = null;
+  for (const entry of log) {
+    if (entry.name === 'moveTo') from = entry.args;
+    else if (entry.name === 'lineTo' && from) {
+      found.push([from[0], from[1], entry.args[0], entry.args[1]] as [
+        number,
+        number,
+        number,
+        number,
+      ]);
+      from = null;
+    }
+  }
+  return found;
+}
+
 /** A number as a pixel's byte stores it. */
 const byte = (value: number): number => Uint8ClampedArray.of(value)[0];
 
 const inputs = (over: Partial<BevInputs> = {}): BevInputs => ({
-  shape: 'round',
-  range: 60,
+  plot: bevPlot('round', 60),
   sensors: [],
   spokes: spokeList(0),
+  outline: true,
+  overflow: 'clip',
+  guides: 'over',
   ...over,
 });
 
@@ -72,13 +99,13 @@ describe('BevCanvas', () => {
       return made;
     });
     bev.size(400, 400);
-    view = defaultView(plotArea(400, 400, 'round'), 60);
+    view = defaultView(400, 400, bevPlot('round', 60));
   });
 
   afterEach(() => vi.restoreAllMocks());
 
   const main = (): Recorded[] => recordingOf(canvas).log;
-  /** The cached layer's recording: the first canvas the renderer made. */
+  /** The layer over the data: the first canvas the renderer made, while nothing goes under. */
   const layer = (): Recorded[] => recordingOf(created[0]).log;
   const draw = (frame: NeatBevFrame | null, over: Partial<BevInputs> = {}, hover = -1, at = view) =>
     bev.draw(2, at, inputs(over), THEME, colours(), frame, hover);
@@ -97,14 +124,42 @@ describe('BevCanvas', () => {
   });
 
   describe('round', () => {
-    it('draws a ring per step inside the range, a strong ring at the range and the edge', () => {
+    it('draws a ring per step inside the range, and the outline at the range', () => {
       draw(null);
       const arcs = calls(layer(), 'arc').map((c) => c.args[2] as number);
       const ppm = view.ppm;
       // At 3.1 px per metre, rings 10 m apart would sit 31 px apart: the step grows to 20 m.
-      // The clip, two rings, the range's ring, then the edge drawn outside the clip.
-      expect(arcs.map((r) => Math.round(r / ppm))).toEqual([60, 20, 40, 60, 60]);
+      // The clip, two rings, then the outline drawn outside the clip.
+      expect(arcs.map((r) => Math.round(r / ppm))).toEqual([60, 20, 40, 60]);
       expect(sets(layer(), 'strokeStyle')).toContain(THEME.strong);
+    });
+
+    it('leaves the outline out when asked', () => {
+      draw(null, { outline: false });
+      const arcs = calls(layer(), 'arc').map((c) => Math.round((c.args[2] as number) / view.ppm));
+      expect(arcs).toEqual([60, 20, 40]);
+      expect(sets(layer(), 'strokeStyle')).not.toContain(THEME.strong);
+    });
+
+    it('zooms the circle with the view: its clip and outline grow past the box', () => {
+      draw(null, {}, -1, { ...view, k: 2, tx: -200, ty: -200 });
+      const arcs = calls(layer(), 'arc');
+      for (const arc of [arcs[0], arcs.at(-1)!]) {
+        expect(arc.args.slice(0, 2)).toEqual([200, 200]);
+        expect(arc.args[2]).toBeCloseTo(60 * view.ppm * 2);
+      }
+      expect(calls(main(), 'arc')[0].args[2]).toBeCloseTo(60 * view.ppm * 2);
+    });
+
+    it('runs the rings on to the corners of the box with overflow visible, and clips nothing', () => {
+      draw(null, { overflow: 'visible' });
+      expect(calls(layer(), 'clip')).toHaveLength(0);
+      expect(calls(main(), 'clip')).toHaveLength(0);
+      const radii = calls(layer(), 'arc').map((c) => Math.round((c.args[2] as number) / view.ppm));
+      // The corners lie 200·√2 px out, 90 m at 3.1 px per metre: rings to 80 m, the outline at 60.
+      expect(radii).toEqual([20, 40, 60, 80, 60]);
+      const labels = calls(layer(), 'fillText').map((c) => c.args[0]);
+      expect(labels).toEqual(['20 m', '40 m', '60 m', '80 m']);
     });
 
     it('labels the rings in metres halfway between forward and left', () => {
@@ -117,12 +172,21 @@ describe('BevCanvas', () => {
       expect(200 - x).toBeGreaterThan(0);
     });
 
-    it('steps every 10 m once the zoom leaves room, and labels only the rings on the plot', () => {
+    it('steps every 10 m once the zoom leaves room, and labels only the rings in the box', () => {
       // Zoomed twice about the plot's centre, as d3-zoom's transform does it.
       draw(null, {}, -1, { ...view, k: 2, tx: -200, ty: -200 });
       const labels = calls(layer(), 'fillText').map((c) => c.args[0]);
-      // Zoomed in twice, 30 m reach the edge: the rings beyond it are not labelled.
-      expect(labels).toEqual(['10 m', '20 m', '30 m']);
+      // Halfway between forward and left the box's corner is 43 m out: 50 m and 60 m are not.
+      expect(labels).toEqual(['10 m', '20 m', '30 m', '40 m']);
+    });
+
+    it('puts the labels towards the box once the vehicle is panned out of it', () => {
+      // Zoomed four times and panned so that the vehicle lies 200 px below the box.
+      draw(null, {}, -1, { ...view, k: 4, tx: -600, ty: -200 });
+      const labels = calls(layer(), 'fillText');
+      expect(labels.length).toBeGreaterThan(0);
+      // Straight ahead of the vehicle, up the box's middle.
+      for (const label of labels) expect(label.args[1]).toBeCloseTo(200);
     });
 
     it('draws a label on the edge whole, outside the clip', () => {
@@ -154,36 +218,117 @@ describe('BevCanvas', () => {
       expect(Math.hypot(x - 200, y - 200)).toBeCloseTo(60 * view.ppm);
     });
 
-    it('draws a sensor as a faint wedge from its origin', () => {
-      draw(null, { sensors: [{ label: 'front', from: -0.5, to: 0.5, range: 30 }] });
+    it('draws the edges of a sensor from its origin, and its arc when it has its own range', () => {
+      draw(null, {
+        sensors: [
+          { label: 'front', from: -0.5, to: 0.5, range: 30 },
+          { label: 'back', from: 2.5, to: 3.5 },
+        ],
+      });
       const wedge = calls(layer(), 'arc').find(
         (c) => Math.abs((c.args[2] as number) - 30 * view.ppm) < 1e-9,
       );
       expect(wedge?.args.slice(0, 2)).toEqual([200, 200]);
-      // From the right edge to the left edge, anticlockwise on the screen.
-      expect(wedge?.args[3]).toBeCloseTo(-Math.PI / 2 + 0.5);
-      expect(wedge?.args[4]).toBeCloseTo(-Math.PI / 2 - 0.5);
-      expect(wedge?.args[5]).toBe(true);
-      expect(sets(layer(), 'fillStyle')).toContain('#front');
+      // Back from the left edge to the right edge, clockwise on the screen.
+      expect(wedge?.args[3]).toBeCloseTo(-Math.PI / 2 - 0.5);
+      expect(wedge?.args[4]).toBeCloseTo(-Math.PI / 2 + 0.5);
+      expect(wedge?.args[5]).toBe(false);
+      // The back sensor reaches the range, where the outline is: no arc of its own.
+      expect(
+        calls(layer(), 'arc').map((c) => Math.round((c.args[2] as number) / view.ppm)),
+      ).toEqual([60, 20, 40, 30, 60]);
+      expect(sets(layer(), 'strokeStyle')).toEqual(expect.arrayContaining(['#front', '#back']));
+      expect(sets(layer(), 'fillStyle')).not.toContain('#front');
+      // Nothing goes under the data: one layer only.
+      expect(created).toHaveLength(1);
+    });
+
+    it('fills a sensor that asks, faintly and under the data', () => {
+      draw(
+        { objects: [car(10, 0)] },
+        { sensors: [{ label: 'front', from: -0.5, to: 0.5, fill: true }] },
+      );
+      const [under, over] = created;
+      const fills = recordingOf(under).log;
+      expect(sets(fills, 'fillStyle')).toEqual(['#front']);
+      expect(sets(fills, 'globalAlpha')).toContain(SENSOR_FILL_ALPHA);
+      expect(sets(recordingOf(over).log, 'strokeStyle')).toContain('#front');
+      const log = main();
+      const images = log.filter((entry) => entry.name === 'drawImage');
+      const firstFill = log.findIndex((entry) => entry.name === 'fill');
+      expect(images[0].args[0]).toBe(under);
+      expect(log.indexOf(images[0])).toBeLessThan(firstFill);
+      expect(log.indexOf(images.at(-1)!)).toBeGreaterThan(firstFill);
+      expect(images.at(-1)!.args[0]).toBe(over);
     });
   });
 
-  describe('square', () => {
+  describe('guides', () => {
+    it('lie over the data by default, and under it when asked, their labels on top', () => {
+      draw({ objects: [car(10, 0)] }, { guides: 'under' });
+      const [under, over] = created;
+      expect(calls(recordingOf(under).log, 'arc').length).toBeGreaterThan(1);
+      expect(calls(recordingOf(under).log, 'fillText')).toHaveLength(0);
+      expect(calls(recordingOf(over).log, 'arc')).toHaveLength(0);
+      expect(calls(recordingOf(over).log, 'fillText').length).toBeGreaterThan(0);
+      const log = main();
+      const firstFill = log.findIndex((entry) => entry.name === 'fill');
+      const images = calls(log, 'drawImage').map((c) => log.indexOf(c));
+      expect(images[0]).toBeLessThan(firstFill);
+      expect(images.at(-1)).toBeGreaterThan(firstFill);
+    });
+  });
+
+  describe('rect', () => {
+    const rect = (back: number, front: number, right: number, left: number) =>
+      bevPlot('rect', 60, { x: [back, front], y: [right, left] });
+
     beforeEach(() => {
       bev.size(600, 400);
-      view = defaultView(plotArea(600, 400, 'square'), 60);
+      view = defaultView(600, 400, bevPlot('rect', 60));
     });
 
-    it('draws grid lines across the box every step, labelled at the edges, and no edge', () => {
-      draw(null, { shape: 'square' });
+    it('draws grid lines inside the rectangle every step, labelled at its edges, and its outline', () => {
+      draw(null, { plot: bevPlot('rect', 60) });
       const labels = calls(layer(), 'fillText').map((c) => c.args[0]);
       expect(labels).toContain('20 m');
       expect(labels).not.toContain('0 m');
-      // Across 400 px at 188/60 px per metre, every 20 m (10 m would be 31 px apart): -60 to 60.
-      const horizontal = calls(layer(), 'moveTo').filter((c) => c.args[0] === 0);
+      // 376 px for 120 m, every 20 m (10 m would be 31 px apart): -60 to 60, from the left edge.
+      const left = 300 - 60 * view.ppm;
+      const horizontal = segments(layer()).filter(([x0, y0, , y1]) => x0 === left && y0 === y1);
       expect(horizontal).toHaveLength(7);
-      // The clip is a rectangle, and there is no round edge.
+      // The clip and the outline are the rectangle; nothing is round.
+      const rects = calls(layer(), 'rect');
+      expect(rects).toHaveLength(2);
+      expect(rects[1].args[0]).toBeCloseTo(left);
+      expect(rects[1].args[2]).toBeCloseTo(120 * view.ppm);
       expect(calls(layer(), 'arc')).toHaveLength(0);
+      // The labels sit along the rectangle's left edge.
+      const columns = calls(layer(), 'fillText').filter((c) => c.args[0] === '20 m');
+      expect(columns.some((c) => c.args[1] === left + 4)).toBe(true);
+    });
+
+    it('fills the box with lines and no outline: overflow visible, outline off', () => {
+      draw(null, { plot: bevPlot('rect', 60), overflow: 'visible', outline: false });
+      const horizontal = calls(layer(), 'moveTo').filter((c) => c.args[0] === 0);
+      const vertical = calls(layer(), 'moveTo').filter((c) => c.args[1] === 0);
+      expect(horizontal).toHaveLength(7);
+      // 600 px across, every 62.7 px from the middle: 9 lines.
+      expect(vertical).toHaveLength(9);
+      expect(calls(layer(), 'rect')).toHaveLength(0);
+      expect(calls(layer(), 'clip')).toHaveLength(0);
+    });
+
+    it('fits off-centre bounds, the vehicle off the middle, spokes to their edges', () => {
+      bev.size(400, 400);
+      const plot = rect(-20, 80, -30, 30);
+      view = defaultView(400, 400, plot);
+      draw(null, { plot, spokes: spokeList(2) });
+      // 100 m along in 376 px: the vehicle 30 m below the middle.
+      expect(view.ppm).toBeCloseTo(3.76);
+      const ends = calls(layer(), 'lineTo').slice(-2);
+      expect(ends[0].args[1]).toBeCloseTo(12);
+      expect(ends[1].args[1]).toBeCloseTo(388);
     });
   });
 
@@ -219,6 +364,7 @@ describe('BevCanvas', () => {
     it('draws a grid with row 0 forward and column 0 left, in its colour', () => {
       const cells = new Uint8Array([255, 0, 0, 0, 0, 128]); // 3 columns, 2 rows
       draw({ grids: [{ label: 'road', cells, columns: 3, rows: 2, x: [-20, 20], y: [-30, 30] }] });
+      // The layer is the first canvas made, the grid's the second.
       const pixels = calls(recordingOf(created[1]).log, 'putImageData')[0].args[0] as ImageData;
       expect([...pixels.data.slice(0, 4)]).toEqual([255, 128, 0, byte(255 * GRID_ALPHA)]);
       expect(pixels.data[4 * 5 + 3]).toBe(byte(128 * GRID_ALPHA));
@@ -278,27 +424,38 @@ describe('BevCanvas', () => {
       const buffer = created[1];
       const [put] = calls(recordingOf(buffer).log, 'putImageData');
       const image = put.args[0] as ImageData;
-      // At ratio 2 the 400 × 400 round plot is 800 × 800 device pixels, from the box's corner.
-      expect([image.width, image.height]).toEqual([800, 800]);
+      // At ratio 2 the circle's square, 376 px inside the 12 px inset, is 752 device pixels.
+      expect([image.width, image.height]).toEqual([752, 752]);
       expect(calls(main(), 'drawImage').find((c) => c.args[0] === buffer)?.args).toEqual([
         buffer,
-        0,
-        0,
+        24,
+        24,
       ]);
       const words = new Uint32Array(image.data.buffer);
       const word = packRgb([1, 0.5, 0]);
       // The first point, 1 m forward and 2 m left: a 4 px square (2 CSS px) around it.
-      const x = Math.round(400 - 2 * view.ppm * 2);
-      const y = Math.round(400 - 1 * view.ppm * 2);
-      expect(words[y * 800 + x]).toBe(word);
-      expect(words[(y - 2) * 800 + x - 2]).toBe(word);
-      expect(words[(y + 2) * 800 + x]).toBe(0);
+      const x = Math.round(376 - 2 * view.ppm * 2);
+      const y = Math.round(376 - 1 * view.ppm * 2);
+      expect(words[y * 752 + x]).toBe(word);
+      expect(words[(y - 2) * 752 + x - 2]).toBe(word);
+      expect(words[(y + 2) * 752 + x]).toBe(0);
       expect(words.filter((w) => w === word)).toHaveLength(3 * 16);
+    });
+
+    it('covers the whole box with the buffer when overflow is visible', () => {
+      draw(
+        { points: [{ label: 'lidar', xy: new Float32Array([62, 0]) }] },
+        { overflow: 'visible' },
+      );
+      const image = calls(recordingOf(created[1]).log, 'putImageData')[0].args[0] as ImageData;
+      expect([image.width, image.height]).toEqual([800, 800]);
+      // 62 m ahead lies beyond the range, still in the box: drawn.
+      expect(new Uint32Array(image.data.buffer).filter((w) => w !== 0)).toHaveLength(16);
     });
 
     it("sizes the points' buffer to the plot in a wide box, and clears it each frame", () => {
       bev.size(600, 400);
-      const wide = defaultView(plotArea(600, 400, 'round'), 60);
+      const wide = defaultView(600, 400, bevPlot('round', 60));
       const xy = new Float32Array([1, 2]);
       draw({ points: [{ label: 'lidar', xy }] }, {}, -1, wide);
       draw(
@@ -315,12 +472,12 @@ describe('BevCanvas', () => {
       const buffer = created.at(-1)!;
       const puts = calls(recordingOf(buffer).log, 'putImageData');
       const image = puts.at(-1)!.args[0] as ImageData;
-      expect([image.width, image.height]).toEqual([800, 800]);
+      expect([image.width, image.height]).toEqual([752, 752]);
       expect(
         calls(main(), 'drawImage')
           .filter((c) => c.args[0] === buffer)
           .at(-1)?.args,
-      ).toEqual([buffer, 200, 0]);
+      ).toEqual([buffer, 224, 24]);
       expect(new Uint32Array(image.data.buffer).filter((w) => w !== 0)).toHaveLength(16);
     });
 

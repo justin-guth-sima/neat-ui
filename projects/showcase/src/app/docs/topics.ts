@@ -839,6 +839,9 @@ export const GROUPS: readonly TopicGroup[] = [
               'NeatBevSensor',
               'NeatBevSpoke',
               'NeatBevShape',
+              'NeatBevBounds',
+              'NeatBevOverflow',
+              'NeatBevGuides',
             ],
             leads: ['NeatBev'],
             load: async () => {

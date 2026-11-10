@@ -31,7 +31,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), and rings or a metric grid to read distances by ("
+              "text": "), and rings in a circle or a metric grid in a rectangle to read distances by ("
             },
             {
               "kind": "code",
@@ -39,7 +39,23 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), in the vehicle's own frame (metres, x forward and y left, forward up on the screen). Labels pick colours as the video overlays' classes do, from the page's class colours, so \"car\" has one colour in the view and in every tile; "
+              "text": "), in the vehicle's own frame (metres, x forward and y left, forward up on the screen). The data and the guides stop at the shape's edge, or run on over the whole box ("
+            },
+            {
+              "kind": "code",
+              "text": "overflow"
+            },
+            {
+              "kind": "text",
+              "text": "); the guides lie over the data or under it ("
+            },
+            {
+              "kind": "code",
+              "text": "guides"
+            },
+            {
+              "kind": "text",
+              "text": "). Labels pick colours as the video overlays' classes do, from the page's class colours, so \"car\" has one colour in the view and in every tile; "
             },
             {
               "kind": "code",
@@ -55,7 +71,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". Wheel, pinch and drag zoom and pan it, from the whole range in to a quarter of it and only within the plot; with focus, the arrows pan, "
+              "text": ". With "
+            },
+            {
+              "kind": "code",
+              "text": "zoom"
+            },
+            {
+              "kind": "text",
+              "text": ", wheel, pinch and drag zoom and pan it, the shape and all, in to four times the default and within what the default shows; with focus, the arrows pan, "
             },
             {
               "kind": "code",
@@ -87,14 +111,14 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " with a summary of what it shows (\"18 car, 51 pedestrian within 60 m\"), which changes at most once a second. Give it a height, or it is as tall as it is wide."
+              "text": " with a summary of what it shows (\"18 car, 51 pedestrian within 60 m\"), which changes at most once a second. Give it a height, or it takes the shape's proportions."
             }
           ]
         },
         {
           "kind": "code",
           "language": "html",
-          "code": "<neat-bev [frame]=\"frame()\" [sensors]=\"cameras\" [spokes]=\"seams\" [range]=\"60\" />"
+          "code": "<neat-bev [frame]=\"frame()\" [sensors]=\"cameras\" [range]=\"60\" zoom />"
         }
       ],
       "inputs": [
@@ -124,7 +148,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The sensors' wedges, drawn faintly under everything else."
+                  "text": "The sensors' wedges: their edges as lines in their labels' colours, filled if they ask."
                 }
               ]
             }
@@ -156,7 +180,15 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Metres from the vehicle to the plot's nearer edge."
+                  "text": "Metres from the vehicle to the circle, and to the rectangle's edges without "
+                },
+                {
+                  "kind": "code",
+                  "text": "bounds"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
                 }
               ]
             }
@@ -172,7 +204,15 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Rings around the vehicle in the largest square that fits ("
+                  "text": "The circle of "
+                },
+                {
+                  "kind": "code",
+                  "text": "range"
+                },
+                {
+                  "kind": "text",
+                  "text": " with rings ("
                 },
                 {
                   "kind": "code",
@@ -180,7 +220,121 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": "), or a grid that fills the box."
+                  "text": "), or the rectangle "
+                },
+                {
+                  "kind": "code",
+                  "text": "bounds"
+                },
+                {
+                  "kind": "text",
+                  "text": " with a grid."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "bounds",
+          "type": "NeatBevBounds | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The rectangle in metres ("
+                },
+                {
+                  "kind": "code",
+                  "text": "'rect'"
+                },
+                {
+                  "kind": "text",
+                  "text": "), as a grid sets one; null is ±"
+                },
+                {
+                  "kind": "code",
+                  "text": "range"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "outline",
+          "type": "boolean",
+          "default": "true",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the shape's edge is drawn."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "overflow",
+          "type": "NeatBevOverflow",
+          "default": "'clip'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the data and the guides stop at the shape ("
+                },
+                {
+                  "kind": "code",
+                  "text": "'clip'"
+                },
+                {
+                  "kind": "text",
+                  "text": ") or run on over the box."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "guides",
+          "type": "NeatBevGuides",
+          "default": "'over'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether rings or grid lines, spokes, sensors' edges and the outline lie over the data."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "zoom",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether wheel, pinch, drag and keys zoom and pan the view; off, the page scrolls over it."
                 }
               ]
             }
@@ -220,6 +374,59 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/bev/src/lib/bev.ts"
+    },
+    {
+      "name": "NeatBevBounds",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "x",
+          "type": "readonly [min: number, max: number]",
+          "doc": []
+        },
+        {
+          "name": "y",
+          "type": "readonly [min: number, max: number]",
+          "doc": []
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A rectangle around the vehicle in metres, as "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatBevGrid",
+              "name": "NeatBevGrid"
+            },
+            {
+              "kind": "text",
+              "text": " sets one: "
+            },
+            {
+              "kind": "code",
+              "text": "x"
+            },
+            {
+              "kind": "text",
+              "text": " its back and front edges (metres forward), "
+            },
+            {
+              "kind": "code",
+              "text": "y"
+            },
+            {
+              "kind": "text",
+              "text": " its right and left edges (metres to the left)."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/bev/src/lib/model.ts"
     },
     {
       "name": "NeatBevFrame",
@@ -397,6 +604,39 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": " array changes, not when the same array is written to."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/bev/src/lib/model.ts"
+    },
+    {
+      "name": "NeatBevGuides",
+      "kind": "type",
+      "definition": "'over' | 'under'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Where the guides (rings or grid lines, spokes, sensors' edges, the outline) are drawn: "
+            },
+            {
+              "kind": "code",
+              "text": "'over'"
+            },
+            {
+              "kind": "text",
+              "text": " the data or "
+            },
+            {
+              "kind": "code",
+              "text": "'under'"
+            },
+            {
+              "kind": "text",
+              "text": " it. Their labels and the vehicle's marker are always on top."
             }
           ]
         }
@@ -648,6 +888,39 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/bev/src/lib/model.ts"
     },
     {
+      "name": "NeatBevOverflow",
+      "kind": "type",
+      "definition": "'clip' | 'visible'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What lies outside the shape: "
+            },
+            {
+              "kind": "code",
+              "text": "'clip'"
+            },
+            {
+              "kind": "text",
+              "text": " cuts the data and the guides at its edge; "
+            },
+            {
+              "kind": "code",
+              "text": "'visible'"
+            },
+            {
+              "kind": "text",
+              "text": " draws both over the whole box, rings and grid lines running on to its edges."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/bev/src/lib/model.ts"
+    },
+    {
       "name": "NeatBevPoints",
       "kind": "interface",
       "members": [
@@ -783,6 +1056,22 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "fill",
+          "type": "boolean",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the wedge is also filled faintly in its label's colour; only its edges by default."
+                }
+              ]
+            }
+          ]
         }
       ],
       "doc": [
@@ -791,7 +1080,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "What a sensor sees, drawn faintly in its label's colour: a wedge from "
+              "text": "What a sensor sees: a wedge from "
             },
             {
               "kind": "code",
@@ -831,7 +1120,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "."
+              "text": ". Its edges are drawn as lines in its label's colour (and its arc when it reaches less far than the view); "
+            },
+            {
+              "kind": "code",
+              "text": "fill"
+            },
+            {
+              "kind": "text",
+              "text": " also fills it faintly."
             }
           ]
         }
@@ -841,7 +1138,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatBevShape",
       "kind": "type",
-      "definition": "'round' | 'square'",
+      "definition": "'round' | 'rect'",
       "doc": [
         {
           "kind": "paragraph",
@@ -856,15 +1153,23 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", rings around the vehicle in the largest square that fits the box, as a radar shows it; "
+              "text": ", the circle of the view's range around the vehicle with rings, as a radar shows it; "
             },
             {
               "kind": "code",
-              "text": "'square'"
+              "text": "'rect'"
             },
             {
               "kind": "text",
-              "text": ", a metric grid that fills the box."
+              "text": ", a rectangle ("
+            },
+            {
+              "kind": "code",
+              "text": "bounds"
+            },
+            {
+              "kind": "text",
+              "text": ") with a metric grid."
             }
           ]
         }

@@ -7,13 +7,16 @@ import {
   zoomTransform,
   type ZoomTransform,
 } from 'd3-zoom';
-import { type PlotArea, ZOOM_MAX } from './geometry';
+import { type ScreenRect, ZOOM_MAX } from './geometry';
 
 /*
  * The bird's-eye view's pan and zoom, as the diagram's: d3-zoom handles the pointer on the box
- * (drag, wheel, pinch, double-click), this unit the keys and the reset. The view zooms from the
- * whole range (1) in to a quarter of it (`ZOOM_MAX`) and pans only within the plot, so the vehicle's
- * surroundings never leave it. Every listener stays here, outside change detection (AGENTS.md: raw
+ * (drag, wheel, pinch, double-click), this unit the keys, the reset and the wheel's default. The
+ * view zooms from the default (1) in to four times it (`ZOOM_MAX`) and pans only within what the
+ * default view shows (`setBounds`), so the vehicle's surroundings never leave the box. Every wheel
+ * over the box is the view's, also at the zoom's limits, where d3-zoom lets it through: the page
+ * would scroll away under the pointer. Made only while the view's `zoom` is on; `destroy` leaves
+ * the box as it found it. Every listener stays here, outside change detection (AGENTS.md: raw
  * browser APIs stay isolated); the owner hears each new transform through `onChange`.
  */
 
@@ -54,8 +57,8 @@ export class BevZoom {
   /** Its `matches` is read at each move, so a setting changed on an open page applies. */
   private readonly motion: MediaQueryList | null =
     typeof matchMedia === 'function' ? matchMedia(REDUCED_MOTION) : null;
-  /** The plot the view pans within; none before the box has a size. */
-  private area: PlotArea | null = null;
+  /** The box's size, CSS px; none before it has one. */
+  private size: readonly [number, number] | null = null;
   /** The key zoom or reset in flight: where it goes and the frame it waits for. */
   private animation: { readonly to: ZoomTransform; readonly frame: number } | null = null;
 
@@ -80,6 +83,7 @@ export class BevZoom {
     this.motion?.addEventListener('change', this.syncDuration);
     this.selection = select(box).call(this.behavior);
     box.addEventListener('keydown', this.keydown);
+    box.addEventListener('wheel', this.wheel, { passive: false });
   }
 
   /** The transform now, as d3-zoom keeps it on the box. */
@@ -88,15 +92,14 @@ export class BevZoom {
   }
 
   /**
-   * The plot the view pans within (a resize, a new shape): the view stays zoomed as it was and is
-   * moved back inside the plot if it now lies outside.
+   * The box's size and what the view pans within, in the default view's pixels (a resize, a new
+   * plot): the view stays zoomed as it was and is moved back inside if it now lies outside.
    */
-  setPlot(area: PlotArea): void {
-    this.area = area;
-    const { cx, cy, halfWidth, halfHeight } = area;
+  setBounds(width: number, height: number, [[x0, y0], [x1, y1]]: ScreenRect): void {
+    this.size = [width, height];
     this.behavior.translateExtent([
-      [cx - halfWidth, cy - halfHeight],
-      [cx + halfWidth, cy + halfHeight],
+      [x0, y0],
+      [x1, y1],
     ]);
     // The view moves only if the new bounds leave it outside the plot.
     const now = this.transform;
@@ -112,21 +115,19 @@ export class BevZoom {
   destroy(): void {
     this.stopAnimation();
     this.box.removeEventListener('keydown', this.keydown);
+    this.box.removeEventListener('wheel', this.wheel);
     this.motion?.removeEventListener('change', this.syncDuration);
     this.selection.on('.zoom', null);
+    // d3-zoom's own mark on the box, so a box that no longer zooms taps as any other.
+    this.box.style.removeProperty('-webkit-tap-highlight-color');
   }
 
-  /** The viewport d3-zoom constrains to: the plot, or the box before it has one. */
+  /** The viewport d3-zoom constrains to: the box. */
   private extentOf(): [[number, number], [number, number]] {
-    const area = this.area;
-    if (!area)
-      return [
-        [0, 0],
-        [this.box.clientWidth, this.box.clientHeight],
-      ];
+    const [width, height] = this.size ?? [this.box.clientWidth, this.box.clientHeight];
     return [
-      [area.cx - area.halfWidth, area.cy - area.halfHeight],
-      [area.cx + area.halfWidth, area.cy + area.halfHeight],
+      [0, 0],
+      [width, height],
     ];
   }
 
@@ -163,6 +164,11 @@ export class BevZoom {
     if (this.animation) cancelAnimationFrame(this.animation.frame);
     this.animation = null;
   }
+
+  /** Every wheel over the box zooms the view, and never scrolls the page, at a limit too. */
+  private readonly wheel = (event: WheelEvent): void => {
+    event.preventDefault();
+  };
 
   /** d3-zoom's double-click (and double-tap) animates as long as the keys' zoom, or jumps. */
   private readonly syncDuration = (): void => {

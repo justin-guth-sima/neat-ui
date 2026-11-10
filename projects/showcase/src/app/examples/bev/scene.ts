@@ -328,9 +328,3 @@ export const SEAMS: readonly NeatBevSpoke[] = RIG.map((camera, i) => {
   while (right < left - Math.PI) right += 2 * Math.PI;
   return { angle: (left + right) / 2 };
 });
-
-/** Each camera's two edges, from where it is mounted: where its view really starts and ends. */
-export const MOUNT_EDGES: readonly NeatBevSpoke[] = RIG.flatMap((camera) => [
-  { angle: camera.yaw - camera.fov / 2, origin: camera.mount },
-  { angle: camera.yaw + camera.fov / 2, origin: camera.mount },
-]);

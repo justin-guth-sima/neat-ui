@@ -80,8 +80,9 @@ export interface NeatBevFrame {
 }
 
 /**
- * What a sensor sees, drawn faintly in its label's colour: a wedge from `origin` between the
- * angles `from` and `to` (counter-clockwise from `from`), out to `range`.
+ * What a sensor sees: a wedge from `origin` between the angles `from` and `to` (counter-clockwise
+ * from `from`), out to `range`. Its edges are drawn as lines in its label's colour (and its arc
+ * when it reaches less far than the view); `fill` also fills it faintly.
  */
 export interface NeatBevSensor {
   /** What picks its colour (the camera's name, say). */
@@ -94,6 +95,8 @@ export interface NeatBevSensor {
   readonly origin?: { readonly x: number; readonly y: number };
   /** How far it reaches, metres; the view's range by default. */
   readonly range?: number;
+  /** Whether the wedge is also filled faintly in its label's colour; only its edges by default. */
+  readonly fill?: boolean;
 }
 
 /**
@@ -107,7 +110,28 @@ export interface NeatBevSpoke {
 }
 
 /**
- * The plot's shape: `'round'`, rings around the vehicle in the largest square that fits the box,
- * as a radar shows it; `'square'`, a metric grid that fills the box.
+ * The plot's shape: `'round'`, the circle of the view's range around the vehicle with rings, as a
+ * radar shows it; `'rect'`, a rectangle (`bounds`) with a metric grid.
  */
-export type NeatBevShape = 'round' | 'square';
+export type NeatBevShape = 'round' | 'rect';
+
+/**
+ * A rectangle around the vehicle in metres, as `NeatBevGrid` sets one: `x` its back and front
+ * edges (metres forward), `y` its right and left edges (metres to the left).
+ */
+export interface NeatBevBounds {
+  readonly x: readonly [min: number, max: number];
+  readonly y: readonly [min: number, max: number];
+}
+
+/**
+ * What lies outside the shape: `'clip'` cuts the data and the guides at its edge; `'visible'`
+ * draws both over the whole box, rings and grid lines running on to its edges.
+ */
+export type NeatBevOverflow = 'clip' | 'visible';
+
+/**
+ * Where the guides (rings or grid lines, spokes, sensors' edges, the outline) are drawn: `'over'`
+ * the data or `'under'` it. Their labels and the vehicle's marker are always on top.
+ */
+export type NeatBevGuides = 'over' | 'under';
