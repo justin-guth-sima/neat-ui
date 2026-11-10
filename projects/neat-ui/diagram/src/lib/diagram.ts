@@ -56,36 +56,48 @@ import { DiagramZoom } from './zoom';
  * </neat-diagram>
  * ```
  *
- * Frames and bands are drawn behind one SVG of edges, blocks, brackets, edge labels and notes in
- * front of it, all in one container (what pan and zoom move). Every part is keyed by its id, so a
- * new diagram object with the same content (an app recomputing it on every poll) changes nothing
- * in the DOM, and a moved node is the same element, moved. A part whose ids name nothing is left
- * out and named once in dev mode; the rest is drawn.
+ * The app places every node. The kit routes the edges between them, and draws the whole.
  *
- * The host is a `figure` named by `label`; it fills the box the app gives it and clips what lies
- * outside. Chips are the kit's status chips; a block's body, the notes' content and the tooltip of
- * the edge under the pointer are the app's templates (`neatDiagramBlock`, `neatDiagramNote`,
- * `neatDiagramEdgeTooltip`). A visually hidden list after the drawing says the level's nodes and
+ * Groups and bands are drawn behind one SVG of edges. Blocks, brackets, edge labels and notes are
+ * drawn in front of it. All of them sit in one container, which is what pan and zoom move.
+ *
+ * Every part is keyed by its id. So a new diagram object with the same content, from an app that
+ * recomputes it on every poll, changes nothing in the DOM. A moved node is the same element, moved.
+ * A part whose ids name nothing is left out and named once in dev mode. The rest is drawn.
+ *
+ * The host is a `figure` named by `label`. It fills the box the app gives it, and clips what lies
+ * outside. Give it a bounded box: without a height it shows nothing.
+ *
+ * Chips are the kit's status chips. A block's body, the notes' content and the tooltip of the edge
+ * under the pointer are the app's templates: `neatDiagramBlock`, `neatDiagramNote` and
+ * `neatDiagramEdgeTooltip`. A visually hidden list after the drawing says the level's nodes and
  * edges in words.
  *
- * With `highlight` set, a block or an edge under the pointer, or a block whose open button has the
- * focus, is in focus with what it is joined to; the rest is dimmed. `hovered` is that part, both
- * ways (the kit's rule for widget interaction): the diagram sets it while the pointer or the
- * keyboard is on a part, null once they leave, and the app may set it, so a list beside the
- * diagram can put a block in focus (shown as `highlight` allows). `activated` reports a click on a
- * block or an edge; a block that opens a level opens it too. A block that opens a level is
- * a button that opens it; `level` is the path of open levels, which an app can bind to its route,
- * and the bar over the drawing goes back and shows the path. A path that leads nowhere (a stale
- * route) is cut to the part that does, and the model is set to it; so render the diagram once its
- * data is there, since a routed path is checked against the diagram given, a placeholder too.
+ * With `highlight` set, a part in focus stays as it is with what it is joined to, and the rest is
+ * dimmed. The part is a block or an edge under the pointer, or a block whose open button has the
+ * focus.
  *
- * The user pans and zooms it (drag, wheel, pinch, double-click; with the box focused, the arrow
- * keys, `+`, `-` and `0`); it fits its level to the box by itself until they do, and `fit()` fits
- * it again. It takes the wheel and touch over its box (`touch-action: none`), so
- * give it a bounded box, not a long stretch of a scrolling page.
+ * `hovered` is that part, both ways, as the kit's rule for widget interaction has it. The diagram
+ * sets it while the pointer or the keyboard is on a part, and null once they leave. The app may set
+ * it, so a list beside the diagram can put a block in focus, shown as `highlight` allows.
+ *
+ * `activated` reports a click on a block or an edge. A block that opens a level is a button that
+ * opens it, and the click opens it too.
+ *
+ * `level` is the path of open levels, which an app can bind to its route. The bar over the drawing
+ * goes back and shows the path. A path that leads nowhere, such as a stale route, is cut to the
+ * part that does, and the model is set to it. So render the diagram once its data is there: a
+ * routed path is checked against the diagram given, a placeholder too.
+ *
+ * The user pans and zooms it by drag, wheel, pinch and double-click. With the box focused, the
+ * arrow keys, `+`, `-` and `0` do too. It fits its level to the box by itself until the user pans
+ * or zooms, and `fit()` fits it again.
+ *
+ * It takes the wheel and touch over its box (`touch-action: none`). So give it a bounded box, not
+ * a long stretch of a scrolling page.
  *
  * A `neat-diagram-messages` projected into it draws the messages moving along its edges, over the
- * drawing; the diagram gives it the level, its edges and the pan and zoom it draws by.
+ * drawing. The diagram gives it the level, its edges, and the pan and zoom it draws by.
  */
 @Component({
   selector: 'neat-diagram',
@@ -120,16 +132,22 @@ export class NeatDiagramView {
    */
   readonly level = model<string[]>([]);
   /**
-   * What dims the rest while something is under the pointer: nothing by default, since dimming
-   * without a reason to look is noise that every pass of the pointer over the drawing makes;
-   * `edges` for a drawing whose links are what the reader follows (the dim then says which blocks
-   * a link joins); `all` when a block's links are worth tracing too. An edge's tooltip shows whatever
-   * this is.
+   * What dims the rest while something is under the pointer: `none`, `edges` or `all`.
+   *
+   * - `none`, the default, dims nothing. Dimming without a reason to look is noise that every pass
+   *   of the pointer over the drawing makes.
+   * - `edges` is for a drawing whose links are what the reader follows. The dim then says which
+   *   blocks a link joins.
+   * - `all` is for when a block's links are worth tracing too.
+   *
+   * An edge's tooltip shows whatever this is.
    */
   readonly highlight = input<NeatDiagramHighlight>('none');
   /**
-   * The part in focus: the pointer's block or edge, or the keyboard's block, while they are on one
-   * (null once they leave); or one the app sets, while they are on none.
+   * The part in focus.
+   *
+   * It is the pointer's block or edge, or the keyboard's block, while they are on one, and null
+   * once they leave. While they are on none, it is one the app sets.
    */
   readonly hovered = model<NeatDiagramPart | null>(null);
   /** A click on a block or an edge (not a drag of the view): which part. */

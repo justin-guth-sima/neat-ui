@@ -263,9 +263,10 @@ export class DotModel {
 }
 
 /**
- * An edge drawn inside a block's drill-down whose dots no message feeds: they follow the dots that
- * enter the step's `from` side, timed by a measured stage. The layer's `steps` input maps an edge
- * id to one of these.
+ * An edge drawn inside a block's drill-down, whose dots no message feeds.
+ *
+ * Its dots follow the dots that enter the step's `from` side, timed by a measured stage. The
+ * layer's `steps` input maps an edge id to one of these.
  */
 export interface NeatDiagramMessageStep {
   /** The node whose stage times this step (the id the app passes to `stageMs`). */
@@ -311,16 +312,18 @@ export function chainOf(
 export const BATCH_SPREAD_MS = 200;
 
 /**
- * The start times of a batch's messages: the batch's arrival (`arrivalMs`) for its earliest
- * message, and the others after it as far apart as their own times (`offsetsMs`, on any clock in
- * ms) say, at most 200 ms. A message without a finite time of its own starts
- * at the arrival. For an app whose transport delivers messages in batches: pass each time as the
- * `atMs` of its `push`, with `performance.now()` as the arrival:
+ * The start times of a batch's messages, for an app whose transport delivers messages in batches.
+ *
+ * Pass each time as the `atMs` of its `push`, with `performance.now()` as the arrival:
  *
  * ```ts
  * const at = neatBatchTimes(batch.map((m) => m.sourceMs), performance.now());
  * batch.forEach((m, i) => messages.push(m.edge, m.bytes, at[i]));
  * ```
+ *
+ * The earliest message starts at the batch's arrival (`arrivalMs`). The others start after it, as
+ * far apart as their own times (`offsetsMs`, on any clock in ms) say, at most 200 ms. A message
+ * without a finite time of its own starts at the arrival.
  */
 export function neatBatchTimes(offsetsMs: readonly number[], arrivalMs: number): number[] {
   let first = Infinity;

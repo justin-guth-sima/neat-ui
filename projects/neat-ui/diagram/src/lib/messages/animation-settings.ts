@@ -14,14 +14,16 @@ const LIMITS = {
 type NumberKey = keyof typeof LIMITS;
 
 /**
- * `raw` as settings: the known keys of the right type, the numbers clamped to the sliders' range
- * (`every` rounded to a whole number), and the defaults for the rest. For the parse of an app's
- * `neatStoredSignal`, which gets whatever an older version wrote:
+ * `raw` as message settings, for the parse of an app's `neatStoredSignal`.
  *
  * ```ts
  * readonly settings = neatStoredSignal('app.dots', NEAT_DIAGRAM_MESSAGE_DEFAULTS,
  *   neatParseMessageSettings);
  * ```
+ *
+ * It keeps the known keys of the right type, and clamps the numbers to the sliders' range, with
+ * `every` rounded to a whole number. The rest take the defaults. So a stored signal reads whatever
+ * an older version wrote.
  */
 export function neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettings {
   if (typeof raw !== 'object' || raw === null) return NEAT_DIAGRAM_MESSAGE_DEFAULTS;
@@ -42,18 +44,19 @@ export function neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettin
 }
 
 /**
- * The Animation panel for `neat-diagram-messages`: an icon button that opens sliders for the
- * dots' speed, size and messages per dot, and a reset to the defaults (dots always go on through
- * the blocks' steps, where a diagram has them):
+ * The Animation panel for `neat-diagram-messages`: sliders for the dots, behind an icon button.
  *
  * ```html
  * <neat-diagram-animation-settings [(settings)]="dots" />
  * <neat-diagram-messages [settings]="dots()" />
  * ```
  *
+ * The sliders set the dots' speed, size and messages per dot, and a reset returns them to the
+ * defaults. Dots always go on through the blocks' steps, where a diagram has them.
+ *
  * `settings` is the model both ways, and changes apply as the sliders move. The panel keeps
- * nothing: an app that remembers the choice per browser makes the model a `neatStoredSignal`
- * (parsed by `neatParseMessageSettings`). Place it in a toolbar or beside the diagram.
+ * nothing. An app that remembers the choice per browser makes the model a `neatStoredSignal`,
+ * parsed by `neatParseMessageSettings`. Place it in a toolbar or beside the diagram.
  */
 @Component({
   selector: 'neat-diagram-animation-settings',

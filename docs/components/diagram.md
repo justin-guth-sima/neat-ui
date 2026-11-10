@@ -1941,15 +1941,29 @@ export class PlacedByTheApp {
 
 Component from `@sima/neat-ui/diagram`, selector `neat-diagram`.
 
-Frames and bands are drawn behind one SVG of edges, blocks, brackets, edge labels and notes in front of it, all in one container (what pan and zoom move). Every part is keyed by its id, so a new diagram object with the same content (an app recomputing it on every poll) changes nothing in the DOM, and a moved node is the same element, moved. A part whose ids name nothing is left out and named once in dev mode; the rest is drawn.
+The app places every node. The kit routes the edges between them, and draws the whole.
 
-The host is a `figure` named by `label`; it fills the box the app gives it and clips what lies outside. Chips are the kit's status chips; a block's body, the notes' content and the tooltip of the edge under the pointer are the app's templates (`neatDiagramBlock`, `neatDiagramNote`, `neatDiagramEdgeTooltip`). A visually hidden list after the drawing says the level's nodes and edges in words.
+Groups and bands are drawn behind one SVG of edges. Blocks, brackets, edge labels and notes are drawn in front of it. All of them sit in one container, which is what pan and zoom move.
 
-With `highlight` set, a block or an edge under the pointer, or a block whose open button has the focus, is in focus with what it is joined to; the rest is dimmed. `hovered` is that part, both ways (the kit's rule for widget interaction): the diagram sets it while the pointer or the keyboard is on a part, null once they leave, and the app may set it, so a list beside the diagram can put a block in focus (shown as `highlight` allows). `activated` reports a click on a block or an edge; a block that opens a level opens it too. A block that opens a level is a button that opens it; `level` is the path of open levels, which an app can bind to its route, and the bar over the drawing goes back and shows the path. A path that leads nowhere (a stale route) is cut to the part that does, and the model is set to it; so render the diagram once its data is there, since a routed path is checked against the diagram given, a placeholder too.
+Every part is keyed by its id. So a new diagram object with the same content, from an app that recomputes it on every poll, changes nothing in the DOM. A moved node is the same element, moved. A part whose ids name nothing is left out and named once in dev mode. The rest is drawn.
 
-The user pans and zooms it (drag, wheel, pinch, double-click; with the box focused, the arrow keys, `+`, `-` and `0`); it fits its level to the box by itself until they do, and `fit()` fits it again. It takes the wheel and touch over its box (`touch-action: none`), so give it a bounded box, not a long stretch of a scrolling page.
+The host is a `figure` named by `label`. It fills the box the app gives it, and clips what lies outside. Give it a bounded box: without a height it shows nothing.
 
-A `neat-diagram-messages` projected into it draws the messages moving along its edges, over the drawing; the diagram gives it the level, its edges and the pan and zoom it draws by.
+Chips are the kit's status chips. A block's body, the notes' content and the tooltip of the edge under the pointer are the app's templates: `neatDiagramBlock`, `neatDiagramNote` and `neatDiagramEdgeTooltip`. A visually hidden list after the drawing says the level's nodes and edges in words.
+
+With `highlight` set, a part in focus stays as it is with what it is joined to, and the rest is dimmed. The part is a block or an edge under the pointer, or a block whose open button has the focus.
+
+`hovered` is that part, both ways, as the kit's rule for widget interaction has it. The diagram sets it while the pointer or the keyboard is on a part, and null once they leave. The app may set it, so a list beside the diagram can put a block in focus, shown as `highlight` allows.
+
+`activated` reports a click on a block or an edge. A block that opens a level is a button that opens it, and the click opens it too.
+
+`level` is the path of open levels, which an app can bind to its route. The bar over the drawing goes back and shows the path. A path that leads nowhere, such as a stale route, is cut to the part that does, and the model is set to it. So render the diagram once its data is there: a routed path is checked against the diagram given, a placeholder too.
+
+The user pans and zooms it by drag, wheel, pinch and double-click. With the box focused, the arrow keys, `+`, `-` and `0` do too. It fits its level to the box by itself until the user pans or zooms, and `fit()` fits it again.
+
+It takes the wheel and touch over its box (`touch-action: none`). So give it a bounded box, not a long stretch of a scrolling page.
+
+A `neat-diagram-messages` projected into it draws the messages moving along its edges, over the drawing. The diagram gives it the level, its edges, and the pan and zoom it draws by.
 
 **Inputs**
 
@@ -1963,7 +1977,13 @@ A `neat-diagram-messages` projected into it draws the messages moving along its 
 
 - **`highlight`** `NeatDiagramHighlight`, default `'none'`
 
-  What dims the rest while something is under the pointer: nothing by default, since dimming without a reason to look is noise that every pass of the pointer over the drawing makes; `edges` for a drawing whose links are what the reader follows (the dim then says which blocks a link joins); `all` when a block's links are worth tracing too. An edge's tooltip shows whatever this is.
+  What dims the rest while something is under the pointer: `none`, `edges` or `all`.
+
+  - `none`, the default, dims nothing. Dimming without a reason to look is noise that every pass of the pointer over the drawing makes.
+  - `edges` is for a drawing whose links are what the reader follows. The dim then says which blocks a link joins.
+  - `all` is for when a block's links are worth tracing too.
+
+  An edge's tooltip shows whatever this is.
 
 **Models (two-way)**
 
@@ -1973,7 +1993,9 @@ A `neat-diagram-messages` projected into it draws the messages moving along its 
 
 - **`hovered`** `NeatDiagramPart | null`, default `null`
 
-  The part in focus: the pointer's block or edge, or the keyboard's block, while they are on one (null once they leave); or one the app sets, while they are on none.
+  The part in focus.
+
+  It is the pointer's block or edge, or the keyboard's block, while they are on one, and null once they leave. While they are on none, it is one the app sets.
 
 **Outputs**
 
@@ -2003,7 +2025,9 @@ The body of the diagram's blocks, below each block's label (the demo's live figu
 </ng-template>
 ```
 
-The card keeps the node's size, so the app sizes the node's `h` (and `w`) for the body. A block it renders nothing for keeps its card as it is. A bracket renders it too, after its label and detail (the stage's live time over a row of blocks, say): `node.role` tells the two apart, and a template that matches by id never meets the other.
+The card keeps the node's size, so the app sizes the node's `h`, and `w`, for the body. A block it renders nothing for keeps its card as it is.
+
+A bracket renders it too, after its label and detail, for the stage's live time over a row of blocks, say. `node.role` tells the two apart, and a template that matches by id never meets the other.
 
 **Template context**
 
@@ -2031,7 +2055,7 @@ A note it renders nothing for is not drawn, nor its leader; without the template
 
 Template directive from `@sima/neat-ui/diagram`, selector `ng-template[neatDiagramEdgeTooltip], ng-template[neatDiagramEdgeTip]`.
 
-The tooltip of the edge under the pointer, by the pointer, in the popover's colors and kept inside the diagram's box:
+The tooltip of the edge under the pointer, shown by the pointer.
 
 ```html
 <ng-template neatDiagramEdgeTooltip let-edge>
@@ -2039,7 +2063,9 @@ The tooltip of the edge under the pointer, by the pointer, in the popover's colo
 </ng-template>
 ```
 
-It follows a mouse or a pen, never touch (which has no hover), and is hidden from assistive technology: the diagram's hidden list says each edge in words, so a tooltip must not hold anything a reader needs that the list or a note does not say. An edge it renders nothing for shows no tooltip.
+It is in the popover's colors, and kept inside the diagram's box. It follows a mouse or a pen, never touch, which has no hover. An edge it renders nothing for shows no tooltip.
+
+It is hidden from assistive technology: the diagram's hidden list says each edge in words. So a tooltip must not hold anything a reader needs that the list or a note does not say.
 
 **Template context**
 
@@ -2061,7 +2087,9 @@ const NeatDiagramEdgeTipTemplate: typeof NeatDiagramEdgeTooltipTemplate
 
 Interface from `@sima/neat-ui/diagram`.
 
-A diagram with its drill-down levels, each placed by hand: a block whose `opens` names a level opens it, and a level may open further levels.
+A diagram with its drill-down levels, each placed by hand.
+
+A block whose `opens` names a level opens it, and a level may open further levels.
 
 **Members**
 
@@ -2087,7 +2115,9 @@ One level: nodes, the edges between them and the notes on them.
 
 Interface from `@sima/neat-ui/diagram`.
 
-One node of a diagram level: a group, block, band or bracket (`role`), placed by hand at `x`, `y` with the size `w` by `h`, in diagram units. A node with a `parent` sits inside it and is placed relative to it; a block with `opens` is a button that opens that level. The kit never reads `data`: it is the app's, handed back to the app's templates.
+One node of a diagram level: a group, block, band or bracket, as its `role` says.
+
+It is placed by hand at `x`, `y`, with the size `w` by `h`, in diagram units. A node with a `parent` sits inside it, and is placed relative to it. A block with `opens` is a button that opens that level. The kit never reads `data`: it is the app's, handed back to the app's templates.
 
 **Members**
 
@@ -2121,7 +2151,9 @@ One node of a diagram level: a group, block, band or bracket (`role`), placed by
 
 - **`stale`** `boolean`, optional
 
-  Whether what the card shows is stale (the node's diagnostics stopped): the whole card, its label, chips and the app's content, takes the look of `[neatStale]`, faded and gray with no transition, and the hidden list says "stale". The app says in words why, in the card's content. Blocks and brackets only.
+  Whether what the card shows is stale, because the node's diagnostics stopped, say.
+
+  The whole card, with its label, chips and the app's content, takes the look of `[neatStale]`: faded and gray, with no transition. The hidden list says "stale". The app says in words why, in the card's content. Blocks and brackets only.
 
 - **`opens`** `string`, optional
 
@@ -2141,7 +2173,9 @@ One node of a diagram level: a group, block, band or bracket (`role`), placed by
 
 Interface from `@sima/neat-ui/diagram`.
 
-A line between two nodes of a level, which the kit routes: its color is a charts series (`series`), its look `line`, its ends `start` and `end`, with an optional `label` on it. The app does not place it, only names the nodes it joins. The kit never reads `data`: it is the app's.
+A line between two nodes of a level, which the kit routes.
+
+The app does not place it, and only names the nodes it joins. Its color is a charts series (`series`), its look `line`, and its ends `start` and `end`. It has an optional `label` on it. The kit never reads `data`: it is the app's.
 
 **Members**
 
@@ -2181,7 +2215,9 @@ A line between two nodes of a level, which the kit routes: its color is a charts
 
 - **`fromSide`** `NeatDiagramSide`, optional
 
-  The side of `from` this edge leaves on, over the node's `outSide` for this edge only; unset, the node's `outSide`, else the side facing the other end. The route and the label follow it. An end inside a group stays on the group's border nearest the node, as the node's sides do.
+  The side of `from` this edge leaves on, over the node's `outSide`, for this edge only.
+
+  Unset, it is the node's `outSide`, else the side facing the other end. The route and the label follow it. An end inside a group stays on the group's border nearest the node, as the node's sides do.
 
 - **`toSide`** `NeatDiagramSide`, optional
 
@@ -2189,7 +2225,9 @@ A line between two nodes of a level, which the kit routes: its color is a charts
 
 - **`fromAt`** `number`, optional
 
-  Where along its side the edge leaves `from`, 0 at the side's start (its top, or its left) to 1 at its end; unset, the kit spreads the side's ports itself. The other ports on the side keep their places, so two edges pinned to one place meet there.
+  Where along its side the edge leaves `from`: 0 at the side's start, its top or left, to 1 at its end.
+
+  Unset, the kit spreads the side's ports itself. The other ports on the side keep their places, so two edges pinned to one place meet there.
 
 - **`toAt`** `number`, optional
 
@@ -2197,11 +2235,17 @@ A line between two nodes of a level, which the kit routes: its color is a charts
 
 - **`via`** `readonly { readonly x: number; readonly y: number }[]`, optional
 
-  The corners the edge runs through between its ports, in order, in the level's coordinates (as the level's top nodes are placed); drawn straight from one to the next with the kit's rounded turns, so corners in line with each other give an axis-parallel route. Unset, the kit routes the edge itself. An edge with `via` is the app's: the kit spreads no corridor or loop for it.
+  The corners the edge runs through between its ports, in order.
+
+  They are in the level's coordinates, as the level's top nodes are placed. The edge is drawn straight from one to the next, with the kit's rounded turns. So corners in line with each other give an axis-parallel route.
+
+  Unset, the kit routes the edge itself. An edge with `via` is the app's: the kit spreads no corridor or loop for it.
 
 - **`labelSide`** `NeatDiagramLabelSide`, optional
 
-  Where the label sits at its point (`labelAt`): `on` the line (the default, the line passing under it), or beside it, `above`, `below`, `left` or `right`, a small gap away, the line showing past it.
+  Where the label sits at its point (`labelAt`): `on` the line, or beside it.
+
+  `on`, the default, has the line passing under the label. `above`, `below`, `left` and `right` place it a small gap away, with the line showing past it.
 
 - **`labelOffset`** `{ readonly x: number; readonly y: number }`, optional
 
@@ -2215,7 +2259,11 @@ A line between two nodes of a level, which the kit routes: its color is a charts
 
 Interface from `@sima/neat-ui/diagram`.
 
-A box of the app's content (a template matched by the note's id or `data`), joined by a dotted leader to its anchor: a point along its edges, or a point of its own. A note anchored by `anchor` alone belongs to no edge, so it is never in focus with one: it dims whenever anything is in focus.
+A box of the app's content, joined by a dotted leader to its anchor.
+
+Its content is a template, matched by the note's id or `data`. Its anchor is a point along its edges, or a point of its own.
+
+A note anchored by `anchor` alone belongs to no edge, so it is never in focus with one. It dims whenever anything is in focus.
 
 **Members**
 
@@ -2231,7 +2279,9 @@ A box of the app's content (a template matched by the note's id or `data`), join
 
 - **`anchor`** `{ readonly x?: number; readonly y: number }`, optional
 
-  The anchor as a point instead (a node's side, for a note about the node); without `x`, the edges' mean x, for a leader into the middle of a bundle of parallel edges.
+  The anchor as a point instead, such as a node's side, for a note about the node.
+
+  Without `x`, it takes the edges' mean x, for a leader into the middle of a bundle of parallel edges.
 
 - **`x`** `number`, optional
 
@@ -2245,7 +2295,9 @@ A box of the app's content (a template matched by the note's id or `data`), join
 
 - **`leaderTo`** `'center'`, optional
 
-  Where the leader meets the box: its nearest point (unset; level or upright where it can be), or its center, under the box (`center`; a slanted leader then meets no rounded corner).
+  Where the leader meets the box: its nearest point, or its center.
+
+  Unset, it meets the box's nearest point, level or upright where it can be. With `center`, it meets the center, under the box, so a slanted leader meets no rounded corner.
 
 - **`data`** `unknown`, optional
 
@@ -2255,7 +2307,14 @@ A box of the app's content (a template matched by the note's id or `data`), join
 
 Interface from `@sima/neat-ui/diagram`.
 
-A short fact on a block, drawn as the kit's status chip in its tone. Where a part runs is said in one convention, so every diagram reads alike: `HW` (the hardware decoder) in `success`, `EV74` in `highlight`, `MLA` in `info` and `A65` in `neutral`.
+A short fact on a block, drawn as the kit's status chip in its tone.
+
+Where a part runs is said in one convention, so every diagram reads alike:
+
+- `HW`, the hardware decoder, in `success`;
+- `EV74` in `highlight`;
+- `MLA` in `info`;
+- `A65` in `neutral`.
 
 **Members**
 
@@ -2267,7 +2326,14 @@ A short fact on a block, drawn as the kit's status chip in its tone. Where a par
 
 Type from `@sima/neat-ui/diagram`.
 
-What a node is in the drawing: `group` holds other nodes (drawn behind the edges, its title and detail top left), `block` is a card (label, detail, chips), `band` a strip such as a cable or a bus (its label along it), `bracket` spans a row of siblings below them (a curly line and a label). `frame` is the old name of `group`, still drawn as one: deprecated, use `group`.
+What a node is in the drawing: `group`, `block`, `band` or `bracket`.
+
+- `group` holds other nodes. It is drawn behind the edges, with its title and detail top left.
+- `block` is a card, with a label, a detail and chips.
+- `band` is a strip such as a cable or a bus, with its label along it.
+- `bracket` spans a row of siblings below them, as a curly line and a label.
+
+`frame` is the old name of `group`, still drawn as one. It is deprecated: use `group`.
 
 ```ts
 type NeatDiagramRole = 'group' | 'block' | 'band' | 'bracket' | 'frame'
@@ -2297,7 +2363,12 @@ type NeatDiagramLine = 'solid' | 'dashed' | 'ghost'
 
 Type from `@sima/neat-ui/diagram`.
 
-How a node is drawn within its role: `accent` is the primary tint (e.g. the main device), `dashed` a group, `ghost` dashed, transparent and quiet (a part that is not running), `muted` filled with `--muted`.
+How a node is drawn within its role: `default`, `accent`, `dashed`, `ghost` or `muted`.
+
+- `accent` is the primary tint, such as for the main device.
+- `dashed` is a dashed group.
+- `ghost` is dashed, transparent and quiet, for a part that is not running.
+- `muted` is filled with `--muted`.
 
 ```ts
 type NeatDiagramLook = 'default' | 'accent' | 'dashed' | 'ghost' | 'muted'
@@ -2329,7 +2400,11 @@ type NeatDiagramTip = NeatDiagramMarker
 
 Type from `@sima/neat-ui/diagram`.
 
-What dims the rest of a diagram while the pointer or the keyboard is on a part: `none`, nothing; `edges`, an edge's two blocks, its notes and itself stay and the rest dims; `all`, the same for a block and the edges that join it too.
+What dims the rest of a diagram while the pointer or the keyboard is on a part.
+
+- `none` dims nothing.
+- `edges`: an edge, its two blocks and its notes stay, and the rest dims.
+- `all`: the same, and for a block too, with the edges that join it.
 
 ```ts
 type NeatDiagramHighlight = 'none' | 'edges' | 'all'

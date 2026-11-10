@@ -446,13 +446,21 @@ export const A65: NeatDiagramChip = { label: 'A65', tone: 'neutral' };
 
 Component from `@sima/neat-ui/diagram`, selector `neat-diagram-messages`.
 
-The app feeds it by id: `push(edgeId, bytes)` for each message on an edge, and `stageMs(nodeId, stage, ms)` for the stage times its step dots take. A message on an edge drawn now is a dot along it, sized by its bytes, as long on its way as the edge's length at `speed` (every Nth message with `every`); its color is its edge's (`colors` picks another series). A step (`steps`, keyed by edge id) is an edge inside a block that no message feeds: a dot arriving at its start goes on along it once the stage's time has passed, and so on along the chain, so the dots inside a block follow its real input and its measured stages. The edges in `passive` (a fed edge or a step) end their messages where they enter, starting no steps.
+The app feeds it by id: `push(edgeId, bytes)` for each message on an edge, and `stageMs(nodeId, stage, ms)` for the stage times its step dots take.
 
-`rate(edgeId)` is the edge's messages and bytes per second and its history, for the notes an app fills (`rate(['a', 'b'])` their sum, for a note over several edges), refreshed at 12 Hz while something reads it. A push counts on any edge of any level, drawn or not, so a level opens with its numbers; the step edges are the exception, counted only while their level is drawn and the page is visible, as it is their dots that count them. An id that is no edge of the diagram is ignored, so the rates' memory stays bounded by the diagram's edges.
+A message on an edge drawn now is a dot along it, sized by its bytes. It takes as long on its way as the edge's length at `speed`. With `every`, only every Nth message gets a dot. Its color is its edge's, and `colors` picks another series.
 
-At most 16 384 dots exist at once and the oldest are dropped past that, while the rates still count every message: a burst (10 000 pushes in one tick) costs the cap's worth of dots, not the burst's, so an app pushes each message as it arrives and does not sample or drop any to protect the page.
+A step (`steps`, keyed by edge id) is an edge inside a block that no message feeds. A dot arriving at its start goes on along it once the stage's time has passed, and so on along the chain. So the dots inside a block follow its real input and its measured stages. The edges in `passive`, fed edges or steps, end their messages where they enter, and start no steps.
 
-All dots are drawn on one canvas over the drawing, sized to this element's box (it fills the diagram's), at the device's pixel ratio, scaled with the zoom and behind the cards and the edge labels; dots of edges out of focus fade with them. The frames run only while a dot is on its way and stop while the page is hidden (its messages then still count, without dots). Under reduced motion no dot travels: each message shows as a brief mark at its edge's end.
+`rate(edgeId)` is the edge's messages and bytes per second, and its history, for the notes an app fills. `rate(['a', 'b'])` is their sum, for a note over several edges. It is refreshed at 12 Hz while something reads it.
+
+A push counts on any edge of any level, drawn or not, so a level opens with its numbers. The step edges are the exception. They count only while their level is drawn and the page is visible, since it is their dots that count them. An id that is no edge of the diagram is ignored, so the rates' memory stays bounded by the diagram's edges.
+
+At most 16 384 dots exist at once, and the oldest are dropped past that. The rates still count every message. A burst, such as 10 000 pushes in one tick, costs the cap's worth of dots, not the burst's. So an app pushes each message as it arrives, and does not sample or drop any to protect the page.
+
+All dots are drawn on one canvas over the drawing, at the device's pixel ratio. The canvas is sized to this element's box, which fills the diagram's. The dots scale with the zoom, and lie behind the cards and the edge labels. Dots of edges out of focus fade with them.
+
+The frames run only while a dot is on its way. They stop while the page is hidden, and its messages then still count, without dots. Under reduced motion no dot travels: each message shows as a brief mark at its edge's end.
 
 **Inputs**
 
@@ -486,7 +494,11 @@ All dots are drawn on one canvas over the drawing, sized to this element's box (
   push(edgeId: string, bytes: number, atMs: number = performance.now()): void
   ```
 
-  A message of `bytes` on `edgeId`, starting at `atMs` (on the `performance.now()` clock; now by default, or a little later to spread a batch received together). Counted in the edge's rate, and drawn as a dot while the edge is drawn (a push for a level not drawn only counts). A size that is not a number counts as no bytes; an id that is no edge of the diagram is ignored.
+  A message of `bytes` on `edgeId`, starting at `atMs`.
+
+  `atMs` is on the `performance.now()` clock: now by default, or a little later to spread a batch received together. The message counts in the edge's rate, and is drawn as a dot while the edge is drawn. A push for a level not drawn only counts.
+
+  A size that is not a number counts as no bytes. An id that is no edge of the diagram is ignored.
 
 - **`stageMs`**
 
@@ -502,7 +514,11 @@ All dots are drawn on one canvas over the drawing, sized to this element's box (
   rate(edgeIds: string | readonly string[]): Signal<NeatDiagramEdgeRate>
   ```
 
-  `edgeIds`' messages and bytes per second over the last second and their history, refreshed at 12 Hz while something reads it (a template, an effect); the same signal for the same id or list of ids. Several ids give the sum: the rates added, and the histories added second by second from the newest, so an edge whose messages began later adds nothing before its first second. An id twice counts once; an id that is no edge counts nothing.
+  `edgeIds`' messages and bytes per second over the last second, and their history.
+
+  It is refreshed at 12 Hz while something reads it, such as a template or an effect. It is the same signal for the same id or list of ids.
+
+  Several ids give the sum: the rates added, and the histories added second by second from the newest. So an edge whose messages began later adds nothing before its first second. An id twice counts once. An id that is no edge counts nothing.
 
 ### `NeatDiagramRateCard`
 
@@ -517,11 +533,22 @@ An edge's live numbers, for a note of the diagram:
 </ng-template>
 ```
 
-`showBytes` false leaves the megabytes out, for an app that pushes no sizes (its messages all count 0 bytes, which would read "0.00 MB/s"); the messages and the sparkline stay.
+It shows:
 
-Give it `rate(['a', 'b'])` for a note over several edges: the card shows their sum. It shows the label, the messages per second (whole) and the megabytes per second (two decimals, from the bytes in units of 10 kB), and the history as a sparkline named for its messages per second. `stageMs`, a block step's stage time, swaps the megabytes and the sparkline for the time in milliseconds to a tenth: the dots of a step are made up, so they have no sizes. Anything an app wants between the label and the numbers (the latest image of a camera, say) goes in the `[neatRateCardThumbnails]` slot, which the app lays out itself.
+- the label;
+- the messages per second, whole;
+- the megabytes per second, to two decimals, from the bytes in units of 10 kB;
+- the history, as a sparkline named for its messages per second.
 
-The note supplies the card's box (its border, fill and padding), so the card has none; its content is 11.5 rem wide, or as wide as its stage line needs when it shows one. The stage line says "Stage"; an app that wants the stage's name in it puts the name in `label`.
+Give it `rate(['a', 'b'])` for a note over several edges: the card shows their sum.
+
+`showBytes` false leaves the megabytes out, for an app that pushes no sizes. Its messages all count 0 bytes, which would read "0.00 MB/s". The messages and the sparkline stay.
+
+`stageMs`, a block step's stage time, swaps the megabytes and the sparkline for the time in milliseconds, to a tenth. The dots of a step are made up, so they have no sizes. The stage line says "Stage". An app that wants the stage's name in it puts the name in `label`.
+
+Anything an app wants between the label and the numbers goes in the `[neatRateCardThumbnails]` slot, which the app lays out itself. The latest image of a camera is one.
+
+The note supplies the card's box, with its border, fill and padding, so the card has none. Its content is 11.5 rem wide, or as wide as its stage line needs when it shows one.
 
 **Inputs**
 
@@ -545,14 +572,16 @@ The note supplies the card's box (its border, fill and padding), so the card has
 
 Component from `@sima/neat-ui/diagram`, selector `neat-diagram-animation-settings`.
 
-The Animation panel for `neat-diagram-messages`: an icon button that opens sliders for the dots' speed, size and messages per dot, and a reset to the defaults (dots always go on through the blocks' steps, where a diagram has them):
+The Animation panel for `neat-diagram-messages`: sliders for the dots, behind an icon button.
 
 ```html
 <neat-diagram-animation-settings [(settings)]="dots" />
 <neat-diagram-messages [settings]="dots()" />
 ```
 
-`settings` is the model both ways, and changes apply as the sliders move. The panel keeps nothing: an app that remembers the choice per browser makes the model a [`neatStoredSignal`](../components/stored-signal.md#neatstoredsignal) (parsed by [`neatParseMessageSettings`](../components/messaging.md#neatparsemessagesettings)). Place it in a toolbar or beside the diagram.
+The sliders set the dots' speed, size and messages per dot, and a reset returns them to the defaults. Dots always go on through the blocks' steps, where a diagram has them.
+
+`settings` is the model both ways, and changes apply as the sliders move. The panel keeps nothing. An app that remembers the choice per browser makes the model a [`neatStoredSignal`](../components/stored-signal.md#neatstoredsignal), parsed by [`neatParseMessageSettings`](../components/messaging.md#neatparsemessagesettings). Place it in a toolbar or beside the diagram.
 
 **Models (two-way)**
 
@@ -578,13 +607,17 @@ How the layer animates its dots: tuning only, the numbers count every message re
 
 - **`every`** `number`
 
-  Messages per dot, a whole number: each edge shows a dot for every Nth message on it (1: every message), so a busy edge shows gaps instead of a solid band.
+  Messages per dot, a whole number.
+
+  Each edge shows a dot for every Nth message on it, and 1 is every message. So a busy edge shows gaps instead of a solid band.
 
 ### `NeatDiagramMessageStep`
 
 Interface from `@sima/neat-ui/diagram`.
 
-An edge drawn inside a block's drill-down whose dots no message feeds: they follow the dots that enter the step's `from` side, timed by a measured stage. The layer's `steps` input maps an edge id to one of these.
+An edge drawn inside a block's drill-down, whose dots no message feeds.
+
+Its dots follow the dots that enter the step's `from` side, timed by a measured stage. The layer's `steps` input maps an edge id to one of these.
 
 **Members**
 
@@ -630,12 +663,14 @@ const NEAT_DIAGRAM_MESSAGE_DEFAULTS: NeatDiagramMessageSettings
 
 Function from `@sima/neat-ui/diagram`.
 
-`raw` as settings: the known keys of the right type, the numbers clamped to the sliders' range (`every` rounded to a whole number), and the defaults for the rest. For the parse of an app's [`neatStoredSignal`](../components/stored-signal.md#neatstoredsignal), which gets whatever an older version wrote:
+`raw` as message settings, for the parse of an app's [`neatStoredSignal`](../components/stored-signal.md#neatstoredsignal).
 
 ```ts
 readonly settings = neatStoredSignal('app.dots', NEAT_DIAGRAM_MESSAGE_DEFAULTS,
   neatParseMessageSettings);
 ```
+
+It keeps the known keys of the right type, and clamps the numbers to the sliders' range, with `every` rounded to a whole number. The rest take the defaults. So a stored signal reads whatever an older version wrote.
 
 ```ts
 neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettings
@@ -645,12 +680,16 @@ neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettings
 
 Function from `@sima/neat-ui/diagram`.
 
-The start times of a batch's messages: the batch's arrival (`arrivalMs`) for its earliest message, and the others after it as far apart as their own times (`offsetsMs`, on any clock in ms) say, at most 200 ms. A message without a finite time of its own starts at the arrival. For an app whose transport delivers messages in batches: pass each time as the `atMs` of its `push`, with `performance.now()` as the arrival:
+The start times of a batch's messages, for an app whose transport delivers messages in batches.
+
+Pass each time as the `atMs` of its `push`, with `performance.now()` as the arrival:
 
 ```ts
 const at = neatBatchTimes(batch.map((m) => m.sourceMs), performance.now());
 batch.forEach((m, i) => messages.push(m.edge, m.bytes, at[i]));
 ```
+
+The earliest message starts at the batch's arrival (`arrivalMs`). The others start after it, as far apart as their own times (`offsetsMs`, on any clock in ms) say, at most 200 ms. A message without a finite time of its own starts at the arrival.
 
 ```ts
 neatBatchTimes(offsetsMs: readonly number[], arrivalMs: number): number[]

@@ -11,10 +11,14 @@ import type { NeatTone } from '@sima/neat-ui';
 export type NeatDiagramSide = 'left' | 'right' | 'top' | 'bottom';
 
 /**
- * What a node is in the drawing: `group` holds other nodes (drawn behind the edges, its title and
- * detail top left), `block` is a card (label, detail, chips), `band` a strip such as a cable or a
- * bus (its label along it), `bracket` spans a row of siblings below them (a curly line and a
- * label). `frame` is the old name of `group`, still drawn as one: deprecated, use `group`.
+ * What a node is in the drawing: `group`, `block`, `band` or `bracket`.
+ *
+ * - `group` holds other nodes. It is drawn behind the edges, with its title and detail top left.
+ * - `block` is a card, with a label, a detail and chips.
+ * - `band` is a strip such as a cable or a bus, with its label along it.
+ * - `bracket` spans a row of siblings below them, as a curly line and a label.
+ *
+ * `frame` is the old name of `group`, still drawn as one. It is deprecated: use `group`.
  */
 export type NeatDiagramRole = 'group' | 'block' | 'band' | 'bracket' | 'frame';
 
@@ -24,9 +28,12 @@ export function isGroup(node: { readonly role: NeatDiagramRole } | undefined): b
 }
 
 /**
- * How a node is drawn within its role: `accent` is the primary tint (e.g. the main device),
- * `dashed` a group, `ghost` dashed, transparent and quiet (a part that is not running), `muted`
- * filled with `--muted`.
+ * How a node is drawn within its role: `default`, `accent`, `dashed`, `ghost` or `muted`.
+ *
+ * - `accent` is the primary tint, such as for the main device.
+ * - `dashed` is a dashed group.
+ * - `ghost` is dashed, transparent and quiet, for a part that is not running.
+ * - `muted` is filled with `--muted`.
  */
 export type NeatDiagramLook = 'default' | 'accent' | 'dashed' | 'ghost' | 'muted';
 
@@ -41,9 +48,11 @@ export type NeatDiagramMarker = 'none' | 'arrow' | 'dot';
 export type NeatDiagramTip = NeatDiagramMarker;
 
 /**
- * What dims the rest of a diagram while the pointer or the keyboard is on a part: `none`, nothing;
- * `edges`, an edge's two blocks, its notes and itself stay and the rest dims; `all`, the same for
- * a block and the edges that join it too.
+ * What dims the rest of a diagram while the pointer or the keyboard is on a part.
+ *
+ * - `none` dims nothing.
+ * - `edges`: an edge, its two blocks and its notes stay, and the rest dims.
+ * - `all`: the same, and for a block too, with the edges that join it.
  */
 export type NeatDiagramHighlight = 'none' | 'edges' | 'all';
 
@@ -65,9 +74,13 @@ export interface NeatDiagramPick extends NeatDiagramPart {
 export type NeatDiagramLine = 'solid' | 'dashed' | 'ghost';
 
 /**
- * A short fact on a block, drawn as the kit's status chip in its tone. Where a part runs is said
- * in one convention, so every diagram reads alike: `HW` (the hardware decoder) in `success`,
- * `EV74` in `highlight`, `MLA` in `info` and `A65` in `neutral`.
+ * A short fact on a block, drawn as the kit's status chip in its tone.
+ *
+ * Where a part runs is said in one convention, so every diagram reads alike:
+ * - `HW`, the hardware decoder, in `success`;
+ * - `EV74` in `highlight`;
+ * - `MLA` in `info`;
+ * - `A65` in `neutral`.
  */
 export interface NeatDiagramChip {
   readonly label: string;
@@ -75,10 +88,12 @@ export interface NeatDiagramChip {
 }
 
 /**
- * One node of a diagram level: a group, block, band or bracket (`role`), placed by hand at `x`,
- * `y` with the size `w` by `h`, in diagram units. A node with a `parent` sits inside it and is
- * placed relative to it; a block with `opens` is a button that opens that level. The kit never
- * reads `data`: it is the app's, handed back to the app's templates.
+ * One node of a diagram level: a group, block, band or bracket, as its `role` says.
+ *
+ * It is placed by hand at `x`, `y`, with the size `w` by `h`, in diagram units. A node with a
+ * `parent` sits inside it, and is placed relative to it. A block with `opens` is a button that
+ * opens that level. The kit never reads `data`: it is the app's, handed back to the app's
+ * templates.
  */
 export interface NeatDiagramNode {
   readonly id: string;
@@ -96,10 +111,11 @@ export interface NeatDiagramNode {
   readonly look?: NeatDiagramLook;
   readonly chips?: readonly NeatDiagramChip[];
   /**
-   * Whether what the card shows is stale (the node's diagnostics stopped): the whole card, its
-   * label, chips and the app's content, takes the look of `[neatStale]`, faded and gray with no
-   * transition, and the hidden list says "stale". The app says in words why, in the card's
-   * content. Blocks and brackets only.
+   * Whether what the card shows is stale, because the node's diagnostics stopped, say.
+   *
+   * The whole card, with its label, chips and the app's content, takes the look of `[neatStale]`:
+   * faded and gray, with no transition. The hidden list says "stale". The app says in words why, in
+   * the card's content. Blocks and brackets only.
    */
   readonly stale?: boolean;
   /** The id of the level (`NeatDiagramSet.levels`) this block opens. */
@@ -115,9 +131,11 @@ export interface NeatDiagramNode {
 }
 
 /**
- * A line between two nodes of a level, which the kit routes: its color is a charts series
- * (`series`), its look `line`, its ends `start` and `end`, with an optional `label` on it. The app
- * does not place it, only names the nodes it joins. The kit never reads `data`: it is the app's.
+ * A line between two nodes of a level, which the kit routes.
+ *
+ * The app does not place it, and only names the nodes it joins. Its color is a charts series
+ * (`series`), its look `line`, and its ends `start` and `end`. It has an optional `label` on it.
+ * The kit never reads `data`: it is the app's.
  */
 export interface NeatDiagramEdge {
   readonly id: string;
@@ -138,33 +156,41 @@ export interface NeatDiagramEdge {
   /** Where the label sits along the edge, 0 at `from` to 1 at `to`; unset, 0.5. */
   readonly labelAt?: number;
   /**
-   * The side of `from` this edge leaves on, over the node's `outSide` for this edge only; unset,
-   * the node's `outSide`, else the side facing the other end. The route and the label follow it.
-   * An end inside a group stays on the group's border nearest the node, as the node's sides do.
+   * The side of `from` this edge leaves on, over the node's `outSide`, for this edge only.
+   *
+   * Unset, it is the node's `outSide`, else the side facing the other end. The route and the label
+   * follow it. An end inside a group stays on the group's border nearest the node, as the node's
+   * sides do.
    */
   readonly fromSide?: NeatDiagramSide;
   /** The side of `to` this edge enters on, as `fromSide` is for the leaving end (`inSide`). */
   readonly toSide?: NeatDiagramSide;
   /**
-   * Where along its side the edge leaves `from`, 0 at the side's start (its top, or its left) to
-   * 1 at its end; unset, the kit spreads the side's ports itself. The other ports on the side keep
-   * their places, so two edges pinned to one place meet there.
+   * Where along its side the edge leaves `from`: 0 at the side's start, its top or left, to 1 at
+   * its end.
+   *
+   * Unset, the kit spreads the side's ports itself. The other ports on the side keep their places,
+   * so two edges pinned to one place meet there.
    */
   readonly fromAt?: number;
   /** Where along its side the edge enters `to`, as `fromAt` is for the leaving end. */
   readonly toAt?: number;
   /**
-   * The corners the edge runs through between its ports, in order, in the level's coordinates
-   * (as the level's top nodes are placed); drawn straight from one to the next with the kit's
-   * rounded turns, so corners in line with each other give an axis-parallel route. Unset, the kit
-   * routes the edge itself. An edge with `via` is the app's: the kit spreads no corridor or loop
-   * for it.
+   * The corners the edge runs through between its ports, in order.
+   *
+   * They are in the level's coordinates, as the level's top nodes are placed. The edge is drawn
+   * straight from one to the next, with the kit's rounded turns. So corners in line with each other
+   * give an axis-parallel route.
+   *
+   * Unset, the kit routes the edge itself. An edge with `via` is the app's: the kit spreads no
+   * corridor or loop for it.
    */
   readonly via?: readonly { readonly x: number; readonly y: number }[];
   /**
-   * Where the label sits at its point (`labelAt`): `on` the line (the default, the line passing
-   * under it), or beside it, `above`, `below`, `left` or `right`, a small gap away, the line
-   * showing past it.
+   * Where the label sits at its point (`labelAt`): `on` the line, or beside it.
+   *
+   * `on`, the default, has the line passing under the label. `above`, `below`, `left` and `right`
+   * place it a small gap away, with the line showing past it.
    */
   readonly labelSide?: NeatDiagramLabelSide;
   /** Moves the label further, in diagram units, after `labelSide` has placed it. */
@@ -174,10 +200,13 @@ export interface NeatDiagramEdge {
 }
 
 /**
- * A box of the app's content (a template matched by the note's id or `data`), joined by a dotted
- * leader to its anchor: a point along its edges, or a point of its own. A note anchored by
- * `anchor` alone belongs to no edge, so it is never in focus with one: it dims whenever anything
- * is in focus.
+ * A box of the app's content, joined by a dotted leader to its anchor.
+ *
+ * Its content is a template, matched by the note's id or `data`. Its anchor is a point along its
+ * edges, or a point of its own.
+ *
+ * A note anchored by `anchor` alone belongs to no edge, so it is never in focus with one. It dims
+ * whenever anything is in focus.
  */
 export interface NeatDiagramNote {
   readonly id: string;
@@ -186,8 +215,10 @@ export interface NeatDiagramNote {
   /** Where along its edges the anchor lies, 0 at their start to 1 at their end; unset, 0.5. */
   readonly along?: number;
   /**
-   * The anchor as a point instead (a node's side, for a note about the node); without `x`, the
-   * edges' mean x, for a leader into the middle of a bundle of parallel edges.
+   * The anchor as a point instead, such as a node's side, for a note about the node.
+   *
+   * Without `x`, it takes the edges' mean x, for a leader into the middle of a bundle of parallel
+   * edges.
    */
   readonly anchor?: { readonly x?: number; readonly y: number };
   /** The box's center, per axis; unset, the anchor moved by `dx` and `dy`. */
@@ -196,8 +227,10 @@ export interface NeatDiagramNote {
   readonly dx?: number;
   readonly dy?: number;
   /**
-   * Where the leader meets the box: its nearest point (unset; level or upright where it can be),
-   * or its center, under the box (`center`; a slanted leader then meets no rounded corner).
+   * Where the leader meets the box: its nearest point, or its center.
+   *
+   * Unset, it meets the box's nearest point, level or upright where it can be. With `center`, it
+   * meets the center, under the box, so a slanted leader meets no rounded corner.
    */
   readonly leaderTo?: 'center';
   /** The app's, never read by the kit. */
@@ -212,8 +245,9 @@ export interface NeatDiagram {
 }
 
 /**
- * A diagram with its drill-down levels, each placed by hand: a block whose `opens` names a level
- * opens it, and a level may open further levels.
+ * A diagram with its drill-down levels, each placed by hand.
+ *
+ * A block whose `opens` names a level opens it, and a level may open further levels.
  */
 export interface NeatDiagramSet {
   readonly overview: NeatDiagram;

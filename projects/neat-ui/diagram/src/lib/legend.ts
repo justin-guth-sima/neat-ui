@@ -13,7 +13,7 @@ export interface NeatDiagramLegendItem {
 }
 
 /**
- * What a diagram's colors and lines stand for, as the Autoware demo's legend chip:
+ * What a diagram's colors and lines stand for, as the Autoware demo's legend chip.
  *
  * ```html
  * <neat-diagram-legend [items]="[
@@ -24,10 +24,12 @@ export interface NeatDiagramLegendItem {
  * ```
  *
  * A series without a `line` shows the kit's `NeatSeriesSwatch` for it, as the charts' legends do.
- * Any other item shows a short sample of its line (solid when unset), drawn by the edges' own
- * rules in the color its edges take: muted for a ghost, without a series, or for a
- * series that is not 1 to 8. Samples and swatches are `aria-hidden`: the label
- * names what they stand for, and a color alone is not a name.
+ * Any other item shows a short sample of its line, solid when unset. The sample is drawn by the
+ * edges' own rules, in the color its edges take. It is muted for a ghost, without a series, or for
+ * a series that is not 1 to 8.
+ *
+ * Samples and swatches are `aria-hidden`: the label names what they stand for, and a color alone
+ * is not a name.
  */
 @Component({
   selector: 'neat-diagram-legend',

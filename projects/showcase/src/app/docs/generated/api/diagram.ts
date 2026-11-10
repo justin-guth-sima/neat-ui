@@ -74,7 +74,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": an icon button that opens sliders for the dots' speed, size and messages per dot, and a reset to the defaults (dots always go on through the blocks' steps, where a diagram has them):"
+              "text": ": sliders for the dots, behind an icon button."
             }
           ]
         },
@@ -87,12 +87,21 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "text",
+              "text": "The sliders set the dots' speed, size and messages per dot, and a reset returns them to the defaults. Dots always go on through the blocks' steps, where a diagram has them."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
               "kind": "code",
               "text": "settings"
             },
             {
               "kind": "text",
-              "text": " is the model both ways, and changes apply as the sliders move. The panel keeps nothing: an app that remembers the choice per browser makes the model a "
+              "text": " is the model both ways, and changes apply as the sliders move. The panel keeps nothing. An app that remembers the choice per browser makes the model a "
             },
             {
               "kind": "ref",
@@ -101,7 +110,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (parsed by "
+              "text": ", parsed by "
             },
             {
               "kind": "ref",
@@ -110,7 +119,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "). Place it in a toolbar or beside the diagram."
+              "text": ". Place it in a toolbar or beside the diagram."
             }
           ]
         }
@@ -175,7 +184,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (and "
+              "text": ", and "
             },
             {
               "kind": "code",
@@ -183,7 +192,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") for the body. A block it renders nothing for keeps its card as it is. A bracket renders it too, after its label and detail (the stage's live time over a row of blocks, say): "
+              "text": ", for the body. A block it renders nothing for keeps its card as it is."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A bracket renders it too, after its label and detail, for the stage's live time over a row of blocks, say. "
             },
             {
               "kind": "code",
@@ -226,72 +244,94 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A short fact on a block, drawn as the kit's status chip in its tone. Where a part runs is said in one convention, so every diagram reads alike: "
-            },
-            {
-              "kind": "code",
-              "text": "HW"
-            },
-            {
-              "kind": "text",
-              "text": " (the hardware decoder) in "
-            },
-            {
-              "kind": "code",
-              "text": "success"
-            },
-            {
-              "kind": "text",
-              "text": ", "
-            },
-            {
-              "kind": "code",
-              "text": "EV74"
-            },
-            {
-              "kind": "text",
-              "text": " in "
-            },
-            {
-              "kind": "code",
-              "text": "highlight"
-            },
-            {
-              "kind": "text",
-              "text": ", "
-            },
-            {
-              "kind": "code",
-              "text": "MLA"
-            },
-            {
-              "kind": "text",
-              "text": " in "
-            },
-            {
-              "kind": "code",
-              "text": "info"
-            },
-            {
-              "kind": "text",
-              "text": " and "
-            },
-            {
-              "kind": "code",
-              "text": "A65"
-            },
-            {
-              "kind": "text",
-              "text": " in "
-            },
-            {
-              "kind": "code",
-              "text": "neutral"
-            },
-            {
-              "kind": "text",
-              "text": "."
+              "text": "A short fact on a block, drawn as the kit's status chip in its tone."
             }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Where a part runs is said in one convention, so every diagram reads alike:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "HW"
+              },
+              {
+                "kind": "text",
+                "text": ", the hardware decoder, in "
+              },
+              {
+                "kind": "code",
+                "text": "success"
+              },
+              {
+                "kind": "text",
+                "text": ";"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "EV74"
+              },
+              {
+                "kind": "text",
+                "text": " in "
+              },
+              {
+                "kind": "code",
+                "text": "highlight"
+              },
+              {
+                "kind": "text",
+                "text": ";"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "MLA"
+              },
+              {
+                "kind": "text",
+                "text": " in "
+              },
+              {
+                "kind": "code",
+                "text": "info"
+              },
+              {
+                "kind": "text",
+                "text": ";"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "A65"
+              },
+              {
+                "kind": "text",
+                "text": " in "
+              },
+              {
+                "kind": "code",
+                "text": "neutral"
+              },
+              {
+                "kind": "text",
+                "text": "."
+              }
+            ]
           ]
         }
       ],
@@ -530,7 +570,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " for this edge only; unset, the node's "
+                  "text": ", for this edge only."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Unset, it is the node's "
                 },
                 {
                   "kind": "code",
@@ -602,7 +651,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ", 0 at the side's start (its top, or its left) to 1 at its end; unset, the kit spreads the side's ports itself. The other ports on the side keep their places, so two edges pinned to one place meet there."
+                  "text": ": 0 at the side's start, its top or left, to 1 at its end."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Unset, the kit spreads the side's ports itself. The other ports on the side keep their places, so two edges pinned to one place meet there."
                 }
               ]
             }
@@ -650,7 +708,25 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The corners the edge runs through between its ports, in order, in the level's coordinates (as the level's top nodes are placed); drawn straight from one to the next with the kit's rounded turns, so corners in line with each other give an axis-parallel route. Unset, the kit routes the edge itself. An edge with "
+                  "text": "The corners the edge runs through between its ports, in order."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "They are in the level's coordinates, as the level's top nodes are placed. The edge is drawn straight from one to the next, with the kit's rounded turns. So corners in line with each other give an axis-parallel route."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Unset, the kit routes the edge itself. An edge with "
                 },
                 {
                   "kind": "code",
@@ -690,7 +766,20 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " the line (the default, the line passing under it), or beside it, "
+                  "text": " the line, or beside it."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "code",
+                  "text": "on"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default, has the line passing under the label. "
                 },
                 {
                   "kind": "code",
@@ -714,7 +803,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " or "
+                  "text": " and "
                 },
                 {
                   "kind": "code",
@@ -722,7 +811,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ", a small gap away, the line showing past it."
+                  "text": " place it a small gap away, with the line showing past it."
                 }
               ]
             }
@@ -775,7 +864,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A line between two nodes of a level, which the kit routes: its color is a charts series ("
+              "text": "A line between two nodes of a level, which the kit routes."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The app does not place it, and only names the nodes it joins. Its color is a charts series ("
             },
             {
               "kind": "code",
@@ -791,7 +889,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", its ends "
+              "text": ", and its ends "
             },
             {
               "kind": "code",
@@ -807,7 +905,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", with an optional "
+              "text": ". It has an optional "
             },
             {
               "kind": "code",
@@ -815,7 +913,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " on it. The app does not place it, only names the nodes it joins. The kit never reads "
+              "text": " on it. The kit never reads "
             },
             {
               "kind": "code",
@@ -929,7 +1027,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The tooltip of the edge under the pointer, by the pointer, in the popover's colors and kept inside the diagram's box:"
+              "text": "The tooltip of the edge under the pointer, shown by the pointer."
             }
           ]
         },
@@ -943,7 +1041,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It follows a mouse or a pen, never touch (which has no hover), and is hidden from assistive technology: the diagram's hidden list says each edge in words, so a tooltip must not hold anything a reader needs that the list or a note does not say. An edge it renders nothing for shows no tooltip."
+              "text": "It is in the popover's colors, and kept inside the diagram's box. It follows a mouse or a pen, never touch, which has no hover. An edge it renders nothing for shows no tooltip."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is hidden from assistive technology: the diagram's hidden list says each edge in words. So a tooltip must not hold anything a reader needs that the list or a note does not say."
             }
           ]
         }
@@ -967,32 +1074,43 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "What dims the rest of a diagram while the pointer or the keyboard is on a part: "
-            },
-            {
-              "kind": "code",
-              "text": "none"
-            },
-            {
-              "kind": "text",
-              "text": ", nothing; "
-            },
-            {
-              "kind": "code",
-              "text": "edges"
-            },
-            {
-              "kind": "text",
-              "text": ", an edge's two blocks, its notes and itself stay and the rest dims; "
-            },
-            {
-              "kind": "code",
-              "text": "all"
-            },
-            {
-              "kind": "text",
-              "text": ", the same for a block and the edges that join it too."
+              "text": "What dims the rest of a diagram while the pointer or the keyboard is on a part."
             }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "none"
+              },
+              {
+                "kind": "text",
+                "text": " dims nothing."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "edges"
+              },
+              {
+                "kind": "text",
+                "text": ": an edge, its two blocks and its notes stay, and the rest dims."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "all"
+              },
+              {
+                "kind": "text",
+                "text": ": the same, and for a block too, with the edges that join it."
+              }
+            ]
           ]
         }
       ],
@@ -1025,7 +1143,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "What a diagram's colors and lines stand for, as the Autoware demo's legend chip:"
+              "text": "What a diagram's colors and lines stand for, as the Autoware demo's legend chip."
             }
           ]
         },
@@ -1056,7 +1174,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " for it, as the charts' legends do. Any other item shows a short sample of its line (solid when unset), drawn by the edges' own rules in the color its edges take: muted for a ghost, without a series, or for a series that is not 1 to 8. Samples and swatches are "
+              "text": " for it, as the charts' legends do. Any other item shows a short sample of its line, solid when unset. The sample is drawn by the edges' own rules, in the color its edges take. It is muted for a ghost, without a series, or for a series that is not 1 to 8."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Samples and swatches are "
             },
             {
               "kind": "code",
@@ -1191,11 +1318,19 @@ export const API: DocsEntry = {
             },
             {
               "kind": "code",
+              "text": "default"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
               "text": "accent"
             },
             {
               "kind": "text",
-              "text": " is the primary tint (e.g. the main device), "
+              "text": ", "
             },
             {
               "kind": "code",
@@ -1203,7 +1338,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " a group, "
+              "text": ", "
             },
             {
               "kind": "code",
@@ -1211,7 +1346,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " dashed, transparent and quiet (a part that is not running), "
+              "text": " or "
             },
             {
               "kind": "code",
@@ -1219,16 +1354,61 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " filled with "
-            },
-            {
-              "kind": "code",
-              "text": "--muted"
-            },
-            {
-              "kind": "text",
               "text": "."
             }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "accent"
+              },
+              {
+                "kind": "text",
+                "text": " is the primary tint, such as for the main device."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "dashed"
+              },
+              {
+                "kind": "text",
+                "text": " is a dashed group."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "ghost"
+              },
+              {
+                "kind": "text",
+                "text": " is dashed, transparent and quiet, for a part that is not running."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "muted"
+              },
+              {
+                "kind": "text",
+                "text": " is filled with "
+              },
+              {
+                "kind": "code",
+                "text": "--muted"
+              },
+              {
+                "kind": "text",
+                "text": "."
+              }
+            ]
           ]
         }
       ],
@@ -1294,7 +1474,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Messages per dot, a whole number: each edge shows a dot for every Nth message on it (1: every message), so a busy edge shows gaps instead of a solid band."
+                  "text": "Messages per dot, a whole number."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Each edge shows a dot for every Nth message on it, and 1 is every message. So a busy edge shows gaps instead of a solid band."
                 }
               ]
             }
@@ -1387,7 +1576,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "An edge drawn inside a block's drill-down whose dots no message feeds: they follow the dots that enter the step's "
+              "text": "An edge drawn inside a block's drill-down, whose dots no message feeds."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Its dots follow the dots that enter the step's "
             },
             {
               "kind": "code",
@@ -1450,7 +1648,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " for the stage times its step dots take. A message on an edge drawn now is a dot along it, sized by its bytes, as long on its way as the edge's length at "
+              "text": " for the stage times its step dots take."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A message on an edge drawn now is a dot along it, sized by its bytes. It takes as long on its way as the edge's length at "
             },
             {
               "kind": "code",
@@ -1458,7 +1665,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (every Nth message with "
+              "text": ". With "
             },
             {
               "kind": "code",
@@ -1466,7 +1673,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "); its color is its edge's ("
+              "text": ", only every Nth message gets a dot. Its color is its edge's, and "
             },
             {
               "kind": "code",
@@ -1474,7 +1681,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " picks another series). A step ("
+              "text": " picks another series."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A step ("
             },
             {
               "kind": "code",
@@ -1482,7 +1698,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", keyed by edge id) is an edge inside a block that no message feeds: a dot arriving at its start goes on along it once the stage's time has passed, and so on along the chain, so the dots inside a block follow its real input and its measured stages. The edges in "
+              "text": ", keyed by edge id) is an edge inside a block that no message feeds. A dot arriving at its start goes on along it once the stage's time has passed, and so on along the chain. So the dots inside a block follow its real input and its measured stages. The edges in "
             },
             {
               "kind": "code",
@@ -1490,7 +1706,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (a fed edge or a step) end their messages where they enter, starting no steps."
+              "text": ", fed edges or steps, end their messages where they enter, and start no steps."
             }
           ]
         },
@@ -1503,7 +1719,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the edge's messages and bytes per second and its history, for the notes an app fills ("
+              "text": " is the edge's messages and bytes per second, and its history, for the notes an app fills. "
             },
             {
               "kind": "code",
@@ -1511,7 +1727,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " their sum, for a note over several edges), refreshed at 12 Hz while something reads it. A push counts on any edge of any level, drawn or not, so a level opens with its numbers; the step edges are the exception, counted only while their level is drawn and the page is visible, as it is their dots that count them. An id that is no edge of the diagram is ignored, so the rates' memory stays bounded by the diagram's edges."
+              "text": " is their sum, for a note over several edges. It is refreshed at 12 Hz while something reads it."
             }
           ]
         },
@@ -1520,7 +1736,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "At most 16 384 dots exist at once and the oldest are dropped past that, while the rates still count every message: a burst (10 000 pushes in one tick) costs the cap's worth of dots, not the burst's, so an app pushes each message as it arrives and does not sample or drop any to protect the page."
+              "text": "A push counts on any edge of any level, drawn or not, so a level opens with its numbers. The step edges are the exception. They count only while their level is drawn and the page is visible, since it is their dots that count them. An id that is no edge of the diagram is ignored, so the rates' memory stays bounded by the diagram's edges."
             }
           ]
         },
@@ -1529,7 +1745,25 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "All dots are drawn on one canvas over the drawing, sized to this element's box (it fills the diagram's), at the device's pixel ratio, scaled with the zoom and behind the cards and the edge labels; dots of edges out of focus fade with them. The frames run only while a dot is on its way and stop while the page is hidden (its messages then still count, without dots). Under reduced motion no dot travels: each message shows as a brief mark at its edge's end."
+              "text": "At most 16 384 dots exist at once, and the oldest are dropped past that. The rates still count every message. A burst, such as 10 000 pushes in one tick, costs the cap's worth of dots, not the burst's. So an app pushes each message as it arrives, and does not sample or drop any to protect the page."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "All dots are drawn on one canvas over the drawing, at the device's pixel ratio. The canvas is sized to this element's box, which fills the diagram's. The dots scale with the zoom, and lie behind the cards and the edge labels. Dots of edges out of focus fade with them."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The frames run only while a dot is on its way. They stop while the page is hidden, and its messages then still count, without dots. Under reduced motion no dot travels: each message shows as a brief mark at its edge's end."
             }
           ]
         }
@@ -1702,7 +1936,20 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " (on the "
+                  "text": "."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "code",
+                  "text": "atMs"
+                },
+                {
+                  "kind": "text",
+                  "text": " is on the "
                 },
                 {
                   "kind": "code",
@@ -1710,7 +1957,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " clock; now by default, or a little later to spread a batch received together). Counted in the edge's rate, and drawn as a dot while the edge is drawn (a push for a level not drawn only counts). A size that is not a number counts as no bytes; an id that is no edge of the diagram is ignored."
+                  "text": " clock: now by default, or a little later to spread a batch received together. The message counts in the edge's rate, and is drawn as a dot while the edge is drawn. A push for a level not drawn only counts."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A size that is not a number counts as no bytes. An id that is no edge of the diagram is ignored."
                 }
               ]
             }
@@ -1768,7 +2024,25 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": "' messages and bytes per second over the last second and their history, refreshed at 12 Hz while something reads it (a template, an effect); the same signal for the same id or list of ids. Several ids give the sum: the rates added, and the histories added second by second from the newest, so an edge whose messages began later adds nothing before its first second. An id twice counts once; an id that is no edge counts nothing."
+                  "text": "' messages and bytes per second over the last second, and their history."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is refreshed at 12 Hz while something reads it, such as a template or an effect. It is the same signal for the same id or list of ids."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Several ids give the sum: the rates added, and the histories added second by second from the newest. So an edge whose messages began later adds nothing before its first second. An id twice counts once. An id that is no edge counts nothing."
                 }
               ]
             }
@@ -1904,7 +2178,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Whether what the card shows is stale (the node's diagnostics stopped): the whole card, its label, chips and the app's content, takes the look of "
+                  "text": "Whether what the card shows is stale, because the node's diagnostics stopped, say."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The whole card, with its label, chips and the app's content, takes the look of "
                 },
                 {
                   "kind": "code",
@@ -1912,7 +2195,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ", faded and gray with no transition, and the hidden list says \"stale\". The app says in words why, in the card's content. Blocks and brackets only."
+                  "text": ": faded and gray, with no transition. The hidden list says \"stale\". The app says in words why, in the card's content. Blocks and brackets only."
                 }
               ]
             }
@@ -2005,7 +2288,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "One node of a diagram level: a group, block, band or bracket ("
+              "text": "One node of a diagram level: a group, block, band or bracket, as its "
             },
             {
               "kind": "code",
@@ -2013,7 +2296,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), placed by hand at "
+              "text": " says."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is placed by hand at "
             },
             {
               "kind": "code",
@@ -2029,7 +2321,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " with the size "
+              "text": ", with the size "
             },
             {
               "kind": "code",
@@ -2053,7 +2345,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " sits inside it and is placed relative to it; a block with "
+              "text": " sits inside it, and is placed relative to it. A block with "
             },
             {
               "kind": "code",
@@ -2135,7 +2427,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The anchor as a point instead (a node's side, for a note about the node); without "
+                  "text": "The anchor as a point instead, such as a node's side, for a note about the node."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Without "
                 },
                 {
                   "kind": "code",
@@ -2143,7 +2444,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ", the edges' mean x, for a leader into the middle of a bundle of parallel edges."
+                  "text": ", it takes the edges' mean x, for a leader into the middle of a bundle of parallel edges."
                 }
               ]
             }
@@ -2209,7 +2510,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Where the leader meets the box: its nearest point (unset; level or upright where it can be), or its center, under the box ("
+                  "text": "Where the leader meets the box: its nearest point, or its center."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Unset, it meets the box's nearest point, level or upright where it can be. With "
                 },
                 {
                   "kind": "code",
@@ -2217,7 +2527,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": "; a slanted leader then meets no rounded corner)."
+                  "text": ", it meets the center, under the box, so a slanted leader meets no rounded corner."
                 }
               ]
             }
@@ -2246,7 +2556,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A box of the app's content (a template matched by the note's id or "
+              "text": "A box of the app's content, joined by a dotted leader to its anchor."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Its content is a template, matched by the note's id or "
             },
             {
               "kind": "code",
@@ -2254,7 +2573,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), joined by a dotted leader to its anchor: a point along its edges, or a point of its own. A note anchored by "
+              "text": ". Its anchor is a point along its edges, or a point of its own."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A note anchored by "
             },
             {
               "kind": "code",
@@ -2262,7 +2590,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " alone belongs to no edge, so it is never in focus with one: it dims whenever anything is in focus."
+              "text": " alone belongs to no edge, so it is never in focus with one. It dims whenever anything is in focus."
             }
           ]
         }
@@ -2408,13 +2736,38 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
-              "kind": "code",
-              "text": "showBytes"
-            },
-            {
               "kind": "text",
-              "text": " false leaves the megabytes out, for an app that pushes no sizes (its messages all count 0 bytes, which would read \"0.00 MB/s\"); the messages and the sparkline stay."
+              "text": "It shows:"
             }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "the label;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "the messages per second, whole;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "the megabytes per second, to two decimals, from the bytes in units of 10 kB;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "the history, as a sparkline named for its messages per second."
+              }
+            ]
           ]
         },
         {
@@ -2430,23 +2783,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " for a note over several edges: the card shows their sum. It shows the label, the messages per second (whole) and the megabytes per second (two decimals, from the bytes in units of 10 kB), and the history as a sparkline named for its messages per second. "
-            },
-            {
-              "kind": "code",
-              "text": "stageMs"
-            },
-            {
-              "kind": "text",
-              "text": ", a block step's stage time, swaps the megabytes and the sparkline for the time in milliseconds to a tenth: the dots of a step are made up, so they have no sizes. Anything an app wants between the label and the numbers (the latest image of a camera, say) goes in the "
-            },
-            {
-              "kind": "code",
-              "text": "[neatRateCardThumbnails]"
-            },
-            {
-              "kind": "text",
-              "text": " slot, which the app lays out itself."
+              "text": " for a note over several edges: the card shows their sum."
             }
           ]
         },
@@ -2454,8 +2791,25 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "code",
+              "text": "showBytes"
+            },
+            {
               "kind": "text",
-              "text": "The note supplies the card's box (its border, fill and padding), so the card has none; its content is 11.5 rem wide, or as wide as its stage line needs when it shows one. The stage line says \"Stage\"; an app that wants the stage's name in it puts the name in "
+              "text": " false leaves the megabytes out, for an app that pushes no sizes. Its messages all count 0 bytes, which would read \"0.00 MB/s\". The messages and the sparkline stay."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "stageMs"
+            },
+            {
+              "kind": "text",
+              "text": ", a block step's stage time, swaps the megabytes and the sparkline for the time in milliseconds, to a tenth. The dots of a step are made up, so they have no sizes. The stage line says \"Stage\". An app that wants the stage's name in it puts the name in "
             },
             {
               "kind": "code",
@@ -2464,6 +2818,32 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Anything an app wants between the label and the numbers goes in the "
+            },
+            {
+              "kind": "code",
+              "text": "[neatRateCardThumbnails]"
+            },
+            {
+              "kind": "text",
+              "text": " slot, which the app lays out itself. The latest image of a camera is one."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The note supplies the card's box, with its border, fill and padding, so the card has none. Its content is 11.5 rem wide, or as wide as its stage line needs when it shows one."
             }
           ]
         }
@@ -2562,7 +2942,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " holds other nodes (drawn behind the edges, its title and detail top left), "
+              "text": ", "
             },
             {
               "kind": "code",
@@ -2570,7 +2950,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is a card (label, detail, chips), "
+              "text": ", "
             },
             {
               "kind": "code",
@@ -2578,7 +2958,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " a strip such as a cable or a bus (its label along it), "
+              "text": " or "
             },
             {
               "kind": "code",
@@ -2586,8 +2966,58 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " spans a row of siblings below them (a curly line and a label). "
-            },
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "group"
+              },
+              {
+                "kind": "text",
+                "text": " holds other nodes. It is drawn behind the edges, with its title and detail top left."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "block"
+              },
+              {
+                "kind": "text",
+                "text": " is a card, with a label, a detail and chips."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "band"
+              },
+              {
+                "kind": "text",
+                "text": " is a strip such as a cable or a bus, with its label along it."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "bracket"
+              },
+              {
+                "kind": "text",
+                "text": " spans a row of siblings below them, as a curly line and a label."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "frame"
@@ -2602,7 +3032,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", still drawn as one: deprecated, use "
+              "text": ", still drawn as one. It is deprecated: use "
             },
             {
               "kind": "code",
@@ -2639,7 +3069,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A diagram with its drill-down levels, each placed by hand: a block whose "
+              "text": "A diagram with its drill-down levels, each placed by hand."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A block whose "
             },
             {
               "kind": "code",
@@ -2741,7 +3180,25 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Frames and bands are drawn behind one SVG of edges, blocks, brackets, edge labels and notes in front of it, all in one container (what pan and zoom move). Every part is keyed by its id, so a new diagram object with the same content (an app recomputing it on every poll) changes nothing in the DOM, and a moved node is the same element, moved. A part whose ids name nothing is left out and named once in dev mode; the rest is drawn."
+              "text": "The app places every node. The kit routes the edges between them, and draws the whole."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Groups and bands are drawn behind one SVG of edges. Blocks, brackets, edge labels and notes are drawn in front of it. All of them sit in one container, which is what pan and zoom move."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Every part is keyed by its id. So a new diagram object with the same content, from an app that recomputes it on every poll, changes nothing in the DOM. A moved node is the same element, moved. A part whose ids name nothing is left out and named once in dev mode. The rest is drawn."
             }
           ]
         },
@@ -2766,7 +3223,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; it fills the box the app gives it and clips what lies outside. Chips are the kit's status chips; a block's body, the notes' content and the tooltip of the edge under the pointer are the app's templates ("
+              "text": ". It fills the box the app gives it, and clips what lies outside. Give it a bounded box: without a height it shows nothing."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Chips are the kit's status chips. A block's body, the notes' content and the tooltip of the edge under the pointer are the app's templates: "
             },
             {
               "kind": "code",
@@ -2782,7 +3248,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", "
+              "text": " and "
             },
             {
               "kind": "code",
@@ -2790,7 +3256,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "). A visually hidden list after the drawing says the level's nodes and edges in words."
+              "text": ". A visually hidden list after the drawing says the level's nodes and edges in words."
             }
           ]
         },
@@ -2807,15 +3273,20 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " set, a block or an edge under the pointer, or a block whose open button has the focus, is in focus with what it is joined to; the rest is dimmed. "
-            },
+              "text": " set, a part in focus stays as it is with what it is joined to, and the rest is dimmed. The part is a block or an edge under the pointer, or a block whose open button has the focus."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "hovered"
             },
             {
               "kind": "text",
-              "text": " is that part, both ways (the kit's rule for widget interaction): the diagram sets it while the pointer or the keyboard is on a part, null once they leave, and the app may set it, so a list beside the diagram can put a block in focus (shown as "
+              "text": " is that part, both ways, as the kit's rule for widget interaction has it. The diagram sets it while the pointer or the keyboard is on a part, and null once they leave. The app may set it, so a list beside the diagram can put a block in focus, shown as "
             },
             {
               "kind": "code",
@@ -2823,23 +3294,33 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " allows). "
-            },
+              "text": " allows."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "activated"
             },
             {
               "kind": "text",
-              "text": " reports a click on a block or an edge; a block that opens a level opens it too. A block that opens a level is a button that opens it; "
-            },
+              "text": " reports a click on a block or an edge. A block that opens a level is a button that opens it, and the click opens it too."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "level"
             },
             {
               "kind": "text",
-              "text": " is the path of open levels, which an app can bind to its route, and the bar over the drawing goes back and shows the path. A path that leads nowhere (a stale route) is cut to the part that does, and the model is set to it; so render the diagram once its data is there, since a routed path is checked against the diagram given, a placeholder too."
+              "text": " is the path of open levels, which an app can bind to its route. The bar over the drawing goes back and shows the path. A path that leads nowhere, such as a stale route, is cut to the part that does, and the model is set to it. So render the diagram once its data is there: a routed path is checked against the diagram given, a placeholder too."
             }
           ]
         },
@@ -2848,7 +3329,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The user pans and zooms it (drag, wheel, pinch, double-click; with the box focused, the arrow keys, "
+              "text": "The user pans and zooms it by drag, wheel, pinch and double-click. With the box focused, the arrow keys, "
             },
             {
               "kind": "code",
@@ -2872,7 +3353,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "); it fits its level to the box by itself until they do, and "
+              "text": " do too. It fits its level to the box by itself until the user pans or zooms, and "
             },
             {
               "kind": "code",
@@ -2880,7 +3361,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " fits it again. It takes the wheel and touch over its box ("
+              "text": " fits it again."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It takes the wheel and touch over its box ("
             },
             {
               "kind": "code",
@@ -2888,7 +3378,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), so give it a bounded box, not a long stretch of a scrolling page."
+              "text": "). So give it a bounded box, not a long stretch of a scrolling page."
             }
           ]
         },
@@ -2905,7 +3395,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " projected into it draws the messages moving along its edges, over the drawing; the diagram gives it the level, its edges and the pan and zoom it draws by."
+              "text": " projected into it draws the messages moving along its edges, over the drawing. The diagram gives it the level, its edges, and the pan and zoom it draws by."
             }
           ]
         }
@@ -2953,7 +3443,15 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "What dims the rest while something is under the pointer: nothing by default, since dimming without a reason to look is noise that every pass of the pointer over the drawing makes; "
+                  "text": "What dims the rest while something is under the pointer: "
+                },
+                {
+                  "kind": "code",
+                  "text": "none"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
                 },
                 {
                   "kind": "code",
@@ -2961,7 +3459,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " for a drawing whose links are what the reader follows (the dim then says which blocks a link joins); "
+                  "text": " or "
                 },
                 {
                   "kind": "code",
@@ -2969,7 +3467,51 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " when a block's links are worth tracing too. An edge's tooltip shows whatever this is."
+                  "text": "."
+                }
+              ]
+            },
+            {
+              "kind": "list",
+              "items": [
+                [
+                  {
+                    "kind": "code",
+                    "text": "none"
+                  },
+                  {
+                    "kind": "text",
+                    "text": ", the default, dims nothing. Dimming without a reason to look is noise that every pass of the pointer over the drawing makes."
+                  }
+                ],
+                [
+                  {
+                    "kind": "code",
+                    "text": "edges"
+                  },
+                  {
+                    "kind": "text",
+                    "text": " is for a drawing whose links are what the reader follows. The dim then says which blocks a link joins."
+                  }
+                ],
+                [
+                  {
+                    "kind": "code",
+                    "text": "all"
+                  },
+                  {
+                    "kind": "text",
+                    "text": " is for when a block's links are worth tracing too."
+                  }
+                ]
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "An edge's tooltip shows whatever this is."
                 }
               ]
             }
@@ -3019,7 +3561,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The part in focus: the pointer's block or edge, or the keyboard's block, while they are on one (null once they leave); or one the app sets, while they are on none."
+                  "text": "The part in focus."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is the pointer's block or edge, or the keyboard's block, while they are on one, and null once they leave. While they are on none, it is one the app sets."
                 }
               ]
             }
@@ -3072,23 +3623,16 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The start times of a batch's messages: the batch's arrival ("
-            },
-            {
-              "kind": "code",
-              "text": "arrivalMs"
-            },
-            {
-              "kind": "text",
-              "text": ") for its earliest message, and the others after it as far apart as their own times ("
-            },
-            {
-              "kind": "code",
-              "text": "offsetsMs"
-            },
+              "text": "The start times of a batch's messages, for an app whose transport delivers messages in batches."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ", on any clock in ms) say, at most 200 ms. A message without a finite time of its own starts at the arrival. For an app whose transport delivers messages in batches: pass each time as the "
+              "text": "Pass each time as the "
             },
             {
               "kind": "code",
@@ -3120,6 +3664,31 @@ export const API: DocsEntry = {
           "kind": "code",
           "language": "ts",
           "code": "const at = neatBatchTimes(batch.map((m) => m.sourceMs), performance.now());\nbatch.forEach((m, i) => messages.push(m.edge, m.bytes, at[i]));"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The earliest message starts at the batch's arrival ("
+            },
+            {
+              "kind": "code",
+              "text": "arrivalMs"
+            },
+            {
+              "kind": "text",
+              "text": "). The others start after it, as far apart as their own times ("
+            },
+            {
+              "kind": "code",
+              "text": "offsetsMs"
+            },
+            {
+              "kind": "text",
+              "text": ", on any clock in ms) say, at most 200 ms. A message without a finite time of its own starts at the arrival."
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/diagram/src/lib/messages/dot-model.ts"
@@ -3212,15 +3781,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " as settings: the known keys of the right type, the numbers clamped to the sliders' range ("
-            },
-            {
-              "kind": "code",
-              "text": "every"
-            },
-            {
-              "kind": "text",
-              "text": " rounded to a whole number), and the defaults for the rest. For the parse of an app's "
+              "text": " as message settings, for the parse of an app's "
             },
             {
               "kind": "ref",
@@ -3229,7 +3790,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", which gets whatever an older version wrote:"
+              "text": "."
             }
           ]
         },
@@ -3237,6 +3798,23 @@ export const API: DocsEntry = {
           "kind": "code",
           "language": "ts",
           "code": "readonly settings = neatStoredSignal('app.dots', NEAT_DIAGRAM_MESSAGE_DEFAULTS,\n  neatParseMessageSettings);"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It keeps the known keys of the right type, and clamps the numbers to the sliders' range, with "
+            },
+            {
+              "kind": "code",
+              "text": "every"
+            },
+            {
+              "kind": "text",
+              "text": " rounded to a whole number. The rest take the defaults. So a stored signal reads whatever an older version wrote."
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/diagram/src/lib/messages/animation-settings.ts"

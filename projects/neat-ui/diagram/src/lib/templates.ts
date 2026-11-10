@@ -32,10 +32,12 @@ export interface NeatDiagramNoteContext {
  * </ng-template>
  * ```
  *
- * The card keeps the node's size, so the app sizes the node's `h` (and `w`) for the body. A block
- * it renders nothing for keeps its card as it is. A bracket renders it too, after its label and
- * detail (the stage's live time over a row of blocks, say): `node.role` tells the two apart, and
- * a template that matches by id never meets the other.
+ * The card keeps the node's size, so the app sizes the node's `h`, and `w`, for the body. A block
+ * it renders nothing for keeps its card as it is.
+ *
+ * A bracket renders it too, after its label and detail, for the stage's live time over a row of
+ * blocks, say. `node.role` tells the two apart, and a template that matches by id never meets the
+ * other.
  */
 @Directive({ selector: 'ng-template[neatDiagramBlock]' })
 export class NeatDiagramBlockTemplate {
@@ -84,8 +86,7 @@ export class NeatDiagramNoteTemplate {
 }
 
 /**
- * The tooltip of the edge under the pointer, by the pointer, in the popover's colors and kept inside
- * the diagram's box:
+ * The tooltip of the edge under the pointer, shown by the pointer.
  *
  * ```html
  * <ng-template neatDiagramEdgeTooltip let-edge>
@@ -93,10 +94,11 @@ export class NeatDiagramNoteTemplate {
  * </ng-template>
  * ```
  *
- * It follows a mouse or a pen, never touch (which has no hover), and is hidden from assistive
- * technology: the diagram's hidden list says each edge in words, so a tooltip must not hold anything
- * a reader needs that the list or a note does not say. An edge it renders nothing for shows no
- * tooltip.
+ * It is in the popover's colors, and kept inside the diagram's box. It follows a mouse or a pen,
+ * never touch, which has no hover. An edge it renders nothing for shows no tooltip.
+ *
+ * It is hidden from assistive technology: the diagram's hidden list says each edge in words. So a
+ * tooltip must not hold anything a reader needs that the list or a note does not say.
  */
 // `neatDiagramEdgeTip` is its old name, still matched: deprecated, use `neatDiagramEdgeTooltip`.
 @Directive({ selector: 'ng-template[neatDiagramEdgeTooltip], ng-template[neatDiagramEdgeTip]' })

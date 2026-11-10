@@ -14,20 +14,26 @@ const perSecond = (value: number) => `${Math.round(value)} msg/s`;
  * </ng-template>
  * ```
  *
- * `showBytes` false leaves the megabytes out, for an app that pushes no sizes (its messages all
- * count 0 bytes, which would read "0.00 MB/s"); the messages and the sparkline stay.
+ * It shows:
+ * - the label;
+ * - the messages per second, whole;
+ * - the megabytes per second, to two decimals, from the bytes in units of 10 kB;
+ * - the history, as a sparkline named for its messages per second.
  *
- * Give it `rate(['a', 'b'])` for a note over several edges: the card shows their sum. It shows the
- * label, the messages per second (whole) and the megabytes per second (two decimals,
- * from the bytes in units of 10 kB), and the history as a sparkline named for its messages per
- * second. `stageMs`, a block step's stage time, swaps the megabytes and the sparkline for the time
- * in milliseconds to a tenth: the dots of a step are made up, so they have no sizes. Anything an
- * app wants between the label and the numbers (the latest image of a camera, say) goes in the
- * `[neatRateCardThumbnails]` slot, which the app lays out itself.
+ * Give it `rate(['a', 'b'])` for a note over several edges: the card shows their sum.
  *
- * The note supplies the card's box (its border, fill and padding), so the card has none; its
- * content is 11.5 rem wide, or as wide as its stage line needs when it shows one. The stage line
- * says "Stage"; an app that wants the stage's name in it puts the name in `label`.
+ * `showBytes` false leaves the megabytes out, for an app that pushes no sizes. Its messages all
+ * count 0 bytes, which would read "0.00 MB/s". The messages and the sparkline stay.
+ *
+ * `stageMs`, a block step's stage time, swaps the megabytes and the sparkline for the time in
+ * milliseconds, to a tenth. The dots of a step are made up, so they have no sizes. The stage line
+ * says "Stage". An app that wants the stage's name in it puts the name in `label`.
+ *
+ * Anything an app wants between the label and the numbers goes in the `[neatRateCardThumbnails]`
+ * slot, which the app lays out itself. The latest image of a camera is one.
+ *
+ * The note supplies the card's box, with its border, fill and padding, so the card has none. Its
+ * content is 11.5 rem wide, or as wide as its stage line needs when it shows one.
  */
 @Component({
   selector: 'neat-diagram-rate-card',
