@@ -60,7 +60,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A log with two controls at the end of its row, outside its button: Add line works open or closed, and Clear is there only while the log is open. The summary counts the lines."
+            "text": "A log with two controls at the end of its row, outside its button. The summary counts the lines."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Try Add line, which works open or closed. Clear is there only while the log is open."
           }
         ]
       }

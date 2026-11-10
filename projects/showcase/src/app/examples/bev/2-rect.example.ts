@@ -3,11 +3,14 @@ import { NeatBev, type NeatBevBounds } from '@sima/neat-ui/bev';
 import { streetFrames } from './scene';
 
 /**
- * The rectangle: a metric grid in bounds of the app's, here a square reaching 80 m ahead and
- * 40 m behind, 60 m to either side, labeled along its left and top edges. It spans 120 m as the
- * circle above does, in a view of the same height, so the two show the street at one scale.
- * Without a height of the app's the view takes the rectangle's proportions; without `bounds` the
- * rectangle is the square of ±`range`. No spokes.
+ * The rectangle: a metric grid, in bounds of the app's, labeled along its left and top edges.
+ *
+ * Here the bounds reach 80 m ahead and 40 m behind, and 60 m to either side. They span 120 m as the
+ * circle above does, in a view of the same height, so the two show the street at one scale. There
+ * are no spokes.
+ *
+ * Without a height of the app's, the view takes the rectangle's proportions. Without `bounds`, the
+ * rectangle is the square of ±`range`.
  */
 @Component({
   selector: 'app-rect',

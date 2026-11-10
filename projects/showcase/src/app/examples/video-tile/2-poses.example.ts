@@ -19,12 +19,17 @@ import {
 import { PoseSource } from './pose-source';
 
 /**
- * Two hands and a person in one `pose-estimation` message. A hand draws as MediaPipe's 21
- * landmarks and links, a person as COCO's keypoints. The `objects` rows style a pose by its
- * label: here the person is a thin light gray, and the hands keep the color of their ids. Boxes shows
- * and hides the box and label plate around each pose. Mirror flips the picture and the poses, not
- * their labels. The line under the switches is fed by the tile's `frameListener`, which gets each
- * frame's matched messages outside Angular, so it writes its signal only when the count changes.
+ * Two hands and a person in one `pose-estimation` message. A hand draws as MediaPipe's 21 landmarks
+ * and links, and a person as COCO's keypoints.
+ *
+ * The `objects` rows style a pose by its label. Here the person is a thin light gray, and the hands
+ * keep the color of their ids.
+ *
+ * Try the switches. Boxes shows and hides the box and label plate around each pose. Mirror flips
+ * the picture and the poses, not their labels.
+ *
+ * The line under the switches is fed by the tile's `frameListener`. It gets each frame's matched
+ * messages outside Angular, so it writes its signal only when the count changes.
  *
  * @gallery
  */

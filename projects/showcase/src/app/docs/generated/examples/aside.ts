@@ -15,15 +15,29 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A page's aside as an inspector: the toggle in the top bar opens and closes it, and the panel is a column of a title, actions, headings, notes and details. The body narrows beside it and each scrolls on its own. "
-          },
+            "text": "A page's aside as an inspector, which the toggle in the top bar opens and closes."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The panel is a column of a title, actions, headings, notes and details. The body narrows beside it, and each scrolls on its own."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
           {
             "kind": "code",
             "text": "[(asideWidth)]"
           },
           {
             "kind": "text",
-            "text": " is the panel's width, which the page only exposes (here in the text below, and reset to the default by the toolbar's button); drag the line on its left edge, or focus it and use the arrow keys, Home and End, to change it."
+            "text": " is the panel's width, which the page only exposes. Here the text below shows it, and the toolbar's button resets it to the default. Try dragging the line on the panel's left edge, or focus it and use the arrow keys, Home and End."
           }
         ]
       }
@@ -71,8 +85,13 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A panel whose state is remembered. "
-          },
+            "text": "A panel whose state is remembered."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
           {
             "kind": "ref",
             "text": "neatAsideOpen",
@@ -80,7 +99,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " takes the remembered choice and the way to write it, here a stored signal. On a wide screen the panel is the remembered choice; on a narrow one it floats over the page and starts closed, and what is opened or closed there is not remembered, so a phone never overwrites the choice made on a wide screen."
+            "text": " takes the remembered choice and the way to write it, here a stored signal. On a wide screen the panel is the remembered choice. On a narrow one it floats over the page and starts closed. What is opened or closed there is not remembered, so a phone never overwrites the choice made on a wide screen."
           }
         ]
       }

@@ -16,7 +16,25 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A page that fills the shell's content area and owns the one scroll context below it. It is longer than any screen on purpose: the shell, the top bar and the rail stay put while only the body scrolls. Its tools are in the top bar ("
+            "text": "A page that fills the shell's content area and owns the one scroll context below it."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "It is longer than any screen on purpose. The shell, the top bar and the rail stay put, while only the body scrolls."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Its tools are in the top bar ("
           },
           {
             "kind": "code",
@@ -24,7 +42,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "), where in kiosk mode they float beside the exit control, and its page nav ("
+            "text": "). In kiosk mode they float beside the exit control."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Its page nav ("
           },
           {
             "kind": "code",
@@ -32,7 +59,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ") links its views: a column of its own beside the body that stays put while the body scrolls, with a filter over its links at the top (a long list wants one; this short one has it to show it). Make the window narrow to see the list fold into a section above the body."
+            "text": ") links its views. It is a column of its own beside the body, which stays put while the body scrolls. A filter sits over its links at the top: a long list wants one, and this short one has it to show it."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Try making the window narrow: the list folds into a section above the body."
           }
         ]
       }
@@ -84,7 +120,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The second view of the page nav: a route of its own, so the list is declared again and its open link follows the route. Network and Storage are routes nested under this one, which keep this example rendered: of the links whose path the route is under, the longest is the open one, so on "
+            "text": "The second view of the page nav: a route of its own, so the list is declared again, and its open link follows the route."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Network and Storage are routes nested under this one, which keep this example rendered. Of the links whose path the route is under, the longest is the open one. So on "
           },
           {
             "kind": "code",
@@ -92,7 +137,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " it is Network, not Details. The list stays where it is when the view changes, beside the body; it has no filter here, which is the default."
+            "text": " it is Network, not Details."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The list stays where it is when the view changes, beside the body. It has no filter here, which is the default."
           }
         ]
       }
@@ -135,7 +189,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Content that reaches the page's edges: "
+            "text": "Content that reaches the page's edges. "
           },
           {
             "kind": "code",
@@ -143,7 +197,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " drops the page's inset and "
+            "text": " drops the page's inset, and "
           },
           {
             "kind": "code",
@@ -151,7 +205,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " leaves nothing to scroll, so the grid sizes itself to the page, as a video grid that fits the screen does."
+            "text": " leaves nothing to scroll. So the grid sizes itself to the page, as a video grid that fits the screen does."
           }
         ]
       }

@@ -2,9 +2,11 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NeatSwatch, SIMA_PALETTE } from '@sima/neat-ui';
 
 /**
- * `neat-swatch` shows any color, with the series swatch's look: here a legend of the classes an
- * app draws in colors of its own (the same rows it gives the video tiles and the bird's-eye
- * view as `styles`), so the legend matches the boxes.
+ * `neat-swatch` shows any color, with the series swatch's look.
+ *
+ * Here it makes a legend of the classes an app draws in colors of its own. They are the same rows
+ * the app gives the video tiles and the bird's-eye view as `styles`, so the legend matches the
+ * boxes.
  */
 @Component({
   selector: 'app-any-color',

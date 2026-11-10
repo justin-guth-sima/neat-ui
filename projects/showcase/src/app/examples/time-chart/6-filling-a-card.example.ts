@@ -3,9 +3,10 @@ import { NeatTimeChart } from '@sima/neat-ui/charts';
 import { CORES, MLA, percent, TIMES } from './data';
 
 /**
- * `size="fill"` for a chart whose host the app gives a height: two cards on one row, which
- * stretches the shorter to the taller one's height, and the chart on the right takes the height
- * left, never under the medium plot's.
+ * `size="fill"`, for a chart whose host the app gives a height.
+ *
+ * Two cards sit on one row, which stretches the shorter to the taller one's height. The chart on
+ * the right takes the height left, never under the medium plot's.
  */
 @Component({
   selector: 'app-filling-a-card',

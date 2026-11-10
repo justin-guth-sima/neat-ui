@@ -15,7 +15,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A chip for each of three compared runs, over the chart that draws them: the chip's swatch is the run's place in "
+            "text": "A chip for each of three compared runs, over the chart that draws them. The chip's swatch is the run's place in "
           },
           {
             "kind": "code",
@@ -95,7 +95,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " shows any color, with the series swatch's look: here a legend of the classes an app draws in colors of its own (the same rows it gives the video tiles and the bird's-eye view as "
+            "text": " shows any color, with the series swatch's look."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Here it makes a legend of the classes an app draws in colors of its own. They are the same rows the app gives the video tiles and the bird's-eye view as "
           },
           {
             "kind": "code",
@@ -103,7 +112,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "), so the legend matches the boxes."
+            "text": ", so the legend matches the boxes."
           }
         ]
       }

@@ -17,7 +17,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A card with a title, a subtitle, an action at the header's end and a footer, and a landmark: "
+            "text": "A card with a title, a subtitle, an action at the header's end and a footer. It is a landmark too: "
           },
           {
             "kind": "code",
@@ -25,7 +25,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " names it by its title for a user who jumps between regions."
+            "text": " names it by its title, for a user who jumps between regions."
           }
         ]
       }
@@ -108,7 +108,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Two cards in a row of equal height. The content takes the height the card has left, so the untitled card gives its image all of it, and a footer stands at the bottom of its card however little there is above it."
+            "text": "Two cards in a row of equal height."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The content takes the height the card has left. So the untitled card gives its image all of it, and a footer stands at the bottom of its card however little there is above it."
           }
         ]
       }

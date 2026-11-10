@@ -5,8 +5,8 @@ import { VARIANTS } from './variants';
 const SIZES: NeatButtonSize[] = ['small', 'medium', 'large', 'touch'];
 
 /**
- * Each of the seven variants in the four sizes, then the four sizes again as icon-only buttons
- * (which need an `aria-label`), then `rounded` as a pill and as a circle.
+ * Each of the seven variants in the four sizes. Then the four sizes again as icon-only buttons,
+ * which need an `aria-label`, and `rounded` as a pill and as a circle.
  *
  * @gallery
  */

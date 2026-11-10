@@ -383,7 +383,9 @@ export const ROWS = [
 
 ### Several series
 
-Three series in `--neat-series-1` to `-3`, listed with their current values. The second chart has ten: it draws the seven with the largest mean and an Other, the sum of the three left, which is a gap wherever one of them is missing.
+Three series in `--neat-series-1` to `-3`, listed with their current values.
+
+The second chart has ten. It draws the seven with the largest mean, and an Other, the sum of the three left. Other is a gap wherever one of them is missing.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/time-chart/several-series.dark.webp">
@@ -568,7 +570,7 @@ export const ROWS = [
 
 ### Elapsed axis
 
-`axis="elapsed"` counts the x axis forward from the first sample ("0 s … 8 min"), for a run read from its start; the default counts back from the newest sample.
+`axis="elapsed"` counts the x axis forward from the first sample ("0 s … 8 min"), for a run read from its start. The default counts back from the newest sample.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/time-chart/elapsed-axis.dark.webp">
@@ -917,7 +919,9 @@ export const ROWS = [
 
 ### Filling a card
 
-`size="fill"` for a chart whose host the app gives a height: two cards on one row, which stretches the shorter to the taller one's height, and the chart on the right takes the height left, never under the medium plot's.
+`size="fill"`, for a chart whose host the app gives a height.
+
+Two cards sit on one row, which stretches the shorter to the taller one's height. The chart on the right takes the height left, never under the medium plot's.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/time-chart/filling-a-card.dark.webp">
@@ -1118,7 +1122,9 @@ export const ROWS = [
 
 ### Compact rows
 
-`size="compact"` leaves out every label and the time axis, which suits a row among others: a name, the chart taking what is left, and a value, all in the app's own row. The third row has one sample, which is only its dot.
+`size="compact"` leaves out every label and the time axis, which suits a row among others.
+
+Each row is the app's own: a name, the chart taking what is left, and a value. The third row has one sample, which is only its dot.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/time-chart/compact-rows.dark.webp">
@@ -1321,7 +1327,13 @@ export const ROWS = [
 
 ### Shared crosshair
 
-One moment, shared: the time chart, the stacked chart and the label timeline bind one signal to `hovered`, so hovering any of them shows the same moment on all three (each at its nearest sample, or the run covering it). The heatmap names a cell, its row and a time; the app keeps the row it was last on, so the heatmap follows the shared moment too. The card shows the moment and the last click on any of the charts, and its buttons set the moment from outside.
+One moment, shared between charts.
+
+The time chart, the stacked chart and the label timeline bind one signal to `hovered`. So hovering any of them shows the same moment on all three, each at its nearest sample, or the run covering it.
+
+The heatmap names a cell: its row and a time. The app keeps the row it was last on, so the heatmap follows the shared moment too.
+
+The card shows the moment, and the last click on any of the charts. Its buttons set the moment from outside.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/time-chart/shared-crosshair.dark.webp">

@@ -3,8 +3,8 @@ import { NeatDiagramLegend, NeatDiagramNoteTemplate, NeatDiagramView } from '@si
 import { COMPILE_FLOW, COMPILE_LEGEND } from './compile-flow-data';
 
 /**
- * A muted input beside the column, a ghost for the step that is not run, and a note anchored to a
- * block's side rather than to an edge.
+ * A column of steps, with a muted input beside it and a ghost for the step that is not run. A note
+ * is anchored to a block's side rather than to an edge.
  */
 @Component({
   selector: 'app-compile-flow',

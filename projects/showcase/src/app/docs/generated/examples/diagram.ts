@@ -21,7 +21,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Groups for the machines, a band for the cable, and a figure line in Decode from the app's "
+            "text": "A pipeline over two machines: groups for the machines, a band for the cable, and a figure line in Decode from the app's "
           },
           {
             "kind": "ref",
@@ -30,16 +30,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ". The Detector opens a level that "
-          },
-          {
-            "kind": "ref",
-            "text": "neatDrillDownLevel",
-            "name": "neatDrillDownLevel"
-          },
-          {
-            "kind": "text",
-            "text": " placed: its steps inside, what feeds it on the left, what it feeds on the right. Every chip says where its part runs, in the kit's tones."
+            "text": ". Every chip says where its part runs, in the kit's tones."
           }
         ]
       },
@@ -48,7 +39,25 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The Browser has stopped reporting: its node is "
+            "text": "The Detector opens a level that "
+          },
+          {
+            "kind": "ref",
+            "text": "neatDrillDownLevel",
+            "name": "neatDrillDownLevel"
+          },
+          {
+            "kind": "text",
+            "text": " placed: its steps inside, what feeds it on the left, and what it feeds on the right."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The Browser has stopped reporting. Its node is "
           },
           {
             "kind": "code",
@@ -74,7 +83,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", here with fixed text where a live pipeline would draw "
+            "text": ". Here they hold fixed text, where a live pipeline would draw "
           },
           {
             "kind": "ref",
@@ -102,7 +111,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " on each diagram of the page, which fits it to its box again after it was panned or zoomed."
+            "text": " on each diagram of the page. It fits the diagram to its box again after it was panned or zoomed."
           }
         ]
       }
@@ -267,7 +276,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A muted input beside the column, a ghost for the step that is not run, and a note anchored to a block's side rather than to an edge."
+            "text": "A column of steps, with a muted input beside it and a ghost for the step that is not run. A note is anchored to a block's side rather than to an edge."
           }
         ]
       }
@@ -381,7 +390,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Tensor shapes as edge labels, a figure after a brace's label from the app's "
+            "text": "A model's graph, with tensor shapes as edge labels."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A figure follows a brace's label, from the app's "
           },
           {
             "kind": "ref",
@@ -390,7 +408,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " ("
+            "text": ", where "
           },
           {
             "kind": "code",
@@ -398,7 +416,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " tells a bracket from a block), the tooltip of an edge from the app's "
+            "text": " tells a bracket from a block. The tooltip of an edge comes from the app's "
           },
           {
             "kind": "ref",
@@ -407,7 +425,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", and levels two deep: Stages opens its stages, and Dark5 opens its layers. "
+            "text": "."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Levels go two deep: Stages opens its stages, and Dark5 opens its layers. "
           },
           {
             "kind": "ref",
@@ -588,31 +615,51 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ". The default is "
-          },
-          {
-            "kind": "code",
-            "text": "none"
-          },
+            "text": "."
+          }
+        ]
+      },
+      {
+        "kind": "list",
+        "items": [
+          [
+            {
+              "kind": "code",
+              "text": "none"
+            },
+            {
+              "kind": "text",
+              "text": ", the default: dimming without a reason to look is noise every time the pointer crosses the drawing."
+            }
+          ],
+          [
+            {
+              "kind": "code",
+              "text": "edges"
+            },
+            {
+              "kind": "text",
+              "text": " suits a drawing read by its links, where hovering one shows which blocks it joins."
+            }
+          ],
+          [
+            {
+              "kind": "code",
+              "text": "all"
+            },
+            {
+              "kind": "text",
+              "text": " also traces a block's links, for a dense drawing in which they are hard to follow by eye."
+            }
+          ]
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
           {
             "kind": "text",
-            "text": ": dimming without a reason to look is noise every time the pointer crosses the drawing. "
-          },
-          {
-            "kind": "code",
-            "text": "edges"
-          },
-          {
-            "kind": "text",
-            "text": " suits a drawing read by its links, where hovering one shows which blocks it joins; "
-          },
-          {
-            "kind": "code",
-            "text": "all"
-          },
-          {
-            "kind": "text",
-            "text": " also traces a block's links, for a dense drawing in which they are hard to follow by eye. An edge's tooltip shows in every mode."
+            "text": "An edge's tooltip shows in every mode."
           }
         ]
       }
@@ -739,7 +786,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The pipeline filling its card to the edges, as a page like the demo's System page shows it. The box rule is the other examples', so the drawing takes the card's whole width, and the app lays "
+            "text": "The pipeline filling its card to the edges, as a page like the demo's System page shows it."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The box rule is the other examples', so the drawing takes the card's whole width. The app lays "
           },
           {
             "kind": "ref",
@@ -748,7 +804,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " over the drawing's bottom left corner instead of above it, where it gives up no height and stays clear of the bar a level opens in the top left. The card clips the drawing to its rounded corners, and the top bar's Fit still fits it ("
+            "text": " over the drawing's bottom left corner instead of above it. There it gives up no height, and stays clear of the bar a level opens in the top left."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The card clips the drawing to its rounded corners. The top bar's Fit still fits it ("
           },
           {
             "kind": "ref",
@@ -954,7 +1019,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " override them for that edge alone: here both edges leave the Source on its right, as its "
+            "text": " override them, for that edge alone."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Here both edges leave the Source on its right, as its "
           },
           {
             "kind": "code",
@@ -1047,7 +1121,41 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The app reads the diagram and sets it: "
+            "text": "The app reads the diagram and sets it."
+          }
+        ]
+      },
+      {
+        "kind": "list",
+        "items": [
+          [
+            {
+              "kind": "code",
+              "text": "hovered"
+            },
+            {
+              "kind": "text",
+              "text": " is the part in focus: the pointer's block or edge, the keyboard's block, or one the app sets."
+            }
+          ],
+          [
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": " reports a click on a block or an edge. The card says the last part clicked."
+            }
+          ]
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The list beside the drawing is bound to "
           },
           {
             "kind": "code",
@@ -1055,23 +1163,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " is the part in focus (the pointer's block or edge, or the keyboard's block, or one the app sets), and "
-          },
-          {
-            "kind": "code",
-            "text": "activated"
-          },
-          {
-            "kind": "text",
-            "text": " reports a click on a block or an edge. The list beside the drawing is bound to "
-          },
-          {
-            "kind": "code",
-            "text": "hovered"
-          },
-          {
-            "kind": "text",
-            "text": " both ways: point at a row (or tab to it) and its block is in focus in the drawing, with what it is joined to; point at a block and its row is marked. The card also says the last part clicked."
+            "text": " both ways. Try pointing at a row, or tabbing to it: its block is in focus in the drawing, with what it is joined to. Point at a block, and its row is marked."
           }
         ]
       }
@@ -1204,7 +1296,25 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Edges that share a loop are drawn as parallel offsets of one another, so their runs never lie on one another and none crosses another. Above, two edges leave the Camera's top and enter the Encoder's top: their ports nest, and the outer one turns higher. Below, two edges leave the Encoder's right side for the Recorder's left, which lies behind it: each takes the longer stub at one end and the shorter at the other, and their runs back across lie apart."
+            "text": "Edges that share a loop are drawn as parallel offsets of one another. So their runs never lie on one another, and none crosses another."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Above, two edges leave the Camera's top and enter the Encoder's top. Their ports nest, and the outer one turns higher."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Below, two edges leave the Encoder's right side for the Recorder's left, which lies behind it. Each takes the longer stub at one end and the shorter at the other, and their runs back across lie apart."
           }
         ]
       }
@@ -1266,7 +1376,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "What an app places itself, where the kit's routing is not what it wants: an edge's label beside its line ("
+            "text": "What an app places itself, where the kit's routing is not what it wants: - an edge's label beside its line ("
           },
           {
             "kind": "code",
@@ -1274,7 +1384,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", here below a long one so it keeps the line's height free), an end pinned along its side ("
+            "text": "), here below a long one, so it keeps the line's height free; - an end pinned along its side ("
           },
           {
             "kind": "code",
@@ -1290,7 +1400,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "), and a route through corners of the app's ("
+            "text": "); - a route through corners of the app's ("
           },
           {
             "kind": "code",
@@ -1298,7 +1408,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "), here over the Encoder from the Camera's top to the Archive's. Labels, the end markers, hover and the messages follow the route as they do the kit's own."
+            "text": "), here over the Encoder, from the Camera's top to the Archive's."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Labels, the end markers, hover and the messages follow the route, as they do the kit's own."
           }
         ]
       }

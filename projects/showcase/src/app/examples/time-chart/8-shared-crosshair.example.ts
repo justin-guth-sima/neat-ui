@@ -34,11 +34,17 @@ const ROWS: readonly NeatHeatmapRow[] = CORES.slice(0, 6).map((core) => ({
 const clock = (time: number) => new Date(time).toISOString().slice(11, 19);
 
 /**
- * One moment, shared: the time chart, the stacked chart and the label timeline bind one signal
- * to `hovered`, so hovering any of them shows the same moment on all three (each at its nearest
- * sample, or the run covering it). The heatmap names a cell, its row and a time; the app keeps
- * the row it was last on, so the heatmap follows the shared moment too. The card shows the
- * moment and the last click on any of the charts, and its buttons set the moment from outside.
+ * One moment, shared between charts.
+ *
+ * The time chart, the stacked chart and the label timeline bind one signal to `hovered`. So
+ * hovering any of them shows the same moment on all three, each at its nearest sample, or the run
+ * covering it.
+ *
+ * The heatmap names a cell: its row and a time. The app keeps the row it was last on, so the
+ * heatmap follows the shared moment too.
+ *
+ * The card shows the moment, and the last click on any of the charts. Its buttons set the moment
+ * from outside.
  */
 @Component({
   selector: 'app-shared-crosshair',

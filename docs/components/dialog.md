@@ -24,7 +24,13 @@ import { NeatDialog, NeatDialogBody, NeatDialogActions, NeatDialogRef } from '@s
 
 ### Rename a source
 
-A dialog around a template, named by `title`. The template gets the [`NeatDialogRef`](../components/dialog.md#neatdialogref) as its implicit context (`let-dialog`) and closes the dialog with a result: `open` returns the ref, and its `closed` settles with the name, or `undefined` when the dialog was dismissed. While saving, `setDismissible(false)` blocks Escape, the backdrop and the close button, and the buttons are `aria-disabled` rather than `disabled`: the button that was pressed has focus, and a disabled control loses it, which would leave the keyboard outside the dialog. The switch turns the dismissing off and on by hand.
+A dialog around a template, named by `title`.
+
+The template gets the [`NeatDialogRef`](../components/dialog.md#neatdialogref) as its implicit context (`let-dialog`), and closes the dialog with a result. `open` returns the ref. Its `closed` settles with the name, or `undefined` when the dialog was dismissed.
+
+While saving, `setDismissible(false)` blocks Escape, the backdrop and the close button. The buttons are `aria-disabled` rather than `disabled`. The button that was pressed has focus, and a disabled control loses it, which would leave the keyboard outside the dialog.
+
+The switch turns the dismissing off and on by hand.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/dialog/rename-a-source.dark.webp">
@@ -231,7 +237,9 @@ export class LongContent {
 
 ### Component with inputs
 
-A component as the dialog's content, which takes values for its inputs from the opener (`inputs`, typed by the component): here the slot it is for and the kind it starts on, Camera. The component asks for its [`NeatDialogRef`](../components/dialog.md#neatdialogref) by injection and closes the dialog with the choice.
+A component as the dialog's content, which takes values for its inputs from the opener.
+
+`inputs` is typed by the component. Here it holds the slot the dialog is for, and the kind it starts on, Camera. The component asks for its [`NeatDialogRef`](../components/dialog.md#neatdialogref) by injection, and closes the dialog with the choice.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/dialog/component-with-inputs.dark.webp">

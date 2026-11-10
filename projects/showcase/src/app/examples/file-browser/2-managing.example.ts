@@ -4,10 +4,11 @@ import { NeatFileBrowser } from '@sima/neat-ui/file-browser';
 import { DEMO_TREE, demoSize } from './demo-tree';
 
 /**
- * A browser in `manage` mode on a card, with a Type and a Size column after the name; the
- * folders' counts say "videos" and follow their names. A double click or the chevron opens a
- * folder. Check files in several folders and filter: the checked ones stay checked, and the line
- * under the browser counts them.
+ * A browser in `manage` mode on a card, with a Type and a Size column after the name. The folders'
+ * counts say "videos", and follow their names.
+ *
+ * A double click or the chevron opens a folder. Try checking files in several folders, then
+ * filtering: the checked ones stay checked, and the line under the browser counts them.
  *
  * @gallery
  */

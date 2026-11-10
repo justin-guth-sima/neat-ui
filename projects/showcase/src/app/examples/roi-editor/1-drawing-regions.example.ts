@@ -47,11 +47,13 @@ const STARTING_REGIONS: readonly NeatRoiPolygon[] = [
 ];
 
 /**
- * An editor on a tile that plays a test pattern, with the page keeping the regions: draw
- * polygons in either mode, then hover one to highlight it (the readout names it) or right-click
- * it to delete it. While drawing, a right-click or Backspace takes back the last point. The tile
- * gets the same regions to filter with, so a box shows only where the regions let it. Pause the
- * source and the tile stops, and the editor keeps working on the tile's whole box.
+ * An editor on a tile that plays a test pattern, with the page keeping the regions.
+ *
+ * Try drawing polygons in either mode. Then hover one to highlight it, and the readout names it, or
+ * right-click it to delete it. While drawing, a right-click or Backspace takes back the last point.
+ *
+ * The tile gets the same regions to filter with, so a box shows only where the regions let it.
+ * Pause the source and the tile stops, and the editor keeps working on the tile's whole box.
  *
  * @gallery
  */

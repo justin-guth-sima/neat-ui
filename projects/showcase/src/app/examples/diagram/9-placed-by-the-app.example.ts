@@ -40,11 +40,12 @@ const PLACED: NeatDiagramSet = {
 };
 
 /**
- * What an app places itself, where the kit's routing is not what it wants: an edge's label beside
- * its line (`labelSide`, here below a long one so it keeps the line's height free), an end pinned
- * along its side (`fromAt`, `toAt`), and a route through corners of the app's (`via`), here over
- * the Encoder from the Camera's top to the Archive's. Labels, the end markers, hover and the messages
- * follow the route as they do the kit's own.
+ * What an app places itself, where the kit's routing is not what it wants: - an edge's label beside
+ * its line (`labelSide`), here below a long one, so it keeps the line's height free; - an end
+ * pinned along its side (`fromAt`, `toAt`); - a route through corners of the app's (`via`), here
+ * over the Encoder, from the Camera's top to the Archive's.
+ *
+ * Labels, the end markers, hover and the messages follow the route, as they do the kit's own.
  */
 @Component({
   selector: 'app-placed-by-the-app',

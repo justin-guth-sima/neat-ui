@@ -33,11 +33,15 @@ const LOOPS: NeatDiagramSet = {
 };
 
 /**
- * Edges that share a loop are drawn as parallel offsets of one another, so their runs never lie
- * on one another and none crosses another. Above, two edges leave the Camera's top and enter the
- * Encoder's top: their ports nest, and the outer one turns higher. Below, two edges leave the
- * Encoder's right side for the Recorder's left, which lies behind it: each takes the longer stub
- * at one end and the shorter at the other, and their runs back across lie apart.
+ * Edges that share a loop are drawn as parallel offsets of one another. So their runs never lie on
+ * one another, and none crosses another.
+ *
+ * Above, two edges leave the Camera's top and enter the Encoder's top. Their ports nest, and the
+ * outer one turns higher.
+ *
+ * Below, two edges leave the Encoder's right side for the Recorder's left, which lies behind it.
+ * Each takes the longer stub at one end and the shorter at the other, and their runs back across
+ * lie apart.
  */
 @Component({
   selector: 'app-parallel-loops',

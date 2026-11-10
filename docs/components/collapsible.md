@@ -84,7 +84,9 @@ export class SummaryAndSave {
 
 ### End controls
 
-A log with two controls at the end of its row, outside its button: Add line works open or closed, and Clear is there only while the log is open. The summary counts the lines.
+A log with two controls at the end of its row, outside its button. The summary counts the lines.
+
+Try Add line, which works open or closed. Clear is there only while the log is open.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/collapsible/end-controls.dark.webp">

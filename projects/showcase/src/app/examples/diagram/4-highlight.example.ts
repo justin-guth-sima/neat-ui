@@ -15,10 +15,14 @@ const MODES: NeatSegmentedOption<NeatDiagramHighlight>[] = [
 
 /**
  * What dims the rest of the drawing while the pointer is on a part, set by
- * `NeatDiagramView.highlight`. The default is `none`: dimming without a reason to look is noise
- * every time the pointer crosses the drawing. `edges` suits a drawing read by its links, where
- * hovering one shows which blocks it joins; `all` also traces a block's links, for a dense
- * drawing in which they are hard to follow by eye. An edge's tooltip shows in every mode.
+ * `NeatDiagramView.highlight`.
+ *
+ * - `none`, the default: dimming without a reason to look is noise every time the pointer crosses
+ *   the drawing.
+ * - `edges` suits a drawing read by its links, where hovering one shows which blocks it joins.
+ * - `all` also traces a block's links, for a dense drawing in which they are hard to follow by eye.
+ *
+ * An edge's tooltip shows in every mode.
  */
 @Component({
   selector: 'app-highlight',

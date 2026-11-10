@@ -6,10 +6,13 @@ const WINDOW_MS = 30_000;
 
 /**
  * A busy classifier, a gesture every one to two seconds, with its names in one row and in two.
- * The names stand above the strip, each from its run's start; from the newest run back, a name
- * goes into the first row where it keeps clear of the newer names, so the latest gesture is always
- * named. `labelRows` of 2 names about twice as many; a name that fits in no row is left out, and
- * the readout and the screen reader's list still say it.
+ *
+ * The names stand above the strip, each from its run's start. From the newest run back, a name goes
+ * into the first row where it keeps clear of the newer names. So the latest gesture is always
+ * named.
+ *
+ * `labelRows` of 2 names about twice as many. A name that fits in no row is left out, and the
+ * readout and the screen reader's list still say it.
  *
  * @gallery
  */

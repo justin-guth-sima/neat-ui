@@ -5,11 +5,13 @@ import type { NeatOverlayClassStyle } from '@sima/neat-ui/video';
 import { streetFrames } from './scene';
 
 /**
- * Style rows set a label's color, line and width, as a video tile's class rows do: give the same
- * rows to the tiles' settings and to the view, and a class looks the same in both. Here the
- * drivable area takes the brand's blue, the planned path its green, thick, the lane markings a
- * thick dotted line in the kit's purple (the palette's own is too pale to read on the road), and the `default` row draws every other label in orange, so
- * the street reads in the brand's colors instead of the page's class colors.
+ * Style rows set a label's color, line and width, as a video tile's class rows do. Give the same
+ * rows to the tiles' settings and to the view, and a class looks the same in both.
+ *
+ * Here the street reads in the brand's colors instead of the page's class colors: - the drivable
+ * area takes the brand's blue; - the planned path takes its green, thick; - the lane markings are a
+ * thick dotted line in the kit's purple, since the palette's own is too pale to read on the road; -
+ * the `default` row draws every other label in orange.
  */
 @Component({
   selector: 'app-shared-styles',

@@ -94,23 +94,41 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The app reads the heatmap and sets it: "
-          },
-          {
-            "kind": "code",
-            "text": "hovered"
-          },
+            "text": "The app reads the heatmap and sets it."
+          }
+        ]
+      },
+      {
+        "kind": "list",
+        "items": [
+          [
+            {
+              "kind": "code",
+              "text": "hovered"
+            },
+            {
+              "kind": "text",
+              "text": " is the cell the readout is on, by its row's key and its column's time: the pointer's or the keys' cell, or one the app sets."
+            }
+          ],
+          [
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": " reports a click or Enter, with the cell's row, time and mean."
+            }
+          ]
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
           {
             "kind": "text",
-            "text": " is the cell the readout is on, by its row's key and its column's time (the pointer's or the keys' cell, or one the app sets), and "
-          },
-          {
-            "kind": "code",
-            "text": "activated"
-          },
-          {
-            "kind": "text",
-            "text": " reports a click or Enter with the cell's row, time and mean. The card shows both, and its button points the heatmap at the saturated core's newest cell."
+            "text": "The card shows both. Its button points the heatmap at the saturated core's newest cell."
           }
         ]
       }

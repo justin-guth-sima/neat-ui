@@ -3,8 +3,9 @@ import { NeatTimeChart } from '@sima/neat-ui/charts';
 import { percent, ROWS } from './data';
 
 /**
- * `size="compact"` leaves out every label and the time axis, which suits a row among others: a
- * name, the chart taking what is left, and a value, all in the app's own row. The third row has
+ * `size="compact"` leaves out every label and the time axis, which suits a row among others.
+ *
+ * Each row is the app's own: a name, the chart taking what is left, and a value. The third row has
  * one sample, which is only its dot.
  */
 @Component({

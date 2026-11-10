@@ -100,7 +100,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " to its own fill, and the header that stays put over the scrolling rows takes it: scroll the list and look at the header's edge."
+            "text": " to its own fill, and the header that stays put over the scrolling rows takes it. Try scrolling the list, and look at the header's edge."
           }
         ]
       }

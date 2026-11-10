@@ -3,11 +3,14 @@ import { NeatDiagramLegend, NeatDiagramView } from '@sima/neat-ui/diagram';
 import { PIPELINE, PIPELINE_LEGEND } from './pipeline-data';
 
 /**
- * The pipeline filling its card to the edges, as a page like the demo's System page shows it. The
- * box rule is the other examples', so the drawing takes the card's whole width, and the app lays
- * `NeatDiagramLegend` over the drawing's bottom left corner instead of above it, where it gives
- * up no height and stays clear of the bar a level opens in the top left. The card clips the
- * drawing to its rounded corners, and the top bar's Fit still fits it (`NeatDiagramView.fit`).
+ * The pipeline filling its card to the edges, as a page like the demo's System page shows it.
+ *
+ * The box rule is the other examples', so the drawing takes the card's whole width. The app lays
+ * `NeatDiagramLegend` over the drawing's bottom left corner instead of above it. There it gives up
+ * no height, and stays clear of the bar a level opens in the top left.
+ *
+ * The card clips the drawing to its rounded corners. The top bar's Fit still fits it
+ * (`NeatDiagramView.fit`).
  *
  * @unpadded
  * @gallery

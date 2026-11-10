@@ -25,7 +25,11 @@ import { NeatShell, NeatRailItem, NeatRailDivider, provideNeatTitles, KioskServi
 
 ### Kiosk
 
-Kiosk mode for an expo, from [`KioskService`](../layout/shell.md#kioskservice). `toggle()` enters it, which hides the shell's rail and top bar and asks for fullscreen, and leaves it, which a floating exit control also does. `pointerIdle` turns true once the pointer has rested for [`KIOSK_POINTER_IDLE_MS`](../layout/shell.md#kiosk_pointer_idle_ms), which is how a page hides its own chrome; a component that has UI of its own outside the floating bar holds it open with `holdToolbar()` until it releases it.
+Kiosk mode for an expo, from [`KioskService`](../layout/shell.md#kioskservice).
+
+`toggle()` enters it, which hides the shell's rail and top bar and asks for fullscreen. `toggle()` leaves it too, as a floating exit control does.
+
+`pointerIdle` turns true once the pointer has rested for [`KIOSK_POINTER_IDLE_MS`](../layout/shell.md#kiosk_pointer_idle_ms), which is how a page hides its own chrome. A component that has UI of its own outside the floating bar holds the bar open with `holdToolbar()`, until it releases it.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/shell/kiosk.dark.webp">
@@ -111,7 +115,13 @@ p {
 
 ### Rail items
 
-The app's own items at the bottom of the rail, in a shell of their own. Each element marked `neatRailEnd` goes in the rail's end slot, above the kit's theme switch and the rail's control: [`NeatRailItem`](../layout/shell.md#neatrailitem)s, and a [`NeatRailDivider`](../layout/shell.md#neatraildivider) between groups of them. The board says its state with the item's `tone`, `text` and `detail`, and the devices after it show the other tones; each item's `label` is the whole sentence, its tooltip and its name. The first page has `children`, which unfold under it while it is the active page and the rail is expanded.
+The app's own items at the bottom of the rail, in a shell of their own.
+
+Each element marked `neatRailEnd` goes in the rail's end slot, above the kit's theme switch and the rail's control. They are [`NeatRailItem`](../layout/shell.md#neatrailitem)s, and a [`NeatRailDivider`](../layout/shell.md#neatraildivider) between groups of them.
+
+The board says its state with the item's `tone`, `text` and `detail`, and the devices after it show the other tones. Each item's `label` is the whole sentence: its tooltip and its name.
+
+The first page has `children`, which unfold under it while it is the active page and the rail is expanded.
 
 _This example needs a page of its own: it runs in the showcase._
 

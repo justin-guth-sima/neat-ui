@@ -3,9 +3,10 @@ import { NeatTimeChart } from '@sima/neat-ui/charts';
 import { CLUSTERS, CORES, percent, TIMES } from './data';
 
 /**
- * Three series in `--neat-series-1` to `-3`, listed with their current values. The second chart has
- * ten: it draws the seven with the largest mean and an Other, the sum of the three left, which is
- * a gap wherever one of them is missing.
+ * Three series in `--neat-series-1` to `-3`, listed with their current values.
+ *
+ * The second chart has ten. It draws the seven with the largest mean, and an Other, the sum of the
+ * three left. Other is a gap wherever one of them is missing.
  *
  * @gallery
  */

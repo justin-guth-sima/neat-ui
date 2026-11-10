@@ -2,11 +2,14 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { KIOSK_POINTER_IDLE_MS, KioskService, NeatButton } from '@sima/neat-ui';
 
 /**
- * Kiosk mode for an expo, from `KioskService`. `toggle()` enters it, which hides the shell's rail
- * and top bar and asks for fullscreen, and leaves it, which a floating exit control also does.
+ * Kiosk mode for an expo, from `KioskService`.
+ *
+ * `toggle()` enters it, which hides the shell's rail and top bar and asks for fullscreen.
+ * `toggle()` leaves it too, as a floating exit control does.
+ *
  * `pointerIdle` turns true once the pointer has rested for `KIOSK_POINTER_IDLE_MS`, which is how a
- * page hides its own chrome; a component that has UI of its own outside the floating bar holds it
- * open with `holdToolbar()` until it releases it.
+ * page hides its own chrome. A component that has UI of its own outside the floating bar holds the
+ * bar open with `holdToolbar()`, until it releases it.
  */
 @Component({
   selector: 'app-kiosk',

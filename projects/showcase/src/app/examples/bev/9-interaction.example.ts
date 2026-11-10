@@ -25,11 +25,15 @@ function place({ x, y }: NeatBevPoint): string {
 const VEHICLES = new Set(['car', 'truck', 'bicycle']);
 
 /**
- * The view tells the app what happens on it, and the app can set what it highlights. The card
- * beside it reads `hovered` (the object under the pointer, by its id), `activated` (what a click
- * hit, and where) and `pointerMove` (where the pointer is, in meters). Its list of the vehicles
- * is bound to `hovered` both ways: hover a car in the view and its row is selected; select a row
- * and the view outlines that car and reads it out, until the pointer comes back over the view.
+ * The view tells the app what happens on it, and the app can set what it highlights.
+ *
+ * The card beside it reads: - `hovered`, the object under the pointer, by its id; - `activated`,
+ * what a click hit, and where; - `pointerMove`, where the pointer is, in meters.
+ *
+ * Its list of the vehicles is bound to `hovered` both ways. Try hovering a car in the view: its row
+ * is selected. Select a row, and the view outlines that car and reads it out, until the pointer
+ * comes back over the view.
+ *
  * The objects carry their tracks' ids, so a car is the same car from frame to frame.
  *
  * @gallery

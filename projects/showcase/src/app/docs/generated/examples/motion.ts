@@ -64,7 +64,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " of a signal: the signal jumps on every press, the bar eases to it, and nothing else in the component deals with the animation."
+            "text": " of a signal. The signal jumps on every press, and the bar eases to it. Nothing else in the component deals with the animation."
           }
         ]
       }
@@ -132,7 +132,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", so a single press moves all four side by side: ease-in-out, the default, starts and settles gently, ease-out starts fast, ease-in starts slow, and linear keeps one pace."
+            "text": ". So a single press moves all four side by side: - ease-in-out, the default, starts and settles gently; - ease-out starts fast; - ease-in starts slow; - linear keeps one pace."
           }
         ]
       }

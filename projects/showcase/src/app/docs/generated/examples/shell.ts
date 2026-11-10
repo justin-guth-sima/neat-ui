@@ -23,7 +23,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ". "
+            "text": "."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "code",
+            "text": "toggle()"
+          },
+          {
+            "kind": "text",
+            "text": " enters it, which hides the shell's rail and top bar and asks for fullscreen. "
           },
           {
             "kind": "code",
@@ -31,8 +44,13 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " enters it, which hides the shell's rail and top bar and asks for fullscreen, and leaves it, which a floating exit control also does. "
-          },
+            "text": " leaves it too, as a floating exit control does."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
           {
             "kind": "code",
             "text": "pointerIdle"
@@ -48,7 +66,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", which is how a page hides its own chrome; a component that has UI of its own outside the floating bar holds it open with "
+            "text": ", which is how a page hides its own chrome. A component that has UI of its own outside the floating bar holds the bar open with "
           },
           {
             "kind": "code",
@@ -56,7 +74,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " until it releases it."
+            "text": ", until it releases it."
           }
         ]
       }
@@ -110,7 +128,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The app's own items at the bottom of the rail, in a shell of their own. Each element marked "
+            "text": "The app's own items at the bottom of the rail, in a shell of their own."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Each element marked "
           },
           {
             "kind": "code",
@@ -118,7 +145,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " goes in the rail's end slot, above the kit's theme switch and the rail's control: "
+            "text": " goes in the rail's end slot, above the kit's theme switch and the rail's control. They are "
           },
           {
             "kind": "ref",
@@ -136,7 +163,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " between groups of them. The board says its state with the item's "
+            "text": " between groups of them."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The board says its state with the item's "
           },
           {
             "kind": "code",
@@ -160,7 +196,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", and the devices after it show the other tones; each item's "
+            "text": ", and the devices after it show the other tones. Each item's "
           },
           {
             "kind": "code",
@@ -168,7 +204,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " is the whole sentence, its tooltip and its name. The first page has "
+            "text": " is the whole sentence: its tooltip and its name."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The first page has "
           },
           {
             "kind": "code",

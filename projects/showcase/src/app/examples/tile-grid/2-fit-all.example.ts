@@ -13,8 +13,8 @@ const TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);
 
 /**
  * Twelve numbered tiles, and a button that sets the tile width to the widest one at which all
- * twelve fit the box, from the area and the gap the grid reported. Resize the window and press it
- * again.
+ * twelve fit the box. It works from the area and the gap the grid reported. Try resizing the window
+ * and pressing it again.
  */
 @Component({
   selector: 'app-fit-all',

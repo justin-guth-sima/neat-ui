@@ -89,7 +89,7 @@ export class KnownAndUnknown {
 
 ### Titled readout
 
-The first readout follows the slider, and its detail is longer than the line: it is cut at the end, and hovering it shows the whole text. The second has no value, so it has no percent.
+Two titled readouts. The first follows the slider. Its detail is longer than the line, so it is cut at the end, and hovering it shows the whole text. The second has no value, so it has no percent.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/progress/titled-readout.dark.webp">

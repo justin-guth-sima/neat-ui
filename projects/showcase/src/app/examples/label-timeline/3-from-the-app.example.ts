@@ -18,10 +18,14 @@ const RUNS: readonly NeatLabelRun[] = [
 ];
 
 /**
- * The app reads the strip and sets it: `hovered` is a moment (the one under the pointer, or a run's
- * middle while the keys hold it, or one the app sets, which reads out the run covering it), and
- * `activated` reports a click or Enter with the run under it and the moment. The card shows both,
- * and its buttons set the moment from outside, as a time chart bound to the same signal would.
+ * The app reads the strip and sets it.
+ *
+ * - `hovered` is a moment: the one under the pointer, a run's middle while the keys hold it, or one
+ *   the app sets, which reads out the run covering it.
+ * - `activated` reports a click or Enter, with the run under it and the moment.
+ *
+ * The card shows both. Its buttons set the moment from outside, as a time chart bound to the same
+ * signal would.
  */
 @Component({
   selector: 'app-timeline-from-the-app',

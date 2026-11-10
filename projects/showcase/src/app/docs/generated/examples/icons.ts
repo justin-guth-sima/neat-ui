@@ -138,7 +138,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", at the kit's sizes. Reach for it only where no name of the set fits, and never import Lucide from its own package: the kit keeps the icon library swappable."
+            "text": ", at the kit's sizes."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Reach for it only where no name of the set fits. Never import Lucide from its own package: the kit keeps the icon library swappable."
           }
         ]
       }

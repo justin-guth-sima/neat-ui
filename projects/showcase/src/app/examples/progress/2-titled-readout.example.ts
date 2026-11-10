@@ -3,8 +3,9 @@ import { NeatProgress } from '@sima/neat-ui/progress';
 import { NeatSlider } from '@sima/neat-ui/slider';
 
 /**
- * The first readout follows the slider, and its detail is longer than the line: it is cut at the
- * end, and hovering it shows the whole text. The second has no value, so it has no percent.
+ * Two titled readouts. The first follows the slider. Its detail is longer than the line, so it is
+ * cut at the end, and hovering it shows the whole text. The second has no value, so it has no
+ * percent.
  *
  * @gallery
  */

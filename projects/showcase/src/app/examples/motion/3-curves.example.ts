@@ -9,9 +9,9 @@ const SHARES = [0, 100];
 const CURVES = Object.keys(NEAT_EASINGS) as NeatEasingName[];
 
 /**
- * One bar per curve of the catalog, each fed `neatEased` of the same share with its own `easing`,
- * so a single press moves all four side by side: ease-in-out, the default, starts and settles
- * gently, ease-out starts fast, ease-in starts slow, and linear keeps one pace.
+ * One bar per curve of the catalog, each fed `neatEased` of the same share with its own `easing`.
+ * So a single press moves all four side by side: - ease-in-out, the default, starts and settles
+ * gently; - ease-out starts fast; - ease-in starts slow; - linear keeps one pace.
  */
 @Component({
   selector: 'app-curves',

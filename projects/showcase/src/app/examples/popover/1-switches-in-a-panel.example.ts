@@ -5,8 +5,10 @@ import { NeatSwitch } from '@sima/neat-ui/switch';
 
 /**
  * A panel of view options below an icon-only trigger. `[(open)]` follows the trigger, Escape and
- * outside clicks, and the switches' values live in the page, since the content is created on
- * opening and destroyed on closing: reopen the panel and they are as they were.
+ * outside clicks.
+ *
+ * The switches' values live in the page, since the content is created on opening and destroyed on
+ * closing. Try reopening the panel: they are as they were.
  *
  * @capture click [neatPopoverTrigger]
  */

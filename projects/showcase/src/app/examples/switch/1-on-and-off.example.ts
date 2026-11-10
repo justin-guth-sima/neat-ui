@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { NeatSwitch } from '@sima/neat-ui/switch';
 
 /**
- * Two switches with a label, a third without content that takes an `aria-label` and shares its
- * value with the first (toggle either), and two disabled ones, off and on.
+ * Two switches with a label, and a third without content, which takes an `aria-label`. The third
+ * shares its value with the first: try toggling either. Last come two disabled ones, off and on.
  *
  * @gallery
  */

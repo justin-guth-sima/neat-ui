@@ -23,7 +23,9 @@ import { neatSecondsAgo } from '@sima/neat-ui';
 
 ### Ages
 
-The words [`neatSecondsAgo`](../components/time.md#neatsecondsago) says for the ages beside them. -5 s is a time ahead of now, as a clock that stepped back gives; the rest lie on both sides of each switch of unit.
+The words [`neatSecondsAgo`](../components/time.md#neatsecondsago) says for the ages beside them.
+
+-5 s is a time ahead of now, as a clock that stepped back gives. The rest lie on both sides of each switch of unit.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/time/ages.dark.webp">

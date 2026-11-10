@@ -22,7 +22,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " says for the ages beside them. -5 s is a time ahead of now, as a clock that stepped back gives; the rest lie on both sides of each switch of unit."
+            "text": " says for the ages beside them."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "-5 s is a time ahead of now, as a clock that stepped back gives. The rest lie on both sides of each switch of unit."
           }
         ]
       }

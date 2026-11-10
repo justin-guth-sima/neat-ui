@@ -8,11 +8,15 @@ const BLOCKS = COMPILE_FLOW.overview.nodes
   .map((node) => ({ id: node.id, label: node.label }));
 
 /**
- * The app reads the diagram and sets it: `hovered` is the part in focus (the pointer's block or
- * edge, or the keyboard's block, or one the app sets), and `activated` reports a click on a block
- * or an edge. The list beside the drawing is bound to `hovered` both ways: point at a row (or tab to
- * it) and its block is in focus in the drawing, with what it is joined to; point at a block and
- * its row is marked. The card also says the last part clicked.
+ * The app reads the diagram and sets it.
+ *
+ * - `hovered` is the part in focus: the pointer's block or edge, the keyboard's block, or one the
+ *   app sets.
+ * - `activated` reports a click on a block or an edge. The card says the last part clicked.
+ *
+ * The list beside the drawing is bound to `hovered` both ways. Try pointing at a row, or tabbing to
+ * it: its block is in focus in the drawing, with what it is joined to. Point at a block, and its
+ * row is marked.
  */
 @Component({
   selector: 'app-diagram-from-the-app',

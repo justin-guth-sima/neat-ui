@@ -15,7 +15,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The output of a gesture classifier, a score per IPN Hand class. The scores change every 1.5 s; \"No gesture\" is "
+            "text": "The output of a gesture classifier: a score per IPN Hand class, changing every 1.5 s."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "\"No gesture\" is "
           },
           {
             "kind": "code",
@@ -23,7 +32,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", so it stays muted beside the colored gestures, and the top row's label is bold. The line below the bars colors its dot with "
+            "text": ", so it stays muted beside the colored gestures. The top row's label is bold."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The line below the bars colors its dot with "
           },
           {
             "kind": "ref",
@@ -32,7 +50,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", so text outside the bars (a timeline's runs, a caption) shows a class in the same color."
+            "text": ". So text outside the bars, such as a timeline's runs or a caption, shows a class in the same color."
           }
         ]
       }
@@ -115,7 +133,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The same scores in a card 24 rem tall, as beside a video whose height the card takes. With "
+            "text": "The same scores in a card 24 rem tall, as beside a video whose height the card takes."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "With "
           },
           {
             "kind": "code",
@@ -123,7 +150,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " the bars share the height the card leaves its content: each row grows, its label and figure stay centered, and its bar thickens up to twice its usual thickness. In a box shorter than the rows need, they keep their usual height and the list overflows."
+            "text": ", the bars share the height the card leaves its content. Each row grows, its label and figure stay centered, and its bar thickens, up to twice its usual thickness. In a box shorter than the rows need, they keep their usual height, and the list overflows."
           }
         ]
       }

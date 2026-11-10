@@ -14,7 +14,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Three zones: the first takes one video, so drop a text file on it and the log says it was not accepted; the second takes any files; the third is disabled. The log is newest first."
+            "text": "Three zones: the first takes one video, the second takes any files, and the third is disabled. The log is newest first."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Try dropping a text file on the first: the log says it was not accepted."
           }
         ]
       }

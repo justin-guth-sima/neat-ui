@@ -2,10 +2,12 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { NeatButton, type NeatColorScheme, ThemeService } from '@sima/neat-ui';
 
 /**
- * The scheme the page is in (`scheme`) and two ways to change it. `toggle()` is what the shell's
- * theme item does and stores the choice for the next page load; `setScheme` with `persist: false`
- * holds for this page load only, as a link that themes itself needs, and leaves the stored choice
- * as it was. Light is the default whatever the operating system prefers.
+ * The scheme the page is in (`scheme`), and two ways to change it. Light is the default, whatever
+ * the operating system prefers.
+ *
+ * `toggle()` is what the shell's theme item does, and it stores the choice for the next page load.
+ * `setScheme` with `persist: false` holds for this page load only, as a link that themes itself
+ * needs. It leaves the stored choice as it was.
  */
 @Component({
   selector: 'app-color-scheme',

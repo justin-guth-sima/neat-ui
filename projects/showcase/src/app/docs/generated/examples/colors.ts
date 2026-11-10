@@ -27,15 +27,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ") and two ways to change it. "
-          },
+            "text": "), and two ways to change it. Light is the default, whatever the operating system prefers."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
           {
             "kind": "code",
             "text": "toggle()"
           },
           {
             "kind": "text",
-            "text": " is what the shell's theme item does and stores the choice for the next page load; "
+            "text": " is what the shell's theme item does, and it stores the choice for the next page load. "
           },
           {
             "kind": "code",
@@ -51,7 +56,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " holds for this page load only, as a link that themes itself needs, and leaves the stored choice as it was. Light is the default whatever the operating system prefers."
+            "text": " holds for this page load only, as a link that themes itself needs. It leaves the stored choice as it was."
           }
         ]
       }
@@ -151,7 +156,25 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ": the base is step 500 unchanged, the lighter steps move from it in OKLCH towards near-white and the darker towards near-black, with the chroma pulled back into sRGB. The primary ramp is the accent's; the others are the functional colors the palette lacks and the chart series' teal."
+            "text": "."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The base is step 500, unchanged. The lighter steps move from it in OKLCH towards near-white, and the darker towards near-black, with the chroma pulled back into sRGB."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The primary ramp is the accent's. The others are the functional colors the palette lacks, and the chart series' teal."
           }
         ]
       }
@@ -216,8 +239,13 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The two surface ramps, from white at step 0 to the darkest at step 950. "
-          },
+            "text": "The two surface ramps, from white at step 0 to the darkest at step 950."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
           {
             "kind": "ref",
             "text": "buildSurfaceScale",
@@ -243,7 +271,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ". They start at 0 because white sits above the brand's off-white 50 and 100, which keeps the step numbers aligned across all the ramps."
+            "text": "."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "They start at 0 because white sits above the brand's off-white 50 and 100. That keeps the step numbers aligned across all the ramps."
           }
         ]
       }

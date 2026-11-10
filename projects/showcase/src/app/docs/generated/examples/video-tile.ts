@@ -145,7 +145,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " message. A hand draws as MediaPipe's 21 landmarks and links, a person as COCO's keypoints. The "
+            "text": " message. A hand draws as MediaPipe's 21 landmarks and links, and a person as COCO's keypoints."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The "
           },
           {
             "kind": "code",
@@ -153,7 +162,25 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " rows style a pose by its label: here the person is a thin light gray, and the hands keep the color of their ids. Boxes shows and hides the box and label plate around each pose. Mirror flips the picture and the poses, not their labels. The line under the switches is fed by the tile's "
+            "text": " rows style a pose by its label. Here the person is a thin light gray, and the hands keep the color of their ids."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Try the switches. Boxes shows and hides the box and label plate around each pose. Mirror flips the picture and the poses, not their labels."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The line under the switches is fed by the tile's "
           },
           {
             "kind": "code",
@@ -161,7 +188,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", which gets each frame's matched messages outside Angular, so it writes its signal only when the count changes."
+            "text": ". It gets each frame's matched messages outside Angular, so it writes its signal only when the count changes."
           }
         ]
       }

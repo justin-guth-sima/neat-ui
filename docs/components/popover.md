@@ -26,7 +26,9 @@ import { NeatPopover, NeatPopoverTrigger, NeatPopoverContent, NeatPopoverItem, N
 
 ### Switches in a panel
 
-A panel of view options below an icon-only trigger. `[(open)]` follows the trigger, Escape and outside clicks, and the switches' values live in the page, since the content is created on opening and destroyed on closing: reopen the panel and they are as they were.
+A panel of view options below an icon-only trigger. `[(open)]` follows the trigger, Escape and outside clicks.
+
+The switches' values live in the page, since the content is created on opening and destroyed on closing. Try reopening the panel: they are as they were.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/popover/switches-in-a-panel.dark.webp">
@@ -106,7 +108,7 @@ export class SwitchesInAPanel {
 
 ### Aligned to the end
 
-A number field in a panel with `align="end"`, for a trigger at the right edge of a toolbar: the panel lines up with the trigger's end and opens inward. Focus moves to the field when the panel opens.
+A number field in a panel with `align="end"`, for a trigger at the right edge of a toolbar. The panel lines up with the trigger's end, and opens inward. Focus moves to the field when the panel opens.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/popover/aligned-to-the-end.dark.webp">

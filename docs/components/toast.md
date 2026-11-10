@@ -87,7 +87,9 @@ export class Kinds {
 
 ### Progress
 
-A progress toast for work that takes a while, four ways: succeeding, failing, of unknown length (`null` for the percent), and dismissed halfway, as when a dialog takes the work back. The work is simulated and runs on its own, as an upload does, so leaving the page does not stop the toast from reporting the outcome.
+A progress toast for work that takes a while, four ways: - succeeding; - failing; - of unknown length, with `null` for the percent; - dismissed halfway, as when a dialog takes the work back.
+
+The work is simulated, and runs on its own, as an upload does. So leaving the page does not stop the toast from reporting the outcome.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/toast/progress.dark.webp">

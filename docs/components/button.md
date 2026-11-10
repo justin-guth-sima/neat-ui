@@ -23,7 +23,7 @@ import { NeatButton } from '@sima/neat-ui';
 
 ### Variants
 
-Each of the seven variants in the four sizes, then the four sizes again as icon-only buttons (which need an `aria-label`), then `rounded` as a pill and as a circle.
+Each of the seven variants in the four sizes. Then the four sizes again as icon-only buttons, which need an `aria-label`, and `rounded` as a pill and as a circle.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/button/variants.dark.webp">
@@ -131,7 +131,7 @@ h4 {
 
 ### Start and stop
 
-The action that starts something and the one that stops it: `success` with a filled `play` icon, `danger` with a filled `stop` icon, the icon before the label at 16 px.
+The action that starts something and the one that stops it: `success` with a filled `play` icon, and `danger` with a filled `stop` icon. The icon goes before the label, at 16 px.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/button/start-and-stop.dark.webp">

@@ -46,14 +46,18 @@ const BURST_MESSAGES = 400;
 /**
  * A timer feeds camera frames at 30 Hz and results at 10 Hz, in batches of three frames that
  * `neatBatchTimes` spreads. Decode's figure line comes from the example's
- * `NeatDiagramBlockTemplate`. Open the Detector: inside it, the dots wait out its stage times. The
- * notes are rate cards of an edge's `rate()` (the Tracker's of the two edges into it, summed by
- * `rate(['detector-tracker', 'nms-tracker'])`, and with `showBytes` off, since results are a few
- * kilobytes and not worth a megabyte figure), the Detector's with its stage time in place of the
+ * `NeatDiagramBlockTemplate`.
+ *
+ * Try opening the Detector: inside it, the dots wait out its stage times.
+ *
+ * The notes are rate cards of an edge's `rate()`: - the Tracker's sums the two edges into it, with
+ * `rate(['detector-tracker', 'nms-tracker'])`, and has `showBytes` off, since results are a few
+ * kilobytes and not worth a megabyte figure; - the Detector's shows its stage time in place of the
  * megabytes.
- * The Animation panel tunes the dots, its choice kept per browser with `neatStoredSignal`, and
- * Burst pushes 400 messages in one tick, about three seconds of this traffic, as a tab returning
- * from a few seconds in the background would.
+ *
+ * The Animation panel tunes the dots, its choice kept per browser with `neatStoredSignal`. Burst
+ * pushes 400 messages in one tick, about three seconds of this traffic, as a tab returning from a
+ * few seconds in the background would.
  *
  * The top bar's Fit calls `NeatDiagramView.fit`, which fits the drawing to its box again after it
  * was panned or zoomed.

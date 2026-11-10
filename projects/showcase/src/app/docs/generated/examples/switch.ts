@@ -14,7 +14,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Two switches with a label, a third without content that takes an "
+            "text": "Two switches with a label, and a third without content, which takes an "
           },
           {
             "kind": "code",
@@ -22,7 +22,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " and shares its value with the first (toggle either), and two disabled ones, off and on."
+            "text": ". The third shares its value with the first: try toggling either. Last come two disabled ones, off and on."
           }
         ]
       }

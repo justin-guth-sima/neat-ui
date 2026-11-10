@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
 
 /**
- * A chip in a column narrower than its text: it truncates and keeps the column's width, where a
+ * A chip in a column narrower than its text. It truncates and keeps the column's width, where a
  * list's cell or a bar would otherwise grow.
  */
 @Component({

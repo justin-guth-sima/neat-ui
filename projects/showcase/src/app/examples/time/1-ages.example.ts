@@ -6,8 +6,10 @@ import { NeatDetails } from '@sima/neat-ui/details';
 const AGES = [-5, 0, 9, 10, 59, 60, 3599, 3600, 86_399, 86_400, 259_200];
 
 /**
- * The words `neatSecondsAgo` says for the ages beside them. -5 s is a time ahead of now, as a clock
- * that stepped back gives; the rest lie on both sides of each switch of unit.
+ * The words `neatSecondsAgo` says for the ages beside them.
+ *
+ * -5 s is a time ahead of now, as a clock that stepped back gives. The rest lie on both sides of
+ * each switch of unit.
  */
 @Component({
   selector: 'app-ages',

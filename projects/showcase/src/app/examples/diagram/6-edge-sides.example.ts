@@ -4,9 +4,10 @@ import { EDGE_SIDES, EDGE_SIDES_LEGEND } from './edge-sides-data';
 
 /**
  * A node's `outSide` and `inSide` say where all of its outgoing and incoming edges meet it. An
- * edge's own `fromSide` and `toSide` override them for that edge alone: here both edges leave the
- * Source on its right, as its `outSide` says, except the archive copy, which leaves on the bottom
- * (`fromSide`). The route and the label follow the side the edge chose.
+ * edge's own `fromSide` and `toSide` override them, for that edge alone.
+ *
+ * Here both edges leave the Source on its right, as its `outSide` says, except the archive copy,
+ * which leaves on the bottom (`fromSide`). The route and the label follow the side the edge chose.
  */
 @Component({
   selector: 'app-edge-sides',

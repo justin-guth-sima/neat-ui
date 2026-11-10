@@ -73,7 +73,7 @@ export class EasedNumber {
 
 ### Eased signal
 
-A progress bar whose value is [`neatEased`](../components/motion.md#neateased) of a signal: the signal jumps on every press, the bar eases to it, and nothing else in the component deals with the animation.
+A progress bar whose value is [`neatEased`](../components/motion.md#neateased) of a signal. The signal jumps on every press, and the bar eases to it. Nothing else in the component deals with the animation.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/motion/eased-signal.dark.webp">
@@ -135,7 +135,7 @@ export class EasedSignal {
 
 ### Curves
 
-One bar per curve of the catalog, each fed [`neatEased`](../components/motion.md#neateased) of the same share with its own `easing`, so a single press moves all four side by side: ease-in-out, the default, starts and settles gently, ease-out starts fast, ease-in starts slow, and linear keeps one pace.
+One bar per curve of the catalog, each fed [`neatEased`](../components/motion.md#neateased) of the same share with its own `easing`. So a single press moves all four side by side: - ease-in-out, the default, starts and settles gently; - ease-out starts fast; - ease-in starts slow; - linear keeps one pace.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/motion/curves.dark.webp">

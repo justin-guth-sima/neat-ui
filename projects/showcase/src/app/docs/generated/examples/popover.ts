@@ -24,7 +24,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " follows the trigger, Escape and outside clicks, and the switches' values live in the page, since the content is created on opening and destroyed on closing: reopen the panel and they are as they were."
+            "text": " follows the trigger, Escape and outside clicks."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The switches' values live in the page, since the content is created on opening and destroyed on closing. Try reopening the panel: they are as they were."
           }
         ]
       }
@@ -83,7 +92,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", for a trigger at the right edge of a toolbar: the panel lines up with the trigger's end and opens inward. Focus moves to the field when the panel opens."
+            "text": ", for a trigger at the right edge of a toolbar. The panel lines up with the trigger's end, and opens inward. Focus moves to the field when the panel opens."
           }
         ]
       }

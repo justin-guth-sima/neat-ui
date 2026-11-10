@@ -19,7 +19,9 @@ import { ThemeService, provideNeatUi, neatThemeColors, neatResolveColor, buildCo
 
 ### Color scheme
 
-The scheme the page is in (`scheme`) and two ways to change it. `toggle()` is what the shell's theme item does and stores the choice for the next page load; `setScheme` with `persist: false` holds for this page load only, as a link that themes itself needs, and leaves the stored choice as it was. Light is the default whatever the operating system prefers.
+The scheme the page is in (`scheme`), and two ways to change it. Light is the default, whatever the operating system prefers.
+
+`toggle()` is what the shell's theme item does, and it stores the choice for the next page load. `setScheme` with `persist: false` holds for this page load only, as a link that themes itself needs. It leaves the stored choice as it was.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/colors/color-scheme.dark.webp">
@@ -157,7 +159,11 @@ export class Palette {
 
 ### Color scales
 
-A ramp from step 50 to 950 for each base color the theme names, made with [`buildColorScale`](../theme/colors.md#buildcolorscale): the base is step 500 unchanged, the lighter steps move from it in OKLCH towards near-white and the darker towards near-black, with the chroma pulled back into sRGB. The primary ramp is the accent's; the others are the functional colors the palette lacks and the chart series' teal.
+A ramp from step 50 to 950 for each base color the theme names, made with [`buildColorScale`](../theme/colors.md#buildcolorscale).
+
+The base is step 500, unchanged. The lighter steps move from it in OKLCH towards near-white, and the darker towards near-black, with the chroma pulled back into sRGB.
+
+The primary ramp is the accent's. The others are the functional colors the palette lacks, and the chart series' teal.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/colors/color-scales.dark.webp">
@@ -291,7 +297,11 @@ h4 {
 
 ### Surface scales
 
-The two surface ramps, from white at step 0 to the darkest at step 950. [`buildSurfaceScale`](../theme/colors.md#buildsurfacescale) is the light scheme's: white, the two palette backgrounds and the palette text, with the steps between interpolated. [`buildNeutralSurfaceScale`](../theme/colors.md#buildneutralsurfacescale) is the dark scheme's, the same construction in grays only, down to the near-black [`NEAT_NEAR_BLACK`](../theme/colors.md#neat_near_black). They start at 0 because white sits above the brand's off-white 50 and 100, which keeps the step numbers aligned across all the ramps.
+The two surface ramps, from white at step 0 to the darkest at step 950.
+
+[`buildSurfaceScale`](../theme/colors.md#buildsurfacescale) is the light scheme's: white, the two palette backgrounds and the palette text, with the steps between interpolated. [`buildNeutralSurfaceScale`](../theme/colors.md#buildneutralsurfacescale) is the dark scheme's, the same construction in grays only, down to the near-black [`NEAT_NEAR_BLACK`](../theme/colors.md#neat_near_black).
+
+They start at 0 because white sits above the brand's off-white 50 and 100. That keeps the step numbers aligned across all the ramps.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/colors/surface-scales.dark.webp">

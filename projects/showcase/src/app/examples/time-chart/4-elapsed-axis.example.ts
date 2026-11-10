@@ -4,7 +4,7 @@ import { CPU, percent, TIMES } from './data';
 
 /**
  * `axis="elapsed"` counts the x axis forward from the first sample ("0 s … 8 min"), for a run read
- * from its start; the default counts back from the newest sample.
+ * from its start. The default counts back from the newest sample.
  */
 @Component({
   selector: 'app-elapsed-axis',

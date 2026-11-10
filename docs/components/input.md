@@ -23,7 +23,7 @@ import { NeatInput } from '@sima/neat-ui/input';
 
 ### Sizes and states
 
-A text field, a small number field that keeps the native `type`, `inputmode` and `min`, and a disabled one, each named by the label around it. The fields sit level at their bottom edge.
+A text field, a small number field and a disabled one, each named by the label around it. The number field keeps the native `type`, `inputmode` and `min`. The fields sit level at their bottom edge.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/input/sizes-and-states.dark.webp">
@@ -89,7 +89,9 @@ label {
 
 ### Controls on a card
 
-The form controls on the card surface, which differs from the page's background in dark mode: look at each one's edge, track and fill there. A switch, a slider, a segmented control, an input and a select in a row; two progress bars and a drop zone in a column; tabs.
+The form controls on the card surface, which differs from the page's background in dark mode. Look at each one's edge, track and fill there.
+
+A switch, a slider, a segmented control, an input and a select sit in a row. Two progress bars and a drop zone sit in a column, then tabs.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/input/controls-on-a-card.dark.webp">

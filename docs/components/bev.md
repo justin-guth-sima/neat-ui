@@ -23,7 +23,11 @@ import { NeatBev } from '@sima/neat-ui/bev';
 
 ### Round
 
-The round view, as a radar shows it: rings every 10 m out to the 60 m range, spokes every 30°, and the street around a vehicle waiting at a crossing, 20 frames a second. The drivable area is a 128 × 128 grid, the lidar's returns one array of points, the lane markings and the planned turn lines, and every car, cyclist and person a box with its heading. Each label takes its color from the page's class colors, as a video tile's classes do. Everything stops at the circle, the guides lie over the data, and hovering or tapping a box reads it out.
+The round view, as a radar shows it: the street around a vehicle waiting at a crossing, 20 frames a second.
+
+It has rings every 10 m out to the 60 m range, and spokes every 30°. The drivable area is a 128 × 128 grid, and the lidar's returns are one array of points. The lane markings and the planned turn are lines, and every car, cyclist and person is a box with its heading.
+
+Each label takes its color from the page's class colors, as a video tile's classes do. Everything stops at the circle, and the guides lie over the data. Try hovering or tapping a box to read it out.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/bev/round.dark.webp">
@@ -462,7 +466,11 @@ figcaption {
 
 ### Rect
 
-The rectangle: a metric grid in bounds of the app's, here a square reaching 80 m ahead and 40 m behind, 60 m to either side, labeled along its left and top edges. It spans 120 m as the circle above does, in a view of the same height, so the two show the street at one scale. Without a height of the app's the view takes the rectangle's proportions; without `bounds` the rectangle is the square of ±`range`. No spokes.
+The rectangle: a metric grid, in bounds of the app's, labeled along its left and top edges.
+
+Here the bounds reach 80 m ahead and 40 m behind, and 60 m to either side. They span 120 m as the circle above does, in a view of the same height, so the two show the street at one scale. There are no spokes.
+
+Without a height of the app's, the view takes the rectangle's proportions. Without `bounds`, the rectangle is the square of ±`range`.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/bev/rect.dark.webp">
@@ -902,7 +910,11 @@ figcaption {
 
 ### Overflow
 
-With `overflow="visible"` nothing stops at the shape: the data and the guides run on over the whole box. The shape still sets the scale, fitted in the box as before; the rest is extra view. Above, a grid that fills a wide box; below, the rings running on past the range, both at the same 40 m range. Neither draws an outline: with nothing cut at the shape, its edge would only cross the picture.
+With `overflow="visible"`, nothing stops at the shape: the data and the guides run on over the whole box.
+
+The shape still sets the scale, fitted in the box as before. The rest is extra view. Above is a grid that fills a wide box, and below are the rings running on past the range, both at the same 40 m range.
+
+Neither draws an outline. With nothing cut at the shape, its edge would only cross the picture.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/bev/overflow.dark.webp">
@@ -1354,7 +1366,11 @@ figcaption {
 
 ### Overflow zoom
 
-The same two views with `zoom`, starting closer in: a 25 m range, and `panBounds` reaching 60 m all around, so dragging reaches the whole street, the far end of the road ahead too. Scroll or pinch to zoom, and `zoomExtent` lets the view zoom out to half the default as well as in to four times it; reset with the button that then shows.
+The same two views with `zoom`, starting closer in, at a 25 m range.
+
+`panBounds` reaches 60 m all around, so dragging reaches the whole street, the far end of the road ahead too. `zoomExtent` lets the view zoom out to half the default, as well as in to four times it.
+
+Try scrolling or pinching to zoom, then reset with the button that shows.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/bev/overflow-zoom.dark.webp">
@@ -1819,7 +1835,11 @@ figcaption {
 
 ### Layers
 
-What the app draws besides the frame, which changes rarely: under the data (`background`) the buildings' footprints from a map, as polygons; over it (`foreground`) a dashed zone the vehicle keeps clear ahead of it. Both take lines, polygons and points, in their labels' colors, and are drawn with the view's cached layers, not every frame. A camera's field of view, a geofence or a map's lane lines go the same way.
+What the app draws besides the frame, which changes rarely.
+
+Under the data (`background`) are the buildings' footprints from a map, as polygons. Over it (`foreground`) is a dashed zone the vehicle keeps clear ahead of it.
+
+Both take lines, polygons and points, in their labels' colors. They are drawn with the view's cached layers, not every frame. A camera's field of view, a geofence or a map's lane lines go the same way.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/bev/layers.dark.webp">
@@ -2265,7 +2285,11 @@ figcaption {
 
 ### Zoom
 
-With `zoom` the view zooms and pans: scroll or pinch to zoom, drag to pan, and reset with the button that then shows (or focus the view and use the arrows, `+`, `-` and `0`). The circle zooms with what it holds, in to four times the default, and every wheel over the view is its own, so the page does not scroll away under the pointer. Without `zoom` (the default) the wheel scrolls the page. On the left the guides lie over the data (the default), on the right under it.
+With `zoom`, the view zooms and pans. On the left the guides lie over the data, the default. On the right they lie under it.
+
+The circle zooms with what it holds, in to four times the default. Every wheel over the view is its own, so the page does not scroll away under the pointer. Without `zoom`, the default, the wheel scrolls the page.
+
+Try scrolling or pinching to zoom and dragging to pan, then reset with the button that shows. Or focus the view and use the arrow keys, `+`, `-` and `0`.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/bev/zoom.dark.webp">
@@ -2715,7 +2739,9 @@ figcaption {
 
 ### Shared styles
 
-Style rows set a label's color, line and width, as a video tile's class rows do: give the same rows to the tiles' settings and to the view, and a class looks the same in both. Here the drivable area takes the brand's blue, the planned path its green, thick, the lane markings a thick dotted line in the kit's purple (the palette's own is too pale to read on the road), and the `default` row draws every other label in orange, so the street reads in the brand's colors instead of the page's class colors.
+Style rows set a label's color, line and width, as a video tile's class rows do. Give the same rows to the tiles' settings and to the view, and a class looks the same in both.
+
+Here the street reads in the brand's colors instead of the page's class colors: - the drivable area takes the brand's blue; - the planned path takes its green, thick; - the lane markings are a thick dotted line in the kit's purple, since the palette's own is too pale to read on the road; - the `default` row draws every other label in orange.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/bev/shared-styles.dark.webp">
@@ -3162,7 +3188,15 @@ figcaption {
 
 ### Polygons
 
-Areas as polygons instead of grids: the drivable area of a small road network, given as pieces the way a map gives them, each a line with `fill`. A wide four-lane ring road with rounded corners, a narrow road straight through it with square crossings, a side road joining it with rounded corners, and a ramp branching off it in a curve. The pieces overlap where the roads meet, and a label's polygons fill as one area, so the joins do not show. The vehicle drives round the ring with traffic in every lane: the view stays the vehicle's, so the world turns around it. With `zoom`: scroll or pinch to zoom, drag to pan.
+Areas as polygons instead of grids: the drivable area of a small road network, given as pieces the way a map gives them.
+
+Each piece is a line with `fill`: - a wide four-lane ring road with rounded corners; - a narrow road straight through it, with square crossings; - a side road joining it, with rounded corners;
+
+- a ramp branching off it in a curve.
+
+The pieces overlap where the roads meet. A label's polygons fill as one area, so the joins do not show.
+
+The vehicle drives round the ring, with traffic in every lane. The view stays the vehicle's, so the world turns around it. With `zoom`, try scrolling or pinching to zoom, and dragging to pan.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/bev/polygons.dark.webp">
@@ -3641,7 +3675,13 @@ figcaption {
 
 ### Interaction
 
-The view tells the app what happens on it, and the app can set what it highlights. The card beside it reads `hovered` (the object under the pointer, by its id), `activated` (what a click hit, and where) and `pointerMove` (where the pointer is, in meters). Its list of the vehicles is bound to `hovered` both ways: hover a car in the view and its row is selected; select a row and the view outlines that car and reads it out, until the pointer comes back over the view. The objects carry their tracks' ids, so a car is the same car from frame to frame.
+The view tells the app what happens on it, and the app can set what it highlights.
+
+The card beside it reads: - `hovered`, the object under the pointer, by its id; - `activated`, what a click hit, and where; - `pointerMove`, where the pointer is, in meters.
+
+Its list of the vehicles is bound to `hovered` both ways. Try hovering a car in the view: its row is selected. Select a row, and the view outlines that car and reads it out, until the pointer comes back over the view.
+
+The objects carry their tracks' ids, so a car is the same car from frame to frame.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/bev/interaction.dark.webp">

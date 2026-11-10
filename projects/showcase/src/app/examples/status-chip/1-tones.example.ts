@@ -3,10 +3,10 @@ import { NeatStatusChip, NeatStatusChipButton } from '@sima/neat-ui/status-chip'
 import { CHIPS, SURFACES } from './chips';
 
 /**
- * The six tones on the page and on a card, each worded as a stream's slot states are: the words
- * carry the state, the color repeats it. The gray of `neutral` shows on both surfaces.
+ * The six tones on the page and on a card, each worded as a stream's slot states are. The words
+ * carry the state, and the color repeats it. The gray of `neutral` shows on both surfaces.
  *
- * The last chip is a `NeatStatusChipButton`: it looks the same, and opens more about the status,
+ * The last chip is a `NeatStatusChipButton`. It looks the same, and opens more about the status,
  * here a video tile's "Metadata late".
  *
  * @gallery

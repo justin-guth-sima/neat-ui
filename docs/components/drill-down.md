@@ -23,7 +23,9 @@ import { neatDrillDownLevel } from '@sima/neat-ui/diagram';
 
 ### Detector level
 
-A three-block pipeline whose Detector opens a level that [`neatDrillDownLevel`](../components/drill-down.md#neatdrilldownlevel) placed: its steps inside, the Camera that feeds it in a column on the left and the Tracker it feeds in one on the right. Open the Detector to see it.
+A three-block pipeline whose Detector opens a level that [`neatDrillDownLevel`](../components/drill-down.md#neatdrilldownlevel) placed.
+
+The level holds the Detector's steps inside. The Camera that feeds it is in a column on the left, and the Tracker it feeds in one on the right. Try opening the Detector.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/drill-down/detector-level.dark.webp">

@@ -14,7 +14,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Picking one file from a media tree. The "
+            "text": "Picking one file from a media tree."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The "
           },
           {
             "kind": "code",
@@ -22,7 +31,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " folder has a thousand files, and "
+            "text": " folder has a thousand files. "
           },
           {
             "kind": "code",
@@ -30,7 +39,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " is tagged and grayed but can still be selected. A click on a folder only highlights it: open it with a double click, its chevron or Enter. Move over a folder with the arrow keys or a click and the selection stays on the file it was on."
+            "text": " is tagged and grayed, but can still be selected."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Try clicking a folder: it is only highlighted. Open it with a double click, its chevron or Enter. Move over a folder with the arrow keys or a click, and the selection stays on the file it was on."
           }
         ]
       }
@@ -124,7 +142,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " mode on a card, with a Type and a Size column after the name; the folders' counts say \"videos\" and follow their names. A double click or the chevron opens a folder. Check files in several folders and filter: the checked ones stay checked, and the line under the browser counts them."
+            "text": " mode on a card, with a Type and a Size column after the name. The folders' counts say \"videos\", and follow their names."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A double click or the chevron opens a folder. Try checking files in several folders, then filtering: the checked ones stay checked, and the line under the browser counts them."
           }
         ]
       }

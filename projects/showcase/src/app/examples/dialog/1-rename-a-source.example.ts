@@ -16,13 +16,17 @@ import { NeatInput } from '@sima/neat-ui/input';
 import { NeatSwitch } from '@sima/neat-ui/switch';
 
 /**
- * A dialog around a template, named by `title`. The template gets the `NeatDialogRef` as its
- * implicit context (`let-dialog`) and closes the dialog with a result: `open` returns the ref, and
- * its `closed` settles with the name, or `undefined` when the dialog was dismissed. While saving,
- * `setDismissible(false)` blocks Escape, the backdrop and the close button, and the buttons are
- * `aria-disabled` rather than `disabled`: the button that was pressed has focus, and a disabled
- * control loses it, which would leave the keyboard outside the dialog. The switch turns the
- * dismissing off and on by hand.
+ * A dialog around a template, named by `title`.
+ *
+ * The template gets the `NeatDialogRef` as its implicit context (`let-dialog`), and closes the
+ * dialog with a result. `open` returns the ref. Its `closed` settles with the name, or `undefined`
+ * when the dialog was dismissed.
+ *
+ * While saving, `setDismissible(false)` blocks Escape, the backdrop and the close button. The
+ * buttons are `aria-disabled` rather than `disabled`. The button that was pressed has focus, and a
+ * disabled control loses it, which would leave the keyboard outside the dialog.
+ *
+ * The switch turns the dismissing off and on by hand.
  *
  * @capture click button[neatButton]
  * @gallery

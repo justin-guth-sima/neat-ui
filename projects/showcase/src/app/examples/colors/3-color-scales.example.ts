@@ -23,10 +23,13 @@ const BASES = [
 ] as const;
 
 /**
- * A ramp from step 50 to 950 for each base color the theme names, made with `buildColorScale`:
- * the base is step 500 unchanged, the lighter steps move from it in OKLCH towards near-white and
- * the darker towards near-black, with the chroma pulled back into sRGB. The primary ramp is the
- * accent's; the others are the functional colors the palette lacks and the chart series' teal.
+ * A ramp from step 50 to 950 for each base color the theme names, made with `buildColorScale`.
+ *
+ * The base is step 500, unchanged. The lighter steps move from it in OKLCH towards near-white, and
+ * the darker towards near-black, with the chroma pulled back into sRGB.
+ *
+ * The primary ramp is the accent's. The others are the functional colors the palette lacks, and the
+ * chart series' teal.
  *
  * @gallery
  */

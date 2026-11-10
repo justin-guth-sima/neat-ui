@@ -99,23 +99,41 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The app reads the chart and sets it: "
-          },
-          {
-            "kind": "code",
-            "text": "hovered"
-          },
+            "text": "The app reads the chart and sets it."
+          }
+        ]
+      },
+      {
+        "kind": "list",
+        "items": [
+          [
+            {
+              "kind": "code",
+              "text": "hovered"
+            },
+            {
+              "kind": "text",
+              "text": " is the moment the readout is on: the pointer's or the keys' sample, or one the app sets, shown at the nearest sample."
+            }
+          ],
+          [
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": " reports a click or Enter, with the sample's time and each band's value."
+            }
+          ]
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
           {
             "kind": "text",
-            "text": " is the moment the readout is on (the pointer's or the keys' sample, or one the app sets, shown at the nearest sample), and "
-          },
-          {
-            "kind": "code",
-            "text": "activated"
-          },
-          {
-            "kind": "text",
-            "text": " reports a click or Enter with the sample's time and each band's value. The card shows both, and its buttons set the moment from outside."
+            "text": "The card shows both. Its buttons set the moment from outside."
           }
         ]
       }

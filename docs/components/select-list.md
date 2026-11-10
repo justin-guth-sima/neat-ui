@@ -140,7 +140,7 @@ export const channelId = (channel: Channel): number => channel.id;
 
 ### On a card
 
-The same list on a card. The card sets `--neat-surface` to its own fill, and the header that stays put over the scrolling rows takes it: scroll the list and look at the header's edge.
+The same list on a card. The card sets `--neat-surface` to its own fill, and the header that stays put over the scrolling rows takes it. Try scrolling the list, and look at the header's edge.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/select-list/on-a-card.dark.webp">

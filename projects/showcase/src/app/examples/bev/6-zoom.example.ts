@@ -3,11 +3,15 @@ import { NeatBev } from '@sima/neat-ui/bev';
 import { streetFrames } from './scene';
 
 /**
- * With `zoom` the view zooms and pans: scroll or pinch to zoom, drag to pan, and reset with the
- * button that then shows (or focus the view and use the arrows, `+`, `-` and `0`). The circle
- * zooms with what it holds, in to four times the default, and every wheel over the view is its
- * own, so the page does not scroll away under the pointer. Without `zoom` (the default) the wheel
- * scrolls the page. On the left the guides lie over the data (the default), on the right under it.
+ * With `zoom`, the view zooms and pans. On the left the guides lie over the data, the default. On
+ * the right they lie under it.
+ *
+ * The circle zooms with what it holds, in to four times the default. Every wheel over the view is
+ * its own, so the page does not scroll away under the pointer. Without `zoom`, the default, the
+ * wheel scrolls the page.
+ *
+ * Try scrolling or pinching to zoom and dragging to pan, then reset with the button that shows. Or
+ * focus the view and use the arrow keys, `+`, `-` and `0`.
  */
 @Component({
   selector: 'app-zoom',

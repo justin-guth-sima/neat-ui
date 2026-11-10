@@ -128,7 +128,7 @@ neat-slider {
 
 ### Fit all
 
-Twelve numbered tiles, and a button that sets the tile width to the widest one at which all twelve fit the box, from the area and the gap the grid reported. Resize the window and press it again.
+Twelve numbered tiles, and a button that sets the tile width to the widest one at which all twelve fit the box. It works from the area and the gap the grid reported. Try resizing the window and pressing it again.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/tile-grid/fit-all.dark.webp">

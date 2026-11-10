@@ -19,11 +19,15 @@ const PAGE_NAV: readonly NeatPageNavGroup[] = [
 ];
 
 /**
- * The second view of the page nav: a route of its own, so the list is declared again and its
- * open link follows the route. Network and Storage are routes nested under this one, which keep
- * this example rendered: of the links whose path the route is under, the longest is the open one,
- * so on `…/details/network` it is Network, not Details. The list stays where it is when the view
- * changes, beside the body; it has no filter here, which is the default.
+ * The second view of the page nav: a route of its own, so the list is declared again, and its open
+ * link follows the route.
+ *
+ * Network and Storage are routes nested under this one, which keep this example rendered. Of the
+ * links whose path the route is under, the longest is the open one. So on `…/details/network` it is
+ * Network, not Details.
+ *
+ * The list stays where it is when the view changes, beside the body. It has no filter here, which
+ * is the default.
  *
  * @page
  */

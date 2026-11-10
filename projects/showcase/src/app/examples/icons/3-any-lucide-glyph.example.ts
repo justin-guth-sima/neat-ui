@@ -3,9 +3,11 @@ import { NeatIcon } from '@sima/neat-ui';
 import { Anchor, Bell, Rocket } from '@sima/neat-ui/lucide';
 
 /**
- * A glyph the kit's set has no name for, imported from `@sima/neat-ui/lucide` and given to the
- * icon as its `name`, at the kit's sizes. Reach for it only where no name of the set fits, and
- * never import Lucide from its own package: the kit keeps the icon library swappable.
+ * A glyph the kit's set has no name for, imported from `@sima/neat-ui/lucide` and given to the icon
+ * as its `name`, at the kit's sizes.
+ *
+ * Reach for it only where no name of the set fits. Never import Lucide from its own package: the
+ * kit keeps the icon library swappable.
  */
 @Component({
   selector: 'app-any-lucide-glyph',

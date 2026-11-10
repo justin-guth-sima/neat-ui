@@ -6,8 +6,8 @@ import { NeatProgress } from '@sima/neat-ui/progress';
 const SHARES = [20, 85, 40, 100];
 
 /**
- * A progress bar whose value is `neatEased` of a signal: the signal jumps on every press, the bar
- * eases to it, and nothing else in the component deals with the animation.
+ * A progress bar whose value is `neatEased` of a signal. The signal jumps on every press, and the
+ * bar eases to it. Nothing else in the component deals with the animation.
  */
 @Component({
   selector: 'app-eased-signal',

@@ -23,7 +23,7 @@ import { NeatSwitch } from '@sima/neat-ui/switch';
 
 ### On and off
 
-Two switches with a label, a third without content that takes an `aria-label` and shares its value with the first (toggle either), and two disabled ones, off and on.
+Two switches with a label, and a third without content, which takes an `aria-label`. The third shares its value with the first: try toggling either. Last come two disabled ones, off and on.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/switch/on-and-off.dark.webp">

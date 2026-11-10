@@ -28,7 +28,11 @@ import { NeatScoreBars, neatLabelColor, neatLabelColour } from '@sima/neat-ui/ch
 
 ### Gesture scores
 
-The output of a gesture classifier, a score per IPN Hand class. The scores change every 1.5 s; "No gesture" is `quiet`, so it stays muted beside the colored gestures, and the top row's label is bold. The line below the bars colors its dot with [`neatLabelColor`](../components/score-bars.md#neatlabelcolor), so text outside the bars (a timeline's runs, a caption) shows a class in the same color.
+The output of a gesture classifier: a score per IPN Hand class, changing every 1.5 s.
+
+"No gesture" is `quiet`, so it stays muted beside the colored gestures. The top row's label is bold.
+
+The line below the bars colors its dot with [`neatLabelColor`](../components/score-bars.md#neatlabelcolor). So text outside the bars, such as a timeline's runs or a caption, shows a class in the same color.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/score-bars/score-bars.dark.webp">
@@ -150,7 +154,9 @@ export function scoresAt(step: number): readonly NeatScore[] {
 
 ### Filling a card
 
-The same scores in a card 24 rem tall, as beside a video whose height the card takes. With `size="fill"` the bars share the height the card leaves its content: each row grows, its label and figure stay centered, and its bar thickens up to twice its usual thickness. In a box shorter than the rows need, they keep their usual height and the list overflows.
+The same scores in a card 24 rem tall, as beside a video whose height the card takes.
+
+With `size="fill"`, the bars share the height the card leaves its content. Each row grows, its label and figure stay centered, and its bar thickens, up to twice its usual thickness. In a box shorter than the rows need, they keep their usual height, and the list overflows.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/score-bars/filling-a-card.dark.webp">

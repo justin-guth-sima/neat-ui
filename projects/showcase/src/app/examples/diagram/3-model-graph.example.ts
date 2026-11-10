@@ -8,10 +8,14 @@ import {
 import { MODEL_EDGE_TOOLTIPS, MODEL_GRAPH, MODEL_LEGEND } from './model-graph-data';
 
 /**
- * Tensor shapes as edge labels, a figure after a brace's label from the app's
- * `NeatDiagramBlockTemplate` (`node.role` tells a bracket from a block), the tooltip of an edge from
- * the app's `NeatDiagramEdgeTooltipTemplate`, and levels two deep: Stages opens its stages, and Dark5
- * opens its layers. `NeatDiagramView.level` is the path of open levels, shown below the drawing.
+ * A model's graph, with tensor shapes as edge labels.
+ *
+ * A figure follows a brace's label, from the app's `NeatDiagramBlockTemplate`, where `node.role`
+ * tells a bracket from a block. The tooltip of an edge comes from the app's
+ * `NeatDiagramEdgeTooltipTemplate`.
+ *
+ * Levels go two deep: Stages opens its stages, and Dark5 opens its layers. `NeatDiagramView.level`
+ * is the path of open levels, shown below the drawing.
  */
 @Component({
   selector: 'app-model-graph',

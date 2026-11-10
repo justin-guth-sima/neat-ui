@@ -7,10 +7,13 @@ import { RAILS, TIMES, watts } from './data';
 const clock = (time: number) => new Date(time).toISOString().slice(11, 19);
 
 /**
- * The app reads the chart and sets it: `hovered` is the moment the readout is on (the pointer's
- * or the keys' sample, or one the app sets, shown at the nearest sample), and `activated` reports a
- * click or Enter with the sample's time and each band's value. The card shows both, and its
- * buttons set the moment from outside.
+ * The app reads the chart and sets it.
+ *
+ * - `hovered` is the moment the readout is on: the pointer's or the keys' sample, or one the app
+ *   sets, shown at the nearest sample.
+ * - `activated` reports a click or Enter, with the sample's time and each band's value.
+ *
+ * The card shows both. Its buttons set the moment from outside.
  */
 @Component({
   selector: 'app-stacked-from-the-app',

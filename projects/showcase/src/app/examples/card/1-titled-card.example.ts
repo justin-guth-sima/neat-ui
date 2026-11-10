@@ -3,8 +3,8 @@ import { NeatButton } from '@sima/neat-ui';
 import { NeatCard } from '@sima/neat-ui/card';
 
 /**
- * A card with a title, a subtitle, an action at the header's end and a footer, and a landmark:
- * `region` names it by its title for a user who jumps between regions.
+ * A card with a title, a subtitle, an action at the header's end and a footer. It is a landmark
+ * too: `region` names it by its title, for a user who jumps between regions.
  */
 @Component({
   selector: 'app-titled-card',

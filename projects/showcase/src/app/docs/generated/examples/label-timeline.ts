@@ -15,7 +15,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The last 30 s of a gesture classifier, shown twice with the same runs: the top strip is "
+            "text": "The last 30 s of a gesture classifier, shown twice with the same runs. The top strip is "
           },
           {
             "kind": "code",
@@ -23,7 +23,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " and the bottom one "
+            "text": ", and the bottom one "
           },
           {
             "kind": "code",
@@ -31,7 +31,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ". The window advances once a second, the rate at which "
+            "text": "."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The window advances once a second, the rate at which "
           },
           {
             "kind": "code",
@@ -47,7 +56,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " scrolls in between. A new run opens when the class changes and grows until the next one. It opens with \"Pointing with two fingers\" held for the last 5 s, a name wider than its run, which stands above the strip held back from its right end. \"No gesture\" is "
+            "text": " scrolls in between. A new run opens when the class changes, and grows until the next one."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "It opens with \"Pointing with two fingers\" held for the last 5 s. The name is wider than its run, so it stands above the strip, held back from its right end. \"No gesture\" is "
           },
           {
             "kind": "code",
@@ -55,7 +73,25 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", so it is drawn muted and never named. The names share one row, so a name that would run into a newer one's is left out. Point at a run, a quiet one too, or focus a strip and use the arrow keys, to read out its label and when it was. Runs that have left the window are dropped here: the timeline clips what it is given, but the app is what knows it will not need them again."
+            "text": ", so it is drawn muted and never named. The names share one row, so a name that would run into a newer one's is left out."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Try pointing at a run, a quiet one too, or focus a strip and use the arrow keys. The readout says its label and when it was."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Runs that have left the window are dropped here. The timeline clips what it is given, but the app is what knows it will not need them again."
           }
         ]
       }
@@ -149,15 +185,29 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A busy classifier, a gesture every one to two seconds, with its names in one row and in two. The names stand above the strip, each from its run's start; from the newest run back, a name goes into the first row where it keeps clear of the newer names, so the latest gesture is always named. "
-          },
+            "text": "A busy classifier, a gesture every one to two seconds, with its names in one row and in two."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The names stand above the strip, each from its run's start. From the newest run back, a name goes into the first row where it keeps clear of the newer names. So the latest gesture is always named."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
           {
             "kind": "code",
             "text": "labelRows"
           },
           {
             "kind": "text",
-            "text": " of 2 names about twice as many; a name that fits in no row is left out, and the readout and the screen reader's list still say it."
+            "text": " of 2 names about twice as many. A name that fits in no row is left out, and the readout and the screen reader's list still say it."
           }
         ]
       }
@@ -236,23 +286,41 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The app reads the strip and sets it: "
-          },
-          {
-            "kind": "code",
-            "text": "hovered"
-          },
+            "text": "The app reads the strip and sets it."
+          }
+        ]
+      },
+      {
+        "kind": "list",
+        "items": [
+          [
+            {
+              "kind": "code",
+              "text": "hovered"
+            },
+            {
+              "kind": "text",
+              "text": " is a moment: the one under the pointer, a run's middle while the keys hold it, or one the app sets, which reads out the run covering it."
+            }
+          ],
+          [
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": " reports a click or Enter, with the run under it and the moment."
+            }
+          ]
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
           {
             "kind": "text",
-            "text": " is a moment (the one under the pointer, or a run's middle while the keys hold it, or one the app sets, which reads out the run covering it), and "
-          },
-          {
-            "kind": "code",
-            "text": "activated"
-          },
-          {
-            "kind": "text",
-            "text": " reports a click or Enter with the run under it and the moment. The card shows both, and its buttons set the moment from outside, as a time chart bound to the same signal would."
+            "text": "The card shows both. Its buttons set the moment from outside, as a time chart bound to the same signal would."
           }
         ]
       }

@@ -15,7 +15,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Two questions and what "
+            "text": "Two questions, and what "
           },
           {
             "kind": "code",
@@ -23,7 +23,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " resolved. The first is "
+            "text": " resolved."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The first is "
           },
           {
             "kind": "code",
@@ -31,7 +40,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", for an action that cannot be undone, so its confirm button is the danger one; the second keeps the default tone and words its cancel button with "
+            "text": ", for an action that cannot be undone, so its confirm button is the danger one. The second keeps the default tone, and words its cancel button with "
           },
           {
             "kind": "code",
@@ -39,7 +48,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ". Try Cancel, Escape and a click on the backdrop: the first two answer "
+            "text": "."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Try Cancel, Escape and a click on the backdrop. The first two answer "
           },
           {
             "kind": "code",
@@ -47,7 +65,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", the backdrop does nothing."
+            "text": ", and the backdrop does nothing."
           }
         ]
       }

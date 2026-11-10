@@ -4,9 +4,11 @@ import { NeatDialog } from '@sima/neat-ui/dialog';
 import { SourceDialog, type SourceKind } from './source-dialog';
 
 /**
- * A component as the dialog's content, which takes values for its inputs from the opener
- * (`inputs`, typed by the component): here the slot it is for and the kind it starts on, Camera.
- * The component asks for its `NeatDialogRef` by injection and closes the dialog with the choice.
+ * A component as the dialog's content, which takes values for its inputs from the opener.
+ *
+ * `inputs` is typed by the component. Here it holds the slot the dialog is for, and the kind it
+ * starts on, Camera. The component asks for its `NeatDialogRef` by injection, and closes the dialog
+ * with the choice.
  *
  * @capture click button[neatButton]
  */

@@ -23,7 +23,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " placed: its steps inside, the Camera that feeds it in a column on the left and the Tracker it feeds in one on the right. Open the Detector to see it."
+            "text": " placed."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The level holds the Detector's steps inside. The Camera that feeds it is in a column on the left, and the Tracker it feeds in one on the right. Try opening the Detector."
           }
         ]
       }

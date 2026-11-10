@@ -25,13 +25,15 @@ import { NeatDiagramView, NeatDiagramBlockTemplate, NeatDiagramNoteTemplate, Nea
 
 ### Messaging pipeline
 
-Groups for the machines, a band for the cable, and a figure line in Decode from the app's [`NeatDiagramBlockTemplate`](../components/diagram.md#neatdiagramblocktemplate). The Detector opens a level that [`neatDrillDownLevel`](../components/drill-down.md#neatdrilldownlevel) placed: its steps inside, what feeds it on the left, what it feeds on the right. Every chip says where its part runs, in the kit's tones.
+A pipeline over two machines: groups for the machines, a band for the cable, and a figure line in Decode from the app's [`NeatDiagramBlockTemplate`](../components/diagram.md#neatdiagramblocktemplate). Every chip says where its part runs, in the kit's tones.
 
-The Browser has stopped reporting: its node is `stale`, so the whole card is grayed out, and the same template says why in words, since gray alone tells no one what happened.
+The Detector opens a level that [`neatDrillDownLevel`](../components/drill-down.md#neatdrilldownlevel) placed: its steps inside, what feeds it on the left, and what it feeds on the right.
 
-The notes are the app's [`NeatDiagramNoteTemplate`](../components/diagram.md#neatdiagramnotetemplate), here with fixed text where a live pipeline would draw [`NeatDiagramRateCard`](../components/messaging.md#neatdiagramratecard)s of its edges' rates.
+The Browser has stopped reporting. Its node is `stale`, so the whole card is grayed out, and the same template says why in words, since gray alone tells no one what happened.
 
-The top bar's Fit calls [`NeatDiagramView.fit`](../components/diagram.md#neatdiagramview) on each diagram of the page, which fits it to its box again after it was panned or zoomed.
+The notes are the app's [`NeatDiagramNoteTemplate`](../components/diagram.md#neatdiagramnotetemplate). Here they hold fixed text, where a live pipeline would draw [`NeatDiagramRateCard`](../components/messaging.md#neatdiagramratecard)s of its edges' rates.
+
+The top bar's Fit calls [`NeatDiagramView.fit`](../components/diagram.md#neatdiagramview) on each diagram of the page. It fits the diagram to its box again after it was panned or zoomed.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/diagram/messaging-pipeline.dark.webp">
@@ -332,7 +334,7 @@ export const A65: NeatDiagramChip = { label: 'A65', tone: 'neutral' };
 
 ### Compile flow
 
-A muted input beside the column, a ghost for the step that is not run, and a note anchored to a block's side rather than to an edge.
+A column of steps, with a muted input beside it and a ghost for the step that is not run. A note is anchored to a block's side rather than to an edge.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/diagram/compile-flow.dark.webp">
@@ -517,7 +519,11 @@ export const A65: NeatDiagramChip = { label: 'A65', tone: 'neutral' };
 
 ### Model graph
 
-Tensor shapes as edge labels, a figure after a brace's label from the app's [`NeatDiagramBlockTemplate`](../components/diagram.md#neatdiagramblocktemplate) (`node.role` tells a bracket from a block), the tooltip of an edge from the app's [`NeatDiagramEdgeTooltipTemplate`](../components/diagram.md#neatdiagramedgetooltiptemplate), and levels two deep: Stages opens its stages, and Dark5 opens its layers. [`NeatDiagramView.level`](../components/diagram.md#neatdiagramview) is the path of open levels, shown below the drawing.
+A model's graph, with tensor shapes as edge labels.
+
+A figure follows a brace's label, from the app's [`NeatDiagramBlockTemplate`](../components/diagram.md#neatdiagramblocktemplate), where `node.role` tells a bracket from a block. The tooltip of an edge comes from the app's [`NeatDiagramEdgeTooltipTemplate`](../components/diagram.md#neatdiagramedgetooltiptemplate).
+
+Levels go two deep: Stages opens its stages, and Dark5 opens its layers. [`NeatDiagramView.level`](../components/diagram.md#neatdiagramview) is the path of open levels, shown below the drawing.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/diagram/model-graph.dark.webp">
@@ -836,7 +842,13 @@ export const A65: NeatDiagramChip = { label: 'A65', tone: 'neutral' };
 
 ### Highlight
 
-What dims the rest of the drawing while the pointer is on a part, set by [`NeatDiagramView.highlight`](../components/diagram.md#neatdiagramview). The default is `none`: dimming without a reason to look is noise every time the pointer crosses the drawing. `edges` suits a drawing read by its links, where hovering one shows which blocks it joins; `all` also traces a block's links, for a dense drawing in which they are hard to follow by eye. An edge's tooltip shows in every mode.
+What dims the rest of the drawing while the pointer is on a part, set by [`NeatDiagramView.highlight`](../components/diagram.md#neatdiagramview).
+
+- `none`, the default: dimming without a reason to look is noise every time the pointer crosses the drawing.
+- `edges` suits a drawing read by its links, where hovering one shows which blocks it joins.
+- `all` also traces a block's links, for a dense drawing in which they are hard to follow by eye.
+
+An edge's tooltip shows in every mode.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/diagram/highlight.dark.webp">
@@ -1034,7 +1046,11 @@ export const A65: NeatDiagramChip = { label: 'A65', tone: 'neutral' };
 
 ### Filling its card
 
-The pipeline filling its card to the edges, as a page like the demo's System page shows it. The box rule is the other examples', so the drawing takes the card's whole width, and the app lays [`NeatDiagramLegend`](../components/legend.md#neatdiagramlegend) over the drawing's bottom left corner instead of above it, where it gives up no height and stays clear of the bar a level opens in the top left. The card clips the drawing to its rounded corners, and the top bar's Fit still fits it ([`NeatDiagramView.fit`](../components/diagram.md#neatdiagramview)).
+The pipeline filling its card to the edges, as a page like the demo's System page shows it.
+
+The box rule is the other examples', so the drawing takes the card's whole width. The app lays [`NeatDiagramLegend`](../components/legend.md#neatdiagramlegend) over the drawing's bottom left corner instead of above it. There it gives up no height, and stays clear of the bar a level opens in the top left.
+
+The card clips the drawing to its rounded corners. The top bar's Fit still fits it ([`NeatDiagramView.fit`](../components/diagram.md#neatdiagramview)).
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/diagram/filling-its-card.dark.webp">
@@ -1315,7 +1331,9 @@ export const A65: NeatDiagramChip = { label: 'A65', tone: 'neutral' };
 
 ### Edge sides
 
-A node's `outSide` and `inSide` say where all of its outgoing and incoming edges meet it. An edge's own `fromSide` and `toSide` override them for that edge alone: here both edges leave the Source on its right, as its `outSide` says, except the archive copy, which leaves on the bottom (`fromSide`). The route and the label follow the side the edge chose.
+A node's `outSide` and `inSide` say where all of its outgoing and incoming edges meet it. An edge's own `fromSide` and `toSide` override them, for that edge alone.
+
+Here both edges leave the Source on its right, as its `outSide` says, except the archive copy, which leaves on the bottom (`fromSide`). The route and the label follow the side the edge chose.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/diagram/edge-sides.dark.webp">
@@ -1439,7 +1457,12 @@ export const EDGE_SIDES_LEGEND: readonly NeatDiagramLegendItem[] = [
 
 ### Diagram from the app
 
-The app reads the diagram and sets it: `hovered` is the part in focus (the pointer's block or edge, or the keyboard's block, or one the app sets), and `activated` reports a click on a block or an edge. The list beside the drawing is bound to `hovered` both ways: point at a row (or tab to it) and its block is in focus in the drawing, with what it is joined to; point at a block and its row is marked. The card also says the last part clicked.
+The app reads the diagram and sets it.
+
+- `hovered` is the part in focus: the pointer's block or edge, the keyboard's block, or one the app sets.
+- `activated` reports a click on a block or an edge. The card says the last part clicked.
+
+The list beside the drawing is bound to `hovered` both ways. Try pointing at a row, or tabbing to it: its block is in focus in the drawing, with what it is joined to. Point at a block, and its row is marked.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/diagram/from-the-app.dark.webp">
@@ -1741,7 +1764,11 @@ export const A65: NeatDiagramChip = { label: 'A65', tone: 'neutral' };
 
 ### Parallel loops
 
-Edges that share a loop are drawn as parallel offsets of one another, so their runs never lie on one another and none crosses another. Above, two edges leave the Camera's top and enter the Encoder's top: their ports nest, and the outer one turns higher. Below, two edges leave the Encoder's right side for the Recorder's left, which lies behind it: each takes the longer stub at one end and the shorter at the other, and their runs back across lie apart.
+Edges that share a loop are drawn as parallel offsets of one another. So their runs never lie on one another, and none crosses another.
+
+Above, two edges leave the Camera's top and enter the Encoder's top. Their ports nest, and the outer one turns higher.
+
+Below, two edges leave the Encoder's right side for the Recorder's left, which lies behind it. Each takes the longer stub at one end and the shorter at the other, and their runs back across lie apart.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/diagram/parallel-loops.dark.webp">
@@ -1833,7 +1860,9 @@ export class ParallelLoops {
 
 ### Placed by the app
 
-What an app places itself, where the kit's routing is not what it wants: an edge's label beside its line (`labelSide`, here below a long one so it keeps the line's height free), an end pinned along its side (`fromAt`, `toAt`), and a route through corners of the app's (`via`), here over the Encoder from the Camera's top to the Archive's. Labels, the end markers, hover and the messages follow the route as they do the kit's own.
+What an app places itself, where the kit's routing is not what it wants: - an edge's label beside its line (`labelSide`), here below a long one, so it keeps the line's height free; - an end pinned along its side (`fromAt`, `toAt`); - a route through corners of the app's (`via`), here over the Encoder, from the Camera's top to the Archive's.
+
+Labels, the end markers, hover and the messages follow the route, as they do the kit's own.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/diagram/placed-by-the-app.dark.webp">

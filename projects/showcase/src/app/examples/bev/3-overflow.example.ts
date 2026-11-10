@@ -3,11 +3,14 @@ import { NeatBev } from '@sima/neat-ui/bev';
 import { streetFrames } from './scene';
 
 /**
- * With `overflow="visible"` nothing stops at the shape: the data and the guides run on over the
- * whole box. The shape still sets the scale, fitted in the box as before; the rest is extra view.
- * Above, a grid that fills a wide box; below, the rings running on past the range, both at the
- * same 40 m range. Neither draws an outline: with nothing cut at the shape, its edge would only
- * cross the picture.
+ * With `overflow="visible"`, nothing stops at the shape: the data and the guides run on over the
+ * whole box.
+ *
+ * The shape still sets the scale, fitted in the box as before. The rest is extra view. Above is a
+ * grid that fills a wide box, and below are the rings running on past the range, both at the same
+ * 40 m range.
+ *
+ * Neither draws an outline. With nothing cut at the shape, its edge would only cross the picture.
  */
 @Component({
   selector: 'app-overflow',

@@ -29,7 +29,15 @@ import { NeatLabelTimeline } from '@sima/neat-ui/charts';
 
 ### Gesture timeline
 
-The last 30 s of a gesture classifier, shown twice with the same runs: the top strip is `motion="step"` and the bottom one `motion="smooth"`. The window advances once a second, the rate at which `step` jumps and `smooth` scrolls in between. A new run opens when the class changes and grows until the next one. It opens with "Pointing with two fingers" held for the last 5 s, a name wider than its run, which stands above the strip held back from its right end. "No gesture" is `quiet`, so it is drawn muted and never named. The names share one row, so a name that would run into a newer one's is left out. Point at a run, a quiet one too, or focus a strip and use the arrow keys, to read out its label and when it was. Runs that have left the window are dropped here: the timeline clips what it is given, but the app is what knows it will not need them again.
+The last 30 s of a gesture classifier, shown twice with the same runs. The top strip is `motion="step"`, and the bottom one `motion="smooth"`.
+
+The window advances once a second, the rate at which `step` jumps and `smooth` scrolls in between. A new run opens when the class changes, and grows until the next one.
+
+It opens with "Pointing with two fingers" held for the last 5 s. The name is wider than its run, so it stands above the strip, held back from its right end. "No gesture" is `quiet`, so it is drawn muted and never named. The names share one row, so a name that would run into a newer one's is left out.
+
+Try pointing at a run, a quiet one too, or focus a strip and use the arrow keys. The readout says its label and when it was.
+
+Runs that have left the window are dropped here. The timeline clips what it is given, but the app is what knows it will not need them again.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/label-timeline/label-timeline.dark.webp">
@@ -162,7 +170,11 @@ export function classAt(step: number): string {
 
 ### Name rows
 
-A busy classifier, a gesture every one to two seconds, with its names in one row and in two. The names stand above the strip, each from its run's start; from the newest run back, a name goes into the first row where it keeps clear of the newer names, so the latest gesture is always named. `labelRows` of 2 names about twice as many; a name that fits in no row is left out, and the readout and the screen reader's list still say it.
+A busy classifier, a gesture every one to two seconds, with its names in one row and in two.
+
+The names stand above the strip, each from its run's start. From the newest run back, a name goes into the first row where it keeps clear of the newer names. So the latest gesture is always named.
+
+`labelRows` of 2 names about twice as many. A name that fits in no row is left out, and the readout and the screen reader's list still say it.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/label-timeline/name-rows.dark.webp">
@@ -268,7 +280,12 @@ export function classAt(step: number): string {
 
 ### Timeline from the app
 
-The app reads the strip and sets it: `hovered` is a moment (the one under the pointer, or a run's middle while the keys hold it, or one the app sets, which reads out the run covering it), and `activated` reports a click or Enter with the run under it and the moment. The card shows both, and its buttons set the moment from outside, as a time chart bound to the same signal would.
+The app reads the strip and sets it.
+
+- `hovered` is a moment: the one under the pointer, a run's middle while the keys hold it, or one the app sets, which reads out the run covering it.
+- `activated` reports a click or Enter, with the run under it and the moment.
+
+The card shows both. Its buttons set the moment from outside, as a time chart bound to the same signal would.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/label-timeline/from-the-app.dark.webp">

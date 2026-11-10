@@ -4,7 +4,8 @@ import { type Channel, CHANNELS, channelId } from './channels';
 
 /**
  * The same list on a card. The card sets `--neat-surface` to its own fill, and the header that
- * stays put over the scrolling rows takes it: scroll the list and look at the header's edge.
+ * stays put over the scrolling rows takes it. Try scrolling the list, and look at the header's
+ * edge.
  */
 @Component({
   selector: 'app-on-a-card',

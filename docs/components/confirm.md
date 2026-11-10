@@ -26,7 +26,11 @@ import { NeatConfirm } from '@sima/neat-ui/confirm';
 
 ### Asking
 
-Two questions and what `ask` resolved. The first is `tone: 'danger'`, for an action that cannot be undone, so its confirm button is the danger one; the second keeps the default tone and words its cancel button with `cancelLabel`. Try Cancel, Escape and a click on the backdrop: the first two answer `false`, the backdrop does nothing.
+Two questions, and what `ask` resolved.
+
+The first is `tone: 'danger'`, for an action that cannot be undone, so its confirm button is the danger one. The second keeps the default tone, and words its cancel button with `cancelLabel`.
+
+Try Cancel, Escape and a click on the backdrop. The first two answer `false`, and the backdrop does nothing.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/confirm/asking.dark.webp">

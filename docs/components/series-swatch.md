@@ -23,7 +23,7 @@ import { NeatSwatch, NeatSeriesSwatch } from '@sima/neat-ui';
 
 ### Run chips
 
-A chip for each of three compared runs, over the chart that draws them: the chip's swatch is the run's place in `series`, so it matches the run's line in both themes.
+A chip for each of three compared runs, over the chart that draws them. The chip's swatch is the run's place in `series`, so it matches the run's line in both themes.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/series-swatch/run-chips.dark.webp">
@@ -150,7 +150,9 @@ export const RUNS: readonly NeatSeries[] = [
 
 ### Any color
 
-`neat-swatch` shows any color, with the series swatch's look: here a legend of the classes an app draws in colors of its own (the same rows it gives the video tiles and the bird's-eye view as `styles`), so the legend matches the boxes.
+`neat-swatch` shows any color, with the series swatch's look.
+
+Here it makes a legend of the classes an app draws in colors of its own. They are the same rows the app gives the video tiles and the bird's-eye view as `styles`, so the legend matches the boxes.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/series-swatch/any-color.dark.webp">

@@ -142,7 +142,12 @@ export const RAILS: readonly NeatSeries[] = [
 
 ### Stacked from the app
 
-The app reads the chart and sets it: `hovered` is the moment the readout is on (the pointer's or the keys' sample, or one the app sets, shown at the nearest sample), and `activated` reports a click or Enter with the sample's time and each band's value. The card shows both, and its buttons set the moment from outside.
+The app reads the chart and sets it.
+
+- `hovered` is the moment the readout is on: the pointer's or the keys' sample, or one the app sets, shown at the nearest sample.
+- `activated` reports a click or Enter, with the sample's time and each band's value.
+
+The card shows both. Its buttons set the moment from outside.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/stacked-chart/from-the-app.dark.webp">

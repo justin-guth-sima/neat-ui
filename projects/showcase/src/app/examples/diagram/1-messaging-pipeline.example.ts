@@ -8,19 +8,21 @@ import {
 import { PIPELINE, PIPELINE_LEGEND } from './pipeline-data';
 
 /**
- * Groups for the machines, a band for the cable, and a figure line in Decode from the app's
- * `NeatDiagramBlockTemplate`. The Detector opens a level that `neatDrillDownLevel` placed: its
- * steps inside, what feeds it on the left, what it feeds on the right. Every chip says where its
- * part runs, in the kit's tones.
+ * A pipeline over two machines: groups for the machines, a band for the cable, and a figure line in
+ * Decode from the app's `NeatDiagramBlockTemplate`. Every chip says where its part runs, in the
+ * kit's tones.
  *
- * The Browser has stopped reporting: its node is `stale`, so the whole card is grayed out, and the
+ * The Detector opens a level that `neatDrillDownLevel` placed: its steps inside, what feeds it on
+ * the left, and what it feeds on the right.
+ *
+ * The Browser has stopped reporting. Its node is `stale`, so the whole card is grayed out, and the
  * same template says why in words, since gray alone tells no one what happened.
  *
- * The notes are the app's `NeatDiagramNoteTemplate`, here with fixed text where a live pipeline
- * would draw `NeatDiagramRateCard`s of its edges' rates.
+ * The notes are the app's `NeatDiagramNoteTemplate`. Here they hold fixed text, where a live
+ * pipeline would draw `NeatDiagramRateCard`s of its edges' rates.
  *
- * The top bar's Fit calls `NeatDiagramView.fit` on each diagram of the page, which fits it to its
- * box again after it was panned or zoomed.
+ * The top bar's Fit calls `NeatDiagramView.fit` on each diagram of the page. It fits the diagram to
+ * its box again after it was panned or zoomed.
  */
 @Component({
   selector: 'app-messaging-pipeline',

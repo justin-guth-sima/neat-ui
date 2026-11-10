@@ -26,7 +26,11 @@ import { NeatFileBrowser } from '@sima/neat-ui/file-browser';
 
 ### Picking
 
-Picking one file from a media tree. The `archive` folder has a thousand files, and `readme.md` is tagged and grayed but can still be selected. A click on a folder only highlights it: open it with a double click, its chevron or Enter. Move over a folder with the arrow keys or a click and the selection stays on the file it was on.
+Picking one file from a media tree.
+
+The `archive` folder has a thousand files. `readme.md` is tagged and grayed, but can still be selected.
+
+Try clicking a folder: it is only highlighted. Open it with a double click, its chevron or Enter. Move over a folder with the arrow keys or a click, and the selection stays on the file it was on.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/file-browser/picking.dark.webp">
@@ -146,7 +150,9 @@ export function demoSize(path: string): string {
 
 ### Managing
 
-A browser in `manage` mode on a card, with a Type and a Size column after the name; the folders' counts say "videos" and follow their names. A double click or the chevron opens a folder. Check files in several folders and filter: the checked ones stay checked, and the line under the browser counts them.
+A browser in `manage` mode on a card, with a Type and a Size column after the name. The folders' counts say "videos", and follow their names.
+
+A double click or the chevron opens a folder. Try checking files in several folders, then filtering: the checked ones stay checked, and the line under the browser counts them.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/file-browser/managing.dark.webp">

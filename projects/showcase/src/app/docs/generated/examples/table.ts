@@ -14,7 +14,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The metrics of a run. The Mean column is end-aligned ("
+            "text": "The metrics of a run."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The Mean column is end-aligned ("
           },
           {
             "kind": "code",
@@ -22,7 +31,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "); the Max column is not, since each of its figures is followed by a status chip ("
+            "text": "). The Max column is not, since each of its figures is followed by a status chip ("
           },
           {
             "kind": "code",
@@ -30,7 +39,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "), and the figure and the chip stay on one line while there is room."
+            "text": "). The figure and the chip stay on one line while there is room."
           }
         ]
       }

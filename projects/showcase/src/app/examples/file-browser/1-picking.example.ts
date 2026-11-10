@@ -3,10 +3,13 @@ import { NeatFileBrowser } from '@sima/neat-ui/file-browser';
 import { DEMO_TREE } from './demo-tree';
 
 /**
- * Picking one file from a media tree. The `archive` folder has a thousand files, and `readme.md`
- * is tagged and grayed but can still be selected. A click on a folder only highlights it: open it
- * with a double click, its chevron or Enter. Move over a folder with the arrow keys or a click and
- * the selection stays on the file it was on.
+ * Picking one file from a media tree.
+ *
+ * The `archive` folder has a thousand files. `readme.md` is tagged and grayed, but can still be
+ * selected.
+ *
+ * Try clicking a folder: it is only highlighted. Open it with a double click, its chevron or Enter.
+ * Move over a folder with the arrow keys or a click, and the selection stays on the file it was on.
  */
 @Component({
   selector: 'app-picking',

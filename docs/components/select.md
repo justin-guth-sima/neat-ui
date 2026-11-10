@@ -23,7 +23,9 @@ import { NeatSelect } from '@sima/neat-ui/select';
 
 ### Label positions
 
-Four selects over one list: the label shown above, the label hidden (it still names the select), the label inline before the select, and a disabled select. The first three share one value, so a pick in any of them shows in the others and in the line below.
+Four selects over one list: - the label shown above; - the label hidden, though it still names the select; - the label inline, before the select; - a disabled select.
+
+The first three share one value. So a pick in any of them shows in the others and in the line below.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/select/label-positions.dark.webp">

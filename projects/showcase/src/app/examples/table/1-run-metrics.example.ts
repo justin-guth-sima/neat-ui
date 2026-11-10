@@ -3,9 +3,11 @@ import { NeatFigure, NeatNumeric, NeatTable } from '@sima/neat-ui/table';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
 
 /**
- * The metrics of a run. The Mean column is end-aligned (`neatNumeric`); the Max column is not,
- * since each of its figures is followed by a status chip (`neatFigure`), and the figure and the
- * chip stay on one line while there is room.
+ * The metrics of a run.
+ *
+ * The Mean column is end-aligned (`neatNumeric`). The Max column is not, since each of its figures
+ * is followed by a status chip (`neatFigure`). The figure and the chip stay on one line while there
+ * is room.
  *
  * @gallery
  */

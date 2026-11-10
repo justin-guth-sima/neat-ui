@@ -21,9 +21,11 @@ const SOURCES: NeatSelectOption<string>[] = [
 ];
 
 /**
- * The form controls on the card surface, which differs from the page's background in dark mode:
- * look at each one's edge, track and fill there. A switch, a slider, a segmented control, an
- * input and a select in a row; two progress bars and a drop zone in a column; tabs.
+ * The form controls on the card surface, which differs from the page's background in dark mode.
+ * Look at each one's edge, track and fill there.
+ *
+ * A switch, a slider, a segmented control, an input and a select sit in a row. Two progress bars
+ * and a drop zone sit in a column, then tabs.
  */
 @Component({
   selector: 'app-controls-on-a-card',

@@ -25,7 +25,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ". The template gets the "
+            "text": "."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The template gets the "
           },
           {
             "kind": "ref",
@@ -42,7 +51,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ") and closes the dialog with a result: "
+            "text": "), and closes the dialog with a result. "
           },
           {
             "kind": "code",
@@ -50,7 +59,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " returns the ref, and its "
+            "text": " returns the ref. Its "
           },
           {
             "kind": "code",
@@ -66,7 +75,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " when the dialog was dismissed. While saving, "
+            "text": " when the dialog was dismissed."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "While saving, "
           },
           {
             "kind": "code",
@@ -74,7 +92,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " blocks Escape, the backdrop and the close button, and the buttons are "
+            "text": " blocks Escape, the backdrop and the close button. The buttons are "
           },
           {
             "kind": "code",
@@ -90,7 +108,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ": the button that was pressed has focus, and a disabled control loses it, which would leave the keyboard outside the dialog. The switch turns the dismissing off and on by hand."
+            "text": ". The button that was pressed has focus, and a disabled control loses it, which would leave the keyboard outside the dialog."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The switch turns the dismissing off and on by hand."
           }
         ]
       }
@@ -215,15 +242,20 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A component as the dialog's content, which takes values for its inputs from the opener ("
-          },
+            "text": "A component as the dialog's content, which takes values for its inputs from the opener."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
           {
             "kind": "code",
             "text": "inputs"
           },
           {
             "kind": "text",
-            "text": ", typed by the component): here the slot it is for and the kind it starts on, Camera. The component asks for its "
+            "text": " is typed by the component. Here it holds the slot the dialog is for, and the kind it starts on, Camera. The component asks for its "
           },
           {
             "kind": "ref",
@@ -232,7 +264,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " by injection and closes the dialog with the choice."
+            "text": " by injection, and closes the dialog with the choice."
           }
         ]
       }

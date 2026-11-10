@@ -75,7 +75,9 @@ export class HintAndError {}
 
 ### A row of controls
 
-A field, two selects, a button and, in the small row only (it has no other size), a number field, aligned at their bottom edge: in each row the names share a baseline and the controls their edges.
+A field, two selects and a button, aligned at their bottom edge. In each row, the names share a baseline and the controls their edges.
+
+The small row also has a number field, which has no other size.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/field/a-row-of-controls.dark.webp">

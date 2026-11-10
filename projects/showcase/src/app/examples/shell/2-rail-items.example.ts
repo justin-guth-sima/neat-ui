@@ -3,12 +3,16 @@ import { NeatIcon, NeatNavItem, NeatRailDivider, NeatRailItem, NeatShell } from 
 import { NeatToasts } from '@sima/neat-ui/toast';
 
 /**
- * The app's own items at the bottom of the rail, in a shell of their own. Each element marked
- * `neatRailEnd` goes in the rail's end slot, above the kit's theme switch and the rail's control:
- * `NeatRailItem`s, and a `NeatRailDivider` between groups of them. The board says its state with
- * the item's `tone`, `text` and `detail`, and the devices after it show the other tones; each
- * item's `label` is the whole sentence, its tooltip and its name. The first page has `children`,
- * which unfold under it while it is the active page and the rail is expanded.
+ * The app's own items at the bottom of the rail, in a shell of their own.
+ *
+ * Each element marked `neatRailEnd` goes in the rail's end slot, above the kit's theme switch and
+ * the rail's control. They are `NeatRailItem`s, and a `NeatRailDivider` between groups of them.
+ *
+ * The board says its state with the item's `tone`, `text` and `detail`, and the devices after it
+ * show the other tones. Each item's `label` is the whole sentence: its tooltip and its name.
+ *
+ * The first page has `children`, which unfold under it while it is the active page and the rail is
+ * expanded.
  *
  * @page
  */

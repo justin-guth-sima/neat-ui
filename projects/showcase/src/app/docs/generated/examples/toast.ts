@@ -52,7 +52,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A progress toast for work that takes a while, four ways: succeeding, failing, of unknown length ("
+            "text": "A progress toast for work that takes a while, four ways: - succeeding; - failing; - of unknown length, with "
           },
           {
             "kind": "code",
@@ -60,7 +60,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " for the percent), and dismissed halfway, as when a dialog takes the work back. The work is simulated and runs on its own, as an upload does, so leaving the page does not stop the toast from reporting the outcome."
+            "text": " for the percent; - dismissed halfway, as when a dialog takes the work back."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The work is simulated, and runs on its own, as an upload does. So leaving the page does not stop the toast from reporting the outcome."
           }
         ]
       }

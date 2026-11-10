@@ -23,9 +23,9 @@ import { NeatStatusChip, NeatStatusChipButton } from '@sima/neat-ui/status-chip'
 
 ### Tones
 
-The six tones on the page and on a card, each worded as a stream's slot states are: the words carry the state, the color repeats it. The gray of `neutral` shows on both surfaces.
+The six tones on the page and on a card, each worded as a stream's slot states are. The words carry the state, and the color repeats it. The gray of `neutral` shows on both surfaces.
 
-The last chip is a [`NeatStatusChipButton`](../components/status-chip.md#neatstatuschipbutton): it looks the same, and opens more about the status, here a video tile's "Metadata late".
+The last chip is a [`NeatStatusChipButton`](../components/status-chip.md#neatstatuschipbutton). It looks the same, and opens more about the status, here a video tile's "Metadata late".
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/status-chip/tones.dark.webp">
@@ -199,7 +199,7 @@ export const CHIPS = [
 
 ### Narrow column
 
-A chip in a column narrower than its text: it truncates and keeps the column's width, where a list's cell or a bar would otherwise grow.
+A chip in a column narrower than its text. It truncates and keeps the column's width, where a list's cell or a bar would otherwise grow.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/status-chip/narrow-column.dark.webp">

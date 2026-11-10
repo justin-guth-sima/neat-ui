@@ -26,7 +26,11 @@ import { NeatAsidePanel, NeatAsideHeading, NeatAsideTitle, NeatAsideActions, Nea
 
 ### Source panel
 
-A page's aside as an inspector: the toggle in the top bar opens and closes it, and the panel is a column of a title, actions, headings, notes and details. The body narrows beside it and each scrolls on its own. `[(asideWidth)]` is the panel's width, which the page only exposes (here in the text below, and reset to the default by the toolbar's button); drag the line on its left edge, or focus it and use the arrow keys, Home and End, to change it.
+A page's aside as an inspector, which the toggle in the top bar opens and closes.
+
+The panel is a column of a title, actions, headings, notes and details. The body narrows beside it, and each scrolls on its own.
+
+`[(asideWidth)]` is the panel's width, which the page only exposes. Here the text below shows it, and the toolbar's button resets it to the default. Try dragging the line on the panel's left edge, or focus it and use the arrow keys, Home and End.
 
 _This example needs a page of its own: it runs in the showcase._
 
@@ -139,7 +143,9 @@ export class SourcePanel {
 
 ### Remembered panel
 
-A panel whose state is remembered. [`neatAsideOpen`](../layout/aside.md#neatasideopen) takes the remembered choice and the way to write it, here a stored signal. On a wide screen the panel is the remembered choice; on a narrow one it floats over the page and starts closed, and what is opened or closed there is not remembered, so a phone never overwrites the choice made on a wide screen.
+A panel whose state is remembered.
+
+[`neatAsideOpen`](../layout/aside.md#neatasideopen) takes the remembered choice and the way to write it, here a stored signal. On a wide screen the panel is the remembered choice. On a narrow one it floats over the page and starts closed. What is opened or closed there is not remembered, so a phone never overwrites the choice made on a wide screen.
 
 _This example needs a page of its own: it runs in the showcase._
 

@@ -4,8 +4,8 @@ import { NeatInput } from '@sima/neat-ui/input';
 import { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } from '@sima/neat-ui/popover';
 
 /**
- * A number field in a panel with `align="end"`, for a trigger at the right edge of a toolbar: the
- * panel lines up with the trigger's end and opens inward. Focus moves to the field when the panel
+ * A number field in a panel with `align="end"`, for a trigger at the right edge of a toolbar. The
+ * panel lines up with the trigger's end, and opens inward. Focus moves to the field when the panel
  * opens.
  *
  * @capture click [neatPopoverTrigger]

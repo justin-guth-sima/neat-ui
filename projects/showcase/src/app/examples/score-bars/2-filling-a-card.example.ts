@@ -4,10 +4,11 @@ import { NeatScoreBars } from '@sima/neat-ui/charts';
 import { CLASSES, NO_GESTURE, scoresAt } from './data';
 
 /**
- * The same scores in a card 24 rem tall, as beside a video whose height the card takes. With
- * `size="fill"` the bars share the height the card leaves its content: each row grows, its label
- * and figure stay centered, and its bar thickens up to twice its usual thickness. In a box shorter
- * than the rows need, they keep their usual height and the list overflows.
+ * The same scores in a card 24 rem tall, as beside a video whose height the card takes.
+ *
+ * With `size="fill"`, the bars share the height the card leaves its content. Each row grows, its
+ * label and figure stay centered, and its bar thickens, up to twice its usual thickness. In a box
+ * shorter than the rows need, they keep their usual height, and the list overflows.
  */
 @Component({
   selector: 'app-filling-a-card',

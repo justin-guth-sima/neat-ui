@@ -27,7 +27,7 @@ import { NeatCard } from '@sima/neat-ui/card';
 
 ### Titled card example
 
-A card with a title, a subtitle, an action at the header's end and a footer, and a landmark: `region` names it by its title for a user who jumps between regions.
+A card with a title, a subtitle, an action at the header's end and a footer. It is a landmark too: `region` names it by its title, for a user who jumps between regions.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/card/titled-card.dark.webp">
@@ -134,7 +134,9 @@ p {
 
 ### Filling the row example
 
-Two cards in a row of equal height. The content takes the height the card has left, so the untitled card gives its image all of it, and a footer stands at the bottom of its card however little there is above it.
+Two cards in a row of equal height.
+
+The content takes the height the card has left. So the untitled card gives its image all of it, and a footer stands at the bottom of its card however little there is above it.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/card/filling-the-row.dark.webp">

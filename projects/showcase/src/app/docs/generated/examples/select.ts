@@ -16,7 +16,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Four selects over one list: the label shown above, the label hidden (it still names the select), the label inline before the select, and a disabled select. The first three share one value, so a pick in any of them shows in the others and in the line below."
+            "text": "Four selects over one list: - the label shown above; - the label hidden, though it still names the select; - the label inline, before the select; - a disabled select."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The first three share one value. So a pick in any of them shows in the others and in the line below."
           }
         ]
       }

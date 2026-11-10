@@ -10,10 +10,13 @@ import { NeatScore, NeatScoreBars, neatLabelColor } from '@sima/neat-ui/charts';
 import { CLASSES, NO_GESTURE, scoresAt } from './data';
 
 /**
- * The output of a gesture classifier, a score per IPN Hand class. The scores change every 1.5 s;
- * "No gesture" is `quiet`, so it stays muted beside the colored gestures, and the top row's label
- * is bold. The line below the bars colors its dot with `neatLabelColor`, so text outside the
- * bars (a timeline's runs, a caption) shows a class in the same color.
+ * The output of a gesture classifier: a score per IPN Hand class, changing every 1.5 s.
+ *
+ * "No gesture" is `quiet`, so it stays muted beside the colored gestures. The top row's label is
+ * bold.
+ *
+ * The line below the bars colors its dot with `neatLabelColor`. So text outside the bars, such as a
+ * timeline's runs or a caption, shows a class in the same color.
  *
  * @gallery
  */

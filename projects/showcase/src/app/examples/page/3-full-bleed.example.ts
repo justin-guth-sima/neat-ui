@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NeatPage } from '@sima/neat-ui';
 
 /**
- * Content that reaches the page's edges: `padding="none"` drops the page's inset and
- * `scroll="none"` leaves nothing to scroll, so the grid sizes itself to the page, as a video grid
+ * Content that reaches the page's edges. `padding="none"` drops the page's inset, and
+ * `scroll="none"` leaves nothing to scroll. So the grid sizes itself to the page, as a video grid
  * that fits the screen does.
  *
  * @page

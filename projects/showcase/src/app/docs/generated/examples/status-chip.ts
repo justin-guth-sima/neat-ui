@@ -16,7 +16,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The six tones on the page and on a card, each worded as a stream's slot states are: the words carry the state, the color repeats it. The gray of "
+            "text": "The six tones on the page and on a card, each worded as a stream's slot states are. The words carry the state, and the color repeats it. The gray of "
           },
           {
             "kind": "code",
@@ -42,7 +42,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ": it looks the same, and opens more about the status, here a video tile's \"Metadata late\"."
+            "text": ". It looks the same, and opens more about the status, here a video tile's \"Metadata late\"."
           }
         ]
       }
@@ -177,7 +177,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A chip in a column narrower than its text: it truncates and keeps the column's width, where a list's cell or a bar would otherwise grow."
+            "text": "A chip in a column narrower than its text. It truncates and keeps the column's width, where a list's cell or a bar would otherwise grow."
           }
         ]
       }

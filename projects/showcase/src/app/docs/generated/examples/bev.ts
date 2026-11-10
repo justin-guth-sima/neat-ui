@@ -21,7 +21,25 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The round view, as a radar shows it: rings every 10 m out to the 60 m range, spokes every 30°, and the street around a vehicle waiting at a crossing, 20 frames a second. The drivable area is a 128 × 128 grid, the lidar's returns one array of points, the lane markings and the planned turn lines, and every car, cyclist and person a box with its heading. Each label takes its color from the page's class colors, as a video tile's classes do. Everything stops at the circle, the guides lie over the data, and hovering or tapping a box reads it out."
+            "text": "The round view, as a radar shows it: the street around a vehicle waiting at a crossing, 20 frames a second."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "It has rings every 10 m out to the 60 m range, and spokes every 30°. The drivable area is a 128 × 128 grid, and the lidar's returns are one array of points. The lane markings and the planned turn are lines, and every car, cyclist and person is a box with its heading."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Each label takes its color from the page's class colors, as a video tile's classes do. Everything stops at the circle, and the guides lie over the data. Try hovering or tapping a box to read it out."
           }
         ]
       }
@@ -223,7 +241,25 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The rectangle: a metric grid in bounds of the app's, here a square reaching 80 m ahead and 40 m behind, 60 m to either side, labeled along its left and top edges. It spans 120 m as the circle above does, in a view of the same height, so the two show the street at one scale. Without a height of the app's the view takes the rectangle's proportions; without "
+            "text": "The rectangle: a metric grid, in bounds of the app's, labeled along its left and top edges."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Here the bounds reach 80 m ahead and 40 m behind, and 60 m to either side. They span 120 m as the circle above does, in a view of the same height, so the two show the street at one scale. There are no spokes."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Without a height of the app's, the view takes the rectangle's proportions. Without "
           },
           {
             "kind": "code",
@@ -231,7 +267,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " the rectangle is the square of ±"
+            "text": ", the rectangle is the square of ±"
           },
           {
             "kind": "code",
@@ -239,7 +275,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ". No spokes."
+            "text": "."
           }
         ]
       }
@@ -451,7 +487,25 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " nothing stops at the shape: the data and the guides run on over the whole box. The shape still sets the scale, fitted in the box as before; the rest is extra view. Above, a grid that fills a wide box; below, the rings running on past the range, both at the same 40 m range. Neither draws an outline: with nothing cut at the shape, its edge would only cross the picture."
+            "text": ", nothing stops at the shape: the data and the guides run on over the whole box."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The shape still sets the scale, fitted in the box as before. The rest is extra view. Above is a grid that fills a wide box, and below are the rings running on past the range, both at the same 40 m range."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Neither draws an outline. With nothing cut at the shape, its edge would only cross the picture."
           }
         ]
       }
@@ -662,15 +716,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", starting closer in: a 25 m range, and "
-          },
+            "text": ", starting closer in, at a 25 m range."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
           {
             "kind": "code",
             "text": "panBounds"
           },
           {
             "kind": "text",
-            "text": " reaching 60 m all around, so dragging reaches the whole street, the far end of the road ahead too. Scroll or pinch to zoom, and "
+            "text": " reaches 60 m all around, so dragging reaches the whole street, the far end of the road ahead too. "
           },
           {
             "kind": "code",
@@ -678,7 +737,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " lets the view zoom out to half the default as well as in to four times it; reset with the button that then shows."
+            "text": " lets the view zoom out to half the default, as well as in to four times it."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Try scrolling or pinching to zoom, then reset with the button that shows."
           }
         ]
       }
@@ -883,7 +951,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "What the app draws besides the frame, which changes rarely: under the data ("
+            "text": "What the app draws besides the frame, which changes rarely."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Under the data ("
           },
           {
             "kind": "code",
@@ -891,7 +968,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ") the buildings' footprints from a map, as polygons; over it ("
+            "text": ") are the buildings' footprints from a map, as polygons. Over it ("
           },
           {
             "kind": "code",
@@ -899,7 +976,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ") a dashed zone the vehicle keeps clear ahead of it. Both take lines, polygons and points, in their labels' colors, and are drawn with the view's cached layers, not every frame. A camera's field of view, a geofence or a map's lane lines go the same way."
+            "text": ") is a dashed zone the vehicle keeps clear ahead of it."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Both take lines, polygons and points, in their labels' colors. They are drawn with the view's cached layers, not every frame. A camera's field of view, a geofence or a map's lane lines go the same way."
           }
         ]
       }
@@ -1112,7 +1198,33 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " the view zooms and pans: scroll or pinch to zoom, drag to pan, and reset with the button that then shows (or focus the view and use the arrows, "
+            "text": ", the view zooms and pans. On the left the guides lie over the data, the default. On the right they lie under it."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The circle zooms with what it holds, in to four times the default. Every wheel over the view is its own, so the page does not scroll away under the pointer. Without "
+          },
+          {
+            "kind": "code",
+            "text": "zoom"
+          },
+          {
+            "kind": "text",
+            "text": ", the default, the wheel scrolls the page."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Try scrolling or pinching to zoom and dragging to pan, then reset with the button that shows. Or focus the view and use the arrow keys, "
           },
           {
             "kind": "code",
@@ -1136,15 +1248,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "). The circle zooms with what it holds, in to four times the default, and every wheel over the view is its own, so the page does not scroll away under the pointer. Without "
-          },
-          {
-            "kind": "code",
-            "text": "zoom"
-          },
-          {
-            "kind": "text",
-            "text": " (the default) the wheel scrolls the page. On the left the guides lie over the data (the default), on the right under it."
+            "text": "."
           }
         ]
       }
@@ -1347,7 +1451,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Style rows set a label's color, line and width, as a video tile's class rows do: give the same rows to the tiles' settings and to the view, and a class looks the same in both. Here the drivable area takes the brand's blue, the planned path its green, thick, the lane markings a thick dotted line in the kit's purple (the palette's own is too pale to read on the road), and the "
+            "text": "Style rows set a label's color, line and width, as a video tile's class rows do. Give the same rows to the tiles' settings and to the view, and a class looks the same in both."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Here the street reads in the brand's colors instead of the page's class colors: - the drivable area takes the brand's blue; - the planned path takes its green, thick; - the lane markings are a thick dotted line in the kit's purple, since the palette's own is too pale to read on the road; - the "
           },
           {
             "kind": "code",
@@ -1355,7 +1468,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " row draws every other label in orange, so the street reads in the brand's colors instead of the page's class colors."
+            "text": " row draws every other label in orange."
           }
         ]
       }
@@ -1567,7 +1680,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Areas as polygons instead of grids: the drivable area of a small road network, given as pieces the way a map gives them, each a line with "
+            "text": "Areas as polygons instead of grids: the drivable area of a small road network, given as pieces the way a map gives them."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Each piece is a line with "
           },
           {
             "kind": "code",
@@ -1575,7 +1697,36 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ". A wide four-lane ring road with rounded corners, a narrow road straight through it with square crossings, a side road joining it with rounded corners, and a ramp branching off it in a curve. The pieces overlap where the roads meet, and a label's polygons fill as one area, so the joins do not show. The vehicle drives round the ring with traffic in every lane: the view stays the vehicle's, so the world turns around it. With "
+            "text": ": - a wide four-lane ring road with rounded corners; - a narrow road straight through it, with square crossings; - a side road joining it, with rounded corners;"
+          }
+        ]
+      },
+      {
+        "kind": "list",
+        "items": [
+          [
+            {
+              "kind": "text",
+              "text": "a ramp branching off it in a curve."
+            }
+          ]
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The pieces overlap where the roads meet. A label's polygons fill as one area, so the joins do not show."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The vehicle drives round the ring, with traffic in every lane. The view stays the vehicle's, so the world turns around it. With "
           },
           {
             "kind": "code",
@@ -1583,7 +1734,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ": scroll or pinch to zoom, drag to pan."
+            "text": ", try scrolling or pinching to zoom, and dragging to pan."
           }
         ]
       }
@@ -1833,7 +1984,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The view tells the app what happens on it, and the app can set what it highlights. The card beside it reads "
+            "text": "The view tells the app what happens on it, and the app can set what it highlights."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The card beside it reads: - "
           },
           {
             "kind": "code",
@@ -1841,7 +2001,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " (the object under the pointer, by its id), "
+            "text": ", the object under the pointer, by its id; - "
           },
           {
             "kind": "code",
@@ -1849,7 +2009,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " (what a click hit, and where) and "
+            "text": ", what a click hit, and where; - "
           },
           {
             "kind": "code",
@@ -1857,7 +2017,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " (where the pointer is, in meters). Its list of the vehicles is bound to "
+            "text": ", where the pointer is, in meters."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Its list of the vehicles is bound to "
           },
           {
             "kind": "code",
@@ -1865,7 +2034,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " both ways: hover a car in the view and its row is selected; select a row and the view outlines that car and reads it out, until the pointer comes back over the view. The objects carry their tracks' ids, so a car is the same car from frame to frame."
+            "text": " both ways. Try hovering a car in the view: its row is selected. Select a row, and the view outlines that car and reads it out, until the pointer comes back over the view."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The objects carry their tracks' ids, so a car is the same car from frame to frame."
           }
         ]
       }

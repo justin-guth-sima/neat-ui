@@ -24,7 +24,9 @@ import { NeatDropZone } from '@sima/neat-ui/drop-zone';
 
 ### Accepted files
 
-Three zones: the first takes one video, so drop a text file on it and the log says it was not accepted; the second takes any files; the third is disabled. The log is newest first.
+Three zones: the first takes one video, the second takes any files, and the third is disabled. The log is newest first.
+
+Try dropping a text file on the first: the log says it was not accepted.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/drop-zone/accepted-files.dark.webp">

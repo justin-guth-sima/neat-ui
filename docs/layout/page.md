@@ -25,7 +25,15 @@ import { NeatPage, NeatPageNav, NeatPageToolbar, NeatViewport } from '@sima/neat
 
 ### Overview
 
-A page that fills the shell's content area and owns the one scroll context below it. It is longer than any screen on purpose: the shell, the top bar and the rail stay put while only the body scrolls. Its tools are in the top bar (`*neatPageToolbar`), where in kiosk mode they float beside the exit control, and its page nav (`nav[neatPageNav]`) links its views: a column of its own beside the body that stays put while the body scrolls, with a filter over its links at the top (a long list wants one; this short one has it to show it). Make the window narrow to see the list fold into a section above the body.
+A page that fills the shell's content area and owns the one scroll context below it.
+
+It is longer than any screen on purpose. The shell, the top bar and the rail stay put, while only the body scrolls.
+
+Its tools are in the top bar (`*neatPageToolbar`). In kiosk mode they float beside the exit control.
+
+Its page nav (`nav[neatPageNav]`) links its views. It is a column of its own beside the body, which stays put while the body scrolls. A filter sits over its links at the top: a long list wants one, and this short one has it to show it.
+
+Try making the window narrow: the list folds into a section above the body.
 
 _This example needs a page of its own: it runs in the showcase._
 
@@ -122,7 +130,11 @@ export class Overview {
 
 ### Details
 
-The second view of the page nav: a route of its own, so the list is declared again and its open link follows the route. Network and Storage are routes nested under this one, which keep this example rendered: of the links whose path the route is under, the longest is the open one, so on `…/details/network` it is Network, not Details. The list stays where it is when the view changes, beside the body; it has no filter here, which is the default.
+The second view of the page nav: a route of its own, so the list is declared again, and its open link follows the route.
+
+Network and Storage are routes nested under this one, which keep this example rendered. Of the links whose path the route is under, the longest is the open one. So on `…/details/network` it is Network, not Details.
+
+The list stays where it is when the view changes, beside the body. It has no filter here, which is the default.
 
 _This example needs a page of its own: it runs in the showcase._
 
@@ -182,7 +194,7 @@ export class Details {
 
 ### Full bleed
 
-Content that reaches the page's edges: `padding="none"` drops the page's inset and `scroll="none"` leaves nothing to scroll, so the grid sizes itself to the page, as a video grid that fits the screen does.
+Content that reaches the page's edges. `padding="none"` drops the page's inset, and `scroll="none"` leaves nothing to scroll. So the grid sizes itself to the page, as a video grid that fits the screen does.
 
 _This example needs a page of its own: it runs in the showcase._
 

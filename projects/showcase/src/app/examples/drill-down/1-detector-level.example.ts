@@ -3,9 +3,10 @@ import { type NeatDiagramSet, neatDrillDownLevel, NeatDiagramView } from '@sima/
 import { OVERVIEW, WITH_STEPS } from './pipeline-data';
 
 /**
- * A three-block pipeline whose Detector opens a level that `neatDrillDownLevel` placed: its
- * steps inside, the Camera that feeds it in a column on the left and the Tracker it feeds in one
- * on the right. Open the Detector to see it.
+ * A three-block pipeline whose Detector opens a level that `neatDrillDownLevel` placed.
+ *
+ * The level holds the Detector's steps inside. The Camera that feeds it is in a column on the left,
+ * and the Tracker it feeds in one on the right. Try opening the Detector.
  *
  * @gallery
  */

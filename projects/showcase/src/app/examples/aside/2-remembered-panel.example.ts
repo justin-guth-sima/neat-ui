@@ -9,10 +9,12 @@ import {
 } from '@sima/neat-ui';
 
 /**
- * A panel whose state is remembered. `neatAsideOpen` takes the remembered choice and the way to
- * write it, here a stored signal. On a wide screen the panel is the remembered choice; on a narrow
- * one it floats over the page and starts closed, and what is opened or closed there is not
- * remembered, so a phone never overwrites the choice made on a wide screen.
+ * A panel whose state is remembered.
+ *
+ * `neatAsideOpen` takes the remembered choice and the way to write it, here a stored signal. On a
+ * wide screen the panel is the remembered choice. On a narrow one it floats over the page and
+ * starts closed. What is opened or closed there is not remembered, so a phone never overwrites the
+ * choice made on a wide screen.
  *
  * @page
  */

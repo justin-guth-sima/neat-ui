@@ -263,7 +263,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", listed with their current values. The second chart has ten: it draws the seven with the largest mean and an Other, the sum of the three left, which is a gap wherever one of them is missing."
+            "text": ", listed with their current values."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The second chart has ten. It draws the seven with the largest mean, and an Other, the sum of the three left. Other is a gap wherever one of them is missing."
           }
         ]
       }
@@ -372,7 +381,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " counts the x axis forward from the first sample (\"0 s … 8 min\"), for a run read from its start; the default counts back from the newest sample."
+            "text": " counts the x axis forward from the first sample (\"0 s … 8 min\"), for a run read from its start. The default counts back from the newest sample."
           }
         ]
       }
@@ -585,7 +594,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " for a chart whose host the app gives a height: two cards on one row, which stretches the shorter to the taller one's height, and the chart on the right takes the height left, never under the medium plot's."
+            "text": ", for a chart whose host the app gives a height."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Two cards sit on one row, which stretches the shorter to the taller one's height. The chart on the right takes the height left, never under the medium plot's."
           }
         ]
       }
@@ -700,7 +718,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " leaves out every label and the time axis, which suits a row among others: a name, the chart taking what is left, and a value, all in the app's own row. The third row has one sample, which is only its dot."
+            "text": " leaves out every label and the time axis, which suits a row among others."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Each row is the app's own: a name, the chart taking what is left, and a value. The third row has one sample, which is only its dot."
           }
         ]
       }
@@ -810,7 +837,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "One moment, shared: the time chart, the stacked chart and the label timeline bind one signal to "
+            "text": "One moment, shared between charts."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The time chart, the stacked chart and the label timeline bind one signal to "
           },
           {
             "kind": "code",
@@ -818,7 +854,25 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", so hovering any of them shows the same moment on all three (each at its nearest sample, or the run covering it). The heatmap names a cell, its row and a time; the app keeps the row it was last on, so the heatmap follows the shared moment too. The card shows the moment and the last click on any of the charts, and its buttons set the moment from outside."
+            "text": ". So hovering any of them shows the same moment on all three, each at its nearest sample, or the run covering it."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The heatmap names a cell: its row and a time. The app keeps the row it was last on, so the heatmap follows the shared moment too."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The card shows the moment, and the last click on any of the charts. Its buttons set the moment from outside."
           }
         ]
       }

@@ -19,7 +19,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Each of the seven variants in the four sizes, then the four sizes again as icon-only buttons (which need an "
+            "text": "Each of the seven variants in the four sizes. Then the four sizes again as icon-only buttons, which need an "
           },
           {
             "kind": "code",
@@ -27,7 +27,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "), then "
+            "text": ", and "
           },
           {
             "kind": "code",
@@ -117,7 +117,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " icon, "
+            "text": " icon, and "
           },
           {
             "kind": "code",
@@ -133,7 +133,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " icon, the icon before the label at 16 px."
+            "text": " icon. The icon goes before the label, at 16 px."
           }
         ]
       }

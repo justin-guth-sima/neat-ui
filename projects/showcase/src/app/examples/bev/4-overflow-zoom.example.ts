@@ -3,10 +3,13 @@ import { NeatBev, type NeatBevBounds } from '@sima/neat-ui/bev';
 import { streetFrames } from './scene';
 
 /**
- * The same two views with `zoom`, starting closer in: a 25 m range, and `panBounds` reaching 60 m
- * all around, so dragging reaches the whole street, the far end of the road ahead too. Scroll or
- * pinch to zoom, and `zoomExtent` lets the view zoom out to half the default as well as in to four
- * times it; reset with the button that then shows.
+ * The same two views with `zoom`, starting closer in, at a 25 m range.
+ *
+ * `panBounds` reaches 60 m all around, so dragging reaches the whole street, the far end of the
+ * road ahead too. `zoomExtent` lets the view zoom out to half the default, as well as in to four
+ * times it.
+ *
+ * Try scrolling or pinching to zoom, then reset with the button that shows.
  */
 @Component({
   selector: 'app-overflow-zoom',
