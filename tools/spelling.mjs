@@ -58,6 +58,7 @@ export const ALLOWED_IN = new Map([
   ['projects/neat-ui/diagram/src/lib/messages/messages.ts', new Set(['colours'])],
   ['projects/neat-ui/diagram/src/lib/messages/messages.spec.ts', new Set(['colours'])],
   ['projects/showcase/src/app/docs/generated/api/diagram.ts', new Set(['colours'])],
+  ['docs/components/messaging.md', new Set(['colours'])],
   // The rule that names the aliases, and the writing guide's list of what not to write.
   ['AGENTS.md', new Set(['colours'])],
   ['docs/writing.md', new Set(['colour', 'centre', 'grey', 'metres'])],
