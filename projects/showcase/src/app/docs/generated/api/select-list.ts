@@ -23,15 +23,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " selects it and tells "
-            },
-            {
-              "kind": "code",
-              "text": "activated"
-            },
-            {
-              "kind": "text",
-              "text": "; "
+              "text": " or "
             },
             {
               "kind": "code",
@@ -39,7 +31,24 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " only selects it on a click and tells "
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "With "
+            },
+            {
+              "kind": "code",
+              "text": "click"
+            },
+            {
+              "kind": "text",
+              "text": ", a click selects the row and tells "
             },
             {
               "kind": "code",
@@ -47,7 +56,23 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " on a double click. Enter tells it in both."
+              "text": ". With "
+            },
+            {
+              "kind": "code",
+              "text": "double-click"
+            },
+            {
+              "kind": "text",
+              "text": ", a click only selects it, and a double click tells "
+            },
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": ". Enter tells it in both."
             }
           ]
         }
@@ -86,7 +111,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The key names the column, "
+              "text": "The key names the column. "
             },
             {
               "kind": "code",
@@ -94,15 +119,20 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the label over it (no label on any column: no header row), and "
-            },
+              "text": " is the label over it. With no label on any column, there is no header row. The template gets the item as its implicit context."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "width"
             },
             {
               "kind": "text",
-              "text": " is its CSS track size in the list's grid, "
+              "text": " is the column's CSS track size in the list's grid, "
             },
             {
               "kind": "code",
@@ -110,7 +140,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " by default. The header and the rows share the grid's tracks, so a content-sized width ("
+              "text": " by default. The header and the rows share the grid's tracks. So a content-sized width ("
             },
             {
               "kind": "code",
@@ -134,7 +164,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " puts the label and the cells' text at the end of the column, as numbers read best. The template gets the item as its implicit context. A cell is a block that may shrink to nothing ("
+              "text": " puts the label and the cells' text at the end of the column, as numbers read best."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A cell is a block that may shrink to nothing ("
             },
             {
               "kind": "code",
@@ -142,7 +181,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), so it does not push the next column out; it does not cut its content, though. A long text wraps, and an unbroken one overflows into the next cell, unless the template truncates it (an element with "
+              "text": "), so it does not push the next column out. It does not cut its content, though. A long text wraps, and an unbroken one overflows into the next cell, unless the template truncates it. Truncate with an element that has "
             },
             {
               "kind": "code",
@@ -166,7 +205,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ")."
+              "text": "."
             }
           ]
         },
@@ -179,7 +218,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is a width of the list in CSS pixels: while the list is narrower, the column and its header leave the layout entirely, as if the template were not there. For columns that matter less than the others on a narrow screen: "
+              "text": " is a width of the list in CSS pixels, such as "
             },
             {
               "kind": "code",
@@ -187,7 +226,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "."
+              "text": ". While the list is narrower, the column and its header leave the layout entirely, as if the template were not there. Use it for columns that matter less than the others on a narrow screen."
             }
           ]
         }
@@ -314,7 +353,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A list of items, one row each, in columns that the app lays out with templates; one row is selected:"
+              "text": "A list of items in columns, one row each, with one row selected."
             }
           ]
         },
@@ -328,7 +367,24 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It fills its container (the container needs a height) and scrolls its rows inside, under a header that stays put: the header sits in the scrolling area, sticky at its top, filled with "
+              "text": "The app lays out the columns with "
+            },
+            {
+              "kind": "code",
+              "text": "neatColumn"
+            },
+            {
+              "kind": "text",
+              "text": " templates. The list fills its container, which needs a height, and scrolls its rows inside, under a header that stays put."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The header sits in the scrolling area, sticky at its top, and filled with "
             },
             {
               "kind": "code",
@@ -336,15 +392,20 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (the page's background, or a dialog's or popover's surface, which they set; a card of the app's sets it to its own fill). "
-            },
+              "text": ". That is the page's background, or the surface a dialog, a popover or an app's card sets."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "trackBy"
             },
             {
               "kind": "text",
-              "text": " gives an item's identity, unique in the list: the selection follows the item with the same key when "
+              "text": " gives an item's identity, unique in the list. When "
             },
             {
               "kind": "code",
@@ -352,7 +413,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is replaced by new objects (a poll's answer), and rows, with the state in their cells, are kept rather than rebuilt. It is called once per item whenever "
+              "text": " is replaced by new objects, such as a poll's answer, the selection follows the item with the same key. Rows, with the state in their cells, are kept rather than rebuilt. "
+            },
+            {
+              "kind": "code",
+              "text": "trackBy"
+            },
+            {
+              "kind": "text",
+              "text": " is called once per item whenever "
             },
             {
               "kind": "code",
@@ -401,7 +470,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". Selection follows focus: the listbox is the one tab stop, holds the focus, and names the selected row in "
+              "text": ". Selection follows focus. The listbox is the one tab stop, holds the focus, and names the selected row in "
             },
             {
               "kind": "code",
@@ -409,23 +478,61 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "; ArrowDown and ArrowUp move the selection (the first press picks the first or last row when nothing is selected), Home and End jump to the ends, and the selected row scrolls into view (the list's own area only; the page around it stays where it is). Enter, and a click on a row, tell "
-            },
-            {
-              "kind": "code",
-              "text": "activated"
-            },
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "ArrowDown and ArrowUp move the selection. When nothing is selected, the first press picks the first or last row."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Home and End jump to the ends."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "The selected row scrolls into view, within the list's own area only. The page around it stays where it is."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Enter, and a click on a row, tell "
+              },
+              {
+                "kind": "code",
+                "text": "activated"
+              },
+              {
+                "kind": "text",
+                "text": " with the row's item. With "
+              },
+              {
+                "kind": "code",
+                "text": "activateOn=\"double-click\""
+              },
+              {
+                "kind": "text",
+                "text": ", a click only selects, and a double click tells it. Enter still does."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": " with the row's item; with "
-            },
-            {
-              "kind": "code",
-              "text": "activateOn=\"double-click\""
-            },
-            {
-              "kind": "text",
-              "text": " a click only selects, and a double click tells it (Enter still does). A double click does not select a row's text. A click on a control in a cell, and every key pressed while one has the focus, are that control's: they neither select nor activate. Controls in cells are ordinary tab stops after the listbox."
+              "text": "A double click does not select a row's text. A click on a control in a cell, and every key pressed while one has the focus, are that control's: they neither select nor activate. Controls in cells are ordinary tab stops after the listbox."
             }
           ]
         },
@@ -434,7 +541,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The header repeats the columns' labels for the eye and is hidden from assistive technology: the rows read as the text of their cells in order, as a listbox's options do (a listbox cannot name its columns)."
+              "text": "The header repeats the columns' labels for the eye, and is hidden from assistive technology. The rows read as the text of their cells in order, as a listbox's options do, since a listbox cannot name its columns."
             }
           ]
         },
@@ -469,7 +576,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") is for acting on several rows: each row that "
+              "text": ") is for acting on several rows. Each row that "
             },
             {
               "kind": "code",
@@ -493,7 +600,29 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "'s) of the checked rows. It holds keys rather than items, and keeps the keys of rows it does not list (a file in another folder, a type a filter hides): a newly checked key is appended, an unchecked one removed, the rest left as they are. The listbox is then multi-selectable, and a checkable row is "
+              "text": "'s) of the checked rows."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "checked"
+            },
+            {
+              "kind": "text",
+              "text": " holds keys rather than items. It keeps the keys of rows it does not list, such as a file in another folder or a type a filter hides. A newly checked key is appended and an unchecked one removed. The rest are left as they are."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The listbox is then multi-selectable, as the WAI-ARIA multi-select listbox has it. A checkable row is "
             },
             {
               "kind": "code",
@@ -501,7 +630,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " while it is checked (as the WAI-ARIA multi-select listbox has it); a row that cannot be checked has no "
+              "text": " while it is checked. A row that cannot be checked has no "
             },
             {
               "kind": "code",
@@ -509,7 +638,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". The selection that follows the arrow keys ("
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The selection that follows the arrow keys ("
             },
             {
               "kind": "code",
@@ -517,7 +655,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") stays: it is the row the keyboard is on, named in "
+              "text": ") stays. It is the row the keyboard is on, named in "
             },
             {
               "kind": "code",
@@ -525,23 +663,79 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " and drawn with the bar. Space checks or unchecks that row; a click on a row's box checks or unchecks it and does nothing else. A click elsewhere on the row selects and activates it as in the single mode, except on the selected row, which it checks or unchecks as Space does (a row that cannot be checked is activated again as before). The second click of a double click never checks; a double click on the already selected checkable row checks it once, with its first click, and with "
-            },
-            {
-              "kind": "code",
-              "text": "activateOn=\"double-click\""
-            },
+              "text": " and drawn with the bar. In checked mode:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "Space checks or unchecks that row."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A click on a row's box checks or unchecks it, and does nothing else."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A click elsewhere on the row selects and activates it, as in the single mode. On the selected row it checks or unchecks it instead, as Space does. A row that cannot be checked is activated again, as before."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "The second click of a double click never checks. A double click on the already selected checkable row checks it once, with its first click. With "
+              },
+              {
+                "kind": "code",
+                "text": "activateOn=\"double-click\""
+              },
+              {
+                "kind": "text",
+                "text": ", the "
+              },
+              {
+                "kind": "code",
+                "text": "dblclick"
+              },
+              {
+                "kind": "text",
+                "text": " then only activates."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Ctrl-click or Cmd-click on a row checks or unchecks it, and selects it without activating it."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Shift-click checks the rows from the anchor to the clicked one, inclusive, and selects the clicked one. The anchor is the row last clicked plainly, with Ctrl or Cmd, or checked by Space or its box. Without one, it is the selected row, else the clicked row alone."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A range only checks, never unchecks. Ctrl+A or Cmd+A checks every row."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": " the "
-            },
-            {
-              "kind": "code",
-              "text": "dblclick"
-            },
-            {
-              "kind": "text",
-              "text": " then only activates. Ctrl-click or Cmd-click on a row checks or unchecks it and selects it without activating it. Shift-click checks the rows from the anchor to the clicked one, inclusive, and selects the clicked one; the anchor is the row last clicked plainly, with Ctrl or Cmd, or checked by Space or its box, else the selected row, else the clicked row alone. A range only checks, never unchecks, and Ctrl+A or Cmd+A checks every row. None of them checks a row without a box or a blocked one, and a row they do not check stays as it is. The boxes are not tab stops. The multi-selectable listbox says what checking is, so a checked list needs no "
+              "text": "None of these checks a row without a box or a blocked one, and a row they do not check stays as it is. The boxes are not tab stops. The multi-selectable listbox says what checking is, so a checked list needs no "
             },
             {
               "kind": "code",
@@ -571,7 +765,25 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") hold a row's box as it is while the app gives a reason (a cap: \"At most 8 runs can be compared.\"). The box is drawn disabled, and neither Space nor a click on it checks or unchecks the row; everything else about the row stays, since only its box is blocked: the keys still land on it, a click and Enter still select and activate it. Its option keeps "
+              "text": ") hold a row's box as it is while the app gives a reason, such as a cap: \"At most 8 runs can be compared.\" The box is drawn disabled. Neither Space nor a click on it checks or unchecks the row."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Everything else about the row stays, since only its box is blocked. The keys still land on it, and a click and Enter still select and activate it."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Its option keeps "
             },
             {
               "kind": "code",
@@ -579,7 +791,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (false while unchecked) and is "
+              "text": ", false while unchecked, and is "
             },
             {
               "kind": "code",
@@ -587,7 +799,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ": in this listbox selecting is checking, so a disabled option says that Space will not check it, where an enabled one would promise a check that silently fails. "
+              "text": ". In this listbox selecting is checking. So a disabled option says that Space will not check it, where an enabled one would promise a check that silently fails. "
             },
             {
               "kind": "code",
@@ -595,7 +807,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " blocks no events and the row stays the active descendant, so it is still reached and activated. The reason describes the option ("
+              "text": " blocks no events, and the row stays the active descendant, so it is still reached and activated."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The reason describes the option ("
             },
             {
               "kind": "code",
@@ -603,7 +824,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", so a screen reader says it as the keys land on the row), and a tooltip on the box shows it on hover. A tooltip never opens on touch, so an app with a cap says it in its own text too. Any reason but null blocks, so give a non-empty one: it is what is announced. "
+              "text": "), so a screen reader says it as the keys land on the row. A tooltip on the box shows it on hover. A tooltip never opens on touch, so an app with a cap says it in its own text too."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Any reason but null blocks, so give a non-empty one: it is what is announced. "
             },
             {
               "kind": "code",
@@ -642,7 +872,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), so that a state reads along the whole row: the app gives both the same tone. A "
+              "text": "). So a state reads along the whole row: the app gives both the same tone."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A "
             },
             {
               "kind": "code",
@@ -658,7 +897,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), so a toned list belongs on it, not on a card. The words in the row still carry the state; the tint repeats them."
+              "text": "), so a toned list belongs on it, not on a card. The words in the row still carry the state, and the tint repeats them."
             }
           ]
         },
@@ -688,23 +927,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " naming an item's group by its key) put the rows under headings, in the groups' order, each item keeping its order within its group. A group is a "
-            },
-            {
-              "kind": "code",
-              "text": "group"
-            },
-            {
-              "kind": "text",
-              "text": " named by its heading, which spans the columns; an empty group shows its heading alone, and a "
-            },
-            {
-              "kind": "code",
-              "text": "muted"
-            },
-            {
-              "kind": "text",
-              "text": " one grays it. The arrow keys, Home and End move over the rows as shown, never onto a heading, and a click on a heading does nothing. An item whose group is not listed is a mistake in the app: it throws in dev mode, and in production shows after the groups, under no heading and set off from the last group by a rule, rather than going missing."
+              "text": " naming an item's group by its key) put the rows under headings. The groups come in their order, and each item keeps its order within its group."
             }
           ]
         },
@@ -713,7 +936,41 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Typing a letter to jump to a row, Page Up and Page Down, and a disabled row are not offered; none is needed yet."
+              "text": "A group is a "
+            },
+            {
+              "kind": "code",
+              "text": "group"
+            },
+            {
+              "kind": "text",
+              "text": " named by its heading, which spans the columns. An empty group shows its heading alone, and a "
+            },
+            {
+              "kind": "code",
+              "text": "muted"
+            },
+            {
+              "kind": "text",
+              "text": " one grays it. The arrow keys, Home and End move over the rows as shown, never onto a heading. A click on a heading does nothing."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An item whose group is not listed is a mistake in the app. It throws in dev mode. In production it shows after the groups, under no heading and set off from the last group by a rule, rather than going missing."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Typing a letter to jump to a row, Page Up and Page Down, and a disabled row are not offered: none is needed yet."
             }
           ]
         }
@@ -930,7 +1187,16 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ", the key of an item's group; called once per item as the inputs that shape the rows change ("
+                  "text": ", the key of an item's group."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is called once per item as the inputs that shape the rows change: "
                 },
                 {
                   "kind": "code",
@@ -946,7 +1212,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " and the other per-item functions), never as the selection moves."
+                  "text": " and the other per-item functions. It is never called as the selection moves."
                 }
               ]
             }
@@ -978,7 +1244,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Text for assistive technology that says what keys an app adds beyond the listbox's own (such as Delete on a row); it describes the listbox, and is not shown."
+                  "text": "Text for assistive technology that says what keys an app adds beyond the listbox's own."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Delete on a row is one. The text describes the listbox, and is not shown."
                 }
               ]
             }
@@ -1002,15 +1277,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " (the default) selects it and tells "
-                },
-                {
-                  "kind": "code",
-                  "text": "activated"
-                },
-                {
-                  "kind": "text",
-                  "text": "; "
+                  "text": " (the default) or "
                 },
                 {
                   "kind": "code",
@@ -1018,7 +1285,40 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " makes a click only select it, and a double click tells "
+                  "text": "."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "With "
+                },
+                {
+                  "kind": "code",
+                  "text": "click"
+                },
+                {
+                  "kind": "text",
+                  "text": ", a click selects the row and tells "
+                },
+                {
+                  "kind": "code",
+                  "text": "activated"
+                },
+                {
+                  "kind": "text",
+                  "text": ". With "
+                },
+                {
+                  "kind": "code",
+                  "text": "double-click"
+                },
+                {
+                  "kind": "text",
+                  "text": ", a click only selects it, and a double click tells "
                 },
                 {
                   "kind": "code",
@@ -1110,7 +1410,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Scrolls back to the top, as a different set of rows (another folder) needs, or to the selected row when there is one in the list. Call it once the new rows are rendered."
+                  "text": "Scrolls back to the top, or to the selected row when there is one in the list."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A different set of rows, such as another folder, needs it. Call it once the new rows are rendered."
                 }
               ]
             }
@@ -1169,8 +1478,13 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "'s rows under a heading: "
-            },
+              "text": "'s rows, under a heading."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "code",
               "text": "key"
@@ -1185,7 +1499,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " returns for its items, "
+              "text": " returns for its items. "
             },
             {
               "kind": "code",
@@ -1193,7 +1507,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " the heading's text (the app's own, a count included if it wants one), and "
+              "text": " is the heading's text, the app's own, a count included if it wants one. "
             },
             {
               "kind": "code",

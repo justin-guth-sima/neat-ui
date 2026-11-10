@@ -4,7 +4,7 @@
 
 _Components › Data_ · [All topics](../README.md)
 
-A list of items, one row each, in columns that the app lays out with templates; one row is selected:
+A list of items in columns, one row each, with one row selected.
 
 ```html
 <neat-select-list label="Streaming slots" [items]="slots()" [trackBy]="slotId" [(selected)]="slot">
@@ -804,23 +804,64 @@ export class Toned {
 
 Component from `@sima/neat-ui/select-list`, selector `neat-select-list`.
 
-It fills its container (the container needs a height) and scrolls its rows inside, under a header that stays put: the header sits in the scrolling area, sticky at its top, filled with `--neat-surface` (the page's background, or a dialog's or popover's surface, which they set; a card of the app's sets it to its own fill). `trackBy` gives an item's identity, unique in the list: the selection follows the item with the same key when `items` is replaced by new objects (a poll's answer), and rows, with the state in their cells, are kept rather than rebuilt. It is called once per item whenever `items` changes, never while the list is only checked or the selection moves.
+The app lays out the columns with `neatColumn` templates. The list fills its container, which needs a height, and scrolls its rows inside, under a header that stays put.
 
-It is a single-select `listbox` named by `label`, whose `option` rows are `aria-selected`. Selection follows focus: the listbox is the one tab stop, holds the focus, and names the selected row in `aria-activedescendant`; ArrowDown and ArrowUp move the selection (the first press picks the first or last row when nothing is selected), Home and End jump to the ends, and the selected row scrolls into view (the list's own area only; the page around it stays where it is). Enter, and a click on a row, tell `activated` with the row's item; with `activateOn="double-click"` a click only selects, and a double click tells it (Enter still does). A double click does not select a row's text. A click on a control in a cell, and every key pressed while one has the focus, are that control's: they neither select nor activate. Controls in cells are ordinary tab stops after the listbox.
+The header sits in the scrolling area, sticky at its top, and filled with `--neat-surface`. That is the page's background, or the surface a dialog, a popover or an app's card sets.
 
-The header repeats the columns' labels for the eye and is hidden from assistive technology: the rows read as the text of their cells in order, as a listbox's options do (a listbox cannot name its columns).
+`trackBy` gives an item's identity, unique in the list. When `items` is replaced by new objects, such as a poll's answer, the selection follows the item with the same key. Rows, with the state in their cells, are kept rather than rebuilt. `trackBy` is called once per item whenever `items` changes, never while the list is only checked or the selection moves.
+
+It is a single-select `listbox` named by `label`, whose `option` rows are `aria-selected`. Selection follows focus. The listbox is the one tab stop, holds the focus, and names the selected row in `aria-activedescendant`.
+
+- ArrowDown and ArrowUp move the selection. When nothing is selected, the first press picks the first or last row.
+- Home and End jump to the ends.
+- The selected row scrolls into view, within the list's own area only. The page around it stays where it is.
+- Enter, and a click on a row, tell `activated` with the row's item. With `activateOn="double-click"`, a click only selects, and a double click tells it. Enter still does.
+
+A double click does not select a row's text. A click on a control in a cell, and every key pressed while one has the focus, are that control's: they neither select nor activate. Controls in cells are ordinary tab stops after the listbox.
+
+The header repeats the columns' labels for the eye, and is hidden from assistive technology. The rows read as the text of their cells in order, as a listbox's options do, since a listbox cannot name its columns.
 
 `hint` is read as the listbox's description, for keys the app adds on top of these.
 
-**Checked mode** (`checkable`) is for acting on several rows: each row that `canCheck` allows has a box before its cells, and `checked` holds the keys (`trackBy`'s) of the checked rows. It holds keys rather than items, and keeps the keys of rows it does not list (a file in another folder, a type a filter hides): a newly checked key is appended, an unchecked one removed, the rest left as they are. The listbox is then multi-selectable, and a checkable row is `aria-selected` while it is checked (as the WAI-ARIA multi-select listbox has it); a row that cannot be checked has no `aria-selected`. The selection that follows the arrow keys (`selected`) stays: it is the row the keyboard is on, named in `aria-activedescendant` and drawn with the bar. Space checks or unchecks that row; a click on a row's box checks or unchecks it and does nothing else. A click elsewhere on the row selects and activates it as in the single mode, except on the selected row, which it checks or unchecks as Space does (a row that cannot be checked is activated again as before). The second click of a double click never checks; a double click on the already selected checkable row checks it once, with its first click, and with `activateOn="double-click"` the `dblclick` then only activates. Ctrl-click or Cmd-click on a row checks or unchecks it and selects it without activating it. Shift-click checks the rows from the anchor to the clicked one, inclusive, and selects the clicked one; the anchor is the row last clicked plainly, with Ctrl or Cmd, or checked by Space or its box, else the selected row, else the clicked row alone. A range only checks, never unchecks, and Ctrl+A or Cmd+A checks every row. None of them checks a row without a box or a blocked one, and a row they do not check stays as it is. The boxes are not tab stops. The multi-selectable listbox says what checking is, so a checked list needs no `hint` of its own.
+**Checked mode** (`checkable`) is for acting on several rows. Each row that `canCheck` allows has a box before its cells, and `checked` holds the keys (`trackBy`'s) of the checked rows.
 
-**Blocked checks** (`checkBlocked`) hold a row's box as it is while the app gives a reason (a cap: "At most 8 runs can be compared."). The box is drawn disabled, and neither Space nor a click on it checks or unchecks the row; everything else about the row stays, since only its box is blocked: the keys still land on it, a click and Enter still select and activate it. Its option keeps `aria-selected` (false while unchecked) and is `aria-disabled`: in this listbox selecting is checking, so a disabled option says that Space will not check it, where an enabled one would promise a check that silently fails. `aria-disabled` blocks no events and the row stays the active descendant, so it is still reached and activated. The reason describes the option (`aria-describedby`, so a screen reader says it as the keys land on the row), and a tooltip on the box shows it on hover. A tooltip never opens on touch, so an app with a cap says it in its own text too. Any reason but null blocks, so give a non-empty one: it is what is announced. `canCheck` still means whether a row has a box at all.
+`checked` holds keys rather than items. It keeps the keys of rows it does not list, such as a file in another folder or a type a filter hides. A newly checked key is appended and an unchecked one removed. The rest are left as they are.
 
-**Row tones** (`rowTone`) tint a row with a soft fill of a status color, the tone its status chip has ([`NeatTone`](../theme/colors.md#neattone)), so that a state reads along the whole row: the app gives both the same tone. A `neutral` row is untinted. A toned row still shows hover and selection, with more of its tone, and the selected one keeps its bar. The tints are mixed over the content background (`--background`), so a toned list belongs on it, not on a card. The words in the row still carry the state; the tint repeats them.
+The listbox is then multi-selectable, as the WAI-ARIA multi-select listbox has it. A checkable row is `aria-selected` while it is checked. A row that cannot be checked has no `aria-selected`.
 
-**Groups** (`groups`, with `groupOf` naming an item's group by its key) put the rows under headings, in the groups' order, each item keeping its order within its group. A group is a `group` named by its heading, which spans the columns; an empty group shows its heading alone, and a `muted` one grays it. The arrow keys, Home and End move over the rows as shown, never onto a heading, and a click on a heading does nothing. An item whose group is not listed is a mistake in the app: it throws in dev mode, and in production shows after the groups, under no heading and set off from the last group by a rule, rather than going missing.
+The selection that follows the arrow keys (`selected`) stays. It is the row the keyboard is on, named in `aria-activedescendant` and drawn with the bar. In checked mode:
 
-Typing a letter to jump to a row, Page Up and Page Down, and a disabled row are not offered; none is needed yet.
+- Space checks or unchecks that row.
+- A click on a row's box checks or unchecks it, and does nothing else.
+- A click elsewhere on the row selects and activates it, as in the single mode. On the selected row it checks or unchecks it instead, as Space does. A row that cannot be checked is activated again, as before.
+- The second click of a double click never checks. A double click on the already selected checkable row checks it once, with its first click. With `activateOn="double-click"`, the `dblclick` then only activates.
+- Ctrl-click or Cmd-click on a row checks or unchecks it, and selects it without activating it.
+- Shift-click checks the rows from the anchor to the clicked one, inclusive, and selects the clicked one. The anchor is the row last clicked plainly, with Ctrl or Cmd, or checked by Space or its box. Without one, it is the selected row, else the clicked row alone.
+- A range only checks, never unchecks. Ctrl+A or Cmd+A checks every row.
+
+None of these checks a row without a box or a blocked one, and a row they do not check stays as it is. The boxes are not tab stops. The multi-selectable listbox says what checking is, so a checked list needs no `hint` of its own.
+
+**Blocked checks** (`checkBlocked`) hold a row's box as it is while the app gives a reason, such as a cap: "At most 8 runs can be compared." The box is drawn disabled. Neither Space nor a click on it checks or unchecks the row.
+
+Everything else about the row stays, since only its box is blocked. The keys still land on it, and a click and Enter still select and activate it.
+
+Its option keeps `aria-selected`, false while unchecked, and is `aria-disabled`. In this listbox selecting is checking. So a disabled option says that Space will not check it, where an enabled one would promise a check that silently fails. `aria-disabled` blocks no events, and the row stays the active descendant, so it is still reached and activated.
+
+The reason describes the option (`aria-describedby`), so a screen reader says it as the keys land on the row. A tooltip on the box shows it on hover. A tooltip never opens on touch, so an app with a cap says it in its own text too.
+
+Any reason but null blocks, so give a non-empty one: it is what is announced. `canCheck` still means whether a row has a box at all.
+
+**Row tones** (`rowTone`) tint a row with a soft fill of a status color, the tone its status chip has ([`NeatTone`](../theme/colors.md#neattone)). So a state reads along the whole row: the app gives both the same tone.
+
+A `neutral` row is untinted. A toned row still shows hover and selection, with more of its tone, and the selected one keeps its bar. The tints are mixed over the content background (`--background`), so a toned list belongs on it, not on a card. The words in the row still carry the state, and the tint repeats them.
+
+**Groups** (`groups`, with `groupOf` naming an item's group by its key) put the rows under headings. The groups come in their order, and each item keeps its order within its group.
+
+A group is a `group` named by its heading, which spans the columns. An empty group shows its heading alone, and a `muted` one grays it. The arrow keys, Home and End move over the rows as shown, never onto a heading. A click on a heading does nothing.
+
+An item whose group is not listed is a mistake in the app. It throws in dev mode. In production it shows after the groups, under no heading and set off from the last group by a rule, rather than going missing.
+
+Typing a letter to jump to a row, Page Up and Page Down, and a disabled row are not offered: none is needed yet.
 
 **Inputs**
 
@@ -858,7 +899,9 @@ Typing a letter to jump to a row, Page Up and Page Down, and a disabled row are 
 
 - **`groupOf`** `(item: T) => string`, default `() => ''`
 
-  With `groups`, the key of an item's group; called once per item as the inputs that shape the rows change (`items`, `groups` and the other per-item functions), never as the selection moves.
+  With `groups`, the key of an item's group.
+
+  It is called once per item as the inputs that shape the rows change: `items`, `groups` and the other per-item functions. It is never called as the selection moves.
 
 - **`emptyLabel`** `string`, default `''`
 
@@ -866,11 +909,15 @@ Typing a letter to jump to a row, Page Up and Page Down, and a disabled row are 
 
 - **`hint`** `string`, default `''`
 
-  Text for assistive technology that says what keys an app adds beyond the listbox's own (such as Delete on a row); it describes the listbox, and is not shown.
+  Text for assistive technology that says what keys an app adds beyond the listbox's own.
+
+  Delete on a row is one. The text describes the listbox, and is not shown.
 
 - **`activateOn`** `NeatActivateOn`, default `'click'`
 
-  What the pointer does to a row: `click` (the default) selects it and tells `activated`; `double-click` makes a click only select it, and a double click tells `activated`, as a file manager opens a folder. Enter tells it in both.
+  What the pointer does to a row: `click` (the default) or `double-click`.
+
+  With `click`, a click selects the row and tells `activated`. With `double-click`, a click only selects it, and a double click tells `activated`, as a file manager opens a folder. Enter tells it in both.
 
 **Models (two-way)**
 
@@ -896,7 +943,9 @@ Typing a letter to jump to a row, Page Up and Page Down, and a disabled row are 
   resetScroll(): void
   ```
 
-  Scrolls back to the top, as a different set of rows (another folder) needs, or to the selected row when there is one in the list. Call it once the new rows are rendered.
+  Scrolls back to the top, or to the selected row when there is one in the list.
+
+  A different set of rows, such as another folder, needs it. Call it once the new rows are rendered.
 
 - **`focus`**
 
@@ -916,9 +965,13 @@ One column of a `neat-select-list`, as a template for the cells in it:
 <ng-template neatColumn="state" header="State" width="6rem" let-slot>{{ slot.state }}</ng-template>
 ```
 
-The key names the column, `header` is the label over it (no label on any column: no header row), and `width` is its CSS track size in the list's grid, `1fr` by default. The header and the rows share the grid's tracks, so a content-sized width (`auto`, `max-content`) fits the widest of the label and the cells. `align="end"` puts the label and the cells' text at the end of the column, as numbers read best. The template gets the item as its implicit context. A cell is a block that may shrink to nothing (`min-width: 0`), so it does not push the next column out; it does not cut its content, though. A long text wraps, and an unbroken one overflows into the next cell, unless the template truncates it (an element with `overflow: hidden`, `text-overflow: ellipsis` and `white-space: nowrap`).
+The key names the column. `header` is the label over it. With no label on any column, there is no header row. The template gets the item as its implicit context.
 
-`hideBelow` is a width of the list in CSS pixels: while the list is narrower, the column and its header leave the layout entirely, as if the template were not there. For columns that matter less than the others on a narrow screen: `[hideBelow]="720"`.
+`width` is the column's CSS track size in the list's grid, `1fr` by default. The header and the rows share the grid's tracks. So a content-sized width (`auto`, `max-content`) fits the widest of the label and the cells. `align="end"` puts the label and the cells' text at the end of the column, as numbers read best.
+
+A cell is a block that may shrink to nothing (`min-width: 0`), so it does not push the next column out. It does not cut its content, though. A long text wraps, and an unbroken one overflows into the next cell, unless the template truncates it. Truncate with an element that has `overflow: hidden`, `text-overflow: ellipsis` and `white-space: nowrap`.
+
+`hideBelow` is a width of the list in CSS pixels, such as `[hideBelow]="720"`. While the list is narrower, the column and its header leave the layout entirely, as if the template were not there. Use it for columns that matter less than the others on a narrow screen.
 
 **Inputs**
 
@@ -946,7 +999,9 @@ The key names the column, `header` is the label over it (no label on any column:
 
 Interface from `@sima/neat-ui/select-list`.
 
-A group of a `neat-select-list`'s rows under a heading: `key` is what `groupOf` returns for its items, `label` the heading's text (the app's own, a count included if it wants one), and `muted` grays the heading, for a group with nothing in it.
+A group of a `neat-select-list`'s rows, under a heading.
+
+`key` is what `groupOf` returns for its items. `label` is the heading's text, the app's own, a count included if it wants one. `muted` grays the heading, for a group with nothing in it.
 
 **Members**
 
@@ -960,7 +1015,9 @@ A group of a `neat-select-list`'s rows under a heading: `key` is what `groupOf` 
 
 Type from `@sima/neat-ui/select-list`.
 
-What a pointer does to a row: `click` selects it and tells `activated`; `double-click` only selects it on a click and tells `activated` on a double click. Enter tells it in both.
+What a pointer does to a row: `click` or `double-click`.
+
+With `click`, a click selects the row and tells `activated`. With `double-click`, a click only selects it, and a double click tells `activated`. Enter tells it in both.
 
 ```ts
 type NeatActivateOn = 'click' | 'double-click'

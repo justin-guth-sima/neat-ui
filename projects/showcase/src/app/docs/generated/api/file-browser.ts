@@ -37,7 +37,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (a path; '' is the root, named "
+              "text": ", a count, a filter field and the folder's rows. "
+            },
+            {
+              "kind": "code",
+              "text": "folder"
+            },
+            {
+              "kind": "text",
+              "text": " is a path, and '' is the root, named "
             },
             {
               "kind": "code",
@@ -45,7 +53,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), a count, a filter field and the folder's rows in a "
+              "text": ". The rows are a "
             },
             {
               "kind": "code",
@@ -58,36 +66,56 @@ export const API: DocsEntry = {
           ]
         },
         {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Filter.",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " Typing lists every file below the current folder whose path, relative to it, contains the text, ignoring case. The rows show those relative paths, and the count says how many matched. Navigating, by any means, empties the filter. "
+            },
+            {
+              "kind": "code",
+              "text": "filter"
+            },
+            {
+              "kind": "text",
+              "text": " is a model, so the app can read it and set it. A note under the list about what the folder leaves out, say, should show only while the filter is empty."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Navigating.",
+              "strong": true
+            }
+          ]
+        },
+        {
           "kind": "list",
           "items": [
             [
               {
                 "kind": "text",
-                "text": "Filter.",
-                "strong": true
-              },
-              {
-                "kind": "text",
-                "text": " Typing lists every file below the current folder whose path, relative to it, contains the text, ignoring case; the rows show those relative paths, and the count says how many matched. Navigating, by any means, empties the filter. "
-              },
-              {
-                "kind": "code",
-                "text": "filter"
-              },
-              {
-                "kind": "text",
-                "text": " is a model, so the app can read it (a note under the list about what the folder leaves out should show only while it is empty) and set it."
+                "text": "A double click on a folder row, a click on the chevron that ends it, or Enter on the row the keyboard is on, opens the folder. A single click only highlights it. A double click on a file opens nothing."
               }
             ],
             [
               {
                 "kind": "text",
-                "text": "Navigating.",
-                "strong": true
-              },
+                "text": "A click on a breadcrumb, or Backspace in the list, goes up."
+              }
+            ],
+            [
               {
                 "kind": "text",
-                "text": " A double click on a folder row, a click on the chevron that ends it, or Enter on the row the keyboard is on, opens the folder; a single click only highlights it, and a double click on a file opens nothing. A click on a breadcrumb, or Backspace in the list, goes up. When the folder is gone from "
+                "text": "When the folder is gone from "
               },
               {
                 "kind": "code",
@@ -95,7 +123,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " (after a reload), "
+                "text": ", after a reload say, "
               },
               {
                 "kind": "code",
@@ -103,201 +131,13 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " becomes its nearest ancestor that exists. The list takes the focus after any navigation, and going up highlights the folder just left; every listing starts at the top. Pass "
-              },
-              {
-                "kind": "code",
-                "text": "root"
-              },
-              {
-                "kind": "text",
-                "text": " once it is loaded: an empty tree has no folders, so the browser goes back to the root."
+                "text": " becomes its nearest ancestor that exists."
               }
             ],
             [
               {
                 "kind": "text",
-                "text": "Selecting.",
-                "strong": true
-              },
-              {
-                "kind": "text",
-                "text": " "
-              },
-              {
-                "kind": "code",
-                "text": "selected"
-              },
-              {
-                "kind": "text",
-                "text": " is a file's path. A click on a file, or moving the list's selection with the arrow keys onto it, selects it; a click on a folder, or an arrow key onto it, leaves "
-              },
-              {
-                "kind": "code",
-                "text": "selected"
-              },
-              {
-                "kind": "text",
-                "text": " as it is (the preview of a file stays while the keyboard or the pointer passes folders) and highlights the folder. A selected file in another folder stays selected. The list's keys are "
-              },
-              {
-                "kind": "code",
-                "text": "neat-select-list"
-              },
-              {
-                "kind": "text",
-                "text": "'s."
-              }
-            ],
-            [
-              {
-                "kind": "code",
-                "text": "manage",
-                "strong": true
-              },
-              {
-                "kind": "text",
-                "text": " mode",
-                "strong": true
-              },
-              {
-                "kind": "text",
-                "text": " is the list's checked mode: a box on each file (not on folders), for the paths in "
-              },
-              {
-                "kind": "code",
-                "text": "checked"
-              },
-              {
-                "kind": "text",
-                "text": ", which hold files of other folders too. A click on the box toggles it and nothing else. From the keyboard, Space toggles the file the list is on; the boxes are not tab stops, so the arrow keys keep moving the selection. Ctrl-click or Cmd-click, Shift-click and Ctrl+A or Cmd+A check as they do in the list, without opening a folder. A click on the selected file again checks or unchecks it, as Space does; the first click on a file only selects it, a double click on a file not yet selected checks nothing, and a double click opens no file (on the already selected file it checks it once, with its first click). The listbox is multi-selectable and a file "
-              },
-              {
-                "kind": "code",
-                "text": "aria-selected"
-              },
-              {
-                "kind": "text",
-                "text": " while checked, which says what checking is; the browser adds no hint of its own. Paths that are no longer in "
-              },
-              {
-                "kind": "code",
-                "text": "root"
-              },
-              {
-                "kind": "text",
-                "text": " leave "
-              },
-              {
-                "kind": "code",
-                "text": "checked"
-              },
-              {
-                "kind": "text",
-                "text": "; "
-              },
-              {
-                "kind": "code",
-                "text": "selected"
-              },
-              {
-                "kind": "text",
-                "text": " is not pruned, since an app may select a file before the tree that holds it has loaded."
-              }
-            ],
-            [
-              {
-                "kind": "text",
-                "text": "Unavailable and tagged nodes",
-                "strong": true
-              },
-              {
-                "kind": "text",
-                "text": ": an "
-              },
-              {
-                "kind": "code",
-                "text": "unavailable"
-              },
-              {
-                "kind": "text",
-                "text": " node is grayed, and a "
-              },
-              {
-                "kind": "code",
-                "text": "tag"
-              },
-              {
-                "kind": "text",
-                "text": " shows after the name as a neutral "
-              },
-              {
-                "kind": "code",
-                "text": "neat-status-chip"
-              },
-              {
-                "kind": "text",
-                "text": "; such nodes can still be selected, opened and checked."
-              }
-            ],
-            [
-              {
-                "kind": "text",
-                "text": "Columns.",
-                "strong": true
-              },
-              {
-                "kind": "text",
-                "text": " "
-              },
-              {
-                "kind": "code",
-                "text": "neatColumn"
-              },
-              {
-                "kind": "text",
-                "text": " templates (from "
-              },
-              {
-                "kind": "code",
-                "text": "@sima/neat-ui/select-list"
-              },
-              {
-                "kind": "text",
-                "text": ") add columns after the name, filled for files only; the template gets the "
-              },
-              {
-                "kind": "ref",
-                "text": "NeatFileNode",
-                "name": "NeatFileNode"
-              },
-              {
-                "kind": "text",
-                "text": ", and "
-              },
-              {
-                "kind": "code",
-                "text": "align"
-              },
-              {
-                "kind": "text",
-                "text": " and "
-              },
-              {
-                "kind": "code",
-                "text": "hideBelow"
-              },
-              {
-                "kind": "text",
-                "text": " work as on the list. Setting any adds a header row, the name's heading being "
-              },
-              {
-                "kind": "code",
-                "text": "labels.name"
-              },
-              {
-                "kind": "text",
-                "text": ", and moves a folder's count from the end of the name cell to just after the name, so that it reads as the folder's rather than as a value in the next column."
+                "text": "The list takes the focus after any navigation, and going up highlights the folder just left. Every listing starts at the top."
               }
             ]
           ]
@@ -307,7 +147,271 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Everything the browser says is a default in "
+              "text": "Pass "
+            },
+            {
+              "kind": "code",
+              "text": "root"
+            },
+            {
+              "kind": "text",
+              "text": " once it is loaded: an empty tree has no folders, so the browser goes back to the root."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Selecting.",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "kind": "code",
+              "text": "selected"
+            },
+            {
+              "kind": "text",
+              "text": " is a file's path. A click on a file, or moving the list's selection onto it with the arrow keys, selects it. A click on a folder, or an arrow key onto it, highlights the folder and leaves "
+            },
+            {
+              "kind": "code",
+              "text": "selected"
+            },
+            {
+              "kind": "text",
+              "text": " as it is. So the preview of a file stays while the keyboard or the pointer passes folders. A selected file in another folder stays selected. The list's keys are "
+            },
+            {
+              "kind": "code",
+              "text": "neat-select-list"
+            },
+            {
+              "kind": "text",
+              "text": "'s."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "manage",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " mode",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " is the list's checked mode. Each file has a box, folders have none, and the checked boxes are the paths in "
+            },
+            {
+              "kind": "code",
+              "text": "checked"
+            },
+            {
+              "kind": "text",
+              "text": ", which hold files of other folders too."
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "A click on the box toggles it, and nothing else."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "From the keyboard, Space toggles the file the list is on. The boxes are not tab stops, so the arrow keys keep moving the selection."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Ctrl-click or Cmd-click, Shift-click and Ctrl+A or Cmd+A check as they do in the list, without opening a folder."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A click on the selected file again checks or unchecks it, as Space does. The first click on a file only selects it."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A double click on a file not yet selected checks nothing, and a double click opens no file. On the already selected file, a double click checks it once, with its first click."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The listbox is multi-selectable, and a file is "
+            },
+            {
+              "kind": "code",
+              "text": "aria-selected"
+            },
+            {
+              "kind": "text",
+              "text": " while checked, which says what checking is. The browser adds no hint of its own. Paths that are no longer in "
+            },
+            {
+              "kind": "code",
+              "text": "root"
+            },
+            {
+              "kind": "text",
+              "text": " leave "
+            },
+            {
+              "kind": "code",
+              "text": "checked"
+            },
+            {
+              "kind": "text",
+              "text": ". "
+            },
+            {
+              "kind": "code",
+              "text": "selected"
+            },
+            {
+              "kind": "text",
+              "text": " is not pruned, since an app may select a file before the tree that holds it has loaded."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Unavailable and tagged nodes.",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " An "
+            },
+            {
+              "kind": "code",
+              "text": "unavailable"
+            },
+            {
+              "kind": "text",
+              "text": " node is grayed, and a "
+            },
+            {
+              "kind": "code",
+              "text": "tag"
+            },
+            {
+              "kind": "text",
+              "text": " shows after the name as a neutral "
+            },
+            {
+              "kind": "code",
+              "text": "neat-status-chip"
+            },
+            {
+              "kind": "text",
+              "text": ". Such nodes can still be selected, opened and checked."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Columns.",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "kind": "code",
+              "text": "neatColumn"
+            },
+            {
+              "kind": "text",
+              "text": " templates, from "
+            },
+            {
+              "kind": "code",
+              "text": "@sima/neat-ui/select-list"
+            },
+            {
+              "kind": "text",
+              "text": ", add columns after the name, filled for files only. The template gets the "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatFileNode",
+              "name": "NeatFileNode"
+            },
+            {
+              "kind": "text",
+              "text": ", and "
+            },
+            {
+              "kind": "code",
+              "text": "align"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "hideBelow"
+            },
+            {
+              "kind": "text",
+              "text": " work as on the list. Setting any adds a header row, with "
+            },
+            {
+              "kind": "code",
+              "text": "labels.name"
+            },
+            {
+              "kind": "text",
+              "text": " as the name's heading. It also moves a folder's count from the end of the name cell to just after the name. So the count reads as the folder's, rather than as a value in the next column."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Words.",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " Everything the browser says is a default in "
             },
             {
               "kind": "code",
@@ -315,7 +419,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (a partial, merged over them) except "
+              "text": ", a partial merged over them. Only "
             },
             {
               "kind": "code",
@@ -331,7 +435,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". "
+              "text": " are not. "
             },
             {
               "kind": "code",
@@ -339,7 +443,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " words the count under the breadcrumb from the name of the current folder ("
+              "text": " words the count under the breadcrumb, from the name of the current folder ("
             },
             {
               "kind": "code",
@@ -356,7 +460,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It fills its container, whose height it needs, and scrolls its rows inside. A folder of a thousand files is one pass over the folder's nodes when the folder, filter or tree changes; a selection or a check changes only the rows concerned."
+              "text": "It fills its container, whose height it needs, and scrolls its rows inside. A folder of a thousand files is one pass over the folder's nodes when the folder, filter or tree changes. A selection or a check changes only the rows concerned."
             }
           ]
         }
@@ -488,7 +592,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The words the browser says itself (names for assistive technology, the empty and no-match messages, the count texts), as far as you replace them, e.g. to translate: any you leave out keep the English default."
+                  "text": "The words the browser says itself, as far as you replace them, such as to translate them."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "They are the names for assistive technology, the empty and no-match messages, and the count texts. Any you leave out keep the English default."
                 }
               ]
             }
@@ -562,7 +675,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The filter field's text. Two-way, so an app can tell whether a filter is active (a note about the current folder, such as how many files it left out, belongs to the unfiltered listing) or clear it. It is emptied whenever the folder changes; matching ignores surrounding spaces."
+                  "text": "The filter field's text, two-way, so an app can tell whether a filter is active, or clear it."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A note about the current folder, such as how many files it left out, belongs to the unfiltered listing. The filter is emptied whenever the folder changes. Matching ignores surrounding spaces."
                 }
               ]
             }
@@ -849,7 +971,16 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Grays the row without hiding it: a file the app cannot use for its main purpose (one the streamer does not accept), shown so the user knows it is there. It does not stop the row from being selected, opened or checked, so it is not "
+                  "text": "Grays the row without hiding it, for a file the app cannot use for its main purpose."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A file the streamer does not accept is one: it is shown so the user knows it is there. It can still be selected, opened or checked, so it is not "
                 },
                 {
                   "kind": "code",
@@ -857,7 +988,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": "; an unavailable file does not count towards a folder's count. An app that must not offer a file leaves it out of the tree."
+                  "text": ". An unavailable file does not count towards a folder's count. An app that must not offer a file leaves it out of the tree."
                 }
               ]
             }
