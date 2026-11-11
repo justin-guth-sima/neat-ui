@@ -12,8 +12,8 @@ export type NeatRgb = readonly [red: number, green: number, blue: number];
 const SENTINELS = ['#000000', '#ffffff'] as const;
 
 /**
- * The 1×1 2D context colors are resolved on, made on first use (null where there is no canvas).
- * Internal: specs put a fake in its place, since jsdom has no canvas.
+ * The 1×1 2D context colors are resolved on, made on first use and kept. Internal: specs put a
+ * fake in its place, since jsdom has no canvas, or null for none.
  */
 export const colorProbe: { context?: CanvasRenderingContext2D | null } = {};
 
@@ -21,7 +21,12 @@ function probe(): CanvasRenderingContext2D | null {
   if (colorProbe.context === undefined) {
     const canvas = typeof document === 'undefined' ? null : document.createElement('canvas');
     if (canvas) canvas.width = canvas.height = 1;
-    colorProbe.context = canvas?.getContext('2d', { willReadFrequently: true }) ?? null;
+    const context = canvas?.getContext('2d', { willReadFrequently: true }) ?? null;
+    // Only a context is kept. Where there is none (jsdom, a server) the next call asks again,
+    // which costs nothing a browser pays: a spec that stubs the canvas after code in the same
+    // test run resolved a color without one still gets its stub.
+    if (!context) return null;
+    colorProbe.context = context;
   }
   return colorProbe.context;
 }

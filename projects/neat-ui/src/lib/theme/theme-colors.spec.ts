@@ -84,6 +84,19 @@ describe('neatResolveColor', () => {
 
     expect(neatResolveColor('#ff0000')).toBeNull();
   });
+
+  it('asks for a canvas again after there was none, and keeps the one it gets', () => {
+    const getContext = vi
+      .spyOn(HTMLCanvasElement.prototype, 'getContext')
+      .mockReturnValueOnce(null)
+      .mockReturnValue(new FakeContext() as unknown as CanvasRenderingContext2D);
+
+    expect(neatResolveColor('#ff0000')).toBeNull();
+    expect(neatResolveColor('#ff0000')).toEqual([1, 0, 0]);
+    expect(neatResolveColor('#00ff00')).toEqual([0, 1, 0]);
+    expect(getContext).toHaveBeenCalledTimes(2);
+    getContext.mockRestore();
+  });
 });
 
 describe('neatThemeColors', () => {
