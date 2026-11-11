@@ -209,6 +209,21 @@ describe('topicMarkdown', () => {
     assert.doesNotMatch(page(false), /<picture>/);
   });
 
+  it('shows no picture of an @unpictured example, even one left in the folder', () => {
+    const markdown = topicMarkdown({
+      topic: { id: 'switch', label: 'Switch', parts: ['NeatSwitch'], leads: ['NeatSwitch'] },
+      group: { id: 'components', label: 'Components' },
+      category: { id: 'forms', label: 'Forms' },
+      examples: [{ ...example, unpictured: true }],
+      declared: (name) =>
+        name === 'NeatSwitch' ? { part, entryImport: '@sima/neat-ui/switch' } : {},
+      link: noLinks,
+      pictureOf: () => ({ width: 300, animated: false }),
+    });
+    assert.doesNotMatch(markdown, /<picture>/);
+    assert.match(markdown, /### On and off\n\nTwo switches\.\n\n<details>/);
+  });
+
   it('shows a taken animation, and the still to a reader who asked for reduced motion', () => {
     const markdown = page(true, true);
     const still = '../images/switch/on-and-off';

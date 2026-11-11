@@ -1115,6 +1115,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "from-the-app",
     "title": "Diagram from the app",
     "component": DiagramFromTheApp,
+    "unpictured": true,
     "caption": [
       {
         "kind": "paragraph",

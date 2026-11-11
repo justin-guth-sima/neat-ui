@@ -147,11 +147,6 @@ The app reads the heatmap and sets it.
 
 The card shows both. Its button points the heatmap at the saturated core's newest cell.
 
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/heatmap/from-the-app.dark.webp">
-<img src="../images/heatmap/from-the-app.light.webp" alt="Heatmap: Heatmap from the app" width="900">
-</picture>
-
 <details>
 <summary>Code</summary>
 

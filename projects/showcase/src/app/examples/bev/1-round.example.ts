@@ -14,6 +14,7 @@ import { streetFrames } from './scene';
  * stops at the circle, and the guides lie over the data. Try hovering or tapping a box to read it
  * out.
  *
+ * @gallery
  * @animated
  */
 @Component({

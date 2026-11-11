@@ -17,6 +17,8 @@ const BLOCKS = COMPILE_FLOW.overview.nodes
  * The list beside the drawing is bound to `hovered` both ways. Try pointing at a row, or tabbing to
  * it: its block is in focus in the drawing, with what it is joined to. Point at a block, and its
  * row is marked.
+ *
+ * @unpictured
  */
 @Component({
   selector: 'app-diagram-from-the-app',

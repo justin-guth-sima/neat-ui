@@ -281,6 +281,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "from-the-app",
     "title": "Timeline from the app",
     "component": TimelineFromTheApp,
+    "unpictured": true,
     "caption": [
       {
         "kind": "paragraph",

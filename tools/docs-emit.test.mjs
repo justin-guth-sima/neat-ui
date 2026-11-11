@@ -1547,6 +1547,23 @@ test('@animated marks an example as motion, and is a problem beside @capture', (
   assert.equal(text.match(/^ {4}"animated": true,$/gm).length, 1);
 });
 
+test('@unpictured takes no @gallery, @animated or @capture', () => {
+  const kit = kitWithExamples({
+    'a/1-reports.example.ts': documented('Reports', ['Reports.', '@unpictured']),
+    'a/2-both.example.ts': documented('Both', ['Both.', '@unpictured', '@gallery', '@animated']),
+  });
+  const { topics, problems } = extractExamples(kit);
+  const [reports, both] = topics[0].examples;
+  assert.equal(reports.unpictured, true);
+  assert.equal(both.unpictured, true);
+  assert.equal(both.gallery, undefined);
+  assert.equal(both.animated, undefined);
+  assert.deepEqual(problems, [
+    `${EXAMPLES_DIR}/a/2-both.example.ts:8: Both is @unpictured and has @gallery; it has no picture`,
+    `${EXAMPLES_DIR}/a/2-both.example.ts:8: Both is @unpictured and has @animated; it has no picture`,
+  ]);
+});
+
 test('parseCapture reads the action and the rest of the line as the selector', () => {
   assert.deepEqual(parseCapture(['click  .row:nth-child(2) button ', '']), {
     action: 'click',

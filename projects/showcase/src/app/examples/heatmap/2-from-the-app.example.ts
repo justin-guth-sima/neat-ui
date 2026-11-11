@@ -14,6 +14,8 @@ const clock = (time: number) => new Date(time).toISOString().slice(11, 19);
  * - `activated` reports a click or Enter, with the cell's row, time and mean.
  *
  * The card shows both. Its button points the heatmap at the saturated core's newest cell.
+ *
+ * @unpictured
  */
 @Component({
   selector: 'app-heatmap-from-the-app',

@@ -1,7 +1,8 @@
 /*
  * Pictures of the showcase's examples for the Markdown docs: each example's live area, in light
  * and in dark, as WebP under `docs/images/<topic>/<example>.<scheme>.webp`, and for an example
- * marked `@animated` an animation of it as well, `<example>.<scheme>.animated.webp`.
+ * marked `@animated` an animation of it as well, `<example>.<scheme>.animated.webp`. An example
+ * marked `@unpictured` gets neither.
  *
  *   npm run docs:capture                         build the showcase, then capture every example
  *   npm run docs:capture -- --topic button,bev   only these topics
@@ -578,9 +579,10 @@ async function captureScheme(browser, run) {
 
   for (const topic of topics) {
     await openTopic(topic);
-    const examples = (await page.evaluate(examplesInPage)).filter(
-      (example) => !options.gallery || examplesOf.get(`${topic.id}/${example.id}`)?.gallery,
-    );
+    const examples = (await page.evaluate(examplesInPage)).filter((example) => {
+      const read = examplesOf.get(`${topic.id}/${example.id}`);
+      return !read?.unpictured && (!options.gallery || read?.gallery);
+    });
     for (const example of examples.filter((e) => e.live)) {
       const selector = `app-example-card article:has(h3#example-${example.id}) .live`;
       // What an example opened stays open, so the next one starts on a fresh page.

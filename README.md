@@ -78,10 +78,10 @@ every other Neat app, in light and dark.
 </td>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/bev.md"><picture>
-<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="docs/images/bev/interaction.dark.webp">
-<source media="(prefers-reduced-motion: reduce)" srcset="docs/images/bev/interaction.light.webp">
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/bev/interaction.dark.animated.webp">
-<img src="docs/images/bev/interaction.light.animated.webp" alt="Bird's-eye view: Interaction">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="docs/images/bev/round.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="docs/images/bev/round.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/bev/round.dark.animated.webp">
+<img src="docs/images/bev/round.light.animated.webp" alt="Bird's-eye view: Round">
 </picture></a><br>
 <a href="docs/components/bev.md"><b>Bird's-eye view</b></a>
 </td>

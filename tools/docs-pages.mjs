@@ -254,9 +254,14 @@ export function openingOf(doc) {
  * A topic's page. `topic` is its config (label, parts, leads); `declared(name)` gives a part's
  * declaration and its entry's import path; `examples` are the topic's, as docs:emit reads them;
  * `pictureOf(topic, example)` is a taken picture's `width` in CSS px and whether its animation is
- * taken too (`animated`), or null when there is none.
+ * taken too (`animated`), or null when there is none. An `@unpictured` example shows none, even
+ * with a picture left in the folder.
  */
-export function topicMarkdown({ topic, group, category, examples, declared, link, pictureOf }) {
+export function topicMarkdown({ topic, group, category, examples, declared, link, ...rest }) {
+  const pictureOf = (topicId, exampleId) =>
+    examples.find((e) => e.id === exampleId)?.unpictured
+      ? null
+      : rest.pictureOf(topicId, exampleId);
   const imagesFrom = '../images';
   const lines = [HEADER, `# ${topic.label}`];
   const where = category ? `${group.label} › ${category.label}` : group.label;

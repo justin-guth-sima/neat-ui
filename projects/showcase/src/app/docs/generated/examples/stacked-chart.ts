@@ -93,6 +93,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "from-the-app",
     "title": "Stacked from the app",
     "component": StackedFromTheApp,
+    "unpictured": true,
     "caption": [
       {
         "kind": "paragraph",

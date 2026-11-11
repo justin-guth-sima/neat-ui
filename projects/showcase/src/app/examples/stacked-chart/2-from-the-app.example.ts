@@ -14,6 +14,8 @@ const clock = (time: number) => new Date(time).toISOString().slice(11, 19);
  * - `activated` reports a click or Enter, with the sample's time and each band's value.
  *
  * The card shows both. Its buttons set the moment from outside.
+ *
+ * @unpictured
  */
 @Component({
   selector: 'app-stacked-from-the-app',

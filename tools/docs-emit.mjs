@@ -1116,10 +1116,12 @@ function exportedComponent(sourceFile, report) {
  * links to (an example that needs the whole page: its own toolbar, tabs, panel or shell), and
  * `@gallery`, the one example whose picture stands for its topic in the README's gallery
  * (`tools/readme-gallery.mjs`), and `@animated`, an example whose point is motion, which the
- * Markdown docs show as an animation beside its still picture (`tools/docs-capture.mjs`). One
- * more tag takes words, `@capture` (`parseCapture`).
+ * Markdown docs show as an animation beside its still picture (`tools/docs-capture.mjs`), and
+ * `@unpictured`, an example the Markdown docs show without a picture (one whose point is what a
+ * widget reports to the app, which a picture cannot show). One more tag takes words, `@capture`
+ * (`parseCapture`).
  */
-const EXAMPLE_OPTIONS = ['unpadded', 'page', 'gallery', 'animated'];
+const EXAMPLE_OPTIONS = ['unpadded', 'page', 'gallery', 'animated', 'unpictured'];
 
 /** What `@capture` may do before the example's picture is taken (`tools/docs-capture.mjs`). */
 export const CAPTURE_ACTIONS = ['click', 'hover'];
@@ -1307,6 +1309,14 @@ function readTopic({ root, topic, kit, found }) {
       // An animation shows the example as it runs; what an action opens is a still's business.
       report(cls, `${className} is @animated and has @capture; an animation takes no action`);
       delete options.animated;
+    }
+    if (options.unpictured) {
+      // An example with no picture has none to stand for its topic, animate or act on.
+      for (const tag of ['gallery', 'animated', 'capture']) {
+        if (!options[tag]) continue;
+        report(cls, `${className} is @unpictured and has @${tag}; it has no picture`);
+        delete options[tag];
+      }
     }
     if (options.gallery && gallery) {
       report(cls, `${className} is @gallery, and so is ${gallery}; a topic has one`);

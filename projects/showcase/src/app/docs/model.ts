@@ -213,6 +213,11 @@ export interface DocsExample {
    */
   readonly animated?: true;
   /**
+   * The Markdown docs show the example without a picture, for one whose point is what a widget
+   * reports to the app; the bare tag `@unpictured`. The page itself does not read it.
+   */
+  readonly unpictured?: true;
+  /**
    * What the docs' picture of the example does first (`@capture click <selector>` or `hover`),
    * for an example whose content opens in an overlay; the page itself does not read it.
    */

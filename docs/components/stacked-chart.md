@@ -149,11 +149,6 @@ The app reads the chart and sets it.
 
 The card shows both. Its buttons set the moment from outside.
 
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/stacked-chart/from-the-app.dark.webp">
-<img src="../images/stacked-chart/from-the-app.light.webp" alt="Stacked chart: Stacked from the app" width="900">
-</picture>
-
 <details>
 <summary>Code</summary>
 

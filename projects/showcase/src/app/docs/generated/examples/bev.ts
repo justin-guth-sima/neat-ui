@@ -15,6 +15,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "round",
     "title": "Round",
     "component": Round,
+    "gallery": true,
     "animated": true,
     "caption": [
       {
@@ -1979,8 +1980,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "interaction",
     "title": "Interaction",
     "component": Interaction,
-    "gallery": true,
-    "animated": true,
+    "unpictured": true,
     "caption": [
       {
         "kind": "paragraph",

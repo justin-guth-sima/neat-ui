@@ -26,6 +26,8 @@ const RUNS: readonly NeatLabelRun[] = [
  *
  * The card shows both. Its buttons set the moment from outside, as a time chart bound to the same
  * signal would.
+ *
+ * @unpictured
  */
 @Component({
   selector: 'app-timeline-from-the-app',

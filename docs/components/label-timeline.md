@@ -291,11 +291,6 @@ The app reads the strip and sets it.
 
 The card shows both. Its buttons set the moment from outside, as a time chart bound to the same signal would.
 
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/label-timeline/from-the-app.dark.webp">
-<img src="../images/label-timeline/from-the-app.light.webp" alt="Label timeline: Timeline from the app" width="900">
-</picture>
-
 <details>
 <summary>Code</summary>
 

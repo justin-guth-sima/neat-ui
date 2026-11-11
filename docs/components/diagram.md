@@ -1464,11 +1464,6 @@ The app reads the diagram and sets it.
 
 The list beside the drawing is bound to `hovered` both ways. Try pointing at a row, or tabbing to it: its block is in focus in the drawing, with what it is joined to. Point at a block, and its row is marked.
 
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/diagram/from-the-app.dark.webp">
-<img src="../images/diagram/from-the-app.light.webp" alt="Diagram: Diagram from the app" width="812">
-</picture>
-
 <details>
 <summary>Code</summary>
 

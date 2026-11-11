@@ -209,7 +209,11 @@ is the doc comment, and the snippet under an example is the file that renders it
   chart, the bird's-eye view, the live dot's pulse), which the Markdown docs and the README's
   gallery show as an animation, its still picture kept for a reader who asked for reduced motion;
   it does not go with `@capture` (a doc problem), and an example that moves only when a reader
-  acts on it (a slider) is not one. Why per example: how
+  acts on it (a slider) is not one; and `@unpictured`, an example the Markdown docs show with its
+  caption and code but no picture, for one whose point is what a widget reports to the app and
+  takes from it (the "From the app" examples, the bird's-eye view's Interaction), which a picture
+  cannot show and which the showcase runs; the capture skips it, and it takes no `@gallery`,
+  `@animated` or `@capture` (a doc problem). Why per example: how
   an example shows is a fact of that example, beside the code that needs it, so no stylesheet
   outweighs the card's padding and no topic sends examples that fit a card off to a page. Any
   other tag, or text after one of these, is a doc problem. Escape hatch: a new way to show an

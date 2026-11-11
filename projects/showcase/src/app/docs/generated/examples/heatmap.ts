@@ -88,6 +88,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "from-the-app",
     "title": "Heatmap from the app",
     "component": HeatmapFromTheApp,
+    "unpictured": true,
     "caption": [
       {
         "kind": "paragraph",
