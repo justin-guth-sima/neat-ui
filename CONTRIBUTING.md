@@ -72,7 +72,9 @@ Each of these is in [Rules](AGENTS.md#rules) with its reason and its escape hatc
   output is committed; never edit it.
 - `npm run docs:capture` builds the showcase and takes a picture of each example, light and dark,
   into `docs/images`. `-- --gallery` takes only the README gallery's pictures. An example whose
-  content opens in an overlay says what to click with `@capture click <selector>`.
+  content opens in an overlay says what to click with `@capture click <selector>`. An example
+  whose point is motion (a live chart) is marked `@animated`, and is also taken as an animation,
+  which the docs show in its picture's place; `-- --only animations` takes only those.
 - `npm run docs:pages` writes the Markdown docs, `docs/README.md` and a page per topic, from the
   same sources as the showcase. Never edit them; their check runs in `npm run test:tools`.
 - `npm run docs:gallery` writes the README's gallery from the `@gallery` examples. Its check runs

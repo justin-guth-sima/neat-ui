@@ -207,6 +207,12 @@ export interface DocsExample {
    */
   readonly gallery?: true;
   /**
+   * The example's point is motion, so the Markdown docs show it as an animation, beside its still
+   * picture for a reader who asked for reduced motion; the bare tag `@animated`. The page itself
+   * does not read it.
+   */
+  readonly animated?: true;
+  /**
    * What the docs' picture of the example does first (`@capture click <selector>` or `hover`),
    * for an example whose content opens in an overlay; the page itself does not read it.
    */

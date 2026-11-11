@@ -18,14 +18,16 @@ function d3Pattern(allowed) {
  * The bench's own dev dependencies (AGENTS.md "The rendering bench"): ngx-vflow, the renderer it
  * compares with, and Playwright and source-map, which its harness runs on. `playwright-core` is
  * what `playwright` wraps, so importing it directly would step around the rule. `d3-drag` (vflow's
- * peer) is bench-only too, but it is d3, which `d3Pattern` already fails outside the bench.
+ * peer) is bench-only too, but it is d3, which `d3Pattern` already fails outside the bench. sharp
+ * is the docs' capture tool's (`tools/docs-capture.mjs`), which ESLint does not read; it is here so
+ * that the kit and the showcase cannot take it up either.
  * ESLint sees static imports only: a dynamic `import()` is not caught here, and `check:dist` (which
  * reads the built package) is the only guard against one.
  */
 const BENCH_ONLY = {
-  regex: '^(ngx-vflow|playwright(-core)?|source-map)(/|$)',
+  regex: '^(ngx-vflow|playwright(-core)?|source-map|sharp)(/|$)',
   message:
-    "ngx-vflow, Playwright and source-map are the rendering bench's dev dependencies, importable only under projects/bench/; the kit and its apps never ship them.",
+    'ngx-vflow, Playwright, source-map and sharp are dev dependencies of the rendering bench and the docs tools, importable only under projects/bench/ (sharp only in tools/); the kit and its apps never ship them.',
 };
 
 /**

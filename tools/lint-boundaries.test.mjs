@@ -128,6 +128,7 @@ const BENCH_ONLY = [
   importOf('playwright/test'),
   "import { SourceMapConsumer } from 'source-map';\nexport const maps = SourceMapConsumer;\n",
   importOf('source-map/lib/util.js'),
+  "import sharp from 'sharp';\nexport const encode = sharp;\n",
 ];
 const D3_DRAG = "import { drag } from 'd3-drag';\nexport const behavior = drag;\n";
 

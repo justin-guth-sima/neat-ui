@@ -10,7 +10,9 @@
  * The topics, their labels and order come from the showcase's `topics.ts` and `docs-routes.ts`,
  * the picks from the examples' class docs (docs:emit reads them), and the pictures from
  * `docs/images`, which `npm run docs:capture -- --gallery` takes. Each picture is light and dark
- * (`<picture>`, so GitHub shows the reader's theme) and links to its topic's docs page
+ * (`<picture>`, so GitHub shows the reader's theme), an `@animated` pick's animation where it is
+ * taken (the still for a reader who asked for reduced motion, as on the docs pages, whose
+ * `pictureSources` builds both), and links to its topic's docs page
  * (`npm run docs:pages`). A topic without a pick is named on the line under its section, so every
  * topic stays one link away.
  *
@@ -20,6 +22,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pictureFile, pictureSources } from './docs-pages.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
@@ -63,16 +66,19 @@ const escape = (text) =>
 /** Where a topic links: its docs page (`docs/<group>/<topic>.md`, `npm run docs:pages`). */
 const pageLink = (group, id) => `docs/${group}/${id}.md`;
 
-/** One cell: the pick's picture in both schemes, linked to its page, with the topic's name. */
-function cell(group, topic, example) {
-  const picture = (scheme) => `${IMAGES}/${topic.id}/${example.id}.${scheme}.webp`;
+/**
+ * One cell: the pick's picture in both schemes, or its animation when `animated`, linked to its
+ * page, with the topic's name.
+ */
+function cell(group, topic, example, animated) {
+  const { sources, img } = pictureSources(`${IMAGES}/${topic.id}/${example.id}`, animated);
   const alt = escape(`${topic.label}: ${example.title}`);
   const link = pageLink(group, topic.id);
   return [
     '<td align="center" valign="top" width="33%">',
     `<a href="${link}"><picture>`,
-    `<source media="(prefers-color-scheme: dark)" srcset="${picture('dark')}">`,
-    `<img src="${picture('light')}" alt="${alt}">`,
+    ...sources,
+    `<img src="${img}" alt="${alt}">`,
     '</picture></a><br>',
     `<a href="${link}"><b>${escape(topic.label)}</b></a>`,
     '</td>',
@@ -83,9 +89,15 @@ function cell(group, topic, example) {
  * The gallery's Markdown: per section a heading, a table of its picks' pictures and a line naming
  * its other topics; a section with neither is left out. `picks` maps a topic id to its `@gallery`
  * example (`id`, `title`); `hasPage(topic)` tells whether a topic has a docs page to link (a
- * topic generated from the kit, `load`; not a hand-made one such as the theme's tokens).
+ * topic generated from the kit, `load`; not a hand-made one such as the theme's tokens), and
+ * `animated(topic, example)` whether a pick's animation is taken.
  */
-export function galleryMarkdown({ sections, picks, hasPage = (topic) => Boolean(topic.load) }) {
+export function galleryMarkdown({
+  sections,
+  picks,
+  hasPage = (topic) => Boolean(topic.load),
+  animated = () => false,
+}) {
   const parts = [];
   for (const section of sections) {
     const shown = section.topics.filter((topic) => picks.has(topic.id));
@@ -95,9 +107,10 @@ export function galleryMarkdown({ sections, picks, hasPage = (topic) => Boolean(
     if (shown.length) {
       const rows = [];
       for (let i = 0; i < shown.length; i += COLUMNS) {
-        const cells = shown
-          .slice(i, i + COLUMNS)
-          .map((topic) => cell(section.group, topic, picks.get(topic.id)));
+        const cells = shown.slice(i, i + COLUMNS).map((topic) => {
+          const pick = picks.get(topic.id);
+          return cell(section.group, topic, pick, animated(topic.id, pick));
+        });
         rows.push(`<tr>\n${cells.join('\n')}\n</tr>`);
       }
       parts.push(`<table>\n${rows.join('\n')}\n</table>`);
@@ -145,7 +158,12 @@ export async function gallery(root = ROOT) {
     const pick = examples.find((example) => example.gallery);
     if (pick) picks.set(topic, pick);
   }
-  const markdown = galleryMarkdown({ sections: leading(sectionsOf(GROUPS)), picks });
+  // An animation shows when both its schemes are taken; its still is checked as every pick's is.
+  const animated = (topic, example) =>
+    ['light', 'dark'].every((scheme) =>
+      existsSync(join(root, IMAGES, pictureFile(`${topic}/${example.id}`, scheme, true))),
+    );
+  const markdown = galleryMarkdown({ sections: leading(sectionsOf(GROUPS)), picks, animated });
   const current = readFileSync(join(root, README), 'utf8');
   return { wanted: withGallery(current, markdown), current, missing: missingPictures(root, picks) };
 }

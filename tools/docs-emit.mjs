@@ -1115,9 +1115,11 @@ function exportedComponent(sourceFile, report) {
  * without the inset (a drawing that fills its card), `@page`, a route of its own that the card
  * links to (an example that needs the whole page: its own toolbar, tabs, panel or shell), and
  * `@gallery`, the one example whose picture stands for its topic in the README's gallery
- * (`tools/readme-gallery.mjs`). One more tag takes words, `@capture` (`parseCapture`).
+ * (`tools/readme-gallery.mjs`), and `@animated`, an example whose point is motion, which the
+ * Markdown docs show as an animation beside its still picture (`tools/docs-capture.mjs`). One
+ * more tag takes words, `@capture` (`parseCapture`).
  */
-const EXAMPLE_OPTIONS = ['unpadded', 'page', 'gallery'];
+const EXAMPLE_OPTIONS = ['unpadded', 'page', 'gallery', 'animated'];
 
 /** What `@capture` may do before the example's picture is taken (`tools/docs-capture.mjs`). */
 export const CAPTURE_ACTIONS = ['click', 'hover'];
@@ -1301,6 +1303,11 @@ function readTopic({ root, topic, kit, found }) {
     classes.set(className, name);
 
     const { caption, options, text } = readCaption({ cls, sourceFile, kit, report });
+    if (options.animated && options.capture) {
+      // An animation shows the example as it runs; what an action opens is a still's business.
+      report(cls, `${className} is @animated and has @capture; an animation takes no action`);
+      delete options.animated;
+    }
     if (options.gallery && gallery) {
       report(cls, `${className} is @gallery, and so is ${gallery}; a topic has one`);
       delete options.gallery;

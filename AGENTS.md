@@ -205,7 +205,11 @@ is the doc comment, and the snippet under an example is the file that renders it
   own toolbar, page nav, panel or shell, which a docs page keeps for itself), and `@gallery`, the
   one example of its topic whose picture stands for the topic in the README's gallery (a second
   in a topic is a doc problem; a topic with no example that makes a good picture has none and is
-  named under its section instead). Why per example: how
+  named under its section instead), and `@animated`, an example whose point is motion (a live
+  chart, the bird's-eye view, the live dot's pulse), which the Markdown docs and the README's
+  gallery show as an animation, its still picture kept for a reader who asked for reduced motion;
+  it does not go with `@capture` (a doc problem), and an example that moves only when a reader
+  acts on it (a slider) is not one. Why per example: how
   an example shows is a fact of that example, beside the code that needs it, so no stylesheet
   outweighs the card's padding and no topic sends examples that fit a card off to a page. Any
   other tag, or text after one of these, is a doc problem. Escape hatch: a new way to show an
@@ -230,18 +234,32 @@ is the doc comment, and the snippet under an example is the file that renders it
   takes each example's live area (a page example's content area on its route) in light and dark as
   WebP, `docs/images/<topic>/<example>.<scheme>.webp`. Fixed viewport and pixel ratio, reduced
   motion, the docs page's side panel closed, the corners transparent; Chrome's canvas encodes, so
-  there is no image library. It warns past its size budget (150 kB a picture, 25 MB in all) and
-  never fails for it, and it lists the pictures no example makes any more rather than deleting
-  them. `-- --gallery` takes only the `@gallery` examples. Pictures are committed (the docs pages
-  and the README's gallery show them) and retaken at a release, not on every change: a picture is a
-  few dozen kB that git keeps forever. It is not run in CI.
+  there is no image library for the stills. An `@animated` example is also taken as an animation,
+  `<example>.<scheme>.animated.webp`: 4 s at 10 frames a second, at the stills' pixel ratio and
+  framing, in a context without reduced motion under Playwright's fake clock (paused once the
+  example has settled and stepped a frame at a time, the page's CSS animations with it), each
+  frame cut losslessly in Chrome and the frames joined by sharp (libwebp), lossless at its
+  slowest, smallest setting. Why lossless: the kit's flat colors and sharp edges come out smaller
+  lossless than lossy at that setting (the bird's-eye view: about 260 kB against 1 MB from
+  Chrome's lossy encoder), with no artifacts; Chrome's own lossless encoder is a fast one, larger
+  than its lossy. A `<video>` plays on the browser's clock, not the fake one, so a video's
+  frames come as the page shows them. It warns past its size budget (150 kB a picture, 400 kB an
+  animation, 40 MB in all) and never fails for it, and it lists the pictures no example makes any
+  more rather than deleting them. `-- --gallery` takes only the `@gallery` examples, and
+  `-- --only stills` or `-- --only animations` only the one kind. Pictures are committed (the docs
+  pages and the README's gallery show them) and retaken at a release, not on every change: a
+  picture is a few dozen kB, an animation a few hundred, that git keeps forever. It is not run in
+  CI.
 - **The Markdown docs** are written by `npm run docs:pages` (`tools/docs-pages.mjs`):
   `docs/README.md`, the index, and `docs/<group>/<topic>.md` for each topic generated from the kit
   (a hand-made one, the theme's tokens, has none). A page is the writing guide's page shape: the
   lead part's first paragraph, a picture, the import, each example (caption, picture, code folded
   in `<details>`), then each part's API (kind, entry, selector, doc, inputs, models, outputs and the
   rest, a part's name linked to the page that documents it). It shows an example's picture only when
-  `docs/images` has it, so a new example never waits for a capture. The pages are generated: never
+  `docs/images` has it, so a new example never waits for a capture, and its animation in the
+  picture's place when that is taken too: a `<picture>` whose first sources give the still to a
+  reader who asked for reduced motion (`pictureSources`, which the gallery's cells share). The pages
+  are generated: never
   edit them, and Prettier leaves them alone (`.prettierignore`); `npm run test:tools` fails when
   they are stale, and a page of a topic that is gone is removed (only a `.md` file directly in a
   group's folder, `removablePage`).
@@ -310,7 +328,10 @@ ngx-vflow under the same load, on a laptop and on the Modalix board (the design 
 published one. Licenses, all bench-only but Playwright, which the docs' capture tool uses too
 (above): `ngx-vflow` MIT, `d3-drag` ISC (vflow's peer),
 `@types/d3-drag` MIT, `playwright` and the `playwright-core` it wraps Apache-2.0, `source-map`
-BSD-3-Clause. ESLint (`BENCH_ONLY` in the root `eslint.config.js`) fails an import of any of them
+BSD-3-Clause; and the capture tool's own `sharp`, Apache-2.0, whose prebuilt libvips binaries
+(`@img/sharp-libvips-*`, which bring libwebp) are LGPL-3.0-or-later, held to the same rules
+below though no bench code uses it. ESLint (`BENCH_ONLY` in the root `eslint.config.js`) fails an
+import of any of them
 outside `projects/bench/`, where `d3-drag` is the one d3 package allowed, and `npm run check:dist`
 fails a built package that names one. ESLint catches static imports only; a dynamic `import()`
 is covered by `check:dist` alone. Why: apps install the kit, never the bench's tools. The capture

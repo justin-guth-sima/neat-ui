@@ -9,7 +9,9 @@
  *
  * A page shows an example's picture when `docs/images` has it (`npm run docs:capture`), and only
  * its caption and code when not: pictures are retaken at a release, the text on every change, so
- * a new example is never blocked on a picture. Hand-made topics (the theme's tokens) have no page.
+ * a new example is never blocked on a picture. An `@animated` example's animation, when taken too,
+ * stands in for the picture but for readers who asked for reduced motion (`pictureSources`).
+ * Hand-made topics (the theme's tokens) have no page.
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -97,18 +99,43 @@ export function blocksMarkdown(blocks, link, indent = '') {
 /** The heading anchor GitHub gives `## \`Name\``. */
 export const anchor = (name) => name.toLowerCase().replace(/[^a-z0-9_-]/g, '');
 
+/** An example's file in `docs/images`, from `<topic>/<example>`: its still or its animation. */
+export const pictureFile = (name, scheme, animated = false) =>
+  `${name}.${scheme}${animated ? '.animated' : ''}.webp`;
+
 /**
- * A picture in both schemes, as GitHub shows the reader's: `src` without its `.light.webp`, at
- * `width` CSS px (its pixel width over the pixel ratio), since GitHub draws an image at its pixel
- * width and a 2× picture would show twice its size.
+ * The sources of an example's `<picture>` and its `img`'s file, as GitHub shows the reader's
+ * scheme; `src` is `<folder>/<topic>/<example>`. With `animated`, the animation for every reader
+ * but one who asked for reduced motion, who gets the still: the first source that matches wins.
+ * The README's gallery builds its cells from these too.
  */
-const picture = (src, alt, width) =>
-  [
+export function pictureSources(src, animated = false) {
+  const sources = animated
+    ? [
+        `<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="${pictureFile(src, 'dark')}">`,
+        `<source media="(prefers-reduced-motion: reduce)" srcset="${pictureFile(src, 'light')}">`,
+      ]
+    : [];
+  sources.push(
+    `<source media="(prefers-color-scheme: dark)" srcset="${pictureFile(src, 'dark', animated)}">`,
+  );
+  return { sources, img: pictureFile(src, 'light', animated) };
+}
+
+/**
+ * A picture in both schemes, as GitHub shows the reader's (`pictureSources`), at `width` CSS px
+ * (the still's pixel width over the pixel ratio, which the animation is taken at too), since
+ * GitHub draws an image at its pixel width and a 2× picture would show twice its size.
+ */
+const picture = (src, alt, { width, animated }) => {
+  const { sources, img } = pictureSources(src, animated);
+  return [
     '<picture>',
-    `<source media="(prefers-color-scheme: dark)" srcset="${src}.dark.webp">`,
-    `<img src="${src}.light.webp" alt="${alt.replace(/"/g, '&quot;')}" width="${width}">`,
+    ...sources,
+    `<img src="${img}" alt="${alt.replace(/"/g, '&quot;')}" width="${width}">`,
     '</picture>',
   ].join('\n');
+};
 
 const KIND_WORDS = {
   component: 'Component',
@@ -194,14 +221,14 @@ export function partMarkdown(part, entryImport, link, { skip = 0 } = {}) {
 }
 
 /** An example: its title, caption, picture (when taken) and its files' code, folded. */
-function exampleMarkdown({ topic, example, link, imagesFrom, pictureWidth }) {
+function exampleMarkdown({ topic, example, link, imagesFrom, pictureOf }) {
   const lines = [`### ${example.title}`];
   if (example.caption.length) lines.push(blocksMarkdown(example.caption, link));
   if (example.page) lines.push('_This example needs a page of its own: it runs in the showcase._');
-  const width = pictureWidth(topic.id, example.id);
-  if (width) {
+  const taken = pictureOf(topic.id, example.id);
+  if (taken) {
     const alt = `${topic.label}: ${example.title}`;
-    lines.push(picture(`${imagesFrom}/${topic.id}/${example.id}`, alt, width));
+    lines.push(picture(`${imagesFrom}/${topic.id}/${example.id}`, alt, taken));
   }
   const files = example.files.map((file) => {
     const language = file.name.endsWith('.css') ? 'css' : 'ts';
@@ -226,9 +253,10 @@ export function openingOf(doc) {
 /**
  * A topic's page. `topic` is its config (label, parts, leads); `declared(name)` gives a part's
  * declaration and its entry's import path; `examples` are the topic's, as docs:emit reads them;
- * `pictureWidth(topic, example)` is a taken picture's width in CSS px, or 0 when there is none.
+ * `pictureOf(topic, example)` is a taken picture's `width` in CSS px and whether its animation is
+ * taken too (`animated`), or null when there is none.
  */
-export function topicMarkdown({ topic, group, category, examples, declared, link, pictureWidth }) {
+export function topicMarkdown({ topic, group, category, examples, declared, link, pictureOf }) {
   const imagesFrom = '../images';
   const lines = [HEADER, `# ${topic.label}`];
   const where = category ? `${group.label} › ${category.label}` : group.label;
@@ -238,12 +266,12 @@ export function topicMarkdown({ topic, group, category, examples, declared, link
   const opening = openingOf(lead?.part.doc ?? []);
   if (opening.length) lines.push(blocksMarkdown(opening, link));
   const shown =
-    examples.find((e) => e.gallery && pictureWidth(topic.id, e.id)) ??
-    examples.find((e) => pictureWidth(topic.id, e.id));
+    examples.find((e) => e.gallery && pictureOf(topic.id, e.id)) ??
+    examples.find((e) => pictureOf(topic.id, e.id));
   if (shown) {
     const alt = `${topic.label}: ${shown.title}`;
-    const width = pictureWidth(topic.id, shown.id);
-    lines.push(picture(`${imagesFrom}/${topic.id}/${shown.id}`, alt, width));
+    const taken = pictureOf(topic.id, shown.id);
+    lines.push(picture(`${imagesFrom}/${topic.id}/${shown.id}`, alt, taken));
   }
   // The import of what a template or code uses; types come with them as the code needs them.
   const imports = new Map();
@@ -260,7 +288,7 @@ export function topicMarkdown({ topic, group, category, examples, declared, link
   if (examples.length) {
     lines.push('## Examples');
     for (const example of examples) {
-      lines.push(exampleMarkdown({ topic, example, link, imagesFrom, pictureWidth }));
+      lines.push(exampleMarkdown({ topic, example, link, imagesFrom, pictureOf }));
     }
   }
   if (parts.length) {
@@ -330,12 +358,17 @@ export async function pages(root = ROOT) {
     const page = pageOf.get(name);
     return page ? `${page}#${anchor(name)}` : null;
   };
-  // A picture's width in CSS px when both schemes are taken, else 0 (the page shows none).
-  const pictureWidth = (topic, example) => {
-    const file = (scheme) => join(root, IMAGES, topic, `${example}.${scheme}.webp`);
-    if (!existsSync(file('light')) || !existsSync(file('dark'))) return 0;
-    const size = webpSize(readFileSync(file('light')));
-    return size ? Math.round(size.width / PICTURE_DPR) : 0;
+  // A picture's width in CSS px when both schemes are taken, and whether both schemes of its
+  // animation are, else null (the page shows none). A taken animation needs its still, which is
+  // its reduced-motion fallback and gives its width.
+  const pictureOf = (topic, example) => {
+    const file = (scheme, animated) =>
+      join(root, IMAGES, pictureFile(`${topic}/${example}`, scheme, animated));
+    const both = (animated) =>
+      existsSync(file('light', animated)) && existsSync(file('dark', animated));
+    if (!both(false)) return null;
+    const size = webpSize(readFileSync(file('light', false)));
+    return size ? { width: Math.round(size.width / PICTURE_DPR), animated: both(true) } : null;
   };
 
   const files = new Map();
@@ -343,7 +376,7 @@ export async function pages(root = ROOT) {
     const examples = (examplesOf.get(topic.id) ?? []).filter((e) => e.component || e.files.length);
     files.set(
       pagePath(group.id, topic.id),
-      topicMarkdown({ topic, group, category, examples, declared, link, pictureWidth }),
+      topicMarkdown({ topic, group, category, examples, declared, link, pictureOf }),
     );
   }
   const sections = GROUPS.flatMap((group) =>

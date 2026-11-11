@@ -1524,6 +1524,29 @@ test('@gallery marks one example of a topic, and a second is a problem', () => {
   assert.equal(text.match(/^ {4}"gallery": true,$/gm).length, 1);
 });
 
+test('@animated marks an example as motion, and is a problem beside @capture', () => {
+  const kit = kitWithExamples({
+    'a/1-moving.example.ts': documented('Moving', ['Moving.', '@animated']),
+    'a/2-opening.example.ts': documented('Opening', [
+      'Opening.',
+      '@animated',
+      '@capture click button',
+    ]),
+    'a/3-still.example.ts': component('Still'),
+  });
+  const { topics, problems } = extractExamples(kit);
+  const [moving, opening, still] = topics[0].examples;
+  assert.equal(moving.animated, true);
+  assert.equal(opening.animated, undefined);
+  assert.deepEqual(opening.capture, { action: 'click', target: 'button' });
+  assert.equal(still.animated, undefined);
+  assert.deepEqual(problems, [
+    `${EXAMPLES_DIR}/a/2-opening.example.ts:7: Opening is @animated and has @capture; an animation takes no action`,
+  ]);
+  const text = generate(kit).files.get(`${EXAMPLES_OUTPUT_DIR}/a.ts`);
+  assert.equal(text.match(/^ {4}"animated": true,$/gm).length, 1);
+});
+
 test('parseCapture reads the action and the rest of the line as the selector', () => {
   assert.deepEqual(parseCapture(['click  .row:nth-child(2) button ', '']), {
     action: 'click',

@@ -22,6 +22,7 @@ describe('parseArgs', () => {
     assert.equal(options.out, DEFAULTS.out);
     assert.equal(options.topics, null);
     assert.equal(options.gallery, false);
+    assert.equal(options.only, 'all');
     assert.equal(options.help, false);
   });
 
@@ -44,6 +45,8 @@ describe('parseArgs', () => {
     assert.equal(options.channel, 'chromium');
     assert.equal(options.settleMs, 0);
     assert.equal(parseArgs(['--gallery']).gallery, true);
+    assert.equal(parseArgs(['--only', 'animations']).only, 'animations');
+    assert.equal(parseArgs(['--only', 'stills']).only, 'stills');
   });
 
   it('refuses an unknown option, a missing value and a settle time that is no number', () => {
@@ -51,6 +54,7 @@ describe('parseArgs', () => {
     assert.throws(() => parseArgs(['--out']), /--out needs a value/);
     assert.throws(() => parseArgs(['--out', '--topic', 'a']), /--out needs a value/);
     assert.throws(() => parseArgs(['--settle', 'soon']), /--settle takes a number/);
+    assert.throws(() => parseArgs(['--only', 'videos']), /--only takes all, stills, animations/);
   });
 });
 
@@ -103,7 +107,7 @@ describe('topicsToCapture', () => {
 });
 
 describe('budgetWarnings', () => {
-  const budget = { pictureBytes: 100, totalBytes: 250 };
+  const budget = { pictureBytes: 100, animationBytes: 3000, totalBytes: 250 };
 
   it('says nothing within the budget', () => {
     assert.deepEqual(budgetWarnings([{ path: 'a', bytes: 100 }], budget), []);
@@ -122,6 +126,17 @@ describe('budgetWarnings', () => {
     assert.match(warnings[0], /^c is 4 kB/);
     assert.match(warnings[1], /^a is 2 kB/);
     assert.match(warnings[2], /6 kB in all/);
+  });
+
+  it('holds an animation to its own budget', () => {
+    const warnings = budgetWarnings(
+      [
+        { path: 'a', bytes: 2048, animated: true },
+        { path: 'b', bytes: 4096, animated: true },
+      ],
+      { ...budget, totalBytes: 10_000 },
+    );
+    assert.deepEqual(warnings, ['b is 4 kB, over 3 kB']);
   });
 });
 
@@ -212,6 +227,7 @@ describe('pictureFrame', () => {
 describe('picturePath and stalePictures', () => {
   it('puts a picture under its topic, named by its example and scheme', () => {
     assert.equal(picturePath('bev', 'round', 'dark'), 'bev/round.dark.webp');
+    assert.equal(picturePath('bev', 'round', 'dark', true), 'bev/round.dark.animated.webp');
   });
 
   it('lists the pictures no example made, and nothing that is not a picture', () => {

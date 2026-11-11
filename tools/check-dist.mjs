@@ -82,9 +82,16 @@ export const SECONDARY_ENTRIES = {
  * The rendering bench's dev dependencies (AGENTS.md "The rendering bench"), which the lint rules
  * keep under projects/bench/. A quoted specifier of one (an import, an export, a dynamic import, a
  * manifest's dependency) anywhere in the package means it would reach apps that never install it.
- * `playwright-core` is what `playwright` wraps.
+ * `playwright-core` is what `playwright` wraps. sharp is the docs' capture tool's, held to the same.
  */
-export const BENCH_ONLY = ['ngx-vflow', 'd3-drag', 'playwright', 'playwright-core', 'source-map'];
+export const BENCH_ONLY = [
+  'ngx-vflow',
+  'd3-drag',
+  'playwright',
+  'playwright-core',
+  'source-map',
+  'sharp',
+];
 const BENCH_SPECIFIER = new RegExp(`['"](${BENCH_ONLY.join('|')})(/[^'"]*)?['"]`, 'g');
 
 /**

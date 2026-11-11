@@ -9,6 +9,7 @@ import {
   pagePath,
   partMarkdown,
   openingOf,
+  pictureSources,
   removablePage,
   spansMarkdown,
   topicMarkdown,
@@ -170,7 +171,7 @@ describe('topicMarkdown', () => {
       },
     ],
   };
-  const page = (hasPicture) =>
+  const page = (hasPicture, animated = false) =>
     topicMarkdown({
       topic: { id: 'switch', label: 'Switch', parts: ['NeatSwitch'], leads: ['NeatSwitch'] },
       group: { id: 'components', label: 'Components' },
@@ -179,7 +180,7 @@ describe('topicMarkdown', () => {
       declared: (name) =>
         name === 'NeatSwitch' ? { part, entryImport: '@sima/neat-ui/switch' } : {},
       link: noLinks,
-      pictureWidth: () => (hasPicture ? 300 : 0),
+      pictureOf: () => (hasPicture ? { width: 300, animated } : null),
     });
 
   it('opens with the lead’s first paragraph, its picture and its import', () => {
@@ -206,6 +207,42 @@ describe('topicMarkdown', () => {
 
   it('leaves the pictures out until they are taken', () => {
     assert.doesNotMatch(page(false), /<picture>/);
+  });
+
+  it('shows a taken animation, and the still to a reader who asked for reduced motion', () => {
+    const markdown = page(true, true);
+    const still = '../images/switch/on-and-off';
+    assert.ok(
+      markdown.includes(
+        [
+          '<picture>',
+          `<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="${still}.dark.webp">`,
+          `<source media="(prefers-reduced-motion: reduce)" srcset="${still}.light.webp">`,
+          `<source media="(prefers-color-scheme: dark)" srcset="${still}.dark.animated.webp">`,
+          `<img src="${still}.light.animated.webp" alt="Switch: On and off" width="300">`,
+          '</picture>',
+        ].join('\n'),
+      ),
+    );
+    assert.doesNotMatch(page(true), /animated|reduced-motion/);
+  });
+});
+
+describe('pictureSources', () => {
+  it('gives the still in both schemes', () => {
+    assert.deepEqual(pictureSources('i/a/b'), {
+      sources: ['<source media="(prefers-color-scheme: dark)" srcset="i/a/b.dark.webp">'],
+      img: 'i/a/b.light.webp',
+    });
+  });
+
+  it('puts the reduced-motion stills before the animation, since the first match wins', () => {
+    const { sources, img } = pictureSources('i/a/b', true);
+    assert.deepEqual(
+      sources.map((source) => source.match(/srcset="([^"]+)"/)[1]),
+      ['i/a/b.dark.webp', 'i/a/b.light.webp', 'i/a/b.dark.animated.webp'],
+    );
+    assert.equal(img, 'i/a/b.light.animated.webp');
   });
 });
 

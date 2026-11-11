@@ -120,6 +120,7 @@ test('check-dist fails when any file imports a bench-only package', () => {
     'playwright',
     'playwright-core',
     'source-map',
+    'sharp',
   ]);
   const imports = [
     (name) => `import { x } from '${name}';\n`,

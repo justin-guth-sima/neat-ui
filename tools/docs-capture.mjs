@@ -1,10 +1,12 @@
 /*
  * Pictures of the showcase's examples for the Markdown docs: each example's live area, in light
- * and in dark, as WebP under `docs/images/<topic>/<example>.<scheme>.webp`.
+ * and in dark, as WebP under `docs/images/<topic>/<example>.<scheme>.webp`, and for an example
+ * marked `@animated` an animation of it as well, `<example>.<scheme>.animated.webp`.
  *
  *   npm run docs:capture                         build the showcase, then capture every example
  *   npm run docs:capture -- --topic button,bev   only these topics
  *   npm run docs:capture -- --gallery            only the README gallery's pictures (`@gallery`)
+ *   npm run docs:capture -- --only animations    only the animations (or `stills`)
  *   node tools/docs-capture.mjs --help           the options, without building first
  *
  * How it works: it serves the built showcase (`dist/showcase/browser`) on a local port and opens
@@ -26,15 +28,27 @@
  * live area's rounded corners are cut out of the picture, transparent, so it sits on GitHub's page
  * in either theme without the showcase's card around it.
  *
- * It never fails over sizes: past the budget (per picture and in all) it warns, since a picture a
- * little over is better than none. Nor does it delete: a picture under `docs/images` that no
- * example produced (its example was renamed or removed) is listed for you to delete.
+ * An animation (`@animated`, for an example whose point is motion: a live chart, the bird's-eye
+ * view) is taken in a context of its own, without reduced motion, under Playwright's fake clock:
+ * after the example settles, the clock is paused and stepped one frame at a time (`animation`),
+ * and the page's CSS animations are stepped with it, so every frame is the same time apart
+ * whatever a screenshot costs. Each frame is cut to the still's framing in Chrome, losslessly
+ * (PNG), and sharp (libwebp) joins the frames into a lossless animated WebP at its slowest,
+ * smallest setting: the kit's flat colors and sharp edges come out smaller lossless than lossy,
+ * and with no artifacts. The animation is taken at the stills' pixel ratio, so the docs show both
+ * at one width. Media that plays on the browser's own clock (a `<video>`) is not stepped.
+ *
+ * It never fails over sizes: past the budget (per picture, per animation and in all) it warns,
+ * since a picture a little over is better than none. Nor does it delete: a picture under
+ * `docs/images` that no example produced (its example was renamed or removed) is listed for you
+ * to delete.
  */
 import { createReadStream } from 'node:fs';
 import { mkdir, readdir, stat, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pictureFile } from './docs-pages.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
@@ -49,10 +63,21 @@ export const DEFAULTS = {
   quality: 0.85,
   /** How long an example runs before its picture is taken, so live data has arrived. */
   settleMs: 1200,
+  /** An animation's length and frames per second; it loops. */
+  animation: { ms: 4000, fps: 10 },
   channel: 'chrome',
-  /** Warn past these: one picture, and all of them together. */
-  budget: { pictureBytes: 150 * 1024, totalBytes: 25 * 1024 * 1024 },
+  /** What to take: `all`, `stills` or `animations`. */
+  only: 'all',
+  /** Warn past these: one picture, one animation, and all of them together. */
+  budget: {
+    pictureBytes: 150 * 1024,
+    animationBytes: 400 * 1024,
+    totalBytes: 40 * 1024 * 1024,
+  },
 };
+
+/** What `--only` takes. */
+export const TAKES = ['all', 'stills', 'animations'];
 
 export const SCHEMES = ['light', 'dark'];
 
@@ -65,11 +90,13 @@ const DOCS_ASIDE_OPEN_KEY = 'neat-ui-showcase:docs-aside-open';
 
 const HELP = `Usage: node tools/docs-capture.mjs [options]
 
-Captures every example of the built showcase in light and dark as WebP under docs/images.
-Build the showcase first (npm run docs:capture does both).
+Captures every example of the built showcase in light and dark as WebP under docs/images,
+and animates the examples marked @animated. Build the showcase first (npm run docs:capture
+does both).
 
   --topic <ids>      only these topics, comma-separated (button,bev)
   --gallery          only the examples marked @gallery, the README gallery's pictures
+  --only <what>      stills or animations (the @animated examples'); both by default
   --out <dir>        where the pictures go (${DEFAULTS.out})
   --dist <dir>       the built showcase (${DEFAULTS.dist})
   --channel <name>   Playwright's browser channel (${DEFAULTS.channel}: the installed Google
@@ -90,7 +117,10 @@ export function parseArgs(argv) {
     if (arg === '--help' || arg === '-h') options.help = true;
     else if (arg === '--topic') options.topics = value().split(',').filter(Boolean);
     else if (arg === '--gallery') options.gallery = true;
-    else if (arg === '--out') options.out = value();
+    else if (arg === '--only') {
+      options.only = value();
+      if (!TAKES.includes(options.only)) throw new Error(`--only takes ${TAKES.join(', ')}`);
+    } else if (arg === '--out') options.out = value();
     else if (arg === '--dist') options.dist = value();
     else if (arg === '--channel') options.channel = value();
     else if (arg === '--settle') {
@@ -116,16 +146,24 @@ export function topicsToCapture(groups, placedTopics, only = null) {
     .map(({ topic, path }) => ({ id: topic.id, path }));
 }
 
-/** Where an example's picture goes, relative to the output folder. */
-export const picturePath = (topic, example, scheme) => `${topic}/${example}.${scheme}.webp`;
+/**
+ * Where an example's picture goes, relative to the output folder, or its animation's: the names
+ * docs:pages and the README's gallery read (`pictureFile` in `docs-pages.mjs`).
+ */
+export const picturePath = (topic, example, scheme, animated = false) =>
+  pictureFile(`${topic}/${example}`, scheme, animated);
 
-/** The warnings for pictures past the budget, biggest first, then one for the total. */
+/**
+ * The warnings for pictures past the budget (an animation's, `animated`, is its own), biggest
+ * first, then one for the total.
+ */
 export function budgetWarnings(pictures, budget = DEFAULTS.budget) {
   const kb = (bytes) => `${Math.round(bytes / 1024)} kB`;
+  const limit = ({ animated }) => (animated ? budget.animationBytes : budget.pictureBytes);
   const warnings = [...pictures]
-    .filter(({ bytes }) => bytes > budget.pictureBytes)
+    .filter((picture) => picture.bytes > limit(picture))
     .sort((a, b) => b.bytes - a.bytes)
-    .map(({ path, bytes }) => `${path} is ${kb(bytes)}, over ${kb(budget.pictureBytes)}`);
+    .map((picture) => `${picture.path} is ${kb(picture.bytes)}, over ${kb(limit(picture))}`);
   const total = pictures.reduce((sum, { bytes }) => sum + bytes, 0);
   if (total > budget.totalBytes) {
     warnings.push(`the pictures are ${kb(total)} in all, over ${kb(budget.totalBytes)}`);
@@ -282,9 +320,10 @@ async function filesUnder(dir) {
 /**
  * In the page: the PNG (base64) as WebP (base64), cut to `crop` (CSS px of the PNG; all of it when
  * null) and drawn only inside `shapes` (rounded boxes in CSS px of the crop), the rest transparent.
- * Runs in Chrome, whose canvas encodes WebP.
+ * Runs in Chrome, whose canvas encodes WebP; `type` `image/png` keeps an animation's frame
+ * lossless for sharp.
  */
-async function encodeInPage({ png, crop, shapes, dpr, quality }) {
+async function encodeInPage({ png, crop, shapes, dpr, quality, type = 'image/webp' }) {
   const bytes = Uint8Array.from(atob(png), (c) => c.charCodeAt(0));
   const image = await createImageBitmap(new Blob([bytes], { type: 'image/png' }));
   const cut = crop
@@ -303,8 +342,8 @@ async function encodeInPage({ png, crop, shapes, dpr, quality }) {
   }
   context.clip();
   context.drawImage(image, -cut.x, -cut.y);
-  const blob = await canvas.convertToBlob({ type: 'image/webp', quality });
-  if (blob.type !== 'image/webp') throw new Error(`the browser encoded ${blob.type}, not WebP`);
+  const blob = await canvas.convertToBlob({ type, quality });
+  if (blob.type !== type) throw new Error(`the browser encoded ${blob.type}, not ${type}`);
   const out = new Uint8Array(await blob.arrayBuffer());
   let text = '';
   for (let i = 0; i < out.length; i += 0x8000) {
@@ -448,6 +487,29 @@ async function settle(page, ms) {
   await page.waitForTimeout(ms);
 }
 
+/**
+ * The part of an example's area its picture shows, as `crop` (CSS px of the area's screenshot)
+ * and the rounded `shape` drawn inside it: the area trimmed to what the example draws (`trim`),
+ * or the whole area. A still and its animation are framed alike.
+ */
+async function areaFrame(page, area, selector, trim) {
+  const box = await area.boundingBox();
+  const framed = await page.evaluate(framingInPage, { selector, trim });
+  const part = trimToContent(framed.area, framed.content, framed.inset);
+  return {
+    crop: { x: part.x - box.x, y: part.y - box.y, width: part.width, height: part.height },
+    shape: { x: 0, y: 0, width: part.width, height: part.height, radius: part.radius },
+  };
+}
+
+/** In the page: pauses every CSS animation and moves it on by `ms`, as the fake clock moves. */
+function stepAnimationsInPage(ms) {
+  for (const animation of document.getAnimations()) {
+    animation.pause();
+    animation.currentTime = Number(animation.currentTime ?? 0) + ms;
+  }
+}
+
 /** Captures one scheme of every topic; resolves with the pictures written. */
 async function captureScheme(browser, run) {
   const { scheme, url, topics, examplesOf, options, encoder, log } = run;
@@ -496,10 +558,7 @@ async function captureScheme(browser, run) {
       // The area alone, whole even when it is taller than the viewport, then cut to its part.
       await area.scrollIntoViewIfNeeded();
       await settle(page, options.settleMs);
-      const box = await area.boundingBox();
-      const { area: part } = await framing();
-      const crop = { x: part.x - box.x, y: part.y - box.y, width: part.width, height: part.height };
-      const shape = { x: 0, y: 0, width: part.width, height: part.height, radius: part.radius };
+      const { crop, shape } = await areaFrame(page, area, selector, trim);
       await write(topic.id, example.id, await area.screenshot(), crop, [shape]);
       return false;
     }
@@ -537,6 +596,89 @@ async function captureScheme(browser, run) {
   return pictures;
 }
 
+/**
+ * Animates one scheme of every `@animated` example of `topics`; resolves with the animations
+ * written. The examples run as they would for a reader, without reduced motion, under the fake
+ * clock: real time until each has settled, then paused and stepped a frame at a time.
+ */
+async function animateScheme(browser, run) {
+  const { scheme, url, topics, examplesOf, options, encoder, log } = run;
+  const { default: sharp } = await import('sharp');
+  const context = await browser.newContext({
+    viewport: options.viewport,
+    deviceScaleFactor: options.dpr,
+    reducedMotion: 'no-preference',
+    colorScheme: scheme,
+  });
+  await context.addInitScript(
+    ([schemeKey, scheme, asideKey]) => {
+      localStorage.setItem(schemeKey, scheme);
+      localStorage.setItem(asideKey, 'false');
+    },
+    [SCHEME_KEY, scheme, DOCS_ASIDE_OPEN_KEY],
+  );
+  await context.clock.install();
+  const page = await context.newPage();
+  page.on('pageerror', (error) => log(`  page error: ${error.message}`));
+  const step = Math.round(1000 / options.animation.fps);
+  const count = Math.max(1, Math.round(options.animation.ms / step));
+  const animations = [];
+
+  const animate = async (topic, example, selector, trim) => {
+    const area = page.locator(selector).first();
+    await area.scrollIntoViewIfNeeded();
+    await settle(page, options.settleMs);
+    await page.clock.pauseAt((await page.evaluate(() => Date.now())) + step);
+    const { crop, shape } = await areaFrame(page, area, selector, trim);
+    const frames = [];
+    for (let i = 0; i < count; i++) {
+      const png = await encoder.evaluate(encodeInPage, {
+        png: (await area.screenshot()).toString('base64'),
+        crop,
+        shapes: [shape],
+        dpr: options.dpr,
+        type: 'image/png',
+      });
+      frames.push(Buffer.from(png, 'base64'));
+      await page.clock.runFor(step);
+      await page.evaluate(stepAnimationsInPage, step);
+    }
+    await page.clock.resume();
+    const bytes = await sharp(frames, { join: { animated: true } })
+      .webp({ lossless: true, effort: 6, minSize: true, loop: 0, delay: frames.map(() => step) })
+      .toBuffer();
+    const path = picturePath(topic.id, example.id, scheme, true);
+    await mkdir(join(options.out, topic.id), { recursive: true });
+    await writeFile(join(options.out, path), bytes);
+    animations.push({ path, bytes: bytes.length, animated: true });
+  };
+
+  for (const topic of topics) {
+    const wanted = (example) => {
+      const read = examplesOf.get(`${topic.id}/${example.id}`);
+      return read?.animated && (!options.gallery || read.gallery);
+    };
+    await page.goto(`${url}${topic.path}`);
+    await page.locator('app-example-card article').first().waitFor();
+    const examples = (await page.evaluate(examplesInPage)).filter(wanted);
+    for (const example of examples.filter((e) => e.live)) {
+      await animate(
+        topic,
+        example,
+        `app-example-card article:has(h3#example-${example.id}) .live`,
+        true,
+      );
+    }
+    for (const example of examples.filter((e) => e.page)) {
+      await page.goto(`${url}${example.page}`);
+      await animate(topic, example, 'main.content', false);
+    }
+    if (examples.length) log(`  ${scheme} ${topic.id}: ${examples.length} animated`);
+  }
+  await context.close();
+  return animations;
+}
+
 /** Each example as docs:emit reads it (its `capture` and `gallery`), by `<topic>/<example>`. */
 async function readExamples() {
   const { extractExamples } = await import('./docs-emit.mjs');
@@ -555,9 +697,10 @@ export async function capture(options, log = console.log) {
     import('playwright'),
   ]);
   const examplesOf = await readExamples();
-  const picked = new Set(
-    [...examplesOf].filter(([, e]) => e.gallery).map(([key]) => key.split('/')[0]),
-  );
+  const topicsWith = (has) =>
+    new Set([...examplesOf].filter(([, e]) => has(e)).map(([key]) => key.split('/')[0]));
+  const picked = topicsWith((e) => e.gallery);
+  const moving = topicsWith((e) => e.animated && (!options.gallery || e.gallery));
   const topics = topicsToCapture(GROUPS, placedTopics, options.topics).filter(
     ({ id }) => !options.gallery || picked.has(id),
   );
@@ -578,13 +721,21 @@ export async function capture(options, log = console.log) {
     for (const scheme of SCHEMES) {
       const run = { scheme, url: server.url, topics, examplesOf, encoder, log };
       run.options = { ...options, out };
-      pictures.push(...(await captureScheme(browser, run)));
+      if (options.only !== 'animations') pictures.push(...(await captureScheme(browser, run)));
+      if (options.only !== 'stills') {
+        run.topics = topics.filter(({ id }) => moving.has(id));
+        pictures.push(...(await animateScheme(browser, run)));
+      }
     }
     const total = pictures.reduce((sum, { bytes }) => sum + bytes, 0);
-    log(`Wrote ${pictures.length} pictures, ${Math.round(total / 1024)} kB, to ${options.out}`);
+    const animated = pictures.filter((picture) => picture.animated).length;
+    log(
+      `Wrote ${pictures.length - animated} pictures and ${animated} animations, ` +
+        `${Math.round(total / 1024)} kB, to ${options.out}`,
+    );
     for (const warning of budgetWarnings(pictures, options.budget)) log(`warning: ${warning}`);
     // Only a whole run knows every picture; a part of one would call the rest stale.
-    if (!options.topics && !options.gallery) {
+    if (!options.topics && !options.gallery && options.only === 'all') {
       const stale = stalePictures(
         await filesUnder(out),
         pictures.map(({ path }) => path),

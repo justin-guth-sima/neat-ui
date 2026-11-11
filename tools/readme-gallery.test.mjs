@@ -96,6 +96,17 @@ describe('galleryMarkdown', () => {
     assert.match(text, /alt="Popover: Menu &amp; more"/);
   });
 
+  it('shows a pick’s animation where it is taken, and its still with reduced motion', () => {
+    const moving = galleryMarkdown({ sections, picks, animated: (topic) => topic === 'toast' });
+    assert.match(
+      moving,
+      /<source media="\(prefers-reduced-motion: reduce\)" srcset="docs\/images\/toast\/kinds\.light\.webp">/,
+    );
+    assert.match(moving, /<img src="docs\/images\/toast\/kinds\.light\.animated\.webp"/);
+    assert.match(moving, /<img src="docs\/images\/button\/variants\.light\.webp"/);
+    assert.doesNotMatch(text, /animated|reduced-motion/);
+  });
+
   it('names the topics without a pick under their section, linked where they have a page', () => {
     assert.match(text, /^Also: \[Motion\]\(docs\/components\/motion\.md\)\.$/m);
     assert.match(text, /^### Theme\n\nIn this section: Tokens\.$/m);
