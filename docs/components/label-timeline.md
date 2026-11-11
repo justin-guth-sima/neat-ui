@@ -17,8 +17,10 @@ A classifier's recent results as a strip of colored runs, newest at the right:
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/label-timeline/name-rows.dark.webp">
-<img src="../images/label-timeline/name-rows.light.webp" alt="Label timeline: Name rows" width="900">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/label-timeline/label-timeline.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/label-timeline/label-timeline.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/label-timeline/label-timeline.dark.animated.webp">
+<img src="../images/label-timeline/label-timeline.light.animated.webp" alt="Label timeline: Gesture timeline" width="900">
 </picture>
 
 ```ts
@@ -40,8 +42,10 @@ Try pointing at a run, a quiet one too, or focus a strip and use the arrow keys.
 Runs that have left the window are dropped here. The timeline clips what it is given, but the app is what knows it will not need them again.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/label-timeline/label-timeline.dark.webp">
-<img src="../images/label-timeline/label-timeline.light.webp" alt="Label timeline: Gesture timeline" width="900">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/label-timeline/label-timeline.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/label-timeline/label-timeline.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/label-timeline/label-timeline.dark.animated.webp">
+<img src="../images/label-timeline/label-timeline.light.animated.webp" alt="Label timeline: Gesture timeline" width="900">
 </picture>
 
 <details>

@@ -7,6 +7,7 @@ import { NeatLevelMeter } from '@sima/neat-ui/level-meter';
  * goes dark.
  *
  * @gallery
+ * @animated
  */
 @Component({
   selector: 'app-sine-wave',

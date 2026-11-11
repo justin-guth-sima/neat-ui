@@ -8,6 +8,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "title": "Badges",
     "component": Badges,
     "gallery": true,
+    "animated": true,
     "caption": [
       {
         "kind": "paragraph",

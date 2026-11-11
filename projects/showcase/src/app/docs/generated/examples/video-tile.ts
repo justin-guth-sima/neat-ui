@@ -131,6 +131,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "title": "Poses",
     "component": Poses,
     "gallery": true,
+    "animated": true,
     "caption": [
       {
         "kind": "paragraph",

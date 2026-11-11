@@ -25,6 +25,9 @@ const HELD_MS = 5000;
  *
  * Runs that have left the window are dropped here. The timeline clips what it is given, but the app
  * is what knows it will not need them again.
+ *
+ * @gallery
+ * @animated
  */
 @Component({
   selector: 'app-gesture-timeline',

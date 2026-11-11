@@ -32,6 +32,7 @@ import { PoseSource } from './pose-source';
  * messages outside Angular, so it writes its signal only when the count changes.
  *
  * @gallery
+ * @animated
  */
 @Component({
   selector: 'app-poses',

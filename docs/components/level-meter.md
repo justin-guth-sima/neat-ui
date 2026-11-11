@@ -11,8 +11,10 @@ A live audio level, as a bar of segments.
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/level-meter/sine-wave.dark.webp">
-<img src="../images/level-meter/sine-wave.light.webp" alt="Level meter: Sine wave" width="480">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/level-meter/sine-wave.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/level-meter/sine-wave.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/level-meter/sine-wave.dark.animated.webp">
+<img src="../images/level-meter/sine-wave.light.animated.webp" alt="Level meter: Sine wave" width="480">
 </picture>
 
 ```ts
@@ -26,8 +28,10 @@ import { NeatLevelMeter } from '@sima/neat-ui/level-meter';
 A meter fed a sine wave, as a microphone test is fed a level. Stop passes `null` and the meter goes dark.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/level-meter/sine-wave.dark.webp">
-<img src="../images/level-meter/sine-wave.light.webp" alt="Level meter: Sine wave" width="480">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/level-meter/sine-wave.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/level-meter/sine-wave.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/level-meter/sine-wave.dark.animated.webp">
+<img src="../images/level-meter/sine-wave.light.animated.webp" alt="Level meter: Sine wave" width="480">
 </picture>
 
 <details>

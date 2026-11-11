@@ -11,8 +11,10 @@ Plays a source's video, with its metadata drawn over it as overlays.
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/video-tile/poses.dark.webp">
-<img src="../images/video-tile/poses.light.webp" alt="Video tile: Poses" width="416">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/video-tile/poses.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/video-tile/poses.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/video-tile/poses.dark.animated.webp">
+<img src="../images/video-tile/poses.light.animated.webp" alt="Video tile: Poses" width="416">
 </picture>
 
 ```ts
@@ -249,8 +251,10 @@ Try the switches. Boxes shows and hides the box and label plate around each pose
 The line under the switches is fed by the tile's `frameListener`. It gets each frame's matched messages outside Angular, so it writes its signal only when the count changes.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/video-tile/poses.dark.webp">
-<img src="../images/video-tile/poses.light.webp" alt="Video tile: Poses" width="416">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/video-tile/poses.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/video-tile/poses.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/video-tile/poses.dark.animated.webp">
+<img src="../images/video-tile/poses.light.animated.webp" alt="Video tile: Poses" width="416">
 </picture>
 
 <details>

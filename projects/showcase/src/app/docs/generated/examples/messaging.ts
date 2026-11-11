@@ -8,6 +8,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "title": "Live pipeline",
     "component": LivePipeline,
     "gallery": true,
+    "animated": true,
     "caption": [
       {
         "kind": "paragraph",

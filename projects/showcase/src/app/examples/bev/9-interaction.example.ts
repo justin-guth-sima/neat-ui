@@ -37,6 +37,7 @@ const VEHICLES = new Set(['car', 'truck', 'bicycle']);
  * The objects carry their tracks' ids, so a car is the same car from frame to frame.
  *
  * @gallery
+ * @animated
  */
 @Component({
   selector: 'app-interaction',

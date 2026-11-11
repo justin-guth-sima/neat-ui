@@ -44,15 +44,19 @@ every other Neat app, in light and dark.
 </td>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/score-bars.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/score-bars/score-bars.dark.webp">
-<img src="docs/images/score-bars/score-bars.light.webp" alt="Score bars: Gesture scores">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="docs/images/score-bars/score-bars.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="docs/images/score-bars/score-bars.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/score-bars/score-bars.dark.animated.webp">
+<img src="docs/images/score-bars/score-bars.light.animated.webp" alt="Score bars: Gesture scores">
 </picture></a><br>
 <a href="docs/components/score-bars.md"><b>Score bars</b></a>
 </td>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/label-timeline.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/label-timeline/name-rows.dark.webp">
-<img src="docs/images/label-timeline/name-rows.light.webp" alt="Label timeline: Name rows">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="docs/images/label-timeline/label-timeline.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="docs/images/label-timeline/label-timeline.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/label-timeline/label-timeline.dark.animated.webp">
+<img src="docs/images/label-timeline/label-timeline.light.animated.webp" alt="Label timeline: Gesture timeline">
 </picture></a><br>
 <a href="docs/components/label-timeline.md"><b>Label timeline</b></a>
 </td>
@@ -74,8 +78,10 @@ every other Neat app, in light and dark.
 </td>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/bev.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/bev/interaction.dark.webp">
-<img src="docs/images/bev/interaction.light.webp" alt="Bird's-eye view: Interaction">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="docs/images/bev/interaction.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="docs/images/bev/interaction.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/bev/interaction.dark.animated.webp">
+<img src="docs/images/bev/interaction.light.animated.webp" alt="Bird's-eye view: Interaction">
 </picture></a><br>
 <a href="docs/components/bev.md"><b>Bird's-eye view</b></a>
 </td>
@@ -95,8 +101,10 @@ every other Neat app, in light and dark.
 </td>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/messaging.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/messaging/live-pipeline.dark.webp">
-<img src="docs/images/messaging/live-pipeline.light.webp" alt="Messaging: Live pipeline">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="docs/images/messaging/live-pipeline.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="docs/images/messaging/live-pipeline.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/messaging/live-pipeline.dark.animated.webp">
+<img src="docs/images/messaging/live-pipeline.light.animated.webp" alt="Messaging: Live pipeline">
 </picture></a><br>
 <a href="docs/components/messaging.md"><b>Messaging</b></a>
 </td>
@@ -118,8 +126,10 @@ Also: [Legend](docs/components/legend.md).
 <tr>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/video-tile.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/video-tile/poses.dark.webp">
-<img src="docs/images/video-tile/poses.light.webp" alt="Video tile: Poses">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="docs/images/video-tile/poses.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="docs/images/video-tile/poses.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/video-tile/poses.dark.animated.webp">
+<img src="docs/images/video-tile/poses.light.animated.webp" alt="Video tile: Poses">
 </picture></a><br>
 <a href="docs/components/video-tile.md"><b>Video tile</b></a>
 </td>
@@ -339,8 +349,10 @@ In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [As
 <tr>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/live-dot.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/live-dot/badges.dark.webp">
-<img src="docs/images/live-dot/badges.light.webp" alt="Live dot: Badges">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="docs/images/live-dot/badges.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="docs/images/live-dot/badges.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/live-dot/badges.dark.animated.webp">
+<img src="docs/images/live-dot/badges.light.animated.webp" alt="Live dot: Badges">
 </picture></a><br>
 <a href="docs/components/live-dot.md"><b>Live dot</b></a>
 </td>
@@ -353,8 +365,10 @@ In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [As
 </td>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/level-meter.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/level-meter/sine-wave.dark.webp">
-<img src="docs/images/level-meter/sine-wave.light.webp" alt="Level meter: Sine wave">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="docs/images/level-meter/sine-wave.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="docs/images/level-meter/sine-wave.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/level-meter/sine-wave.dark.animated.webp">
+<img src="docs/images/level-meter/sine-wave.light.animated.webp" alt="Level meter: Sine wave">
 </picture></a><br>
 <a href="docs/components/level-meter.md"><b>Level meter</b></a>
 </td>

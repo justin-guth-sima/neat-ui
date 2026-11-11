@@ -9,6 +9,8 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "label-timeline",
     "title": "Gesture timeline",
     "component": GestureTimeline,
+    "gallery": true,
+    "animated": true,
     "caption": [
       {
         "kind": "paragraph",
@@ -178,7 +180,6 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "name-rows",
     "title": "Name rows",
     "component": NameRows,
-    "gallery": true,
     "caption": [
       {
         "kind": "paragraph",

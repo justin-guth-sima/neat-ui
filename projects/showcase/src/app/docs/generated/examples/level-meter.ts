@@ -8,6 +8,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "title": "Sine wave",
     "component": SineWave,
     "gallery": true,
+    "animated": true,
     "caption": [
       {
         "kind": "paragraph",

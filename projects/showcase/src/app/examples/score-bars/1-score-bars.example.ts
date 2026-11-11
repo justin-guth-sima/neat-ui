@@ -19,6 +19,7 @@ import { CLASSES, NO_GESTURE, scoresAt } from './data';
  * timeline's runs or a caption, shows a class in the same color.
  *
  * @gallery
+ * @animated
  */
 @Component({
   selector: 'app-gesture-scores',

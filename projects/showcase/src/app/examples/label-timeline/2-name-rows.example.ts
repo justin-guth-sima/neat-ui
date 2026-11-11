@@ -13,8 +13,6 @@ const WINDOW_MS = 30_000;
  *
  * `labelRows` of 2 names about twice as many. A name that fits in no row is left out, and the
  * readout and the screen reader's list still say it.
- *
- * @gallery
  */
 @Component({
   selector: 'app-name-rows',

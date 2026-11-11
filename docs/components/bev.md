@@ -11,8 +11,10 @@ A bird's-eye view: what a vehicle sees around it, drawn from above.
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/bev/interaction.dark.webp">
-<img src="../images/bev/interaction.light.webp" alt="Bird's-eye view: Interaction" width="900">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/bev/interaction.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/bev/interaction.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/bev/interaction.dark.animated.webp">
+<img src="../images/bev/interaction.light.animated.webp" alt="Bird's-eye view: Interaction" width="900">
 </picture>
 
 ```ts
@@ -30,8 +32,10 @@ It has rings every 10 m out to the 60 m range, and spokes every 30°. The drivab
 Each label takes its color from the page's class colors, as a video tile's classes do. Everything stops at the circle, and the guides lie over the data. Try hovering or tapping a box to read it out.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/bev/round.dark.webp">
-<img src="../images/bev/round.light.webp" alt="Bird's-eye view: Round" width="900">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/bev/round.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/bev/round.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/bev/round.dark.animated.webp">
+<img src="../images/bev/round.light.animated.webp" alt="Bird's-eye view: Round" width="900">
 </picture>
 
 <details>
@@ -3684,8 +3688,10 @@ Its list of the vehicles is bound to `hovered` both ways. Try hovering a car in 
 The objects carry their tracks' ids, so a car is the same car from frame to frame.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/bev/interaction.dark.webp">
-<img src="../images/bev/interaction.light.webp" alt="Bird's-eye view: Interaction" width="900">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/bev/interaction.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/bev/interaction.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/bev/interaction.dark.animated.webp">
+<img src="../images/bev/interaction.light.animated.webp" alt="Bird's-eye view: Interaction" width="900">
 </picture>
 
 <details>

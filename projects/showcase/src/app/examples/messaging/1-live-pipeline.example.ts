@@ -63,6 +63,7 @@ const BURST_MESSAGES = 400;
  * was panned or zoomed.
  *
  * @gallery
+ * @animated
  */
 @Component({
   selector: 'app-live-pipeline',

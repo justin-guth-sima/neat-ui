@@ -13,8 +13,10 @@ The messages moving through a diagram, projected into it:
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/messaging/live-pipeline.dark.webp">
-<img src="../images/messaging/live-pipeline.light.webp" alt="Messaging: Live pipeline" width="900">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/messaging/live-pipeline.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/messaging/live-pipeline.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/messaging/live-pipeline.dark.animated.webp">
+<img src="../images/messaging/live-pipeline.light.animated.webp" alt="Messaging: Live pipeline" width="900">
 </picture>
 
 ```ts
@@ -36,8 +38,10 @@ The Animation panel tunes the dots, its choice kept per browser with [`neatStore
 The top bar's Fit calls [`NeatDiagramView.fit`](../components/diagram.md#neatdiagramview), which fits the drawing to its box again after it was panned or zoomed.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/messaging/live-pipeline.dark.webp">
-<img src="../images/messaging/live-pipeline.light.webp" alt="Messaging: Live pipeline" width="900">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/messaging/live-pipeline.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/messaging/live-pipeline.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/messaging/live-pipeline.dark.animated.webp">
+<img src="../images/messaging/live-pipeline.light.animated.webp" alt="Messaging: Live pipeline" width="900">
 </picture>
 
 <details>

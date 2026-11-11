@@ -11,8 +11,10 @@ A small red dot that says something is live or recording.
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/live-dot/badges.dark.webp">
-<img src="../images/live-dot/badges.light.webp" alt="Live dot: Badges" width="308">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/live-dot/badges.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/live-dot/badges.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/live-dot/badges.dark.animated.webp">
+<img src="../images/live-dot/badges.light.animated.webp" alt="Live dot: Badges" width="308">
 </picture>
 
 ```ts
@@ -26,8 +28,10 @@ import { NeatLiveDot } from '@sima/neat-ui';
 A still dot, a pulsing one before "Recording 0:34", and a pulsing one in a badge on the video scrim.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/live-dot/badges.dark.webp">
-<img src="../images/live-dot/badges.light.webp" alt="Live dot: Badges" width="308">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/live-dot/badges.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/live-dot/badges.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/live-dot/badges.dark.animated.webp">
+<img src="../images/live-dot/badges.light.animated.webp" alt="Live dot: Badges" width="308">
 </picture>
 
 <details>

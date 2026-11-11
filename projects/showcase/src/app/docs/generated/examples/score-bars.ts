@@ -9,6 +9,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "title": "Gesture scores",
     "component": GestureScores,
     "gallery": true,
+    "animated": true,
     "caption": [
       {
         "kind": "paragraph",

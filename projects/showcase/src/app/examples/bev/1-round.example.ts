@@ -13,6 +13,8 @@ import { streetFrames } from './scene';
  * Each label takes its color from the page's class colors, as a video tile's classes do. Everything
  * stops at the circle, and the guides lie over the data. Try hovering or tapping a box to read it
  * out.
+ *
+ * @animated
  */
 @Component({
   selector: 'app-round',

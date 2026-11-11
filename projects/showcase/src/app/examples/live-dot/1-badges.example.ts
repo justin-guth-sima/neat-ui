@@ -6,6 +6,7 @@ import { NeatLiveDot } from '@sima/neat-ui';
  * scrim.
  *
  * @gallery
+ * @animated
  */
 @Component({
   selector: 'app-badges',

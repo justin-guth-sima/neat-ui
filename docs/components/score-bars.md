@@ -16,8 +16,10 @@ A classifier's live output, one bar per class:
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/score-bars/score-bars.dark.webp">
-<img src="../images/score-bars/score-bars.light.webp" alt="Score bars: Gesture scores" width="900">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/score-bars/score-bars.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/score-bars/score-bars.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/score-bars/score-bars.dark.animated.webp">
+<img src="../images/score-bars/score-bars.light.animated.webp" alt="Score bars: Gesture scores" width="900">
 </picture>
 
 ```ts
@@ -35,8 +37,10 @@ The output of a gesture classifier: a score per IPN Hand class, changing every 1
 The line below the bars colors its dot with [`neatLabelColor`](../components/score-bars.md#neatlabelcolor). So text outside the bars, such as a timeline's runs or a caption, shows a class in the same color.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/score-bars/score-bars.dark.webp">
-<img src="../images/score-bars/score-bars.light.webp" alt="Score bars: Gesture scores" width="900">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/score-bars/score-bars.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/score-bars/score-bars.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/score-bars/score-bars.dark.animated.webp">
+<img src="../images/score-bars/score-bars.light.animated.webp" alt="Score bars: Gesture scores" width="900">
 </picture>
 
 <details>
