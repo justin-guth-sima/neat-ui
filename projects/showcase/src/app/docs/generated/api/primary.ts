@@ -391,7 +391,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Base of the series teal: the teal of Justin's colors mockup, a hue the palette lacks."
+              "text": "Base of the series teal, taken from the colors mockup: a hue the palette lacks."
             }
           ]
         },

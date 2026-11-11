@@ -3,9 +3,9 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 /**
  * The SiMa.ai icon mark from the brand folder ("Icon Only", Small, with the stylesheet classes
  * inlined as `fill` attributes), in full color in both schemes. The brand folder also has a white
- * variant for dark backgrounds, where the mark's near-black shapes vanish; Justin chose the plain
- * colored mark on the dark top bar all the same (2026-10-30), so there is one mark and nothing
- * here follows the scheme. Its fills are the brand asset itself, not theme styling, so they stay
+ * variant for dark backgrounds, where the mark's near-black shapes vanish; the maintainer chose
+ * the plain colored mark on the dark top bar all the same (2026-10-30), so there is one mark and
+ * nothing here follows the scheme. Its fills are the brand asset itself, not theme styling, so they stay
  * literal here. Internal to the shell.
  */
 @Component({

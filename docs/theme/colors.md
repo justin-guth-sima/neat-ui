@@ -941,7 +941,7 @@ const NEAT_WARN_BASE: "#E9A23B"
 
 Constant from `@sima/neat-ui`.
 
-Base of the series teal: the teal of Justin's colors mockup, a hue the palette lacks.
+Base of the series teal, taken from the colors mockup: a hue the palette lacks.
 
 Chart series need a fourth hue next to blue, purple and orange that is not a status color. Green, amber and red stay free to mean status.
 
