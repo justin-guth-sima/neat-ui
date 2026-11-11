@@ -36,9 +36,7 @@ import { NeatTooltip } from '../tooltip/tooltip';
 @Injectable({ providedIn: 'root' })
 export class AsideToggleSlot extends ShellSlot {
   constructor() {
-    super(
-      'neat-ui: only one aside toggle at a time; remove the other neat-aside-toggle first.',
-    );
+    super('neat-ui: only one aside toggle at a time; remove the other neat-aside-toggle first.');
   }
 }
 
