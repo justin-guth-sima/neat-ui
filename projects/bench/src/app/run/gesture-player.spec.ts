@@ -41,7 +41,7 @@ beforeEach(allowEventView);
 afterEach(() => vi.unstubAllGlobals());
 
 /**
- * Leaves fake timers with d3's own timeouts run. At the end of a drag d3 puts a click-cancelling
+ * Leaves fake timers with d3's own timeouts run. At the end of a drag d3 puts a click-canceling
  * listener on the window and takes it off in a `setTimeout`; dropped with the fake timers, that
  * listener would stay on the test environment's window, which later spec files share (the test
  * builder does not isolate them), and swallow every click there.
