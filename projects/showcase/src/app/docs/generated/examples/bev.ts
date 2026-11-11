@@ -1675,6 +1675,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "polygons",
     "title": "Polygons",
     "component": Polygons,
+    "animated": true,
     "caption": [
       {
         "kind": "paragraph",

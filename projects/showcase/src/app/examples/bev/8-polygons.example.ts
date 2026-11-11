@@ -15,6 +15,8 @@ import { roadFrames } from './roads';
  *
  * The vehicle drives round the ring, with traffic in every lane. The view stays the vehicle's, so
  * the world turns around it. With `zoom`, try scrolling or pinching to zoom, and dragging to pan.
+ *
+ * @animated
  */
 @Component({
   selector: 'app-polygons',

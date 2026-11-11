@@ -3203,8 +3203,10 @@ The pieces overlap where the roads meet. A label's polygons fill as one area, so
 The vehicle drives round the ring, with traffic in every lane. The view stays the vehicle's, so the world turns around it. With `zoom`, try scrolling or pinching to zoom, and dragging to pan.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/bev/polygons.dark.webp">
-<img src="../images/bev/polygons.light.webp" alt="Bird's-eye view: Polygons" width="900">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/bev/polygons.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/bev/polygons.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/bev/polygons.dark.animated.webp">
+<img src="../images/bev/polygons.light.animated.webp" alt="Bird's-eye view: Polygons" width="900">
 </picture>
 
 <details>
