@@ -40,6 +40,17 @@ function allowEventView(): void {
 beforeEach(allowEventView);
 afterEach(() => vi.unstubAllGlobals());
 
+/**
+ * Leaves fake timers with d3's own timeouts run. At the end of a drag d3 puts a click-cancelling
+ * listener on the window and takes it off in a `setTimeout`; dropped with the fake timers, that
+ * listener would stay on the test environment's window, which later spec files share (the test
+ * builder does not isolate them), and swallow every click there.
+ */
+function settleD3Timers(): void {
+  vi.runOnlyPendingTimers();
+  vi.useRealTimers();
+}
+
 type Call = [name: 'press' | 'drag' | 'release' | 'wheel', ...args: number[]];
 
 /** A target that keeps what it was asked to do, with the transform the wheel would leave. */
@@ -113,7 +124,7 @@ describe('zoomedAbout', () => {
         expect(d3.y).toBeCloseTo(reduced.y, 6);
       }
     } finally {
-      vi.useRealTimers();
+      settleD3Timers();
     }
   });
 });
@@ -378,7 +389,7 @@ describe('the two kinds of target', () => {
         b.end();
         expect(zoomTransform(element).k).toBeCloseTo(reduced.k, 9);
       } finally {
-        vi.useRealTimers();
+        settleD3Timers();
       }
     },
   );
