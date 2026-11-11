@@ -6,6 +6,8 @@ import { describe, it } from 'node:test';
 import {
   DEFAULTS,
   budgetWarnings,
+  cursorAt,
+  playTimeline,
   fileFor,
   parseArgs,
   pictureFrame,
@@ -280,5 +282,61 @@ describe('serve', () => {
     } finally {
       await rm(root, { recursive: true });
     }
+  });
+});
+
+describe('playTimeline and cursorAt', () => {
+  const timing = { moveMs: 100, holdMs: 200, pressMs: 50, tailMs: 400 };
+  const steps = [
+    { action: 'hover', target: '.a' },
+    { action: 'wait', ms: 300 },
+    { action: 'click', target: '.b' },
+  ];
+  const timeline = playTimeline(steps, timing);
+
+  it('moves, acts and holds each step in turn, then leaves the tail', () => {
+    assert.deepEqual(
+      timeline.steps.map(({ start, arrive, end }) => [start, arrive, end]),
+      [
+        [0, 100, 300],
+        [300, 300, 600],
+        [600, 700, 900],
+      ],
+    );
+    assert.equal(timeline.total, 1300);
+    assert.equal(playTimeline([], timing).total, 400);
+  });
+
+  it('glides the cursor to each target, rests there, and presses on a click', () => {
+    const points = [{ x: 100, y: 0 }, null, { x: 100, y: 100 }];
+    const from = { x: 0, y: 0 };
+    assert.deepEqual(cursorAt(timeline, points, from, 0, timing), { x: 0, y: 0, pressed: false });
+    assert.deepEqual(cursorAt(timeline, points, from, 50, timing), { x: 50, y: 0, pressed: false });
+    assert.deepEqual(cursorAt(timeline, points, from, 500, timing), {
+      x: 100,
+      y: 0,
+      pressed: false,
+    });
+    assert.deepEqual(cursorAt(timeline, points, from, 720, timing), {
+      x: 100,
+      y: 100,
+      pressed: true,
+    });
+    assert.deepEqual(cursorAt(timeline, points, from, 800, timing), {
+      x: 100,
+      y: 100,
+      pressed: false,
+    });
+  });
+
+  it('keeps the cursor where it was for a step whose target matched nothing', () => {
+    assert.deepEqual(
+      cursorAt(timeline, [{ x: 100, y: 0 }, null, null], { x: 0, y: 0 }, 800, timing),
+      {
+        x: 100,
+        y: 0,
+        pressed: false,
+      },
+    );
   });
 });

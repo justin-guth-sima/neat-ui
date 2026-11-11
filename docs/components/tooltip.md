@@ -14,8 +14,10 @@ A short text label shown on hover and on keyboard focus.
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/tooltip/positions.dark.webp">
-<img src="../images/tooltip/positions.light.webp" alt="Tooltip: Positions" width="381">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/tooltip/positions.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/tooltip/positions.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/tooltip/positions.dark.animated.webp">
+<img src="../images/tooltip/positions.light.animated.webp" alt="Tooltip: Positions" width="497">
 </picture>
 
 ```ts
@@ -29,8 +31,10 @@ import { NeatTooltip } from '@sima/neat-ui';
 A tooltip on each of the four sides of its button; hover a button or focus it with Tab.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/tooltip/positions.dark.webp">
-<img src="../images/tooltip/positions.light.webp" alt="Tooltip: Positions" width="381">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/tooltip/positions.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/tooltip/positions.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/tooltip/positions.dark.animated.webp">
+<img src="../images/tooltip/positions.light.animated.webp" alt="Tooltip: Positions" width="497">
 </picture>
 
 <details>

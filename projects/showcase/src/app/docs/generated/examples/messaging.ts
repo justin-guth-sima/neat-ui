@@ -9,6 +9,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "component": LivePipeline,
     "gallery": true,
     "animated": true,
+    "animation": {"seconds":8,"fps":20},
     "caption": [
       {
         "kind": "paragraph",

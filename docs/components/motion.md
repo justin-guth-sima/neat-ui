@@ -11,8 +11,10 @@ readonly shownFps = neatEased(this.fps);
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/motion/eased-number.dark.webp">
-<img src="../images/motion/eased-number.light.webp" alt="Motion: Eased number" width="279">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/motion/eased-number.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/motion/eased-number.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/motion/eased-number.dark.animated.webp">
+<img src="../images/motion/eased-number.light.animated.webp" alt="Motion: Eased number" width="90">
 </picture>
 
 ```ts
@@ -26,8 +28,10 @@ import { neatEased, NeatEasedNumber, NEAT_EASINGS } from '@sima/neat-ui';
 A frame rate that eases to each value instead of jumping. Press Next value for a step, and No value for the dash: the next value after it appears at once, as the first one did.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/motion/eased-number.dark.webp">
-<img src="../images/motion/eased-number.light.webp" alt="Motion: Eased number" width="279">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/motion/eased-number.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/motion/eased-number.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/motion/eased-number.dark.animated.webp">
+<img src="../images/motion/eased-number.light.animated.webp" alt="Motion: Eased number" width="90">
 </picture>
 
 <details>
@@ -76,8 +80,10 @@ export class EasedNumber {
 A progress bar whose value is [`neatEased`](../components/motion.md#neateased) of a signal. The signal jumps on every press, and the bar eases to it. Nothing else in the component deals with the animation.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/motion/eased-signal.dark.webp">
-<img src="../images/motion/eased-signal.light.webp" alt="Motion: Eased signal" width="480">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/motion/eased-signal.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/motion/eased-signal.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/motion/eased-signal.dark.animated.webp">
+<img src="../images/motion/eased-signal.light.animated.webp" alt="Motion: Eased signal" width="380">
 </picture>
 
 <details>
@@ -138,8 +144,10 @@ export class EasedSignal {
 One bar per curve of the catalog, each fed [`neatEased`](../components/motion.md#neateased) of the same share with its own `easing`. So a single press moves all four side by side: - ease-in-out, the default, starts and settles gently; - ease-out starts fast; - ease-in starts slow; - linear keeps one pace.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/motion/curves.dark.webp">
-<img src="../images/motion/curves.light.webp" alt="Motion: Curves" width="481">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/motion/curves.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/motion/curves.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/motion/curves.dark.animated.webp">
+<img src="../images/motion/curves.light.animated.webp" alt="Motion: Curves" width="481">
 </picture>
 
 <details>

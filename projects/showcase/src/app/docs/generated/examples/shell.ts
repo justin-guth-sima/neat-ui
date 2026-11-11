@@ -8,6 +8,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "kiosk",
     "title": "Kiosk",
     "component": Kiosk,
+    "unpictured": true,
     "caption": [
       {
         "kind": "paragraph",

@@ -8,6 +8,8 @@ import { NeatButton, type NeatColorScheme, ThemeService } from '@sima/neat-ui';
  * `toggle()` is what the shell's theme item does, and it stores the choice for the next page load.
  * `setScheme` with `persist: false` holds for this page load only, as a link that themes itself
  * needs. It leaves the stored choice as it was.
+ *
+ * @unpictured
  */
 @Component({
   selector: 'app-color-scheme',

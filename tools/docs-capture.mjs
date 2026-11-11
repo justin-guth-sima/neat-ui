@@ -250,6 +250,63 @@ export function pictureFrame({ area, surfaces, modal, viewport, reach = 32 }) {
   };
 }
 
+// --- scripts (`@play`) ---------------------------------------------------------------------------
+
+/** How long the cursor takes to reach a step's target, and how long a step holds after it acts. */
+export const PLAY_TIMING = { moveMs: 600, holdMs: 700, pressMs: 150, tailMs: 1000 };
+
+/**
+ * When each step of a script happens, in ms from the animation's start: a hover or a click moves
+ * the cursor from `start` to its target, acts on `arrive` and holds until `end`; a wait holds for
+ * its time. `total` leaves `tailMs` after the last step, so the end state shows before the loop.
+ */
+export function playTimeline(steps, timing = PLAY_TIMING) {
+  let at = 0;
+  const timeline = steps.map((step) => {
+    if (step.action === 'wait') {
+      const entry = { ...step, start: at, arrive: at, end: at + step.ms };
+      at = entry.end;
+      return entry;
+    }
+    const entry = {
+      ...step,
+      start: at,
+      arrive: at + timing.moveMs,
+      end: at + timing.moveMs + timing.holdMs,
+    };
+    at = entry.end;
+    return entry;
+  });
+  return { steps: timeline, total: at + timing.tailMs };
+}
+
+const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+
+/**
+ * Where the cursor is at `t` ms: at `from` until the first move, gliding (eased) to each target
+ * while its step moves, then resting there. `points[i]` is step i's target point, null for a
+ * wait. Pressed for `pressMs` after a click acts.
+ */
+export function cursorAt(timeline, points, from, t, timing = PLAY_TIMING) {
+  let position = from;
+  let pressed = false;
+  timeline.steps.forEach((step, i) => {
+    const point = points[i];
+    if (!point || t < step.start) return;
+    if (t < step.arrive) {
+      const k = easeInOut((t - step.start) / (step.arrive - step.start));
+      position = {
+        x: position.x + (point.x - position.x) * k,
+        y: position.y + (point.y - position.y) * k,
+      };
+    } else {
+      position = point;
+      if (step.action === 'click' && t < step.arrive + timing.pressMs) pressed = true;
+    }
+  });
+  return { ...position, pressed };
+}
+
 /** The pictures in `existing` (paths relative to the output folder) that this run did not make. */
 export function stalePictures(existing, made) {
   const madeSet = new Set(made);
@@ -324,7 +381,7 @@ async function filesUnder(dir) {
  * Runs in Chrome, whose canvas encodes WebP; `type` `image/png` keeps an animation's frame
  * lossless for sharp.
  */
-async function encodeInPage({ png, crop, shapes, dpr, quality, type = 'image/webp' }) {
+async function encodeInPage({ png, crop, shapes, dpr, quality, type = 'image/webp', cursor }) {
   const bytes = Uint8Array.from(atob(png), (c) => c.charCodeAt(0));
   const image = await createImageBitmap(new Blob([bytes], { type: 'image/png' }));
   const cut = crop
@@ -341,8 +398,26 @@ async function encodeInPage({ png, crop, shapes, dpr, quality, type = 'image/web
   for (const { x, y, width, height, radius } of shapes) {
     context.roundRect(x * dpr, y * dpr, width * dpr, height * dpr, radius * dpr);
   }
+  context.save();
   context.clip();
   context.drawImage(image, -cut.x, -cut.y);
+  context.restore();
+  if (cursor) {
+    // The pointer as systems draw it, its tip on the point, dark with a light rim, a little
+    // smaller while pressed.
+    const scale = dpr * 1.25 * (cursor.pressed ? 0.85 : 1);
+    context.save();
+    context.translate(cursor.x * dpr, cursor.y * dpr);
+    context.scale(scale, scale);
+    const arrow = new Path2D('M0 0 L0 16 L4.2 12.3 L7 18.6 L9.6 17.5 L6.9 11.3 L12 11.3 Z');
+    context.lineJoin = 'round';
+    context.lineWidth = 1.6;
+    context.strokeStyle = 'white';
+    context.fillStyle = 'black';
+    context.stroke(arrow);
+    context.fill(arrow);
+    context.restore();
+  }
   const blob = await canvas.convertToBlob({ type, quality });
   if (blob.type !== type) throw new Error(`the browser encoded ${blob.type}, not ${type}`);
   const out = new Uint8Array(await blob.arrayBuffer());
@@ -350,7 +425,23 @@ async function encodeInPage({ png, crop, shapes, dpr, quality, type = 'image/web
   for (let i = 0; i < out.length; i += 0x8000) {
     text += String.fromCharCode(...out.subarray(i, i + 0x8000));
   }
-  return btoa(text);
+  if (type !== 'image/png') return btoa(text);
+  // A frame also says the box of what it draws, so the frames can be cut to what any of them shows.
+  const { data, width, height } = context.getImageData(0, 0, canvas.width, canvas.height);
+  let [x0, y0, x1, y1] = [width, height, 0, 0];
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (!data[(y * width + x) * 4 + 3]) continue;
+      if (x < x0) x0 = x;
+      if (x >= x1) x1 = x + 1;
+      if (y < y0) y0 = y;
+      if (y >= y1) y1 = y + 1;
+    }
+  }
+  return {
+    png: btoa(text),
+    box: x1 > x0 ? { x: x0, y: y0, width: x1 - x0, height: y1 - y0 } : null,
+  };
 }
 
 /** In the page: the examples of the open topic, each rendered in its card or a page's link. */
@@ -431,8 +522,15 @@ function framingInPage({ selector, trim }) {
         // parts) can still hold what is drawn; one that clips to nothing (visually hidden) cannot.
         const empty = r.width <= 1 || r.height <= 1;
         if (empty && style.overflow !== 'visible') continue;
-        if (!empty && (DRAWN.has(child.localName) || painted(child))) add(surface(child));
-        else walk(child);
+        if (!empty && (DRAWN.has(child.localName) || painted(child))) {
+          add(surface(child));
+          // An SVG may draw past its own box (overflow visible, as the diagram's edges that loop
+          // round a block): its shapes are measured too.
+          if (child.localName === 'svg') {
+            const shapes = 'path, line, polyline, polygon, rect, circle, ellipse, text';
+            for (const shape of child.querySelectorAll(shapes)) add(shape.getBoundingClientRect());
+          }
+        } else walk(child);
       }
     }
   };
@@ -503,6 +601,47 @@ async function areaFrame(page, area, selector, trim) {
   };
 }
 
+/**
+ * In the page: makes the example's controls that `@hide` names invisible but still there, so the
+ * script still drives them and the framing leaves them out (it skips what has no opacity).
+ */
+function hideInPage({ selector, hide }) {
+  for (const element of document.querySelector(selector)?.querySelectorAll(hide) ?? []) {
+    // At once: a transition would hold the control half-visible under the paused clock.
+    element.style.transition = 'none';
+    element.style.opacity = '0';
+  }
+}
+
+/**
+ * The viewport point a step acts on: its target's first match in the example (`scope`), at `at`
+ * percent of its box, its middle by default; null, said once, when it matches nothing.
+ */
+async function targetPoint(scope, step, log) {
+  const box = await scope.locator(step.target).first().boundingBox();
+  if (!box) {
+    log(`  warning: @play ${step.action} ${step.target} matches nothing`);
+    return null;
+  }
+  const { x = 50, y = 50 } = step.at ?? {};
+  return { x: box.x + (box.width * x) / 100, y: box.y + (box.height * y) / 100 };
+}
+
+/** Runs a script at once for a still: each step acts, a wait waits. Leaves the end state. */
+async function playThrough(page, scope, steps, log) {
+  for (const step of steps) {
+    if (step.action === 'wait') {
+      await page.waitForTimeout(step.ms);
+      continue;
+    }
+    const point = await targetPoint(scope, step, log);
+    if (!point) continue;
+    await page.mouse.move(point.x, point.y, { steps: 4 });
+    if (step.action === 'click') await page.mouse.click(point.x, point.y);
+    await page.waitForTimeout(PLAY_TIMING.holdMs);
+  }
+}
+
 /** In the page: pauses every CSS animation and moves it on by `ms`, as the fake clock moves. */
 function stepAnimationsInPage(ms) {
   for (const animation of document.getAnimations()) {
@@ -550,11 +689,24 @@ async function captureScheme(browser, run) {
   // A live area is trimmed to what its example draws; a page example's content area is the page.
   const take = async (topic, example, selector, trim) => {
     const area = page.locator(selector).first();
-    const capture = examplesOf.get(`${topic.id}/${example.id}`)?.capture;
+    const read = examplesOf.get(`${topic.id}/${example.id}`);
+    const capture = read?.capture;
+    const scripted = Boolean(read?.play || read?.hide);
     const framing = async () => {
       const framed = await page.evaluate(framingInPage, { selector, trim });
       return { ...framed, area: trimToContent(framed.area, framed.content, framed.inset) };
     };
+    if (scripted) {
+      // The state its script leaves, framed with what it opened, as for `@capture`.
+      await area.evaluate((element) => element.scrollIntoView({ block: 'center' }));
+      await settle(page, options.settleMs);
+      if (read.hide) await page.evaluate(hideInPage, { selector, hide: read.hide });
+      await playThrough(page, area, read.play ?? [], log);
+      await settle(page, options.settleMs);
+      const { clip, shapes } = pictureFrame({ ...(await framing()), viewport: options.viewport });
+      await write(topic.id, example.id, await page.screenshot({ clip }), null, shapes);
+      return true;
+    }
     if (!capture) {
       // The area alone, whole even when it is taller than the viewport, then cut to its part.
       await area.scrollIntoViewIfNeeded();
@@ -622,37 +774,104 @@ async function animateScheme(browser, run) {
   await context.clock.install();
   const page = await context.newPage();
   page.on('pageerror', (error) => log(`  page error: ${error.message}`));
-  const step = Math.round(1000 / options.animation.fps);
-  const count = Math.max(1, Math.round(options.animation.ms / step));
   const animations = [];
 
+  // Frames as PNG with the box of what each draws: of the area, cut to its part, or for a script
+  // of a clip around the part, drawn only in the part and the overlays open at that frame, with
+  // the cursor on top unless the script drives hidden controls.
   const animate = async (topic, example, selector, trim) => {
+    const read = examplesOf.get(`${topic.id}/${example.id}`);
+    const scripted = Boolean(read.play || read.hide);
+    const fps = read.animation?.fps ?? options.animation.fps;
+    const step = Math.round(1000 / fps);
+    const timeline = playTimeline(read.play ?? []);
+    const seconds = read.animation?.seconds;
+    const ms = Math.max(
+      seconds ? seconds * 1000 : scripted ? 0 : options.animation.ms,
+      scripted ? timeline.total : 0,
+    );
+    const count = Math.max(1, Math.round(ms / step));
+
     const area = page.locator(selector).first();
-    await area.scrollIntoViewIfNeeded();
+    if (scripted) await area.evaluate((element) => element.scrollIntoView({ block: 'center' }));
+    else await area.scrollIntoViewIfNeeded();
     await settle(page, options.settleMs);
+    if (read.hide) await page.evaluate(hideInPage, { selector, hide: read.hide });
     await page.clock.pauseAt((await page.evaluate(() => Date.now())) + step);
     const { crop, shape } = await areaFrame(page, area, selector, trim);
+    // A script's frames are the whole viewport, each drawn only in the example's part and the
+    // overlays open at that moment, both measured again every frame (a section that opens grows
+    // the part, a tooltip may open past it); the frames are cut to their union at the end.
+    const clip = { x: 0, y: 0, width: options.viewport.width, height: options.viewport.height };
+    const points = [];
+    let from = null;
+    const done = new Set();
     const frames = [];
     for (let i = 0; i < count; i++) {
-      const png = await encoder.evaluate(encodeInPage, {
-        png: (await area.screenshot()).toString('base64'),
-        crop,
-        shapes: [shape],
+      const t = i * step;
+      let shot;
+      let cursor = null;
+      let shapes = [shape];
+      let cut = crop;
+      if (scripted) {
+        // Each step's target is found as its move starts, so it follows what earlier steps moved.
+        for (const [index, entry] of timeline.steps.entries()) {
+          if (entry.action === 'wait' || points[index] !== undefined || t < entry.start) continue;
+          points[index] = await targetPoint(area, entry, log);
+          from ??= points[index] && { x: points[index].x + 40, y: points[index].y + 56 };
+        }
+        const at = from ? cursorAt(timeline, points, from, t) : null;
+        if (at && !read.hide) await page.mouse.move(at.x, at.y);
+        for (const [index, entry] of timeline.steps.entries()) {
+          if (entry.action === 'wait' || done.has(index) || t < entry.arrive) continue;
+          done.add(index);
+          const point = points[index];
+          if (!point) continue;
+          if (entry.action === 'click') await page.mouse.click(point.x, point.y);
+          else await page.mouse.move(point.x, point.y);
+        }
+        const framed = await page.evaluate(framingInPage, { selector, trim });
+        shapes = [trimToContent(framed.area, framed.content, framed.inset), ...framed.surfaces];
+        cut = null;
+        cursor = at && !read.hide ? at : null;
+        shot = await page.screenshot({ clip });
+      } else {
+        shot = await area.screenshot();
+      }
+      const frame = await encoder.evaluate(encodeInPage, {
+        png: shot.toString('base64'),
+        crop: cut,
+        shapes,
         dpr: options.dpr,
         type: 'image/png',
+        cursor,
       });
-      frames.push(Buffer.from(png, 'base64'));
+      frames.push({ png: Buffer.from(frame.png, 'base64'), box: frame.box });
       await page.clock.runFor(step);
       await page.evaluate(stepAnimationsInPage, step);
     }
     await page.clock.resume();
-    const bytes = await sharp(frames, { join: { animated: true } })
-      .webp({ lossless: true, effort: 6, minSize: true, loop: 0, delay: frames.map(() => step) })
+    // Every frame cut to the box around what any of them draws.
+    const boxes = frames.map((frame) => frame.box).filter(Boolean);
+    const whole = boxes.length ? union(boxes) : null;
+    const pngs = await Promise.all(
+      frames.map(({ png }) =>
+        whole
+          ? sharp(png)
+              .extract({ left: whole.x, top: whole.y, width: whole.width, height: whole.height })
+              .png()
+              .toBuffer()
+          : png,
+      ),
+    );
+    const bytes = await sharp(pngs, { join: { animated: true } })
+      .webp({ lossless: true, effort: 6, minSize: true, loop: 0, delay: pngs.map(() => step) })
       .toBuffer();
     const path = picturePath(topic.id, example.id, scheme, true);
     await mkdir(join(options.out, topic.id), { recursive: true });
     await writeFile(join(options.out, path), bytes);
     animations.push({ path, bytes: bytes.length, animated: true });
+    return scripted;
   };
 
   for (const topic of topics) {
@@ -664,12 +883,12 @@ async function animateScheme(browser, run) {
     await page.locator('app-example-card article').first().waitFor();
     const examples = (await page.evaluate(examplesInPage)).filter(wanted);
     for (const example of examples.filter((e) => e.live)) {
-      await animate(
-        topic,
-        example,
-        `app-example-card article:has(h3#example-${example.id}) .live`,
-        true,
-      );
+      const selector = `app-example-card article:has(h3#example-${example.id}) .live`;
+      // A script leaves its example changed, so the next one starts on a fresh page.
+      if (await animate(topic, example, selector, true)) {
+        await page.goto(`${url}${topic.path}`);
+        await page.locator('app-example-card article').first().waitFor();
+      }
     }
     for (const example of examples.filter((e) => e.page)) {
       await page.goto(`${url}${example.page}`);

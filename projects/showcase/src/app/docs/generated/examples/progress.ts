@@ -51,6 +51,9 @@ export const EXAMPLES: readonly DocsExample[] = [
     "title": "Titled readout",
     "component": TitledReadout,
     "gallery": true,
+    "animated": true,
+    "play": [{"action":"click","at":{"x":30,"y":50},"target":".slider [brnSliderTrack]"},{"action":"wait","ms":500},{"action":"click","at":{"x":70,"y":50},"target":".slider [brnSliderTrack]"},{"action":"wait","ms":500},{"action":"click","at":{"x":100,"y":50},"target":".slider [brnSliderTrack]"},{"action":"wait","ms":500}],
+    "hide": ".slider",
     "caption": [
       {
         "kind": "paragraph",

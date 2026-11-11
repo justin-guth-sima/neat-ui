@@ -7,6 +7,11 @@ import { NeatInput } from '@sima/neat-ui/input';
 /**
  * Two sections. Details says what it holds while it is closed. Open Change board and press Save:
  * the section closes and the focus is on its button, not lost to the page.
+ *
+ * @animated
+ * @play click neat-collapsible:nth-of-type(1) [data-slot=collapsible-trigger]
+ * @play click neat-collapsible:nth-of-type(2) [data-slot=collapsible-trigger]
+ * @play wait 800
  */
 @Component({
   selector: 'app-summary-and-save',

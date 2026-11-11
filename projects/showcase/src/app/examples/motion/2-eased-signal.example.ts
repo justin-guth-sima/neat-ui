@@ -8,6 +8,15 @@ const SHARES = [20, 85, 40, 100];
 /**
  * A progress bar whose value is `neatEased` of a signal. The signal jumps on every press, and the
  * bar eases to it. Nothing else in the component deals with the animation.
+ *
+ * @animated
+ * @hide button
+ * @play click button
+ * @play wait 500
+ * @play click button
+ * @play wait 500
+ * @play click button
+ * @play wait 500
  */
 @Component({
   selector: 'app-eased-signal',

@@ -8,6 +8,14 @@ import { NeatSlider } from '@sima/neat-ui/slider';
  * percent.
  *
  * @gallery
+ * @animated
+ * @hide .slider
+ * @play click at 30%,50% .slider [brnSliderTrack]
+ * @play wait 500
+ * @play click at 70%,50% .slider [brnSliderTrack]
+ * @play wait 500
+ * @play click at 100%,50% .slider [brnSliderTrack]
+ * @play wait 500
  */
 @Component({
   selector: 'app-titled-readout',

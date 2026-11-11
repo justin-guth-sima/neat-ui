@@ -10,6 +10,8 @@ import { KIOSK_POINTER_IDLE_MS, KioskService, NeatButton } from '@sima/neat-ui';
  * `pointerIdle` turns true once the pointer has rested for `KIOSK_POINTER_IDLE_MS`, which is how a
  * page hides its own chrome. A component that has UI of its own outside the floating bar holds the
  * bar open with `holdToolbar()`, until it releases it.
+ *
+ * @unpictured
  */
 @Component({
   selector: 'app-kiosk',

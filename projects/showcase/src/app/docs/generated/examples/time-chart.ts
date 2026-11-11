@@ -831,6 +831,8 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "shared-crosshair",
     "title": "Shared crosshair",
     "component": SharedCrosshair,
+    "animated": true,
+    "play": [{"action":"hover","at":{"x":20,"y":50},"target":".plot"},{"action":"hover","at":{"x":55,"y":50},"target":".plot"},{"action":"hover","at":{"x":85,"y":50},"target":".plot"},{"action":"wait","ms":400}],
     "caption": [
       {
         "kind": "paragraph",

@@ -8,7 +8,8 @@ export const EXAMPLES: readonly DocsExample[] = [
     "title": "Positions",
     "component": Positions,
     "gallery": true,
-    "capture": {"action":"hover","target":"button"},
+    "animated": true,
+    "play": [{"action":"hover","target":".row button:nth-child(1)"},{"action":"hover","target":".row button:nth-child(2)"},{"action":"hover","target":".row button:nth-child(3)"},{"action":"hover","target":".row button:nth-child(4)"},{"action":"wait","ms":400}],
     "caption": [
       {
         "kind": "paragraph",

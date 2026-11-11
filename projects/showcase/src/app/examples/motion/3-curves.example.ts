@@ -12,6 +12,15 @@ const CURVES = Object.keys(NEAT_EASINGS) as NeatEasingName[];
  * One bar per curve of the catalog, each fed `neatEased` of the same share with its own `easing`.
  * So a single press moves all four side by side: - ease-in-out, the default, starts and settles
  * gently; - ease-out starts fast; - ease-in starts slow; - linear keeps one pace.
+ *
+ * @animated
+ * @hide button
+ * @play click button
+ * @play wait 500
+ * @play click button
+ * @play wait 500
+ * @play click button
+ * @play wait 500
  */
 @Component({
   selector: 'app-curves',

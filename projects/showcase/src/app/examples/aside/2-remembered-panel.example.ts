@@ -17,6 +17,7 @@ import {
  * choice made on a wide screen.
  *
  * @page
+ * @unpictured
  */
 @Component({
   selector: 'app-remembered-panel',

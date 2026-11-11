@@ -1767,7 +1767,7 @@ Below, two edges leave the Encoder's right side for the Recorder's left, which l
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/diagram/parallel-loops.dark.webp">
-<img src="../images/diagram/parallel-loops.light.webp" alt="Diagram: Parallel loops" width="723">
+<img src="../images/diagram/parallel-loops.light.webp" alt="Diagram: Parallel loops" width="852">
 </picture>
 
 <details>

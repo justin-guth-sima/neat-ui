@@ -23,11 +23,6 @@ The scheme the page is in (`scheme`), and two ways to change it. Light is the de
 
 `toggle()` is what the shell's theme item does, and it stores the choice for the next page load. `setScheme` with `persist: false` holds for this page load only, as a link that themes itself needs. It leaves the stored choice as it was.
 
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/colors/color-scheme.dark.webp">
-<img src="../images/colors/color-scheme.light.webp" alt="Colors: Color scheme" width="338">
-</picture>
-
 <details>
 <summary>Code</summary>
 

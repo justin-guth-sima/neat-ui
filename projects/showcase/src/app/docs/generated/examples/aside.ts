@@ -79,6 +79,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "title": "Remembered panel",
     "component": RememberedPanel,
     "page": true,
+    "unpictured": true,
     "caption": [
       {
         "kind": "paragraph",

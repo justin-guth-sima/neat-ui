@@ -7,8 +7,10 @@ _Components › Video_ · [All topics](../README.md)
 Draws regions of interest on a video tile's image, and lets the user add regions by clicking.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/roi-editor/drawing-regions.dark.webp">
-<img src="../images/roi-editor/drawing-regions.light.webp" alt="ROI editor: Drawing regions" width="752">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/roi-editor/drawing-regions.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/roi-editor/drawing-regions.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/roi-editor/drawing-regions.dark.animated.webp">
+<img src="../images/roi-editor/drawing-regions.light.animated.webp" alt="ROI editor: Drawing regions" width="752">
 </picture>
 
 ```ts
@@ -26,8 +28,10 @@ Try drawing polygons in either mode. Then hover one to highlight it, and the rea
 The tile gets the same regions to filter with, so a box shows only where the regions let it. Pause the source and the tile stops, and the editor keeps working on the tile's whole box.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/roi-editor/drawing-regions.dark.webp">
-<img src="../images/roi-editor/drawing-regions.light.webp" alt="ROI editor: Drawing regions" width="752">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/roi-editor/drawing-regions.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/roi-editor/drawing-regions.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/roi-editor/drawing-regions.dark.animated.webp">
+<img src="../images/roi-editor/drawing-regions.light.animated.webp" alt="ROI editor: Drawing regions" width="752">
 </picture>
 
 <details>
@@ -69,17 +73,20 @@ const MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
 
 /**
  * The box crosses the middle of the image, which is 640 by 360, with its center at mid height; this
- * exclusion region straddles that line, so the box vanishes as its center enters the region and
- * returns as it leaves.
+ * exclusion region, an uneven heptagon as a hand would draw it, straddles that line, so the box
+ * vanishes as its center enters the region and returns as it leaves.
  */
 const STARTING_REGIONS: readonly NeatRoiPolygon[] = [
   {
     type: 'exclusion',
     points: [
-      { x: 0.4, y: 0.25 },
-      { x: 0.6, y: 0.25 },
-      { x: 0.6, y: 0.75 },
-      { x: 0.4, y: 0.75 },
+      { x: 0.42, y: 0.18 },
+      { x: 0.57, y: 0.24 },
+      { x: 0.63, y: 0.45 },
+      { x: 0.58, y: 0.72 },
+      { x: 0.47, y: 0.82 },
+      { x: 0.36, y: 0.63 },
+      { x: 0.38, y: 0.36 },
     ],
   },
 ];

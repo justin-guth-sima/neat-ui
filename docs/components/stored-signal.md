@@ -12,11 +12,6 @@ readonly bars = neatStoredSignal('my-app:bars', true, (stored) =>
 );
 ```
 
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/stored-signal/press-counter.dark.webp">
-<img src="../images/stored-signal/press-counter.light.webp" alt="Stored signal: Press counter" width="286">
-</picture>
-
 ```ts
 import { neatStoredSignal } from '@sima/neat-ui';
 ```
@@ -26,11 +21,6 @@ import { neatStoredSignal } from '@sima/neat-ui';
 ### Press counter
 
 A count kept in localStorage: press, then reload the page, and the count stays.
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/stored-signal/press-counter.dark.webp">
-<img src="../images/stored-signal/press-counter.light.webp" alt="Stored signal: Press counter" width="286">
-</picture>
 
 <details>
 <summary>Code</summary>

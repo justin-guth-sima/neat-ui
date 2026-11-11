@@ -217,6 +217,23 @@ export interface DocsExample {
    * reports to the app; the bare tag `@unpictured`. The page itself does not read it.
    */
   readonly unpictured?: true;
+  /** The animation's length and rate where they are not the capture's defaults (`@animated 6s 20fps`). */
+  readonly animation?: { readonly seconds?: number; readonly fps?: number };
+  /**
+   * The script the docs' pictures run, one `@play` tag a step: hover or click a target (at a point
+   * of its box, in percent), or wait. A still shows the state after it; an animation shows it run.
+   * The page itself does not read it.
+   */
+  readonly play?: readonly (
+    | {
+        readonly action: 'hover' | 'click';
+        readonly target: string;
+        readonly at?: { readonly x: number; readonly y: number };
+      }
+    | { readonly action: 'wait'; readonly ms: number }
+  )[];
+  /** The controls the docs' pictures hide, which `play` still drives (`@hide <selector>`). */
+  readonly hide?: string;
   /**
    * What the docs' picture of the example does first (`@capture click <selector>` or `hover`),
    * for an example whose content opens in an overlay; the page itself does not read it.

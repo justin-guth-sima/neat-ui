@@ -6,6 +6,12 @@ import { NeatCollapsible } from '@sima/neat-ui/collapsible';
  * A log with two controls at the end of its row, outside its button. The summary counts the lines.
  *
  * Try Add line, which works open or closed. Clear is there only while the log is open.
+ *
+ * @animated
+ * @play click [data-slot=collapsible-trigger]
+ * @play click [neatCollapsibleEnd]
+ * @play click [neatCollapsibleEnd]
+ * @play wait 600
  */
 @Component({
   selector: 'app-end-controls',

@@ -1118,8 +1118,9 @@ function exportedComponent(sourceFile, report) {
  * (`tools/readme-gallery.mjs`), and `@animated`, an example whose point is motion, which the
  * Markdown docs show as an animation beside its still picture (`tools/docs-capture.mjs`), and
  * `@unpictured`, an example the Markdown docs show without a picture (one whose point is what a
- * widget reports to the app, which a picture cannot show). One more tag takes words, `@capture`
- * (`parseCapture`).
+ * widget reports to the app, which a picture cannot show). Tags that take words: `@capture`
+ * (`parseCapture`), `@animated`'s optional length and rate (`parseAnimated`), `@play`, a step of
+ * the script the docs' pictures run (`parsePlay`), and `@hide`, the controls they hide.
  */
 const EXAMPLE_OPTIONS = ['unpadded', 'page', 'gallery', 'animated', 'unpictured'];
 
@@ -1145,9 +1146,84 @@ export function parseCapture(lines) {
   return { action, target: target.trim() };
 }
 
+/** What a step of `@play` does (`tools/docs-capture.mjs`): hover or click a target, or wait. */
+export const PLAY_ACTIONS = ['hover', 'click', 'wait'];
+
+/** The longest a step of `@play` may wait, and an animation's bounds, so a typo cannot stall. */
+const PLAY_WAIT_MAX_MS = 10_000;
+const ANIMATION_SECONDS = [1, 20];
+const ANIMATION_FPS = [5, 30];
+
 /**
- * An example's caption (its class doc, which is prose and nothing else but the bare tags of
- * `EXAMPLE_OPTIONS` and `@capture`), those options, and the file's text less that doc, since the page shows the
+ * A line of tag text, or the reason it is not one: a tag runs on to the next one, so text on a
+ * second line would be read as part of the tag, not of the caption.
+ */
+function tagLine(lines) {
+  const [first = '', ...rest] = lines;
+  return rest.some((line) => line.trim()) ? null : first.trim();
+}
+
+/**
+ * An example's `@play` tag, one step of the script the docs' pictures run before a still and
+ * during an animation (`tools/docs-capture.mjs`): `@play hover <selector>` or `@play click
+ * <selector>`, a target in the example, optionally `at <x>%,<y>%` of its box before the selector
+ * (its middle by default), or `@play wait <ms>`. The step, or the reason it cannot be read.
+ */
+export function parsePlay(lines) {
+  const line = tagLine(lines);
+  if (line === null) return 'has text after it; a step is one line';
+  const [action = '', ...words] = line.split(/\s+/);
+  if (!PLAY_ACTIONS.includes(action)) {
+    return `has the action ${action || 'nothing'}; it is ${PLAY_ACTIONS.join(', ')}`;
+  }
+  if (action === 'wait') {
+    const ms = Number(words.join(' ').replace(/ms$/, ''));
+    if (!Number.isInteger(ms) || ms <= 0 || ms > PLAY_WAIT_MAX_MS) {
+      return `wait takes a number of ms up to ${PLAY_WAIT_MAX_MS}`;
+    }
+    return { action, ms };
+  }
+  const rest = words.join(' ');
+  const at = rest.match(/^at\s+(\d+(?:\.\d+)?)%,(\d+(?:\.\d+)?)%\s+(.+)$/);
+  if (at) {
+    const [x, y] = [Number(at[1]), Number(at[2])];
+    if (x > 100 || y > 100) return 'has a point outside its target; at takes 0% to 100%';
+    return { action, at: { x, y }, target: at[3].trim() };
+  }
+  if (rest.startsWith('at ')) return 'has an at that is not <x>%,<y>%';
+  if (!rest) return `needs a selector: @play ${action} [at <x>%,<y>%] <selector>`;
+  return { action, target: rest };
+}
+
+/**
+ * An example's `@animated` tag: bare for the capture's default length and rate, or with either or
+ * both, `@animated 6s 20fps`. Its options (`seconds`, `fps`, each only when given), or the reason
+ * it cannot be read.
+ */
+export function parseAnimated(lines) {
+  const line = tagLine(lines);
+  if (line === null) return 'has text after it; the tag is one line';
+  const timing = {};
+  for (const word of line.split(/\s+/).filter(Boolean)) {
+    const seconds = word.match(/^(\d+(?:\.\d+)?)s$/);
+    const fps = word.match(/^(\d+)fps$/);
+    if (seconds && timing.seconds === undefined) timing.seconds = Number(seconds[1]);
+    else if (fps && timing.fps === undefined) timing.fps = Number(fps[1]);
+    else return `has ${word}; it takes a length (6s) and a rate (20fps), each once`;
+  }
+  const outside = (value, [min, max]) => value !== undefined && (value < min || value > max);
+  if (outside(timing.seconds, ANIMATION_SECONDS)) {
+    return `runs ${timing.seconds}s; an animation runs ${ANIMATION_SECONDS.join(' to ')}s`;
+  }
+  if (outside(timing.fps, ANIMATION_FPS)) {
+    return `has ${timing.fps}fps; the rate is ${ANIMATION_FPS.join(' to ')}fps`;
+  }
+  return timing;
+}
+
+/**
+ * An example's caption (its class doc, which is prose and nothing else but the tags of
+ * `EXAMPLE_OPTIONS`, `@capture`, `@play` and `@hide`), those options, and the file's text less that doc, since the page shows the
  * caption above the example and the snippet is what is left. A caption names only what an app can
  * import: the kit's hidden names are a problem here as in the doc comments of parts (`isHidden`),
  * so prose moved onto a page cannot leak internals.
@@ -1161,6 +1237,22 @@ function readCaption({ cls, sourceFile, kit, report }) {
       const capture = parseCapture(tag.lines);
       if (typeof capture === 'string') report(cls, `${className}'s @capture ${capture}`);
       else options.capture = capture;
+    } else if (tag.name === 'play') {
+      const step = parsePlay(tag.lines);
+      if (typeof step === 'string') report(cls, `${className}'s @play ${step}`);
+      else (options.play ??= []).push(step);
+    } else if (tag.name === 'hide') {
+      const target = tagLine(tag.lines);
+      if (!target) report(cls, `${className}'s @hide needs a selector, on one line`);
+      else if (options.hide) report(cls, `${className} has a second @hide; join the selectors`);
+      else options.hide = target;
+    } else if (tag.name === 'animated') {
+      const timing = parseAnimated(tag.lines);
+      if (typeof timing === 'string') report(cls, `${className}'s @animated ${timing}`);
+      else {
+        options.animated = true;
+        if (Object.keys(timing).length) options.animation = timing;
+      }
     } else if (!EXAMPLE_OPTIONS.includes(tag.name)) {
       report(cls, `${className}'s doc has the tag @${tag.name}; an example's doc is its caption`);
     } else if (tag.lines.some((line) => line.trim())) {
@@ -1306,17 +1398,23 @@ function readTopic({ root, topic, kit, found }) {
 
     const { caption, options, text } = readCaption({ cls, sourceFile, kit, report });
     if (options.animated && options.capture) {
-      // An animation shows the example as it runs; what an action opens is a still's business.
-      report(cls, `${className} is @animated and has @capture; an animation takes no action`);
+      // An animation shows the example as it runs; one that acts says how with @play.
+      report(cls, `${className} is @animated and has @capture; an animation acts by @play`);
       delete options.animated;
+      delete options.animation;
+    }
+    if (options.play && options.capture) {
+      report(cls, `${className} has @play and @capture; @play's steps do what @capture does`);
+      delete options.capture;
     }
     if (options.unpictured) {
       // An example with no picture has none to stand for its topic, animate or act on.
-      for (const tag of ['gallery', 'animated', 'capture']) {
+      for (const tag of ['gallery', 'animated', 'capture', 'play', 'hide']) {
         if (!options[tag]) continue;
         report(cls, `${className} is @unpictured and has @${tag}; it has no picture`);
         delete options[tag];
       }
+      delete options.animation;
     }
     if (options.gallery && gallery) {
       report(cls, `${className} is @gallery, and so is ${gallery}; a topic has one`);
@@ -1383,6 +1481,9 @@ function renderExamples(topic, examples) {
       ...(example.component ? [`    "component": ${example.component},`] : []),
       ...EXAMPLE_OPTIONS.filter((name) => example[name]).map((name) => `    "${name}": true,`),
       ...(example.capture ? [`    "capture": ${JSON.stringify(example.capture)},`] : []),
+      ...(example.animation ? [`    "animation": ${JSON.stringify(example.animation)},`] : []),
+      ...(example.play ? [`    "play": ${JSON.stringify(example.play)},`] : []),
+      ...(example.hide ? [`    "hide": ${JSON.stringify(example.hide)},`] : []),
       `    "caption": ${json(example.caption)},`,
       `    "shows": ${json(example.shows)},`,
       `    "files": [\n${files.join(',\n')}\n    ]`,

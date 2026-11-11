@@ -31,17 +31,20 @@ const MODES: NeatSegmentedOption<NeatRoiDrawMode>[] = [
 
 /**
  * The box crosses the middle of the image, which is 640 by 360, with its center at mid height; this
- * exclusion region straddles that line, so the box vanishes as its center enters the region and
- * returns as it leaves.
+ * exclusion region, an uneven heptagon as a hand would draw it, straddles that line, so the box
+ * vanishes as its center enters the region and returns as it leaves.
  */
 const STARTING_REGIONS: readonly NeatRoiPolygon[] = [
   {
     type: 'exclusion',
     points: [
-      { x: 0.4, y: 0.25 },
-      { x: 0.6, y: 0.25 },
-      { x: 0.6, y: 0.75 },
-      { x: 0.4, y: 0.75 },
+      { x: 0.42, y: 0.18 },
+      { x: 0.57, y: 0.24 },
+      { x: 0.63, y: 0.45 },
+      { x: 0.58, y: 0.72 },
+      { x: 0.47, y: 0.82 },
+      { x: 0.36, y: 0.63 },
+      { x: 0.38, y: 0.36 },
     ],
   },
 ];
@@ -56,6 +59,7 @@ const STARTING_REGIONS: readonly NeatRoiPolygon[] = [
  * Pause the source and the tile stops, and the editor keeps working on the tile's whole box.
  *
  * @gallery
+ * @animated 6s
  */
 @Component({
   selector: 'app-drawing-regions',

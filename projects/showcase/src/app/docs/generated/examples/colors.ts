@@ -13,6 +13,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "color-scheme",
     "title": "Color scheme",
     "component": ColorScheme,
+    "unpictured": true,
     "caption": [
       {
         "kind": "paragraph",

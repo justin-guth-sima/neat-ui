@@ -27,7 +27,9 @@ import {
   highlight,
   highlightCss,
   OUTPUT_DIR,
+  parseAnimated,
   parseCapture,
+  parsePlay,
   SHELL_EXTRA,
   writeDocs,
 } from './docs-emit.mjs';
@@ -1541,7 +1543,7 @@ test('@animated marks an example as motion, and is a problem beside @capture', (
   assert.deepEqual(opening.capture, { action: 'click', target: 'button' });
   assert.equal(still.animated, undefined);
   assert.deepEqual(problems, [
-    `${EXAMPLES_DIR}/a/2-opening.example.ts:7: Opening is @animated and has @capture; an animation takes no action`,
+    `${EXAMPLES_DIR}/a/2-opening.example.ts:7: Opening is @animated and has @capture; an animation acts by @play`,
   ]);
   const text = generate(kit).files.get(`${EXAMPLES_OUTPUT_DIR}/a.ts`);
   assert.equal(text.match(/^ {4}"animated": true,$/gm).length, 1);
@@ -1562,6 +1564,75 @@ test('@unpictured takes no @gallery, @animated or @capture', () => {
     `${EXAMPLES_DIR}/a/2-both.example.ts:8: Both is @unpictured and has @gallery; it has no picture`,
     `${EXAMPLES_DIR}/a/2-both.example.ts:8: Both is @unpictured and has @animated; it has no picture`,
   ]);
+});
+
+test('parsePlay reads a hover or a click with its target and point, and a wait', () => {
+  assert.deepEqual(parsePlay(['click  .row button ']), { action: 'click', target: '.row button' });
+  assert.deepEqual(parsePlay(['hover at 25%,50% .plot']), {
+    action: 'hover',
+    at: { x: 25, y: 50 },
+    target: '.plot',
+  });
+  assert.deepEqual(parsePlay(['wait 800']), { action: 'wait', ms: 800 });
+  assert.deepEqual(parsePlay(['wait 800ms']), { action: 'wait', ms: 800 });
+  assert.match(parsePlay(['drag .x']), /has the action drag; it is hover, click, wait/);
+  assert.match(parsePlay(['click']), /needs a selector/);
+  assert.match(parsePlay(['click at 5% .x']), /at that is not/);
+  assert.match(parsePlay(['click at 150%,5% .x']), /outside its target/);
+  assert.match(parsePlay(['wait soon']), /wait takes a number of ms/);
+  assert.match(parsePlay(['wait 60000']), /up to 10000/);
+  assert.match(parsePlay(['click .x', 'more']), /a step is one line/);
+});
+
+test('parseAnimated reads an optional length and rate', () => {
+  assert.deepEqual(parseAnimated(['']), {});
+  assert.deepEqual(parseAnimated(['6s 20fps']), { seconds: 6, fps: 20 });
+  assert.deepEqual(parseAnimated(['2.5s']), { seconds: 2.5 });
+  assert.match(parseAnimated(['fast']), /has fast; it takes a length/);
+  assert.match(parseAnimated(['6s 7s']), /has 7s/);
+  assert.match(parseAnimated(['60s']), /runs 60s; an animation runs 1 to 20s/);
+  assert.match(parseAnimated(['60fps']), /the rate is 5 to 30fps/);
+});
+
+test('@play, @hide and @animated with words reach the generated example', () => {
+  const kit = kitWithExamples({
+    'a/1-moving.example.ts': documented('Moving', [
+      'Moving.',
+      '@animated 6s 20fps',
+      '@hide .controls',
+      '@play click .next',
+      '@play wait 500',
+    ]),
+    'a/2-clash.example.ts': documented('Clash', [
+      'Clash.',
+      '@play hover .x',
+      '@capture hover .x',
+      '@hide .a',
+      '@hide .b',
+    ]),
+  });
+  const { topics, problems } = extractExamples(kit);
+  const [moving, clash] = topics[0].examples;
+  assert.equal(moving.animated, true);
+  assert.deepEqual(moving.animation, { seconds: 6, fps: 20 });
+  assert.equal(moving.hide, '.controls');
+  assert.deepEqual(moving.play, [
+    { action: 'click', target: '.next' },
+    { action: 'wait', ms: 500 },
+  ]);
+  assert.equal(clash.capture, undefined);
+  assert.equal(clash.hide, '.a');
+  assert.deepEqual(problems, [
+    `${EXAMPLES_DIR}/a/2-clash.example.ts:9: Clash has a second @hide; join the selectors`,
+    `${EXAMPLES_DIR}/a/2-clash.example.ts:9: Clash has @play and @capture; @play's steps do what @capture does`,
+  ]);
+  const text = generate(kit).files.get(`${EXAMPLES_OUTPUT_DIR}/a.ts`);
+  assert.match(text, /^ {4}"animation": \{"seconds":6,"fps":20\},$/m);
+  assert.match(text, /^ {4}"hide": "\.controls",$/m);
+  assert.match(
+    text,
+    /^ {4}"play": \[\{"action":"click","target":"\.next"\},\{"action":"wait","ms":500\}\],$/m,
+  );
 });
 
 test('parseCapture reads the action and the rest of the line as the selector', () => {

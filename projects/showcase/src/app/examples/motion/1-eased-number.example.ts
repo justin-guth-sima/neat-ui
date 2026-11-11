@@ -7,6 +7,15 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
 /**
  * A frame rate that eases to each value instead of jumping. Press Next value for a step, and No
  * value for the dash: the next value after it appears at once, as the first one did.
+ *
+ * @animated
+ * @hide button
+ * @play click button
+ * @play wait 500
+ * @play click button
+ * @play wait 500
+ * @play click button
+ * @play wait 500
  */
 @Component({
   selector: 'app-eased-number',

@@ -149,11 +149,6 @@ A panel whose state is remembered.
 
 _This example needs a page of its own: it runs in the showcase._
 
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/aside/remembered-panel.dark.webp">
-<img src="../images/aside/remembered-panel.light.webp" alt="Aside: Remembered panel" width="1224">
-</picture>
-
 <details>
 <summary>Code</summary>
 

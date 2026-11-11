@@ -11,8 +11,10 @@ A section that a full-width button opens and closes, such as a panel's "Details"
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/collapsible/summary-and-save.dark.webp">
-<img src="../images/collapsible/summary-and-save.light.webp" alt="Collapsible: Summary and save" width="384">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/collapsible/summary-and-save.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/collapsible/summary-and-save.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/collapsible/summary-and-save.dark.animated.webp">
+<img src="../images/collapsible/summary-and-save.light.animated.webp" alt="Collapsible: Summary and save" width="384">
 </picture>
 
 ```ts
@@ -26,8 +28,10 @@ import { NeatCollapsible } from '@sima/neat-ui/collapsible';
 Two sections. Details says what it holds while it is closed. Open Change board and press Save: the section closes and the focus is on its button, not lost to the page.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/collapsible/summary-and-save.dark.webp">
-<img src="../images/collapsible/summary-and-save.light.webp" alt="Collapsible: Summary and save" width="384">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/collapsible/summary-and-save.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/collapsible/summary-and-save.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/collapsible/summary-and-save.dark.animated.webp">
+<img src="../images/collapsible/summary-and-save.light.animated.webp" alt="Collapsible: Summary and save" width="384">
 </picture>
 
 <details>
@@ -89,8 +93,10 @@ A log with two controls at the end of its row, outside its button. The summary c
 Try Add line, which works open or closed. Clear is there only while the log is open.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/collapsible/end-controls.dark.webp">
-<img src="../images/collapsible/end-controls.light.webp" alt="Collapsible: End controls" width="384">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/collapsible/end-controls.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/collapsible/end-controls.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/collapsible/end-controls.dark.animated.webp">
+<img src="../images/collapsible/end-controls.light.animated.webp" alt="Collapsible: End controls" width="384">
 </picture>
 
 <details>

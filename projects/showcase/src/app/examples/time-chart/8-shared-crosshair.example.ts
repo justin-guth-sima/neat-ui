@@ -45,6 +45,12 @@ const clock = (time: number) => new Date(time).toISOString().slice(11, 19);
  *
  * The card shows the moment, and the last click on any of the charts. Its buttons set the moment
  * from outside.
+ *
+ * @animated
+ * @play hover at 20%,50% .plot
+ * @play hover at 55%,50% .plot
+ * @play hover at 85%,50% .plot
+ * @play wait 400
  */
 @Component({
   selector: 'app-shared-crosshair',

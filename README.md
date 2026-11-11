@@ -135,8 +135,10 @@ Also: [Legend](docs/components/legend.md).
 </td>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/roi-editor.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/roi-editor/drawing-regions.dark.webp">
-<img src="docs/images/roi-editor/drawing-regions.light.webp" alt="ROI editor: Drawing regions">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="docs/images/roi-editor/drawing-regions.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="docs/images/roi-editor/drawing-regions.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/roi-editor/drawing-regions.dark.animated.webp">
+<img src="docs/images/roi-editor/drawing-regions.light.animated.webp" alt="ROI editor: Drawing regions">
 </picture></a><br>
 <a href="docs/components/roi-editor.md"><b>ROI editor</b></a>
 </td>
@@ -208,8 +210,10 @@ In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [As
 <tr>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/tooltip.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/tooltip/positions.dark.webp">
-<img src="docs/images/tooltip/positions.light.webp" alt="Tooltip: Positions">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="docs/images/tooltip/positions.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="docs/images/tooltip/positions.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/tooltip/positions.dark.animated.webp">
+<img src="docs/images/tooltip/positions.light.animated.webp" alt="Tooltip: Positions">
 </picture></a><br>
 <a href="docs/components/tooltip.md"><b>Tooltip</b></a>
 </td>
@@ -358,8 +362,10 @@ In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [As
 </td>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/progress.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/progress/titled-readout.dark.webp">
-<img src="docs/images/progress/titled-readout.light.webp" alt="Progress: Titled readout">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="docs/images/progress/titled-readout.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="docs/images/progress/titled-readout.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/progress/titled-readout.dark.animated.webp">
+<img src="docs/images/progress/titled-readout.light.animated.webp" alt="Progress: Titled readout">
 </picture></a><br>
 <a href="docs/components/progress.md"><b>Progress</b></a>
 </td>

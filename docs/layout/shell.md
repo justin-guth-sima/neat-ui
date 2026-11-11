@@ -13,8 +13,8 @@ The app frame: a top bar, a rail of pages on the left, and the content area for 
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/shell/kiosk.dark.webp">
-<img src="../images/shell/kiosk.light.webp" alt="Shell: Kiosk" width="647">
+<source media="(prefers-color-scheme: dark)" srcset="../images/shell/rail-items.dark.webp">
+<img src="../images/shell/rail-items.light.webp" alt="Shell: Rail items" width="1224">
 </picture>
 
 ```ts
@@ -30,11 +30,6 @@ Kiosk mode for an expo, from [`KioskService`](../layout/shell.md#kioskservice).
 `toggle()` enters it, which hides the shell's rail and top bar and asks for fullscreen. `toggle()` leaves it too, as a floating exit control does.
 
 `pointerIdle` turns true once the pointer has rested for [`KIOSK_POINTER_IDLE_MS`](../layout/shell.md#kiosk_pointer_idle_ms), which is how a page hides its own chrome. A component that has UI of its own outside the floating bar holds the bar open with `holdToolbar()`, until it releases it.
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/shell/kiosk.dark.webp">
-<img src="../images/shell/kiosk.light.webp" alt="Shell: Kiosk" width="647">
-</picture>
 
 <details>
 <summary>Code</summary>

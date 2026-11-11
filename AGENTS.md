@@ -225,6 +225,19 @@ is the doc comment, and the snippet under an example is the file that renders it
   matches, or hover the first, and show what opened: beside the example, or alone when it is modal
   or opened away from it. `docs:emit` checks its action and that it is one line; a selector that
   matches nothing is a warning of the capture, which then pictures the example as it is.
+  An example the docs picture by driving it takes a script instead: `@play hover <selector>`,
+  `@play click <selector>` (either with `at <x>%,<y>%` of the target's box before the selector)
+  and `@play wait <ms>`, one step a tag, in order. Its still shows the state the script leaves
+  (an open section, a crosshair, the last tooltip), framed with what it opened as for `@capture`
+  (the two do not go together, a doc problem), and with `@animated` the animation shows the
+  script run: a drawn cursor glides to each target, then hovers or clicks it. `@hide <selector>`
+  names the example's controls that only drive it for the reader (the slider under a progress
+  bar, a "Next value" button): the pictures leave them out (no opacity, so the script still
+  drives them) and draw no cursor. Why: hover and click behavior is the point of a tooltip or a
+  collapsible, so the cursor shows it; a progress bar's slider is not, so the bar moves alone.
+  `@animated` takes a length and a rate where the defaults do not suit (`@animated 8s 20fps`, the
+  messaging pipeline, whose dots jump at 10 frames a second); a script runs as long as its steps
+  take.
 - `npm run docs:emit -- --check` (which `npm run test:tools` runs, so CI does) fails on a stale,
   missing or extra module and on doc problems: a part or an own input, model or output without a
   doc, an example without a caption or with a tag that is not one of its options, a caption naming
@@ -247,8 +260,13 @@ is the doc comment, and the snippet under an example is the file that renders it
   lossless than lossy at that setting (the bird's-eye view: about 260 kB against 1 MB from
   Chrome's lossy encoder), with no artifacts; Chrome's own lossless encoder is a fast one, larger
   than its lossy. A `<video>` plays on the browser's clock, not the fake one, so a video's
-  frames come as the page shows them. It warns past its size budget (150 kB a picture, 400 kB an
-  animation, 40 MB in all) and never fails for it, and it lists the pictures no example makes any
+  frames come as the page shows them. A scripted animation (`@play`, `@hide`) is framed anew each
+  frame over the whole viewport, the example's part and its open overlays, and cut to their
+  union, so a section that opens or a tooltip past the example stays in the picture; the cursor
+  is drawn onto the frame, above every overlay. The trim measures an SVG's shapes as well as its
+  box, since a drawing may run past it (the diagram's loops). It warns past its size budget (150 kB
+  a picture, 400 kB an animation, 40 MB in all) and never fails for it, and it lists the pictures no
+  example makes any
   more rather than deleting them. `-- --gallery` takes only the `@gallery` examples, and
   `-- --only stills` or `-- --only animations` only the one kind. Pictures are committed (the docs
   pages and the README's gallery show them) and retaken at a release, not on every change: a

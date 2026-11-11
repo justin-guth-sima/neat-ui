@@ -1,7 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NeatButton, neatStoredSignal } from '@sima/neat-ui';
 
-/** A count kept in localStorage: press, then reload the page, and the count stays. */
+/**
+ * A count kept in localStorage: press, then reload the page, and the count stays.
+ *
+ * @unpictured
+ */
 @Component({
   selector: 'app-press-counter',
   imports: [NeatButton],

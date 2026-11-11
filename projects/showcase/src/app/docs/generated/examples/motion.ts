@@ -9,6 +9,9 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "eased-number",
     "title": "Eased number",
     "component": EasedNumber,
+    "animated": true,
+    "play": [{"action":"click","target":"button"},{"action":"wait","ms":500},{"action":"click","target":"button"},{"action":"wait","ms":500},{"action":"click","target":"button"},{"action":"wait","ms":500}],
+    "hide": "button",
     "caption": [
       {
         "kind": "paragraph",
@@ -49,6 +52,9 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "eased-signal",
     "title": "Eased signal",
     "component": EasedSignal,
+    "animated": true,
+    "play": [{"action":"click","target":"button"},{"action":"wait","ms":500},{"action":"click","target":"button"},{"action":"wait","ms":500},{"action":"click","target":"button"},{"action":"wait","ms":500}],
+    "hide": "button",
     "caption": [
       {
         "kind": "paragraph",
@@ -109,6 +115,9 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "curves",
     "title": "Curves",
     "component": Curves,
+    "animated": true,
+    "play": [{"action":"click","target":"button"},{"action":"wait","ms":500},{"action":"click","target":"button"},{"action":"wait","ms":500},{"action":"click","target":"button"},{"action":"wait","ms":500}],
+    "hide": "button",
     "caption": [
       {
         "kind": "paragraph",

@@ -8,6 +8,8 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "summary-and-save",
     "title": "Summary and save",
     "component": SummaryAndSave,
+    "animated": true,
+    "play": [{"action":"click","target":"neat-collapsible:nth-of-type(1) [data-slot=collapsible-trigger]"},{"action":"click","target":"neat-collapsible:nth-of-type(2) [data-slot=collapsible-trigger]"},{"action":"wait","ms":800}],
     "caption": [
       {
         "kind": "paragraph",
@@ -54,6 +56,8 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "end-controls",
     "title": "End controls",
     "component": EndControls,
+    "animated": true,
+    "play": [{"action":"click","target":"[data-slot=collapsible-trigger]"},{"action":"click","target":"[neatCollapsibleEnd]"},{"action":"click","target":"[neatCollapsibleEnd]"},{"action":"wait","ms":600}],
     "caption": [
       {
         "kind": "paragraph",

@@ -11,8 +11,10 @@ A horizontal progress bar.
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/progress/titled-readout.dark.webp">
-<img src="../images/progress/titled-readout.light.webp" alt="Progress: Titled readout" width="434">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/progress/titled-readout.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/progress/titled-readout.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/progress/titled-readout.dark.animated.webp">
+<img src="../images/progress/titled-readout.light.animated.webp" alt="Progress: Titled readout" width="434">
 </picture>
 
 ```ts
@@ -92,8 +94,10 @@ export class KnownAndUnknown {
 Two titled readouts. The first follows the slider. Its detail is longer than the line, so it is cut at the end, and hovering it shows the whole text. The second has no value, so it has no percent.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/progress/titled-readout.dark.webp">
-<img src="../images/progress/titled-readout.light.webp" alt="Progress: Titled readout" width="434">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/progress/titled-readout.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/progress/titled-readout.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/progress/titled-readout.dark.animated.webp">
+<img src="../images/progress/titled-readout.light.animated.webp" alt="Progress: Titled readout" width="434">
 </picture>
 
 <details>

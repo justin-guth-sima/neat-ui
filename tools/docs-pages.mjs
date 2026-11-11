@@ -372,8 +372,11 @@ export async function pages(root = ROOT) {
     const both = (animated) =>
       existsSync(file('light', animated)) && existsSync(file('dark', animated));
     if (!both(false)) return null;
-    const size = webpSize(readFileSync(file('light', false)));
-    return size ? { width: Math.round(size.width / PICTURE_DPR), animated: both(true) } : null;
+    // A scripted animation may frame more than its still (a section it opens, a tooltip), so
+    // the picture takes the width of what it shows.
+    const animated = both(true);
+    const size = webpSize(readFileSync(file('light', animated)));
+    return size ? { width: Math.round(size.width / PICTURE_DPR), animated } : null;
   };
 
   const files = new Map();

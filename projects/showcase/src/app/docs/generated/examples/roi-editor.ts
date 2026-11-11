@@ -8,6 +8,8 @@ export const EXAMPLES: readonly DocsExample[] = [
     "title": "Drawing regions",
     "component": DrawingRegions,
     "gallery": true,
+    "animated": true,
+    "animation": {"seconds":6},
     "caption": [
       {
         "kind": "paragraph",
@@ -70,10 +72,10 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'off'"],["text",", label: "],["string","'Off'"],["text"," },\n  { value: "],
           ["string","'inclusion'"],["text",", label: "],["string","'Inclusion'"],["text"," },\n  { value: "],
           ["string","'exclusion'"],["text",", label: "],["string","'Exclusion'"],["text"," },\n];\n\n"],
-          ["comment","/**\n * The box crosses the middle of the image, which is 640 by 360, with its center at mid height; this\n * exclusion region straddles that line, so the box vanishes as its center enters the region and\n * returns as it leaves.\n */"],
+          ["comment","/**\n * The box crosses the middle of the image, which is 640 by 360, with its center at mid height; this\n * exclusion region, an uneven heptagon as a hand would draw it, straddles that line, so the box\n * vanishes as its center enters the region and returns as it leaves.\n */"],
           ["text","\n"],
           ["keyword","const"],["text"," STARTING_REGIONS: "],["keyword","readonly"],["text"," NeatRoiPolygon[] = [\n  {\n    type: "],
-          ["string","'exclusion'"],["text",",\n    points: [\n      { x: 0.4, y: 0.25 },\n      { x: 0.6, y: 0.25 },\n      { x: 0.6, y: 0.75 },\n      { x: 0.4, y: 0.75 },\n    ],\n  },\n];\n\n@Component({\n  selector: "],
+          ["string","'exclusion'"],["text",",\n    points: [\n      { x: 0.42, y: 0.18 },\n      { x: 0.57, y: 0.24 },\n      { x: 0.63, y: 0.45 },\n      { x: 0.58, y: 0.72 },\n      { x: 0.47, y: 0.82 },\n      { x: 0.36, y: 0.63 },\n      { x: 0.38, y: 0.36 },\n    ],\n  },\n];\n\n@Component({\n  selector: "],
           ["string","'app-drawing-regions'"],["text",",\n  imports: [NeatButton, NeatRoiEditor, NeatRoiSwatch, NeatSegmented, NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
           ["string","`\n    <div class=\"showcase-row\">\n      <neat-segmented label=\"Drawing mode\" [options]=\"modes\" [(value)]=\"mode\" />\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"regions.set([])\">\n        Clear regions\n      </button>\n      <button neatSwitch (checkedChange)=\"testPattern.setPaused($event)\">Pause the source</button>\n      <span class=\"key\"><neat-roi-swatch type=\"inclusion\" />Inclusion</span>\n      <span class=\"key\"><neat-roi-swatch type=\"exclusion\" />Exclusion</span>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n    <div class=\"cell\">\n      <neat-video-tile [source]=\"testPattern\" [settings]=\"settings()\" [bars]=\"false\">\n        <neat-roi-editor\n          neatTileOverlay\n          [regions]=\"regions()\"\n          [mode]=\"mode()\"\n          [(highlighted)]=\"highlighted\"\n          (regionsChange)=\"regions.set($event)\"\n        />\n      </neat-video-tile>\n    </div>\n    <p class=\"rule showcase-muted\">\n      A box shows while its center is in an inclusion region, or there is none, and in no exclusion\n      region.\n    </p>\n  `"],
           ["text",",\n  styleUrl: "],

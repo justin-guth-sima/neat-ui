@@ -1336,8 +1336,10 @@ The heatmap names a cell: its row and a time. The app keeps the row it was last 
 The card shows the moment, and the last click on any of the charts. Its buttons set the moment from outside.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/time-chart/shared-crosshair.dark.webp">
-<img src="../images/time-chart/shared-crosshair.light.webp" alt="Time chart: Shared crosshair" width="900">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/time-chart/shared-crosshair.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/time-chart/shared-crosshair.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/time-chart/shared-crosshair.dark.animated.webp">
+<img src="../images/time-chart/shared-crosshair.light.animated.webp" alt="Time chart: Shared crosshair" width="900">
 </picture>
 
 <details>
