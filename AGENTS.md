@@ -260,8 +260,10 @@ is the doc comment, and the snippet under an example is the file that renders it
   lossless than lossy at that setting (the bird's-eye view: about 260 kB against 1 MB from
   Chrome's lossy encoder), with no artifacts; Chrome's own lossless encoder is a fast one, larger
   than its lossy. A `<video>` plays on the browser's clock, not the fake one, so a video's
-  frames come as the page shows them. A scripted animation (`@play`, `@hide`) is framed anew each
-  frame over the whole viewport, the example's part and its open overlays, and cut to their
+  frames come as the page shows them; a video frame callback is given the fake clock's time, as
+  Playwright gives `requestAnimationFrame`, since the tile measures a stall between the two (it
+  blurred for a frame every 1.8 s before). A scripted animation (`@play`, `@hide`) is framed anew
+  each frame over the whole viewport, the example's part and its open overlays, and cut to their
   union, so a section that opens or a tooltip past the example stays in the picture; the cursor
   is drawn onto the frame, above every overlay. The trim measures an SVG's shapes as well as its
   box, since a drawing may run past it (the diagram's loops). It warns past its size budget (150 kB

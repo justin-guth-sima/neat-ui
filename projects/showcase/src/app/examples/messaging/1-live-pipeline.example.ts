@@ -125,10 +125,14 @@ export class LivePipeline {
   protected readonly pipeline = PIPELINE;
   protected readonly legend = PIPELINE_LEGEND;
   protected readonly steps = PIPELINE_MESSAGE_STEPS;
-  /** The dots' tuning, kept per browser: what `neatParseMessageSettings` reads back clamped. */
+  /**
+   * The dots' tuning, kept per browser: what `neatParseMessageSettings` reads back clamped. It
+   * starts calmer than the kit's defaults, slower and a dot for every third message, so the
+   * pipeline reads at a glance; the panel's reset goes back to the kit's.
+   */
   protected readonly dots = neatStoredSignal(
     'showcase.diagram.dots',
-    NEAT_DIAGRAM_MESSAGE_DEFAULTS,
+    { ...NEAT_DIAGRAM_MESSAGE_DEFAULTS, speed: 140, every: 3 },
     neatParseMessageSettings,
   );
   /** The YOLOX stage time the Detector's card shows, in ms. */

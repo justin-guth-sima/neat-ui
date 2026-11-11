@@ -771,6 +771,17 @@ async function animateScheme(browser, run) {
     },
     [SCHEME_KEY, scheme, DOCS_ASIDE_OPEN_KEY],
   );
+  // Playwright's clock fakes performance.now() and requestAnimationFrame's time, not the time a
+  // video frame callback is given, which stays the browser's own. Code that measures one against
+  // the other (the video tile's stall check) would see the two clocks drift apart and call a
+  // playing stream stopped, so the callback is given the fake clock's time too.
+  await context.addInitScript(() => {
+    const request = HTMLVideoElement.prototype.requestVideoFrameCallback;
+    if (!request) return;
+    HTMLVideoElement.prototype.requestVideoFrameCallback = function (callback) {
+      return request.call(this, (_, metadata) => callback(performance.now(), metadata));
+    };
+  });
   await context.clock.install();
   const page = await context.newPage();
   page.on('pageerror', (error) => log(`  page error: ${error.message}`));
