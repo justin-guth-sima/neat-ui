@@ -2940,7 +2940,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", a search field at the top, named and hinted by that text, filters the links. It keeps those whose label holds what was typed, ignoring case, and a group's heading while any of its links is kept. When none is kept, it says \"Nothing matches\"."
+              "text": ", a "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatSearch",
+              "name": "NeatSearch"
+            },
+            {
+              "kind": "text",
+              "text": " at the top, named and hinted by that text, filters the links. It keeps those whose label holds what was typed, ignoring case, and a group's heading while any of its links is kept. When none is kept, it says \"Nothing matches\"."
             }
           ]
         },
@@ -3728,6 +3737,255 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/src/lib/theme/theme-colors.ts"
+    },
+    {
+      "name": "NeatSearch",
+      "kind": "component",
+      "selector": "neat-search",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A search field, for filtering what a page shows."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-search label=\"Filter streams\" [(value)]=\"query\" [status]=\"matches() + ' streams'\" />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The search glyph sits at its start. While the field holds text, a clear button sits at its end, and Escape clears it too. Escape in an empty field is left alone, so a dialog or a page's own handling still gets it. Clearing puts the focus back in the field."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": " is the field's accessible name, and a "
+            },
+            {
+              "kind": "code",
+              "text": "placeholder"
+            },
+            {
+              "kind": "text",
+              "text": " is only a hint beside it. "
+            },
+            {
+              "kind": "code",
+              "text": "status"
+            },
+            {
+              "kind": "text",
+              "text": " is a short line under the field, such as \"12 streams\" or \"Nothing matches\", repeated politely to a screen reader as it changes. Without "
+            },
+            {
+              "kind": "code",
+              "text": "status"
+            },
+            {
+              "kind": "text",
+              "text": " there is no line."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It filters as the user types: the app reads "
+            },
+            {
+              "kind": "code",
+              "text": "value"
+            },
+            {
+              "kind": "text",
+              "text": " and decides what matches. It is a native "
+            },
+            {
+              "kind": "code",
+              "text": "input type=\"search\""
+            },
+            {
+              "kind": "text",
+              "text": ", with the browser's own clear button hidden so there is one, and without the browser's suggestions or spell checking, which a filter has no use for."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "label",
+          "type": "string",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The field's accessible name (\"Filter streams\"); required, since a hint is no name."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "default": "''",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A hint inside the empty field; none by default."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "size",
+          "type": "NeatSearchSize",
+          "default": "'medium'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The field's height, "
+                },
+                {
+                  "kind": "code",
+                  "text": "medium"
+                },
+                {
+                  "kind": "text",
+                  "text": " (2.25rem) or "
+                },
+                {
+                  "kind": "code",
+                  "text": "small"
+                },
+                {
+                  "kind": "text",
+                  "text": " (2rem)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "clearLabel",
+          "type": "string",
+          "default": "'Clear search'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The clear button's accessible name."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A short line under the field about what the search found (\"12 streams\", \"Nothing matches\"), announced politely as it changes; no line while it is undefined."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "models": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "''",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What the field holds; the app filters by it."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/search/search.ts"
+    },
+    {
+      "name": "NeatSearchSize",
+      "kind": "type",
+      "definition": "'small' | 'medium'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The field's height: "
+            },
+            {
+              "kind": "code",
+              "text": "medium"
+            },
+            {
+              "kind": "text",
+              "text": " (2.25rem) and "
+            },
+            {
+              "kind": "code",
+              "text": "small"
+            },
+            {
+              "kind": "text",
+              "text": " (2rem), the heights of "
+            },
+            {
+              "kind": "code",
+              "text": "neatInput"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/search/search.ts"
     },
     {
       "name": "NeatSeriesSwatch",

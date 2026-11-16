@@ -26,7 +26,10 @@ look happens in one place. Every rule here protects that.
     `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatBreadcrumbs` (`neat-breadcrumbs`, the
     kit's one breadcrumb: a `nav` named by `label`, each crumb but the last an inline button whose
     index `go` emits, the last the location with its detail muted; the file browser and the
-    diagram's level bar use it), `NeatTooltip`, `NeatNote`, `NeatLiveDot` (a
+    diagram's level bar use it), `NeatTooltip`, `NeatNote`, `NeatSearch` (`neat-search`, the kit's
+    one search field: a search glyph, a clear button and Escape to clear, always, and an optional
+    `status` line announced politely; the page nav's and the file browser's filters are it),
+    `NeatLiveDot` (a
     red dot for something live, still or, with `pulse`, beating with a ring that grows out of it;
     its red is `--neat-live`, not `--destructive`, held to 3:1 on the page and on the video scrim
     over black to mid-gray video, so a "Live" badge over a picture can use it),
@@ -64,8 +67,8 @@ look happens in one place. Every rule here protects that.
     `toast` (`NeatToasts` and `neat-toast-host`), `select-list` (`NeatSelectList`, a listbox of rows
     in columns, with the `neatColumn` templates that lay them out and `NeatSelectListGroup` for
     rows under headings) and `file-browser`
-    (`NeatFileBrowser`, a tree's breadcrumb, count, filter and rows, built on `select-list`,
-    `input` and the primary's `NeatBreadcrumbs`; `NeatFileNode` is its tree), `status-chip`
+    (`NeatFileBrowser`, a tree's breadcrumb, count, filter and rows, built on `select-list`
+    and the primary's `NeatSearch` and `NeatBreadcrumbs`; `NeatFileNode` is its tree), `status-chip`
     (`NeatStatusChip`, a short status on a status fill, and `NeatStatusChipButton`, the same as a
     button; their `NeatTone` is the primary's, since a select list's `rowTone` takes the same
     tones; `variant="tinted"` puts the tone's color on its `--neat-tint-<tone>-accent`, for chips
@@ -654,7 +657,7 @@ yet the secondary entries need them, and an entry sees the primary only through 
 the primary exports `ɵhlm`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
 `ɵFIELD_LABEL_CLASSES` (the field label's look, which `select` and `field` share so that their
 fields line up), `ɵINPUT_CLASSES` and `ɵINPUT_HELM_CLASSES` (the text field's look, which `input`
-shares with the page nav's filter), `ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
+shares with the primary's `NeatSearch`), `ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
 look, which `collapsible` shares with the page nav on a narrow screen), `ɵSTALE_CLASSES` (the stale
 look, which `diagram` gives a node's card), `ɵOverlayFocus` and `ɵPANEL_SURFACE_CLASSES` and
 `ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel in the overlay, which
@@ -1207,7 +1210,7 @@ number of tools and a switch in it moves too.
   pages and their `children`: for more than a few of a page's links, links in groups, or a level
   below a sub-page. Data, not content: `groups` (`NeatPageNavGroup`, an optional heading `label`
   and its `items`, each `NeatPageNavLink` a `label` and an absolute `path`) and an optional
-  `filterLabel`, which adds a search field at its top that keeps the links whose label holds what
+  `filterLabel`, which adds a `NeatSearch` at its top that keeps the links whose label holds what
   was typed (ignoring case) and a group's heading while any of its links is kept, and says
   "Nothing matches" when none is. The open link is the one whose `path` the route is under, query
   and fragment ignored, the longest such path winning; it carries `aria-current="page"` and has

@@ -262,12 +262,21 @@ In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [As
 <a href="docs/components/input.md"><b>Input</b></a>
 </td>
 <td align="center" valign="top" width="33%">
+<a href="docs/components/search.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/search/filtering-a-list.dark.webp">
+<img src="docs/images/search/filtering-a-list.light.webp" alt="Search: Filtering a list">
+</picture></a><br>
+<a href="docs/components/search.md"><b>Search</b></a>
+</td>
+<td align="center" valign="top" width="33%">
 <a href="docs/components/number-field.md"><picture>
 <source media="(prefers-color-scheme: dark)" srcset="docs/images/number-field/page-with-a-limit.dark.webp">
 <img src="docs/images/number-field/page-with-a-limit.light.webp" alt="Number field: Page with a limit">
 </picture></a><br>
 <a href="docs/components/number-field.md"><b>Number field</b></a>
 </td>
+</tr>
+<tr>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/field.md"><picture>
 <source media="(prefers-color-scheme: dark)" srcset="docs/images/field/hint-and-error.dark.webp">
@@ -275,8 +284,6 @@ In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [As
 </picture></a><br>
 <a href="docs/components/field.md"><b>Field</b></a>
 </td>
-</tr>
-<tr>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/select.md"><picture>
 <source media="(prefers-color-scheme: dark)" srcset="docs/images/select/label-positions.dark.webp">
@@ -291,6 +298,8 @@ In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [As
 </picture></a><br>
 <a href="docs/components/switch.md"><b>Switch</b></a>
 </td>
+</tr>
+<tr>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/slider.md"><picture>
 <source media="(prefers-color-scheme: dark)" srcset="docs/images/slider/described-and-disabled.dark.webp">
@@ -298,8 +307,6 @@ In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [As
 </picture></a><br>
 <a href="docs/components/slider.md"><b>Slider</b></a>
 </td>
-</tr>
-<tr>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/segmented.md"><picture>
 <source media="(prefers-color-scheme: dark)" srcset="docs/images/segmented/choices.dark.webp">
@@ -314,6 +321,8 @@ In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [As
 </picture></a><br>
 <a href="docs/components/tabs.md"><b>Tabs</b></a>
 </td>
+</tr>
+<tr>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/drop-zone.md"><picture>
 <source media="(prefers-color-scheme: dark)" srcset="docs/images/drop-zone/accepted-files.dark.webp">

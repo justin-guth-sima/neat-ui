@@ -329,7 +329,7 @@ Pages are rail items, and a page's sub-pages are its item's `children`. Anything
 
 The open link is the one whose `path` the URL is under, the longest such path winning. The query and fragment are never judged. The open link carries `aria-current="page"`, and has the rail's current-page look in the page's tokens: the accent fill and weight. The other links are muted until hovered.
 
-With `filterLabel`, a search field at the top, named and hinted by that text, filters the links. It keeps those whose label holds what was typed, ignoring case, and a group's heading while any of its links is kept. When none is kept, it says "Nothing matches".
+With `filterLabel`, a [`NeatSearch`](../components/search.md#neatsearch) at the top, named and hinted by that text, filters the links. It keeps those whose label holds what was typed, ignoring case, and a group's heading while any of its links is kept. When none is kept, it says "Nothing matches".
 
 The landmark is the app's: a screen reader hears a navigation landmark of links, so it needs a name, which only the app knows. A nav without an `aria-label` (or `aria-labelledby`) throws in dev mode. The name is read once, when the list is first drawn.
 

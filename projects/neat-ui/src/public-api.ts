@@ -57,6 +57,8 @@ export { NeatLiveDot } from './lib/live-dot/live-dot';
 export { NeatSeriesSwatch } from './lib/series-swatch/series-swatch';
 export { NeatSwatch } from './lib/swatch/swatch';
 export { NeatNote } from './lib/note/note';
+export type { NeatSearchSize } from './lib/search/search';
+export { NeatSearch } from './lib/search/search';
 export { NeatStale, STALE_CLASSES as ɵSTALE_CLASSES } from './lib/stale/stale';
 export { neatSecondsAgo } from './lib/time/seconds-ago';
 export { neatEased } from './lib/motion/eased';

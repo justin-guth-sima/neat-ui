@@ -10,7 +10,7 @@ export type NeatInputSize = 'small' | 'medium';
 
 /**
  * Helm's input classes, re-exported for input.spec's drift check; the primary keeps them with the
- * field's look, which the page nav shares for its filter.
+ * field's look, which `neat-search` shares.
  */
 export const INPUT_HELM_CLASSES = HELM_CLASSES;
 

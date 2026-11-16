@@ -367,6 +367,19 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
+            id: 'search',
+            label: 'Search',
+            parts: ['NeatSearch', 'NeatSearchSize'],
+            leads: ['NeatSearch'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/primary'),
+                import('./generated/examples/search'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'number-field',
             label: 'Number field',
             parts: ['NeatNumberField'],

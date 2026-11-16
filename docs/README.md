@@ -31,6 +31,7 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 ## Forms
 
 - [Input](components/input.md)
+- [Search](components/search.md)
 - [Number field](components/number-field.md)
 - [Field](components/field.md)
 - [Select](components/select.md)

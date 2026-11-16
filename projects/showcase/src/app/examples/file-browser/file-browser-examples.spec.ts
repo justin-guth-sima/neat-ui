@@ -83,7 +83,7 @@ describe('the file browser examples', () => {
     expect(row('overview.mp4')).toBeDefined();
     expect(readout()).toBe('Selected clips/overview.mp4, 1 checked, filter empty');
 
-    const filter = host.querySelector<HTMLInputElement>('input[type="text"]')!;
+    const filter = host.querySelector<HTMLInputElement>('neat-search input')!;
     filter.value = 'high';
     filter.dispatchEvent(new Event('input', { bubbles: true }));
     await fixture.whenStable();

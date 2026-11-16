@@ -154,7 +154,7 @@ async function render(setup: (host: BrowserHost) => void = () => undefined) {
       [...element.querySelectorAll('nav li')].map((li) =>
         li.querySelector('button, [aria-current]')!.textContent!.trim(),
       ),
-    filter: () => element.querySelector<HTMLInputElement>('input[type="text"]')!,
+    filter: () => element.querySelector<HTMLInputElement>('neat-search input')!,
     row: (name: string) =>
       view.options().find((o) => view.names()[view.options().indexOf(o)] === name)!,
     /** A row's box, which the list draws in manage mode. */

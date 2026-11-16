@@ -1,0 +1,11 @@
+/* The field takes what the buttons leave, up to a width that suits a filter. */
+.tools {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+  max-width: 28rem;
+}
+
+neat-search {
+  flex: 1 1 12rem;
+}

@@ -20,8 +20,8 @@ import {
   BrnCollapsibleTrigger,
 } from '@spartan-ng/brain/collapsible';
 import { COLLAPSIBLE_CLASSES } from '../collapsible/collapsible-classes';
-import { INPUT_CLASSES } from '../form/input-classes';
 import { NeatIcon } from '../icon/icon';
+import { NeatSearch } from '../search/search';
 import { openLink } from './open-link';
 import { NeatViewport } from './viewport';
 
@@ -69,7 +69,7 @@ let nextNavId = 0;
  * current-page look in the page's tokens: the accent fill and weight. The other links are muted
  * until hovered.
  *
- * With `filterLabel`, a search field at the top, named and hinted by that text, filters the links.
+ * With `filterLabel`, a `NeatSearch` at the top, named and hinted by that text, filters the links.
  * It keeps those whose label holds what was typed, ignoring case, and a group's heading while any
  * of its links is kept. When none is kept, it says "Nothing matches".
  *
@@ -99,6 +99,7 @@ let nextNavId = 0;
     BrnCollapsibleContent,
     BrnCollapsibleTrigger,
     NeatIcon,
+    NeatSearch,
     NgTemplateOutlet,
     RouterLink,
   ],
@@ -129,14 +130,7 @@ let nextNavId = 0;
     <ng-template #links>
       @if (filterLabel(); as label) {
         <div class="filter">
-          <input
-            type="search"
-            [class]="field"
-            [attr.aria-label]="label"
-            [placeholder]="label"
-            [value]="filter()"
-            (input)="filter.set($any($event.target).value)"
-          />
+          <neat-search size="small" [label]="label" [placeholder]="label" [(value)]="filter" />
         </div>
       }
       @for (group of shown(); track $index; let i = $index) {
@@ -182,7 +176,6 @@ export class NeatPageNav implements AfterViewInit {
 
   protected readonly id = `neat-page-nav-${++nextNavId}`;
   protected readonly collapsible = COLLAPSIBLE_CLASSES;
-  protected readonly field = INPUT_CLASSES.small;
   /** Whether the narrow screen's section is open. */
   protected readonly open = signal(false);
   /** The landmark's name, the narrow screen's section label. */

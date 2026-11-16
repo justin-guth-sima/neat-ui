@@ -13,8 +13,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { NeatBreadcrumbs, NeatIcon } from '@sima/neat-ui';
-import { NeatInput } from '@sima/neat-ui/input';
+import { NeatBreadcrumbs, NeatIcon, NeatSearch } from '@sima/neat-ui';
 import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
 import {
@@ -189,7 +188,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
     FileRowContext,
     NeatIcon,
     NeatBreadcrumbs,
-    NeatInput,
+    NeatSearch,
     NeatSelectList,
     NeatColumn,
     NeatStatusChip,
@@ -206,16 +205,11 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
     <p data-slot="file-browser-count" aria-live="polite" class="m-0 text-sm text-muted-foreground">
       {{ countText() }}
     </p>
-    <input
-      neatInput
+    <neat-search
       size="small"
-      type="text"
-      autocomplete="off"
-      spellcheck="false"
-      [attr.aria-label]="text().filter"
+      [label]="text().filter"
       [placeholder]="filterPlaceholder()"
-      [value]="filter()"
-      (input)="onFilter($event)"
+      [(value)]="filter"
     />
     <neat-select-list
       class="min-h-0 flex-1"
@@ -442,10 +436,6 @@ export class NeatFileBrowser {
       const kept = checked.filter((path) => present.has(path));
       if (kept.length !== checked.length) this.checked.set(kept);
     });
-  }
-
-  protected onFilter(event: Event): void {
-    this.filter.set((event.target as HTMLInputElement).value);
   }
 
   /**
