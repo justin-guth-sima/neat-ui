@@ -2,8 +2,14 @@ import { Routes } from '@angular/router';
 import { docsRoutes } from './docs/docs-routes';
 import { GROUPS } from './docs/topics';
 
-/** The page the showcase opens on, how an app starts on the kit: no group, so no sub-pages. */
+/**
+ * The page the showcase opens on, how an app starts on the kit, in no group: the Quick start at
+ * its own address, and the Tutorial below it, its two sub-pages in the rail.
+ */
 export const GETTING_STARTED = 'getting-started';
+
+/** The tutorial, from installing Node.js to a first app on the kit. */
+export const TUTORIAL = `${GETTING_STARTED}/tutorial`;
 
 /** The page of every result of the docs' search, which gets the search as `q`. */
 export const SEARCH = 'search';
@@ -13,8 +19,13 @@ export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: GETTING_STARTED },
   {
     path: GETTING_STARTED,
-    title: 'Getting started',
+    title: 'Quick start',
     loadComponent: () => import('./pages/getting-started.page').then((m) => m.GettingStartedPage),
+  },
+  {
+    path: TUTORIAL,
+    title: 'Tutorial',
+    loadComponent: () => import('./pages/tutorial/tutorial.page').then((m) => m.TutorialPage),
   },
   // Every result of the docs' search, which the top bar's palette links to; no rail item.
   {

@@ -1,0 +1,42 @@
+/* A file's name over its code. */
+.file-name {
+  margin-block-end: var(--neat-space-2);
+  font-size: var(--neat-text-sm);
+}
+
+/* What a step shows: its picture, framed as a window, and a line under it. */
+figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  margin: var(--neat-space-4) 0 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+figcaption,
+.see {
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-sm);
+}
+
+.reading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  margin: 0;
+  padding-inline-start: var(--neat-space-6);
+  list-style: disc;
+}
+
+.reading a {
+  color: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+}

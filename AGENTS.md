@@ -178,11 +178,20 @@ is the doc comment, and the snippet under an example is the file that renders it
   lead parts (the ones the body introduces) and its lazy loader are `docs/topics.ts`, written by
   hand. A topic with `fit: true` gets a Fit button in the top bar that calls `fit()` on each of
   its examples that has one.
-- **The rail has four items: Getting started, Theme, Layout and Components.** Getting started
-  (`/getting-started`, `pages/getting-started.page.ts`) is the showcase's own page, in no group:
-  how an app starts on the kit, its snippets held to the kit by its spec (the tarball's name, the
-  stylesheet's export, each part imported from its entry), and its note for coding agents held to
-  the package README's rules for an app. A group is a rail item, navigated as the kit says an app
+- **The rail has four items: Getting started, Theme, Layout and Components.** Getting started is
+  the showcase's own, in no group, with two sub-pages in the rail: the Quick start
+  (`/getting-started`, `pages/getting-started.page.ts`), how an app starts on the kit, its snippets
+  held to the kit by its spec (the tarball's name, the stylesheet's export, each part imported from
+  its entry), and its note for coding agents held to the package README's rules for an app; and
+  the Tutorial (`/getting-started/tutorial`, `pages/tutorial/`), for someone following by hand,
+  from installing Node.js to a small streams app, each step ending with a picture of what it shows
+  (`public/tutorial/<step>.webp`). The tutorial's code is real files, a folder per step under
+  `pages/tutorial/steps/`, each holding the files its step involves as they stand after it (the
+  unchanged ones its code needs included), so the build type-checks every step and the page's spec
+  renders the app as the steps leave it; `docs:emit` writes them into
+  `docs/generated/tutorial.ts`, showing a file only where it differs from an earlier step. A change
+  to a step is a change to its files, then `docs:emit`, and a new picture where it shows
+  differently. A group is a rail item, navigated as the kit says an app
   is (below): Theme's and Layout's few topics (`topics`) are its `children` in the rail;
   Components' categories (`categories`: Actions, Forms, Status, Data, Charts, Diagram, Video) are
   its `children`, and each category's topics are the page nav (`nav[neatPageNav]`, with a filter)

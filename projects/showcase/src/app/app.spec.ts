@@ -5,14 +5,20 @@ import { appConfig } from './app.config';
 
 /**
  * A page of each kind, with its rail item and the top bar's title: a sub-page's label beside its
- * page's, a topic of a category beside "page › category", Getting started alone.
+ * page's, a topic of a category beside "page › category", Getting started's beside its own.
  */
 const PAGES = [
   {
     path: '/getting-started',
     link: 'Getting started',
     heading: 'Add the package',
-    title: 'Getting started',
+    title: 'Quick start Getting started',
+  },
+  {
+    path: '/getting-started/tutorial',
+    link: 'Getting started',
+    heading: 'Install Node.js',
+    title: 'Tutorial Getting started',
   },
   { path: '/theme/tokens', link: 'Theme', heading: 'Theme variables', title: 'Tokens Theme' },
   { path: '/theme/colors', link: 'Theme', heading: 'ThemeService', title: 'Colors Theme' },
@@ -150,8 +156,17 @@ describe('App', () => {
       a.textContent?.trim(),
     );
     expect(labels).toEqual(['Getting started', 'Theme', 'Layout', 'Components']);
-    // Getting started has no sub-pages, so none unfold.
-    expect(rail().querySelector('a[data-child]')).toBeNull();
+  });
+
+  it('unfolds Getting started’s Quick start and Tutorial under its rail item', async () => {
+    await navigate('/getting-started/tutorial');
+    const children = rail().querySelectorAll('a[data-child]');
+
+    expect(linksOf(children)).toEqual([
+      ['Quick start', '/getting-started'],
+      ['Tutorial', '/getting-started/tutorial'],
+    ]);
+    expect(currentOf(children)).toEqual(['Tutorial']);
   });
 
   it('opens a page on its first sub-page, and a category on its first topic', async () => {
@@ -270,7 +285,7 @@ describe('App', () => {
   });
 
   it('titles the document with the app name and the page', async () => {
-    expect(document.title).toBe('neat-ui showcase · Getting started');
+    expect(document.title).toBe('neat-ui showcase · Quick start');
 
     await navigate('/components/data/select-list');
 

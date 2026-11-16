@@ -60,7 +60,7 @@ const NEXT = GROUPS.map((group) => ({
 /**
  * How an app starts on the kit, the page the showcase opens on: the package, the providers, the
  * stylesheet and the shell, a note for coding agents, and the way on to the docs. A page of the
- * showcase's own, in no group, so it has no sub-pages.
+ * showcase's own, in no group: Getting started's Quick start, beside its Tutorial.
  */
 @Component({
   selector: 'app-getting-started-page',
@@ -72,6 +72,8 @@ const NEXT = GROUPS.map((group) => ({
         <p class="lead">
           An Angular app on <code neatCode>&#64;sima/neat-ui</code> in four steps. The kit is a
           tarball that each app keeps in its repository, so a build never needs the kit's checkout.
+          New to Angular or Node.js? The <a routerLink="/getting-started/tutorial">Tutorial</a>
+          builds a first app step by step.
         </p>
         <ol class="steps">
           <li>
@@ -145,7 +147,7 @@ const NEXT = GROUPS.map((group) => ({
       </div>
     </neat-page>
   `,
-  styleUrl: './getting-started.page.css',
+  styleUrls: ['./guide.css', './getting-started.page.css'],
 })
 export class GettingStartedPage {
   protected readonly install = INSTALL;

@@ -1,0 +1,52 @@
+<neat-aside-toggle label="Details" [(open)]="panelOpen" />
+<neat-page scroll="none" [aside]="panelOpen() ? 'open' : 'closed'">
+  <div class="streams">
+    <neat-search
+      label="Filter streams"
+      placeholder="Name or source"
+      [status]="status()"
+      [(value)]="query"
+    />
+    <neat-select-list
+      label="Streams"
+      [items]="shown()"
+      [trackBy]="streamId"
+      [(selected)]="selected"
+      (selectedChange)="panelOpen.set(true)"
+    >
+      <ng-template neatColumn="name" header="Name" let-stream>{{ stream.name }}</ng-template>
+      <ng-template neatColumn="source" header="Source" let-stream>{{ stream.source }}</ng-template>
+      <ng-template neatColumn="state" header="State" width="6rem" let-stream>
+        <neat-status-chip [tone]="stream.live ? 'success' : 'neutral'">
+          {{ stream.live ? 'Live' : 'Idle' }}
+        </neat-status-chip>
+      </ng-template>
+    </neat-select-list>
+  </div>
+
+  <div neatPageAside neatAsidePanel>
+    @if (selected(); as stream) {
+      <h2 neatAsideTitle>{{ stream.name }}</h2>
+      <dl neatDetails>
+        <dt>Source</dt>
+        <dd>{{ stream.source }}</dd>
+        <dt>State</dt>
+        <dd>{{ stream.live ? 'Live' : 'Idle' }}</dd>
+      </dl>
+      <div neatAsideActions>
+        <button
+          neatButton
+          type="button"
+          [variant]="stream.live ? 'danger' : 'success'"
+          (click)="toggle(stream)"
+        >
+          <neat-icon [name]="stream.live ? 'stop' : 'play'" [size]="16" />
+          {{ stream.live ? 'Stop' : 'Start' }}
+        </button>
+      </div>
+    } @else {
+      <h2 neatAsideTitle>Details</h2>
+      <p>Pick a stream to see its details.</p>
+    }
+  </div>
+</neat-page>

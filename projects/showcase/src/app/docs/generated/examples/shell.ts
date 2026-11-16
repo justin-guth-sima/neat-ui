@@ -331,7 +331,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatNavItem, NeatShell } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSearchPalette } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/search-palette'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatToastHost } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/toast'"],["text",";\n"],
-          ["keyword","import"],["text"," { GETTING_STARTED, SEARCH } "],["keyword","from"],["text"," "],["string","'./app.routes'"],["text",";\n"],
+          ["keyword","import"],["text"," { GETTING_STARTED, SEARCH, TUTORIAL } "],["keyword","from"],["text"," "],["string","'./app.routes'"],["text",";\n"],
           ["keyword","import"],["text"," { groupNavItems } "],["keyword","from"],["text"," "],["string","'./docs/docs-routes'"],["text",";\n"],
           ["keyword","import"],["text"," { GROUPS } "],["keyword","from"],["text"," "],["string","'./docs/topics'"],["text",";\n"],
           ["keyword","import"],["text"," { DocsSearch } "],["keyword","from"],["text"," "],["string","'./search/docs-search'"],["text",";\n\n@Component({\n  imports: [NeatSearchPalette, NeatShell, NeatToastHost, RouterOutlet],\n  selector: "],
@@ -342,9 +342,14 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** The docs' search: topics at once, the API and the examples once its index has loaded. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," search = inject(DocsSearch).palette;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," searchPage = "],["string","`/${SEARCH}`"],["text",";\n\n  "],
-          ["comment","/** Getting started, then the docs' groups (Theme, Layout, Components) with their sub-pages. */"],["text","\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," navItems: NeatNavItem[] = [\n    { label: "],
-          ["string","'Getting started'"],["text",", icon: "],["string","'info'"],["text",", path: "],["string","`/${GETTING_STARTED}`"],["text"," },\n    ...groupNavItems(GROUPS),\n  ];\n}\n"]
+          ["comment","/**\n   * Getting started with its Quick start and Tutorial, then the docs' groups (Theme, Layout,\n   * Components) with their sub-pages.\n   */"],
+          ["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," navItems: NeatNavItem[] = [\n    {\n      label: "],
+          ["string","'Getting started'"],["text",",\n      icon: "],
+          ["string","'info'"],["text",",\n      path: "],
+          ["string","`/${GETTING_STARTED}`"],["text",",\n      children: [\n        { label: "],
+          ["string","'Quick start'"],["text",", path: "],["string","`/${GETTING_STARTED}`"],["text"," },\n        { label: "],
+          ["string","'Tutorial'"],["text",", path: "],["string","`/${TUTORIAL}`"],["text"," },\n      ],\n    },\n    ...groupNavItems(GROUPS),\n  ];\n}\n"]
         ]
       }
     ]

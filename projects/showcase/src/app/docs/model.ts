@@ -280,3 +280,10 @@ export type DocsSearchEntry =
       readonly id: string;
       readonly text: string;
     };
+
+/** A file of a step of the tutorial, as the reader's app has it; `docs:emit` reads them. */
+export interface DocsTutorialFile {
+  /** Its path in the reader's app (`src/app/app.routes.ts`). */
+  readonly path: string;
+  readonly text: string;
+}

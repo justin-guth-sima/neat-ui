@@ -1,0 +1,76 @@
+import { Component, computed, signal } from '@angular/core';
+import {
+  NeatAsideActions,
+  NeatAsidePanel,
+  NeatAsideTitle,
+  NeatAsideToggle,
+  NeatButton,
+  NeatIcon,
+  NeatPage,
+  NeatSearch,
+} from '@sima/neat-ui';
+import { NeatDetails } from '@sima/neat-ui/details';
+import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
+import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+
+export interface Stream {
+  id: string;
+  name: string;
+  source: string;
+  live: boolean;
+}
+
+const STREAMS: Stream[] = [
+  { id: 'front-door', name: 'Front door', source: 'rtsp://camera-1/main', live: true },
+  { id: 'loading-dock', name: 'Loading dock', source: 'rtsp://camera-2/main', live: true },
+  { id: 'parking-lot', name: 'Parking lot', source: 'parking-lot.mp4', live: false },
+  { id: 'lobby', name: 'Lobby', source: 'rtsp://camera-3/main', live: false },
+  { id: 'yard', name: 'Yard', source: 'yard.mp4', live: true },
+];
+
+@Component({
+  selector: 'app-streams',
+  imports: [
+    NeatAsideActions,
+    NeatAsidePanel,
+    NeatAsideTitle,
+    NeatAsideToggle,
+    NeatButton,
+    NeatColumn,
+    NeatDetails,
+    NeatIcon,
+    NeatPage,
+    NeatSearch,
+    NeatSelectList,
+    NeatStatusChip,
+  ],
+  templateUrl: './streams.html',
+  styleUrl: './streams.css',
+})
+export class Streams {
+  protected readonly streams = signal(STREAMS);
+  protected readonly selected = signal<Stream | null>(null);
+  protected readonly streamId = (stream: Stream) => stream.id;
+
+  protected readonly query = signal('');
+  protected readonly shown = computed(() => {
+    const query = this.query().trim().toLowerCase();
+    return this.streams().filter((stream) =>
+      `${stream.name} ${stream.source}`.toLowerCase().includes(query),
+    );
+  });
+  protected readonly status = computed(
+    () => `${this.shown().length} of ${this.streams().length} streams`,
+  );
+
+  protected readonly panelOpen = signal(false);
+
+  /** Starts a stream that is idle and stops one that is live. */
+  protected toggle(stream: Stream): void {
+    const changed = { ...stream, live: !stream.live };
+    this.streams.update((streams) =>
+      streams.map((each) => (each.id === stream.id ? changed : each)),
+    );
+    this.selected.set(changed);
+  }
+}

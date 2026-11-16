@@ -35,6 +35,8 @@ import {
   parsePlay,
   readIconGlyphs,
   SEARCH_INDEX_OUTPUT,
+  TUTORIAL_DIR,
+  tutorialFiles,
   searchIndex,
   summaryOf,
   SHELL_EXTRA,
@@ -2151,4 +2153,35 @@ test('the showcase gets the index of the real kit and examples', () => {
   const module = generate(ROOT).files.get(SEARCH_INDEX_OUTPUT);
   assert.match(module, /^export const SEARCH_INDEX: readonly DocsSearchEntry\[\] = \[$/m);
   assert.match(module, /"name": "NeatSearch",\n {4}"partKind": "component"/);
+});
+
+// --- the tutorial's files -------------------------------------------------------------------------
+
+test("a tutorial step shows the files it changes, not the ones it keeps for its code's sake", () => {
+  const root = mkdtempSync(join(tmpdir(), 'docs-emit-tutorial-'));
+  roots.push(root);
+  write(root, `${TUTORIAL_DIR}/02-new/src/app/app.routes.ts`, 'routes = [];\n');
+  write(root, `${TUTORIAL_DIR}/03-config/src/app/app.config.ts`, 'config;\n');
+  write(root, `${TUTORIAL_DIR}/03-config/src/app/app.routes.ts`, 'routes = [];\n');
+  write(root, `${TUTORIAL_DIR}/04-pages/src/app/app.routes.ts`, 'routes = [page];\n');
+  write(root, `${TUTORIAL_DIR}/04-pages/src/app/page/page.ts`, 'page;\n');
+  write(root, `${TUTORIAL_DIR}/04-pages/src/app/page/page.spec.ts`, 'spec;\n');
+
+  assert.deepEqual(tutorialFiles(root), {
+    '02-new': [{ path: 'src/app/app.routes.ts', text: 'routes = [];\n' }],
+    '03-config': [{ path: 'src/app/app.config.ts', text: 'config;\n' }],
+    '04-pages': [
+      { path: 'src/app/app.routes.ts', text: 'routes = [page];\n' },
+      { path: 'src/app/page/page.ts', text: 'page;\n' },
+    ],
+  });
+});
+
+test('every step of the tutorial has its picture', () => {
+  for (const step of Object.keys(tutorialFiles(ROOT))) {
+    assert.ok(
+      existsSync(join(ROOT, 'projects/showcase/public/tutorial', `${step}.webp`)),
+      `${step} has no picture in projects/showcase/public/tutorial`,
+    );
+  }
 });

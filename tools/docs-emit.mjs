@@ -1698,6 +1698,59 @@ function renderSearchIndex(index) {
   return `${HEADER}import type { DocsSearchEntry } from '../model';\n\nexport const SEARCH_INDEX: readonly DocsSearchEntry[] = ${data};\n`;
 }
 
+// --- the tutorial's files ---------------------------------------------------------------------
+
+/** The tutorial's code: a folder per step that changes files, each file as the reader's app has it. */
+export const TUTORIAL_DIR = `${SHOWCASE_APP}/pages/tutorial/steps`;
+export const TUTORIAL_OUTPUT = `${SHOWCASE_APP}/docs/generated/tutorial.ts`;
+
+/**
+ * The files each step of the tutorial changes, by step folder (`06-pages`), each with its path in
+ * the reader's app (`src/app/app.routes.ts`) and its text: what the tutorial's page shows and
+ * copies. A step's folder holds the files it involves as they stand after it, the unchanged ones
+ * its code needs included, so each folder compiles: they are real files of the showcase, which the
+ * build type-checks and its specs render. A file is shown where its text differs from the same
+ * file in an earlier step (`02-new-app` holds what `ng new` made, which no step shows).
+ */
+export function tutorialFiles(root) {
+  const base = join(root, TUTORIAL_DIR);
+  const steps = {};
+  const walk = (dir) =>
+    readdirSync(dir, { withFileTypes: true })
+      .sort((a, b) => byCodePoint(a.name, b.name))
+      .flatMap((entry) =>
+        entry.isDirectory() ? walk(join(dir, entry.name)) : [join(dir, entry.name)],
+      );
+  const folders = readdirSync(base, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort(byCodePoint);
+  const before = new Map();
+  for (const step of folders) {
+    const dir = join(base, step);
+    steps[step] = walk(dir)
+      .filter((file) => !file.endsWith('.spec.ts'))
+      .map((file) => ({
+        path: relative(dir, file).split(sep).join('/'),
+        text: readFileSync(file, 'utf8'),
+      }))
+      .filter(({ path, text }) => {
+        const changed = before.get(path) !== text;
+        before.set(path, text);
+        return changed;
+      });
+  }
+  return steps;
+}
+
+function renderTutorial(steps) {
+  const data = JSON.stringify(steps, null, 2);
+  return `${HEADER}import type { DocsTutorialFile } from '../model';
+
+export const TUTORIAL_FILES: Readonly<Record<string, readonly DocsTutorialFile[]>> = ${data};
+`;
+}
+
 /** The modules `docs:emit` writes, by path from the root, and the doc problems. */
 export function generate(root) {
   const kit = extractKit(root);
@@ -1707,6 +1760,9 @@ export function generate(root) {
   const { topics, problems } = extractExamples(root, kit);
   for (const { topic, examples } of topics) {
     files.set(`${EXAMPLES_OUTPUT_DIR}/${topic}.ts`, renderExamples(topic, examples));
+  }
+  if (existsSync(join(root, TUTORIAL_DIR))) {
+    files.set(TUTORIAL_OUTPUT, renderTutorial(tutorialFiles(root)));
   }
   if (existsSync(join(root, TOPICS_FILE))) {
     files.set(SEARCH_INDEX_OUTPUT, renderSearchIndex(searchIndex(kit.entries, topics)));
@@ -1790,6 +1846,7 @@ export const changesKit = (file) => file.endsWith('.ts') && !file.endsWith('.spe
  */
 export const changesExamples = (file) =>
   file === SHELL_EXTRA.file ||
+  file.split(/[\\/]/).slice(0, 3).join('/') === 'pages/tutorial/steps' ||
   (file.split(/[\\/]/)[0] === 'examples' && (changesKit(file) || file.endsWith('.css')));
 
 /** Writes now and after every change to the kit's source or the examples, until stopped. */

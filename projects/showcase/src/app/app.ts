@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { NeatNavItem, NeatShell } from '@sima/neat-ui';
 import { NeatSearchPalette } from '@sima/neat-ui/search-palette';
 import { NeatToastHost } from '@sima/neat-ui/toast';
-import { GETTING_STARTED, SEARCH } from './app.routes';
+import { GETTING_STARTED, SEARCH, TUTORIAL } from './app.routes';
 import { groupNavItems } from './docs/docs-routes';
 import { GROUPS } from './docs/topics';
 import { DocsSearch } from './search/docs-search';
@@ -37,9 +37,20 @@ export class App {
   protected readonly search = inject(DocsSearch).palette;
   protected readonly searchPage = `/${SEARCH}`;
 
-  /** Getting started, then the docs' groups (Theme, Layout, Components) with their sub-pages. */
+  /**
+   * Getting started with its Quick start and Tutorial, then the docs' groups (Theme, Layout,
+   * Components) with their sub-pages.
+   */
   protected readonly navItems: NeatNavItem[] = [
-    { label: 'Getting started', icon: 'info', path: `/${GETTING_STARTED}` },
+    {
+      label: 'Getting started',
+      icon: 'info',
+      path: `/${GETTING_STARTED}`,
+      children: [
+        { label: 'Quick start', path: `/${GETTING_STARTED}` },
+        { label: 'Tutorial', path: `/${TUTORIAL}` },
+      ],
+    },
     ...groupNavItems(GROUPS),
   ];
 }

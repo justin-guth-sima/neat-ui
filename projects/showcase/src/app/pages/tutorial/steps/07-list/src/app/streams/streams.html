@@ -1,0 +1,18 @@
+<neat-page scroll="none">
+  <div class="streams">
+    <neat-select-list
+      label="Streams"
+      [items]="streams()"
+      [trackBy]="streamId"
+      [(selected)]="selected"
+    >
+      <ng-template neatColumn="name" header="Name" let-stream>{{ stream.name }}</ng-template>
+      <ng-template neatColumn="source" header="Source" let-stream>{{ stream.source }}</ng-template>
+      <ng-template neatColumn="state" header="State" width="6rem" let-stream>
+        <neat-status-chip [tone]="stream.live ? 'success' : 'neutral'">
+          {{ stream.live ? 'Live' : 'Idle' }}
+        </neat-status-chip>
+      </ng-template>
+    </neat-select-list>
+  </div>
+</neat-page>
