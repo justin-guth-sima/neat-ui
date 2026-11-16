@@ -1,6 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { NeatSearch, type NeatSearchSize } from './search';
+import { composite, contrastRatio } from '../theme/color';
+import { spartanThemeTokens } from '../theme/spartan-theme';
+import searchStyles from './search.css' with { loader: 'text' };
+import { NeatSearch, type NeatSearchSize, type NeatSearchVariant } from './search';
 
 @Component({
   imports: [NeatSearch],
@@ -11,6 +14,7 @@ import { NeatSearch, type NeatSearchSize } from './search';
       label="Filter streams"
       placeholder="Name or channel"
       [size]="size()"
+      [variant]="variant()"
       [status]="status()"
       [(value)]="query"
     />
@@ -19,6 +23,7 @@ import { NeatSearch, type NeatSearchSize } from './search';
 class SearchHost {
   readonly query = signal('');
   readonly size = signal<NeatSearchSize>('medium');
+  readonly variant = signal<NeatSearchVariant>('filled');
   readonly status = signal<string | undefined>(undefined);
   /** Keydowns that reached the search's parent. */
   readonly passed = signal(0);
@@ -139,19 +144,75 @@ describe('NeatSearch', () => {
     expect(status()?.textContent?.trim()).toBe('');
   });
 
-  it('takes the kit field heights, with room for the glyph and the clear button', async () => {
-    const { fixture, host, field } = await render();
+  it('takes the kit field heights, and a large one with larger text and glyph', async () => {
+    const { fixture, host, root, field } = await render();
+    const glyphSize = () => root.querySelector('neat-icon.glyph svg')?.getAttribute('width');
     expect(field().classList).toContain('h-9');
-    // The start and end padding refine the field's `px`, which Tailwind orders before them.
-    expect(field().classList).toContain('ps-8');
-    expect(field().classList).toContain('pe-9');
+    expect(glyphSize()).toBe('16');
 
     host.size.set('small');
     await fixture.whenStable();
-
     expect(field().classList).toContain('h-8');
     expect(field().classList).not.toContain('h-9');
+
+    host.size.set('large');
+    await fixture.whenStable();
+    expect(field().classList).toContain('h-12');
+    expect(field().classList).toContain('text-base');
+    expect(glyphSize()).toBe('20');
+    expect(root.querySelector('neat-search')?.getAttribute('data-size')).toBe('large');
   });
+
+  it('is filled by default, and takes each look', async () => {
+    const { fixture, host, root, field } = await render();
+    const classes = () => Array.from(field().classList);
+    expect(root.querySelector('neat-search')?.getAttribute('data-variant')).toBe('filled');
+    expect(classes()).toEqual(
+      expect.arrayContaining(['rounded-full', 'bg-foreground/8', 'border-transparent']),
+    );
+
+    host.variant.set('outlined');
+    await fixture.whenStable();
+    expect(classes()).toEqual(expect.arrayContaining(['rounded-md', 'border-input']));
+    expect(classes()).not.toContain('bg-foreground/8');
+
+    host.variant.set('underlined');
+    await fixture.whenStable();
+    expect(classes()).toEqual(
+      expect.arrayContaining(['rounded-none', 'border-x-0', 'border-t-0', 'focus-visible:ring-0']),
+    );
+
+    host.variant.set('raised');
+    await fixture.whenStable();
+    expect(classes()).toEqual(expect.arrayContaining(['bg-card', 'shadow-sm', 'rounded-xl']));
+    expect(classes()).not.toContain('rounded-md');
+  });
+
+  it('leaves room for the glyph and the clear button in its stylesheet, over the field padding', () => {
+    expect(searchStyles).toMatch(
+      /input \{\s*padding-inline: var\(--search-text-start\) var\(--search-text-end\);/,
+    );
+    for (const look of ['filled', 'underlined']) {
+      expect(searchStyles).toContain(`:host([data-variant='${look}'])`);
+    }
+    expect(searchStyles).toContain(":host([data-size='large'])");
+  });
+
+  // The filled look's tint, the text color at 8% (12% on hover) over the surface it sits on.
+  for (const scheme of ['light', 'dark'] as const) {
+    it(`${scheme}: the filled look keeps its hint at 4.5:1 on the page, a card and a popover`, () => {
+      const tokens = spartanThemeTokens(scheme) as Record<string, string>;
+      for (const surface of ['background', 'card', 'popover']) {
+        for (const tint of [0.08, 0.12]) {
+          const fill = composite(tokens['foreground'], tint, tokens[surface]);
+          expect(
+            contrastRatio(tokens['muted-foreground'], fill),
+            `${tint} on --${surface}`,
+          ).toBeGreaterThanOrEqual(4.5);
+        }
+      }
+    });
+  }
 
   it('gives each field its own id', async () => {
     const first = await render();

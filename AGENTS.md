@@ -28,7 +28,9 @@ look happens in one place. Every rule here protects that.
     index `go` emits, the last the location with its detail muted; the file browser and the
     diagram's level bar use it), `NeatTooltip`, `NeatNote`, `NeatSearch` (`neat-search`, the kit's
     one search field: a search glyph, a clear button and Escape to clear, always, and an optional
-    `status` line announced politely; the page nav's and the file browser's filters are it),
+    `status` line announced politely; four looks, `filled` by default, `outlined`, `underlined` and
+    `raised`, and a `large` size for a search page; the page nav's and the file browser's filters
+    are it),
     `NeatLiveDot` (a
     red dot for something live, still or, with `pulse`, beating with a ring that grows out of it;
     its red is `--neat-live`, not `--destructive`, held to 3:1 on the page and on the video scrim

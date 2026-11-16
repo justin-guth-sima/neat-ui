@@ -3807,6 +3807,59 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "code",
+              "text": "variant"
+            },
+            {
+              "kind": "text",
+              "text": " is its look: "
+            },
+            {
+              "kind": "code",
+              "text": "'filled'"
+            },
+            {
+              "kind": "text",
+              "text": " by default, "
+            },
+            {
+              "kind": "code",
+              "text": "'outlined'"
+            },
+            {
+              "kind": "text",
+              "text": " among a form's fields, "
+            },
+            {
+              "kind": "code",
+              "text": "'underlined'"
+            },
+            {
+              "kind": "text",
+              "text": ", or "
+            },
+            {
+              "kind": "code",
+              "text": "'raised'"
+            },
+            {
+              "kind": "text",
+              "text": " with "
+            },
+            {
+              "kind": "code",
+              "text": "size=\"large\""
+            },
+            {
+              "kind": "text",
+              "text": " for a page whose main job is searching."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
               "kind": "text",
               "text": "It filters as the user types: the app reads "
             },
@@ -3863,6 +3916,54 @@ export const API: DocsEntry = {
           ]
         },
         {
+          "name": "variant",
+          "type": "NeatSearchVariant",
+          "default": "'filled'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The field's look: "
+                },
+                {
+                  "kind": "code",
+                  "text": "'filled'"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "'outlined'"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "'underlined'"
+                },
+                {
+                  "kind": "text",
+                  "text": " or "
+                },
+                {
+                  "kind": "code",
+                  "text": "'raised'"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "size",
           "type": "NeatSearchSize",
           "default": "'medium'",
@@ -3876,6 +3977,14 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "code",
+                  "text": "small"
+                },
+                {
+                  "kind": "text",
+                  "text": " (2rem), "
+                },
+                {
+                  "kind": "code",
                   "text": "medium"
                 },
                 {
@@ -3884,11 +3993,11 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "code",
-                  "text": "small"
+                  "text": "large"
                 },
                 {
                   "kind": "text",
-                  "text": " (2rem)."
+                  "text": " (3rem)."
                 }
               ]
             }
@@ -3949,7 +4058,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatSearchSize",
       "kind": "type",
-      "definition": "'small' | 'medium'",
+      "definition": "'small' | 'medium' | 'large'",
       "doc": [
         {
           "kind": "paragraph",
@@ -3960,19 +4069,19 @@ export const API: DocsEntry = {
             },
             {
               "kind": "code",
-              "text": "medium"
-            },
-            {
-              "kind": "text",
-              "text": " (2.25rem) and "
-            },
-            {
-              "kind": "code",
               "text": "small"
             },
             {
               "kind": "text",
-              "text": " (2rem), the heights of "
+              "text": " (2rem) and "
+            },
+            {
+              "kind": "code",
+              "text": "medium"
+            },
+            {
+              "kind": "text",
+              "text": " (2.25rem), the heights of "
             },
             {
               "kind": "code",
@@ -3980,8 +4089,86 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "."
+              "text": ", and "
+            },
+            {
+              "kind": "code",
+              "text": "large"
+            },
+            {
+              "kind": "text",
+              "text": " (3rem, with 1rem text), for a page whose main job is searching."
             }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/search/search.ts"
+    },
+    {
+      "name": "NeatSearchVariant",
+      "kind": "type",
+      "definition": "'filled' | 'outlined' | 'underlined' | 'raised'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The field's look:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "'filled'"
+              },
+              {
+                "kind": "text",
+                "text": " (the default): a tint of the text color with round ends, quiet on the page, a card or a panel. The search glyph and the hint mark it as a field."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "'outlined'"
+              },
+              {
+                "kind": "text",
+                "text": ": the kit's text field ("
+              },
+              {
+                "kind": "code",
+                "text": "neatInput"
+              },
+              {
+                "kind": "text",
+                "text": "), for a search among a form's fields."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "'underlined'"
+              },
+              {
+                "kind": "text",
+                "text": ": no box, a line under it, the quietest."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "'raised'"
+              },
+              {
+                "kind": "text",
+                "text": ": a card's fill and border with a soft shadow, for a page whose main job is searching."
+              }
+            ]
           ]
         }
       ],

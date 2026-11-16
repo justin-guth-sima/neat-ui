@@ -376,7 +376,7 @@ export const GROUPS: readonly TopicGroup[] = [
           {
             id: 'search',
             label: 'Search',
-            parts: ['NeatSearch', 'NeatSearchSize'],
+            parts: ['NeatSearch', 'NeatSearchVariant', 'NeatSearchSize'],
             leads: ['NeatSearch'],
             load: async () => {
               const [api, examples] = await Promise.all([

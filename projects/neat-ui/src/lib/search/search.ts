@@ -11,16 +11,46 @@ import { INPUT_CLASSES } from '../form/input-classes';
 import { NeatIcon } from '../icon/icon';
 import { hlm } from '../ui/utils/src';
 
-/** The field's height: `medium` (2.25rem) and `small` (2rem), the heights of `neatInput`. */
-export type NeatSearchSize = 'small' | 'medium';
+/**
+ * The field's look:
+ * - `'filled'` (the default): a tint of the text color with round ends, quiet on the page, a card
+ *   or a panel. The search glyph and the hint mark it as a field.
+ * - `'outlined'`: the kit's text field (`neatInput`), for a search among a form's fields.
+ * - `'underlined'`: no box, a line under it, the quietest.
+ * - `'raised'`: a card's fill and border with a soft shadow, for a page whose main job is
+ *   searching.
+ */
+export type NeatSearchVariant = 'filled' | 'outlined' | 'underlined' | 'raised';
 
 /**
- * The field with room for the search glyph at its start and the clear button at its end. Literals,
- * so Tailwind finds them; `hlm` lets the start and end padding replace the field's own `px`.
+ * The field's height: `small` (2rem) and `medium` (2.25rem), the heights of `neatInput`, and
+ * `large` (3rem, with 1rem text), for a page whose main job is searching.
  */
-const FIELD_CLASSES = {
-  medium: hlm(INPUT_CLASSES.medium, 'ps-8 pe-9'),
-  small: hlm(INPUT_CLASSES.small, 'ps-8 pe-8'),
+export type NeatSearchSize = 'small' | 'medium' | 'large';
+
+/**
+ * Each height on the kit's field. The start and end padding, which make room for the glyph and
+ * the clear button, are the stylesheet's, beside the parts they make room for.
+ */
+const SIZE_CLASSES = {
+  small: INPUT_CLASSES.small,
+  medium: INPUT_CLASSES.medium,
+  large: hlm(INPUT_CLASSES.medium, 'h-12 text-base md:text-base'),
+} as const;
+
+/**
+ * Each look over the field. The tint is the text color at 8% (12% on hover), so it shows on any
+ * surface in both schemes, where `--muted` is a dark card's own fill; it keeps the hint at 5.9:1
+ * or more (search.spec). Focused, the filled field takes its surface's color under the ring.
+ * `dark:` repeats what the field's own dark override would undo.
+ */
+const VARIANT_CLASSES = {
+  filled:
+    'rounded-full border-transparent bg-foreground/8 shadow-none hover:bg-foreground/12 focus-visible:bg-(--neat-surface) dark:bg-foreground/8 dark:hover:bg-foreground/12 dark:focus-visible:bg-(--neat-surface)',
+  outlined: '',
+  underlined:
+    'rounded-none border-x-0 border-t-0 shadow-none focus-visible:border-b-2 focus-visible:ring-0',
+  raised: 'rounded-xl border-border bg-card shadow-sm dark:bg-card',
 } as const;
 
 let nextSearchId = 0;
@@ -40,6 +70,9 @@ let nextSearchId = 0;
  * is a short line under the field, such as "12 streams" or "Nothing matches", repeated politely to
  * a screen reader as it changes. Without `status` there is no line.
  *
+ * `variant` is its look: `'filled'` by default, `'outlined'` among a form's fields,
+ * `'underlined'`, or `'raised'` with `size="large"` for a page whose main job is searching.
+ *
  * It filters as the user types: the app reads `value` and decides what matches. It is a native
  * `input type="search"`, with the browser's own clear button hidden so there is one, and without
  * the browser's suggestions or spell checking, which a filter has no use for.
@@ -48,10 +81,10 @@ let nextSearchId = 0;
   selector: 'neat-search',
   imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[attr.data-size]': 'size()' },
+  host: { '[attr.data-size]': 'size()', '[attr.data-variant]': 'variant()' },
   template: `
     <div class="field">
-      <neat-icon class="glyph" name="search" [size]="16" />
+      <neat-icon class="glyph" name="search" [size]="size() === 'large' ? 20 : 16" />
       <input
         #field
         type="search"
@@ -68,7 +101,7 @@ let nextSearchId = 0;
       />
       @if (value()) {
         <button type="button" class="clear" [attr.aria-label]="clearLabel()" (click)="clear()">
-          <neat-icon name="close" [size]="16" />
+          <neat-icon name="close" [size]="size() === 'large' ? 18 : 16" />
         </button>
       }
     </div>
@@ -85,7 +118,9 @@ export class NeatSearch {
   readonly value = model('');
   /** A hint inside the empty field; none by default. */
   readonly placeholder = input('');
-  /** The field's height, `medium` (2.25rem) or `small` (2rem). */
+  /** The field's look: `'filled'`, `'outlined'`, `'underlined'` or `'raised'`. */
+  readonly variant = input<NeatSearchVariant>('filled');
+  /** The field's height, `small` (2rem), `medium` (2.25rem) or `large` (3rem). */
   readonly size = input<NeatSearchSize>('medium');
   /** The clear button's accessible name. */
   readonly clearLabel = input('Clear search');
@@ -96,7 +131,9 @@ export class NeatSearch {
   readonly status = input<string>();
 
   protected readonly id = `neat-search-${++nextSearchId}`;
-  protected readonly fieldClasses = computed(() => FIELD_CLASSES[this.size()]);
+  protected readonly fieldClasses = computed(() =>
+    hlm(SIZE_CLASSES[this.size()], VARIANT_CLASSES[this.variant()]),
+  );
   private readonly field = viewChild.required<ElementRef<HTMLInputElement>>('field');
 
   /** Empties the field and puts the focus back in it. */

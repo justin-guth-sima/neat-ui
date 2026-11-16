@@ -2,6 +2,7 @@
 import type { DocsExample } from '../../model';
 import { FilteringAList } from '../../../examples/search/1-filtering-a-list.example';
 import { SmallInAToolbar } from '../../../examples/search/2-small-in-a-toolbar.example';
+import { LooksAndSizes } from '../../../examples/search/3-looks-and-sizes.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -113,6 +114,67 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "small-in-a-toolbar.example.css",
         "code": [
           ["comment","/* The field takes what the buttons leave, up to a width that suits a filter. */"],["text","\n.tools {\n  display: flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n  max-width: 28rem;\n}\n\nneat-search {\n  flex: 1 1 12rem;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "looks-and-sizes",
+    "title": "Looks and sizes",
+    "component": LooksAndSizes,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The four looks at the medium size, then the raised look at the large size, as a page whose main job is searching puts it. "
+          },
+          {
+            "kind": "code",
+            "text": "'filled'"
+          },
+          {
+            "kind": "text",
+            "text": " is the default; "
+          },
+          {
+            "kind": "code",
+            "text": "'outlined'"
+          },
+          {
+            "kind": "text",
+            "text": " matches a form's text fields."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui#NeatSearch",
+      "@sima/neat-ui#NeatSearchVariant"
+    ],
+    "files": [
+      {
+        "name": "3-looks-and-sizes.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSearch, "],["keyword","type"],["text"," NeatSearchVariant } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-looks-and-sizes'"],["text",",\n  imports: [NeatSearch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
+          ["string","`\n    <div class=\"looks\">\n      @for (look of looks; track look) {\n        <div class=\"look\">\n          <span class=\"showcase-code showcase-muted\">{{ look }}</span>\n          <neat-search\n            [variant]=\"look\"\n            [label]=\"'Filter streams, ' + look\"\n            placeholder=\"Filter streams\"\n          />\n        </div>\n      }\n    </div>\n    <div class=\"look\">\n      <span class=\"showcase-code showcase-muted\">raised, large</span>\n      <neat-search\n        variant=\"raised\"\n        size=\"large\"\n        label=\"Search the docs\"\n        placeholder=\"Search the docs\"\n      />\n    </div>\n  `"],
+          ["text",",\n  styleUrl: "],
+          ["string","'./looks-and-sizes.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," LooksAndSizes {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," looks: "],["keyword","readonly"],["text"," NeatSearchVariant[] = [\n    "],
+          ["string","'filled'"],["text",",\n    "],
+          ["string","'outlined'"],["text",",\n    "],
+          ["string","'underlined'"],["text",",\n    "],
+          ["string","'raised'"],["text",",\n  ];\n}\n"]
+        ]
+      },
+      {
+        "name": "looks-and-sizes.example.css",
+        "code": [
+          ["comment","/* The looks two to a row, each over its name; the large field below them, wider. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-6);\n  max-width: 36rem;\n}\n\n.looks {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));\n  gap: var(--neat-space-4) var(--neat-space-6);\n}\n\n.look {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n}\n"]
         ]
       }
     ]
