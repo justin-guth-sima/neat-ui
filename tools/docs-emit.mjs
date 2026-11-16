@@ -1632,6 +1632,72 @@ function iconGlyphsModule(root) {
   return { text: renderIconGlyphs(glyphs, aliases), problems };
 }
 
+// --- the docs' search index ---------------------------------------------------------------------
+
+export const SEARCH_INDEX_OUTPUT = `${SHOWCASE_APP}/docs/generated/search-index.ts`;
+/** The showcase's topics, which place the index's parts and examples; a fixture has none. */
+const TOPICS_FILE = `${SHOWCASE_APP}/docs/topics.ts`;
+/** How long a summary may be; the first sentence of a doc is usually shorter. */
+const SUMMARY_MAX = 140;
+
+/** A doc's first sentence as plain text, cut at a word near `SUMMARY_MAX`; empty without a doc. */
+export function summaryOf(blocks) {
+  const first = blocks.find((block) => block.kind === 'paragraph');
+  if (!first) return '';
+  const text = first.spans
+    .map((span) => span.text)
+    .join('')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const sentence = /^.+?[.!?](?=\s|$)/.exec(text)?.[0] ?? text;
+  if (sentence.length <= SUMMARY_MAX) return sentence;
+  return `${sentence.slice(0, sentence.lastIndexOf(' ', SUMMARY_MAX))}…`;
+}
+
+/** The members of a part the index lists: its inputs, models, outputs, properties and methods. */
+const MEMBER_LISTS = ['inputs', 'models', 'outputs', 'properties', 'members', 'methods'];
+
+/**
+ * The docs' search index: every part the entries document, each of its members, and every example,
+ * each with the first sentence of its doc or caption. The showcase places them by its topics.
+ */
+export function searchIndex(entries, topics) {
+  const index = [];
+  for (const entry of entries) {
+    for (const part of entry.parts) {
+      if (part.kind === 'reexport' && !part.doc) continue;
+      index.push({ kind: 'part', name: part.name, partKind: part.kind, text: summaryOf(part.doc) });
+      for (const list of MEMBER_LISTS) {
+        for (const member of part[list] ?? []) {
+          index.push({
+            kind: 'member',
+            name: member.name,
+            part: part.name,
+            text: summaryOf(member.doc ?? []),
+          });
+        }
+      }
+    }
+  }
+  for (const { topic, examples } of topics) {
+    for (const example of examples) {
+      index.push({
+        kind: 'example',
+        name: example.title,
+        topic,
+        id: example.id,
+        text: summaryOf(example.caption),
+      });
+    }
+  }
+  return index;
+}
+
+function renderSearchIndex(index) {
+  const data = JSON.stringify(index, null, 2);
+  return `${HEADER}import type { DocsSearchEntry } from '../model';\n\nexport const SEARCH_INDEX: readonly DocsSearchEntry[] = ${data};\n`;
+}
+
 /** The modules `docs:emit` writes, by path from the root, and the doc problems. */
 export function generate(root) {
   const kit = extractKit(root);
@@ -1641,6 +1707,9 @@ export function generate(root) {
   const { topics, problems } = extractExamples(root, kit);
   for (const { topic, examples } of topics) {
     files.set(`${EXAMPLES_OUTPUT_DIR}/${topic}.ts`, renderExamples(topic, examples));
+  }
+  if (existsSync(join(root, TOPICS_FILE))) {
+    files.set(SEARCH_INDEX_OUTPUT, renderSearchIndex(searchIndex(kit.entries, topics)));
   }
   // A kit without the registry (a test's fixture) has no icon names to map.
   const icons = existsSync(join(root, ICON_REGISTRY)) ? iconGlyphsModule(root) : null;

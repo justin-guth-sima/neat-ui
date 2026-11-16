@@ -1,0 +1,66 @@
+.results {
+  gap: var(--neat-space-4);
+  max-width: 48rem;
+}
+
+h2 {
+  display: flex;
+  align-items: baseline;
+  gap: var(--neat-space-2);
+  margin: var(--neat-space-4) 0 var(--neat-space-2);
+  font-size: var(--neat-text-base);
+}
+
+.count {
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-sm);
+  font-weight: 400;
+}
+
+ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+/* A result's line: its icon, its name as the link, where it is. */
+a {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+  min-width: 0;
+  color: var(--foreground);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+a:hover .label {
+  text-decoration: underline;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.detail {
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-xs);
+  font-weight: 400;
+}
+
+li p {
+  margin: 0 0 0 1.5rem;
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-sm);
+}

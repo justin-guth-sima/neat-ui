@@ -195,6 +195,14 @@ is the doc comment, and the snippet under an example is the file that renders it
   (`docs.spec.ts`), since an id is also the examples folder and the `/demo/<id>` path. Escape
   hatch: a fifth rail item is a change to this rule, raised with the maintainer, not a new group in
   `topics.ts`.
+  **The docs' search** is the kit's search palette in the top bar (`app.ts`, through
+  `neatTopbarEnd`; Ctrl K from any page) and the `/search?q=` page of every result
+  (`pages/search.page.ts`, a route with no rail item, so the rail keeps its four). Both read
+  `search/docs-search.ts`: the topics and Getting started from `topics.ts` at once, and the parts,
+  their members and the examples from `docs/generated/search-index.ts` once it loads (`docs:emit`
+  writes it: each with the first sentence of its doc or caption, about 150 kB, loaded on the first
+  search), each placed on its topic's page at `#api-<Name>` or `#example-<id>`. The matching (a
+  name first, then other words) is `search/match.ts`, which the icon finder shares.
   A topic that is no part's docs (the theme's tokens, the icon finder) is hand-made: `page` (a
   lazy component) instead of `load`, with no parts, no examples module and no inputs, so it
   belongs to a group's own `topics`, not to a category.

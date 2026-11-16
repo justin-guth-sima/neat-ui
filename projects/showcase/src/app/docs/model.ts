@@ -259,3 +259,24 @@ export interface DocsExampleFile {
 
 /** A run of source of one kind; a template string is one `string` run. */
 export type DocsToken = readonly [kind: 'keyword' | 'string' | 'comment' | 'text', text: string];
+
+/**
+ * One entry of the docs' search index, which `docs:emit` writes from the kit's docs and the
+ * examples; the showcase places each by its topics. `text` is the first sentence of its doc or
+ * caption, empty without one.
+ */
+export type DocsSearchEntry =
+  | {
+      readonly kind: 'part';
+      readonly name: string;
+      readonly partKind: DocsPart['kind'];
+      readonly text: string;
+    }
+  | { readonly kind: 'member'; readonly name: string; readonly part: string; readonly text: string }
+  | {
+      readonly kind: 'example';
+      readonly name: string;
+      readonly topic: string;
+      readonly id: string;
+      readonly text: string;
+    };

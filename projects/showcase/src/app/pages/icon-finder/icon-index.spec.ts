@@ -4,7 +4,7 @@ import {
   ICON_INDEX,
   type KitIcon,
   type LucideGlyph,
-  matchScore,
+  iconScore,
   pascalName,
   search,
   usageOf,
@@ -53,22 +53,22 @@ describe('the icon finder index', () => {
   });
 
   it('matches a name before an alias or a tag, and every word of the query', () => {
-    expect(matchScore(glyph('X'), 'x')).toBe(0);
-    expect(matchScore(glyph('FolderOpen'), 'fold')).toBe(1);
-    expect(matchScore(glyph('FolderOpen'), 'open')).toBe(2);
-    expect(matchScore(glyph('FolderOpen'), 'folder open')).toBe(0);
-    expect(matchScore(glyph('Trash'), 'trash2')).toBe(3);
-    expect(matchScore(glyph('Trash'), 'bin')).toBe(3);
-    expect(matchScore(glyph('Trash'), 'delete bin')).toBe(3);
-    expect(matchScore(glyph('Trash'), 'delete folder')).toBeNull();
-    expect(matchScore(glyph('Trash'), 'in')).toBeNull();
+    expect(iconScore(glyph('X'), 'x')).toBe(0);
+    expect(iconScore(glyph('FolderOpen'), 'fold')).toBe(1);
+    expect(iconScore(glyph('FolderOpen'), 'open')).toBe(2);
+    expect(iconScore(glyph('FolderOpen'), 'folder open')).toBe(0);
+    expect(iconScore(glyph('Trash'), 'trash2')).toBe(3);
+    expect(iconScore(glyph('Trash'), 'bin')).toBe(3);
+    expect(iconScore(glyph('Trash'), 'delete bin')).toBe(3);
+    expect(iconScore(glyph('Trash'), 'delete folder')).toBeNull();
+    expect(iconScore(glyph('Trash'), 'in')).toBeNull();
   });
 
   it('matches a kit name by its own words and by its glyph', () => {
-    expect(matchScore(kit('close'), 'close')).toBe(0);
-    expect(matchScore(kit('close'), 'x')).toBe(2);
-    expect(matchScore(kit('close'), 'delete')).toBe(3);
-    expect(matchScore(kit('media'), 'directory')).toBe(3);
+    expect(iconScore(kit('close'), 'close')).toBe(0);
+    expect(iconScore(kit('close'), 'x')).toBe(2);
+    expect(iconScore(kit('close'), 'delete')).toBe(3);
+    expect(iconScore(kit('media'), 'directory')).toBe(3);
   });
 
   it('keeps the matches best first and otherwise in order, and all for an empty query', () => {

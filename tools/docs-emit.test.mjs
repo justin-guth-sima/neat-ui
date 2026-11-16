@@ -34,6 +34,9 @@ import {
   lucideNames,
   parsePlay,
   readIconGlyphs,
+  SEARCH_INDEX_OUTPUT,
+  searchIndex,
+  summaryOf,
   SHELL_EXTRA,
   writeDocs,
 } from './docs-emit.mjs';
@@ -2082,4 +2085,70 @@ test('maps every name of the real registry to a glyph the lucide entry exports',
   );
   assert.match(module, /^ {2}spinner: 'loader-circle',$/m);
   assert.match(module, /^ {2}trash: \['Trash2'\],$/m);
+});
+
+// --- the docs' search index -----------------------------------------------------------------------
+
+const paragraph = (text) => ({ kind: 'paragraph', spans: [{ kind: 'text', text }] });
+
+test("a summary is a doc's first sentence, plain, cut at a word when long", () => {
+  assert.equal(summaryOf([]), '');
+  assert.equal(summaryOf([{ kind: 'code', code: 'x' }, paragraph('One. Two.')]), 'One.');
+  assert.equal(
+    summaryOf([
+      {
+        kind: 'paragraph',
+        spans: [
+          { kind: 'text', text: 'The ' },
+          { kind: 'code', text: 'neat-search' },
+          { kind: 'text', text: ' field.\nMore here.' },
+        ],
+      },
+    ]),
+    'The neat-search field.',
+  );
+  assert.equal(
+    summaryOf([paragraph('a.b is no end of a sentence')]),
+    'a.b is no end of a sentence',
+  );
+  const long = summaryOf([paragraph(`${'word '.repeat(40)}end.`)]);
+  assert.ok(long.length <= 141 && long.endsWith('word…'), long);
+});
+
+test('the index lists each part, its members and each example, with their summaries', () => {
+  const entries = [
+    {
+      entry: 'primary',
+      parts: [
+        {
+          name: 'NeatThing',
+          kind: 'component',
+          doc: [paragraph('A thing. More.')],
+          inputs: [{ name: 'size', doc: [paragraph('How big.')] }],
+          outputs: [{ name: 'changed', doc: [] }],
+        },
+        { name: 'NeatKind', kind: 'type', doc: [paragraph('Kinds.')] },
+      ],
+    },
+  ];
+  const topics = [
+    {
+      topic: 'thing',
+      examples: [{ id: 'basics', title: 'Basics', caption: [paragraph('Shown.')] }],
+    },
+  ];
+
+  assert.deepEqual(searchIndex(entries, topics), [
+    { kind: 'part', name: 'NeatThing', partKind: 'component', text: 'A thing.' },
+    { kind: 'member', name: 'size', part: 'NeatThing', text: 'How big.' },
+    { kind: 'member', name: 'changed', part: 'NeatThing', text: '' },
+    { kind: 'part', name: 'NeatKind', partKind: 'type', text: 'Kinds.' },
+    { kind: 'example', name: 'Basics', topic: 'thing', id: 'basics', text: 'Shown.' },
+  ]);
+});
+
+test('the showcase gets the index of the real kit and examples', () => {
+  const module = generate(ROOT).files.get(SEARCH_INDEX_OUTPUT);
+  assert.match(module, /^export const SEARCH_INDEX: readonly DocsSearchEntry\[\] = \[$/m);
+  assert.match(module, /"name": "NeatSearch",\n {4}"partKind": "component"/);
 });

@@ -303,7 +303,15 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " is rendered once, beside the shell. The rail keeps only the kit's theme switch and its control at its bottom; the Rail items example shows an app's own items there."
+            "text": " is rendered once, beside the shell. The rail keeps only the kit's theme switch and its control at its bottom; the Rail items example shows an app's own items there. The top bar holds the docs' search ("
+          },
+          {
+            "kind": "code",
+            "text": "neatTopbarEnd"
+          },
+          {
+            "kind": "text",
+            "text": "), which Ctrl K opens from any page."
           }
         ]
       }
@@ -311,23 +319,29 @@ export const EXAMPLES: readonly DocsExample[] = [
     "shows": [
       "@sima/neat-ui#NeatNavItem",
       "@sima/neat-ui#NeatShell",
+      "@sima/neat-ui/search-palette#NeatSearchPalette",
       "@sima/neat-ui/toast#NeatToastHost"
     ],
     "files": [
       {
         "name": "app.ts",
         "code": [
-          ["keyword","import"],["text"," { Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { Component, inject } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { RouterOutlet } "],["keyword","from"],["text"," "],["string","'@angular/router'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatNavItem, NeatShell } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSearchPalette } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/search-palette'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatToastHost } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/toast'"],["text",";\n"],
-          ["keyword","import"],["text"," { GETTING_STARTED } "],["keyword","from"],["text"," "],["string","'./app.routes'"],["text",";\n"],
+          ["keyword","import"],["text"," { GETTING_STARTED, SEARCH } "],["keyword","from"],["text"," "],["string","'./app.routes'"],["text",";\n"],
           ["keyword","import"],["text"," { groupNavItems } "],["keyword","from"],["text"," "],["string","'./docs/docs-routes'"],["text",";\n"],
-          ["keyword","import"],["text"," { GROUPS } "],["keyword","from"],["text"," "],["string","'./docs/topics'"],["text",";\n\n@Component({\n  imports: [NeatShell, NeatToastHost, RouterOutlet],\n  selector: "],
+          ["keyword","import"],["text"," { GROUPS } "],["keyword","from"],["text"," "],["string","'./docs/topics'"],["text",";\n"],
+          ["keyword","import"],["text"," { DocsSearch } "],["keyword","from"],["text"," "],["string","'./search/docs-search'"],["text",";\n\n@Component({\n  imports: [NeatSearchPalette, NeatShell, NeatToastHost, RouterOutlet],\n  selector: "],
           ["string","'app-root'"],["text",",\n  template: "],
-          ["string","`\n    <neat-shell appName=\"neat-ui showcase\" [navItems]=\"navItems\">\n      <router-outlet />\n    </neat-shell>\n    <neat-toast-host />\n  `"],
+          ["string","`\n    <neat-shell appName=\"neat-ui showcase\" [navItems]=\"navItems\">\n      <neat-search-palette\n        neatTopbarEnd\n        label=\"Search docs\"\n        [search]=\"search\"\n        [allResults]=\"searchPage\"\n      />\n      <router-outlet />\n    </neat-shell>\n    <neat-toast-host />\n  `"],
           ["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," App {\n  "],
+          ["comment","/** The docs' search: topics at once, the API and the examples once its index has loaded. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," search = inject(DocsSearch).palette;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," searchPage = "],["string","`/${SEARCH}`"],["text",";\n\n  "],
           ["comment","/** Getting started, then the docs' groups (Theme, Layout, Components) with their sub-pages. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," navItems: NeatNavItem[] = [\n    { label: "],
           ["string","'Getting started'"],["text",", icon: "],["string","'info'"],["text",", path: "],["string","`/${GETTING_STARTED}`"],["text"," },\n    ...groupNavItems(GROUPS),\n  ];\n}\n"]

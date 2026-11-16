@@ -4,6 +4,7 @@ import { NEAT_ICON_NAMES, type NeatIconGlyph, type NeatIconName } from '@sima/ne
 import lucideDrawings from 'lucide-static/icon-nodes.json';
 import lucideTags from 'lucide-static/tags.json';
 import { ICON_GLYPHS, LUCIDE_ALIASES } from '../../docs/generated/icon-glyphs';
+import { type Haystack, haystack, matchScore, rank, wordsOf } from '../../search/match';
 
 /** A Lucide glyph: its canonical name, the other names it is exported by, and its tags. */
 export interface LucideGlyph {
@@ -90,73 +91,29 @@ export function buildIconIndex(sources: IconSources): IconIndex {
   return { kit, lucide, byId };
 }
 
-/** A name's words, lowercase: `FolderOpen` and `folder-open` are "folder" and "open". */
-function nameWords(name: string): string[] {
-  return name
-    .replace(/([a-z])([A-Z0-9])/g, '$1 $2')
-    .replace(/([0-9])([A-Za-z])/g, '$1 $2')
-    .toLowerCase()
-    .split(/[\s-]+/)
-    .filter(Boolean);
-}
-
-/** What a search matches an icon against, and how well, best first. */
-interface Haystack {
-  /** The name as one lowercase word, for a query typed as written (`folderopen`). */
-  readonly joined: string;
-  readonly nameWords: readonly string[];
-  /** Words of the aliases and the tags, matched after the name. */
-  readonly otherWords: readonly string[];
-}
-
+/** What a search matches an icon against: its name (a kit name, its glyph's too), aliases, tags. */
 function haystackOf(icon: FinderIcon): Haystack {
-  const name = icon.name;
   const glyph = icon.kind === 'kit' ? icon.glyph : icon;
-  const own = icon.kind === 'kit' ? nameWords(name) : [];
-  return {
-    joined: name.replace(/-/g, '').toLowerCase(),
-    nameWords: [...own, ...nameWords(glyph.name)],
+  return haystack(icon.name, icon.kind === 'kit' ? [glyph.name] : [], [
     // An alias also as written (`trash2`), as the name is in `joined`.
-    otherWords: [
-      ...glyph.aliases.map((alias) => alias.toLowerCase()),
-      ...glyph.aliases.flatMap(nameWords),
-      ...glyph.tags.flatMap(nameWords),
-    ],
-  };
+    ...glyph.aliases.map((alias) => alias.toLowerCase()),
+    ...glyph.aliases.flatMap(wordsOf),
+    ...glyph.tags.flatMap(wordsOf),
+  ]);
 }
 
 /**
- * How well `icon` matches `query`, lower is better, or null when it does not: every word of the
- * query must begin a word of the icon's name, an alias or a tag. A kit name is matched by its own
- * words and its glyph's, so "delete" finds the kit's name for a glyph tagged with it.
- *
- * 0: the name is the query; 1: the name begins with it; 2: every word begins a word of the name;
- * 3: some word is only in an alias or a tag.
+ * How well `icon` matches `query` (`matchScore`'s scale), or null when it does not: every word of
+ * the query must begin a word of the icon's name, an alias or a tag. A kit name is matched by its
+ * own words and its glyph's, so "delete" finds the kit's name for a glyph tagged with it.
  */
-export function matchScore(icon: FinderIcon, query: string): number | null {
-  const words = query
-    .toLowerCase()
-    .split(/[\s-]+/)
-    .filter(Boolean);
-  if (!words.length) return 3;
-  const hay = haystackOf(icon);
-  const typed = words.join('');
-  if (hay.joined === typed) return 0;
-  if (hay.joined.startsWith(typed)) return 1;
-  const inName = (word: string) => hay.nameWords.some((own) => own.startsWith(word));
-  const inOther = (word: string) => hay.otherWords.some((other) => other.startsWith(word));
-  if (words.every(inName)) return 2;
-  return words.every((word) => inName(word) || inOther(word)) ? 3 : null;
+export function iconScore(icon: FinderIcon, query: string): number | null {
+  return matchScore(haystackOf(icon), query);
 }
 
 /** The icons that match `query`, best first and otherwise in their order; all for an empty one. */
 export function search<T extends FinderIcon>(list: readonly T[], query: string): readonly T[] {
-  if (!query.trim()) return list;
-  return list
-    .map((icon, index) => ({ icon, index, score: matchScore(icon, query) }))
-    .filter((hit): hit is { icon: T; index: number; score: number } => hit.score !== null)
-    .sort((a, b) => a.score - b.score || a.index - b.index)
-    .map((hit) => hit.icon);
+  return rank(list, query, haystackOf);
 }
 
 /** The index of the kit's icons and every Lucide glyph, built once when the finder loads. */
