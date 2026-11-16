@@ -73,6 +73,8 @@ let nextSearchId = 0;
  * `variant` is its look: `'filled'` by default, `'outlined'` among a form's fields,
  * `'underlined'`, or `'raised'` with `size="large"` for a page whose main job is searching.
  *
+ * With `listbox`, it drives a list of results as a combobox (the search palette's field).
+ *
  * It filters as the user types: the app reads `value` and decides what matches. It is a native
  * `input type="search"`, with the browser's own clear button hidden so there is one, and without
  * the browser's suggestions or spell checking, which a filter has no use for.
@@ -94,6 +96,11 @@ let nextSearchId = 0;
         [class]="fieldClasses()"
         [attr.aria-label]="label()"
         [attr.aria-describedby]="status() === undefined ? null : id + '-status'"
+        [attr.role]="listbox() ? 'combobox' : null"
+        [attr.aria-controls]="listbox() ?? null"
+        [attr.aria-expanded]="listbox() ? 'true' : null"
+        [attr.aria-autocomplete]="listbox() ? 'list' : null"
+        [attr.aria-activedescendant]="listbox() ? activeOption() : null"
         [placeholder]="placeholder()"
         [value]="value()"
         (input)="value.set($any($event.target).value)"
@@ -129,6 +136,13 @@ export class NeatSearch {
    * announced politely as it changes; no line while it is undefined.
    */
   readonly status = input<string>();
+  /**
+   * The id of a listbox of results the field drives, as the search palette's: the field is then a
+   * combobox over it, whose `activeOption` the keys move. Unset for a field that filters a page.
+   */
+  readonly listbox = input<string>();
+  /** The id of the listbox's option the keys are on, while `listbox` is set; null for none. */
+  readonly activeOption = input<string | null>(null);
 
   protected readonly id = `neat-search-${++nextSearchId}`;
   protected readonly fieldClasses = computed(() =>

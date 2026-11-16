@@ -21,6 +21,7 @@ import { API as NUMBER_FIELD } from './generated/api/number-field';
 import { API as POPOVER } from './generated/api/popover';
 import { API as PRIMARY } from './generated/api/primary';
 import { API as PROGRESS } from './generated/api/progress';
+import { API as SEARCH_PALETTE } from './generated/api/search-palette';
 import { API as SEGMENTED } from './generated/api/segmented';
 import { API as SELECT_LIST } from './generated/api/select-list';
 import { API as SELECT } from './generated/api/select';
@@ -93,6 +94,7 @@ export const KIT_ENTRIES: readonly DocsEntry[] = [
   POPOVER,
   PRIMARY,
   PROGRESS,
+  SEARCH_PALETTE,
   SEGMENTED,
   SELECT_LIST,
   SELECT,

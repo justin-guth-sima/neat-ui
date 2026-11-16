@@ -275,6 +275,8 @@ The search glyph sits at its start. While the field holds text, a clear button s
 
 `variant` is its look: `'filled'` by default, `'outlined'` among a form's fields, `'underlined'`, or `'raised'` with `size="large"` for a page whose main job is searching.
 
+With `listbox`, it drives a list of results as a combobox (the search palette's field).
+
 It filters as the user types: the app reads `value` and decides what matches. It is a native `input type="search"`, with the browser's own clear button hidden so there is one, and without the browser's suggestions or spell checking, which a filter has no use for.
 
 **Inputs**
@@ -302,6 +304,14 @@ It filters as the user types: the app reads `value` and decides what matches. It
 - **`status`** `string`
 
   A short line under the field about what the search found ("12 streams", "Nothing matches"), announced politely as it changes; no line while it is undefined.
+
+- **`listbox`** `string`
+
+  The id of a listbox of results the field drives, as the search palette's: the field is then a combobox over it, whose `activeOption` the keys move. Unset for a field that filters a page.
+
+- **`activeOption`** `string | null`, default `null`
+
+  The id of the listbox's option the keys are on, while `listbox` is set; null for none.
 
 **Models (two-way)**
 

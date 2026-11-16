@@ -220,4 +220,35 @@ describe('NeatSearch', () => {
 
     expect(first.field().id).not.toBe(second.field().id);
   });
+
+  it('is a combobox over the listbox it drives, naming the option the keys are on', async () => {
+    @Component({
+      imports: [NeatSearch],
+      template: `<neat-search label="Search docs" listbox="results" [activeOption]="active()" />`,
+    })
+    class ComboHost {
+      readonly active = signal<string | null>(null);
+    }
+    const fixture = TestBed.createComponent(ComboHost);
+    await fixture.whenStable();
+    const field = (fixture.nativeElement as HTMLElement).querySelector('input')!;
+
+    expect(field.getAttribute('role')).toBe('combobox');
+    expect(field.getAttribute('aria-controls')).toBe('results');
+    expect(field.getAttribute('aria-expanded')).toBe('true');
+    expect(field.getAttribute('aria-autocomplete')).toBe('list');
+    expect(field.getAttribute('aria-activedescendant')).toBeNull();
+
+    fixture.componentInstance.active.set('result-2');
+    await fixture.whenStable();
+    expect(field.getAttribute('aria-activedescendant')).toBe('result-2');
+  });
+
+  it('is a plain search field without a listbox', async () => {
+    const { field } = await render();
+
+    expect(field().getAttribute('role')).toBeNull();
+    expect(field().getAttribute('aria-controls')).toBeNull();
+    expect(field().getAttribute('aria-activedescendant')).toBeNull();
+  });
 });

@@ -387,6 +387,24 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
+            id: 'search-palette',
+            label: 'Search palette',
+            parts: [
+              'NeatSearchPalette',
+              'NeatSearchGroup',
+              'NeatSearchItem',
+              'NeatSearchPaletteLabels',
+            ],
+            leads: ['NeatSearchPalette'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/search-palette'),
+                import('./generated/examples/search-palette'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'number-field',
             label: 'Number field',
             parts: ['NeatNumberField'],

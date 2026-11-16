@@ -22,6 +22,7 @@ import * as numberField from '../number-field/src/public-api';
 import * as popover from '../popover/src/public-api';
 import * as progress from '../progress/src/public-api';
 import * as segmented from '../segmented/src/public-api';
+import * as searchPalette from '../search-palette/src/public-api';
 import * as select from '../select/src/public-api';
 import * as selectList from '../select-list/src/public-api';
 import * as slider from '../slider/src/public-api';
@@ -54,6 +55,7 @@ const ENTRIES = {
   numberField,
   popover,
   progress,
+  searchPalette,
   segmented,
   select,
   selectList,

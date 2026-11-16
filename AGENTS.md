@@ -66,7 +66,13 @@ look happens in one place. Every rule here protects that.
     `heading`, a titled readout, which the progress toast renders through), `drop-zone`
     (`NeatDropZone`, files by drop or by the system's chooser), `dialog` (`NeatDialog`, the general
     modal dialog, with `neat-dialog-body` and `neat-dialog-actions`) and
-    `toast` (`NeatToasts` and `neat-toast-host`), `select-list` (`NeatSelectList`, a listbox of rows
+    `toast` (`NeatToasts` and `neat-toast-host`), `search-palette` (`NeatSearchPalette`,
+    `neat-search-palette`: a search over the whole app, its trigger for the top bar
+    (`neatTopbarEnd`) with Ctrl K, ⌘K on a Mac, and the palette it opens, the CDK's own `Dialog`
+    anchored near the top so it does not jump as the results change; the app's `search` function
+    gives `NeatSearchGroup`s of `NeatSearchItem`s, each a link the palette opens through the router,
+    and the field is a `neat-search` as a combobox over their listbox; its backdrop is helm's
+    dialog backdrop, copied behind a drift spec as the dialog's and the confirm's are), `select-list` (`NeatSelectList`, a listbox of rows
     in columns, with the `neatColumn` templates that lay them out and `NeatSelectListGroup` for
     rows under headings) and `file-browser`
     (`NeatFileBrowser`, a tree's breadcrumb, count, filter and rows, built on `select-list`

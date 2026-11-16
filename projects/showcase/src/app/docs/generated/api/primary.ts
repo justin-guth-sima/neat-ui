@@ -3861,6 +3861,23 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
+              "text": "With "
+            },
+            {
+              "kind": "code",
+              "text": "listbox"
+            },
+            {
+              "kind": "text",
+              "text": ", it drives a list of results as a combobox (the search palette's field)."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
               "text": "It filters as the user types: the app reads "
             },
             {
@@ -4029,6 +4046,53 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "A short line under the field about what the search found (\"12 streams\", \"Nothing matches\"), announced politely as it changes; no line while it is undefined."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "listbox",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The id of a listbox of results the field drives, as the search palette's: the field is then a combobox over it, whose "
+                },
+                {
+                  "kind": "code",
+                  "text": "activeOption"
+                },
+                {
+                  "kind": "text",
+                  "text": " the keys move. Unset for a field that filters a page."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "activeOption",
+          "type": "string | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The id of the listbox's option the keys are on, while "
+                },
+                {
+                  "kind": "code",
+                  "text": "listbox"
+                },
+                {
+                  "kind": "text",
+                  "text": " is set; null for none."
                 }
               ]
             }

@@ -333,6 +333,8 @@ In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [As
 </tr>
 </table>
 
+Also: [Search palette](docs/components/search-palette.md).
+
 ### Status
 
 <table>

@@ -65,6 +65,7 @@ export const SECONDARY_ENTRIES = {
   select: ['neat-select'],
   'select-list': ['neat-select-list', 'ng-template[neatColumn]'],
   slider: ['neat-slider'],
+  'search-palette': ['neat-search-palette'],
   'status-chip': ['neat-status-chip', 'button[neatStatusChip]'],
   switch: ['button[neatSwitch]'],
   table: [

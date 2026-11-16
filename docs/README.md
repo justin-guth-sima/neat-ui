@@ -32,6 +32,7 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 
 - [Input](components/input.md)
 - [Search](components/search.md)
+- [Search palette](components/search-palette.md)
 - [Number field](components/number-field.md)
 - [Field](components/field.md)
 - [Select](components/select.md)
