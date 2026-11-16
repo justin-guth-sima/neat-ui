@@ -1,0 +1,91 @@
+.finder {
+  gap: var(--neat-space-4);
+}
+
+.intro {
+  margin: 0;
+  max-width: 46rem;
+}
+
+neat-search {
+  max-width: 30rem;
+}
+
+h2 {
+  margin: var(--neat-space-4) 0 var(--neat-space-3);
+  font-size: var(--neat-text-base);
+}
+
+/* A tile per icon, as many to a row as fit: the glyph over its name. */
+.tiles {
+  display: grid;
+  gap: var(--neat-space-2);
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--neat-space-2);
+  min-width: 0;
+  padding: var(--neat-space-3) var(--neat-space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  /* Two thousand tiles: the browser lays out and paints only those near the screen. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 5.25rem;
+}
+
+.tile:hover {
+  background: var(--accent);
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+/* The picked tile: the primary color's border, drawn 2px wide inside the tile so the grid does not
+   move. */
+.tile[aria-pressed='true'] {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.name {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: var(--neat-text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kind,
+.detail {
+  margin: 0;
+}
+
+.previews {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--neat-space-4);
+}
+
+figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--neat-space-2);
+  margin: 0;
+  font-size: var(--neat-text-xs);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--neat-space-2);
+}

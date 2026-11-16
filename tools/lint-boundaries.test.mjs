@@ -167,6 +167,36 @@ test('the bench, like any app, imports no d3 but vflow’s d3-drag', async () =>
   );
 });
 
+/** Lucide's tags, as the showcase's icon finder imports them. */
+const SHOWCASE_ONLY = [
+  "import tags from 'lucide-static/tags.json';\nexport const t = tags;\n",
+  importOf('lucide-static'),
+];
+
+test('lucide-static is importable under projects/showcase/ only', async () => {
+  for (const [config, filePath] of [
+    [KIT_CONFIG, 'projects/neat-ui/src/lib/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/lucide/src/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/charts/src/lib/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/diagram/src/lib/x.ts'],
+    [BENCH_CONFIG, 'projects/bench/src/app/x.ts'],
+  ]) {
+    for (const code of SHOWCASE_ONLY) {
+      const messages = await boundaryMessages(config, filePath, code);
+      assert.equal(messages.length, 1, `${filePath}: ${code}`);
+      assert.match(messages[0].message, /projects\/showcase/, `${filePath}: ${code}`);
+    }
+  }
+  for (const filePath of [
+    'projects/showcase/src/app/x.ts',
+    'projects/showcase/src/app/x.spec.ts',
+  ]) {
+    for (const code of SHOWCASE_ONLY) {
+      assert.deepEqual(await boundaryMessages(SHOWCASE_CONFIG, filePath, code), [], code);
+    }
+  }
+});
+
 /** The diagram's bench seam, by its alias and by the relative paths code would reach it by. */
 const SEAM_ALIAS =
   "import { MAX_DOTS } from '@bench/diagram-seam';\nexport const cap = MAX_DOTS;\n";

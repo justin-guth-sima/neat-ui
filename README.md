@@ -175,7 +175,7 @@ Also: [Tile grid](docs/components/tile-grid.md).
 </tr>
 </table>
 
-Also: Tokens.
+Also: Tokens, Icon finder.
 
 ### Layout
 

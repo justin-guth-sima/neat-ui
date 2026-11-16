@@ -79,20 +79,23 @@ export const SECONDARY_ENTRIES = {
   video: ['neat-video-tile', 'neat-tile-grid', 'neat-roi-editor', 'neat-roi-swatch'],
 };
 /**
- * The rendering bench's dev dependencies (AGENTS.md "The rendering bench"), which the lint rules
- * keep under projects/bench/. A quoted specifier of one (an import, an export, a dynamic import, a
- * manifest's dependency) anywhere in the package means it would reach apps that never install it.
- * `playwright-core` is what `playwright` wraps. sharp is the docs' capture tool's, held to the same.
+ * The dev dependencies no app installs: the rendering bench's (AGENTS.md "The rendering bench"),
+ * which the lint rules keep under projects/bench/, and the showcase's `lucide-static` (its icon
+ * finder's tags), kept under projects/showcase/. A quoted specifier of one (an import, an export, a
+ * dynamic import, a manifest's dependency) anywhere in the package means it would reach apps that
+ * never install it. `playwright-core` is what `playwright` wraps. sharp is the docs' capture tool's,
+ * held to the same.
  */
-export const BENCH_ONLY = [
+export const DEV_ONLY = [
   'ngx-vflow',
   'd3-drag',
   'playwright',
   'playwright-core',
   'source-map',
   'sharp',
+  'lucide-static',
 ];
-const BENCH_SPECIFIER = new RegExp(`['"](${BENCH_ONLY.join('|')})(/[^'"]*)?['"]`, 'g');
+const DEV_SPECIFIER = new RegExp(`['"](${DEV_ONLY.join('|')})(/[^'"]*)?['"]`, 'g');
 
 /**
  * The diagram entry's bench seam (AGENTS.md "The rendering bench"): internals the bench alone may
@@ -191,9 +194,9 @@ export function findProblems(dist) {
   for (const file of files(dist)) {
     const source = readFileSync(file, 'utf8');
     if (source.includes(ALIAS)) problems.push(`${file} references ${ALIAS}`);
-    const benchOnly = new Set(Array.from(source.matchAll(BENCH_SPECIFIER), (match) => match[1]));
-    for (const name of benchOnly) {
-      problems.push(`${file} references ${name}, a bench-only dev dependency no app installs`);
+    const devOnly = new Set(Array.from(source.matchAll(DEV_SPECIFIER), (match) => match[1]));
+    for (const name of devOnly) {
+      problems.push(`${file} references ${name}, a dev dependency no app installs`);
     }
     if (source.includes(SEAM_BASENAME)) {
       problems.push(`${file} names ${SEAM_BASENAME}; the diagram's bench seam is never shipped`);
@@ -215,6 +218,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(1);
   }
   console.log(
-    'dist/neat-ui: every entry point built, no secondary entry code in the primary, no helm alias, bench-only imports or bench seam, compiled stylesheet present.',
+    'dist/neat-ui: every entry point built, no secondary entry code in the primary, no helm alias, dev-only imports or bench seam, compiled stylesheet present.',
   );
 }

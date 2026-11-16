@@ -4,13 +4,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, test } from 'node:test';
-import {
-  BENCH_ONLY,
-  findProblems,
-  SEAM_NAMES,
-  SECONDARY_ENTRIES,
-  seamNames,
-} from './check-dist.mjs';
+import { DEV_ONLY, findProblems, SEAM_NAMES, SECONDARY_ENTRIES, seamNames } from './check-dist.mjs';
 
 const PRIMARY = 'fesm2022/sima-neat-ui.mjs';
 const SEGMENTED = 'fesm2022/sima-neat-ui-segmented.mjs';
@@ -113,14 +107,15 @@ test('check-dist fails when any file references the helm alias', () => {
   assert.match(problems[0], /sima-neat-ui-segmented\.mjs references @neat-ui\/helm/);
 });
 
-test('check-dist fails when any file imports a bench-only package', () => {
-  assert.deepEqual(BENCH_ONLY, [
+test('check-dist fails when any file imports a dev-only package', () => {
+  assert.deepEqual(DEV_ONLY, [
     'ngx-vflow',
     'd3-drag',
     'playwright',
     'playwright-core',
     'source-map',
     'sharp',
+    'lucide-static',
   ]);
   const imports = [
     (name) => `import { x } from '${name}';\n`,
@@ -128,20 +123,21 @@ test('check-dist fails when any file imports a bench-only package', () => {
     (name) => `const x = await import('${name}');\n`,
     (name) => `{ "dependencies": { "${name}": "^1.0.0" } }\n`,
   ];
-  for (const name of BENCH_ONLY) {
+  for (const name of DEV_ONLY) {
     for (const source of imports) {
       const problems = findProblems(distWith({ ...SHIPPABLE, [SEGMENTED]: source(name) }));
       assert.equal(problems.length, 1, source(name));
       assert.match(problems[0], new RegExp(`sima-neat-ui-segmented\\.mjs references ${name},`));
-      assert.match(problems[0], /bench-only/);
+      assert.match(problems[0], /a dev dependency no app installs/);
     }
   }
 });
 
-test('check-dist leaves alone names that only start with a bench-only one', () => {
+test('check-dist leaves alone names that only start with a dev-only one', () => {
   const source = [
     "import { x } from 'source-map-js';",
     "import { y } from 'd3-dragging';",
+    "import { z } from 'lucide';",
     '//# sourceMappingURL=sima-neat-ui.mjs.map',
     '// a source-map comment, not an import',
   ].join('\n');

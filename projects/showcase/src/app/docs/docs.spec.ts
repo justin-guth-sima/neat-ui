@@ -141,7 +141,7 @@ describe('the docs topics', () => {
     expect(
       GROUPS.map((group) => [group.id, group.topics?.length, group.categories?.length]),
     ).toEqual([
-      ['theme', 3, undefined],
+      ['theme', 4, undefined],
       ['layout', 3, undefined],
       ['components', undefined, 7],
     ]);
@@ -155,7 +155,7 @@ describe('the docs topics', () => {
       'Video',
     ]);
     expect(placedTopics(GROUPS[2])).toHaveLength(52);
-    expect(topics).toHaveLength(58);
+    expect(topics).toHaveLength(59);
   });
 
   // The id is also the examples folder and the `/demo/<id>` path, whichever group the topic is in.

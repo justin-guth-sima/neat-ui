@@ -178,6 +178,7 @@ describe('App', () => {
       ['Tokens', '/theme/tokens'],
       ['Colors', '/theme/colors'],
       ['Icons', '/theme/icons'],
+      ['Icon finder', '/theme/icon-finder'],
     ]);
     expect(currentOf(children)).toEqual(['Colors']);
   });

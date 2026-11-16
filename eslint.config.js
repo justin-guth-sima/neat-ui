@@ -31,6 +31,16 @@ const BENCH_ONLY = {
 };
 
 /**
+ * Lucide's tags (`lucide-static`'s tags.json) are the showcase's icon finder's data: a dev
+ * dependency importable only under projects/showcase/; the kit ships `lucide` alone.
+ */
+const SHOWCASE_ONLY = {
+  regex: '^lucide-static(/|$)',
+  message:
+    "lucide-static is a dev dependency of the showcase's icon finder, importable only under projects/showcase/; the kit and its apps never ship it.",
+};
+
+/**
  * The diagram entry's bench seam (`projects/neat-ui/diagram/src/bench-seam.ts`, AGENTS.md "The
  * rendering bench"): its internals as the bench needs them, an agreed exception that only the bench
  * may use, through the alias its tsconfig declares. Matched by the alias and by any relative path
@@ -49,8 +59,11 @@ const SEAM_BY_ALIAS = {
   message: "Import the diagram's bench seam through its alias, '@bench/diagram-seam'.",
 };
 
-/** The import rule for files outside the bench: d3 but `allowed`, nothing bench-only, no seam. */
-const kitImports = (allowed) => ['error', { patterns: [d3Pattern(allowed), BENCH_ONLY, SEAM] }];
+/** The import rule for the kit's files: d3 but `allowed`, nothing bench- or showcase-only, no seam. */
+const kitImports = (allowed) => [
+  'error',
+  { patterns: [d3Pattern(allowed), BENCH_ONLY, SEAM, SHOWCASE_ONLY] },
+];
 
 module.exports = defineConfig([
   {
@@ -97,7 +110,7 @@ module.exports = defineConfig([
   // rule, not core `no-restricted-imports`, on purpose: ESLint replaces a rule's options wholesale
   // when a later block sets the same rule for a file, so these blocks would silently switch off the
   // kit's entry-direction rules in `projects/neat-ui/eslint.config.js`
-  // (tools/lint-boundaries.test.mjs checks that all of them still fire). The four blocks match
+  // (tools/lint-boundaries.test.mjs checks that all of them still fire). The five blocks match
   // disjoint files for the same reason, which is also why each states both boundaries in one rule.
   {
     files: ['**/*.ts'],
@@ -106,8 +119,19 @@ module.exports = defineConfig([
       'projects/neat-ui/diagram/**',
       'projects/neat-ui/bev/**',
       'projects/bench/**',
+      'projects/showcase/**',
     ],
     rules: { '@typescript-eslint/no-restricted-imports': kitImports([]) },
+  },
+  {
+    // The showcase is an app of the kit's, with its icon finder's tags on top.
+    files: ['projects/showcase/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        { patterns: [d3Pattern([]), BENCH_ONLY, SEAM] },
+      ],
+    },
   },
   {
     files: ['projects/neat-ui/charts/**/*.ts'],
@@ -123,7 +147,7 @@ module.exports = defineConfig([
     rules: {
       '@typescript-eslint/no-restricted-imports': [
         'error',
-        { patterns: [d3Pattern(['d3-drag']), SEAM_BY_ALIAS] },
+        { patterns: [d3Pattern(['d3-drag']), SEAM_BY_ALIAS, SHOWCASE_ONLY] },
       ],
     },
   },

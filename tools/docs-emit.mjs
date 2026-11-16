@@ -22,6 +22,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { dirname, join, posix as pathPosix, relative, resolve, sep } from 'node:path';
+import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
@@ -1509,6 +1510,128 @@ function render(entry) {
   return `${HEADER}import type { DocsEntry } from '../../model';\n\nexport const API: DocsEntry = ${data};\n`;
 }
 
+// --- the kit's icon names and their Lucide glyphs ---------------------------------------------------
+
+export const ICON_REGISTRY = `${LIBRARY}/src/lib/icon/icon-registry.ts`;
+export const ICON_GLYPHS_OUTPUT = `${SHOWCASE_APP}/docs/generated/icon-glyphs.ts`;
+/** The registry's helpers that turn a Lucide glyph into a kit icon: `drawing(name, Glyph)`. */
+const ICON_HELPERS = new Set(['drawing', 'filled']);
+
+/**
+ * The Lucide glyph each of the kit's icon names draws, in registry order, read from the source of
+ * `NEAT_ICONS` (each entry `drawing('name', Glyph)` or `filled('name', Glyph)`), with a problem for
+ * any entry of another shape. The mapping is internal to the kit; the icon finder shows it, so it is
+ * read here rather than exported or copied.
+ */
+export function readIconGlyphs(text, file = ICON_REGISTRY) {
+  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
+  const glyphs = [];
+  const problems = [];
+  let icons;
+  source.forEachChild(function find(node) {
+    if (ts.isVariableDeclaration(node) && node.name.getText() === 'NEAT_ICONS') icons = node;
+    else node.forEachChild(find);
+  });
+  let literal = icons?.initializer;
+  while (literal && (ts.isSatisfiesExpression(literal) || ts.isAsExpression(literal))) {
+    literal = literal.expression;
+  }
+  if (!literal || !ts.isObjectLiteralExpression(literal)) {
+    return { glyphs, problems: [`${file}: no object literal NEAT_ICONS`] };
+  }
+  for (const entry of literal.properties) {
+    const name = entry.name && ts.isPropertyName(entry.name) ? entry.name.getText() : '?';
+    const call = ts.isPropertyAssignment(entry) ? entry.initializer : undefined;
+    const glyph = call && ts.isCallExpression(call) ? call.arguments[1] : undefined;
+    if (
+      !call ||
+      !ts.isCallExpression(call) ||
+      !ICON_HELPERS.has(call.expression.getText()) ||
+      !glyph ||
+      !ts.isIdentifier(glyph)
+    ) {
+      problems.push(`${file}: NEAT_ICONS.${name} is not drawing() or filled() of a Lucide glyph`);
+      continue;
+    }
+    glyphs.push({ name: name.replace(/^['"]|['"]$/g, ''), glyph: glyph.text });
+  }
+  return { glyphs, problems };
+}
+
+/** Lucide's file name of a glyph (`trash-2`) as the name its packages export it by (`Trash2`). */
+const pascalName = (file) =>
+  file
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
+
+/**
+ * Lucide's glyphs by file name (`trash`), as `lucide-static` keys its data, and the other names
+ * `lucide` exports each by. An alias is exported as the same drawing as its glyph, so `exports`
+ * (name to drawing) is grouped by drawing; the export named after a file is the glyph's own.
+ */
+export function lucideNames(exports, files) {
+  const fileOf = new Map();
+  for (const file of files) {
+    const drawing = exports[pascalName(file)];
+    if (drawing) fileOf.set(drawing, file);
+  }
+  const fileByExport = new Map();
+  const aliases = new Map();
+  for (const [name, drawing] of Object.entries(exports)) {
+    const file = fileOf.get(drawing);
+    if (!file) continue;
+    fileByExport.set(name, file);
+    if (pascalName(file) !== name) aliases.set(file, [...(aliases.get(file) ?? []), name]);
+  }
+  return { fileByExport, aliases };
+}
+
+/** An object key as Prettier writes it: bare where it is an identifier, single-quoted otherwise. */
+const objectKey = (name) => (/^[A-Za-z_$][\w$]*$/.test(name) ? name : `'${name}'`);
+
+function renderIconGlyphs(glyphs, aliases) {
+  const glyphRows = glyphs.map(({ name, file }) => `  ${objectKey(name)}: '${file}',`);
+  const aliasRows = [...aliases]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([file, names]) => `  ${objectKey(file)}: [${names.map((n) => `'${n}'`).join(', ')}],`);
+  return `${HEADER}import type { NeatIconName } from '@sima/neat-ui';
+
+/**
+ * The Lucide glyph each of the kit's icon names draws, in registry order, by the file name
+ * \`lucide-static\` keys its drawings and tags by.
+ */
+export const ICON_GLYPHS: Readonly<Record<NeatIconName, string>> = {
+${glyphRows.join('\n')}
+};
+
+/** The other names \`@sima/neat-ui/lucide\` exports a glyph by, by its file name. */
+export const LUCIDE_ALIASES: Readonly<Record<string, readonly string[]>> = {
+${aliasRows.join('\n')}
+};
+`;
+}
+
+/**
+ * The icon finder's table: each kit name's glyph by file name, and Lucide's aliases, read from the
+ * registry's source and from the `lucide` and `lucide-static` packages the root has installed. The
+ * finder reads `lucide-static`'s data only, so it never imports `lucide` whole, which would put
+ * every drawing into the showcase's first chunk beside the registry's few.
+ */
+function iconGlyphsModule(root) {
+  const icons = readIconGlyphs(readFileSync(join(root, ICON_REGISTRY), 'utf8'));
+  const require = createRequire(join(root, 'package.json'));
+  const files = Object.keys(require('lucide-static/icon-nodes.json'));
+  const { fileByExport, aliases } = lucideNames(require('lucide'), files);
+  const problems = [...icons.problems];
+  const glyphs = icons.glyphs.flatMap(({ name, glyph }) => {
+    const file = fileByExport.get(glyph);
+    if (!file) problems.push(`${ICON_REGISTRY}: NEAT_ICONS.${name} draws ${glyph}, not in lucide`);
+    return file ? [{ name, file }] : [];
+  });
+  return { text: renderIconGlyphs(glyphs, aliases), problems };
+}
+
 /** The modules `docs:emit` writes, by path from the root, and the doc problems. */
 export function generate(root) {
   const kit = extractKit(root);
@@ -1519,7 +1642,10 @@ export function generate(root) {
   for (const { topic, examples } of topics) {
     files.set(`${EXAMPLES_OUTPUT_DIR}/${topic}.ts`, renderExamples(topic, examples));
   }
-  return { files, problems: [...kit.problems, ...problems] };
+  // A kit without the registry (a test's fixture) has no icon names to map.
+  const icons = existsSync(join(root, ICON_REGISTRY)) ? iconGlyphsModule(root) : null;
+  if (icons) files.set(ICON_GLYPHS_OUTPUT, icons.text);
+  return { files, problems: [...kit.problems, ...problems, ...(icons?.problems ?? [])] };
 }
 
 /** The files now in the output folders, by path from the root. */

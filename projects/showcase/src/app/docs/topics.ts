@@ -145,6 +145,13 @@ export const GROUPS: readonly TopicGroup[] = [
           return { entries: [api.API, lucide.API], examples: examples.EXAMPLES };
         },
       },
+      {
+        id: 'icon-finder',
+        label: 'Icon finder',
+        parts: [],
+        leads: [],
+        page: () => import('../pages/icon-finder/icon-finder.page').then((m) => m.IconFinderPage),
+      },
     ],
   },
   {

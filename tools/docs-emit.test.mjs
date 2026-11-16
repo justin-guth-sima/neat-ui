@@ -26,10 +26,14 @@ import {
   generate,
   highlight,
   highlightCss,
+  ICON_GLYPHS_OUTPUT,
+  ICON_REGISTRY,
   OUTPUT_DIR,
   parseAnimated,
   parseCapture,
+  lucideNames,
   parsePlay,
+  readIconGlyphs,
   SHELL_EXTRA,
   writeDocs,
 } from './docs-emit.mjs';
@@ -2017,4 +2021,65 @@ test('every generated examples module is loaded by a topic of the showcase, and 
     .map((match) => match[1])
     .sort();
   assert.deepEqual(loaded, onDisk);
+});
+
+// --- the kit's icon names and their Lucide glyphs -------------------------------------------------
+
+test("reads each icon name's Lucide glyph from the registry, in its order", () => {
+  const { glyphs, problems } = readIconGlyphs(`
+    export const NEAT_ICONS = {
+      media: drawing('media', FolderOpen),
+      'live-dot': drawing('live-dot', Circle),
+      play: filled('play', Play),
+    } satisfies Record<string, LucideIconData>;
+  `);
+  assert.deepEqual(glyphs, [
+    { name: 'media', glyph: 'FolderOpen' },
+    { name: 'live-dot', glyph: 'Circle' },
+    { name: 'play', glyph: 'Play' },
+  ]);
+  assert.deepEqual(problems, []);
+});
+
+test('names a registry entry that is not drawing() or filled() of a glyph as a problem', () => {
+  const { glyphs, problems } = readIconGlyphs(`
+    export const NEAT_ICONS = {
+      ok: drawing('ok', Check),
+      odd: { name: 'odd', node: [] },
+      other: tinted('other', Sun),
+    };
+  `);
+  assert.deepEqual(glyphs, [{ name: 'ok', glyph: 'Check' }]);
+  assert.deepEqual(problems, [
+    `${ICON_REGISTRY}: NEAT_ICONS.odd is not drawing() or filled() of a Lucide glyph`,
+    `${ICON_REGISTRY}: NEAT_ICONS.other is not drawing() or filled() of a Lucide glyph`,
+  ]);
+});
+
+test("groups Lucide's exports by drawing: a file's own name, and its aliases", () => {
+  const trash = [['path', { d: 'M0 0' }]];
+  const x = [['path', { d: 'M1 1' }]];
+  const { fileByExport, aliases } = lucideNames(
+    { Trash: trash, Trash2: trash, X: x, createIcons: () => {} },
+    ['trash', 'x'],
+  );
+  assert.deepEqual(Object.fromEntries(fileByExport), { Trash: 'trash', Trash2: 'trash', X: 'x' });
+  assert.deepEqual(Object.fromEntries(aliases), { trash: ['Trash2'] });
+});
+
+test('maps every name of the real registry to a glyph the lucide entry exports', async () => {
+  const { glyphs, problems } = readIconGlyphs(readFileSync(join(ROOT, ICON_REGISTRY), 'utf8'));
+  const lucide = await import('lucide');
+  assert.deepEqual(problems, []);
+  assert.ok(glyphs.length > 0);
+  for (const { name, glyph } of glyphs) assert.ok(glyph in lucide, `${name}: ${glyph}`);
+  const { files, problems: generated } = generate(ROOT);
+  assert.deepEqual(generated, []);
+  const module = files.get(ICON_GLYPHS_OUTPUT);
+  assert.match(
+    module,
+    /export const ICON_GLYPHS: Readonly<Record<NeatIconName, string>> = \{\n {2}media: 'folder-open',/,
+  );
+  assert.match(module, /^ {2}spinner: 'loader-circle',$/m);
+  assert.match(module, /^ {2}trash: \['Trash2'\],$/m);
 });

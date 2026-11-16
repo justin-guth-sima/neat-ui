@@ -187,9 +187,9 @@ is the doc comment, and the snippet under an example is the file that renders it
   (`docs.spec.ts`), since an id is also the examples folder and the `/demo/<id>` path. Escape
   hatch: a fifth rail item is a change to this rule, raised with the maintainer, not a new group in
   `topics.ts`.
-  A topic that is no part's docs (the theme's tokens) is hand-made: `page` (a lazy component)
-  instead of `load`, with no parts, no examples module and no inputs, so it belongs to a group's
-  own `topics`, not to a category.
+  A topic that is no part's docs (the theme's tokens, the icon finder) is hand-made: `page` (a
+  lazy component) instead of `load`, with no parts, no examples module and no inputs, so it
+  belongs to a group's own `topics`, not to a category.
 - An example is a standalone component in `examples/<topic>/<id>.example.ts` (a numeric prefix
   orders the examples and is not part of the id). Its class doc is its caption: prose shown above
   it and left out of the snippet. Its title is the class name in words (`CPUUsage` is "CPU usage"),
@@ -998,6 +998,13 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   entry is side-effect free). If a glyph is wanted in more than one place, or means something in
   the app, add a name to the registry instead. The entry's `export *` is the one place the kit
   re-exports a package whole: the docs show it as one part named `lucide`, not one per glyph.
+  The showcase's icon finder (Theme › Icon finder, `pages/icon-finder/`) lists both, the kit's
+  names first, found by name or by Lucide's tags, each with its usage and, for a glyph a kit name
+  draws, that name to take instead. Which glyph a name draws is internal: `docs:emit` reads it from
+  `icon-registry.ts` into `docs/generated/icon-glyphs.ts` rather than the kit exporting it. The
+  tags come from `lucide-static` (ISC, pinned to `lucide`'s version), the showcase's one dev
+  dependency of its own: ESLint (`SHOWCASE_ONLY` in the root `eslint.config.js`) fails an import
+  of it outside `projects/showcase/`, and `npm run check:dist` fails a package that names it.
 - **A toggle button binds `pressed`, never `aria-pressed`.** `NeatButton` owns the attribute (a
   host binding that is absent while `pressed` is undefined) and gives the pressed look with it, so
   an `[attr.aria-pressed]` on a `neatButton` is overwritten. The look is the inverse of the page
