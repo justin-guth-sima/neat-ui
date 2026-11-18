@@ -26,6 +26,7 @@ import {
   generate,
   highlight,
   highlightCss,
+  highlightHtml,
   ICON_GLYPHS_OUTPUT,
   ICON_REGISTRY,
   OUTPUT_DIR,
@@ -1024,15 +1025,18 @@ export class NeatOne {}
 
 // --- what --watch reacts to ---------------------------------------------------------------------
 
-test('the watch reacts to the kit and example sources, and to example stylesheets', () => {
+test('the watch reacts to the kit and example sources, and to example templates and stylesheets', () => {
   assert.equal(changesKit('collapsible/src/lib/collapsible.ts'), true);
   assert.equal(changesKit('collapsible/src/lib/collapsible.spec.ts'), false);
   assert.equal(changesKit('collapsible/src/lib/collapsible.html'), false);
   assert.equal(changesExamples('examples/time-chart/chart-card.css'), true);
+  assert.equal(changesExamples('examples/time-chart/1-cpu-usage.example.html'), true);
   assert.equal(changesExamples('examples/time-chart/data.ts'), true);
-  // The shell's own source is one more example of its topic.
+  // The shell's own source is one more example of its topic, with its template.
   assert.equal(changesExamples('app.ts'), true);
+  assert.equal(changesExamples('app.html'), true);
   assert.equal(changesExamples('app.config.ts'), false);
+  assert.equal(changesExamples('index.html'), false);
   assert.equal(changesExamples('examples/time-chart/data.spec.ts'), false);
   // Not the generated modules beside the examples, nor a stylesheet of the app.
   assert.equal(changesExamples('docs/generated/examples/time-chart.ts'), false);
@@ -1371,6 +1375,83 @@ test('a stylesheet that is no file of the topic folder is a problem', () => {
     `${EXAMPLES_DIR}/a/gone.example.ts:2: names the stylesheet './gone.css', which is no file of its topic folder`,
     `${EXAMPLES_DIR}/a/out.example.ts:2: names the stylesheet '../b/out.css', which is no file of its topic folder`,
   ]);
+});
+
+test('the template a component names comes right after its file, before its imports and stylesheets', () => {
+  const html = source(
+    '<!-- The rows. -->',
+    '@for (row of rows; track row) {',
+    '  <p class="row">{{ row }}</p>',
+    '}',
+  );
+  const kit = kitWithExamples({
+    'a/1-rows.example.ts': source(
+      "import { ROWS } from './data';",
+      '/** Rows. */',
+      "@Component({ selector: 'app-rows', templateUrl: './1-rows.example.html', styleUrl: './rows.css' })",
+      'export class Rows {',
+      '  protected readonly rows = ROWS;',
+      '}',
+    ),
+    'a/1-rows.example.html': html,
+    'a/data.ts': "export const ROWS = ['a'];\n",
+    'a/rows.css': 'p {}\n',
+  });
+  const { topics, problems } = extractExamples(kit);
+  assert.deepEqual(problems, []);
+  const [rows] = topics[0].examples;
+  assert.deepEqual(
+    rows.files.map((f) => f.name),
+    ['1-rows.example.ts', '1-rows.example.html', 'data.ts', 'rows.css'],
+  );
+  // The template is exactly its file, its comments as comments and no word of it a keyword.
+  assert.equal(spelled(rows.files[1].code), html);
+  assert.deepEqual(rows.files[1].code, [
+    ['comment', '<!-- The rows. -->'],
+    ['text', '\n@for (row of rows; track row) {\n  <p class="row">{{ row }}</p>\n}\n'],
+  ]);
+});
+
+test('a template that is no file of the topic folder is a problem', () => {
+  const kit = kitWithExamples({
+    'a/gone.example.ts': source(
+      '/** Gone. */',
+      "@Component({ selector: 'app-gone', templateUrl: './gone.html' })",
+      'export class Gone {}',
+    ),
+    'a/out.example.ts': source(
+      '/** Out. */',
+      "@Component({ selector: 'app-out', templateUrl: '../b/out.html' })",
+      'export class Out {}',
+    ),
+    'b/out.html': '<p></p>\n',
+  });
+  const { topics, problems } = extractExamples(kit);
+  assert.deepEqual(problems, [
+    `${EXAMPLES_DIR}/a/gone.example.ts:2: names the template './gone.html', which is no file of its topic folder`,
+    `${EXAMPLES_DIR}/a/out.example.ts:2: names the template '../b/out.html', which is no file of its topic folder`,
+  ]);
+  // The example stays, with its own file only.
+  assert.deepEqual(
+    topics[0].examples.map((e) => e.files.map((f) => f.name)),
+    [['gone.example.ts'], ['out.example.ts']],
+  );
+});
+
+test('template highlighting spells the text again, with no run empty', () => {
+  assert.deepEqual(highlightHtml(''), []);
+  assert.deepEqual(highlightHtml('<!-- a -->'), [['comment', '<!-- a -->']]);
+  const text = '<!-- a -->\n<p>for let</p>\n<!--\n b\n-->';
+  assert.equal(
+    highlightHtml(text)
+      .map(([, t]) => t)
+      .join(''),
+    text,
+  );
+  assert.deepEqual(
+    highlightHtml(text).map(([k]) => k),
+    ['comment', 'text', 'comment'],
+  );
 });
 
 test('stylesheet highlighting spells the text again, with no run empty', () => {
@@ -1782,6 +1863,28 @@ test("the showcase's app.ts is one more example of the shell topic: code only, n
     spelled(app.files[0].code),
     APP_SOURCE.replace(/\/\*\*\n \* The root.*\n \*\/\n/, ''),
   );
+});
+
+test("the shell's template joins app.ts in its snippet, and must be a file of the app folder", () => {
+  const withTemplate = (url) => APP_SOURCE.replace("template: ''", `templateUrl: '${url}'`);
+  const kit = kitWithShell(withTemplate('./app.html'));
+  write(kit, 'projects/showcase/src/app/app.html', '<neat-shell />\n');
+  const { topics, problems } = extractExamples(kit);
+  assert.deepEqual(problems, []);
+  const app = topics.find((t) => t.topic === SHELL_EXTRA.topic).examples.at(-1);
+  assert.deepEqual(
+    app.files.map((f) => [f.name, spelled(f.code)]),
+    [
+      ['app.ts', withTemplate('./app.html').replace(/\/\*\*\n \* The root.*\n \*\/\n/, '')],
+      ['app.html', '<neat-shell />\n'],
+    ],
+  );
+  // One outside the app folder is a problem, as an example's outside its topic folder is.
+  const outside = kitWithShell(withTemplate('../root.html'));
+  write(outside, 'projects/showcase/src/root.html', '<p></p>\n');
+  assert.deepEqual(extractExamples(outside).problems, [
+    `${SHELL_APP}:10: names the template '../root.html', which is no file of the showcase's app folder`,
+  ]);
 });
 
 test('the shell module renders the extra with no component and no import of app.ts', () => {

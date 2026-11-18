@@ -231,7 +231,7 @@ function exampleMarkdown({ topic, example, link, imagesFrom, pictureOf }) {
     lines.push(picture(`${imagesFrom}/${topic.id}/${example.id}`, alt, taken));
   }
   const files = example.files.map((file) => {
-    const language = file.name.endsWith('.css') ? 'css' : 'ts';
+    const language = file.name.match(/\.(css|html)$/)?.[1] ?? 'ts';
     const code = file.code.map(([, text]) => text).join('');
     return `${codeSpan(file.name)}\n\n\`\`\`${language}\n${code.replace(/\n$/, '')}\n\`\`\``;
   });

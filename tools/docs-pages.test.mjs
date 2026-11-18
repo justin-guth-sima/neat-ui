@@ -205,6 +205,28 @@ describe('topicMarkdown', () => {
     assert.match(api, /More\./);
   });
 
+  it('fences each file of an example in its own language: TypeScript, template, stylesheet', () => {
+    const files = [
+      example.files[0],
+      { name: '1-on-and-off.example.html', code: [['text', '<button neatSwitch></button>\n']] },
+      { name: 'switch.css', code: [['text', 'p {}\n']] },
+    ];
+    const markdown = topicMarkdown({
+      topic: { id: 'switch', label: 'Switch', parts: ['NeatSwitch'], leads: ['NeatSwitch'] },
+      group: { id: 'components', label: 'Components' },
+      category: { id: 'forms', label: 'Forms' },
+      examples: [{ ...example, files }],
+      declared: (name) =>
+        name === 'NeatSwitch' ? { part, entryImport: '@sima/neat-ui/switch' } : {},
+      link: noLinks,
+      pictureOf: () => null,
+    });
+    assert.match(
+      markdown,
+      /`1-on-and-off\.example\.ts`\n\n```ts\nexport class X \{\}\n```\n\n`1-on-and-off\.example\.html`\n\n```html\n<button neatSwitch><\/button>\n```\n\n`switch\.css`\n\n```css\np \{\}\n```/,
+    );
+  });
+
   it('leaves the pictures out until they are taken', () => {
     assert.doesNotMatch(page(false), /<picture>/);
   });

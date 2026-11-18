@@ -983,12 +983,28 @@ export function highlight(text) {
  * A stylesheet as runs: its comments, and the rest as `text`. Not the TypeScript scanner's job:
  * a CSS property named like a keyword (`content`, `in`) would be colored as one.
  */
-export function highlightCss(text) {
+export const highlightCss = (text) => commentsAndText(text, /(\/\*[\s\S]*?\*\/)/);
+
+/**
+ * A template as runs: its comments, and the rest as `text`. An Angular template is no TypeScript,
+ * so the scanner would color its words (`for`, `let`) as keywords.
+ */
+export const highlightHtml = (text) => commentsAndText(text, /(<!--[\s\S]*?-->)/);
+
+/** `text` as runs: what `comment` (one capturing group) matches as comments, the rest as `text`. */
+function commentsAndText(text, comment) {
   const runs = [];
-  text.split(/(\/\*[\s\S]*?\*\/)/).forEach((piece, i) => {
+  text.split(comment).forEach((piece, i) => {
     if (piece) runs.push([i % 2 ? 'comment' : 'text', piece]);
   });
   return runs;
+}
+
+/** A file of a snippet as runs, by its kind: a stylesheet, a template or TypeScript. */
+function highlightFile(name, text) {
+  if (name.endsWith('.css')) return highlightCss(text);
+  if (name.endsWith('.html')) return highlightHtml(text);
+  return highlight(text);
 }
 
 /** What color a token that is not inside a template string gets. */
@@ -1060,12 +1076,13 @@ function showsOf(sourceFile) {
  * Reads the showcase's examples: every `*.example.ts` directly in a folder of `EXAMPLES_DIR`, the
  * folder being the topic. Each is one standalone component. Its class doc is its caption, which the
  * page shows as prose and the snippet leaves out, and may end in the bare tags that say how the
- * page shows it (`EXAMPLE_OPTIONS`); its other source is the snippet, as the file has it, plus the
- * files of its topic folder that it imports (a data file, say) and the stylesheets it names
- * (`styleUrl`) as extras. So what the page renders and what it shows are one file. Returns the
- * topics, each with its examples in file-name order, and the problems (a caption missing, a bad
- * class, an import that is no file of the topic folder); an example that cannot be read is left
- * out. The showcase's `app.ts` is appended to the examples of its topic (`SHELL_EXTRA`).
+ * page shows it (`EXAMPLE_OPTIONS`); its other source is the snippet, as the file has it, plus as
+ * extras, in this order, the template it names (`templateUrl`), the files of its topic folder that
+ * it imports (a data file, say) and the stylesheets it names (`styleUrl`). So what the page renders
+ * and what it shows are the same files. Returns the topics, each with its examples in file-name
+ * order, and the problems (a caption missing, a bad class, an import, template or stylesheet that
+ * is no file of the topic folder); an example that cannot be read is left out. The showcase's
+ * `app.ts` is appended to the examples of its topic (`SHELL_EXTRA`), with its template.
  */
 export function extractExamples(root, kit = extractKit(root)) {
   const base = join(root, EXAMPLES_DIR);
@@ -1306,13 +1323,56 @@ function readShellExtra({ root, kit, found, taken }) {
     return undefined;
   }
   const { caption, text } = readCaption({ cls, sourceFile, kit, report });
+  // Its relative imports are the showcase's own, not files to copy: only its template joins it.
+  const files = [{ path, name: SHELL_EXTRA.file, text }];
+  addNamedFiles({
+    cls,
+    keys: ['templateUrl'],
+    what: 'template',
+    dir: dirname(path),
+    where: "the showcase's app folder",
+    files,
+    report,
+  });
   return {
     id: SHELL_EXTRA.id,
     title: SHELL_EXTRA.title,
     caption,
     shows: showsOf(sourceFile),
-    files: [{ name: SHELL_EXTRA.file, code: highlight(text) }],
+    files: files.map(snippetFile),
   };
+}
+
+/** A file of an example as the snippet shows it: its name and its runs. */
+const snippetFile = (file) => ({ name: file.name, code: highlightFile(file.name, file.text) });
+
+/**
+ * The files the component names in its decorator under `keys` (`templateUrl`, or `styleUrl` and
+ * `styleUrls`), appended to `files` once each: the template and the layout are part of what
+ * renders, so a copy without them would not look as shown. Each must be a file of `dir`, which
+ * the problem calls `where`; `what` names the kind of file in it.
+ */
+function addNamedFiles({ cls, keys, what, dir, where, files, report }) {
+  const options = ts.getDecorators(cls).find(isComponentDecorator).expression.arguments[0];
+  const urls = keys.flatMap((key) => {
+    const value = property(options, key);
+    if (!value) return [];
+    return ts.isArrayLiteralExpression(value) ? [...value.elements] : [value];
+  });
+  for (const url of urls) {
+    const text = literal(url);
+    const file =
+      text === undefined ? undefined : resolve(dirname(cls.getSourceFile().fileName), text);
+    if (!file || !existsSync(file) || relative(dir, file).startsWith('..')) {
+      report(url, `names the ${what} ${url.getText()}, which is no file of ${where}`);
+    } else if (!files.some((entry) => entry.path === file)) {
+      files.push({
+        path: file,
+        name: posix(relative(dir, file)),
+        text: readFileSync(file, 'utf8'),
+      });
+    }
+  }
 }
 
 /** The topic's examples; its problems go into `found`. */
@@ -1343,32 +1403,9 @@ function readTopic({ root, topic, kit, found }) {
     }
   };
 
-  /**
-   * The stylesheets the component names (`styleUrl`, `styleUrls`), appended once each: an example's
-   * layout is part of what renders, so a copy without it would not look as shown.
-   */
-  const addStyles = (cls, files) => {
-    const decorator = ts.getDecorators(cls).find(isComponentDecorator);
-    const options = decorator.expression.arguments[0];
-    const urls = [
-      property(options, 'styleUrl'),
-      ...(property(options, 'styleUrls')?.elements ?? []),
-    ];
-    for (const url of urls.filter(Boolean)) {
-      const text = literal(url);
-      const file =
-        text === undefined ? undefined : resolve(dirname(cls.getSourceFile().fileName), text);
-      if (!file || !existsSync(file) || relative(dir, file).startsWith('..')) {
-        report(url, `names the stylesheet ${url.getText()}, which is no file of its topic folder`);
-      } else if (!files.some((entry) => entry.path === file)) {
-        files.push({
-          path: file,
-          name: posix(relative(dir, file)),
-          text: readFileSync(file, 'utf8'),
-        });
-      }
-    }
-  };
+  /** The files of the topic folder the component names under `keys`, as `what`. */
+  const addNamed = (cls, keys, what, files) =>
+    addNamedFiles({ cls, keys, what, dir, where: 'its topic folder', files, report });
 
   const examples = [];
   const ids = new Map();
@@ -1421,9 +1458,11 @@ function readTopic({ root, topic, kit, found }) {
       report(cls, `${className} is @gallery, and so is ${gallery}; a topic has one`);
       delete options.gallery;
     } else if (options.gallery) gallery = name;
+    // The example's file, then its template, then what it imports and its stylesheets.
     const files = [{ path, name, text }];
+    addNamed(cls, ['templateUrl'], 'template', files);
     addImports(sourceFile, files);
-    addStyles(cls, files);
+    addNamed(cls, ['styleUrl', 'styleUrls'], 'stylesheet', files);
 
     examples.push({
       id,
@@ -1432,10 +1471,7 @@ function readTopic({ root, topic, kit, found }) {
       ...options,
       caption,
       shows: showsOf(sourceFile),
-      files: files.map((file) => ({
-        name: file.name,
-        code: file.name.endsWith('.css') ? highlightCss(file.text) : highlight(file.text),
-      })),
+      files: files.map(snippetFile),
     });
   }
   return examples;
@@ -1840,14 +1876,17 @@ export const changesKit = (file) => file.endsWith('.ts') && !file.endsWith('.spe
 
 /**
  * Whether a change to `file`, relative to the showcase's app folder, can alter an example's
- * snippet: a source file of the examples folder or a stylesheet there (`styleUrl` files are
- * snippet extras), or the shell's own source (`SHELL_EXTRA`). The generated modules, beside it in
- * docs/, must not set the watch off again.
+ * snippet: a source file of the examples folder or a template or stylesheet there (`templateUrl`
+ * and `styleUrl` files are snippet extras), or the shell's own source (`SHELL_EXTRA`) and its
+ * template beside it (`app.html`). The generated modules, beside it in docs/, must not set the
+ * watch off again.
  */
 export const changesExamples = (file) =>
   file === SHELL_EXTRA.file ||
+  file === SHELL_EXTRA.file.replace(/\.ts$/, '.html') ||
   file.split(/[\\/]/).slice(0, 3).join('/') === 'pages/tutorial/steps' ||
-  (file.split(/[\\/]/)[0] === 'examples' && (changesKit(file) || file.endsWith('.css')));
+  (file.split(/[\\/]/)[0] === 'examples' &&
+    (changesKit(file) || file.endsWith('.css') || file.endsWith('.html')));
 
 /** Writes now and after every change to the kit's source or the examples, until stopped. */
 function watchKit(root) {
