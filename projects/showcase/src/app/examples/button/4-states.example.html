@@ -1,0 +1,11 @@
+@for (variant of variants; track variant) {
+  <div class="showcase-row">
+    <button neatButton type="button" [variant]="variant">
+      <neat-icon name="streaming" [size]="16" />
+      With icon
+    </button>
+    <button neatButton type="button" [variant]="variant" disabled>Disabled</button>
+    <button neatButton type="button" [variant]="variant" aria-disabled="true">Waiting</button>
+    <a neatButton [variant]="variant" routerLink="/components/actions/button">Link</a>
+  </div>
+}

@@ -15,32 +15,7 @@ import { streetFrames } from './scene';
   selector: 'app-overflow-zoom',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="stack">
-      <neat-bev
-        class="wide"
-        shape="rect"
-        overflow="visible"
-        zoom
-        [panBounds]="reach"
-        [zoomExtent]="[0.5, 4]"
-        [outline]="false"
-        [range]="25"
-        [spokes]="0"
-        [frame]="frame()"
-      />
-      <neat-bev
-        class="wide"
-        overflow="visible"
-        zoom
-        [panBounds]="reach"
-        [zoomExtent]="[0.5, 4]"
-        [outline]="false"
-        [range]="25"
-        [frame]="frame()"
-      />
-    </div>
-  `,
+  templateUrl: './4-overflow-zoom.example.html',
   styleUrl: './bev.example.css',
 })
 export class OverflowZoom {

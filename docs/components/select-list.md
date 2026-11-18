@@ -48,30 +48,7 @@ import { type Channel, CHANNELS, channelId } from './channels';
   selector: 'app-channels',
   imports: [NeatColumn, NeatInlineButton, NeatSelectList],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box wide">
-      <neat-select-list
-        label="Channels"
-        [items]="channels()"
-        [trackBy]="channelId"
-        [(selected)]="selected"
-        (activated)="log.set('Activated ' + $event.name)"
-      >
-        <ng-template neatColumn="name" header="Channel" let-channel>{{ channel.name }}</ng-template>
-        <ng-template neatColumn="state" header="State" width="6rem" let-channel>{{
-          channel.state
-        }}</ng-template>
-        <ng-template neatColumn="action" width="4rem" let-channel>
-          <button neatInlineButton type="button" (click)="toggle(channel)">
-            {{ channel.state === 'Live' ? 'Stop' : 'Start' }}
-          </button>
-        </ng-template>
-      </neat-select-list>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">
-      Selected: {{ selected()?.name ?? 'none' }}; {{ log() }}
-    </p>
-  `,
+  templateUrl: './1-channels.example.html',
   styleUrls: ['./channels-box.css', './stack.css'],
 })
 export class Channels {
@@ -89,6 +66,33 @@ export class Channels {
     );
   }
 }
+```
+
+`1-channels.example.html`
+
+```html
+<div class="box wide">
+  <neat-select-list
+    label="Channels"
+    [items]="channels()"
+    [trackBy]="channelId"
+    [(selected)]="selected"
+    (activated)="log.set('Activated ' + $event.name)"
+  >
+    <ng-template neatColumn="name" header="Channel" let-channel>{{ channel.name }}</ng-template>
+    <ng-template neatColumn="state" header="State" width="6rem" let-channel>{{
+      channel.state
+    }}</ng-template>
+    <ng-template neatColumn="action" width="4rem" let-channel>
+      <button neatInlineButton type="button" (click)="toggle(channel)">
+        {{ channel.state === 'Live' ? 'Stop' : 'Start' }}
+      </button>
+    </ng-template>
+  </neat-select-list>
+</div>
+<p class="showcase-code showcase-muted" aria-live="polite">
+  Selected: {{ selected()?.name ?? 'none' }}; {{ log() }}
+</p>
 ```
 
 `channels.ts`
@@ -161,21 +165,7 @@ import { type Channel, CHANNELS, channelId } from './channels';
   selector: 'app-on-a-card',
   imports: [NeatColumn, NeatSelectList],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box wide card">
-      <neat-select-list
-        label="Channels on a card"
-        [items]="channels"
-        [trackBy]="channelId"
-        [(selected)]="selected"
-      >
-        <ng-template neatColumn="name" header="Channel" let-channel>{{ channel.name }}</ng-template>
-        <ng-template neatColumn="state" header="State" width="6rem" let-channel>{{
-          channel.state
-        }}</ng-template>
-      </neat-select-list>
-    </div>
-  `,
+  templateUrl: './2-on-a-card.example.html',
   styleUrls: ['./channels-box.css', './on-a-card.example.css'],
 })
 export class OnACard {
@@ -183,6 +173,24 @@ export class OnACard {
   protected readonly selected = signal<Channel | null>(null);
   protected readonly channelId = channelId;
 }
+```
+
+`2-on-a-card.example.html`
+
+```html
+<div class="box wide card">
+  <neat-select-list
+    label="Channels on a card"
+    [items]="channels"
+    [trackBy]="channelId"
+    [(selected)]="selected"
+  >
+    <ng-template neatColumn="name" header="Channel" let-channel>{{ channel.name }}</ng-template>
+    <ng-template neatColumn="state" header="State" width="6rem" let-channel>{{
+      channel.state
+    }}</ng-template>
+  </neat-select-list>
+</div>
 ```
 
 `channels.ts`
@@ -261,20 +269,7 @@ import { CHANNELS, channelId } from './channels';
   selector: 'app-narrowing',
   imports: [NeatColumn, NeatSelectList, NeatSwitch],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box" [class.wide]="!narrow()" [class.slim]="narrow()">
-      <neat-select-list label="Channels, narrowing" [items]="channels" [trackBy]="channelId">
-        <ng-template neatColumn="name" header="Channel" let-channel>{{ channel.name }}</ng-template>
-        <ng-template neatColumn="rate" header="Rate" width="4rem" [hideBelow]="300">30</ng-template>
-        <ng-template neatColumn="state" header="State" width="5rem" let-channel>{{
-          channel.state
-        }}</ng-template>
-      </neat-select-list>
-    </div>
-    <div class="showcase-row">
-      <button neatSwitch [(checked)]="narrow">Narrow the list</button>
-    </div>
-  `,
+  templateUrl: './3-narrowing.example.html',
   styleUrls: ['./channels-box.css', './narrowing.example.css', './stack.css'],
 })
 export class Narrowing {
@@ -282,6 +277,23 @@ export class Narrowing {
   protected readonly channelId = channelId;
   protected readonly narrow = signal(false);
 }
+```
+
+`3-narrowing.example.html`
+
+```html
+<div class="box" [class.wide]="!narrow()" [class.slim]="narrow()">
+  <neat-select-list label="Channels, narrowing" [items]="channels" [trackBy]="channelId">
+    <ng-template neatColumn="name" header="Channel" let-channel>{{ channel.name }}</ng-template>
+    <ng-template neatColumn="rate" header="Rate" width="4rem" [hideBelow]="300">30</ng-template>
+    <ng-template neatColumn="state" header="State" width="5rem" let-channel>{{
+      channel.state
+    }}</ng-template>
+  </neat-select-list>
+</div>
+<div class="showcase-row">
+  <button neatSwitch [(checked)]="narrow">Narrow the list</button>
+</div>
 ```
 
 `channels.ts`
@@ -362,24 +374,28 @@ import { type Channel, channelId } from './channels';
   selector: 'app-no-items',
   imports: [NeatColumn, NeatSelectList],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box">
-      <neat-select-list
-        label="Cameras"
-        emptyLabel="No cameras enabled yet."
-        [items]="none"
-        [trackBy]="channelId"
-      >
-        <ng-template neatColumn="name" let-channel>{{ channel.name }}</ng-template>
-      </neat-select-list>
-    </div>
-  `,
+  templateUrl: './4-no-items.example.html',
   styleUrl: './no-items.example.css',
 })
 export class NoItems {
   protected readonly none: readonly Channel[] = [];
   protected readonly channelId = channelId;
 }
+```
+
+`4-no-items.example.html`
+
+```html
+<div class="box">
+  <neat-select-list
+    label="Cameras"
+    emptyLabel="No cameras enabled yet."
+    [items]="none"
+    [trackBy]="channelId"
+  >
+    <ng-template neatColumn="name" let-channel>{{ channel.name }}</ng-template>
+  </neat-select-list>
+</div>
 ```
 
 `channels.ts`
@@ -437,26 +453,7 @@ import { ASSET_TYPES, hasFiles, typeId } from './asset-types';
   selector: 'app-checked',
   imports: [NeatColumn, NeatSelectList],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box">
-      <neat-select-list
-        label="Asset types"
-        checkable
-        [items]="types"
-        [trackBy]="typeId"
-        [canCheck]="hasFiles"
-        [(checked)]="checked"
-      >
-        <ng-template neatColumn="name" header="Type" let-type>{{ type.name }}</ng-template>
-        <ng-template neatColumn="files" header="Files" width="max-content" align="end" let-type>{{
-          type.files
-        }}</ng-template>
-      </neat-select-list>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">
-      Checked: {{ checked().length ? checked().join(', ') : 'none' }}
-    </p>
-  `,
+  templateUrl: './5-checked.example.html',
   styleUrls: ['./asset-types-box.css', './stack.css'],
 })
 export class Checked {
@@ -465,6 +462,29 @@ export class Checked {
   protected readonly hasFiles = hasFiles;
   protected readonly checked = signal<readonly string[]>(['cars']);
 }
+```
+
+`5-checked.example.html`
+
+```html
+<div class="box">
+  <neat-select-list
+    label="Asset types"
+    checkable
+    [items]="types"
+    [trackBy]="typeId"
+    [canCheck]="hasFiles"
+    [(checked)]="checked"
+  >
+    <ng-template neatColumn="name" header="Type" let-type>{{ type.name }}</ng-template>
+    <ng-template neatColumn="files" header="Files" width="max-content" align="end" let-type>{{
+      type.files
+    }}</ng-template>
+  </neat-select-list>
+</div>
+<p class="showcase-code showcase-muted" aria-live="polite">
+  Checked: {{ checked().length ? checked().join(', ') : 'none' }}
+</p>
 ```
 
 `asset-types.ts`
@@ -541,25 +561,7 @@ const CAP_NOTE = `At most ${CAP} types can be compared.`;
   selector: 'app-capped',
   imports: [NeatColumn, NeatSelectList],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box">
-      <neat-select-list
-        label="Types to compare"
-        checkable
-        [items]="types"
-        [trackBy]="typeId"
-        [canCheck]="hasFiles"
-        [checkBlocked]="atCap"
-        [(checked)]="compared"
-      >
-        <ng-template neatColumn="name" header="Type" let-type>{{ type.name }}</ng-template>
-      </neat-select-list>
-    </div>
-    <p class="showcase-muted">{{ note }}</p>
-    <p class="showcase-code showcase-muted" aria-live="polite">
-      Compared: {{ compared().length ? compared().join(', ') : 'none' }}
-    </p>
-  `,
+  templateUrl: './6-capped.example.html',
   styleUrls: ['./asset-types-box.css', './stack.css'],
 })
 export class Capped {
@@ -573,6 +575,28 @@ export class Capped {
   protected readonly atCap = (type: AssetType): string | null =>
     this.compared().length >= CAP && !this.compared().includes(type.id) ? CAP_NOTE : null;
 }
+```
+
+`6-capped.example.html`
+
+```html
+<div class="box">
+  <neat-select-list
+    label="Types to compare"
+    checkable
+    [items]="types"
+    [trackBy]="typeId"
+    [canCheck]="hasFiles"
+    [checkBlocked]="atCap"
+    [(checked)]="compared"
+  >
+    <ng-template neatColumn="name" header="Type" let-type>{{ type.name }}</ng-template>
+  </neat-select-list>
+</div>
+<p class="showcase-muted">{{ note }}</p>
+<p class="showcase-code showcase-muted" aria-live="polite">
+  Compared: {{ compared().length ? compared().join(', ') : 'none' }}
+</p>
 ```
 
 `asset-types.ts`
@@ -666,23 +690,7 @@ const GROUPS: readonly NeatSelectListGroup[] = [
   selector: 'app-grouped',
   imports: [NeatColumn, NeatSelectList],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box">
-      <neat-select-list
-        label="Devices"
-        [items]="devices"
-        [trackBy]="deviceId"
-        [groups]="groups"
-        [groupOf]="deviceKind"
-        [(selected)]="selected"
-      >
-        <ng-template neatColumn="name" header="Device" let-device>{{ device.name }}</ng-template>
-        <ng-template neatColumn="connection" header="Connection" width="6rem" let-device>{{
-          device.connection
-        }}</ng-template>
-      </neat-select-list>
-    </div>
-  `,
+  templateUrl: './7-grouped.example.html',
   styleUrl: './grouped.example.css',
 })
 export class Grouped {
@@ -692,6 +700,26 @@ export class Grouped {
   protected readonly deviceId = (device: Device) => device.id;
   protected readonly deviceKind = (device: Device) => device.kind;
 }
+```
+
+`7-grouped.example.html`
+
+```html
+<div class="box">
+  <neat-select-list
+    label="Devices"
+    [items]="devices"
+    [trackBy]="deviceId"
+    [groups]="groups"
+    [groupOf]="deviceKind"
+    [(selected)]="selected"
+  >
+    <ng-template neatColumn="name" header="Device" let-device>{{ device.name }}</ng-template>
+    <ng-template neatColumn="connection" header="Connection" width="6rem" let-device>{{
+      device.connection
+    }}</ng-template>
+  </neat-select-list>
+</div>
 ```
 
 `grouped.example.css`
@@ -757,25 +785,7 @@ const STREAMS: readonly Stream[] = (
   selector: 'app-toned',
   imports: [NeatColumn, NeatSelectList, NeatStatusChip],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box">
-      <neat-select-list
-        label="Streams"
-        [items]="streams"
-        [trackBy]="streamId"
-        [rowTone]="streamTone"
-        [(selected)]="selected"
-      >
-        <ng-template neatColumn="name" header="Slot" let-stream>{{ stream.name }}</ng-template>
-        <ng-template neatColumn="kind" header="Kind" width="3rem">
-          <span class="showcase-muted">VID</span>
-        </ng-template>
-        <ng-template neatColumn="state" header="State" width="7rem" let-stream>
-          <neat-status-chip [tone]="stream.tone">{{ stream.state }}</neat-status-chip>
-        </ng-template>
-      </neat-select-list>
-    </div>
-  `,
+  templateUrl: './8-toned.example.html',
   styleUrl: './toned.example.css',
 })
 export class Toned {
@@ -784,6 +794,28 @@ export class Toned {
   protected readonly streamId = (stream: Stream) => stream.id;
   protected readonly streamTone = (stream: Stream) => stream.tone;
 }
+```
+
+`8-toned.example.html`
+
+```html
+<div class="box">
+  <neat-select-list
+    label="Streams"
+    [items]="streams"
+    [trackBy]="streamId"
+    [rowTone]="streamTone"
+    [(selected)]="selected"
+  >
+    <ng-template neatColumn="name" header="Slot" let-stream>{{ stream.name }}</ng-template>
+    <ng-template neatColumn="kind" header="Kind" width="3rem">
+      <span class="showcase-muted">VID</span>
+    </ng-template>
+    <ng-template neatColumn="state" header="State" width="7rem" let-stream>
+      <neat-status-chip [tone]="stream.tone">{{ stream.state }}</neat-status-chip>
+    </ng-template>
+  </neat-select-list>
+</div>
 ```
 
 `toned.example.css`

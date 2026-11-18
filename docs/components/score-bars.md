@@ -64,18 +64,7 @@ import { CLASSES, NO_GESTURE, scoresAt } from './data';
   selector: 'app-gesture-scores',
   imports: [NeatScoreBars],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-score-bars
-      label="Gesture probabilities"
-      [scores]="scores()"
-      [labels]="labels"
-      [quiet]="quiet"
-    />
-    <p class="reading">
-      <span class="dot" [style.background]="topColor()"></span>
-      {{ top().label }}
-    </p>
-  `,
+  templateUrl: './1-score-bars.example.html',
   styleUrl: './gesture-scores.example.css',
 })
 export class GestureScores {
@@ -95,6 +84,21 @@ export class GestureScores {
     inject(DestroyRef).onDestroy(() => clearInterval(timer));
   }
 }
+```
+
+`1-score-bars.example.html`
+
+```html
+<neat-score-bars
+  label="Gesture probabilities"
+  [scores]="scores()"
+  [labels]="labels"
+  [quiet]="quiet"
+/>
+<p class="reading">
+  <span class="dot" [style.background]="topColor()"></span>
+  {{ top().label }}
+</p>
 ```
 
 `data.ts`
@@ -182,17 +186,7 @@ import { CLASSES, NO_GESTURE, scoresAt } from './data';
   selector: 'app-filling-a-card',
   imports: [NeatCard, NeatScoreBars],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-card title="Probabilities">
-      <neat-score-bars
-        label="Gesture probabilities"
-        size="fill"
-        [scores]="scores"
-        [labels]="labels"
-        [quiet]="quiet"
-      />
-    </neat-card>
-  `,
+  templateUrl: './2-filling-a-card.example.html',
   styleUrl: './filling-a-card.example.css',
 })
 export class FillingACard {
@@ -200,6 +194,20 @@ export class FillingACard {
   protected readonly quiet = [NO_GESTURE];
   protected readonly scores = scoresAt(3);
 }
+```
+
+`2-filling-a-card.example.html`
+
+```html
+<neat-card title="Probabilities">
+  <neat-score-bars
+    label="Gesture probabilities"
+    size="fill"
+    [scores]="scores"
+    [labels]="labels"
+    [quiet]="quiet"
+  />
+</neat-card>
 ```
 
 `data.ts`

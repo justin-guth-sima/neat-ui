@@ -45,23 +45,7 @@ import { percent, RUNS, TIMES } from './data';
   selector: 'app-run-chips',
   imports: [NeatSeriesSwatch, NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="card">
-      <ul class="chips" aria-label="Compared runs">
-        @for (run of runs; track run.key) {
-          <li><neat-series-swatch [index]="$index" />{{ run.label }}</li>
-        }
-      </ul>
-      <neat-time-chart
-        label="Load by run"
-        headless
-        [series]="runs"
-        [times]="times"
-        [domain]="[0, 100]"
-        [format]="percent"
-      />
-    </div>
-  `,
+  templateUrl: './1-run-chips.example.html',
   styleUrl: './run-chips.example.css',
 })
 export class RunChips {
@@ -69,6 +53,26 @@ export class RunChips {
   protected readonly times = TIMES;
   protected readonly percent = percent;
 }
+```
+
+`1-run-chips.example.html`
+
+```html
+<div class="card">
+  <ul class="chips" aria-label="Compared runs">
+    @for (run of runs; track run.key) {
+      <li><neat-series-swatch [index]="$index" />{{ run.label }}</li>
+    }
+  </ul>
+  <neat-time-chart
+    label="Load by run"
+    headless
+    [series]="runs"
+    [times]="times"
+    [domain]="[0, 100]"
+    [format]="percent"
+  />
+</div>
 ```
 
 `data.ts`
@@ -172,13 +176,7 @@ import { NeatSwatch, SIMA_PALETTE } from '@sima/neat-ui';
   selector: 'app-any-color',
   imports: [NeatSwatch],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <ul class="chips" aria-label="Classes">
-      @for (row of classes; track row.label) {
-        <li><neat-swatch [color]="row.color" />{{ row.label }}</li>
-      }
-    </ul>
-  `,
+  templateUrl: './2-any-color.example.html',
   styleUrl: './run-chips.example.css',
 })
 export class AnyColor {
@@ -188,6 +186,16 @@ export class AnyColor {
     { label: 'bicycle', color: SIMA_PALETTE.green },
   ];
 }
+```
+
+`2-any-color.example.html`
+
+```html
+<ul class="chips" aria-label="Classes">
+  @for (row of classes; track row.label) {
+    <li><neat-swatch [color]="row.color" />{{ row.label }}</li>
+  }
+</ul>
 ```
 
 `run-chips.example.css`

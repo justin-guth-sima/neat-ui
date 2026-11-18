@@ -11,21 +11,7 @@ import { type Channel, CHANNELS, channelId } from './channels';
   selector: 'app-on-a-card',
   imports: [NeatColumn, NeatSelectList],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box wide card">
-      <neat-select-list
-        label="Channels on a card"
-        [items]="channels"
-        [trackBy]="channelId"
-        [(selected)]="selected"
-      >
-        <ng-template neatColumn="name" header="Channel" let-channel>{{ channel.name }}</ng-template>
-        <ng-template neatColumn="state" header="State" width="6rem" let-channel>{{
-          channel.state
-        }}</ng-template>
-      </neat-select-list>
-    </div>
-  `,
+  templateUrl: './2-on-a-card.example.html',
   styleUrls: ['./channels-box.css', './on-a-card.example.css'],
 })
 export class OnACard {

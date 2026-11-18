@@ -47,16 +47,20 @@ import { NeatLiveDot } from '@sima/neat-ui';
   selector: 'app-badges',
   imports: [NeatLiveDot],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <span class="showcase-row"><neat-live-dot /> Still</span>
-      <span class="showcase-row"><neat-live-dot pulse /> Recording 0:34</span>
-      <span class="showcase-row badge"><neat-live-dot pulse /> Live</span>
-    </div>
-  `,
+  templateUrl: './1-badges.example.html',
   styleUrl: './badges.example.css',
 })
 export class Badges {}
+```
+
+`1-badges.example.html`
+
+```html
+<div class="showcase-row">
+  <span class="showcase-row"><neat-live-dot /> Still</span>
+  <span class="showcase-row"><neat-live-dot pulse /> Recording 0:34</span>
+  <span class="showcase-row badge"><neat-live-dot pulse /> Live</span>
+</div>
 ```
 
 `badges.example.css`

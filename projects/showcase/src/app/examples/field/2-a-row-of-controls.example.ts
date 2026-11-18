@@ -28,35 +28,7 @@ const CLIP_LENGTHS: NeatSelectOption<number>[] = [
   selector: 'app-a-row-of-controls',
   imports: [NeatButton, NeatField, NeatInput, NeatNumberField, NeatSelect],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (size of sizes; track size) {
-      <div class="row">
-        <neat-field class="narrow" label="Start Time">
-          <input neatInput [size]="size" placeholder="0:00" />
-        </neat-field>
-        <neat-select
-          class="wide"
-          label="Target Resolution & FPS"
-          showLabel
-          [size]="size"
-          [options]="resolutions"
-          [(value)]="resolution"
-        />
-        <neat-select
-          class="narrow"
-          label="Clip Length"
-          showLabel
-          [size]="size"
-          [options]="clipLengths"
-          [value]="300"
-        />
-        @if (size === 'small') {
-          <neat-number-field label="Page" [value]="page()" (commit)="page.set($event)" />
-        }
-        <button neatButton type="button" variant="outlined" [size]="size">Validate</button>
-      </div>
-    }
-  `,
+  templateUrl: './2-a-row-of-controls.example.html',
   styleUrl: './a-row-of-controls.example.css',
 })
 export class ARowOfControls {

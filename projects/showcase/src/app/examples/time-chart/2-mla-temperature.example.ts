@@ -11,20 +11,7 @@ import { celsius, TEMPERATURE, TEMPERATURE_THRESHOLDS, TIMES } from './data';
   selector: 'app-mla-temperature',
   imports: [NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="chart-card">
-      <neat-time-chart
-        label="MLA temperature"
-        headline="78.2 °C"
-        tone="warning"
-        [series]="series"
-        [times]="times"
-        [domain]="[40, 100]"
-        [thresholds]="thresholds"
-        [format]="celsius"
-      />
-    </div>
-  `,
+  templateUrl: './2-mla-temperature.example.html',
   styleUrl: './chart-card.css',
 })
 export class MLATemperature {

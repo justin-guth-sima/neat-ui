@@ -49,13 +49,18 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatDetails } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/details'"],["text",";\n\n"],
           ["comment","/** Ages in seconds: one ahead of now, then both sides of each switch of unit. */"],["text","\n"],
           ["keyword","const"],["text"," AGES = [-5, 0, 9, 10, 59, 60, 3599, 3600, 86_399, 86_400, 259_200];\n\n@Component({\n  selector: "],
-          ["string","'app-ages'"],["text",",\n  imports: [NeatDetails],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <dl neatDetails class=\"ages\">\n      @for (age of ages; track age) {\n        <dt>{{ age }} s</dt>\n        <dd>{{ ago(age) }}</dd>\n      }\n    </dl>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-ages'"],["text",",\n  imports: [NeatDetails],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-ages.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./ages.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Ages {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," ages = AGES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," ago = neatSecondsAgo;\n}\n"]
+        ]
+      },
+      {
+        "name": "1-ages.example.html",
+        "code": [
+          ["text","<dl neatDetails class=\"ages\">\n  @for (age of ages; track age) {\n    <dt>{{ age }} s</dt>\n    <dd>{{ ago(age) }}</dd>\n  }\n</dl>\n"]
         ]
       },
       {

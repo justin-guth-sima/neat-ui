@@ -59,8 +59,8 @@ Each of these is in [Rules](AGENTS.md#rules) with its reason and its escape hatc
    helm's classes ([how](AGENTS.md#how-the-kit-is-built-on-spartan)).
 3. Give every public part, input, model and output a doc comment.
 4. Add a topic for it in `projects/showcase/src/app/docs/topics.ts`, and examples in
-   `projects/showcase/src/app/examples/<topic>/`, one `*.example.ts` each. The class doc is the
-   example's caption.
+   `projects/showcase/src/app/examples/<topic>/`, one `*.example.ts` each with its template in
+   the `*.example.html` beside it (`templateUrl`). The class doc is the example's caption.
 5. Run `npm run docs:emit` and `npm run docs:pages`, then look at the topic in the showcase in both
    themes.
 6. If an example makes a good picture for the README's gallery, mark it `@gallery` (one per

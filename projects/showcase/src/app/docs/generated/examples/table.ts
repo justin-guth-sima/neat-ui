@@ -57,9 +57,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatFigure, NeatNumeric, NeatTable } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/table'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatStatusChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/status-chip'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-run-metrics'"],["text",",\n  imports: [NeatFigure, NeatNumeric, NeatStatusChip, NeatTable],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <table neatTable aria-label=\"Metrics of a run\">\n      <thead>\n        <tr>\n          <th scope=\"col\">Metric</th>\n          <th scope=\"col\" neatNumeric>Mean</th>\n          <th scope=\"col\" neatFigure>Max</th>\n        </tr>\n      </thead>\n      <tbody>\n        @for (metric of metrics; track metric.name) {\n          <tr>\n            <th scope=\"row\">{{ metric.name }}</th>\n            <td neatNumeric>{{ metric.mean }}</td>\n            <td neatFigure>\n              <div class=\"max\">\n                {{ metric.max }}\n                <neat-status-chip [tone]=\"metric.tone\">{{ metric.status }}</neat-status-chip>\n              </div>\n            </td>\n          </tr>\n        }\n      </tbody>\n    </table>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-run-metrics'"],["text",",\n  imports: [NeatFigure, NeatNumeric, NeatStatusChip, NeatTable],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-run-metrics.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./run-metrics.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," RunMetrics {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," metrics = [\n    { name: "],
@@ -67,6 +66,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'SoC temperature'"],["text",", mean: "],["string","'61.2 °C'"],["text",", max: "],["string","'84.0 °C'"],["text",", tone: "],["string","'warning'"],["text",", status: "],["string","'Warm'"],["text"," },\n    { name: "],
           ["string","'Memory used'"],["text",", mean: "],["string","'2.1 GiB'"],["text",", max: "],["string","'2.4 GiB'"],["text",", tone: "],["string","'success'"],["text",", status: "],["string","'OK'"],["text"," },\n  ] "],
           ["keyword","as"],["text"," "],["keyword","const"],["text",";\n}\n"]
+        ]
+      },
+      {
+        "name": "1-run-metrics.example.html",
+        "code": [
+          ["text","<table neatTable aria-label=\"Metrics of a run\">\n  <thead>\n    <tr>\n      <th scope=\"col\">Metric</th>\n      <th scope=\"col\" neatNumeric>Mean</th>\n      <th scope=\"col\" neatFigure>Max</th>\n    </tr>\n  </thead>\n  <tbody>\n    @for (metric of metrics; track metric.name) {\n      <tr>\n        <th scope=\"row\">{{ metric.name }}</th>\n        <td neatNumeric>{{ metric.mean }}</td>\n        <td neatFigure>\n          <div class=\"max\">\n            {{ metric.max }}\n            <neat-status-chip [tone]=\"metric.tone\">{{ metric.status }}</neat-status-chip>\n          </div>\n        </td>\n      </tr>\n    }\n  </tbody>\n</table>\n"]
         ]
       },
       {

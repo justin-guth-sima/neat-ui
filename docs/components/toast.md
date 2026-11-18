@@ -49,38 +49,37 @@ import { NeatToasts } from '@sima/neat-ui/toast';
   selector: 'app-kinds',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button
-        neatButton
-        type="button"
-        variant="outlined"
-        (click)="toasts.error('Could not start src3: the stream is held by another publisher.')"
-      >
-        Error
-      </button>
-      <button
-        neatButton
-        type="button"
-        variant="outlined"
-        (click)="toasts.warning('Uploaded clip.mp4, but could not restart src2: it is in use.')"
-      >
-        Warning
-      </button>
-      <button
-        neatButton
-        type="button"
-        variant="outlined"
-        (click)="toasts.status('Stopped 2 sources.')"
-      >
-        Status
-      </button>
-    </div>
-  `,
+  templateUrl: './1-kinds.example.html',
 })
 export class Kinds {
   protected readonly toasts = inject(NeatToasts);
 }
+```
+
+`1-kinds.example.html`
+
+```html
+<div class="showcase-row">
+  <button
+    neatButton
+    type="button"
+    variant="outlined"
+    (click)="toasts.error('Could not start src3: the stream is held by another publisher.')"
+  >
+    Error
+  </button>
+  <button
+    neatButton
+    type="button"
+    variant="outlined"
+    (click)="toasts.warning('Uploaded clip.mp4, but could not restart src2: it is in use.')"
+  >
+    Warning
+  </button>
+  <button neatButton type="button" variant="outlined" (click)="toasts.status('Stopped 2 sources.')">
+    Status
+  </button>
+</div>
 ```
 
 </details>
@@ -113,22 +112,7 @@ type Outcome = 'done' | 'fail' | 'unknown' | 'dismiss';
   selector: 'app-progress',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" (click)="run('done')">
-        Progress, succeeding
-      </button>
-      <button neatButton type="button" variant="outlined" (click)="run('fail')">
-        Progress, failing
-      </button>
-      <button neatButton type="button" variant="outlined" (click)="run('unknown')">
-        Progress, unknown length
-      </button>
-      <button neatButton type="button" variant="outlined" (click)="run('dismiss')">
-        Progress, dismissed
-      </button>
-    </div>
-  `,
+  templateUrl: './2-progress.example.html',
 })
 export class Progress {
   private readonly toasts = inject(NeatToasts);
@@ -157,6 +141,25 @@ export class Progress {
     }, 250);
   }
 }
+```
+
+`2-progress.example.html`
+
+```html
+<div class="showcase-row">
+  <button neatButton type="button" variant="outlined" (click)="run('done')">
+    Progress, succeeding
+  </button>
+  <button neatButton type="button" variant="outlined" (click)="run('fail')">
+    Progress, failing
+  </button>
+  <button neatButton type="button" variant="outlined" (click)="run('unknown')">
+    Progress, unknown length
+  </button>
+  <button neatButton type="button" variant="outlined" (click)="run('dismiss')">
+    Progress, dismissed
+  </button>
+</div>
 ```
 
 </details>

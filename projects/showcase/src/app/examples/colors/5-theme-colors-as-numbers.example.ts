@@ -22,26 +22,7 @@ const format = (rgb: NeatRgb | null): string =>
 @Component({
   selector: 'app-theme-colors-as-numbers',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Token</th>
-          <th scope="col">Sample</th>
-          <th scope="col">Red, green, blue</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (row of rows(); track row.token) {
-          <tr>
-            <th scope="row" class="showcase-code">{{ row.token }}</th>
-            <td><span class="sample" [style.background]="'var(' + row.token + ')'"></span></td>
-            <td class="showcase-code">{{ row.rgb }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  `,
+  templateUrl: './5-theme-colors-as-numbers.example.html',
   styleUrl: './theme-colors-as-numbers.example.css',
 })
 export class ThemeColorsAsNumbers {

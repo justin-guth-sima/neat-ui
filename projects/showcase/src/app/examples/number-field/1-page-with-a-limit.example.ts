@@ -15,23 +15,7 @@ const PAGE_COUNT = 9;
   selector: 'app-page-with-a-limit',
   imports: [NeatButton, NeatNumberField],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <neat-number-field
-        #pageField
-        label="Page"
-        [value]="page()"
-        [accept]="acceptPage"
-        (commit)="commit($event)"
-      >
-        <span neatNumberFieldSuffix>of {{ pageCount }}</span>
-      </neat-number-field>
-      <button neatButton type="button" variant="outlined" (click)="pageField.focus()">
-        Focus the page field
-      </button>
-    </div>
-    <p class="showcase-code showcase-muted">Page {{ page() }}, commits so far {{ commits() }}</p>
-  `,
+  templateUrl: './1-page-with-a-limit.example.html',
   styleUrl: './stack.css',
 })
 export class PageWithALimit {

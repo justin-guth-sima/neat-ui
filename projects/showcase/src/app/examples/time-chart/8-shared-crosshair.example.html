@@ -1,0 +1,70 @@
+<div class="dashboard">
+  <div class="chart-card">
+    <neat-time-chart
+      label="CPU"
+      [series]="cpu"
+      [times]="times"
+      [domain]="[0, 100]"
+      [format]="percent"
+      [(hovered)]="moment"
+      (activated)="clicked.set('CPU at ' + when($event.time))"
+    />
+  </div>
+  <div class="chart-card">
+    <neat-stacked-chart
+      label="Clusters"
+      [series]="clusters"
+      [times]="times"
+      [domain]="[0, 220]"
+      [format]="percent"
+      [(hovered)]="moment"
+      (activated)="clicked.set('Clusters at ' + when($event.time))"
+    />
+  </div>
+  <div class="chart-card">
+    <neat-heatmap
+      label="Cores"
+      [rows]="rows"
+      [times]="times"
+      [format]="percent"
+      [hovered]="cell()"
+      (hoveredChange)="onCell($event)"
+      (activated)="clicked.set($event.row + ' at ' + when($event.time))"
+    />
+  </div>
+  <div class="chart-card">
+    <neat-label-timeline
+      label="Board state"
+      [runs]="runs"
+      [nowMs]="end"
+      [windowMs]="end - start"
+      [(hovered)]="moment"
+      (activated)="clicked.set(($event.run?.label ?? 'nothing') + ' at ' + when($event.time))"
+    />
+  </div>
+  <div class="chart-card report">
+    <dl>
+      <dt>Moment</dt>
+      <dd>{{ momentText() }}</dd>
+      <dt>Last click</dt>
+      <dd>{{ clicked() }}</dd>
+    </dl>
+    <div class="actions">
+      <button
+        neatButton
+        type="button"
+        size="small"
+        variant="secondary"
+        (click)="moment.set(start + 120_000)"
+      >
+        Show 12:02
+      </button>
+      <button neatButton type="button" size="small" variant="secondary" (click)="moment.set(end)">
+        Show the newest
+      </button>
+      <button neatButton type="button" size="small" variant="outlined" (click)="moment.set(null)">
+        Clear
+      </button>
+    </div>
+  </div>
+</div>

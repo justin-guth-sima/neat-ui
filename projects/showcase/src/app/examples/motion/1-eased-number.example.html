@@ -1,0 +1,9 @@
+<div class="showcase-row">
+  <span><neat-eased-number [value]="fps()" [digits]="1" /> fps</span>
+  <button neatButton type="button" variant="outlined" size="small" (click)="next()">
+    Next value
+  </button>
+  <button neatButton type="button" variant="text" size="small" (click)="fps.set(null)">
+    No value
+  </button>
+</div>

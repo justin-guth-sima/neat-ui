@@ -25,18 +25,7 @@ import { CLASSES, NO_GESTURE, scoresAt } from './data';
   selector: 'app-gesture-scores',
   imports: [NeatScoreBars],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-score-bars
-      label="Gesture probabilities"
-      [scores]="scores()"
-      [labels]="labels"
-      [quiet]="quiet"
-    />
-    <p class="reading">
-      <span class="dot" [style.background]="topColor()"></span>
-      {{ top().label }}
-    </p>
-  `,
+  templateUrl: './1-score-bars.example.html',
   styleUrl: './gesture-scores.example.css',
 })
 export class GestureScores {

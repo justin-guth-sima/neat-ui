@@ -15,20 +15,7 @@ import { NeatButton, type NeatColorScheme, ThemeService } from '@sima/neat-ui';
   selector: 'app-color-scheme',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <p>
-      The scheme is <strong>{{ theme.scheme() }}</strong
-      >.
-    </p>
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" size="small" (click)="theme.toggle()">
-        Switch to {{ other() }}
-      </button>
-      <button neatButton type="button" variant="text" size="small" (click)="tryOther()">
-        Show {{ other() }} without saving
-      </button>
-    </div>
-  `,
+  templateUrl: './1-color-scheme.example.html',
 })
 export class ColorScheme {
   protected readonly theme = inject(ThemeService);

@@ -57,23 +57,7 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
   selector: 'app-choices',
   imports: [NeatButton, NeatSegmented],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <neat-segmented #shapeControl label="Tile shape" [options]="shapes" [(value)]="shape" />
-      <neat-segmented label="Overlays" [options]="overlays" [(value)]="overlay" />
-      <neat-segmented label="Tile shape, disabled" [options]="shapes" value="1:1" disabled />
-      <button
-        neatButton
-        type="button"
-        variant="outlined"
-        size="small"
-        (click)="shapeControl.focus()"
-      >
-        Focus the tile shape
-      </button>
-    </div>
-    <p class="showcase-code showcase-muted">Shape {{ shape() }}, overlays {{ overlay() }}</p>
-  `,
+  templateUrl: './1-choices.example.html',
   styleUrl: './choices.example.css',
 })
 export class Choices {
@@ -82,6 +66,20 @@ export class Choices {
   protected readonly shape = signal<Shape>('16:9');
   protected readonly overlay = signal('boxes');
 }
+```
+
+`1-choices.example.html`
+
+```html
+<div class="showcase-row">
+  <neat-segmented #shapeControl label="Tile shape" [options]="shapes" [(value)]="shape" />
+  <neat-segmented label="Overlays" [options]="overlays" [(value)]="overlay" />
+  <neat-segmented label="Tile shape, disabled" [options]="shapes" value="1:1" disabled />
+  <button neatButton type="button" variant="outlined" size="small" (click)="shapeControl.focus()">
+    Focus the tile shape
+  </button>
+</div>
+<p class="showcase-code showcase-muted">Shape {{ shape() }}, overlays {{ overlay() }}</p>
 ```
 
 `choices.example.css`
@@ -124,17 +122,21 @@ const VIEWS: NeatSegmentedOption<string>[] = [
   selector: 'app-in-a-crowded-row',
   imports: [NeatSegmented],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="crowded">
-      <neat-segmented label="Stats view" [options]="views" value="live" />
-      <span class="title">Stats for a stream with a long name</span>
-    </div>
-  `,
+  templateUrl: './2-in-a-crowded-row.example.html',
   styleUrl: './in-a-crowded-row.example.css',
 })
 export class InACrowdedRow {
   protected readonly views = VIEWS;
 }
+```
+
+`2-in-a-crowded-row.example.html`
+
+```html
+<div class="crowded">
+  <neat-segmented label="Stats view" [options]="views" value="live" />
+  <span class="title">Stats for a stream with a long name</span>
+</div>
 ```
 
 `in-a-crowded-row.example.css`
@@ -188,17 +190,21 @@ const SOURCES: NeatSegmentedOption<string>[] = [
   selector: 'app-in-a-narrow-panel',
   imports: [NeatSegmented],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="panel">
-      <neat-segmented label="Source" [options]="sources" [(value)]="source" />
-    </div>
-  `,
+  templateUrl: './3-in-a-narrow-panel.example.html',
   styleUrl: './in-a-narrow-panel.example.css',
 })
 export class InANarrowPanel {
   protected readonly sources = SOURCES;
   protected readonly source = signal('url');
 }
+```
+
+`3-in-a-narrow-panel.example.html`
+
+```html
+<div class="panel">
+  <neat-segmented label="Source" [options]="sources" [(value)]="source" />
+</div>
 ```
 
 `in-a-narrow-panel.example.css`

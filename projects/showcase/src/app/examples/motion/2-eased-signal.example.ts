@@ -22,12 +22,7 @@ const SHARES = [20, 85, 40, 100];
   selector: 'app-eased-signal',
   imports: [NeatButton, NeatProgress],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-progress label="Share" [value]="value()" />
-    <button neatButton type="button" variant="outlined" size="small" (click)="next()">
-      Next share
-    </button>
-  `,
+  templateUrl: './2-eased-signal.example.html',
   styleUrl: './eased-signal.example.css',
 })
 export class EasedSignal {

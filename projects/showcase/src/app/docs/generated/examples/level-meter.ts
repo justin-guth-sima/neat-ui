@@ -39,14 +39,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatLevelMeter } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/level-meter'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-sine-wave'"],["text",",\n  imports: [NeatButton, NeatLevelMeter],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-level-meter [sample]=\"running() ? sineLevel : null\" />\n    <button neatButton type=\"button\" size=\"small\" (click)=\"running.update((on) => !on)\">\n      {{ running() ? 'Stop' : 'Start' }}\n    </button>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-sine-wave'"],["text",",\n  imports: [NeatButton, NeatLevelMeter],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-sine-wave.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./sine-wave.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SineWave {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," running = signal("],["keyword","true"],["text",");\n  "],
           ["comment","/** Swings from -50 to 0 dBFS and back about every four seconds. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sineLevel = () => -25 + 25 * Math.sin(performance.now() / 600);\n}\n"]
+        ]
+      },
+      {
+        "name": "1-sine-wave.example.html",
+        "code": [
+          ["text","<neat-level-meter [sample]=\"running() ? sineLevel : null\" />\n<button neatButton type=\"button\" size=\"small\" (click)=\"running.update((on) => !on)\">\n  {{ running() ? 'Stop' : 'Start' }}\n</button>\n"]
         ]
       },
       {

@@ -12,31 +12,7 @@ import { CORES, MLA, percent, TIMES } from './data';
   selector: 'app-filling-a-card',
   imports: [NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="chart-grid">
-      <div class="chart-card">
-        <neat-time-chart
-          label="Ten cores"
-          size="large"
-          [series]="cores"
-          [times]="times"
-          [domain]="[0, 100]"
-          [format]="percent"
-        />
-      </div>
-      <div class="chart-card fill">
-        <neat-time-chart
-          label="MLA usage"
-          headline="62%"
-          size="fill"
-          [series]="mla"
-          [times]="times"
-          [domain]="[0, 100]"
-          [format]="percent"
-        />
-      </div>
-    </div>
-  `,
+  templateUrl: './6-filling-a-card.example.html',
   styleUrls: ['./chart-card.css', './filling-a-card.example.css'],
 })
 export class FillingACard {

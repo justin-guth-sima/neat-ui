@@ -1,0 +1,35 @@
+<div class="card row">
+  <button neatSwitch [(checked)]="bars">Bars</button>
+  <neat-slider
+    class="slider"
+    label="Opacity"
+    [min]="0"
+    [max]="100"
+    [step]="5"
+    [(value)]="opacity"
+  />
+  <neat-segmented label="Tile shape" [options]="shapes" [(value)]="shape" />
+  <input class="input" neatInput size="small" aria-label="Jump to channel" placeholder="Channel" />
+  <neat-select
+    class="select"
+    label="Source, on a card"
+    placeholder="Pick a source"
+    [options]="sources"
+    [(value)]="source"
+  />
+</div>
+<div class="card stack">
+  <neat-progress label="Upload, on a card" [value]="40" />
+  <neat-progress label="Preparing, on a card" [value]="null" />
+  <neat-drop-zone label="Drop files here, on a card" multiple />
+</div>
+<div class="card">
+  <neat-tabs label="Channel settings, on a card" [(value)]="tab">
+    <neat-tab label="Metadata" value="metadata">
+      <ng-template><p class="showcase-muted">Metadata settings.</p></ng-template>
+    </neat-tab>
+    <neat-tab label="General" value="general">
+      <ng-template><p class="showcase-muted">General settings.</p></ng-template>
+    </neat-tab>
+  </neat-tabs>
+</div>

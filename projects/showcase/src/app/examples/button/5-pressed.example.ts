@@ -11,33 +11,7 @@ import { VARIANTS } from './variants';
   selector: 'app-pressed',
   imports: [NeatButton, NeatIcon, NeatTooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (surface of surfaces; track surface) {
-      <div class="showcase-row" [class.card]="surface === 'card'">
-        @for (variant of variants; track variant) {
-          <button
-            neatButton
-            type="button"
-            [variant]="variant"
-            [pressed]="pressedVariants().has(variant)"
-            (click)="toggle(variant)"
-          >
-            {{ variant }}
-          </button>
-        }
-        <button
-          neatButton
-          type="button"
-          variant="outlined"
-          iconOnly
-          aria-label="Close"
-          neatTooltip="Close"
-        >
-          <neat-icon name="close" />
-        </button>
-      </div>
-    }
-  `,
+  templateUrl: './5-pressed.example.html',
   styleUrls: ['./card.css', './stack.css'],
 })
 export class Pressed {

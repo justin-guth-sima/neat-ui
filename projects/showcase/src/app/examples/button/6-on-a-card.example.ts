@@ -10,13 +10,7 @@ import { VARIANTS } from './variants';
   selector: 'app-on-a-card',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="card showcase-row">
-      @for (variant of variants; track variant) {
-        <button neatButton type="button" [variant]="variant">{{ variant }}</button>
-      }
-    </div>
-  `,
+  templateUrl: './6-on-a-card.example.html',
   styleUrl: './card.css',
 })
 export class OnACard {

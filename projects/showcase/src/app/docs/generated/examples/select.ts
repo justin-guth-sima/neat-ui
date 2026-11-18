@@ -40,13 +40,18 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSelect } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n"],
           ["keyword","import"],["text"," { SOURCES } "],["keyword","from"],["text"," "],["string","'./sources'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-label-positions'"],["text",",\n  imports: [NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"selects\">\n      <neat-select\n        label=\"Source\"\n        placeholder=\"Pick a source\"\n        showLabel\n        [options]=\"sources\"\n        [(value)]=\"source\"\n      />\n      <neat-select\n        label=\"Source, label hidden\"\n        placeholder=\"Pick a source\"\n        [options]=\"sources\"\n        [(value)]=\"source\"\n      />\n      <neat-select\n        label=\"Source\"\n        placeholder=\"Pick a source\"\n        labelPosition=\"inline\"\n        [options]=\"sources\"\n        [(value)]=\"source\"\n      />\n      <neat-select label=\"Disabled\" disabled [options]=\"sources\" [value]=\"'rtsp'\" />\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">\n      Selected: {{ source() ?? 'none' }}\n    </p>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-label-positions'"],["text",",\n  imports: [NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-label-positions.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./stack.css'"],["text",", "],["string","'./label-positions.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," LabelPositions {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sources = SOURCES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," source = signal<"],["keyword","string"],["text"," | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "1-label-positions.example.html",
+        "code": [
+          ["text","<div class=\"selects\">\n  <neat-select\n    label=\"Source\"\n    placeholder=\"Pick a source\"\n    showLabel\n    [options]=\"sources\"\n    [(value)]=\"source\"\n  />\n  <neat-select\n    label=\"Source, label hidden\"\n    placeholder=\"Pick a source\"\n    [options]=\"sources\"\n    [(value)]=\"source\"\n  />\n  <neat-select\n    label=\"Source\"\n    placeholder=\"Pick a source\"\n    labelPosition=\"inline\"\n    [options]=\"sources\"\n    [(value)]=\"source\"\n  />\n  <neat-select label=\"Disabled\" disabled [options]=\"sources\" [value]=\"'rtsp'\" />\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">Selected: {{ source() ?? 'none' }}</p>\n"]
         ]
       },
       {
@@ -110,9 +115,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatDialog, NeatDialogActions, NeatDialogBody } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/dialog'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSelect } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n"],
           ["keyword","import"],["text"," { SOURCES } "],["keyword","from"],["text"," "],["string","'./sources'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-in-a-dialog'"],["text",",\n  imports: [NeatButton, NeatDialogActions, NeatDialogBody, NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"open(assignDialog)\">\n        Assign a source…\n      </button>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ result() }}</p>\n\n    <ng-template #assignDialog let-dialog>\n      <neat-dialog-body>\n        <neat-select\n          label=\"Source for channel 3\"\n          showLabel\n          placeholder=\"Pick a source\"\n          [options]=\"sources\"\n          [(value)]=\"source\"\n        />\n      </neat-dialog-body>\n      <neat-dialog-actions>\n        <button neatButton type=\"button\" variant=\"outlined\" (click)=\"dialog.close()\">Cancel</button>\n        <button neatButton type=\"button\" (click)=\"dialog.close(source())\">Assign</button>\n      </neat-dialog-actions>\n    </ng-template>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-in-a-dialog'"],["text",",\n  imports: [NeatButton, NeatDialogActions, NeatDialogBody, NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-in-a-dialog.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./stack.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," InADialog {\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," dialogs = inject(NeatDialog);\n  "],
@@ -123,6 +127,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," source = "],["keyword","await"],["text"," "],["keyword","this"],["text",".dialogs.open<"],["keyword","string"],["text"," | "],["keyword","null"],["text",">(content, { title: "],["string","'Assign a source'"],["text"," })\n      .closed;\n    "],
           ["keyword","this"],["text",".result.set(\n      source === "],
           ["keyword","undefined"],["text"," ? "],["string","'Dialog dismissed'"],["text"," : "],["string","`Dialog assigned ${source ?? 'nothing'}`"],["text",",\n    );\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "2-in-a-dialog.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"open(assignDialog)\">\n    Assign a source…\n  </button>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ result() }}</p>\n\n<ng-template #assignDialog let-dialog>\n  <neat-dialog-body>\n    <neat-select\n      label=\"Source for channel 3\"\n      showLabel\n      placeholder=\"Pick a source\"\n      [options]=\"sources\"\n      [(value)]=\"source\"\n    />\n  </neat-dialog-body>\n  <neat-dialog-actions>\n    <button neatButton type=\"button\" variant=\"outlined\" (click)=\"dialog.close()\">Cancel</button>\n    <button neatButton type=\"button\" (click)=\"dialog.close(source())\">Assign</button>\n  </neat-dialog-actions>\n</ng-template>\n"]
         ]
       },
       {

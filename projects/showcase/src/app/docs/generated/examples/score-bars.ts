@@ -69,9 +69,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatScore, NeatScoreBars, neatLabelColor } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { CLASSES, NO_GESTURE, scoresAt } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-gesture-scores'"],["text",",\n  imports: [NeatScoreBars],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-score-bars\n      label=\"Gesture probabilities\"\n      [scores]=\"scores()\"\n      [labels]=\"labels\"\n      [quiet]=\"quiet\"\n    />\n    <p class=\"reading\">\n      <span class=\"dot\" [style.background]=\"topColor()\"></span>\n      {{ top().label }}\n    </p>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-gesture-scores'"],["text",",\n  imports: [NeatScoreBars],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-score-bars.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./gesture-scores.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," GestureScores {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," labels = CLASSES;\n  "],
@@ -84,6 +83,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","constructor"],["text","() {\n    "],
           ["keyword","let"],["text"," step = 0;\n    "],
           ["keyword","const"],["text"," timer = setInterval(() => "],["keyword","this"],["text",".scores.set(scoresAt(++step)), 1500);\n    inject(DestroyRef).onDestroy(() => clearInterval(timer));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "1-score-bars.example.html",
+        "code": [
+          ["text","<neat-score-bars\n  label=\"Gesture probabilities\"\n  [scores]=\"scores()\"\n  [labels]=\"labels\"\n  [quiet]=\"quiet\"\n/>\n<p class=\"reading\">\n  <span class=\"dot\" [style.background]=\"topColor()\"></span>\n  {{ top().label }}\n</p>\n"]
         ]
       },
       {
@@ -168,14 +173,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatCard } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/card'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatScoreBars } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { CLASSES, NO_GESTURE, scoresAt } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-filling-a-card'"],["text",",\n  imports: [NeatCard, NeatScoreBars],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-card title=\"Probabilities\">\n      <neat-score-bars\n        label=\"Gesture probabilities\"\n        size=\"fill\"\n        [scores]=\"scores\"\n        [labels]=\"labels\"\n        [quiet]=\"quiet\"\n      />\n    </neat-card>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-filling-a-card'"],["text",",\n  imports: [NeatCard, NeatScoreBars],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-filling-a-card.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./filling-a-card.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," FillingACard {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," labels = CLASSES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," quiet = [NO_GESTURE];\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," scores = scoresAt(3);\n}\n"]
+        ]
+      },
+      {
+        "name": "2-filling-a-card.example.html",
+        "code": [
+          ["text","<neat-card title=\"Probabilities\">\n  <neat-score-bars\n    label=\"Gesture probabilities\"\n    size=\"fill\"\n    [scores]=\"scores\"\n    [labels]=\"labels\"\n    [quiet]=\"quiet\"\n  />\n</neat-card>\n"]
         ]
       },
       {

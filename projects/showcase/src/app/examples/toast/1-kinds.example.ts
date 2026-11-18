@@ -13,34 +13,7 @@ import { NeatToasts } from '@sima/neat-ui/toast';
   selector: 'app-kinds',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button
-        neatButton
-        type="button"
-        variant="outlined"
-        (click)="toasts.error('Could not start src3: the stream is held by another publisher.')"
-      >
-        Error
-      </button>
-      <button
-        neatButton
-        type="button"
-        variant="outlined"
-        (click)="toasts.warning('Uploaded clip.mp4, but could not restart src2: it is in use.')"
-      >
-        Warning
-      </button>
-      <button
-        neatButton
-        type="button"
-        variant="outlined"
-        (click)="toasts.status('Stopped 2 sources.')"
-      >
-        Status
-      </button>
-    </div>
-  `,
+  templateUrl: './1-kinds.example.html',
 })
 export class Kinds {
   protected readonly toasts = inject(NeatToasts);

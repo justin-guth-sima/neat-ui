@@ -13,18 +13,7 @@ import { RAILS, TIMES, watts } from './data';
   selector: 'app-power-rails',
   imports: [NeatStackedChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="card">
-      <neat-stacked-chart
-        label="Where the power goes"
-        headline="11.2 W"
-        [series]="rails"
-        [times]="times"
-        [domain]="[0, 16]"
-        [format]="watts"
-      />
-    </div>
-  `,
+  templateUrl: './1-power-rails.example.html',
   styleUrl: './power-rails.example.css',
 })
 export class PowerRails {

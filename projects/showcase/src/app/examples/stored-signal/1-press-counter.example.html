@@ -1,0 +1,15 @@
+<div class="showcase-row">
+  <span>Pressed {{ presses() }} times</span>
+  <button
+    neatButton
+    type="button"
+    variant="outlined"
+    size="small"
+    (click)="presses.set(presses() + 1)"
+  >
+    Press
+  </button>
+  <button neatButton type="button" variant="text" size="small" (click)="presses.set(0)">
+    Reset
+  </button>
+</div>

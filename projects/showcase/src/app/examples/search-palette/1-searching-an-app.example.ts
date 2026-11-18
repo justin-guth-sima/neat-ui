@@ -51,15 +51,7 @@ const PAGES: readonly NeatSearchItem[] = [
   selector: 'app-searching-an-app',
   imports: [NeatSearchPalette],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-search-palette
-      label="Search pages"
-      shortcut="false"
-      [search]="search"
-      (picked)="last.set($event.label)"
-    />
-    <p class="showcase-muted">Last opened: {{ last() ?? 'none yet' }}</p>
-  `,
+  templateUrl: './1-searching-an-app.example.html',
   styleUrl: './searching-an-app.example.css',
 })
 export class SearchingAnApp {

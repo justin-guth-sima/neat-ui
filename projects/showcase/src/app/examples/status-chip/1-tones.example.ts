@@ -15,21 +15,7 @@ import { CHIPS, SURFACES } from './chips';
   selector: 'app-tones',
   imports: [NeatStatusChip, NeatStatusChipButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (surface of surfaces; track surface) {
-      <div class="showcase-row" [class.card]="surface === 'card'">
-        @for (chip of chips; track chip.tone) {
-          <neat-status-chip [tone]="chip.tone">{{ chip.label }}</neat-status-chip>
-        }
-        <button neatStatusChip type="button" tone="warning" (click)="opened.set(true)">
-          Metadata late
-        </button>
-      </div>
-    }
-    @if (opened()) {
-      <p class="showcase-muted">The late notice would open here.</p>
-    }
-  `,
+  templateUrl: './1-tones.example.html',
   styleUrl: './surfaces.css',
 })
 export class Tones {

@@ -46,40 +46,42 @@ import { SOURCES } from './sources';
   selector: 'app-label-positions',
   imports: [NeatSelect],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="selects">
-      <neat-select
-        label="Source"
-        placeholder="Pick a source"
-        showLabel
-        [options]="sources"
-        [(value)]="source"
-      />
-      <neat-select
-        label="Source, label hidden"
-        placeholder="Pick a source"
-        [options]="sources"
-        [(value)]="source"
-      />
-      <neat-select
-        label="Source"
-        placeholder="Pick a source"
-        labelPosition="inline"
-        [options]="sources"
-        [(value)]="source"
-      />
-      <neat-select label="Disabled" disabled [options]="sources" [value]="'rtsp'" />
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">
-      Selected: {{ source() ?? 'none' }}
-    </p>
-  `,
+  templateUrl: './1-label-positions.example.html',
   styleUrls: ['./stack.css', './label-positions.example.css'],
 })
 export class LabelPositions {
   protected readonly sources = SOURCES;
   protected readonly source = signal<string | null>(null);
 }
+```
+
+`1-label-positions.example.html`
+
+```html
+<div class="selects">
+  <neat-select
+    label="Source"
+    placeholder="Pick a source"
+    showLabel
+    [options]="sources"
+    [(value)]="source"
+  />
+  <neat-select
+    label="Source, label hidden"
+    placeholder="Pick a source"
+    [options]="sources"
+    [(value)]="source"
+  />
+  <neat-select
+    label="Source"
+    placeholder="Pick a source"
+    labelPosition="inline"
+    [options]="sources"
+    [(value)]="source"
+  />
+  <neat-select label="Disabled" disabled [options]="sources" [value]="'rtsp'" />
+</div>
+<p class="showcase-code showcase-muted" aria-live="polite">Selected: {{ source() ?? 'none' }}</p>
 ```
 
 `sources.ts`
@@ -157,30 +159,7 @@ import { SOURCES } from './sources';
   selector: 'app-in-a-dialog',
   imports: [NeatButton, NeatDialogActions, NeatDialogBody, NeatSelect],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" (click)="open(assignDialog)">
-        Assign a source…
-      </button>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">{{ result() }}</p>
-
-    <ng-template #assignDialog let-dialog>
-      <neat-dialog-body>
-        <neat-select
-          label="Source for channel 3"
-          showLabel
-          placeholder="Pick a source"
-          [options]="sources"
-          [(value)]="source"
-        />
-      </neat-dialog-body>
-      <neat-dialog-actions>
-        <button neatButton type="button" variant="outlined" (click)="dialog.close()">Cancel</button>
-        <button neatButton type="button" (click)="dialog.close(source())">Assign</button>
-      </neat-dialog-actions>
-    </ng-template>
-  `,
+  templateUrl: './2-in-a-dialog.example.html',
   styleUrl: './stack.css',
 })
 export class InADialog {
@@ -197,6 +176,33 @@ export class InADialog {
     );
   }
 }
+```
+
+`2-in-a-dialog.example.html`
+
+```html
+<div class="showcase-row">
+  <button neatButton type="button" variant="outlined" (click)="open(assignDialog)">
+    Assign a source…
+  </button>
+</div>
+<p class="showcase-code showcase-muted" aria-live="polite">{{ result() }}</p>
+
+<ng-template #assignDialog let-dialog>
+  <neat-dialog-body>
+    <neat-select
+      label="Source for channel 3"
+      showLabel
+      placeholder="Pick a source"
+      [options]="sources"
+      [(value)]="source"
+    />
+  </neat-dialog-body>
+  <neat-dialog-actions>
+    <button neatButton type="button" variant="outlined" (click)="dialog.close()">Cancel</button>
+    <button neatButton type="button" (click)="dialog.close(source())">Assign</button>
+  </neat-dialog-actions>
+</ng-template>
 ```
 
 `sources.ts`

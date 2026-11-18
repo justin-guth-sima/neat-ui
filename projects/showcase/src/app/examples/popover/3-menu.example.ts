@@ -29,27 +29,6 @@ import {
     NeatTooltip,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-popover label="Channel actions" align="end">
-      <button
-        neatButton
-        neatPopoverTrigger
-        type="button"
-        variant="text"
-        iconOnly
-        aria-label="Channel actions"
-        neatTooltip="Channel actions"
-      >
-        <neat-icon name="more" />
-      </button>
-      <ng-template neatPopoverContent>
-        <button neatPopoverItem type="button">Rename</button>
-        <button neatPopoverItem type="button">Duplicate</button>
-        <button neatPopoverItem type="button" disabled>Move…</button>
-        <hr neatPopoverDivider />
-        <button neatPopoverItem type="button">Delete</button>
-      </ng-template>
-    </neat-popover>
-  `,
+  templateUrl: './3-menu.example.html',
 })
 export class Menu {}

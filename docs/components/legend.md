@@ -47,7 +47,7 @@ import { NeatDiagramLegend, type NeatDiagramLegendItem } from '@sima/neat-ui/dia
   selector: 'app-edge-colors',
   imports: [NeatDiagramLegend],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-diagram-legend [items]="items" />`,
+  templateUrl: './1-edge-colors.example.html',
 })
 export class EdgeColors {
   protected readonly items: readonly NeatDiagramLegendItem[] = [
@@ -58,6 +58,12 @@ export class EdgeColors {
     { label: 'unnamed' },
   ];
 }
+```
+
+`1-edge-colors.example.html`
+
+```html
+<neat-diagram-legend [items]="items" />
 ```
 
 </details>

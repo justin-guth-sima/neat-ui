@@ -16,32 +16,7 @@ import { DEMO_TREE, demoSize } from './demo-tree';
   selector: 'app-managing',
   imports: [NeatColumn, NeatFileBrowser],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box card">
-      <neat-file-browser
-        rootLabel="Media Root"
-        mode="manage"
-        filterPlaceholder="Filter files…"
-        [root]="tree"
-        [countLabel]="videoCount"
-        [(folder)]="folder"
-        [(selected)]="selected"
-        [(checked)]="checked"
-        [(filter)]="filter"
-      >
-        <ng-template neatColumn="type" header="Type" width="4rem" let-file>{{
-          typeOf(file.name)
-        }}</ng-template>
-        <ng-template neatColumn="size" header="Size" width="5.5rem" let-file>{{
-          sizeOf(file.path)
-        }}</ng-template>
-      </neat-file-browser>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">
-      Selected {{ selected() ?? 'none' }}, {{ checked().length }} checked, filter
-      {{ filter() ? '“' + filter() + '”' : 'empty' }}
-    </p>
-  `,
+  templateUrl: './2-managing.example.html',
   styleUrls: ['./browser-box.css', './managing.example.css', './stack.css'],
 })
 export class Managing {

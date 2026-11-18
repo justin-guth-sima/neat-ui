@@ -16,21 +16,7 @@ import { NeatButton, NeatTooltip, type NeatTooltipPosition } from '@sima/neat-ui
   selector: 'app-positions',
   imports: [NeatButton, NeatTooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="row">
-      @for (position of positions; track position) {
-        <button
-          neatButton
-          type="button"
-          variant="outlined"
-          [neatTooltip]="'Tooltip on the ' + position"
-          [neatTooltipPosition]="position"
-        >
-          {{ position }}
-        </button>
-      }
-    </div>
-  `,
+  templateUrl: './1-positions.example.html',
   styleUrl: './positions.example.css',
 })
 export class Positions {

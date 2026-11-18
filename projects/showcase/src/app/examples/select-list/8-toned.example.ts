@@ -41,25 +41,7 @@ const STREAMS: readonly Stream[] = (
   selector: 'app-toned',
   imports: [NeatColumn, NeatSelectList, NeatStatusChip],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box">
-      <neat-select-list
-        label="Streams"
-        [items]="streams"
-        [trackBy]="streamId"
-        [rowTone]="streamTone"
-        [(selected)]="selected"
-      >
-        <ng-template neatColumn="name" header="Slot" let-stream>{{ stream.name }}</ng-template>
-        <ng-template neatColumn="kind" header="Kind" width="3rem">
-          <span class="showcase-muted">VID</span>
-        </ng-template>
-        <ng-template neatColumn="state" header="State" width="7rem" let-stream>
-          <neat-status-chip [tone]="stream.tone">{{ stream.state }}</neat-status-chip>
-        </ng-template>
-      </neat-select-list>
-    </div>
-  `,
+  templateUrl: './8-toned.example.html',
   styleUrl: './toned.example.css',
 })
 export class Toned {

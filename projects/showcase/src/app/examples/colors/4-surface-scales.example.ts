@@ -33,27 +33,7 @@ const ramp = (name: string, darkest: Ramp['darkest'], scale: SurfaceScale): Ramp
 @Component({
   selector: 'app-surface-scales',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (ramp of ramps; track ramp.name) {
-      <section>
-        <h4>
-          <span class="showcase-code">{{ ramp.name }}</span>
-          <span class="showcase-code showcase-muted">
-            ends at {{ ramp.darkest[0] }}, {{ ramp.darkest[1] }}
-          </span>
-        </h4>
-        <div class="ramp">
-          @for (step of ramp.steps; track step[0]) {
-            <div>
-              <div class="chip" [style.background]="step[1]"></div>
-              <div class="name">{{ step[0] }}</div>
-              <div class="showcase-code showcase-muted">{{ step[1] }}</div>
-            </div>
-          }
-        </div>
-      </section>
-    }
-  `,
+  templateUrl: './4-surface-scales.example.html',
   styleUrls: ['./swatches.css', './ramp-title.css'],
 })
 export class SurfaceScales {

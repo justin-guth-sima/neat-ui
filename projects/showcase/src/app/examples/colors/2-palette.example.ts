@@ -7,17 +7,7 @@ import { SIMA_PALETTE } from '@sima/neat-ui';
 @Component({
   selector: 'app-palette',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="ramp">
-      @for (color of colors; track color.name) {
-        <div>
-          <div class="chip" [style.background]="color.hex"></div>
-          <div class="name">{{ color.name }}</div>
-          <div class="showcase-code showcase-muted">{{ color.hex }}</div>
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './2-palette.example.html',
   styleUrl: './swatches.css',
 })
 export class Palette {

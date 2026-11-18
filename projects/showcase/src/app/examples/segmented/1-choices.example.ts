@@ -25,23 +25,7 @@ const OVERLAYS: NeatSegmentedOption<string>[] = [
   selector: 'app-choices',
   imports: [NeatButton, NeatSegmented],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <neat-segmented #shapeControl label="Tile shape" [options]="shapes" [(value)]="shape" />
-      <neat-segmented label="Overlays" [options]="overlays" [(value)]="overlay" />
-      <neat-segmented label="Tile shape, disabled" [options]="shapes" value="1:1" disabled />
-      <button
-        neatButton
-        type="button"
-        variant="outlined"
-        size="small"
-        (click)="shapeControl.focus()"
-      >
-        Focus the tile shape
-      </button>
-    </div>
-    <p class="showcase-code showcase-muted">Shape {{ shape() }}, overlays {{ overlay() }}</p>
-  `,
+  templateUrl: './1-choices.example.html',
   styleUrl: './choices.example.css',
 })
 export class Choices {

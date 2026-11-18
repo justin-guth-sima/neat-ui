@@ -1,0 +1,6 @@
+<neat-card subtitle="Click the title">
+  <button type="button" neatCardTitle class="title-button" (click)="opened.set(!opened())">
+    Detections
+  </button>
+  <p>{{ opened() ? 'Opened.' : 'Closed.' }}</p>
+</neat-card>

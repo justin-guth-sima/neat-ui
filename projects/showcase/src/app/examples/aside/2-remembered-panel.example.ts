@@ -23,25 +23,7 @@ import {
   selector: 'app-remembered-panel',
   imports: [NeatAsidePanel, NeatAsideTitle, NeatAsideToggle, NeatPage],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-aside-toggle [open]="aside.open()" (openChange)="aside.set($event)" />
-
-    <neat-page [aside]="aside.open() ? 'open' : 'closed'">
-      <div class="showcase-page">
-        <section class="showcase-section">
-          <h2>Remembered panel</h2>
-          <p>
-            Close the panel, leave and come back: it stays closed. Make the window narrow and it
-            opens only when asked.
-          </p>
-        </section>
-      </div>
-      <section neatPageAside neatAsidePanel>
-        <h2 neatAsideTitle>Inspector</h2>
-        <p>The state is in local storage, under one key.</p>
-      </section>
-    </neat-page>
-  `,
+  templateUrl: './2-remembered-panel.example.html',
 })
 export class RememberedPanel {
   private readonly remembered = neatStoredSignal('neat-ui-showcase:remembered-panel', true, (v) =>

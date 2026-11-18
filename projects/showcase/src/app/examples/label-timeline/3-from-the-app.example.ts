@@ -33,48 +33,7 @@ const RUNS: readonly NeatLabelRun[] = [
   selector: 'app-timeline-from-the-app',
   imports: [NeatButton, NeatLabelTimeline],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="beside">
-      <neat-label-timeline
-        label="Last 30 s"
-        [runs]="runs"
-        [nowMs]="now"
-        [windowMs]="windowMs"
-        [labels]="labels"
-        [quiet]="quiet"
-        [(hovered)]="moment"
-        (activated)="picked.set($event)"
-      />
-      <div class="report">
-        <dl>
-          <dt>Hovered</dt>
-          <dd>{{ momentText() }}</dd>
-          <dt>Last click</dt>
-          <dd>{{ pickedText() }}</dd>
-        </dl>
-        <div class="actions">
-          <button
-            neatButton
-            type="button"
-            size="small"
-            variant="secondary"
-            (click)="moment.set(now - 20_000)"
-          >
-            Show 20 s ago
-          </button>
-          <button
-            neatButton
-            type="button"
-            size="small"
-            variant="outlined"
-            (click)="moment.set(null)"
-          >
-            Clear
-          </button>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './3-from-the-app.example.html',
   styleUrl: './report.example.css',
 })
 export class TimelineFromTheApp {

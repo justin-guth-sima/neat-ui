@@ -49,26 +49,30 @@ import { NeatDetails } from '@sima/neat-ui/details';
   selector: 'app-source-facts',
   imports: [NeatDetails, NeatInlineButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <dl neatDetails class="panel">
-      <dt>Source</dt>
-      <dd><code>rtsp://192.168.1.10:554/stream1</code></dd>
-      <dt>Status</dt>
-      <dd>Pulling</dd>
-      <dt>URL</dt>
-      <dd class="url">
-        <code>rtsp://neat.local:8554/src3</code>
-        <button neatInlineButton type="button">Copy</button>
-      </dd>
-      <dt>Live for</dt>
-      <dd>1:02:41</dd>
-      <dt>Bitrate</dt>
-      <dd>4.2 Mbit/s</dd>
-    </dl>
-  `,
+  templateUrl: './1-source-facts.example.html',
   styleUrls: ['./panel.css', './source-facts.example.css'],
 })
 export class SourceFacts {}
+```
+
+`1-source-facts.example.html`
+
+```html
+<dl neatDetails class="panel">
+  <dt>Source</dt>
+  <dd><code>rtsp://192.168.1.10:554/stream1</code></dd>
+  <dt>Status</dt>
+  <dd>Pulling</dd>
+  <dt>URL</dt>
+  <dd class="url">
+    <code>rtsp://neat.local:8554/src3</code>
+    <button neatInlineButton type="button">Copy</button>
+  </dd>
+  <dt>Live for</dt>
+  <dd>1:02:41</dd>
+  <dt>Bitrate</dt>
+  <dd>4.2 Mbit/s</dd>
+</dl>
 ```
 
 `panel.css`
@@ -116,25 +120,29 @@ import { NeatDetails } from '@sima/neat-ui/details';
   selector: 'app-aligned-lists',
   imports: [NeatDetails],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="panel lists">
-      <dl neatDetails>
-        <dt>Model</dt>
-        <dd>IMX219</dd>
-        <dt>Reconnect_attempts_since_boot</dt>
-        <dd>3</dd>
-      </dl>
-      <dl neatDetails>
-        <dt>Receiver</dt>
-        <dd><code>imx219 1-0010</code></dd>
-        <dt>Format</dt>
-        <dd>NV12</dd>
-      </dl>
-    </div>
-  `,
+  templateUrl: './2-aligned-lists.example.html',
   styleUrls: ['./panel.css', './aligned-lists.example.css'],
 })
 export class AlignedLists {}
+```
+
+`2-aligned-lists.example.html`
+
+```html
+<div class="panel lists">
+  <dl neatDetails>
+    <dt>Model</dt>
+    <dd>IMX219</dd>
+    <dt>Reconnect_attempts_since_boot</dt>
+    <dd>3</dd>
+  </dl>
+  <dl neatDetails>
+    <dt>Receiver</dt>
+    <dd><code>imx219 1-0010</code></dd>
+    <dt>Format</dt>
+    <dd>NV12</dd>
+  </dl>
+</div>
 ```
 
 `panel.css`

@@ -50,29 +50,33 @@ import { NeatInput } from '@sima/neat-ui/input';
   selector: 'app-summary-and-save',
   imports: [NeatButton, NeatCollapsible, NeatDetails, NeatInput],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="panel">
-      <neat-collapsible label="Details" summary="IMX219 · MIPI CSI · NV12">
-        <dl neatDetails>
-          <dt>Model</dt>
-          <dd>IMX219</dd>
-          <dt>Receiver</dt>
-          <dd><code>imx219 1-0010</code></dd>
-        </dl>
-      </neat-collapsible>
-      <neat-collapsible label="Change board" [(open)]="boardOpen">
-        <div class="showcase-row">
-          <input neatInput type="text" value="192.168.1.20" aria-label="Board address" />
-          <button neatButton type="button" (click)="boardOpen.set(false)">Save</button>
-        </div>
-      </neat-collapsible>
-    </div>
-  `,
+  templateUrl: './1-summary-and-save.example.html',
   styleUrl: './panel.css',
 })
 export class SummaryAndSave {
   protected readonly boardOpen = signal(false);
 }
+```
+
+`1-summary-and-save.example.html`
+
+```html
+<div class="panel">
+  <neat-collapsible label="Details" summary="IMX219 · MIPI CSI · NV12">
+    <dl neatDetails>
+      <dt>Model</dt>
+      <dd>IMX219</dd>
+      <dt>Receiver</dt>
+      <dd><code>imx219 1-0010</code></dd>
+    </dl>
+  </neat-collapsible>
+  <neat-collapsible label="Change board" [(open)]="boardOpen">
+    <div class="showcase-row">
+      <input neatInput type="text" value="192.168.1.20" aria-label="Board address" />
+      <button neatButton type="button" (click)="boardOpen.set(false)">Save</button>
+    </div>
+  </neat-collapsible>
+</div>
 ```
 
 `panel.css`
@@ -113,39 +117,7 @@ import { NeatCollapsible } from '@sima/neat-ui/collapsible';
   selector: 'app-end-controls',
   imports: [NeatButton, NeatCollapsible, NeatNote],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="panel">
-      <neat-collapsible label="Log" [summary]="lines().length + ' lines'" [(open)]="open">
-        <button
-          neatCollapsibleEnd
-          neatButton
-          type="button"
-          variant="text"
-          size="small"
-          (click)="add()"
-        >
-          Add line
-        </button>
-        @if (open()) {
-          <button
-            neatCollapsibleEnd
-            neatButton
-            type="button"
-            variant="text"
-            size="small"
-            (click)="lines.set([])"
-          >
-            Clear
-          </button>
-        }
-        @for (line of lines(); track $index) {
-          <p neatNote>{{ line }}</p>
-        } @empty {
-          <p neatNote>No lines.</p>
-        }
-      </neat-collapsible>
-    </div>
-  `,
+  templateUrl: './2-end-controls.example.html',
   styleUrl: './panel.css',
 })
 export class EndControls {
@@ -156,6 +128,35 @@ export class EndControls {
     this.lines.update((lines) => [...lines, `Frame ${lines.length} decoded`]);
   }
 }
+```
+
+`2-end-controls.example.html`
+
+```html
+<div class="panel">
+  <neat-collapsible label="Log" [summary]="lines().length + ' lines'" [(open)]="open">
+    <button neatCollapsibleEnd neatButton type="button" variant="text" size="small" (click)="add()">
+      Add line
+    </button>
+    @if (open()) {
+      <button
+        neatCollapsibleEnd
+        neatButton
+        type="button"
+        variant="text"
+        size="small"
+        (click)="lines.set([])"
+      >
+        Clear
+      </button>
+    }
+    @for (line of lines(); track $index) {
+      <p neatNote>{{ line }}</p>
+    } @empty {
+      <p neatNote>No lines.</p>
+    }
+  </neat-collapsible>
+</div>
 ```
 
 `panel.css`

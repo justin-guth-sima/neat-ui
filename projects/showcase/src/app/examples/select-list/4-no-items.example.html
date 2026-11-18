@@ -1,0 +1,10 @@
+<div class="box">
+  <neat-select-list
+    label="Cameras"
+    emptyLabel="No cameras enabled yet."
+    [items]="none"
+    [trackBy]="channelId"
+  >
+    <ng-template neatColumn="name" let-channel>{{ channel.name }}</ng-template>
+  </neat-select-list>
+</div>

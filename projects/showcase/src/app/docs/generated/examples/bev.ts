@@ -56,11 +56,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatBev } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
           ["keyword","import"],["text"," { streetFrames } "],["keyword","from"],["text"," "],["string","'./scene'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-round'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`<neat-bev [frame]=\"frame()\" />`"],["text",",\n  styleUrl: "],
+          ["string","'app-round'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-round.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Round {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," frame = streetFrames();\n}\n"]
+        ]
+      },
+      {
+        "name": "1-round.example.html",
+        "code": [
+          ["text","<neat-bev [frame]=\"frame()\" />\n"]
         ]
       },
       {
@@ -293,12 +299,18 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatBev, "],["keyword","type"],["text"," NeatBevBounds } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
           ["keyword","import"],["text"," { streetFrames } "],["keyword","from"],["text"," "],["string","'./scene'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-rect'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`<neat-bev shape=\"rect\" [bounds]=\"bounds\" [spokes]=\"0\" [frame]=\"frame()\" />`"],["text",",\n  styleUrl: "],
+          ["string","'app-rect'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-rect.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Rect {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," frame = streetFrames();\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," bounds: NeatBevBounds = { x: [-40, 80], y: [-60, 60] };\n}\n"]
+        ]
+      },
+      {
+        "name": "2-rect.example.html",
+        "code": [
+          ["text","<neat-bev shape=\"rect\" [bounds]=\"bounds\" [spokes]=\"0\" [frame]=\"frame()\" />\n"]
         ]
       },
       {
@@ -522,12 +534,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatBev } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
           ["keyword","import"],["text"," { streetFrames } "],["keyword","from"],["text"," "],["string","'./scene'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-overflow'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"stack\">\n      <neat-bev\n        class=\"wide\"\n        shape=\"rect\"\n        overflow=\"visible\"\n        [outline]=\"false\"\n        [range]=\"40\"\n        [spokes]=\"0\"\n        [frame]=\"frame()\"\n      />\n      <neat-bev class=\"wide\" overflow=\"visible\" [outline]=\"false\" [range]=\"40\" [frame]=\"frame()\" />\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-overflow'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-overflow.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Overflow {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," frame = streetFrames();\n}\n"]
+        ]
+      },
+      {
+        "name": "3-overflow.example.html",
+        "code": [
+          ["text","<div class=\"stack\">\n  <neat-bev\n    class=\"wide\"\n    shape=\"rect\"\n    overflow=\"visible\"\n    [outline]=\"false\"\n    [range]=\"40\"\n    [spokes]=\"0\"\n    [frame]=\"frame()\"\n  />\n  <neat-bev class=\"wide\" overflow=\"visible\" [outline]=\"false\" [range]=\"40\" [frame]=\"frame()\" />\n</div>\n"]
         ]
       },
       {
@@ -764,13 +781,18 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatBev, "],["keyword","type"],["text"," NeatBevBounds } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
           ["keyword","import"],["text"," { streetFrames } "],["keyword","from"],["text"," "],["string","'./scene'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-overflow-zoom'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"stack\">\n      <neat-bev\n        class=\"wide\"\n        shape=\"rect\"\n        overflow=\"visible\"\n        zoom\n        [panBounds]=\"reach\"\n        [zoomExtent]=\"[0.5, 4]\"\n        [outline]=\"false\"\n        [range]=\"25\"\n        [spokes]=\"0\"\n        [frame]=\"frame()\"\n      />\n      <neat-bev\n        class=\"wide\"\n        overflow=\"visible\"\n        zoom\n        [panBounds]=\"reach\"\n        [zoomExtent]=\"[0.5, 4]\"\n        [outline]=\"false\"\n        [range]=\"25\"\n        [frame]=\"frame()\"\n      />\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-overflow-zoom'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-overflow-zoom.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," OverflowZoom {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," frame = streetFrames();\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," reach: NeatBevBounds = { x: [-60, 60], y: [-60, 60] };\n}\n"]
+        ]
+      },
+      {
+        "name": "4-overflow-zoom.example.html",
+        "code": [
+          ["text","<div class=\"stack\">\n  <neat-bev\n    class=\"wide\"\n    shape=\"rect\"\n    overflow=\"visible\"\n    zoom\n    [panBounds]=\"reach\"\n    [zoomExtent]=\"[0.5, 4]\"\n    [outline]=\"false\"\n    [range]=\"25\"\n    [spokes]=\"0\"\n    [frame]=\"frame()\"\n  />\n  <neat-bev\n    class=\"wide\"\n    overflow=\"visible\"\n    zoom\n    [panBounds]=\"reach\"\n    [zoomExtent]=\"[0.5, 4]\"\n    [outline]=\"false\"\n    [range]=\"25\"\n    [frame]=\"frame()\"\n  />\n</div>\n"]
         ]
       },
       {
@@ -1002,14 +1024,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatBev } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
           ["keyword","import"],["text"," { BUILDINGS, SAFETY_ZONE, streetFrames } "],["keyword","from"],["text"," "],["string","'./scene'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-layers'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`<neat-bev\n    [frame]=\"frame()\"\n    [background]=\"buildings\"\n    [foreground]=\"zone\"\n    [range]=\"40\"\n  />`"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-layers'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./5-layers.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Layers {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," frame = streetFrames();\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," buildings = BUILDINGS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," zone = SAFETY_ZONE;\n}\n"]
+        ]
+      },
+      {
+        "name": "5-layers.example.html",
+        "code": [
+          ["text","<neat-bev [frame]=\"frame()\" [background]=\"buildings\" [foreground]=\"zone\" [range]=\"40\" />\n"]
         ]
       },
       {
@@ -1265,12 +1292,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatBev } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
           ["keyword","import"],["text"," { streetFrames } "],["keyword","from"],["text"," "],["string","'./scene'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-zoom'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"pair\">\n      <figure>\n        <neat-bev zoom [frame]=\"frame()\" [range]=\"40\" />\n        <figcaption>Guides over the data</figcaption>\n      </figure>\n      <figure>\n        <neat-bev zoom guides=\"under\" [frame]=\"frame()\" [range]=\"40\" />\n        <figcaption>Guides under the data</figcaption>\n      </figure>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-zoom'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./6-zoom.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Zoom {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," frame = streetFrames();\n}\n"]
+        ]
+      },
+      {
+        "name": "6-zoom.example.html",
+        "code": [
+          ["text","<div class=\"pair\">\n  <figure>\n    <neat-bev zoom [frame]=\"frame()\" [range]=\"40\" />\n    <figcaption>Guides over the data</figcaption>\n  </figure>\n  <figure>\n    <neat-bev zoom guides=\"under\" [frame]=\"frame()\" [range]=\"40\" />\n    <figcaption>Guides under the data</figcaption>\n  </figure>\n</div>\n"]
         ]
       },
       {
@@ -1490,8 +1522,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatBev } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
           ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatOverlayClassStyle } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n"],
           ["keyword","import"],["text"," { streetFrames } "],["keyword","from"],["text"," "],["string","'./scene'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-shared-styles'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`<neat-bev [frame]=\"frame()\" [styles]=\"styles\" [range]=\"40\" />`"],["text",",\n  styleUrl: "],
+          ["string","'app-shared-styles'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./7-shared-styles.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SharedStyles {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," frame = streetFrames();\n  "],
@@ -1500,6 +1532,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'planned path'"],["text",", color: SIMA_PALETTE.green, style: "],["string","'solid'"],["text",", width: 3 },\n    { label: "],
           ["string","'lane marking'"],["text",", color: NEAT_HIGHLIGHT_BASE, style: "],["string","'dotted'"],["text",", width: 3 },\n    { label: "],
           ["string","'default'"],["text",", color: SIMA_PALETTE.orange, style: "],["string","'solid'"],["text",", width: 1 },\n  ];\n}\n"]
+        ]
+      },
+      {
+        "name": "7-shared-styles.example.html",
+        "code": [
+          ["text","<neat-bev [frame]=\"frame()\" [styles]=\"styles\" [range]=\"40\" />\n"]
         ]
       },
       {
@@ -1752,11 +1790,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatBev } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bev'"],["text",";\n"],
           ["keyword","import"],["text"," { roadFrames } "],["keyword","from"],["text"," "],["string","'./roads'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-polygons'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`<neat-bev zoom [frame]=\"frame()\" />`"],["text",",\n  styleUrl: "],
+          ["string","'app-polygons'"],["text",",\n  imports: [NeatBev],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./8-polygons.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Polygons {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," frame = roadFrames();\n}\n"]
+        ]
+      },
+      {
+        "name": "8-polygons.example.html",
+        "code": [
+          ["text","<neat-bev zoom [frame]=\"frame()\" />\n"]
         ]
       },
       {
@@ -2084,9 +2128,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," m = (value: "],["keyword","number"],["text",") => "],["string","`${Math.abs(value).toFixed(1)} m`"],["text",";\n  "],
           ["keyword","return"],["text"," "],["string","`${m(x)} ${x >= 0 ? 'ahead' : 'behind'}, ${m(y)} ${y >= 0 ? 'left' : 'right'}`"],["text",";\n}\n\n"],
           ["keyword","const"],["text"," VEHICLES = "],["keyword","new"],["text"," Set(["],["string","'car'"],["text",", "],["string","'truck'"],["text",", "],["string","'bicycle'"],["text","]);\n\n@Component({\n  selector: "],
-          ["string","'app-interaction'"],["text",",\n  imports: [NeatBev, NeatCard, NeatColumn, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"interaction\">\n      <neat-bev\n        [frame]=\"frame()\"\n        [range]=\"40\"\n        [(hovered)]=\"hovered\"\n        (activated)=\"picked.set($event)\"\n        (pointerMove)=\"pointer.set($event)\"\n      />\n      <neat-card title=\"What the view reports\" subtitle=\"And what the app sets\">\n        <dl class=\"report\">\n          <dt>Hovered</dt>\n          <dd>{{ hoveredText() }}</dd>\n          <dt>Last click</dt>\n          <dd>{{ pickedText() }}</dd>\n          <dt>Pointer</dt>\n          <dd>{{ pointerText() }}</dd>\n        </dl>\n        <div class=\"tracks\">\n          <neat-select-list\n            label=\"Vehicles\"\n            [items]=\"tracks\"\n            [trackBy]=\"trackId\"\n            [selected]=\"selectedTrack()\"\n            (selectedChange)=\"hovered.set($event?.id ?? null)\"\n          >\n            <ng-template neatColumn=\"track\" header=\"Vehicle\" let-track>{{ track.id }}</ng-template>\n            <ng-template neatColumn=\"distance\" header=\"Distance\" width=\"6rem\" let-track>{{\n              distanceText(track.id)\n            }}</ng-template>\n          </neat-select-list>\n        </div>\n      </neat-card>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-interaction'"],["text",",\n  imports: [NeatBev, NeatCard, NeatColumn, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./9-interaction.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Interaction {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," frame = streetFrames();\n  "],
@@ -2120,6 +2163,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","return"],["text"," "],["keyword","object"],["text"," ? distance("],["keyword","object"],["text",") : "],["string","''"],["text",";\n  }\n}\n\n"],
           ["keyword","function"],["text"," distance(object: NeatBevObject): "],["keyword","string"],["text"," {\n  "],
           ["keyword","return"],["text"," "],["string","`${Math.hypot(object.x, object.y).toFixed(1)} m`"],["text",";\n}\n"]
+        ]
+      },
+      {
+        "name": "9-interaction.example.html",
+        "code": [
+          ["text","<div class=\"interaction\">\n  <neat-bev\n    [frame]=\"frame()\"\n    [range]=\"40\"\n    [(hovered)]=\"hovered\"\n    (activated)=\"picked.set($event)\"\n    (pointerMove)=\"pointer.set($event)\"\n  />\n  <neat-card title=\"What the view reports\" subtitle=\"And what the app sets\">\n    <dl class=\"report\">\n      <dt>Hovered</dt>\n      <dd>{{ hoveredText() }}</dd>\n      <dt>Last click</dt>\n      <dd>{{ pickedText() }}</dd>\n      <dt>Pointer</dt>\n      <dd>{{ pointerText() }}</dd>\n    </dl>\n    <div class=\"tracks\">\n      <neat-select-list\n        label=\"Vehicles\"\n        [items]=\"tracks\"\n        [trackBy]=\"trackId\"\n        [selected]=\"selectedTrack()\"\n        (selectedChange)=\"hovered.set($event?.id ?? null)\"\n      >\n        <ng-template neatColumn=\"track\" header=\"Vehicle\" let-track>{{ track.id }}</ng-template>\n        <ng-template neatColumn=\"distance\" header=\"Distance\" width=\"6rem\" let-track>{{\n          distanceText(track.id)\n        }}</ng-template>\n      </neat-select-list>\n    </div>\n  </neat-card>\n</div>\n"]
         ]
       },
       {

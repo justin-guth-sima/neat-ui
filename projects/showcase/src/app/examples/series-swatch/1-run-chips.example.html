@@ -1,0 +1,15 @@
+<div class="card">
+  <ul class="chips" aria-label="Compared runs">
+    @for (run of runs; track run.key) {
+      <li><neat-series-swatch [index]="$index" />{{ run.label }}</li>
+    }
+  </ul>
+  <neat-time-chart
+    label="Load by run"
+    headless
+    [series]="runs"
+    [times]="times"
+    [domain]="[0, 100]"
+    [format]="percent"
+  />
+</div>

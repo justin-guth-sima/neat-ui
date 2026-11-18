@@ -11,12 +11,7 @@ const VIEWS: NeatSegmentedOption<string>[] = [
   selector: 'app-in-a-crowded-row',
   imports: [NeatSegmented],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="crowded">
-      <neat-segmented label="Stats view" [options]="views" value="live" />
-      <span class="title">Stats for a stream with a long name</span>
-    </div>
-  `,
+  templateUrl: './2-in-a-crowded-row.example.html',
   styleUrl: './in-a-crowded-row.example.css',
 })
 export class InACrowdedRow {

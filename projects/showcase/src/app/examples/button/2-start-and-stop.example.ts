@@ -9,17 +9,6 @@ import { NeatButton, NeatIcon } from '@sima/neat-ui';
   selector: 'app-start-and-stop',
   imports: [NeatButton, NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="success">
-        <neat-icon name="play" [size]="16" />
-        Start
-      </button>
-      <button neatButton type="button" variant="danger">
-        <neat-icon name="stop" [size]="16" />
-        Stop
-      </button>
-    </div>
-  `,
+  templateUrl: './2-start-and-stop.example.html',
 })
 export class StartAndStop {}

@@ -35,15 +35,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatButton, NeatInlineButton, NeatNote } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatLine, NeatLineEnd, NeatLineList } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/line-list'"],["text",";\n\n"],
           ["keyword","const"],["text"," REGIONS = ["],["string","'Inclusion 1'"],["text",", "],["string","'Exclusion 1'"],["text",", "],["string","'Exclusion 2'"],["text","];\n\n@Component({\n  selector: "],
-          ["string","'app-regions'"],["text",",\n  imports: [NeatButton, NeatInlineButton, NeatLine, NeatLineEnd, NeatLineList, NeatNote],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    @if (regions().length === 0) {\n      <p neatNote>No regions.</p>\n    } @else {\n      <ul neatLineList>\n        @for (region of regions(); track region) {\n          <li neatLine>\n            <span>{{ region }}</span>\n            <button\n              neatInlineButton\n              neatLineEnd\n              type=\"button\"\n              [attr.aria-label]=\"'Delete ' + region\"\n              (click)=\"remove(region)\"\n            >\n              Delete\n            </button>\n          </li>\n        }\n      </ul>\n    }\n    <div class=\"showcase-row\">\n      <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"regions.set(all)\">\n        Restore regions\n      </button>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-regions'"],["text",",\n  imports: [NeatButton, NeatInlineButton, NeatLine, NeatLineEnd, NeatLineList, NeatNote],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-regions.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./regions.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Regions {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," all = REGIONS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," regions = signal(REGIONS);\n\n  "],
           ["keyword","protected"],["text"," remove(region: "],["keyword","string"],["text","): "],["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".regions.update((regions) => regions.filter((name) => name !== region));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "1-regions.example.html",
+        "code": [
+          ["text","@if (regions().length === 0) {\n  <p neatNote>No regions.</p>\n} @else {\n  <ul neatLineList>\n    @for (region of regions(); track region) {\n      <li neatLine>\n        <span>{{ region }}</span>\n        <button\n          neatInlineButton\n          neatLineEnd\n          type=\"button\"\n          [attr.aria-label]=\"'Delete ' + region\"\n          (click)=\"remove(region)\"\n        >\n          Delete\n        </button>\n      </li>\n    }\n  </ul>\n}\n<div class=\"showcase-row\">\n  <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"regions.set(all)\">\n    Restore regions\n  </button>\n</div>\n"]
         ]
       },
       {

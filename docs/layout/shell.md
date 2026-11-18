@@ -44,30 +44,7 @@ import { KIOSK_POINTER_IDLE_MS, KioskService, NeatButton } from '@sima/neat-ui';
   selector: 'app-kiosk',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" size="small" (click)="kiosk.toggle()">
-        {{ kiosk.active() ? 'Leave' : 'Enter' }} kiosk mode
-      </button>
-      <button
-        neatButton
-        type="button"
-        variant="text"
-        size="small"
-        [pressed]="release() !== null"
-        (click)="hold()"
-      >
-        Hold the toolbar
-      </button>
-    </div>
-    <p class="showcase-code">
-      active: {{ kiosk.active() }}, pointerIdle: {{ kiosk.pointerIdle() }}
-    </p>
-    <p class="showcase-muted">
-      Rest the pointer for {{ idleSeconds }} seconds and pointerIdle turns true; move it and it is
-      false again.
-    </p>
-  `,
+  templateUrl: './1-kiosk.example.html',
   styleUrl: './kiosk.example.css',
 })
 export class Kiosk {
@@ -90,6 +67,31 @@ export class Kiosk {
     }
   }
 }
+```
+
+`1-kiosk.example.html`
+
+```html
+<div class="showcase-row">
+  <button neatButton type="button" variant="outlined" size="small" (click)="kiosk.toggle()">
+    {{ kiosk.active() ? 'Leave' : 'Enter' }} kiosk mode
+  </button>
+  <button
+    neatButton
+    type="button"
+    variant="text"
+    size="small"
+    [pressed]="release() !== null"
+    (click)="hold()"
+  >
+    Hold the toolbar
+  </button>
+</div>
+<p class="showcase-code">active: {{ kiosk.active() }}, pointerIdle: {{ kiosk.pointerIdle() }}</p>
+<p class="showcase-muted">
+  Rest the pointer for {{ idleSeconds }} seconds and pointerIdle turns true; move it and it is false
+  again.
+</p>
 ```
 
 `kiosk.example.css`
@@ -139,70 +141,7 @@ import { NeatToasts } from '@sima/neat-ui/toast';
   selector: 'app-rail-items',
   imports: [NeatIcon, NeatRailDivider, NeatRailItem, NeatShell],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-shell appName="Demo app" [navItems]="navItems">
-      <button
-        neatRailEnd
-        neatRailItem
-        type="button"
-        label="About this app"
-        (click)="toasts.status('An about item would open its dialog here.')"
-      >
-        <neat-icon name="info" />
-      </button>
-      <button
-        neatRailEnd
-        neatRailItem
-        type="button"
-        label="Demo board, 192.168.1.20, connected"
-        text="Demo board"
-        detail="192.168.1.20"
-        tone="success"
-        (click)="toasts.status('A board item would open its dialog here.')"
-      >
-        <neat-icon name="board" />
-      </button>
-      <button
-        neatRailEnd
-        neatRailItem
-        type="button"
-        label="Front camera, reconnecting"
-        text="Front camera"
-        detail="Reconnecting"
-        tone="warning"
-        (click)="toasts.status('A device item would open its dialog here.')"
-      >
-        <neat-icon name="camera" />
-      </button>
-      <button
-        neatRailEnd
-        neatRailItem
-        type="button"
-        label="Lidar, no data"
-        text="Lidar"
-        detail="No data"
-        tone="danger"
-        (click)="toasts.status('A device item would open its dialog here.')"
-      >
-        <neat-icon name="lidar" />
-      </button>
-      <button
-        neatRailEnd
-        neatRailItem
-        type="button"
-        label="Microphone, idle"
-        text="Microphone"
-        detail="Idle"
-        tone="neutral"
-        (click)="toasts.status('A device item would open its dialog here.')"
-      >
-        <neat-icon name="microphone" />
-      </button>
-      <!-- Sets the devices apart from the items below them, as the kit's line above the group
-           does. -->
-      <hr neatRailEnd neatRailDivider />
-    </neat-shell>
-  `,
+  templateUrl: './2-rail-items.example.html',
 })
 export class RailItems {
   protected readonly toasts = inject(NeatToasts);
@@ -225,6 +164,73 @@ export class RailItems {
     },
   ];
 }
+```
+
+`2-rail-items.example.html`
+
+```html
+<neat-shell appName="Demo app" [navItems]="navItems">
+  <button
+    neatRailEnd
+    neatRailItem
+    type="button"
+    label="About this app"
+    (click)="toasts.status('An about item would open its dialog here.')"
+  >
+    <neat-icon name="info" />
+  </button>
+  <button
+    neatRailEnd
+    neatRailItem
+    type="button"
+    label="Demo board, 192.168.1.20, connected"
+    text="Demo board"
+    detail="192.168.1.20"
+    tone="success"
+    (click)="toasts.status('A board item would open its dialog here.')"
+  >
+    <neat-icon name="board" />
+  </button>
+  <button
+    neatRailEnd
+    neatRailItem
+    type="button"
+    label="Front camera, reconnecting"
+    text="Front camera"
+    detail="Reconnecting"
+    tone="warning"
+    (click)="toasts.status('A device item would open its dialog here.')"
+  >
+    <neat-icon name="camera" />
+  </button>
+  <button
+    neatRailEnd
+    neatRailItem
+    type="button"
+    label="Lidar, no data"
+    text="Lidar"
+    detail="No data"
+    tone="danger"
+    (click)="toasts.status('A device item would open its dialog here.')"
+  >
+    <neat-icon name="lidar" />
+  </button>
+  <button
+    neatRailEnd
+    neatRailItem
+    type="button"
+    label="Microphone, idle"
+    text="Microphone"
+    detail="Idle"
+    tone="neutral"
+    (click)="toasts.status('A device item would open its dialog here.')"
+  >
+    <neat-icon name="microphone" />
+  </button>
+  <!-- Sets the devices apart from the items below them, as the kit's line above the group
+       does. -->
+  <hr neatRailEnd neatRailDivider />
+</neat-shell>
 ```
 
 </details>
@@ -252,18 +258,7 @@ import { DocsSearch } from './search/docs-search';
 @Component({
   imports: [NeatSearchPalette, NeatShell, NeatToastHost, RouterOutlet],
   selector: 'app-root',
-  template: `
-    <neat-shell appName="neat-ui showcase" [navItems]="navItems">
-      <neat-search-palette
-        neatTopbarEnd
-        label="Search docs"
-        [search]="search"
-        [allResults]="searchPage"
-      />
-      <router-outlet />
-    </neat-shell>
-    <neat-toast-host />
-  `,
+  templateUrl: './app.html',
 })
 export class App {
   /** The docs' search: topics at once, the API and the examples once its index has loaded. */
@@ -287,6 +282,21 @@ export class App {
     ...groupNavItems(GROUPS),
   ];
 }
+```
+
+`app.html`
+
+```html
+<neat-shell appName="neat-ui showcase" [navItems]="navItems">
+  <neat-search-palette
+    neatTopbarEnd
+    label="Search docs"
+    [search]="search"
+    [allResults]="searchPage"
+  />
+  <router-outlet />
+</neat-shell>
+<neat-toast-host />
 ```
 
 </details>

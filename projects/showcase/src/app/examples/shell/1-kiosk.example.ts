@@ -17,30 +17,7 @@ import { KIOSK_POINTER_IDLE_MS, KioskService, NeatButton } from '@sima/neat-ui';
   selector: 'app-kiosk',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" size="small" (click)="kiosk.toggle()">
-        {{ kiosk.active() ? 'Leave' : 'Enter' }} kiosk mode
-      </button>
-      <button
-        neatButton
-        type="button"
-        variant="text"
-        size="small"
-        [pressed]="release() !== null"
-        (click)="hold()"
-      >
-        Hold the toolbar
-      </button>
-    </div>
-    <p class="showcase-code">
-      active: {{ kiosk.active() }}, pointerIdle: {{ kiosk.pointerIdle() }}
-    </p>
-    <p class="showcase-muted">
-      Rest the pointer for {{ idleSeconds }} seconds and pointerIdle turns true; move it and it is
-      false again.
-    </p>
-  `,
+  templateUrl: './1-kiosk.example.html',
   styleUrl: './kiosk.example.css',
 })
 export class Kiosk {

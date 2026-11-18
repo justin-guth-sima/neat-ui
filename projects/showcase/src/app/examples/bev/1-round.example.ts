@@ -21,7 +21,7 @@ import { streetFrames } from './scene';
   selector: 'app-round',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-bev [frame]="frame()" />`,
+  templateUrl: './1-round.example.html',
   styleUrl: './bev.example.css',
 })
 export class Round {

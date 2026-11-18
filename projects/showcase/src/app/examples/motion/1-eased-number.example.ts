@@ -21,17 +21,7 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
   selector: 'app-eased-number',
   imports: [NeatButton, NeatEasedNumber],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <span><neat-eased-number [value]="fps()" [digits]="1" /> fps</span>
-      <button neatButton type="button" variant="outlined" size="small" (click)="next()">
-        Next value
-      </button>
-      <button neatButton type="button" variant="text" size="small" (click)="fps.set(null)">
-        No value
-      </button>
-    </div>
-  `,
+  templateUrl: './1-eased-number.example.html',
 })
 export class EasedNumber {
   protected readonly fps = signal<number | null>(FPS_VALUES[0]);

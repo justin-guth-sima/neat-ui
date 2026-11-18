@@ -170,7 +170,7 @@ types, defaults, doc comments) with the TypeScript compiler API, and every `*.ex
 `projects/showcase/src/app/docs/generated/`. They are committed, as `tokens.generated.css` is, so a
 change to the public API or to an example shows in review as a diff and a fresh checkout needs no
 pre-step; never edit them. Why generated: hand-written docs drift from the code. Here the API panel
-is the doc comment, and the snippet under an example is the file that renders it.
+is the doc comment, and the snippet under an example is the files that render it.
 
 - A topic is one page, `/<group>/<topic>`, or `/<group>/<category>/<topic>` in a group with
   categories: its examples, each live with its code, and the API panel of its parts beside them.
@@ -218,14 +218,19 @@ is the doc comment, and the snippet under an example is the file that renders it
 - An example is a standalone component in `examples/<topic>/<id>.example.ts` (a numeric prefix
   orders the examples and is not part of the id). Its class doc is its caption: prose shown above
   it and left out of the snippet. Its title is the class name in words (`CPUUsage` is "CPU usage"),
-  and the kit parts it imports are the "Shows" links. The data files it imports and the
+  and the kit parts it imports are the "Shows" links. Its template is its own file beside it,
+  `<id>.example.html` with the same prefix (`templateUrl`), never an inline `template`. Why: apps
+  and their coding agents copy the examples, so they have the layout an Angular app starts with
+  (`ng new` makes `app.ts` and `app.html`). The template, the data files it imports and the
   stylesheets it names (`styleUrl`) must be files of the topic folder, and are shown as further
-  files of the snippet. It is real code: built, linted, and given a spec where it has behavior.
+  files of the snippet, in that order after the example's own file. It is real code: built,
+  linted, and given a spec where it has behavior.
   A caption names only what an app can import: a code span or an identifier-shaped word in it
   that names something the kit declares but does not export (or a `ɵ` name) is a doc problem, as
   in a part's doc comment. The showcase's own `app.ts` is one more example of the `shell` topic
   (`SHELL_EXTRA` in `tools/docs-emit.mjs`), shown as code only because the page already sits in
-  it; it needs a class doc like any example, and counts once the topic has an examples folder.
+  it, with its template `app.html`; it needs a class doc like any example, and counts once the
+  topic has an examples folder.
 - How the docs show an example is said by bare tags at the end of its class doc, each alone on
   its line: `@unpadded`, its live area without the inset, for an example that fills it to its
   edges (the diagram's Filling its card), and `@page`, a route of its own at
@@ -1104,8 +1109,8 @@ positioned ancestor of the app's.
 **Component styles live in a `.css` file next to the component, referenced with `styleUrl`.**
 Why: Stylelint reads only stylesheets, so a style written inline in the decorator (`styles:`)
 escapes the color-literal rules above without anyone noticing. ESLint rejects inline styles
-(`component-max-inline-declarations`); templates may stay inline. Escape hatch: none; a component
-that needs no styles simply has no stylesheet.
+(`component-max-inline-declarations`); the kit's templates may stay inline (an example's may not,
+above). Escape hatch: none; a component that needs no styles simply has no stylesheet.
 
 **Pages fill the shell's content area and own at most one scroll context.**
 Why: nested scroll containers and hard-coded heights break on other screen sizes and in kiosk mode,

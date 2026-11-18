@@ -14,41 +14,7 @@ const SIZES: NeatButtonSize[] = ['small', 'medium', 'large', 'touch'];
   selector: 'app-variants',
   imports: [NeatButton, NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (variant of variants; track variant) {
-      <section>
-        <h4>{{ variant }}</h4>
-        <div class="showcase-row">
-          @for (size of sizes; track size) {
-            <button neatButton type="button" [variant]="variant" [size]="size">{{ size }}</button>
-          }
-          @for (size of sizes; track size) {
-            <button
-              neatButton
-              type="button"
-              [variant]="variant"
-              [size]="size"
-              iconOnly
-              [attr.aria-label]="'Stream, ' + size"
-            >
-              <neat-icon name="streaming" />
-            </button>
-          }
-          <button neatButton type="button" [variant]="variant" rounded>rounded</button>
-          <button
-            neatButton
-            type="button"
-            [variant]="variant"
-            rounded
-            iconOnly
-            aria-label="Stream, rounded"
-          >
-            <neat-icon name="streaming" />
-          </button>
-        </div>
-      </section>
-    }
-  `,
+  templateUrl: './1-variants.example.html',
   styleUrls: ['./stack.css', './variants.example.css'],
 })
 export class Variants {

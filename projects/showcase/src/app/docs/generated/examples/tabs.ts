@@ -29,11 +29,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatTab, NeatTabs } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/tabs'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-channel-settings'"],["text",",\n  imports: [NeatTab, NeatTabs],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-tabs label=\"Channel settings\" [(value)]=\"tab\">\n      <neat-tab label=\"Metadata\" value=\"metadata\">\n        <ng-template>\n          <p class=\"showcase-muted\">Overlay types, confidence thresholds and tracking.</p>\n        </ng-template>\n      </neat-tab>\n      <neat-tab label=\"General\" value=\"general\">\n        <ng-template>\n          <p class=\"showcase-muted\">Video sync buffer, metadata retention and line width.</p>\n        </ng-template>\n      </neat-tab>\n      <neat-tab label=\"ROI\" value=\"roi\" disabled>\n        <ng-template><p class=\"showcase-muted\">Regions of interest.</p></ng-template>\n      </neat-tab>\n    </neat-tabs>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-channel-settings'"],["text",",\n  imports: [NeatTab, NeatTabs],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-channel-settings.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ChannelSettings {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," tab = signal("],["string","'metadata'"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "1-channel-settings.example.html",
+        "code": [
+          ["text","<neat-tabs label=\"Channel settings\" [(value)]=\"tab\">\n  <neat-tab label=\"Metadata\" value=\"metadata\">\n    <ng-template>\n      <p class=\"showcase-muted\">Overlay types, confidence thresholds and tracking.</p>\n    </ng-template>\n  </neat-tab>\n  <neat-tab label=\"General\" value=\"general\">\n    <ng-template>\n      <p class=\"showcase-muted\">Video sync buffer, metadata retention and line width.</p>\n    </ng-template>\n  </neat-tab>\n  <neat-tab label=\"ROI\" value=\"roi\" disabled>\n    <ng-template><p class=\"showcase-muted\">Regions of interest.</p></ng-template>\n  </neat-tab>\n</neat-tabs>\n"]
         ]
       }
     ]

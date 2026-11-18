@@ -13,14 +13,7 @@ import { EDGE_SIDES, EDGE_SIDES_LEGEND } from './edge-sides-data';
   selector: 'app-edge-sides',
   imports: [NeatDiagramLegend, NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-diagram-legend [items]="legend" />
-    <neat-diagram
-      class="diagram"
-      [diagram]="sides"
-      label="A source with a side chosen by an edge"
-    />
-  `,
+  templateUrl: './6-edge-sides.example.html',
   styleUrl: './diagram-box.css',
 })
 export class EdgeSides {

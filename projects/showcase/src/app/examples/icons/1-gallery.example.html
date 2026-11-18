@@ -1,0 +1,8 @@
+<div class="showcase-grid">
+  @for (name of names; track name) {
+    <div class="icon-card">
+      <neat-icon [name]="name" [size]="24" />
+      <span class="showcase-code">{{ name }}</span>
+    </div>
+  }
+</div>

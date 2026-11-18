@@ -28,11 +28,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton, NeatStale } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-lost-connection'"],["text",",\n  imports: [NeatButton, NeatStale],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <span [neatStale]=\"stale()\">12.4 fps · 3 objects</span>\n      @if (stale()) {\n        <span class=\"showcase-muted\">Connection lost</span>\n      }\n      <button\n        neatButton\n        type=\"button\"\n        variant=\"outlined\"\n        size=\"small\"\n        [pressed]=\"stale()\"\n        (click)=\"stale.set(!stale())\"\n      >\n        Stale\n      </button>\n    </div>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-lost-connection'"],["text",",\n  imports: [NeatButton, NeatStale],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-lost-connection.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," LostConnection {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," stale = signal("],["keyword","true"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "1-lost-connection.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <span [neatStale]=\"stale()\">12.4 fps · 3 objects</span>\n  @if (stale()) {\n    <span class=\"showcase-muted\">Connection lost</span>\n  }\n  <button\n    neatButton\n    type=\"button\"\n    variant=\"outlined\"\n    size=\"small\"\n    [pressed]=\"stale()\"\n    (click)=\"stale.set(!stale())\"\n  >\n    Stale\n  </button>\n</div>\n"]
         ]
       }
     ]

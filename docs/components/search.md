@@ -43,22 +43,7 @@ import { NeatSearch } from '@sima/neat-ui';
   selector: 'app-filtering-a-list',
   imports: [NeatSearch],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-search
-      label="Filter streams"
-      placeholder="Name or source"
-      [status]="status()"
-      [(value)]="query"
-    />
-    <ul>
-      @for (stream of shown(); track stream.name) {
-        <li>
-          <span>{{ stream.name }}</span>
-          <span class="showcase-muted">{{ stream.source }}</span>
-        </li>
-      }
-    </ul>
-  `,
+  templateUrl: './1-filtering-a-list.example.html',
   styleUrl: './filtering-a-list.example.css',
 })
 export class FilteringAList {
@@ -84,6 +69,25 @@ export class FilteringAList {
     return count === 1 ? '1 stream' : `${count} streams`;
   });
 }
+```
+
+`1-filtering-a-list.example.html`
+
+```html
+<neat-search
+  label="Filter streams"
+  placeholder="Name or source"
+  [status]="status()"
+  [(value)]="query"
+/>
+<ul>
+  @for (stream of shown(); track stream.name) {
+    <li>
+      <span>{{ stream.name }}</span>
+      <span class="showcase-muted">{{ stream.source }}</span>
+    </li>
+  }
+</ul>
 ```
 
 `filtering-a-list.example.css`
@@ -138,28 +142,27 @@ import { NeatButton, NeatIcon, NeatSearch } from '@sima/neat-ui';
   selector: 'app-small-in-a-toolbar',
   imports: [NeatButton, NeatIcon, NeatSearch],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="tools">
-      <neat-search
-        size="small"
-        label="Filter files"
-        placeholder="Filter files…"
-        [(value)]="query"
-      />
-      <button neatButton variant="outlined" size="small">
-        <neat-icon name="upload" [size]="16" />
-        Upload
-      </button>
-      <button neatButton variant="text" size="small" iconOnly aria-label="Refresh">
-        <neat-icon name="refresh" [size]="16" />
-      </button>
-    </div>
-  `,
+  templateUrl: './2-small-in-a-toolbar.example.html',
   styleUrl: './small-in-a-toolbar.example.css',
 })
 export class SmallInAToolbar {
   protected readonly query = signal('');
 }
+```
+
+`2-small-in-a-toolbar.example.html`
+
+```html
+<div class="tools">
+  <neat-search size="small" label="Filter files" placeholder="Filter files…" [(value)]="query" />
+  <button neatButton variant="outlined" size="small">
+    <neat-icon name="upload" [size]="16" />
+    Upload
+  </button>
+  <button neatButton variant="text" size="small" iconOnly aria-label="Refresh">
+    <neat-icon name="refresh" [size]="16" />
+  </button>
+</div>
 ```
 
 `small-in-a-toolbar.example.css`
@@ -202,29 +205,7 @@ import { NeatSearch, type NeatSearchVariant } from '@sima/neat-ui';
   selector: 'app-looks-and-sizes',
   imports: [NeatSearch],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="looks">
-      @for (look of looks; track look) {
-        <div class="look">
-          <span class="showcase-code showcase-muted">{{ look }}</span>
-          <neat-search
-            [variant]="look"
-            [label]="'Filter streams, ' + look"
-            placeholder="Filter streams"
-          />
-        </div>
-      }
-    </div>
-    <div class="look">
-      <span class="showcase-code showcase-muted">raised, large</span>
-      <neat-search
-        variant="raised"
-        size="large"
-        label="Search the docs"
-        placeholder="Search the docs"
-      />
-    </div>
-  `,
+  templateUrl: './3-looks-and-sizes.example.html',
   styleUrl: './looks-and-sizes.example.css',
 })
 export class LooksAndSizes {
@@ -235,6 +216,32 @@ export class LooksAndSizes {
     'raised',
   ];
 }
+```
+
+`3-looks-and-sizes.example.html`
+
+```html
+<div class="looks">
+  @for (look of looks; track look) {
+    <div class="look">
+      <span class="showcase-code showcase-muted">{{ look }}</span>
+      <neat-search
+        [variant]="look"
+        [label]="'Filter streams, ' + look"
+        placeholder="Filter streams"
+      />
+    </div>
+  }
+</div>
+<div class="look">
+  <span class="showcase-code showcase-muted">raised, large</span>
+  <neat-search
+    variant="raised"
+    size="large"
+    label="Search the docs"
+    placeholder="Search the docs"
+  />
+</div>
 ```
 
 `looks-and-sizes.example.css`

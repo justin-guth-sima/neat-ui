@@ -1,0 +1,11 @@
+@for (card of cards; track card.title) {
+  <div class="card">
+    <span class="title">{{ card.title }}</span>
+    <neat-sparkline
+      [values]="card.values"
+      [label]="card.title"
+      [format]="celsius"
+      [tone]="card.tone"
+    />
+  </div>
+}

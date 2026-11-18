@@ -115,9 +115,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** The gesture held when the example opens, and how much of the window it already fills. */"],["text","\n"],
           ["keyword","const"],["text"," HELD = CLASSES[2];\n"],
           ["keyword","const"],["text"," HELD_MS = 5000;\n\n@Component({\n  selector: "],
-          ["string","'app-gesture-timeline'"],["text",",\n  imports: [NeatLabelTimeline],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-section\">\n      @for (motion of motions; track motion) {\n        <p class=\"showcase-muted\">\n          {{\n            motion === 'step'\n              ? 'Step: moves when the app updates'\n              : 'Smooth: scrolls between updates'\n          }}\n        </p>\n        <neat-label-timeline\n          [label]=\"'Last 30 s, ' + motion\"\n          [runs]=\"runs()\"\n          [nowMs]=\"nowMs()\"\n          [windowMs]=\"windowMs\"\n          [labels]=\"labels\"\n          [quiet]=\"quiet\"\n          [motion]=\"motion\"\n        />\n      }\n    </div>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-gesture-timeline'"],["text",",\n  imports: [NeatLabelTimeline],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-label-timeline.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," GestureTimeline {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motions: "],["keyword","readonly"],["text"," NeatTimelineMotion[] = ["],["string","'step'"],["text",", "],["string","'smooth'"],["text","];\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," windowMs = WINDOW_MS;\n  "],
@@ -143,6 +142,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","if"],["text"," (now >= runEnd) {\n        "],
           ["keyword","const"],["text"," next = { label: classAt(step), startMs: runEnd, endMs: runEnd + durationAt(step) };\n        step++;\n        runEnd = next.endMs;\n        "],
           ["keyword","this"],["text",".runs.update((runs) => [...runs, next].filter((run) => run.endMs > now - WINDOW_MS));\n      }\n    }, TICK_MS);\n    inject(DestroyRef).onDestroy(() => clearInterval(timer));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "1-label-timeline.example.html",
+        "code": [
+          ["text","<div class=\"showcase-section\">\n  @for (motion of motions; track motion) {\n    <p class=\"showcase-muted\">\n      {{\n        motion === 'step' ? 'Step: moves when the app updates' : 'Smooth: scrolls between updates'\n      }}\n    </p>\n    <neat-label-timeline\n      [label]=\"'Last 30 s, ' + motion\"\n      [runs]=\"runs()\"\n      [nowMs]=\"nowMs()\"\n      [windowMs]=\"windowMs\"\n      [labels]=\"labels\"\n      [quiet]=\"quiet\"\n      [motion]=\"motion\"\n    />\n  }\n</div>\n"]
         ]
       },
       {
@@ -225,9 +230,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatLabelRun, NeatLabelTimeline } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { CLASSES, NO_GESTURE } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n"],
           ["keyword","const"],["text"," WINDOW_MS = 30_000;\n\n@Component({\n  selector: "],
-          ["string","'app-name-rows'"],["text",",\n  imports: [NeatLabelTimeline],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-section\">\n      @for (rows of rowCounts; track rows) {\n        <p class=\"showcase-muted\">{{ rows === 1 ? 'One row (the default)' : 'Two rows' }}</p>\n        <neat-label-timeline\n          [label]=\"'Last 30 s, ' + (rows === 1 ? 'one row' : 'two rows') + ' of names'\"\n          [runs]=\"runs\"\n          [nowMs]=\"nowMs\"\n          [windowMs]=\"windowMs\"\n          [labels]=\"labels\"\n          [quiet]=\"quiet\"\n          [labelRows]=\"rows\"\n        />\n      }\n    </div>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-name-rows'"],["text",",\n  imports: [NeatLabelTimeline],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-name-rows.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," NameRows {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," rowCounts = [1, 2];\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," windowMs = WINDOW_MS;\n  "],
@@ -244,6 +248,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," length = quiet ? 800 : 1200 + ((step * 7) % 4) * 400;\n    "],
           ["keyword","const"],["text"," label = quiet ? NO_GESTURE : CLASSES[1 + ((step * 5) % (CLASSES.length - 1))];\n    runs.push({ label, startMs: start, endMs: Math.min(start + length, now) });\n    start += length;\n  }\n  "],
           ["keyword","return"],["text"," runs;\n}\n"]
+        ]
+      },
+      {
+        "name": "2-name-rows.example.html",
+        "code": [
+          ["text","<div class=\"showcase-section\">\n  @for (rows of rowCounts; track rows) {\n    <p class=\"showcase-muted\">{{ rows === 1 ? 'One row (the default)' : 'Two rows' }}</p>\n    <neat-label-timeline\n      [label]=\"'Last 30 s, ' + (rows === 1 ? 'one row' : 'two rows') + ' of names'\"\n      [runs]=\"runs\"\n      [nowMs]=\"nowMs\"\n      [windowMs]=\"windowMs\"\n      [labels]=\"labels\"\n      [quiet]=\"quiet\"\n      [labelRows]=\"rows\"\n    />\n  }\n</div>\n"]
         ]
       },
       {
@@ -346,9 +356,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," WINDOW_MS = 30_000;\n\n"],
           ["comment","/** Thirty seconds of results, fixed. */"],["text","\n"],
           ["keyword","const"],["text"," RUNS: "],["keyword","readonly"],["text"," NeatLabelRun[] = [\n  { label: NO_GESTURE, startMs: NOW - 30_000, endMs: NOW - 24_000 },\n  { label: CLASSES[5], startMs: NOW - 24_000, endMs: NOW - 19_000 },\n  { label: NO_GESTURE, startMs: NOW - 19_000, endMs: NOW - 15_000 },\n  { label: CLASSES[1], startMs: NOW - 15_000, endMs: NOW - 8_000 },\n  { label: NO_GESTURE, startMs: NOW - 8_000, endMs: NOW - 4_000 },\n  { label: CLASSES[12], startMs: NOW - 4_000, endMs: NOW },\n];\n\n@Component({\n  selector: "],
-          ["string","'app-timeline-from-the-app'"],["text",",\n  imports: [NeatButton, NeatLabelTimeline],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"beside\">\n      <neat-label-timeline\n        label=\"Last 30 s\"\n        [runs]=\"runs\"\n        [nowMs]=\"now\"\n        [windowMs]=\"windowMs\"\n        [labels]=\"labels\"\n        [quiet]=\"quiet\"\n        [(hovered)]=\"moment\"\n        (activated)=\"picked.set($event)\"\n      />\n      <div class=\"report\">\n        <dl>\n          <dt>Hovered</dt>\n          <dd>{{ momentText() }}</dd>\n          <dt>Last click</dt>\n          <dd>{{ pickedText() }}</dd>\n        </dl>\n        <div class=\"actions\">\n          <button\n            neatButton\n            type=\"button\"\n            size=\"small\"\n            variant=\"secondary\"\n            (click)=\"moment.set(now - 20_000)\"\n          >\n            Show 20 s ago\n          </button>\n          <button\n            neatButton\n            type=\"button\"\n            size=\"small\"\n            variant=\"outlined\"\n            (click)=\"moment.set(null)\"\n          >\n            Clear\n          </button>\n        </div>\n      </div>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-timeline-from-the-app'"],["text",",\n  imports: [NeatButton, NeatLabelTimeline],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-from-the-app.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./report.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," TimelineFromTheApp {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," runs = RUNS;\n  "],
@@ -366,6 +375,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","if"],["text"," (!pick) "],["keyword","return"],["text"," "],["string","'None yet'"],["text",";\n    "],
           ["keyword","const"],["text"," ago = "],["string","`${((NOW - pick.time) / 1000).toFixed(1)} s ago`"],["text",";\n    "],
           ["keyword","return"],["text"," "],["string","`${pick.run?.label ?? 'Nothing'}, ${ago}`"],["text",";\n  });\n}\n"]
+        ]
+      },
+      {
+        "name": "3-from-the-app.example.html",
+        "code": [
+          ["text","<div class=\"beside\">\n  <neat-label-timeline\n    label=\"Last 30 s\"\n    [runs]=\"runs\"\n    [nowMs]=\"now\"\n    [windowMs]=\"windowMs\"\n    [labels]=\"labels\"\n    [quiet]=\"quiet\"\n    [(hovered)]=\"moment\"\n    (activated)=\"picked.set($event)\"\n  />\n  <div class=\"report\">\n    <dl>\n      <dt>Hovered</dt>\n      <dd>{{ momentText() }}</dd>\n      <dt>Last click</dt>\n      <dd>{{ pickedText() }}</dd>\n    </dl>\n    <div class=\"actions\">\n      <button\n        neatButton\n        type=\"button\"\n        size=\"small\"\n        variant=\"secondary\"\n        (click)=\"moment.set(now - 20_000)\"\n      >\n        Show 20 s ago\n      </button>\n      <button neatButton type=\"button\" size=\"small\" variant=\"outlined\" (click)=\"moment.set(null)\">\n        Clear\n      </button>\n    </div>\n  </div>\n</div>\n"]
         ]
       },
       {

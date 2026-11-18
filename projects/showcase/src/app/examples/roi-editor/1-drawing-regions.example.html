@@ -1,0 +1,25 @@
+<div class="showcase-row">
+  <neat-segmented label="Drawing mode" [options]="modes" [(value)]="mode" />
+  <button neatButton type="button" variant="outlined" (click)="regions.set([])">
+    Clear regions
+  </button>
+  <button neatSwitch (checkedChange)="testPattern.setPaused($event)">Pause the source</button>
+  <span class="key"><neat-roi-swatch type="inclusion" />Inclusion</span>
+  <span class="key"><neat-roi-swatch type="exclusion" />Exclusion</span>
+</div>
+<p class="showcase-code showcase-muted" aria-live="polite">{{ summary() }}</p>
+<div class="cell">
+  <neat-video-tile [source]="testPattern" [settings]="settings()" [bars]="false">
+    <neat-roi-editor
+      neatTileOverlay
+      [regions]="regions()"
+      [mode]="mode()"
+      [(highlighted)]="highlighted"
+      (regionsChange)="regions.set($event)"
+    />
+  </neat-video-tile>
+</div>
+<p class="rule showcase-muted">
+  A box shows while its center is in an inclusion region, or there is none, and in no exclusion
+  region.
+</p>

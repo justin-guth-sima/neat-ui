@@ -43,18 +43,22 @@ import { NeatSlider } from '@sima/neat-ui/slider';
   selector: 'app-live-value',
   imports: [NeatSlider],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="field">
-      <span>Opacity</span>
-      <neat-slider label="Opacity" [min]="0" [max]="100" [step]="5" [(value)]="opacity" />
-      <span class="showcase-code showcase-muted">{{ opacity() }} %</span>
-    </div>
-  `,
+  templateUrl: './1-live-value.example.html',
   styleUrl: './slider-field.css',
 })
 export class LiveValue {
   protected readonly opacity = signal(60);
 }
+```
+
+`1-live-value.example.html`
+
+```html
+<div class="field">
+  <span>Opacity</span>
+  <neat-slider label="Opacity" [min]="0" [max]="100" [step]="5" [(value)]="opacity" />
+  <span class="showcase-code showcase-muted">{{ opacity() }} %</span>
+</div>
 ```
 
 `slider-field.css`
@@ -96,29 +100,33 @@ import { NeatSlider } from '@sima/neat-ui/slider';
   selector: 'app-described-and-disabled',
   imports: [NeatSlider],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="field">
-      <span>Described</span>
-      <neat-slider
-        label="Gain"
-        describedBy="gain-note"
-        [min]="0"
-        [max]="100"
-        [step]="5"
-        [(value)]="gain"
-      />
-      <span id="gain-note" class="showcase-muted"> <code>describedBy</code> names this note. </span>
-    </div>
-    <div class="field">
-      <span>Disabled</span>
-      <neat-slider label="Disabled" [min]="0" [max]="100" [step]="5" [value]="40" disabled />
-    </div>
-  `,
+  templateUrl: './2-described-and-disabled.example.html',
   styleUrls: ['./slider-field.css', './described-and-disabled.example.css'],
 })
 export class DescribedAndDisabled {
   protected readonly gain = signal(30);
 }
+```
+
+`2-described-and-disabled.example.html`
+
+```html
+<div class="field">
+  <span>Described</span>
+  <neat-slider
+    label="Gain"
+    describedBy="gain-note"
+    [min]="0"
+    [max]="100"
+    [step]="5"
+    [(value)]="gain"
+  />
+  <span id="gain-note" class="showcase-muted"> <code>describedBy</code> names this note. </span>
+</div>
+<div class="field">
+  <span>Disabled</span>
+  <neat-slider label="Disabled" [min]="0" [max]="100" [step]="5" [value]="40" disabled />
+</div>
 ```
 
 `slider-field.css`

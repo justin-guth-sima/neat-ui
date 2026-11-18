@@ -1,0 +1,4 @@
+<neat-level-meter [sample]="running() ? sineLevel : null" />
+<button neatButton type="button" size="small" (click)="running.update((on) => !on)">
+  {{ running() ? 'Stop' : 'Start' }}
+</button>

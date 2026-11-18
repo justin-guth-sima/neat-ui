@@ -40,14 +40,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatSeriesSwatch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatTimeChart } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { percent, RUNS, TIMES } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-run-chips'"],["text",",\n  imports: [NeatSeriesSwatch, NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"card\">\n      <ul class=\"chips\" aria-label=\"Compared runs\">\n        @for (run of runs; track run.key) {\n          <li><neat-series-swatch [index]=\"$index\" />{{ run.label }}</li>\n        }\n      </ul>\n      <neat-time-chart\n        label=\"Load by run\"\n        headless\n        [series]=\"runs\"\n        [times]=\"times\"\n        [domain]=\"[0, 100]\"\n        [format]=\"percent\"\n      />\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-run-chips'"],["text",",\n  imports: [NeatSeriesSwatch, NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-run-chips.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./run-chips.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," RunChips {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," runs = RUNS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," times = TIMES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," percent = percent;\n}\n"]
+        ]
+      },
+      {
+        "name": "1-run-chips.example.html",
+        "code": [
+          ["text","<div class=\"card\">\n  <ul class=\"chips\" aria-label=\"Compared runs\">\n    @for (run of runs; track run.key) {\n      <li><neat-series-swatch [index]=\"$index\" />{{ run.label }}</li>\n    }\n  </ul>\n  <neat-time-chart\n    label=\"Load by run\"\n    headless\n    [series]=\"runs\"\n    [times]=\"times\"\n    [domain]=\"[0, 100]\"\n    [format]=\"percent\"\n  />\n</div>\n"]
         ]
       },
       {
@@ -127,15 +132,20 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSwatch, SIMA_PALETTE } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-any-color'"],["text",",\n  imports: [NeatSwatch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <ul class=\"chips\" aria-label=\"Classes\">\n      @for (row of classes; track row.label) {\n        <li><neat-swatch [color]=\"row.color\" />{{ row.label }}</li>\n      }\n    </ul>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-any-color'"],["text",",\n  imports: [NeatSwatch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-any-color.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./run-chips.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," AnyColor {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," classes = [\n    { label: "],
           ["string","'car'"],["text",", color: SIMA_PALETTE.blue },\n    { label: "],
           ["string","'pedestrian'"],["text",", color: SIMA_PALETTE.orange },\n    { label: "],
           ["string","'bicycle'"],["text",", color: SIMA_PALETTE.green },\n  ];\n}\n"]
+        ]
+      },
+      {
+        "name": "2-any-color.example.html",
+        "code": [
+          ["text","<ul class=\"chips\" aria-label=\"Classes\">\n  @for (row of classes; track row.label) {\n    <li><neat-swatch [color]=\"row.color\" />{{ row.label }}</li>\n  }\n</ul>\n"]
         ]
       },
       {

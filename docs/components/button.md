@@ -46,46 +46,50 @@ const SIZES: NeatButtonSize[] = ['small', 'medium', 'large', 'touch'];
   selector: 'app-variants',
   imports: [NeatButton, NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (variant of variants; track variant) {
-      <section>
-        <h4>{{ variant }}</h4>
-        <div class="showcase-row">
-          @for (size of sizes; track size) {
-            <button neatButton type="button" [variant]="variant" [size]="size">{{ size }}</button>
-          }
-          @for (size of sizes; track size) {
-            <button
-              neatButton
-              type="button"
-              [variant]="variant"
-              [size]="size"
-              iconOnly
-              [attr.aria-label]="'Stream, ' + size"
-            >
-              <neat-icon name="streaming" />
-            </button>
-          }
-          <button neatButton type="button" [variant]="variant" rounded>rounded</button>
-          <button
-            neatButton
-            type="button"
-            [variant]="variant"
-            rounded
-            iconOnly
-            aria-label="Stream, rounded"
-          >
-            <neat-icon name="streaming" />
-          </button>
-        </div>
-      </section>
-    }
-  `,
+  templateUrl: './1-variants.example.html',
   styleUrls: ['./stack.css', './variants.example.css'],
 })
 export class Variants {
   protected readonly variants = VARIANTS;
   protected readonly sizes = SIZES;
+}
+```
+
+`1-variants.example.html`
+
+```html
+@for (variant of variants; track variant) {
+  <section>
+    <h4>{{ variant }}</h4>
+    <div class="showcase-row">
+      @for (size of sizes; track size) {
+        <button neatButton type="button" [variant]="variant" [size]="size">{{ size }}</button>
+      }
+      @for (size of sizes; track size) {
+        <button
+          neatButton
+          type="button"
+          [variant]="variant"
+          [size]="size"
+          iconOnly
+          [attr.aria-label]="'Stream, ' + size"
+        >
+          <neat-icon name="streaming" />
+        </button>
+      }
+      <button neatButton type="button" [variant]="variant" rounded>rounded</button>
+      <button
+        neatButton
+        type="button"
+        [variant]="variant"
+        rounded
+        iconOnly
+        aria-label="Stream, rounded"
+      >
+        <neat-icon name="streaming" />
+      </button>
+    </div>
+  </section>
 }
 ```
 
@@ -151,20 +155,24 @@ import { NeatButton, NeatIcon } from '@sima/neat-ui';
   selector: 'app-start-and-stop',
   imports: [NeatButton, NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="success">
-        <neat-icon name="play" [size]="16" />
-        Start
-      </button>
-      <button neatButton type="button" variant="danger">
-        <neat-icon name="stop" [size]="16" />
-        Stop
-      </button>
-    </div>
-  `,
+  templateUrl: './2-start-and-stop.example.html',
 })
 export class StartAndStop {}
+```
+
+`2-start-and-stop.example.html`
+
+```html
+<div class="showcase-row">
+  <button neatButton type="button" variant="success">
+    <neat-icon name="play" [size]="16" />
+    Start
+  </button>
+  <button neatButton type="button" variant="danger">
+    <neat-icon name="stop" [size]="16" />
+    Stop
+  </button>
+</div>
 ```
 
 </details>
@@ -191,15 +199,19 @@ import { NeatButton } from '@sima/neat-ui';
   selector: 'app-text-actions',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="text">Rename</button>
-      <button neatButton type="button" variant="text">Duplicate</button>
-      <button neatButton type="button" variant="danger-text">Delete</button>
-    </div>
-  `,
+  templateUrl: './3-text-actions.example.html',
 })
 export class TextActions {}
+```
+
+`3-text-actions.example.html`
+
+```html
+<div class="showcase-row">
+  <button neatButton type="button" variant="text">Rename</button>
+  <button neatButton type="button" variant="text">Duplicate</button>
+  <button neatButton type="button" variant="danger-text">Delete</button>
+</div>
 ```
 
 </details>
@@ -228,23 +240,27 @@ import { VARIANTS } from './variants';
   selector: 'app-states',
   imports: [NeatButton, NeatIcon, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (variant of variants; track variant) {
-      <div class="showcase-row">
-        <button neatButton type="button" [variant]="variant">
-          <neat-icon name="streaming" [size]="16" />
-          With icon
-        </button>
-        <button neatButton type="button" [variant]="variant" disabled>Disabled</button>
-        <button neatButton type="button" [variant]="variant" aria-disabled="true">Waiting</button>
-        <a neatButton [variant]="variant" routerLink="/components/actions/button">Link</a>
-      </div>
-    }
-  `,
+  templateUrl: './4-states.example.html',
   styleUrl: './stack.css',
 })
 export class States {
   protected readonly variants = VARIANTS;
+}
+```
+
+`4-states.example.html`
+
+```html
+@for (variant of variants; track variant) {
+  <div class="showcase-row">
+    <button neatButton type="button" [variant]="variant">
+      <neat-icon name="streaming" [size]="16" />
+      With icon
+    </button>
+    <button neatButton type="button" [variant]="variant" disabled>Disabled</button>
+    <button neatButton type="button" [variant]="variant" aria-disabled="true">Waiting</button>
+    <a neatButton [variant]="variant" routerLink="/components/actions/button">Link</a>
+  </div>
 }
 ```
 
@@ -301,33 +317,7 @@ import { VARIANTS } from './variants';
   selector: 'app-pressed',
   imports: [NeatButton, NeatIcon, NeatTooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (surface of surfaces; track surface) {
-      <div class="showcase-row" [class.card]="surface === 'card'">
-        @for (variant of variants; track variant) {
-          <button
-            neatButton
-            type="button"
-            [variant]="variant"
-            [pressed]="pressedVariants().has(variant)"
-            (click)="toggle(variant)"
-          >
-            {{ variant }}
-          </button>
-        }
-        <button
-          neatButton
-          type="button"
-          variant="outlined"
-          iconOnly
-          aria-label="Close"
-          neatTooltip="Close"
-        >
-          <neat-icon name="close" />
-        </button>
-      </div>
-    }
-  `,
+  templateUrl: './5-pressed.example.html',
   styleUrls: ['./card.css', './stack.css'],
 })
 export class Pressed {
@@ -345,6 +335,36 @@ export class Pressed {
       return next;
     });
   }
+}
+```
+
+`5-pressed.example.html`
+
+```html
+@for (surface of surfaces; track surface) {
+  <div class="showcase-row" [class.card]="surface === 'card'">
+    @for (variant of variants; track variant) {
+      <button
+        neatButton
+        type="button"
+        [variant]="variant"
+        [pressed]="pressedVariants().has(variant)"
+        (click)="toggle(variant)"
+      >
+        {{ variant }}
+      </button>
+    }
+    <button
+      neatButton
+      type="button"
+      variant="outlined"
+      iconOnly
+      aria-label="Close"
+      neatTooltip="Close"
+    >
+      <neat-icon name="close" />
+    </button>
+  </div>
 }
 ```
 
@@ -419,18 +439,22 @@ import { VARIANTS } from './variants';
   selector: 'app-on-a-card',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="card showcase-row">
-      @for (variant of variants; track variant) {
-        <button neatButton type="button" [variant]="variant">{{ variant }}</button>
-      }
-    </div>
-  `,
+  templateUrl: './6-on-a-card.example.html',
   styleUrl: './card.css',
 })
 export class OnACard {
   protected readonly variants = VARIANTS;
 }
+```
+
+`6-on-a-card.example.html`
+
+```html
+<div class="card showcase-row">
+  @for (variant of variants; track variant) {
+    <button neatButton type="button" [variant]="variant">{{ variant }}</button>
+  }
+</div>
 ```
 
 `variants.ts`

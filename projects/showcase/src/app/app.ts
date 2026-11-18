@@ -19,18 +19,7 @@ import { DocsSearch } from './search/docs-search';
 @Component({
   imports: [NeatSearchPalette, NeatShell, NeatToastHost, RouterOutlet],
   selector: 'app-root',
-  template: `
-    <neat-shell appName="neat-ui showcase" [navItems]="navItems">
-      <neat-search-palette
-        neatTopbarEnd
-        label="Search docs"
-        [search]="search"
-        [allResults]="searchPage"
-      />
-      <router-outlet />
-    </neat-shell>
-    <neat-toast-host />
-  `,
+  templateUrl: './app.html',
 })
 export class App {
   /** The docs' search: topics at once, the API and the examples once its index has loaded. */

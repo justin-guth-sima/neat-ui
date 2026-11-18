@@ -12,15 +12,7 @@ import { NeatPage } from '@sima/neat-ui';
   selector: 'app-full-bleed',
   imports: [NeatPage],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-page padding="none" scroll="none">
-      <div class="grid">
-        @for (tile of tiles; track tile) {
-          <div class="tile">Tile {{ tile }}</div>
-        }
-      </div>
-    </neat-page>
-  `,
+  templateUrl: './3-full-bleed.example.html',
   styleUrl: './full-bleed.example.css',
 })
 export class FullBleed {

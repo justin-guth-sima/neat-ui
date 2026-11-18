@@ -33,9 +33,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatTileGrid, "],["keyword","type"],["text"," NeatTileLayout } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n\n"],
           ["keyword","const"],["text"," TILE_COUNT = 48;\n"],
           ["keyword","const"],["text"," TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);\n\n@Component({\n  selector: "],
-          ["string","'app-packing'"],["text",",\n  imports: [NeatSlider, NeatTileGrid],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"width\">\n      <span>Tile width</span>\n      <neat-slider label=\"Tile width\" [min]=\"120\" [max]=\"480\" [step]=\"10\" [(value)]=\"tileWidth\" />\n      <span class=\"showcase-code showcase-muted\">{{ tileWidth() }} px</span>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n    <div class=\"box\">\n      <neat-tile-grid\n        [tileWidth]=\"tileWidth()\"\n        [count]=\"visible().length\"\n        (layout)=\"layout.set($event)\"\n      >\n        @for (tile of visible(); track tile) {\n          <div class=\"tile\">{{ tile }}</div>\n        }\n      </neat-tile-grid>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-packing'"],["text",",\n  imports: [NeatSlider, NeatTileGrid],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-packing.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./tile-box.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Packing {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," tileWidth = signal(240);\n  "],
@@ -46,6 +45,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","return"],["text"," layout\n      ? "],
           ["string","`${layout.columns} × ${layout.rows} = ${layout.perPage} per page of ${TILE_COUNT}, gap ${layout.gap} px`"],["text","\n      : "],
           ["string","'Measuring'"],["text",";\n  });\n}\n"]
+        ]
+      },
+      {
+        "name": "1-packing.example.html",
+        "code": [
+          ["text","<div class=\"width\">\n  <span>Tile width</span>\n  <neat-slider label=\"Tile width\" [min]=\"120\" [max]=\"480\" [step]=\"10\" [(value)]=\"tileWidth\" />\n  <span class=\"showcase-code showcase-muted\">{{ tileWidth() }} px</span>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n<div class=\"box\">\n  <neat-tile-grid\n    [tileWidth]=\"tileWidth()\"\n    [count]=\"visible().length\"\n    (layout)=\"layout.set($event)\"\n  >\n    @for (tile of visible(); track tile) {\n      <div class=\"tile\">{{ tile }}</div>\n    }\n  </neat-tile-grid>\n</div>\n"]
         ]
       },
       {
@@ -93,9 +98,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n\n"],
           ["keyword","const"],["text"," TILE_COUNT = 12;\n"],
           ["keyword","const"],["text"," TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);\n\n@Component({\n  selector: "],
-          ["string","'app-fit-all'"],["text",",\n  imports: [NeatButton, NeatSlider, NeatTileGrid],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"width\">\n      <span>Tile width</span>\n      <neat-slider\n        label=\"Tile width\"\n        [min]=\"minWidth\"\n        [max]=\"480\"\n        [step]=\"1\"\n        [(value)]=\"tileWidth\"\n      />\n      <span class=\"showcase-code showcase-muted\">{{ tileWidth() }} px</span>\n      <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"fitAll()\">\n        Fit all\n      </button>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n    <div class=\"box\">\n      <neat-tile-grid\n        [tileWidth]=\"tileWidth()\"\n        [count]=\"visible().length\"\n        (layout)=\"layout.set($event)\"\n      >\n        @for (tile of visible(); track tile) {\n          <div class=\"tile\">{{ tile }}</div>\n        }\n      </neat-tile-grid>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-fit-all'"],["text",",\n  imports: [NeatButton, NeatSlider, NeatTileGrid],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-fit-all.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./tile-box.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," FitAll {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," minWidth = NEAT_MIN_TILE_WIDTH;\n  "],
@@ -112,6 +116,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","if"],["text"," (layout === "],["keyword","null"],["text",") "],["keyword","return"],["text",";\n    "],
           ["keyword","const"],["text"," area = { width: layout.areaWidth, height: layout.areaHeight };\n    "],
           ["keyword","this"],["text",".tileWidth.set(fitAllTileWidth(area, TILE_COUNT, layout.gap));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "2-fit-all.example.html",
+        "code": [
+          ["text","<div class=\"width\">\n  <span>Tile width</span>\n  <neat-slider label=\"Tile width\" [min]=\"minWidth\" [max]=\"480\" [step]=\"1\" [(value)]=\"tileWidth\" />\n  <span class=\"showcase-code showcase-muted\">{{ tileWidth() }} px</span>\n  <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"fitAll()\">\n    Fit all\n  </button>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n<div class=\"box\">\n  <neat-tile-grid\n    [tileWidth]=\"tileWidth()\"\n    [count]=\"visible().length\"\n    (layout)=\"layout.set($event)\"\n  >\n    @for (tile of visible(); track tile) {\n      <div class=\"tile\">{{ tile }}</div>\n    }\n  </neat-tile-grid>\n</div>\n"]
         ]
       },
       {

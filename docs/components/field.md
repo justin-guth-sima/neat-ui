@@ -46,17 +46,21 @@ import { NeatInput } from '@sima/neat-ui/input';
   selector: 'app-hint-and-error',
   imports: [NeatField, NeatInput],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-field label="Stream URL" hint="RTSP and RTSPS only.">
-      <input neatInput size="small" type="url" placeholder="rtsp://192.168.1.10:554/stream1" />
-    </neat-field>
-    <neat-field label="Start Time" error="Use minutes and seconds, as 1:30.">
-      <input neatInput size="small" value="90s" />
-    </neat-field>
-  `,
+  templateUrl: './1-hint-and-error.example.html',
   styleUrl: './hint-and-error.example.css',
 })
 export class HintAndError {}
+```
+
+`1-hint-and-error.example.html`
+
+```html
+<neat-field label="Stream URL" hint="RTSP and RTSPS only.">
+  <input neatInput size="small" type="url" placeholder="rtsp://192.168.1.10:554/stream1" />
+</neat-field>
+<neat-field label="Start Time" error="Use minutes and seconds, as 1:30.">
+  <input neatInput size="small" value="90s" />
+</neat-field>
 ```
 
 `hint-and-error.example.css`
@@ -114,35 +118,7 @@ const CLIP_LENGTHS: NeatSelectOption<number>[] = [
   selector: 'app-a-row-of-controls',
   imports: [NeatButton, NeatField, NeatInput, NeatNumberField, NeatSelect],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (size of sizes; track size) {
-      <div class="row">
-        <neat-field class="narrow" label="Start Time">
-          <input neatInput [size]="size" placeholder="0:00" />
-        </neat-field>
-        <neat-select
-          class="wide"
-          label="Target Resolution & FPS"
-          showLabel
-          [size]="size"
-          [options]="resolutions"
-          [(value)]="resolution"
-        />
-        <neat-select
-          class="narrow"
-          label="Clip Length"
-          showLabel
-          [size]="size"
-          [options]="clipLengths"
-          [value]="300"
-        />
-        @if (size === 'small') {
-          <neat-number-field label="Page" [value]="page()" (commit)="page.set($event)" />
-        }
-        <button neatButton type="button" variant="outlined" [size]="size">Validate</button>
-      </div>
-    }
-  `,
+  templateUrl: './2-a-row-of-controls.example.html',
   styleUrl: './a-row-of-controls.example.css',
 })
 export class ARowOfControls {
@@ -151,6 +127,38 @@ export class ARowOfControls {
   protected readonly clipLengths = CLIP_LENGTHS;
   protected readonly resolution = signal<string | null>('1080p30');
   protected readonly page = signal(3);
+}
+```
+
+`2-a-row-of-controls.example.html`
+
+```html
+@for (size of sizes; track size) {
+  <div class="row">
+    <neat-field class="narrow" label="Start Time">
+      <input neatInput [size]="size" placeholder="0:00" />
+    </neat-field>
+    <neat-select
+      class="wide"
+      label="Target Resolution & FPS"
+      showLabel
+      [size]="size"
+      [options]="resolutions"
+      [(value)]="resolution"
+    />
+    <neat-select
+      class="narrow"
+      label="Clip Length"
+      showLabel
+      [size]="size"
+      [options]="clipLengths"
+      [value]="300"
+    />
+    @if (size === 'small') {
+      <neat-number-field label="Page" [value]="page()" (commit)="page.set($event)" />
+    }
+    <button neatButton type="button" variant="outlined" [size]="size">Validate</button>
+  </div>
 }
 ```
 
@@ -205,12 +213,18 @@ import { NeatErrorNote } from '@sima/neat-ui/field';
   selector: 'app-error-note',
   imports: [NeatErrorNote],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-error-note>{{ message }}</neat-error-note>`,
+  templateUrl: './3-error-note.example.html',
 })
 export class ErrorNote {
   protected readonly message =
     'Could not validate the URL.\nyt-dlp: ERROR: [youtube] abc123: Video unavailable';
 }
+```
+
+`3-error-note.example.html`
+
+```html
+<neat-error-note>{{ message }}</neat-error-note>
 ```
 
 </details>

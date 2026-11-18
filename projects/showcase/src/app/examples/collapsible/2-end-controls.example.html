@@ -1,0 +1,24 @@
+<div class="panel">
+  <neat-collapsible label="Log" [summary]="lines().length + ' lines'" [(open)]="open">
+    <button neatCollapsibleEnd neatButton type="button" variant="text" size="small" (click)="add()">
+      Add line
+    </button>
+    @if (open()) {
+      <button
+        neatCollapsibleEnd
+        neatButton
+        type="button"
+        variant="text"
+        size="small"
+        (click)="lines.set([])"
+      >
+        Clear
+      </button>
+    }
+    @for (line of lines(); track $index) {
+      <p neatNote>{{ line }}</p>
+    } @empty {
+      <p neatNote>No lines.</p>
+    }
+  </neat-collapsible>
+</div>

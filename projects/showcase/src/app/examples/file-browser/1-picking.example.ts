@@ -15,20 +15,7 @@ import { DEMO_TREE } from './demo-tree';
   selector: 'app-picking',
   imports: [NeatFileBrowser],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box">
-      <neat-file-browser
-        rootLabel="Media Root"
-        filterPlaceholder="Filter files…"
-        [root]="tree"
-        [(folder)]="folder"
-        [(selected)]="selected"
-      />
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">
-      Picked: {{ selected() ?? 'none' }} (in /{{ folder() }})
-    </p>
-  `,
+  templateUrl: './1-picking.example.html',
   styleUrls: ['./browser-box.css', './stack.css'],
 })
 export class Picking {

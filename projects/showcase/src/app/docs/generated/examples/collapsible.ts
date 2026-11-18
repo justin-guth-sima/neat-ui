@@ -36,12 +36,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatCollapsible } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/collapsible'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatDetails } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/details'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatInput } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/input'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-summary-and-save'"],["text",",\n  imports: [NeatButton, NeatCollapsible, NeatDetails, NeatInput],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"panel\">\n      <neat-collapsible label=\"Details\" summary=\"IMX219 · MIPI CSI · NV12\">\n        <dl neatDetails>\n          <dt>Model</dt>\n          <dd>IMX219</dd>\n          <dt>Receiver</dt>\n          <dd><code>imx219 1-0010</code></dd>\n        </dl>\n      </neat-collapsible>\n      <neat-collapsible label=\"Change board\" [(open)]=\"boardOpen\">\n        <div class=\"showcase-row\">\n          <input neatInput type=\"text\" value=\"192.168.1.20\" aria-label=\"Board address\" />\n          <button neatButton type=\"button\" (click)=\"boardOpen.set(false)\">Save</button>\n        </div>\n      </neat-collapsible>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-summary-and-save'"],["text",",\n  imports: [NeatButton, NeatCollapsible, NeatDetails, NeatInput],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-summary-and-save.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./panel.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SummaryAndSave {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," boardOpen = signal("],["keyword","false"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "1-summary-and-save.example.html",
+        "code": [
+          ["text","<div class=\"panel\">\n  <neat-collapsible label=\"Details\" summary=\"IMX219 · MIPI CSI · NV12\">\n    <dl neatDetails>\n      <dt>Model</dt>\n      <dd>IMX219</dd>\n      <dt>Receiver</dt>\n      <dd><code>imx219 1-0010</code></dd>\n    </dl>\n  </neat-collapsible>\n  <neat-collapsible label=\"Change board\" [(open)]=\"boardOpen\">\n    <div class=\"showcase-row\">\n      <input neatInput type=\"text\" value=\"192.168.1.20\" aria-label=\"Board address\" />\n      <button neatButton type=\"button\" (click)=\"boardOpen.set(false)\">Save</button>\n    </div>\n  </neat-collapsible>\n</div>\n"]
         ]
       },
       {
@@ -90,15 +95,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton, NeatNote } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCollapsible } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/collapsible'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-end-controls'"],["text",",\n  imports: [NeatButton, NeatCollapsible, NeatNote],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"panel\">\n      <neat-collapsible label=\"Log\" [summary]=\"lines().length + ' lines'\" [(open)]=\"open\">\n        <button\n          neatCollapsibleEnd\n          neatButton\n          type=\"button\"\n          variant=\"text\"\n          size=\"small\"\n          (click)=\"add()\"\n        >\n          Add line\n        </button>\n        @if (open()) {\n          <button\n            neatCollapsibleEnd\n            neatButton\n            type=\"button\"\n            variant=\"text\"\n            size=\"small\"\n            (click)=\"lines.set([])\"\n          >\n            Clear\n          </button>\n        }\n        @for (line of lines(); track $index) {\n          <p neatNote>{{ line }}</p>\n        } @empty {\n          <p neatNote>No lines.</p>\n        }\n      </neat-collapsible>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-end-controls'"],["text",",\n  imports: [NeatButton, NeatCollapsible, NeatNote],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-end-controls.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./panel.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," EndControls {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," open = signal("],["keyword","false"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," lines = signal(["],["string","'Pipeline started'"],["text",", "],["string","'Frame 1 decoded'"],["text",", "],["string","'Frame 2 decoded'"],["text","]);\n\n  "],
           ["keyword","protected"],["text"," add(): "],["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".lines.update((lines) => [...lines, "],["string","`Frame ${lines.length} decoded`"],["text","]);\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "2-end-controls.example.html",
+        "code": [
+          ["text","<div class=\"panel\">\n  <neat-collapsible label=\"Log\" [summary]=\"lines().length + ' lines'\" [(open)]=\"open\">\n    <button neatCollapsibleEnd neatButton type=\"button\" variant=\"text\" size=\"small\" (click)=\"add()\">\n      Add line\n    </button>\n    @if (open()) {\n      <button\n        neatCollapsibleEnd\n        neatButton\n        type=\"button\"\n        variant=\"text\"\n        size=\"small\"\n        (click)=\"lines.set([])\"\n      >\n        Clear\n      </button>\n    }\n    @for (line of lines(); track $index) {\n      <p neatNote>{{ line }}</p>\n    } @empty {\n      <p neatNote>No lines.</p>\n    }\n  </neat-collapsible>\n</div>\n"]
         ]
       },
       {

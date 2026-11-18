@@ -30,9 +30,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { "],["keyword","type"],["text"," NeatChartTone, NeatSparkline } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { celsius, sine, withGap } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-tones'"],["text",",\n  imports: [NeatSparkline],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    @for (card of cards; track card.title) {\n      <div class=\"card\">\n        <span class=\"title\">{{ card.title }}</span>\n        <neat-sparkline\n          [values]=\"card.values\"\n          [label]=\"card.title\"\n          [format]=\"celsius\"\n          [tone]=\"card.tone\"\n        />\n      </div>\n    }\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-tones'"],["text",",\n  imports: [NeatSparkline],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-tones.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./tones.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Tones {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," celsius = celsius;\n  "],
@@ -45,6 +44,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'Danger'"],["text",", values: sine(120, 1.5, 85, 99), tone: "],["string","'danger'"],["text"," },\n    { title: "],
           ["string","'With a gap'"],["text",", values: withGap(sine(120, 2, 40, 62), 50, 20), tone: "],["string","'default'"],["text"," },\n    { title: "],
           ["string","'One sample'"],["text",", values: [48], tone: "],["string","'default'"],["text"," },\n  ];\n}\n"]
+        ]
+      },
+      {
+        "name": "1-tones.example.html",
+        "code": [
+          ["text","@for (card of cards; track card.title) {\n  <div class=\"card\">\n    <span class=\"title\">{{ card.title }}</span>\n    <neat-sparkline\n      [values]=\"card.values\"\n      [label]=\"card.title\"\n      [format]=\"celsius\"\n      [tone]=\"card.tone\"\n    />\n  </div>\n}\n"]
         ]
       },
       {

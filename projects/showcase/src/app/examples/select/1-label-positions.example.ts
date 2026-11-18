@@ -16,34 +16,7 @@ import { SOURCES } from './sources';
   selector: 'app-label-positions',
   imports: [NeatSelect],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="selects">
-      <neat-select
-        label="Source"
-        placeholder="Pick a source"
-        showLabel
-        [options]="sources"
-        [(value)]="source"
-      />
-      <neat-select
-        label="Source, label hidden"
-        placeholder="Pick a source"
-        [options]="sources"
-        [(value)]="source"
-      />
-      <neat-select
-        label="Source"
-        placeholder="Pick a source"
-        labelPosition="inline"
-        [options]="sources"
-        [(value)]="source"
-      />
-      <neat-select label="Disabled" disabled [options]="sources" [value]="'rtsp'" />
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">
-      Selected: {{ source() ?? 'none' }}
-    </p>
-  `,
+  templateUrl: './1-label-positions.example.html',
   styleUrls: ['./stack.css', './label-positions.example.css'],
 })
 export class LabelPositions {

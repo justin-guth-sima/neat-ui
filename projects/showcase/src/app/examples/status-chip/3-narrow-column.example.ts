@@ -9,13 +9,7 @@ import { NeatStatusChip } from '@sima/neat-ui/status-chip';
   selector: 'app-narrow-column',
   imports: [NeatStatusChip],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="column">
-      <neat-status-chip tone="highlight"
-        >External publisher on a very narrow column</neat-status-chip
-      >
-    </div>
-  `,
+  templateUrl: './3-narrow-column.example.html',
   styleUrl: './narrow-column.example.css',
 })
 export class NarrowColumn {}

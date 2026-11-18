@@ -41,11 +41,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCard } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/card'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-titled-card'"],["text",",\n  imports: [NeatButton, NeatCard],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-card title=\"Detections\" subtitle=\"The last minute\" region>\n      <button neatButton neatCardActions type=\"button\" size=\"small\">Clear</button>\n      <p>Nothing yet.</p>\n      <p neatCardFooter>Updated just now</p>\n    </neat-card>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-titled-card'"],["text",",\n  imports: [NeatButton, NeatCard],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-titled-card.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./card.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," TitledCardExample {}\n"]
+        ]
+      },
+      {
+        "name": "1-titled-card.example.html",
+        "code": [
+          ["text","<neat-card title=\"Detections\" subtitle=\"The last minute\" region>\n  <button neatButton neatCardActions type=\"button\" size=\"small\">Clear</button>\n  <p>Nothing yet.</p>\n  <p neatCardFooter>Updated just now</p>\n</neat-card>\n"]
         ]
       },
       {
@@ -81,11 +86,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCard } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/card'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-content-only-card'"],["text",",\n  imports: [NeatCard],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-card>\n      <p>yolov8n, 640 by 640.</p>\n    </neat-card>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-content-only-card'"],["text",",\n  imports: [NeatCard],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-content-only.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./card.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ContentOnlyCardExample {}\n"]
+        ]
+      },
+      {
+        "name": "2-content-only.example.html",
+        "code": [
+          ["text","<neat-card>\n  <p>yolov8n, 640 by 640.</p>\n</neat-card>\n"]
         ]
       },
       {
@@ -131,11 +141,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCard } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/card'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-filling-the-row'"],["text",",\n  imports: [NeatCard],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-card>\n      <div class=\"frame\">\n        <img\n          class=\"picture\"\n          alt=\"A gray frame with a lighter square in its middle\"\n          src=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='160' height='90' fill='%23888'/%3E%3Crect x='60' y='25' width='40' height='40' fill='%23ccc'/%3E%3C/svg%3E\"\n        />\n      </div>\n    </neat-card>\n    <neat-card title=\"Camera 1\" subtitle=\"Front door\">\n      <p>Last detection: person, 0.92.</p>\n      <p>Two more in the last minute, one of them a car.</p>\n      <p>Nothing since.</p>\n      <p neatCardFooter>Updated just now</p>\n    </neat-card>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-filling-the-row'"],["text",",\n  imports: [NeatCard],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-filling-the-row.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./filling-the-row.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," FillingTheRowExample {}\n"]
+        ]
+      },
+      {
+        "name": "3-filling-the-row.example.html",
+        "code": [
+          ["text","<neat-card>\n  <div class=\"frame\">\n    <img\n      class=\"picture\"\n      alt=\"A gray frame with a lighter square in its middle\"\n      src=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='160' height='90' fill='%23888'/%3E%3Crect x='60' y='25' width='40' height='40' fill='%23ccc'/%3E%3C/svg%3E\"\n    />\n  </div>\n</neat-card>\n<neat-card title=\"Camera 1\" subtitle=\"Front door\">\n  <p>Last detection: person, 0.92.</p>\n  <p>Two more in the last minute, one of them a car.</p>\n  <p>Nothing since.</p>\n  <p neatCardFooter>Updated just now</p>\n</neat-card>\n"]
         ]
       },
       {
@@ -173,11 +188,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCard } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/card'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-actions-only-card'"],["text",",\n  imports: [NeatButton, NeatCard],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-card>\n      <button neatButton neatCardActions type=\"button\" size=\"small\">Refresh</button>\n      <button neatButton neatCardActions type=\"button\" size=\"small\">Clear</button>\n      <p>yolov8n, 640 by 640.</p>\n    </neat-card>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-actions-only-card'"],["text",",\n  imports: [NeatButton, NeatCard],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-actions-only.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./card.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ActionsOnlyCardExample {}\n"]
+        ]
+      },
+      {
+        "name": "4-actions-only.example.html",
+        "code": [
+          ["text","<neat-card>\n  <button neatButton neatCardActions type=\"button\" size=\"small\">Refresh</button>\n  <button neatButton neatCardActions type=\"button\" size=\"small\">Clear</button>\n  <p>yolov8n, 640 by 640.</p>\n</neat-card>\n"]
         ]
       },
       {
@@ -229,12 +249,17 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCard } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/card'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-title-button-card'"],["text",",\n  imports: [NeatCard],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-card subtitle=\"Click the title\">\n      <button type=\"button\" neatCardTitle class=\"title-button\" (click)=\"opened.set(!opened())\">\n        Detections\n      </button>\n      <p>{{ opened() ? 'Opened.' : 'Closed.' }}</p>\n    </neat-card>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-title-button-card'"],["text",",\n  imports: [NeatCard],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./5-title-as-a-button.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./card.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," TitleButtonCardExample {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," opened = signal("],["keyword","false"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "5-title-as-a-button.example.html",
+        "code": [
+          ["text","<neat-card subtitle=\"Click the title\">\n  <button type=\"button\" neatCardTitle class=\"title-button\" (click)=\"opened.set(!opened())\">\n    Detections\n  </button>\n  <p>{{ opened() ? 'Opened.' : 'Closed.' }}</p>\n</neat-card>\n"]
         ]
       },
       {

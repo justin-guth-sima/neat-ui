@@ -1,0 +1,14 @@
+<neat-search
+  label="Filter streams"
+  placeholder="Name or source"
+  [status]="status()"
+  [(value)]="query"
+/>
+<ul>
+  @for (stream of shown(); track stream.name) {
+    <li>
+      <span>{{ stream.name }}</span>
+      <span class="showcase-muted">{{ stream.source }}</span>
+    </li>
+  }
+</ul>

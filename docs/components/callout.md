@@ -47,14 +47,18 @@ import { NeatCallout } from '@sima/neat-ui/callout';
   selector: 'app-banner',
   imports: [NeatButton, NeatCallout],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-callout tone="warning" heading="Board changed" region>
-      The board at 192.168.1.20 replaced the previous one. Devices are from the last scan.
-      <button neatButton neatCalloutActions type="button" size="small">Refresh</button>
-    </neat-callout>
-  `,
+  templateUrl: './1-banner.example.html',
 })
 export class Banner {}
+```
+
+`1-banner.example.html`
+
+```html
+<neat-callout tone="warning" heading="Board changed" region>
+  The board at 192.168.1.20 replaced the previous one. Devices are from the last scan.
+  <button neatButton neatCalloutActions type="button" size="small">Refresh</button>
+</neat-callout>
 ```
 
 </details>
@@ -81,11 +85,7 @@ import { NeatCallout } from '@sima/neat-ui/callout';
   selector: 'app-tones',
   imports: [NeatCallout],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (note of notes; track note.tone) {
-      <neat-callout [tone]="note.tone">{{ note.tone }}: {{ note.text }}</neat-callout>
-    }
-  `,
+  templateUrl: './2-tones.example.html',
   styleUrl: './tones.example.css',
 })
 export class Tones {
@@ -97,6 +97,14 @@ export class Tones {
     { tone: 'info', text: 'Connecting' },
     { tone: 'highlight', text: 'External' },
   ] as const;
+}
+```
+
+`2-tones.example.html`
+
+```html
+@for (note of notes; track note.tone) {
+  <neat-callout [tone]="note.tone">{{ note.tone }}: {{ note.text }}</neat-callout>
 }
 ```
 

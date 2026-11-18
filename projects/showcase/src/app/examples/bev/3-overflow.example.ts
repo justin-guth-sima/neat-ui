@@ -16,20 +16,7 @@ import { streetFrames } from './scene';
   selector: 'app-overflow',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="stack">
-      <neat-bev
-        class="wide"
-        shape="rect"
-        overflow="visible"
-        [outline]="false"
-        [range]="40"
-        [spokes]="0"
-        [frame]="frame()"
-      />
-      <neat-bev class="wide" overflow="visible" [outline]="false" [range]="40" [frame]="frame()" />
-    </div>
-  `,
+  templateUrl: './3-overflow.example.html',
   styleUrl: './bev.example.css',
 })
 export class Overflow {

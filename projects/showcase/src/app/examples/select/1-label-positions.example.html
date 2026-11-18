@@ -1,0 +1,24 @@
+<div class="selects">
+  <neat-select
+    label="Source"
+    placeholder="Pick a source"
+    showLabel
+    [options]="sources"
+    [(value)]="source"
+  />
+  <neat-select
+    label="Source, label hidden"
+    placeholder="Pick a source"
+    [options]="sources"
+    [(value)]="source"
+  />
+  <neat-select
+    label="Source"
+    placeholder="Pick a source"
+    labelPosition="inline"
+    [options]="sources"
+    [(value)]="source"
+  />
+  <neat-select label="Disabled" disabled [options]="sources" [value]="'rtsp'" />
+</div>
+<p class="showcase-code showcase-muted" aria-live="polite">Selected: {{ source() ?? 'none' }}</p>

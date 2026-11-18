@@ -46,27 +46,31 @@ import { NeatSlider } from '@sima/neat-ui/slider';
   selector: 'app-known-and-unknown',
   imports: [NeatProgress, NeatSlider],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <span>Known, from the slider</span>
-    <neat-progress label="Upload" [value]="progress()" />
-    <neat-slider
-      class="slider"
-      label="Progress value"
-      [min]="0"
-      [max]="100"
-      [step]="5"
-      [(value)]="progress"
-    />
-    <span>Complete</span>
-    <neat-progress label="Import" [value]="100" />
-    <span>Unknown</span>
-    <neat-progress label="Preparing" [value]="null" />
-  `,
+  templateUrl: './1-known-and-unknown.example.html',
   styleUrl: './stack.css',
 })
 export class KnownAndUnknown {
   protected readonly progress = signal(40);
 }
+```
+
+`1-known-and-unknown.example.html`
+
+```html
+<span>Known, from the slider</span>
+<neat-progress label="Upload" [value]="progress()" />
+<neat-slider
+  class="slider"
+  label="Progress value"
+  [min]="0"
+  [max]="100"
+  [step]="5"
+  [(value)]="progress"
+/>
+<span>Complete</span>
+<neat-progress label="Import" [value]="100" />
+<span>Unknown</span>
+<neat-progress label="Preparing" [value]="null" />
 ```
 
 `stack.css`
@@ -114,27 +118,31 @@ import { NeatSlider } from '@sima/neat-ui/slider';
   selector: 'app-titled-readout',
   imports: [NeatProgress, NeatSlider],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-progress
-      heading="Encoding clip.mp4"
-      detail="0:41 / 1:37 · h264_v4l2m2m, at 30 fps, a very long detail that cuts at the end"
-      [value]="progress()"
-    />
-    <neat-slider
-      class="slider"
-      label="Encoded share"
-      [min]="0"
-      [max]="100"
-      [step]="5"
-      [(value)]="progress"
-    />
-    <neat-progress heading="Preparing" detail="Probing the file" [value]="null" />
-  `,
+  templateUrl: './2-titled-readout.example.html',
   styleUrl: './stack.css',
 })
 export class TitledReadout {
   protected readonly progress = signal(40);
 }
+```
+
+`2-titled-readout.example.html`
+
+```html
+<neat-progress
+  heading="Encoding clip.mp4"
+  detail="0:41 / 1:37 · h264_v4l2m2m, at 30 fps, a very long detail that cuts at the end"
+  [value]="progress()"
+/>
+<neat-slider
+  class="slider"
+  label="Encoded share"
+  [min]="0"
+  [max]="100"
+  [step]="5"
+  [(value)]="progress"
+/>
+<neat-progress heading="Preparing" detail="Probing the file" [value]="null" />
 ```
 
 `stack.css`

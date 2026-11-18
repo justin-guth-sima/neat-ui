@@ -17,7 +17,7 @@ import { streetFrames } from './scene';
   selector: 'app-shared-styles',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-bev [frame]="frame()" [styles]="styles" [range]="40" />`,
+  templateUrl: './7-shared-styles.example.html',
   styleUrl: './bev.example.css',
 })
 export class SharedStyles {

@@ -13,23 +13,7 @@ import { percent, RUNS, TIMES } from './data';
   selector: 'app-run-chips',
   imports: [NeatSeriesSwatch, NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="card">
-      <ul class="chips" aria-label="Compared runs">
-        @for (run of runs; track run.key) {
-          <li><neat-series-swatch [index]="$index" />{{ run.label }}</li>
-        }
-      </ul>
-      <neat-time-chart
-        label="Load by run"
-        headless
-        [series]="runs"
-        [times]="times"
-        [domain]="[0, 100]"
-        [format]="percent"
-      />
-    </div>
-  `,
+  templateUrl: './1-run-chips.example.html',
   styleUrl: './run-chips.example.css',
 })
 export class RunChips {

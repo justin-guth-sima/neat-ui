@@ -53,11 +53,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatInput } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/input'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-sizes-and-states'"],["text",",\n  imports: [NeatInput],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"fields\">\n      <label>\n        <span>Stream name</span>\n        <input neatInput placeholder=\"Front door\" />\n      </label>\n      <label>\n        <span>Go to page</span>\n        <input neatInput size=\"small\" type=\"number\" inputmode=\"numeric\" min=\"1\" value=\"1\" />\n      </label>\n      <label>\n        <span>Disabled</span>\n        <input neatInput disabled value=\"Read only\" />\n      </label>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-sizes-and-states'"],["text",",\n  imports: [NeatInput],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-sizes-and-states.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./sizes-and-states.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SizesAndStates {}\n"]
+        ]
+      },
+      {
+        "name": "1-sizes-and-states.example.html",
+        "code": [
+          ["text","<div class=\"fields\">\n  <label>\n    <span>Stream name</span>\n    <input neatInput placeholder=\"Front door\" />\n  </label>\n  <label>\n    <span>Go to page</span>\n    <input neatInput size=\"small\" type=\"number\" inputmode=\"numeric\" min=\"1\" value=\"1\" />\n  </label>\n  <label>\n    <span>Disabled</span>\n    <input neatInput disabled value=\"Read only\" />\n  </label>\n</div>\n"]
         ]
       },
       {
@@ -127,9 +132,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'camera'"],["text",", label: "],["string","'Front camera'"],["text"," },\n  { value: "],
           ["string","'clip'"],["text",", label: "],["string","'Warehouse clip'"],["text"," },\n  { value: "],
           ["string","'rtsp'"],["text",", label: "],["string","'RTSP stream'"],["text"," },\n];\n\n@Component({\n  selector: "],
-          ["string","'app-controls-on-a-card'"],["text",",\n  imports: [\n    NeatDropZone,\n    NeatInput,\n    NeatProgress,\n    NeatSegmented,\n    NeatSelect,\n    NeatSlider,\n    NeatSwitch,\n    NeatTab,\n    NeatTabs,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"card row\">\n      <button neatSwitch [(checked)]=\"bars\">Bars</button>\n      <neat-slider\n        class=\"slider\"\n        label=\"Opacity\"\n        [min]=\"0\"\n        [max]=\"100\"\n        [step]=\"5\"\n        [(value)]=\"opacity\"\n      />\n      <neat-segmented label=\"Tile shape\" [options]=\"shapes\" [(value)]=\"shape\" />\n      <input\n        class=\"input\"\n        neatInput\n        size=\"small\"\n        aria-label=\"Jump to channel\"\n        placeholder=\"Channel\"\n      />\n      <neat-select\n        class=\"select\"\n        label=\"Source, on a card\"\n        placeholder=\"Pick a source\"\n        [options]=\"sources\"\n        [(value)]=\"source\"\n      />\n    </div>\n    <div class=\"card stack\">\n      <neat-progress label=\"Upload, on a card\" [value]=\"40\" />\n      <neat-progress label=\"Preparing, on a card\" [value]=\"null\" />\n      <neat-drop-zone label=\"Drop files here, on a card\" multiple />\n    </div>\n    <div class=\"card\">\n      <neat-tabs label=\"Channel settings, on a card\" [(value)]=\"tab\">\n        <neat-tab label=\"Metadata\" value=\"metadata\">\n          <ng-template><p class=\"showcase-muted\">Metadata settings.</p></ng-template>\n        </neat-tab>\n        <neat-tab label=\"General\" value=\"general\">\n          <ng-template><p class=\"showcase-muted\">General settings.</p></ng-template>\n        </neat-tab>\n      </neat-tabs>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-controls-on-a-card'"],["text",",\n  imports: [\n    NeatDropZone,\n    NeatInput,\n    NeatProgress,\n    NeatSegmented,\n    NeatSelect,\n    NeatSlider,\n    NeatSwitch,\n    NeatTab,\n    NeatTabs,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-controls-on-a-card.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./controls-on-a-card.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ControlsOnACard {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," shapes = SHAPES;\n  "],
@@ -139,6 +143,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," shape = signal<Shape>("],["string","'16:9'"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," source = signal<"],["keyword","string"],["text"," | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," tab = signal("],["string","'metadata'"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "2-controls-on-a-card.example.html",
+        "code": [
+          ["text","<div class=\"card row\">\n  <button neatSwitch [(checked)]=\"bars\">Bars</button>\n  <neat-slider\n    class=\"slider\"\n    label=\"Opacity\"\n    [min]=\"0\"\n    [max]=\"100\"\n    [step]=\"5\"\n    [(value)]=\"opacity\"\n  />\n  <neat-segmented label=\"Tile shape\" [options]=\"shapes\" [(value)]=\"shape\" />\n  <input class=\"input\" neatInput size=\"small\" aria-label=\"Jump to channel\" placeholder=\"Channel\" />\n  <neat-select\n    class=\"select\"\n    label=\"Source, on a card\"\n    placeholder=\"Pick a source\"\n    [options]=\"sources\"\n    [(value)]=\"source\"\n  />\n</div>\n<div class=\"card stack\">\n  <neat-progress label=\"Upload, on a card\" [value]=\"40\" />\n  <neat-progress label=\"Preparing, on a card\" [value]=\"null\" />\n  <neat-drop-zone label=\"Drop files here, on a card\" multiple />\n</div>\n<div class=\"card\">\n  <neat-tabs label=\"Channel settings, on a card\" [(value)]=\"tab\">\n    <neat-tab label=\"Metadata\" value=\"metadata\">\n      <ng-template><p class=\"showcase-muted\">Metadata settings.</p></ng-template>\n    </neat-tab>\n    <neat-tab label=\"General\" value=\"general\">\n      <ng-template><p class=\"showcase-muted\">General settings.</p></ng-template>\n    </neat-tab>\n  </neat-tabs>\n</div>\n"]
         ]
       },
       {

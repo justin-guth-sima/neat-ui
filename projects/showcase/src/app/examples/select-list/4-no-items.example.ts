@@ -7,18 +7,7 @@ import { type Channel, channelId } from './channels';
   selector: 'app-no-items',
   imports: [NeatColumn, NeatSelectList],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box">
-      <neat-select-list
-        label="Cameras"
-        emptyLabel="No cameras enabled yet."
-        [items]="none"
-        [trackBy]="channelId"
-      >
-        <ng-template neatColumn="name" let-channel>{{ channel.name }}</ng-template>
-      </neat-select-list>
-    </div>
-  `,
+  templateUrl: './4-no-items.example.html',
   styleUrl: './no-items.example.css',
 })
 export class NoItems {

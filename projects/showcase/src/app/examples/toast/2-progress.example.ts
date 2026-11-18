@@ -18,22 +18,7 @@ type Outcome = 'done' | 'fail' | 'unknown' | 'dismiss';
   selector: 'app-progress',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" (click)="run('done')">
-        Progress, succeeding
-      </button>
-      <button neatButton type="button" variant="outlined" (click)="run('fail')">
-        Progress, failing
-      </button>
-      <button neatButton type="button" variant="outlined" (click)="run('unknown')">
-        Progress, unknown length
-      </button>
-      <button neatButton type="button" variant="outlined" (click)="run('dismiss')">
-        Progress, dismissed
-      </button>
-    </div>
-  `,
+  templateUrl: './2-progress.example.html',
 })
 export class Progress {
   private readonly toasts = inject(NeatToasts);

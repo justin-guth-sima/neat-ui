@@ -50,17 +50,7 @@ const FPS_VALUES = [24, 29.9, 12.4, 18.2];
   selector: 'app-eased-number',
   imports: [NeatButton, NeatEasedNumber],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <span><neat-eased-number [value]="fps()" [digits]="1" /> fps</span>
-      <button neatButton type="button" variant="outlined" size="small" (click)="next()">
-        Next value
-      </button>
-      <button neatButton type="button" variant="text" size="small" (click)="fps.set(null)">
-        No value
-      </button>
-    </div>
-  `,
+  templateUrl: './1-eased-number.example.html',
 })
 export class EasedNumber {
   protected readonly fps = signal<number | null>(FPS_VALUES[0]);
@@ -71,6 +61,20 @@ export class EasedNumber {
     this.fps.set(FPS_VALUES[this.index]);
   }
 }
+```
+
+`1-eased-number.example.html`
+
+```html
+<div class="showcase-row">
+  <span><neat-eased-number [value]="fps()" [digits]="1" /> fps</span>
+  <button neatButton type="button" variant="outlined" size="small" (click)="next()">
+    Next value
+  </button>
+  <button neatButton type="button" variant="text" size="small" (click)="fps.set(null)">
+    No value
+  </button>
+</div>
 ```
 
 </details>
@@ -103,12 +107,7 @@ const SHARES = [20, 85, 40, 100];
   selector: 'app-eased-signal',
   imports: [NeatButton, NeatProgress],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-progress label="Share" [value]="value()" />
-    <button neatButton type="button" variant="outlined" size="small" (click)="next()">
-      Next share
-    </button>
-  `,
+  templateUrl: './2-eased-signal.example.html',
   styleUrl: './eased-signal.example.css',
 })
 export class EasedSignal {
@@ -122,6 +121,15 @@ export class EasedSignal {
     this.share.set(SHARES[this.index]);
   }
 }
+```
+
+`2-eased-signal.example.html`
+
+```html
+<neat-progress label="Share" [value]="value()" />
+<button neatButton type="button" variant="outlined" size="small" (click)="next()">
+  Next share
+</button>
 ```
 
 `eased-signal.example.css`
@@ -170,15 +178,7 @@ const CURVES = Object.keys(NEAT_EASINGS) as NeatEasingName[];
   selector: 'app-curves',
   imports: [NeatButton, NeatProgress],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (bar of bars; track bar.curve) {
-      <span class="name">{{ bar.curve }}</span>
-      <neat-progress [label]="bar.curve" [value]="bar.value()" />
-    }
-    <button neatButton type="button" variant="outlined" size="small" (click)="next()">
-      Next share
-    </button>
-  `,
+  templateUrl: './3-curves.example.html',
   styleUrl: './curves.example.css',
 })
 export class Curves {
@@ -194,6 +194,18 @@ export class Curves {
     this.share.set(SHARES[this.index]);
   }
 }
+```
+
+`3-curves.example.html`
+
+```html
+@for (bar of bars; track bar.curve) {
+  <span class="name">{{ bar.curve }}</span>
+  <neat-progress [label]="bar.curve" [value]="bar.value()" />
+}
+<button neatButton type="button" variant="outlined" size="small" (click)="next()">
+  Next share
+</button>
 ```
 
 `curves.example.css`

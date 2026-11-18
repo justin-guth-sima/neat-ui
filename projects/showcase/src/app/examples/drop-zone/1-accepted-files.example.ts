@@ -13,29 +13,7 @@ import { NeatDropZone } from '@sima/neat-ui/drop-zone';
   selector: 'app-accepted-files',
   imports: [NeatDropZone],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="zones">
-      <neat-drop-zone
-        label="Drop one video here, or click to choose"
-        accept="video/*,.mkv"
-        (rejected)="log('Not accepted', $event)"
-        (files)="log('Received', $event)"
-      />
-      <neat-drop-zone
-        label="Drop any files here, or click to choose"
-        multiple
-        (files)="log('Received', $event)"
-      />
-      <neat-drop-zone label="Uploads are paused" disabled />
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">
-      @for (line of lines(); track $index) {
-        {{ line }}<br />
-      } @empty {
-        Nothing dropped yet
-      }
-    </p>
-  `,
+  templateUrl: './1-accepted-files.example.html',
   styleUrl: './accepted-files.example.css',
 })
 export class AcceptedFiles {

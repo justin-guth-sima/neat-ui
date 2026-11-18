@@ -18,27 +18,7 @@ import { NeatDialog, NeatDialogActions, NeatDialogBody } from '@sima/neat-ui/dia
   selector: 'app-long-content',
   imports: [NeatButton, NeatDialogActions, NeatDialogBody],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" (click)="open(longDialog)">
-        Large dialog with long content…
-      </button>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">{{ result() }}</p>
-
-    <ng-template #longDialog let-dialog>
-      <neat-dialog-body>
-        <ul class="dialog-list">
-          @for (line of lines; track line) {
-            <li>{{ line }}</li>
-          }
-        </ul>
-      </neat-dialog-body>
-      <neat-dialog-actions>
-        <button neatButton type="button" (click)="dialog.close()">Done</button>
-      </neat-dialog-actions>
-    </ng-template>
-  `,
+  templateUrl: './2-long-content.example.html',
   styleUrl: './long-content.example.css',
 })
 export class LongContent {

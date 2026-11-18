@@ -32,23 +32,7 @@ const GROUPS: readonly NeatSelectListGroup[] = [
   selector: 'app-grouped',
   imports: [NeatColumn, NeatSelectList],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box">
-      <neat-select-list
-        label="Devices"
-        [items]="devices"
-        [trackBy]="deviceId"
-        [groups]="groups"
-        [groupOf]="deviceKind"
-        [(selected)]="selected"
-      >
-        <ng-template neatColumn="name" header="Device" let-device>{{ device.name }}</ng-template>
-        <ng-template neatColumn="connection" header="Connection" width="6rem" let-device>{{
-          device.connection
-        }}</ng-template>
-      </neat-select-list>
-    </div>
-  `,
+  templateUrl: './7-grouped.example.html',
   styleUrl: './grouped.example.css',
 })
 export class Grouped {

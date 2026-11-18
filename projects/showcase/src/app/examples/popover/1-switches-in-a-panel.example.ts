@@ -24,31 +24,7 @@ import { NeatSwitch } from '@sima/neat-ui/switch';
     NeatTooltip,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-popover label="View options" [(open)]="open">
-      <button
-        neatButton
-        neatPopoverTrigger
-        type="button"
-        variant="text"
-        iconOnly
-        aria-label="View options"
-        neatTooltip="View options"
-      >
-        <neat-icon name="more" />
-      </button>
-      <ng-template neatPopoverContent>
-        <div class="popover-fields">
-          <button neatSwitch [(checked)]="bars">Bars</button>
-          <button neatSwitch [(checked)]="hideEmpty">Hide empty slots</button>
-        </div>
-      </ng-template>
-    </neat-popover>
-    <p class="showcase-code showcase-muted">
-      View options {{ open() ? 'open' : 'closed' }}; bars {{ bars() ? 'on' : 'off' }}, empty slots
-      {{ hideEmpty() ? 'hidden' : 'shown' }}
-    </p>
-  `,
+  templateUrl: './1-switches-in-a-panel.example.html',
   styleUrl: './popover-fields.css',
 })
 export class SwitchesInAPanel {

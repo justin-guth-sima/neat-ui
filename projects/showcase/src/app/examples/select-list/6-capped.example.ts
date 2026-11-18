@@ -14,25 +14,7 @@ const CAP_NOTE = `At most ${CAP} types can be compared.`;
   selector: 'app-capped',
   imports: [NeatColumn, NeatSelectList],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box">
-      <neat-select-list
-        label="Types to compare"
-        checkable
-        [items]="types"
-        [trackBy]="typeId"
-        [canCheck]="hasFiles"
-        [checkBlocked]="atCap"
-        [(checked)]="compared"
-      >
-        <ng-template neatColumn="name" header="Type" let-type>{{ type.name }}</ng-template>
-      </neat-select-list>
-    </div>
-    <p class="showcase-muted">{{ note }}</p>
-    <p class="showcase-code showcase-muted" aria-live="polite">
-      Compared: {{ compared().length ? compared().join(', ') : 'none' }}
-    </p>
-  `,
+  templateUrl: './6-capped.example.html',
   styleUrls: ['./asset-types-box.css', './stack.css'],
 })
 export class Capped {

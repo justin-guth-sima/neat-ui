@@ -1,0 +1,13 @@
+<div class="row">
+  @for (position of positions; track position) {
+    <button
+      neatButton
+      type="button"
+      variant="outlined"
+      [neatTooltip]="'Tooltip on the ' + position"
+      [neatTooltipPosition]="position"
+    >
+      {{ position }}
+    </button>
+  }
+</div>

@@ -50,17 +50,7 @@ import { CORES, percent, TIMES } from './data';
   selector: 'app-core-load',
   imports: [NeatHeatmap],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="card">
-      <neat-heatmap
-        label="Per-core CPU"
-        headline="47%"
-        [rows]="rows"
-        [times]="times"
-        [format]="percent"
-      />
-    </div>
-  `,
+  templateUrl: './1-core-load.example.html',
   styleUrl: './core-load.example.css',
 })
 export class CoreLoad {
@@ -68,6 +58,20 @@ export class CoreLoad {
   protected readonly times = TIMES;
   protected readonly percent = percent;
 }
+```
+
+`1-core-load.example.html`
+
+```html
+<div class="card">
+  <neat-heatmap
+    label="Per-core CPU"
+    headline="47%"
+    [rows]="rows"
+    [times]="times"
+    [format]="percent"
+  />
+</div>
 ```
 
 `data.ts`
@@ -165,36 +169,7 @@ const clock = (time: number) => new Date(time).toISOString().slice(11, 19);
   selector: 'app-heatmap-from-the-app',
   imports: [NeatButton, NeatHeatmap],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="beside">
-      <div class="card">
-        <neat-heatmap
-          label="Per-core CPU"
-          [rows]="rows"
-          [times]="times"
-          [format]="percent"
-          [(hovered)]="cell"
-          (activated)="picked.set($event)"
-        />
-      </div>
-      <div class="report">
-        <dl>
-          <dt>Hovered</dt>
-          <dd>{{ cellText() }}</dd>
-          <dt>Last click</dt>
-          <dd>{{ pickedText() }}</dd>
-        </dl>
-        <div class="actions">
-          <button neatButton type="button" size="small" variant="secondary" (click)="showBusiest()">
-            Show core 15 now
-          </button>
-          <button neatButton type="button" size="small" variant="outlined" (click)="cell.set(null)">
-            Clear
-          </button>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './2-from-the-app.example.html',
   styleUrls: ['./core-load.example.css', './report.example.css'],
 })
 export class HeatmapFromTheApp {
@@ -220,6 +195,39 @@ export class HeatmapFromTheApp {
     this.cell.set({ row: 'core15', time: TIMES[TIMES.length - 1] });
   }
 }
+```
+
+`2-from-the-app.example.html`
+
+```html
+<div class="beside">
+  <div class="card">
+    <neat-heatmap
+      label="Per-core CPU"
+      [rows]="rows"
+      [times]="times"
+      [format]="percent"
+      [(hovered)]="cell"
+      (activated)="picked.set($event)"
+    />
+  </div>
+  <div class="report">
+    <dl>
+      <dt>Hovered</dt>
+      <dd>{{ cellText() }}</dd>
+      <dt>Last click</dt>
+      <dd>{{ pickedText() }}</dd>
+    </dl>
+    <div class="actions">
+      <button neatButton type="button" size="small" variant="secondary" (click)="showBusiest()">
+        Show core 15 now
+      </button>
+      <button neatButton type="button" size="small" variant="outlined" (click)="cell.set(null)">
+        Clear
+      </button>
+    </div>
+  </div>
+</div>
 ```
 
 `data.ts`

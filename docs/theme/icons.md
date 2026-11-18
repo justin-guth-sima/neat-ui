@@ -43,21 +43,25 @@ import { NEAT_ICON_NAMES, NeatIcon } from '@sima/neat-ui';
   selector: 'app-gallery',
   imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-grid">
-      @for (name of names; track name) {
-        <div class="icon-card">
-          <neat-icon [name]="name" [size]="24" />
-          <span class="showcase-code">{{ name }}</span>
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './1-gallery.example.html',
   styleUrl: './gallery.example.css',
 })
 export class Gallery {
   protected readonly names = NEAT_ICON_NAMES;
 }
+```
+
+`1-gallery.example.html`
+
+```html
+<div class="showcase-grid">
+  @for (name of names; track name) {
+    <div class="icon-card">
+      <neat-icon [name]="name" [size]="24" />
+      <span class="showcase-code">{{ name }}</span>
+    </div>
+  }
+</div>
 ```
 
 `gallery.example.css`
@@ -98,29 +102,33 @@ import { NeatIcon } from '@sima/neat-ui';
   selector: 'app-sizes-and-labels',
   imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      @for (size of sizes; track size) {
-        <div class="sample">
-          <neat-icon name="board" [size]="size" />
-          <span class="showcase-code showcase-muted">{{ size }} px</span>
-        </div>
-      }
-    </div>
-    <div class="showcase-row">
-      @for (size of sizes; track size) {
-        <div class="sample">
-          <neat-icon name="board" [size]="size" label="Board" />
-          <span class="showcase-code showcase-muted">{{ size }} px, label</span>
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './2-sizes-and-labels.example.html',
   styleUrl: './sizes-and-labels.example.css',
 })
 export class SizesAndLabels {
   protected readonly sizes = [16, 20, 24] as const;
 }
+```
+
+`2-sizes-and-labels.example.html`
+
+```html
+<div class="showcase-row">
+  @for (size of sizes; track size) {
+    <div class="sample">
+      <neat-icon name="board" [size]="size" />
+      <span class="showcase-code showcase-muted">{{ size }} px</span>
+    </div>
+  }
+</div>
+<div class="showcase-row">
+  @for (size of sizes; track size) {
+    <div class="sample">
+      <neat-icon name="board" [size]="size" label="Board" />
+      <span class="showcase-code showcase-muted">{{ size }} px, label</span>
+    </div>
+  }
+</div>
 ```
 
 `sizes-and-labels.example.css`
@@ -167,18 +175,7 @@ import { Anchor, Bell, Rocket } from '@sima/neat-ui/lucide';
   selector: 'app-any-lucide-glyph',
   imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (glyph of glyphs; track glyph.label) {
-      <div class="showcase-row">
-        @for (size of sizes; track size) {
-          <div class="sample">
-            <neat-icon [name]="glyph.drawing" [size]="size" [label]="glyph.label" />
-            <span class="showcase-code showcase-muted">{{ glyph.label }}, {{ size }} px</span>
-          </div>
-        }
-      </div>
-    }
-  `,
+  templateUrl: './3-any-lucide-glyph.example.html',
   styleUrl: './any-lucide-glyph.example.css',
 })
 export class AnyLucideGlyph {
@@ -188,6 +185,21 @@ export class AnyLucideGlyph {
     { drawing: Anchor, label: 'Anchor' },
     { drawing: Bell, label: 'Bell' },
   ] as const;
+}
+```
+
+`3-any-lucide-glyph.example.html`
+
+```html
+@for (glyph of glyphs; track glyph.label) {
+  <div class="showcase-row">
+    @for (size of sizes; track size) {
+      <div class="sample">
+        <neat-icon [name]="glyph.drawing" [size]="size" [label]="glyph.label" />
+        <span class="showcase-code showcase-muted">{{ glyph.label }}, {{ size }} px</span>
+      </div>
+    }
+  </div>
 }
 ```
 

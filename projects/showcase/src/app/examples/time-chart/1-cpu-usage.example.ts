@@ -11,20 +11,7 @@ import { CPU, CPU_THRESHOLDS, percent, TIMES } from './data';
   selector: 'app-cpu-usage',
   imports: [NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="chart-card">
-      <neat-time-chart
-        label="CPU usage"
-        headline="34%"
-        size="large"
-        [series]="series"
-        [times]="times"
-        [domain]="[0, 100]"
-        [thresholds]="thresholds"
-        [format]="percent"
-      />
-    </div>
-  `,
+  templateUrl: './1-cpu-usage.example.html',
   styleUrl: './chart-card.css',
 })
 export class CPUUsage {

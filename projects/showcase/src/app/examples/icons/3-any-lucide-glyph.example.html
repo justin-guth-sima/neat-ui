@@ -1,0 +1,10 @@
+@for (glyph of glyphs; track glyph.label) {
+  <div class="showcase-row">
+    @for (size of sizes; track size) {
+      <div class="sample">
+        <neat-icon [name]="glyph.drawing" [size]="size" [label]="glyph.label" />
+        <span class="showcase-code showcase-muted">{{ glyph.label }}, {{ size }} px</span>
+      </div>
+    }
+  </div>
+}

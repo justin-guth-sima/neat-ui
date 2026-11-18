@@ -12,22 +12,7 @@ import { NeatInput } from '@sima/neat-ui/input';
   selector: 'app-sizes-and-states',
   imports: [NeatInput],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="fields">
-      <label>
-        <span>Stream name</span>
-        <input neatInput placeholder="Front door" />
-      </label>
-      <label>
-        <span>Go to page</span>
-        <input neatInput size="small" type="number" inputmode="numeric" min="1" value="1" />
-      </label>
-      <label>
-        <span>Disabled</span>
-        <input neatInput disabled value="Read only" />
-      </label>
-    </div>
-  `,
+  templateUrl: './1-sizes-and-states.example.html',
   styleUrl: './sizes-and-states.example.css',
 })
 export class SizesAndStates {}

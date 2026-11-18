@@ -6,13 +6,7 @@ import { NeatSlider } from '@sima/neat-ui/slider';
   selector: 'app-live-value',
   imports: [NeatSlider],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="field">
-      <span>Opacity</span>
-      <neat-slider label="Opacity" [min]="0" [max]="100" [step]="5" [(value)]="opacity" />
-      <span class="showcase-code showcase-muted">{{ opacity() }} %</span>
-    </div>
-  `,
+  templateUrl: './1-live-value.example.html',
   styleUrl: './slider-field.css',
 })
 export class LiveValue {

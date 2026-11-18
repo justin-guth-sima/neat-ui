@@ -46,42 +46,7 @@ const PAGE_NAV: readonly NeatPageNavGroup[] = [
   selector: 'app-overview',
   imports: [NeatButton, NeatPage, NeatPageNav, NeatPageToolbar],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div *neatPageToolbar>
-      <button neatButton type="button" variant="text" size="small" (click)="many.set(!many())">
-        {{ many() ? 'Fewer' : 'More' }} sections
-      </button>
-    </div>
-
-    <neat-page>
-      <nav
-        neatPageNav
-        aria-label="Page example"
-        [groups]="pageNav"
-        filterLabel="Filter views"
-      ></nav>
-      <div class="showcase-page">
-        <section class="showcase-section">
-          <h2>Page</h2>
-          <p>
-            Content like this belongs to the page, not to the shell. It never measures the shell's
-            size and never sets a height, so the same page works in a small window, on a wall
-            display and in kiosk mode, where the rail and the top bar are gone and the page gets the
-            whole viewport.
-          </p>
-          <p class="showcase-muted">
-            The screen is {{ narrow() ? 'narrow, below 48rem' : 'wide' }}.
-          </p>
-        </section>
-        @for (section of sections(); track section) {
-          <section class="showcase-section">
-            <h3>Section {{ section }}</h3>
-            <p class="showcase-muted">More of the body, which is all that scrolls.</p>
-          </section>
-        }
-      </div>
-    </neat-page>
-  `,
+  templateUrl: './1-overview.example.html',
 })
 export class Overview {
   protected readonly pageNav = PAGE_NAV;

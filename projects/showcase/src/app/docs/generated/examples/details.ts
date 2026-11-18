@@ -31,11 +31,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatInlineButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatDetails } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/details'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-source-facts'"],["text",",\n  imports: [NeatDetails, NeatInlineButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <dl neatDetails class=\"panel\">\n      <dt>Source</dt>\n      <dd><code>rtsp://192.168.1.10:554/stream1</code></dd>\n      <dt>Status</dt>\n      <dd>Pulling</dd>\n      <dt>URL</dt>\n      <dd class=\"url\">\n        <code>rtsp://neat.local:8554/src3</code>\n        <button neatInlineButton type=\"button\">Copy</button>\n      </dd>\n      <dt>Live for</dt>\n      <dd>1:02:41</dd>\n      <dt>Bitrate</dt>\n      <dd>4.2 Mbit/s</dd>\n    </dl>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-source-facts'"],["text",",\n  imports: [NeatDetails, NeatInlineButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-source-facts.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./panel.css'"],["text",", "],["string","'./source-facts.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SourceFacts {}\n"]
+        ]
+      },
+      {
+        "name": "1-source-facts.example.html",
+        "code": [
+          ["text","<dl neatDetails class=\"panel\">\n  <dt>Source</dt>\n  <dd><code>rtsp://192.168.1.10:554/stream1</code></dd>\n  <dt>Status</dt>\n  <dd>Pulling</dd>\n  <dt>URL</dt>\n  <dd class=\"url\">\n    <code>rtsp://neat.local:8554/src3</code>\n    <button neatInlineButton type=\"button\">Copy</button>\n  </dd>\n  <dt>Live for</dt>\n  <dd>1:02:41</dd>\n  <dt>Bitrate</dt>\n  <dd>4.2 Mbit/s</dd>\n</dl>\n"]
         ]
       },
       {
@@ -84,11 +89,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatDetails } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/details'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-aligned-lists'"],["text",",\n  imports: [NeatDetails],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"panel lists\">\n      <dl neatDetails>\n        <dt>Model</dt>\n        <dd>IMX219</dd>\n        <dt>Reconnect_attempts_since_boot</dt>\n        <dd>3</dd>\n      </dl>\n      <dl neatDetails>\n        <dt>Receiver</dt>\n        <dd><code>imx219 1-0010</code></dd>\n        <dt>Format</dt>\n        <dd>NV12</dd>\n      </dl>\n    </div>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-aligned-lists'"],["text",",\n  imports: [NeatDetails],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-aligned-lists.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./panel.css'"],["text",", "],["string","'./aligned-lists.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," AlignedLists {}\n"]
+        ]
+      },
+      {
+        "name": "2-aligned-lists.example.html",
+        "code": [
+          ["text","<div class=\"panel lists\">\n  <dl neatDetails>\n    <dt>Model</dt>\n    <dd>IMX219</dd>\n    <dt>Reconnect_attempts_since_boot</dt>\n    <dd>3</dd>\n  </dl>\n  <dl neatDetails>\n    <dt>Receiver</dt>\n    <dd><code>imx219 1-0010</code></dd>\n    <dt>Format</dt>\n    <dd>NV12</dd>\n  </dl>\n</div>\n"]
         ]
       },
       {

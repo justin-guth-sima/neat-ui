@@ -246,13 +246,16 @@ export interface DocsExample {
    * `@sima/neat-ui/status-chip#NeatStatusChip`.
    */
   readonly shows: readonly string[];
-  /** The example's file first, then the files of its topic folder that it imports. */
+  /**
+   * The example's file first, then its template, the files of its topic folder that it imports
+   * and its stylesheets.
+   */
   readonly files: readonly DocsExampleFile[];
 }
 
 /** A source file of an example, as highlighted runs that spell the file again. */
 export interface DocsExampleFile {
-  /** From the topic folder: `tones.example.ts`, `data/pipeline.ts`. */
+  /** From the topic folder: `tones.example.ts`, `tones.example.html`, `data/pipeline.ts`. */
   readonly name: string;
   readonly code: readonly DocsToken[];
 }

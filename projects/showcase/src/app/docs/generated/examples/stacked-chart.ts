@@ -38,14 +38,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatStackedChart } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { RAILS, TIMES, watts } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-power-rails'"],["text",",\n  imports: [NeatStackedChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"card\">\n      <neat-stacked-chart\n        label=\"Where the power goes\"\n        headline=\"11.2 W\"\n        [series]=\"rails\"\n        [times]=\"times\"\n        [domain]=\"[0, 16]\"\n        [format]=\"watts\"\n      />\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-power-rails'"],["text",",\n  imports: [NeatStackedChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-power-rails.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./power-rails.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," PowerRails {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," rails = RAILS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," times = TIMES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," watts = watts;\n}\n"]
+        ]
+      },
+      {
+        "name": "1-power-rails.example.html",
+        "code": [
+          ["text","<div class=\"card\">\n  <neat-stacked-chart\n    label=\"Where the power goes\"\n    headline=\"11.2 W\"\n    [series]=\"rails\"\n    [times]=\"times\"\n    [domain]=\"[0, 16]\"\n    [format]=\"watts\"\n  />\n</div>\n"]
         ]
       },
       {
@@ -154,9 +159,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { RAILS, TIMES, watts } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n"],
           ["comment","/** A moment as the card says it: the time of day, in UTC like the demo's data. */"],["text","\n"],
           ["keyword","const"],["text"," clock = (time: "],["keyword","number"],["text",") => "],["keyword","new"],["text"," Date(time).toISOString().slice(11, 19);\n\n@Component({\n  selector: "],
-          ["string","'app-stacked-from-the-app'"],["text",",\n  imports: [NeatButton, NeatStackedChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"beside\">\n      <div class=\"card\">\n        <neat-stacked-chart\n          label=\"Where the power goes\"\n          [series]=\"rails\"\n          [times]=\"times\"\n          [domain]=\"[0, 16]\"\n          [format]=\"watts\"\n          [(hovered)]=\"moment\"\n          (activated)=\"picked.set($event)\"\n        />\n      </div>\n      <div class=\"report\">\n        <dl>\n          <dt>Hovered</dt>\n          <dd>{{ momentText() }}</dd>\n          <dt>Last click</dt>\n          <dd>{{ pickedText() }}</dd>\n        </dl>\n        <div class=\"actions\">\n          <button\n            neatButton\n            type=\"button\"\n            size=\"small\"\n            variant=\"secondary\"\n            (click)=\"moment.set(times[30])\"\n          >\n            Show 12:02\n          </button>\n          <button\n            neatButton\n            type=\"button\"\n            size=\"small\"\n            variant=\"outlined\"\n            (click)=\"moment.set(null)\"\n          >\n            Clear\n          </button>\n        </div>\n      </div>\n    </div>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-stacked-from-the-app'"],["text",",\n  imports: [NeatButton, NeatStackedChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-from-the-app.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./power-rails.example.css'"],["text",", "],["string","'./report.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," StackedFromTheApp {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," rails = RAILS;\n  "],
@@ -172,6 +176,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","if"],["text"," (!pick) "],["keyword","return"],["text"," "],["string","'None yet'"],["text",";\n    "],
           ["keyword","const"],["text"," total = pick.values.reduce((sum, { value }) => sum + (value ?? 0), 0);\n    "],
           ["keyword","return"],["text"," "],["string","`${pick.time === null ? 'A sample' : clock(pick.time)}: ${watts(total)} in all`"],["text",";\n  });\n}\n"]
+        ]
+      },
+      {
+        "name": "2-from-the-app.example.html",
+        "code": [
+          ["text","<div class=\"beside\">\n  <div class=\"card\">\n    <neat-stacked-chart\n      label=\"Where the power goes\"\n      [series]=\"rails\"\n      [times]=\"times\"\n      [domain]=\"[0, 16]\"\n      [format]=\"watts\"\n      [(hovered)]=\"moment\"\n      (activated)=\"picked.set($event)\"\n    />\n  </div>\n  <div class=\"report\">\n    <dl>\n      <dt>Hovered</dt>\n      <dd>{{ momentText() }}</dd>\n      <dt>Last click</dt>\n      <dd>{{ pickedText() }}</dd>\n    </dl>\n    <div class=\"actions\">\n      <button\n        neatButton\n        type=\"button\"\n        size=\"small\"\n        variant=\"secondary\"\n        (click)=\"moment.set(times[30])\"\n      >\n        Show 12:02\n      </button>\n      <button neatButton type=\"button\" size=\"small\" variant=\"outlined\" (click)=\"moment.set(null)\">\n        Clear\n      </button>\n    </div>\n  </div>\n</div>\n"]
         ]
       },
       {

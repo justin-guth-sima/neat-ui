@@ -14,25 +14,7 @@ const TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);
   selector: 'app-packing',
   imports: [NeatSlider, NeatTileGrid],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="width">
-      <span>Tile width</span>
-      <neat-slider label="Tile width" [min]="120" [max]="480" [step]="10" [(value)]="tileWidth" />
-      <span class="showcase-code showcase-muted">{{ tileWidth() }} px</span>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">{{ summary() }}</p>
-    <div class="box">
-      <neat-tile-grid
-        [tileWidth]="tileWidth()"
-        [count]="visible().length"
-        (layout)="layout.set($event)"
-      >
-        @for (tile of visible(); track tile) {
-          <div class="tile">{{ tile }}</div>
-        }
-      </neat-tile-grid>
-    </div>
-  `,
+  templateUrl: './1-packing.example.html',
   styleUrl: './tile-box.css',
 })
 export class Packing {

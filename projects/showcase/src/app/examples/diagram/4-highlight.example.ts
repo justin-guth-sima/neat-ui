@@ -28,16 +28,7 @@ const MODES: NeatSegmentedOption<NeatDiagramHighlight>[] = [
   selector: 'app-highlight',
   imports: [NeatDiagramLegend, NeatDiagramView, NeatSegmented],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-segmented label="Highlight" [options]="modes" [(value)]="mode" />
-    <neat-diagram-legend [items]="legend" />
-    <neat-diagram
-      class="diagram"
-      [diagram]="flow"
-      label="A compile flow to hover"
-      [highlight]="mode()"
-    />
-  `,
+  templateUrl: './4-highlight.example.html',
   styleUrl: './diagram-box.css',
 })
 export class Highlight {

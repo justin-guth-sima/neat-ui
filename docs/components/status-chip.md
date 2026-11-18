@@ -46,27 +46,31 @@ import { CHIPS, SURFACES } from './chips';
   selector: 'app-tones',
   imports: [NeatStatusChip, NeatStatusChipButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (surface of surfaces; track surface) {
-      <div class="showcase-row" [class.card]="surface === 'card'">
-        @for (chip of chips; track chip.tone) {
-          <neat-status-chip [tone]="chip.tone">{{ chip.label }}</neat-status-chip>
-        }
-        <button neatStatusChip type="button" tone="warning" (click)="opened.set(true)">
-          Metadata late
-        </button>
-      </div>
-    }
-    @if (opened()) {
-      <p class="showcase-muted">The late notice would open here.</p>
-    }
-  `,
+  templateUrl: './1-tones.example.html',
   styleUrl: './surfaces.css',
 })
 export class Tones {
   protected readonly surfaces = SURFACES;
   protected readonly chips = CHIPS;
   protected readonly opened = signal(false);
+}
+```
+
+`1-tones.example.html`
+
+```html
+@for (surface of surfaces; track surface) {
+  <div class="showcase-row" [class.card]="surface === 'card'">
+    @for (chip of chips; track chip.tone) {
+      <neat-status-chip [tone]="chip.tone">{{ chip.label }}</neat-status-chip>
+    }
+    <button neatStatusChip type="button" tone="warning" (click)="opened.set(true)">
+      Metadata late
+    </button>
+  </div>
+}
+@if (opened()) {
+  <p class="showcase-muted">The late notice would open here.</p>
 }
 ```
 
@@ -136,21 +140,25 @@ import { CHIPS, SURFACES } from './chips';
   selector: 'app-tinted',
   imports: [NeatStatusChip, NeatStatusChipButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (surface of surfaces; track surface) {
-      <div class="showcase-row" [class.card]="surface === 'card'">
-        @for (chip of chips; track chip.tone) {
-          <neat-status-chip [tone]="chip.tone" variant="tinted">{{ chip.label }}</neat-status-chip>
-        }
-        <button neatStatusChip type="button" tone="warning" variant="tinted">Metadata late</button>
-      </div>
-    }
-  `,
+  templateUrl: './2-tinted.example.html',
   styleUrl: './surfaces.css',
 })
 export class Tinted {
   protected readonly surfaces = SURFACES;
   protected readonly chips = CHIPS;
+}
+```
+
+`2-tinted.example.html`
+
+```html
+@for (surface of surfaces; track surface) {
+  <div class="showcase-row" [class.card]="surface === 'card'">
+    @for (chip of chips; track chip.tone) {
+      <neat-status-chip [tone]="chip.tone" variant="tinted">{{ chip.label }}</neat-status-chip>
+    }
+    <button neatStatusChip type="button" tone="warning" variant="tinted">Metadata late</button>
+  </div>
 }
 ```
 
@@ -219,16 +227,18 @@ import { NeatStatusChip } from '@sima/neat-ui/status-chip';
   selector: 'app-narrow-column',
   imports: [NeatStatusChip],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="column">
-      <neat-status-chip tone="highlight"
-        >External publisher on a very narrow column</neat-status-chip
-      >
-    </div>
-  `,
+  templateUrl: './3-narrow-column.example.html',
   styleUrl: './narrow-column.example.css',
 })
 export class NarrowColumn {}
+```
+
+`3-narrow-column.example.html`
+
+```html
+<div class="column">
+  <neat-status-chip tone="highlight">External publisher on a very narrow column</neat-status-chip>
+</div>
 ```
 
 `narrow-column.example.css`

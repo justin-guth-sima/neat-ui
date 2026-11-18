@@ -108,47 +108,7 @@ const BURST_MESSAGES = 400;
     NeatDiagramView,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="controls">
-      <button neatButton type="button" variant="outlined" size="small" (click)="burst()">
-        Burst
-      </button>
-      <neat-diagram-animation-settings [(settings)]="dots" />
-    </div>
-    <neat-diagram-legend [items]="legend" />
-    <neat-diagram class="diagram" [diagram]="pipeline" label="A live messaging pipeline">
-      <neat-diagram-messages #messages [steps]="steps" [settings]="dots()" />
-      <ng-template neatDiagramBlock let-node>
-        @if (node.id === 'decode') {
-          <span class="figure">30.0 fps · 1080p</span>
-        }
-      </ng-template>
-      <ng-template neatDiagramNote let-note>
-        @switch (note.id) {
-          @case ('tracker-rate') {
-            <neat-diagram-rate-card
-              label="Into Tracker"
-              [rate]="messages.rate(['detector-tracker', 'nms-tracker'])()"
-              [showBytes]="false"
-            />
-          }
-          @case ('yolox-rate') {
-            <neat-diagram-rate-card
-              label="YOLOX → NMS"
-              [rate]="messages.rate('yolox-nms')()"
-              [stageMs]="yoloxMs()"
-            />
-          }
-          @case ('camera-rate') {
-            <neat-diagram-rate-card
-              label="Camera → Decode"
-              [rate]="messages.rate('camera-decode')()"
-            />
-          }
-        }
-      </ng-template>
-    </neat-diagram>
-  `,
+  templateUrl: './1-live-pipeline.example.html',
   styleUrl: './live-pipeline.example.css',
 })
 export class LivePipeline {
@@ -209,6 +169,45 @@ export class LivePipeline {
     }
   }
 }
+```
+
+`1-live-pipeline.example.html`
+
+```html
+<div class="controls">
+  <button neatButton type="button" variant="outlined" size="small" (click)="burst()">Burst</button>
+  <neat-diagram-animation-settings [(settings)]="dots" />
+</div>
+<neat-diagram-legend [items]="legend" />
+<neat-diagram class="diagram" [diagram]="pipeline" label="A live messaging pipeline">
+  <neat-diagram-messages #messages [steps]="steps" [settings]="dots()" />
+  <ng-template neatDiagramBlock let-node>
+    @if (node.id === 'decode') {
+      <span class="figure">30.0 fps · 1080p</span>
+    }
+  </ng-template>
+  <ng-template neatDiagramNote let-note>
+    @switch (note.id) {
+      @case ('tracker-rate') {
+        <neat-diagram-rate-card
+          label="Into Tracker"
+          [rate]="messages.rate(['detector-tracker', 'nms-tracker'])()"
+          [showBytes]="false"
+        />
+      }
+      @case ('yolox-rate') {
+        <neat-diagram-rate-card
+          label="YOLOX → NMS"
+          [rate]="messages.rate('yolox-nms')()"
+          [stageMs]="yoloxMs()"
+        />
+      }
+      @case ('camera-rate') {
+        <neat-diagram-rate-card label="Camera → Decode" [rate]="messages.rate('camera-decode')()" />
+      }
+    }
+  </ng-template>
+</neat-diagram>
 ```
 
 `message-steps.ts`

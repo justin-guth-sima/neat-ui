@@ -9,24 +9,7 @@ import { NeatIcon } from '@sima/neat-ui';
   selector: 'app-sizes-and-labels',
   imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      @for (size of sizes; track size) {
-        <div class="sample">
-          <neat-icon name="board" [size]="size" />
-          <span class="showcase-code showcase-muted">{{ size }} px</span>
-        </div>
-      }
-    </div>
-    <div class="showcase-row">
-      @for (size of sizes; track size) {
-        <div class="sample">
-          <neat-icon name="board" [size]="size" label="Board" />
-          <span class="showcase-code showcase-muted">{{ size }} px, label</span>
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './2-sizes-and-labels.example.html',
   styleUrl: './sizes-and-labels.example.css',
 })
 export class SizesAndLabels {

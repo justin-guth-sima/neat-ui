@@ -17,39 +17,7 @@ import { NeatCollapsible } from '@sima/neat-ui/collapsible';
   selector: 'app-end-controls',
   imports: [NeatButton, NeatCollapsible, NeatNote],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="panel">
-      <neat-collapsible label="Log" [summary]="lines().length + ' lines'" [(open)]="open">
-        <button
-          neatCollapsibleEnd
-          neatButton
-          type="button"
-          variant="text"
-          size="small"
-          (click)="add()"
-        >
-          Add line
-        </button>
-        @if (open()) {
-          <button
-            neatCollapsibleEnd
-            neatButton
-            type="button"
-            variant="text"
-            size="small"
-            (click)="lines.set([])"
-          >
-            Clear
-          </button>
-        }
-        @for (line of lines(); track $index) {
-          <p neatNote>{{ line }}</p>
-        } @empty {
-          <p neatNote>No lines.</p>
-        }
-      </neat-collapsible>
-    </div>
-  `,
+  templateUrl: './2-end-controls.example.html',
   styleUrl: './panel.css',
 })
 export class EndControls {

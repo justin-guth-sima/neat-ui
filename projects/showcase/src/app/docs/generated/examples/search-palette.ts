@@ -81,14 +81,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'Theme'"],["text",",\n    icon: "],
           ["string","'search'"],["text",",\n    path: "],
           ["string","'/theme/icon-finder'"],["text",",\n  },\n];\n\n@Component({\n  selector: "],
-          ["string","'app-searching-an-app'"],["text",",\n  imports: [NeatSearchPalette],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-search-palette\n      label=\"Search pages\"\n      shortcut=\"false\"\n      [search]=\"search\"\n      (picked)=\"last.set($event.label)\"\n    />\n    <p class=\"showcase-muted\">Last opened: {{ last() ?? 'none yet' }}</p>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-searching-an-app'"],["text",",\n  imports: [NeatSearchPalette],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-searching-an-app.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./searching-an-app.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SearchingAnApp {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," last = signal<"],["keyword","string"],["text"," | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," search = (query: "],["keyword","string"],["text","): "],["keyword","readonly"],["text"," NeatSearchGroup[] => [\n    {\n      label: "],
           ["string","'Pages'"],["text",",\n      items: PAGES.filter((page) => page.label.toLowerCase().includes(query.toLowerCase())),\n    },\n  ];\n}\n"]
+        ]
+      },
+      {
+        "name": "1-searching-an-app.example.html",
+        "code": [
+          ["text","<neat-search-palette\n  label=\"Search pages\"\n  shortcut=\"false\"\n  [search]=\"search\"\n  (picked)=\"last.set($event.label)\"\n/>\n<p class=\"showcase-muted\">Last opened: {{ last() ?? 'none yet' }}</p>\n"]
         ]
       },
       {

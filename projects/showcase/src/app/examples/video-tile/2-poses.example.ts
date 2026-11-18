@@ -38,25 +38,7 @@ import { PoseSource } from './pose-source';
   selector: 'app-poses',
   imports: [NeatSwitch, NeatVideoTile],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatSwitch [(checked)]="boxes">Boxes</button>
-      <button neatSwitch [(checked)]="mirror">Mirror</button>
-    </div>
-    <p>{{ poseCount() }} {{ poseCount() === 1 ? 'pose' : 'poses' }} in this frame</p>
-    <div class="tiles">
-      <div class="cell">
-        <neat-video-tile
-          [source]="poses"
-          label="1"
-          status="Hands and a person · 640×360"
-          [settings]="settings()"
-          [mirror]="mirror()"
-          [frameListener]="countPoses"
-        />
-      </div>
-    </div>
-  `,
+  templateUrl: './2-poses.example.html',
   styleUrl: './test-pattern-tiles.example.css',
 })
 export class Poses {

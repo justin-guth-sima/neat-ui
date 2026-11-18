@@ -64,52 +64,7 @@ import { NeatSwitch } from '@sima/neat-ui/switch';
   selector: 'app-rename-a-source',
   imports: [NeatButton, NeatDialogActions, NeatDialogBody, NeatInput, NeatSwitch],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" (click)="open(renameDialog)">
-        Rename source…
-      </button>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">{{ result() }}</p>
-
-    <ng-template #renameDialog let-dialog>
-      <neat-dialog-body>
-        <div class="dialog-form">
-          <label class="dialog-field">
-            <span>Name</span>
-            <input neatInput #name value="Front door" [readOnly]="saving()" />
-          </label>
-          <button
-            neatSwitch
-            [disabled]="saving()"
-            [checked]="dialog.dismissible()"
-            (checkedChange)="dialog.setDismissible($event)"
-          >
-            Escape and the backdrop close this dialog
-          </button>
-        </div>
-      </neat-dialog-body>
-      <neat-dialog-actions>
-        <button
-          neatButton
-          type="button"
-          variant="outlined"
-          [attr.aria-disabled]="saving() || null"
-          (click)="saving() || dialog.close()"
-        >
-          Cancel
-        </button>
-        <button
-          neatButton
-          type="button"
-          [attr.aria-disabled]="saving() || null"
-          (click)="saving() || save(dialog, name.value)"
-        >
-          {{ saving() ? 'Saving…' : 'Save' }}
-        </button>
-      </neat-dialog-actions>
-    </ng-template>
-  `,
+  templateUrl: './1-rename-a-source.example.html',
   styleUrl: './rename-a-source.example.css',
 })
 export class RenameASource {
@@ -132,6 +87,55 @@ export class RenameASource {
     }, 1500);
   }
 }
+```
+
+`1-rename-a-source.example.html`
+
+```html
+<div class="showcase-row">
+  <button neatButton type="button" variant="outlined" (click)="open(renameDialog)">
+    Rename source…
+  </button>
+</div>
+<p class="showcase-code showcase-muted" aria-live="polite">{{ result() }}</p>
+
+<ng-template #renameDialog let-dialog>
+  <neat-dialog-body>
+    <div class="dialog-form">
+      <label class="dialog-field">
+        <span>Name</span>
+        <input neatInput #name value="Front door" [readOnly]="saving()" />
+      </label>
+      <button
+        neatSwitch
+        [disabled]="saving()"
+        [checked]="dialog.dismissible()"
+        (checkedChange)="dialog.setDismissible($event)"
+      >
+        Escape and the backdrop close this dialog
+      </button>
+    </div>
+  </neat-dialog-body>
+  <neat-dialog-actions>
+    <button
+      neatButton
+      type="button"
+      variant="outlined"
+      [attr.aria-disabled]="saving() || null"
+      (click)="saving() || dialog.close()"
+    >
+      Cancel
+    </button>
+    <button
+      neatButton
+      type="button"
+      [attr.aria-disabled]="saving() || null"
+      (click)="saving() || save(dialog, name.value)"
+    >
+      {{ saving() ? 'Saving…' : 'Save' }}
+    </button>
+  </neat-dialog-actions>
+</ng-template>
 ```
 
 `rename-a-source.example.css`
@@ -185,27 +189,7 @@ import { NeatDialog, NeatDialogActions, NeatDialogBody } from '@sima/neat-ui/dia
   selector: 'app-long-content',
   imports: [NeatButton, NeatDialogActions, NeatDialogBody],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" (click)="open(longDialog)">
-        Large dialog with long content…
-      </button>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">{{ result() }}</p>
-
-    <ng-template #longDialog let-dialog>
-      <neat-dialog-body>
-        <ul class="dialog-list">
-          @for (line of lines; track line) {
-            <li>{{ line }}</li>
-          }
-        </ul>
-      </neat-dialog-body>
-      <neat-dialog-actions>
-        <button neatButton type="button" (click)="dialog.close()">Done</button>
-      </neat-dialog-actions>
-    </ng-template>
-  `,
+  templateUrl: './2-long-content.example.html',
   styleUrl: './long-content.example.css',
 })
 export class LongContent {
@@ -221,6 +205,30 @@ export class LongContent {
     this.result.set('Sources: closed');
   }
 }
+```
+
+`2-long-content.example.html`
+
+```html
+<div class="showcase-row">
+  <button neatButton type="button" variant="outlined" (click)="open(longDialog)">
+    Large dialog with long content…
+  </button>
+</div>
+<p class="showcase-code showcase-muted" aria-live="polite">{{ result() }}</p>
+
+<ng-template #longDialog let-dialog>
+  <neat-dialog-body>
+    <ul class="dialog-list">
+      @for (line of lines; track line) {
+        <li>{{ line }}</li>
+      }
+    </ul>
+  </neat-dialog-body>
+  <neat-dialog-actions>
+    <button neatButton type="button" (click)="dialog.close()">Done</button>
+  </neat-dialog-actions>
+</ng-template>
 ```
 
 `long-content.example.css`
@@ -261,14 +269,7 @@ import { SourceDialog, type SourceKind } from './source-dialog';
   selector: 'app-component-with-inputs',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" (click)="open()">
-        Change source of src3…
-      </button>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">{{ result() }}</p>
-  `,
+  templateUrl: './3-component-with-inputs.example.html',
 })
 export class ComponentWithInputs {
   private readonly dialogs = inject(NeatDialog);
@@ -282,6 +283,17 @@ export class ComponentWithInputs {
     this.result.set(kind === undefined ? 'Source: dismissed' : `Source: ${kind}`);
   }
 }
+```
+
+`3-component-with-inputs.example.html`
+
+```html
+<div class="showcase-row">
+  <button neatButton type="button" variant="outlined" (click)="open()">
+    Change source of src3…
+  </button>
+</div>
+<p class="showcase-code showcase-muted" aria-live="polite">{{ result() }}</p>
 ```
 
 `source-dialog.ts`

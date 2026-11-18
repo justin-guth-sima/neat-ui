@@ -35,15 +35,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatButton, NeatEasedNumber } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n"],
           ["comment","/** The values the number moves through, in turn: steps up and down, small and large. */"],["text","\n"],
           ["keyword","const"],["text"," FPS_VALUES = [24, 29.9, 12.4, 18.2];\n\n@Component({\n  selector: "],
-          ["string","'app-eased-number'"],["text",",\n  imports: [NeatButton, NeatEasedNumber],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <span><neat-eased-number [value]=\"fps()\" [digits]=\"1\" /> fps</span>\n      <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"next()\">\n        Next value\n      </button>\n      <button neatButton type=\"button\" variant=\"text\" size=\"small\" (click)=\"fps.set(null)\">\n        No value\n      </button>\n    </div>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-eased-number'"],["text",",\n  imports: [NeatButton, NeatEasedNumber],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-eased-number.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," EasedNumber {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," fps = signal<"],["keyword","number"],["text"," | "],["keyword","null"],["text",">(FPS_VALUES[0]);\n  "],
           ["keyword","private"],["text"," index = 0;\n\n  "],
           ["keyword","protected"],["text"," next(): "],["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".index = ("],["keyword","this"],["text",".index + 1) % FPS_VALUES.length;\n    "],
           ["keyword","this"],["text",".fps.set(FPS_VALUES["],["keyword","this"],["text",".index]);\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "1-eased-number.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <span><neat-eased-number [value]=\"fps()\" [digits]=\"1\" /> fps</span>\n  <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"next()\">\n    Next value\n  </button>\n  <button neatButton type=\"button\" variant=\"text\" size=\"small\" (click)=\"fps.set(null)\">\n    No value\n  </button>\n</div>\n"]
         ]
       }
     ]
@@ -89,9 +94,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatProgress } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/progress'"],["text",";\n\n"],
           ["comment","/** The shares the bar moves through, in turn, in percent. */"],["text","\n"],
           ["keyword","const"],["text"," SHARES = [20, 85, 40, 100];\n\n@Component({\n  selector: "],
-          ["string","'app-eased-signal'"],["text",",\n  imports: [NeatButton, NeatProgress],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-progress label=\"Share\" [value]=\"value()\" />\n    <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"next()\">\n      Next share\n    </button>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-eased-signal'"],["text",",\n  imports: [NeatButton, NeatProgress],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-eased-signal.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./eased-signal.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," EasedSignal {\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," share = signal(SHARES[0]);\n  "],
@@ -101,6 +105,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","protected"],["text"," next(): "],["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".index = ("],["keyword","this"],["text",".index + 1) % SHARES.length;\n    "],
           ["keyword","this"],["text",".share.set(SHARES["],["keyword","this"],["text",".index]);\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "2-eased-signal.example.html",
+        "code": [
+          ["text","<neat-progress label=\"Share\" [value]=\"value()\" />\n<button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"next()\">\n  Next share\n</button>\n"]
         ]
       },
       {
@@ -164,9 +174,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," SHARES = [0, 100];\n\n"],
           ["comment","/** The catalog's names, in the order the bars stand. */"],["text","\n"],
           ["keyword","const"],["text"," CURVES = Object.keys(NEAT_EASINGS) "],["keyword","as"],["text"," NeatEasingName[];\n\n@Component({\n  selector: "],
-          ["string","'app-curves'"],["text",",\n  imports: [NeatButton, NeatProgress],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    @for (bar of bars; track bar.curve) {\n      <span class=\"name\">{{ bar.curve }}</span>\n      <neat-progress [label]=\"bar.curve\" [value]=\"bar.value()\" />\n    }\n    <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"next()\">\n      Next share\n    </button>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-curves'"],["text",",\n  imports: [NeatButton, NeatProgress],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-curves.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./curves.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Curves {\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," share = signal(SHARES[0]);\n  "],
@@ -177,6 +186,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","protected"],["text"," next(): "],["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".index = ("],["keyword","this"],["text",".index + 1) % SHARES.length;\n    "],
           ["keyword","this"],["text",".share.set(SHARES["],["keyword","this"],["text",".index]);\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "3-curves.example.html",
+        "code": [
+          ["text","@for (bar of bars; track bar.curve) {\n  <span class=\"name\">{{ bar.curve }}</span>\n  <neat-progress [label]=\"bar.curve\" [value]=\"bar.value()\" />\n}\n<button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"next()\">\n  Next share\n</button>\n"]
         ]
       },
       {

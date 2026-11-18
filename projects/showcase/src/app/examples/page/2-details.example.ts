@@ -35,17 +35,7 @@ const PAGE_NAV: readonly NeatPageNavGroup[] = [
   selector: 'app-details',
   imports: [NeatPage, NeatPageNav],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-page>
-      <nav neatPageNav aria-label="Page example" [groups]="pageNav"></nav>
-      <div class="showcase-page">
-        <section class="showcase-section">
-          <h2>Details</h2>
-          <p>The same list as the overview's, on a route of its own.</p>
-        </section>
-      </div>
-    </neat-page>
-  `,
+  templateUrl: './2-details.example.html',
 })
 export class Details {
   protected readonly pageNav = PAGE_NAV;

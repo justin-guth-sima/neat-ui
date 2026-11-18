@@ -22,7 +22,7 @@ import { roadFrames } from './roads';
   selector: 'app-polygons',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-bev zoom [frame]="frame()" />`,
+  templateUrl: './8-polygons.example.html',
   styleUrl: './bev.example.css',
 })
 export class Polygons {

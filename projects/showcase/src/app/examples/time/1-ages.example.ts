@@ -15,14 +15,7 @@ const AGES = [-5, 0, 9, 10, 59, 60, 3599, 3600, 86_399, 86_400, 259_200];
   selector: 'app-ages',
   imports: [NeatDetails],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <dl neatDetails class="ages">
-      @for (age of ages; track age) {
-        <dt>{{ age }} s</dt>
-        <dd>{{ ago(age) }}</dd>
-      }
-    </dl>
-  `,
+  templateUrl: './1-ages.example.html',
   styleUrl: './ages.example.css',
 })
 export class Ages {

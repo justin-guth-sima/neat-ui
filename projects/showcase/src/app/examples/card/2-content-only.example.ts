@@ -6,11 +6,7 @@ import { NeatCard } from '@sima/neat-ui/card';
   selector: 'app-content-only-card',
   imports: [NeatCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-card>
-      <p>yolov8n, 640 by 640.</p>
-    </neat-card>
-  `,
+  templateUrl: './2-content-only.example.html',
   styleUrl: './card.example.css',
 })
 export class ContentOnlyCardExample {}

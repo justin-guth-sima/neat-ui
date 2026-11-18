@@ -16,14 +16,7 @@ import { SourceDialog, type SourceKind } from './source-dialog';
   selector: 'app-component-with-inputs',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" (click)="open()">
-        Change source of src3…
-      </button>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">{{ result() }}</p>
-  `,
+  templateUrl: './3-component-with-inputs.example.html',
 })
 export class ComponentWithInputs {
   private readonly dialogs = inject(NeatDialog);

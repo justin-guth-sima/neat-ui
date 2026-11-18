@@ -13,17 +13,7 @@ import { CORES, percent, TIMES } from './data';
   selector: 'app-core-load',
   imports: [NeatHeatmap],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="card">
-      <neat-heatmap
-        label="Per-core CPU"
-        headline="47%"
-        [rows]="rows"
-        [times]="times"
-        [format]="percent"
-      />
-    </div>
-  `,
+  templateUrl: './1-core-load.example.html',
   styleUrl: './core-load.example.css',
 })
 export class CoreLoad {

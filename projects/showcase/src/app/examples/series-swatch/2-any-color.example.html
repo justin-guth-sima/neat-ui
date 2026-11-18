@@ -1,0 +1,5 @@
+<ul class="chips" aria-label="Classes">
+  @for (row of classes; track row.label) {
+    <li><neat-swatch [color]="row.color" />{{ row.label }}</li>
+  }
+</ul>

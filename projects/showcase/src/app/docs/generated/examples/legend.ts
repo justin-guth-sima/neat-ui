@@ -28,8 +28,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatDiagramLegend, "],["keyword","type"],["text"," NeatDiagramLegendItem } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-edge-colors'"],["text",",\n  imports: [NeatDiagramLegend],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`<neat-diagram-legend [items]=\"items\" />`"],["text",",\n})\n"],
+          ["string","'app-edge-colors'"],["text",",\n  imports: [NeatDiagramLegend],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-edge-colors.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," EdgeColors {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," items: "],["keyword","readonly"],["text"," NeatDiagramLegendItem[] = [\n    { series: 1, label: "],
           ["string","'image'"],["text"," },\n    { series: 4, label: "],
@@ -37,6 +37,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'dashed'"],["text",", label: "],["string","'inside the Detector'"],["text"," },\n    { line: "],
           ["string","'ghost'"],["text",", label: "],["string","'not run here'"],["text"," },\n    { label: "],
           ["string","'unnamed'"],["text"," },\n  ];\n}\n"]
+        ]
+      },
+      {
+        "name": "1-edge-colors.example.html",
+        "code": [
+          ["text","<neat-diagram-legend [items]=\"items\" />\n"]
         ]
       }
     ]

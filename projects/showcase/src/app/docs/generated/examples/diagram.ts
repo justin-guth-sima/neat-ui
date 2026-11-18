@@ -130,9 +130,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," {\n  NeatDiagramBlockTemplate,\n  NeatDiagramLegend,\n  NeatDiagramNoteTemplate,\n  NeatDiagramView,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
           ["keyword","import"],["text"," { PIPELINE, PIPELINE_LEGEND } "],["keyword","from"],["text"," "],["string","'./pipeline-data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-messaging-pipeline'"],["text",",\n  imports: [NeatDiagramBlockTemplate, NeatDiagramLegend, NeatDiagramNoteTemplate, NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram class=\"diagram\" [diagram]=\"pipeline\" label=\"A messaging pipeline\">\n      <ng-template neatDiagramBlock let-node>\n        @if (node.id === 'decode') {\n          <span class=\"figure\">30.0 fps · 1080p</span>\n        }\n        @if (node.id === 'browser') {\n          <span class=\"figure\">No data for 5 s</span>\n        }\n      </ng-template>\n      <ng-template neatDiagramNote let-note>\n        @switch (note.id) {\n          @case ('camera-rate') {\n            <b>Camera → Decode</b><br />30 frames/s\n          }\n          @case ('tracker-rate') {\n            <b>Tracker → Gateway</b><br />10 results/s\n          }\n          @case ('yolox-rate') {\n            <b>YOLOX → NMS</b><br />14.8 ms\n          }\n        }\n      </ng-template>\n    </neat-diagram>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-messaging-pipeline'"],["text",",\n  imports: [NeatDiagramBlockTemplate, NeatDiagramLegend, NeatDiagramNoteTemplate, NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-messaging-pipeline.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./diagram-box.css'"],["text",", "],["string","'./messaging-pipeline.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," MessagingPipeline {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pipeline = PIPELINE;\n  "],
@@ -141,6 +140,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** Fits the drawing to its box again, as a toolbar's Fit button does. */"],["text","\n  fit(): "],
           ["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".diagram().fit();\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "1-messaging-pipeline.example.html",
+        "code": [
+          ["text","<neat-diagram-legend [items]=\"legend\" />\n<neat-diagram class=\"diagram\" [diagram]=\"pipeline\" label=\"A messaging pipeline\">\n  <ng-template neatDiagramBlock let-node>\n    @if (node.id === 'decode') {\n      <span class=\"figure\">30.0 fps · 1080p</span>\n    }\n    @if (node.id === 'browser') {\n      <span class=\"figure\">No data for 5 s</span>\n    }\n  </ng-template>\n  <ng-template neatDiagramNote let-note>\n    @switch (note.id) {\n      @case ('camera-rate') {\n        <b>Camera → Decode</b><br />30 frames/s\n      }\n      @case ('tracker-rate') {\n        <b>Tracker → Gateway</b><br />10 results/s\n      }\n      @case ('yolox-rate') {\n        <b>YOLOX → NMS</b><br />14.8 ms\n      }\n    }\n  </ng-template>\n</neat-diagram>\n"]
         ]
       },
       {
@@ -293,9 +298,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, viewChild } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatDiagramLegend, NeatDiagramNoteTemplate, NeatDiagramView } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
           ["keyword","import"],["text"," { COMPILE_FLOW, COMPILE_LEGEND } "],["keyword","from"],["text"," "],["string","'./compile-flow-data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-compile-flow'"],["text",",\n  imports: [NeatDiagramLegend, NeatDiagramNoteTemplate, NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram class=\"diagram\" [diagram]=\"flow\" label=\"A compile flow\">\n      <ng-template neatDiagramNote let-note>\n        @if (note.id === 'compile-result') {\n          <b>Compile</b><br />2 m 14 s · 41 MB\n        }\n      </ng-template>\n    </neat-diagram>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-compile-flow'"],["text",",\n  imports: [NeatDiagramLegend, NeatDiagramNoteTemplate, NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-compile-flow.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./diagram-box.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," CompileFlow {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," flow = COMPILE_FLOW;\n  "],
@@ -304,6 +308,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** Fits the drawing to its box again, as a toolbar's Fit button does. */"],["text","\n  fit(): "],
           ["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".diagram().fit();\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "2-compile-flow.example.html",
+        "code": [
+          ["text","<neat-diagram-legend [items]=\"legend\" />\n<neat-diagram class=\"diagram\" [diagram]=\"flow\" label=\"A compile flow\">\n  <ng-template neatDiagramNote let-note>\n    @if (note.id === 'compile-result') {\n      <b>Compile</b><br />2 m 14 s · 41 MB\n    }\n  </ng-template>\n</neat-diagram>\n"]
         ]
       },
       {
@@ -463,9 +473,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," {\n  NeatDiagramBlockTemplate,\n  NeatDiagramEdgeTooltipTemplate,\n  NeatDiagramLegend,\n  NeatDiagramView,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
           ["keyword","import"],["text"," { MODEL_EDGE_TOOLTIPS, MODEL_GRAPH, MODEL_LEGEND } "],["keyword","from"],["text"," "],["string","'./model-graph-data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-model-graph'"],["text",",\n  imports: [\n    NeatDiagramBlockTemplate,\n    NeatDiagramEdgeTooltipTemplate,\n    NeatDiagramLegend,\n    NeatDiagramView,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram\n      class=\"diagram\"\n      [diagram]=\"graph\"\n      label=\"A detector’s model graph\"\n      [(level)]=\"level\"\n    >\n      <ng-template neatDiagramBlock let-node>\n        @if (node.role === 'bracket') {\n          <span class=\"bracket-figure\">3 tensors</span>\n        }\n      </ng-template>\n      <ng-template neatDiagramEdgeTooltip let-edge>\n        @if (tooltips[edge.id]; as tooltip) {\n          {{ tooltip }}\n        }\n      </ng-template>\n    </neat-diagram>\n    <span class=\"showcase-muted\">Open levels: {{ levelText() }}</span>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-model-graph'"],["text",",\n  imports: [\n    NeatDiagramBlockTemplate,\n    NeatDiagramEdgeTooltipTemplate,\n    NeatDiagramLegend,\n    NeatDiagramView,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-model-graph.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./diagram-box.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ModelGraph {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," graph = MODEL_GRAPH;\n  "],
@@ -477,6 +486,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** Fits the drawing to its box again, as a toolbar's Fit button does. */"],["text","\n  fit(): "],
           ["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".diagram().fit();\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "3-model-graph.example.html",
+        "code": [
+          ["text","<neat-diagram-legend [items]=\"legend\" />\n<neat-diagram class=\"diagram\" [diagram]=\"graph\" label=\"A detector’s model graph\" [(level)]=\"level\">\n  <ng-template neatDiagramBlock let-node>\n    @if (node.role === 'bracket') {\n      <span class=\"bracket-figure\">3 tensors</span>\n    }\n  </ng-template>\n  <ng-template neatDiagramEdgeTooltip let-edge>\n    @if (tooltips[edge.id]; as tooltip) {\n      {{ tooltip }}\n    }\n  </ng-template>\n</neat-diagram>\n<span class=\"showcase-muted\">Open levels: {{ levelText() }}</span>\n"]
         ]
       },
       {
@@ -685,9 +700,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'none'"],["text",", label: "],["string","'None'"],["text"," },\n  { value: "],
           ["string","'edges'"],["text",", label: "],["string","'Edges'"],["text"," },\n  { value: "],
           ["string","'all'"],["text",", label: "],["string","'All'"],["text"," },\n];\n\n@Component({\n  selector: "],
-          ["string","'app-highlight'"],["text",",\n  imports: [NeatDiagramLegend, NeatDiagramView, NeatSegmented],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-segmented label=\"Highlight\" [options]=\"modes\" [(value)]=\"mode\" />\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram\n      class=\"diagram\"\n      [diagram]=\"flow\"\n      label=\"A compile flow to hover\"\n      [highlight]=\"mode()\"\n    />\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-highlight'"],["text",",\n  imports: [NeatDiagramLegend, NeatDiagramView, NeatSegmented],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-highlight.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./diagram-box.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Highlight {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," modes = MODES;\n  "],
@@ -698,6 +712,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** Fits the drawing to its box again, as a toolbar's Fit button does. */"],["text","\n  fit(): "],
           ["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".diagram().fit();\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "4-highlight.example.html",
+        "code": [
+          ["text","<neat-segmented label=\"Highlight\" [options]=\"modes\" [(value)]=\"mode\" />\n<neat-diagram-legend [items]=\"legend\" />\n<neat-diagram\n  class=\"diagram\"\n  [diagram]=\"flow\"\n  label=\"A compile flow to hover\"\n  [highlight]=\"mode()\"\n/>\n"]
         ]
       },
       {
@@ -839,9 +859,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, viewChild } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatDiagramLegend, NeatDiagramView } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
           ["keyword","import"],["text"," { PIPELINE, PIPELINE_LEGEND } "],["keyword","from"],["text"," "],["string","'./pipeline-data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-filling-its-card'"],["text",",\n  imports: [NeatDiagramLegend, NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-diagram class=\"diagram\" [diagram]=\"pipeline\" label=\"A messaging pipeline, edge to edge\" />\n    <neat-diagram-legend class=\"legend\" [items]=\"legend\" />\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-filling-its-card'"],["text",",\n  imports: [NeatDiagramLegend, NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./5-filling-its-card.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./diagram-box.css'"],["text",", "],["string","'./filling-its-card.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," FillingItsCard {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pipeline = PIPELINE;\n  "],
@@ -850,6 +869,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** Fits the drawing to its box again, as a toolbar's Fit button does. */"],["text","\n  fit(): "],
           ["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".diagram().fit();\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "5-filling-its-card.example.html",
+        "code": [
+          ["text","<neat-diagram class=\"diagram\" [diagram]=\"pipeline\" label=\"A messaging pipeline, edge to edge\" />\n<neat-diagram-legend class=\"legend\" [items]=\"legend\" />\n"]
         ]
       },
       {
@@ -1060,9 +1085,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, viewChild } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatDiagramLegend, NeatDiagramView } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
           ["keyword","import"],["text"," { EDGE_SIDES, EDGE_SIDES_LEGEND } "],["keyword","from"],["text"," "],["string","'./edge-sides-data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-edge-sides'"],["text",",\n  imports: [NeatDiagramLegend, NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-diagram-legend [items]=\"legend\" />\n    <neat-diagram\n      class=\"diagram\"\n      [diagram]=\"sides\"\n      label=\"A source with a side chosen by an edge\"\n    />\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-edge-sides'"],["text",",\n  imports: [NeatDiagramLegend, NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./6-edge-sides.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./diagram-box.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," EdgeSides {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sides = EDGE_SIDES;\n  "],
@@ -1071,6 +1095,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** Fits the drawing to its box again, as a toolbar's Fit button does. */"],["text","\n  fit(): "],
           ["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".diagram().fit();\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "6-edge-sides.example.html",
+        "code": [
+          ["text","<neat-diagram-legend [items]=\"legend\" />\n<neat-diagram class=\"diagram\" [diagram]=\"sides\" label=\"A source with a side chosen by an edge\" />\n"]
         ]
       },
       {
@@ -1184,9 +1214,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** The overview's blocks, for the list beside the drawing. */"],["text","\n"],
           ["keyword","const"],["text"," BLOCKS = COMPILE_FLOW.overview.nodes\n  .filter((node) => node.role === "],
           ["string","'block'"],["text",")\n  .map((node) => ({ id: node.id, label: node.label }));\n\n@Component({\n  selector: "],
-          ["string","'app-diagram-from-the-app'"],["text",",\n  imports: [NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"beside\">\n      <neat-diagram\n        class=\"diagram\"\n        [diagram]=\"flow\"\n        label=\"A compile flow, read from the app\"\n        highlight=\"all\"\n        [(hovered)]=\"hovered\"\n        (activated)=\"picked.set($event)\"\n      />\n      <div class=\"report\">\n        <ul class=\"blocks\" aria-label=\"Blocks\">\n          @for (block of blocks; track block.id) {\n            <li>\n              <button\n                type=\"button\"\n                [attr.data-current]=\"isHovered(block.id) ? '' : null\"\n                (pointerenter)=\"show(block.id)\"\n                (pointerleave)=\"hovered.set(null)\"\n                (focus)=\"show(block.id)\"\n                (blur)=\"hovered.set(null)\"\n              >\n                {{ block.label }}\n              </button>\n            </li>\n          }\n        </ul>\n        <dl>\n          <dt>Hovered</dt>\n          <dd>{{ hoveredText() }}</dd>\n          <dt>Last click</dt>\n          <dd>{{ pickedText() }}</dd>\n        </dl>\n      </div>\n    </div>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-diagram-from-the-app'"],["text",",\n  imports: [NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./7-from-the-app.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./diagram-box.css'"],["text",", "],["string","'./from-the-app.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," DiagramFromTheApp {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," flow = COMPILE_FLOW;\n  "],
@@ -1205,6 +1234,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pickedText = computed(() => {\n    "],
           ["keyword","const"],["text"," pick = "],["keyword","this"],["text",".picked();\n    "],
           ["keyword","return"],["text"," pick ? "],["string","`${pick.kind} ${pick.id}`"],["text"," : "],["string","'None yet'"],["text",";\n  });\n}\n"]
+        ]
+      },
+      {
+        "name": "7-from-the-app.example.html",
+        "code": [
+          ["text","<div class=\"beside\">\n  <neat-diagram\n    class=\"diagram\"\n    [diagram]=\"flow\"\n    label=\"A compile flow, read from the app\"\n    highlight=\"all\"\n    [(hovered)]=\"hovered\"\n    (activated)=\"picked.set($event)\"\n  />\n  <div class=\"report\">\n    <ul class=\"blocks\" aria-label=\"Blocks\">\n      @for (block of blocks; track block.id) {\n        <li>\n          <button\n            type=\"button\"\n            [attr.data-current]=\"isHovered(block.id) ? '' : null\"\n            (pointerenter)=\"show(block.id)\"\n            (pointerleave)=\"hovered.set(null)\"\n            (focus)=\"show(block.id)\"\n            (blur)=\"hovered.set(null)\"\n          >\n            {{ block.label }}\n          </button>\n        </li>\n      }\n    </ul>\n    <dl>\n      <dt>Hovered</dt>\n      <dd>{{ hoveredText() }}</dd>\n      <dt>Last click</dt>\n      <dd>{{ pickedText() }}</dd>\n    </dl>\n  </div>\n</div>\n"]
         ]
       },
       {
@@ -1347,11 +1382,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'recorder'"],["text",",\n        series: 4,\n        fromSide: "],
           ["string","'right'"],["text",",\n        toSide: "],
           ["string","'left'"],["text",",\n      },\n    ],\n  },\n};\n\n@Component({\n  selector: "],
-          ["string","'app-parallel-loops'"],["text",",\n  imports: [NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`<neat-diagram class=\"diagram\" [diagram]=\"loops\" label=\"Edges that share a loop\" />`"],["text",",\n  styleUrl: "],
+          ["string","'app-parallel-loops'"],["text",",\n  imports: [NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./8-parallel-loops.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./diagram-box.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ParallelLoops {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," loops = LOOPS;\n}\n"]
+        ]
+      },
+      {
+        "name": "8-parallel-loops.example.html",
+        "code": [
+          ["text","<neat-diagram class=\"diagram\" [diagram]=\"loops\" label=\"Edges that share a loop\" />\n"]
         ]
       },
       {
@@ -1451,12 +1492,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'above'"],["text",",\n        fromSide: "],
           ["string","'top'"],["text",",\n        toSide: "],
           ["string","'top'"],["text",",\n        fromAt: 0.75,\n        toAt: 0.25,\n        via: [\n          { x: 112.5, y: 0 },\n          { x: 837.5, y: 0 },\n        ],\n      },\n    ],\n  },\n};\n\n@Component({\n  selector: "],
-          ["string","'app-placed-by-the-app'"],["text",",\n  imports: [NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`<neat-diagram\n    class=\"diagram\"\n    [diagram]=\"placed\"\n    label=\"Edges placed by the app\"\n    highlight=\"edges\"\n  />`"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-placed-by-the-app'"],["text",",\n  imports: [NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./9-placed-by-the-app.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./diagram-box.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," PlacedByTheApp {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," placed = PLACED;\n}\n"]
+        ]
+      },
+      {
+        "name": "9-placed-by-the-app.example.html",
+        "code": [
+          ["text","<neat-diagram\n  class=\"diagram\"\n  [diagram]=\"placed\"\n  label=\"Edges placed by the app\"\n  highlight=\"edges\"\n/>\n"]
         ]
       },
       {

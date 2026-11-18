@@ -20,34 +20,7 @@ const TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);
   selector: 'app-fit-all',
   imports: [NeatButton, NeatSlider, NeatTileGrid],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="width">
-      <span>Tile width</span>
-      <neat-slider
-        label="Tile width"
-        [min]="minWidth"
-        [max]="480"
-        [step]="1"
-        [(value)]="tileWidth"
-      />
-      <span class="showcase-code showcase-muted">{{ tileWidth() }} px</span>
-      <button neatButton type="button" variant="outlined" size="small" (click)="fitAll()">
-        Fit all
-      </button>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">{{ summary() }}</p>
-    <div class="box">
-      <neat-tile-grid
-        [tileWidth]="tileWidth()"
-        [count]="visible().length"
-        (layout)="layout.set($event)"
-      >
-        @for (tile of visible(); track tile) {
-          <div class="tile">{{ tile }}</div>
-        }
-      </neat-tile-grid>
-    </div>
-  `,
+  templateUrl: './2-fit-all.example.html',
   styleUrl: './tile-box.css',
 })
 export class FitAll {

@@ -39,11 +39,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatInlineButton, NeatNote } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatInput } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/input'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-under-a-control'"],["text",",\n  imports: [NeatInlineButton, NeatInput, NeatNote],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <label class=\"showcase-row\">\n      Delay\n      <input neatInput type=\"text\" value=\"600\" aria-describedby=\"delay-note\" />\n    </label>\n    <p neatNote id=\"delay-note\">\n      Applies to every channel that has no value of its own.\n      <button neatInlineButton type=\"button\">Show channels</button>\n    </p>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-under-a-control'"],["text",",\n  imports: [NeatInlineButton, NeatInput, NeatNote],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-under-a-control.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./under-a-control.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," UnderAControl {}\n"]
+        ]
+      },
+      {
+        "name": "1-under-a-control.example.html",
+        "code": [
+          ["text","<label class=\"showcase-row\">\n  Delay\n  <input neatInput type=\"text\" value=\"600\" aria-describedby=\"delay-note\" />\n</label>\n<p neatNote id=\"delay-note\">\n  Applies to every channel that has no value of its own.\n  <button neatInlineButton type=\"button\">Show channels</button>\n</p>\n"]
         ]
       },
       {

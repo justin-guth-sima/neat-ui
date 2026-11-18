@@ -12,19 +12,7 @@ import { VARIANTS } from './variants';
   selector: 'app-states',
   imports: [NeatButton, NeatIcon, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (variant of variants; track variant) {
-      <div class="showcase-row">
-        <button neatButton type="button" [variant]="variant">
-          <neat-icon name="streaming" [size]="16" />
-          With icon
-        </button>
-        <button neatButton type="button" [variant]="variant" disabled>Disabled</button>
-        <button neatButton type="button" [variant]="variant" aria-disabled="true">Waiting</button>
-        <a neatButton [variant]="variant" routerLink="/components/actions/button">Link</a>
-      </div>
-    }
-  `,
+  templateUrl: './4-states.example.html',
   styleUrl: './stack.css',
 })
 export class States {

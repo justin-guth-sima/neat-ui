@@ -44,15 +44,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'Detector'"],["text",", detail: "],["string","'YOLOX'"],["text"," },\n  { label: "],
           ["string","'Backbone'"],["text",", detail: "],["string","'CSPDarknet'"],["text"," },\n  { label: "],
           ["string","'Stages'"],["text",", detail: "],["string","'four stages'"],["text"," },\n];\n\n@Component({\n  selector: "],
-          ["string","'app-walking-a-path'"],["text",",\n  imports: [NeatBreadcrumbs, NeatInlineButton, NeatNote],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"card\">\n      <neat-breadcrumbs label=\"Example path\" [crumbs]=\"path()\" (go)=\"depth.set($event + 1)\" />\n      <p neatNote>\n        <button\n          neatInlineButton\n          type=\"button\"\n          [disabled]=\"depth() === places.length\"\n          (click)=\"depth.set(depth() + 1)\"\n        >\n          Deeper\n        </button>\n      </p>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-walking-a-path'"],["text",",\n  imports: [NeatBreadcrumbs, NeatInlineButton, NeatNote],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-walking-a-path.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./walking-a-path.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," WalkingAPath {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," places = PLACES;\n  "],
           ["comment","/** How many of the places the path has walked. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," depth = signal(3);\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," path = computed(() => PLACES.slice(0, "],["keyword","this"],["text",".depth()));\n}\n"]
+        ]
+      },
+      {
+        "name": "1-walking-a-path.example.html",
+        "code": [
+          ["text","<div class=\"card\">\n  <neat-breadcrumbs label=\"Example path\" [crumbs]=\"path()\" (go)=\"depth.set($event + 1)\" />\n  <p neatNote>\n    <button\n      neatInlineButton\n      type=\"button\"\n      [disabled]=\"depth() === places.length\"\n      (click)=\"depth.set(depth() + 1)\"\n    >\n      Deeper\n    </button>\n  </p>\n</div>\n"]
         ]
       },
       {

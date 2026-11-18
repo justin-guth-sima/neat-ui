@@ -38,9 +38,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatInlineButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatColumn, NeatSelectList } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select-list'"],["text",";\n"],
           ["keyword","import"],["text"," { "],["keyword","type"],["text"," Channel, CHANNELS, channelId } "],["keyword","from"],["text"," "],["string","'./channels'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-channels'"],["text",",\n  imports: [NeatColumn, NeatInlineButton, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"box wide\">\n      <neat-select-list\n        label=\"Channels\"\n        [items]=\"channels()\"\n        [trackBy]=\"channelId\"\n        [(selected)]=\"selected\"\n        (activated)=\"log.set('Activated ' + $event.name)\"\n      >\n        <ng-template neatColumn=\"name\" header=\"Channel\" let-channel>{{ channel.name }}</ng-template>\n        <ng-template neatColumn=\"state\" header=\"State\" width=\"6rem\" let-channel>{{\n          channel.state\n        }}</ng-template>\n        <ng-template neatColumn=\"action\" width=\"4rem\" let-channel>\n          <button neatInlineButton type=\"button\" (click)=\"toggle(channel)\">\n            {{ channel.state === 'Live' ? 'Stop' : 'Start' }}\n          </button>\n        </ng-template>\n      </neat-select-list>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">\n      Selected: {{ selected()?.name ?? 'none' }}; {{ log() }}\n    </p>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-channels'"],["text",",\n  imports: [NeatColumn, NeatInlineButton, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-channels.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./channels-box.css'"],["text",", "],["string","'./stack.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Channels {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," channels = signal<"],["keyword","readonly"],["text"," Channel[]>(CHANNELS);\n  "],
@@ -50,6 +49,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","protected"],["text"," toggle(channel: Channel): "],["keyword","void"],["text"," {\n    "],
           ["keyword","const"],["text"," state = channel.state === "],["string","'Live'"],["text"," ? "],["string","'Idle'"],["text"," : "],["string","'Live'"],["text",";\n    "],
           ["keyword","this"],["text",".channels.update((channels) =>\n      channels.map((candidate) =>\n        candidate.id === channel.id ? { ...candidate, state } : candidate,\n      ),\n    );\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "1-channels.example.html",
+        "code": [
+          ["text","<div class=\"box wide\">\n  <neat-select-list\n    label=\"Channels\"\n    [items]=\"channels()\"\n    [trackBy]=\"channelId\"\n    [(selected)]=\"selected\"\n    (activated)=\"log.set('Activated ' + $event.name)\"\n  >\n    <ng-template neatColumn=\"name\" header=\"Channel\" let-channel>{{ channel.name }}</ng-template>\n    <ng-template neatColumn=\"state\" header=\"State\" width=\"6rem\" let-channel>{{\n      channel.state\n    }}</ng-template>\n    <ng-template neatColumn=\"action\" width=\"4rem\" let-channel>\n      <button neatInlineButton type=\"button\" (click)=\"toggle(channel)\">\n        {{ channel.state === 'Live' ? 'Stop' : 'Start' }}\n      </button>\n    </ng-template>\n  </neat-select-list>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">\n  Selected: {{ selected()?.name ?? 'none' }}; {{ log() }}\n</p>\n"]
         ]
       },
       {
@@ -116,14 +121,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatColumn, NeatSelectList } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select-list'"],["text",";\n"],
           ["keyword","import"],["text"," { "],["keyword","type"],["text"," Channel, CHANNELS, channelId } "],["keyword","from"],["text"," "],["string","'./channels'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-on-a-card'"],["text",",\n  imports: [NeatColumn, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"box wide card\">\n      <neat-select-list\n        label=\"Channels on a card\"\n        [items]=\"channels\"\n        [trackBy]=\"channelId\"\n        [(selected)]=\"selected\"\n      >\n        <ng-template neatColumn=\"name\" header=\"Channel\" let-channel>{{ channel.name }}</ng-template>\n        <ng-template neatColumn=\"state\" header=\"State\" width=\"6rem\" let-channel>{{\n          channel.state\n        }}</ng-template>\n      </neat-select-list>\n    </div>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-on-a-card'"],["text",",\n  imports: [NeatColumn, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-on-a-card.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./channels-box.css'"],["text",", "],["string","'./on-a-card.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," OnACard {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," channels = CHANNELS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," selected = signal<Channel | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," channelId = channelId;\n}\n"]
+        ]
+      },
+      {
+        "name": "2-on-a-card.example.html",
+        "code": [
+          ["text","<div class=\"box wide card\">\n  <neat-select-list\n    label=\"Channels on a card\"\n    [items]=\"channels\"\n    [trackBy]=\"channelId\"\n    [(selected)]=\"selected\"\n  >\n    <ng-template neatColumn=\"name\" header=\"Channel\" let-channel>{{ channel.name }}</ng-template>\n    <ng-template neatColumn=\"state\" header=\"State\" width=\"6rem\" let-channel>{{\n      channel.state\n    }}</ng-template>\n  </neat-select-list>\n</div>\n"]
         ]
       },
       {
@@ -192,14 +202,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatColumn, NeatSelectList } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select-list'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n"],
           ["keyword","import"],["text"," { CHANNELS, channelId } "],["keyword","from"],["text"," "],["string","'./channels'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-narrowing'"],["text",",\n  imports: [NeatColumn, NeatSelectList, NeatSwitch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"box\" [class.wide]=\"!narrow()\" [class.slim]=\"narrow()\">\n      <neat-select-list label=\"Channels, narrowing\" [items]=\"channels\" [trackBy]=\"channelId\">\n        <ng-template neatColumn=\"name\" header=\"Channel\" let-channel>{{ channel.name }}</ng-template>\n        <ng-template neatColumn=\"rate\" header=\"Rate\" width=\"4rem\" [hideBelow]=\"300\">30</ng-template>\n        <ng-template neatColumn=\"state\" header=\"State\" width=\"5rem\" let-channel>{{\n          channel.state\n        }}</ng-template>\n      </neat-select-list>\n    </div>\n    <div class=\"showcase-row\">\n      <button neatSwitch [(checked)]=\"narrow\">Narrow the list</button>\n    </div>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-narrowing'"],["text",",\n  imports: [NeatColumn, NeatSelectList, NeatSwitch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-narrowing.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./channels-box.css'"],["text",", "],["string","'./narrowing.example.css'"],["text",", "],["string","'./stack.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Narrowing {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," channels = CHANNELS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," channelId = channelId;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," narrow = signal("],["keyword","false"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "3-narrowing.example.html",
+        "code": [
+          ["text","<div class=\"box\" [class.wide]=\"!narrow()\" [class.slim]=\"narrow()\">\n  <neat-select-list label=\"Channels, narrowing\" [items]=\"channels\" [trackBy]=\"channelId\">\n    <ng-template neatColumn=\"name\" header=\"Channel\" let-channel>{{ channel.name }}</ng-template>\n    <ng-template neatColumn=\"rate\" header=\"Rate\" width=\"4rem\" [hideBelow]=\"300\">30</ng-template>\n    <ng-template neatColumn=\"state\" header=\"State\" width=\"5rem\" let-channel>{{\n      channel.state\n    }}</ng-template>\n  </neat-select-list>\n</div>\n<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"narrow\">Narrow the list</button>\n</div>\n"]
         ]
       },
       {
@@ -272,13 +287,18 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatColumn, NeatSelectList } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select-list'"],["text",";\n"],
           ["keyword","import"],["text"," { "],["keyword","type"],["text"," Channel, channelId } "],["keyword","from"],["text"," "],["string","'./channels'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-no-items'"],["text",",\n  imports: [NeatColumn, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"box\">\n      <neat-select-list\n        label=\"Cameras\"\n        emptyLabel=\"No cameras enabled yet.\"\n        [items]=\"none\"\n        [trackBy]=\"channelId\"\n      >\n        <ng-template neatColumn=\"name\" let-channel>{{ channel.name }}</ng-template>\n      </neat-select-list>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-no-items'"],["text",",\n  imports: [NeatColumn, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-no-items.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./no-items.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," NoItems {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," none: "],["keyword","readonly"],["text"," Channel[] = [];\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," channelId = channelId;\n}\n"]
+        ]
+      },
+      {
+        "name": "4-no-items.example.html",
+        "code": [
+          ["text","<div class=\"box\">\n  <neat-select-list\n    label=\"Cameras\"\n    emptyLabel=\"No cameras enabled yet.\"\n    [items]=\"none\"\n    [trackBy]=\"channelId\"\n  >\n    <ng-template neatColumn=\"name\" let-channel>{{ channel.name }}</ng-template>\n  </neat-select-list>\n</div>\n"]
         ]
       },
       {
@@ -331,15 +351,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatColumn, NeatSelectList } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select-list'"],["text",";\n"],
           ["keyword","import"],["text"," { ASSET_TYPES, hasFiles, typeId } "],["keyword","from"],["text"," "],["string","'./asset-types'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-checked'"],["text",",\n  imports: [NeatColumn, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"box\">\n      <neat-select-list\n        label=\"Asset types\"\n        checkable\n        [items]=\"types\"\n        [trackBy]=\"typeId\"\n        [canCheck]=\"hasFiles\"\n        [(checked)]=\"checked\"\n      >\n        <ng-template neatColumn=\"name\" header=\"Type\" let-type>{{ type.name }}</ng-template>\n        <ng-template neatColumn=\"files\" header=\"Files\" width=\"max-content\" align=\"end\" let-type>{{\n          type.files\n        }}</ng-template>\n      </neat-select-list>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">\n      Checked: {{ checked().length ? checked().join(', ') : 'none' }}\n    </p>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-checked'"],["text",",\n  imports: [NeatColumn, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./5-checked.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./asset-types-box.css'"],["text",", "],["string","'./stack.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Checked {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," types = ASSET_TYPES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," typeId = typeId;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," hasFiles = hasFiles;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," checked = signal<"],["keyword","readonly"],["text"," "],["keyword","string"],["text","[]>(["],["string","'cars'"],["text","]);\n}\n"]
+        ]
+      },
+      {
+        "name": "5-checked.example.html",
+        "code": [
+          ["text","<div class=\"box\">\n  <neat-select-list\n    label=\"Asset types\"\n    checkable\n    [items]=\"types\"\n    [trackBy]=\"typeId\"\n    [canCheck]=\"hasFiles\"\n    [(checked)]=\"checked\"\n  >\n    <ng-template neatColumn=\"name\" header=\"Type\" let-type>{{ type.name }}</ng-template>\n    <ng-template neatColumn=\"files\" header=\"Files\" width=\"max-content\" align=\"end\" let-type>{{\n      type.files\n    }}</ng-template>\n  </neat-select-list>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">\n  Checked: {{ checked().length ? checked().join(', ') : 'none' }}\n</p>\n"]
         ]
       },
       {
@@ -404,9 +429,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** How many types the list compares at most. */"],["text","\n"],
           ["keyword","const"],["text"," CAP = 2;\n"],
           ["keyword","const"],["text"," CAP_NOTE = "],["string","`At most ${CAP} types can be compared.`"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-capped'"],["text",",\n  imports: [NeatColumn, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"box\">\n      <neat-select-list\n        label=\"Types to compare\"\n        checkable\n        [items]=\"types\"\n        [trackBy]=\"typeId\"\n        [canCheck]=\"hasFiles\"\n        [checkBlocked]=\"atCap\"\n        [(checked)]=\"compared\"\n      >\n        <ng-template neatColumn=\"name\" header=\"Type\" let-type>{{ type.name }}</ng-template>\n      </neat-select-list>\n    </div>\n    <p class=\"showcase-muted\">{{ note }}</p>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">\n      Compared: {{ compared().length ? compared().join(', ') : 'none' }}\n    </p>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-capped'"],["text",",\n  imports: [NeatColumn, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./6-capped.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./asset-types-box.css'"],["text",", "],["string","'./stack.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Capped {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," types = ASSET_TYPES;\n  "],
@@ -417,6 +441,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** The reason a row cannot be checked now: the cap is reached and the row is not checked. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," atCap = (type: AssetType): "],["keyword","string"],["text"," | "],["keyword","null"],["text"," =>\n    "],
           ["keyword","this"],["text",".compared().length >= CAP && !"],["keyword","this"],["text",".compared().includes("],["keyword","type"],["text",".id) ? CAP_NOTE : "],["keyword","null"],["text",";\n}\n"]
+        ]
+      },
+      {
+        "name": "6-capped.example.html",
+        "code": [
+          ["text","<div class=\"box\">\n  <neat-select-list\n    label=\"Types to compare\"\n    checkable\n    [items]=\"types\"\n    [trackBy]=\"typeId\"\n    [canCheck]=\"hasFiles\"\n    [checkBlocked]=\"atCap\"\n    [(checked)]=\"compared\"\n  >\n    <ng-template neatColumn=\"name\" header=\"Type\" let-type>{{ type.name }}</ng-template>\n  </neat-select-list>\n</div>\n<p class=\"showcase-muted\">{{ note }}</p>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">\n  Compared: {{ compared().length ? compared().join(', ') : 'none' }}\n</p>\n"]
         ]
       },
       {
@@ -494,9 +524,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'camera'"],["text",", label: "],["string","'Cameras · 3'"],["text"," },\n  { key: "],
           ["string","'microphone'"],["text",", label: "],["string","'Microphones · 1'"],["text"," },\n  { key: "],
           ["string","'lidar'"],["text",", label: "],["string","'LiDAR · none found'"],["text",", muted: "],["keyword","true"],["text"," },\n];\n\n@Component({\n  selector: "],
-          ["string","'app-grouped'"],["text",",\n  imports: [NeatColumn, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"box\">\n      <neat-select-list\n        label=\"Devices\"\n        [items]=\"devices\"\n        [trackBy]=\"deviceId\"\n        [groups]=\"groups\"\n        [groupOf]=\"deviceKind\"\n        [(selected)]=\"selected\"\n      >\n        <ng-template neatColumn=\"name\" header=\"Device\" let-device>{{ device.name }}</ng-template>\n        <ng-template neatColumn=\"connection\" header=\"Connection\" width=\"6rem\" let-device>{{\n          device.connection\n        }}</ng-template>\n      </neat-select-list>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-grouped'"],["text",",\n  imports: [NeatColumn, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./7-grouped.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./grouped.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Grouped {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," devices = DEVICES;\n  "],
@@ -504,6 +533,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," selected = signal<Device | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," deviceId = (device: Device) => device.id;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," deviceKind = (device: Device) => device.kind;\n}\n"]
+        ]
+      },
+      {
+        "name": "7-grouped.example.html",
+        "code": [
+          ["text","<div class=\"box\">\n  <neat-select-list\n    label=\"Devices\"\n    [items]=\"devices\"\n    [trackBy]=\"deviceId\"\n    [groups]=\"groups\"\n    [groupOf]=\"deviceKind\"\n    [(selected)]=\"selected\"\n  >\n    <ng-template neatColumn=\"name\" header=\"Device\" let-device>{{ device.name }}</ng-template>\n    <ng-template neatColumn=\"connection\" header=\"Connection\" width=\"6rem\" let-device>{{\n      device.connection\n    }}</ng-template>\n  </neat-select-list>\n</div>\n"]
         ]
       },
       {
@@ -561,15 +596,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," STREAMS: "],["keyword","readonly"],["text"," Stream[] = (\n  ["],
           ["string","'success'"],["text",", "],["string","'success'"],["text",", "],["string","'neutral'"],["text",", "],["string","'highlight'"],["text",", "],["string","'warning'"],["text",", "],["string","'danger'"],["text",", "],["string","'info'"],["text",", "],["string","'neutral'"],["text","] "],["keyword","as"],["text"," "],["keyword","const"],["text","\n).map((tone, index) => ({\n  id: index + 1,\n  name: "],
           ["string","`src${index + 1}`"],["text",",\n  tone,\n  state: STATES[tone],\n}));\n\n@Component({\n  selector: "],
-          ["string","'app-toned'"],["text",",\n  imports: [NeatColumn, NeatSelectList, NeatStatusChip],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"box\">\n      <neat-select-list\n        label=\"Streams\"\n        [items]=\"streams\"\n        [trackBy]=\"streamId\"\n        [rowTone]=\"streamTone\"\n        [(selected)]=\"selected\"\n      >\n        <ng-template neatColumn=\"name\" header=\"Slot\" let-stream>{{ stream.name }}</ng-template>\n        <ng-template neatColumn=\"kind\" header=\"Kind\" width=\"3rem\">\n          <span class=\"showcase-muted\">VID</span>\n        </ng-template>\n        <ng-template neatColumn=\"state\" header=\"State\" width=\"7rem\" let-stream>\n          <neat-status-chip [tone]=\"stream.tone\">{{ stream.state }}</neat-status-chip>\n        </ng-template>\n      </neat-select-list>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-toned'"],["text",",\n  imports: [NeatColumn, NeatSelectList, NeatStatusChip],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./8-toned.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./toned.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Toned {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," streams = STREAMS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," selected = signal<Stream | "],["keyword","null"],["text",">(STREAMS[3]);\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," streamId = (stream: Stream) => stream.id;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," streamTone = (stream: Stream) => stream.tone;\n}\n"]
+        ]
+      },
+      {
+        "name": "8-toned.example.html",
+        "code": [
+          ["text","<div class=\"box\">\n  <neat-select-list\n    label=\"Streams\"\n    [items]=\"streams\"\n    [trackBy]=\"streamId\"\n    [rowTone]=\"streamTone\"\n    [(selected)]=\"selected\"\n  >\n    <ng-template neatColumn=\"name\" header=\"Slot\" let-stream>{{ stream.name }}</ng-template>\n    <ng-template neatColumn=\"kind\" header=\"Kind\" width=\"3rem\">\n      <span class=\"showcase-muted\">VID</span>\n    </ng-template>\n    <ng-template neatColumn=\"state\" header=\"State\" width=\"7rem\" let-stream>\n      <neat-status-chip [tone]=\"stream.tone\">{{ stream.state }}</neat-status-chip>\n    </ng-template>\n  </neat-select-list>\n</div>\n"]
         ]
       },
       {

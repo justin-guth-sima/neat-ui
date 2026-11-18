@@ -56,7 +56,7 @@ import type { DocsExampleFile } from './model';
   styleUrl: './snippet.css',
 })
 export class Snippet {
-  /** The example's file first, then the files it imports. */
+  /** The example's file first, then its template, the files it imports and its stylesheets. */
   readonly files = input.required<readonly DocsExampleFile[]>();
 
   protected readonly open = signal(false);

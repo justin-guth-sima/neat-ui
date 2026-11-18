@@ -12,30 +12,7 @@ import { type Channel, CHANNELS, channelId } from './channels';
   selector: 'app-channels',
   imports: [NeatColumn, NeatInlineButton, NeatSelectList],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box wide">
-      <neat-select-list
-        label="Channels"
-        [items]="channels()"
-        [trackBy]="channelId"
-        [(selected)]="selected"
-        (activated)="log.set('Activated ' + $event.name)"
-      >
-        <ng-template neatColumn="name" header="Channel" let-channel>{{ channel.name }}</ng-template>
-        <ng-template neatColumn="state" header="State" width="6rem" let-channel>{{
-          channel.state
-        }}</ng-template>
-        <ng-template neatColumn="action" width="4rem" let-channel>
-          <button neatInlineButton type="button" (click)="toggle(channel)">
-            {{ channel.state === 'Live' ? 'Stop' : 'Start' }}
-          </button>
-        </ng-template>
-      </neat-select-list>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">
-      Selected: {{ selected()?.name ?? 'none' }}; {{ log() }}
-    </p>
-  `,
+  templateUrl: './1-channels.example.html',
   styleUrls: ['./channels-box.css', './stack.css'],
 })
 export class Channels {

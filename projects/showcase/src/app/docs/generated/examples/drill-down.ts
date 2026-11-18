@@ -49,13 +49,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { "],["keyword","type"],["text"," NeatDiagramSet, neatDrillDownLevel, NeatDiagramView } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
           ["keyword","import"],["text"," { OVERVIEW, WITH_STEPS } "],["keyword","from"],["text"," "],["string","'./pipeline-data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-detector-level'"],["text",",\n  imports: [NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`<neat-diagram class=\"diagram\" [diagram]=\"pipeline\" label=\"A pipeline\" />`"],["text",",\n  styleUrl: "],
+          ["string","'app-detector-level'"],["text",",\n  imports: [NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-detector-level.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./detector-level.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," DetectorLevel {\n  "],
           ["comment","/** The level the Detector opens is placed from the diagram that holds its steps. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pipeline: NeatDiagramSet = {\n    overview: OVERVIEW,\n    levels: { detector: neatDrillDownLevel(WITH_STEPS, "],
           ["string","'detector'"],["text",") },\n  };\n}\n"]
+        ]
+      },
+      {
+        "name": "1-detector-level.example.html",
+        "code": [
+          ["text","<neat-diagram class=\"diagram\" [diagram]=\"pipeline\" label=\"A pipeline\" />\n"]
         ]
       },
       {

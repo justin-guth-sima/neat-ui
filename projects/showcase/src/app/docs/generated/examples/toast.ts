@@ -32,11 +32,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, inject } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatToasts } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/toast'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-kinds'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <button\n        neatButton\n        type=\"button\"\n        variant=\"outlined\"\n        (click)=\"toasts.error('Could not start src3: the stream is held by another publisher.')\"\n      >\n        Error\n      </button>\n      <button\n        neatButton\n        type=\"button\"\n        variant=\"outlined\"\n        (click)=\"toasts.warning('Uploaded clip.mp4, but could not restart src2: it is in use.')\"\n      >\n        Warning\n      </button>\n      <button\n        neatButton\n        type=\"button\"\n        variant=\"outlined\"\n        (click)=\"toasts.status('Stopped 2 sources.')\"\n      >\n        Status\n      </button>\n    </div>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-kinds'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-kinds.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Kinds {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," toasts = inject(NeatToasts);\n}\n"]
+        ]
+      },
+      {
+        "name": "1-kinds.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button\n    neatButton\n    type=\"button\"\n    variant=\"outlined\"\n    (click)=\"toasts.error('Could not start src3: the stream is held by another publisher.')\"\n  >\n    Error\n  </button>\n  <button\n    neatButton\n    type=\"button\"\n    variant=\"outlined\"\n    (click)=\"toasts.warning('Uploaded clip.mp4, but could not restart src2: it is in use.')\"\n  >\n    Warning\n  </button>\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"toasts.status('Stopped 2 sources.')\">\n    Status\n  </button>\n</div>\n"]
         ]
       }
     ]
@@ -87,9 +92,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatToasts } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/toast'"],["text",";\n\n"],
           ["comment","/** How a progress toast ends, as the outcome the button names. */"],["text","\n"],
           ["keyword","type"],["text"," Outcome = "],["string","'done'"],["text"," | "],["string","'fail'"],["text"," | "],["string","'unknown'"],["text"," | "],["string","'dismiss'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-progress'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"run('done')\">\n        Progress, succeeding\n      </button>\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"run('fail')\">\n        Progress, failing\n      </button>\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"run('unknown')\">\n        Progress, unknown length\n      </button>\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"run('dismiss')\">\n        Progress, dismissed\n      </button>\n    </div>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-progress'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-progress.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Progress {\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," toasts = inject(NeatToasts);\n\n  "],
           ["comment","/** Reports for a few seconds and then settles; `dismiss` is taken away halfway. */"],["text","\n  "],
@@ -107,6 +111,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","return"],["text",";\n      }\n      clearInterval(timer);\n      "],
           ["keyword","if"],["text"," (outcome === "],["string","'fail'"],["text",") toast.fail("],["string","'Upload failed: no space left on the device.'"],["text",");\n      "],
           ["keyword","else"],["text"," toast.done("],["string","'Uploaded 3 files.'"],["text",");\n    }, 250);\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "2-progress.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"run('done')\">\n    Progress, succeeding\n  </button>\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"run('fail')\">\n    Progress, failing\n  </button>\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"run('unknown')\">\n    Progress, unknown length\n  </button>\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"run('dismiss')\">\n    Progress, dismissed\n  </button>\n</div>\n"]
         ]
       }
     ]

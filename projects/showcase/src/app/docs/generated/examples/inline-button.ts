@@ -34,11 +34,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { RouterLink } "],["keyword","from"],["text"," "],["string","'@angular/router'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatInlineButton, NeatNote } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatLine, NeatLineEnd, NeatLineList } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/line-list'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-in-a-line'"],["text",",\n  imports: [NeatInlineButton, NeatLine, NeatLineEnd, NeatLineList, NeatNote, RouterLink],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"card\">\n      <p neatNote>\n        Overridden on 2 channels ·\n        <button neatInlineButton type=\"button\">Show</button>\n      </p>\n      <ul neatLineList>\n        <li neatLine>\n          Channel 3 <span class=\"showcase-muted\">900 ms</span>\n          <button neatInlineButton neatLineEnd type=\"button\">Use global</button>\n        </li>\n        <li neatLine>\n          Channel 7 <span class=\"showcase-muted\">600 ms</span>\n          <button neatInlineButton neatLineEnd type=\"button\">Use global</button>\n        </li>\n        <li neatLine>\n          <button neatInlineButton type=\"button\" disabled>Reset on 2 channels…</button>\n        </li>\n        <li neatLine>\n          <a neatInlineButton routerLink=\"/components/actions/inline-button\">This page</a>\n        </li>\n      </ul>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-in-a-line'"],["text",",\n  imports: [NeatInlineButton, NeatLine, NeatLineEnd, NeatLineList, NeatNote, RouterLink],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-in-a-line.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./in-a-line.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," InALine {}\n"]
+        ]
+      },
+      {
+        "name": "1-in-a-line.example.html",
+        "code": [
+          ["text","<div class=\"card\">\n  <p neatNote>\n    Overridden on 2 channels ·\n    <button neatInlineButton type=\"button\">Show</button>\n  </p>\n  <ul neatLineList>\n    <li neatLine>\n      Channel 3 <span class=\"showcase-muted\">900 ms</span>\n      <button neatInlineButton neatLineEnd type=\"button\">Use global</button>\n    </li>\n    <li neatLine>\n      Channel 7 <span class=\"showcase-muted\">600 ms</span>\n      <button neatInlineButton neatLineEnd type=\"button\">Use global</button>\n    </li>\n    <li neatLine>\n      <button neatInlineButton type=\"button\" disabled>Reset on 2 channels…</button>\n    </li>\n    <li neatLine>\n      <a neatInlineButton routerLink=\"/components/actions/inline-button\">This page</a>\n    </li>\n  </ul>\n</div>\n"]
         ]
       },
       {

@@ -9,29 +9,7 @@ import { NeatSearch, type NeatSearchVariant } from '@sima/neat-ui';
   selector: 'app-looks-and-sizes',
   imports: [NeatSearch],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="looks">
-      @for (look of looks; track look) {
-        <div class="look">
-          <span class="showcase-code showcase-muted">{{ look }}</span>
-          <neat-search
-            [variant]="look"
-            [label]="'Filter streams, ' + look"
-            placeholder="Filter streams"
-          />
-        </div>
-      }
-    </div>
-    <div class="look">
-      <span class="showcase-code showcase-muted">raised, large</span>
-      <neat-search
-        variant="raised"
-        size="large"
-        label="Search the docs"
-        placeholder="Search the docs"
-      />
-    </div>
-  `,
+  templateUrl: './3-looks-and-sizes.example.html',
   styleUrl: './looks-and-sizes.example.css',
 })
 export class LooksAndSizes {

@@ -52,12 +52,18 @@ import { streetFrames } from './scene';
   selector: 'app-round',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-bev [frame]="frame()" />`,
+  templateUrl: './1-round.example.html',
   styleUrl: './bev.example.css',
 })
 export class Round {
   protected readonly frame = streetFrames();
 }
+```
+
+`1-round.example.html`
+
+```html
+<neat-bev [frame]="frame()" />
 ```
 
 `scene.ts`
@@ -495,13 +501,19 @@ import { streetFrames } from './scene';
   selector: 'app-rect',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-bev shape="rect" [bounds]="bounds" [spokes]="0" [frame]="frame()" />`,
+  templateUrl: './2-rect.example.html',
   styleUrl: './bev.example.css',
 })
 export class Rect {
   protected readonly frame = streetFrames();
   protected readonly bounds: NeatBevBounds = { x: [-40, 80], y: [-60, 60] };
 }
+```
+
+`2-rect.example.html`
+
+```html
+<neat-bev shape="rect" [bounds]="bounds" [spokes]="0" [frame]="frame()" />
 ```
 
 `scene.ts`
@@ -939,25 +951,29 @@ import { streetFrames } from './scene';
   selector: 'app-overflow',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="stack">
-      <neat-bev
-        class="wide"
-        shape="rect"
-        overflow="visible"
-        [outline]="false"
-        [range]="40"
-        [spokes]="0"
-        [frame]="frame()"
-      />
-      <neat-bev class="wide" overflow="visible" [outline]="false" [range]="40" [frame]="frame()" />
-    </div>
-  `,
+  templateUrl: './3-overflow.example.html',
   styleUrl: './bev.example.css',
 })
 export class Overflow {
   protected readonly frame = streetFrames();
 }
+```
+
+`3-overflow.example.html`
+
+```html
+<div class="stack">
+  <neat-bev
+    class="wide"
+    shape="rect"
+    overflow="visible"
+    [outline]="false"
+    [range]="40"
+    [spokes]="0"
+    [frame]="frame()"
+  />
+  <neat-bev class="wide" overflow="visible" [outline]="false" [range]="40" [frame]="frame()" />
+</div>
 ```
 
 `scene.ts`
@@ -1395,38 +1411,42 @@ import { streetFrames } from './scene';
   selector: 'app-overflow-zoom',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="stack">
-      <neat-bev
-        class="wide"
-        shape="rect"
-        overflow="visible"
-        zoom
-        [panBounds]="reach"
-        [zoomExtent]="[0.5, 4]"
-        [outline]="false"
-        [range]="25"
-        [spokes]="0"
-        [frame]="frame()"
-      />
-      <neat-bev
-        class="wide"
-        overflow="visible"
-        zoom
-        [panBounds]="reach"
-        [zoomExtent]="[0.5, 4]"
-        [outline]="false"
-        [range]="25"
-        [frame]="frame()"
-      />
-    </div>
-  `,
+  templateUrl: './4-overflow-zoom.example.html',
   styleUrl: './bev.example.css',
 })
 export class OverflowZoom {
   protected readonly frame = streetFrames();
   protected readonly reach: NeatBevBounds = { x: [-60, 60], y: [-60, 60] };
 }
+```
+
+`4-overflow-zoom.example.html`
+
+```html
+<div class="stack">
+  <neat-bev
+    class="wide"
+    shape="rect"
+    overflow="visible"
+    zoom
+    [panBounds]="reach"
+    [zoomExtent]="[0.5, 4]"
+    [outline]="false"
+    [range]="25"
+    [spokes]="0"
+    [frame]="frame()"
+  />
+  <neat-bev
+    class="wide"
+    overflow="visible"
+    zoom
+    [panBounds]="reach"
+    [zoomExtent]="[0.5, 4]"
+    [outline]="false"
+    [range]="25"
+    [frame]="frame()"
+  />
+</div>
 ```
 
 `scene.ts`
@@ -1864,12 +1884,7 @@ import { BUILDINGS, SAFETY_ZONE, streetFrames } from './scene';
   selector: 'app-layers',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-bev
-    [frame]="frame()"
-    [background]="buildings"
-    [foreground]="zone"
-    [range]="40"
-  />`,
+  templateUrl: './5-layers.example.html',
   styleUrl: './bev.example.css',
 })
 export class Layers {
@@ -1877,6 +1892,12 @@ export class Layers {
   protected readonly buildings = BUILDINGS;
   protected readonly zone = SAFETY_ZONE;
 }
+```
+
+`5-layers.example.html`
+
+```html
+<neat-bev [frame]="frame()" [background]="buildings" [foreground]="zone" [range]="40" />
 ```
 
 `scene.ts`
@@ -2314,23 +2335,27 @@ import { streetFrames } from './scene';
   selector: 'app-zoom',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="pair">
-      <figure>
-        <neat-bev zoom [frame]="frame()" [range]="40" />
-        <figcaption>Guides over the data</figcaption>
-      </figure>
-      <figure>
-        <neat-bev zoom guides="under" [frame]="frame()" [range]="40" />
-        <figcaption>Guides under the data</figcaption>
-      </figure>
-    </div>
-  `,
+  templateUrl: './6-zoom.example.html',
   styleUrl: './bev.example.css',
 })
 export class Zoom {
   protected readonly frame = streetFrames();
 }
+```
+
+`6-zoom.example.html`
+
+```html
+<div class="pair">
+  <figure>
+    <neat-bev zoom [frame]="frame()" [range]="40" />
+    <figcaption>Guides over the data</figcaption>
+  </figure>
+  <figure>
+    <neat-bev zoom guides="under" [frame]="frame()" [range]="40" />
+    <figcaption>Guides under the data</figcaption>
+  </figure>
+</div>
 ```
 
 `scene.ts`
@@ -2768,7 +2793,7 @@ import { streetFrames } from './scene';
   selector: 'app-shared-styles',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-bev [frame]="frame()" [styles]="styles" [range]="40" />`,
+  templateUrl: './7-shared-styles.example.html',
   styleUrl: './bev.example.css',
 })
 export class SharedStyles {
@@ -2780,6 +2805,12 @@ export class SharedStyles {
     { label: 'default', color: SIMA_PALETTE.orange, style: 'solid', width: 1 },
   ];
 }
+```
+
+`7-shared-styles.example.html`
+
+```html
+<neat-bev [frame]="frame()" [styles]="styles" [range]="40" />
 ```
 
 `scene.ts`
@@ -3223,12 +3254,18 @@ import { roadFrames } from './roads';
   selector: 'app-polygons',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-bev zoom [frame]="frame()" />`,
+  templateUrl: './8-polygons.example.html',
   styleUrl: './bev.example.css',
 })
 export class Polygons {
   protected readonly frame = roadFrames();
 }
+```
+
+`8-polygons.example.html`
+
+```html
+<neat-bev zoom [frame]="frame()" />
 ```
 
 `roads.ts`
@@ -3725,41 +3762,7 @@ const VEHICLES = new Set(['car', 'truck', 'bicycle']);
   selector: 'app-interaction',
   imports: [NeatBev, NeatCard, NeatColumn, NeatSelectList],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="interaction">
-      <neat-bev
-        [frame]="frame()"
-        [range]="40"
-        [(hovered)]="hovered"
-        (activated)="picked.set($event)"
-        (pointerMove)="pointer.set($event)"
-      />
-      <neat-card title="What the view reports" subtitle="And what the app sets">
-        <dl class="report">
-          <dt>Hovered</dt>
-          <dd>{{ hoveredText() }}</dd>
-          <dt>Last click</dt>
-          <dd>{{ pickedText() }}</dd>
-          <dt>Pointer</dt>
-          <dd>{{ pointerText() }}</dd>
-        </dl>
-        <div class="tracks">
-          <neat-select-list
-            label="Vehicles"
-            [items]="tracks"
-            [trackBy]="trackId"
-            [selected]="selectedTrack()"
-            (selectedChange)="hovered.set($event?.id ?? null)"
-          >
-            <ng-template neatColumn="track" header="Vehicle" let-track>{{ track.id }}</ng-template>
-            <ng-template neatColumn="distance" header="Distance" width="6rem" let-track>{{
-              distanceText(track.id)
-            }}</ng-template>
-          </neat-select-list>
-        </div>
-      </neat-card>
-    </div>
-  `,
+  templateUrl: './9-interaction.example.html',
   styleUrl: './bev.example.css',
 })
 export class Interaction {
@@ -3810,6 +3813,44 @@ export class Interaction {
 function distance(object: NeatBevObject): string {
   return `${Math.hypot(object.x, object.y).toFixed(1)} m`;
 }
+```
+
+`9-interaction.example.html`
+
+```html
+<div class="interaction">
+  <neat-bev
+    [frame]="frame()"
+    [range]="40"
+    [(hovered)]="hovered"
+    (activated)="picked.set($event)"
+    (pointerMove)="pointer.set($event)"
+  />
+  <neat-card title="What the view reports" subtitle="And what the app sets">
+    <dl class="report">
+      <dt>Hovered</dt>
+      <dd>{{ hoveredText() }}</dd>
+      <dt>Last click</dt>
+      <dd>{{ pickedText() }}</dd>
+      <dt>Pointer</dt>
+      <dd>{{ pointerText() }}</dd>
+    </dl>
+    <div class="tracks">
+      <neat-select-list
+        label="Vehicles"
+        [items]="tracks"
+        [trackBy]="trackId"
+        [selected]="selectedTrack()"
+        (selectedChange)="hovered.set($event?.id ?? null)"
+      >
+        <ng-template neatColumn="track" header="Vehicle" let-track>{{ track.id }}</ng-template>
+        <ng-template neatColumn="distance" header="Distance" width="6rem" let-track>{{
+          distanceText(track.id)
+        }}</ng-template>
+      </neat-select-list>
+    </div>
+  </neat-card>
+</div>
 ```
 
 `scene.ts`

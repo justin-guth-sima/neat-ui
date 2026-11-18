@@ -81,9 +81,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatConfirm } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/confirm'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-asking'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"askResetAll()\">\n        Reset all channels to global…\n      </button>\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"askApplyToAll()\">\n        Apply to all channels…\n      </button>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ answer() }}</p>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-asking'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-asking.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Asking {\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," confirm = inject(NeatConfirm);\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," answer = signal("],["string","'Not asked yet'"],["text",");\n\n  "],
@@ -101,6 +100,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'Apply'"],["text",",\n      cancelLabel: "],
           ["string","'Not now'"],["text",",\n    });\n    "],
           ["keyword","this"],["text",".answer.set("],["string","`Apply to all: ${apply ? 'confirmed' : 'canceled'}`"],["text",");\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "1-asking.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"askResetAll()\">\n    Reset all channels to global…\n  </button>\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"askApplyToAll()\">\n    Apply to all channels…\n  </button>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ answer() }}</p>\n"]
         ]
       }
     ]

@@ -30,10 +30,15 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCallout } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/callout'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-banner'"],["text",",\n  imports: [NeatButton, NeatCallout],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-callout tone=\"warning\" heading=\"Board changed\" region>\n      The board at 192.168.1.20 replaced the previous one. Devices are from the last scan.\n      <button neatButton neatCalloutActions type=\"button\" size=\"small\">Refresh</button>\n    </neat-callout>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-banner'"],["text",",\n  imports: [NeatButton, NeatCallout],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-banner.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Banner {}\n"]
+        ]
+      },
+      {
+        "name": "1-banner.example.html",
+        "code": [
+          ["text","<neat-callout tone=\"warning\" heading=\"Board changed\" region>\n  The board at 192.168.1.20 replaced the previous one. Devices are from the last scan.\n  <button neatButton neatCalloutActions type=\"button\" size=\"small\">Refresh</button>\n</neat-callout>\n"]
         ]
       }
     ]
@@ -63,9 +68,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCallout } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/callout'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-tones'"],["text",",\n  imports: [NeatCallout],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    @for (note of notes; track note.tone) {\n      <neat-callout [tone]=\"note.tone\">{{ note.tone }}: {{ note.text }}</neat-callout>\n    }\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-tones'"],["text",",\n  imports: [NeatCallout],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-tones.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./tones.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Tones {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," notes = [\n    { tone: "],
@@ -76,6 +80,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'info'"],["text",", text: "],["string","'Connecting'"],["text"," },\n    { tone: "],
           ["string","'highlight'"],["text",", text: "],["string","'External'"],["text"," },\n  ] "],
           ["keyword","as"],["text"," "],["keyword","const"],["text",";\n}\n"]
+        ]
+      },
+      {
+        "name": "2-tones.example.html",
+        "code": [
+          ["text","@for (note of notes; track note.tone) {\n  <neat-callout [tone]=\"note.tone\">{{ note.tone }}: {{ note.text }}</neat-callout>\n}\n"]
         ]
       },
       {

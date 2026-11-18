@@ -33,9 +33,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n"],
           ["keyword","import"],["text"," { "],["keyword","type"],["text"," NeatTileState, NeatVideoTile } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n"],
           ["keyword","import"],["text"," { TestPatternSource } "],["keyword","from"],["text"," "],["string","'./test-pattern-source'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-test-pattern-tiles'"],["text",",\n  imports: [NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <button neatSwitch [(checked)]=\"bars\">Bars</button>\n      <button neatSwitch [(checked)]=\"selected\">Selected</button>\n      <button neatSwitch (checkedChange)=\"testPattern.setPaused($event)\">Pause the source</button>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n    <div class=\"tiles\">\n      <div class=\"cell\">\n        <neat-video-tile\n          [source]=\"testPattern\"\n          label=\"1\"\n          status=\"Test pattern · 640×360 · 30 fps\"\n          [bars]=\"bars()\"\n          [selected]=\"selected()\"\n          (stateChange)=\"state.set($event)\"\n        >\n          <span neatTileChip class=\"chip\">Demo</span>\n        </neat-video-tile>\n      </div>\n      <div class=\"cell\">\n        <neat-video-tile label=\"2\" status=\"Waiting for stream\" [bars]=\"bars()\" />\n      </div>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-test-pattern-tiles'"],["text",",\n  imports: [NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-test-pattern-tiles.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./test-pattern-tiles.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," TestPatternTiles {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," testPattern = "],["keyword","new"],["text"," TestPatternSource();\n  "],
@@ -47,6 +46,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," document = inject(DOCUMENT);\n    afterNextRender(() => "],
           ["keyword","this"],["text",".testPattern.start(document));\n    inject(DestroyRef).onDestroy(() => "],
           ["keyword","this"],["text",".testPattern.stop());\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "1-test-pattern-tiles.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"bars\">Bars</button>\n  <button neatSwitch [(checked)]=\"selected\">Selected</button>\n  <button neatSwitch (checkedChange)=\"testPattern.setPaused($event)\">Pause the source</button>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n<div class=\"tiles\">\n  <div class=\"cell\">\n    <neat-video-tile\n      [source]=\"testPattern\"\n      label=\"1\"\n      status=\"Test pattern · 640×360 · 30 fps\"\n      [bars]=\"bars()\"\n      [selected]=\"selected()\"\n      (stateChange)=\"state.set($event)\"\n    >\n      <span neatTileChip class=\"chip\">Demo</span>\n    </neat-video-tile>\n  </div>\n  <div class=\"cell\">\n    <neat-video-tile label=\"2\" status=\"Waiting for stream\" [bars]=\"bars()\" />\n  </div>\n</div>\n"]
         ]
       },
       {
@@ -215,9 +220,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","type"],["text"," NeatTileFrame,\n  NeatVideoTile,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n"],
           ["keyword","import"],["text"," { PoseSource } "],["keyword","from"],["text"," "],["string","'./pose-source'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-poses'"],["text",",\n  imports: [NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <button neatSwitch [(checked)]=\"boxes\">Boxes</button>\n      <button neatSwitch [(checked)]=\"mirror\">Mirror</button>\n    </div>\n    <p>{{ poseCount() }} {{ poseCount() === 1 ? 'pose' : 'poses' }} in this frame</p>\n    <div class=\"tiles\">\n      <div class=\"cell\">\n        <neat-video-tile\n          [source]=\"poses\"\n          label=\"1\"\n          status=\"Hands and a person · 640×360\"\n          [settings]=\"settings()\"\n          [mirror]=\"mirror()\"\n          [frameListener]=\"countPoses\"\n        />\n      </div>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-poses'"],["text",",\n  imports: [NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-poses.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./test-pattern-tiles.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Poses {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," poses = "],["keyword","new"],["text"," PoseSource();\n  "],
@@ -237,6 +241,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," document = inject(DOCUMENT);\n    afterNextRender(() => "],
           ["keyword","this"],["text",".poses.start(document));\n    inject(DestroyRef).onDestroy(() => "],
           ["keyword","this"],["text",".poses.stop());\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "2-poses.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"boxes\">Boxes</button>\n  <button neatSwitch [(checked)]=\"mirror\">Mirror</button>\n</div>\n<p>{{ poseCount() }} {{ poseCount() === 1 ? 'pose' : 'poses' }} in this frame</p>\n<div class=\"tiles\">\n  <div class=\"cell\">\n    <neat-video-tile\n      [source]=\"poses\"\n      label=\"1\"\n      status=\"Hands and a person · 640×360\"\n      [settings]=\"settings()\"\n      [mirror]=\"mirror()\"\n      [frameListener]=\"countPoses\"\n    />\n  </div>\n</div>\n"]
         ]
       },
       {

@@ -63,14 +63,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatFileBrowser } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/file-browser'"],["text",";\n"],
           ["keyword","import"],["text"," { DEMO_TREE } "],["keyword","from"],["text"," "],["string","'./demo-tree'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-picking'"],["text",",\n  imports: [NeatFileBrowser],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"box\">\n      <neat-file-browser\n        rootLabel=\"Media Root\"\n        filterPlaceholder=\"Filter files…\"\n        [root]=\"tree\"\n        [(folder)]=\"folder\"\n        [(selected)]=\"selected\"\n      />\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">\n      Picked: {{ selected() ?? 'none' }} (in /{{ folder() }})\n    </p>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-picking'"],["text",",\n  imports: [NeatFileBrowser],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-picking.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./browser-box.css'"],["text",", "],["string","'./stack.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Picking {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," tree = DEMO_TREE;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," folder = signal("],["string","''"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," selected = signal<"],["keyword","string"],["text"," | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "1-picking.example.html",
+        "code": [
+          ["text","<div class=\"box\">\n  <neat-file-browser\n    rootLabel=\"Media Root\"\n    filterPlaceholder=\"Filter files…\"\n    [root]=\"tree\"\n    [(folder)]=\"folder\"\n    [(selected)]=\"selected\"\n  />\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">\n  Picked: {{ selected() ?? 'none' }} (in /{{ folder() }})\n</p>\n"]
         ]
       },
       {
@@ -168,9 +173,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatColumn } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select-list'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatFileBrowser } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/file-browser'"],["text",";\n"],
           ["keyword","import"],["text"," { DEMO_TREE, demoSize } "],["keyword","from"],["text"," "],["string","'./demo-tree'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-managing'"],["text",",\n  imports: [NeatColumn, NeatFileBrowser],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"box card\">\n      <neat-file-browser\n        rootLabel=\"Media Root\"\n        mode=\"manage\"\n        filterPlaceholder=\"Filter files…\"\n        [root]=\"tree\"\n        [countLabel]=\"videoCount\"\n        [(folder)]=\"folder\"\n        [(selected)]=\"selected\"\n        [(checked)]=\"checked\"\n        [(filter)]=\"filter\"\n      >\n        <ng-template neatColumn=\"type\" header=\"Type\" width=\"4rem\" let-file>{{\n          typeOf(file.name)\n        }}</ng-template>\n        <ng-template neatColumn=\"size\" header=\"Size\" width=\"5.5rem\" let-file>{{\n          sizeOf(file.path)\n        }}</ng-template>\n      </neat-file-browser>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">\n      Selected {{ selected() ?? 'none' }}, {{ checked().length }} checked, filter\n      {{ filter() ? '“' + filter() + '”' : 'empty' }}\n    </p>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-managing'"],["text",",\n  imports: [NeatColumn, NeatFileBrowser],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-managing.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./browser-box.css'"],["text",", "],["string","'./managing.example.css'"],["text",", "],["string","'./stack.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Managing {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," tree = DEMO_TREE;\n  "],
@@ -182,6 +186,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","`${count} ${count === 1 ? 'video' : 'videos'}`"],["text",";\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," typeOf = (name: "],["keyword","string"],["text",") => name.split("],["string","'.'"],["text",").pop()!.toUpperCase();\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sizeOf = demoSize;\n}\n"]
+        ]
+      },
+      {
+        "name": "2-managing.example.html",
+        "code": [
+          ["text","<div class=\"box card\">\n  <neat-file-browser\n    rootLabel=\"Media Root\"\n    mode=\"manage\"\n    filterPlaceholder=\"Filter files…\"\n    [root]=\"tree\"\n    [countLabel]=\"videoCount\"\n    [(folder)]=\"folder\"\n    [(selected)]=\"selected\"\n    [(checked)]=\"checked\"\n    [(filter)]=\"filter\"\n  >\n    <ng-template neatColumn=\"type\" header=\"Type\" width=\"4rem\" let-file>{{\n      typeOf(file.name)\n    }}</ng-template>\n    <ng-template neatColumn=\"size\" header=\"Size\" width=\"5.5rem\" let-file>{{\n      sizeOf(file.path)\n    }}</ng-template>\n  </neat-file-browser>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">\n  Selected {{ selected() ?? 'none' }}, {{ checked().length }} checked, filter\n  {{ filter() ? '“' + filter() + '”' : 'empty' }}\n</p>\n"]
         ]
       },
       {

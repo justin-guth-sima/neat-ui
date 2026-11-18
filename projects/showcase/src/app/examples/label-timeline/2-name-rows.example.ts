@@ -18,22 +18,7 @@ const WINDOW_MS = 30_000;
   selector: 'app-name-rows',
   imports: [NeatLabelTimeline],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-section">
-      @for (rows of rowCounts; track rows) {
-        <p class="showcase-muted">{{ rows === 1 ? 'One row (the default)' : 'Two rows' }}</p>
-        <neat-label-timeline
-          [label]="'Last 30 s, ' + (rows === 1 ? 'one row' : 'two rows') + ' of names'"
-          [runs]="runs"
-          [nowMs]="nowMs"
-          [windowMs]="windowMs"
-          [labels]="labels"
-          [quiet]="quiet"
-          [labelRows]="rows"
-        />
-      }
-    </div>
-  `,
+  templateUrl: './2-name-rows.example.html',
 })
 export class NameRows {
   protected readonly rowCounts = [1, 2];

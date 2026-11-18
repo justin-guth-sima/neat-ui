@@ -1,0 +1,10 @@
+<neat-score-bars
+  label="Gesture probabilities"
+  [scores]="scores()"
+  [labels]="labels"
+  [quiet]="quiet"
+/>
+<p class="reading">
+  <span class="dot" [style.background]="topColor()"></span>
+  {{ top().label }}
+</p>

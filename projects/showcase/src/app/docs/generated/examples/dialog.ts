@@ -144,9 +144,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/dialog'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatInput } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/input'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-rename-a-source'"],["text",",\n  imports: [NeatButton, NeatDialogActions, NeatDialogBody, NeatInput, NeatSwitch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"open(renameDialog)\">\n        Rename source…\n      </button>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ result() }}</p>\n\n    <ng-template #renameDialog let-dialog>\n      <neat-dialog-body>\n        <div class=\"dialog-form\">\n          <label class=\"dialog-field\">\n            <span>Name</span>\n            <input neatInput #name value=\"Front door\" [readOnly]=\"saving()\" />\n          </label>\n          <button\n            neatSwitch\n            [disabled]=\"saving()\"\n            [checked]=\"dialog.dismissible()\"\n            (checkedChange)=\"dialog.setDismissible($event)\"\n          >\n            Escape and the backdrop close this dialog\n          </button>\n        </div>\n      </neat-dialog-body>\n      <neat-dialog-actions>\n        <button\n          neatButton\n          type=\"button\"\n          variant=\"outlined\"\n          [attr.aria-disabled]=\"saving() || null\"\n          (click)=\"saving() || dialog.close()\"\n        >\n          Cancel\n        </button>\n        <button\n          neatButton\n          type=\"button\"\n          [attr.aria-disabled]=\"saving() || null\"\n          (click)=\"saving() || save(dialog, name.value)\"\n        >\n          {{ saving() ? 'Saving…' : 'Save' }}\n        </button>\n      </neat-dialog-actions>\n    </ng-template>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-rename-a-source'"],["text",",\n  imports: [NeatButton, NeatDialogActions, NeatDialogBody, NeatInput, NeatSwitch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-rename-a-source.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./rename-a-source.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," RenameASource {\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," dialogs = inject(NeatDialog);\n  "],
@@ -160,6 +159,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","this"],["text",".saving.set("],["keyword","true"],["text",");\n    dialog.setDismissible("],
           ["keyword","false"],["text",");\n    setTimeout(() => {\n      "],
           ["keyword","this"],["text",".saving.set("],["keyword","false"],["text",");\n      dialog.close(name);\n    }, 1500);\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "1-rename-a-source.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"open(renameDialog)\">\n    Rename source…\n  </button>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ result() }}</p>\n\n<ng-template #renameDialog let-dialog>\n  <neat-dialog-body>\n    <div class=\"dialog-form\">\n      <label class=\"dialog-field\">\n        <span>Name</span>\n        <input neatInput #name value=\"Front door\" [readOnly]=\"saving()\" />\n      </label>\n      <button\n        neatSwitch\n        [disabled]=\"saving()\"\n        [checked]=\"dialog.dismissible()\"\n        (checkedChange)=\"dialog.setDismissible($event)\"\n      >\n        Escape and the backdrop close this dialog\n      </button>\n    </div>\n  </neat-dialog-body>\n  <neat-dialog-actions>\n    <button\n      neatButton\n      type=\"button\"\n      variant=\"outlined\"\n      [attr.aria-disabled]=\"saving() || null\"\n      (click)=\"saving() || dialog.close()\"\n    >\n      Cancel\n    </button>\n    <button\n      neatButton\n      type=\"button\"\n      [attr.aria-disabled]=\"saving() || null\"\n      (click)=\"saving() || save(dialog, name.value)\"\n    >\n      {{ saving() ? 'Saving…' : 'Save' }}\n    </button>\n  </neat-dialog-actions>\n</ng-template>\n"]
         ]
       },
       {
@@ -209,9 +214,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatDialog, NeatDialogActions, NeatDialogBody } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/dialog'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-long-content'"],["text",",\n  imports: [NeatButton, NeatDialogActions, NeatDialogBody],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"open(longDialog)\">\n        Large dialog with long content…\n      </button>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ result() }}</p>\n\n    <ng-template #longDialog let-dialog>\n      <neat-dialog-body>\n        <ul class=\"dialog-list\">\n          @for (line of lines; track line) {\n            <li>{{ line }}</li>\n          }\n        </ul>\n      </neat-dialog-body>\n      <neat-dialog-actions>\n        <button neatButton type=\"button\" (click)=\"dialog.close()\">Done</button>\n      </neat-dialog-actions>\n    </ng-template>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-long-content'"],["text",",\n  imports: [NeatButton, NeatDialogActions, NeatDialogBody],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-long-content.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./long-content.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," LongContent {\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," dialogs = inject(NeatDialog);\n  "],
@@ -221,6 +225,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","protected"],["text"," "],["keyword","async"],["text"," open(content: TemplateRef<"],["keyword","unknown"],["text",">): Promise<"],["keyword","void"],["text","> {\n    "],
           ["keyword","await"],["text"," "],["keyword","this"],["text",".dialogs.open(content, { title: "],["string","'Sources'"],["text",", size: "],["string","'large'"],["text"," }).closed;\n    "],
           ["keyword","this"],["text",".result.set("],["string","'Sources: closed'"],["text",");\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "2-long-content.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"open(longDialog)\">\n    Large dialog with long content…\n  </button>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ result() }}</p>\n\n<ng-template #longDialog let-dialog>\n  <neat-dialog-body>\n    <ul class=\"dialog-list\">\n      @for (line of lines; track line) {\n        <li>{{ line }}</li>\n      }\n    </ul>\n  </neat-dialog-body>\n  <neat-dialog-actions>\n    <button neatButton type=\"button\" (click)=\"dialog.close()\">Done</button>\n  </neat-dialog-actions>\n</ng-template>\n"]
         ]
       },
       {
@@ -281,9 +291,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatDialog } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/dialog'"],["text",";\n"],
           ["keyword","import"],["text"," { SourceDialog, "],["keyword","type"],["text"," SourceKind } "],["keyword","from"],["text"," "],["string","'./source-dialog'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-component-with-inputs'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"open()\">\n        Change source of src3…\n      </button>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ result() }}</p>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-component-with-inputs'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-component-with-inputs.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ComponentWithInputs {\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," dialogs = inject(NeatDialog);\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," result = signal("],["string","'Not opened yet'"],["text",");\n\n  "],
@@ -292,6 +301,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'Change source'"],["text",",\n      inputs: { slot: 3, startOn: "],
           ["string","'camera'"],["text"," },\n    }).closed;\n    "],
           ["keyword","this"],["text",".result.set(kind === "],["keyword","undefined"],["text"," ? "],["string","'Source: dismissed'"],["text"," : "],["string","`Source: ${kind}`"],["text",");\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "3-component-with-inputs.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"open()\">\n    Change source of src3…\n  </button>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ result() }}</p>\n"]
         ]
       },
       {

@@ -38,14 +38,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatHeatmap } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { CORES, percent, TIMES } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-core-load'"],["text",",\n  imports: [NeatHeatmap],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"card\">\n      <neat-heatmap\n        label=\"Per-core CPU\"\n        headline=\"47%\"\n        [rows]=\"rows\"\n        [times]=\"times\"\n        [format]=\"percent\"\n      />\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-core-load'"],["text",",\n  imports: [NeatHeatmap],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-core-load.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./core-load.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," CoreLoad {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," rows = CORES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," times = TIMES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," percent = percent;\n}\n"]
+        ]
+      },
+      {
+        "name": "1-core-load.example.html",
+        "code": [
+          ["text","<div class=\"card\">\n  <neat-heatmap\n    label=\"Per-core CPU\"\n    headline=\"47%\"\n    [rows]=\"rows\"\n    [times]=\"times\"\n    [format]=\"percent\"\n  />\n</div>\n"]
         ]
       },
       {
@@ -150,9 +155,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { CORES, percent, TIMES } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n"],
           ["comment","/** A moment as the card says it: the time of day, in UTC like the demo's data. */"],["text","\n"],
           ["keyword","const"],["text"," clock = (time: "],["keyword","number"],["text",") => "],["keyword","new"],["text"," Date(time).toISOString().slice(11, 19);\n\n@Component({\n  selector: "],
-          ["string","'app-heatmap-from-the-app'"],["text",",\n  imports: [NeatButton, NeatHeatmap],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"beside\">\n      <div class=\"card\">\n        <neat-heatmap\n          label=\"Per-core CPU\"\n          [rows]=\"rows\"\n          [times]=\"times\"\n          [format]=\"percent\"\n          [(hovered)]=\"cell\"\n          (activated)=\"picked.set($event)\"\n        />\n      </div>\n      <div class=\"report\">\n        <dl>\n          <dt>Hovered</dt>\n          <dd>{{ cellText() }}</dd>\n          <dt>Last click</dt>\n          <dd>{{ pickedText() }}</dd>\n        </dl>\n        <div class=\"actions\">\n          <button neatButton type=\"button\" size=\"small\" variant=\"secondary\" (click)=\"showBusiest()\">\n            Show core 15 now\n          </button>\n          <button neatButton type=\"button\" size=\"small\" variant=\"outlined\" (click)=\"cell.set(null)\">\n            Clear\n          </button>\n        </div>\n      </div>\n    </div>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-heatmap-from-the-app'"],["text",",\n  imports: [NeatButton, NeatHeatmap],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-from-the-app.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./core-load.example.css'"],["text",", "],["string","'./report.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," HeatmapFromTheApp {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," rows = CORES;\n  "],
@@ -170,6 +174,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","return"],["text"," "],["string","`${pick.row}${pick.time === null ? '' : ` at ${clock(pick.time)}`}: ${value}`"],["text",";\n  });\n\n  "],
           ["keyword","protected"],["text"," showBusiest(): "],["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".cell.set({ row: "],["string","'core15'"],["text",", time: TIMES[TIMES.length - 1] });\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "2-from-the-app.example.html",
+        "code": [
+          ["text","<div class=\"beside\">\n  <div class=\"card\">\n    <neat-heatmap\n      label=\"Per-core CPU\"\n      [rows]=\"rows\"\n      [times]=\"times\"\n      [format]=\"percent\"\n      [(hovered)]=\"cell\"\n      (activated)=\"picked.set($event)\"\n    />\n  </div>\n  <div class=\"report\">\n    <dl>\n      <dt>Hovered</dt>\n      <dd>{{ cellText() }}</dd>\n      <dt>Last click</dt>\n      <dd>{{ pickedText() }}</dd>\n    </dl>\n    <div class=\"actions\">\n      <button neatButton type=\"button\" size=\"small\" variant=\"secondary\" (click)=\"showBusiest()\">\n        Show core 15 now\n      </button>\n      <button neatButton type=\"button\" size=\"small\" variant=\"outlined\" (click)=\"cell.set(null)\">\n        Clear\n      </button>\n    </div>\n  </div>\n</div>\n"]
         ]
       },
       {

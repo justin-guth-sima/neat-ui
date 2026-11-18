@@ -12,13 +12,7 @@ import { NeatSwatch, SIMA_PALETTE } from '@sima/neat-ui';
   selector: 'app-any-color',
   imports: [NeatSwatch],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <ul class="chips" aria-label="Classes">
-      @for (row of classes; track row.label) {
-        <li><neat-swatch [color]="row.color" />{{ row.label }}</li>
-      }
-    </ul>
-  `,
+  templateUrl: './2-any-color.example.html',
   styleUrl: './run-chips.example.css',
 })
 export class AnyColor {

@@ -1,0 +1,8 @@
+<neat-segmented label="Highlight" [options]="modes" [(value)]="mode" />
+<neat-diagram-legend [items]="legend" />
+<neat-diagram
+  class="diagram"
+  [diagram]="flow"
+  label="A compile flow to hover"
+  [highlight]="mode()"
+/>

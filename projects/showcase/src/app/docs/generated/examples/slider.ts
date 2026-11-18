@@ -28,12 +28,17 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSlider } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/slider'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-live-value'"],["text",",\n  imports: [NeatSlider],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"field\">\n      <span>Opacity</span>\n      <neat-slider label=\"Opacity\" [min]=\"0\" [max]=\"100\" [step]=\"5\" [(value)]=\"opacity\" />\n      <span class=\"showcase-code showcase-muted\">{{ opacity() }} %</span>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-live-value'"],["text",",\n  imports: [NeatSlider],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-live-value.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./slider-field.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," LiveValue {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," opacity = signal(60);\n}\n"]
+        ]
+      },
+      {
+        "name": "1-live-value.example.html",
+        "code": [
+          ["text","<div class=\"field\">\n  <span>Opacity</span>\n  <neat-slider label=\"Opacity\" [min]=\"0\" [max]=\"100\" [step]=\"5\" [(value)]=\"opacity\" />\n  <span class=\"showcase-code showcase-muted\">{{ opacity() }} %</span>\n</div>\n"]
         ]
       },
       {
@@ -69,12 +74,17 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSlider } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/slider'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-described-and-disabled'"],["text",",\n  imports: [NeatSlider],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"field\">\n      <span>Described</span>\n      <neat-slider\n        label=\"Gain\"\n        describedBy=\"gain-note\"\n        [min]=\"0\"\n        [max]=\"100\"\n        [step]=\"5\"\n        [(value)]=\"gain\"\n      />\n      <span id=\"gain-note\" class=\"showcase-muted\"> <code>describedBy</code> names this note. </span>\n    </div>\n    <div class=\"field\">\n      <span>Disabled</span>\n      <neat-slider label=\"Disabled\" [min]=\"0\" [max]=\"100\" [step]=\"5\" [value]=\"40\" disabled />\n    </div>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-described-and-disabled'"],["text",",\n  imports: [NeatSlider],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-described-and-disabled.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./slider-field.css'"],["text",", "],["string","'./described-and-disabled.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," DescribedAndDisabled {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," gain = signal(30);\n}\n"]
+        ]
+      },
+      {
+        "name": "2-described-and-disabled.example.html",
+        "code": [
+          ["text","<div class=\"field\">\n  <span>Described</span>\n  <neat-slider\n    label=\"Gain\"\n    describedBy=\"gain-note\"\n    [min]=\"0\"\n    [max]=\"100\"\n    [step]=\"5\"\n    [(value)]=\"gain\"\n  />\n  <span id=\"gain-note\" class=\"showcase-muted\"> <code>describedBy</code> names this note. </span>\n</div>\n<div class=\"field\">\n  <span>Disabled</span>\n  <neat-slider label=\"Disabled\" [min]=\"0\" [max]=\"100\" [step]=\"5\" [value]=\"40\" disabled />\n</div>\n"]
         ]
       },
       {

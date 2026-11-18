@@ -46,7 +46,7 @@ import { OVERVIEW, WITH_STEPS } from './pipeline-data';
   selector: 'app-detector-level',
   imports: [NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-diagram class="diagram" [diagram]="pipeline" label="A pipeline" />`,
+  templateUrl: './1-detector-level.example.html',
   styleUrl: './detector-level.example.css',
 })
 export class DetectorLevel {
@@ -56,6 +56,12 @@ export class DetectorLevel {
     levels: { detector: neatDrillDownLevel(WITH_STEPS, 'detector') },
   };
 }
+```
+
+`1-detector-level.example.html`
+
+```html
+<neat-diagram class="diagram" [diagram]="pipeline" label="A pipeline" />
 ```
 
 `pipeline-data.ts`

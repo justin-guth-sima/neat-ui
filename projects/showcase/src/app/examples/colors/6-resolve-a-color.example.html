@@ -1,0 +1,8 @@
+<label class="field">
+  <span>CSS color</span>
+  <input neatInput #css [value]="text()" (input)="text.set(css.value)" />
+</label>
+<div class="showcase-row">
+  <span class="swatch" [style.background]="text()"></span>
+  <span class="showcase-code">{{ result() }}</span>
+</div>

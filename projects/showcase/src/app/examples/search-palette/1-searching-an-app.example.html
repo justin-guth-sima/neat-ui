@@ -1,0 +1,7 @@
+<neat-search-palette
+  label="Search pages"
+  shortcut="false"
+  [search]="search"
+  (picked)="last.set($event.label)"
+/>
+<p class="showcase-muted">Last opened: {{ last() ?? 'none yet' }}</p>

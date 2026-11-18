@@ -51,18 +51,7 @@ import { RAILS, TIMES, watts } from './data';
   selector: 'app-power-rails',
   imports: [NeatStackedChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="card">
-      <neat-stacked-chart
-        label="Where the power goes"
-        headline="11.2 W"
-        [series]="rails"
-        [times]="times"
-        [domain]="[0, 16]"
-        [format]="watts"
-      />
-    </div>
-  `,
+  templateUrl: './1-power-rails.example.html',
   styleUrl: './power-rails.example.css',
 })
 export class PowerRails {
@@ -70,6 +59,21 @@ export class PowerRails {
   protected readonly times = TIMES;
   protected readonly watts = watts;
 }
+```
+
+`1-power-rails.example.html`
+
+```html
+<div class="card">
+  <neat-stacked-chart
+    label="Where the power goes"
+    headline="11.2 W"
+    [series]="rails"
+    [times]="times"
+    [domain]="[0, 16]"
+    [format]="watts"
+  />
+</div>
 ```
 
 `data.ts`
@@ -167,49 +171,7 @@ const clock = (time: number) => new Date(time).toISOString().slice(11, 19);
   selector: 'app-stacked-from-the-app',
   imports: [NeatButton, NeatStackedChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="beside">
-      <div class="card">
-        <neat-stacked-chart
-          label="Where the power goes"
-          [series]="rails"
-          [times]="times"
-          [domain]="[0, 16]"
-          [format]="watts"
-          [(hovered)]="moment"
-          (activated)="picked.set($event)"
-        />
-      </div>
-      <div class="report">
-        <dl>
-          <dt>Hovered</dt>
-          <dd>{{ momentText() }}</dd>
-          <dt>Last click</dt>
-          <dd>{{ pickedText() }}</dd>
-        </dl>
-        <div class="actions">
-          <button
-            neatButton
-            type="button"
-            size="small"
-            variant="secondary"
-            (click)="moment.set(times[30])"
-          >
-            Show 12:02
-          </button>
-          <button
-            neatButton
-            type="button"
-            size="small"
-            variant="outlined"
-            (click)="moment.set(null)"
-          >
-            Clear
-          </button>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './2-from-the-app.example.html',
   styleUrls: ['./power-rails.example.css', './report.example.css'],
 })
 export class StackedFromTheApp {
@@ -231,6 +193,46 @@ export class StackedFromTheApp {
     return `${pick.time === null ? 'A sample' : clock(pick.time)}: ${watts(total)} in all`;
   });
 }
+```
+
+`2-from-the-app.example.html`
+
+```html
+<div class="beside">
+  <div class="card">
+    <neat-stacked-chart
+      label="Where the power goes"
+      [series]="rails"
+      [times]="times"
+      [domain]="[0, 16]"
+      [format]="watts"
+      [(hovered)]="moment"
+      (activated)="picked.set($event)"
+    />
+  </div>
+  <div class="report">
+    <dl>
+      <dt>Hovered</dt>
+      <dd>{{ momentText() }}</dd>
+      <dt>Last click</dt>
+      <dd>{{ pickedText() }}</dd>
+    </dl>
+    <div class="actions">
+      <button
+        neatButton
+        type="button"
+        size="small"
+        variant="secondary"
+        (click)="moment.set(times[30])"
+      >
+        Show 12:02
+      </button>
+      <button neatButton type="button" size="small" variant="outlined" (click)="moment.set(null)">
+        Clear
+      </button>
+    </div>
+  </div>
+</div>
 ```
 
 `data.ts`

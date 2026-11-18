@@ -96,15 +96,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'Details'"],["text",",\n    items: [\n      { label: "],
           ["string","'Network'"],["text",", path: "],["string","'/demo/page/details/network'"],["text"," },\n      { label: "],
           ["string","'Storage'"],["text",", path: "],["string","'/demo/page/details/storage'"],["text"," },\n    ],\n  },\n];\n\n@Component({\n  selector: "],
-          ["string","'app-overview'"],["text",",\n  imports: [NeatButton, NeatPage, NeatPageNav, NeatPageToolbar],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div *neatPageToolbar>\n      <button neatButton type=\"button\" variant=\"text\" size=\"small\" (click)=\"many.set(!many())\">\n        {{ many() ? 'Fewer' : 'More' }} sections\n      </button>\n    </div>\n\n    <neat-page>\n      <nav\n        neatPageNav\n        aria-label=\"Page example\"\n        [groups]=\"pageNav\"\n        filterLabel=\"Filter views\"\n      ></nav>\n      <div class=\"showcase-page\">\n        <section class=\"showcase-section\">\n          <h2>Page</h2>\n          <p>\n            Content like this belongs to the page, not to the shell. It never measures the shell's\n            size and never sets a height, so the same page works in a small window, on a wall\n            display and in kiosk mode, where the rail and the top bar are gone and the page gets the\n            whole viewport.\n          </p>\n          <p class=\"showcase-muted\">\n            The screen is {{ narrow() ? 'narrow, below 48rem' : 'wide' }}.\n          </p>\n        </section>\n        @for (section of sections(); track section) {\n          <section class=\"showcase-section\">\n            <h3>Section {{ section }}</h3>\n            <p class=\"showcase-muted\">More of the body, which is all that scrolls.</p>\n          </section>\n        }\n      </div>\n    </neat-page>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-overview'"],["text",",\n  imports: [NeatButton, NeatPage, NeatPageNav, NeatPageToolbar],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-overview.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Overview {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pageNav = PAGE_NAV;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," narrow = inject(NeatViewport).narrow;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," many = signal("],["keyword","true"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sections = computed(() =>\n    Array.from({ length: "],
           ["keyword","this"],["text",".many() ? 20 : 3 }, (_, index) => index + 1),\n  );\n}\n"]
+        ]
+      },
+      {
+        "name": "1-overview.example.html",
+        "code": [
+          ["text","<div *neatPageToolbar>\n  <button neatButton type=\"button\" variant=\"text\" size=\"small\" (click)=\"many.set(!many())\">\n    {{ many() ? 'Fewer' : 'More' }} sections\n  </button>\n</div>\n\n<neat-page>\n  <nav neatPageNav aria-label=\"Page example\" [groups]=\"pageNav\" filterLabel=\"Filter views\"></nav>\n  <div class=\"showcase-page\">\n    <section class=\"showcase-section\">\n      <h2>Page</h2>\n      <p>\n        Content like this belongs to the page, not to the shell. It never measures the shell's size\n        and never sets a height, so the same page works in a small window, on a wall display and in\n        kiosk mode, where the rail and the top bar are gone and the page gets the whole viewport.\n      </p>\n      <p class=\"showcase-muted\">The screen is {{ narrow() ? 'narrow, below 48rem' : 'wide' }}.</p>\n    </section>\n    @for (section of sections(); track section) {\n      <section class=\"showcase-section\">\n        <h3>Section {{ section }}</h3>\n        <p class=\"showcase-muted\">More of the body, which is all that scrolls.</p>\n      </section>\n    }\n  </div>\n</neat-page>\n"]
         ]
       }
     ]
@@ -169,11 +174,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'Details'"],["text",",\n    items: [\n      { label: "],
           ["string","'Network'"],["text",", path: "],["string","'/demo/page/details/network'"],["text"," },\n      { label: "],
           ["string","'Storage'"],["text",", path: "],["string","'/demo/page/details/storage'"],["text"," },\n    ],\n  },\n];\n\n@Component({\n  selector: "],
-          ["string","'app-details'"],["text",",\n  imports: [NeatPage, NeatPageNav],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-page>\n      <nav neatPageNav aria-label=\"Page example\" [groups]=\"pageNav\"></nav>\n      <div class=\"showcase-page\">\n        <section class=\"showcase-section\">\n          <h2>Details</h2>\n          <p>The same list as the overview's, on a route of its own.</p>\n        </section>\n      </div>\n    </neat-page>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-details'"],["text",",\n  imports: [NeatPage, NeatPageNav],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-details.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Details {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pageNav = PAGE_NAV;\n}\n"]
+        ]
+      },
+      {
+        "name": "2-details.example.html",
+        "code": [
+          ["text","<neat-page>\n  <nav neatPageNav aria-label=\"Page example\" [groups]=\"pageNav\"></nav>\n  <div class=\"showcase-page\">\n    <section class=\"showcase-section\">\n      <h2>Details</h2>\n      <p>The same list as the overview's, on a route of its own.</p>\n    </section>\n  </div>\n</neat-page>\n"]
         ]
       }
     ]
@@ -219,12 +229,17 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatPage } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-full-bleed'"],["text",",\n  imports: [NeatPage],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-page padding=\"none\" scroll=\"none\">\n      <div class=\"grid\">\n        @for (tile of tiles; track tile) {\n          <div class=\"tile\">Tile {{ tile }}</div>\n        }\n      </div>\n    </neat-page>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-full-bleed'"],["text",",\n  imports: [NeatPage],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-full-bleed.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./full-bleed.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," FullBleed {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," tiles = Array.from({ length: 6 }, (_, index) => index + 1);\n}\n"]
+        ]
+      },
+      {
+        "name": "3-full-bleed.example.html",
+        "code": [
+          ["text","<neat-page padding=\"none\" scroll=\"none\">\n  <div class=\"grid\">\n    @for (tile of tiles; track tile) {\n      <div class=\"tile\">Tile {{ tile }}</div>\n    }\n  </div>\n</neat-page>\n"]
         ]
       },
       {

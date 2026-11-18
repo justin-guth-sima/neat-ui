@@ -21,36 +21,7 @@ const clock = (time: number) => new Date(time).toISOString().slice(11, 19);
   selector: 'app-heatmap-from-the-app',
   imports: [NeatButton, NeatHeatmap],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="beside">
-      <div class="card">
-        <neat-heatmap
-          label="Per-core CPU"
-          [rows]="rows"
-          [times]="times"
-          [format]="percent"
-          [(hovered)]="cell"
-          (activated)="picked.set($event)"
-        />
-      </div>
-      <div class="report">
-        <dl>
-          <dt>Hovered</dt>
-          <dd>{{ cellText() }}</dd>
-          <dt>Last click</dt>
-          <dd>{{ pickedText() }}</dd>
-        </dl>
-        <div class="actions">
-          <button neatButton type="button" size="small" variant="secondary" (click)="showBusiest()">
-            Show core 15 now
-          </button>
-          <button neatButton type="button" size="small" variant="outlined" (click)="cell.set(null)">
-            Clear
-          </button>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './2-from-the-app.example.html',
   styleUrls: ['./core-load.example.css', './report.example.css'],
 })
 export class HeatmapFromTheApp {

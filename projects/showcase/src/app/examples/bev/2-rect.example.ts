@@ -16,7 +16,7 @@ import { streetFrames } from './scene';
   selector: 'app-rect',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-bev shape="rect" [bounds]="bounds" [spokes]="0" [frame]="frame()" />`,
+  templateUrl: './2-rect.example.html',
   styleUrl: './bev.example.css',
 })
 export class Rect {

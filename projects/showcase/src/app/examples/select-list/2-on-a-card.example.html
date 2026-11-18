@@ -1,0 +1,13 @@
+<div class="box wide card">
+  <neat-select-list
+    label="Channels on a card"
+    [items]="channels"
+    [trackBy]="channelId"
+    [(selected)]="selected"
+  >
+    <ng-template neatColumn="name" header="Channel" let-channel>{{ channel.name }}</ng-template>
+    <ng-template neatColumn="state" header="State" width="6rem" let-channel>{{
+      channel.state
+    }}</ng-template>
+  </neat-select-list>
+</div>

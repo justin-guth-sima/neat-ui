@@ -16,12 +16,7 @@ import { BUILDINGS, SAFETY_ZONE, streetFrames } from './scene';
   selector: 'app-layers',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-bev
-    [frame]="frame()"
-    [background]="buildings"
-    [foreground]="zone"
-    [range]="40"
-  />`,
+  templateUrl: './5-layers.example.html',
   styleUrl: './bev.example.css',
 })
 export class Layers {

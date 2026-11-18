@@ -30,12 +30,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatProgress } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/progress'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSlider } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/slider'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-known-and-unknown'"],["text",",\n  imports: [NeatProgress, NeatSlider],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <span>Known, from the slider</span>\n    <neat-progress label=\"Upload\" [value]=\"progress()\" />\n    <neat-slider\n      class=\"slider\"\n      label=\"Progress value\"\n      [min]=\"0\"\n      [max]=\"100\"\n      [step]=\"5\"\n      [(value)]=\"progress\"\n    />\n    <span>Complete</span>\n    <neat-progress label=\"Import\" [value]=\"100\" />\n    <span>Unknown</span>\n    <neat-progress label=\"Preparing\" [value]=\"null\" />\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-known-and-unknown'"],["text",",\n  imports: [NeatProgress, NeatSlider],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-known-and-unknown.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./stack.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," KnownAndUnknown {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," progress = signal(40);\n}\n"]
+        ]
+      },
+      {
+        "name": "1-known-and-unknown.example.html",
+        "code": [
+          ["text","<span>Known, from the slider</span>\n<neat-progress label=\"Upload\" [value]=\"progress()\" />\n<neat-slider\n  class=\"slider\"\n  label=\"Progress value\"\n  [min]=\"0\"\n  [max]=\"100\"\n  [step]=\"5\"\n  [(value)]=\"progress\"\n/>\n<span>Complete</span>\n<neat-progress label=\"Import\" [value]=\"100\" />\n<span>Unknown</span>\n<neat-progress label=\"Preparing\" [value]=\"null\" />\n"]
         ]
       },
       {
@@ -76,12 +81,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatProgress } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/progress'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSlider } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/slider'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-titled-readout'"],["text",",\n  imports: [NeatProgress, NeatSlider],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-progress\n      heading=\"Encoding clip.mp4\"\n      detail=\"0:41 / 1:37 · h264_v4l2m2m, at 30 fps, a very long detail that cuts at the end\"\n      [value]=\"progress()\"\n    />\n    <neat-slider\n      class=\"slider\"\n      label=\"Encoded share\"\n      [min]=\"0\"\n      [max]=\"100\"\n      [step]=\"5\"\n      [(value)]=\"progress\"\n    />\n    <neat-progress heading=\"Preparing\" detail=\"Probing the file\" [value]=\"null\" />\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-titled-readout'"],["text",",\n  imports: [NeatProgress, NeatSlider],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-titled-readout.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./stack.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," TitledReadout {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," progress = signal(40);\n}\n"]
+        ]
+      },
+      {
+        "name": "2-titled-readout.example.html",
+        "code": [
+          ["text","<neat-progress\n  heading=\"Encoding clip.mp4\"\n  detail=\"0:41 / 1:37 · h264_v4l2m2m, at 30 fps, a very long detail that cuts at the end\"\n  [value]=\"progress()\"\n/>\n<neat-slider\n  class=\"slider\"\n  label=\"Encoded share\"\n  [min]=\"0\"\n  [max]=\"100\"\n  [step]=\"5\"\n  [(value)]=\"progress\"\n/>\n<neat-progress heading=\"Preparing\" detail=\"Probing the file\" [value]=\"null\" />\n"]
         ]
       },
       {

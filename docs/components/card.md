@@ -48,16 +48,20 @@ import { NeatCard } from '@sima/neat-ui/card';
   selector: 'app-titled-card',
   imports: [NeatButton, NeatCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-card title="Detections" subtitle="The last minute" region>
-      <button neatButton neatCardActions type="button" size="small">Clear</button>
-      <p>Nothing yet.</p>
-      <p neatCardFooter>Updated just now</p>
-    </neat-card>
-  `,
+  templateUrl: './1-titled-card.example.html',
   styleUrl: './card.example.css',
 })
 export class TitledCardExample {}
+```
+
+`1-titled-card.example.html`
+
+```html
+<neat-card title="Detections" subtitle="The last minute" region>
+  <button neatButton neatCardActions type="button" size="small">Clear</button>
+  <p>Nothing yet.</p>
+  <p neatCardFooter>Updated just now</p>
+</neat-card>
 ```
 
 `card.example.css`
@@ -102,14 +106,18 @@ import { NeatCard } from '@sima/neat-ui/card';
   selector: 'app-content-only-card',
   imports: [NeatCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-card>
-      <p>yolov8n, 640 by 640.</p>
-    </neat-card>
-  `,
+  templateUrl: './2-content-only.example.html',
   styleUrl: './card.example.css',
 })
 export class ContentOnlyCardExample {}
+```
+
+`2-content-only.example.html`
+
+```html
+<neat-card>
+  <p>yolov8n, 640 by 640.</p>
+</neat-card>
 ```
 
 `card.example.css`
@@ -156,26 +164,30 @@ import { NeatCard } from '@sima/neat-ui/card';
   selector: 'app-filling-the-row',
   imports: [NeatCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-card>
-      <div class="frame">
-        <img
-          class="picture"
-          alt="A gray frame with a lighter square in its middle"
-          src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='160' height='90' fill='%23888'/%3E%3Crect x='60' y='25' width='40' height='40' fill='%23ccc'/%3E%3C/svg%3E"
-        />
-      </div>
-    </neat-card>
-    <neat-card title="Camera 1" subtitle="Front door">
-      <p>Last detection: person, 0.92.</p>
-      <p>Two more in the last minute, one of them a car.</p>
-      <p>Nothing since.</p>
-      <p neatCardFooter>Updated just now</p>
-    </neat-card>
-  `,
+  templateUrl: './3-filling-the-row.example.html',
   styleUrl: './filling-the-row.example.css',
 })
 export class FillingTheRowExample {}
+```
+
+`3-filling-the-row.example.html`
+
+```html
+<neat-card>
+  <div class="frame">
+    <img
+      class="picture"
+      alt="A gray frame with a lighter square in its middle"
+      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='160' height='90' fill='%23888'/%3E%3Crect x='60' y='25' width='40' height='40' fill='%23ccc'/%3E%3C/svg%3E"
+    />
+  </div>
+</neat-card>
+<neat-card title="Camera 1" subtitle="Front door">
+  <p>Last detection: person, 0.92.</p>
+  <p>Two more in the last minute, one of them a car.</p>
+  <p>Nothing since.</p>
+  <p neatCardFooter>Updated just now</p>
+</neat-card>
 ```
 
 `filling-the-row.example.css`
@@ -233,16 +245,20 @@ import { NeatCard } from '@sima/neat-ui/card';
   selector: 'app-actions-only-card',
   imports: [NeatButton, NeatCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-card>
-      <button neatButton neatCardActions type="button" size="small">Refresh</button>
-      <button neatButton neatCardActions type="button" size="small">Clear</button>
-      <p>yolov8n, 640 by 640.</p>
-    </neat-card>
-  `,
+  templateUrl: './4-actions-only.example.html',
   styleUrl: './card.example.css',
 })
 export class ActionsOnlyCardExample {}
+```
+
+`4-actions-only.example.html`
+
+```html
+<neat-card>
+  <button neatButton neatCardActions type="button" size="small">Refresh</button>
+  <button neatButton neatCardActions type="button" size="small">Clear</button>
+  <p>yolov8n, 640 by 640.</p>
+</neat-card>
 ```
 
 `card.example.css`
@@ -287,19 +303,23 @@ import { NeatCard } from '@sima/neat-ui/card';
   selector: 'app-title-button-card',
   imports: [NeatCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-card subtitle="Click the title">
-      <button type="button" neatCardTitle class="title-button" (click)="opened.set(!opened())">
-        Detections
-      </button>
-      <p>{{ opened() ? 'Opened.' : 'Closed.' }}</p>
-    </neat-card>
-  `,
+  templateUrl: './5-title-as-a-button.example.html',
   styleUrl: './card.example.css',
 })
 export class TitleButtonCardExample {
   protected readonly opened = signal(false);
 }
+```
+
+`5-title-as-a-button.example.html`
+
+```html
+<neat-card subtitle="Click the title">
+  <button type="button" neatCardTitle class="title-button" (click)="opened.set(!opened())">
+    Detections
+  </button>
+  <p>{{ opened() ? 'Opened.' : 'Closed.' }}</p>
+</neat-card>
 ```
 
 `card.example.css`

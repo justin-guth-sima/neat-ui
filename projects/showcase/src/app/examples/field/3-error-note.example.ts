@@ -6,7 +6,7 @@ import { NeatErrorNote } from '@sima/neat-ui/field';
   selector: 'app-error-note',
   imports: [NeatErrorNote],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-error-note>{{ message }}</neat-error-note>`,
+  templateUrl: './3-error-note.example.html',
 })
 export class ErrorNote {
   protected readonly message =

@@ -73,15 +73,20 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, computed, inject } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton, "],["keyword","type"],["text"," NeatColorScheme, ThemeService } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-color-scheme'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <p>\n      The scheme is <strong>{{ theme.scheme() }}</strong\n      >.\n    </p>\n    <div class=\"showcase-row\">\n      <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"theme.toggle()\">\n        Switch to {{ other() }}\n      </button>\n      <button neatButton type=\"button\" variant=\"text\" size=\"small\" (click)=\"tryOther()\">\n        Show {{ other() }} without saving\n      </button>\n    </div>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-color-scheme'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-color-scheme.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ColorScheme {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," theme = inject(ThemeService);\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," other = computed<NeatColorScheme>(() =>\n    "],
           ["keyword","this"],["text",".theme.scheme() === "],["string","'dark'"],["text"," ? "],["string","'light'"],["text"," : "],["string","'dark'"],["text",",\n  );\n\n  "],
           ["keyword","protected"],["text"," tryOther(): "],["keyword","void"],["text"," {\n    "],
           ["keyword","this"],["text",".theme.setScheme("],["keyword","this"],["text",".other(), { persist: "],["keyword","false"],["text"," });\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "1-color-scheme.example.html",
+        "code": [
+          ["text","<p>\n  The scheme is <strong>{{ theme.scheme() }}</strong\n  >.\n</p>\n<div class=\"showcase-row\">\n  <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"theme.toggle()\">\n    Switch to {{ other() }}\n  </button>\n  <button neatButton type=\"button\" variant=\"text\" size=\"small\" (click)=\"tryOther()\">\n    Show {{ other() }} without saving\n  </button>\n</div>\n"]
         ]
       }
     ]
@@ -119,12 +124,17 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { SIMA_PALETTE } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-palette'"],["text",",\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"ramp\">\n      @for (color of colors; track color.name) {\n        <div>\n          <div class=\"chip\" [style.background]=\"color.hex\"></div>\n          <div class=\"name\">{{ color.name }}</div>\n          <div class=\"showcase-code showcase-muted\">{{ color.hex }}</div>\n        </div>\n      }\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-palette'"],["text",",\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-palette.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./swatches.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Palette {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," colors = Object.entries(SIMA_PALETTE).map(([name, hex]) => ({ name, hex }));\n}\n"]
+        ]
+      },
+      {
+        "name": "2-palette.example.html",
+        "code": [
+          ["text","<div class=\"ramp\">\n  @for (color of colors; track color.name) {\n    <div>\n      <div class=\"chip\" [style.background]=\"color.hex\"></div>\n      <div class=\"name\">{{ color.name }}</div>\n      <div class=\"showcase-code showcase-muted\">{{ color.hex }}</div>\n    </div>\n  }\n</div>\n"]
         ]
       },
       {
@@ -206,12 +216,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'NEAT_HIGHLIGHT_BASE'"],["text",", NEAT_HIGHLIGHT_BASE],\n  ["],
           ["string","'NEAT_SERIES_TEAL_BASE'"],["text",", NEAT_SERIES_TEAL_BASE],\n] "],
           ["keyword","as"],["text"," "],["keyword","const"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-color-scales'"],["text",",\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    @for (ramp of ramps; track ramp.name) {\n      <section>\n        <h4>\n          <span class=\"showcase-code\">{{ ramp.name }}</span>\n          <span class=\"showcase-code showcase-muted\">{{ ramp.base }}</span>\n        </h4>\n        <div class=\"ramp\">\n          @for (step of ramp.steps; track step[0]) {\n            <div>\n              <div class=\"chip\" [style.background]=\"step[1]\"></div>\n              <div class=\"name\">{{ step[0] }}</div>\n              <div class=\"showcase-code showcase-muted\">{{ step[1] }}</div>\n            </div>\n          }\n        </div>\n      </section>\n    }\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-color-scales'"],["text",",\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-color-scales.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./swatches.css'"],["text",", "],["string","'./ramp-title.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ColorScales {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," ramps: "],["keyword","readonly"],["text"," Ramp[] = BASES.map(([name, base]) => ({\n    name,\n    base,\n    steps: Object.entries(buildColorScale(base)),\n  }));\n}\n"]
+        ]
+      },
+      {
+        "name": "3-color-scales.example.html",
+        "code": [
+          ["text","@for (ramp of ramps; track ramp.name) {\n  <section>\n    <h4>\n      <span class=\"showcase-code\">{{ ramp.name }}</span>\n      <span class=\"showcase-code showcase-muted\">{{ ramp.base }}</span>\n    </h4>\n    <div class=\"ramp\">\n      @for (step of ramp.steps; track step[0]) {\n        <div>\n          <div class=\"chip\" [style.background]=\"step[1]\"></div>\n          <div class=\"name\">{{ step[0] }}</div>\n          <div class=\"showcase-code showcase-muted\">{{ step[1] }}</div>\n        </div>\n      }\n    </div>\n  </section>\n}\n"]
         ]
       },
       {
@@ -307,15 +322,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","readonly"],["text"," darkest: "],["keyword","readonly"],["text"," [name: "],["keyword","string"],["text",", hex: "],["keyword","string"],["text","];\n  "],
           ["keyword","readonly"],["text"," steps: "],["keyword","readonly"],["text"," ("],["keyword","readonly"],["text"," [step: "],["keyword","string"],["text",", hex: "],["keyword","string"],["text","])[];\n}\n\n"],
           ["keyword","const"],["text"," ramp = (name: "],["keyword","string"],["text",", darkest: Ramp["],["string","'darkest'"],["text","], scale: SurfaceScale): Ramp => ({\n  name,\n  darkest,\n  steps: Object.entries(scale),\n});\n\n@Component({\n  selector: "],
-          ["string","'app-surface-scales'"],["text",",\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    @for (ramp of ramps; track ramp.name) {\n      <section>\n        <h4>\n          <span class=\"showcase-code\">{{ ramp.name }}</span>\n          <span class=\"showcase-code showcase-muted\">\n            ends at {{ ramp.darkest[0] }}, {{ ramp.darkest[1] }}\n          </span>\n        </h4>\n        <div class=\"ramp\">\n          @for (step of ramp.steps; track step[0]) {\n            <div>\n              <div class=\"chip\" [style.background]=\"step[1]\"></div>\n              <div class=\"name\">{{ step[0] }}</div>\n              <div class=\"showcase-code showcase-muted\">{{ step[1] }}</div>\n            </div>\n          }\n        </div>\n      </section>\n    }\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-surface-scales'"],["text",",\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-surface-scales.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./swatches.css'"],["text",", "],["string","'./ramp-title.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SurfaceScales {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," ramps: "],["keyword","readonly"],["text"," Ramp[] = [\n    ramp("],
           ["string","'buildSurfaceScale()'"],["text",", ["],["string","'SIMA_PALETTE.text'"],["text",", SIMA_PALETTE.text], buildSurfaceScale()),\n    ramp(\n      "],
           ["string","'buildNeutralSurfaceScale()'"],["text",",\n      ["],
           ["string","'NEAT_NEAR_BLACK'"],["text",", NEAT_NEAR_BLACK],\n      buildNeutralSurfaceScale(),\n    ),\n  ];\n}\n"]
+        ]
+      },
+      {
+        "name": "4-surface-scales.example.html",
+        "code": [
+          ["text","@for (ramp of ramps; track ramp.name) {\n  <section>\n    <h4>\n      <span class=\"showcase-code\">{{ ramp.name }}</span>\n      <span class=\"showcase-code showcase-muted\">\n        ends at {{ ramp.darkest[0] }}, {{ ramp.darkest[1] }}\n      </span>\n    </h4>\n    <div class=\"ramp\">\n      @for (step of ramp.steps; track step[0]) {\n        <div>\n          <div class=\"chip\" [style.background]=\"step[1]\"></div>\n          <div class=\"name\">{{ step[0] }}</div>\n          <div class=\"showcase-code showcase-muted\">{{ step[1] }}</div>\n        </div>\n      }\n    </div>\n  </section>\n}\n"]
         ]
       },
       {
@@ -379,9 +399,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","as"],["text"," "],["keyword","const"],["text",";\n\n"],
           ["keyword","const"],["text"," format = (rgb: NeatRgb | "],["keyword","null"],["text","): "],["keyword","string"],["text"," =>\n  rgb ? rgb.map((channel) => channel.toFixed(3)).join("],
           ["string","', '"],["text",") : "],["string","'not a color'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-theme-colors-as-numbers'"],["text",",\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <table>\n      <thead>\n        <tr>\n          <th scope=\"col\">Token</th>\n          <th scope=\"col\">Sample</th>\n          <th scope=\"col\">Red, green, blue</th>\n        </tr>\n      </thead>\n      <tbody>\n        @for (row of rows(); track row.token) {\n          <tr>\n            <th scope=\"row\" class=\"showcase-code\">{{ row.token }}</th>\n            <td><span class=\"sample\" [style.background]=\"'var(' + row.token + ')'\"></span></td>\n            <td class=\"showcase-code\">{{ row.rgb }}</td>\n          </tr>\n        }\n      </tbody>\n    </table>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-theme-colors-as-numbers'"],["text",",\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./5-theme-colors-as-numbers.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./theme-colors-as-numbers.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ThemeColorsAsNumbers {\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," colors = neatThemeColors(TOKENS);\n  "],
@@ -389,6 +408,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," colors = "],["keyword","this"],["text",".colors();\n    "],
           ["keyword","return"],["text"," Object.entries(TOKENS).map(([name, token]) => ({\n      token,\n      rgb: format(colors[name "],
           ["keyword","as"],["text"," "],["keyword","keyof"],["text"," "],["keyword","typeof"],["text"," TOKENS]),\n    }));\n  });\n}\n"]
+        ]
+      },
+      {
+        "name": "5-theme-colors-as-numbers.example.html",
+        "code": [
+          ["text","<table>\n  <thead>\n    <tr>\n      <th scope=\"col\">Token</th>\n      <th scope=\"col\">Sample</th>\n      <th scope=\"col\">Red, green, blue</th>\n    </tr>\n  </thead>\n  <tbody>\n    @for (row of rows(); track row.token) {\n      <tr>\n        <th scope=\"row\" class=\"showcase-code\">{{ row.token }}</th>\n        <td><span class=\"sample\" [style.background]=\"'var(' + row.token + ')'\"></span></td>\n        <td class=\"showcase-code\">{{ row.rgb }}</td>\n      </tr>\n    }\n  </tbody>\n</table>\n"]
         ]
       },
       {
@@ -450,15 +475,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, computed, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { neatResolveColor } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatInput } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/input'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-resolve-a-color'"],["text",",\n  imports: [NeatInput],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <label class=\"field\">\n      <span>CSS color</span>\n      <input neatInput #css [value]=\"text()\" (input)=\"text.set(css.value)\" />\n    </label>\n    <div class=\"showcase-row\">\n      <span class=\"swatch\" [style.background]=\"text()\"></span>\n      <span class=\"showcase-code\">{{ result() }}</span>\n    </div>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-resolve-a-color'"],["text",",\n  imports: [NeatInput],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./6-resolve-a-color.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./color-field.css'"],["text",", "],["string","'./resolve-a-color.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ResolveAColor {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," text = signal("],["string","'oklch(0.7 0.15 250)'"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," result = computed(() => {\n    "],
           ["keyword","const"],["text"," rgb = neatResolveColor("],["keyword","this"],["text",".text());\n    "],
           ["keyword","return"],["text"," rgb ? rgb.map((channel) => channel.toFixed(3)).join("],["string","', '"],["text",") : "],["string","'not a color'"],["text",";\n  });\n}\n"]
+        ]
+      },
+      {
+        "name": "6-resolve-a-color.example.html",
+        "code": [
+          ["text","<label class=\"field\">\n  <span>CSS color</span>\n  <input neatInput #css [value]=\"text()\" (input)=\"text.set(css.value)\" />\n</label>\n<div class=\"showcase-row\">\n  <span class=\"swatch\" [style.background]=\"text()\"></span>\n  <span class=\"showcase-code\">{{ result() }}</span>\n</div>\n"]
         ]
       },
       {
@@ -522,9 +552,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," HEX = /^#[0-9a-f]{6}$/i;\n"],
           ["comment","/** WCAG 2.x AA for normal text. */"],["text","\n"],
           ["keyword","const"],["text"," AA = 4.5;\n\n@Component({\n  selector: "],
-          ["string","'app-contrast'"],["text",",\n  imports: [NeatInput],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <label class=\"field\">\n        <span>Text</span>\n        <input neatInput #text [value]=\"foreground()\" (input)=\"foreground.set(text.value)\" />\n      </label>\n      <label class=\"field\">\n        <span>Background</span>\n        <input neatInput #fill [value]=\"background()\" (input)=\"background.set(fill.value)\" />\n      </label>\n    </div>\n    <div class=\"showcase-row\">\n      <span class=\"sample\" [style.color]=\"foreground()\" [style.background]=\"background()\">\n        Neat Insight\n      </span>\n      <span class=\"showcase-code\">{{ result() }}</span>\n    </div>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-contrast'"],["text",",\n  imports: [NeatInput],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./7-contrast.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./color-field.css'"],["text",", "],["string","'./contrast.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Contrast {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," foreground = signal<"],["keyword","string"],["text",">(SIMA_PALETTE.text);\n  "],
@@ -534,6 +563,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","if"],["text"," (!HEX.test(foreground) || !HEX.test(background)) "],["keyword","return"],["text"," "],["string","'Both colors as #RRGGBB.'"],["text",";\n    "],
           ["keyword","const"],["text"," ratio = contrastRatio(foreground, background);\n    "],
           ["keyword","return"],["text"," "],["string","`${ratio.toFixed(2)}:1 ${ratio >= AA ? 'AA' : 'below AA'}`"],["text",";\n  });\n}\n"]
+        ]
+      },
+      {
+        "name": "7-contrast.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <label class=\"field\">\n    <span>Text</span>\n    <input neatInput #text [value]=\"foreground()\" (input)=\"foreground.set(text.value)\" />\n  </label>\n  <label class=\"field\">\n    <span>Background</span>\n    <input neatInput #fill [value]=\"background()\" (input)=\"background.set(fill.value)\" />\n  </label>\n</div>\n<div class=\"showcase-row\">\n  <span class=\"sample\" [style.color]=\"foreground()\" [style.background]=\"background()\">\n    Neat Insight\n  </span>\n  <span class=\"showcase-code\">{{ result() }}</span>\n</div>\n"]
         ]
       },
       {

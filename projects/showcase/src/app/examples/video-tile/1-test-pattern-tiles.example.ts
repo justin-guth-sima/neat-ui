@@ -21,31 +21,7 @@ import { TestPatternSource } from './test-pattern-source';
   selector: 'app-test-pattern-tiles',
   imports: [NeatSwitch, NeatVideoTile],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatSwitch [(checked)]="bars">Bars</button>
-      <button neatSwitch [(checked)]="selected">Selected</button>
-      <button neatSwitch (checkedChange)="testPattern.setPaused($event)">Pause the source</button>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">{{ summary() }}</p>
-    <div class="tiles">
-      <div class="cell">
-        <neat-video-tile
-          [source]="testPattern"
-          label="1"
-          status="Test pattern · 640×360 · 30 fps"
-          [bars]="bars()"
-          [selected]="selected()"
-          (stateChange)="state.set($event)"
-        >
-          <span neatTileChip class="chip">Demo</span>
-        </neat-video-tile>
-      </div>
-      <div class="cell">
-        <neat-video-tile label="2" status="Waiting for stream" [bars]="bars()" />
-      </div>
-    </div>
-  `,
+  templateUrl: './1-test-pattern-tiles.example.html',
   styleUrl: './test-pattern-tiles.example.css',
 })
 export class TestPatternTiles {

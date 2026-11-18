@@ -1,0 +1,9 @@
+<div class="ramp">
+  @for (color of colors; track color.name) {
+    <div>
+      <div class="chip" [style.background]="color.hex"></div>
+      <div class="name">{{ color.name }}</div>
+      <div class="showcase-code showcase-muted">{{ color.hex }}</div>
+    </div>
+  }
+</div>

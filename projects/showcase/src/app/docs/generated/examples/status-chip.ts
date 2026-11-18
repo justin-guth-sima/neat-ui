@@ -58,14 +58,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatStatusChip, NeatStatusChipButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/status-chip'"],["text",";\n"],
           ["keyword","import"],["text"," { CHIPS, SURFACES } "],["keyword","from"],["text"," "],["string","'./chips'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-tones'"],["text",",\n  imports: [NeatStatusChip, NeatStatusChipButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    @for (surface of surfaces; track surface) {\n      <div class=\"showcase-row\" [class.card]=\"surface === 'card'\">\n        @for (chip of chips; track chip.tone) {\n          <neat-status-chip [tone]=\"chip.tone\">{{ chip.label }}</neat-status-chip>\n        }\n        <button neatStatusChip type=\"button\" tone=\"warning\" (click)=\"opened.set(true)\">\n          Metadata late\n        </button>\n      </div>\n    }\n    @if (opened()) {\n      <p class=\"showcase-muted\">The late notice would open here.</p>\n    }\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-tones'"],["text",",\n  imports: [NeatStatusChip, NeatStatusChipButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-tones.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./surfaces.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Tones {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," surfaces = SURFACES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," chips = CHIPS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," opened = signal("],["keyword","false"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "1-tones.example.html",
+        "code": [
+          ["text","@for (surface of surfaces; track surface) {\n  <div class=\"showcase-row\" [class.card]=\"surface === 'card'\">\n    @for (chip of chips; track chip.tone) {\n      <neat-status-chip [tone]=\"chip.tone\">{{ chip.label }}</neat-status-chip>\n    }\n    <button neatStatusChip type=\"button\" tone=\"warning\" (click)=\"opened.set(true)\">\n      Metadata late\n    </button>\n  </div>\n}\n@if (opened()) {\n  <p class=\"showcase-muted\">The late notice would open here.</p>\n}\n"]
         ]
       },
       {
@@ -132,13 +137,18 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatStatusChip, NeatStatusChipButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/status-chip'"],["text",";\n"],
           ["keyword","import"],["text"," { CHIPS, SURFACES } "],["keyword","from"],["text"," "],["string","'./chips'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-tinted'"],["text",",\n  imports: [NeatStatusChip, NeatStatusChipButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    @for (surface of surfaces; track surface) {\n      <div class=\"showcase-row\" [class.card]=\"surface === 'card'\">\n        @for (chip of chips; track chip.tone) {\n          <neat-status-chip [tone]=\"chip.tone\" variant=\"tinted\">{{ chip.label }}</neat-status-chip>\n        }\n        <button neatStatusChip type=\"button\" tone=\"warning\" variant=\"tinted\">Metadata late</button>\n      </div>\n    }\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-tinted'"],["text",",\n  imports: [NeatStatusChip, NeatStatusChipButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-tinted.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./surfaces.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Tinted {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," surfaces = SURFACES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," chips = CHIPS;\n}\n"]
+        ]
+      },
+      {
+        "name": "2-tinted.example.html",
+        "code": [
+          ["text","@for (surface of surfaces; track surface) {\n  <div class=\"showcase-row\" [class.card]=\"surface === 'card'\">\n    @for (chip of chips; track chip.tone) {\n      <neat-status-chip [tone]=\"chip.tone\" variant=\"tinted\">{{ chip.label }}</neat-status-chip>\n    }\n    <button neatStatusChip type=\"button\" tone=\"warning\" variant=\"tinted\">Metadata late</button>\n  </div>\n}\n"]
         ]
       },
       {
@@ -191,11 +201,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatStatusChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/status-chip'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-narrow-column'"],["text",",\n  imports: [NeatStatusChip],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"column\">\n      <neat-status-chip tone=\"highlight\"\n        >External publisher on a very narrow column</neat-status-chip\n      >\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-narrow-column'"],["text",",\n  imports: [NeatStatusChip],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-narrow-column.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./narrow-column.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," NarrowColumn {}\n"]
+        ]
+      },
+      {
+        "name": "3-narrow-column.example.html",
+        "code": [
+          ["text","<div class=\"column\">\n  <neat-status-chip tone=\"highlight\">External publisher on a very narrow column</neat-status-chip>\n</div>\n"]
         ]
       },
       {

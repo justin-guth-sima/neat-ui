@@ -44,19 +44,7 @@ import { celsius, sine, withGap } from './data';
   selector: 'app-tones',
   imports: [NeatSparkline],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (card of cards; track card.title) {
-      <div class="card">
-        <span class="title">{{ card.title }}</span>
-        <neat-sparkline
-          [values]="card.values"
-          [label]="card.title"
-          [format]="celsius"
-          [tone]="card.tone"
-        />
-      </div>
-    }
-  `,
+  templateUrl: './1-tones.example.html',
   styleUrl: './tones.example.css',
 })
 export class Tones {
@@ -72,6 +60,22 @@ export class Tones {
     { title: 'With a gap', values: withGap(sine(120, 2, 40, 62), 50, 20), tone: 'default' },
     { title: 'One sample', values: [48], tone: 'default' },
   ];
+}
+```
+
+`1-tones.example.html`
+
+```html
+@for (card of cards; track card.title) {
+  <div class="card">
+    <span class="title">{{ card.title }}</span>
+    <neat-sparkline
+      [values]="card.values"
+      [label]="card.title"
+      [format]="celsius"
+      [tone]="card.tone"
+    />
+  </div>
 }
 ```
 

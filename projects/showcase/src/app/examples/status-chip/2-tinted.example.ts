@@ -11,16 +11,7 @@ import { CHIPS, SURFACES } from './chips';
   selector: 'app-tinted',
   imports: [NeatStatusChip, NeatStatusChipButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (surface of surfaces; track surface) {
-      <div class="showcase-row" [class.card]="surface === 'card'">
-        @for (chip of chips; track chip.tone) {
-          <neat-status-chip [tone]="chip.tone" variant="tinted">{{ chip.label }}</neat-status-chip>
-        }
-        <button neatStatusChip type="button" tone="warning" variant="tinted">Metadata late</button>
-      </div>
-    }
-  `,
+  templateUrl: './2-tinted.example.html',
   styleUrl: './surfaces.css',
 })
 export class Tinted {

@@ -1,0 +1,27 @@
+@for (size of sizes; track size) {
+  <div class="row">
+    <neat-field class="narrow" label="Start Time">
+      <input neatInput [size]="size" placeholder="0:00" />
+    </neat-field>
+    <neat-select
+      class="wide"
+      label="Target Resolution & FPS"
+      showLabel
+      [size]="size"
+      [options]="resolutions"
+      [(value)]="resolution"
+    />
+    <neat-select
+      class="narrow"
+      label="Clip Length"
+      showLabel
+      [size]="size"
+      [options]="clipLengths"
+      [value]="300"
+    />
+    @if (size === 'small') {
+      <neat-number-field label="Page" [value]="page()" (commit)="page.set($event)" />
+    }
+    <button neatButton type="button" variant="outlined" [size]="size">Validate</button>
+  </div>
+}

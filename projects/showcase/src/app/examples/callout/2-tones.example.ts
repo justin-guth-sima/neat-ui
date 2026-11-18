@@ -10,11 +10,7 @@ import { NeatCallout } from '@sima/neat-ui/callout';
   selector: 'app-tones',
   imports: [NeatCallout],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (note of notes; track note.tone) {
-      <neat-callout [tone]="note.tone">{{ note.tone }}: {{ note.text }}</neat-callout>
-    }
-  `,
+  templateUrl: './2-tones.example.html',
   styleUrl: './tones.example.css',
 })
 export class Tones {

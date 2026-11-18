@@ -13,18 +13,7 @@ import { Anchor, Bell, Rocket } from '@sima/neat-ui/lucide';
   selector: 'app-any-lucide-glyph',
   imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (glyph of glyphs; track glyph.label) {
-      <div class="showcase-row">
-        @for (size of sizes; track size) {
-          <div class="sample">
-            <neat-icon [name]="glyph.drawing" [size]="size" [label]="glyph.label" />
-            <span class="showcase-code showcase-muted">{{ glyph.label }}, {{ size }} px</span>
-          </div>
-        }
-      </div>
-    }
-  `,
+  templateUrl: './3-any-lucide-glyph.example.html',
   styleUrl: './any-lucide-glyph.example.css',
 })
 export class AnyLucideGlyph {

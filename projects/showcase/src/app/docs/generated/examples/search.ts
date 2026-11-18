@@ -46,9 +46,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, computed, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSearch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-filtering-a-list'"],["text",",\n  imports: [NeatSearch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-search\n      label=\"Filter streams\"\n      placeholder=\"Name or source\"\n      [status]=\"status()\"\n      [(value)]=\"query\"\n    />\n    <ul>\n      @for (stream of shown(); track stream.name) {\n        <li>\n          <span>{{ stream.name }}</span>\n          <span class=\"showcase-muted\">{{ stream.source }}</span>\n        </li>\n      }\n    </ul>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-filtering-a-list'"],["text",",\n  imports: [NeatSearch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-filtering-a-list.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./filtering-a-list.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," FilteringAList {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," query = signal("],["string","''"],["text",");\n  "],
@@ -66,6 +65,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," count = "],["keyword","this"],["text",".shown().length;\n    "],
           ["keyword","if"],["text"," (count === 0) "],["keyword","return"],["text"," "],["string","'Nothing matches'"],["text",";\n    "],
           ["keyword","return"],["text"," count === 1 ? "],["string","'1 stream'"],["text"," : "],["string","`${count} streams`"],["text",";\n  });\n}\n"]
+        ]
+      },
+      {
+        "name": "1-filtering-a-list.example.html",
+        "code": [
+          ["text","<neat-search\n  label=\"Filter streams\"\n  placeholder=\"Name or source\"\n  [status]=\"status()\"\n  [(value)]=\"query\"\n/>\n<ul>\n  @for (stream of shown(); track stream.name) {\n    <li>\n      <span>{{ stream.name }}</span>\n      <span class=\"showcase-muted\">{{ stream.source }}</span>\n    </li>\n  }\n</ul>\n"]
         ]
       },
       {
@@ -102,12 +107,17 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton, NeatIcon, NeatSearch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-small-in-a-toolbar'"],["text",",\n  imports: [NeatButton, NeatIcon, NeatSearch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"tools\">\n      <neat-search\n        size=\"small\"\n        label=\"Filter files\"\n        placeholder=\"Filter files…\"\n        [(value)]=\"query\"\n      />\n      <button neatButton variant=\"outlined\" size=\"small\">\n        <neat-icon name=\"upload\" [size]=\"16\" />\n        Upload\n      </button>\n      <button neatButton variant=\"text\" size=\"small\" iconOnly aria-label=\"Refresh\">\n        <neat-icon name=\"refresh\" [size]=\"16\" />\n      </button>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-small-in-a-toolbar'"],["text",",\n  imports: [NeatButton, NeatIcon, NeatSearch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-small-in-a-toolbar.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./small-in-a-toolbar.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SmallInAToolbar {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," query = signal("],["string","''"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "2-small-in-a-toolbar.example.html",
+        "code": [
+          ["text","<div class=\"tools\">\n  <neat-search size=\"small\" label=\"Filter files\" placeholder=\"Filter files…\" [(value)]=\"query\" />\n  <button neatButton variant=\"outlined\" size=\"small\">\n    <neat-icon name=\"upload\" [size]=\"16\" />\n    Upload\n  </button>\n  <button neatButton variant=\"text\" size=\"small\" iconOnly aria-label=\"Refresh\">\n    <neat-icon name=\"refresh\" [size]=\"16\" />\n  </button>\n</div>\n"]
         ]
       },
       {
@@ -159,9 +169,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSearch, "],["keyword","type"],["text"," NeatSearchVariant } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-looks-and-sizes'"],["text",",\n  imports: [NeatSearch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"looks\">\n      @for (look of looks; track look) {\n        <div class=\"look\">\n          <span class=\"showcase-code showcase-muted\">{{ look }}</span>\n          <neat-search\n            [variant]=\"look\"\n            [label]=\"'Filter streams, ' + look\"\n            placeholder=\"Filter streams\"\n          />\n        </div>\n      }\n    </div>\n    <div class=\"look\">\n      <span class=\"showcase-code showcase-muted\">raised, large</span>\n      <neat-search\n        variant=\"raised\"\n        size=\"large\"\n        label=\"Search the docs\"\n        placeholder=\"Search the docs\"\n      />\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-looks-and-sizes'"],["text",",\n  imports: [NeatSearch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-looks-and-sizes.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./looks-and-sizes.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," LooksAndSizes {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," looks: "],["keyword","readonly"],["text"," NeatSearchVariant[] = [\n    "],
@@ -169,6 +178,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'outlined'"],["text",",\n    "],
           ["string","'underlined'"],["text",",\n    "],
           ["string","'raised'"],["text",",\n  ];\n}\n"]
+        ]
+      },
+      {
+        "name": "3-looks-and-sizes.example.html",
+        "code": [
+          ["text","<div class=\"looks\">\n  @for (look of looks; track look) {\n    <div class=\"look\">\n      <span class=\"showcase-code showcase-muted\">{{ look }}</span>\n      <neat-search\n        [variant]=\"look\"\n        [label]=\"'Filter streams, ' + look\"\n        placeholder=\"Filter streams\"\n      />\n    </div>\n  }\n</div>\n<div class=\"look\">\n  <span class=\"showcase-code showcase-muted\">raised, large</span>\n  <neat-search\n    variant=\"raised\"\n    size=\"large\"\n    label=\"Search the docs\"\n    placeholder=\"Search the docs\"\n  />\n</div>\n"]
         ]
       },
       {

@@ -10,16 +10,7 @@ import { COMPILE_FLOW, COMPILE_LEGEND } from './compile-flow-data';
   selector: 'app-compile-flow',
   imports: [NeatDiagramLegend, NeatDiagramNoteTemplate, NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-diagram-legend [items]="legend" />
-    <neat-diagram class="diagram" [diagram]="flow" label="A compile flow">
-      <ng-template neatDiagramNote let-note>
-        @if (note.id === 'compile-result') {
-          <b>Compile</b><br />2 m 14 s · 41 MB
-        }
-      </ng-template>
-    </neat-diagram>
-  `,
+  templateUrl: './2-compile-flow.example.html',
   styleUrl: './diagram-box.css',
 })
 export class CompileFlow {

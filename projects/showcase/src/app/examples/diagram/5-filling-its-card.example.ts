@@ -19,10 +19,7 @@ import { PIPELINE, PIPELINE_LEGEND } from './pipeline-data';
   selector: 'app-filling-its-card',
   imports: [NeatDiagramLegend, NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-diagram class="diagram" [diagram]="pipeline" label="A messaging pipeline, edge to edge" />
-    <neat-diagram-legend class="legend" [items]="legend" />
-  `,
+  templateUrl: './5-filling-its-card.example.html',
   styleUrls: ['./diagram-box.css', './filling-its-card.example.css'],
 })
 export class FillingItsCard {

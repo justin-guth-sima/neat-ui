@@ -35,52 +35,7 @@ import { NeatSwitch } from '@sima/neat-ui/switch';
   selector: 'app-rename-a-source',
   imports: [NeatButton, NeatDialogActions, NeatDialogBody, NeatInput, NeatSwitch],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" (click)="open(renameDialog)">
-        Rename source…
-      </button>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">{{ result() }}</p>
-
-    <ng-template #renameDialog let-dialog>
-      <neat-dialog-body>
-        <div class="dialog-form">
-          <label class="dialog-field">
-            <span>Name</span>
-            <input neatInput #name value="Front door" [readOnly]="saving()" />
-          </label>
-          <button
-            neatSwitch
-            [disabled]="saving()"
-            [checked]="dialog.dismissible()"
-            (checkedChange)="dialog.setDismissible($event)"
-          >
-            Escape and the backdrop close this dialog
-          </button>
-        </div>
-      </neat-dialog-body>
-      <neat-dialog-actions>
-        <button
-          neatButton
-          type="button"
-          variant="outlined"
-          [attr.aria-disabled]="saving() || null"
-          (click)="saving() || dialog.close()"
-        >
-          Cancel
-        </button>
-        <button
-          neatButton
-          type="button"
-          [attr.aria-disabled]="saving() || null"
-          (click)="saving() || save(dialog, name.value)"
-        >
-          {{ saving() ? 'Saving…' : 'Save' }}
-        </button>
-      </neat-dialog-actions>
-    </ng-template>
-  `,
+  templateUrl: './1-rename-a-source.example.html',
   styleUrl: './rename-a-source.example.css',
 })
 export class RenameASource {

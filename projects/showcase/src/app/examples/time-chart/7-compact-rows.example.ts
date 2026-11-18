@@ -12,25 +12,7 @@ import { percent, ROWS } from './data';
   selector: 'app-compact-rows',
   imports: [NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="chart-card rows">
-      @for (row of rows; track row.label) {
-        <div class="row">
-          <span>{{ row.label }}</span>
-          <neat-time-chart
-            [label]="row.label"
-            size="compact"
-            headless
-            [series]="row.series"
-            [times]="row.times"
-            [domain]="[0, 100]"
-            [format]="percent"
-          />
-          <span>{{ row.value }}</span>
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './7-compact-rows.example.html',
   styleUrls: ['./chart-card.css', './compact-rows.example.css'],
 })
 export class CompactRows {

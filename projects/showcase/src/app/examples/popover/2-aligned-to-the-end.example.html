@@ -1,0 +1,37 @@
+<neat-popover label="Go to channel" align="end" [(open)]="open">
+  <button
+    neatButton
+    neatPopoverTrigger
+    type="button"
+    variant="text"
+    iconOnly
+    aria-label="Go to channel"
+    neatTooltip="Go to channel"
+  >
+    <neat-icon name="search" />
+  </button>
+  <ng-template neatPopoverContent>
+    <div class="popover-fields">
+      <label class="popover-fields">
+        <span>Channel</span>
+        <input
+          #field
+          neatInput
+          size="small"
+          type="number"
+          inputmode="numeric"
+          min="0"
+          max="15"
+          placeholder="0–15"
+          aria-describedby="channel-hint"
+          [value]="channel()"
+          (input)="channel.set(field.value)"
+        />
+      </label>
+      <span id="channel-hint" class="showcase-muted">Aligned to the trigger's end edge.</span>
+    </div>
+  </ng-template>
+</neat-popover>
+<p class="showcase-code showcase-muted">
+  Go to channel {{ open() ? 'open' : 'closed' }}; channel {{ channel() || 'none' }}
+</p>

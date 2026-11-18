@@ -16,11 +16,7 @@ const SOURCES: NeatSegmentedOption<string>[] = [
   selector: 'app-in-a-narrow-panel',
   imports: [NeatSegmented],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="panel">
-      <neat-segmented label="Source" [options]="sources" [(value)]="source" />
-    </div>
-  `,
+  templateUrl: './3-in-a-narrow-panel.example.html',
   styleUrl: './in-a-narrow-panel.example.css',
 })
 export class InANarrowPanel {

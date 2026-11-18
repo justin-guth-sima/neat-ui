@@ -1,0 +1,22 @@
+<div class="showcase-row">
+  <button neatButton type="button" variant="outlined" (click)="open(assignDialog)">
+    Assign a source…
+  </button>
+</div>
+<p class="showcase-code showcase-muted" aria-live="polite">{{ result() }}</p>
+
+<ng-template #assignDialog let-dialog>
+  <neat-dialog-body>
+    <neat-select
+      label="Source for channel 3"
+      showLabel
+      placeholder="Pick a source"
+      [options]="sources"
+      [(value)]="source"
+    />
+  </neat-dialog-body>
+  <neat-dialog-actions>
+    <button neatButton type="button" variant="outlined" (click)="dialog.close()">Cancel</button>
+    <button neatButton type="button" (click)="dialog.close(source())">Assign</button>
+  </neat-dialog-actions>
+</ng-template>

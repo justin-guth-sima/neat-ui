@@ -10,22 +10,7 @@ import { NeatSlider } from '@sima/neat-ui/slider';
   selector: 'app-known-and-unknown',
   imports: [NeatProgress, NeatSlider],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <span>Known, from the slider</span>
-    <neat-progress label="Upload" [value]="progress()" />
-    <neat-slider
-      class="slider"
-      label="Progress value"
-      [min]="0"
-      [max]="100"
-      [step]="5"
-      [(value)]="progress"
-    />
-    <span>Complete</span>
-    <neat-progress label="Import" [value]="100" />
-    <span>Unknown</span>
-    <neat-progress label="Preparing" [value]="null" />
-  `,
+  templateUrl: './1-known-and-unknown.example.html',
   styleUrl: './stack.css',
 })
 export class KnownAndUnknown {

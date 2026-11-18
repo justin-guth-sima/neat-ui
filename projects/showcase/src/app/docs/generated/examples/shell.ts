@@ -91,9 +91,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { KIOSK_POINTER_IDLE_MS, KioskService, NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-kiosk'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"kiosk.toggle()\">\n        {{ kiosk.active() ? 'Leave' : 'Enter' }} kiosk mode\n      </button>\n      <button\n        neatButton\n        type=\"button\"\n        variant=\"text\"\n        size=\"small\"\n        [pressed]=\"release() !== null\"\n        (click)=\"hold()\"\n      >\n        Hold the toolbar\n      </button>\n    </div>\n    <p class=\"showcase-code\">\n      active: {{ kiosk.active() }}, pointerIdle: {{ kiosk.pointerIdle() }}\n    </p>\n    <p class=\"showcase-muted\">\n      Rest the pointer for {{ idleSeconds }} seconds and pointerIdle turns true; move it and it is\n      false again.\n    </p>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-kiosk'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-kiosk.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./kiosk.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Kiosk {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," kiosk = inject(KioskService);\n  "],
@@ -108,6 +107,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","this"],["text",".release.set("],["keyword","null"],["text",");\n    } "],
           ["keyword","else"],["text"," {\n      "],
           ["keyword","this"],["text",".release.set("],["keyword","this"],["text",".kiosk.holdToolbar());\n    }\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "1-kiosk.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"kiosk.toggle()\">\n    {{ kiosk.active() ? 'Leave' : 'Enter' }} kiosk mode\n  </button>\n  <button\n    neatButton\n    type=\"button\"\n    variant=\"text\"\n    size=\"small\"\n    [pressed]=\"release() !== null\"\n    (click)=\"hold()\"\n  >\n    Hold the toolbar\n  </button>\n</div>\n<p class=\"showcase-code\">active: {{ kiosk.active() }}, pointerIdle: {{ kiosk.pointerIdle() }}</p>\n<p class=\"showcase-muted\">\n  Rest the pointer for {{ idleSeconds }} seconds and pointerIdle turns true; move it and it is false\n  again.\n</p>\n"]
         ]
       },
       {
@@ -242,9 +247,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, inject } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatIcon, NeatNavItem, NeatRailDivider, NeatRailItem, NeatShell } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatToasts } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/toast'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-rail-items'"],["text",",\n  imports: [NeatIcon, NeatRailDivider, NeatRailItem, NeatShell],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-shell appName=\"Demo app\" [navItems]=\"navItems\">\n      <button\n        neatRailEnd\n        neatRailItem\n        type=\"button\"\n        label=\"About this app\"\n        (click)=\"toasts.status('An about item would open its dialog here.')\"\n      >\n        <neat-icon name=\"info\" />\n      </button>\n      <button\n        neatRailEnd\n        neatRailItem\n        type=\"button\"\n        label=\"Demo board, 192.168.1.20, connected\"\n        text=\"Demo board\"\n        detail=\"192.168.1.20\"\n        tone=\"success\"\n        (click)=\"toasts.status('A board item would open its dialog here.')\"\n      >\n        <neat-icon name=\"board\" />\n      </button>\n      <button\n        neatRailEnd\n        neatRailItem\n        type=\"button\"\n        label=\"Front camera, reconnecting\"\n        text=\"Front camera\"\n        detail=\"Reconnecting\"\n        tone=\"warning\"\n        (click)=\"toasts.status('A device item would open its dialog here.')\"\n      >\n        <neat-icon name=\"camera\" />\n      </button>\n      <button\n        neatRailEnd\n        neatRailItem\n        type=\"button\"\n        label=\"Lidar, no data\"\n        text=\"Lidar\"\n        detail=\"No data\"\n        tone=\"danger\"\n        (click)=\"toasts.status('A device item would open its dialog here.')\"\n      >\n        <neat-icon name=\"lidar\" />\n      </button>\n      <button\n        neatRailEnd\n        neatRailItem\n        type=\"button\"\n        label=\"Microphone, idle\"\n        text=\"Microphone\"\n        detail=\"Idle\"\n        tone=\"neutral\"\n        (click)=\"toasts.status('A device item would open its dialog here.')\"\n      >\n        <neat-icon name=\"microphone\" />\n      </button>\n      <!-- Sets the devices apart from the items below them, as the kit's line above the group\n           does. -->\n      <hr neatRailEnd neatRailDivider />\n    </neat-shell>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-rail-items'"],["text",",\n  imports: [NeatIcon, NeatRailDivider, NeatRailItem, NeatShell],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-rail-items.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," RailItems {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," toasts = inject(NeatToasts);\n  "],
           ["comment","/**\n   * The app's pages: here this example alone, with three sub-pages to show the rail's second\n   * level. All stay under the example's own route, which serves its sub-paths with the same example, so a\n   * press changes the URL and the open sub-page without leaving the docs. The first sub-page has\n   * the page's own path, so the page needs no redirect.\n   */"],
@@ -256,6 +260,14 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'Overview'"],["text",", path: "],["string","'/demo/shell/rail-items'"],["text"," },\n        { label: "],
           ["string","'Devices'"],["text",", path: "],["string","'/demo/shell/rail-items/devices'"],["text"," },\n        { label: "],
           ["string","'Settings'"],["text",", path: "],["string","'/demo/shell/rail-items/settings'"],["text"," },\n      ],\n    },\n  ];\n}\n"]
+        ]
+      },
+      {
+        "name": "2-rail-items.example.html",
+        "code": [
+          ["text","<neat-shell appName=\"Demo app\" [navItems]=\"navItems\">\n  <button\n    neatRailEnd\n    neatRailItem\n    type=\"button\"\n    label=\"About this app\"\n    (click)=\"toasts.status('An about item would open its dialog here.')\"\n  >\n    <neat-icon name=\"info\" />\n  </button>\n  <button\n    neatRailEnd\n    neatRailItem\n    type=\"button\"\n    label=\"Demo board, 192.168.1.20, connected\"\n    text=\"Demo board\"\n    detail=\"192.168.1.20\"\n    tone=\"success\"\n    (click)=\"toasts.status('A board item would open its dialog here.')\"\n  >\n    <neat-icon name=\"board\" />\n  </button>\n  <button\n    neatRailEnd\n    neatRailItem\n    type=\"button\"\n    label=\"Front camera, reconnecting\"\n    text=\"Front camera\"\n    detail=\"Reconnecting\"\n    tone=\"warning\"\n    (click)=\"toasts.status('A device item would open its dialog here.')\"\n  >\n    <neat-icon name=\"camera\" />\n  </button>\n  <button\n    neatRailEnd\n    neatRailItem\n    type=\"button\"\n    label=\"Lidar, no data\"\n    text=\"Lidar\"\n    detail=\"No data\"\n    tone=\"danger\"\n    (click)=\"toasts.status('A device item would open its dialog here.')\"\n  >\n    <neat-icon name=\"lidar\" />\n  </button>\n  <button\n    neatRailEnd\n    neatRailItem\n    type=\"button\"\n    label=\"Microphone, idle\"\n    text=\"Microphone\"\n    detail=\"Idle\"\n    tone=\"neutral\"\n    (click)=\"toasts.status('A device item would open its dialog here.')\"\n  >\n    <neat-icon name=\"microphone\" />\n  </button>\n  "],
+          ["comment","<!-- Sets the devices apart from the items below them, as the kit's line above the group\n       does. -->"],
+          ["text","\n  <hr neatRailEnd neatRailDivider />\n</neat-shell>\n"]
         ]
       }
     ]
@@ -335,9 +347,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { groupNavItems } "],["keyword","from"],["text"," "],["string","'./docs/docs-routes'"],["text",";\n"],
           ["keyword","import"],["text"," { GROUPS } "],["keyword","from"],["text"," "],["string","'./docs/topics'"],["text",";\n"],
           ["keyword","import"],["text"," { DocsSearch } "],["keyword","from"],["text"," "],["string","'./search/docs-search'"],["text",";\n\n@Component({\n  imports: [NeatSearchPalette, NeatShell, NeatToastHost, RouterOutlet],\n  selector: "],
-          ["string","'app-root'"],["text",",\n  template: "],
-          ["string","`\n    <neat-shell appName=\"neat-ui showcase\" [navItems]=\"navItems\">\n      <neat-search-palette\n        neatTopbarEnd\n        label=\"Search docs\"\n        [search]=\"search\"\n        [allResults]=\"searchPage\"\n      />\n      <router-outlet />\n    </neat-shell>\n    <neat-toast-host />\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-root'"],["text",",\n  templateUrl: "],
+          ["string","'./app.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," App {\n  "],
           ["comment","/** The docs' search: topics at once, the API and the examples once its index has loaded. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," search = inject(DocsSearch).palette;\n  "],
@@ -350,6 +361,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","`/${GETTING_STARTED}`"],["text",",\n      children: [\n        { label: "],
           ["string","'Quick start'"],["text",", path: "],["string","`/${GETTING_STARTED}`"],["text"," },\n        { label: "],
           ["string","'Tutorial'"],["text",", path: "],["string","`/${TUTORIAL}`"],["text"," },\n      ],\n    },\n    ...groupNavItems(GROUPS),\n  ];\n}\n"]
+        ]
+      },
+      {
+        "name": "app.html",
+        "code": [
+          ["text","<neat-shell appName=\"neat-ui showcase\" [navItems]=\"navItems\">\n  <neat-search-palette\n    neatTopbarEnd\n    label=\"Search docs\"\n    [search]=\"search\"\n    [allResults]=\"searchPage\"\n  />\n  <router-outlet />\n</neat-shell>\n<neat-toast-host />\n"]
         ]
       }
     ]

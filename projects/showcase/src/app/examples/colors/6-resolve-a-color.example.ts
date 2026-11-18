@@ -11,16 +11,7 @@ import { NeatInput } from '@sima/neat-ui/input';
   selector: 'app-resolve-a-color',
   imports: [NeatInput],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <label class="field">
-      <span>CSS color</span>
-      <input neatInput #css [value]="text()" (input)="text.set(css.value)" />
-    </label>
-    <div class="showcase-row">
-      <span class="swatch" [style.background]="text()"></span>
-      <span class="showcase-code">{{ result() }}</span>
-    </div>
-  `,
+  templateUrl: './6-resolve-a-color.example.html',
   styleUrls: ['./color-field.css', './resolve-a-color.example.css'],
 })
 export class ResolveAColor {

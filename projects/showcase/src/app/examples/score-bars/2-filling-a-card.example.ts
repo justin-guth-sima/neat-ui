@@ -14,17 +14,7 @@ import { CLASSES, NO_GESTURE, scoresAt } from './data';
   selector: 'app-filling-a-card',
   imports: [NeatCard, NeatScoreBars],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-card title="Probabilities">
-      <neat-score-bars
-        label="Gesture probabilities"
-        size="fill"
-        [scores]="scores"
-        [labels]="labels"
-        [quiet]="quiet"
-      />
-    </neat-card>
-  `,
+  templateUrl: './2-filling-a-card.example.html',
   styleUrl: './filling-a-card.example.css',
 })
 export class FillingACard {

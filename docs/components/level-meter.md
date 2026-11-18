@@ -48,12 +48,7 @@ import { NeatLevelMeter } from '@sima/neat-ui/level-meter';
   selector: 'app-sine-wave',
   imports: [NeatButton, NeatLevelMeter],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-level-meter [sample]="running() ? sineLevel : null" />
-    <button neatButton type="button" size="small" (click)="running.update((on) => !on)">
-      {{ running() ? 'Stop' : 'Start' }}
-    </button>
-  `,
+  templateUrl: './1-sine-wave.example.html',
   styleUrl: './sine-wave.example.css',
 })
 export class SineWave {
@@ -61,6 +56,15 @@ export class SineWave {
   /** Swings from -50 to 0 dBFS and back about every four seconds. */
   protected readonly sineLevel = () => -25 + 25 * Math.sin(performance.now() / 600);
 }
+```
+
+`1-sine-wave.example.html`
+
+```html
+<neat-level-meter [sample]="running() ? sineLevel : null" />
+<button neatButton type="button" size="small" (click)="running.update((on) => !on)">
+  {{ running() ? 'Stop' : 'Start' }}
+</button>
 ```
 
 `sine-wave.example.css`

@@ -26,15 +26,7 @@ const CURVES = Object.keys(NEAT_EASINGS) as NeatEasingName[];
   selector: 'app-curves',
   imports: [NeatButton, NeatProgress],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (bar of bars; track bar.curve) {
-      <span class="name">{{ bar.curve }}</span>
-      <neat-progress [label]="bar.curve" [value]="bar.value()" />
-    }
-    <button neatButton type="button" variant="outlined" size="small" (click)="next()">
-      Next share
-    </button>
-  `,
+  templateUrl: './3-curves.example.html',
   styleUrl: './curves.example.css',
 })
 export class Curves {

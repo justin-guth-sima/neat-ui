@@ -32,11 +32,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatField } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/field'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatInput } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/input'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-hint-and-error'"],["text",",\n  imports: [NeatField, NeatInput],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-field label=\"Stream URL\" hint=\"RTSP and RTSPS only.\">\n      <input neatInput size=\"small\" type=\"url\" placeholder=\"rtsp://192.168.1.10:554/stream1\" />\n    </neat-field>\n    <neat-field label=\"Start Time\" error=\"Use minutes and seconds, as 1:30.\">\n      <input neatInput size=\"small\" value=\"90s\" />\n    </neat-field>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-hint-and-error'"],["text",",\n  imports: [NeatField, NeatInput],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-hint-and-error.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./hint-and-error.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," HintAndError {}\n"]
+        ]
+      },
+      {
+        "name": "1-hint-and-error.example.html",
+        "code": [
+          ["text","<neat-field label=\"Stream URL\" hint=\"RTSP and RTSPS only.\">\n  <input neatInput size=\"small\" type=\"url\" placeholder=\"rtsp://192.168.1.10:554/stream1\" />\n</neat-field>\n<neat-field label=\"Start Time\" error=\"Use minutes and seconds, as 1:30.\">\n  <input neatInput size=\"small\" value=\"90s\" />\n</neat-field>\n"]
         ]
       },
       {
@@ -98,9 +103,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'1 min'"],["text"," },\n  { value: 300, label: "],
           ["string","'5 min'"],["text"," },\n  { value: 600, label: "],
           ["string","'10 min'"],["text"," },\n];\n\n@Component({\n  selector: "],
-          ["string","'app-a-row-of-controls'"],["text",",\n  imports: [NeatButton, NeatField, NeatInput, NeatNumberField, NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    @for (size of sizes; track size) {\n      <div class=\"row\">\n        <neat-field class=\"narrow\" label=\"Start Time\">\n          <input neatInput [size]=\"size\" placeholder=\"0:00\" />\n        </neat-field>\n        <neat-select\n          class=\"wide\"\n          label=\"Target Resolution & FPS\"\n          showLabel\n          [size]=\"size\"\n          [options]=\"resolutions\"\n          [(value)]=\"resolution\"\n        />\n        <neat-select\n          class=\"narrow\"\n          label=\"Clip Length\"\n          showLabel\n          [size]=\"size\"\n          [options]=\"clipLengths\"\n          [value]=\"300\"\n        />\n        @if (size === 'small') {\n          <neat-number-field label=\"Page\" [value]=\"page()\" (commit)=\"page.set($event)\" />\n        }\n        <button neatButton type=\"button\" variant=\"outlined\" [size]=\"size\">Validate</button>\n      </div>\n    }\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-a-row-of-controls'"],["text",",\n  imports: [NeatButton, NeatField, NeatInput, NeatNumberField, NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-a-row-of-controls.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./a-row-of-controls.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ARowOfControls {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sizes = SIZES;\n  "],
@@ -108,6 +112,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," clipLengths = CLIP_LENGTHS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," resolution = signal<"],["keyword","string"],["text"," | "],["keyword","null"],["text",">("],["string","'1080p30'"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," page = signal(3);\n}\n"]
+        ]
+      },
+      {
+        "name": "2-a-row-of-controls.example.html",
+        "code": [
+          ["text","@for (size of sizes; track size) {\n  <div class=\"row\">\n    <neat-field class=\"narrow\" label=\"Start Time\">\n      <input neatInput [size]=\"size\" placeholder=\"0:00\" />\n    </neat-field>\n    <neat-select\n      class=\"wide\"\n      label=\"Target Resolution & FPS\"\n      showLabel\n      [size]=\"size\"\n      [options]=\"resolutions\"\n      [(value)]=\"resolution\"\n    />\n    <neat-select\n      class=\"narrow\"\n      label=\"Clip Length\"\n      showLabel\n      [size]=\"size\"\n      [options]=\"clipLengths\"\n      [value]=\"300\"\n    />\n    @if (size === 'small') {\n      <neat-number-field label=\"Page\" [value]=\"page()\" (commit)=\"page.set($event)\" />\n    }\n    <button neatButton type=\"button\" variant=\"outlined\" [size]=\"size\">Validate</button>\n  </div>\n}\n"]
         ]
       },
       {
@@ -144,11 +154,17 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatErrorNote } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/field'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-error-note'"],["text",",\n  imports: [NeatErrorNote],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`<neat-error-note>{{ message }}</neat-error-note>`"],["text",",\n})\n"],
+          ["string","'app-error-note'"],["text",",\n  imports: [NeatErrorNote],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-error-note.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ErrorNote {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," message =\n    "],
           ["string","'Could not validate the URL.\\nyt-dlp: ERROR: [youtube] abc123: Video unavailable'"],["text",";\n}\n"]
+        ]
+      },
+      {
+        "name": "3-error-note.example.html",
+        "code": [
+          ["text","<neat-error-note>{{ message }}</neat-error-note>\n"]
         ]
       }
     ]

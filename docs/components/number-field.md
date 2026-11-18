@@ -48,23 +48,7 @@ const PAGE_COUNT = 9;
   selector: 'app-page-with-a-limit',
   imports: [NeatButton, NeatNumberField],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <neat-number-field
-        #pageField
-        label="Page"
-        [value]="page()"
-        [accept]="acceptPage"
-        (commit)="commit($event)"
-      >
-        <span neatNumberFieldSuffix>of {{ pageCount }}</span>
-      </neat-number-field>
-      <button neatButton type="button" variant="outlined" (click)="pageField.focus()">
-        Focus the page field
-      </button>
-    </div>
-    <p class="showcase-code showcase-muted">Page {{ page() }}, commits so far {{ commits() }}</p>
-  `,
+  templateUrl: './1-page-with-a-limit.example.html',
   styleUrl: './stack.css',
 })
 export class PageWithALimit {
@@ -78,6 +62,26 @@ export class PageWithALimit {
     this.commits.update((count) => count + 1);
   }
 }
+```
+
+`1-page-with-a-limit.example.html`
+
+```html
+<div class="showcase-row">
+  <neat-number-field
+    #pageField
+    label="Page"
+    [value]="page()"
+    [accept]="acceptPage"
+    (commit)="commit($event)"
+  >
+    <span neatNumberFieldSuffix>of {{ pageCount }}</span>
+  </neat-number-field>
+  <button neatButton type="button" variant="outlined" (click)="pageField.focus()">
+    Focus the page field
+  </button>
+</div>
+<p class="showcase-code showcase-muted">Page {{ page() }}, commits so far {{ commits() }}</p>
 ```
 
 `stack.css`
@@ -115,15 +119,19 @@ import { NeatNumberField } from '@sima/neat-ui/number-field';
   selector: 'app-any-whole-number',
   imports: [NeatNumberField],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-number-field label="Draw on channel" [value]="channel()" (commit)="channel.set($event)" />
-    <p class="showcase-code showcase-muted">Channel {{ channel() }}</p>
-  `,
+  templateUrl: './2-any-whole-number.example.html',
   styleUrl: './stack.css',
 })
 export class AnyWholeNumber {
   protected readonly channel = signal(2);
 }
+```
+
+`2-any-whole-number.example.html`
+
+```html
+<neat-number-field label="Draw on channel" [value]="channel()" (commit)="channel.set($event)" />
+<p class="showcase-code showcase-muted">Channel {{ channel() }}</p>
 ```
 
 `stack.css`

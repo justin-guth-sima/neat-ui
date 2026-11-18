@@ -36,13 +36,18 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-on-and-off'"],["text",",\n  imports: [NeatSwitch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <button neatSwitch [(checked)]=\"bars\">Bars</button>\n      <button neatSwitch [(checked)]=\"hideEmpty\">Hide empty</button>\n      <button neatSwitch aria-label=\"Bars, without a visible label\" [(checked)]=\"bars\"></button>\n      <button neatSwitch disabled>Disabled</button>\n      <button neatSwitch disabled [checked]=\"true\">Disabled, on</button>\n    </div>\n    <p class=\"showcase-code showcase-muted\">\n      Bars {{ bars() ? 'on' : 'off' }}, hide empty {{ hideEmpty() ? 'on' : 'off' }}\n    </p>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-on-and-off'"],["text",",\n  imports: [NeatSwitch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-on-and-off.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./on-and-off.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," OnAndOff {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," bars = signal("],["keyword","true"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," hideEmpty = signal("],["keyword","false"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "1-on-and-off.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"bars\">Bars</button>\n  <button neatSwitch [(checked)]=\"hideEmpty\">Hide empty</button>\n  <button neatSwitch aria-label=\"Bars, without a visible label\" [(checked)]=\"bars\"></button>\n  <button neatSwitch disabled>Disabled</button>\n  <button neatSwitch disabled [checked]=\"true\">Disabled, on</button>\n</div>\n<p class=\"showcase-code showcase-muted\">\n  Bars {{ bars() ? 'on' : 'off' }}, hide empty {{ hideEmpty() ? 'on' : 'off' }}\n</p>\n"]
         ]
       },
       {

@@ -14,29 +14,7 @@ import { CLUSTERS, CORES, percent, TIMES } from './data';
   selector: 'app-several-series',
   imports: [NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="chart-grid">
-      <div class="chart-card">
-        <neat-time-chart
-          label="Cluster load"
-          [series]="clusters"
-          [times]="times"
-          [domain]="[0, 100]"
-          [format]="percent"
-        />
-      </div>
-      <div class="chart-card">
-        <neat-time-chart
-          label="Ten cores"
-          size="large"
-          [series]="cores"
-          [times]="times"
-          [domain]="[0, 100]"
-          [format]="percent"
-        />
-      </div>
-    </div>
-  `,
+  templateUrl: './3-several-series.example.html',
   styleUrl: './chart-card.css',
 })
 export class SeveralSeries {

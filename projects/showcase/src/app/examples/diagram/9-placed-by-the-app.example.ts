@@ -51,12 +51,7 @@ const PLACED: NeatDiagramSet = {
   selector: 'app-placed-by-the-app',
   imports: [NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-diagram
-    class="diagram"
-    [diagram]="placed"
-    label="Edges placed by the app"
-    highlight="edges"
-  />`,
+  templateUrl: './9-placed-by-the-app.example.html',
   styleUrl: './diagram-box.css',
 })
 export class PlacedByTheApp {

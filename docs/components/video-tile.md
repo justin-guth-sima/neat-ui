@@ -56,31 +56,7 @@ import { TestPatternSource } from './test-pattern-source';
   selector: 'app-test-pattern-tiles',
   imports: [NeatSwitch, NeatVideoTile],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatSwitch [(checked)]="bars">Bars</button>
-      <button neatSwitch [(checked)]="selected">Selected</button>
-      <button neatSwitch (checkedChange)="testPattern.setPaused($event)">Pause the source</button>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">{{ summary() }}</p>
-    <div class="tiles">
-      <div class="cell">
-        <neat-video-tile
-          [source]="testPattern"
-          label="1"
-          status="Test pattern · 640×360 · 30 fps"
-          [bars]="bars()"
-          [selected]="selected()"
-          (stateChange)="state.set($event)"
-        >
-          <span neatTileChip class="chip">Demo</span>
-        </neat-video-tile>
-      </div>
-      <div class="cell">
-        <neat-video-tile label="2" status="Waiting for stream" [bars]="bars()" />
-      </div>
-    </div>
-  `,
+  templateUrl: './1-test-pattern-tiles.example.html',
   styleUrl: './test-pattern-tiles.example.css',
 })
 export class TestPatternTiles {
@@ -96,6 +72,34 @@ export class TestPatternTiles {
     inject(DestroyRef).onDestroy(() => this.testPattern.stop());
   }
 }
+```
+
+`1-test-pattern-tiles.example.html`
+
+```html
+<div class="showcase-row">
+  <button neatSwitch [(checked)]="bars">Bars</button>
+  <button neatSwitch [(checked)]="selected">Selected</button>
+  <button neatSwitch (checkedChange)="testPattern.setPaused($event)">Pause the source</button>
+</div>
+<p class="showcase-code showcase-muted" aria-live="polite">{{ summary() }}</p>
+<div class="tiles">
+  <div class="cell">
+    <neat-video-tile
+      [source]="testPattern"
+      label="1"
+      status="Test pattern · 640×360 · 30 fps"
+      [bars]="bars()"
+      [selected]="selected()"
+      (stateChange)="state.set($event)"
+    >
+      <span neatTileChip class="chip">Demo</span>
+    </neat-video-tile>
+  </div>
+  <div class="cell">
+    <neat-video-tile label="2" status="Waiting for stream" [bars]="bars()" />
+  </div>
+</div>
 ```
 
 `test-pattern-source.ts`
@@ -287,25 +291,7 @@ import { PoseSource } from './pose-source';
   selector: 'app-poses',
   imports: [NeatSwitch, NeatVideoTile],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatSwitch [(checked)]="boxes">Boxes</button>
-      <button neatSwitch [(checked)]="mirror">Mirror</button>
-    </div>
-    <p>{{ poseCount() }} {{ poseCount() === 1 ? 'pose' : 'poses' }} in this frame</p>
-    <div class="tiles">
-      <div class="cell">
-        <neat-video-tile
-          [source]="poses"
-          label="1"
-          status="Hands and a person · 640×360"
-          [settings]="settings()"
-          [mirror]="mirror()"
-          [frameListener]="countPoses"
-        />
-      </div>
-    </div>
-  `,
+  templateUrl: './2-poses.example.html',
   styleUrl: './test-pattern-tiles.example.css',
 })
 export class Poses {
@@ -336,6 +322,28 @@ export class Poses {
     inject(DestroyRef).onDestroy(() => this.poses.stop());
   }
 }
+```
+
+`2-poses.example.html`
+
+```html
+<div class="showcase-row">
+  <button neatSwitch [(checked)]="boxes">Boxes</button>
+  <button neatSwitch [(checked)]="mirror">Mirror</button>
+</div>
+<p>{{ poseCount() }} {{ poseCount() === 1 ? 'pose' : 'poses' }} in this frame</p>
+<div class="tiles">
+  <div class="cell">
+    <neat-video-tile
+      [source]="poses"
+      label="1"
+      status="Hands and a person · 640×360"
+      [settings]="settings()"
+      [mirror]="mirror()"
+      [frameListener]="countPoses"
+    />
+  </div>
+</div>
 ```
 
 `pose-source.ts`

@@ -29,12 +29,17 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton, neatStoredSignal } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-press-counter'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <span>Pressed {{ presses() }} times</span>\n      <button\n        neatButton\n        type=\"button\"\n        variant=\"outlined\"\n        size=\"small\"\n        (click)=\"presses.set(presses() + 1)\"\n      >\n        Press\n      </button>\n      <button neatButton type=\"button\" variant=\"text\" size=\"small\" (click)=\"presses.set(0)\">\n        Reset\n      </button>\n    </div>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-press-counter'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-press-counter.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," PressCounter {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," presses = neatStoredSignal("],["string","'neat-ui-showcase:presses'"],["text",", 0, (stored) =>\n    "],
           ["keyword","typeof"],["text"," stored === "],["string","'number'"],["text"," && Number.isInteger(stored) && stored >= 0 ? stored : "],["keyword","undefined"],["text",",\n  );\n}\n"]
+        ]
+      },
+      {
+        "name": "1-press-counter.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <span>Pressed {{ presses() }} times</span>\n  <button\n    neatButton\n    type=\"button\"\n    variant=\"outlined\"\n    size=\"small\"\n    (click)=\"presses.set(presses() + 1)\"\n  >\n    Press\n  </button>\n  <button neatButton type=\"button\" variant=\"text\" size=\"small\" (click)=\"presses.set(0)\">\n    Reset\n  </button>\n</div>\n"]
         ]
       }
     ]

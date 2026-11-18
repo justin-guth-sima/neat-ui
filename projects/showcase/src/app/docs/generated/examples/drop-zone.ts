@@ -37,15 +37,20 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatDropZone } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/drop-zone'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-accepted-files'"],["text",",\n  imports: [NeatDropZone],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"zones\">\n      <neat-drop-zone\n        label=\"Drop one video here, or click to choose\"\n        accept=\"video/*,.mkv\"\n        (rejected)=\"log('Not accepted', $event)\"\n        (files)=\"log('Received', $event)\"\n      />\n      <neat-drop-zone\n        label=\"Drop any files here, or click to choose\"\n        multiple\n        (files)=\"log('Received', $event)\"\n      />\n      <neat-drop-zone label=\"Uploads are paused\" disabled />\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">\n      @for (line of lines(); track $index) {\n        {{ line }}<br />\n      } @empty {\n        Nothing dropped yet\n      }\n    </p>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-accepted-files'"],["text",",\n  imports: [NeatDropZone],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-accepted-files.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./accepted-files.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," AcceptedFiles {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," lines = signal<"],["keyword","readonly"],["text"," "],["keyword","string"],["text","[]>([]);\n\n  "],
           ["keyword","protected"],["text"," log(what: "],["string","'Received'"],["text"," | "],["string","'Not accepted'"],["text",", files: File[]): "],["keyword","void"],["text"," {\n    "],
           ["keyword","const"],["text"," names = files.map((file) => file.name).join("],["string","', '"],["text",");\n    "],
           ["keyword","this"],["text",".lines.update((lines) => ["],["string","`${what}: ${names}`"],["text",", ...lines].slice(0, 4));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "1-accepted-files.example.html",
+        "code": [
+          ["text","<div class=\"zones\">\n  <neat-drop-zone\n    label=\"Drop one video here, or click to choose\"\n    accept=\"video/*,.mkv\"\n    (rejected)=\"log('Not accepted', $event)\"\n    (files)=\"log('Received', $event)\"\n  />\n  <neat-drop-zone\n    label=\"Drop any files here, or click to choose\"\n    multiple\n    (files)=\"log('Received', $event)\"\n  />\n  <neat-drop-zone label=\"Uploads are paused\" disabled />\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">\n  @for (line of lines(); track $index) {\n    {{ line }}<br />\n  } @empty {\n    Nothing dropped yet\n  }\n</p>\n"]
         ]
       },
       {

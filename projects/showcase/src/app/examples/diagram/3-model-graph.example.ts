@@ -26,27 +26,7 @@ import { MODEL_EDGE_TOOLTIPS, MODEL_GRAPH, MODEL_LEGEND } from './model-graph-da
     NeatDiagramView,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-diagram-legend [items]="legend" />
-    <neat-diagram
-      class="diagram"
-      [diagram]="graph"
-      label="A detector’s model graph"
-      [(level)]="level"
-    >
-      <ng-template neatDiagramBlock let-node>
-        @if (node.role === 'bracket') {
-          <span class="bracket-figure">3 tensors</span>
-        }
-      </ng-template>
-      <ng-template neatDiagramEdgeTooltip let-edge>
-        @if (tooltips[edge.id]; as tooltip) {
-          {{ tooltip }}
-        }
-      </ng-template>
-    </neat-diagram>
-    <span class="showcase-muted">Open levels: {{ levelText() }}</span>
-  `,
+  templateUrl: './3-model-graph.example.html',
   styleUrl: './diagram-box.css',
 })
 export class ModelGraph {

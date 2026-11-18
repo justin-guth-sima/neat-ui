@@ -12,14 +12,7 @@ import { NeatInput } from '@sima/neat-ui/input';
   selector: 'app-hint-and-error',
   imports: [NeatField, NeatInput],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-field label="Stream URL" hint="RTSP and RTSPS only.">
-      <input neatInput size="small" type="url" placeholder="rtsp://192.168.1.10:554/stream1" />
-    </neat-field>
-    <neat-field label="Start Time" error="Use minutes and seconds, as 1:30.">
-      <input neatInput size="small" value="90s" />
-    </neat-field>
-  `,
+  templateUrl: './1-hint-and-error.example.html',
   styleUrl: './hint-and-error.example.css',
 })
 export class HintAndError {}

@@ -20,30 +20,7 @@ import { SOURCES } from './sources';
   selector: 'app-in-a-dialog',
   imports: [NeatButton, NeatDialogActions, NeatDialogBody, NeatSelect],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" (click)="open(assignDialog)">
-        Assign a source…
-      </button>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">{{ result() }}</p>
-
-    <ng-template #assignDialog let-dialog>
-      <neat-dialog-body>
-        <neat-select
-          label="Source for channel 3"
-          showLabel
-          placeholder="Pick a source"
-          [options]="sources"
-          [(value)]="source"
-        />
-      </neat-dialog-body>
-      <neat-dialog-actions>
-        <button neatButton type="button" variant="outlined" (click)="dialog.close()">Cancel</button>
-        <button neatButton type="button" (click)="dialog.close(source())">Assign</button>
-      </neat-dialog-actions>
-    </ng-template>
-  `,
+  templateUrl: './2-in-a-dialog.example.html',
   styleUrl: './stack.css',
 })
 export class InADialog {

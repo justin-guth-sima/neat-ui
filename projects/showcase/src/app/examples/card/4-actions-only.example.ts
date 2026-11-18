@@ -10,13 +10,7 @@ import { NeatCard } from '@sima/neat-ui/card';
   selector: 'app-actions-only-card',
   imports: [NeatButton, NeatCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-card>
-      <button neatButton neatCardActions type="button" size="small">Refresh</button>
-      <button neatButton neatCardActions type="button" size="small">Clear</button>
-      <p>yolov8n, 640 by 640.</p>
-    </neat-card>
-  `,
+  templateUrl: './4-actions-only.example.html',
   styleUrl: './card.example.css',
 })
 export class ActionsOnlyCardExample {}

@@ -43,15 +43,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatTimeChart } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { CPU, CPU_THRESHOLDS, percent, TIMES } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-cpu-usage'"],["text",",\n  imports: [NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"chart-card\">\n      <neat-time-chart\n        label=\"CPU usage\"\n        headline=\"34%\"\n        size=\"large\"\n        [series]=\"series\"\n        [times]=\"times\"\n        [domain]=\"[0, 100]\"\n        [thresholds]=\"thresholds\"\n        [format]=\"percent\"\n      />\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-cpu-usage'"],["text",",\n  imports: [NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-cpu-usage.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./chart-card.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," CPUUsage {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," series = CPU;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," times = TIMES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," thresholds = CPU_THRESHOLDS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," percent = percent;\n}\n"]
+        ]
+      },
+      {
+        "name": "1-cpu-usage.example.html",
+        "code": [
+          ["text","<div class=\"chart-card\">\n  <neat-time-chart\n    label=\"CPU usage\"\n    headline=\"34%\"\n    size=\"large\"\n    [series]=\"series\"\n    [times]=\"times\"\n    [domain]=\"[0, 100]\"\n    [thresholds]=\"thresholds\"\n    [format]=\"percent\"\n  />\n</div>\n"]
         ]
       },
       {
@@ -156,15 +161,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatTimeChart } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { celsius, TEMPERATURE, TEMPERATURE_THRESHOLDS, TIMES } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-mla-temperature'"],["text",",\n  imports: [NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"chart-card\">\n      <neat-time-chart\n        label=\"MLA temperature\"\n        headline=\"78.2 °C\"\n        tone=\"warning\"\n        [series]=\"series\"\n        [times]=\"times\"\n        [domain]=\"[40, 100]\"\n        [thresholds]=\"thresholds\"\n        [format]=\"celsius\"\n      />\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-mla-temperature'"],["text",",\n  imports: [NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-mla-temperature.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./chart-card.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," MLATemperature {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," series = TEMPERATURE;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," times = TIMES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," thresholds = TEMPERATURE_THRESHOLDS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," celsius = celsius;\n}\n"]
+        ]
+      },
+      {
+        "name": "2-mla-temperature.example.html",
+        "code": [
+          ["text","<div class=\"chart-card\">\n  <neat-time-chart\n    label=\"MLA temperature\"\n    headline=\"78.2 °C\"\n    tone=\"warning\"\n    [series]=\"series\"\n    [times]=\"times\"\n    [domain]=\"[40, 100]\"\n    [thresholds]=\"thresholds\"\n    [format]=\"celsius\"\n  />\n</div>\n"]
         ]
       },
       {
@@ -287,15 +297,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatTimeChart } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { CLUSTERS, CORES, percent, TIMES } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-several-series'"],["text",",\n  imports: [NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"chart-grid\">\n      <div class=\"chart-card\">\n        <neat-time-chart\n          label=\"Cluster load\"\n          [series]=\"clusters\"\n          [times]=\"times\"\n          [domain]=\"[0, 100]\"\n          [format]=\"percent\"\n        />\n      </div>\n      <div class=\"chart-card\">\n        <neat-time-chart\n          label=\"Ten cores\"\n          size=\"large\"\n          [series]=\"cores\"\n          [times]=\"times\"\n          [domain]=\"[0, 100]\"\n          [format]=\"percent\"\n        />\n      </div>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-several-series'"],["text",",\n  imports: [NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-several-series.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./chart-card.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SeveralSeries {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," clusters = CLUSTERS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," cores = CORES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," times = TIMES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," percent = percent;\n}\n"]
+        ]
+      },
+      {
+        "name": "3-several-series.example.html",
+        "code": [
+          ["text","<div class=\"chart-grid\">\n  <div class=\"chart-card\">\n    <neat-time-chart\n      label=\"Cluster load\"\n      [series]=\"clusters\"\n      [times]=\"times\"\n      [domain]=\"[0, 100]\"\n      [format]=\"percent\"\n    />\n  </div>\n  <div class=\"chart-card\">\n    <neat-time-chart\n      label=\"Ten cores\"\n      size=\"large\"\n      [series]=\"cores\"\n      [times]=\"times\"\n      [domain]=\"[0, 100]\"\n      [format]=\"percent\"\n    />\n  </div>\n</div>\n"]
         ]
       },
       {
@@ -396,14 +411,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatTimeChart } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { CPU, percent, TIMES } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-elapsed-axis'"],["text",",\n  imports: [NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"chart-card\">\n      <neat-time-chart\n        label=\"CPU usage, run\"\n        axis=\"elapsed\"\n        [series]=\"series\"\n        [times]=\"times\"\n        [domain]=\"[0, 100]\"\n        [format]=\"percent\"\n      />\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-elapsed-axis'"],["text",",\n  imports: [NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-elapsed-axis.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./chart-card.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ElapsedAxis {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," series = CPU;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," times = TIMES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," percent = percent;\n}\n"]
+        ]
+      },
+      {
+        "name": "4-elapsed-axis.example.html",
+        "code": [
+          ["text","<div class=\"chart-card\">\n  <neat-time-chart\n    label=\"CPU usage, run\"\n    axis=\"elapsed\"\n    [series]=\"series\"\n    [times]=\"times\"\n    [domain]=\"[0, 100]\"\n    [format]=\"percent\"\n  />\n</div>\n"]
         ]
       },
       {
@@ -500,15 +520,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatTimeChart } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { POWER, POWER_AVERAGE, TIMES, watts } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-reference-line'"],["text",",\n  imports: [NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"chart-card\">\n      <neat-time-chart\n        label=\"Board power\"\n        headline=\"11.4 W\"\n        size=\"large\"\n        [series]=\"series\"\n        [times]=\"times\"\n        [domain]=\"[0, 16]\"\n        [reference]=\"average\"\n        [format]=\"watts\"\n      />\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-reference-line'"],["text",",\n  imports: [NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./5-reference-line.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./chart-card.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ReferenceLine {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," series = POWER;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," times = TIMES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," average = POWER_AVERAGE;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," watts = watts;\n}\n"]
+        ]
+      },
+      {
+        "name": "5-reference-line.example.html",
+        "code": [
+          ["text","<div class=\"chart-card\">\n  <neat-time-chart\n    label=\"Board power\"\n    headline=\"11.4 W\"\n    size=\"large\"\n    [series]=\"series\"\n    [times]=\"times\"\n    [domain]=\"[0, 16]\"\n    [reference]=\"average\"\n    [format]=\"watts\"\n  />\n</div>\n"]
         ]
       },
       {
@@ -618,15 +643,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatTimeChart } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { CORES, MLA, percent, TIMES } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-filling-a-card'"],["text",",\n  imports: [NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"chart-grid\">\n      <div class=\"chart-card\">\n        <neat-time-chart\n          label=\"Ten cores\"\n          size=\"large\"\n          [series]=\"cores\"\n          [times]=\"times\"\n          [domain]=\"[0, 100]\"\n          [format]=\"percent\"\n        />\n      </div>\n      <div class=\"chart-card fill\">\n        <neat-time-chart\n          label=\"MLA usage\"\n          headline=\"62%\"\n          size=\"fill\"\n          [series]=\"mla\"\n          [times]=\"times\"\n          [domain]=\"[0, 100]\"\n          [format]=\"percent\"\n        />\n      </div>\n    </div>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-filling-a-card'"],["text",",\n  imports: [NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./6-filling-a-card.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./chart-card.css'"],["text",", "],["string","'./filling-a-card.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," FillingACard {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," cores = CORES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," mla = MLA;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," times = TIMES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," percent = percent;\n}\n"]
+        ]
+      },
+      {
+        "name": "6-filling-a-card.example.html",
+        "code": [
+          ["text","<div class=\"chart-grid\">\n  <div class=\"chart-card\">\n    <neat-time-chart\n      label=\"Ten cores\"\n      size=\"large\"\n      [series]=\"cores\"\n      [times]=\"times\"\n      [domain]=\"[0, 100]\"\n      [format]=\"percent\"\n    />\n  </div>\n  <div class=\"chart-card fill\">\n    <neat-time-chart\n      label=\"MLA usage\"\n      headline=\"62%\"\n      size=\"fill\"\n      [series]=\"mla\"\n      [times]=\"times\"\n      [domain]=\"[0, 100]\"\n      [format]=\"percent\"\n    />\n  </div>\n</div>\n"]
         ]
       },
       {
@@ -742,13 +772,18 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatTimeChart } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
           ["keyword","import"],["text"," { percent, ROWS } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-compact-rows'"],["text",",\n  imports: [NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"chart-card rows\">\n      @for (row of rows; track row.label) {\n        <div class=\"row\">\n          <span>{{ row.label }}</span>\n          <neat-time-chart\n            [label]=\"row.label\"\n            size=\"compact\"\n            headless\n            [series]=\"row.series\"\n            [times]=\"row.times\"\n            [domain]=\"[0, 100]\"\n            [format]=\"percent\"\n          />\n          <span>{{ row.value }}</span>\n        </div>\n      }\n    </div>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-compact-rows'"],["text",",\n  imports: [NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./7-compact-rows.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./chart-card.css'"],["text",", "],["string","'./compact-rows.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," CompactRows {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," percent = percent;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," rows = ROWS;\n}\n"]
+        ]
+      },
+      {
+        "name": "7-compact-rows.example.html",
+        "code": [
+          ["text","<div class=\"chart-card rows\">\n  @for (row of rows; track row.label) {\n    <div class=\"row\">\n      <span>{{ row.label }}</span>\n      <neat-time-chart\n        [label]=\"row.label\"\n        size=\"compact\"\n        headless\n        [series]=\"row.series\"\n        [times]=\"row.times\"\n        [domain]=\"[0, 100]\"\n        [format]=\"percent\"\n      />\n      <span>{{ row.value }}</span>\n    </div>\n  }\n</div>\n"]
         ]
       },
       {
@@ -912,9 +947,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'default'"],["text",",\n}));\n\n"],
           ["comment","/** A moment as the card says it: the time of day, in UTC like the demo's data. */"],["text","\n"],
           ["keyword","const"],["text"," clock = (time: "],["keyword","number"],["text",") => "],["keyword","new"],["text"," Date(time).toISOString().slice(11, 19);\n\n@Component({\n  selector: "],
-          ["string","'app-shared-crosshair'"],["text",",\n  imports: [NeatButton, NeatHeatmap, NeatLabelTimeline, NeatStackedChart, NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"dashboard\">\n      <div class=\"chart-card\">\n        <neat-time-chart\n          label=\"CPU\"\n          [series]=\"cpu\"\n          [times]=\"times\"\n          [domain]=\"[0, 100]\"\n          [format]=\"percent\"\n          [(hovered)]=\"moment\"\n          (activated)=\"clicked.set('CPU at ' + when($event.time))\"\n        />\n      </div>\n      <div class=\"chart-card\">\n        <neat-stacked-chart\n          label=\"Clusters\"\n          [series]=\"clusters\"\n          [times]=\"times\"\n          [domain]=\"[0, 220]\"\n          [format]=\"percent\"\n          [(hovered)]=\"moment\"\n          (activated)=\"clicked.set('Clusters at ' + when($event.time))\"\n        />\n      </div>\n      <div class=\"chart-card\">\n        <neat-heatmap\n          label=\"Cores\"\n          [rows]=\"rows\"\n          [times]=\"times\"\n          [format]=\"percent\"\n          [hovered]=\"cell()\"\n          (hoveredChange)=\"onCell($event)\"\n          (activated)=\"clicked.set($event.row + ' at ' + when($event.time))\"\n        />\n      </div>\n      <div class=\"chart-card\">\n        <neat-label-timeline\n          label=\"Board state\"\n          [runs]=\"runs\"\n          [nowMs]=\"end\"\n          [windowMs]=\"end - start\"\n          [(hovered)]=\"moment\"\n          (activated)=\"clicked.set(($event.run?.label ?? 'nothing') + ' at ' + when($event.time))\"\n        />\n      </div>\n      <div class=\"chart-card report\">\n        <dl>\n          <dt>Moment</dt>\n          <dd>{{ momentText() }}</dd>\n          <dt>Last click</dt>\n          <dd>{{ clicked() }}</dd>\n        </dl>\n        <div class=\"actions\">\n          <button\n            neatButton\n            type=\"button\"\n            size=\"small\"\n            variant=\"secondary\"\n            (click)=\"moment.set(start + 120_000)\"\n          >\n            Show 12:02\n          </button>\n          <button\n            neatButton\n            type=\"button\"\n            size=\"small\"\n            variant=\"secondary\"\n            (click)=\"moment.set(end)\"\n          >\n            Show the newest\n          </button>\n          <button\n            neatButton\n            type=\"button\"\n            size=\"small\"\n            variant=\"outlined\"\n            (click)=\"moment.set(null)\"\n          >\n            Clear\n          </button>\n        </div>\n      </div>\n    </div>\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-shared-crosshair'"],["text",",\n  imports: [NeatButton, NeatHeatmap, NeatLabelTimeline, NeatStackedChart, NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./8-shared-crosshair.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./chart-card.css'"],["text",", "],["string","'./shared-crosshair.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SharedCrosshair {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," cpu = CPU;\n  "],
@@ -941,6 +975,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","this"],["text",".moment.set(cell?.time ?? "],["keyword","null"],["text",");\n  }\n\n  "],
           ["keyword","protected"],["text"," when(time: "],["keyword","number"],["text"," | "],["keyword","null"],["text","): "],["keyword","string"],["text"," {\n    "],
           ["keyword","return"],["text"," time === "],["keyword","null"],["text"," ? "],["string","'an unknown time'"],["text"," : clock(time);\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "8-shared-crosshair.example.html",
+        "code": [
+          ["text","<div class=\"dashboard\">\n  <div class=\"chart-card\">\n    <neat-time-chart\n      label=\"CPU\"\n      [series]=\"cpu\"\n      [times]=\"times\"\n      [domain]=\"[0, 100]\"\n      [format]=\"percent\"\n      [(hovered)]=\"moment\"\n      (activated)=\"clicked.set('CPU at ' + when($event.time))\"\n    />\n  </div>\n  <div class=\"chart-card\">\n    <neat-stacked-chart\n      label=\"Clusters\"\n      [series]=\"clusters\"\n      [times]=\"times\"\n      [domain]=\"[0, 220]\"\n      [format]=\"percent\"\n      [(hovered)]=\"moment\"\n      (activated)=\"clicked.set('Clusters at ' + when($event.time))\"\n    />\n  </div>\n  <div class=\"chart-card\">\n    <neat-heatmap\n      label=\"Cores\"\n      [rows]=\"rows\"\n      [times]=\"times\"\n      [format]=\"percent\"\n      [hovered]=\"cell()\"\n      (hoveredChange)=\"onCell($event)\"\n      (activated)=\"clicked.set($event.row + ' at ' + when($event.time))\"\n    />\n  </div>\n  <div class=\"chart-card\">\n    <neat-label-timeline\n      label=\"Board state\"\n      [runs]=\"runs\"\n      [nowMs]=\"end\"\n      [windowMs]=\"end - start\"\n      [(hovered)]=\"moment\"\n      (activated)=\"clicked.set(($event.run?.label ?? 'nothing') + ' at ' + when($event.time))\"\n    />\n  </div>\n  <div class=\"chart-card report\">\n    <dl>\n      <dt>Moment</dt>\n      <dd>{{ momentText() }}</dd>\n      <dt>Last click</dt>\n      <dd>{{ clicked() }}</dd>\n    </dl>\n    <div class=\"actions\">\n      <button\n        neatButton\n        type=\"button\"\n        size=\"small\"\n        variant=\"secondary\"\n        (click)=\"moment.set(start + 120_000)\"\n      >\n        Show 12:02\n      </button>\n      <button neatButton type=\"button\" size=\"small\" variant=\"secondary\" (click)=\"moment.set(end)\">\n        Show the newest\n      </button>\n      <button neatButton type=\"button\" size=\"small\" variant=\"outlined\" (click)=\"moment.set(null)\">\n        Clear\n      </button>\n    </div>\n  </div>\n</div>\n"]
         ]
       },
       {

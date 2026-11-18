@@ -47,7 +47,7 @@ const LOOPS: NeatDiagramSet = {
   selector: 'app-parallel-loops',
   imports: [NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-diagram class="diagram" [diagram]="loops" label="Edges that share a loop" />`,
+  templateUrl: './8-parallel-loops.example.html',
   styleUrl: './diagram-box.css',
 })
 export class ParallelLoops {

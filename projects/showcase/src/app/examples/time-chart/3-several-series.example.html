@@ -1,0 +1,21 @@
+<div class="chart-grid">
+  <div class="chart-card">
+    <neat-time-chart
+      label="Cluster load"
+      [series]="clusters"
+      [times]="times"
+      [domain]="[0, 100]"
+      [format]="percent"
+    />
+  </div>
+  <div class="chart-card">
+    <neat-time-chart
+      label="Ten cores"
+      size="large"
+      [series]="cores"
+      [times]="times"
+      [domain]="[0, 100]"
+      [format]="percent"
+    />
+  </div>
+</div>

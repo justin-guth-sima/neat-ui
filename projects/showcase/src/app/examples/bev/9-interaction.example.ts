@@ -42,41 +42,7 @@ const VEHICLES = new Set(['car', 'truck', 'bicycle']);
   selector: 'app-interaction',
   imports: [NeatBev, NeatCard, NeatColumn, NeatSelectList],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="interaction">
-      <neat-bev
-        [frame]="frame()"
-        [range]="40"
-        [(hovered)]="hovered"
-        (activated)="picked.set($event)"
-        (pointerMove)="pointer.set($event)"
-      />
-      <neat-card title="What the view reports" subtitle="And what the app sets">
-        <dl class="report">
-          <dt>Hovered</dt>
-          <dd>{{ hoveredText() }}</dd>
-          <dt>Last click</dt>
-          <dd>{{ pickedText() }}</dd>
-          <dt>Pointer</dt>
-          <dd>{{ pointerText() }}</dd>
-        </dl>
-        <div class="tracks">
-          <neat-select-list
-            label="Vehicles"
-            [items]="tracks"
-            [trackBy]="trackId"
-            [selected]="selectedTrack()"
-            (selectedChange)="hovered.set($event?.id ?? null)"
-          >
-            <ng-template neatColumn="track" header="Vehicle" let-track>{{ track.id }}</ng-template>
-            <ng-template neatColumn="distance" header="Distance" width="6rem" let-track>{{
-              distanceText(track.id)
-            }}</ng-template>
-          </neat-select-list>
-        </div>
-      </neat-card>
-    </div>
-  `,
+  templateUrl: './9-interaction.example.html',
   styleUrl: './bev.example.css',
 })
 export class Interaction {

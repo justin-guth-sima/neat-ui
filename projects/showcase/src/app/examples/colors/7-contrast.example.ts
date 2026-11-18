@@ -15,24 +15,7 @@ const AA = 4.5;
   selector: 'app-contrast',
   imports: [NeatInput],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <label class="field">
-        <span>Text</span>
-        <input neatInput #text [value]="foreground()" (input)="foreground.set(text.value)" />
-      </label>
-      <label class="field">
-        <span>Background</span>
-        <input neatInput #fill [value]="background()" (input)="background.set(fill.value)" />
-      </label>
-    </div>
-    <div class="showcase-row">
-      <span class="sample" [style.color]="foreground()" [style.background]="background()">
-        Neat Insight
-      </span>
-      <span class="showcase-code">{{ result() }}</span>
-    </div>
-  `,
+  templateUrl: './7-contrast.example.html',
   styleUrls: ['./color-field.css', './contrast.example.css'],
 })
 export class Contrast {

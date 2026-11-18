@@ -10,18 +10,7 @@ import { CPU, percent, TIMES } from './data';
   selector: 'app-elapsed-axis',
   imports: [NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="chart-card">
-      <neat-time-chart
-        label="CPU usage, run"
-        axis="elapsed"
-        [series]="series"
-        [times]="times"
-        [domain]="[0, 100]"
-        [format]="percent"
-      />
-    </div>
-  `,
+  templateUrl: './4-elapsed-axis.example.html',
   styleUrl: './chart-card.css',
 })
 export class ElapsedAxis {

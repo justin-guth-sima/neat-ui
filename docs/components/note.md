@@ -44,19 +44,23 @@ import { NeatInput } from '@sima/neat-ui/input';
   selector: 'app-under-a-control',
   imports: [NeatInlineButton, NeatInput, NeatNote],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <label class="showcase-row">
-      Delay
-      <input neatInput type="text" value="600" aria-describedby="delay-note" />
-    </label>
-    <p neatNote id="delay-note">
-      Applies to every channel that has no value of its own.
-      <button neatInlineButton type="button">Show channels</button>
-    </p>
-  `,
+  templateUrl: './1-under-a-control.example.html',
   styleUrl: './under-a-control.example.css',
 })
 export class UnderAControl {}
+```
+
+`1-under-a-control.example.html`
+
+```html
+<label class="showcase-row">
+  Delay
+  <input neatInput type="text" value="600" aria-describedby="delay-note" />
+</label>
+<p neatNote id="delay-note">
+  Applies to every channel that has no value of its own.
+  <button neatInlineButton type="button">Show channels</button>
+</p>
 ```
 
 `under-a-control.example.css`

@@ -52,20 +52,7 @@ import { CPU, CPU_THRESHOLDS, percent, TIMES } from './data';
   selector: 'app-cpu-usage',
   imports: [NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="chart-card">
-      <neat-time-chart
-        label="CPU usage"
-        headline="34%"
-        size="large"
-        [series]="series"
-        [times]="times"
-        [domain]="[0, 100]"
-        [thresholds]="thresholds"
-        [format]="percent"
-      />
-    </div>
-  `,
+  templateUrl: './1-cpu-usage.example.html',
   styleUrl: './chart-card.css',
 })
 export class CPUUsage {
@@ -74,6 +61,23 @@ export class CPUUsage {
   protected readonly thresholds = CPU_THRESHOLDS;
   protected readonly percent = percent;
 }
+```
+
+`1-cpu-usage.example.html`
+
+```html
+<div class="chart-card">
+  <neat-time-chart
+    label="CPU usage"
+    headline="34%"
+    size="large"
+    [series]="series"
+    [times]="times"
+    [domain]="[0, 100]"
+    [thresholds]="thresholds"
+    [format]="percent"
+  />
+</div>
 ```
 
 `data.ts`
@@ -228,20 +232,7 @@ import { celsius, TEMPERATURE, TEMPERATURE_THRESHOLDS, TIMES } from './data';
   selector: 'app-mla-temperature',
   imports: [NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="chart-card">
-      <neat-time-chart
-        label="MLA temperature"
-        headline="78.2 °C"
-        tone="warning"
-        [series]="series"
-        [times]="times"
-        [domain]="[40, 100]"
-        [thresholds]="thresholds"
-        [format]="celsius"
-      />
-    </div>
-  `,
+  templateUrl: './2-mla-temperature.example.html',
   styleUrl: './chart-card.css',
 })
 export class MLATemperature {
@@ -250,6 +241,23 @@ export class MLATemperature {
   protected readonly thresholds = TEMPERATURE_THRESHOLDS;
   protected readonly celsius = celsius;
 }
+```
+
+`2-mla-temperature.example.html`
+
+```html
+<div class="chart-card">
+  <neat-time-chart
+    label="MLA temperature"
+    headline="78.2 °C"
+    tone="warning"
+    [series]="series"
+    [times]="times"
+    [domain]="[40, 100]"
+    [thresholds]="thresholds"
+    [format]="celsius"
+  />
+</div>
 ```
 
 `data.ts`
@@ -406,29 +414,7 @@ import { CLUSTERS, CORES, percent, TIMES } from './data';
   selector: 'app-several-series',
   imports: [NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="chart-grid">
-      <div class="chart-card">
-        <neat-time-chart
-          label="Cluster load"
-          [series]="clusters"
-          [times]="times"
-          [domain]="[0, 100]"
-          [format]="percent"
-        />
-      </div>
-      <div class="chart-card">
-        <neat-time-chart
-          label="Ten cores"
-          size="large"
-          [series]="cores"
-          [times]="times"
-          [domain]="[0, 100]"
-          [format]="percent"
-        />
-      </div>
-    </div>
-  `,
+  templateUrl: './3-several-series.example.html',
   styleUrl: './chart-card.css',
 })
 export class SeveralSeries {
@@ -437,6 +423,32 @@ export class SeveralSeries {
   protected readonly times = TIMES;
   protected readonly percent = percent;
 }
+```
+
+`3-several-series.example.html`
+
+```html
+<div class="chart-grid">
+  <div class="chart-card">
+    <neat-time-chart
+      label="Cluster load"
+      [series]="clusters"
+      [times]="times"
+      [domain]="[0, 100]"
+      [format]="percent"
+    />
+  </div>
+  <div class="chart-card">
+    <neat-time-chart
+      label="Ten cores"
+      size="large"
+      [series]="cores"
+      [times]="times"
+      [domain]="[0, 100]"
+      [format]="percent"
+    />
+  </div>
+</div>
 ```
 
 `data.ts`
@@ -591,18 +603,7 @@ import { CPU, percent, TIMES } from './data';
   selector: 'app-elapsed-axis',
   imports: [NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="chart-card">
-      <neat-time-chart
-        label="CPU usage, run"
-        axis="elapsed"
-        [series]="series"
-        [times]="times"
-        [domain]="[0, 100]"
-        [format]="percent"
-      />
-    </div>
-  `,
+  templateUrl: './4-elapsed-axis.example.html',
   styleUrl: './chart-card.css',
 })
 export class ElapsedAxis {
@@ -610,6 +611,21 @@ export class ElapsedAxis {
   protected readonly times = TIMES;
   protected readonly percent = percent;
 }
+```
+
+`4-elapsed-axis.example.html`
+
+```html
+<div class="chart-card">
+  <neat-time-chart
+    label="CPU usage, run"
+    axis="elapsed"
+    [series]="series"
+    [times]="times"
+    [domain]="[0, 100]"
+    [format]="percent"
+  />
+</div>
 ```
 
 `data.ts`
@@ -764,20 +780,7 @@ import { POWER, POWER_AVERAGE, TIMES, watts } from './data';
   selector: 'app-reference-line',
   imports: [NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="chart-card">
-      <neat-time-chart
-        label="Board power"
-        headline="11.4 W"
-        size="large"
-        [series]="series"
-        [times]="times"
-        [domain]="[0, 16]"
-        [reference]="average"
-        [format]="watts"
-      />
-    </div>
-  `,
+  templateUrl: './5-reference-line.example.html',
   styleUrl: './chart-card.css',
 })
 export class ReferenceLine {
@@ -786,6 +789,23 @@ export class ReferenceLine {
   protected readonly average = POWER_AVERAGE;
   protected readonly watts = watts;
 }
+```
+
+`5-reference-line.example.html`
+
+```html
+<div class="chart-card">
+  <neat-time-chart
+    label="Board power"
+    headline="11.4 W"
+    size="large"
+    [series]="series"
+    [times]="times"
+    [domain]="[0, 16]"
+    [reference]="average"
+    [format]="watts"
+  />
+</div>
 ```
 
 `data.ts`
@@ -942,31 +962,7 @@ import { CORES, MLA, percent, TIMES } from './data';
   selector: 'app-filling-a-card',
   imports: [NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="chart-grid">
-      <div class="chart-card">
-        <neat-time-chart
-          label="Ten cores"
-          size="large"
-          [series]="cores"
-          [times]="times"
-          [domain]="[0, 100]"
-          [format]="percent"
-        />
-      </div>
-      <div class="chart-card fill">
-        <neat-time-chart
-          label="MLA usage"
-          headline="62%"
-          size="fill"
-          [series]="mla"
-          [times]="times"
-          [domain]="[0, 100]"
-          [format]="percent"
-        />
-      </div>
-    </div>
-  `,
+  templateUrl: './6-filling-a-card.example.html',
   styleUrls: ['./chart-card.css', './filling-a-card.example.css'],
 })
 export class FillingACard {
@@ -975,6 +971,34 @@ export class FillingACard {
   protected readonly times = TIMES;
   protected readonly percent = percent;
 }
+```
+
+`6-filling-a-card.example.html`
+
+```html
+<div class="chart-grid">
+  <div class="chart-card">
+    <neat-time-chart
+      label="Ten cores"
+      size="large"
+      [series]="cores"
+      [times]="times"
+      [domain]="[0, 100]"
+      [format]="percent"
+    />
+  </div>
+  <div class="chart-card fill">
+    <neat-time-chart
+      label="MLA usage"
+      headline="62%"
+      size="fill"
+      [series]="mla"
+      [times]="times"
+      [domain]="[0, 100]"
+      [format]="percent"
+    />
+  </div>
+</div>
 ```
 
 `data.ts`
@@ -1145,31 +1169,35 @@ import { percent, ROWS } from './data';
   selector: 'app-compact-rows',
   imports: [NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="chart-card rows">
-      @for (row of rows; track row.label) {
-        <div class="row">
-          <span>{{ row.label }}</span>
-          <neat-time-chart
-            [label]="row.label"
-            size="compact"
-            headless
-            [series]="row.series"
-            [times]="row.times"
-            [domain]="[0, 100]"
-            [format]="percent"
-          />
-          <span>{{ row.value }}</span>
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './7-compact-rows.example.html',
   styleUrls: ['./chart-card.css', './compact-rows.example.css'],
 })
 export class CompactRows {
   protected readonly percent = percent;
   protected readonly rows = ROWS;
 }
+```
+
+`7-compact-rows.example.html`
+
+```html
+<div class="chart-card rows">
+  @for (row of rows; track row.label) {
+    <div class="row">
+      <span>{{ row.label }}</span>
+      <neat-time-chart
+        [label]="row.label"
+        size="compact"
+        headless
+        [series]="row.series"
+        [times]="row.times"
+        [domain]="[0, 100]"
+        [format]="percent"
+      />
+      <span>{{ row.value }}</span>
+    </div>
+  }
+</div>
 ```
 
 `data.ts`
@@ -1387,90 +1415,7 @@ const clock = (time: number) => new Date(time).toISOString().slice(11, 19);
   selector: 'app-shared-crosshair',
   imports: [NeatButton, NeatHeatmap, NeatLabelTimeline, NeatStackedChart, NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="dashboard">
-      <div class="chart-card">
-        <neat-time-chart
-          label="CPU"
-          [series]="cpu"
-          [times]="times"
-          [domain]="[0, 100]"
-          [format]="percent"
-          [(hovered)]="moment"
-          (activated)="clicked.set('CPU at ' + when($event.time))"
-        />
-      </div>
-      <div class="chart-card">
-        <neat-stacked-chart
-          label="Clusters"
-          [series]="clusters"
-          [times]="times"
-          [domain]="[0, 220]"
-          [format]="percent"
-          [(hovered)]="moment"
-          (activated)="clicked.set('Clusters at ' + when($event.time))"
-        />
-      </div>
-      <div class="chart-card">
-        <neat-heatmap
-          label="Cores"
-          [rows]="rows"
-          [times]="times"
-          [format]="percent"
-          [hovered]="cell()"
-          (hoveredChange)="onCell($event)"
-          (activated)="clicked.set($event.row + ' at ' + when($event.time))"
-        />
-      </div>
-      <div class="chart-card">
-        <neat-label-timeline
-          label="Board state"
-          [runs]="runs"
-          [nowMs]="end"
-          [windowMs]="end - start"
-          [(hovered)]="moment"
-          (activated)="clicked.set(($event.run?.label ?? 'nothing') + ' at ' + when($event.time))"
-        />
-      </div>
-      <div class="chart-card report">
-        <dl>
-          <dt>Moment</dt>
-          <dd>{{ momentText() }}</dd>
-          <dt>Last click</dt>
-          <dd>{{ clicked() }}</dd>
-        </dl>
-        <div class="actions">
-          <button
-            neatButton
-            type="button"
-            size="small"
-            variant="secondary"
-            (click)="moment.set(start + 120_000)"
-          >
-            Show 12:02
-          </button>
-          <button
-            neatButton
-            type="button"
-            size="small"
-            variant="secondary"
-            (click)="moment.set(end)"
-          >
-            Show the newest
-          </button>
-          <button
-            neatButton
-            type="button"
-            size="small"
-            variant="outlined"
-            (click)="moment.set(null)"
-          >
-            Clear
-          </button>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './8-shared-crosshair.example.html',
   styleUrls: ['./chart-card.css', './shared-crosshair.example.css'],
 })
 export class SharedCrosshair {
@@ -1508,6 +1453,81 @@ export class SharedCrosshair {
     return time === null ? 'an unknown time' : clock(time);
   }
 }
+```
+
+`8-shared-crosshair.example.html`
+
+```html
+<div class="dashboard">
+  <div class="chart-card">
+    <neat-time-chart
+      label="CPU"
+      [series]="cpu"
+      [times]="times"
+      [domain]="[0, 100]"
+      [format]="percent"
+      [(hovered)]="moment"
+      (activated)="clicked.set('CPU at ' + when($event.time))"
+    />
+  </div>
+  <div class="chart-card">
+    <neat-stacked-chart
+      label="Clusters"
+      [series]="clusters"
+      [times]="times"
+      [domain]="[0, 220]"
+      [format]="percent"
+      [(hovered)]="moment"
+      (activated)="clicked.set('Clusters at ' + when($event.time))"
+    />
+  </div>
+  <div class="chart-card">
+    <neat-heatmap
+      label="Cores"
+      [rows]="rows"
+      [times]="times"
+      [format]="percent"
+      [hovered]="cell()"
+      (hoveredChange)="onCell($event)"
+      (activated)="clicked.set($event.row + ' at ' + when($event.time))"
+    />
+  </div>
+  <div class="chart-card">
+    <neat-label-timeline
+      label="Board state"
+      [runs]="runs"
+      [nowMs]="end"
+      [windowMs]="end - start"
+      [(hovered)]="moment"
+      (activated)="clicked.set(($event.run?.label ?? 'nothing') + ' at ' + when($event.time))"
+    />
+  </div>
+  <div class="chart-card report">
+    <dl>
+      <dt>Moment</dt>
+      <dd>{{ momentText() }}</dd>
+      <dt>Last click</dt>
+      <dd>{{ clicked() }}</dd>
+    </dl>
+    <div class="actions">
+      <button
+        neatButton
+        type="button"
+        size="small"
+        variant="secondary"
+        (click)="moment.set(start + 120_000)"
+      >
+        Show 12:02
+      </button>
+      <button neatButton type="button" size="small" variant="secondary" (click)="moment.set(end)">
+        Show the newest
+      </button>
+      <button neatButton type="button" size="small" variant="outlined" (click)="moment.set(null)">
+        Clear
+      </button>
+    </div>
+  </div>
+</div>
 ```
 
 `data.ts`

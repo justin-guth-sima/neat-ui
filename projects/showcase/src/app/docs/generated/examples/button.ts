@@ -53,13 +53,18 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatButton, "],["keyword","type"],["text"," NeatButtonSize, NeatIcon } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { VARIANTS } "],["keyword","from"],["text"," "],["string","'./variants'"],["text",";\n\n"],
           ["keyword","const"],["text"," SIZES: NeatButtonSize[] = ["],["string","'small'"],["text",", "],["string","'medium'"],["text",", "],["string","'large'"],["text",", "],["string","'touch'"],["text","];\n\n@Component({\n  selector: "],
-          ["string","'app-variants'"],["text",",\n  imports: [NeatButton, NeatIcon],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    @for (variant of variants; track variant) {\n      <section>\n        <h4>{{ variant }}</h4>\n        <div class=\"showcase-row\">\n          @for (size of sizes; track size) {\n            <button neatButton type=\"button\" [variant]=\"variant\" [size]=\"size\">{{ size }}</button>\n          }\n          @for (size of sizes; track size) {\n            <button\n              neatButton\n              type=\"button\"\n              [variant]=\"variant\"\n              [size]=\"size\"\n              iconOnly\n              [attr.aria-label]=\"'Stream, ' + size\"\n            >\n              <neat-icon name=\"streaming\" />\n            </button>\n          }\n          <button neatButton type=\"button\" [variant]=\"variant\" rounded>rounded</button>\n          <button\n            neatButton\n            type=\"button\"\n            [variant]=\"variant\"\n            rounded\n            iconOnly\n            aria-label=\"Stream, rounded\"\n          >\n            <neat-icon name=\"streaming\" />\n          </button>\n        </div>\n      </section>\n    }\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-variants'"],["text",",\n  imports: [NeatButton, NeatIcon],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-variants.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./stack.css'"],["text",", "],["string","'./variants.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Variants {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," variants = VARIANTS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sizes = SIZES;\n}\n"]
+        ]
+      },
+      {
+        "name": "1-variants.example.html",
+        "code": [
+          ["text","@for (variant of variants; track variant) {\n  <section>\n    <h4>{{ variant }}</h4>\n    <div class=\"showcase-row\">\n      @for (size of sizes; track size) {\n        <button neatButton type=\"button\" [variant]=\"variant\" [size]=\"size\">{{ size }}</button>\n      }\n      @for (size of sizes; track size) {\n        <button\n          neatButton\n          type=\"button\"\n          [variant]=\"variant\"\n          [size]=\"size\"\n          iconOnly\n          [attr.aria-label]=\"'Stream, ' + size\"\n        >\n          <neat-icon name=\"streaming\" />\n        </button>\n      }\n      <button neatButton type=\"button\" [variant]=\"variant\" rounded>rounded</button>\n      <button\n        neatButton\n        type=\"button\"\n        [variant]=\"variant\"\n        rounded\n        iconOnly\n        aria-label=\"Stream, rounded\"\n      >\n        <neat-icon name=\"streaming\" />\n      </button>\n    </div>\n  </section>\n}\n"]
         ]
       },
       {
@@ -148,10 +153,15 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton, NeatIcon } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-start-and-stop'"],["text",",\n  imports: [NeatButton, NeatIcon],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <button neatButton type=\"button\" variant=\"success\">\n        <neat-icon name=\"play\" [size]=\"16\" />\n        Start\n      </button>\n      <button neatButton type=\"button\" variant=\"danger\">\n        <neat-icon name=\"stop\" [size]=\"16\" />\n        Stop\n      </button>\n    </div>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-start-and-stop'"],["text",",\n  imports: [NeatButton, NeatIcon],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-start-and-stop.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," StartAndStop {}\n"]
+        ]
+      },
+      {
+        "name": "2-start-and-stop.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatButton type=\"button\" variant=\"success\">\n    <neat-icon name=\"play\" [size]=\"16\" />\n    Start\n  </button>\n  <button neatButton type=\"button\" variant=\"danger\">\n    <neat-icon name=\"stop\" [size]=\"16\" />\n    Stop\n  </button>\n</div>\n"]
         ]
       }
     ]
@@ -188,10 +198,15 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-text-actions'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <button neatButton type=\"button\" variant=\"text\">Rename</button>\n      <button neatButton type=\"button\" variant=\"text\">Duplicate</button>\n      <button neatButton type=\"button\" variant=\"danger-text\">Delete</button>\n    </div>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-text-actions'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-text-actions.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," TextActions {}\n"]
+        ]
+      },
+      {
+        "name": "3-text-actions.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatButton type=\"button\" variant=\"text\">Rename</button>\n  <button neatButton type=\"button\" variant=\"text\">Duplicate</button>\n  <button neatButton type=\"button\" variant=\"danger-text\">Delete</button>\n</div>\n"]
         ]
       }
     ]
@@ -239,12 +254,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { RouterLink } "],["keyword","from"],["text"," "],["string","'@angular/router'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton, NeatIcon } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { VARIANTS } "],["keyword","from"],["text"," "],["string","'./variants'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-states'"],["text",",\n  imports: [NeatButton, NeatIcon, RouterLink],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    @for (variant of variants; track variant) {\n      <div class=\"showcase-row\">\n        <button neatButton type=\"button\" [variant]=\"variant\">\n          <neat-icon name=\"streaming\" [size]=\"16\" />\n          With icon\n        </button>\n        <button neatButton type=\"button\" [variant]=\"variant\" disabled>Disabled</button>\n        <button neatButton type=\"button\" [variant]=\"variant\" aria-disabled=\"true\">Waiting</button>\n        <a neatButton [variant]=\"variant\" routerLink=\"/components/actions/button\">Link</a>\n      </div>\n    }\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-states'"],["text",",\n  imports: [NeatButton, NeatIcon, RouterLink],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-states.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./stack.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," States {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," variants = VARIANTS;\n}\n"]
+        ]
+      },
+      {
+        "name": "4-states.example.html",
+        "code": [
+          ["text","@for (variant of variants; track variant) {\n  <div class=\"showcase-row\">\n    <button neatButton type=\"button\" [variant]=\"variant\">\n      <neat-icon name=\"streaming\" [size]=\"16\" />\n      With icon\n    </button>\n    <button neatButton type=\"button\" [variant]=\"variant\" disabled>Disabled</button>\n    <button neatButton type=\"button\" [variant]=\"variant\" aria-disabled=\"true\">Waiting</button>\n    <a neatButton [variant]=\"variant\" routerLink=\"/components/actions/button\">Link</a>\n  </div>\n}\n"]
         ]
       },
       {
@@ -318,9 +338,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton, "],["keyword","type"],["text"," NeatButtonVariant, NeatIcon, NeatTooltip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { VARIANTS } "],["keyword","from"],["text"," "],["string","'./variants'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-pressed'"],["text",",\n  imports: [NeatButton, NeatIcon, NeatTooltip],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    @for (surface of surfaces; track surface) {\n      <div class=\"showcase-row\" [class.card]=\"surface === 'card'\">\n        @for (variant of variants; track variant) {\n          <button\n            neatButton\n            type=\"button\"\n            [variant]=\"variant\"\n            [pressed]=\"pressedVariants().has(variant)\"\n            (click)=\"toggle(variant)\"\n          >\n            {{ variant }}\n          </button>\n        }\n        <button\n          neatButton\n          type=\"button\"\n          variant=\"outlined\"\n          iconOnly\n          aria-label=\"Close\"\n          neatTooltip=\"Close\"\n        >\n          <neat-icon name=\"close\" />\n        </button>\n      </div>\n    }\n  `"],
-          ["text",",\n  styleUrls: ["],
+          ["string","'app-pressed'"],["text",",\n  imports: [NeatButton, NeatIcon, NeatTooltip],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./5-pressed.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./card.css'"],["text",", "],["string","'./stack.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Pressed {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," variants = VARIANTS;\n  "],
@@ -333,6 +352,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," next = "],["keyword","new"],["text"," Set(pressed);\n      "],
           ["keyword","if"],["text"," (!next."],["keyword","delete"],["text","(variant)) next.add(variant);\n      "],
           ["keyword","return"],["text"," next;\n    });\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "5-pressed.example.html",
+        "code": [
+          ["text","@for (surface of surfaces; track surface) {\n  <div class=\"showcase-row\" [class.card]=\"surface === 'card'\">\n    @for (variant of variants; track variant) {\n      <button\n        neatButton\n        type=\"button\"\n        [variant]=\"variant\"\n        [pressed]=\"pressedVariants().has(variant)\"\n        (click)=\"toggle(variant)\"\n      >\n        {{ variant }}\n      </button>\n    }\n    <button\n      neatButton\n      type=\"button\"\n      variant=\"outlined\"\n      iconOnly\n      aria-label=\"Close\"\n      neatTooltip=\"Close\"\n    >\n      <neat-icon name=\"close\" />\n    </button>\n  </div>\n}\n"]
         ]
       },
       {
@@ -390,12 +415,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { VARIANTS } "],["keyword","from"],["text"," "],["string","'./variants'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-on-a-card'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"card showcase-row\">\n      @for (variant of variants; track variant) {\n        <button neatButton type=\"button\" [variant]=\"variant\">{{ variant }}</button>\n      }\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-on-a-card'"],["text",",\n  imports: [NeatButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./6-on-a-card.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./card.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," OnACard {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," variants = VARIANTS;\n}\n"]
+        ]
+      },
+      {
+        "name": "6-on-a-card.example.html",
+        "code": [
+          ["text","<div class=\"card showcase-row\">\n  @for (variant of variants; track variant) {\n    <button neatButton type=\"button\" [variant]=\"variant\">{{ variant }}</button>\n  }\n</div>\n"]
         ]
       },
       {

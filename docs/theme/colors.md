@@ -36,20 +36,7 @@ import { NeatButton, type NeatColorScheme, ThemeService } from '@sima/neat-ui';
   selector: 'app-color-scheme',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <p>
-      The scheme is <strong>{{ theme.scheme() }}</strong
-      >.
-    </p>
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" size="small" (click)="theme.toggle()">
-        Switch to {{ other() }}
-      </button>
-      <button neatButton type="button" variant="text" size="small" (click)="tryOther()">
-        Show {{ other() }} without saving
-      </button>
-    </div>
-  `,
+  templateUrl: './1-color-scheme.example.html',
 })
 export class ColorScheme {
   protected readonly theme = inject(ThemeService);
@@ -61,6 +48,23 @@ export class ColorScheme {
     this.theme.setScheme(this.other(), { persist: false });
   }
 }
+```
+
+`1-color-scheme.example.html`
+
+```html
+<p>
+  The scheme is <strong>{{ theme.scheme() }}</strong
+  >.
+</p>
+<div class="showcase-row">
+  <button neatButton type="button" variant="outlined" size="small" (click)="theme.toggle()">
+    Switch to {{ other() }}
+  </button>
+  <button neatButton type="button" variant="text" size="small" (click)="tryOther()">
+    Show {{ other() }} without saving
+  </button>
+</div>
 ```
 
 </details>
@@ -86,22 +90,26 @@ import { SIMA_PALETTE } from '@sima/neat-ui';
 @Component({
   selector: 'app-palette',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="ramp">
-      @for (color of colors; track color.name) {
-        <div>
-          <div class="chip" [style.background]="color.hex"></div>
-          <div class="name">{{ color.name }}</div>
-          <div class="showcase-code showcase-muted">{{ color.hex }}</div>
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './2-palette.example.html',
   styleUrl: './swatches.css',
 })
 export class Palette {
   protected readonly colors = Object.entries(SIMA_PALETTE).map(([name, hex]) => ({ name, hex }));
 }
+```
+
+`2-palette.example.html`
+
+```html
+<div class="ramp">
+  @for (color of colors; track color.name) {
+    <div>
+      <div class="chip" [style.background]="color.hex"></div>
+      <div class="name">{{ color.name }}</div>
+      <div class="showcase-code showcase-muted">{{ color.hex }}</div>
+    </div>
+  }
+</div>
 ```
 
 `swatches.css`
@@ -198,25 +206,7 @@ const BASES = [
 @Component({
   selector: 'app-color-scales',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (ramp of ramps; track ramp.name) {
-      <section>
-        <h4>
-          <span class="showcase-code">{{ ramp.name }}</span>
-          <span class="showcase-code showcase-muted">{{ ramp.base }}</span>
-        </h4>
-        <div class="ramp">
-          @for (step of ramp.steps; track step[0]) {
-            <div>
-              <div class="chip" [style.background]="step[1]"></div>
-              <div class="name">{{ step[0] }}</div>
-              <div class="showcase-code showcase-muted">{{ step[1] }}</div>
-            </div>
-          }
-        </div>
-      </section>
-    }
-  `,
+  templateUrl: './3-color-scales.example.html',
   styleUrls: ['./swatches.css', './ramp-title.css'],
 })
 export class ColorScales {
@@ -225,6 +215,28 @@ export class ColorScales {
     base,
     steps: Object.entries(buildColorScale(base)),
   }));
+}
+```
+
+`3-color-scales.example.html`
+
+```html
+@for (ramp of ramps; track ramp.name) {
+  <section>
+    <h4>
+      <span class="showcase-code">{{ ramp.name }}</span>
+      <span class="showcase-code showcase-muted">{{ ramp.base }}</span>
+    </h4>
+    <div class="ramp">
+      @for (step of ramp.steps; track step[0]) {
+        <div>
+          <div class="chip" [style.background]="step[1]"></div>
+          <div class="name">{{ step[0] }}</div>
+          <div class="showcase-code showcase-muted">{{ step[1] }}</div>
+        </div>
+      }
+    </div>
+  </section>
 }
 ```
 
@@ -334,27 +346,7 @@ const ramp = (name: string, darkest: Ramp['darkest'], scale: SurfaceScale): Ramp
 @Component({
   selector: 'app-surface-scales',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (ramp of ramps; track ramp.name) {
-      <section>
-        <h4>
-          <span class="showcase-code">{{ ramp.name }}</span>
-          <span class="showcase-code showcase-muted">
-            ends at {{ ramp.darkest[0] }}, {{ ramp.darkest[1] }}
-          </span>
-        </h4>
-        <div class="ramp">
-          @for (step of ramp.steps; track step[0]) {
-            <div>
-              <div class="chip" [style.background]="step[1]"></div>
-              <div class="name">{{ step[0] }}</div>
-              <div class="showcase-code showcase-muted">{{ step[1] }}</div>
-            </div>
-          }
-        </div>
-      </section>
-    }
-  `,
+  templateUrl: './4-surface-scales.example.html',
   styleUrls: ['./swatches.css', './ramp-title.css'],
 })
 export class SurfaceScales {
@@ -366,6 +358,30 @@ export class SurfaceScales {
       buildNeutralSurfaceScale(),
     ),
   ];
+}
+```
+
+`4-surface-scales.example.html`
+
+```html
+@for (ramp of ramps; track ramp.name) {
+  <section>
+    <h4>
+      <span class="showcase-code">{{ ramp.name }}</span>
+      <span class="showcase-code showcase-muted">
+        ends at {{ ramp.darkest[0] }}, {{ ramp.darkest[1] }}
+      </span>
+    </h4>
+    <div class="ramp">
+      @for (step of ramp.steps; track step[0]) {
+        <div>
+          <div class="chip" [style.background]="step[1]"></div>
+          <div class="name">{{ step[0] }}</div>
+          <div class="showcase-code showcase-muted">{{ step[1] }}</div>
+        </div>
+      }
+    </div>
+  </section>
 }
 ```
 
@@ -465,26 +481,7 @@ const format = (rgb: NeatRgb | null): string =>
 @Component({
   selector: 'app-theme-colors-as-numbers',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Token</th>
-          <th scope="col">Sample</th>
-          <th scope="col">Red, green, blue</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (row of rows(); track row.token) {
-          <tr>
-            <th scope="row" class="showcase-code">{{ row.token }}</th>
-            <td><span class="sample" [style.background]="'var(' + row.token + ')'"></span></td>
-            <td class="showcase-code">{{ row.rgb }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  `,
+  templateUrl: './5-theme-colors-as-numbers.example.html',
   styleUrl: './theme-colors-as-numbers.example.css',
 })
 export class ThemeColorsAsNumbers {
@@ -497,6 +494,29 @@ export class ThemeColorsAsNumbers {
     }));
   });
 }
+```
+
+`5-theme-colors-as-numbers.example.html`
+
+```html
+<table>
+  <thead>
+    <tr>
+      <th scope="col">Token</th>
+      <th scope="col">Sample</th>
+      <th scope="col">Red, green, blue</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (row of rows(); track row.token) {
+      <tr>
+        <th scope="row" class="showcase-code">{{ row.token }}</th>
+        <td><span class="sample" [style.background]="'var(' + row.token + ')'"></span></td>
+        <td class="showcase-code">{{ row.rgb }}</td>
+      </tr>
+    }
+  </tbody>
+</table>
 ```
 
 `theme-colors-as-numbers.example.css`
@@ -555,16 +575,7 @@ import { NeatInput } from '@sima/neat-ui/input';
   selector: 'app-resolve-a-color',
   imports: [NeatInput],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <label class="field">
-      <span>CSS color</span>
-      <input neatInput #css [value]="text()" (input)="text.set(css.value)" />
-    </label>
-    <div class="showcase-row">
-      <span class="swatch" [style.background]="text()"></span>
-      <span class="showcase-code">{{ result() }}</span>
-    </div>
-  `,
+  templateUrl: './6-resolve-a-color.example.html',
   styleUrls: ['./color-field.css', './resolve-a-color.example.css'],
 })
 export class ResolveAColor {
@@ -574,6 +585,19 @@ export class ResolveAColor {
     return rgb ? rgb.map((channel) => channel.toFixed(3)).join(', ') : 'not a color';
   });
 }
+```
+
+`6-resolve-a-color.example.html`
+
+```html
+<label class="field">
+  <span>CSS color</span>
+  <input neatInput #css [value]="text()" (input)="text.set(css.value)" />
+</label>
+<div class="showcase-row">
+  <span class="swatch" [style.background]="text()"></span>
+  <span class="showcase-code">{{ result() }}</span>
+</div>
 ```
 
 `color-field.css`
@@ -634,24 +658,7 @@ const AA = 4.5;
   selector: 'app-contrast',
   imports: [NeatInput],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <label class="field">
-        <span>Text</span>
-        <input neatInput #text [value]="foreground()" (input)="foreground.set(text.value)" />
-      </label>
-      <label class="field">
-        <span>Background</span>
-        <input neatInput #fill [value]="background()" (input)="background.set(fill.value)" />
-      </label>
-    </div>
-    <div class="showcase-row">
-      <span class="sample" [style.color]="foreground()" [style.background]="background()">
-        Neat Insight
-      </span>
-      <span class="showcase-code">{{ result() }}</span>
-    </div>
-  `,
+  templateUrl: './7-contrast.example.html',
   styleUrls: ['./color-field.css', './contrast.example.css'],
 })
 export class Contrast {
@@ -664,6 +671,27 @@ export class Contrast {
     return `${ratio.toFixed(2)}:1 ${ratio >= AA ? 'AA' : 'below AA'}`;
   });
 }
+```
+
+`7-contrast.example.html`
+
+```html
+<div class="showcase-row">
+  <label class="field">
+    <span>Text</span>
+    <input neatInput #text [value]="foreground()" (input)="foreground.set(text.value)" />
+  </label>
+  <label class="field">
+    <span>Background</span>
+    <input neatInput #fill [value]="background()" (input)="background.set(fill.value)" />
+  </label>
+</div>
+<div class="showcase-row">
+  <span class="sample" [style.color]="foreground()" [style.background]="background()">
+    Neat Insight
+  </span>
+  <span class="showcase-code">{{ result() }}</span>
+</div>
 ```
 
 `color-field.css`

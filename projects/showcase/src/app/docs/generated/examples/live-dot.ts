@@ -29,11 +29,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatLiveDot } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-badges'"],["text",",\n  imports: [NeatLiveDot],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <span class=\"showcase-row\"><neat-live-dot /> Still</span>\n      <span class=\"showcase-row\"><neat-live-dot pulse /> Recording 0:34</span>\n      <span class=\"showcase-row badge\"><neat-live-dot pulse /> Live</span>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-badges'"],["text",",\n  imports: [NeatLiveDot],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-badges.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./badges.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Badges {}\n"]
+        ]
+      },
+      {
+        "name": "1-badges.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <span class=\"showcase-row\"><neat-live-dot /> Still</span>\n  <span class=\"showcase-row\"><neat-live-dot pulse /> Recording 0:34</span>\n  <span class=\"showcase-row badge\"><neat-live-dot pulse /> Live</span>\n</div>\n"]
         ]
       },
       {

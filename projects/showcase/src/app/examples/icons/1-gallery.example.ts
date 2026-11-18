@@ -11,16 +11,7 @@ import { NEAT_ICON_NAMES, NeatIcon } from '@sima/neat-ui';
   selector: 'app-gallery',
   imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-grid">
-      @for (name of names; track name) {
-        <div class="icon-card">
-          <neat-icon [name]="name" [size]="24" />
-          <span class="showcase-code">{{ name }}</span>
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './1-gallery.example.html',
   styleUrl: './gallery.example.css',
 })
 export class Gallery {

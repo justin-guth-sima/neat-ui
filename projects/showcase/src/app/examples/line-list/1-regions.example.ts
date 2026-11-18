@@ -14,33 +14,7 @@ const REGIONS = ['Inclusion 1', 'Exclusion 1', 'Exclusion 2'];
   selector: 'app-regions',
   imports: [NeatButton, NeatInlineButton, NeatLine, NeatLineEnd, NeatLineList, NeatNote],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @if (regions().length === 0) {
-      <p neatNote>No regions.</p>
-    } @else {
-      <ul neatLineList>
-        @for (region of regions(); track region) {
-          <li neatLine>
-            <span>{{ region }}</span>
-            <button
-              neatInlineButton
-              neatLineEnd
-              type="button"
-              [attr.aria-label]="'Delete ' + region"
-              (click)="remove(region)"
-            >
-              Delete
-            </button>
-          </li>
-        }
-      </ul>
-    }
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" size="small" (click)="regions.set(all)">
-        Restore regions
-      </button>
-    </div>
-  `,
+  templateUrl: './1-regions.example.html',
   styleUrl: './regions.example.css',
 })
 export class Regions {

@@ -1,0 +1,15 @@
+<div class="box">
+  <neat-select-list
+    label="Devices"
+    [items]="devices"
+    [trackBy]="deviceId"
+    [groups]="groups"
+    [groupOf]="deviceKind"
+    [(selected)]="selected"
+  >
+    <ng-template neatColumn="name" header="Device" let-device>{{ device.name }}</ng-template>
+    <ng-template neatColumn="connection" header="Connection" width="6rem" let-device>{{
+      device.connection
+    }}</ng-template>
+  </neat-select-list>
+</div>

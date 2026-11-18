@@ -10,14 +10,7 @@ import { NeatCard } from '@sima/neat-ui/card';
   selector: 'app-title-button-card',
   imports: [NeatCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-card subtitle="Click the title">
-      <button type="button" neatCardTitle class="title-button" (click)="opened.set(!opened())">
-        Detections
-      </button>
-      <p>{{ opened() ? 'Opened.' : 'Closed.' }}</p>
-    </neat-card>
-  `,
+  templateUrl: './5-title-as-a-button.example.html',
   styleUrl: './card.example.css',
 })
 export class TitleButtonCardExample {

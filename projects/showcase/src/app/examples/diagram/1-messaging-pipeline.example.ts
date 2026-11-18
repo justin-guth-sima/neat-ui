@@ -28,32 +28,7 @@ import { PIPELINE, PIPELINE_LEGEND } from './pipeline-data';
   selector: 'app-messaging-pipeline',
   imports: [NeatDiagramBlockTemplate, NeatDiagramLegend, NeatDiagramNoteTemplate, NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-diagram-legend [items]="legend" />
-    <neat-diagram class="diagram" [diagram]="pipeline" label="A messaging pipeline">
-      <ng-template neatDiagramBlock let-node>
-        @if (node.id === 'decode') {
-          <span class="figure">30.0 fps · 1080p</span>
-        }
-        @if (node.id === 'browser') {
-          <span class="figure">No data for 5 s</span>
-        }
-      </ng-template>
-      <ng-template neatDiagramNote let-note>
-        @switch (note.id) {
-          @case ('camera-rate') {
-            <b>Camera → Decode</b><br />30 frames/s
-          }
-          @case ('tracker-rate') {
-            <b>Tracker → Gateway</b><br />10 results/s
-          }
-          @case ('yolox-rate') {
-            <b>YOLOX → NMS</b><br />14.8 ms
-          }
-        }
-      </ng-template>
-    </neat-diagram>
-  `,
+  templateUrl: './1-messaging-pipeline.example.html',
   styleUrls: ['./diagram-box.css', './messaging-pipeline.example.css'],
 })
 export class MessagingPipeline {

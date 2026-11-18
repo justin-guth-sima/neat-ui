@@ -50,15 +50,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'off'"],["text",", label: "],["string","'Off'"],["text"," },\n  { value: "],
           ["string","'boxes'"],["text",", label: "],["string","'Boxes'"],["text"," },\n  { value: "],
           ["string","'masks'"],["text",", label: "],["string","'Masks'"],["text"," },\n];\n\n@Component({\n  selector: "],
-          ["string","'app-choices'"],["text",",\n  imports: [NeatButton, NeatSegmented],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <neat-segmented #shapeControl label=\"Tile shape\" [options]=\"shapes\" [(value)]=\"shape\" />\n      <neat-segmented label=\"Overlays\" [options]=\"overlays\" [(value)]=\"overlay\" />\n      <neat-segmented label=\"Tile shape, disabled\" [options]=\"shapes\" value=\"1:1\" disabled />\n      <button\n        neatButton\n        type=\"button\"\n        variant=\"outlined\"\n        size=\"small\"\n        (click)=\"shapeControl.focus()\"\n      >\n        Focus the tile shape\n      </button>\n    </div>\n    <p class=\"showcase-code showcase-muted\">Shape {{ shape() }}, overlays {{ overlay() }}</p>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-choices'"],["text",",\n  imports: [NeatButton, NeatSegmented],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-choices.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./choices.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Choices {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," shapes = SHAPES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," overlays = OVERLAYS;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," shape = signal<Shape>("],["string","'16:9'"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," overlay = signal("],["string","'boxes'"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "1-choices.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <neat-segmented #shapeControl label=\"Tile shape\" [options]=\"shapes\" [(value)]=\"shape\" />\n  <neat-segmented label=\"Overlays\" [options]=\"overlays\" [(value)]=\"overlay\" />\n  <neat-segmented label=\"Tile shape, disabled\" [options]=\"shapes\" value=\"1:1\" disabled />\n  <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"shapeControl.focus()\">\n    Focus the tile shape\n  </button>\n</div>\n<p class=\"showcase-code showcase-muted\">Shape {{ shape() }}, overlays {{ overlay() }}</p>\n"]
         ]
       },
       {
@@ -97,12 +102,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," VIEWS: NeatSegmentedOption<"],["keyword","string"],["text",">[] = [\n  { value: "],
           ["string","'live'"],["text",", label: "],["string","'Live'"],["text"," },\n  { value: "],
           ["string","'runs'"],["text",", label: "],["string","'Runs'"],["text"," },\n];\n\n@Component({\n  selector: "],
-          ["string","'app-in-a-crowded-row'"],["text",",\n  imports: [NeatSegmented],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"crowded\">\n      <neat-segmented label=\"Stats view\" [options]=\"views\" value=\"live\" />\n      <span class=\"title\">Stats for a stream with a long name</span>\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-in-a-crowded-row'"],["text",",\n  imports: [NeatSegmented],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-in-a-crowded-row.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./in-a-crowded-row.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," InACrowdedRow {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," views = VIEWS;\n}\n"]
+        ]
+      },
+      {
+        "name": "2-in-a-crowded-row.example.html",
+        "code": [
+          ["text","<div class=\"crowded\">\n  <neat-segmented label=\"Stats view\" [options]=\"views\" value=\"live\" />\n  <span class=\"title\">Stats for a stream with a long name</span>\n</div>\n"]
         ]
       },
       {
@@ -143,13 +153,18 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'file'"],["text",", label: "],["string","'File'"],["text"," },\n  { value: "],
           ["string","'camera'"],["text",", label: "],["string","'Camera'"],["text"," },\n  { value: "],
           ["string","'url'"],["text",", label: "],["string","'Stream URL'"],["text"," },\n];\n\n@Component({\n  selector: "],
-          ["string","'app-in-a-narrow-panel'"],["text",",\n  imports: [NeatSegmented],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"panel\">\n      <neat-segmented label=\"Source\" [options]=\"sources\" [(value)]=\"source\" />\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-in-a-narrow-panel'"],["text",",\n  imports: [NeatSegmented],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-in-a-narrow-panel.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./in-a-narrow-panel.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," InANarrowPanel {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sources = SOURCES;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," source = signal("],["string","'url'"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "3-in-a-narrow-panel.example.html",
+        "code": [
+          ["text","<div class=\"panel\">\n  <neat-segmented label=\"Source\" [options]=\"sources\" [(value)]=\"source\" />\n</div>\n"]
         ]
       },
       {

@@ -48,12 +48,17 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NEAT_ICON_NAMES, NeatIcon } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-gallery'"],["text",",\n  imports: [NeatIcon],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-grid\">\n      @for (name of names; track name) {\n        <div class=\"icon-card\">\n          <neat-icon [name]=\"name\" [size]=\"24\" />\n          <span class=\"showcase-code\">{{ name }}</span>\n        </div>\n      }\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-gallery'"],["text",",\n  imports: [NeatIcon],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-gallery.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./gallery.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Gallery {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," names = NEAT_ICON_NAMES;\n}\n"]
+        ]
+      },
+      {
+        "name": "1-gallery.example.html",
+        "code": [
+          ["text","<div class=\"showcase-grid\">\n  @for (name of names; track name) {\n    <div class=\"icon-card\">\n      <neat-icon [name]=\"name\" [size]=\"24\" />\n      <span class=\"showcase-code\">{{ name }}</span>\n    </div>\n  }\n</div>\n"]
         ]
       },
       {
@@ -96,12 +101,17 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatIcon } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-sizes-and-labels'"],["text",",\n  imports: [NeatIcon],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      @for (size of sizes; track size) {\n        <div class=\"sample\">\n          <neat-icon name=\"board\" [size]=\"size\" />\n          <span class=\"showcase-code showcase-muted\">{{ size }} px</span>\n        </div>\n      }\n    </div>\n    <div class=\"showcase-row\">\n      @for (size of sizes; track size) {\n        <div class=\"sample\">\n          <neat-icon name=\"board\" [size]=\"size\" label=\"Board\" />\n          <span class=\"showcase-code showcase-muted\">{{ size }} px, label</span>\n        </div>\n      }\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-sizes-and-labels'"],["text",",\n  imports: [NeatIcon],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-sizes-and-labels.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./sizes-and-labels.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SizesAndLabels {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sizes = [16, 20, 24] "],["keyword","as"],["text"," "],["keyword","const"],["text",";\n}\n"]
+        ]
+      },
+      {
+        "name": "2-sizes-and-labels.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  @for (size of sizes; track size) {\n    <div class=\"sample\">\n      <neat-icon name=\"board\" [size]=\"size\" />\n      <span class=\"showcase-code showcase-muted\">{{ size }} px</span>\n    </div>\n  }\n</div>\n<div class=\"showcase-row\">\n  @for (size of sizes; track size) {\n    <div class=\"sample\">\n      <neat-icon name=\"board\" [size]=\"size\" label=\"Board\" />\n      <span class=\"showcase-code showcase-muted\">{{ size }} px, label</span>\n    </div>\n  }\n</div>\n"]
         ]
       },
       {
@@ -165,9 +175,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatIcon } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { Anchor, Bell, Rocket } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/lucide'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-any-lucide-glyph'"],["text",",\n  imports: [NeatIcon],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    @for (glyph of glyphs; track glyph.label) {\n      <div class=\"showcase-row\">\n        @for (size of sizes; track size) {\n          <div class=\"sample\">\n            <neat-icon [name]=\"glyph.drawing\" [size]=\"size\" [label]=\"glyph.label\" />\n            <span class=\"showcase-code showcase-muted\">{{ glyph.label }}, {{ size }} px</span>\n          </div>\n        }\n      </div>\n    }\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-any-lucide-glyph'"],["text",",\n  imports: [NeatIcon],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-any-lucide-glyph.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./any-lucide-glyph.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," AnyLucideGlyph {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sizes = [16, 20, 24] "],["keyword","as"],["text"," "],["keyword","const"],["text",";\n  "],
@@ -176,6 +185,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'Anchor'"],["text"," },\n    { drawing: Bell, label: "],
           ["string","'Bell'"],["text"," },\n  ] "],
           ["keyword","as"],["text"," "],["keyword","const"],["text",";\n}\n"]
+        ]
+      },
+      {
+        "name": "3-any-lucide-glyph.example.html",
+        "code": [
+          ["text","@for (glyph of glyphs; track glyph.label) {\n  <div class=\"showcase-row\">\n    @for (size of sizes; track size) {\n      <div class=\"sample\">\n        <neat-icon [name]=\"glyph.drawing\" [size]=\"size\" [label]=\"glyph.label\" />\n        <span class=\"showcase-code showcase-muted\">{{ glyph.label }}, {{ size }} px</span>\n      </div>\n    }\n  </div>\n}\n"]
         ]
       },
       {

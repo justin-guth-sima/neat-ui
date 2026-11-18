@@ -18,17 +18,7 @@ import { NeatConfirm } from '@sima/neat-ui/confirm';
   selector: 'app-asking',
   imports: [NeatButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <button neatButton type="button" variant="outlined" (click)="askResetAll()">
-        Reset all channels to global…
-      </button>
-      <button neatButton type="button" variant="outlined" (click)="askApplyToAll()">
-        Apply to all channels…
-      </button>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">{{ answer() }}</p>
-  `,
+  templateUrl: './1-asking.example.html',
 })
 export class Asking {
   private readonly confirm = inject(NeatConfirm);

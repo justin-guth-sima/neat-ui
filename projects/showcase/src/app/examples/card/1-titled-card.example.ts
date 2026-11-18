@@ -10,13 +10,7 @@ import { NeatCard } from '@sima/neat-ui/card';
   selector: 'app-titled-card',
   imports: [NeatButton, NeatCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-card title="Detections" subtitle="The last minute" region>
-      <button neatButton neatCardActions type="button" size="small">Clear</button>
-      <p>Nothing yet.</p>
-      <p neatCardFooter>Updated just now</p>
-    </neat-card>
-  `,
+  templateUrl: './1-titled-card.example.html',
   styleUrl: './card.example.css',
 })
 export class TitledCardExample {}

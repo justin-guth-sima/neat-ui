@@ -59,32 +59,7 @@ import { PIPELINE, PIPELINE_LEGEND } from './pipeline-data';
   selector: 'app-messaging-pipeline',
   imports: [NeatDiagramBlockTemplate, NeatDiagramLegend, NeatDiagramNoteTemplate, NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-diagram-legend [items]="legend" />
-    <neat-diagram class="diagram" [diagram]="pipeline" label="A messaging pipeline">
-      <ng-template neatDiagramBlock let-node>
-        @if (node.id === 'decode') {
-          <span class="figure">30.0 fps · 1080p</span>
-        }
-        @if (node.id === 'browser') {
-          <span class="figure">No data for 5 s</span>
-        }
-      </ng-template>
-      <ng-template neatDiagramNote let-note>
-        @switch (note.id) {
-          @case ('camera-rate') {
-            <b>Camera → Decode</b><br />30 frames/s
-          }
-          @case ('tracker-rate') {
-            <b>Tracker → Gateway</b><br />10 results/s
-          }
-          @case ('yolox-rate') {
-            <b>YOLOX → NMS</b><br />14.8 ms
-          }
-        }
-      </ng-template>
-    </neat-diagram>
-  `,
+  templateUrl: './1-messaging-pipeline.example.html',
   styleUrls: ['./diagram-box.css', './messaging-pipeline.example.css'],
 })
 export class MessagingPipeline {
@@ -97,6 +72,35 @@ export class MessagingPipeline {
     this.diagram().fit();
   }
 }
+```
+
+`1-messaging-pipeline.example.html`
+
+```html
+<neat-diagram-legend [items]="legend" />
+<neat-diagram class="diagram" [diagram]="pipeline" label="A messaging pipeline">
+  <ng-template neatDiagramBlock let-node>
+    @if (node.id === 'decode') {
+      <span class="figure">30.0 fps · 1080p</span>
+    }
+    @if (node.id === 'browser') {
+      <span class="figure">No data for 5 s</span>
+    }
+  </ng-template>
+  <ng-template neatDiagramNote let-note>
+    @switch (note.id) {
+      @case ('camera-rate') {
+        <b>Camera → Decode</b><br />30 frames/s
+      }
+      @case ('tracker-rate') {
+        <b>Tracker → Gateway</b><br />10 results/s
+      }
+      @case ('yolox-rate') {
+        <b>YOLOX → NMS</b><br />14.8 ms
+      }
+    }
+  </ng-template>
+</neat-diagram>
 ```
 
 `pipeline-data.ts`
@@ -355,16 +359,7 @@ import { COMPILE_FLOW, COMPILE_LEGEND } from './compile-flow-data';
   selector: 'app-compile-flow',
   imports: [NeatDiagramLegend, NeatDiagramNoteTemplate, NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-diagram-legend [items]="legend" />
-    <neat-diagram class="diagram" [diagram]="flow" label="A compile flow">
-      <ng-template neatDiagramNote let-note>
-        @if (note.id === 'compile-result') {
-          <b>Compile</b><br />2 m 14 s · 41 MB
-        }
-      </ng-template>
-    </neat-diagram>
-  `,
+  templateUrl: './2-compile-flow.example.html',
   styleUrl: './diagram-box.css',
 })
 export class CompileFlow {
@@ -377,6 +372,19 @@ export class CompileFlow {
     this.diagram().fit();
   }
 }
+```
+
+`2-compile-flow.example.html`
+
+```html
+<neat-diagram-legend [items]="legend" />
+<neat-diagram class="diagram" [diagram]="flow" label="A compile flow">
+  <ng-template neatDiagramNote let-note>
+    @if (note.id === 'compile-result') {
+      <b>Compile</b><br />2 m 14 s · 41 MB
+    }
+  </ng-template>
+</neat-diagram>
 ```
 
 `compile-flow-data.ts`
@@ -554,27 +562,7 @@ import { MODEL_EDGE_TOOLTIPS, MODEL_GRAPH, MODEL_LEGEND } from './model-graph-da
     NeatDiagramView,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-diagram-legend [items]="legend" />
-    <neat-diagram
-      class="diagram"
-      [diagram]="graph"
-      label="A detector’s model graph"
-      [(level)]="level"
-    >
-      <ng-template neatDiagramBlock let-node>
-        @if (node.role === 'bracket') {
-          <span class="bracket-figure">3 tensors</span>
-        }
-      </ng-template>
-      <ng-template neatDiagramEdgeTooltip let-edge>
-        @if (tooltips[edge.id]; as tooltip) {
-          {{ tooltip }}
-        }
-      </ng-template>
-    </neat-diagram>
-    <span class="showcase-muted">Open levels: {{ levelText() }}</span>
-  `,
+  templateUrl: './3-model-graph.example.html',
   styleUrl: './diagram-box.css',
 })
 export class ModelGraph {
@@ -590,6 +578,25 @@ export class ModelGraph {
     this.diagram().fit();
   }
 }
+```
+
+`3-model-graph.example.html`
+
+```html
+<neat-diagram-legend [items]="legend" />
+<neat-diagram class="diagram" [diagram]="graph" label="A detector’s model graph" [(level)]="level">
+  <ng-template neatDiagramBlock let-node>
+    @if (node.role === 'bracket') {
+      <span class="bracket-figure">3 tensors</span>
+    }
+  </ng-template>
+  <ng-template neatDiagramEdgeTooltip let-edge>
+    @if (tooltips[edge.id]; as tooltip) {
+      {{ tooltip }}
+    }
+  </ng-template>
+</neat-diagram>
+<span class="showcase-muted">Open levels: {{ levelText() }}</span>
 ```
 
 `model-graph-data.ts`
@@ -880,16 +887,7 @@ const MODES: NeatSegmentedOption<NeatDiagramHighlight>[] = [
   selector: 'app-highlight',
   imports: [NeatDiagramLegend, NeatDiagramView, NeatSegmented],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-segmented label="Highlight" [options]="modes" [(value)]="mode" />
-    <neat-diagram-legend [items]="legend" />
-    <neat-diagram
-      class="diagram"
-      [diagram]="flow"
-      label="A compile flow to hover"
-      [highlight]="mode()"
-    />
-  `,
+  templateUrl: './4-highlight.example.html',
   styleUrl: './diagram-box.css',
 })
 export class Highlight {
@@ -904,6 +902,19 @@ export class Highlight {
     this.diagram().fit();
   }
 }
+```
+
+`4-highlight.example.html`
+
+```html
+<neat-segmented label="Highlight" [options]="modes" [(value)]="mode" />
+<neat-diagram-legend [items]="legend" />
+<neat-diagram
+  class="diagram"
+  [diagram]="flow"
+  label="A compile flow to hover"
+  [highlight]="mode()"
+/>
 ```
 
 `compile-flow-data.ts`
@@ -1071,10 +1082,7 @@ import { PIPELINE, PIPELINE_LEGEND } from './pipeline-data';
   selector: 'app-filling-its-card',
   imports: [NeatDiagramLegend, NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-diagram class="diagram" [diagram]="pipeline" label="A messaging pipeline, edge to edge" />
-    <neat-diagram-legend class="legend" [items]="legend" />
-  `,
+  templateUrl: './5-filling-its-card.example.html',
   styleUrls: ['./diagram-box.css', './filling-its-card.example.css'],
 })
 export class FillingItsCard {
@@ -1087,6 +1095,13 @@ export class FillingItsCard {
     this.diagram().fit();
   }
 }
+```
+
+`5-filling-its-card.example.html`
+
+```html
+<neat-diagram class="diagram" [diagram]="pipeline" label="A messaging pipeline, edge to edge" />
+<neat-diagram-legend class="legend" [items]="legend" />
 ```
 
 `pipeline-data.ts`
@@ -1354,14 +1369,7 @@ import { EDGE_SIDES, EDGE_SIDES_LEGEND } from './edge-sides-data';
   selector: 'app-edge-sides',
   imports: [NeatDiagramLegend, NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-diagram-legend [items]="legend" />
-    <neat-diagram
-      class="diagram"
-      [diagram]="sides"
-      label="A source with a side chosen by an edge"
-    />
-  `,
+  templateUrl: './6-edge-sides.example.html',
   styleUrl: './diagram-box.css',
 })
 export class EdgeSides {
@@ -1374,6 +1382,13 @@ export class EdgeSides {
     this.diagram().fit();
   }
 }
+```
+
+`6-edge-sides.example.html`
+
+```html
+<neat-diagram-legend [items]="legend" />
+<neat-diagram class="diagram" [diagram]="sides" label="A source with a side chosen by an edge" />
 ```
 
 `edge-sides-data.ts`
@@ -1483,42 +1498,7 @@ const BLOCKS = COMPILE_FLOW.overview.nodes
   selector: 'app-diagram-from-the-app',
   imports: [NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="beside">
-      <neat-diagram
-        class="diagram"
-        [diagram]="flow"
-        label="A compile flow, read from the app"
-        highlight="all"
-        [(hovered)]="hovered"
-        (activated)="picked.set($event)"
-      />
-      <div class="report">
-        <ul class="blocks" aria-label="Blocks">
-          @for (block of blocks; track block.id) {
-            <li>
-              <button
-                type="button"
-                [attr.data-current]="isHovered(block.id) ? '' : null"
-                (pointerenter)="show(block.id)"
-                (pointerleave)="hovered.set(null)"
-                (focus)="show(block.id)"
-                (blur)="hovered.set(null)"
-              >
-                {{ block.label }}
-              </button>
-            </li>
-          }
-        </ul>
-        <dl>
-          <dt>Hovered</dt>
-          <dd>{{ hoveredText() }}</dd>
-          <dt>Last click</dt>
-          <dd>{{ pickedText() }}</dd>
-        </dl>
-      </div>
-    </div>
-  `,
+  templateUrl: './7-from-the-app.example.html',
   styleUrls: ['./diagram-box.css', './from-the-app.example.css'],
 })
 export class DiagramFromTheApp {
@@ -1547,6 +1527,45 @@ export class DiagramFromTheApp {
     return pick ? `${pick.kind} ${pick.id}` : 'None yet';
   });
 }
+```
+
+`7-from-the-app.example.html`
+
+```html
+<div class="beside">
+  <neat-diagram
+    class="diagram"
+    [diagram]="flow"
+    label="A compile flow, read from the app"
+    highlight="all"
+    [(hovered)]="hovered"
+    (activated)="picked.set($event)"
+  />
+  <div class="report">
+    <ul class="blocks" aria-label="Blocks">
+      @for (block of blocks; track block.id) {
+        <li>
+          <button
+            type="button"
+            [attr.data-current]="isHovered(block.id) ? '' : null"
+            (pointerenter)="show(block.id)"
+            (pointerleave)="hovered.set(null)"
+            (focus)="show(block.id)"
+            (blur)="hovered.set(null)"
+          >
+            {{ block.label }}
+          </button>
+        </li>
+      }
+    </ul>
+    <dl>
+      <dt>Hovered</dt>
+      <dd>{{ hoveredText() }}</dd>
+      <dt>Last click</dt>
+      <dd>{{ pickedText() }}</dd>
+    </dl>
+  </div>
+</div>
 ```
 
 `compile-flow-data.ts`
@@ -1814,12 +1833,18 @@ const LOOPS: NeatDiagramSet = {
   selector: 'app-parallel-loops',
   imports: [NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-diagram class="diagram" [diagram]="loops" label="Edges that share a loop" />`,
+  templateUrl: './8-parallel-loops.example.html',
   styleUrl: './diagram-box.css',
 })
 export class ParallelLoops {
   protected readonly loops = LOOPS;
 }
+```
+
+`8-parallel-loops.example.html`
+
+```html
+<neat-diagram class="diagram" [diagram]="loops" label="Edges that share a loop" />
 ```
 
 `diagram-box.css`
@@ -1915,17 +1940,23 @@ const PLACED: NeatDiagramSet = {
   selector: 'app-placed-by-the-app',
   imports: [NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<neat-diagram
-    class="diagram"
-    [diagram]="placed"
-    label="Edges placed by the app"
-    highlight="edges"
-  />`,
+  templateUrl: './9-placed-by-the-app.example.html',
   styleUrl: './diagram-box.css',
 })
 export class PlacedByTheApp {
   protected readonly placed = PLACED;
 }
+```
+
+`9-placed-by-the-app.example.html`
+
+```html
+<neat-diagram
+  class="diagram"
+  [diagram]="placed"
+  label="Edges placed by the app"
+  highlight="edges"
+/>
 ```
 
 `diagram-box.css`

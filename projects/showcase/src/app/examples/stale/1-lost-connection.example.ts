@@ -6,24 +6,7 @@ import { NeatButton, NeatStale } from '@sima/neat-ui';
   selector: 'app-lost-connection',
   imports: [NeatButton, NeatStale],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-row">
-      <span [neatStale]="stale()">12.4 fps · 3 objects</span>
-      @if (stale()) {
-        <span class="showcase-muted">Connection lost</span>
-      }
-      <button
-        neatButton
-        type="button"
-        variant="outlined"
-        size="small"
-        [pressed]="stale()"
-        (click)="stale.set(!stale())"
-      >
-        Stale
-      </button>
-    </div>
-  `,
+  templateUrl: './1-lost-connection.example.html',
 })
 export class LostConnection {
   protected readonly stale = signal(true);

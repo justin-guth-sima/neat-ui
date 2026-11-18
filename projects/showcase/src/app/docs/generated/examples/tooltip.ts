@@ -32,13 +32,18 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton, NeatTooltip, "],["keyword","type"],["text"," NeatTooltipPosition } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-positions'"],["text",",\n  imports: [NeatButton, NeatTooltip],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"row\">\n      @for (position of positions; track position) {\n        <button\n          neatButton\n          type=\"button\"\n          variant=\"outlined\"\n          [neatTooltip]=\"'Tooltip on the ' + position\"\n          [neatTooltipPosition]=\"position\"\n        >\n          {{ position }}\n        </button>\n      }\n    </div>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-positions'"],["text",",\n  imports: [NeatButton, NeatTooltip],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-positions.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./positions.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Positions {\n  "],
           ["comment","/** Vim's h j k l; the outer tips point away from the row, so no tip covers a neighbor. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," positions: "],["keyword","readonly"],["text"," NeatTooltipPosition[] = ["],["string","'left'"],["text",", "],["string","'bottom'"],["text",", "],["string","'top'"],["text",", "],["string","'right'"],["text","];\n}\n"]
+        ]
+      },
+      {
+        "name": "1-positions.example.html",
+        "code": [
+          ["text","<div class=\"row\">\n  @for (position of positions; track position) {\n    <button\n      neatButton\n      type=\"button\"\n      variant=\"outlined\"\n      [neatTooltip]=\"'Tooltip on the ' + position\"\n      [neatTooltipPosition]=\"position\"\n    >\n      {{ position }}\n    </button>\n  }\n</div>\n"]
         ]
       },
       {

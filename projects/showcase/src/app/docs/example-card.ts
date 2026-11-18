@@ -11,7 +11,7 @@ import { Snippet } from './snippet';
 
 /**
  * One example of a topic: its title and caption, the parts it shows, the example itself, live,
- * and its code, which is the file that renders above it. The live area is inset from the card's
+ * and its code, which is the files that render above it. The live area is inset from the card's
  * own, or not for an example that fills it (`DocsExample.unpadded`). A page example
  * (`DocsExample.page`) is a link to its own route instead, and an example with no component (the
  * showcase's shell, which the page sits in) is a line saying so; both still show their code.

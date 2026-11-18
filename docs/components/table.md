@@ -53,31 +53,7 @@ import { NeatStatusChip } from '@sima/neat-ui/status-chip';
   selector: 'app-run-metrics',
   imports: [NeatFigure, NeatNumeric, NeatStatusChip, NeatTable],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <table neatTable aria-label="Metrics of a run">
-      <thead>
-        <tr>
-          <th scope="col">Metric</th>
-          <th scope="col" neatNumeric>Mean</th>
-          <th scope="col" neatFigure>Max</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (metric of metrics; track metric.name) {
-          <tr>
-            <th scope="row">{{ metric.name }}</th>
-            <td neatNumeric>{{ metric.mean }}</td>
-            <td neatFigure>
-              <div class="max">
-                {{ metric.max }}
-                <neat-status-chip [tone]="metric.tone">{{ metric.status }}</neat-status-chip>
-              </div>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  `,
+  templateUrl: './1-run-metrics.example.html',
   styleUrl: './run-metrics.example.css',
 })
 export class RunMetrics {
@@ -87,6 +63,34 @@ export class RunMetrics {
     { name: 'Memory used', mean: '2.1 GiB', max: '2.4 GiB', tone: 'success', status: 'OK' },
   ] as const;
 }
+```
+
+`1-run-metrics.example.html`
+
+```html
+<table neatTable aria-label="Metrics of a run">
+  <thead>
+    <tr>
+      <th scope="col">Metric</th>
+      <th scope="col" neatNumeric>Mean</th>
+      <th scope="col" neatFigure>Max</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (metric of metrics; track metric.name) {
+      <tr>
+        <th scope="row">{{ metric.name }}</th>
+        <td neatNumeric>{{ metric.mean }}</td>
+        <td neatFigure>
+          <div class="max">
+            {{ metric.max }}
+            <neat-status-chip [tone]="metric.tone">{{ metric.status }}</neat-status-chip>
+          </div>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>
 ```
 
 `run-metrics.example.css`

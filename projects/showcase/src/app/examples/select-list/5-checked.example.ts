@@ -11,26 +11,7 @@ import { ASSET_TYPES, hasFiles, typeId } from './asset-types';
   selector: 'app-checked',
   imports: [NeatColumn, NeatSelectList],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="box">
-      <neat-select-list
-        label="Asset types"
-        checkable
-        [items]="types"
-        [trackBy]="typeId"
-        [canCheck]="hasFiles"
-        [(checked)]="checked"
-      >
-        <ng-template neatColumn="name" header="Type" let-type>{{ type.name }}</ng-template>
-        <ng-template neatColumn="files" header="Files" width="max-content" align="end" let-type>{{
-          type.files
-        }}</ng-template>
-      </neat-select-list>
-    </div>
-    <p class="showcase-code showcase-muted" aria-live="polite">
-      Checked: {{ checked().length ? checked().join(', ') : 'none' }}
-    </p>
-  `,
+  templateUrl: './5-checked.example.html',
   styleUrls: ['./asset-types-box.css', './stack.css'],
 })
 export class Checked {

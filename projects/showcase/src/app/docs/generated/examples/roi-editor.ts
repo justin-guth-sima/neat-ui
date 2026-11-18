@@ -76,9 +76,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["text","\n"],
           ["keyword","const"],["text"," STARTING_REGIONS: "],["keyword","readonly"],["text"," NeatRoiPolygon[] = [\n  {\n    type: "],
           ["string","'exclusion'"],["text",",\n    points: [\n      { x: 0.42, y: 0.18 },\n      { x: 0.57, y: 0.24 },\n      { x: 0.63, y: 0.45 },\n      { x: 0.58, y: 0.72 },\n      { x: 0.47, y: 0.82 },\n      { x: 0.36, y: 0.63 },\n      { x: 0.38, y: 0.36 },\n    ],\n  },\n];\n\n@Component({\n  selector: "],
-          ["string","'app-drawing-regions'"],["text",",\n  imports: [NeatButton, NeatRoiEditor, NeatRoiSwatch, NeatSegmented, NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <div class=\"showcase-row\">\n      <neat-segmented label=\"Drawing mode\" [options]=\"modes\" [(value)]=\"mode\" />\n      <button neatButton type=\"button\" variant=\"outlined\" (click)=\"regions.set([])\">\n        Clear regions\n      </button>\n      <button neatSwitch (checkedChange)=\"testPattern.setPaused($event)\">Pause the source</button>\n      <span class=\"key\"><neat-roi-swatch type=\"inclusion\" />Inclusion</span>\n      <span class=\"key\"><neat-roi-swatch type=\"exclusion\" />Exclusion</span>\n    </div>\n    <p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n    <div class=\"cell\">\n      <neat-video-tile [source]=\"testPattern\" [settings]=\"settings()\" [bars]=\"false\">\n        <neat-roi-editor\n          neatTileOverlay\n          [regions]=\"regions()\"\n          [mode]=\"mode()\"\n          [(highlighted)]=\"highlighted\"\n          (regionsChange)=\"regions.set($event)\"\n        />\n      </neat-video-tile>\n    </div>\n    <p class=\"rule showcase-muted\">\n      A box shows while its center is in an inclusion region, or there is none, and in no exclusion\n      region.\n    </p>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-drawing-regions'"],["text",",\n  imports: [NeatButton, NeatRoiEditor, NeatRoiSwatch, NeatSegmented, NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-drawing-regions.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./drawing-regions.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," DrawingRegions {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," testPattern = "],["keyword","new"],["text"," TestPatternSource();\n  "],
@@ -103,6 +102,12 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," document = inject(DOCUMENT);\n    afterNextRender(() => "],
           ["keyword","this"],["text",".testPattern.start(document));\n    inject(DestroyRef).onDestroy(() => "],
           ["keyword","this"],["text",".testPattern.stop());\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "1-drawing-regions.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <neat-segmented label=\"Drawing mode\" [options]=\"modes\" [(value)]=\"mode\" />\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"regions.set([])\">\n    Clear regions\n  </button>\n  <button neatSwitch (checkedChange)=\"testPattern.setPaused($event)\">Pause the source</button>\n  <span class=\"key\"><neat-roi-swatch type=\"inclusion\" />Inclusion</span>\n  <span class=\"key\"><neat-roi-swatch type=\"exclusion\" />Exclusion</span>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n<div class=\"cell\">\n  <neat-video-tile [source]=\"testPattern\" [settings]=\"settings()\" [bars]=\"false\">\n    <neat-roi-editor\n      neatTileOverlay\n      [regions]=\"regions()\"\n      [mode]=\"mode()\"\n      [(highlighted)]=\"highlighted\"\n      (regionsChange)=\"regions.set($event)\"\n    />\n  </neat-video-tile>\n</div>\n<p class=\"rule showcase-muted\">\n  A box shows while its center is in an inclusion region, or there is none, and in no exclusion\n  region.\n</p>\n"]
         ]
       },
       {

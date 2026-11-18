@@ -24,42 +24,7 @@ const BLOCKS = COMPILE_FLOW.overview.nodes
   selector: 'app-diagram-from-the-app',
   imports: [NeatDiagramView],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="beside">
-      <neat-diagram
-        class="diagram"
-        [diagram]="flow"
-        label="A compile flow, read from the app"
-        highlight="all"
-        [(hovered)]="hovered"
-        (activated)="picked.set($event)"
-      />
-      <div class="report">
-        <ul class="blocks" aria-label="Blocks">
-          @for (block of blocks; track block.id) {
-            <li>
-              <button
-                type="button"
-                [attr.data-current]="isHovered(block.id) ? '' : null"
-                (pointerenter)="show(block.id)"
-                (pointerleave)="hovered.set(null)"
-                (focus)="show(block.id)"
-                (blur)="hovered.set(null)"
-              >
-                {{ block.label }}
-              </button>
-            </li>
-          }
-        </ul>
-        <dl>
-          <dt>Hovered</dt>
-          <dd>{{ hoveredText() }}</dd>
-          <dt>Last click</dt>
-          <dd>{{ pickedText() }}</dd>
-        </dl>
-      </div>
-    </div>
-  `,
+  templateUrl: './7-from-the-app.example.html',
   styleUrls: ['./diagram-box.css', './from-the-app.example.css'],
 })
 export class DiagramFromTheApp {

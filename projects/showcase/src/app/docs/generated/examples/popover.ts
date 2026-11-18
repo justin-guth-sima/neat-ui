@@ -55,14 +55,19 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatButton, NeatIcon, NeatTooltip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/popover'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-switches-in-a-panel'"],["text",",\n  imports: [\n    NeatButton,\n    NeatIcon,\n    NeatPopover,\n    NeatPopoverContent,\n    NeatPopoverTrigger,\n    NeatSwitch,\n    NeatTooltip,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-popover label=\"View options\" [(open)]=\"open\">\n      <button\n        neatButton\n        neatPopoverTrigger\n        type=\"button\"\n        variant=\"text\"\n        iconOnly\n        aria-label=\"View options\"\n        neatTooltip=\"View options\"\n      >\n        <neat-icon name=\"more\" />\n      </button>\n      <ng-template neatPopoverContent>\n        <div class=\"popover-fields\">\n          <button neatSwitch [(checked)]=\"bars\">Bars</button>\n          <button neatSwitch [(checked)]=\"hideEmpty\">Hide empty slots</button>\n        </div>\n      </ng-template>\n    </neat-popover>\n    <p class=\"showcase-code showcase-muted\">\n      View options {{ open() ? 'open' : 'closed' }}; bars {{ bars() ? 'on' : 'off' }}, empty slots\n      {{ hideEmpty() ? 'hidden' : 'shown' }}\n    </p>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-switches-in-a-panel'"],["text",",\n  imports: [\n    NeatButton,\n    NeatIcon,\n    NeatPopover,\n    NeatPopoverContent,\n    NeatPopoverTrigger,\n    NeatSwitch,\n    NeatTooltip,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-switches-in-a-panel.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./popover-fields.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SwitchesInAPanel {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," open = signal("],["keyword","false"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," bars = signal("],["keyword","true"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," hideEmpty = signal("],["keyword","false"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "1-switches-in-a-panel.example.html",
+        "code": [
+          ["text","<neat-popover label=\"View options\" [(open)]=\"open\">\n  <button\n    neatButton\n    neatPopoverTrigger\n    type=\"button\"\n    variant=\"text\"\n    iconOnly\n    aria-label=\"View options\"\n    neatTooltip=\"View options\"\n  >\n    <neat-icon name=\"more\" />\n  </button>\n  <ng-template neatPopoverContent>\n    <div class=\"popover-fields\">\n      <button neatSwitch [(checked)]=\"bars\">Bars</button>\n      <button neatSwitch [(checked)]=\"hideEmpty\">Hide empty slots</button>\n    </div>\n  </ng-template>\n</neat-popover>\n<p class=\"showcase-code showcase-muted\">\n  View options {{ open() ? 'open' : 'closed' }}; bars {{ bars() ? 'on' : 'off' }}, empty slots\n  {{ hideEmpty() ? 'hidden' : 'shown' }}\n</p>\n"]
         ]
       },
       {
@@ -114,13 +119,18 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatButton, NeatIcon, NeatTooltip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatInput } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/input'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/popover'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-aligned-to-the-end'"],["text",",\n  imports: [\n    NeatButton,\n    NeatIcon,\n    NeatInput,\n    NeatPopover,\n    NeatPopoverContent,\n    NeatPopoverTrigger,\n    NeatTooltip,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-popover label=\"Go to channel\" align=\"end\" [(open)]=\"open\">\n      <button\n        neatButton\n        neatPopoverTrigger\n        type=\"button\"\n        variant=\"text\"\n        iconOnly\n        aria-label=\"Go to channel\"\n        neatTooltip=\"Go to channel\"\n      >\n        <neat-icon name=\"search\" />\n      </button>\n      <ng-template neatPopoverContent>\n        <div class=\"popover-fields\">\n          <label class=\"popover-fields\">\n            <span>Channel</span>\n            <input\n              #field\n              neatInput\n              size=\"small\"\n              type=\"number\"\n              inputmode=\"numeric\"\n              min=\"0\"\n              max=\"15\"\n              placeholder=\"0–15\"\n              aria-describedby=\"channel-hint\"\n              [value]=\"channel()\"\n              (input)=\"channel.set(field.value)\"\n            />\n          </label>\n          <span id=\"channel-hint\" class=\"showcase-muted\">Aligned to the trigger's end edge.</span>\n        </div>\n      </ng-template>\n    </neat-popover>\n    <p class=\"showcase-code showcase-muted\">\n      Go to channel {{ open() ? 'open' : 'closed' }}; channel {{ channel() || 'none' }}\n    </p>\n  `"],
-          ["text",",\n  styleUrl: "],
+          ["string","'app-aligned-to-the-end'"],["text",",\n  imports: [\n    NeatButton,\n    NeatIcon,\n    NeatInput,\n    NeatPopover,\n    NeatPopoverContent,\n    NeatPopoverTrigger,\n    NeatTooltip,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./2-aligned-to-the-end.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./popover-fields.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," AlignedToTheEnd {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," open = signal("],["keyword","false"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," channel = signal("],["string","''"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "2-aligned-to-the-end.example.html",
+        "code": [
+          ["text","<neat-popover label=\"Go to channel\" align=\"end\" [(open)]=\"open\">\n  <button\n    neatButton\n    neatPopoverTrigger\n    type=\"button\"\n    variant=\"text\"\n    iconOnly\n    aria-label=\"Go to channel\"\n    neatTooltip=\"Go to channel\"\n  >\n    <neat-icon name=\"search\" />\n  </button>\n  <ng-template neatPopoverContent>\n    <div class=\"popover-fields\">\n      <label class=\"popover-fields\">\n        <span>Channel</span>\n        <input\n          #field\n          neatInput\n          size=\"small\"\n          type=\"number\"\n          inputmode=\"numeric\"\n          min=\"0\"\n          max=\"15\"\n          placeholder=\"0–15\"\n          aria-describedby=\"channel-hint\"\n          [value]=\"channel()\"\n          (input)=\"channel.set(field.value)\"\n        />\n      </label>\n      <span id=\"channel-hint\" class=\"showcase-muted\">Aligned to the trigger's end edge.</span>\n    </div>\n  </ng-template>\n</neat-popover>\n<p class=\"showcase-code showcase-muted\">\n  Go to channel {{ open() ? 'open' : 'closed' }}; channel {{ channel() || 'none' }}\n</p>\n"]
         ]
       },
       {
@@ -182,10 +192,15 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatButton, NeatIcon, NeatTooltip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," {\n  NeatPopover,\n  NeatPopoverContent,\n  NeatPopoverDivider,\n  NeatPopoverItem,\n  NeatPopoverTrigger,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/popover'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-menu'"],["text",",\n  imports: [\n    NeatButton,\n    NeatIcon,\n    NeatPopover,\n    NeatPopoverContent,\n    NeatPopoverDivider,\n    NeatPopoverItem,\n    NeatPopoverTrigger,\n    NeatTooltip,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: "],
-          ["string","`\n    <neat-popover label=\"Channel actions\" align=\"end\">\n      <button\n        neatButton\n        neatPopoverTrigger\n        type=\"button\"\n        variant=\"text\"\n        iconOnly\n        aria-label=\"Channel actions\"\n        neatTooltip=\"Channel actions\"\n      >\n        <neat-icon name=\"more\" />\n      </button>\n      <ng-template neatPopoverContent>\n        <button neatPopoverItem type=\"button\">Rename</button>\n        <button neatPopoverItem type=\"button\">Duplicate</button>\n        <button neatPopoverItem type=\"button\" disabled>Move…</button>\n        <hr neatPopoverDivider />\n        <button neatPopoverItem type=\"button\">Delete</button>\n      </ng-template>\n    </neat-popover>\n  `"],
-          ["text",",\n})\n"],
+          ["string","'app-menu'"],["text",",\n  imports: [\n    NeatButton,\n    NeatIcon,\n    NeatPopover,\n    NeatPopoverContent,\n    NeatPopoverDivider,\n    NeatPopoverItem,\n    NeatPopoverTrigger,\n    NeatTooltip,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-menu.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Menu {}\n"]
+        ]
+      },
+      {
+        "name": "3-menu.example.html",
+        "code": [
+          ["text","<neat-popover label=\"Channel actions\" align=\"end\">\n  <button\n    neatButton\n    neatPopoverTrigger\n    type=\"button\"\n    variant=\"text\"\n    iconOnly\n    aria-label=\"Channel actions\"\n    neatTooltip=\"Channel actions\"\n  >\n    <neat-icon name=\"more\" />\n  </button>\n  <ng-template neatPopoverContent>\n    <button neatPopoverItem type=\"button\">Rename</button>\n    <button neatPopoverItem type=\"button\">Duplicate</button>\n    <button neatPopoverItem type=\"button\" disabled>Move…</button>\n    <hr neatPopoverDivider />\n    <button neatPopoverItem type=\"button\">Delete</button>\n  </ng-template>\n</neat-popover>\n"]
         ]
       }
     ]

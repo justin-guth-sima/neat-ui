@@ -12,22 +12,7 @@ import { NeatSearch } from '@sima/neat-ui';
   selector: 'app-filtering-a-list',
   imports: [NeatSearch],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-search
-      label="Filter streams"
-      placeholder="Name or source"
-      [status]="status()"
-      [(value)]="query"
-    />
-    <ul>
-      @for (stream of shown(); track stream.name) {
-        <li>
-          <span>{{ stream.name }}</span>
-          <span class="showcase-muted">{{ stream.source }}</span>
-        </li>
-      }
-    </ul>
-  `,
+  templateUrl: './1-filtering-a-list.example.html',
   styleUrl: './filtering-a-list.example.css',
 })
 export class FilteringAList {

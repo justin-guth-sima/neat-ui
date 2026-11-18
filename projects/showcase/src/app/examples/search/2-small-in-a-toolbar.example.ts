@@ -9,23 +9,7 @@ import { NeatButton, NeatIcon, NeatSearch } from '@sima/neat-ui';
   selector: 'app-small-in-a-toolbar',
   imports: [NeatButton, NeatIcon, NeatSearch],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="tools">
-      <neat-search
-        size="small"
-        label="Filter files"
-        placeholder="Filter files…"
-        [(value)]="query"
-      />
-      <button neatButton variant="outlined" size="small">
-        <neat-icon name="upload" [size]="16" />
-        Upload
-      </button>
-      <button neatButton variant="text" size="small" iconOnly aria-label="Refresh">
-        <neat-icon name="refresh" [size]="16" />
-      </button>
-    </div>
-  `,
+  templateUrl: './2-small-in-a-toolbar.example.html',
   styleUrl: './small-in-a-toolbar.example.css',
 })
 export class SmallInAToolbar {

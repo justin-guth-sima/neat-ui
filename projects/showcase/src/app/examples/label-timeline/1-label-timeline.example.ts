@@ -33,28 +33,7 @@ const HELD_MS = 5000;
   selector: 'app-gesture-timeline',
   imports: [NeatLabelTimeline],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="showcase-section">
-      @for (motion of motions; track motion) {
-        <p class="showcase-muted">
-          {{
-            motion === 'step'
-              ? 'Step: moves when the app updates'
-              : 'Smooth: scrolls between updates'
-          }}
-        </p>
-        <neat-label-timeline
-          [label]="'Last 30 s, ' + motion"
-          [runs]="runs()"
-          [nowMs]="nowMs()"
-          [windowMs]="windowMs"
-          [labels]="labels"
-          [quiet]="quiet"
-          [motion]="motion"
-        />
-      }
-    </div>
-  `,
+  templateUrl: './1-label-timeline.example.html',
 })
 export class GestureTimeline {
   protected readonly motions: readonly NeatTimelineMotion[] = ['step', 'smooth'];

@@ -6,10 +6,7 @@ import { NeatNumberField } from '@sima/neat-ui/number-field';
   selector: 'app-any-whole-number',
   imports: [NeatNumberField],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <neat-number-field label="Draw on channel" [value]="channel()" (commit)="channel.set($event)" />
-    <p class="showcase-code showcase-muted">Channel {{ channel() }}</p>
-  `,
+  templateUrl: './2-any-whole-number.example.html',
   styleUrl: './stack.css',
 })
 export class AnyWholeNumber {

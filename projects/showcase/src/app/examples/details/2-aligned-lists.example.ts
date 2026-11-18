@@ -9,22 +9,7 @@ import { NeatDetails } from '@sima/neat-ui/details';
   selector: 'app-aligned-lists',
   imports: [NeatDetails],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="panel lists">
-      <dl neatDetails>
-        <dt>Model</dt>
-        <dd>IMX219</dd>
-        <dt>Reconnect_attempts_since_boot</dt>
-        <dd>3</dd>
-      </dl>
-      <dl neatDetails>
-        <dt>Receiver</dt>
-        <dd><code>imx219 1-0010</code></dd>
-        <dt>Format</dt>
-        <dd>NV12</dd>
-      </dl>
-    </div>
-  `,
+  templateUrl: './2-aligned-lists.example.html',
   styleUrls: ['./panel.css', './aligned-lists.example.css'],
 })
 export class AlignedLists {}

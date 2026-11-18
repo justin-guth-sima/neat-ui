@@ -17,18 +17,7 @@ import { streetFrames } from './scene';
   selector: 'app-zoom',
   imports: [NeatBev],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="pair">
-      <figure>
-        <neat-bev zoom [frame]="frame()" [range]="40" />
-        <figcaption>Guides over the data</figcaption>
-      </figure>
-      <figure>
-        <neat-bev zoom guides="under" [frame]="frame()" [range]="40" />
-        <figcaption>Guides under the data</figcaption>
-      </figure>
-    </div>
-  `,
+  templateUrl: './6-zoom.example.html',
   styleUrl: './bev.example.css',
 })
 export class Zoom {
