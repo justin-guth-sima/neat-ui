@@ -240,7 +240,7 @@ import {
 import { A65, EV74, HW, MLA } from './chips';
 
 /*
- * The reference sheet's messaging pipeline (insight-next, docs/superpowers/reference/diagram):
+ * The reference sheet's messaging pipeline (a design drawing kept outside the repo):
  * laptop, cable, board, placed after the sheet with room for the kit's type and edge labels. The
  * diagram fits each level to its box, so where a level starts does not matter.
  */

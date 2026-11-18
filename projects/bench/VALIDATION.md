@@ -2,7 +2,7 @@
 
 What was checked before any board run, with the numbers, what passed and what did not. Raw result
 files and traces are in `projects/bench/results/` (gitignored); the file names below are theirs.
-Design: insight-next `docs/superpowers/specs/2026-10-31-bench-design.md`, sections 1.4, 2.3 and 2.4.
+Design: the bench's design notes, kept outside the repo, sections 1.4, 2.3 and 2.4.
 
 ## Setup
 

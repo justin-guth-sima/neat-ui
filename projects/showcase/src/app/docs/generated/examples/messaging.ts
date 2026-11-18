@@ -227,7 +227,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","type"],["text"," NeatDiagramSet,\n  neatDrillDownLevel,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
           ["keyword","import"],["text"," { A65, EV74, HW, MLA } "],["keyword","from"],["text"," "],["string","'./chips'"],["text",";\n\n"],
-          ["comment","/*\n * The reference sheet's messaging pipeline (insight-next, docs/superpowers/reference/diagram):\n * laptop, cable, board, placed after the sheet with room for the kit's type and edge labels. The\n * diagram fits each level to its box, so where a level starts does not matter.\n */"],
+          ["comment","/*\n * The reference sheet's messaging pipeline (a design drawing kept outside the repo):\n * laptop, cable, board, placed after the sheet with room for the kit's type and edge labels. The\n * diagram fits each level to its box, so where a level starts does not matter.\n */"],
           ["text","\n\n"],
           ["keyword","const"],["text"," PIPELINE_NODES: "],["keyword","readonly"],["text"," NeatDiagramNode[] = [\n  { id: "],
           ["string","'laptop'"],["text",", role: "],["string","'group'"],["text",", label: "],["string","'Laptop'"],["text",", x: 0, y: 0, w: 170, h: 360 },\n  {\n    id: "],

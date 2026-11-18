@@ -379,10 +379,9 @@ own dependencies' before adding it here and to the rule.
 
 **The rendering bench (`projects/bench`) is measured, never published.** It finds how much diagram
 (blocks, edges, notes, moving dots) a machine draws smoothly, with the kit's renderer and with
-ngx-vflow under the same load, on a laptop and on the Modalix board (the design is insight-next's
-`docs/superpowers/specs/2026-10-31-bench-design.md`). Its dev dependencies sit in the root
-`package.json`, the workspace's one manifest, and never in `projects/neat-ui/package.json`, the
-published one. Licenses, all bench-only but Playwright, which the docs' capture tool uses too
+ngx-vflow under the same load, on a laptop and on the Modalix board (its design notes are kept
+outside the repo). Its dev dependencies sit in the root `package.json`, the workspace's one
+manifest, and never in `projects/neat-ui/package.json`, the published one. Licenses, all bench-only but Playwright, which the docs' capture tool uses too
 (above): `ngx-vflow` MIT, `d3-drag` ISC (vflow's peer),
 `@types/d3-drag` MIT, `playwright` and the `playwright-core` it wraps Apache-2.0, `source-map`
 BSD-3-Clause; and the capture tool's own `sharp`, Apache-2.0, whose prebuilt libvips binaries

@@ -51,3 +51,7 @@ Thumbs.db
 
 # Nx cache, created by the Spartan generator (npm run helm:add)
 /.nx
+
+# Agent workspaces and their specs and plans: kept outside the repo
+.superpowers/
+docs/superpowers/
