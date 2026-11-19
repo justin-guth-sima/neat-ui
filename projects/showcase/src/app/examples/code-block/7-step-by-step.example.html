@@ -1,0 +1,16 @@
+<div class="walk">
+  <neat-code-block
+    [code]="file"
+    language="python"
+    [lineNumbers]="true"
+    [steps]="steps"
+    [(step)]="step"
+    stepControls
+    copy="build_graph.py"
+    overflow="scroll"
+  />
+  <div class="note">
+    <p class="label">{{ steps[step()].label }}</p>
+    <p>{{ steps[step()].note }}</p>
+  </div>
+</div>

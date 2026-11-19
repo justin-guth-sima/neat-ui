@@ -5,8 +5,11 @@ import { WholeFile } from '../../../examples/code-block/2-whole-file.example';
 import { PythonFile } from '../../../examples/code-block/3-python-file.example';
 import { LineNumbers } from '../../../examples/code-block/4-line-numbers.example';
 import { AnotherLanguage } from '../../../examples/code-block/5-another-language.example';
-import { ColoredByTheApp } from '../../../examples/code-block/6-colored-by-the-app.example';
-import { StreamURL } from '../../../examples/code-block/7-stream-url.example';
+import { MarksOnAPipeline } from '../../../examples/code-block/6-marks-on-a-pipeline.example';
+import { StepByStep } from '../../../examples/code-block/7-step-by-step.example';
+import { MarksOnPlainCode } from '../../../examples/code-block/8-marks-on-plain-code.example';
+import { ColoredByTheApp } from '../../../examples/code-block/9-colored-by-the-app.example';
+import { StreamURL } from '../../../examples/code-block/10-stream-url.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -312,6 +315,227 @@ export const EXAMPLES: readonly DocsExample[] = [
     ]
   },
   {
+    "id": "marks-on-a-pipeline",
+    "title": "Marks on a pipeline",
+    "component": MarksOnAPipeline,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Marks on a C++ pipeline: "
+          },
+          {
+            "kind": "code",
+            "text": "marks"
+          },
+          {
+            "kind": "text",
+            "text": " bands the lines that compose it, marks the calls that build and run it, and dims the rest. Lines count from 1, as their numbers show, and a part of a line is named by its text."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Select the code and paste it somewhere, or press Copy: the marks change nothing of the text."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/code-block#NeatCodeBlock",
+      "@sima/neat-ui/code-block#NeatCodeMark"
+    ],
+    "files": [
+      {
+        "name": "6-marks-on-a-pipeline.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatCodeBlock, "],["keyword","type"],["text"," NeatCodeMark } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/code-block'"],["text",";\n\n"],
+          ["keyword","const"],["text"," DETECT_STREAM = "],["string","`// Run a detector on an RTSP stream with Neat: decode, infer, pull the results.\n#include \"neat.h\"\n\n#include <iostream>\n\nint main() {\n  simaai::neat::Model model(\"/data/models/yolo_v8n.tar.gz\");\n\n  simaai::neat::nodes::groups::RtspDecodedInputOptions rtsp;\n  rtsp.url = \"rtsp://neat.local:8554/src3\";\n  rtsp.codec = simaai::neat::nodes::groups::RtspCodec::H264;\n  rtsp.tcp = true;\n\n  simaai::neat::Graph graph;\n  graph.add(simaai::neat::nodes::groups::RtspDecodedInput(rtsp));\n  graph.add(model);\n  graph.add(simaai::neat::nodes::Output());\n  auto run = graph.build(simaai::neat::RunOptions{});\n\n  for (int i = 0; i < 100; ++i) {\n    auto sample = run.pull(/*timeout_ms=*/5000);\n    if (!sample.has_value()) break;\n    const auto tensors = simaai::neat::tensors_from_sample(*sample, true);\n    std::cout << \"frame \" << i << \": \" << tensors.size() << \" outputs\\\\n\";\n  }\n  return 0;\n}\n`"],
+          ["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-marks-on-a-pipeline'"],["text",",\n  imports: [NeatCodeBlock],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./6-marks-on-a-pipeline.example.html'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," MarksOnAPipeline {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," file = DETECT_STREAM;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," marks: "],["keyword","readonly"],["text"," NeatCodeMark[] = [\n    { lines: [14, 17] },\n    { line: 18, text: "],
+          ["string","'graph.build'"],["text"," },\n    { line: 21, text: "],
+          ["string","'run.pull'"],["text"," },\n  ];\n}\n"]
+        ]
+      },
+      {
+        "name": "6-marks-on-a-pipeline.example.html",
+        "code": [
+          ["text","<neat-code-block\n  [code]=\"file\"\n  language=\"cpp\"\n  [lineNumbers]=\"true\"\n  [marks]=\"marks\"\n  copy=\"detect_stream.cpp\"\n  overflow=\"scroll\"\n/>\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "step-by-step",
+    "title": "Step by step",
+    "component": StepByStep,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A walk through a short Python Neat example, a set of marks at a time: "
+          },
+          {
+            "kind": "code",
+            "text": "steps"
+          },
+          {
+            "kind": "text",
+            "text": " gives each step's marks and label, and "
+          },
+          {
+            "kind": "code",
+            "text": "[(step)]"
+          },
+          {
+            "kind": "text",
+            "text": " binds the step shown, so the page shows that step's note beside the code. "
+          },
+          {
+            "kind": "code",
+            "text": "stepControls"
+          },
+          {
+            "kind": "text",
+            "text": " adds Previous, Next and the position under the code."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Press Next, or focus the block and press the left and right arrow keys."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/code-block#NeatCodeBlock",
+      "@sima/neat-ui/code-block#NeatCodeStep"
+    ],
+    "files": [
+      {
+        "name": "7-step-by-step.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatCodeBlock, "],["keyword","type"],["text"," NeatCodeStep } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/code-block'"],["text",";\n\n"],
+          ["keyword","const"],["text"," BUILD_GRAPH = "],["string","`import numpy as np\nimport pyneat\n\ninp = pyneat.InputOptions()\ninp.format = pyneat.Format.RGB\ninp.width = 320\ninp.height = 240\ninp.depth = 3\n\ngraph = pyneat.Graph()\ngraph.add(pyneat.nodes.input(inp))\ngraph.add(pyneat.nodes.output())\n\nrgb = np.full((240, 320, 3), 33, dtype=np.uint8)\ntensor = pyneat.Tensor.from_numpy(rgb, copy=True, image_format=pyneat.PixelFormat.RGB)\nrun = graph.build([tensor])\n\noutputs = run.run([tensor], timeout_ms=1000)\nprint(f\"output_rank={len(outputs[0].shape)}\")\n`"],
+          ["text",";\n\n"],
+          ["comment","/** A step of the walk, with the note the page shows beside the code. */"],["text","\n"],
+          ["keyword","interface"],["text"," Step "],["keyword","extends"],["text"," NeatCodeStep {\n  "],
+          ["keyword","readonly"],["text"," label: "],["keyword","string"],["text",";\n  "],
+          ["keyword","readonly"],["text"," note: "],["keyword","string"],["text",";\n}\n\n"],
+          ["keyword","const"],["text"," STEPS: "],["keyword","readonly"],["text"," Step[] = [\n  {\n    label: "],
+          ["string","'Describe the input'"],["text",",\n    marks: [{ lines: [4, 8] }],\n    note: "],
+          ["string","'InputOptions says what a frame looks like: its pixel format, width, height and depth. The input node checks each frame against it.'"],["text",",\n  },\n  {\n    label: "],
+          ["string","'Compose the graph'"],["text",",\n    marks: [{ lines: [10, 12] }],\n    note: "],
+          ["string","'A Graph is a description. add() appends nodes in order: here an input node and an output node, with nothing between them yet.'"],["text",",\n  },\n  {\n    label: "],
+          ["string","'Build the pipeline'"],["text",",\n    marks: [\n      { line: 15, text: "],
+          ["string","'Tensor.from_numpy'"],["text"," },\n      { line: 16, text: "],
+          ["string","'graph.build'"],["text"," },\n    ],\n    note: "],
+          ["string","'build() turns the description into a Run, which it can do only with a sample frame: a Tensor made from a NumPy array.'"],["text",",\n  },\n  {\n    label: "],
+          ["string","'Run a frame'"],["text",",\n    marks: [\n      { line: 18, text: "],
+          ["string","'run.run'"],["text"," },\n      { line: 19, text: "],
+          ["string","'outputs[0].shape'"],["text"," },\n    ],\n    note: "],
+          ["string","'run() pushes one frame and pulls one result. With no model in the graph, the result has the input’s rank, which shows the frame went through.'"],["text",",\n  },\n];\n\n@Component({\n  selector: "],
+          ["string","'app-step-by-step'"],["text",",\n  imports: [NeatCodeBlock],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./7-step-by-step.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./step-by-step.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," StepByStep {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," file = BUILD_GRAPH;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," steps = STEPS;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," step = signal(0);\n}\n"]
+        ]
+      },
+      {
+        "name": "7-step-by-step.example.html",
+        "code": [
+          ["text","<div class=\"walk\">\n  <neat-code-block\n    [code]=\"file\"\n    language=\"python\"\n    [lineNumbers]=\"true\"\n    [steps]=\"steps\"\n    [(step)]=\"step\"\n    stepControls\n    copy=\"build_graph.py\"\n    overflow=\"scroll\"\n  />\n  <div class=\"note\">\n    <p class=\"label\">{{ steps[step()].label }}</p>\n    <p>{{ steps[step()].note }}</p>\n  </div>\n</div>\n"]
+        ]
+      },
+      {
+        "name": "step-by-step.example.css",
+        "code": [
+          ["comment","/* The code and the step's note side by side, the note below the code where they do not fit. */"],["text","\n.walk {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: flex-start;\n  gap: var(--neat-space-4);\n}\n\n.walk neat-code-block {\n  flex: 2 1 28rem;\n}\n\n.note {\n  flex: 1 1 12rem;\n  font-size: var(--neat-text-sm);\n}\n\n.note p {\n  margin: 0 0 var(--neat-space-2);\n}\n\n.label {\n  font-weight: 600;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "marks-on-plain-code",
+    "title": "Marks on plain code",
+    "component": MarksOnPlainCode,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Marks on code without a language, a terminal session: the stream's protocol, the frames asked for, and the line where the stream stopped. Marked text is in the text color, and the rest dims to the muted one."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Text that comes more than once on its line takes columns, counted from 1: \"rtsp\" is in the program's name too, so "
+          },
+          {
+            "kind": "code",
+            "text": "{ line: 1, from: 44, to: 47 }"
+          },
+          {
+            "kind": "text",
+            "text": " marks the URL's."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/code-block#NeatCodeBlock",
+      "@sima/neat-ui/code-block#NeatCodeMark"
+    ],
+    "files": [
+      {
+        "name": "8-marks-on-plain-code.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatCodeBlock, "],["keyword","type"],["text"," NeatCodeMark } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/code-block'"],["text",";\n\n"],
+          ["keyword","const"],["text"," SESSION = "],["string","`$ ./tutorial_018_consume_rtsp_stream --url rtsp://neat.local:8554/src3 --frames 4\nframe=0 shape=[1080, 1920, 3]\nframe=1 shape=[1080, 1920, 3]\nframe=2 shape=[1080, 1920, 3]\nframe=3 rtsp_timeout\n`"],
+          ["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-marks-on-plain-code'"],["text",",\n  imports: [NeatCodeBlock],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./8-marks-on-plain-code.example.html'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," MarksOnPlainCode {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," session = SESSION;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," marks: "],["keyword","readonly"],["text"," NeatCodeMark[] = [\n    { line: 1, from: 44, to: 47 },\n    { line: 1, text: "],
+          ["string","'--frames 4'"],["text"," },\n    { line: 5 },\n  ];\n}\n"]
+        ]
+      },
+      {
+        "name": "8-marks-on-plain-code.example.html",
+        "code": [
+          ["text","<neat-code-block [code]=\"session\" [marks]=\"marks\" copy=\"session\" />\n"]
+        ]
+      }
+    ]
+  },
+  {
     "id": "colored-by-the-app",
     "title": "Colored by the app",
     "component": ColoredByTheApp,
@@ -355,7 +579,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     ],
     "files": [
       {
-        "name": "6-colored-by-the-app.example.ts",
+        "name": "9-colored-by-the-app.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCodeBlock } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/code-block'"],["text",";\n\n"],
@@ -369,7 +593,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'string'"],["text",", text: "],["string","\"'rtsp://neat.local:8554/src3'\""],["text"," },\n  { kind: "],
           ["string","'text'"],["text",", text: "],["string","';'"],["text"," },\n];\n\n@Component({\n  selector: "],
           ["string","'app-colored-by-the-app'"],["text",",\n  imports: [NeatCodeBlock],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
-          ["string","'./6-colored-by-the-app.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./9-colored-by-the-app.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./colored-by-the-app.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ColoredByTheApp {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," runs = RUNS;\n  "],
@@ -377,7 +601,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "6-colored-by-the-app.example.html",
+        "name": "9-colored-by-the-app.example.html",
         "code": [
           ["text","<neat-code-block [code]=\"code\" copy=\"line\">\n  @for (run of runs; track $index) {\n    <span [class]=\"run.kind\">{{ run.text }}</span>\n  }\n</neat-code-block>\n"]
         ]
@@ -420,20 +644,20 @@ export const EXAMPLES: readonly DocsExample[] = [
     ],
     "files": [
       {
-        "name": "7-stream-url.example.ts",
+        "name": "10-stream-url.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCode } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCopyButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/code-block'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-stream-url'"],["text",",\n  imports: [NeatCode, NeatCopyButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
-          ["string","'./7-stream-url.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./10-stream-url.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./stream-url.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," StreamURL {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," url = "],["string","'rtsp://neat.local:8554/src3'"],["text",";\n}\n"]
         ]
       },
       {
-        "name": "7-stream-url.example.html",
+        "name": "10-stream-url.example.html",
         "code": [
           ["text","<p class=\"url\">\n  The stream plays at <code neatCode>{{ url }}</code>\n  <neat-copy-button [text]=\"url\" what=\"stream URL\" />\n</p>\n"]
         ]

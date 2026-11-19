@@ -282,6 +282,264 @@ export class AnotherLanguage {
 
 </details>
 
+### Marks on a pipeline
+
+Marks on a C++ pipeline: `marks` bands the lines that compose it, marks the calls that build and run it, and dims the rest. Lines count from 1, as their numbers show, and a part of a line is named by its text.
+
+Select the code and paste it somewhere, or press Copy: the marks change nothing of the text.
+
+<details>
+<summary>Code</summary>
+
+`6-marks-on-a-pipeline.example.ts`
+
+```ts
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { NeatCodeBlock, type NeatCodeMark } from '@sima/neat-ui/code-block';
+
+const DETECT_STREAM = `// Run a detector on an RTSP stream with Neat: decode, infer, pull the results.
+#include "neat.h"
+
+#include <iostream>
+
+int main() {
+  simaai::neat::Model model("/data/models/yolo_v8n.tar.gz");
+
+  simaai::neat::nodes::groups::RtspDecodedInputOptions rtsp;
+  rtsp.url = "rtsp://neat.local:8554/src3";
+  rtsp.codec = simaai::neat::nodes::groups::RtspCodec::H264;
+  rtsp.tcp = true;
+
+  simaai::neat::Graph graph;
+  graph.add(simaai::neat::nodes::groups::RtspDecodedInput(rtsp));
+  graph.add(model);
+  graph.add(simaai::neat::nodes::Output());
+  auto run = graph.build(simaai::neat::RunOptions{});
+
+  for (int i = 0; i < 100; ++i) {
+    auto sample = run.pull(/*timeout_ms=*/5000);
+    if (!sample.has_value()) break;
+    const auto tensors = simaai::neat::tensors_from_sample(*sample, true);
+    std::cout << "frame " << i << ": " << tensors.size() << " outputs\\n";
+  }
+  return 0;
+}
+`;
+
+@Component({
+  selector: 'app-marks-on-a-pipeline',
+  imports: [NeatCodeBlock],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './6-marks-on-a-pipeline.example.html',
+})
+export class MarksOnAPipeline {
+  protected readonly file = DETECT_STREAM;
+  protected readonly marks: readonly NeatCodeMark[] = [
+    { lines: [14, 17] },
+    { line: 18, text: 'graph.build' },
+    { line: 21, text: 'run.pull' },
+  ];
+}
+```
+
+`6-marks-on-a-pipeline.example.html`
+
+```html
+<neat-code-block
+  [code]="file"
+  language="cpp"
+  [lineNumbers]="true"
+  [marks]="marks"
+  copy="detect_stream.cpp"
+  overflow="scroll"
+/>
+```
+
+</details>
+
+### Step by step
+
+A walk through a short Python Neat example, a set of marks at a time: `steps` gives each step's marks and label, and `[(step)]` binds the step shown, so the page shows that step's note beside the code. `stepControls` adds Previous, Next and the position under the code.
+
+Press Next, or focus the block and press the left and right arrow keys.
+
+<details>
+<summary>Code</summary>
+
+`7-step-by-step.example.ts`
+
+```ts
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { NeatCodeBlock, type NeatCodeStep } from '@sima/neat-ui/code-block';
+
+const BUILD_GRAPH = `import numpy as np
+import pyneat
+
+inp = pyneat.InputOptions()
+inp.format = pyneat.Format.RGB
+inp.width = 320
+inp.height = 240
+inp.depth = 3
+
+graph = pyneat.Graph()
+graph.add(pyneat.nodes.input(inp))
+graph.add(pyneat.nodes.output())
+
+rgb = np.full((240, 320, 3), 33, dtype=np.uint8)
+tensor = pyneat.Tensor.from_numpy(rgb, copy=True, image_format=pyneat.PixelFormat.RGB)
+run = graph.build([tensor])
+
+outputs = run.run([tensor], timeout_ms=1000)
+print(f"output_rank={len(outputs[0].shape)}")
+`;
+
+/** A step of the walk, with the note the page shows beside the code. */
+interface Step extends NeatCodeStep {
+  readonly label: string;
+  readonly note: string;
+}
+
+const STEPS: readonly Step[] = [
+  {
+    label: 'Describe the input',
+    marks: [{ lines: [4, 8] }],
+    note: 'InputOptions says what a frame looks like: its pixel format, width, height and depth. The input node checks each frame against it.',
+  },
+  {
+    label: 'Compose the graph',
+    marks: [{ lines: [10, 12] }],
+    note: 'A Graph is a description. add() appends nodes in order: here an input node and an output node, with nothing between them yet.',
+  },
+  {
+    label: 'Build the pipeline',
+    marks: [
+      { line: 15, text: 'Tensor.from_numpy' },
+      { line: 16, text: 'graph.build' },
+    ],
+    note: 'build() turns the description into a Run, which it can do only with a sample frame: a Tensor made from a NumPy array.',
+  },
+  {
+    label: 'Run a frame',
+    marks: [
+      { line: 18, text: 'run.run' },
+      { line: 19, text: 'outputs[0].shape' },
+    ],
+    note: 'run() pushes one frame and pulls one result. With no model in the graph, the result has the input’s rank, which shows the frame went through.',
+  },
+];
+
+@Component({
+  selector: 'app-step-by-step',
+  imports: [NeatCodeBlock],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './7-step-by-step.example.html',
+  styleUrl: './step-by-step.example.css',
+})
+export class StepByStep {
+  protected readonly file = BUILD_GRAPH;
+  protected readonly steps = STEPS;
+  protected readonly step = signal(0);
+}
+```
+
+`7-step-by-step.example.html`
+
+```html
+<div class="walk">
+  <neat-code-block
+    [code]="file"
+    language="python"
+    [lineNumbers]="true"
+    [steps]="steps"
+    [(step)]="step"
+    stepControls
+    copy="build_graph.py"
+    overflow="scroll"
+  />
+  <div class="note">
+    <p class="label">{{ steps[step()].label }}</p>
+    <p>{{ steps[step()].note }}</p>
+  </div>
+</div>
+```
+
+`step-by-step.example.css`
+
+```css
+/* The code and the step's note side by side, the note below the code where they do not fit. */
+.walk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--neat-space-4);
+}
+
+.walk neat-code-block {
+  flex: 2 1 28rem;
+}
+
+.note {
+  flex: 1 1 12rem;
+  font-size: var(--neat-text-sm);
+}
+
+.note p {
+  margin: 0 0 var(--neat-space-2);
+}
+
+.label {
+  font-weight: 600;
+}
+```
+
+</details>
+
+### Marks on plain code
+
+Marks on code without a language, a terminal session: the stream's protocol, the frames asked for, and the line where the stream stopped. Marked text is in the text color, and the rest dims to the muted one.
+
+Text that comes more than once on its line takes columns, counted from 1: "rtsp" is in the program's name too, so `{ line: 1, from: 44, to: 47 }` marks the URL's.
+
+<details>
+<summary>Code</summary>
+
+`8-marks-on-plain-code.example.ts`
+
+```ts
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { NeatCodeBlock, type NeatCodeMark } from '@sima/neat-ui/code-block';
+
+const SESSION = `$ ./tutorial_018_consume_rtsp_stream --url rtsp://neat.local:8554/src3 --frames 4
+frame=0 shape=[1080, 1920, 3]
+frame=1 shape=[1080, 1920, 3]
+frame=2 shape=[1080, 1920, 3]
+frame=3 rtsp_timeout
+`;
+
+@Component({
+  selector: 'app-marks-on-plain-code',
+  imports: [NeatCodeBlock],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './8-marks-on-plain-code.example.html',
+})
+export class MarksOnPlainCode {
+  protected readonly session = SESSION;
+  protected readonly marks: readonly NeatCodeMark[] = [
+    { line: 1, from: 44, to: 47 },
+    { line: 1, text: '--frames 4' },
+    { line: 5 },
+  ];
+}
+```
+
+`8-marks-on-plain-code.example.html`
+
+```html
+<neat-code-block [code]="session" [marks]="marks" copy="session" />
+```
+
+</details>
+
 ### Colored by the app
 
 Code the app colored itself, as spans inside the block: runs from a highlighter of its own, as the showcase's snippets are colored at build time. They are shown in place of `code`, which spells the same text and stays what Copy copies. The spans take the theme's code colors, as `--neat-code-keyword` here. For code in a language the kit knows, `language` is simpler.
@@ -294,7 +552,7 @@ Code the app colored itself, as spans inside the block: runs from a highlighter 
 <details>
 <summary>Code</summary>
 
-`6-colored-by-the-app.example.ts`
+`9-colored-by-the-app.example.ts`
 
 ```ts
 import { ChangeDetectionStrategy, Component } from '@angular/core';
@@ -317,7 +575,7 @@ const RUNS: readonly Run[] = [
   selector: 'app-colored-by-the-app',
   imports: [NeatCodeBlock],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './6-colored-by-the-app.example.html',
+  templateUrl: './9-colored-by-the-app.example.html',
   styleUrl: './colored-by-the-app.example.css',
 })
 export class ColoredByTheApp {
@@ -326,7 +584,7 @@ export class ColoredByTheApp {
 }
 ```
 
-`6-colored-by-the-app.example.html`
+`9-colored-by-the-app.example.html`
 
 ```html
 <neat-code-block [code]="code" copy="line">
@@ -365,7 +623,7 @@ Press Copy, then paste the URL into a player.
 <details>
 <summary>Code</summary>
 
-`7-stream-url.example.ts`
+`10-stream-url.example.ts`
 
 ```ts
 import { ChangeDetectionStrategy, Component } from '@angular/core';
@@ -376,7 +634,7 @@ import { NeatCopyButton } from '@sima/neat-ui/code-block';
   selector: 'app-stream-url',
   imports: [NeatCode, NeatCopyButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './7-stream-url.example.html',
+  templateUrl: './10-stream-url.example.html',
   styleUrl: './stream-url.example.css',
 })
 export class StreamURL {
@@ -384,7 +642,7 @@ export class StreamURL {
 }
 ```
 
-`7-stream-url.example.html`
+`10-stream-url.example.html`
 
 ```html
 <p class="url">
@@ -430,7 +688,34 @@ The block colors Python, C++, C, shell, JSON, YAML, CMake, TypeScript, JavaScrip
 
 `lineNumbers` numbers the lines in a gutter at their start. The numbers are not part of the text: a selection leaves them out, a screen reader does not read them, and Copy copies the code as given, colored or not.
 
-An app that colors its code itself (spans from a highlighter run at build time) puts them inside the element. They are shown in place of the block's own lines, without `language` or `lineNumbers`, and `code` stays what Copy copies, so they must spell the same text:
+`marks` sets lines, or parts of lines, apart, and dims the rest of the code. A [`NeatCodeMark`](../components/code-block.md#neatcodemark) counts lines and columns from 1, as `lineNumbers` numbers them:
+
+```html
+<neat-code-block [code]="source" language="cpp" [marks]="marks" />
+```
+
+```ts
+readonly marks: NeatCodeMark[] = [{ lines: [4, 6] }, { line: 9, text: 'model.run' }];
+```
+
+A marked line gets a band across the block, and a marked part a rounded marker behind it, both in the theme's mark tint (`--neat-code-mark`). Marked code keeps its colors, each held to 4.5:1 on the tint. The rest dims to the muted text color, which still reads at 4.5:1 on the block. `[dim]="false"` leaves the rest as it is.
+
+A marked part is a `mark` element, which a screen reader announces as highlighted. Marks change nothing of the text: a selection and Copy take the code as given. A mark that names no line, or text its line does not have, throws in dev mode and is left out in production.
+
+`steps` walks through the code a set of marks at a time, each a [`NeatCodeStep`](../components/code-block.md#neatcodestep) with an optional `label`. `step` is the one shown, from 0. Bind it both ways to show a note of your own beside the block:
+
+```html
+<neat-code-block [code]="source" [steps]="walk" [(step)]="at" stepControls />
+<p>{{ walk[at()].note }}</p>
+```
+
+While a block has steps, it shows their marks and does not use `marks`. A `step` outside the steps shows the nearest one and is left as it is. `stepControls` adds a Previous and a Next button and the position ("2 of 5") below the code.
+
+A block with steps is a tab stop, and the left and right arrow keys move to the step before and after. On the code itself, which is a tab stop of its own while it scrolls sideways, they scroll it instead. Moving to a step fades its marks in as the last ones fade out, at once under reduced motion. A polite live region says the step ("Step 2 of 5: Open the camera").
+
+The block scrolls its own box, never the page, to bring the first mark into view when the marks shown change. Give the block a height or a `max-height`, and its code scrolls inside it: a long file then walks to a mark further down without moving the page.
+
+An app that colors its code itself (spans from a highlighter run at build time) puts them inside the element. They are shown in place of the block's own lines, without `language`, `lineNumbers` or marks, and `code` stays what Copy copies, so they must spell the same text. The steps, their controls and the keys still work, so the app can mark its own spans by `step`:
 
 ```html
 <neat-code-block [code]="source" copy="app.ts">
@@ -464,6 +749,28 @@ Angular leaves out the line breaks between a template's elements, so only the sp
 
   Whether the lines are numbered, in a gutter that a selection and Copy leave out.
 
+- **`marks`** `readonly NeatCodeMark[]`, default `[]`
+
+  The lines and parts of lines the block sets apart (a [`NeatCodeMark`](../components/code-block.md#neatcodemark) each), counted from 1. Not used while the block has `steps`.
+
+- **`dim`** `boolean`, default `true`, transform `booleanAttribute`
+
+  Whether the code outside the marks dims while there are marks. On by default.
+
+- **`steps`** `readonly NeatCodeStep[]`, default `[]`
+
+  A walk through the code, a [`NeatCodeStep`](../components/code-block.md#neatcodestep) at a time, each with its own marks. While there are steps, the block is a tab stop whose arrow keys move between them.
+
+- **`stepControls`** `boolean`, default `false`, transform `booleanAttribute`
+
+  Whether Previous and Next buttons and the position ("2 of 5") show under the code.
+
+**Models (two-way)**
+
+- **`step`** `number`, default `0`
+
+  The step shown, from 0: bind it both ways to follow the block, or to move it.
+
 ### `NeatCodeOverflow`
 
 Type from `@sima/neat-ui/code-block`.
@@ -473,6 +780,48 @@ What a code block does with a line wider than itself: `wrap` breaks it, `scroll`
 ```ts
 type NeatCodeOverflow = 'wrap' | 'scroll'
 ```
+
+### `NeatCodeMark`
+
+Type from `@sima/neat-ui/code-block`.
+
+A mark: lines, or a part of a line, that a code block sets apart while it dims the rest.
+
+Lines and columns count from 1, as people read them: line 1 is the first line, as `lineNumbers` numbers it, and column 1 its first character (a tab counts as one). Ranges include both ends.
+
+- `{ lines: [4, 6] }` marks lines 4 to 6 and `{ line: 9 }` line 9 alone, each with a band across the block.
+- `{ line: 9, text: 'model.run' }` marks the first `model.run` on line 9, with a marker behind it.
+- `{ line: 9, from: 12, to: 20 }` marks columns 12 to 20 of line 9, for text that comes more than once on its line.
+
+```ts
+type NeatCodeMark = | { readonly lines: readonly [from: number, to: number] }
+  | { readonly line: number; readonly text?: string; readonly from?: never; readonly to?: never }
+  | { readonly line: number; readonly from: number; readonly to: number; readonly text?: never }
+```
+
+### `NeatCodeStep`
+
+Interface from `@sima/neat-ui/code-block`.
+
+One step of a code block's steps: the marks it shows, and a short label that a screen reader hears when the block moves to it.
+
+An app adds what it shows beside the block for each step (a note) to its own steps, which the block takes as they are:
+
+```ts
+interface Step extends NeatCodeStep {
+  readonly note: string;
+}
+```
+
+**Members**
+
+- **`marks`** `readonly NeatCodeMark[]`
+
+  The lines and parts of lines the step marks. A step with none shows the code undimmed.
+
+- **`label`** `string`, optional
+
+  What the step is about in a few words ("Open the camera"), said when the block moves to it.
 
 ### `NeatCopyButton`
 

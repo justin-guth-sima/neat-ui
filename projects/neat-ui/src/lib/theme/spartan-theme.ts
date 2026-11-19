@@ -289,15 +289,24 @@ const CODE_SCALES = {
 } as const;
 /** How many places a property's blue sits past the function's along the color walk. */
 const CODE_PROPERTY_OFFSET = 2;
+/**
+ * How much of the highlight hue the code block's mark tint (`--neat-code-mark`) holds, mixed in
+ * OKLab over the block's fill: enough to stand out from the fill as a marker, not so much that the
+ * code colors must move far from the background to read on it.
+ */
+const CODE_MARK_SHARE: Record<NeatColorScheme, number> = { light: 0.3, dark: 0.25 };
 
 /**
- * The code block's colors for the kinds of code text (`--neat-code-keyword` and the rest): for
- * each kind's scale, the first step of the scheme's color walk that reads at 4.5:1 on the code
- * block's fill (`--muted`). Comments are `--muted-foreground`, which reads on it too.
+ * The code block's colors: its mark tint (`--neat-code-mark`), the highlight hue over the block's
+ * fill (`--muted`), and the kinds of code text (`--neat-code-keyword` and the rest), for each
+ * kind's scale the first step of the scheme's color walk that reads at 4.5:1 on the fill and on
+ * the mark tint, since marked code keeps its colors. Comments are `--muted-foreground`, which
+ * reads on both too.
  */
 function codeTokens(scheme: NeatColorScheme, fill: string, mutedText: string): SpartanTokens {
   const walk = CONTRAST_RULES[scheme].colorWalk;
-  const readable = (scale: ColorScale) => firstReadable(scale, walk, [fill]);
+  const mark = mixOklab(scales.highlight[500], CODE_MARK_SHARE[scheme], fill);
+  const readable = (scale: ColorScale) => firstReadable(scale, walk, [fill, mark]);
   const colors = Object.fromEntries(
     Object.entries(CODE_SCALES).map(([kind, scale]) => [kind, scale[walk[readable(scale)]]]),
   );
@@ -311,6 +320,7 @@ function codeTokens(scheme: NeatColorScheme, fill: string, mutedText: string): S
     'neat-code-function': colors['function'],
     'neat-code-property': blue[along(walk, readable(blue), CODE_PROPERTY_OFFSET)],
     'neat-code-tag': colors['tag'],
+    'neat-code-mark': mark,
   };
 }
 

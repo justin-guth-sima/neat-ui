@@ -153,6 +153,190 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "code",
+              "text": "marks"
+            },
+            {
+              "kind": "text",
+              "text": " sets lines, or parts of lines, apart, and dims the rest of the code. A "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatCodeMark",
+              "name": "NeatCodeMark"
+            },
+            {
+              "kind": "text",
+              "text": " counts lines and columns from 1, as "
+            },
+            {
+              "kind": "code",
+              "text": "lineNumbers"
+            },
+            {
+              "kind": "text",
+              "text": " numbers them:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-code-block [code]=\"source\" language=\"cpp\" [marks]=\"marks\" />"
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "readonly marks: NeatCodeMark[] = [{ lines: [4, 6] }, { line: 9, text: 'model.run' }];"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A marked line gets a band across the block, and a marked part a rounded marker behind it, both in the theme's mark tint ("
+            },
+            {
+              "kind": "code",
+              "text": "--neat-code-mark"
+            },
+            {
+              "kind": "text",
+              "text": "). Marked code keeps its colors, each held to 4.5:1 on the tint. The rest dims to the muted text color, which still reads at 4.5:1 on the block. "
+            },
+            {
+              "kind": "code",
+              "text": "[dim]=\"false\""
+            },
+            {
+              "kind": "text",
+              "text": " leaves the rest as it is."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A marked part is a "
+            },
+            {
+              "kind": "code",
+              "text": "mark"
+            },
+            {
+              "kind": "text",
+              "text": " element, which a screen reader announces as highlighted. Marks change nothing of the text: a selection and Copy take the code as given. A mark that names no line, or text its line does not have, throws in dev mode and is left out in production."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "steps"
+            },
+            {
+              "kind": "text",
+              "text": " walks through the code a set of marks at a time, each a "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatCodeStep",
+              "name": "NeatCodeStep"
+            },
+            {
+              "kind": "text",
+              "text": " with an optional "
+            },
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": ". "
+            },
+            {
+              "kind": "code",
+              "text": "step"
+            },
+            {
+              "kind": "text",
+              "text": " is the one shown, from 0. Bind it both ways to show a note of your own beside the block:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-code-block [code]=\"source\" [steps]=\"walk\" [(step)]=\"at\" stepControls />\n<p>{{ walk[at()].note }}</p>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "While a block has steps, it shows their marks and does not use "
+            },
+            {
+              "kind": "code",
+              "text": "marks"
+            },
+            {
+              "kind": "text",
+              "text": ". A "
+            },
+            {
+              "kind": "code",
+              "text": "step"
+            },
+            {
+              "kind": "text",
+              "text": " outside the steps shows the nearest one and is left as it is. "
+            },
+            {
+              "kind": "code",
+              "text": "stepControls"
+            },
+            {
+              "kind": "text",
+              "text": " adds a Previous and a Next button and the position (\"2 of 5\") below the code."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A block with steps is a tab stop, and the left and right arrow keys move to the step before and after. On the code itself, which is a tab stop of its own while it scrolls sideways, they scroll it instead. Moving to a step fades its marks in as the last ones fade out, at once under reduced motion. A polite live region says the step (\"Step 2 of 5: Open the camera\")."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The block scrolls its own box, never the page, to bring the first mark into view when the marks shown change. Give the block a height or a "
+            },
+            {
+              "kind": "code",
+              "text": "max-height"
+            },
+            {
+              "kind": "text",
+              "text": ", and its code scrolls inside it: a long file then walks to a mark further down without moving the page."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
               "kind": "text",
               "text": "An app that colors its code itself (spans from a highlighter run at build time) puts them inside the element. They are shown in place of the block's own lines, without "
             },
@@ -162,7 +346,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " or "
+              "text": ", "
             },
             {
               "kind": "code",
@@ -170,7 +354,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", and "
+              "text": " or marks, and "
             },
             {
               "kind": "code",
@@ -178,7 +362,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " stays what Copy copies, so they must spell the same text:"
+              "text": " stays what Copy copies, so they must spell the same text. The steps, their controls and the keys still work, so the app can mark its own spans by "
+            },
+            {
+              "kind": "code",
+              "text": "step"
+            },
+            {
+              "kind": "text",
+              "text": ":"
             }
           ]
         },
@@ -317,6 +509,116 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "marks",
+          "type": "readonly NeatCodeMark[]",
+          "default": "[]",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The lines and parts of lines the block sets apart (a "
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatCodeMark",
+                  "name": "NeatCodeMark"
+                },
+                {
+                  "kind": "text",
+                  "text": " each), counted from 1. Not used while the block has "
+                },
+                {
+                  "kind": "code",
+                  "text": "steps"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "dim",
+          "type": "boolean",
+          "default": "true",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the code outside the marks dims while there are marks. On by default."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "steps",
+          "type": "readonly NeatCodeStep[]",
+          "default": "[]",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A walk through the code, a "
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatCodeStep",
+                  "name": "NeatCodeStep"
+                },
+                {
+                  "kind": "text",
+                  "text": " at a time, each with its own marks. While there are steps, the block is a tab stop whose arrow keys move between them."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "stepControls",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether Previous and Next buttons and the position (\"2 of 5\") show under the code."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "models": [
+        {
+          "name": "step",
+          "type": "number",
+          "default": "0",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The step shown, from 0: bind it both ways to follow the block, or to move it."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/code-block/src/lib/code-block.ts"
@@ -394,6 +696,91 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/code-block/src/lib/languages.ts"
     },
     {
+      "name": "NeatCodeMark",
+      "kind": "type",
+      "definition": "| { readonly lines: readonly [from: number, to: number] }\n  | { readonly line: number; readonly text?: string; readonly from?: never; readonly to?: never }\n  | { readonly line: number; readonly from: number; readonly to: number; readonly text?: never }",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A mark: lines, or a part of a line, that a code block sets apart while it dims the rest."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Lines and columns count from 1, as people read them: line 1 is the first line, as "
+            },
+            {
+              "kind": "code",
+              "text": "lineNumbers"
+            },
+            {
+              "kind": "text",
+              "text": " numbers it, and column 1 its first character (a tab counts as one). Ranges include both ends."
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "{ lines: [4, 6] }"
+              },
+              {
+                "kind": "text",
+                "text": " marks lines 4 to 6 and "
+              },
+              {
+                "kind": "code",
+                "text": "{ line: 9 }"
+              },
+              {
+                "kind": "text",
+                "text": " line 9 alone, each with a band across the block."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "{ line: 9, text: 'model.run' }"
+              },
+              {
+                "kind": "text",
+                "text": " marks the first "
+              },
+              {
+                "kind": "code",
+                "text": "model.run"
+              },
+              {
+                "kind": "text",
+                "text": " on line 9, with a marker behind it."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "{ line: 9, from: 12, to: 20 }"
+              },
+              {
+                "kind": "text",
+                "text": " marks columns 12 to 20 of line 9, for text that comes more than once on its line."
+              }
+            ]
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/code-block/src/lib/marks.ts"
+    },
+    {
       "name": "NeatCodeOverflow",
       "kind": "type",
       "definition": "'wrap' | 'scroll'",
@@ -425,6 +812,69 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/code-block/src/lib/code-block.ts"
+    },
+    {
+      "name": "NeatCodeStep",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "marks",
+          "type": "readonly NeatCodeMark[]",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The lines and parts of lines the step marks. A step with none shows the code undimmed."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What the step is about in a few words (\"Open the camera\"), said when the block moves to it."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "One step of a code block's steps: the marks it shows, and a short label that a screen reader hears when the block moves to it."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An app adds what it shows beside the block for each step (a note) to its own steps, which the block takes as they are:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "interface Step extends NeatCodeStep {\n  readonly note: string;\n}"
+        }
+      ],
+      "source": "projects/neat-ui/code-block/src/lib/marks.ts"
     },
     {
       "name": "NeatCopyButton",

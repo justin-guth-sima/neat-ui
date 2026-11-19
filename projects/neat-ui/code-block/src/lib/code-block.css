@@ -1,8 +1,17 @@
-/* The code on the muted fill, the Copy button beside it, centered on its lines. */
+/*
+ * The code on the muted fill, the Copy button beside it, centered on its lines, and the step
+ * controls below both. The code's row takes what a height or max-height given to the block leaves,
+ * and the code scrolls inside it. Positioned, as the containing block of the hidden live region.
+ */
 :host {
-  display: flex;
+  /* How far a line's band and a part's marker reach past the code on each side. */
+  --mark-inset: var(--neat-space-2);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr);
   align-items: center;
-  gap: var(--neat-space-2);
   min-width: 0;
   padding: var(--neat-space-2) var(--neat-space-3);
   border-radius: var(--radius);
@@ -11,10 +20,27 @@
   line-height: 1.6;
 }
 
+/* A block with steps is a tab stop. */
+:host(:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* The code's box reaches into the block's padding by the inset, which the bands then fill. */
 pre {
-  flex: 1;
+  max-height: 100%;
   min-width: 0;
-  margin: 0;
+  margin: 0 calc(-1 * var(--mark-inset));
+  padding: 0 var(--mark-inset);
+  overflow: auto;
+}
+
+code {
+  display: block;
+}
+
+neat-copy-button {
+  margin-inline-start: var(--neat-space-2);
 }
 
 /* Short code breaks anywhere: a command or a URL has few spaces to break at. */
@@ -23,14 +49,16 @@ pre[data-overflow='wrap'] {
   overflow-wrap: anywhere;
 }
 
-/* A whole file keeps its lines' shape and scrolls sideways. */
-pre[data-overflow='scroll'] {
-  overflow-x: auto;
+/* A whole file keeps its lines' shape and scrolls sideways; its lines are as wide as the widest. */
+pre[data-overflow='scroll'] code {
+  min-inline-size: max-content;
 }
 
-/* Each line a block of its own. */
+/* Each line a block of its own, reaching into the code box's padding for its band. */
 .line {
   display: block;
+  margin-inline: calc(-1 * var(--mark-inset));
+  padding-inline: var(--mark-inset);
 }
 
 /*
@@ -45,7 +73,7 @@ pre[data-line-numbers] {
 }
 
 pre[data-line-numbers] .line {
-  padding-inline-start: var(--line-number-gutter);
+  padding-inline-start: calc(var(--mark-inset) + var(--line-number-gutter));
   text-indent: calc(-1 * var(--line-number-gutter));
 }
 
@@ -62,34 +90,123 @@ pre[data-line-numbers] .line::before {
 }
 
 /* Each kind of code text in its theme color; the rest keeps the block's text color. */
+[data-kind] {
+  color: var(--code-kind);
+}
+
 [data-kind='keyword'] {
-  color: var(--neat-code-keyword);
+  --code-kind: var(--neat-code-keyword);
 }
 
 [data-kind='string'] {
-  color: var(--neat-code-string);
+  --code-kind: var(--neat-code-string);
 }
 
 [data-kind='comment'] {
-  color: var(--neat-code-comment);
+  --code-kind: var(--neat-code-comment);
 }
 
 [data-kind='constant'] {
-  color: var(--neat-code-constant);
+  --code-kind: var(--neat-code-constant);
 }
 
 [data-kind='type'] {
-  color: var(--neat-code-type);
+  --code-kind: var(--neat-code-type);
 }
 
 [data-kind='function'] {
-  color: var(--neat-code-function);
+  --code-kind: var(--neat-code-function);
 }
 
 [data-kind='property'] {
-  color: var(--neat-code-property);
+  --code-kind: var(--neat-code-property);
 }
 
 [data-kind='tag'] {
-  color: var(--neat-code-tag);
+  --code-kind: var(--neat-code-tag);
+}
+
+/*
+ * Marks. Every mark of every step is an element from the first step on, its state an attribute,
+ * so moving to a step changes colors only and each mark can fade. A mark that is not shown
+ * (no `data-on`) looks like the text around it.
+ */
+mark {
+  background: none;
+  color: inherit;
+}
+
+/* A marked line: a band across the block, its line number included. */
+.line[data-marked] {
+  background: var(--neat-code-mark);
+}
+
+/* A marked part: a rounded marker that reaches a little past its text, which stays in place. */
+mark:not([data-line]) {
+  margin-inline: -0.2em;
+  padding: 0.1em 0.2em;
+  border-radius: calc(var(--radius) / 2);
+  box-decoration-break: clone;
+}
+
+mark:not([data-line])[data-on] {
+  background: var(--neat-code-mark);
+}
+
+/* Where two shown marks touch, their markers join square. */
+mark[data-join='start'],
+mark[data-join='both'] {
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
+mark[data-join='end'],
+mark[data-join='both'] {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+/*
+ * The rest dims to the muted text color, which reads at 4.5:1 on the block's fill, and loses its
+ * code colors; the marked code keeps them, each held to 4.5:1 on the mark tint too.
+ */
+pre[data-dim] .line {
+  color: var(--muted-foreground);
+}
+
+pre[data-dim] .line [data-kind] {
+  color: inherit;
+}
+
+pre[data-dim] mark[data-on] {
+  color: var(--foreground);
+}
+
+pre[data-dim] mark[data-on] [data-kind] {
+  color: var(--code-kind);
+}
+
+/* Moving to a step fades the marks across, the kit's transition; at once under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .line,
+  mark,
+  [data-kind] {
+    transition:
+      color var(--neat-transition-duration),
+      background-color var(--neat-transition-duration);
+  }
+}
+
+/* The step controls: Previous, the position, Next. */
+.steps {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+  margin-block-start: var(--neat-space-2);
+}
+
+.position {
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
 }

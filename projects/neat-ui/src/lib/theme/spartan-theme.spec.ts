@@ -670,7 +670,7 @@ describe('buildSpartanThemeCss', () => {
     }
   });
 
-  it('gives each kind of code text a color that reads at 4.5:1 on the code block’s --muted fill, comments in --muted-foreground', () => {
+  it('gives each kind of code text a color that reads at 4.5:1 on the code block’s --muted fill and on its mark tint, comments in --muted-foreground', () => {
     const kinds = [
       'keyword',
       'string',
@@ -683,42 +683,63 @@ describe('buildSpartanThemeCss', () => {
     ];
     for (const scheme of ['light', 'dark'] as const) {
       const tokens = schemes[scheme];
-      const code = [...tokens.keys()].filter((name) => name.startsWith('--neat-code-'));
+      const code = [...tokens.keys()].filter(
+        (name) => name.startsWith('--neat-code-') && name !== '--neat-code-mark',
+      );
       expect(code, scheme).toEqual(kinds.map((kind) => `--neat-code-${kind}`));
       expect(tokens.get('--neat-code-comment'), scheme).toBe(tokens.get('--muted-foreground'));
       for (const name of code) {
-        expect(
-          contrastRatio(tokens.get(name)!, tokens.get('--muted')!),
-          `${scheme}: ${name} on --muted`,
-        ).toBeGreaterThanOrEqual(4.5);
+        for (const fill of ['--muted', '--neat-code-mark']) {
+          expect(
+            contrastRatio(tokens.get(name)!, tokens.get(fill)!),
+            `${scheme}: ${name} on ${fill}`,
+          ).toBeGreaterThanOrEqual(4.5);
+        }
       }
     }
   });
 
-  it('code colors: light #676092 #0a692f #4c5858 #b3541b #1d7683 #346498 #103255 #c8372d; dark #afa6e2 #56b16c #b3b3b3 #e28250 #55a3af #75acea #b2d6ff #dd5f51', () => {
+  it(`gives the code block a mark tint that shows on its --muted fill (${MIN_FILL_CONTRAST}:1), on which marked text reads at 4.5:1, and dims the rest to --muted-foreground, which reads at 4.5:1 on the fill`, () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      const mark = tokens.get('--neat-code-mark')!;
+      expect(contrastRatio(mark, tokens.get('--muted')!), scheme).toBeGreaterThanOrEqual(
+        MIN_FILL_CONTRAST,
+      );
+      expect(contrastRatio(tokens.get('--foreground')!, mark), scheme).toBeGreaterThanOrEqual(4.5);
+      expect(
+        contrastRatio(tokens.get('--muted-foreground')!, tokens.get('--muted')!),
+        scheme,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it('code colors: light #4b456e #0a692f #4c5858 #91400b #0e5e69 #214974 #041f3b #ab2a22, mark #d8d7ed; dark #afa6e2 #7dc88d #b3b3b3 #f4a076 #7cbcc7 #75acea #b2d6ff #f48577, mark #3a3947', () => {
     const values = (scheme: keyof typeof schemes) =>
       [...schemes[scheme].entries()]
         .filter(([name]) => name.startsWith('--neat-code-'))
         .map(([, value]) => value);
     expect(values('light')).toEqual([
-      '#676092',
+      '#4b456e',
       '#0a692f',
       '#4c5858',
-      '#b3541b',
-      '#1d7683',
-      '#346498',
-      '#103255',
-      '#c8372d',
+      '#91400b',
+      '#0e5e69',
+      '#214974',
+      '#041f3b',
+      '#ab2a22',
+      '#d8d7ed',
     ]);
     expect(values('dark')).toEqual([
       '#afa6e2',
-      '#56b16c',
+      '#7dc88d',
       '#b3b3b3',
-      '#e28250',
-      '#55a3af',
+      '#f4a076',
+      '#7cbcc7',
       '#75acea',
       '#b2d6ff',
-      '#dd5f51',
+      '#f48577',
+      '#3a3947',
     ]);
   });
 

@@ -708,6 +708,8 @@ export const GROUPS: readonly TopicGroup[] = [
             parts: [
               'NeatCodeBlock',
               'NeatCodeOverflow',
+              'NeatCodeMark',
+              'NeatCodeStep',
               'NeatCopyButton',
               'provideNeatCodeLanguages',
               'NeatCodeLanguages',

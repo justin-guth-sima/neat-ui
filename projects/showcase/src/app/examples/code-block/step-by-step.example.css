@@ -1,0 +1,24 @@
+/* The code and the step's note side by side, the note below the code where they do not fit. */
+.walk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--neat-space-4);
+}
+
+.walk neat-code-block {
+  flex: 2 1 28rem;
+}
+
+.note {
+  flex: 1 1 12rem;
+  font-size: var(--neat-text-sm);
+}
+
+.note p {
+  margin: 0 0 var(--neat-space-2);
+}
+
+.label {
+  font-weight: 600;
+}

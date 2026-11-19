@@ -2085,6 +2085,36 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "text": "Whether the lines are numbered, in a gutter that a selection and Copy leave out."
   },
   {
+    "kind": "member",
+    "name": "marks",
+    "part": "NeatCodeBlock",
+    "text": "The lines and parts of lines the block sets apart (a NeatCodeMark each), counted from 1."
+  },
+  {
+    "kind": "member",
+    "name": "dim",
+    "part": "NeatCodeBlock",
+    "text": "Whether the code outside the marks dims while there are marks."
+  },
+  {
+    "kind": "member",
+    "name": "steps",
+    "part": "NeatCodeBlock",
+    "text": "A walk through the code, a NeatCodeStep at a time, each with its own marks."
+  },
+  {
+    "kind": "member",
+    "name": "stepControls",
+    "part": "NeatCodeBlock",
+    "text": "Whether Previous and Next buttons and the position (\"2 of 5\") show under the code."
+  },
+  {
+    "kind": "member",
+    "name": "step",
+    "part": "NeatCodeBlock",
+    "text": "The step shown, from 0: bind it both ways to follow the block, or to move it."
+  },
+  {
     "kind": "part",
     "name": "NeatCodeLanguages",
     "partKind": "type",
@@ -2092,9 +2122,33 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatCodeMark",
+    "partKind": "type",
+    "text": "A mark: lines, or a part of a line, that a code block sets apart while it dims the rest."
+  },
+  {
+    "kind": "part",
     "name": "NeatCodeOverflow",
     "partKind": "type",
     "text": "What a code block does with a line wider than itself: wrap breaks it, scroll keeps it whole and scrolls the block sideways."
+  },
+  {
+    "kind": "part",
+    "name": "NeatCodeStep",
+    "partKind": "interface",
+    "text": "One step of a code block's steps: the marks it shows, and a short label that a screen reader hears when the block moves to it."
+  },
+  {
+    "kind": "member",
+    "name": "marks",
+    "part": "NeatCodeStep",
+    "text": "The lines and parts of lines the step marks."
+  },
+  {
+    "kind": "member",
+    "name": "label",
+    "part": "NeatCodeStep",
+    "text": "What the step is about in a few words (\"Open the camera\"), said when the block moves to it."
   },
   {
     "kind": "part",
@@ -5234,6 +5288,27 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "code-block",
     "id": "another-language",
     "text": "A language the kit does not color by itself, a diff, added with provideNeatCodeLanguages."
+  },
+  {
+    "kind": "example",
+    "name": "Marks on a pipeline",
+    "topic": "code-block",
+    "id": "marks-on-a-pipeline",
+    "text": "Marks on a C++ pipeline: marks bands the lines that compose it, marks the calls that build and run it, and dims the rest."
+  },
+  {
+    "kind": "example",
+    "name": "Step by step",
+    "topic": "code-block",
+    "id": "step-by-step",
+    "text": "A walk through a short Python Neat example, a set of marks at a time: steps gives each step's marks and label, and [(step)] binds the step…"
+  },
+  {
+    "kind": "example",
+    "name": "Marks on plain code",
+    "topic": "code-block",
+    "id": "marks-on-plain-code",
+    "text": "Marks on code without a language, a terminal session: the stream's protocol, the frames asked for, and the line where the stream stopped."
   },
   {
     "kind": "example",

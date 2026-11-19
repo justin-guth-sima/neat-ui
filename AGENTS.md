@@ -115,15 +115,17 @@ look happens in one place. Every rule here protects that.
     a term wider than a fixed column breaks inside the word),
     `code-block` (`NeatCodeBlock`, `neat-code-block`: code on the muted fill as written, `wrap` or
     `scroll` for a long line, with `copy`, what the code is, a Copy button named after it,
-    `language` to color it in the theme's code colors and `lineNumbers` for a gutter of numbers;
+    `language` to color it in the theme's code colors, `lineNumbers` for a gutter of numbers,
+    `marks` (`NeatCodeMark`) to set lines and parts of lines apart and dim the rest, and `steps`
+    (`NeatCodeStep`) with the `step` model and `stepControls` to walk through it;
     `provideNeatCodeLanguages` (with its `NeatCodeLanguages`) adds languages; and
     `NeatCopyButton`, that button alone, for text shown some other way. An app that colors its code
     itself puts its spans inside the element, shown in place of the block's own lines, `code`
     staying what is copied; the showcase's snippets do this with the generator's runs. How it
-    colors is under "How the code block colors code" below. The clipboard needs a secure context,
-    and the button says when it could not copy. Not helm's `code-block`: its Copy button is an
-    unnamed icon that hides until hover and ignores a refused clipboard, and its dynamic icon fails
-    adoption),
+    colors and marks code is under "How the code block colors code" below. The clipboard needs a
+    secure context, and the button says when it could not copy. Not helm's `code-block`: its Copy
+    button is an unnamed icon that hides until hover and ignores a refused clipboard, and its
+    dynamic icon fails adoption),
     `table` (`NeatTable`, the data table's look on a `table`: cells, rules, column headings; and
     `NeatNumeric`, which end-aligns a column's figures on one line with tabular digits, and
     `NeatFigure`, the same without the end alignment, for a cell with something after its figure; a
@@ -903,6 +905,31 @@ default) the code is plain.
   shown). The line numbers are a CSS counter in `::before`, with empty alternative text, so a
   selection, Copy and a screen reader leave them out; a wrapped line hangs clear of the gutter.
   Copy always copies `code` unchanged.
+- **Marks** (`marks.ts`): a `NeatCodeMark` names lines (`{ lines: [4, 6] }`, `{ line: 9 }`) or a
+  part of a line (`{ line, text }`, the first occurrence, or `{ line, from, to }`, columns for text
+  that repeats), counted from 1 as people read them and as `lineNumbers` numbers them, both ends
+  included. A marked line is `.line[data-marked]`, a band in `--neat-code-mark` reaching into the
+  code box's padding; a marked part is a `mark` element with a rounded marker in the same tint.
+  `dim` (on by default while there are marks) turns the rest to `--muted-foreground` without its
+  code colors, while marked code keeps them. The theme picks the tint (the highlight hue over
+  `--muted`, `CODE_MARK_SHARE`) and then each code color as the first step that reads at 4.5:1 on
+  both the fill and the tint, and holds `--foreground` and `--muted-foreground` to 4.5:1 on it. A
+  mark that names no line or text throws in dev mode and is left out in production, checked
+  against the plain text of the lines for every step at once. The app's projected spans get no
+  marks. Marks change no text, so Copy and a selection read the code as given.
+- **Steps:** `steps` (each a `NeatCodeStep`: `marks` and an optional `label`) replaces `marks`
+  while it is not empty, and `step` (a `model()`, from 0) is the step shown, kept to the steps
+  there are without writing the model. Every mark of every step is an element from the start: a
+  line is cut at every column any step's marks start or end at, so a step change only toggles
+  `data-on` (and `role="none"` on the marks not shown, which are no marks to a screen reader) and
+  the colors fade with `--neat-transition-duration`, none under reduced motion. Shown marks that
+  touch join square (`data-join`). With steps the host is a tab stop (`role="group"`, "Code in
+  steps") whose left and right arrows step, except on the code box itself, which keeps them for
+  scrolling; `stepControls` adds Previous and Next (`aria-disabled` at the ends, so the focus
+  stays) and the position. A visually hidden polite live region says "Step 2 of 5: Open the camera". After
+  each change of the marks shown, `scroll.ts` scrolls the code box, never the page, to show the
+  first mark, smoothly unless reduced motion is on. The block's grid row takes what a height or
+  `max-height` on the host leaves, so the code box scrolls inside a bounded block.
 - **The boundary:** ESLint (`SHIKI` in the root `eslint.config.js`) fails any static import of
   `shiki` or `@shikijs/*` outside the code-block entry, and in it any but `import type`; a dynamic
   `import()`, how an app adds a grammar, is not an import ESLint sees. `npm run check:dist` fails a
@@ -1276,7 +1303,8 @@ purple, orange and teal, then a darker blue and the lighter purple, orange and b
 (a single metric's line), `--neat-line-warning` and `--neat-line-danger` (threshold lines), and
 `--neat-heat-low` and `--neat-heat-high` (the ends of the heatmap ramp). Code takes
 `--neat-code-keyword`, `-string`, `-comment`, `-constant`, `-type`, `-function`, `-property` and
-`-tag`, each held to 4.5:1 on `--muted`, the code block's fill. `--neat-live` is the live
+`-tag`, each held to 4.5:1 on `--muted`, the code block's fill, and on `--neat-code-mark`, the
+tint behind a mark. `--neat-live` is the live
 dot's red, one value in both schemes since it also sits on video. `--neat-video-surface` is a video
 tile's own fill where there is no picture: `--muted` in light, and in dark, where `--muted` is the
 card's own color and tiles on a card vanished in it, the neutral chip's gray. Green, amber and red are left out
