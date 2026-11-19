@@ -535,6 +535,212 @@ export class PoseSource implements NeatTileSource {
 
 </details>
 
+### Notice
+
+Two tiles without bars, as a page with one large video shows them, each saying its trouble with `notice`. The first plays the test pattern. Turn on Inference stopped and its notice shows as a warning chip in the picture's corner. Pause the source and the notice moves to the middle once the tile has stopped. The second has no stream and says "No signal".
+
+<details>
+<summary>Code</summary>
+
+`3-notice.example.ts`
+
+```ts
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  DOCUMENT,
+  inject,
+  signal,
+} from '@angular/core';
+import { NeatSwitch } from '@sima/neat-ui/switch';
+import { NeatVideoTile } from '@sima/neat-ui/video';
+import { TestPatternSource } from './test-pattern-source';
+
+@Component({
+  selector: 'app-notice',
+  imports: [NeatSwitch, NeatVideoTile],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './3-notice.example.html',
+  styleUrl: './test-pattern-tiles.example.css',
+})
+export class Notice {
+  protected readonly testPattern = new TestPatternSource();
+  protected readonly inferenceStopped = signal(false);
+  /** What keeps the first tile from showing as it should; null while all is well. */
+  protected readonly trouble = computed(() =>
+    this.inferenceStopped() ? 'Inference stopped' : null,
+  );
+
+  constructor() {
+    const document = inject(DOCUMENT);
+    afterNextRender(() => this.testPattern.start(document));
+    inject(DestroyRef).onDestroy(() => this.testPattern.stop());
+  }
+}
+```
+
+`3-notice.example.html`
+
+```html
+<div class="showcase-row">
+  <button neatSwitch [(checked)]="inferenceStopped">Inference stopped</button>
+  <button neatSwitch (checkedChange)="testPattern.setPaused($event)">Pause the source</button>
+</div>
+<div class="tiles">
+  <div class="cell">
+    <neat-video-tile [source]="testPattern" [bars]="false" [notice]="trouble()" />
+  </div>
+  <div class="cell">
+    <neat-video-tile [bars]="false" notice="No signal" />
+  </div>
+</div>
+```
+
+`test-pattern-source.ts`
+
+```ts
+import { signal } from '@angular/core';
+import { SIMA_PALETTE } from '@sima/neat-ui';
+import type { NeatMetadataMessage, NeatTileSource } from '@sima/neat-ui/video';
+
+const WIDTH = 640;
+const HEIGHT = 360;
+const FRAMES_PER_SECOND = 30;
+const BAR_COLORS = [
+  SIMA_PALETTE.orange,
+  SIMA_PALETTE.purple,
+  SIMA_PALETTE.blue,
+  SIMA_PALETTE.mint,
+  SIMA_PALETTE.green,
+  SIMA_PALETTE.lime,
+];
+const BOX = { width: 120, height: 90 };
+/** Detections come every other frame, as from a model slower than the video; held between. */
+const DETECTION_EVERY = 2;
+
+/**
+ * A `NeatTileSource` for the showcase, so the tile plays without vf: a canvas test pattern
+ * streamed with `captureStream()`, and object-detection metadata for the box moving across it. A
+ * canvas stream has no RTP timestamps, so the tile matches metadata by arrival, which takes only
+ * the latest message: hence one type. Pausing stops painting, so the stream presents no frames
+ * and the tile goes stopped.
+ */
+export class TestPatternSource implements NeatTileSource {
+  readonly stream = signal<MediaStream | null>(null);
+
+  private readonly listeners = new Set<(text: string, receivedAt: number) => void>();
+  private context: CanvasRenderingContext2D | null = null;
+  private animation = 0;
+  private lastPaintAt = 0;
+  private frame = 0;
+  private paused = false;
+
+  onMetadata(listener: (text: string, receivedAt: number) => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  /** Starts the pattern; does nothing where canvases cannot be streamed (as in unit tests). */
+  start(document: Document): void {
+    const canvas = document.createElement('canvas');
+    if (typeof canvas.captureStream !== 'function') return;
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+    this.context = canvas.getContext('2d');
+    if (this.context === null) return;
+    this.stream.set(canvas.captureStream(FRAMES_PER_SECOND));
+    const loop = (now: number) => {
+      this.animation = requestAnimationFrame(loop);
+      if (this.paused || now - this.lastPaintAt < 1000 / FRAMES_PER_SECOND) return;
+      this.lastPaintAt = now;
+      this.paint();
+    };
+    this.animation = requestAnimationFrame(loop);
+  }
+
+  setPaused(paused: boolean): void {
+    this.paused = paused;
+  }
+
+  stop(): void {
+    cancelAnimationFrame(this.animation);
+    for (const track of this.stream()?.getTracks() ?? []) track.stop();
+    this.stream.set(null);
+    this.listeners.clear();
+  }
+
+  private paint(): void {
+    const ctx = this.context;
+    if (ctx === null) return;
+    const barWidth = WIDTH / BAR_COLORS.length;
+    BAR_COLORS.forEach((color, i) => {
+      ctx.fillStyle = color;
+      ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);
+    });
+
+    // The box bounces between the edges, four pixels per frame.
+    const travel = WIDTH - BOX.width;
+    const step = (this.frame * 4) % (2 * travel);
+    const x = step < travel ? step : 2 * travel - step;
+    const y = (HEIGHT - BOX.height) / 2;
+    ctx.fillStyle = SIMA_PALETTE.text;
+    ctx.fillRect(x, y, BOX.width, BOX.height);
+    ctx.fillStyle = SIMA_PALETTE.white;
+    ctx.font = '500 20px sans-serif';
+    ctx.fillText(String(this.frame), x + 12, y + 32);
+
+    if (this.frame % DETECTION_EVERY === 0) {
+      this.send({
+        type: 'object-detection',
+        data: {
+          objects: [{ label: 'box', confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] }],
+        },
+      });
+    }
+    this.frame += 1;
+  }
+
+  private send(message: NeatMetadataMessage): void {
+    const text = JSON.stringify(message);
+    const receivedAt = performance.now();
+    for (const listener of this.listeners) listener(text, receivedAt);
+  }
+}
+```
+
+`test-pattern-tiles.example.css`
+
+```css
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 24rem));
+  gap: var(--neat-space-4);
+}
+
+/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */
+.cell {
+  aspect-ratio: 16 / 9;
+}
+
+.chip {
+  padding: 0 var(--neat-space-2);
+  border-radius: var(--radius);
+  background: var(--info);
+  color: var(--info-foreground);
+}
+```
+
+</details>
+
 ## API
 
 ### `NeatVideoTile`
@@ -544,6 +750,14 @@ Component from `@sima/neat-ui/video`, selector `neat-video-tile`.
 Each frame is drawn with the metadata that describes it. The tile fills the box it is given.
 
 With `bars` on, a bar along the bottom shows `label`, `status` and the chips projected with `neatTileChip`, and a tile without video says so. With `bars` off it is only video and overlay.
+
+`notice` says what keeps the stream from showing as it should, with or without bars:
+
+```html
+<neat-video-tile [source]="source" [bars]="false" [notice]="trouble()" />
+```
+
+Without video it is centered over the tile, in place of the no-video note. While video plays it is a status chip in the picture's top-right corner.
 
 Content projected with `neatTileOverlay` fills a layer over the tile, above the overlay canvas and below the bar. `videoBox` says where the image is inside it, and `barHeight` how tall the bar is.
 
@@ -579,7 +793,19 @@ The frame loop runs outside Angular and touches no signal. Per frame, it matches
 
 - **`bars`** `boolean`, default `true`
 
-  Whether the bar along the bottom (`label`, `status`, chips) and the no-video note show.
+  Whether the bar along the bottom (`label`, `status`, chips) and the no-video note show. A `notice` shows either way.
+
+- **`notice`** `string | null`, default `null`
+
+  What keeps the stream from showing as it should, in words, or null (the default) while all is well: a failure, a server out of reach, a stream being waited for.
+
+  Without video, the tile says it centered over itself, on the scrim, in place of the no-video note. It does so with or without `bars`, so a tile without bars can say "No signal".
+
+  While video plays, it is a status chip of `noticeTone` in the picture's top-right corner, where it covers little of the picture. It sits above the `neatTileOverlay` layer and lets pointer input through. The tile does not announce it: say a change that matters in the page's text as well, such as a callout.
+
+- **`noticeTone`** `NeatTone`, default `'warning'`
+
+  The tone of the notice's chip while video plays: `warning` by default, since a notice says that something is not as it should be. Without video the notice is on the scrim, where its words say it.
 
 - **`selected`** `boolean`, default `false`
 

@@ -1,0 +1,12 @@
+<div class="showcase-row">
+  <button neatSwitch [(checked)]="inferenceStopped">Inference stopped</button>
+  <button neatSwitch (checkedChange)="testPattern.setPaused($event)">Pause the source</button>
+</div>
+<div class="tiles">
+  <div class="cell">
+    <neat-video-tile [source]="testPattern" [bars]="false" [notice]="trouble()" />
+  </div>
+  <div class="cell">
+    <neat-video-tile [bars]="false" notice="No signal" />
+  </div>
+</div>

@@ -3,6 +3,7 @@ import {
   afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   DOCUMENT,
   effect,
@@ -16,6 +17,8 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
+import type { NeatTone } from '@sima/neat-ui';
+import { NeatStatusChip } from '@sima/neat-ui/status-chip';
 import { NeatOverlayColors } from '../overlays/colors';
 import type { NeatOverlayState, NeatOverlayView } from '../overlays/draw-frame';
 import { createOverlayState, drawFrame, resetOverlayState } from '../overlays/draw-frame';
@@ -41,6 +44,9 @@ import {
 import type { PresentedFrame } from './frame-loop';
 import { startFrameLoop } from './frame-loop';
 import type { NeatTileSource } from './tile-source';
+
+/** What a tile with bars says without video, while it has no `notice`. */
+const NO_VIDEO_TEXT = 'No active video received';
 
 /** A tile whose stream presents no frame for this long has stopped. */
 export const NEAT_STREAM_STALE_MS = 1800;
@@ -137,6 +143,15 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
  * With `bars` on, a bar along the bottom shows `label`, `status` and the chips projected with
  * `neatTileChip`, and a tile without video says so. With `bars` off it is only video and overlay.
  *
+ * `notice` says what keeps the stream from showing as it should, with or without bars:
+ *
+ * ```html
+ * <neat-video-tile [source]="source" [bars]="false" [notice]="trouble()" />
+ * ```
+ *
+ * Without video it is centered over the tile, in place of the no-video note. While video plays it
+ * is a status chip in the picture's top-right corner.
+ *
  * Content projected with `neatTileOverlay` fills a layer over the tile, above the overlay canvas
  * and below the bar. `videoBox` says where the image is inside it, and `barHeight` how tall the
  * bar is.
@@ -152,6 +167,7 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
  */
 @Component({
   selector: 'neat-video-tile',
+  imports: [NeatStatusChip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[attr.data-state]': 'state()',
@@ -162,10 +178,25 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
     <video #video class="video" autoplay playsinline [muted]="true"></video>
     <canvas #canvas class="overlay" aria-hidden="true"></canvas>
     <div class="overlay-slot"><ng-content select="[neatTileOverlay]" /></div>
-    @if (bars()) {
-      @if (state() !== 'playing') {
-        <p class="no-video"><span class="no-video-text">No active video received</span></p>
+    @if (state() !== 'playing') {
+      @if (noVideoText(); as text) {
+        <p class="no-video"><span class="no-video-text">{{ text }}</span></p>
       }
+    } @else if (notice(); as notice) {
+      @let picture = videoBox();
+      <div
+        class="picture"
+        [style.left.px]="picture?.x"
+        [style.top.px]="picture?.y"
+        [style.width.px]="picture?.width"
+        [style.height.px]="picture?.height"
+      >
+        <p class="notice">
+          <neat-status-chip [tone]="noticeTone()">{{ notice }}</neat-status-chip>
+        </p>
+      </div>
+    }
+    @if (bars()) {
       <div #bar class="bar">
         <span class="label">{{ label() }}</span>
         <span class="status">{{ status() }}</span>
@@ -191,8 +222,30 @@ export class NeatVideoTile {
   readonly label = input('');
   /** The bar's status text. */
   readonly status = input<string | null>(null);
-  /** Whether the bar along the bottom (`label`, `status`, chips) and the no-video note show. */
+  /**
+   * Whether the bar along the bottom (`label`, `status`, chips) and the no-video note show. A
+   * `notice` shows either way.
+   */
   readonly bars = input(true);
+  /**
+   * What keeps the stream from showing as it should, in words, or null (the default) while all is
+   * well: a failure, a server out of reach, a stream being waited for.
+   *
+   * Without video, the tile says it centered over itself, on the scrim, in place of the no-video
+   * note. It does so with or without `bars`, so a tile without bars can say "No signal".
+   *
+   * While video plays, it is a status chip of `noticeTone` in the picture's top-right corner,
+   * where it covers little of the picture. It sits above the `neatTileOverlay` layer and lets
+   * pointer input through. The tile does not announce it: say a change that matters in the page's
+   * text as well, such as a callout.
+   */
+  readonly notice = input<string | null>(null);
+  /**
+   * The tone of the notice's chip while video plays: `warning` by default, since a notice says
+   * that something is not as it should be. Without video the notice is on the scrim, where its
+   * words say it.
+   */
+  readonly noticeTone = input<NeatTone>('warning');
   /** Draws the kit's focus ring around the tile, for the tile the app has chosen. */
   readonly selected = input(false);
   /**
@@ -220,6 +273,10 @@ export class NeatVideoTile {
   readonly frameStats = output<NeatFrameStats>();
 
   protected readonly state = signal<NeatTileState>('empty');
+  /** What the tile says without video: the notice, else the no-video note with bars. */
+  protected readonly noVideoText = computed(
+    () => this.notice() ?? (this.bars() ? NO_VIDEO_TEXT : null),
+  );
 
   private readonly box = signal<NeatVideoBox | null>(null, { equal: sameVideoBox });
   /**

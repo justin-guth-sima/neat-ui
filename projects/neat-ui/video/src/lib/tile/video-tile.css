@@ -103,6 +103,28 @@
   color: var(--neat-video-scrim-foreground);
 }
 
+/*
+ * The picture while video plays (`videoBox`, set inline), so the notice sits on the picture and not
+ * on the letterbox; the whole tile until it is measured. It shares the layer of the note and the
+ * bar, and like them lets pointer input through.
+ */
+.picture {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* The notice while video plays: a status chip in the picture's top-right corner, small. */
+.notice {
+  position: absolute;
+  top: var(--neat-space-3);
+  right: var(--neat-space-3);
+  display: flex;
+  max-width: calc(50% - var(--neat-space-3));
+  margin: 0;
+}
+
 /* Along the bottom, on the scrim so its text reads over any video. */
 .bar {
   position: absolute;

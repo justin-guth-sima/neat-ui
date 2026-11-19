@@ -1,5 +1,6 @@
 import { afterEveryRender, Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { NeatTone } from '@sima/neat-ui';
 import { OVERLAY_PALETTE } from '../theme/overlay-palette';
 import type { NeatMetadataMessage } from '../sync/metadata-message';
 import type { NeatOverlaySettings } from '../overlays/overlay-settings';
@@ -133,6 +134,8 @@ function hostObserver(): FakeResizeObserver {
       label="3"
       [status]="status()"
       [bars]="bars()"
+      [notice]="notice()"
+      [noticeTone]="noticeTone()"
       [selected]="selected()"
       [mirror]="mirror()"
       [frameListener]="frameListener()"
@@ -150,6 +153,8 @@ class Host {
   readonly retentionMs = signal(0);
   readonly status = signal<string | null>('H.264 · 640×480 · 30.0 fps');
   readonly bars = signal(true);
+  readonly notice = signal<string | null>(null);
+  readonly noticeTone = signal<NeatTone>('warning');
   readonly selected = signal(false);
   readonly mirror = signal(false);
   readonly frameListener = signal<NeatTileFrameListener | null>(null);
@@ -645,6 +650,88 @@ describe('NeatVideoTile', () => {
       const note = tileElement().querySelector('.no-video') as Element;
 
       expect(getComputedStyle(note).pointerEvents).toBe('none');
+    });
+  });
+
+  describe('notice', () => {
+    const noVideoNote = () => tileElement().querySelector('.no-video');
+    const chip = () => tileElement().querySelector<HTMLElement>('.picture .notice neat-status-chip');
+
+    it('without video, says the notice centered in place of the no-video note, with or without bars', () => {
+      create();
+      host().notice.set('Board app not reachable');
+      render();
+      expect(noVideoNote()?.textContent?.trim()).toBe('Board app not reachable');
+
+      host().bars.set(false);
+      render();
+      expect(noVideoNote()?.textContent?.trim(), 'a tile without bars says it too').toBe(
+        'Board app not reachable',
+      );
+      expect(chip(), 'no chip without video').toBeNull();
+
+      host().notice.set(null);
+      render();
+      expect(noVideoNote(), 'without bars or a notice the tile says nothing').toBeNull();
+      host().bars.set(true);
+      render();
+      expect(noVideoNote()?.textContent?.trim()).toBe('No active video received');
+    });
+
+    it('while video plays, is a chip of its tone on the picture, and nothing while null', () => {
+      create();
+      host().bars.set(false);
+      startStream();
+      present(1);
+      render();
+      expect(tileState()).toBe('playing');
+      expect(noVideoNote()).toBeNull();
+      expect(tileElement().querySelector('.picture'), 'nothing while all is well').toBeNull();
+
+      host().notice.set('Inference stopped');
+      render();
+      expect(noVideoNote()).toBeNull();
+      expect(chip()?.textContent?.trim()).toBe('Inference stopped');
+      expect(chip()?.className, 'a warning by default').toContain('bg-warning');
+
+      host().noticeTone.set('danger');
+      render();
+      expect(chip()?.className).toContain('bg-destructive');
+    });
+
+    it('goes back to the middle once the stream stops', () => {
+      create();
+      host().notice.set('Inference stopped');
+      startStream();
+      present(1);
+      render();
+      expect(chip()).not.toBeNull();
+
+      advance(NEAT_STREAM_STALE_MS);
+      expect(tileState()).toBe('stopped');
+      expect(chip()).toBeNull();
+      expect(noVideoNote()?.textContent?.trim()).toBe('Inference stopped');
+    });
+
+    it('sits on the picture, which follows videoBox, above the overlay layer, letting pointer input through', () => {
+      create();
+      host().notice.set('Inference stopped');
+      startStream();
+      present(1);
+      render();
+      const picture = tileElement().querySelector<HTMLElement>('.picture')!;
+      hostObserver().resize(800, 300);
+      render();
+      // 640×480 letterboxed into 800×300: 400×300 in the middle.
+      const { left, top, width, height } = picture.style;
+      expect([left, top, width, height]).toEqual(['200px', '0px', '400px', '300px']);
+
+      const layer = tileElement().querySelector('.overlay-slot')!;
+      expect(layer.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(
+        0,
+      );
+      expect(Number(getComputedStyle(picture).zIndex)).toBe(1);
+      expect(getComputedStyle(picture).pointerEvents).toBe('none');
     });
   });
 

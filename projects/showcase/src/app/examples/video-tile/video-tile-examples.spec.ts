@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { TestPatternTiles } from './1-test-pattern-tiles.example';
+import { Notice } from './3-notice.example';
 import { TestPatternSource } from './test-pattern-source';
 
 async function render() {
@@ -58,5 +59,25 @@ describe('the video tile examples', () => {
     expect(setPaused).toHaveBeenLastCalledWith(false);
 
     vi.restoreAllMocks();
+  });
+});
+
+describe('the notice example', () => {
+  it('says "No signal" on the tile without a stream, and the first tile’s trouble once switched on', async () => {
+    const fixture = TestBed.createComponent(Notice);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const notes = () =>
+      Array.from(host.querySelectorAll('neat-video-tile'), (tile) =>
+        tile.querySelector('.no-video')?.textContent?.trim(),
+      );
+
+    // Without canvas capture (jsdom) the first tile has no stream either, so it says it centered.
+    expect(notes()).toEqual([undefined, 'No signal']);
+    expect(host.querySelector('.bar'), 'no bars').toBeNull();
+
+    host.querySelector<HTMLElement>('button[role="switch"]')!.click();
+    await fixture.whenStable();
+    expect(notes()).toEqual(['Inference stopped', 'No signal']);
   });
 });

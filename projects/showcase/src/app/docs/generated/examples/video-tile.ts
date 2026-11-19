@@ -2,6 +2,7 @@
 import type { DocsExample } from '../../model';
 import { TestPatternTiles } from '../../../examples/video-tile/1-test-pattern-tiles.example';
 import { Poses } from '../../../examples/video-tile/2-poses.example';
+import { Notice } from '../../../examples/video-tile/3-notice.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -347,6 +348,140 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," receivedAt = performance.now();\n    "],
           ["keyword","for"],["text"," ("],["keyword","const"],["text"," listener "],["keyword","of"],["text"," "],["keyword","this"],["text",".listeners) listener(text, receivedAt);\n    "],
           ["keyword","this"],["text",".frame += 1;\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "test-pattern-tiles.example.css",
+        "code": [
+          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n.tiles {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(16rem, 24rem));\n  gap: var(--neat-space-4);\n}\n\n"],
+          ["comment","/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */"],["text","\n.cell {\n  aspect-ratio: 16 / 9;\n}\n\n.chip {\n  padding: 0 var(--neat-space-2);\n  border-radius: var(--radius);\n  background: var(--info);\n  color: var(--info-foreground);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "notice",
+    "title": "Notice",
+    "component": Notice,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Two tiles without bars, as a page with one large video shows them, each saying its trouble with "
+          },
+          {
+            "kind": "code",
+            "text": "notice"
+          },
+          {
+            "kind": "text",
+            "text": ". The first plays the test pattern. Turn on Inference stopped and its notice shows as a warning chip in the picture's corner. Pause the source and the notice moves to the middle once the tile has stopped. The second has no stream and says \"No signal\"."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/switch#NeatSwitch",
+      "@sima/neat-ui/video#NeatVideoTile"
+    ],
+    "files": [
+      {
+        "name": "3-notice.example.ts",
+        "code": [
+          ["keyword","import"],["text"," {\n  afterNextRender,\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  DestroyRef,\n  DOCUMENT,\n  inject,\n  signal,\n} "],
+          ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatVideoTile } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n"],
+          ["keyword","import"],["text"," { TestPatternSource } "],["keyword","from"],["text"," "],["string","'./test-pattern-source'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-notice'"],["text",",\n  imports: [NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-notice.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./test-pattern-tiles.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," Notice {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," testPattern = "],["keyword","new"],["text"," TestPatternSource();\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," inferenceStopped = signal("],["keyword","false"],["text",");\n  "],
+          ["comment","/** What keeps the first tile from showing as it should; null while all is well. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," trouble = computed(() =>\n    "],
+          ["keyword","this"],["text",".inferenceStopped() ? "],["string","'Inference stopped'"],["text"," : "],["keyword","null"],["text",",\n  );\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","const"],["text"," document = inject(DOCUMENT);\n    afterNextRender(() => "],
+          ["keyword","this"],["text",".testPattern.start(document));\n    inject(DestroyRef).onDestroy(() => "],
+          ["keyword","this"],["text",".testPattern.stop());\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "3-notice.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"inferenceStopped\">Inference stopped</button>\n  <button neatSwitch (checkedChange)=\"testPattern.setPaused($event)\">Pause the source</button>\n</div>\n<div class=\"tiles\">\n  <div class=\"cell\">\n    <neat-video-tile [source]=\"testPattern\" [bars]=\"false\" [notice]=\"trouble()\" />\n  </div>\n  <div class=\"cell\">\n    <neat-video-tile [bars]=\"false\" notice=\"No signal\" />\n  </div>\n</div>\n"]
+        ]
+      },
+      {
+        "name": "test-pattern-source.ts",
+        "code": [
+          ["keyword","import"],["text"," { signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { SIMA_PALETTE } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatMetadataMessage, NeatTileSource } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n\n"],
+          ["keyword","const"],["text"," WIDTH = 640;\n"],
+          ["keyword","const"],["text"," HEIGHT = 360;\n"],
+          ["keyword","const"],["text"," FRAMES_PER_SECOND = 30;\n"],
+          ["keyword","const"],["text"," BAR_COLORS = [\n  SIMA_PALETTE.orange,\n  SIMA_PALETTE.purple,\n  SIMA_PALETTE.blue,\n  SIMA_PALETTE.mint,\n  SIMA_PALETTE.green,\n  SIMA_PALETTE.lime,\n];\n"],
+          ["keyword","const"],["text"," BOX = { width: 120, height: 90 };\n"],
+          ["comment","/** Detections come every other frame, as from a model slower than the video; held between. */"],["text","\n"],
+          ["keyword","const"],["text"," DETECTION_EVERY = 2;\n\n"],
+          ["comment","/**\n * A `NeatTileSource` for the showcase, so the tile plays without vf: a canvas test pattern\n * streamed with `captureStream()`, and object-detection metadata for the box moving across it. A\n * canvas stream has no RTP timestamps, so the tile matches metadata by arrival, which takes only\n * the latest message: hence one type. Pausing stops painting, so the stream presents no frames\n * and the tile goes stopped.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," TestPatternSource "],["keyword","implements"],["text"," NeatTileSource {\n  "],
+          ["keyword","readonly"],["text"," stream = signal<MediaStream | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," listeners = "],["keyword","new"],["text"," Set<(text: "],["keyword","string"],["text",", receivedAt: "],["keyword","number"],["text",") => "],["keyword","void"],["text",">();\n  "],
+          ["keyword","private"],["text"," context: CanvasRenderingContext2D | "],["keyword","null"],["text"," = "],["keyword","null"],["text",";\n  "],
+          ["keyword","private"],["text"," animation = 0;\n  "],
+          ["keyword","private"],["text"," lastPaintAt = 0;\n  "],
+          ["keyword","private"],["text"," frame = 0;\n  "],
+          ["keyword","private"],["text"," paused = "],["keyword","false"],["text",";\n\n  onMetadata(listener: (text: "],
+          ["keyword","string"],["text",", receivedAt: "],["keyword","number"],["text",") => "],["keyword","void"],["text","): () => "],["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".listeners.add(listener);\n    "],
+          ["keyword","return"],["text"," () => "],["keyword","this"],["text",".listeners."],["keyword","delete"],["text","(listener);\n  }\n\n  "],
+          ["comment","/** Starts the pattern; does nothing where canvases cannot be streamed (as in unit tests). */"],["text","\n  start(document: Document): "],
+          ["keyword","void"],["text"," {\n    "],
+          ["keyword","const"],["text"," canvas = document.createElement("],["string","'canvas'"],["text",");\n    "],
+          ["keyword","if"],["text"," ("],["keyword","typeof"],["text"," canvas.captureStream !== "],["string","'function'"],["text",") "],["keyword","return"],["text",";\n    canvas.width = WIDTH;\n    canvas.height = HEIGHT;\n    "],
+          ["keyword","this"],["text",".context = canvas.getContext("],["string","'2d'"],["text",");\n    "],
+          ["keyword","if"],["text"," ("],["keyword","this"],["text",".context === "],["keyword","null"],["text",") "],["keyword","return"],["text",";\n    "],
+          ["keyword","this"],["text",".stream.set(canvas.captureStream(FRAMES_PER_SECOND));\n    "],
+          ["keyword","const"],["text"," loop = (now: "],["keyword","number"],["text",") => {\n      "],
+          ["keyword","this"],["text",".animation = requestAnimationFrame(loop);\n      "],
+          ["keyword","if"],["text"," ("],["keyword","this"],["text",".paused || now - "],["keyword","this"],["text",".lastPaintAt < 1000 / FRAMES_PER_SECOND) "],["keyword","return"],["text",";\n      "],
+          ["keyword","this"],["text",".lastPaintAt = now;\n      "],
+          ["keyword","this"],["text",".paint();\n    };\n    "],
+          ["keyword","this"],["text",".animation = requestAnimationFrame(loop);\n  }\n\n  setPaused(paused: "],
+          ["keyword","boolean"],["text","): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".paused = paused;\n  }\n\n  stop(): "],
+          ["keyword","void"],["text"," {\n    cancelAnimationFrame("],
+          ["keyword","this"],["text",".animation);\n    "],
+          ["keyword","for"],["text"," ("],["keyword","const"],["text"," track "],["keyword","of"],["text"," "],["keyword","this"],["text",".stream()?.getTracks() ?? []) track.stop();\n    "],
+          ["keyword","this"],["text",".stream.set("],["keyword","null"],["text",");\n    "],
+          ["keyword","this"],["text",".listeners.clear();\n  }\n\n  "],
+          ["keyword","private"],["text"," paint(): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","const"],["text"," ctx = "],["keyword","this"],["text",".context;\n    "],
+          ["keyword","if"],["text"," (ctx === "],["keyword","null"],["text",") "],["keyword","return"],["text",";\n    "],
+          ["keyword","const"],["text"," barWidth = WIDTH / BAR_COLORS.length;\n    BAR_COLORS.forEach((color, i) => {\n      ctx.fillStyle = color;\n      ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);\n    });\n\n    "],
+          ["comment","// The box bounces between the edges, four pixels per frame."],["text","\n    "],
+          ["keyword","const"],["text"," travel = WIDTH - BOX.width;\n    "],
+          ["keyword","const"],["text"," step = ("],["keyword","this"],["text",".frame * 4) % (2 * travel);\n    "],
+          ["keyword","const"],["text"," x = step < travel ? step : 2 * travel - step;\n    "],
+          ["keyword","const"],["text"," y = (HEIGHT - BOX.height) / 2;\n    ctx.fillStyle = SIMA_PALETTE.text;\n    ctx.fillRect(x, y, BOX.width, BOX.height);\n    ctx.fillStyle = SIMA_PALETTE.white;\n    ctx.font = "],
+          ["string","'500 20px sans-serif'"],["text",";\n    ctx.fillText(String("],
+          ["keyword","this"],["text",".frame), x + 12, y + 32);\n\n    "],
+          ["keyword","if"],["text"," ("],["keyword","this"],["text",".frame % DETECTION_EVERY === 0) {\n      "],
+          ["keyword","this"],["text",".send({\n        type: "],
+          ["string","'object-detection'"],["text",",\n        data: {\n          objects: [{ label: "],
+          ["string","'box'"],["text",", confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] }],\n        },\n      });\n    }\n    "],
+          ["keyword","this"],["text",".frame += 1;\n  }\n\n  "],
+          ["keyword","private"],["text"," send(message: NeatMetadataMessage): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","const"],["text"," text = JSON.stringify(message);\n    "],
+          ["keyword","const"],["text"," receivedAt = performance.now();\n    "],
+          ["keyword","for"],["text"," ("],["keyword","const"],["text"," listener "],["keyword","of"],["text"," "],["keyword","this"],["text",".listeners) listener(text, receivedAt);\n  }\n}\n"]
         ]
       },
       {

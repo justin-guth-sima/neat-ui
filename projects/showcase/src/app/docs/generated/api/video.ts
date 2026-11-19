@@ -1938,6 +1938,33 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "code",
+              "text": "notice"
+            },
+            {
+              "kind": "text",
+              "text": " says what keeps the stream from showing as it should, with or without bars:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-video-tile [source]=\"source\" [bars]=\"false\" [notice]=\"trouble()\" />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Without video it is centered over the tile, in place of the no-video note. While video plays it is a status chip in the picture's top-right corner."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
               "kind": "text",
               "text": "Content projected with "
             },
@@ -2141,7 +2168,97 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ", chips) and the no-video note show."
+                  "text": ", chips) and the no-video note show. A "
+                },
+                {
+                  "kind": "code",
+                  "text": "notice"
+                },
+                {
+                  "kind": "text",
+                  "text": " shows either way."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "notice",
+          "type": "string | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What keeps the stream from showing as it should, in words, or null (the default) while all is well: a failure, a server out of reach, a stream being waited for."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Without video, the tile says it centered over itself, on the scrim, in place of the no-video note. It does so with or without "
+                },
+                {
+                  "kind": "code",
+                  "text": "bars"
+                },
+                {
+                  "kind": "text",
+                  "text": ", so a tile without bars can say \"No signal\"."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "While video plays, it is a status chip of "
+                },
+                {
+                  "kind": "code",
+                  "text": "noticeTone"
+                },
+                {
+                  "kind": "text",
+                  "text": " in the picture's top-right corner, where it covers little of the picture. It sits above the "
+                },
+                {
+                  "kind": "code",
+                  "text": "neatTileOverlay"
+                },
+                {
+                  "kind": "text",
+                  "text": " layer and lets pointer input through. The tile does not announce it: say a change that matters in the page's text as well, such as a callout."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "noticeTone",
+          "type": "NeatTone",
+          "default": "'warning'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The tone of the notice's chip while video plays: "
+                },
+                {
+                  "kind": "code",
+                  "text": "warning"
+                },
+                {
+                  "kind": "text",
+                  "text": " by default, since a notice says that something is not as it should be. Without video the notice is on the scrim, where its words say it."
                 }
               ]
             }

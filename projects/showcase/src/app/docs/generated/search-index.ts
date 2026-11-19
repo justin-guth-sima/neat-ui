@@ -4666,6 +4666,18 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "notice",
+    "part": "NeatVideoTile",
+    "text": "What keeps the stream from showing as it should, in words, or null (the default) while all is well: a failure, a server out of reach, a…"
+  },
+  {
+    "kind": "member",
+    "name": "noticeTone",
+    "part": "NeatVideoTile",
+    "text": "The tone of the notice's chip while video plays: warning by default, since a notice says that something is not as it should be."
+  },
+  {
+    "kind": "member",
     "name": "selected",
     "part": "NeatVideoTile",
     "text": "Draws the kit's focus ring around the tile, for the tile the app has chosen."
@@ -5769,5 +5781,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "video-tile",
     "id": "poses",
     "text": "Two hands and a person in one pose-estimation message."
+  },
+  {
+    "kind": "example",
+    "name": "Notice",
+    "topic": "video-tile",
+    "id": "notice",
+    "text": "Two tiles without bars, as a page with one large video shows them, each saying its trouble with notice."
   }
 ];

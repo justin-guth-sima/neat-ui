@@ -150,6 +150,12 @@ look happens in one place. Every rule here protects that.
     changes. A listener that throws is logged once and the frames keep drawing.
     `barHeight` (a signal beside `videoBox`) is the bar's laid-out height in CSS pixels, 0 without a
     bar, for content in the `neatTileOverlay` layer that keeps clear of it.
+    `notice` is what keeps the stream from showing as it should ("No signal", "Inference stopped"),
+    with or without bars: without video it takes the no-video note's place, on the scrim; while
+    video plays it is a `neat-status-chip` of `noticeTone` (`warning` by default) in the picture's
+    top-right corner, placed by `videoBox`. Why an input and not a part an app projects: the tile
+    owns its no-video note, so one input decides which of the two shows, and the look stays the
+    tile's. Content an app places on the picture itself follows `videoBox`.
     Public API is `projects/neat-ui/<name>/src/public-api.ts`; its
     code lives in `projects/neat-ui/<name>/src/lib/`.
     Why one entry per component: an app's main bundle carries only the entries its shell imports,
