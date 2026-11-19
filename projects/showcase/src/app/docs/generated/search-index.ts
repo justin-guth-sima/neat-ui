@@ -4692,7 +4692,7 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatTileGrid",
     "partKind": "component",
-    "text": "Lays its items out as 16:9 tiles of one width, as many as fit its box without scrolling."
+    "text": "Lays video tiles out as 16:9 tiles of one width, as many as fit its box without scrolling."
   },
   {
     "kind": "member",
@@ -5965,14 +5965,14 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "name": "Packing",
     "topic": "tile-grid",
     "id": "packing",
-    "text": "Forty-eight numbered tiles in a box of a fixed height."
+    "text": "Forty-eight video tiles, each named by its channel, in a box of a fixed height."
   },
   {
     "kind": "example",
     "name": "Fit all",
     "topic": "tile-grid",
     "id": "fit-all",
-    "text": "Twelve numbered tiles, and a button that sets the tile width to the widest one at which all twelve fit the box."
+    "text": "Twelve video tiles, and a button that sets the tile width to the widest one at which all twelve fit the box."
   },
   {
     "kind": "example",

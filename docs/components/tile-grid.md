@@ -4,7 +4,7 @@
 
 _Components › Video_ · [All topics](../README.md)
 
-Lays its items out as 16:9 tiles of one width, as many as fit its box without scrolling.
+Lays video tiles out as 16:9 tiles of one width, as many as fit its box without scrolling. It is made for `neat-video-tile`s, a wall of channels; a page's other content has a layout of its own.
 
 ```html
 <neat-tile-grid [tileWidth]="tileWidth()" [count]="shown().length" (layout)="layout.set($event)">
@@ -27,7 +27,7 @@ import { NeatTileGrid, NEAT_MIN_TILE_WIDTH, fitAllTileWidth } from '@sima/neat-u
 
 ### Packing
 
-Forty-eight numbered tiles in a box of a fixed height. The slider sets the tile width, and the readout is the layout the grid reported: the page shows only the tiles that fit. Resize the window to repack.
+Forty-eight video tiles, each named by its channel, in a box of a fixed height. The slider sets the tile width, and the readout is the layout the grid reported: the page shows only the tiles that fit. Resize the window to repack.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/tile-grid/packing.dark.webp">
@@ -42,14 +42,14 @@ Forty-eight numbered tiles in a box of a fixed height. The slider sets the tile 
 ```ts
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { NeatSlider } from '@sima/neat-ui/slider';
-import { NeatTileGrid, type NeatTileLayout } from '@sima/neat-ui/video';
+import { NeatTileGrid, type NeatTileLayout, NeatVideoTile } from '@sima/neat-ui/video';
 
 const TILE_COUNT = 48;
 const TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);
 
 @Component({
   selector: 'app-packing',
-  imports: [NeatSlider, NeatTileGrid],
+  imports: [NeatSlider, NeatTileGrid, NeatVideoTile],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './1-packing.example.html',
   styleUrl: './tile-box.css',
@@ -83,7 +83,7 @@ export class Packing {
     (layout)="layout.set($event)"
   >
     @for (tile of visible(); track tile) {
-      <div class="tile">{{ tile }}</div>
+      <neat-video-tile [label]="'Channel ' + tile" />
     }
   </neat-tile-grid>
 </div>
@@ -116,24 +116,13 @@ neat-slider {
   border-radius: var(--radius);
   background: var(--card);
 }
-
-/* A numbered stand-in for a video tile, in the tile's own fill so it shows on the card. */
-.tile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius);
-  background: var(--neat-video-surface);
-  color: var(--muted-foreground);
-  font-size: var(--neat-text-sm);
-}
 ```
 
 </details>
 
 ### Fit all
 
-Twelve numbered tiles, and a button that sets the tile width to the widest one at which all twelve fit the box. It works from the area and the gap the grid reported. Try resizing the window and pressing it again.
+Twelve video tiles, and a button that sets the tile width to the widest one at which all twelve fit the box. It works from the area and the gap the grid reported. Try resizing the window and pressing it again.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/tile-grid/fit-all.dark.webp">
@@ -154,6 +143,7 @@ import {
   NEAT_MIN_TILE_WIDTH,
   NeatTileGrid,
   type NeatTileLayout,
+  NeatVideoTile,
 } from '@sima/neat-ui/video';
 
 const TILE_COUNT = 12;
@@ -161,7 +151,7 @@ const TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);
 
 @Component({
   selector: 'app-fit-all',
-  imports: [NeatButton, NeatSlider, NeatTileGrid],
+  imports: [NeatButton, NeatSlider, NeatTileGrid, NeatVideoTile],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './2-fit-all.example.html',
   styleUrl: './tile-box.css',
@@ -206,7 +196,7 @@ export class FitAll {
     (layout)="layout.set($event)"
   >
     @for (tile of visible(); track tile) {
-      <div class="tile">{{ tile }}</div>
+      <neat-video-tile [label]="'Channel ' + tile" />
     }
   </neat-tile-grid>
 </div>
@@ -238,17 +228,6 @@ neat-slider {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--card);
-}
-
-/* A numbered stand-in for a video tile, in the tile's own fill so it shows on the card. */
-.tile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius);
-  background: var(--neat-video-surface);
-  color: var(--muted-foreground);
-  font-size: var(--neat-text-sm);
 }
 ```
 

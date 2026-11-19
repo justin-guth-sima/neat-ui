@@ -24,7 +24,7 @@ describe('the tile grid examples', () => {
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;
     const summary = () => host.querySelector('[aria-live="polite"]')?.textContent;
-    const tiles = () => host.querySelectorAll('.tile').length;
+    const tiles = () => host.querySelectorAll('neat-video-tile').length;
 
     // 240 px wide, 8 px apart, in a box of 700 by 384: two columns of two rows.
     expect(summary()).toBe('2 × 2 = 4 per page of 48, gap 8 px');
@@ -53,6 +53,6 @@ describe('the tile grid examples', () => {
     // Four columns of three rows at 169 px: 700 less three gaps, over four.
     expect(host.textContent).toContain('169 px');
     expect(summary()).toBe('12 of 12 tiles on the page, 4 × 3');
-    expect(host.querySelectorAll('.tile').length).toBe(12);
+    expect(host.querySelectorAll('neat-video-tile').length).toBe(12);
   });
 });

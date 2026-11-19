@@ -6,19 +6,20 @@ import {
   NEAT_MIN_TILE_WIDTH,
   NeatTileGrid,
   type NeatTileLayout,
+  NeatVideoTile,
 } from '@sima/neat-ui/video';
 
 const TILE_COUNT = 12;
 const TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);
 
 /**
- * Twelve numbered tiles, and a button that sets the tile width to the widest one at which all
+ * Twelve video tiles, and a button that sets the tile width to the widest one at which all
  * twelve fit the box. It works from the area and the gap the grid reported. Try resizing the window
  * and pressing it again.
  */
 @Component({
   selector: 'app-fit-all',
-  imports: [NeatButton, NeatSlider, NeatTileGrid],
+  imports: [NeatButton, NeatSlider, NeatTileGrid, NeatVideoTile],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './2-fit-all.example.html',
   styleUrl: './tile-box.css',

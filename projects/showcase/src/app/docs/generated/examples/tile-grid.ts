@@ -14,7 +14,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Forty-eight numbered tiles in a box of a fixed height. The slider sets the tile width, and the readout is the layout the grid reported: the page shows only the tiles that fit. Resize the window to repack."
+            "text": "Forty-eight video tiles, each named by its channel, in a box of a fixed height. The slider sets the tile width, and the readout is the layout the grid reported: the page shows only the tiles that fit. Resize the window to repack."
           }
         ]
       }
@@ -22,7 +22,8 @@ export const EXAMPLES: readonly DocsExample[] = [
     "shows": [
       "@sima/neat-ui/slider#NeatSlider",
       "@sima/neat-ui/video#NeatTileGrid",
-      "@sima/neat-ui/video#NeatTileLayout"
+      "@sima/neat-ui/video#NeatTileLayout",
+      "@sima/neat-ui/video#NeatVideoTile"
     ],
     "files": [
       {
@@ -30,10 +31,10 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, computed, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSlider } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/slider'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatTileGrid, "],["keyword","type"],["text"," NeatTileLayout } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n\n"],
+          ["keyword","import"],["text"," { NeatTileGrid, "],["keyword","type"],["text"," NeatTileLayout, NeatVideoTile } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n\n"],
           ["keyword","const"],["text"," TILE_COUNT = 48;\n"],
           ["keyword","const"],["text"," TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);\n\n@Component({\n  selector: "],
-          ["string","'app-packing'"],["text",",\n  imports: [NeatSlider, NeatTileGrid],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'app-packing'"],["text",",\n  imports: [NeatSlider, NeatTileGrid, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./1-packing.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./tile-box.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Packing {\n  "],
@@ -50,7 +51,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "1-packing.example.html",
         "code": [
-          ["text","<div class=\"width\">\n  <span>Tile width</span>\n  <neat-slider label=\"Tile width\" [min]=\"120\" [max]=\"480\" [step]=\"10\" [(value)]=\"tileWidth\" />\n  <span class=\"showcase-code showcase-muted\">{{ tileWidth() }} px</span>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n<div class=\"box\">\n  <neat-tile-grid\n    [tileWidth]=\"tileWidth()\"\n    [count]=\"visible().length\"\n    (layout)=\"layout.set($event)\"\n  >\n    @for (tile of visible(); track tile) {\n      <div class=\"tile\">{{ tile }}</div>\n    }\n  </neat-tile-grid>\n</div>\n"]
+          ["text","<div class=\"width\">\n  <span>Tile width</span>\n  <neat-slider label=\"Tile width\" [min]=\"120\" [max]=\"480\" [step]=\"10\" [(value)]=\"tileWidth\" />\n  <span class=\"showcase-code showcase-muted\">{{ tileWidth() }} px</span>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n<div class=\"box\">\n  <neat-tile-grid\n    [tileWidth]=\"tileWidth()\"\n    [count]=\"visible().length\"\n    (layout)=\"layout.set($event)\"\n  >\n    @for (tile of visible(); track tile) {\n      <neat-video-tile [label]=\"'Channel ' + tile\" />\n    }\n  </neat-tile-grid>\n</div>\n"]
         ]
       },
       {
@@ -58,8 +59,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
           ["comment","/* A slider fills its container's width, so the example gives it one. */"],["text","\n.width {\n  display: flex;\n  align-items: center;\n  gap: var(--neat-space-3);\n}\n\nneat-slider {\n  width: 16rem;\n}\n\n"],
-          ["comment","/* The grid fills its parent, so the example gives it a box of a fixed height to fill. */"],["text","\n.box {\n  height: 24rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n}\n\n"],
-          ["comment","/* A numbered stand-in for a video tile, in the tile's own fill so it shows on the card. */"],["text","\n.tile {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  border-radius: var(--radius);\n  background: var(--neat-video-surface);\n  color: var(--muted-foreground);\n  font-size: var(--neat-text-sm);\n}\n"]
+          ["comment","/* The grid fills its parent, so the example gives it a box of a fixed height to fill. */"],["text","\n.box {\n  height: 24rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n}\n"]
         ]
       }
     ]
@@ -74,7 +74,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Twelve numbered tiles, and a button that sets the tile width to the widest one at which all twelve fit the box. It works from the area and the gap the grid reported. Try resizing the window and pressing it again."
+            "text": "Twelve video tiles, and a button that sets the tile width to the widest one at which all twelve fit the box. It works from the area and the gap the grid reported. Try resizing the window and pressing it again."
           }
         ]
       }
@@ -85,7 +85,8 @@ export const EXAMPLES: readonly DocsExample[] = [
       "@sima/neat-ui/video#fitAllTileWidth",
       "@sima/neat-ui/video#NEAT_MIN_TILE_WIDTH",
       "@sima/neat-ui/video#NeatTileGrid",
-      "@sima/neat-ui/video#NeatTileLayout"
+      "@sima/neat-ui/video#NeatTileLayout",
+      "@sima/neat-ui/video#NeatVideoTile"
     ],
     "files": [
       {
@@ -95,11 +96,11 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSlider } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/slider'"],["text",";\n"],
           ["keyword","import"],["text"," {\n  fitAllTileWidth,\n  NEAT_MIN_TILE_WIDTH,\n  NeatTileGrid,\n  "],
-          ["keyword","type"],["text"," NeatTileLayout,\n} "],
+          ["keyword","type"],["text"," NeatTileLayout,\n  NeatVideoTile,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n\n"],
           ["keyword","const"],["text"," TILE_COUNT = 12;\n"],
           ["keyword","const"],["text"," TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);\n\n@Component({\n  selector: "],
-          ["string","'app-fit-all'"],["text",",\n  imports: [NeatButton, NeatSlider, NeatTileGrid],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'app-fit-all'"],["text",",\n  imports: [NeatButton, NeatSlider, NeatTileGrid, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./2-fit-all.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./tile-box.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," FitAll {\n  "],
@@ -122,7 +123,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "2-fit-all.example.html",
         "code": [
-          ["text","<div class=\"width\">\n  <span>Tile width</span>\n  <neat-slider label=\"Tile width\" [min]=\"minWidth\" [max]=\"480\" [step]=\"1\" [(value)]=\"tileWidth\" />\n  <span class=\"showcase-code showcase-muted\">{{ tileWidth() }} px</span>\n  <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"fitAll()\">\n    Fit all\n  </button>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n<div class=\"box\">\n  <neat-tile-grid\n    [tileWidth]=\"tileWidth()\"\n    [count]=\"visible().length\"\n    (layout)=\"layout.set($event)\"\n  >\n    @for (tile of visible(); track tile) {\n      <div class=\"tile\">{{ tile }}</div>\n    }\n  </neat-tile-grid>\n</div>\n"]
+          ["text","<div class=\"width\">\n  <span>Tile width</span>\n  <neat-slider label=\"Tile width\" [min]=\"minWidth\" [max]=\"480\" [step]=\"1\" [(value)]=\"tileWidth\" />\n  <span class=\"showcase-code showcase-muted\">{{ tileWidth() }} px</span>\n  <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"fitAll()\">\n    Fit all\n  </button>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ summary() }}</p>\n<div class=\"box\">\n  <neat-tile-grid\n    [tileWidth]=\"tileWidth()\"\n    [count]=\"visible().length\"\n    (layout)=\"layout.set($event)\"\n  >\n    @for (tile of visible(); track tile) {\n      <neat-video-tile [label]=\"'Channel ' + tile\" />\n    }\n  </neat-tile-grid>\n</div>\n"]
         ]
       },
       {
@@ -130,8 +131,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
           ["comment","/* A slider fills its container's width, so the example gives it one. */"],["text","\n.width {\n  display: flex;\n  align-items: center;\n  gap: var(--neat-space-3);\n}\n\nneat-slider {\n  width: 16rem;\n}\n\n"],
-          ["comment","/* The grid fills its parent, so the example gives it a box of a fixed height to fill. */"],["text","\n.box {\n  height: 24rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n}\n\n"],
-          ["comment","/* A numbered stand-in for a video tile, in the tile's own fill so it shows on the card. */"],["text","\n.tile {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  border-radius: var(--radius);\n  background: var(--neat-video-surface);\n  color: var(--muted-foreground);\n  font-size: var(--neat-text-sm);\n}\n"]
+          ["comment","/* The grid fills its parent, so the example gives it a box of a fixed height to fill. */"],["text","\n.box {\n  height: 24rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n}\n"]
         ]
       }
     ]

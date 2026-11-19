@@ -1478,7 +1478,15 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Lays its items out as 16:9 tiles of one width, as many as fit its box without scrolling."
+              "text": "Lays video tiles out as 16:9 tiles of one width, as many as fit its box without scrolling. It is made for "
+            },
+            {
+              "kind": "code",
+              "text": "neat-video-tile"
+            },
+            {
+              "kind": "text",
+              "text": "s, a wall of channels; a page's other content has a layout of its own."
             }
           ]
         },

@@ -11,7 +11,7 @@
     (layout)="layout.set($event)"
   >
     @for (tile of visible(); track tile) {
-      <div class="tile">{{ tile }}</div>
+      <neat-video-tile [label]="'Channel ' + tile" />
     }
   </neat-tile-grid>
 </div>

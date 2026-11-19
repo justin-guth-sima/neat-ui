@@ -46,7 +46,9 @@ function sameLayout(a: NeatTileLayout | null, b: NeatTileLayout | null): boolean
 }
 
 /**
- * Lays its items out as 16:9 tiles of one width, as many as fit its box without scrolling.
+ * Lays video tiles out as 16:9 tiles of one width, as many as fit its box without scrolling. It
+ * is made for `neat-video-tile`s, a wall of channels; a page's other content has a layout of its
+ * own.
  *
  * ```html
  * <neat-tile-grid [tileWidth]="tileWidth()" [count]="shown().length" (layout)="layout.set($event)">

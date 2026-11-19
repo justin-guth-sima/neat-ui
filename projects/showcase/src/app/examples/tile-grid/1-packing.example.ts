@@ -1,18 +1,18 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { NeatSlider } from '@sima/neat-ui/slider';
-import { NeatTileGrid, type NeatTileLayout } from '@sima/neat-ui/video';
+import { NeatTileGrid, type NeatTileLayout, NeatVideoTile } from '@sima/neat-ui/video';
 
 const TILE_COUNT = 48;
 const TILES = Array.from({ length: TILE_COUNT }, (_, index) => index + 1);
 
 /**
- * Forty-eight numbered tiles in a box of a fixed height. The slider sets the tile width, and the
+ * Forty-eight video tiles, each named by its channel, in a box of a fixed height. The slider sets the tile width, and the
  * readout is the layout the grid reported: the page shows only the tiles that fit. Resize the
  * window to repack.
  */
 @Component({
   selector: 'app-packing',
-  imports: [NeatSlider, NeatTileGrid],
+  imports: [NeatSlider, NeatTileGrid, NeatVideoTile],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './1-packing.example.html',
   styleUrl: './tile-box.css',
