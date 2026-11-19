@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { NeatIcon, NeatNavItem, NeatRailDivider, NeatRailItem, NeatShell } from '@sima/neat-ui';
+import { LayoutDashboard } from '@sima/neat-ui/lucide';
 import { NeatToasts } from '@sima/neat-ui/toast';
 
 /**
@@ -12,7 +13,7 @@ import { NeatToasts } from '@sima/neat-ui/toast';
  * show the other tones. Each item's `label` is the whole sentence: its tooltip and its name.
  *
  * The first page has `children`, which unfold under it while it is the active page and the rail is
- * expanded.
+ * expanded. Its `icon` is a Lucide glyph, as a page takes one where no name of the kit's set fits.
  *
  * @page
  */
@@ -33,7 +34,7 @@ export class RailItems {
   protected readonly navItems: NeatNavItem[] = [
     {
       label: 'Rail items',
-      icon: 'viewer',
+      icon: LayoutDashboard,
       path: '/demo/shell/rail-items',
       children: [
         { label: 'Overview', path: '/demo/shell/rail-items' },

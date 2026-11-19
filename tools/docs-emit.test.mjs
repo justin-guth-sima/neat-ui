@@ -2186,7 +2186,7 @@ test('maps every name of the real registry to a glyph the lucide entry exports',
   const module = files.get(ICON_GLYPHS_OUTPUT);
   assert.match(
     module,
-    /export const ICON_GLYPHS: Readonly<Record<NeatIconName, string>> = \{\n {2}media: 'folder-open',/,
+    /export const ICON_GLYPHS: Readonly<Record<NeatIconName, string>> = \{\n {2}home: 'house',/,
   );
   assert.match(module, /^ {2}spinner: 'loader-circle',$/m);
   assert.match(module, /^ {2}trash: \['Trash2'\],$/m);

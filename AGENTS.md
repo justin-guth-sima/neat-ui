@@ -1031,7 +1031,9 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   from the `lucide` entry is the escape hatch (`<neat-icon [name]="Rocket" />` with
   `import { Rocket } from '@sima/neat-ui/lucide'`): `NeatIconGlyph`, a drawing, which has no
   `data-icon` and so no spinner turn, and which only the glyphs an app imports bundle (the
-  entry is side-effect free). If a glyph is wanted in more than one place, or means something in
+  entry is side-effect free). The rail takes the same: a page's `icon` (`NeatNavItem.icon`) is a
+  name or a glyph, and an app's rail item holds a `neat-icon` of either; `home` is the name for an
+  app's start page. If a glyph is wanted in more than one place, or means something in
   the app, add a name to the registry instead. The entry's `export *` is the one place the kit
   re-exports a package whole: the docs show it as one part named `lucide`, not one per glyph.
   The showcase's icon finder (Theme › Icon finder, `pages/icon-finder/`) lists both, the kit's

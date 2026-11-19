@@ -18,6 +18,7 @@ import {
   FileText,
   Folder,
   FolderOpen,
+  House,
   Info,
   LayoutGrid,
   LoaderCircle,
@@ -73,6 +74,7 @@ function filled(name: string, node: LucideIconNode[]): LucideIconData {
 }
 
 export const NEAT_ICONS = {
+  home: drawing('home', House),
   media: drawing('media', FolderOpen),
   streaming: drawing('streaming', RadioTower),
   viewer: drawing('viewer', LayoutGrid),

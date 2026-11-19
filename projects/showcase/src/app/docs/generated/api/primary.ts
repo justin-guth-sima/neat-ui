@@ -2214,8 +2214,50 @@ export const API: DocsEntry = {
         },
         {
           "name": "icon",
-          "type": "NeatIconName",
-          "doc": []
+          "type": "NeatIconName | NeatIconGlyph",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The page's icon, as "
+                },
+                {
+                  "kind": "code",
+                  "text": "neat-icon"
+                },
+                {
+                  "kind": "text",
+                  "text": "'s "
+                },
+                {
+                  "kind": "code",
+                  "text": "name"
+                },
+                {
+                  "kind": "text",
+                  "text": " takes it: a name of the kit's set ("
+                },
+                {
+                  "kind": "code",
+                  "text": "'home'"
+                },
+                {
+                  "kind": "text",
+                  "text": ") first, and a glyph from "
+                },
+                {
+                  "kind": "code",
+                  "text": "@sima/neat-ui/lucide"
+                },
+                {
+                  "kind": "text",
+                  "text": " only where no name fits."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "path",
@@ -3350,7 +3392,23 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The content is the icon. "
+              "text": "The content is the icon: a "
+            },
+            {
+              "kind": "code",
+              "text": "neat-icon"
+            },
+            {
+              "kind": "text",
+              "text": " with a name of the kit's set, or a glyph from "
+            },
+            {
+              "kind": "code",
+              "text": "@sima/neat-ui/lucide"
+            },
+            {
+              "kind": "text",
+              "text": " where no name fits. "
             },
             {
               "kind": "code",

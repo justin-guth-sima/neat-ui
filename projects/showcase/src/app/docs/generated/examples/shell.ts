@@ -227,7 +227,15 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", which unfold under it while it is the active page and the rail is expanded."
+            "text": ", which unfold under it while it is the active page and the rail is expanded. Its "
+          },
+          {
+            "kind": "code",
+            "text": "icon"
+          },
+          {
+            "kind": "text",
+            "text": " is a Lucide glyph, as a page takes one where no name of the kit's set fits."
           }
         ]
       }
@@ -238,6 +246,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       "@sima/neat-ui#NeatRailDivider",
       "@sima/neat-ui#NeatRailItem",
       "@sima/neat-ui#NeatShell",
+      "@sima/neat-ui/lucide#LayoutDashboard",
       "@sima/neat-ui/toast#NeatToasts"
     ],
     "files": [
@@ -246,6 +255,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, inject } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatIcon, NeatNavItem, NeatRailDivider, NeatRailItem, NeatShell } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { LayoutDashboard } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/lucide'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatToasts } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/toast'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-rail-items'"],["text",",\n  imports: [NeatIcon, NeatRailDivider, NeatRailItem, NeatShell],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./2-rail-items.example.html'"],["text",",\n})\n"],
@@ -254,8 +264,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/**\n   * The app's pages: here this example alone, with three sub-pages to show the rail's second\n   * level. All stay under the example's own route, which serves its sub-paths with the same example, so a\n   * press changes the URL and the open sub-page without leaving the docs. The first sub-page has\n   * the page's own path, so the page needs no redirect.\n   */"],
           ["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," navItems: NeatNavItem[] = [\n    {\n      label: "],
-          ["string","'Rail items'"],["text",",\n      icon: "],
-          ["string","'viewer'"],["text",",\n      path: "],
+          ["string","'Rail items'"],["text",",\n      icon: LayoutDashboard,\n      path: "],
           ["string","'/demo/shell/rail-items'"],["text",",\n      children: [\n        { label: "],
           ["string","'Overview'"],["text",", path: "],["string","'/demo/shell/rail-items'"],["text"," },\n        { label: "],
           ["string","'Devices'"],["text",", path: "],["string","'/demo/shell/rail-items/devices'"],["text"," },\n        { label: "],
@@ -357,7 +366,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," navItems: NeatNavItem[] = [\n    {\n      label: "],
           ["string","'Getting started'"],["text",",\n      icon: "],
-          ["string","'info'"],["text",",\n      path: "],
+          ["string","'home'"],["text",",\n      path: "],
           ["string","`/${GETTING_STARTED}`"],["text",",\n      children: [\n        { label: "],
           ["string","'Quick start'"],["text",", path: "],["string","`/${GETTING_STARTED}`"],["text"," },\n        { label: "],
           ["string","'Tutorial'"],["text",", path: "],["string","`/${TUTORIAL}`"],["text"," },\n      ],\n    },\n    ...groupNavItems(GROUPS),\n  ];\n}\n"]

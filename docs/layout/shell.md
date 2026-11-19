@@ -118,7 +118,7 @@ Each element marked `neatRailEnd` goes in the rail's end slot, above the kit's t
 
 The board says its state with the item's `tone`, `text` and `detail`, and the devices after it show the other tones. Each item's `label` is the whole sentence: its tooltip and its name.
 
-The first page has `children`, which unfold under it while it is the active page and the rail is expanded.
+The first page has `children`, which unfold under it while it is the active page and the rail is expanded. Its `icon` is a Lucide glyph, as a page takes one where no name of the kit's set fits.
 
 _This example needs a page of its own: it runs in the showcase._
 
@@ -135,6 +135,7 @@ _This example needs a page of its own: it runs in the showcase._
 ```ts
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { NeatIcon, NeatNavItem, NeatRailDivider, NeatRailItem, NeatShell } from '@sima/neat-ui';
+import { LayoutDashboard } from '@sima/neat-ui/lucide';
 import { NeatToasts } from '@sima/neat-ui/toast';
 
 @Component({
@@ -154,7 +155,7 @@ export class RailItems {
   protected readonly navItems: NeatNavItem[] = [
     {
       label: 'Rail items',
-      icon: 'viewer',
+      icon: LayoutDashboard,
       path: '/demo/shell/rail-items',
       children: [
         { label: 'Overview', path: '/demo/shell/rail-items' },
@@ -272,7 +273,7 @@ export class App {
   protected readonly navItems: NeatNavItem[] = [
     {
       label: 'Getting started',
-      icon: 'info',
+      icon: 'home',
       path: `/${GETTING_STARTED}`,
       children: [
         { label: 'Quick start', path: `/${GETTING_STARTED}` },
@@ -371,7 +372,7 @@ An app's own item in the shell's rail, at its bottom below the pages.
 
 It has the look of every rail item: the page links, the theme item and the rail's own control. Mark it `neatRailEnd` to place it at the rail's bottom.
 
-The content is the icon. `label` is the visible text while the rail is expanded. Collapsed, it stays as the item's visually hidden text, so the name is kept, and shows as a tooltip on the right.
+The content is the icon: a `neat-icon` with a name of the kit's set, or a glyph from `@sima/neat-ui/lucide` where no name fits. `label` is the visible text while the rail is expanded. Collapsed, it stays as the item's visually hidden text, so the name is kept, and shows as a tooltip on the right.
 
 An item with a state, such as a board or a connection, says it with the kit's inputs:
 
@@ -448,7 +449,9 @@ One page in the shell's rail.
 
   Shown as the link's name, its tooltip and, while the page is active, the page title.
 
-- **`icon`** `NeatIconName`
+- **`icon`** `NeatIconName | NeatIconGlyph`
+
+  The page's icon, as `neat-icon`'s `name` takes it: a name of the kit's set (`'home'`) first, and a glyph from `@sima/neat-ui/lucide` only where no name fits.
 
 - **`path`** `string`
 

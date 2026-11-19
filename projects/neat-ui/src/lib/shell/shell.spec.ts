@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, RouterOutlet, Routes } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { Inbox } from 'lucide';
 import { NeatIcon } from '../icon/icon';
 import { KIOSK_POINTER_IDLE_MS, KioskService } from '../kiosk/kiosk.service';
 import { NeatAsideToggle } from '../page/aside';
@@ -70,8 +71,9 @@ const LEVEL_ITEMS: NeatNavItem[] = [
       { label: 'Runs', path: '/reports/runs' },
     ],
   },
-  { label: 'Empty', icon: 'viewer', path: '/empty', children: [] },
-  { label: 'Home', icon: 'viewer', path: '/home' },
+  // A page whose icon no name of the kit's set fits, so the app gives a Lucide glyph.
+  { label: 'Empty', icon: Inbox, path: '/empty', children: [] },
+  { label: 'Home', icon: 'home', path: '/home' },
 ];
 
 const NAV_ITEMS: NeatNavItem[] = [
@@ -1508,6 +1510,17 @@ describe('NeatShell', () => {
       await harness.navigateByUrl('/archive/2026/jan/week');
       expect(link('January').getAttribute('aria-current')).toBe('page');
       expect(link('Year').hasAttribute('aria-current')).toBe(false);
+    });
+
+    it('draws a page’s icon by the kit’s name, or a Lucide glyph the app gives', async () => {
+      await start('/home');
+
+      expect(link('Home').querySelector('neat-icon')?.getAttribute('data-icon')).toBe('home');
+      const glyph = link('Empty').querySelector('neat-icon svg') as SVGElement;
+      expect(Array.from(glyph.children, (child) => child.tagName.toLowerCase())).toEqual(
+        Inbox.map(([tag]) => tag),
+      );
+      expect(glyph.getAttribute('aria-hidden')).toBe('true');
     });
 
     it('keeps the page’s own label as the title of a page without sub-pages', async () => {

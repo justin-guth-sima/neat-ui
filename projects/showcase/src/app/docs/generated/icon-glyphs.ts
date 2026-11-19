@@ -6,6 +6,7 @@ import type { NeatIconName } from '@sima/neat-ui';
  * `lucide-static` keys its drawings and tags by.
  */
 export const ICON_GLYPHS: Readonly<Record<NeatIconName, string>> = {
+  home: 'house',
   media: 'folder-open',
   streaming: 'radio-tower',
   viewer: 'layout-grid',

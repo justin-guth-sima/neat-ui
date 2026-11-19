@@ -33,7 +33,7 @@ export class App {
   protected readonly navItems: NeatNavItem[] = [
     {
       label: 'Getting started',
-      icon: 'info',
+      icon: 'home',
       path: `/${GETTING_STARTED}`,
       children: [
         { label: 'Quick start', path: `/${GETTING_STARTED}` },

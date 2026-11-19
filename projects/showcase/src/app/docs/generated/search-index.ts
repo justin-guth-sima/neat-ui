@@ -414,7 +414,7 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "icon",
     "part": "NeatNavItem",
-    "text": ""
+    "text": "The page's icon, as neat-icon's name takes it: a name of the kit's set ('home') first, and a glyph from @sima/neat-ui/lucide only where no…"
   },
   {
     "kind": "member",

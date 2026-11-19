@@ -1,4 +1,4 @@
-import { NeatIconName } from '../icon/icon-registry';
+import type { NeatIconGlyph, NeatIconName } from '../icon/icon-registry';
 
 /**
  * One sub-page of a page in the shell's rail. It has no icon: sub-pages are rows of text under
@@ -22,7 +22,11 @@ export interface NeatNavChild {
 export interface NeatNavItem {
   /** Shown as the link's name, its tooltip and, while the page is active, the page title. */
   label: string;
-  icon: NeatIconName;
+  /**
+   * The page's icon, as `neat-icon`'s `name` takes it: a name of the kit's set (`'home'`) first,
+   * and a glyph from `@sima/neat-ui/lucide` only where no name fits.
+   */
+  icon: NeatIconName | NeatIconGlyph;
   /** Absolute app path, for example `/media`; the item stays active on routes nested under it. */
   path: string;
   /**
