@@ -214,6 +214,7 @@ export function drawFrame(
     channel: state.channel,
     settings,
     box,
+    width: view.cssWidth,
     mirrored: view.mirror,
     roi: mapRoi(settings.roi, view.videoWidth, view.videoHeight, box),
     colors: state.colors,

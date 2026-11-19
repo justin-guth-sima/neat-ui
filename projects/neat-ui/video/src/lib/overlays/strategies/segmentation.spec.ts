@@ -1,4 +1,5 @@
 import type { NeatMetadataMessage } from '../../sync/metadata-message';
+import { OVERLAY_LABEL_PLATE_COLOR } from '../../theme/overlay-palette';
 import { NeatOverlayColors } from '../colors';
 import {
   drawMessages,
@@ -85,7 +86,7 @@ describe('segmentation overlay', () => {
       ],
       { view },
     );
-    const perSegment: { fill: string; outline?: string; box?: string; label?: string }[] = [];
+    const perSegment: { fill: string; outline?: string; box?: string }[] = [];
     let current: (typeof perSegment)[number] | null = null;
     for (const call of ctx.calls) {
       if (call.op === 'fill') {
@@ -95,15 +96,15 @@ describe('segmentation overlay', () => {
         current.outline = call.strokeStyle;
       } else if (call.op === 'strokeRect' && current) {
         current.box = call.strokeStyle;
-      } else if (call.op === 'fillText' && current) {
-        current.label = call.fillStyle;
       }
     }
+    // The labels come after every segment's shapes, in the segments' order.
+    const labels = ctx.ops('fillText').map((call) => call.fillStyle);
     expect(perSegment).toHaveLength(2);
-    perSegment.forEach((segment) => {
+    perSegment.forEach((segment, i) => {
       expect(segment.outline).toBe(segment.fill);
       expect(segment.box).toBe(segment.fill);
-      expect(segment.label).toBe(segment.fill);
+      expect(labels[i]).toBe(segment.fill);
     });
     expect(perSegment[0].fill).not.toBe(perSegment[1].fill);
   });
@@ -205,5 +206,39 @@ describe('the segmentation caption', () => {
     );
 
     expect(ctx.ops('fillText').map((call) => call.args[0])).toEqual(['road (75%)', 'sky', 'tree']);
+  });
+});
+
+describe('the segmentation label', () => {
+  it('sits on a label plate just above its segment’s box, after every mask', () => {
+    const triangle = (x: number) => [
+      [x, 100],
+      [x + 40, 100],
+      [x + 20, 140],
+    ];
+    const ctx = drawMessages(overlayState(), overlaySettings(), [
+      segmentation([
+        { label: 'road', confidence: 0.75, mask_format: 'polygon', mask: triangle(100) },
+        { label: 'tree', confidence: 0.5, mask_format: 'polygon', mask: triangle(120) },
+      ]),
+    ]);
+
+    // Both masks first, so the second mask cannot tint the first label.
+    expect(ctx.calls.map((call) => call.op).filter((op) => op !== 'clearRect')).toStrictEqual([
+      'fill',
+      'stroke',
+      'fill',
+      'stroke',
+      'fillRect',
+      'fillText',
+      'fillRect',
+      'fillText',
+    ]);
+    ctx.ops('fillRect').forEach((plate) => expect(plate.fillStyle).toBe(OVERLAY_LABEL_PLATE_COLOR));
+    const masks = ctx.ops('fill');
+    ctx.ops('fillText').forEach((label, i) => expect(label.fillStyle).toBe(masks[i].fillStyle));
+    // "road (75%)" is 10 characters of 7 px with 4 px either side; its bottom 6 px above the box
+    // the polygon's bounds make.
+    expect(ctx.ops('fillRect')[0].args).toStrictEqual([100, 100 - 6 - 18, 10 * 7 + 8, 18]);
   });
 });

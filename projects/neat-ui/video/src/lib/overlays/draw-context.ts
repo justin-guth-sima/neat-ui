@@ -28,6 +28,8 @@ export interface DrawContext {
   readonly settings: NeatOverlaySettings;
   /** Video pixels to overlay CSS pixels. */
   readonly box: Letterbox;
+  /** The overlay's width in CSS pixels, which label plates stay inside. */
+  readonly width: number;
   /** The picture is mirrored: `box.scaleX` is negative and text is right-aligned at its anchor. */
   readonly mirrored: boolean;
   readonly roi: RoiFrame;
@@ -89,11 +91,14 @@ export function labelPlateHeight(font: keyof OverlayFonts): number {
   return LABEL_PLATES[font].height;
 }
 
+/** How far a label plate keeps from the overlay's edges, in CSS pixels. */
+const PLATE_EDGE = 2;
+
 /**
- * A label in `color` on a dark plate whose bottom-left is at (x, y), kept inside the top edge. In a
- * mirrored view the plate's bottom-right is at (x, y) and the text still reads left to right. The
- * plate is the one backing of the overlays' text, so a label in any class color reads over any
- * picture.
+ * A label in `color` on a dark plate whose bottom-left is at (x, y), kept inside the overlay's top,
+ * left and right edges, so a box at an edge of the picture keeps its whole label. In a mirrored
+ * view the plate's bottom-right is at (x, y) and the text still reads left to right. The plate is
+ * the one backing of the overlays' text, so a label in any class color reads over any picture.
  */
 export function drawLabelPlate(
   dc: DrawContext,
@@ -108,11 +113,45 @@ export function drawLabelPlate(
   const { height, baseline } = LABEL_PLATES[font];
   ctx.font = dc.fonts[font];
   const width = ctx.measureText(text).width + paddingX * 2;
-  const labelY = Math.max(height + 2, y);
+  // The left edge wins over the right for a plate wider than the overlay.
+  const plateX = Math.max(
+    PLATE_EDGE,
+    Math.min(dc.mirrored ? x - width : x, dc.width - PLATE_EDGE - width),
+  );
+  const plateY = Math.max(PLATE_EDGE, y - height);
   ctx.fillStyle = OVERLAY_LABEL_PLATE_COLOR;
-  ctx.fillRect(dc.mirrored ? x - width : x, labelY - height, width, height);
+  ctx.fillRect(plateX, plateY, width, height);
   ctx.fillStyle = color;
-  ctx.fillText(text, dc.mirrored ? x - paddingX : x + paddingX, labelY - baseline);
+  // Text is right-aligned in a mirrored view (see drawFrame), so it is anchored at the plate's end.
+  ctx.fillText(
+    text,
+    dc.mirrored ? plateX + width - paddingX : plateX + paddingX,
+    plateY + height - baseline,
+  );
+}
+
+/** How far a box's label plate stands above the box, in CSS pixels. */
+const BOX_LABEL_GAP = 6;
+
+/** A box's label: its text and color, and the box's top-left corner in CSS pixels. */
+export interface BoxLabel {
+  readonly text: string;
+  readonly left: number;
+  readonly top: number;
+  readonly color: string;
+}
+
+/**
+ * The labels of a message's boxes, each on a label plate just above its box's top-left corner (its
+ * top-right in a mirrored view), or inside the box when the box is at the overlay's top edge. An
+ * overlay draws them after all of its boxes, outlines and masks, so none of those crosses a label;
+ * where boxes overlap, a later label covers an earlier one. Every overlay that labels a box places
+ * the label here.
+ */
+export function drawBoxLabels(dc: DrawContext, labels: readonly BoxLabel[]): void {
+  for (const { text, left, top, color } of labels) {
+    drawLabelPlate(dc, text, left, top - BOX_LABEL_GAP, color);
+  }
 }
 
 /**

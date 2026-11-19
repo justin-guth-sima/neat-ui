@@ -1,5 +1,12 @@
-import type { DrawContext, DrawStrategy } from '../draw-context';
-import { applyLineStyle, classStyles, itemColor, styleFor, withConfidence } from '../draw-context';
+import type { BoxLabel, DrawContext, DrawStrategy } from '../draw-context';
+import {
+  applyLineStyle,
+  classStyles,
+  drawBoxLabels,
+  itemColor,
+  styleFor,
+  withConfidence,
+} from '../draw-context';
 import { MAX_RLE_MASK_PIXELS } from '../rle';
 import { drawRoiOnce, passesRoiFilter } from '../roi';
 
@@ -111,7 +118,10 @@ function drawRleMask(
   return true;
 }
 
-/** Polygon or RLE masks at the mask opacity, with an outline or box and a caption. */
+/**
+ * Polygon or RLE masks at the mask opacity, with an outline or box and a label in the class color on
+ * a label plate.
+ */
 export const drawSegmentation: DrawStrategy = (dc, data) => {
   const segments = (data as SegmentationData | null | undefined)?.segments;
   if (!Array.isArray(segments)) return;
@@ -122,6 +132,7 @@ export const drawSegmentation: DrawStrategy = (dc, data) => {
   if (!type.visible) return;
 
   const { styles, overrides } = classStyles(type.objects);
+  const labels: BoxLabel[] = [];
   for (const segment of segments as Segment[]) {
     // A segment without a confidence counts as fully confident; its caption shows none.
     if (Number(segment.confidence ?? 1) < type.confidenceThreshold) continue;
@@ -145,7 +156,6 @@ export const drawSegmentation: DrawStrategy = (dc, data) => {
     const color = itemColor(dc, 'segmentation', segment, overrides);
     ctx.strokeStyle = color;
     applyLineStyle(ctx, styleFor(styles, segment.label), settings.general.lineWidth);
-    ctx.font = dc.fonts.label;
     ctx.fillStyle = color;
 
     if (polygon) {
@@ -170,18 +180,17 @@ export const drawSegmentation: DrawStrategy = (dc, data) => {
       continue;
     }
 
+    const left = bbox[0] * box.scaleX + box.offsetX;
+    const top = bbox[1] * box.scaleY + box.offsetY;
     if (segment.show_rectangle === true) {
-      ctx.strokeRect(
-        bbox[0] * box.scaleX + box.offsetX,
-        bbox[1] * box.scaleY + box.offsetY,
-        bbox[2] * box.scaleX,
-        bbox[3] * box.scaleY,
-      );
+      ctx.strokeRect(left, top, bbox[2] * box.scaleX, bbox[3] * box.scaleY);
     }
-    ctx.fillText(
-      withConfidence(String(segment.label), segment.confidence),
-      (bbox[0] + 2) * box.scaleX + box.offsetX,
-      (bbox[1] - 6) * box.scaleY + box.offsetY,
-    );
+    labels.push({
+      text: withConfidence(String(segment.label), segment.confidence),
+      left,
+      top,
+      color,
+    });
   }
+  drawBoxLabels(dc, labels);
 };

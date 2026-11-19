@@ -163,6 +163,7 @@ describe('drawFrame', () => {
       expect(ctx.calls.map((call) => call.op)).toStrictEqual([
         'clearRect',
         'strokeRect',
+        'fillRect',
         'fillText',
       ]);
     }

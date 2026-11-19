@@ -149,4 +149,17 @@ describe('the tracking label', () => {
       'van #3',
     ]);
   });
+
+  it('is drawn after every box, as every box overlay’s label is', () => {
+    const ctx = draw(overlayState(), tracking([track('1', 'car'), track('2', 'bus', 40)]));
+
+    expect(ctx.calls.map((call) => call.op).filter((op) => op !== 'clearRect')).toStrictEqual([
+      'strokeRect',
+      'strokeRect',
+      'fillRect',
+      'fillText',
+      'fillRect',
+      'fillText',
+    ]);
+  });
 });

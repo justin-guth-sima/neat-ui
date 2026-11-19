@@ -1,6 +1,10 @@
 import { SIMA_PALETTE } from '@sima/neat-ui';
 import type { NeatMetadataMessage } from '../../sync/metadata-message';
-import { NEAT_OVERLAY_STYLE_FALLBACK_COLOR, OVERLAY_PALETTE } from '../../theme/overlay-palette';
+import {
+  NEAT_OVERLAY_STYLE_FALLBACK_COLOR,
+  OVERLAY_LABEL_PLATE_COLOR,
+  OVERLAY_PALETTE,
+} from '../../theme/overlay-palette';
 import type { NeatOverlaySettings } from '../overlay-settings';
 import {
   colorOfText,
@@ -107,5 +111,60 @@ describe('the object detection caption', () => {
     ]);
 
     expect(ctx.ops('fillText').map((call) => call.args[0])).toEqual(['car (42%)', 'bus', 'van']);
+  });
+});
+
+describe('the object detection label', () => {
+  const draw = (list: unknown[], view = VIEW): RecordingContext =>
+    drawMessages(
+      overlayState(),
+      overlaySettings(),
+      [{ type: 'object-detection', data: { objects: list } }],
+      { view },
+    );
+  /** A plate's rectangle, `[x, y, width, height]`. */
+  const plates = (ctx: RecordingContext) =>
+    ctx.ops('fillRect').map((call) => call.args as number[]);
+
+  it('sits on a label plate just above its box, after every box', () => {
+    const ctx = draw([
+      { label: 'car', confidence: 0.5, bbox: [100, 100, 50, 50] },
+      { label: 'bus', confidence: 0.5, bbox: [120, 120, 50, 50] },
+    ]);
+
+    // Both boxes first, so the second box's line cannot cross the first label.
+    expect(ctx.calls.map((call) => call.op).filter((op) => op !== 'clearRect')).toStrictEqual([
+      'strokeRect',
+      'strokeRect',
+      'fillRect',
+      'fillText',
+      'fillRect',
+      'fillText',
+    ]);
+    ctx.ops('fillRect').forEach((plate) => expect(plate.fillStyle).toBe(OVERLAY_LABEL_PLATE_COLOR));
+    const boxes = ctx.ops('strokeRect');
+    ctx.ops('fillText').forEach((label, i) => expect(label.fillStyle).toBe(boxes[i].strokeStyle));
+    // "car (50%)" is 9 characters of 7 px with 4 px either side; its bottom 6 px above the box.
+    expect(plates(ctx)[0]).toStrictEqual([100, 100 - 6 - 18, 9 * 7 + 8, 18]);
+  });
+
+  it('stays whole for a box at the picture’s top and right edges', () => {
+    const ctx = draw([{ label: 'motorcycle', confidence: 0.66, bbox: [610, 0, 30, 60] }]);
+
+    // "motorcycle (66%)" is 120 px wide: it moves left to end 2 px inside the right edge, and down
+    // to start 2 px below the top, over the box.
+    expect(plates(ctx)).toStrictEqual([[640 - 2 - 120, 2, 120, 18]]);
+    expect(ctx.ops('fillText')[0].args).toStrictEqual(['motorcycle (66%)', 640 - 2 - 120 + 4, 17]);
+  });
+
+  it('stays whole in a mirrored view for a box the mirror puts at the left edge', () => {
+    const ctx = draw([{ label: 'motorcycle', confidence: 0.66, bbox: [610, 100, 30, 60] }], {
+      ...VIEW,
+      mirror: true,
+    });
+
+    expect(plates(ctx)).toStrictEqual([[2, 100 - 6 - 18, 120, 18]]);
+    // Right-aligned text ends 4 px inside its plate.
+    expect(ctx.ops('fillText')[0].args[1]).toBe(2 + 120 - 4);
   });
 });

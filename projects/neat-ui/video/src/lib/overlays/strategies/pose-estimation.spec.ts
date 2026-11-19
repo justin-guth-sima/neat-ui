@@ -72,22 +72,19 @@ function draw(
   return drawMessages(state, settings, [message], { now, view: VIEW_720P });
 }
 
-// Splits the recorded calls into one group per pose, using the label as the group end.
-function poseGroups(ctx: RecordingContext) {
-  const groups: { colors: Set<string>; ops: Set<string> }[] = [];
-  let current = { colors: new Set<string>(), ops: new Set<string>() };
+/**
+ * The drawing calls by the color they draw in, each with its operations. The labels come after
+ * every pose's shapes, so the calls are grouped by color rather than by their order.
+ */
+function poseGroups(ctx: RecordingContext): Set<string>[] {
+  const groups = new Map<string, Set<string>>();
   for (const call of ctx.calls) {
     if (call.op === 'fillRect' || call.op === 'clearRect') continue; // label plate, frame clear
-    current.ops.add(call.op);
-    current.colors.add(
-      call.op === 'stroke' || call.op === 'strokeRect' ? call.strokeStyle : call.fillStyle,
-    );
-    if (call.op === 'fillText' && String(call.args[0]).startsWith('person')) {
-      groups.push(current);
-      current = { colors: new Set(), ops: new Set() };
-    }
+    const color =
+      call.op === 'stroke' || call.op === 'strokeRect' ? call.strokeStyle : call.fillStyle;
+    groups.set(color, (groups.get(color) ?? new Set()).add(call.op));
   }
-  return groups;
+  return [...groups.values()];
 }
 
 describe('pose estimation overlay', () => {
@@ -151,19 +148,15 @@ describe('pose estimation overlay', () => {
       overlayState(),
       poses([pose('pose_1', 200, 150), pose('pose_2', 600, 150), pose('pose_3', 1000, 150)]),
     );
+    // Three colors, each drawing a whole pose: no part of one pose is in another's color.
     const groups = poseGroups(ctx);
     expect(groups).toHaveLength(3);
-    groups.forEach((group) => {
-      expect(group.colors.size, 'skeleton, keypoints, names, box and label share one color').toBe(
-        1,
-      );
+    groups.forEach((ops) => {
       ['stroke', 'arc', 'fill', 'strokeRect', 'fillText'].forEach((op) =>
-        expect(group.ops.has(op), `missing ${op}`).toBe(true),
+        expect(ops.has(op), `missing ${op}`).toBe(true),
       );
     });
-    const colors = groups.map((group) => [...group.colors][0]);
-    expect(new Set(colors).size).toBe(3);
-    expect(colorOfText(ctx, 'person #pose_2')).toBe(colors[1]);
+    expect(colorOfText(ctx, 'person #pose_2')).toBe(ctx.ops('strokeRect')[1].strokeStyle);
   });
 
   it("keeps a person's color across frames", () => {

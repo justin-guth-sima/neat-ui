@@ -1,5 +1,5 @@
-import type { DrawStrategy } from '../draw-context';
-import { applyLineStyle, classStyles, drawLabelPlate, itemColor, styleFor } from '../draw-context';
+import type { BoxLabel, DrawStrategy } from '../draw-context';
+import { applyLineStyle, classStyles, drawBoxLabels, itemColor, styleFor } from '../draw-context';
 
 interface Keypoint {
   name?: unknown;
@@ -100,6 +100,7 @@ export const drawPoseEstimation: DrawStrategy = (dc, data) => {
   const { styles, overrides } = classStyles(type.objects);
   ctx.font = dc.fonts.label;
 
+  const labels: BoxLabel[] = [];
   for (const pose of poses) {
     if (!Array.isArray(pose?.keypoints)) continue;
     const row = styleFor(styles, pose.label);
@@ -157,6 +158,7 @@ export const drawPoseEstimation: DrawStrategy = (dc, data) => {
     ctx.strokeRect(boxLeft, boxTop, width * box.scaleX, height * box.scaleY);
 
     const label = `${pose.label || 'pose'}${hasId(pose.id) ? ` #${pose.id}` : ''}`;
-    drawLabelPlate(dc, label, boxLeft, boxTop - 6, color);
+    labels.push({ text: label, left: boxLeft, top: boxTop, color });
   }
+  drawBoxLabels(dc, labels);
 };
