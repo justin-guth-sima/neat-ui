@@ -152,7 +152,7 @@ Also: [Legend](docs/components/legend.md).
 </tr>
 </table>
 
-Also: [Tile grid](docs/components/tile-grid.md).
+Also: [Tile grid](docs/components/tile-grid.md), [Insight channel](docs/components/insight-channel.md).
 
 ### Theme
 

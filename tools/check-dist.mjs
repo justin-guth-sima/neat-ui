@@ -50,6 +50,8 @@ export const SECONDARY_ENTRIES = {
   field: ['neat-field', 'neat-error-note'],
   'file-browser': ['neat-file-browser'],
   input: ['input[neatInput]'],
+  // A function only: no selector for the primary to leak, so it is listed for the FESM check alone.
+  insight: [],
   'level-meter': ['neat-level-meter'],
   'line-list': ['ul[neatLineList]', 'li[neatLine]', '[neatLineEnd]'],
   // Glyphs only: no selector for the primary to leak, so it is listed for the FESM check alone.

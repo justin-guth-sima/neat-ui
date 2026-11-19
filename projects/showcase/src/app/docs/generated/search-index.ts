@@ -3322,6 +3322,60 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatInsightChannel",
+    "partKind": "interface",
+    "text": "One Insight channel's video and metadata over WebRTC, as neatInsightChannel gives it: a NeatTileSource with what an app shows about the…"
+  },
+  {
+    "kind": "member",
+    "name": "notice",
+    "part": "NeatInsightChannel",
+    "text": "What keeps the channel from showing, in a few words, or null while all is well."
+  },
+  {
+    "kind": "member",
+    "name": "failure",
+    "part": "NeatInsightChannel",
+    "text": "Null while the channel is connected or still trying; why it stopped once the offer was refused for good."
+  },
+  {
+    "kind": "member",
+    "name": "videoDelayMs",
+    "part": "NeatInsightChannel",
+    "text": "The mean time in ms the browser held each frame in its jitter buffer over the last second."
+  },
+  {
+    "kind": "member",
+    "name": "close",
+    "part": "NeatInsightChannel",
+    "text": "Closes the connection for good, before its injection context is destroyed, such as to open another channel in its place."
+  },
+  {
+    "kind": "part",
+    "name": "NeatInsightChannelOptions",
+    "partKind": "interface",
+    "text": "Where a neatInsightChannel posts its offer, and how long the browser holds the video."
+  },
+  {
+    "kind": "member",
+    "name": "offer",
+    "part": "NeatInsightChannelOptions",
+    "text": "Where the browser's WebRTC offer is posted: Insight's own route, /api/channels/{channel}/offer, by default."
+  },
+  {
+    "kind": "member",
+    "name": "videoBufferMs",
+    "part": "NeatInsightChannelOptions",
+    "text": "How long the browser holds the video before it shows a frame, in ms, so each frame's metadata has arrived when it is drawn."
+  },
+  {
+    "kind": "part",
+    "name": "neatInsightChannel",
+    "partKind": "function",
+    "text": "One Insight channel's video and metadata over WebRTC, as a source for neat-video-tile."
+  },
+  {
+    "kind": "part",
     "name": "NeatLevelMeter",
     "partKind": "component",
     "text": "A live audio level, as a bar of segments."
@@ -5436,6 +5490,13 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "input",
     "id": "controls-on-a-card",
     "text": "The form controls on the card surface, which differs from the page's background in dark mode."
+  },
+  {
+    "kind": "example",
+    "name": "Watching a channel",
+    "topic": "insight-channel",
+    "id": "watching-a-channel",
+    "text": "A tile that plays Insight's channel 0 and draws its metadata."
   },
   {
     "kind": "example",

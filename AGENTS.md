@@ -203,6 +203,9 @@ look happens in one place. Every rule here protects that.
     given or taken back, never per frame, so a template or a `computed` that calls it follows, and
     asking records no draw. The rule each type colors by is stated once (`item-colors.ts`), for the
     strategies' drawing and for `colorOf`. `neat-bev`'s `colorOf(label)` is the same for the view.
+    And `insight` (`neatInsightChannel`, one Insight channel's video and metadata over WebRTC as a
+    tile's source, with its `notice`, `failure` and `videoDelayMs`; how it connects is under "How
+    an Insight channel connects" below).
     Public API is `projects/neat-ui/<name>/src/public-api.ts`; its
     code lives in `projects/neat-ui/<name>/src/lib/`.
     Why one entry per component: an app's main bundle carries only the entries its shell imports,
@@ -857,6 +860,50 @@ for driving demos such as the FastBEV one.
   pointer every frame, only within the shape unless overflow is visible. The host is a figure named
   by `label`, with a visually hidden summary of the counts per label on the shape (`summary.ts`:
   "within 60 m", or a rectangle's edges), rewritten at most once a second.
+
+**How an Insight channel connects.** `insight` is the kit's one WebRTC client of Neat Insight:
+`neatInsightChannel(channel, { offer, videoBufferMs })` returns a `NeatInsightChannel`, a
+`NeatTileSource` (imported from `video` by package name, as a type only) with `notice`, `failure`,
+`videoDelayMs` and `close()`. Why an entry of its own: `video` knows nothing about how a stream
+arrives, and an app that does not watch Insight carries none of this.
+
+- It is made in an injection context and closes its connection when that context is destroyed
+  (`DestroyRef`), or earlier on `close()`, which also drops the destroy hook. It connects at once:
+  the tile has no "start" call, it only reads `stream` and listens to `onMetadata`. A channel
+  opened later (once a setting is read) is made in `runInInjectionContext` with the component's
+  injector, and the one it replaces is closed.
+- The offer address: Insight's own route, `/api/channels/{channel}/offer`, by default, for a page
+  Insight serves. Insight refuses an offer from a page of another origin (its cross-origin
+  protection answers 403 `cross_origin`), so an app with its own server relays it, and `offer`
+  names the relay (the demos' `/api/offer?channel=N`): a string is posted to as it is, a function
+  gets the channel. The body is `{type, sdp}` and the answer the same, errors in Insight's
+  `{error: {code, message, hint}}`, which the relays pass on.
+- The connection is Insight's own viewer's: a recvonly video transceiver and the `metadata` data
+  channel (ordered, `maxRetransmits: 0`), the offer posted without waiting for ICE gathering, the
+  answer applied. `videoBufferMs` sets the receiver's `jitterBufferTarget` where the browser has it
+  (not Firefox), and a value the browser refuses is left alone. A failed post or a `failed` or
+  `closed` connection is tried again after 1, 2, 5, then every 10 s, the count reset once a
+  connection is `connected`; a connection that decodes no new frame for 5 s (`framesDecoded` in
+  `getStats`, checked once a second) or stays `disconnected` that long is made anew, since after a
+  source restart the decoder can wait for a keyframe forever. `videoDelayMs` is the jitter buffer's
+  delay per emitted frame over the last second, null without a connected peer or new frames.
+- What the answers mean, one table for both servers (Insight's route and a relay):
+  - A 4xx is final: no retry, and `failure` (and so `notice`) says why: "Codec not supported by this
+    browser" for a 415 (`codec_unsupported`), else the answer's `message` as it is (Insight's
+    `no_such_channel`, `invalid_offer`, `offer_too_large`, `cross_origin`, a relay's
+    `invalid_request`), else "Connection failed: HTTP <status>". A browser without
+    `RTCPeerConnection` (jsdom in the specs) fails at once with "This browser has no WebRTC".
+  - Anything else is retried, and `notice` says why where the answer does: `no_video` "Waiting for
+    video", `codec_changed` "Video format changed", `negotiation_failed` "Could not connect", the
+    relay's `insight_unreachable` "Insight not reachable", and the same words when no answer came
+    at all (`fetch` rejected) or a 502, 503 or 504 came without a code (a proxy whose server is
+    down). Other codes, a 5xx without one, and an answer that is not an answer say nothing:
+    `notice` is null and the tile shows its own no-video note. A track arriving clears it.
+- The raw browser part (`RTCPeerConnection`, `fetch`, the timers) is `insight-connection.ts`, a
+  function of plain callbacks that knows no Angular; `neatInsightChannel` runs it outside the zone
+  and writes its reports into signals, so the health check's timer causes no change detection. Its
+  specs drive fakes of `RTCPeerConnection` and `fetch` (`insight-connection.testing.ts`) under fake
+  timers: no test makes a real connection.
 
 ## How the kit is built on Spartan
 

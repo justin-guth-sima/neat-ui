@@ -94,3 +94,4 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 - [Tile grid](components/tile-grid.md)
 - [ROI editor](components/roi-editor.md)
 - [Metadata sync](components/metadata-sync.md)
+- [Insight channel](components/insight-channel.md)

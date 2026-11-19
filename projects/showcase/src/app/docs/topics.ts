@@ -1136,6 +1136,19 @@ export const GROUPS: readonly TopicGroup[] = [
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
           },
+          {
+            id: 'insight-channel',
+            label: 'Insight channel',
+            parts: ['neatInsightChannel', 'NeatInsightChannel', 'NeatInsightChannelOptions'],
+            leads: ['neatInsightChannel'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/insight'),
+                import('./generated/examples/insight-channel'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
         ],
       },
     ],

@@ -162,6 +162,9 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 | class color          | a label's color, the same on every tile of a page and in its bird's-eye view   | `colorOf`                   | label color, identity color                      |
 | bar                  | the line along the tile's bottom: its label, status and chips                  | `bars`                      | footer, status bar                               |
 | notice               | what keeps a tile's stream from showing as it should, in words                 | `notice`, `noticeTone`      | tile state, state overlay, no signal             |
+| Insight channel      | one Insight channel's video and metadata over WebRTC, as a tile's source       | `neatInsightChannel`        | channel source, WebRTC source                    |
+| offer address        | where the browser posts its WebRTC offer: Insight's route or the app's relay   | `offer`                     | signaling URL, offer URL                         |
+| relay                | the app's own route that passes the offer on to Insight and its answer back    | `offer`                     | proxy                                            |
 | region of interest   | a part of the picture the app includes or excludes, drawn as a polygon         | `NeatRoiPolygon`, `regions` | ROI (in prose: say it once), zone, mask, polygon |
 | inclusion, exclusion | a region's type: a part the app looks at, or one it leaves out                 | `NeatRoiDrawMode`           | allow zone, deny zone                            |
 

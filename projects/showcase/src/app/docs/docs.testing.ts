@@ -15,6 +15,7 @@ import { API as DROP_ZONE } from './generated/api/drop-zone';
 import { API as FIELD } from './generated/api/field';
 import { API as FILE_BROWSER } from './generated/api/file-browser';
 import { API as INPUT } from './generated/api/input';
+import { API as INSIGHT } from './generated/api/insight';
 import { API as LEVEL_METER } from './generated/api/level-meter';
 import { API as LINE_LIST } from './generated/api/line-list';
 import { API as LUCIDE } from './generated/api/lucide';
@@ -89,6 +90,7 @@ export const KIT_ENTRIES: readonly DocsEntry[] = [
   FIELD,
   FILE_BROWSER,
   INPUT,
+  INSIGHT,
   LEVEL_METER,
   LINE_LIST,
   LUCIDE,

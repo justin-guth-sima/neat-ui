@@ -1,0 +1,11 @@
+@if (camera.failure(); as failure) {
+  <neat-callout tone="danger" heading="Channel 0 cannot be watched">{{ failure }}</neat-callout>
+}
+<div class="cell">
+  <neat-video-tile
+    label="Channel 0"
+    [source]="camera"
+    [notice]="camera.notice()"
+    [status]="held()"
+  />
+</div>

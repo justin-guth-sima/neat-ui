@@ -1,0 +1,11 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+
+/* A tile fills its cell, so the cell gives it a size: a 16:9 box up to 32rem wide. */
+.cell {
+  aspect-ratio: 16 / 9;
+  max-width: 32rem;
+}
