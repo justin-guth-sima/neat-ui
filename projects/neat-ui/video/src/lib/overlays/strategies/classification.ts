@@ -1,5 +1,5 @@
 import type { DrawStrategy } from '../draw-context';
-import { identityColor, percent } from '../draw-context';
+import { itemColor, percent } from '../draw-context';
 
 /** The fields of a `classification` payload this overlay reads. */
 interface ClassificationData {
@@ -15,7 +15,7 @@ export const drawClassification: DrawStrategy = (dc, data) => {
   ctx.font = dc.fonts.large;
   classes.slice(0, 3).forEach((entry, i) => {
     // Class colors only: classification has no style rows and no threshold.
-    ctx.fillStyle = identityColor(dc, 'class', entry.label);
+    ctx.fillStyle = itemColor(dc, 'classification', entry);
     ctx.fillText(
       `${entry.label} (${percent(entry.confidence)}%)`,
       10 * box.scaleX + box.offsetX,

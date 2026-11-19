@@ -2,6 +2,8 @@ import type { NeatMetadataMessage } from '../sync/metadata-message';
 import type { ColorAllocator, NeatOverlayColors } from './colors';
 import { createColorAllocator } from './colors';
 import type { DrawContext, DrawStrategy, OverlayFonts, TrackTrail } from './draw-context';
+import type { NeatOverlayIdentity, NeatOverlayType } from './item-colors';
+import { heldItemColor } from './item-colors';
 import { letterbox, mirrorLetterbox } from './letterbox';
 import type { NeatOverlaySettings } from './overlay-settings';
 import type { MaskSurfaceFactory } from './rle';
@@ -131,6 +133,20 @@ function newOverlayState(
     fonts: null,
   };
   return state as unknown as NeatOverlayState;
+}
+
+/**
+ * The color the channel's overlay draws `item` of `type` in with `settings`, without drawing it;
+ * null while it holds none. It follows the colors as signals do: see `NeatVideoTile.colorOf`.
+ */
+export function overlayColor(
+  handle: NeatOverlayState,
+  settings: NeatOverlaySettings,
+  type: NeatOverlayType,
+  item: NeatOverlayIdentity,
+): string | null {
+  const state = stateOf(handle);
+  return heldItemColor(state.colors, state.channel, settings, type, item);
 }
 
 /** Forgets the channel's track trails and its track and pose colors, as after the stream stops. */

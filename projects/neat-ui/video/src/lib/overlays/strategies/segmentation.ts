@@ -1,5 +1,5 @@
 import type { DrawContext, DrawStrategy } from '../draw-context';
-import { applyLineStyle, classStyles, identityColor, percent, styleFor } from '../draw-context';
+import { applyLineStyle, classStyles, itemColor, percent, styleFor } from '../draw-context';
 import { MAX_RLE_MASK_PIXELS } from '../rle';
 import { drawRoiOnce, passesRoiFilter } from '../roi';
 
@@ -143,7 +143,7 @@ export const drawSegmentation: DrawStrategy = (dc, data) => {
     }
     if (!passesRoiFilter(dc.roi, bbox, box, settings.general.applyRoiFiltering)) continue;
 
-    const color = identityColor(dc, 'class', segment.label, overrides);
+    const color = itemColor(dc, 'segmentation', segment, overrides);
     ctx.strokeStyle = color;
     applyLineStyle(ctx, styleFor(styles, segment.label), settings.general.lineWidth);
     ctx.font = dc.fonts.label;

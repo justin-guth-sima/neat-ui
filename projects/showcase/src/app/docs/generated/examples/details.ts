@@ -15,13 +15,13 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The facts of a source in a panel's width. The URL's value holds a code span and an inline button."
+            "text": "The facts of a source in a panel's width. The URL's value holds a code span and its Copy button."
           }
         ]
       }
     ],
     "shows": [
-      "@sima/neat-ui#NeatInlineButton",
+      "@sima/neat-ui/code-block#NeatCopyButton",
       "@sima/neat-ui/details#NeatDetails"
     ],
     "files": [
@@ -29,9 +29,9 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "1-source-facts.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatInlineButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatCopyButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/code-block'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatDetails } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/details'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-source-facts'"],["text",",\n  imports: [NeatDetails, NeatInlineButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'app-source-facts'"],["text",",\n  imports: [NeatDetails, NeatCopyButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./1-source-facts.example.html'"],["text",",\n  styleUrls: ["],
           ["string","'./panel.css'"],["text",", "],["string","'./source-facts.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SourceFacts {}\n"]
@@ -40,7 +40,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "1-source-facts.example.html",
         "code": [
-          ["text","<dl neatDetails class=\"panel\">\n  <dt>Source</dt>\n  <dd><code>rtsp://192.168.1.10:554/stream1</code></dd>\n  <dt>Status</dt>\n  <dd>Pulling</dd>\n  <dt>URL</dt>\n  <dd class=\"url\">\n    <code>rtsp://neat.local:8554/src3</code>\n    <button neatInlineButton type=\"button\">Copy</button>\n  </dd>\n  <dt>Live for</dt>\n  <dd>1:02:41</dd>\n  <dt>Bitrate</dt>\n  <dd>4.2 Mbit/s</dd>\n</dl>\n"]
+          ["text","<dl neatDetails class=\"panel\">\n  <dt>Source</dt>\n  <dd><code>rtsp://192.168.1.10:554/stream1</code></dd>\n  <dt>Status</dt>\n  <dd>Pulling</dd>\n  <dt>URL</dt>\n  <dd class=\"url\">\n    <code>rtsp://neat.local:8554/src3</code>\n    <neat-copy-button text=\"rtsp://neat.local:8554/src3\" what=\"stream URL\" />\n  </dd>\n  <dt>Live for</dt>\n  <dd>1:02:41</dd>\n  <dt>Bitrate</dt>\n  <dd>4.2 Mbit/s</dd>\n</dl>\n"]
         ]
       },
       {

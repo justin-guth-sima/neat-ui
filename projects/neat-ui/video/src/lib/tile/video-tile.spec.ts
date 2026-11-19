@@ -1,4 +1,4 @@
-import { afterEveryRender, Component, signal } from '@angular/core';
+import { afterEveryRender, Component, computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import type { NeatTone } from '@sima/neat-ui';
 import { OVERLAY_PALETTE } from '../theme/overlay-palette';
@@ -1261,6 +1261,51 @@ describe('NeatVideoTile', () => {
       expect(strokeRects(), 'the second frame still drew').toHaveLength(1);
       expect(warn).toHaveBeenCalledTimes(1);
       expect(String(warn.mock.calls[0][0])).toContain('frameListener');
+    });
+  });
+
+  describe('colorOf', () => {
+    it('gives each track the color the overlay drew it in, in the frame listener already', () => {
+      create();
+      startStream();
+      const seen: (string | null)[][] = [];
+      host().frameListener.set(() =>
+        seen.push(['a', 'b'].map((id) => tile().colorOf('tracking', { id }))),
+      );
+      render();
+
+      source.send(tracking(1, ['a', 'b']));
+      present(1);
+
+      const drawn = context.ops('strokeRect').map((call) => call.strokeStyle);
+      expect(seen).toStrictEqual([drawn]);
+      expect(tile().colorOf('tracking', { id: 'c' }), 'a track not drawn has none').toBeNull();
+    });
+
+    it('is followed by a computed: a color drawn, then taken back when the stream stops', () => {
+      create();
+      startStream();
+      const color = computed(() => tile().colorOf('tracking', { id: 'a' }));
+      expect(color()).toBeNull();
+
+      source.send(tracking(1, ['a']));
+      present(1);
+      expect(color()).toBe(OVERLAY_PALETTE[0]);
+
+      advance(NEAT_STREAM_STALE_MS);
+      expect(tileState()).toBe('stopped');
+      expect(color()).toBeNull();
+    });
+
+    it('gives a style row’s color at once, and follows the settings', () => {
+      create();
+      const color = computed(() => tile().colorOf('object-detection', { label: 'person' }));
+      expect(color()).toBeNull();
+
+      const row = { label: 'person', color: OVERLAY_PALETTE[5], style: 'solid', width: 3 } as const;
+      host().settings.set(overlaySettings({ types: { 'object-detection': { objects: [row] } } }));
+      render();
+      expect(color()).toBe(OVERLAY_PALETTE[5]);
     });
   });
 

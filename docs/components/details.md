@@ -28,7 +28,7 @@ import { NeatDetails } from '@sima/neat-ui/details';
 
 ### Source facts
 
-The facts of a source in a panel's width. The URL's value holds a code span and an inline button.
+The facts of a source in a panel's width. The URL's value holds a code span and its Copy button.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/details/source-facts.dark.webp">
@@ -42,12 +42,12 @@ The facts of a source in a panel's width. The URL's value holds a code span and 
 
 ```ts
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { NeatInlineButton } from '@sima/neat-ui';
+import { NeatCopyButton } from '@sima/neat-ui/code-block';
 import { NeatDetails } from '@sima/neat-ui/details';
 
 @Component({
   selector: 'app-source-facts',
-  imports: [NeatDetails, NeatInlineButton],
+  imports: [NeatDetails, NeatCopyButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './1-source-facts.example.html',
   styleUrls: ['./panel.css', './source-facts.example.css'],
@@ -66,7 +66,7 @@ export class SourceFacts {}
   <dt>URL</dt>
   <dd class="url">
     <code>rtsp://neat.local:8554/src3</code>
-    <button neatInlineButton type="button">Copy</button>
+    <neat-copy-button text="rtsp://neat.local:8554/src3" what="stream URL" />
   </dd>
   <dt>Live for</dt>
   <dd>1:02:41</dd>

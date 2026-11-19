@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { NeatSwatch } from '@sima/neat-ui';
 import {
   NeatBev,
   type NeatBevObject,
@@ -34,13 +35,14 @@ const VEHICLES = new Set(['car', 'truck', 'bicycle']);
  * is selected. Select a row, and the view outlines that car and reads it out, until the pointer
  * comes back over the view.
  *
- * The objects carry their tracks' ids, so a car is the same car from frame to frame.
+ * The objects carry their tracks' ids, so a car is the same car from frame to frame. Each row's
+ * swatch is the color the view draws its label in, from the view's `colorOf`.
  *
  * @unpictured
  */
 @Component({
   selector: 'app-interaction',
-  imports: [NeatBev, NeatCard, NeatColumn, NeatSelectList],
+  imports: [NeatBev, NeatCard, NeatColumn, NeatSelectList, NeatSwatch],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './9-interaction.example.html',
   styleUrl: './bev.example.css',

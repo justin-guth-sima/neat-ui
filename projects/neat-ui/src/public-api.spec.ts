@@ -186,6 +186,7 @@ describe('the public API', () => {
       'ɵSTALE_CLASSES',
       'ɵclassStyles',
       'ɵcreateColorAllocator',
+      'ɵheldColor',
       'ɵhlm',
       'ɵlistVariants',
       'ɵreducedMotion',

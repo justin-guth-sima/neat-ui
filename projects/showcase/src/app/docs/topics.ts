@@ -1031,6 +1031,8 @@ export const GROUPS: readonly TopicGroup[] = [
               'NeatTileState',
               'NeatFrameStats',
               'NeatOverlaySettings',
+              'NeatOverlayType',
+              'NeatOverlayIdentity',
               'NeatOverlayClassStyle',
               'NeatOverlayLineStyle',
               'NEAT_OVERLAY_DEFAULTS',

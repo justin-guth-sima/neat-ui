@@ -466,6 +466,13 @@ figcaption {
   font-variant-numeric: tabular-nums;
 }
 
+/* A vehicle's swatch before its id, as in a legend. */
+.vehicle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+}
+
 /* The list fills its container, so the example gives it a height. */
 .tracks {
   height: 14rem;
@@ -914,6 +921,13 @@ figcaption {
 .report dd {
   margin: 0;
   font-variant-numeric: tabular-nums;
+}
+
+/* A vehicle's swatch before its id, as in a legend. */
+.vehicle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
 }
 
 /* The list fills its container, so the example gives it a height. */
@@ -1374,6 +1388,13 @@ figcaption {
 .report dd {
   margin: 0;
   font-variant-numeric: tabular-nums;
+}
+
+/* A vehicle's swatch before its id, as in a legend. */
+.vehicle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
 }
 
 /* The list fills its container, so the example gives it a height. */
@@ -1849,6 +1870,13 @@ figcaption {
   font-variant-numeric: tabular-nums;
 }
 
+/* A vehicle's swatch before its id, as in a legend. */
+.vehicle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+}
+
 /* The list fills its container, so the example gives it a height. */
 .tracks {
   height: 14rem;
@@ -2298,6 +2326,13 @@ figcaption {
 .report dd {
   margin: 0;
   font-variant-numeric: tabular-nums;
+}
+
+/* A vehicle's swatch before its id, as in a legend. */
+.vehicle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
 }
 
 /* The list fills its container, so the example gives it a height. */
@@ -2758,6 +2793,13 @@ figcaption {
   font-variant-numeric: tabular-nums;
 }
 
+/* A vehicle's swatch before its id, as in a legend. */
+.vehicle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+}
+
 /* The list fills its container, so the example gives it a height. */
 .tracks {
   height: 14rem;
@@ -3211,6 +3253,13 @@ figcaption {
 .report dd {
   margin: 0;
   font-variant-numeric: tabular-nums;
+}
+
+/* A vehicle's swatch before its id, as in a legend. */
+.vehicle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
 }
 
 /* The list fills its container, so the example gives it a height. */
@@ -3708,6 +3757,13 @@ figcaption {
   font-variant-numeric: tabular-nums;
 }
 
+/* A vehicle's swatch before its id, as in a legend. */
+.vehicle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+}
+
 /* The list fills its container, so the example gives it a height. */
 .tracks {
   height: 14rem;
@@ -3724,7 +3780,7 @@ The card beside it reads: - `hovered`, the object under the pointer, by its id; 
 
 Its list of the vehicles is bound to `hovered` both ways. Try hovering a car in the view: its row is selected. Select a row, and the view outlines that car and reads it out, until the pointer comes back over the view.
 
-The objects carry their tracks' ids, so a car is the same car from frame to frame.
+The objects carry their tracks' ids, so a car is the same car from frame to frame. Each row's swatch is the color the view draws its label in, from the view's `colorOf`.
 
 <details>
 <summary>Code</summary>
@@ -3733,6 +3789,7 @@ The objects carry their tracks' ids, so a car is the same car from frame to fram
 
 ```ts
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { NeatSwatch } from '@sima/neat-ui';
 import {
   NeatBev,
   type NeatBevObject,
@@ -3760,7 +3817,7 @@ const VEHICLES = new Set(['car', 'truck', 'bicycle']);
 
 @Component({
   selector: 'app-interaction',
-  imports: [NeatBev, NeatCard, NeatColumn, NeatSelectList],
+  imports: [NeatBev, NeatCard, NeatColumn, NeatSelectList, NeatSwatch],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './9-interaction.example.html',
   styleUrl: './bev.example.css',
@@ -3820,6 +3877,7 @@ function distance(object: NeatBevObject): string {
 ```html
 <div class="interaction">
   <neat-bev
+    #view
     [frame]="frame()"
     [range]="40"
     [(hovered)]="hovered"
@@ -3843,7 +3901,14 @@ function distance(object: NeatBevObject): string {
         [selected]="selectedTrack()"
         (selectedChange)="hovered.set($event?.id ?? null)"
       >
-        <ng-template neatColumn="track" header="Vehicle" let-track>{{ track.id }}</ng-template>
+        <ng-template neatColumn="track" header="Vehicle" let-track>
+          <span class="vehicle">
+            @if (view.colorOf(track.label); as color) {
+              <neat-swatch [color]="color" />
+            }
+            {{ track.id }}
+          </span>
+        </ng-template>
         <ng-template neatColumn="distance" header="Distance" width="6rem" let-track>{{
           distanceText(track.id)
         }}</ng-template>
@@ -4253,6 +4318,13 @@ figcaption {
   font-variant-numeric: tabular-nums;
 }
 
+/* A vehicle's swatch before its id, as in a legend. */
+.vehicle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+}
+
 /* The list fills its container, so the example gives it a height. */
 .tracks {
   height: 14rem;
@@ -4374,6 +4446,30 @@ It draws on one canvas, outside change detection: at the next animation frame af
   Where a mouse or pen is over the view, in meters; null when it leaves.
 
   It emits at most once a frame, and only when the point changed. A zoom moves it too.
+
+**Methods**
+
+- **`colorOf`**
+
+  ```ts
+  colorOf(label: string): string | null
+  ```
+
+  The color the view draws `label` in, for a swatch in a list beside it; null while it has none.
+
+  ```html
+  <neat-bev #view [frame]="frame()" />
+  @if (view.colorOf('car'); as color) {
+    <neat-swatch [color]="color" />
+  }
+  car
+  ```
+
+  It is the label's row in `styles`, else its class color. A class has the same color in every video tile of the page, so this is the color a tile's `colorOf` gives a detection of that label without a style row.
+
+  It is null for a label the page has not drawn yet, or no longer holds a color for: a class gone for about 5 s may give its color to another. A style row's color it gives at once.
+
+  It reads signals, so a template or a `computed` that calls it updates when a class color is given or taken back, and when `styles` change. Asking records no draw, so it keeps no color alive.
 
 ### `NeatBevFrame`
 

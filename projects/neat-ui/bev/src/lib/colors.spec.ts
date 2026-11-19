@@ -30,6 +30,19 @@ describe('LabelColors', () => {
     expect(tile.colorFor(3, 'class', 'car', 300)).toBe(colors.of('car').color);
   });
 
+  it('reads a label’s color back without drawing it: the row’s, else the class color it holds', () => {
+    const colors = new LabelColors(page);
+    const rows = [{ label: 'car', color: '#123456', style: 'solid', width: 3 } as const];
+    expect(colors.heldColorOf('car', rows)).toBe('#123456');
+    expect(colors.heldColorOf('truck', rows), 'not drawn yet').toBeNull();
+    colors.begin(0);
+    const truck = colors.of('truck').color;
+    expect(colors.heldColorOf('truck', rows)).toBe(truck);
+    expect(colors.heldColorOf('truck', []), 'one class color with the tiles').toBe(
+      createColorAllocator(page).colorFor(0, 'class', 'truck', 1),
+    );
+  });
+
   it('lets a style row win, for color, line and width, and a default row cover the rest', () => {
     const colors = new LabelColors(page);
     colors.setStyles([

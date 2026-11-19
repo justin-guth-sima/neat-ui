@@ -1,6 +1,7 @@
 import { OVERLAY_LABEL_PLATE_COLOR } from '../theme/overlay-palette';
-import type { ColorAllocator, ColorNamespace } from './colors';
-import { resolveColor } from './colors';
+import type { ColorAllocator } from './colors';
+import type { NeatOverlayIdentity, NeatOverlayType } from './item-colors';
+import { resolveItemColor } from './item-colors';
 import type { Letterbox } from './letterbox';
 import type { NeatOverlayClassStyle, NeatOverlaySettings } from './overlay-settings';
 import type { RleMaskCanvas } from './rle';
@@ -52,23 +53,17 @@ export interface DrawContext {
  */
 export type DrawStrategy = (dc: DrawContext, data: unknown) => void;
 
-export function identityColor(
+/** The color to draw `item` of `type` in this frame; `overrides` are the type's rows' colors. */
+export function itemColor(
   dc: DrawContext,
-  namespace: ColorNamespace,
-  identity: unknown,
+  type: NeatOverlayType,
+  item: NeatOverlayIdentity,
   overrides?: Readonly<Record<string, string>>,
 ): string {
-  return resolveColor({
-    allocator: dc.colors,
-    channelIndex: dc.channel,
-    namespace,
-    identity,
-    overrides,
-    now: dc.now,
-  });
+  return resolveItemColor(dc.colors, dc.channel, type, item, overrides, dc.now);
 }
 
-/** A type's class rows by label, and their colors as overrides for `identityColor`; a label's row. */
+/** A type's class rows by label, and their colors as overrides for `itemColor`; a label's row. */
 export { ɵclassStyles as classStyles, ɵstyleFor as styleFor } from '@sima/neat-ui';
 
 export function applyLineStyle(

@@ -1,5 +1,6 @@
 <div class="interaction">
   <neat-bev
+    #view
     [frame]="frame()"
     [range]="40"
     [(hovered)]="hovered"
@@ -23,7 +24,14 @@
         [selected]="selectedTrack()"
         (selectedChange)="hovered.set($event?.id ?? null)"
       >
-        <ng-template neatColumn="track" header="Vehicle" let-track>{{ track.id }}</ng-template>
+        <ng-template neatColumn="track" header="Vehicle" let-track>
+          <span class="vehicle">
+            @if (view.colorOf(track.label); as color) {
+              <neat-swatch [color]="color" />
+            }
+            {{ track.id }}
+          </span>
+        </ng-template>
         <ng-template neatColumn="distance" header="Distance" width="6rem" let-track>{{
           distanceText(track.id)
         }}</ng-template>

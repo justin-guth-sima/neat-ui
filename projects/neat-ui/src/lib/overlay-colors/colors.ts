@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, type WritableSignal } from '@angular/core';
 import { OVERLAY_NEUTRAL_COLOR, OVERLAY_PALETTE } from '../theme/identity-palette';
 
 /** An identity that has not been drawn for this long no longer holds its slot. */
@@ -27,10 +27,23 @@ function createColorMap(): ColorMap {
   return { holders: new Map(), insertions: 0 };
 }
 
+/** The page's class colors, and a count that moves whenever one is given or taken back. */
+interface ClassColors {
+  readonly map: ColorMap;
+  readonly changes: WritableSignal<number>;
+}
+
 /** Hands out palette colors to identities; one per tile. */
 export interface ColorAllocator {
   /** The color of `identity`, recording that it was drawn at `now`. */
   colorFor(channelIndex: number, namespace: ColorNamespace, identity: unknown, now: number): string;
+  /**
+   * The color `identity` holds, without recording a draw; null for one that holds none (not drawn
+   * yet, or forgotten). It reads a signal that changes whenever a color of its map is given or taken
+   * back, so a computed or a template that calls it follows: the page's for classes, the
+   * allocator's own for tracks and poses.
+   */
+  held(channelIndex: number, namespace: ColorNamespace, identity: unknown): string | null;
   /** Drops the track and pose colors. Class colors are the page's and stay. */
   clear(): void;
   size(channelIndex: number, namespace: ColorNamespace): number;
@@ -49,7 +62,11 @@ export class NeatOverlayColors {}
  * Each instance's class colors, kept here so the service exposes nothing to apps. A WeakMap, so a
  * discarded instance takes its colors with it.
  */
-const classColorsOf = new WeakMap<NeatOverlayColors, ColorMap>();
+const classColorsOf = new WeakMap<NeatOverlayColors, ClassColors>();
+
+function bump(changes: WritableSignal<number>): void {
+  changes.update((count) => count + 1);
+}
 
 function identityKey(identity: unknown): string | null {
   if (identity === null || identity === undefined) return null;
@@ -164,15 +181,24 @@ function sharedSlot(map: ColorMap): number {
  * every slot is live, the newcomer shares the slot drawn longest ago. Ties go to the identity
  * inserted first. Each map is independent; timestamps in one map do not affect another. Every
  * tile draws with the page's clock, so `lastSeen` values from different tiles compare correctly.
+ *
+ * `held` reads a color without drawing, for the tile's and the view's `colorOf`. So that a list
+ * beside them follows, the page's class map and each allocator's own maps have a signal that moves
+ * when a color is given or taken back, never when an identity is merely drawn again.
  */
 export function createColorAllocator(colors: NeatOverlayColors): ColorAllocator {
   // The first allocator of an instance creates its class map.
-  const classColors = classColorsOf.get(colors) ?? createColorMap();
+  const classColors = classColorsOf.get(colors) ?? {
+    map: createColorMap(),
+    changes: signal(0),
+  };
   classColorsOf.set(colors, classColors);
   const maps = new Map<string, ColorMap>();
+  /** Moves whenever a track or pose color of this allocator is given or taken back. */
+  const ownChanges = signal(0);
 
   function mapFor(channelIndex: number, namespace: ColorNamespace): ColorMap {
-    if (namespace === 'class') return classColors;
+    if (namespace === 'class') return classColors.map;
     const key = `${channelIndex}:${namespace}`;
     let map = maps.get(key);
     if (!map) {
@@ -182,13 +208,24 @@ export function createColorAllocator(colors: NeatOverlayColors): ColorAllocator 
     return map;
   }
 
+  function changesOf(namespace: ColorNamespace): WritableSignal<number> {
+    return namespace === 'class' ? classColors.changes : ownChanges;
+  }
+
   return {
     colorFor(channelIndex, namespace, identity, now) {
       const key = identityKey(identity);
       if (key === null) return OVERLAY_NEUTRAL_COLOR;
       const map = mapFor(channelIndex, namespace);
       const existing = map.holders.get(key);
-      if (existing && !(isStale(existing, now) && separateFromSharers(map, key, existing, now))) {
+      // The common case, an identity drawn a moment ago, changes no color and writes no signal.
+      if (existing && !isStale(existing, now)) {
+        existing.lastSeen = now;
+        return OVERLAY_PALETTE[existing.slot];
+      }
+      // Everything below may give or take back a color.
+      bump(changesOf(namespace));
+      if (existing && !separateFromSharers(map, key, existing, now)) {
         existing.lastSeen = now;
         return OVERLAY_PALETTE[existing.slot];
       }
@@ -203,10 +240,23 @@ export function createColorAllocator(colors: NeatOverlayColors): ColorAllocator 
       return OVERLAY_PALETTE[slot];
     },
 
+    held(channelIndex, namespace, identity) {
+      // Read first, so a caller follows the map even while the identity holds nothing.
+      changesOf(namespace)();
+      const key = identityKey(identity);
+      if (key === null) return OVERLAY_NEUTRAL_COLOR;
+      const map =
+        namespace === 'class' ? classColors.map : maps.get(`${channelIndex}:${namespace}`);
+      const holder = map?.holders.get(key);
+      return holder === undefined ? null : OVERLAY_PALETTE[holder.slot];
+    },
+
     // Shared class colors stay: other tiles may be drawing them, and they release after
     // RELEASE_AFTER_MS like any identity.
     clear() {
+      if (maps.size === 0) return;
       maps.clear();
+      bump(ownChanges);
     },
 
     size(channelIndex, namespace) {
@@ -215,34 +265,47 @@ export function createColorAllocator(colors: NeatOverlayColors): ColorAllocator 
   };
 }
 
-/**
- * The color to draw an identity in: its override, then the `default` override for anything
- * unlisted, then the neutral color for a missing identity, then the allocator's.
- */
-export function resolveColor({
-  allocator,
-  channelIndex,
-  namespace,
-  identity,
-  overrides,
-  now,
-}: {
+/** What `resolveColor` and `heldColor` look an identity's color up with. */
+export interface ColorQuery {
   allocator: ColorAllocator;
   channelIndex: number;
   namespace: ColorNamespace;
   identity: unknown;
+  /** The style rows' colors, by label. */
   overrides?: Readonly<Record<string, string>>;
-  now: number;
-}): string {
-  const key = identityKey(identity);
-  if (overrides) {
-    // Labels come from the producer, so a label such as "constructor" can reach a plain object's
-    // prototype; only string values count as overrides.
-    const own: unknown = key === null ? undefined : overrides[key];
-    if (typeof own === 'string') return own;
-    const fallback: unknown = overrides['default'];
-    if (typeof fallback === 'string') return fallback;
-  }
-  if (key === null) return OVERLAY_NEUTRAL_COLOR;
-  return allocator.colorFor(channelIndex, namespace, key, now);
+  /**
+   * What `overrides` are looked up by, when it is not the identity: a pose is colored by its id
+   * and styled by its label.
+   */
+  label?: unknown;
+}
+
+/**
+ * The color to draw an identity in: its override, then the `default` override for anything
+ * unlisted, then the neutral color for a missing identity, then the allocator's.
+ */
+export function resolveColor(query: ColorQuery & { now: number }): string {
+  const { allocator, channelIndex, namespace, identity, now } = query;
+  return overrideFor(query) ?? allocator.colorFor(channelIndex, namespace, identity, now);
+}
+
+/**
+ * The color `resolveColor` gave the identity, without recording a draw: its override, else the
+ * color the allocator holds for it (`ColorAllocator.held`), null while it holds none.
+ */
+export function heldColor(query: ColorQuery): string | null {
+  const { allocator, channelIndex, namespace, identity } = query;
+  return overrideFor(query) ?? allocator.held(channelIndex, namespace, identity);
+}
+
+/** The override for the query's label: its own row's color, then the `default` row's. */
+function overrideFor({ identity, overrides, ...query }: ColorQuery): string | null {
+  if (!overrides) return null;
+  const key = identityKey('label' in query ? query.label : identity);
+  // Labels come from the producer, so a label such as "constructor" can reach a plain object's
+  // prototype; only string values count as overrides.
+  const own: unknown = key === null ? undefined : overrides[key];
+  if (typeof own === 'string') return own;
+  const fallback: unknown = overrides['default'];
+  return typeof fallback === 'string' ? fallback : null;
 }

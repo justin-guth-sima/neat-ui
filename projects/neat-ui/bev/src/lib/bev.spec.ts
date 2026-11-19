@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { ThemeService } from '@sima/neat-ui';
 import type { NeatOverlayClassStyle } from '@sima/neat-ui/video';
@@ -513,6 +513,22 @@ describe('NeatBev', () => {
     await settle();
     frames.run();
     expect(draws[1][4].of('car')).toMatchObject({ color: '#123456', width: 3 });
+  });
+
+  it('tells the color it draws a label in through colorOf, which a computed follows', async () => {
+    const bev = (): NeatBev => fixture.debugElement.children[0].componentInstance as NeatBev;
+    const car = computed(() => bev().colorOf('car'));
+    expect(car(), 'not drawn yet').toBeNull();
+
+    host.frame.set({ objects: [{ label: 'car', x: 10, y: 0, length: 4, width: 2, yaw: 0 }] });
+    await settle();
+    frames.run();
+    const drawn = draws.at(-1)![4].of('car').color;
+    expect(car()).toBe(drawn);
+
+    host.styles.set([{ label: 'car', color: '#123456', style: 'solid', width: 3 }]);
+    await settle();
+    expect(car(), 'a style row').toBe('#123456');
   });
 
   it('stops drawing once destroyed', () => {

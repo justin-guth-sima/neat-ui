@@ -5,6 +5,7 @@
  */
 export {
   ɵcreateColorAllocator as createColorAllocator,
+  ɵheldColor as heldColor,
   ɵNeatOverlayColors as NeatOverlayColors,
   ɵresolveColor as resolveColor,
 } from '@sima/neat-ui';

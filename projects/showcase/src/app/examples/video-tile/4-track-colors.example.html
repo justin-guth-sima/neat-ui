@@ -1,0 +1,40 @@
+<div class="track-colors">
+  <div class="cell">
+    <neat-video-tile
+      #tile
+      [source]="road"
+      label="1"
+      status="Road · 640×360"
+      [frameListener]="listTracks"
+    />
+  </div>
+  <neat-card title="Tracks">
+    @if (tracks().length === 0) {
+      <p neatNote>Nothing tracked in this frame.</p>
+    } @else {
+      <table neatTable aria-label="Tracks on screen">
+        <thead>
+          <tr>
+            <th scope="col">Track</th>
+            <th scope="col">Object</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (track of tracks(); track track.id) {
+            <tr>
+              <td>
+                <span class="track">
+                  @if (tile.colorOf('tracking', track); as color) {
+                    <neat-swatch [color]="color" />
+                  }
+                  #{{ track.id }}
+                </span>
+              </td>
+              <td>{{ track.label }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </neat-card>
+</div>

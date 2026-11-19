@@ -1,5 +1,5 @@
 import type { DrawStrategy } from '../draw-context';
-import { applyLineStyle, classStyles, identityColor, percent, styleFor } from '../draw-context';
+import { applyLineStyle, classStyles, itemColor, percent, styleFor } from '../draw-context';
 import { drawRoiOnce, passesRoiFilter } from '../roi';
 
 /** The fields of an `object-detection` payload this overlay reads. */
@@ -30,7 +30,7 @@ export const drawObjectDetection: DrawStrategy = (dc, data) => {
     const [x, y, w, h] = object.bbox;
     if (!passesRoiFilter(dc.roi, object.bbox, box, settings.general.applyRoiFiltering)) continue;
 
-    const color = identityColor(dc, 'class', object.label, overrides);
+    const color = itemColor(dc, 'object-detection', object, overrides);
     ctx.strokeStyle = color;
     applyLineStyle(ctx, styleFor(styles, object.label), settings.general.lineWidth);
     ctx.font = dc.fonts.label;

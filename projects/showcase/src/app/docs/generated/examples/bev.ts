@@ -234,6 +234,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n\n"],
           ["comment","/* The view beside the card that reports on it; one above the other where there is no room. */"],["text","\n.interaction {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n.report {\n  display: grid;\n  grid-template-columns: auto 1fr;\n  gap: var(--neat-space-2) var(--neat-space-4);\n  margin: 0 0 var(--neat-space-3);\n  font-size: var(--neat-text-sm);\n}\n\n.report dt {\n  color: var(--muted-foreground);\n}\n\n.report dd {\n  margin: 0;\n  font-variant-numeric: tabular-nums;\n}\n\n"],
+          ["comment","/* A vehicle's swatch before its id, as in a legend. */"],["text","\n.vehicle {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n\n"],
           ["comment","/* The list fills its container, so the example gives it a height. */"],["text","\n.tracks {\n  height: 14rem;\n}\n"]
         ]
       }
@@ -478,6 +479,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n\n"],
           ["comment","/* The view beside the card that reports on it; one above the other where there is no room. */"],["text","\n.interaction {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n.report {\n  display: grid;\n  grid-template-columns: auto 1fr;\n  gap: var(--neat-space-2) var(--neat-space-4);\n  margin: 0 0 var(--neat-space-3);\n  font-size: var(--neat-text-sm);\n}\n\n.report dt {\n  color: var(--muted-foreground);\n}\n\n.report dd {\n  margin: 0;\n  font-variant-numeric: tabular-nums;\n}\n\n"],
+          ["comment","/* A vehicle's swatch before its id, as in a legend. */"],["text","\n.vehicle {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n\n"],
           ["comment","/* The list fills its container, so the example gives it a height. */"],["text","\n.tracks {\n  height: 14rem;\n}\n"]
         ]
       }
@@ -712,6 +714,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n\n"],
           ["comment","/* The view beside the card that reports on it; one above the other where there is no room. */"],["text","\n.interaction {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n.report {\n  display: grid;\n  grid-template-columns: auto 1fr;\n  gap: var(--neat-space-2) var(--neat-space-4);\n  margin: 0 0 var(--neat-space-3);\n  font-size: var(--neat-text-sm);\n}\n\n.report dt {\n  color: var(--muted-foreground);\n}\n\n.report dd {\n  margin: 0;\n  font-variant-numeric: tabular-nums;\n}\n\n"],
+          ["comment","/* A vehicle's swatch before its id, as in a legend. */"],["text","\n.vehicle {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n\n"],
           ["comment","/* The list fills its container, so the example gives it a height. */"],["text","\n.tracks {\n  height: 14rem;\n}\n"]
         ]
       }
@@ -960,6 +963,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n\n"],
           ["comment","/* The view beside the card that reports on it; one above the other where there is no room. */"],["text","\n.interaction {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n.report {\n  display: grid;\n  grid-template-columns: auto 1fr;\n  gap: var(--neat-space-2) var(--neat-space-4);\n  margin: 0 0 var(--neat-space-3);\n  font-size: var(--neat-text-sm);\n}\n\n.report dt {\n  color: var(--muted-foreground);\n}\n\n.report dd {\n  margin: 0;\n  font-variant-numeric: tabular-nums;\n}\n\n"],
+          ["comment","/* A vehicle's swatch before its id, as in a legend. */"],["text","\n.vehicle {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n\n"],
           ["comment","/* The list fills its container, so the example gives it a height. */"],["text","\n.tracks {\n  height: 14rem;\n}\n"]
         ]
       }
@@ -1204,6 +1208,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n\n"],
           ["comment","/* The view beside the card that reports on it; one above the other where there is no room. */"],["text","\n.interaction {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n.report {\n  display: grid;\n  grid-template-columns: auto 1fr;\n  gap: var(--neat-space-2) var(--neat-space-4);\n  margin: 0 0 var(--neat-space-3);\n  font-size: var(--neat-text-sm);\n}\n\n.report dt {\n  color: var(--muted-foreground);\n}\n\n.report dd {\n  margin: 0;\n  font-variant-numeric: tabular-nums;\n}\n\n"],
+          ["comment","/* A vehicle's swatch before its id, as in a legend. */"],["text","\n.vehicle {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n\n"],
           ["comment","/* The list fills its container, so the example gives it a height. */"],["text","\n.tracks {\n  height: 14rem;\n}\n"]
         ]
       }
@@ -1470,6 +1475,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n\n"],
           ["comment","/* The view beside the card that reports on it; one above the other where there is no room. */"],["text","\n.interaction {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n.report {\n  display: grid;\n  grid-template-columns: auto 1fr;\n  gap: var(--neat-space-2) var(--neat-space-4);\n  margin: 0 0 var(--neat-space-3);\n  font-size: var(--neat-text-sm);\n}\n\n.report dt {\n  color: var(--muted-foreground);\n}\n\n.report dd {\n  margin: 0;\n  font-variant-numeric: tabular-nums;\n}\n\n"],
+          ["comment","/* A vehicle's swatch before its id, as in a legend. */"],["text","\n.vehicle {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n\n"],
           ["comment","/* The list fills its container, so the example gives it a height. */"],["text","\n.tracks {\n  height: 14rem;\n}\n"]
         ]
       }
@@ -1705,6 +1711,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n\n"],
           ["comment","/* The view beside the card that reports on it; one above the other where there is no room. */"],["text","\n.interaction {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n.report {\n  display: grid;\n  grid-template-columns: auto 1fr;\n  gap: var(--neat-space-2) var(--neat-space-4);\n  margin: 0 0 var(--neat-space-3);\n  font-size: var(--neat-text-sm);\n}\n\n.report dt {\n  color: var(--muted-foreground);\n}\n\n.report dd {\n  margin: 0;\n  font-variant-numeric: tabular-nums;\n}\n\n"],
+          ["comment","/* A vehicle's swatch before its id, as in a legend. */"],["text","\n.vehicle {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n\n"],
           ["comment","/* The list fills its container, so the example gives it a height. */"],["text","\n.tracks {\n  height: 14rem;\n}\n"]
         ]
       }
@@ -2015,6 +2022,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n\n"],
           ["comment","/* The view beside the card that reports on it; one above the other where there is no room. */"],["text","\n.interaction {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n.report {\n  display: grid;\n  grid-template-columns: auto 1fr;\n  gap: var(--neat-space-2) var(--neat-space-4);\n  margin: 0 0 var(--neat-space-3);\n  font-size: var(--neat-text-sm);\n}\n\n.report dt {\n  color: var(--muted-foreground);\n}\n\n.report dd {\n  margin: 0;\n  font-variant-numeric: tabular-nums;\n}\n\n"],
+          ["comment","/* A vehicle's swatch before its id, as in a legend. */"],["text","\n.vehicle {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n\n"],
           ["comment","/* The list fills its container, so the example gives it a height. */"],["text","\n.tracks {\n  height: 14rem;\n}\n"]
         ]
       }
@@ -2090,12 +2098,21 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The objects carry their tracks' ids, so a car is the same car from frame to frame."
+            "text": "The objects carry their tracks' ids, so a car is the same car from frame to frame. Each row's swatch is the color the view draws its label in, from the view's "
+          },
+          {
+            "kind": "code",
+            "text": "colorOf"
+          },
+          {
+            "kind": "text",
+            "text": "."
           }
         ]
       }
     ],
     "shows": [
+      "@sima/neat-ui#NeatSwatch",
       "@sima/neat-ui/bev#NeatBev",
       "@sima/neat-ui/bev#NeatBevObject",
       "@sima/neat-ui/bev#NeatBevObjectId",
@@ -2110,6 +2127,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "9-interaction.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, computed, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSwatch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," {\n  NeatBev,\n  "],
           ["keyword","type"],["text"," NeatBevObject,\n  "],
           ["keyword","type"],["text"," NeatBevObjectId,\n  "],
@@ -2128,7 +2146,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," m = (value: "],["keyword","number"],["text",") => "],["string","`${Math.abs(value).toFixed(1)} m`"],["text",";\n  "],
           ["keyword","return"],["text"," "],["string","`${m(x)} ${x >= 0 ? 'ahead' : 'behind'}, ${m(y)} ${y >= 0 ? 'left' : 'right'}`"],["text",";\n}\n\n"],
           ["keyword","const"],["text"," VEHICLES = "],["keyword","new"],["text"," Set(["],["string","'car'"],["text",", "],["string","'truck'"],["text",", "],["string","'bicycle'"],["text","]);\n\n@Component({\n  selector: "],
-          ["string","'app-interaction'"],["text",",\n  imports: [NeatBev, NeatCard, NeatColumn, NeatSelectList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'app-interaction'"],["text",",\n  imports: [NeatBev, NeatCard, NeatColumn, NeatSelectList, NeatSwatch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./9-interaction.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./bev.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Interaction {\n  "],
@@ -2168,7 +2186,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "9-interaction.example.html",
         "code": [
-          ["text","<div class=\"interaction\">\n  <neat-bev\n    [frame]=\"frame()\"\n    [range]=\"40\"\n    [(hovered)]=\"hovered\"\n    (activated)=\"picked.set($event)\"\n    (pointerMove)=\"pointer.set($event)\"\n  />\n  <neat-card title=\"What the view reports\" subtitle=\"And what the app sets\">\n    <dl class=\"report\">\n      <dt>Hovered</dt>\n      <dd>{{ hoveredText() }}</dd>\n      <dt>Last click</dt>\n      <dd>{{ pickedText() }}</dd>\n      <dt>Pointer</dt>\n      <dd>{{ pointerText() }}</dd>\n    </dl>\n    <div class=\"tracks\">\n      <neat-select-list\n        label=\"Vehicles\"\n        [items]=\"tracks\"\n        [trackBy]=\"trackId\"\n        [selected]=\"selectedTrack()\"\n        (selectedChange)=\"hovered.set($event?.id ?? null)\"\n      >\n        <ng-template neatColumn=\"track\" header=\"Vehicle\" let-track>{{ track.id }}</ng-template>\n        <ng-template neatColumn=\"distance\" header=\"Distance\" width=\"6rem\" let-track>{{\n          distanceText(track.id)\n        }}</ng-template>\n      </neat-select-list>\n    </div>\n  </neat-card>\n</div>\n"]
+          ["text","<div class=\"interaction\">\n  <neat-bev\n    #view\n    [frame]=\"frame()\"\n    [range]=\"40\"\n    [(hovered)]=\"hovered\"\n    (activated)=\"picked.set($event)\"\n    (pointerMove)=\"pointer.set($event)\"\n  />\n  <neat-card title=\"What the view reports\" subtitle=\"And what the app sets\">\n    <dl class=\"report\">\n      <dt>Hovered</dt>\n      <dd>{{ hoveredText() }}</dd>\n      <dt>Last click</dt>\n      <dd>{{ pickedText() }}</dd>\n      <dt>Pointer</dt>\n      <dd>{{ pointerText() }}</dd>\n    </dl>\n    <div class=\"tracks\">\n      <neat-select-list\n        label=\"Vehicles\"\n        [items]=\"tracks\"\n        [trackBy]=\"trackId\"\n        [selected]=\"selectedTrack()\"\n        (selectedChange)=\"hovered.set($event?.id ?? null)\"\n      >\n        <ng-template neatColumn=\"track\" header=\"Vehicle\" let-track>\n          <span class=\"vehicle\">\n            @if (view.colorOf(track.label); as color) {\n              <neat-swatch [color]=\"color\" />\n            }\n            {{ track.id }}\n          </span>\n        </ng-template>\n        <ng-template neatColumn=\"distance\" header=\"Distance\" width=\"6rem\" let-track>{{\n          distanceText(track.id)\n        }}</ng-template>\n      </neat-select-list>\n    </div>\n  </neat-card>\n</div>\n"]
         ]
       },
       {
@@ -2336,6 +2354,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["comment","/* The views' sizes are the app's to set: a fixed height here, the wide ones lower. */"],["text","\nneat-bev {\n  height: 26rem;\n}\n\nneat-bev.wide {\n  height: 16rem;\n}\n\n.pair {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n}\n\n.stack {\n  display: grid;\n  gap: var(--neat-space-4);\n}\n\nfigure {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin: 0;\n}\n\n.pair neat-bev {\n  height: 20rem;\n}\n\nfigcaption {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n  text-align: center;\n}\n\n"],
           ["comment","/* The view beside the card that reports on it; one above the other where there is no room. */"],["text","\n.interaction {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n.report {\n  display: grid;\n  grid-template-columns: auto 1fr;\n  gap: var(--neat-space-2) var(--neat-space-4);\n  margin: 0 0 var(--neat-space-3);\n  font-size: var(--neat-text-sm);\n}\n\n.report dt {\n  color: var(--muted-foreground);\n}\n\n.report dd {\n  margin: 0;\n  font-variant-numeric: tabular-nums;\n}\n\n"],
+          ["comment","/* A vehicle's swatch before its id, as in a legend. */"],["text","\n.vehicle {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n\n"],
           ["comment","/* The list fills its container, so the example gives it a height. */"],["text","\n.tracks {\n  height: 14rem;\n}\n"]
         ]
       }

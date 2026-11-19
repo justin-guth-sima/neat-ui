@@ -1,10 +1,6 @@
-import { signal } from '@angular/core';
 import { SIMA_PALETTE } from '@sima/neat-ui';
-import type { NeatMetadataMessage, NeatTileSource } from '@sima/neat-ui/video';
-
-const WIDTH = 640;
-const HEIGHT = 360;
-const FRAMES_PER_SECOND = 30;
+import type { NeatMetadataMessage } from '@sima/neat-ui/video';
+import { CanvasSource, FRAMES_PER_SECOND, HEIGHT, WIDTH } from './canvas-source';
 
 /** MediaPipe's hand landmarks in snake case, wrist first, then the thumb and the four fingers. */
 export const HAND_LANDMARKS: readonly string[] = [
@@ -97,58 +93,14 @@ export function poseMessage(frame: number): NeatMetadataMessage {
   };
 }
 
-/**
- * A `NeatTileSource` for the showcase: a dark canvas stream and, for each frame, a
- * `pose-estimation` message with two hands and a person moving over it. As in the test pattern
- * source, the canvas stream carries no RTP timestamps, so the tile matches metadata by arrival.
- */
-export class PoseSource implements NeatTileSource {
-  readonly stream = signal<MediaStream | null>(null);
-
-  private readonly listeners = new Set<(text: string, receivedAt: number) => void>();
-  private context: CanvasRenderingContext2D | null = null;
-  private animation = 0;
-  private lastPaintAt = 0;
+/** A dark canvas stream with, for each frame, two hands and a person moving over it. */
+export class PoseSource extends CanvasSource {
   private frame = 0;
 
-  onMetadata(listener: (text: string, receivedAt: number) => void): () => void {
-    this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
-  }
-
-  /** Starts the stream; does nothing where canvases cannot be streamed (as in unit tests). */
-  start(document: Document): void {
-    const canvas = document.createElement('canvas');
-    if (typeof canvas.captureStream !== 'function') return;
-    canvas.width = WIDTH;
-    canvas.height = HEIGHT;
-    this.context = canvas.getContext('2d');
-    if (this.context === null) return;
-    this.stream.set(canvas.captureStream(FRAMES_PER_SECOND));
-    const loop = (now: number) => {
-      this.animation = requestAnimationFrame(loop);
-      if (now - this.lastPaintAt < 1000 / FRAMES_PER_SECOND) return;
-      this.lastPaintAt = now;
-      this.paint();
-    };
-    this.animation = requestAnimationFrame(loop);
-  }
-
-  stop(): void {
-    cancelAnimationFrame(this.animation);
-    for (const track of this.stream()?.getTracks() ?? []) track.stop();
-    this.stream.set(null);
-    this.listeners.clear();
-  }
-
-  private paint(): void {
-    const ctx = this.context;
-    if (ctx === null) return;
+  protected paint(ctx: CanvasRenderingContext2D): void {
     ctx.fillStyle = SIMA_PALETTE.text;
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
-    const text = JSON.stringify(poseMessage(this.frame));
-    const receivedAt = performance.now();
-    for (const listener of this.listeners) listener(text, receivedAt);
+    this.send(poseMessage(this.frame));
     this.frame += 1;
   }
 }

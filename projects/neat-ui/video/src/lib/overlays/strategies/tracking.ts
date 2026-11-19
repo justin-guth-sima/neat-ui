@@ -1,6 +1,6 @@
 import type { NeatOverlaySettings } from '../overlay-settings';
 import type { DrawContext, DrawStrategy, TrackTrail } from '../draw-context';
-import { drawLabelPlate, identityColor, percent } from '../draw-context';
+import { drawLabelPlate, itemColor, percent } from '../draw-context';
 import { drawRoiOnce, passesRoiFilter } from '../roi';
 
 interface Track {
@@ -117,11 +117,11 @@ export const drawTracking: DrawStrategy = (dc, data) => {
   // allocator has to share slots above the palette size.
   const frameColors = new Map<string, string>();
   const trackColor = (id: unknown): string => {
-    if (id === null || id === undefined) return identityColor(dc, 'track', id);
+    if (id === null || id === undefined) return itemColor(dc, 'tracking', { id });
     const key = String(id);
     let color = frameColors.get(key);
     if (color === undefined) {
-      color = identityColor(dc, 'track', id);
+      color = itemColor(dc, 'tracking', { id });
       frameColors.set(key, color);
     }
     return color;

@@ -15,6 +15,7 @@ export type {
 } from './lib/sync/metadata-lateness';
 export { bufferSettleMs, lateNoticeDetails, nextWarningActive } from './lib/sync/metadata-lateness';
 export { NEAT_OVERLAY_STYLE_FALLBACK_COLOR } from './lib/theme/overlay-palette';
+export type { NeatOverlayIdentity, NeatOverlayType } from './lib/overlays/item-colors';
 export type {
   NeatOverlayClassStyle,
   NeatOverlayLineStyle,
