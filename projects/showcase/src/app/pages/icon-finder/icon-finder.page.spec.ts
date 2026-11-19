@@ -82,7 +82,7 @@ describe('IconFinderPage', { timeout: 20_000 }, () => {
     expect(TestBed.inject(Router).url).toBe('/icon-finder?icon=kit:play');
     expect(play.getAttribute('aria-pressed')).toBe('true');
     expect(panel().querySelector('[neatAsideTitle]')?.textContent?.trim()).toBe('play');
-    expect(panel().querySelector('app-code-box')?.textContent).toContain(
+    expect(panel().querySelector('neat-code-block')?.textContent).toContain(
       '<neat-icon name="play" />',
     );
     expect(panel().textContent).toContain("Lucide's");
@@ -92,7 +92,7 @@ describe('IconFinderPage', { timeout: 20_000 }, () => {
     const { settle, panel } = await open('/icon-finder?icon=lucide:X');
 
     expect(panel().querySelector('[neatAsideTitle]')?.textContent?.trim()).toBe('X');
-    expect(panel().querySelector('app-code-box')?.textContent).toContain(
+    expect(panel().querySelector('neat-code-block')?.textContent).toContain(
       "import { X } from '@sima/neat-ui/lucide';",
     );
     const callout = panel().querySelector('neat-callout')!;

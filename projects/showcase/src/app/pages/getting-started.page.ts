@@ -2,8 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NeatCode, NeatPage } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
-import { CodeBox } from '../docs/code-box';
-import { CopyButton } from '../docs/copy-button';
+import { NeatCodeBlock } from '@sima/neat-ui/code-block';
 import { GROUPS } from '../docs/topics';
 
 /*
@@ -64,7 +63,7 @@ const NEXT = GROUPS.map((group) => ({
  */
 @Component({
   selector: 'app-getting-started-page',
-  imports: [CodeBox, CopyButton, NeatCallout, NeatCode, NeatPage, RouterLink],
+  imports: [NeatCallout, NeatCode, NeatCodeBlock, NeatPage, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-page>
@@ -83,9 +82,7 @@ const NEXT = GROUPS.map((group) => ({
               the kit's <code neatCode>dist/neat-ui/</code>) into the app's
               <code neatCode>vendor/</code> folder, commit it, and install it:
             </p>
-            <app-code-box [code]="install" overflow="scroll">
-              <app-copy-button codeBoxEnd [text]="install" what="install command" />
-            </app-code-box>
+            <neat-code-block [code]="install" overflow="scroll" copy="install command" />
           </li>
           <li>
             <h2>Provide the kit</h2>
@@ -95,9 +92,7 @@ const NEXT = GROUPS.map((group) => ({
               <code neatCode>provideNeatTitles</code> titles the browser tab
               <code neatCode>My demo · &lt;page&gt;</code> from each route's title.
             </p>
-            <app-code-box [code]="appConfig" overflow="scroll">
-              <app-copy-button codeBoxEnd [text]="appConfig" what="app config" />
-            </app-code-box>
+            <neat-code-block [code]="appConfig" overflow="scroll" copy="app config" />
           </li>
           <li>
             <h2>Import the stylesheet</h2>
@@ -106,9 +101,7 @@ const NEXT = GROUPS.map((group) => ({
               stylesheet before the app's own. It holds the theme and every style the kit's parts
               use, so the app needs no Tailwind.
             </p>
-            <app-code-box [code]="styles" overflow="scroll">
-              <app-copy-button codeBoxEnd [text]="styles" what="styles entry" />
-            </app-code-box>
+            <neat-code-block [code]="styles" overflow="scroll" copy="styles entry" />
           </li>
           <li>
             <h2>Put the app in the shell</h2>
@@ -117,9 +110,7 @@ const NEXT = GROUPS.map((group) => ({
               its rail (<code neatCode>navItems</code>) and the router outlet inside, and
               <code neatCode>neat-toast-host</code> once, beside the shell, never inside it.
             </p>
-            <app-code-box [code]="appComponent" overflow="scroll">
-              <app-copy-button codeBoxEnd [text]="appComponent" what="root component" />
-            </app-code-box>
+            <neat-code-block [code]="appComponent" overflow="scroll" copy="root component" />
           </li>
         </ol>
         <neat-callout heading="For coding agents" [headingLevel]="2">

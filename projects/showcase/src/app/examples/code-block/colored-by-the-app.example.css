@@ -1,0 +1,8 @@
+/* Theme colors that keep 4.5:1 on the block's --muted fill in both schemes. */
+.keyword {
+  color: var(--highlight);
+}
+
+.string {
+  color: var(--success);
+}

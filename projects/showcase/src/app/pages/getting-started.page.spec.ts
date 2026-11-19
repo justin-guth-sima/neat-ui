@@ -71,7 +71,7 @@ describe('GettingStartedPage', () => {
       STYLES,
       APP_COMPONENT,
     ]);
-    for (const step of steps) expect(step.querySelector('app-copy-button')).not.toBeNull();
+    for (const step of steps) expect(step.querySelector('neat-copy-button')).not.toBeNull();
   });
 
   it('points coding agents at the README’s rules for an app, and AGENTS.md for the kit itself', async () => {

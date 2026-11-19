@@ -1,3 +1,4 @@
+/* The code on the muted fill, the Copy button beside it, centered on its lines. */
 :host {
   display: flex;
   align-items: center;
@@ -16,11 +17,13 @@ pre {
   margin: 0;
 }
 
+/* Short code breaks anywhere: a command or a URL has few spaces to break at. */
 pre[data-overflow='wrap'] {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
+/* A whole file keeps its lines' shape and scrolls sideways. */
 pre[data-overflow='scroll'] {
   overflow-x: auto;
 }

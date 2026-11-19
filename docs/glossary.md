@@ -70,6 +70,8 @@ wins over a name of our own.
 | status chip       | a short status on a status fill                                                   | `neat-status-chip`                         | badge, pill, tag                       |
 | details           | the key/value list of an aside                                                    | `dl[neatDetails]`                          | properties, key/value table            |
 | table             | the data table's look on a `table`                                                | `table[neatTable]`                         | grid                                   |
+| code block        | code set apart on the muted fill, as written, with an optional Copy button        | `neat-code-block`, `NeatCodeBlock`         | code box, pre                          |
+| copy button       | a button that copies a text and says whether it did                               | `neat-copy-button`, `NeatCopyButton`       | clipboard button                       |
 | field             | a control under its visible name, with a hint and an error                        | `NeatField`                                | form group                             |
 | collapsible       | a section a labeled button opens and closes                                       | `neat-collapsible`                         | accordion, expander                    |
 | breadcrumbs       | the path to where the user is, each step but the last a button                    | `neat-breadcrumbs`                         | path bar                               |

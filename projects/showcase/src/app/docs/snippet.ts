@@ -7,11 +7,11 @@ import {
   signal,
 } from '@angular/core';
 import { NeatCode, NeatNote } from '@sima/neat-ui';
+import { NeatCodeBlock, NeatCopyButton } from '@sima/neat-ui/code-block';
 import { NeatCollapsible } from '@sima/neat-ui/collapsible';
 import { NeatTab, NeatTabs } from '@sima/neat-ui/tabs';
-import { CodeBox } from './code-box';
-import { CopyButton } from './copy-button';
-import type { DocsExampleFile } from './model';
+import type { DocsExampleFile, DocsToken } from './model';
+import { Runs } from './runs';
 
 /**
  * An example's code, closed until asked for: the live example comes first, and a closed snippet
@@ -22,14 +22,23 @@ import type { DocsExampleFile } from './model';
  */
 @Component({
   selector: 'app-snippet',
-  imports: [CodeBox, CopyButton, NeatCode, NeatCollapsible, NeatNote, NeatTab, NeatTabs],
+  imports: [
+    NeatCode,
+    NeatCodeBlock,
+    NeatCollapsible,
+    NeatCopyButton,
+    NeatNote,
+    NeatTab,
+    NeatTabs,
+    Runs,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-collapsible label="Code" [summary]="summary()" [(open)]="open">
       <!-- Two blocks of one element each: each is projected by its element's selector. -->
       @if (open()) {
         <div class="files" neatCollapsibleEnd>
-          <app-copy-button [text]="text()" [what]="file().name" />
+          <neat-copy-button [text]="text()" [what]="file().name" />
         </div>
       }
       @if (open()) {
@@ -37,12 +46,18 @@ import type { DocsExampleFile } from './model';
           <neat-tabs label="Files" [(value)]="chosen">
             @for (f of files(); track f.name) {
               <neat-tab [label]="f.name" [value]="f.name">
-                <ng-template><app-code-box [runs]="f.code" overflow="scroll" /></ng-template>
+                <ng-template>
+                  <neat-code-block [code]="textOf(f.code)" overflow="scroll">
+                    <app-runs [runs]="f.code" />
+                  </neat-code-block>
+                </ng-template>
               </neat-tab>
             }
           </neat-tabs>
         } @else {
-          <app-code-box [runs]="file().code" overflow="scroll" />
+          <neat-code-block [code]="text()" overflow="scroll">
+            <app-runs [runs]="file().code" />
+          </neat-code-block>
         }
         @if (usesShowcaseClasses()) {
           <p neatNote class="classes">
@@ -70,12 +85,13 @@ export class Snippet {
   protected readonly file = computed(
     () => this.files().find((file) => file.name === this.chosen()) ?? this.files()[0],
   );
-  /** The file as written: the runs spell it again. */
-  protected readonly text = computed(() =>
-    this.file()
-      .code.map(([, run]) => run)
-      .join(''),
-  );
+  /** The shown file as written. */
+  protected readonly text = computed(() => this.textOf(this.file().code));
+  /** A file as written: its runs spell it again. */
+  protected textOf(runs: readonly DocsToken[]): string {
+    return runs.map(([, run]) => run).join('');
+  }
+
   /** The shown file uses a class of the showcase's stylesheet, which a copy would not bring. */
   protected readonly usesShowcaseClasses = computed(() => /\bshowcase-[a-z]/.test(this.text()));
 }

@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { NeatCode, NeatInlineButton } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
+import { NeatCodeBlock } from '@sima/neat-ui/code-block';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
-import { CodeBox } from './code-box';
-import { CopyButton } from './copy-button';
 import { introCut, KIND_LABEL, moreLabel, usageLine } from './display';
 import { DocText } from './doc-text';
 import type { DocsDeclaredPart } from './model';
@@ -15,7 +14,7 @@ import type { DocsDeclaredPart } from './model';
  */
 @Component({
   selector: 'app-part-intro',
-  imports: [CodeBox, CopyButton, DocText, NeatCallout, NeatCode, NeatInlineButton, NeatStatusChip],
+  imports: [DocText, NeatCallout, NeatCode, NeatCodeBlock, NeatInlineButton, NeatStatusChip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section [attr.aria-labelledby]="ids().heading">
@@ -32,9 +31,7 @@ import type { DocsDeclaredPart } from './model';
           <code neatCode class="showcase-muted" data-slot="usage">{{ usage }}</code>
         }
       </div>
-      <app-code-box [code]="importLine()">
-        <app-copy-button codeBoxEnd [text]="importLine()" what="import line" />
-      </app-code-box>
+      <neat-code-block [code]="importLine()" copy="import line" />
       @if (part().deprecated; as deprecated) {
         <neat-callout tone="warning" heading="Deprecated">
           <app-doc-text [blocks]="deprecated" />

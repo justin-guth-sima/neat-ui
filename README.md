@@ -447,7 +447,7 @@ Also: [Stale](docs/components/stale.md), [Motion](docs/components/motion.md), [T
 </tr>
 </table>
 
-Also: [Collapsible](docs/components/collapsible.md), [Stored signal](docs/components/stored-signal.md).
+Also: [Code block](docs/components/code-block.md), [Collapsible](docs/components/collapsible.md), [Stored signal](docs/components/stored-signal.md).
 
 <!-- gallery end -->
 

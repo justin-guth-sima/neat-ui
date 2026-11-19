@@ -1,0 +1,5 @@
+<neat-code-block [code]="code" copy="line">
+  @for (run of runs; track $index) {
+    <span [class]="run.kind">{{ run.text }}</span>
+  }
+</neat-code-block>

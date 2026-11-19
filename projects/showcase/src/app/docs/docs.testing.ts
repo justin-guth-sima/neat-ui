@@ -5,6 +5,7 @@ import { API as BEV } from './generated/api/bev';
 import { API as CALLOUT } from './generated/api/callout';
 import { API as CARD } from './generated/api/card';
 import { API as CHARTS } from './generated/api/charts';
+import { API as CODE_BLOCK } from './generated/api/code-block';
 import { API as COLLAPSIBLE } from './generated/api/collapsible';
 import { API as CONFIRM } from './generated/api/confirm';
 import { API as DETAILS } from './generated/api/details';
@@ -78,6 +79,7 @@ export const KIT_ENTRIES: readonly DocsEntry[] = [
   CALLOUT,
   CARD,
   CHARTS,
+  CODE_BLOCK,
   COLLAPSIBLE,
   CONFIRM,
   DETAILS,

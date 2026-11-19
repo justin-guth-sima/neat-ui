@@ -2,9 +2,8 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NeatCode, NeatPage } from '@sima/neat-ui';
+import { NeatCodeBlock } from '@sima/neat-ui/code-block';
 import kit from '../../../../../neat-ui/package.json';
-import { CodeBox } from '../../docs/code-box';
-import { CopyButton } from '../../docs/copy-button';
 import type { DocsTutorialFile } from '../../docs/model';
 import { TUTORIAL_FILES } from '../../docs/generated/tutorial';
 import { STYLES } from '../getting-started.page';
@@ -49,7 +48,7 @@ export const filesOf = (step: string): readonly DocsTutorialFile[] => TUTORIAL_F
  */
 @Component({
   selector: 'app-tutorial-page',
-  imports: [CodeBox, CopyButton, NeatCode, NeatPage, NgTemplateOutlet, RouterLink],
+  imports: [NeatCode, NeatCodeBlock, NeatPage, NgTemplateOutlet, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ng-template #files let-step>
@@ -58,9 +57,7 @@ export const filesOf = (step: string): readonly DocsTutorialFile[] => TUTORIAL_F
           <p class="file-name">
             <code neatCode>{{ file.path }}</code>
           </p>
-          <app-code-box [code]="file.text" overflow="scroll">
-            <app-copy-button codeBoxEnd [text]="file.text" [what]="file.path" />
-          </app-code-box>
+          <neat-code-block [code]="file.text" overflow="scroll" [copy]="file.path" />
         </div>
       }
     </ng-template>
@@ -80,17 +77,13 @@ export const filesOf = (step: string): readonly DocsTutorialFile[] => TUTORIAL_F
               Angular and the kit run on Node.js 24, which comes with npm, the tool that installs
               packages. Check whether you have it:
             </p>
-            <app-code-box [code]="checkNode" overflow="scroll">
-              <app-copy-button codeBoxEnd [text]="checkNode" what="commands" />
-            </app-code-box>
+            <neat-code-block [code]="checkNode" overflow="scroll" copy="commands" />
             <p>
               If the first line is not <code neatCode>v24</code> followed by more numbers, install
               it. On macOS and Linux, through nvm, which installs Node.js in your home folder (open
               a new terminal between the two lines):
             </p>
-            <app-code-box [code]="installNode" overflow="scroll">
-              <app-copy-button codeBoxEnd [text]="installNode" what="commands" />
-            </app-code-box>
+            <neat-code-block [code]="installNode" overflow="scroll" copy="commands" />
             <p>
               On Windows, download the installer of Node.js 24 from
               <code neatCode>nodejs.org</code> and run it. Then open a new terminal and check again.
@@ -107,9 +100,7 @@ export const filesOf = (step: string): readonly DocsTutorialFile[] => TUTORIAL_F
               <code neatCode>streams</code>, go into it and start it. The first line downloads
               Angular's tools and installs the app's packages, which takes a minute or two:
             </p>
-            <app-code-box [code]="newApp" overflow="scroll">
-              <app-copy-button codeBoxEnd [text]="newApp" what="commands" />
-            </app-code-box>
+            <neat-code-block [code]="newApp" overflow="scroll" copy="commands" />
             <p>
               Open <code neatCode>http://localhost:4200</code> in your browser. Leave the terminal
               running: the page reloads by itself whenever you save a file. Open the
@@ -146,21 +137,15 @@ export const filesOf = (step: string): readonly DocsTutorialFile[] => TUTORIAL_F
               folder <code neatCode>vendor</code> inside <code neatCode>streams</code>. With
               GitHub's command line tool, <code neatCode>gh</code>, that is:
             </p>
-            <app-code-box [code]="downloadKit" overflow="scroll">
-              <app-copy-button codeBoxEnd [text]="downloadKit" what="command" />
-            </app-code-box>
+            <neat-code-block [code]="downloadKit" overflow="scroll" copy="command" />
             <p>Stop the app in its terminal with Ctrl+C, and install the kit:</p>
-            <app-code-box [code]="installKit" overflow="scroll">
-              <app-copy-button codeBoxEnd [text]="installKit" what="command" />
-            </app-code-box>
+            <neat-code-block [code]="installKit" overflow="scroll" copy="command" />
             <p>
               The kit brings its own stylesheet. In <code neatCode>angular.json</code>, find
               <code neatCode>"styles"</code> under <code neatCode>"build"</code> and put the kit's
               first:
             </p>
-            <app-code-box [code]="styles" overflow="scroll">
-              <app-copy-button codeBoxEnd [text]="styles" what="styles entry" />
-            </app-code-box>
+            <neat-code-block [code]="styles" overflow="scroll" copy="styles entry" />
             <p>
               Then tell the app about the kit, in <code neatCode>src/app/app.config.ts</code>:
               <code neatCode>provideNeatUi()</code> sets up the kit, and
@@ -197,9 +182,7 @@ export const filesOf = (step: string): readonly DocsTutorialFile[] => TUTORIAL_F
               Let Angular make a component for each page. Run these in a second terminal, in the
               <code neatCode>streams</code> folder, while the app keeps running in the first:
             </p>
-            <app-code-box [code]="generatePages" overflow="scroll">
-              <app-copy-button codeBoxEnd [text]="generatePages" what="commands" />
-            </app-code-box>
+            <neat-code-block [code]="generatePages" overflow="scroll" copy="commands" />
             <p>
               Replace their <code neatCode>.ts</code> and <code neatCode>.html</code> files, and
               give each page its address in <code neatCode>src/app/app.routes.ts</code>.

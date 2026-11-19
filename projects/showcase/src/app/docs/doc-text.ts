@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { NeatCode } from '@sima/neat-ui';
-import { CodeBox } from './code-box';
+import { NeatCodeBlock } from '@sima/neat-ui/code-block';
 import type { DocBlock, DocSpan } from './model';
 import { PartRef } from './part-ref';
 
@@ -52,7 +52,7 @@ export class DocSpans {
 /** A doc comment's blocks: paragraphs, fenced code and one level of lists. */
 @Component({
   selector: 'app-doc-text',
-  imports: [CodeBox, DocSpans],
+  imports: [DocSpans, NeatCodeBlock],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @for (block of blocks(); track $index) {
@@ -61,7 +61,7 @@ export class DocSpans {
           <p><app-doc-spans [spans]="block.spans" /></p>
         }
         @case ('code') {
-          <app-code-box [code]="block.code" />
+          <neat-code-block [code]="block.code" />
         }
         @case ('list') {
           <ul>

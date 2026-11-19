@@ -1,0 +1,5 @@
+/* The containing block of the visually hidden live region, which is positioned. */
+:host {
+  position: relative;
+  display: inline-flex;
+}

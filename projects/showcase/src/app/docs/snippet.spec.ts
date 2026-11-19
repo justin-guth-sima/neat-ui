@@ -102,7 +102,7 @@ describe('Snippet', () => {
     await fixture.whenStable();
 
     expect(host.querySelector('[role="tabpanel"]:not([hidden]) pre')?.textContent).toBe(text(DATA));
-    const copy = host.querySelector('app-copy-button button') as HTMLButtonElement;
+    const copy = host.querySelector('neat-copy-button button') as HTMLButtonElement;
     expect(copy.getAttribute('aria-label')).toBe('Copy pipeline-data.ts');
     copy.click();
     expect(writeText).toHaveBeenCalledWith(text(DATA));
@@ -142,7 +142,7 @@ describe('Snippet', () => {
     const { host, open } = await render([MAIN, DATA]);
     await open();
 
-    const copy = host.querySelector('app-copy-button button');
+    const copy = host.querySelector('neat-copy-button button');
     expect(copy?.getAttribute('aria-label')).toBe('Copy messaging-pipeline.example.ts');
     (copy as HTMLButtonElement).click();
 

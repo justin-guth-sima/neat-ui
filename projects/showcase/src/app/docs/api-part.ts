@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { NeatCode, NeatNote } from '@sima/neat-ui';
 import { NeatCollapsible } from '@sima/neat-ui/collapsible';
 import { NeatCallout } from '@sima/neat-ui/callout';
+import { NeatCodeBlock } from '@sima/neat-ui/code-block';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
-import { CodeBox } from './code-box';
 import {
   KIND_LABEL,
   memberLabel,
@@ -164,10 +164,10 @@ const FOLD_MEMBERS = 6;
   selector: 'app-api-part',
   imports: [
     ApiMember,
-    CodeBox,
     DocText,
     NeatCallout,
     NeatCode,
+    NeatCodeBlock,
     NeatCollapsible,
     NeatNote,
     NeatStatusChip,
@@ -219,7 +219,7 @@ const FOLD_MEMBERS = 6;
       </neat-callout>
     }
     @if (view().code; as code) {
-      <app-code-box [code]="code" linked />
+      <neat-code-block [code]="code"><app-type-text [text]="code" /></neat-code-block>
     }
     @if (view().context.length) {
       <h4>Context</h4>
