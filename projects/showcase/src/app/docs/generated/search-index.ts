@@ -2302,6 +2302,48 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatDiagramFigureCard",
+    "partKind": "component",
+    "text": "A labeled figure for a note of the diagram, such as a count or a time:"
+  },
+  {
+    "kind": "member",
+    "name": "label",
+    "part": "NeatDiagramFigureCard",
+    "text": "What the figure is: \"Active tracks\", \"MLA benchmark\"."
+  },
+  {
+    "kind": "member",
+    "name": "value",
+    "part": "NeatDiagramFigureCard",
+    "text": "The figure; null or undefined while there is none, which shows as \"–\"."
+  },
+  {
+    "kind": "member",
+    "name": "digits",
+    "part": "NeatDiagramFigureCard",
+    "text": "Digits after the decimal point, for the value and the sparkline's words."
+  },
+  {
+    "kind": "member",
+    "name": "unit",
+    "part": "NeatDiagramFigureCard",
+    "text": "The value's unit, after it: \"alive\", \"ms per call\"."
+  },
+  {
+    "kind": "member",
+    "name": "caption",
+    "part": "NeatDiagramFigureCard",
+    "text": "Words at the end of the value's line, muted: \"237 per second\"."
+  },
+  {
+    "kind": "member",
+    "name": "history",
+    "part": "NeatDiagramFigureCard",
+    "text": "The figure's recent values, oldest first, for a sparkline under the value; null for one that was not taken."
+  },
+  {
+    "kind": "part",
     "name": "NeatDiagramHighlight",
     "partKind": "type",
     "text": "What dims the rest of a diagram while the pointer or the keyboard is on a part."
@@ -5076,6 +5118,13 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "diagram",
     "id": "placed-by-the-app",
     "text": "What an app places itself, where the kit's routing is not what it wants: - an edge's label beside its line (labelSide), here below a long…"
+  },
+  {
+    "kind": "example",
+    "name": "Counts and times",
+    "topic": "diagram",
+    "id": "counts-and-times",
+    "text": "A note shows a count or a time with NeatDiagramFigureCard: here the Tracker's active tracks, with their recent counts, and the Detector's…"
   },
   {
     "kind": "example",

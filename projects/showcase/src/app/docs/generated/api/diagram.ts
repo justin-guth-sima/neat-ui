@@ -1065,6 +1065,220 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/diagram/src/lib/templates.ts"
     },
     {
+      "name": "NeatDiagramFigureCard",
+      "kind": "component",
+      "selector": "neat-diagram-figure-card",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A labeled figure for a note of the diagram, such as a count or a time:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<ng-template neatDiagramNote let-note>\n  <neat-diagram-figure-card label=\"Active tracks\" unit=\"alive\" [value]=\"tracks()\"\n    [history]=\"trackHistory()\" />\n</ng-template>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It shows:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "the label;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "the value with its unit, and the caption at the end of that line;"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "the history, as a sparkline, when it has one."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Use it for a figure that is not an edge's rate. An edge's messages per second go in a "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatDiagramRateCard",
+              "name": "NeatDiagramRateCard"
+            },
+            {
+              "kind": "text",
+              "text": ", which looks the same, so a diagram's notes read as one set."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The value eases to each new one as "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatEasedNumber",
+              "name": "NeatEasedNumber"
+            },
+            {
+              "kind": "text",
+              "text": " does, in tabular digits, and \"–\" stands in while there is none. The caption is words the app has already worded: \"237 per second\"."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The sparkline is named by the label and words its samples with the value's digits and unit: \"Active tracks: 30 recent samples, 2 alive to 8 alive\". An empty history still draws its box, so the card does not jump when the first samples arrive."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The note supplies the card's box, with its border, fill and padding, so the card has none. Its content is 11.5 rem wide."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "label",
+          "type": "string",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What the figure is: \"Active tracks\", \"MLA benchmark\"."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "value",
+          "type": "number | null | undefined",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The figure; null or undefined while there is none, which shows as \"–\"."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "digits",
+          "type": "number",
+          "default": "0",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Digits after the decimal point, for the value and the sparkline's words."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "unit",
+          "type": "string",
+          "default": "''",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The value's unit, after it: \"alive\", \"ms per call\". None by default."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "caption",
+          "type": "string",
+          "default": "''",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Words at the end of the value's line, muted: \"237 per second\". None by default."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "history",
+          "type": "readonly (number | null)[] | null | undefined",
+          "default": "undefined",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The figure's recent values, oldest first, for a sparkline under the value; "
+                },
+                {
+                  "kind": "code",
+                  "text": "null"
+                },
+                {
+                  "kind": "text",
+                  "text": " for one that was not taken. Without a history the card has no sparkline."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/figure-card.ts"
+    },
+    {
       "name": "NeatDiagramHighlight",
       "kind": "type",
       "definition": "'none' | 'edges' | 'all'",
@@ -2835,6 +3049,24 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": " slot, which the app lays out itself. The latest image of a camera is one."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A figure that is not a rate, such as a count or a time, goes in a "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatDiagramFigureCard",
+              "name": "NeatDiagramFigureCard"
+            },
+            {
+              "kind": "text",
+              "text": ". The two cards look the same, so a diagram's notes read as one set."
             }
           ]
         },

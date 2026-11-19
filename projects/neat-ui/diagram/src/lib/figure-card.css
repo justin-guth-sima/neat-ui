@@ -1,0 +1,32 @@
+/*
+ * The card's content only: the note it stands in draws the box (border, fill, padding, shadow) and
+ * its type size. The width is the demo's card. The rate card takes this sheet too, before its own,
+ * so the label, the figures' line and the figures look the same in every note.
+ */
+:host {
+  box-sizing: border-box;
+  width: 11.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--neat-space-2) / 2);
+}
+
+.label {
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.numbers {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--neat-space-2);
+  color: var(--muted-foreground);
+}
+
+.value {
+  color: var(--foreground);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}

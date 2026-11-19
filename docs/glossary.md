@@ -124,6 +124,7 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 | message      | one thing sent along an edge, drawn as a moving dot                      | `neat-diagram-messages`, `push`       | packet, particle         |
 | step         | an edge inside a block that no message feeds, which dots go on along     | `NeatDiagramMessageStep`              |                          |
 | rate card    | a note's readout of an edge's messages per second                        | `neat-diagram-rate-card`              |                          |
+| figure card  | a note's labeled figure that is not a rate: a count, a time              | `neat-diagram-figure-card`            | metric note, stat card   |
 
 ## Bird's-eye view
 

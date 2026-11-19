@@ -3,7 +3,8 @@
  * frames with the edges routed between them, drawn by `neat-diagram`, the legend that names
  * their colors and lines (`neat-diagram-legend`), and the messages moving along the edges
  * (`neat-diagram-messages`), with the rate card for its numbers (`neat-diagram-rate-card`) and the
- * Animation panel for its tuning (`neat-diagram-animation-settings`). A secondary entry point, so
+ * Animation panel for its tuning (`neat-diagram-animation-settings`), and the figure card for a
+ * note's count or time (`neat-diagram-figure-card`). A secondary entry point, so
  * an app's main bundle carries it only if a page it loads imports it. It imports the primary, the
  * status chip's, the charts', the popover's, the slider's and the switch's entries only by their
  * package names; the primary never imports it. The routing, the port layout, the notes' placement
@@ -30,6 +31,7 @@ export type {
   NeatDiagramTip,
 } from './lib/model';
 export { NeatDiagramView } from './lib/diagram';
+export { NeatDiagramFigureCard } from './lib/figure-card';
 export { NeatDiagramLegend, type NeatDiagramLegendItem } from './lib/legend';
 export { neatDrillDownLevel } from './lib/drill-down';
 export { neatBatchTimes, type NeatDiagramMessageStep } from './lib/messages/dot-model';

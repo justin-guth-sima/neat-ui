@@ -9,6 +9,7 @@ import { EdgeSides } from '../../../examples/diagram/6-edge-sides.example';
 import { DiagramFromTheApp } from '../../../examples/diagram/7-from-the-app.example';
 import { ParallelLoops } from '../../../examples/diagram/8-parallel-loops.example';
 import { PlacedByTheApp } from '../../../examples/diagram/9-placed-by-the-app.example';
+import { CountsAndTimes } from '../../../examples/diagram/10-counts-and-times.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -1514,6 +1515,146 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/* The card's whole width: in this flex column the ratio would otherwise size the width from the\n     capped height, and the drawing would cut off partway across the card when panned. */"],
           ["text","\n  width: 100%;\n  aspect-ratio: 4 / 3;\n  max-height: 40rem;\n}\n\n"],
           ["comment","/* A figure the app puts after a bracket's label: small, quiet, steady digits. */"],["text","\n.bracket-figure {\n  font-size: var(--neat-text-xs);\n  color: var(--muted-foreground);\n  font-variant-numeric: tabular-nums;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "counts-and-times",
+    "title": "Counts and times",
+    "component": CountsAndTimes,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A note shows a count or a time with "
+          },
+          {
+            "kind": "ref",
+            "text": "NeatDiagramFigureCard",
+            "name": "NeatDiagramFigureCard"
+          },
+          {
+            "kind": "text",
+            "text": ": here the Tracker's active tracks, with their recent counts, and the Detector's MLA benchmark, with a caption."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A timer sends new figures twice a second. Each value eases to the next in tabular digits, so it reads as moving rather than flickering."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "An edge's messages per second go in a "
+          },
+          {
+            "kind": "ref",
+            "text": "NeatDiagramRateCard",
+            "name": "NeatDiagramRateCard"
+          },
+          {
+            "kind": "text",
+            "text": " instead, which looks the same."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/diagram#NeatDiagramFigureCard",
+      "@sima/neat-ui/diagram#NeatDiagramNoteTemplate",
+      "@sima/neat-ui/diagram#NeatDiagramSet",
+      "@sima/neat-ui/diagram#NeatDiagramView"
+    ],
+    "files": [
+      {
+        "name": "10-counts-and-times.example.ts",
+        "code": [
+          ["keyword","import"],["text"," {\n  ChangeDetectionStrategy,\n  Component,\n  DestroyRef,\n  inject,\n  signal,\n  viewChild,\n} "],
+          ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," {\n  NeatDiagramFigureCard,\n  NeatDiagramNoteTemplate,\n  "],
+          ["keyword","type"],["text"," NeatDiagramSet,\n  NeatDiagramView,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
+          ["keyword","import"],["text"," { A65, MLA } "],["keyword","from"],["text"," "],["string","'./chips'"],["text",";\n\n"],
+          ["comment","/** A camera feeding a detector and a tracker, with a note under each of the two. */"],["text","\n"],
+          ["keyword","const"],["text"," TRACKING: NeatDiagramSet = {\n  overview: {\n    nodes: [\n      { id: "],
+          ["string","'camera'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Camera'"],["text",", detail: "],["string","'USB'"],["text",", x: 0, y: 0, w: 120, h: 46 },\n      {\n        id: "],
+          ["string","'detector'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        label: "],
+          ["string","'Detector'"],["text",",\n        chips: [MLA],\n        x: 200,\n        y: 0,\n        w: 140,\n        h: 46,\n      },\n      { id: "],
+          ["string","'tracker'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Tracker'"],["text",", chips: [A65], x: 440, y: 0, w: 140, h: 46 },\n    ],\n    edges: [\n      { id: "],
+          ["string","'camera-detector'"],["text",", from: "],["string","'camera'"],["text",", to: "],["string","'detector'"],["text",", series: 1 },\n      { id: "],
+          ["string","'detector-tracker'"],["text",", from: "],["string","'detector'"],["text",", to: "],["string","'tracker'"],["text",", series: 4, label: "],["string","'boxes'"],["text"," },\n    ],\n    notes: [\n      "],
+          ["comment","// A note's x and y are its center: each hangs below its block, its leader to the block's bottom."],["text","\n      { id: "],
+          ["string","'benchmark'"],["text",", anchor: { x: 270, y: 46 }, x: 270, y: 130 },\n      { id: "],
+          ["string","'tracks'"],["text",", anchor: { x: 510, y: 46 }, x: 510, y: 150 },\n    ],\n  },\n};\n\n"],
+          ["comment","/** How often the made-up feed sends new figures, in ms. */"],["text","\n"],
+          ["keyword","const"],["text"," FEED_MS = 500;\n"],
+          ["comment","/** How many of the recent counts the sparkline shows. */"],["text","\n"],
+          ["keyword","const"],["text"," HISTORY = 30;\n\n@Component({\n  selector: "],
+          ["string","'app-counts-and-times'"],["text",",\n  imports: [NeatDiagramFigureCard, NeatDiagramNoteTemplate, NeatDiagramView],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./10-counts-and-times.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./counts-and-times.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," CountsAndTimes {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," tracking = TRACKING;\n  "],
+          ["comment","/** The Tracker's active tracks. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," tracks = signal(5);\n  "],
+          ["comment","/** The Tracker's recent counts, oldest first. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," trackHistory = signal<"],["keyword","readonly"],["text"," "],["keyword","number"],["text","[]>([5]);\n  "],
+          ["comment","/** The Detector's time per call on the MLA, in ms. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," benchmarkMs = signal(4.21);\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," diagram = viewChild.required(NeatDiagramView);\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","const"],["text"," feed = setInterval(() => {\n      "],
+          ["comment","// Now and then a track starts or ends, with between 2 and 9 alive."],["text","\n      "],
+          ["keyword","const"],["text"," tracks = Math.min(9, Math.max(2, "],["keyword","this"],["text",".tracks() + Math.round(Math.random() * 2 - 1)));\n      "],
+          ["keyword","this"],["text",".tracks.set(tracks);\n      "],
+          ["keyword","this"],["text",".trackHistory.update((counts) => [...counts, tracks].slice(-HISTORY));\n      "],
+          ["keyword","this"],["text",".benchmarkMs.set(4.1 + Math.random() * 0.3);\n    }, FEED_MS);\n    inject(DestroyRef).onDestroy(() => clearInterval(feed));\n  }\n\n  "],
+          ["comment","/** The calls per second that a time per call allows, as the caption says them. */"],["text","\n  "],
+          ["keyword","protected"],["text"," callsPerSecond(ms: "],["keyword","number"],["text","): "],["keyword","string"],["text"," {\n    "],
+          ["keyword","return"],["text"," "],["string","`${Math.round(1000 / ms)} calls/s`"],["text",";\n  }\n\n  "],
+          ["comment","/** Fits the drawing to its box again, as a toolbar's Fit button does. */"],["text","\n  fit(): "],
+          ["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".diagram().fit();\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "10-counts-and-times.example.html",
+        "code": [
+          ["text","<neat-diagram class=\"diagram\" [diagram]=\"tracking\" label=\"Counts and times in notes\">\n  <ng-template neatDiagramNote let-note>\n    @switch (note.id) {\n      @case ('benchmark') {\n        <neat-diagram-figure-card\n          label=\"MLA benchmark\"\n          unit=\"ms per call\"\n          [value]=\"benchmarkMs()\"\n          [digits]=\"2\"\n          [caption]=\"callsPerSecond(benchmarkMs())\"\n        />\n      }\n      @case ('tracks') {\n        <neat-diagram-figure-card\n          label=\"Active tracks\"\n          unit=\"alive\"\n          [value]=\"tracks()\"\n          [history]=\"trackHistory()\"\n        />\n      }\n    }\n  </ng-template>\n</neat-diagram>\n"]
+        ]
+      },
+      {
+        "name": "chips.ts",
+        "code": [
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
+          ["comment","/*\n * The chips follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramChip = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramChip = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramChip = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramChip = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
+        ]
+      },
+      {
+        "name": "counts-and-times.example.css",
+        "code": [
+          ["text",":host {\n  display: block;\n}\n\n"],
+          ["comment","/*\n * A diagram has no height of its own: the app gives it a bounded box, here 2:1 up to 30rem, wide\n * for the row of blocks and their notes, so a phone's narrow box does not stand tall and empty\n * around a drawing its width shrinks.\n */"],
+          ["text","\n.diagram {\n  "],
+          ["comment","/* The card's whole width: the ratio would otherwise size the width from the capped height, and\n     the drawing would cut off partway across the card when panned. */"],
+          ["text","\n  width: 100%;\n  aspect-ratio: 2 / 1;\n  max-height: 30rem;\n}\n"]
         ]
       }
     ]

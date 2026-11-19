@@ -18,7 +18,7 @@ A hand-placed diagram in the kit's look:
 </picture>
 
 ```ts
-import { NeatDiagramView, NeatDiagramBlockTemplate, NeatDiagramNoteTemplate, NeatDiagramEdgeTooltipTemplate, NeatDiagramEdgeTipTemplate } from '@sima/neat-ui/diagram';
+import { NeatDiagramView, NeatDiagramBlockTemplate, NeatDiagramNoteTemplate, NeatDiagramEdgeTooltipTemplate, NeatDiagramEdgeTipTemplate, NeatDiagramFigureCard } from '@sima/neat-ui/diagram';
 ```
 
 ## Examples
@@ -1990,6 +1990,176 @@ export class PlacedByTheApp {
 
 </details>
 
+### Counts and times
+
+A note shows a count or a time with [`NeatDiagramFigureCard`](../components/diagram.md#neatdiagramfigurecard): here the Tracker's active tracks, with their recent counts, and the Detector's MLA benchmark, with a caption.
+
+A timer sends new figures twice a second. Each value eases to the next in tabular digits, so it reads as moving rather than flickering.
+
+An edge's messages per second go in a [`NeatDiagramRateCard`](../components/messaging.md#neatdiagramratecard) instead, which looks the same.
+
+<details>
+<summary>Code</summary>
+
+`10-counts-and-times.example.ts`
+
+```ts
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import {
+  NeatDiagramFigureCard,
+  NeatDiagramNoteTemplate,
+  type NeatDiagramSet,
+  NeatDiagramView,
+} from '@sima/neat-ui/diagram';
+import { A65, MLA } from './chips';
+
+/** A camera feeding a detector and a tracker, with a note under each of the two. */
+const TRACKING: NeatDiagramSet = {
+  overview: {
+    nodes: [
+      { id: 'camera', role: 'block', label: 'Camera', detail: 'USB', x: 0, y: 0, w: 120, h: 46 },
+      {
+        id: 'detector',
+        role: 'block',
+        label: 'Detector',
+        chips: [MLA],
+        x: 200,
+        y: 0,
+        w: 140,
+        h: 46,
+      },
+      { id: 'tracker', role: 'block', label: 'Tracker', chips: [A65], x: 440, y: 0, w: 140, h: 46 },
+    ],
+    edges: [
+      { id: 'camera-detector', from: 'camera', to: 'detector', series: 1 },
+      { id: 'detector-tracker', from: 'detector', to: 'tracker', series: 4, label: 'boxes' },
+    ],
+    notes: [
+      // A note's x and y are its center: each hangs below its block, its leader to the block's bottom.
+      { id: 'benchmark', anchor: { x: 270, y: 46 }, x: 270, y: 130 },
+      { id: 'tracks', anchor: { x: 510, y: 46 }, x: 510, y: 150 },
+    ],
+  },
+};
+
+/** How often the made-up feed sends new figures, in ms. */
+const FEED_MS = 500;
+/** How many of the recent counts the sparkline shows. */
+const HISTORY = 30;
+
+@Component({
+  selector: 'app-counts-and-times',
+  imports: [NeatDiagramFigureCard, NeatDiagramNoteTemplate, NeatDiagramView],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './10-counts-and-times.example.html',
+  styleUrl: './counts-and-times.example.css',
+})
+export class CountsAndTimes {
+  protected readonly tracking = TRACKING;
+  /** The Tracker's active tracks. */
+  protected readonly tracks = signal(5);
+  /** The Tracker's recent counts, oldest first. */
+  protected readonly trackHistory = signal<readonly number[]>([5]);
+  /** The Detector's time per call on the MLA, in ms. */
+  protected readonly benchmarkMs = signal(4.21);
+  private readonly diagram = viewChild.required(NeatDiagramView);
+
+  constructor() {
+    const feed = setInterval(() => {
+      // Now and then a track starts or ends, with between 2 and 9 alive.
+      const tracks = Math.min(9, Math.max(2, this.tracks() + Math.round(Math.random() * 2 - 1)));
+      this.tracks.set(tracks);
+      this.trackHistory.update((counts) => [...counts, tracks].slice(-HISTORY));
+      this.benchmarkMs.set(4.1 + Math.random() * 0.3);
+    }, FEED_MS);
+    inject(DestroyRef).onDestroy(() => clearInterval(feed));
+  }
+
+  /** The calls per second that a time per call allows, as the caption says them. */
+  protected callsPerSecond(ms: number): string {
+    return `${Math.round(1000 / ms)} calls/s`;
+  }
+
+  /** Fits the drawing to its box again, as a toolbar's Fit button does. */
+  fit(): void {
+    this.diagram().fit();
+  }
+}
+```
+
+`10-counts-and-times.example.html`
+
+```html
+<neat-diagram class="diagram" [diagram]="tracking" label="Counts and times in notes">
+  <ng-template neatDiagramNote let-note>
+    @switch (note.id) {
+      @case ('benchmark') {
+        <neat-diagram-figure-card
+          label="MLA benchmark"
+          unit="ms per call"
+          [value]="benchmarkMs()"
+          [digits]="2"
+          [caption]="callsPerSecond(benchmarkMs())"
+        />
+      }
+      @case ('tracks') {
+        <neat-diagram-figure-card
+          label="Active tracks"
+          unit="alive"
+          [value]="tracks()"
+          [history]="trackHistory()"
+        />
+      }
+    }
+  </ng-template>
+</neat-diagram>
+```
+
+`chips.ts`
+
+```ts
+import type { NeatDiagramChip } from '@sima/neat-ui/diagram';
+
+/*
+ * The chips follow the kit's convention for where a part runs: HW (the hardware decoder) success,
+ * EV74 highlight, MLA info, A65 neutral.
+ */
+export const HW: NeatDiagramChip = { label: 'HW', tone: 'success' };
+export const EV74: NeatDiagramChip = { label: 'EV74', tone: 'highlight' };
+export const MLA: NeatDiagramChip = { label: 'MLA', tone: 'info' };
+export const A65: NeatDiagramChip = { label: 'A65', tone: 'neutral' };
+```
+
+`counts-and-times.example.css`
+
+```css
+:host {
+  display: block;
+}
+
+/*
+ * A diagram has no height of its own: the app gives it a bounded box, here 2:1 up to 30rem, wide
+ * for the row of blocks and their notes, so a phone's narrow box does not stand tall and empty
+ * around a drawing its width shrinks.
+ */
+.diagram {
+  /* The card's whole width: the ratio would otherwise size the width from the capped height, and
+     the drawing would cut off partway across the card when panned. */
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  max-height: 30rem;
+}
+```
+
+</details>
+
 ## API
 
 ### `NeatDiagramView`
@@ -2137,6 +2307,59 @@ The old name of [`NeatDiagramEdgeTooltipTemplate`](../components/diagram.md#neat
 ```ts
 const NeatDiagramEdgeTipTemplate: typeof NeatDiagramEdgeTooltipTemplate
 ```
+
+### `NeatDiagramFigureCard`
+
+Component from `@sima/neat-ui/diagram`, selector `neat-diagram-figure-card`.
+
+A labeled figure for a note of the diagram, such as a count or a time:
+
+```html
+<ng-template neatDiagramNote let-note>
+  <neat-diagram-figure-card label="Active tracks" unit="alive" [value]="tracks()"
+    [history]="trackHistory()" />
+</ng-template>
+```
+
+It shows:
+
+- the label;
+- the value with its unit, and the caption at the end of that line;
+- the history, as a sparkline, when it has one.
+
+Use it for a figure that is not an edge's rate. An edge's messages per second go in a [`NeatDiagramRateCard`](../components/messaging.md#neatdiagramratecard), which looks the same, so a diagram's notes read as one set.
+
+The value eases to each new one as [`NeatEasedNumber`](../components/motion.md#neateasednumber) does, in tabular digits, and "–" stands in while there is none. The caption is words the app has already worded: "237 per second".
+
+The sparkline is named by the label and words its samples with the value's digits and unit: "Active tracks: 30 recent samples, 2 alive to 8 alive". An empty history still draws its box, so the card does not jump when the first samples arrive.
+
+The note supplies the card's box, with its border, fill and padding, so the card has none. Its content is 11.5 rem wide.
+
+**Inputs**
+
+- **`label`** `string`, required
+
+  What the figure is: "Active tracks", "MLA benchmark".
+
+- **`value`** `number | null | undefined`, required
+
+  The figure; null or undefined while there is none, which shows as "–".
+
+- **`digits`** `number`, default `0`
+
+  Digits after the decimal point, for the value and the sparkline's words.
+
+- **`unit`** `string`, default `''`
+
+  The value's unit, after it: "alive", "ms per call". None by default.
+
+- **`caption`** `string`, default `''`
+
+  Words at the end of the value's line, muted: "237 per second". None by default.
+
+- **`history`** `readonly (number | null)[] | null | undefined`, default `undefined`
+
+  The figure's recent values, oldest first, for a sparkline under the value; `null` for one that was not taken. Without a history the card has no sparkline.
 
 ### `NeatDiagramSet`
 
