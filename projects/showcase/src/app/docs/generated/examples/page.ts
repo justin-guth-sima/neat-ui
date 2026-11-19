@@ -3,6 +3,7 @@ import type { DocsExample } from '../../model';
 import { Overview } from '../../../examples/page/1-overview.example';
 import { Details } from '../../../examples/page/2-details.example';
 import { FullBleed } from '../../../examples/page/3-full-bleed.example';
+import { LinksToSections } from '../../../examples/page/4-links-to-sections.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -246,6 +247,94 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "full-bleed.example.css",
         "code": [
           ["comment","/* A grid that takes the whole page and divides it between its tiles. */"],["text","\n.grid {\n  display: grid;\n  height: 100%;\n  gap: 1px;\n  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));\n  grid-auto-rows: 1fr;\n  background: var(--border);\n}\n\n.tile {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: var(--muted);\n  color: var(--muted-foreground);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "links-to-sections",
+    "title": "Links to sections",
+    "component": LinksToSections,
+    "page": true,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A page of sections and a list of links to them. "
+          },
+          {
+            "kind": "ref",
+            "text": "NeatPage",
+            "name": "NeatPage"
+          },
+          {
+            "kind": "text",
+            "text": " scrolls its body to the element a URL's fragment names, so the links need nothing of their own."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The contents are plain in-page links ("
+          },
+          {
+            "kind": "code",
+            "text": "href=\"#run\""
+          },
+          {
+            "kind": "text",
+            "text": "); the link under each section is a "
+          },
+          {
+            "kind": "code",
+            "text": "routerLink"
+          },
+          {
+            "kind": "text",
+            "text": " with a "
+          },
+          {
+            "kind": "code",
+            "text": "fragment"
+          },
+          {
+            "kind": "text",
+            "text": ". Both keep the page's route and add a history entry, so Back returns to where the reader was. Follow a link, then press Back."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui#NeatPage"
+    ],
+    "files": [
+      {
+        "name": "4-links-to-sections.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { RouterLink } "],["keyword","from"],["text"," "],["string","'@angular/router'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatPage } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n"],
+          ["comment","/** The page's sections, each with the id its link names. */"],["text","\n"],
+          ["keyword","const"],["text"," SECTIONS = [\n  { id: "],
+          ["string","'install'"],["text",", title: "],["string","'Install'"],["text"," },\n  { id: "],
+          ["string","'configure'"],["text",", title: "],["string","'Configure'"],["text"," },\n  { id: "],
+          ["string","'run'"],["text",", title: "],["string","'Run'"],["text"," },\n  { id: "],
+          ["string","'troubleshoot'"],["text",", title: "],["string","'Troubleshoot'"],["text"," },\n];\n\n@Component({\n  selector: "],
+          ["string","'app-links-to-sections'"],["text",",\n  imports: [NeatPage, RouterLink],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-links-to-sections.example.html'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," LinksToSections {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sections = SECTIONS;\n}\n"]
+        ]
+      },
+      {
+        "name": "4-links-to-sections.example.html",
+        "code": [
+          ["text","<neat-page>\n  <div class=\"showcase-page\">\n    <section class=\"showcase-section\">\n      <h2 id=\"contents\">Contents</h2>\n      <ul>\n        @for (section of sections; track section.id) {\n          <li>\n            <a [href]=\"'#' + section.id\">{{ section.title }}</a>\n          </li>\n        }\n      </ul>\n    </section>\n    @for (section of sections; track section.id) {\n      <section class=\"showcase-section\">\n        <h2 [id]=\"section.id\">{{ section.title }}</h2>\n        @for (paragraph of [1, 2, 3, 4, 5, 6]; track paragraph) {\n          <p class=\"showcase-muted\">\n            More of {{ section.title.toLowerCase() }}, long enough that the body scrolls.\n          </p>\n        }\n        <p><a [routerLink]=\"[]\" fragment=\"contents\">Back to the contents</a></p>\n      </section>\n    }\n  </div>\n</neat-page>\n"]
         ]
       }
     ]

@@ -57,7 +57,7 @@ export interface DocsTarget {
 export abstract class DocsContext {
   /** Where `name` links to; null for a name the docs do not document (`string`, `T`). */
   abstract target(name: string): DocsTarget | null;
-  /** Opens the API panel and scrolls the part's section into view, focusing its heading. */
+  /** Opens the API panel and focuses the heading of the part's section, which the page scrolls to. */
   abstract reveal(name: string): void;
 }
 

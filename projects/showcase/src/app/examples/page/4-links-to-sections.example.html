@@ -1,0 +1,25 @@
+<neat-page>
+  <div class="showcase-page">
+    <section class="showcase-section">
+      <h2 id="contents">Contents</h2>
+      <ul>
+        @for (section of sections; track section.id) {
+          <li>
+            <a [href]="'#' + section.id">{{ section.title }}</a>
+          </li>
+        }
+      </ul>
+    </section>
+    @for (section of sections; track section.id) {
+      <section class="showcase-section">
+        <h2 [id]="section.id">{{ section.title }}</h2>
+        @for (paragraph of [1, 2, 3, 4, 5, 6]; track paragraph) {
+          <p class="showcase-muted">
+            More of {{ section.title.toLowerCase() }}, long enough that the body scrolls.
+          </p>
+        }
+        <p><a [routerLink]="[]" fragment="contents">Back to the contents</a></p>
+      </section>
+    }
+  </div>
+</neat-page>

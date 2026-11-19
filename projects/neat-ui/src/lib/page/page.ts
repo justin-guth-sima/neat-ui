@@ -1,15 +1,30 @@
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   computed,
+  DestroyRef,
   effect,
   ElementRef,
   inject,
+  Injector,
   input,
   model,
   signal,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  NavigationEnd,
+  NavigationSkipped,
+  NavigationSkippedCode,
+  Router,
+  UrlTree,
+} from '@angular/router';
+import { reducedMotion } from '../motion/eased';
+import { inPageLinkTarget, scrollToTarget } from './fragment';
 import { NeatViewport } from './viewport';
 
 /*
@@ -82,6 +97,25 @@ const KEY_STEP = 16;
  * The panel is shown between 18rem and the page's width less 20rem, which leaves the body 20rem. A
  * width outside that is shown clamped, and the model left alone. So a remembered width returns when
  * the window is wide enough again.
+ *
+ * **Links to a section.** A navigation whose URL has a fragment scrolls the page to the element of
+ * that id, in the body or the aside, once the page has rendered. The app turns nothing on:
+ *
+ * ```html
+ * <a routerLink="/guide" fragment="setup">Set up</a>
+ * <a href="#setup">Set up</a>
+ * <h2 id="setup">Set up</h2>
+ * ```
+ *
+ * The router's own `anchorScrolling` scrolls the window, which never scrolls in a kit app, so the
+ * page does it. It scrolls only its own box, never what is around it. The element stops at the
+ * box's inset (its `scroll-padding-top`), or as far below it as its own `scroll-margin-top` says.
+ *
+ * An in-page link (`href="#setup"`) becomes such a navigation, so it keeps the route and adds a
+ * history entry. With hash routing (`HashLocationStrategy`) the page leaves it alone. A link to
+ * the fragment the URL already has scrolls again. The scroll is smooth for a link on the page
+ * and a jump when the page opens at a fragment, or for a user who asked for reduced motion. The
+ * element must be there once the page has rendered: one that arrives later is not waited for.
  */
 @Component({
   selector: 'neat-page',
@@ -94,7 +128,7 @@ const KEY_STEP = 16;
   template: `
     <ng-content select="[neatPageNav]" />
     <div class="content">
-      <div class="body" [attr.data-scroll]="scroll()" [attr.data-padding]="padding()">
+      <div #body class="body" [attr.data-scroll]="scroll()" [attr.data-padding]="padding()">
         <ng-content />
       </div>
       @if (aside() === 'open') {
@@ -156,6 +190,7 @@ export class NeatPage {
   readonly asideWidth = model<number | null>(null);
 
   private readonly page = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+  private readonly body = viewChild.required<ElementRef<HTMLElement>>('body');
   private readonly panel = viewChild<ElementRef<HTMLElement>>('aside');
 
   // What the browser laid out, which only it knows: the page's width, the panel's, and what a rem
@@ -204,6 +239,67 @@ export class NeatPage {
       observer.observe(panel);
       onCleanup(() => observer.disconnect());
     });
+    this.followFragments();
+  }
+
+  /**
+   * Scrolls to the element a navigation's fragment names, and makes an in-page link
+   * (`href="#id"`) such a navigation. Nothing without a router.
+   */
+  private followFragments(): void {
+    const router = inject(Router, { optional: true });
+    if (!router) return;
+    const injector = inject(Injector);
+    const changes = inject(ChangeDetectorRef);
+    // The navigation that opens the page jumps, as a browser does when it loads at a fragment.
+    let shown = false;
+    afterNextRender(() => (shown = true));
+    router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
+      // A link to the fragment the URL already has is skipped by the router; it scrolls again.
+      const url =
+        event instanceof NavigationEnd
+          ? event.urlAfterRedirects
+          : event instanceof NavigationSkipped &&
+              event.code === NavigationSkippedCode.IgnoredSameUrlNavigation
+            ? event.url
+            : null;
+      const id = url === null ? null : router.parseUrl(url).fragment;
+      if (!id) return;
+      const smooth = shown && !reducedMotion();
+      // Once the navigation's views are drawn, so the element is there; a render is asked for,
+      // since a navigation that only changes the fragment may change no view.
+      afterNextRender(() => this.scrollToFragment(id, smooth), { injector });
+      changes.markForCheck();
+    });
+    // With hash routing an `href="#…"` is a route, which the browser and the router follow.
+    if (inject(LocationStrategy, { optional: true }) instanceof HashLocationStrategy) return;
+    const onClick = (event: MouseEvent) => {
+      const id = inPageLinkTarget(event, this.page);
+      if (id === null) return;
+      // Without this, the link would resolve against the document's base and leave the page.
+      event.preventDefault();
+      const current = router.parseUrl(router.url);
+      void router.navigateByUrl(new UrlTree(current.root, current.queryParams, id));
+    };
+    this.page.addEventListener('click', onClick);
+    inject(DestroyRef).onDestroy(() => this.page.removeEventListener('click', onClick));
+  }
+
+  /**
+   * Scrolls the page's own box that holds the element `id` names, the body or the aside, to it. An
+   * element of a page nested in this one is that page's to scroll to.
+   */
+  private scrollToFragment(id: string, smooth: boolean): void {
+    const target = Array.from(this.page.querySelectorAll(`#${CSS.escape(id)}`)).find(
+      (element) => element.closest('neat-page') === this.page,
+    );
+    if (!target) return;
+    const boxes = [
+      this.scroll() === 'body' ? this.body().nativeElement : null,
+      this.panel()?.nativeElement,
+    ];
+    const box = boxes.find((candidate) => candidate?.contains(target));
+    if (box) scrollToTarget(target, box, smooth);
   }
 
   protected step(event: KeyboardEvent): void {

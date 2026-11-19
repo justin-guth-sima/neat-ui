@@ -44,9 +44,12 @@
   overflow: hidden;
 }
 
-/* On the scroll container itself, so the inset scrolls with the content rather than framing it. */
+/* On the scroll container itself, so the inset scrolls with the content rather than framing it.
+   A fragment's element, or one the focus scrolls to, stops at the inset, where the first line sits
+   before the body scrolls. */
 .body[data-padding='page'] {
   padding: var(--neat-space-6);
+  scroll-padding-top: var(--neat-space-6);
 }
 
 .body[data-padding='none'] {
@@ -104,6 +107,8 @@ aside {
   box-sizing: border-box;
   height: 100%;
   padding: var(--neat-space-4);
+  /* A fragment's element stops at the inset, as in the body. */
+  scroll-padding-top: var(--neat-space-4);
   overflow: auto;
   border-inline-start: 1px solid var(--border);
 }

@@ -156,14 +156,27 @@ describe('DocsPage', () => {
     localStorage.clear();
     scrolled = [];
     vi.stubGlobal('ResizeObserver', NoopResizeObserver);
-    Element.prototype.scrollIntoView = function (this: Element) {
-      scrolled.push(this);
-    };
+    // jsdom lays nothing out: each element with an id gets a top of its own, so the top that
+    // `neat-page` scrolls a box to says which element it scrolled to.
+    const tops = new Map<number, Element>();
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: Element,
+    ) {
+      if (!this.id) return new DOMRect();
+      let top = [...tops].find(([, element]) => element === this)?.[0];
+      if (top === undefined) tops.set((top = (tops.size + 1) * 1000), this);
+      return new DOMRect(0, top, 0, 0);
+    });
+    HTMLElement.prototype.scrollTo = function (options?: ScrollToOptions | number) {
+      const element = tops.get((options as ScrollToOptions).top ?? -1);
+      if (element) scrolled.push(element);
+    } as HTMLElement['scrollTo'];
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
-    delete (Element.prototype as Partial<Element>).scrollIntoView;
+    vi.restoreAllMocks();
+    delete (HTMLElement.prototype as Partial<HTMLElement>).scrollTo;
   });
 
   it('shows a category’s topics in the page nav, with a filter, and no tabs', async () => {

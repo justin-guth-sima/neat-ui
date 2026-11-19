@@ -35,6 +35,7 @@ describe('linksOf', () => {
     const markdown = [
       'See [the guide](docs/writing.md#words) and [GitHub](https://github.com).',
       '<img src="docs/images/a.light.webp"> <source srcset="docs/images/a.dark.webp">',
+      'An in-page link (`href="#setup"`) and a code span `[not](either.md)` are code.',
       '```ts',
       "const x = '[not](a-link.md)';",
       '```',

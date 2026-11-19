@@ -2726,6 +2726,83 @@ export const API: DocsEntry = {
               "text": "The panel is shown between 18rem and the page's width less 20rem, which leaves the body 20rem. A width outside that is shown clamped, and the model left alone. So a remembered width returns when the window is wide enough again."
             }
           ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Links to a section.",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " A navigation whose URL has a fragment scrolls the page to the element of that id, in the body or the aside, once the page has rendered. The app turns nothing on:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<a routerLink=\"/guide\" fragment=\"setup\">Set up</a>\n<a href=\"#setup\">Set up</a>\n<h2 id=\"setup\">Set up</h2>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The router's own "
+            },
+            {
+              "kind": "code",
+              "text": "anchorScrolling"
+            },
+            {
+              "kind": "text",
+              "text": " scrolls the window, which never scrolls in a kit app, so the page does it. It scrolls only its own box, never what is around it. The element stops at the box's inset (its "
+            },
+            {
+              "kind": "code",
+              "text": "scroll-padding-top"
+            },
+            {
+              "kind": "text",
+              "text": "), or as far below it as its own "
+            },
+            {
+              "kind": "code",
+              "text": "scroll-margin-top"
+            },
+            {
+              "kind": "text",
+              "text": " says."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An in-page link ("
+            },
+            {
+              "kind": "code",
+              "text": "href=\"#setup\""
+            },
+            {
+              "kind": "text",
+              "text": ") becomes such a navigation, so it keeps the route and adds a history entry. With hash routing ("
+            },
+            {
+              "kind": "code",
+              "text": "HashLocationStrategy"
+            },
+            {
+              "kind": "text",
+              "text": ") the page leaves it alone. A link to the fragment the URL already has scrolls again. The scroll is smooth for a link on the page and a jump when the page opens at a fragment, or for a user who asked for reduced motion. The element must be there once the page has rendered: one that arrives later is not waited for."
+            }
+          ]
         }
       ],
       "inputs": [

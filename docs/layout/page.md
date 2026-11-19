@@ -260,6 +260,75 @@ export class FullBleed {
 
 </details>
 
+### Links to sections
+
+A page of sections and a list of links to them. [`NeatPage`](../layout/page.md#neatpage) scrolls its body to the element a URL's fragment names, so the links need nothing of their own.
+
+The contents are plain in-page links (`href="#run"`); the link under each section is a `routerLink` with a `fragment`. Both keep the page's route and add a history entry, so Back returns to where the reader was. Follow a link, then press Back.
+
+_This example needs a page of its own: it runs in the showcase._
+
+<details>
+<summary>Code</summary>
+
+`4-links-to-sections.example.ts`
+
+```ts
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { NeatPage } from '@sima/neat-ui';
+
+/** The page's sections, each with the id its link names. */
+const SECTIONS = [
+  { id: 'install', title: 'Install' },
+  { id: 'configure', title: 'Configure' },
+  { id: 'run', title: 'Run' },
+  { id: 'troubleshoot', title: 'Troubleshoot' },
+];
+
+@Component({
+  selector: 'app-links-to-sections',
+  imports: [NeatPage, RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './4-links-to-sections.example.html',
+})
+export class LinksToSections {
+  protected readonly sections = SECTIONS;
+}
+```
+
+`4-links-to-sections.example.html`
+
+```html
+<neat-page>
+  <div class="showcase-page">
+    <section class="showcase-section">
+      <h2 id="contents">Contents</h2>
+      <ul>
+        @for (section of sections; track section.id) {
+          <li>
+            <a [href]="'#' + section.id">{{ section.title }}</a>
+          </li>
+        }
+      </ul>
+    </section>
+    @for (section of sections; track section.id) {
+      <section class="showcase-section">
+        <h2 [id]="section.id">{{ section.title }}</h2>
+        @for (paragraph of [1, 2, 3, 4, 5, 6]; track paragraph) {
+          <p class="showcase-muted">
+            More of {{ section.title.toLowerCase() }}, long enough that the body scrolls.
+          </p>
+        }
+        <p><a [routerLink]="[]" fragment="contents">Back to the contents</a></p>
+      </section>
+    }
+  </div>
+</neat-page>
+```
+
+</details>
+
 ## API
 
 ### `NeatPage`
@@ -293,6 +362,18 @@ There is no scrim and no Escape handling: the page owns the open state, and the 
 `asideWidth` is the width in pixels, `null` for the default `--neat-aside-width`. The page only exposes the model. So an app that wants the width kept binds `[(asideWidth)]`, and stores it where it likes. A drag writes it on release, a key press at once.
 
 The panel is shown between 18rem and the page's width less 20rem, which leaves the body 20rem. A width outside that is shown clamped, and the model left alone. So a remembered width returns when the window is wide enough again.
+
+**Links to a section.** A navigation whose URL has a fragment scrolls the page to the element of that id, in the body or the aside, once the page has rendered. The app turns nothing on:
+
+```html
+<a routerLink="/guide" fragment="setup">Set up</a>
+<a href="#setup">Set up</a>
+<h2 id="setup">Set up</h2>
+```
+
+The router's own `anchorScrolling` scrolls the window, which never scrolls in a kit app, so the page does it. It scrolls only its own box, never what is around it. The element stops at the box's inset (its `scroll-padding-top`), or as far below it as its own `scroll-margin-top` says.
+
+An in-page link (`href="#setup"`) becomes such a navigation, so it keeps the route and adds a history entry. With hash routing (`HashLocationStrategy`) the page leaves it alone. A link to the fragment the URL already has scrolls again. The scroll is smooth for a link on the page and a jump when the page opens at a fragment, or for a user who asked for reduced motion. The element must be there once the page has rendered: one that arrives later is not waited for.
 
 **Inputs**
 

@@ -5331,6 +5331,13 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Links to sections",
+    "topic": "page",
+    "id": "links-to-sections",
+    "text": "A page of sections and a list of links to them."
+  },
+  {
+    "kind": "example",
     "name": "Switches in a panel",
     "topic": "popover",
     "id": "switches-in-a-panel",

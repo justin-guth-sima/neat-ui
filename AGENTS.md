@@ -1319,6 +1319,21 @@ number of tools and a switch in it moves too.
   `neatAsidePanel` stacks the parts one gap apart, `neatAsideTitle` and `neatAsideHeading` are the
   panel's title and section headings, `neatAsideActions` a row of buttons and `code[neatCode]` a
   URL or path in running text. A page's panel styles nothing of this itself.
+- **A link to a section is a fragment, and `neat-page` follows it; an app turns nothing on.**
+  Why: the router's `anchorScrolling` scrolls the window, which never scrolls in a kit app, so
+  each app wrote its own handler. A navigation whose URL has a fragment (a `routerLink` with
+  `fragment`, a shared link, back and forward) scrolls the page's own box that holds the element
+  of that id, the body or the aside, once the page has rendered (`page/fragment.ts`). It scrolls
+  that box alone, never with `scrollIntoView`, which would scroll the page's clipped boxes too.
+  The element stops at the box's inset (the body's and the aside's `scroll-padding-top` are their
+  padding), or as far below it as its own `scroll-margin-top` says. It glides for a link on the page and jumps
+  as the page opens at a fragment or under reduced motion. A plain `href="#id"` inside the page
+  becomes such a navigation (it would otherwise resolve against the document's base and leave the
+  page), except with `HashLocationStrategy`, where it is a route. A link to the fragment the URL
+  has scrolls again (the router's `NavigationSkipped`). An element of a nested `neat-page` is that
+  page's, and one that arrives after the page has rendered is not waited for. The showcase's
+  `#example-<id>` and `#api-<Name>` anchors go through it; the docs page only opens the panel and
+  focuses the part's heading.
 
 **Raw browser APIs used for performance stay isolated, outside change detection, with tests.**
 Why: canvas, requestAnimationFrame, observers and similar code is fast because it bypasses Angular;

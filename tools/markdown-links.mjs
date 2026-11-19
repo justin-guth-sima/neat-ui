@@ -39,10 +39,15 @@ export function anchorsOf(markdown) {
   return anchors;
 }
 
-/** The relative links of a file: Markdown links and the `href`, `src` and `srcset` of its HTML. */
+/**
+ * The relative links of a file: Markdown links and the `href`, `src` and `srcset` of its HTML. A
+ * code span is code too (`href="#setup"` names an attribute), but only here: a heading's anchor
+ * keeps the text of its code spans.
+ */
 export function linksOf(markdown) {
   const links = [];
-  for (const match of prose(markdown).matchAll(/\]\(([^)\s]+)\)|(?:href|src|srcset)="([^"]+)"/g)) {
+  const text = prose(markdown).replace(/`[^`\n]*`/g, '');
+  for (const match of text.matchAll(/\]\(([^)\s]+)\)|(?:href|src|srcset)="([^"]+)"/g)) {
     const link = match[1] ?? match[2];
     if (!/^(?:[a-z]+:|#$)/i.test(link)) links.push(link);
   }

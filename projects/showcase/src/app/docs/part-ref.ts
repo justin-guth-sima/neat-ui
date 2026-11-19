@@ -32,8 +32,9 @@ export class PartRef {
   /**
    * The page reveals a part when the URL's fragment becomes its anchor, so a click, and back and
    * forward, all work through the router. The one click it cannot see is on the fragment the URL
-   * already has (the same section again, after scrolling away): the router ignores a navigation to
-   * the URL it is at, so the link reveals it itself.
+   * already has (the same section again, after scrolling away): the router skips a navigation to
+   * the URL it is at, so the fragment does not change. `neat-page` scrolls to it again, and the
+   * link opens the panel and focuses the heading itself.
    */
   protected follow(): void {
     const target = this.target();

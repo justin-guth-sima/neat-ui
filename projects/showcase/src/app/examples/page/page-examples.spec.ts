@@ -116,4 +116,24 @@ describe('the page examples, each routed on a page of its own', () => {
     expect(body.dataset['scroll']).toBe('none');
     expect(content().querySelectorAll('.tile')).toHaveLength(6);
   });
+
+  it('follow the contents and the links back to them as navigations within the example’s route', async () => {
+    start();
+    await open('/demo/page/links-to-sections');
+    const link = (text: string) =>
+      Array.from(content().querySelectorAll('a')).find(
+        (a) => a.textContent?.trim() === text,
+      ) as HTMLAnchorElement;
+
+    expect(link('Run').getAttribute('href')).toBe('#run');
+    expect(content().querySelector('h2#run')).not.toBeNull();
+
+    link('Run').click();
+    await fixture.whenStable();
+    expect(router.url).toBe('/demo/page/links-to-sections#run');
+
+    link('Back to the contents').click();
+    await fixture.whenStable();
+    expect(router.url).toBe('/demo/page/links-to-sections#contents');
+  });
 });

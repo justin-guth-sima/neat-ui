@@ -76,9 +76,8 @@ function hasFit(instance: unknown): instance is { fit(): void } {
  * toolbar. A group's own topics have no page nav: the rail lists them under the group's item.
  *
  * The URL's fragment `#api-<Name>`, as the page opens and each time it changes (a link to another
- * topic, a shared link, back and forward), opens the panel on the part's section; `#example-<id>`
- * scrolls to the example. The router's own anchor scrolling moves the window, and the page scrolls
- * inside the shell, so the page does both itself.
+ * topic, a shared link, back and forward), opens the panel and focuses the part's section's
+ * heading; `neat-page` scrolls the panel to it, as it scrolls the body to `#example-<id>`.
  */
 @Component({
   selector: 'app-docs-page',
@@ -193,13 +192,8 @@ export class DocsPage extends DocsContext {
   constructor() {
     super();
     effect(() => {
-      const fragment = this.fragment() ?? '';
-      const part = /^api-(.+)$/.exec(fragment)?.[1];
-      const example = /^example-(.+)$/.exec(fragment)?.[1];
+      const part = /^api-(.+)$/.exec(this.fragment() ?? '')?.[1];
       if (part && this.names().has(part)) untracked(() => this.reveal(part));
-      else if (example && this.topic().examples.some((e) => e.id === example)) {
-        untracked(() => this.scrollTo(`example-${example}`));
-      }
     });
   }
 
@@ -221,20 +215,12 @@ export class DocsPage extends DocsContext {
   reveal(name: string): void {
     this.aside.set(true);
     // Once the panel is rendered, since it may have been closed (on a phone it always starts so).
-    this.scrollTo(`api-${name}`, (section) =>
-      section.querySelector<HTMLElement>('h3')?.focus({ preventScroll: true }),
-    );
-  }
-
-  /** Scrolls the element with `id` to the top once the page has rendered, then `after` it. */
-  private scrollTo(id: string, after?: (element: Element) => void): void {
+    // The page scrolls to the section (the URL names it); the focus must not scroll as well.
     afterNextRender(
-      () => {
-        const element = this.host.nativeElement.querySelector(`[id="${id}"]`);
-        // At once, not smoothly: a jump the reader asked for, with no motion to reduce.
-        element?.scrollIntoView({ block: 'start' });
-        if (element) after?.(element);
-      },
+      () =>
+        this.host.nativeElement
+          .querySelector<HTMLElement>(`[id="api-${name}"] h3`)
+          ?.focus({ preventScroll: true }),
       { injector: this.injector },
     );
   }
