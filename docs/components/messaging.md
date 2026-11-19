@@ -569,6 +569,8 @@ Give it `rate(['a', 'b'])` for a note over several edges: the card shows their s
 
 Anything an app wants between the label and the numbers goes in the `[neatRateCardThumbnails]` slot, which the app lays out itself. The latest image of a camera is one.
 
+A figure that is not a rate, such as a count or a time, goes in a [`NeatDiagramFigureCard`](../components/diagram.md#neatdiagramfigurecard). The two cards look the same, so a diagram's notes read as one set.
+
 The note supplies the card's box, with its border, fill and padding, so the card has none. Its content is 11.5 rem wide, or as wide as its stage line needs when it shows one.
 
 **Inputs**

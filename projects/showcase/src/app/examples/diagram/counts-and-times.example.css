@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+
+/*
+ * A diagram has no height of its own: the app gives it a bounded box, here 2:1 up to 30rem, wide
+ * for the row of blocks and their notes, so a phone's narrow box does not stand tall and empty
+ * around a drawing its width shrinks.
+ */
+.diagram {
+  /* The card's whole width: the ratio would otherwise size the width from the capped height, and
+     the drawing would cut off partway across the card when panned. */
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  max-height: 30rem;
+}

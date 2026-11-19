@@ -1,7 +1,7 @@
 import * as diagram from './public-api';
 
 describe('the diagram entry', () => {
-  it('exports the diagram, its templates, legend, messages, rate card and animation panel', () => {
+  it('exports the diagram, its templates, legend, messages, rate card, animation panel and figure card', () => {
     expect(Object.keys(diagram).sort()).toEqual([
       'NEAT_DIAGRAM_MESSAGE_DEFAULTS',
       'NeatDiagramAnimationSettings',
@@ -9,6 +9,7 @@ describe('the diagram entry', () => {
       // The old name, deprecated, kept for apps that import it.
       'NeatDiagramEdgeTipTemplate',
       'NeatDiagramEdgeTooltipTemplate',
+      'NeatDiagramFigureCard',
       'NeatDiagramLegend',
       'NeatDiagramMessages',
       'NeatDiagramNoteTemplate',

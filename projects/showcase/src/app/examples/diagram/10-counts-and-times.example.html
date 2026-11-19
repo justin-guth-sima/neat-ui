@@ -1,0 +1,23 @@
+<neat-diagram class="diagram" [diagram]="tracking" label="Counts and times in notes">
+  <ng-template neatDiagramNote let-note>
+    @switch (note.id) {
+      @case ('benchmark') {
+        <neat-diagram-figure-card
+          label="MLA benchmark"
+          unit="ms per call"
+          [value]="benchmarkMs()"
+          [digits]="2"
+          [caption]="callsPerSecond(benchmarkMs())"
+        />
+      }
+      @case ('tracks') {
+        <neat-diagram-figure-card
+          label="Active tracks"
+          unit="alive"
+          [value]="tracks()"
+          [history]="trackHistory()"
+        />
+      }
+    }
+  </ng-template>
+</neat-diagram>

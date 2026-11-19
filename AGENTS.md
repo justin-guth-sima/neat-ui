@@ -127,7 +127,8 @@ look happens in one place. Every rule here protects that.
     (hand-placed diagrams: their model, `NeatDiagramView` (`neat-diagram`) with its templates,
     `NeatDiagramLegend` (`neat-diagram-legend`), `NeatDiagramMessages` (`neat-diagram-messages`)
     with its `NeatDiagramRateCard` (`neat-diagram-rate-card`) and `NeatDiagramAnimationSettings`
-    (`neat-diagram-animation-settings`), `neatDrillDownLevel`, `neatBatchTimes` and
+    (`neat-diagram-animation-settings`), `NeatDiagramFigureCard` (`neat-diagram-figure-card`, a
+    note's count or time), `neatDrillDownLevel`, `neatBatchTimes` and
     `neatParseMessageSettings`; how it draws is under "How the diagram is drawn" below),
     each exporting that component and its types; `lucide`, which has no component: its public API
     is `export * from 'lucide'`, every glyph of Lucide for `neat-icon`'s `name` (the icon rule is
@@ -381,9 +382,10 @@ paths; both pan and zoom with them), and nothing else imports d3. ESLint (`@type
 `d3` or `d3-*`; `tools/lint-boundaries.test.mjs` runs the real configs over sample code to prove it
 fires and that the entry-direction rules above still do. Why: d3 reaches an app's bundle only
 through the entry its lazy route imports, and the apps draw through the kit's components, never
-through d3. The diagram's rate card draws its history with `NeatSparkline`, imported from `charts`
-by package name as any entry may: in a production build only a page that uses the rate card carries
-`charts` and its two d3 packages (about 16 kB minified); an unoptimized build loads the whole entry.
+through d3. The diagram's rate card and figure card draw their history with `NeatSparkline`,
+imported from `charts` by package name as any entry may: in a production build only a page that
+uses one of the two carries `charts` and its two d3 packages (about 16 kB minified); an unoptimized
+build loads the whole entry.
 Licenses: `d3-scale`, `d3-shape`, `d3-zoom` and `d3-selection` are ISC licensed runtime
 `dependencies` of the package, listed in `allowedNonPeerDependencies`; what `d3-zoom` brings with it
 is ISC too (`d3-dispatch`, `d3-drag`, `d3-interpolate`, `d3-timer`, `d3-transition`) but for
@@ -603,9 +605,9 @@ the whole in the kit's look.
   rasterizes as two lines that drift apart under a fractional zoom. Do not add a ring to show
   "opens"; if a look needs one, draw it with the border.
 - **An example's drawing box** is sized for the drawing, not for a phone: 4:3 up to `40rem` (2:1
-  up to `30rem` for the drill-down's wide level), kept in each example's own stylesheet because
-  that is part of its copyable snippet. Why a cap at all: a narrow box must not stand tall and
-  empty around a drawing its width shrinks.
+  up to `30rem` for a wide drawing: the drill-down's level, the Counts and times row), kept in each
+  example's own stylesheet because that is part of its copyable snippet. Why a cap at all: a
+  narrow box must not stand tall and empty around a drawing its width shrinks.
 - **Levels and the path:** a block whose `opens` names a level is a button ("Open Stages") that
   opens it, and a level may open further levels. `[(level)]` is the path of open levels, `[]` for
   the overview, which an app can bind to its route. A path is followed while each id names a level a
@@ -692,6 +694,17 @@ the whole in the kit's look.
   not sample or drop messages in the app to protect the page. The messaging example
   (`examples/messaging/`) is the reference feed, and its Burst button, 400 messages (about three
   seconds of its traffic), is the check of the tab-back case.
+- **The figure card** (`neat-diagram-figure-card`: `label`, `value`, `digits`, `unit`, `caption`,
+  `history`) is the note's card for a figure that is not a rate, such as a count or a time: the
+  label, the value in `NeatEasedNumber` (eased, tabular, "–" while there is none) with its unit,
+  the caption's words at the end of that line, and a `NeatSparkline` of the history when it has
+  one, named by the label and worded in the value's digits and unit. It draws no box, the note does.
+  **The rate card takes the figure card's sheet (`figure-card.css`) before its own**, so the label,
+  the figures' line and the figures are stated once and every note reads alike; its own sheet
+  adds only the stage line. Why not a preset of the figure card, as the chart card is of the card:
+  the rate card's line holds two figures (msg/s and MB/s) and a step's stage line takes its
+  sparkline's place, so the figure card would need inputs that only the rate card uses. The
+  Counts and times example (`examples/diagram/`) shows a count and a time.
 - What stays internal: the routing, the port layout, the notes' placement and measurement, the fit
   maths, the pan and zoom, the hover, the level path, and the messaging layer's models, canvas,
   context token and frame probe (the bench reaches some of these through its seam, above).

@@ -188,6 +188,24 @@ describe('the diagram examples on the diagram topic', () => {
     expect(figure('A compile flow').closest('.live')?.getAttribute('data-unpadded')).toBe('false');
   });
 
+  it('shows a count with its history and a time with its caption in figure cards', () => {
+    const diagram = figure('Counts and times in notes');
+    const card = (note: string) =>
+      diagram.querySelector(`[data-note="${note}"] neat-diagram-figure-card`) as HTMLElement;
+    const line = (note: string) =>
+      Array.from(card(note).querySelectorAll('.numbers > span'), (span) =>
+        (span.textContent ?? '').replace(/\s+/g, ' ').trim(),
+      );
+
+    expect(card('benchmark').querySelector('.label')?.textContent?.trim()).toBe('MLA benchmark');
+    expect(line('benchmark')).toEqual(['4.21 ms per call', '238 calls/s']);
+    expect(card('benchmark').querySelector('neat-sparkline')).toBeNull();
+
+    expect(card('tracks').querySelector('.label')?.textContent?.trim()).toBe('Active tracks');
+    expect(line('tracks')).toEqual(['5 alive']);
+    expect(card('tracks').querySelector('neat-sparkline')).not.toBeNull();
+  });
+
   it('fits every example again from the top bar’s Fit', () => {
     const fit = vi.spyOn(NeatDiagramView.prototype, 'fit');
     const button = Array.from(root().querySelectorAll<HTMLButtonElement>('header button')).find(
@@ -196,6 +214,6 @@ describe('the diagram examples on the diagram topic', () => {
 
     button.click();
 
-    expect(fit).toHaveBeenCalledTimes(6);
+    expect(fit).toHaveBeenCalledTimes(7);
   });
 });
