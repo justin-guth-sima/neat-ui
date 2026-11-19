@@ -58,7 +58,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
           ["comment","/* A slider fills its container's width, so the example gives it one. */"],["text","\n.width {\n  display: flex;\n  align-items: center;\n  gap: var(--neat-space-3);\n}\n\nneat-slider {\n  width: 16rem;\n}\n\n"],
-          ["comment","/* The grid fills its parent, so the example gives it a box of a fixed height to fill. */"],["text","\n.box {\n  height: 24rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n}\n\n.tile {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  border-radius: var(--radius);\n  background: var(--muted);\n  color: var(--muted-foreground);\n  font-size: var(--neat-text-sm);\n}\n"]
+          ["comment","/* The grid fills its parent, so the example gives it a box of a fixed height to fill. */"],["text","\n.box {\n  height: 24rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n}\n\n"],
+          ["comment","/* A numbered stand-in for a video tile, in the tile's own fill so it shows on the card. */"],["text","\n.tile {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  border-radius: var(--radius);\n  background: var(--neat-video-surface);\n  color: var(--muted-foreground);\n  font-size: var(--neat-text-sm);\n}\n"]
         ]
       }
     ]
@@ -129,7 +130,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
           ["comment","/* A slider fills its container's width, so the example gives it one. */"],["text","\n.width {\n  display: flex;\n  align-items: center;\n  gap: var(--neat-space-3);\n}\n\nneat-slider {\n  width: 16rem;\n}\n\n"],
-          ["comment","/* The grid fills its parent, so the example gives it a box of a fixed height to fill. */"],["text","\n.box {\n  height: 24rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n}\n\n.tile {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  border-radius: var(--radius);\n  background: var(--muted);\n  color: var(--muted-foreground);\n  font-size: var(--neat-text-sm);\n}\n"]
+          ["comment","/* The grid fills its parent, so the example gives it a box of a fixed height to fill. */"],["text","\n.box {\n  height: 24rem;\n  border: 1px solid var(--border);\n  border-radius: var(--radius);\n  background: var(--card);\n}\n\n"],
+          ["comment","/* A numbered stand-in for a video tile, in the tile's own fill so it shows on the card. */"],["text","\n.tile {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  border-radius: var(--radius);\n  background: var(--neat-video-surface);\n  color: var(--muted-foreground);\n  font-size: var(--neat-text-sm);\n}\n"]
         ]
       }
     ]

@@ -1,6 +1,7 @@
 /*
  * Fills the box it is given (a grid cell) and never draws outside it. Its own stacking context
- * keeps the layers below from mixing with the page's.
+ * keeps the layers below from mixing with the page's. Its fill is the tile's own token, which
+ * shows on the page and on a card in both schemes (dark `--muted` is the card's color).
  */
 :host {
   position: relative;
@@ -9,7 +10,7 @@
   height: 100%;
   overflow: hidden;
   isolation: isolate;
-  background: var(--muted);
+  background: var(--neat-video-surface);
 }
 
 .video,
@@ -51,7 +52,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: var(--muted);
+  background: var(--neat-video-surface);
 }
 
 /*

@@ -196,6 +196,12 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
   const tints = rowTints(ROW_TINT_SHARE[scheme], background);
   const charts = chartTokens(scheme, status(scales.destructive));
   const chipNeutral = neutralChipFill(scheme, surface, [raised, background], accent);
+  /**
+   * A quiet fill that shows on a card as well as on the page: the muted surface in light; in dark
+   * the muted surface is the card's own color, so the neutral chip's fill, which is chosen to show
+   * on cards and the page.
+   */
+  const quiet = scheme === 'dark' ? chipNeutral : surface[roles.muted];
 
   return {
     background,
@@ -249,14 +255,15 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     // dark scheme's surfaces are.
     'neat-video-scrim': withAlpha(SIMA_PALETTE.text, VIDEO_SCRIM_ALPHA),
     'neat-video-scrim-foreground': SIMA_PALETTE.white,
+    // A tile's own fill, where there is no picture (before the first frame, the letterbox): quiet,
+    // so tiles side by side stand apart from the page or card under them in both schemes.
+    'neat-video-surface': quiet,
     'neat-live': liveToken(),
     ...segmentedTokens(scheme, surface, primary),
     ...tints,
     'neat-chip-neutral': chipNeutral,
-    // An empty track or a quiet stretch inside a card (score bars, label timeline): the muted
-    // surface in light; in dark the muted surface is the card's own color, so the neutral chip's
-    // fill, which is chosen to show on cards.
-    'neat-track': scheme === 'dark' ? chipNeutral : surface[roles.muted],
+    // An empty track or a quiet stretch inside a card (score bars, label timeline).
+    'neat-track': quiet,
     'neat-warning-text': warningText(charts['neat-line-warning'], text, [
       tints['neat-tint-warning'],
       tints['neat-tint-warning-accent'],

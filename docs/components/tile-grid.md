@@ -117,12 +117,13 @@ neat-slider {
   background: var(--card);
 }
 
+/* A numbered stand-in for a video tile, in the tile's own fill so it shows on the card. */
 .tile {
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius);
-  background: var(--muted);
+  background: var(--neat-video-surface);
   color: var(--muted-foreground);
   font-size: var(--neat-text-sm);
 }
@@ -239,12 +240,13 @@ neat-slider {
   background: var(--card);
 }
 
+/* A numbered stand-in for a video tile, in the tile's own fill so it shows on the card. */
 .tile {
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius);
-  background: var(--muted);
+  background: var(--neat-video-surface);
   color: var(--muted-foreground);
   font-size: var(--neat-text-sm);
 }

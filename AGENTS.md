@@ -1093,7 +1093,9 @@ surface such as a card). Charts draw with `--neat-series-1` to `--neat-series-8`
 purple, orange and teal, then a darker blue and the lighter purple, orange and blue), `--neat-line`
 (a single metric's line), `--neat-line-warning` and `--neat-line-danger` (threshold lines), and
 `--neat-heat-low` and `--neat-heat-high` (the ends of the heatmap ramp). `--neat-live` is the live
-dot's red, one value in both schemes since it also sits on video. Green, amber and red are left out
+dot's red, one value in both schemes since it also sits on video. `--neat-video-surface` is a video
+tile's own fill where there is no picture: `--muted` in light, and in dark, where `--muted` is the
+card's own color and tiles on a card vanished in it, the neutral chip's gray. Green, amber and red are left out
 of the series so that they keep meaning status. Light series 6 to 8 are below 3:1 on white: use them
 as fills whose values the legend carries as text. Page insets come from `neat-page`
 (`padding="page"` by default, `padding="none"` for full-bleed content such as a video grid), never

@@ -418,6 +418,19 @@ describe('buildSpartanThemeCss', () => {
     ).toBeGreaterThanOrEqual(MIN_CHIP_FILL_CONTRAST);
   });
 
+  it('gives a video tile a fill of its own that shows on the page and on a card: --muted in light, as the tile had, the neutral chip fill in dark', () => {
+    expect(schemes.light.get('--neat-video-surface')).toBe(schemes.light.get('--muted'));
+    expect(schemes.dark.get('--neat-video-surface')).toBe(schemes.dark.get('--neat-chip-neutral'));
+    // Dark --muted is the card's own color, so a tile on a card vanished in it.
+    expect(schemes.dark.get('--muted')).toBe(schemes.dark.get('--card'));
+    for (const surface of ['--card', '--background']) {
+      expect(
+        contrastRatio(schemes.dark.get('--neat-video-surface')!, schemes.dark.get(surface)!),
+        surface,
+      ).toBeGreaterThanOrEqual(MIN_CHIP_FILL_CONTRAST);
+    }
+  });
+
   it('gives warning a text color: its line mixed toward --foreground by the least 5% step that reads at 4.5:1 on the warning tints', () => {
     const shareStep = 0.05;
     for (const scheme of ['light', 'dark'] as const) {

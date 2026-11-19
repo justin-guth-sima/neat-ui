@@ -53,6 +53,7 @@ const KIT_VARIABLES = [
   'highlight-foreground',
   'neat-video-scrim',
   'neat-video-scrim-foreground',
+  'neat-video-surface',
   'neat-live',
   ...Array.from({ length: 8 }, (_, i) => `neat-series-${i + 1}`),
   'neat-line',
