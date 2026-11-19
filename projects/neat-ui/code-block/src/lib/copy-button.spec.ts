@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import { CopyButton } from './copy-button';
+import { NeatCopyButton } from './copy-button';
 
-describe('CopyButton', () => {
+describe('NeatCopyButton', () => {
   let writeText: ReturnType<typeof vi.fn>;
 
   async function render() {
-    const fixture = TestBed.createComponent(CopyButton);
+    const fixture = TestBed.createComponent(NeatCopyButton);
     fixture.componentRef.setInput('text', "import { NeatX } from '@sima/neat-ui';");
     fixture.componentRef.setInput('what', 'import line');
     await fixture.whenStable();

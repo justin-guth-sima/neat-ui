@@ -1,0 +1,8 @@
+/* The sentence and its Copy button on one line, wrapping as one. */
+.url {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--neat-space-2);
+  margin: 0;
+}

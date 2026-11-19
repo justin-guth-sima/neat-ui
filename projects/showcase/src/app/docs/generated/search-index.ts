@@ -2008,6 +2008,54 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatCodeBlock",
+    "partKind": "component",
+    "text": "Code set apart on the muted fill, as written, with an optional Copy button at its end."
+  },
+  {
+    "kind": "member",
+    "name": "code",
+    "part": "NeatCodeBlock",
+    "text": "The code, as text: shown, and copied by the Copy button."
+  },
+  {
+    "kind": "member",
+    "name": "copy",
+    "part": "NeatCodeBlock",
+    "text": "What the code is, which adds a Copy button named after it (\"Copy install command\")."
+  },
+  {
+    "kind": "member",
+    "name": "overflow",
+    "part": "NeatCodeBlock",
+    "text": "Whether a long line wraps or scrolls sideways (a NeatCodeOverflow)."
+  },
+  {
+    "kind": "part",
+    "name": "NeatCodeOverflow",
+    "partKind": "type",
+    "text": "What a code block does with a line wider than itself: wrap breaks it, scroll keeps it whole and scrolls the block sideways."
+  },
+  {
+    "kind": "part",
+    "name": "NeatCopyButton",
+    "partKind": "component",
+    "text": "A small Copy button that puts text on the clipboard and says whether it did."
+  },
+  {
+    "kind": "member",
+    "name": "text",
+    "part": "NeatCopyButton",
+    "text": "The text the button copies."
+  },
+  {
+    "kind": "member",
+    "name": "what",
+    "part": "NeatCopyButton",
+    "text": "What the text is, for the button's name: install command names it \"Copy install command\"."
+  },
+  {
+    "kind": "part",
     "name": "NeatCollapsible",
     "partKind": "component",
     "text": "A section that a full-width button opens and closes, such as a panel's \"Details\":"
@@ -4929,6 +4977,34 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "chart-card",
     "id": "selectable-cards",
     "text": "Three selectable cards and one that is not; the readout says which is chosen."
+  },
+  {
+    "kind": "example",
+    "name": "Install command",
+    "topic": "code-block",
+    "id": "install-command",
+    "text": "A command to run, with a Copy button named \"Copy install command\"."
+  },
+  {
+    "kind": "example",
+    "name": "Whole file",
+    "topic": "code-block",
+    "id": "whole-file",
+    "text": "A whole file, its lines and indents as written."
+  },
+  {
+    "kind": "example",
+    "name": "Colored by the app",
+    "topic": "code-block",
+    "id": "colored-by-the-app",
+    "text": "Code the app colored itself, as spans inside the block."
+  },
+  {
+    "kind": "example",
+    "name": "Stream URL",
+    "topic": "code-block",
+    "id": "stream-url",
+    "text": "The Copy button on its own, beside a URL in running text."
   },
   {
     "kind": "example",

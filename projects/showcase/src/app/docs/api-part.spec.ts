@@ -173,10 +173,10 @@ describe('ApiPart', () => {
       },
       docs,
     );
-    expect(fn.host.querySelector('app-code-box pre')?.textContent).toBe(
+    expect(fn.host.querySelector('neat-code-block pre')?.textContent).toBe(
       'neatDrillDownLevel(diagram: NeatDiagram, blockId: string): NeatDiagram',
     );
-    expect(fn.host.querySelectorAll('app-code-box a[href]')).toHaveLength(2);
+    expect(fn.host.querySelectorAll('neat-code-block a[href]')).toHaveLength(2);
     TestBed.resetTestingModule();
 
     const type = await render({
@@ -186,7 +186,7 @@ describe('ApiPart', () => {
       doc: [],
       source: SOURCE,
     });
-    expect(type.host.querySelector('app-code-box pre')?.textContent).toBe("'frame' | 'block'");
+    expect(type.host.querySelector('neat-code-block pre')?.textContent).toBe("'frame' | 'block'");
     TestBed.resetTestingModule();
 
     const constant = await render({
@@ -196,7 +196,7 @@ describe('ApiPart', () => {
       doc: [],
       source: SOURCE,
     });
-    expect(constant.host.querySelector('app-code-box pre')?.textContent).toBe('3000');
+    expect(constant.host.querySelector('neat-code-block pre')?.textContent).toBe('3000');
   });
 
   it('lists a short interface and folds a long one under its count', async () => {

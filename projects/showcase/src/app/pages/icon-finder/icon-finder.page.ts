@@ -15,10 +15,9 @@ import {
   neatStoredSignal,
 } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
+import { NeatCodeBlock } from '@sima/neat-ui/code-block';
 import { NeatStatusChipButton } from '@sima/neat-ui/status-chip';
 import { map } from 'rxjs';
-import { CodeBox } from '../../docs/code-box';
-import { CopyButton } from '../../docs/copy-button';
 import { type FinderIcon, ICON_INDEX, search, usageOf } from './icon-index';
 
 /** Where the panel's state is kept between visits, as the docs pages keep theirs. */
@@ -38,14 +37,13 @@ const count = (n: number, one: string, many: string) =>
 @Component({
   selector: 'app-icon-finder-page',
   imports: [
-    CodeBox,
-    CopyButton,
     NeatAsidePanel,
     NeatAsideHeading,
     NeatAsideTitle,
     NeatAsideToggle,
     NeatCallout,
     NeatCode,
+    NeatCodeBlock,
     NeatIcon,
     NeatInlineButton,
     NeatPage,
@@ -135,9 +133,7 @@ const count = (n: number, one: string, many: string) =>
             </neat-callout>
           }
           <h3 neatAsideHeading>Usage</h3>
-          <app-code-box [code]="usage()">
-            <app-copy-button codeBoxEnd [text]="usage()" what="usage" />
-          </app-code-box>
+          <neat-code-block [code]="usage()" copy="usage" />
           @if (icon.kind === 'kit') {
             <h3 neatAsideHeading>Drawing</h3>
             <p class="detail">

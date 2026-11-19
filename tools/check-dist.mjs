@@ -29,6 +29,7 @@ export const SECONDARY_ENTRIES = {
     'neat-heatmap',
     'neat-chart-card',
   ],
+  'code-block': ['neat-code-block', 'neat-copy-button'],
   collapsible: ['neat-collapsible'],
   confirm: ['neat-confirm-dialog'],
   details: ['dl[neatDetails]'],

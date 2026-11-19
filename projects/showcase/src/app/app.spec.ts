@@ -255,6 +255,7 @@ describe('App', () => {
     expect(links()).toEqual([
       'Table',
       'Details',
+      'Code block',
       'Line list',
       'Select list',
       'File browser',

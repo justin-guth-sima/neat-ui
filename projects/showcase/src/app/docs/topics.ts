@@ -677,6 +677,19 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
+            id: 'code-block',
+            label: 'Code block',
+            parts: ['NeatCodeBlock', 'NeatCodeOverflow', 'NeatCopyButton'],
+            leads: ['NeatCodeBlock'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/code-block'),
+                import('./generated/examples/code-block'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'line-list',
             label: 'Line list',
             parts: ['NeatLineList', 'NeatLine', 'NeatLineEnd'],

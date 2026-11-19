@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { CodeBox } from './code-box';
 import { DocText } from './doc-text';
 import type { DocBlock } from './model';
 import { PartRef } from './part-ref';
@@ -75,24 +74,6 @@ describe('TypeText', () => {
       'NeatDiagram',
       'NeatTone',
     ]);
-  });
-});
-
-describe('CodeBox', () => {
-  it('shows code as written, its lines and indents kept', async () => {
-    const code = '<neat-diagram [diagram]="set">\n  <ng-template neatDiagramBlock let-node>';
-    const host = await render(CodeBox, { code }, new FakeDocs(['NeatDiagram']));
-
-    expect(host.querySelector('pre')?.textContent).toBe(code);
-    expect(host.querySelector('a')).toBeNull();
-  });
-
-  it('links the documented names of a signature when asked to', async () => {
-    const code = 'neatDrillDownLevel(diagram: NeatDiagram, blockId: string): NeatDiagram';
-    const host = await render(CodeBox, { code, linked: true }, new FakeDocs(['NeatDiagram']));
-
-    expect(host.querySelector('pre')?.textContent).toBe(code);
-    expect(host.querySelectorAll('pre a[href]')).toHaveLength(2);
   });
 });
 

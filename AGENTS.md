@@ -94,6 +94,14 @@ look happens in one place. Every rule here protects that.
     selected row's `--accent` in both schemes), `details` (`NeatDetails`, the
     key/value list of an aside; `--neat-details-term-width` on an ancestor lines several up, and
     a term wider than a fixed column breaks inside the word),
+    `code-block` (`NeatCodeBlock`, `neat-code-block`: code on the muted fill as written, `wrap` or
+    `scroll` for a long line, and with `copy`, what the code is, a Copy button named after it; and
+    `NeatCopyButton`, that button alone, for text shown some other way. Plain text: the kit has no
+    highlighter, which would be a dependency, so an app that colors its code puts its spans inside
+    the element, shown in place of `code`, which stays what is copied; the showcase's snippets
+    do this with the generator's runs. The clipboard needs a secure context, and the button says
+    when it could not copy. Not helm's `code-block`: its Copy button is an unnamed icon that hides
+    until hover and ignores a refused clipboard, and its dynamic icon fails adoption),
     `table` (`NeatTable`, the data table's look on a `table`: cells, rules, column headings; and
     `NeatNumeric`, which end-aligns a column's figures on one line with tabular digits, and
     `NeatFigure`, the same without the end alignment, for a cell with something after its figure; a

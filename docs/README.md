@@ -59,6 +59,7 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 
 - [Table](components/table.md)
 - [Details](components/details.md)
+- [Code block](components/code-block.md)
 - [Line list](components/line-list.md)
 - [Select list](components/select-list.md)
 - [File browser](components/file-browser.md)
