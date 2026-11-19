@@ -88,7 +88,15 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The sliders set the dots' speed, size and messages per dot, and a reset returns them to the defaults. Dots always go on through the blocks' steps, where a diagram has them."
+              "text": "The sliders set the dots' speed, size and messages per dot, and a reset returns them to "
+            },
+            {
+              "kind": "code",
+              "text": "defaults"
+            },
+            {
+              "kind": "text",
+              "text": ". Dots always go on through the blocks' steps, where a diagram has them."
             }
           ]
         },
@@ -122,6 +130,55 @@ export const API: DocsEntry = {
               "text": ". Place it in a toolbar or beside the diagram."
             }
           ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An app whose dots start otherwise than the kit's gives its starting settings as "
+            },
+            {
+              "kind": "code",
+              "text": "defaults"
+            },
+            {
+              "kind": "text",
+              "text": ", so a reset returns to them:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-diagram-animation-settings [(settings)]=\"dots\" [defaults]=\"calm\" />"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "defaults",
+          "type": "NeatDiagramMessageSettings",
+          "default": "NEAT_DIAGRAM_MESSAGE_DEFAULTS",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What the reset returns to: the app's starting settings, "
+                },
+                {
+                  "kind": "ref",
+                  "text": "NEAT_DIAGRAM_MESSAGE_DEFAULTS",
+                  "name": "NEAT_DIAGRAM_MESSAGE_DEFAULTS"
+                },
+                {
+                  "kind": "text",
+                  "text": " unless it gives its own."
+                }
+              ]
+            }
+          ]
         }
       ],
       "models": [
@@ -135,7 +192,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The dots' tuning; what the sliders and the switch write, and the layer's "
+                  "text": "The dots' tuning; what the sliders write, and the layer's "
                 },
                 {
                   "kind": "code",
@@ -3770,7 +3827,7 @@ export const API: DocsEntry = {
     {
       "name": "neatParseMessageSettings",
       "kind": "function",
-      "signature": "neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettings",
+      "signature": "neatParseMessageSettings(raw: unknown, defaults: NeatDiagramMessageSettings = NEAT_DIAGRAM_MESSAGE_DEFAULTS): NeatDiagramMessageSettings",
       "doc": [
         {
           "kind": "paragraph",
@@ -3812,9 +3869,39 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " rounded to a whole number. The rest take the defaults. So a stored signal reads whatever an older version wrote."
+              "text": " rounded to a whole number. The rest take "
+            },
+            {
+              "kind": "code",
+              "text": "defaults"
+            },
+            {
+              "kind": "text",
+              "text": ", the kit's unless the app gives its own. So a stored signal reads whatever an older version wrote."
             }
           ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An app with defaults of its own gives them here too, as it gives them to the panel's "
+            },
+            {
+              "kind": "code",
+              "text": "defaults"
+            },
+            {
+              "kind": "text",
+              "text": ":"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "const DOTS = { ...NEAT_DIAGRAM_MESSAGE_DEFAULTS, speed: 140 };\nreadonly settings = neatStoredSignal('app.dots', DOTS, (raw) =>\n  neatParseMessageSettings(raw, DOTS));"
         }
       ],
       "source": "projects/neat-ui/diagram/src/lib/messages/animation-settings.ts"

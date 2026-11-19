@@ -42,6 +42,8 @@ describe('the live pipeline example', () => {
 
   afterEach(() => {
     fixture.destroy();
+    // The panel's choice is stored per browser; the next test starts from the example's own.
+    localStorage.removeItem('showcase.diagram.dots');
     vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
@@ -99,6 +101,25 @@ describe('the live pipeline example', () => {
     await settle();
 
     expect(document.querySelector('[role="dialog"][aria-label="Animation"]')).not.toBeNull();
+  });
+
+  it('returns the dots to the example’s calmer start from the panel’s reset', async () => {
+    button('Animation').click();
+    await settle();
+    const panel = document.querySelector('[role="dialog"][aria-label="Animation"]')!;
+    const speed = panel.querySelector<HTMLElement>('[role="slider"][aria-label^="Speed"]')!;
+    expect(speed.getAttribute('aria-valuenow')).toBe('140');
+
+    speed.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+    await settle();
+    expect(speed.getAttribute('aria-valuenow')).toBe('1000');
+
+    Array.from(panel.querySelectorAll('button'))
+      .find((b) => b.textContent?.trim() === 'Reset to defaults')!
+      .click();
+    await settle();
+    expect(speed.getAttribute('aria-valuenow')).toBe('140');
+    expect(panel.textContent).toContain('1 dot = 3 msgs');
   });
 
   it('pushes four hundred messages in one tick from Burst', () => {

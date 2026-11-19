@@ -33,7 +33,7 @@ Try opening the Detector: inside it, the dots wait out its stage times.
 
 The notes are rate cards of an edge's `rate()`: - the Tracker's sums the two edges into it, with `rate(['detector-tracker', 'nms-tracker'])`, and has `showBytes` off, since results are a few kilobytes and not worth a megabyte figure; - the Detector's shows its stage time in place of the megabytes.
 
-The Animation panel tunes the dots, its choice kept per browser with [`neatStoredSignal`](../components/stored-signal.md#neatstoredsignal). Burst pushes 400 messages in one tick, about three seconds of this traffic, as a tab returning from a few seconds in the background would.
+The Animation panel tunes the dots, its choice kept per browser with [`neatStoredSignal`](../components/stored-signal.md#neatstoredsignal). The dots start calmer than the kit's defaults, and the panel's `defaults` makes its reset return there. Burst pushes 400 messages in one tick, about three seconds of this traffic, as a tab returning from a few seconds in the background would.
 
 The top bar's Fit calls [`NeatDiagramView.fit`](../components/diagram.md#neatdiagramview), which fits the drawing to its box again after it was panned or zoomed.
 
@@ -66,6 +66,7 @@ import {
   NeatDiagramAnimationSettings,
   NeatDiagramBlockTemplate,
   NeatDiagramLegend,
+  type NeatDiagramMessageSettings,
   NeatDiagramMessages,
   NeatDiagramNoteTemplate,
   NeatDiagramRateCard,
@@ -94,6 +95,15 @@ const RESULT_EDGES = ['detector-tracker', 'nms-tracker', 'tracker-gateway', 'gat
  * delivers it.
  */
 const BURST_MESSAGES = 400;
+/**
+ * Where the dots start, and what the Animation panel's reset returns to: calmer than the kit's
+ * defaults, slower and a dot for every third message, so the pipeline reads at a glance.
+ */
+const CALM_DOTS: NeatDiagramMessageSettings = {
+  ...NEAT_DIAGRAM_MESSAGE_DEFAULTS,
+  speed: 140,
+  every: 3,
+};
 
 @Component({
   selector: 'app-live-pipeline',
@@ -115,15 +125,13 @@ export class LivePipeline {
   protected readonly pipeline = PIPELINE;
   protected readonly legend = PIPELINE_LEGEND;
   protected readonly steps = PIPELINE_MESSAGE_STEPS;
+  protected readonly calmDots = CALM_DOTS;
   /**
-   * The dots' tuning, kept per browser: what `neatParseMessageSettings` reads back clamped. It
-   * starts calmer than the kit's defaults, slower and a dot for every third message, so the
-   * pipeline reads at a glance; the panel's reset goes back to the kit's.
+   * The dots' tuning, kept per browser: what `neatParseMessageSettings` reads back clamped, with
+   * the example's own defaults for what it lacks.
    */
-  protected readonly dots = neatStoredSignal(
-    'showcase.diagram.dots',
-    { ...NEAT_DIAGRAM_MESSAGE_DEFAULTS, speed: 140, every: 3 },
-    neatParseMessageSettings,
+  protected readonly dots = neatStoredSignal('showcase.diagram.dots', CALM_DOTS, (raw) =>
+    neatParseMessageSettings(raw, CALM_DOTS),
   );
   /** The YOLOX stage time the Detector's card shows, in ms. */
   protected readonly yoloxMs = signal<number | undefined>(undefined);
@@ -176,7 +184,7 @@ export class LivePipeline {
 ```html
 <div class="controls">
   <button neatButton type="button" variant="outlined" size="small" (click)="burst()">Burst</button>
-  <neat-diagram-animation-settings [(settings)]="dots" />
+  <neat-diagram-animation-settings [(settings)]="dots" [defaults]="calmDots" />
 </div>
 <neat-diagram-legend [items]="legend" />
 <neat-diagram class="diagram" [diagram]="pipeline" label="A live messaging pipeline">
@@ -592,15 +600,27 @@ The Animation panel for `neat-diagram-messages`: sliders for the dots, behind an
 <neat-diagram-messages [settings]="dots()" />
 ```
 
-The sliders set the dots' speed, size and messages per dot, and a reset returns them to the defaults. Dots always go on through the blocks' steps, where a diagram has them.
+The sliders set the dots' speed, size and messages per dot, and a reset returns them to `defaults`. Dots always go on through the blocks' steps, where a diagram has them.
 
 `settings` is the model both ways, and changes apply as the sliders move. The panel keeps nothing. An app that remembers the choice per browser makes the model a [`neatStoredSignal`](../components/stored-signal.md#neatstoredsignal), parsed by [`neatParseMessageSettings`](../components/messaging.md#neatparsemessagesettings). Place it in a toolbar or beside the diagram.
+
+An app whose dots start otherwise than the kit's gives its starting settings as `defaults`, so a reset returns to them:
+
+```html
+<neat-diagram-animation-settings [(settings)]="dots" [defaults]="calm" />
+```
+
+**Inputs**
+
+- **`defaults`** `NeatDiagramMessageSettings`, default `NEAT_DIAGRAM_MESSAGE_DEFAULTS`
+
+  What the reset returns to: the app's starting settings, [`NEAT_DIAGRAM_MESSAGE_DEFAULTS`](../components/messaging.md#neat_diagram_message_defaults) unless it gives its own.
 
 **Models (two-way)**
 
 - **`settings`** `NeatDiagramMessageSettings`, default `NEAT_DIAGRAM_MESSAGE_DEFAULTS`
 
-  The dots' tuning; what the sliders and the switch write, and the layer's `settings`.
+  The dots' tuning; what the sliders write, and the layer's `settings`.
 
 ### `NeatDiagramMessageSettings`
 
@@ -683,10 +703,18 @@ readonly settings = neatStoredSignal('app.dots', NEAT_DIAGRAM_MESSAGE_DEFAULTS,
   neatParseMessageSettings);
 ```
 
-It keeps the known keys of the right type, and clamps the numbers to the sliders' range, with `every` rounded to a whole number. The rest take the defaults. So a stored signal reads whatever an older version wrote.
+It keeps the known keys of the right type, and clamps the numbers to the sliders' range, with `every` rounded to a whole number. The rest take `defaults`, the kit's unless the app gives its own. So a stored signal reads whatever an older version wrote.
+
+An app with defaults of its own gives them here too, as it gives them to the panel's `defaults`:
 
 ```ts
-neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettings
+const DOTS = { ...NEAT_DIAGRAM_MESSAGE_DEFAULTS, speed: 140 };
+readonly settings = neatStoredSignal('app.dots', DOTS, (raw) =>
+  neatParseMessageSettings(raw, DOTS));
+```
+
+```ts
+neatParseMessageSettings(raw: unknown, defaults: NeatDiagramMessageSettings = NEAT_DIAGRAM_MESSAGE_DEFAULTS): NeatDiagramMessageSettings
 ```
 
 ### `neatBatchTimes`

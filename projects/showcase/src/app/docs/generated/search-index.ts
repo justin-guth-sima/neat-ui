@@ -2128,9 +2128,15 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "defaults",
+    "part": "NeatDiagramAnimationSettings",
+    "text": "What the reset returns to: the app's starting settings, NEAT_DIAGRAM_MESSAGE_DEFAULTS unless it gives its own."
+  },
+  {
+    "kind": "member",
     "name": "settings",
     "part": "NeatDiagramAnimationSettings",
-    "text": "The dots' tuning; what the sliders and the switch write, and the layer's settings."
+    "text": "The dots' tuning; what the sliders write, and the layer's settings."
   },
   {
     "kind": "part",

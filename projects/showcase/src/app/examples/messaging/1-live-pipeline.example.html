@@ -1,6 +1,6 @@
 <div class="controls">
   <button neatButton type="button" variant="outlined" size="small" (click)="burst()">Burst</button>
-  <neat-diagram-animation-settings [(settings)]="dots" />
+  <neat-diagram-animation-settings [(settings)]="dots" [defaults]="calmDots" />
 </div>
 <neat-diagram-legend [items]="legend" />
 <neat-diagram class="diagram" [diagram]="pipeline" label="A live messaging pipeline">

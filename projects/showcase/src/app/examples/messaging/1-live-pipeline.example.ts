@@ -14,6 +14,7 @@ import {
   NeatDiagramAnimationSettings,
   NeatDiagramBlockTemplate,
   NeatDiagramLegend,
+  type NeatDiagramMessageSettings,
   NeatDiagramMessages,
   NeatDiagramNoteTemplate,
   NeatDiagramRateCard,
@@ -42,6 +43,15 @@ const RESULT_EDGES = ['detector-tracker', 'nms-tracker', 'tracker-gateway', 'gat
  * delivers it.
  */
 const BURST_MESSAGES = 400;
+/**
+ * Where the dots start, and what the Animation panel's reset returns to: calmer than the kit's
+ * defaults, slower and a dot for every third message, so the pipeline reads at a glance.
+ */
+const CALM_DOTS: NeatDiagramMessageSettings = {
+  ...NEAT_DIAGRAM_MESSAGE_DEFAULTS,
+  speed: 140,
+  every: 3,
+};
 
 /**
  * A timer feeds camera frames at 30 Hz and results at 10 Hz, in batches of three frames that
@@ -55,9 +65,10 @@ const BURST_MESSAGES = 400;
  * kilobytes and not worth a megabyte figure; - the Detector's shows its stage time in place of the
  * megabytes.
  *
- * The Animation panel tunes the dots, its choice kept per browser with `neatStoredSignal`. Burst
- * pushes 400 messages in one tick, about three seconds of this traffic, as a tab returning from a
- * few seconds in the background would.
+ * The Animation panel tunes the dots, its choice kept per browser with `neatStoredSignal`. The
+ * dots start calmer than the kit's defaults, and the panel's `defaults` makes its reset return
+ * there. Burst pushes 400 messages in one tick, about three seconds of this traffic, as a tab
+ * returning from a few seconds in the background would.
  *
  * The top bar's Fit calls `NeatDiagramView.fit`, which fits the drawing to its box again after it
  * was panned or zoomed.
@@ -85,15 +96,13 @@ export class LivePipeline {
   protected readonly pipeline = PIPELINE;
   protected readonly legend = PIPELINE_LEGEND;
   protected readonly steps = PIPELINE_MESSAGE_STEPS;
+  protected readonly calmDots = CALM_DOTS;
   /**
-   * The dots' tuning, kept per browser: what `neatParseMessageSettings` reads back clamped. It
-   * starts calmer than the kit's defaults, slower and a dot for every third message, so the
-   * pipeline reads at a glance; the panel's reset goes back to the kit's.
+   * The dots' tuning, kept per browser: what `neatParseMessageSettings` reads back clamped, with
+   * the example's own defaults for what it lacks.
    */
-  protected readonly dots = neatStoredSignal(
-    'showcase.diagram.dots',
-    { ...NEAT_DIAGRAM_MESSAGE_DEFAULTS, speed: 140, every: 3 },
-    neatParseMessageSettings,
+  protected readonly dots = neatStoredSignal('showcase.diagram.dots', CALM_DOTS, (raw) =>
+    neatParseMessageSettings(raw, CALM_DOTS),
   );
   /** The YOLOX stage time the Detector's card shows, in ms. */
   protected readonly yoloxMs = signal<number | undefined>(undefined);

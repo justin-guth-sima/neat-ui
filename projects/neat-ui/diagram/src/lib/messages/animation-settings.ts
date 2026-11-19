@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
 import { NeatButton, NeatIcon } from '@sima/neat-ui';
 import { NeatPopover, NeatPopoverContent, NeatPopoverTrigger } from '@sima/neat-ui/popover';
 import { NeatSlider } from '@sima/neat-ui/slider';
@@ -22,16 +22,28 @@ type NumberKey = keyof typeof LIMITS;
  * ```
  *
  * It keeps the known keys of the right type, and clamps the numbers to the sliders' range, with
- * `every` rounded to a whole number. The rest take the defaults. So a stored signal reads whatever
- * an older version wrote.
+ * `every` rounded to a whole number. The rest take `defaults`, the kit's unless the app gives its
+ * own. So a stored signal reads whatever an older version wrote.
+ *
+ * An app with defaults of its own gives them here too, as it gives them to the panel's
+ * `defaults`:
+ *
+ * ```ts
+ * const DOTS = { ...NEAT_DIAGRAM_MESSAGE_DEFAULTS, speed: 140 };
+ * readonly settings = neatStoredSignal('app.dots', DOTS, (raw) =>
+ *   neatParseMessageSettings(raw, DOTS));
+ * ```
  */
-export function neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettings {
-  if (typeof raw !== 'object' || raw === null) return NEAT_DIAGRAM_MESSAGE_DEFAULTS;
+export function neatParseMessageSettings(
+  raw: unknown,
+  defaults: NeatDiagramMessageSettings = NEAT_DIAGRAM_MESSAGE_DEFAULTS,
+): NeatDiagramMessageSettings {
+  if (typeof raw !== 'object' || raw === null) return defaults;
   const record = raw as Record<string, unknown>;
   const pick = (key: NumberKey): number => {
     const value = record[key];
     if (typeof value !== 'number' || !Number.isFinite(value)) {
-      return NEAT_DIAGRAM_MESSAGE_DEFAULTS[key];
+      return defaults[key];
     }
     const { min, max } = LIMITS[key];
     return Math.min(max, Math.max(min, key === 'every' ? Math.round(value) : value));
@@ -51,12 +63,19 @@ export function neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettin
  * <neat-diagram-messages [settings]="dots()" />
  * ```
  *
- * The sliders set the dots' speed, size and messages per dot, and a reset returns them to the
- * defaults. Dots always go on through the blocks' steps, where a diagram has them.
+ * The sliders set the dots' speed, size and messages per dot, and a reset returns them to
+ * `defaults`. Dots always go on through the blocks' steps, where a diagram has them.
  *
  * `settings` is the model both ways, and changes apply as the sliders move. The panel keeps
  * nothing. An app that remembers the choice per browser makes the model a `neatStoredSignal`,
  * parsed by `neatParseMessageSettings`. Place it in a toolbar or beside the diagram.
+ *
+ * An app whose dots start otherwise than the kit's gives its starting settings as `defaults`, so
+ * a reset returns to them:
+ *
+ * ```html
+ * <neat-diagram-animation-settings [(settings)]="dots" [defaults]="calm" />
+ * ```
  */
 @Component({
   selector: 'neat-diagram-animation-settings',
@@ -119,7 +138,7 @@ export function neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettin
             variant="outlined"
             size="small"
             type="button"
-            (click)="settings.set(defaults)"
+            (click)="settings.set(defaults())"
           >
             Reset to defaults
           </button>
@@ -129,11 +148,15 @@ export function neatParseMessageSettings(raw: unknown): NeatDiagramMessageSettin
   `,
 })
 export class NeatDiagramAnimationSettings {
-  /** The dots' tuning; what the sliders and the switch write, and the layer's `settings`. */
+  /** The dots' tuning; what the sliders write, and the layer's `settings`. */
   readonly settings = model<NeatDiagramMessageSettings>(NEAT_DIAGRAM_MESSAGE_DEFAULTS);
+  /**
+   * What the reset returns to: the app's starting settings, `NEAT_DIAGRAM_MESSAGE_DEFAULTS` unless
+   * it gives its own.
+   */
+  readonly defaults = input<NeatDiagramMessageSettings>(NEAT_DIAGRAM_MESSAGE_DEFAULTS);
 
   protected readonly limits = LIMITS;
-  protected readonly defaults = NEAT_DIAGRAM_MESSAGE_DEFAULTS;
 
   protected set(change: Partial<NeatDiagramMessageSettings>): void {
     this.settings.update((settings) => ({ ...settings, ...change }));

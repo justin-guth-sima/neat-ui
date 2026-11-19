@@ -11,6 +11,18 @@ class Host {
   readonly settings = signal<NeatDiagramMessageSettings>(NEAT_DIAGRAM_MESSAGE_DEFAULTS);
 }
 
+/** An app whose dots start calmer than the kit's. */
+const CALM: NeatDiagramMessageSettings = { speed: 140, size: 1, every: 3 };
+
+@Component({
+  imports: [NeatDiagramAnimationSettings],
+  template: `<neat-diagram-animation-settings [(settings)]="settings" [defaults]="calm" />`,
+})
+class HostWithDefaults {
+  readonly settings = signal<NeatDiagramMessageSettings>(CALM);
+  readonly calm = CALM;
+}
+
 class NoopResizeObserver {
   observe = vi.fn();
   unobserve = vi.fn();
@@ -23,8 +35,11 @@ const key = (element: HTMLElement, name: string) =>
 describe('NeatDiagramAnimationSettings', () => {
   const panel = (): HTMLElement | null => document.querySelector('[role="dialog"]');
 
-  async function render(initial: NeatDiagramMessageSettings = NEAT_DIAGRAM_MESSAGE_DEFAULTS) {
-    const fixture = TestBed.createComponent(Host);
+  async function render(
+    initial: NeatDiagramMessageSettings = NEAT_DIAGRAM_MESSAGE_DEFAULTS,
+    host: typeof Host | typeof HostWithDefaults = Host,
+  ) {
+    const fixture = TestBed.createComponent(host);
     fixture.componentInstance.settings.set(initial);
     await fixture.whenStable();
     const root: HTMLElement = fixture.nativeElement;
@@ -97,14 +112,23 @@ describe('NeatDiagramAnimationSettings', () => {
     expect(panel()!.textContent).toContain('1 dot = 2 msgs');
   });
 
-  it('resets every setting to the defaults', async () => {
-    const { fixture, host } = await render({ speed: 900, size: 2, every: 7 });
-    const reset = Array.from(panel()!.querySelectorAll('button')).find(
+  const reset = () =>
+    Array.from(panel()!.querySelectorAll('button')).find(
       (b) => b.textContent?.trim() === 'Reset to defaults',
     )!;
-    reset.click();
+
+  it('resets every setting to the kit’s defaults when the app gives none', async () => {
+    const { fixture, host } = await render({ speed: 900, size: 2, every: 7 });
+    reset().click();
     await fixture.whenStable();
     expect(host.settings()).toEqual(NEAT_DIAGRAM_MESSAGE_DEFAULTS);
+  });
+
+  it('resets every setting to the app’s defaults when it gives them', async () => {
+    const { fixture, host } = await render({ speed: 900, size: 2, every: 7 }, HostWithDefaults);
+    reset().click();
+    await fixture.whenStable();
+    expect(host.settings()).toEqual(CALM);
   });
 });
 
@@ -120,6 +144,11 @@ describe('neatParseMessageSettings', () => {
     expect(
       neatParseMessageSettings({ speed: 5000, size: 0.1, every: 2.6, steps: false, old: 1 }),
     ).toEqual({ speed: 1000, size: 0.5, every: 3 });
+  });
+
+  it('takes the app’s defaults, when given, for anything that is no object and for each key it lacks', () => {
+    expect(neatParseMessageSettings(null, CALM)).toEqual(CALM);
+    expect(neatParseMessageSettings({ speed: 300 }, CALM)).toEqual({ ...CALM, speed: 300 });
   });
 
   it('takes the default for a value of the wrong type or not finite', () => {

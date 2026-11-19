@@ -672,10 +672,13 @@ the whole in the kit's look.
   `showBytes` false leaves the MB/s out for an app that pushes no sizes; it draws no box, the note
   does. `neat-diagram-animation-settings` is the demo's Animation popover (an icon button,
   `neat-popover` with `neat-slider`s for speed 50 to 1000, dot size 0.5 to 2 and messages per dot 1
-  to 10, a reset; dots always go on through the steps) over a two-way `settings` model; it keeps
-  nothing. An app that remembers the choice per browser makes the model a `neatStoredSignal` with
-  `NEAT_DIAGRAM_MESSAGE_DEFAULTS` as its initial value and `neatParseMessageSettings` (clamps,
-  rounds and defaults what an older version stored) as its parse. The layer reaches the diagram only
+  to 10, a reset to its `defaults`; dots always go on through the steps) over a two-way `settings`
+  model; it keeps nothing. Its `defaults` are `NEAT_DIAGRAM_MESSAGE_DEFAULTS` unless the app gives
+  its own starting settings (the messaging example's calmer dots), so a reset returns to where the
+  app started. An app that remembers the choice per browser makes the model a `neatStoredSignal`
+  with those defaults as its initial value and `neatParseMessageSettings` (clamps, rounds and
+  defaults what an older version stored, to the same defaults when given them) as its parse. The
+  layer reaches the diagram only
   through an internal context token (the drawn level's edges, the covers, the focus, the transform
   and a hook for its changes), so a benchmark can provide it over another renderer, with an internal
   per-frame probe; neither is public. **Feeding it:** call `push` straight from the transport's

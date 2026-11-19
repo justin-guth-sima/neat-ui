@@ -94,7 +94,15 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ". Burst pushes 400 messages in one tick, about three seconds of this traffic, as a tab returning from a few seconds in the background would."
+            "text": ". The dots start calmer than the kit's defaults, and the panel's "
+          },
+          {
+            "kind": "code",
+            "text": "defaults"
+          },
+          {
+            "kind": "text",
+            "text": " makes its reset return there. Burst pushes 400 messages in one tick, about three seconds of this traffic, as a tab returning from a few seconds in the background would."
           }
         ]
       },
@@ -126,6 +134,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       "@sima/neat-ui/diagram#NeatDiagramAnimationSettings",
       "@sima/neat-ui/diagram#NeatDiagramBlockTemplate",
       "@sima/neat-ui/diagram#NeatDiagramLegend",
+      "@sima/neat-ui/diagram#NeatDiagramMessageSettings",
       "@sima/neat-ui/diagram#NeatDiagramMessages",
       "@sima/neat-ui/diagram#NeatDiagramNoteTemplate",
       "@sima/neat-ui/diagram#NeatDiagramRateCard",
@@ -139,7 +148,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," {\n  afterNextRender,\n  ChangeDetectionStrategy,\n  Component,\n  DestroyRef,\n  inject,\n  signal,\n  viewChild,\n} "],
           ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatButton, neatStoredSignal } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
-          ["keyword","import"],["text"," {\n  NEAT_DIAGRAM_MESSAGE_DEFAULTS,\n  neatBatchTimes,\n  NeatDiagramAnimationSettings,\n  NeatDiagramBlockTemplate,\n  NeatDiagramLegend,\n  NeatDiagramMessages,\n  NeatDiagramNoteTemplate,\n  NeatDiagramRateCard,\n  NeatDiagramView,\n  neatParseMessageSettings,\n} "],
+          ["keyword","import"],["text"," {\n  NEAT_DIAGRAM_MESSAGE_DEFAULTS,\n  neatBatchTimes,\n  NeatDiagramAnimationSettings,\n  NeatDiagramBlockTemplate,\n  NeatDiagramLegend,\n  "],
+          ["keyword","type"],["text"," NeatDiagramMessageSettings,\n  NeatDiagramMessages,\n  NeatDiagramNoteTemplate,\n  NeatDiagramRateCard,\n  NeatDiagramView,\n  neatParseMessageSettings,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
           ["keyword","import"],["text"," { PIPELINE_MESSAGE_STEPS } "],["keyword","from"],["text"," "],["string","'./message-steps'"],["text",";\n"],
           ["keyword","import"],["text"," { PIPELINE, PIPELINE_LEGEND } "],["keyword","from"],["text"," "],["string","'./pipeline-data'"],["text",";\n\n"],
@@ -156,7 +166,10 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," RESULT_EDGES = ["],["string","'detector-tracker'"],["text",", "],["string","'nms-tracker'"],["text",", "],["string","'tracker-gateway'"],["text",", "],["string","'gateway-browser'"],["text","];\n"],
           ["comment","/**\n * The Burst button's messages, in one tick: about three seconds of this example's traffic (some 130\n * pushes a second over its seven edges), as a tab back from a few seconds in the background\n * delivers it.\n */"],
           ["text","\n"],
-          ["keyword","const"],["text"," BURST_MESSAGES = 400;\n\n@Component({\n  selector: "],
+          ["keyword","const"],["text"," BURST_MESSAGES = 400;\n"],
+          ["comment","/**\n * Where the dots start, and what the Animation panel's reset returns to: calmer than the kit's\n * defaults, slower and a dot for every third message, so the pipeline reads at a glance.\n */"],
+          ["text","\n"],
+          ["keyword","const"],["text"," CALM_DOTS: NeatDiagramMessageSettings = {\n  ...NEAT_DIAGRAM_MESSAGE_DEFAULTS,\n  speed: 140,\n  every: 3,\n};\n\n@Component({\n  selector: "],
           ["string","'app-live-pipeline'"],["text",",\n  imports: [\n    NeatButton,\n    NeatDiagramAnimationSettings,\n    NeatDiagramBlockTemplate,\n    NeatDiagramLegend,\n    NeatDiagramMessages,\n    NeatDiagramNoteTemplate,\n    NeatDiagramRateCard,\n    NeatDiagramView,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./1-live-pipeline.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./live-pipeline.example.css'"],["text",",\n})\n"],
@@ -164,10 +177,10 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pipeline = PIPELINE;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," legend = PIPELINE_LEGEND;\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," steps = PIPELINE_MESSAGE_STEPS;\n  "],
-          ["comment","/**\n   * The dots' tuning, kept per browser: what `neatParseMessageSettings` reads back clamped. It\n   * starts calmer than the kit's defaults, slower and a dot for every third message, so the\n   * pipeline reads at a glance; the panel's reset goes back to the kit's.\n   */"],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," calmDots = CALM_DOTS;\n  "],
+          ["comment","/**\n   * The dots' tuning, kept per browser: what `neatParseMessageSettings` reads back clamped, with\n   * the example's own defaults for what it lacks.\n   */"],
           ["text","\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," dots = neatStoredSignal(\n    "],
-          ["string","'showcase.diagram.dots'"],["text",",\n    { ...NEAT_DIAGRAM_MESSAGE_DEFAULTS, speed: 140, every: 3 },\n    neatParseMessageSettings,\n  );\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," dots = neatStoredSignal("],["string","'showcase.diagram.dots'"],["text",", CALM_DOTS, (raw) =>\n    neatParseMessageSettings(raw, CALM_DOTS),\n  );\n  "],
           ["comment","/** The YOLOX stage time the Detector's card shows, in ms. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," yoloxMs = signal<"],["keyword","number"],["text"," | "],["keyword","undefined"],["text",">("],["keyword","undefined"],["text",");\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," diagram = viewChild.required(NeatDiagramView);\n  "],
@@ -201,7 +214,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "1-live-pipeline.example.html",
         "code": [
-          ["text","<div class=\"controls\">\n  <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"burst()\">Burst</button>\n  <neat-diagram-animation-settings [(settings)]=\"dots\" />\n</div>\n<neat-diagram-legend [items]=\"legend\" />\n<neat-diagram class=\"diagram\" [diagram]=\"pipeline\" label=\"A live messaging pipeline\">\n  <neat-diagram-messages #messages [steps]=\"steps\" [settings]=\"dots()\" />\n  <ng-template neatDiagramBlock let-node>\n    @if (node.id === 'decode') {\n      <span class=\"figure\">30.0 fps · 1080p</span>\n    }\n  </ng-template>\n  <ng-template neatDiagramNote let-note>\n    @switch (note.id) {\n      @case ('tracker-rate') {\n        <neat-diagram-rate-card\n          label=\"Into Tracker\"\n          [rate]=\"messages.rate(['detector-tracker', 'nms-tracker'])()\"\n          [showBytes]=\"false\"\n        />\n      }\n      @case ('yolox-rate') {\n        <neat-diagram-rate-card\n          label=\"YOLOX → NMS\"\n          [rate]=\"messages.rate('yolox-nms')()\"\n          [stageMs]=\"yoloxMs()\"\n        />\n      }\n      @case ('camera-rate') {\n        <neat-diagram-rate-card label=\"Camera → Decode\" [rate]=\"messages.rate('camera-decode')()\" />\n      }\n    }\n  </ng-template>\n</neat-diagram>\n"]
+          ["text","<div class=\"controls\">\n  <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"burst()\">Burst</button>\n  <neat-diagram-animation-settings [(settings)]=\"dots\" [defaults]=\"calmDots\" />\n</div>\n<neat-diagram-legend [items]=\"legend\" />\n<neat-diagram class=\"diagram\" [diagram]=\"pipeline\" label=\"A live messaging pipeline\">\n  <neat-diagram-messages #messages [steps]=\"steps\" [settings]=\"dots()\" />\n  <ng-template neatDiagramBlock let-node>\n    @if (node.id === 'decode') {\n      <span class=\"figure\">30.0 fps · 1080p</span>\n    }\n  </ng-template>\n  <ng-template neatDiagramNote let-note>\n    @switch (note.id) {\n      @case ('tracker-rate') {\n        <neat-diagram-rate-card\n          label=\"Into Tracker\"\n          [rate]=\"messages.rate(['detector-tracker', 'nms-tracker'])()\"\n          [showBytes]=\"false\"\n        />\n      }\n      @case ('yolox-rate') {\n        <neat-diagram-rate-card\n          label=\"YOLOX → NMS\"\n          [rate]=\"messages.rate('yolox-nms')()\"\n          [stageMs]=\"yoloxMs()\"\n        />\n      }\n      @case ('camera-rate') {\n        <neat-diagram-rate-card label=\"Camera → Decode\" [rate]=\"messages.rate('camera-decode')()\" />\n      }\n    }\n  </ng-template>\n</neat-diagram>\n"]
         ]
       },
       {
