@@ -23,6 +23,7 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 - [Inline button](components/inline-button.md)
 - [Breadcrumbs](components/breadcrumbs.md)
 - [Tooltip](components/tooltip.md)
+- [Shortcut](components/shortcut.md)
 - [Popover](components/popover.md)
 - [Confirm](components/confirm.md)
 - [Dialog](components/dialog.md)

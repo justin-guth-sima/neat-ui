@@ -204,7 +204,24 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is off; the trigger shows the keys. On a narrow screen the trigger is an icon-only button. Escape clears the field, then closes the palette; a click beside it closes it too. Closing puts the focus back where it was."
+              "text": " is off; the trigger shows the keys as a "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatShortcut",
+              "name": "NeatShortcut"
+            },
+            {
+              "kind": "text",
+              "text": " and names them in "
+            },
+            {
+              "kind": "code",
+              "text": "aria-keyshortcuts"
+            },
+            {
+              "kind": "text",
+              "text": ". On a narrow screen the trigger is an icon-only button. Escape clears the field, then closes the palette; a click beside it closes it too. Closing puts the focus back where it was."
             }
           ]
         },

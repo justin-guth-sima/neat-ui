@@ -1,0 +1,6 @@
+<dl neatDetails class="actions">
+  @for (action of actions; track action.label) {
+    <dt>{{ action.label }}</dt>
+    <dd><neat-shortcut [keys]="action.keys" /></dd>
+  }
+</dl>

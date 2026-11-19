@@ -116,7 +116,8 @@ describe('NeatSearchPalette', () => {
     expect(trigger().textContent).toContain('Search docs');
     expect(trigger().getAttribute('aria-haspopup')).toBe('dialog');
     expect(trigger().getAttribute('aria-keyshortcuts')).toBe('Control+K Meta+K');
-    expect(trigger().querySelector('.keys')?.getAttribute('aria-hidden')).toBe('true');
+    // The trigger's aria-keyshortcuts names the keys, so the shortcut's own words stay hidden.
+    expect(trigger().querySelector('neat-shortcut')?.getAttribute('aria-hidden')).toBe('true');
     expect(trigger().querySelectorAll('kbd')).toHaveLength(2);
   });
 

@@ -1,0 +1,26 @@
+/* The keys side by side, a little apart; the host is the containing block of the hidden words. */
+:host {
+  position: relative;
+  display: inline-flex;
+  gap: 0.1875rem;
+  vertical-align: middle;
+}
+
+/* A key: a raised cap in the muted fill, its label small and monospaced. */
+kbd {
+  display: inline-flex;
+  align-items: center;
+  height: 1.25rem;
+  padding: 0 0.375rem;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: calc(var(--radius) - 4px);
+  background: var(--muted);
+  font:
+    0.6875rem ui-monospace,
+    'SFMono-Regular',
+    Menlo,
+    Consolas,
+    monospace;
+  color: var(--muted-foreground);
+}

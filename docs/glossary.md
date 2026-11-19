@@ -56,6 +56,7 @@ wins over a name of our own.
 | confirm           | a dialog that asks for a yes or no                                                | `NeatConfirm`                              | alert                                  |
 | popover           | a panel that opens from a trigger and holds controls or a menu                    | `neat-popover`, `NeatPopover`              | dropdown, flyout                       |
 | tooltip           | the short text shown while hovering or focusing a control                         | `[neatTooltip]`                            | tip, hint                              |
+| shortcut          | a keyboard shortcut's keys, each drawn as a key, in words for a screen reader     | `neat-shortcut`, `NeatShortcut`            | hotkey, key hint, keyboard hint, kbd   |
 | toast             | a short message that appears and goes by itself                                   | `NeatToasts`, `neat-toast-host`            | snackbar, notification                 |
 | tabs              | views inside one page that are not addresses                                      | `neat-tabs`, `NeatTabs`                    |                                        |
 | select            | a labeled list that opens to pick one value                                       | `neat-select`, `NeatSelect`                | dropdown, combo box                    |

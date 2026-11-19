@@ -4844,6 +4844,219 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/shell/shell.ts"
     },
     {
+      "name": "NeatShortcut",
+      "kind": "component",
+      "selector": "neat-shortcut",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A keyboard shortcut's keys, each drawn as a key, with what a screen reader says for them."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-shortcut [keys]=\"['Mod', 'K']\" />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "keys"
+            },
+            {
+              "kind": "text",
+              "text": " are named as "
+            },
+            {
+              "kind": "code",
+              "text": "aria-keyshortcuts"
+            },
+            {
+              "kind": "text",
+              "text": " names them: the browser's key values ("
+            },
+            {
+              "kind": "code",
+              "text": "Control"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "Alt"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "Shift"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "Meta"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "Escape"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "ArrowUp"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "K"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "F1"
+            },
+            {
+              "kind": "text",
+              "text": "), plus "
+            },
+            {
+              "kind": "code",
+              "text": "Mod"
+            },
+            {
+              "kind": "text",
+              "text": ", the platform's own modifier. "
+            },
+            {
+              "kind": "code",
+              "text": "Mod"
+            },
+            {
+              "kind": "text",
+              "text": " shows ⌘ on a Mac and Ctrl elsewhere, as an app's handler that takes either key expects. On a Mac the modifiers are its symbols (⌃ ⌥ ⇧ ⌘); "
+            },
+            {
+              "kind": "code",
+              "text": "Escape"
+            },
+            {
+              "kind": "text",
+              "text": " is Esc and the arrows are arrows. A single letter is shown in capitals, and any other name as it is written."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Each key is a "
+            },
+            {
+              "kind": "code",
+              "text": "kbd"
+            },
+            {
+              "kind": "text",
+              "text": ", hidden from assistive technology, since a screen reader would read \"⌘\" by its Unicode name. Visually hidden text says the keys in words instead (\"Control K\", \"Command K\")."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Inside a control whose "
+            },
+            {
+              "kind": "code",
+              "text": "aria-keyshortcuts"
+            },
+            {
+              "kind": "text",
+              "text": " already names the shortcut, put "
+            },
+            {
+              "kind": "code",
+              "text": "aria-hidden=\"true\""
+            },
+            {
+              "kind": "text",
+              "text": " on the part, so the control's name does not say it twice:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<button type=\"button\" aria-keyshortcuts=\"Control+K Meta+K\">\n  Search <neat-shortcut aria-hidden=\"true\" [keys]=\"['Mod', 'K']\" />\n</button>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It only shows the keys: listening for them is the app's."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "keys",
+          "type": "readonly string[]",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The keys, in the order they are pressed ("
+                },
+                {
+                  "kind": "code",
+                  "text": "['Mod', 'Shift', 'P']"
+                },
+                {
+                  "kind": "text",
+                  "text": ")."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/shortcut/shortcut.ts"
+    },
+    {
       "name": "NeatStale",
       "kind": "directive",
       "selector": "[neatStale]",

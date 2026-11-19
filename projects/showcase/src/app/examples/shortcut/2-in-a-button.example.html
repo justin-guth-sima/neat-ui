@@ -1,0 +1,12 @@
+<div class="showcase-row">
+  <button
+    neatButton
+    type="button"
+    variant="outlined"
+    aria-keyshortcuts="Control+Enter Meta+Enter"
+    (click)="run()"
+  >
+    Run <neat-shortcut aria-hidden="true" [keys]="['Mod', 'Enter']" />
+  </button>
+  <p neatNote aria-live="polite">Runs: {{ runs() }}</p>
+</div>

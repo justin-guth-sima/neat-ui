@@ -670,6 +670,18 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatShortcut",
+    "partKind": "component",
+    "text": "A keyboard shortcut's keys, each drawn as a key, with what a screen reader says for them."
+  },
+  {
+    "kind": "member",
+    "name": "keys",
+    "part": "NeatShortcut",
+    "text": "The keys, in the order they are pressed (['Mod', 'Shift', 'P'])."
+  },
+  {
+    "kind": "part",
     "name": "NeatStale",
     "partKind": "directive",
     "text": "Shows that what the host shows is stale, faded and gray."
@@ -5520,6 +5532,20 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "shell",
     "id": "app",
     "text": "The showcase's own root."
+  },
+  {
+    "kind": "example",
+    "name": "Keys of an app",
+    "topic": "shortcut",
+    "id": "keys-of-an-app",
+    "text": "A page's actions beside their keys."
+  },
+  {
+    "kind": "example",
+    "name": "In a button",
+    "topic": "shortcut",
+    "id": "in-a-button",
+    "text": "A button that shows its shortcut, and the page's handler for it."
   },
   {
     "kind": "example",

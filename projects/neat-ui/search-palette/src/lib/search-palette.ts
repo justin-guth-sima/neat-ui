@@ -25,6 +25,7 @@ import {
   type NeatIconGlyph,
   type NeatIconName,
   NeatSearch,
+  NeatShortcut,
   NeatViewport,
   ɵhlm as hlm,
   ɵPANEL_SURFACE_CLASSES as PANEL_SURFACE_CLASSES,
@@ -106,9 +107,9 @@ let nextPaletteId = 0;
  * there. Each result is a link, so a middle click or Ctrl-click opens it in a new tab.
  *
  * Ctrl K (⌘K on a Mac) opens it from anywhere on the page, unless `shortcut` is off; the trigger
- * shows the keys. On a narrow screen the trigger is an icon-only button. Escape clears the field,
- * then closes the palette; a click beside it closes it too. Closing puts the focus back where it
- * was.
+ * shows the keys as a `NeatShortcut` and names them in `aria-keyshortcuts`. On a narrow screen the
+ * trigger is an icon-only button. Escape clears the field, then closes the palette; a click beside
+ * it closes it too. Closing puts the focus back where it was.
  *
  * `open` is the palette's state, which the app may also set. `picked` tells which result was
  * opened. The field is a `neat-search` acting as a combobox over the results' listbox, and the
@@ -116,7 +117,7 @@ let nextPaletteId = 0;
  */
 @Component({
   selector: 'neat-search-palette',
-  imports: [NeatIcon, NeatSearch],
+  imports: [NeatIcon, NeatSearch, NeatShortcut],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[attr.data-narrow]': 'viewport.narrow() || null',
@@ -136,10 +137,7 @@ let nextPaletteId = 0;
       @if (!viewport.narrow()) {
         <span class="label">{{ label() }}</span>
         @if (shortcut()) {
-          <span class="keys" aria-hidden="true"
-            ><kbd>{{ modifier }}</kbd
-            ><kbd>K</kbd></span
-          >
+          <neat-shortcut aria-hidden="true" [keys]="['Mod', 'K']" />
         }
       }
     </button>
@@ -232,7 +230,6 @@ export class NeatSearchPalette {
 
   protected readonly listboxId = `neat-search-palette-${++nextPaletteId}`;
   protected readonly panelClasses = PANEL_CLASSES;
-  protected readonly modifier = isMac() ? '⌘' : 'Ctrl';
   protected readonly text = computed(() => ({ ...LABELS, ...this.labels() }));
 
   protected readonly query = signal('');
@@ -384,8 +381,4 @@ export class NeatSearchPalette {
 /** A click with a modifier or another button, which the browser opens elsewhere (a new tab). */
 function opensElsewhere(event: MouseEvent): boolean {
   return event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey;
-}
-
-function isMac(): boolean {
-  return typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
 }

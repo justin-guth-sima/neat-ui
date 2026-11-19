@@ -31,6 +31,11 @@ look happens in one place. Every rule here protects that.
     `status` line announced politely; four looks, `filled` by default, `outlined`, `underlined` and
     `raised`, and a `large` size for a search page; the page nav's and the file browser's filters
     are it),
+    `NeatShortcut` (`neat-shortcut`, the kit's one look for a keyboard shortcut: its `keys`, named
+    as `aria-keyshortcuts` names them plus `Mod`, which is ⌘ on a Mac and Ctrl elsewhere, each a
+    `kbd` hidden from assistive technology, with the keys in visually hidden words, "Control K";
+    the platform check is its own, and the search palette's trigger shows its keys with it,
+    `aria-hidden` there since the trigger's `aria-keyshortcuts` names them),
     `NeatLiveDot` (a
     red dot for something live, still or, with `pulse`, beating with a ring that grows out of it;
     its red is `--neat-live`, not `--destructive`, held to 3:1 on the page and on the video scrim
