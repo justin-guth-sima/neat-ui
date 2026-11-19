@@ -96,6 +96,25 @@ describe('the interaction example', () => {
     ).toContain('car 2');
     fixture.destroy();
   });
+
+  it('gives each vehicle a swatch in the color the view draws its label in', () => {
+    const colorOf = vi
+      .spyOn(NeatBev.prototype, 'colorOf')
+      .mockImplementation((label) => (label === 'truck' ? 'rgb(1 2 3)' : null));
+    const fixture = TestBed.createComponent(Interaction);
+    fixture.detectChanges();
+    const swatches = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
+      '[role="option"] neat-swatch',
+    );
+    expect(colorOf).toHaveBeenCalledWith('car');
+    expect(swatches.length).toBeGreaterThan(0);
+    for (const swatch of swatches) {
+      expect(swatch.style.getPropertyValue('--swatch')).toBe('rgb(1 2 3)');
+      expect(swatch.closest('[role="option"]')?.textContent).toContain('truck');
+    }
+    fixture.destroy();
+    colorOf.mockRestore();
+  });
 });
 
 describe('the road network', () => {

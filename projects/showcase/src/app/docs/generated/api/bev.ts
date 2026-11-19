@@ -651,6 +651,95 @@ export const API: DocsEntry = {
           ]
         }
       ],
+      "methods": [
+        {
+          "name": "colorOf",
+          "signature": "colorOf(label: string): string | null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The color the view draws "
+                },
+                {
+                  "kind": "code",
+                  "text": "label"
+                },
+                {
+                  "kind": "text",
+                  "text": " in, for a swatch in a list beside it; null while it has none."
+                }
+              ]
+            },
+            {
+              "kind": "code",
+              "language": "html",
+              "code": "<neat-bev #view [frame]=\"frame()\" />\n@if (view.colorOf('car'); as color) {\n  <neat-swatch [color]=\"color\" />\n}\ncar"
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is the label's row in "
+                },
+                {
+                  "kind": "code",
+                  "text": "styles"
+                },
+                {
+                  "kind": "text",
+                  "text": ", else its class color. A class has the same color in every video tile of the page, so this is the color a tile's "
+                },
+                {
+                  "kind": "code",
+                  "text": "colorOf"
+                },
+                {
+                  "kind": "text",
+                  "text": " gives a detection of that label without a style row."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is null for a label the page has not drawn yet, or no longer holds a color for: a class gone for about 5 s may give its color to another. A style row's color it gives at once."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It reads signals, so a template or a "
+                },
+                {
+                  "kind": "code",
+                  "text": "computed"
+                },
+                {
+                  "kind": "text",
+                  "text": " that calls it updates when a class color is given or taken back, and when "
+                },
+                {
+                  "kind": "code",
+                  "text": "styles"
+                },
+                {
+                  "kind": "text",
+                  "text": " change. Asking records no draw, so it keeps no color alive."
+                }
+              ]
+            }
+          ]
+        }
+      ],
       "source": "projects/neat-ui/bev/src/lib/bev.ts"
     },
     {

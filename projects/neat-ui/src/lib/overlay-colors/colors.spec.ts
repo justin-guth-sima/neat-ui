@@ -1,6 +1,13 @@
 import { SIMA_PALETTE } from '../theme/palette';
 import { OVERLAY_NEUTRAL_COLOR, OVERLAY_PALETTE } from '../theme/identity-palette';
-import { createColorAllocator, NeatOverlayColors, RELEASE_AFTER_MS, resolveColor } from './colors';
+import { computed } from '@angular/core';
+import {
+  createColorAllocator,
+  heldColor,
+  NeatOverlayColors,
+  RELEASE_AFTER_MS,
+  resolveColor,
+} from './colors';
 
 const PALETTE = OVERLAY_PALETTE;
 
@@ -254,5 +261,111 @@ describe('color allocator', () => {
       PALETTE[0],
     );
     expect(otherPage.size(0, 'class')).toBe(1);
+  });
+
+  it('resolveColor looks the overrides up by the label when it is not the identity', () => {
+    const allocator = createColorAllocator(new NeatOverlayColors());
+    const handColor = SIMA_PALETTE.orange;
+    const base = { allocator, channelIndex: 0, namespace: 'pose', now: 1 } as const;
+    const overrides = { hand: handColor };
+    expect(resolveColor({ ...base, identity: '1', label: 'hand', overrides })).toBe(handColor);
+    expect(resolveColor({ ...base, identity: 'hand', label: 'person', overrides })).toBe(
+      PALETTE[0],
+    );
+    expect(
+      resolveColor({ ...base, identity: null, label: 'hand', overrides }),
+      'a row colors a pose without an id',
+    ).toBe(handColor);
+  });
+
+  it('held reads the color an identity holds, without drawing it', () => {
+    const colors = new NeatOverlayColors();
+    const allocator = createColorAllocator(colors);
+    const other = createColorAllocator(colors);
+    expect(allocator.held(0, 'track', '7'), 'not drawn yet').toBeNull();
+    expect(allocator.size(0, 'track'), 'reading creates nothing').toBe(0);
+    allocator.colorFor(0, 'track', '6', 1);
+    const seven = allocator.colorFor(0, 'track', 7, 1);
+    expect(allocator.held(0, 'track', '7')).toBe(seven);
+    expect(allocator.held(0, 'track', 7), 'numeric and string ids are the same identity').toBe(
+      seven,
+    );
+    expect(allocator.held(1, 'track', '7'), 'track colors are per channel').toBeNull();
+    expect(other.held(0, 'track', '7'), 'and per tile').toBeNull();
+    expect(allocator.held(0, 'track', null), 'a missing identity is neutral').toBe(
+      OVERLAY_NEUTRAL_COLOR,
+    );
+
+    const car = other.colorFor(3, 'class', 'car', 1);
+    expect(allocator.held(0, 'class', 'car'), 'class colors are the page’s').toBe(car);
+
+    allocator.clear();
+    expect(allocator.held(0, 'track', '7'), 'forgotten with the tile’s colors').toBeNull();
+  });
+
+  it('held does not count as a draw: a held identity still goes stale', () => {
+    const allocator = createColorAllocator(new NeatOverlayColors());
+    for (let i = 0; i < PALETTE.length; i += 1) allocator.colorFor(0, 'track', `t${i}`, 0);
+    const later = RELEASE_AFTER_MS + 100;
+    for (let i = 1; i < PALETTE.length; i += 1) allocator.colorFor(0, 'track', `t${i}`, later);
+    allocator.held(0, 'track', 't0');
+    expect(allocator.colorFor(0, 'track', 'new', later), 'new takes t0’s stale slot').toBe(
+      PALETTE[0],
+    );
+    expect(allocator.held(0, 'track', 't0'), 't0 gave its color up').toBeNull();
+  });
+
+  it('held follows the colors given and taken back, not every draw', () => {
+    const colors = new NeatOverlayColors();
+    const allocator = createColorAllocator(colors);
+    const other = createColorAllocator(colors);
+    let tracks = 0;
+    const track = computed(() => {
+      tracks += 1;
+      return allocator.held(0, 'track', '7');
+    });
+    let classes = 0;
+    const car = computed(() => {
+      classes += 1;
+      return allocator.held(0, 'class', 'car');
+    });
+    expect(track()).toBeNull();
+    expect(car()).toBeNull();
+
+    const seven = allocator.colorFor(0, 'track', '7', 1);
+    expect(track()).toBe(seven);
+    const carColor = other.colorFor(1, 'class', 'car', 1);
+    expect(car(), 'a class another tile drew').toBe(carColor);
+    const [trackRuns, classRuns] = [tracks, classes];
+
+    allocator.colorFor(0, 'track', '7', 2);
+    other.colorFor(1, 'class', 'car', 2);
+    track();
+    car();
+    expect([tracks, classes], 'drawing an identity again changes nothing').toEqual([
+      trackRuns,
+      classRuns,
+    ]);
+
+    allocator.colorFor(0, 'class', 'person', 2);
+    track();
+    expect(tracks, 'a class color is not the tile’s own').toBe(trackRuns);
+
+    allocator.clear();
+    expect(track(), 'clear takes the tile’s colors back').toBeNull();
+  });
+
+  it('heldColor gives what resolveColor gave: an override, else the held color', () => {
+    const allocator = createColorAllocator(new NeatOverlayColors());
+    const personColor = SIMA_PALETTE.orange;
+    const base = { allocator, channelIndex: 0, namespace: 'class' } as const;
+    const overrides = { person: personColor };
+    expect(heldColor({ ...base, identity: 'person', overrides }), 'a row needs no draw').toBe(
+      personColor,
+    );
+    expect(heldColor({ ...base, identity: 'cat', overrides })).toBeNull();
+    const cat = resolveColor({ ...base, identity: 'cat', overrides, now: 1 });
+    expect(heldColor({ ...base, identity: 'cat', overrides })).toBe(cat);
+    expect(heldColor({ ...base, identity: '', overrides })).toBe(OVERLAY_NEUTRAL_COLOR);
   });
 });

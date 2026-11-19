@@ -105,13 +105,9 @@ export class TestPatternTiles {
 `test-pattern-source.ts`
 
 ```ts
-import { signal } from '@angular/core';
 import { SIMA_PALETTE } from '@sima/neat-ui';
-import type { NeatMetadataMessage, NeatTileSource } from '@sima/neat-ui/video';
+import { CanvasSource, HEIGHT, WIDTH } from './canvas-source';
 
-const WIDTH = 640;
-const HEIGHT = 360;
-const FRAMES_PER_SECOND = 30;
 const BAR_COLORS = [
   SIMA_PALETTE.orange,
   SIMA_PALETTE.purple,
@@ -125,59 +121,20 @@ const BOX = { width: 120, height: 90 };
 const DETECTION_EVERY = 2;
 
 /**
- * A `NeatTileSource` for the showcase, so the tile plays without vf: a canvas test pattern
- * streamed with `captureStream()`, and object-detection metadata for the box moving across it. A
- * canvas stream has no RTP timestamps, so the tile matches metadata by arrival, which takes only
- * the latest message: hence one type. Pausing stops painting, so the stream presents no frames
- * and the tile goes stopped.
+ * A canvas test pattern, with object-detection metadata for the box moving across it: one type,
+ * as the tile matches a canvas stream's metadata by arrival. Pausing stops painting, so the stream
+ * presents no frames and the tile goes stopped.
  */
-export class TestPatternSource implements NeatTileSource {
-  readonly stream = signal<MediaStream | null>(null);
-
-  private readonly listeners = new Set<(text: string, receivedAt: number) => void>();
-  private context: CanvasRenderingContext2D | null = null;
-  private animation = 0;
-  private lastPaintAt = 0;
+export class TestPatternSource extends CanvasSource {
   private frame = 0;
   private paused = false;
-
-  onMetadata(listener: (text: string, receivedAt: number) => void): () => void {
-    this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
-  }
-
-  /** Starts the pattern; does nothing where canvases cannot be streamed (as in unit tests). */
-  start(document: Document): void {
-    const canvas = document.createElement('canvas');
-    if (typeof canvas.captureStream !== 'function') return;
-    canvas.width = WIDTH;
-    canvas.height = HEIGHT;
-    this.context = canvas.getContext('2d');
-    if (this.context === null) return;
-    this.stream.set(canvas.captureStream(FRAMES_PER_SECOND));
-    const loop = (now: number) => {
-      this.animation = requestAnimationFrame(loop);
-      if (this.paused || now - this.lastPaintAt < 1000 / FRAMES_PER_SECOND) return;
-      this.lastPaintAt = now;
-      this.paint();
-    };
-    this.animation = requestAnimationFrame(loop);
-  }
 
   setPaused(paused: boolean): void {
     this.paused = paused;
   }
 
-  stop(): void {
-    cancelAnimationFrame(this.animation);
-    for (const track of this.stream()?.getTracks() ?? []) track.stop();
-    this.stream.set(null);
-    this.listeners.clear();
-  }
-
-  private paint(): void {
-    const ctx = this.context;
-    if (ctx === null) return;
+  protected paint(ctx: CanvasRenderingContext2D): void {
+    if (this.paused) return;
     const barWidth = WIDTH / BAR_COLORS.length;
     BAR_COLORS.forEach((color, i) => {
       ctx.fillStyle = color;
@@ -205,8 +162,66 @@ export class TestPatternSource implements NeatTileSource {
     }
     this.frame += 1;
   }
+}
+```
 
-  private send(message: NeatMetadataMessage): void {
+`canvas-source.ts`
+
+```ts
+import { signal } from '@angular/core';
+import type { NeatMetadataMessage, NeatTileSource } from '@sima/neat-ui/video';
+
+export const WIDTH = 640;
+export const HEIGHT = 360;
+export const FRAMES_PER_SECOND = 30;
+
+/**
+ * What the showcase's sources share, so a tile plays without vf: a canvas streamed with
+ * `captureStream()`, painted 30 times a second, and the metadata listeners. Each source paints a
+ * frame and sends the metadata that describes it. A canvas stream has no RTP timestamps, so the
+ * tile matches metadata by arrival, which takes only the latest message: hence one type a source.
+ */
+export abstract class CanvasSource implements NeatTileSource {
+  readonly stream = signal<MediaStream | null>(null);
+
+  private readonly listeners = new Set<(text: string, receivedAt: number) => void>();
+  private animation = 0;
+  private lastPaintAt = 0;
+
+  onMetadata(listener: (text: string, receivedAt: number) => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  /** Starts the stream; does nothing where canvases cannot be streamed (as in unit tests). */
+  start(document: Document): void {
+    const canvas = document.createElement('canvas');
+    if (typeof canvas.captureStream !== 'function') return;
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+    const context = canvas.getContext('2d');
+    if (context === null) return;
+    this.stream.set(canvas.captureStream(FRAMES_PER_SECOND));
+    const loop = (now: number) => {
+      this.animation = requestAnimationFrame(loop);
+      if (now - this.lastPaintAt < 1000 / FRAMES_PER_SECOND) return;
+      this.lastPaintAt = now;
+      this.paint(context);
+    };
+    this.animation = requestAnimationFrame(loop);
+  }
+
+  stop(): void {
+    cancelAnimationFrame(this.animation);
+    for (const track of this.stream()?.getTracks() ?? []) track.stop();
+    this.stream.set(null);
+    this.listeners.clear();
+  }
+
+  /** Paints the next frame on `ctx` and sends its metadata. Painting nothing presents no frame. */
+  protected abstract paint(ctx: CanvasRenderingContext2D): void;
+
+  protected send(message: NeatMetadataMessage): void {
     const text = JSON.stringify(message);
     const receivedAt = performance.now();
     for (const listener of this.listeners) listener(text, receivedAt);
@@ -349,13 +364,9 @@ export class Poses {
 `pose-source.ts`
 
 ```ts
-import { signal } from '@angular/core';
 import { SIMA_PALETTE } from '@sima/neat-ui';
-import type { NeatMetadataMessage, NeatTileSource } from '@sima/neat-ui/video';
-
-const WIDTH = 640;
-const HEIGHT = 360;
-const FRAMES_PER_SECOND = 30;
+import type { NeatMetadataMessage } from '@sima/neat-ui/video';
+import { CanvasSource, FRAMES_PER_SECOND, HEIGHT, WIDTH } from './canvas-source';
 
 /** MediaPipe's hand landmarks in snake case, wrist first, then the thumb and the four fingers. */
 export const HAND_LANDMARKS: readonly string[] = [
@@ -448,19 +459,41 @@ export function poseMessage(frame: number): NeatMetadataMessage {
   };
 }
 
+/** A dark canvas stream with, for each frame, two hands and a person moving over it. */
+export class PoseSource extends CanvasSource {
+  private frame = 0;
+
+  protected paint(ctx: CanvasRenderingContext2D): void {
+    ctx.fillStyle = SIMA_PALETTE.text;
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    this.send(poseMessage(this.frame));
+    this.frame += 1;
+  }
+}
+```
+
+`canvas-source.ts`
+
+```ts
+import { signal } from '@angular/core';
+import type { NeatMetadataMessage, NeatTileSource } from '@sima/neat-ui/video';
+
+export const WIDTH = 640;
+export const HEIGHT = 360;
+export const FRAMES_PER_SECOND = 30;
+
 /**
- * A `NeatTileSource` for the showcase: a dark canvas stream and, for each frame, a
- * `pose-estimation` message with two hands and a person moving over it. As in the test pattern
- * source, the canvas stream carries no RTP timestamps, so the tile matches metadata by arrival.
+ * What the showcase's sources share, so a tile plays without vf: a canvas streamed with
+ * `captureStream()`, painted 30 times a second, and the metadata listeners. Each source paints a
+ * frame and sends the metadata that describes it. A canvas stream has no RTP timestamps, so the
+ * tile matches metadata by arrival, which takes only the latest message: hence one type a source.
  */
-export class PoseSource implements NeatTileSource {
+export abstract class CanvasSource implements NeatTileSource {
   readonly stream = signal<MediaStream | null>(null);
 
   private readonly listeners = new Set<(text: string, receivedAt: number) => void>();
-  private context: CanvasRenderingContext2D | null = null;
   private animation = 0;
   private lastPaintAt = 0;
-  private frame = 0;
 
   onMetadata(listener: (text: string, receivedAt: number) => void): () => void {
     this.listeners.add(listener);
@@ -473,14 +506,14 @@ export class PoseSource implements NeatTileSource {
     if (typeof canvas.captureStream !== 'function') return;
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
-    this.context = canvas.getContext('2d');
-    if (this.context === null) return;
+    const context = canvas.getContext('2d');
+    if (context === null) return;
     this.stream.set(canvas.captureStream(FRAMES_PER_SECOND));
     const loop = (now: number) => {
       this.animation = requestAnimationFrame(loop);
       if (now - this.lastPaintAt < 1000 / FRAMES_PER_SECOND) return;
       this.lastPaintAt = now;
-      this.paint();
+      this.paint(context);
     };
     this.animation = requestAnimationFrame(loop);
   }
@@ -492,15 +525,13 @@ export class PoseSource implements NeatTileSource {
     this.listeners.clear();
   }
 
-  private paint(): void {
-    const ctx = this.context;
-    if (ctx === null) return;
-    ctx.fillStyle = SIMA_PALETTE.text;
-    ctx.fillRect(0, 0, WIDTH, HEIGHT);
-    const text = JSON.stringify(poseMessage(this.frame));
+  /** Paints the next frame on `ctx` and sends its metadata. Painting nothing presents no frame. */
+  protected abstract paint(ctx: CanvasRenderingContext2D): void;
+
+  protected send(message: NeatMetadataMessage): void {
+    const text = JSON.stringify(message);
     const receivedAt = performance.now();
     for (const listener of this.listeners) listener(text, receivedAt);
-    this.frame += 1;
   }
 }
 ```
@@ -530,6 +561,265 @@ export class PoseSource implements NeatTileSource {
   border-radius: var(--radius);
   background: var(--info);
   color: var(--info-foreground);
+}
+```
+
+</details>
+
+### Track colors
+
+A list beside the tile names the tracks on screen, each with a swatch in its color on the video.
+
+The tile's `colorOf` gives the color its overlay draws an item in: here a track, by its id. The template calls it. It reads signals, so a swatch shows as soon as the tile has drawn its track.
+
+The list comes from the tile's `frameListener`, so it follows the picture. It writes its signal only when the tracks change. Watch a vehicle leave on the right: it comes back on the left as a new track, in a color of its own.
+
+<details>
+<summary>Code</summary>
+
+`3-track-colors.example.ts`
+
+```ts
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  DOCUMENT,
+  inject,
+  signal,
+} from '@angular/core';
+import { NeatNote, NeatSwatch } from '@sima/neat-ui';
+import { NeatCard } from '@sima/neat-ui/card';
+import { NeatTable } from '@sima/neat-ui/table';
+import { type NeatTileFrame, NeatVideoTile } from '@sima/neat-ui/video';
+import { TrackSource } from './track-source';
+
+/** A row of the list: a track on screen. */
+interface Track {
+  readonly id: number;
+  readonly label: string;
+}
+
+function sameTracks(a: readonly Track[], b: readonly Track[]): boolean {
+  return a.length === b.length && a.every((track, i) => track.id === b[i].id);
+}
+
+@Component({
+  selector: 'app-track-colors',
+  imports: [NeatCard, NeatNote, NeatSwatch, NeatTable, NeatVideoTile],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './3-track-colors.example.html',
+  styleUrl: './track-colors.example.css',
+})
+export class TrackColors {
+  protected readonly road = new TrackSource();
+  protected readonly tracks = signal<readonly Track[]>([], { equal: sameTracks });
+  protected readonly listTracks = ({ messages }: NeatTileFrame): void => {
+    const found = messages.find(({ message }) => message.type === 'tracking');
+    const tracks = (found?.message.data as { tracks?: readonly Track[] } | undefined)?.tracks;
+    const rows = (tracks ?? []).map(({ id, label }) => ({ id, label }));
+    this.tracks.set(rows.sort((a, b) => a.id - b.id));
+  };
+
+  constructor() {
+    const document = inject(DOCUMENT);
+    afterNextRender(() => this.road.start(document));
+    inject(DestroyRef).onDestroy(() => this.road.stop());
+  }
+}
+```
+
+`3-track-colors.example.html`
+
+```html
+<div class="track-colors">
+  <div class="cell">
+    <neat-video-tile
+      #tile
+      [source]="road"
+      label="1"
+      status="Road · 640×360"
+      [frameListener]="listTracks"
+    />
+  </div>
+  <neat-card title="Tracks">
+    @if (tracks().length === 0) {
+      <p neatNote>Nothing tracked in this frame.</p>
+    } @else {
+      <table neatTable aria-label="Tracks on screen">
+        <thead>
+          <tr>
+            <th scope="col">Track</th>
+            <th scope="col">Object</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (track of tracks(); track track.id) {
+            <tr>
+              <td>
+                <span class="track">
+                  @if (tile.colorOf('tracking', track); as color) {
+                    <neat-swatch [color]="color" />
+                  }
+                  #{{ track.id }}
+                </span>
+              </td>
+              <td>{{ track.label }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </neat-card>
+</div>
+```
+
+`track-source.ts`
+
+```ts
+import { SIMA_PALETTE } from '@sima/neat-ui';
+import { CanvasSource, HEIGHT, WIDTH } from './canvas-source';
+
+/** The vehicles on the road, each in its lane, pixels per frame, and size. */
+const VEHICLES = [
+  { label: 'car', lane: 0, speed: 3, width: 90, height: 50, start: 120 },
+  { label: 'truck', lane: 1, speed: 2, width: 150, height: 70, start: 260 },
+  { label: 'car', lane: 0, speed: 3, width: 80, height: 46, start: 380 },
+  { label: 'car', lane: 1, speed: 2, width: 90, height: 50, start: 560 },
+] as const;
+const LANES = [120, 250];
+/** How far a vehicle drives before it enters again, as a new track. */
+const LAP = WIDTH + 200;
+
+/** A track in a `tracking` message: its id, label and box in video pixels. */
+export interface RoadTrack {
+  readonly id: number;
+  readonly label: string;
+  readonly confidence: number;
+  readonly bbox: readonly [number, number, number, number];
+}
+
+/**
+ * The tracks of frame `frame`: four vehicles driving left to right in two lanes. Each time one
+ * enters again from the left it is a new track, with the next id.
+ */
+export function roadTracks(frame: number): readonly RoadTrack[] {
+  return VEHICLES.map((vehicle, i): RoadTrack => {
+    const driven = vehicle.start + frame * vehicle.speed;
+    const lap = Math.floor(driven / LAP);
+    const x = (driven % LAP) - vehicle.width;
+    const y = LANES[vehicle.lane] - vehicle.height / 2;
+    return {
+      id: 1 + i + lap * VEHICLES.length,
+      label: vehicle.label,
+      confidence: 0.9,
+      bbox: [x, y, vehicle.width, vehicle.height],
+    };
+  }).filter(({ bbox: [x, , width] }) => x + width > 0 && x < WIDTH);
+}
+
+/** A dark road with vehicles driving across it, and a `tracking` message for each frame. */
+export class TrackSource extends CanvasSource {
+  private frame = 0;
+
+  protected paint(ctx: CanvasRenderingContext2D): void {
+    ctx.fillStyle = SIMA_PALETTE.text;
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    const tracks = roadTracks(this.frame);
+    ctx.fillStyle = SIMA_PALETTE.backgroundAlt;
+    for (const { bbox } of tracks) ctx.fillRect(...bbox);
+    this.send({ type: 'tracking', data: { tracks } });
+    this.frame += 1;
+  }
+}
+```
+
+`canvas-source.ts`
+
+```ts
+import { signal } from '@angular/core';
+import type { NeatMetadataMessage, NeatTileSource } from '@sima/neat-ui/video';
+
+export const WIDTH = 640;
+export const HEIGHT = 360;
+export const FRAMES_PER_SECOND = 30;
+
+/**
+ * What the showcase's sources share, so a tile plays without vf: a canvas streamed with
+ * `captureStream()`, painted 30 times a second, and the metadata listeners. Each source paints a
+ * frame and sends the metadata that describes it. A canvas stream has no RTP timestamps, so the
+ * tile matches metadata by arrival, which takes only the latest message: hence one type a source.
+ */
+export abstract class CanvasSource implements NeatTileSource {
+  readonly stream = signal<MediaStream | null>(null);
+
+  private readonly listeners = new Set<(text: string, receivedAt: number) => void>();
+  private animation = 0;
+  private lastPaintAt = 0;
+
+  onMetadata(listener: (text: string, receivedAt: number) => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  /** Starts the stream; does nothing where canvases cannot be streamed (as in unit tests). */
+  start(document: Document): void {
+    const canvas = document.createElement('canvas');
+    if (typeof canvas.captureStream !== 'function') return;
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+    const context = canvas.getContext('2d');
+    if (context === null) return;
+    this.stream.set(canvas.captureStream(FRAMES_PER_SECOND));
+    const loop = (now: number) => {
+      this.animation = requestAnimationFrame(loop);
+      if (now - this.lastPaintAt < 1000 / FRAMES_PER_SECOND) return;
+      this.lastPaintAt = now;
+      this.paint(context);
+    };
+    this.animation = requestAnimationFrame(loop);
+  }
+
+  stop(): void {
+    cancelAnimationFrame(this.animation);
+    for (const track of this.stream()?.getTracks() ?? []) track.stop();
+    this.stream.set(null);
+    this.listeners.clear();
+  }
+
+  /** Paints the next frame on `ctx` and sends its metadata. Painting nothing presents no frame. */
+  protected abstract paint(ctx: CanvasRenderingContext2D): void;
+
+  protected send(message: NeatMetadataMessage): void {
+    const text = JSON.stringify(message);
+    const receivedAt = performance.now();
+    for (const listener of this.listeners) listener(text, receivedAt);
+  }
+}
+```
+
+`track-colors.example.css`
+
+```css
+/* The tile and the list side by side, the list below the tile where they do not fit. */
+.track-colors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--neat-space-4);
+  align-items: start;
+}
+
+/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */
+.cell {
+  aspect-ratio: 16 / 9;
+}
+
+/* A track's swatch before its id, as in a legend. */
+.track {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
 }
 ```
 
@@ -622,6 +912,32 @@ The frame loop runs outside Angular and touches no signal. Per frame, it matches
   The height in CSS pixels of the bar along the bottom as laid out, 0 while `bars` is off. For content projected with `neatTileOverlay` that keeps clear of the bar without copying its styling. It changes only when the bar's size does, never per frame.
 
 **Methods**
+
+- **`colorOf`**
+
+  ```ts
+  colorOf(type: NeatOverlayType, item: NeatOverlayIdentity): string | null
+  ```
+
+  The color the overlay draws `item` of `type` in, for a swatch beside the video; null while it has none.
+
+  ```html
+  <neat-video-tile #tile [source]="source" />
+  @for (track of tracks(); track track.id) {
+    @if (tile.colorOf('tracking', track); as color) {
+      <neat-swatch [color]="color" />
+    }
+    #{{ track.id }}
+  }
+  ```
+
+  It follows the overlay's own rule. A track goes by its id. A detection, a segment or a classification goes by its label's style row, else its class. A pose goes by its label's style row, else its id.
+
+  A class has one color on every tile of the page, and in the bird's-eye view. A track's and a pose's color belong to this tile.
+
+  It is null for an item the overlay has not drawn yet, and for one it has forgotten. A track gone for about 5 s may give its color to another, and a stopped stream forgets its tracks. A style row's color it gives at once.
+
+  It reads signals, so a template or a `computed` that calls it updates when a color is given or taken back, and when `settings` change. Asking records no draw, so it keeps no color alive.
 
 - **`snapshot`**
 
@@ -758,6 +1074,34 @@ The resolved overlay settings for one channel. The app resolves them once per ch
 - **`types`** ``{ readonly 'object-detection': { readonly visible: boolean; /** 0..1; an object without a confidence always passes. */ readonly confidenceThreshold: number; readonly objects: readonly NeatOverlayClassStyle[]; }; readonly segmentation: { readonly visible: boolean; /** 0..1; a segment without a confidence counts as fully confident. */ readonly confidenceThreshold: number; /** 0..1, the alpha of mask fills. */ readonly maskOpacity: number; readonly objects: readonly NeatOverlayClassStyle[]; }; readonly tracking: { readonly visible: boolean; readonly confidenceThreshold: number; readonly history: { /** Draw each track's recent center positions as a trail. */ readonly enabled: boolean; /** Positions kept per track. */ readonly trailLength: number; /** How long the trail of a track that left the frame stays, in milliseconds. */ readonly lostTrackTtlMs: number; }; }; readonly 'pose-estimation': { readonly visible: boolean; /** Dots on the joints. */ readonly showKeypoints: boolean; /** Joint names next to the dots. */ readonly showKeypointLabels: boolean; /** The box and label plate around each pose. */ readonly showBoxes: boolean; /** * Color, line and width by the pose's label (`person`, `hand`); a pose without a row keeps * its identity color. */ readonly objects: readonly NeatOverlayClassStyle[]; }; readonly classification: { readonly visible: boolean }; }``
 
 - **`roi`** `readonly NeatRoiPolygon[]`
+
+### `NeatOverlayType`
+
+Type from `@sima/neat-ui/video`.
+
+An overlay type the tile draws, as a metadata message's `type` names it.
+
+```ts
+type NeatOverlayType = keyof NeatOverlaySettings['types']
+```
+
+### `NeatOverlayIdentity`
+
+Interface from `@sima/neat-ui/video`.
+
+An item of an overlay's message, by what its color goes by: its `id` and its `label`.
+
+A track, a detection or a pose from the message fits as it is. So does an app's own row with the same fields, such as `{ id: 7 }` for a track or `{ label: 'car' }` for a detection.
+
+**Members**
+
+- **`id`** `unknown`, optional
+
+  The track's or the pose's id.
+
+- **`label`** `unknown`, optional
+
+  The class label of a detection, a segment or a classification; a pose's label (`hand`).
 
 ### `NeatOverlayClassStyle`
 

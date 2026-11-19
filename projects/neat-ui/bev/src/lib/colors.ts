@@ -4,6 +4,7 @@ import {
   ɵclassStyles as classStyles,
   ɵcreateColorAllocator as createColorAllocator,
   type ɵColorAllocator as ColorAllocator,
+  ɵheldColor as heldColor,
   type ɵNeatOverlayColors as NeatOverlayColors,
   ɵresolveColor as resolveColor,
   ɵstyleFor as styleFor,
@@ -109,6 +110,20 @@ export class LabelColors {
     held.style = row?.style ?? null;
     held.width = row?.width ?? LINE_WIDTH;
     return held;
+  }
+
+  /**
+   * The color `of` gives `label` with the style rows `rows`, without recording a draw; null while
+   * the label holds no class color. A caller follows the page's class colors, which are signals.
+   */
+  heldColorOf(label: string, rows: readonly NeatOverlayClassStyle[]): string | null {
+    return heldColor({
+      allocator: this.allocator,
+      channelIndex: 0,
+      namespace: 'class',
+      identity: label,
+      overrides: classStyles(rows).overrides,
+    });
   }
 
   private resolve(color: string): NeatRgb | null {

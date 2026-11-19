@@ -640,6 +640,105 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/video/src/lib/overlays/overlay-settings.ts"
     },
     {
+      "name": "NeatOverlayIdentity",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "id",
+          "type": "unknown",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The track's or the pose's id."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "label",
+          "type": "unknown",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The class label of a detection, a segment or a classification; a pose's label ("
+                },
+                {
+                  "kind": "code",
+                  "text": "hand"
+                },
+                {
+                  "kind": "text",
+                  "text": ")."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An item of an overlay's message, by what its color goes by: its "
+            },
+            {
+              "kind": "code",
+              "text": "id"
+            },
+            {
+              "kind": "text",
+              "text": " and its "
+            },
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A track, a detection or a pose from the message fits as it is. So does an app's own row with the same fields, such as "
+            },
+            {
+              "kind": "code",
+              "text": "{ id: 7 }"
+            },
+            {
+              "kind": "text",
+              "text": " for a track or "
+            },
+            {
+              "kind": "code",
+              "text": "{ label: 'car' }"
+            },
+            {
+              "kind": "text",
+              "text": " for a detection."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/video/src/lib/overlays/item-colors.ts"
+    },
+    {
       "name": "NeatOverlayLineStyle",
       "kind": "type",
       "definition": "'solid' | 'dashed' | 'dotted'",
@@ -688,6 +787,31 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/video/src/lib/overlays/overlay-settings.ts"
+    },
+    {
+      "name": "NeatOverlayType",
+      "kind": "type",
+      "definition": "keyof NeatOverlaySettings['types']",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An overlay type the tile draws, as a metadata message's "
+            },
+            {
+              "kind": "code",
+              "text": "type"
+            },
+            {
+              "kind": "text",
+              "text": " names it."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/video/src/lib/overlays/item-colors.ts"
     },
     {
       "name": "NeatRoiDrawMode",
@@ -2394,6 +2518,94 @@ export const API: DocsEntry = {
         }
       ],
       "methods": [
+        {
+          "name": "colorOf",
+          "signature": "colorOf(type: NeatOverlayType, item: NeatOverlayIdentity): string | null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The color the overlay draws "
+                },
+                {
+                  "kind": "code",
+                  "text": "item"
+                },
+                {
+                  "kind": "text",
+                  "text": " of "
+                },
+                {
+                  "kind": "code",
+                  "text": "type"
+                },
+                {
+                  "kind": "text",
+                  "text": " in, for a swatch beside the video; null while it has none."
+                }
+              ]
+            },
+            {
+              "kind": "code",
+              "language": "html",
+              "code": "<neat-video-tile #tile [source]=\"source\" />\n@for (track of tracks(); track track.id) {\n  @if (tile.colorOf('tracking', track); as color) {\n    <neat-swatch [color]=\"color\" />\n  }\n  #{{ track.id }}\n}"
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It follows the overlay's own rule. A track goes by its id. A detection, a segment or a classification goes by its label's style row, else its class. A pose goes by its label's style row, else its id."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A class has one color on every tile of the page, and in the bird's-eye view. A track's and a pose's color belong to this tile."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is null for an item the overlay has not drawn yet, and for one it has forgotten. A track gone for about 5 s may give its color to another, and a stopped stream forgets its tracks. A style row's color it gives at once."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It reads signals, so a template or a "
+                },
+                {
+                  "kind": "code",
+                  "text": "computed"
+                },
+                {
+                  "kind": "text",
+                  "text": " that calls it updates when a color is given or taken back, and when "
+                },
+                {
+                  "kind": "code",
+                  "text": "settings"
+                },
+                {
+                  "kind": "text",
+                  "text": " change. Asking records no draw, so it keeps no color alive."
+                }
+              ]
+            }
+          ]
+        },
         {
           "name": "snapshot",
           "signature": "snapshot(): NeatMetadataSnapshot",

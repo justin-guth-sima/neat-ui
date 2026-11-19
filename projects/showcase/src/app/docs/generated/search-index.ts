@@ -981,6 +981,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "text": "Where a mouse or pen is over the view, in meters; null when it leaves."
   },
   {
+    "kind": "member",
+    "name": "colorOf",
+    "part": "NeatBev",
+    "text": "The color the view draws label in, for a swatch in a list beside it; null while it has none."
+  },
+  {
     "kind": "part",
     "name": "NeatBevBounds",
     "partKind": "interface",
@@ -4336,6 +4342,24 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatOverlayIdentity",
+    "partKind": "interface",
+    "text": "An item of an overlay's message, by what its color goes by: its id and its label."
+  },
+  {
+    "kind": "member",
+    "name": "id",
+    "part": "NeatOverlayIdentity",
+    "text": "The track's or the pose's id."
+  },
+  {
+    "kind": "member",
+    "name": "label",
+    "part": "NeatOverlayIdentity",
+    "text": "The class label of a detection, a segment or a classification; a pose's label (hand)."
+  },
+  {
+    "kind": "part",
     "name": "NeatOverlayLineStyle",
     "partKind": "type",
     "text": "How a class's boxes and outlines are stroked."
@@ -4363,6 +4387,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "name": "roi",
     "part": "NeatOverlaySettings",
     "text": ""
+  },
+  {
+    "kind": "part",
+    "name": "NeatOverlayType",
+    "partKind": "type",
+    "text": "An overlay type the tile draws, as a metadata message's type names it."
   },
   {
     "kind": "part",
@@ -4705,6 +4735,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "name": "barHeight",
     "part": "NeatVideoTile",
     "text": "The height in CSS pixels of the bar along the bottom as laid out, 0 while bars is off."
+  },
+  {
+    "kind": "member",
+    "name": "colorOf",
+    "part": "NeatVideoTile",
+    "text": "The color the overlay draws item of type in, for a swatch beside the video; null while it has none."
   },
   {
     "kind": "member",
@@ -5769,5 +5805,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "video-tile",
     "id": "poses",
     "text": "Two hands and a person in one pose-estimation message."
+  },
+  {
+    "kind": "example",
+    "name": "Track colors",
+    "topic": "video-tile",
+    "id": "track-colors",
+    "text": "A list beside the tile names the tracks on screen, each with a swatch in its color on the video."
   }
 ];

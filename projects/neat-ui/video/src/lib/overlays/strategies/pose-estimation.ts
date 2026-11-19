@@ -1,11 +1,5 @@
 import type { DrawStrategy } from '../draw-context';
-import {
-  applyLineStyle,
-  classStyles,
-  drawLabelPlate,
-  identityColor,
-  styleFor,
-} from '../draw-context';
+import { applyLineStyle, classStyles, drawLabelPlate, itemColor, styleFor } from '../draw-context';
 
 interface Keypoint {
   name?: unknown;
@@ -103,13 +97,13 @@ export const drawPoseEstimation: DrawStrategy = (dc, data) => {
     kp.x * box.scaleX + box.offsetX,
     kp.y * box.scaleY + box.offsetY,
   ];
-  const { styles } = classStyles(type.objects);
+  const { styles, overrides } = classStyles(type.objects);
   ctx.font = dc.fonts.label;
 
   for (const pose of poses) {
     if (!Array.isArray(pose?.keypoints)) continue;
     const row = styleFor(styles, pose.label);
-    const color = row?.color ?? identityColor(dc, 'pose', pose.id);
+    const color = itemColor(dc, 'pose-estimation', pose, overrides);
     applyLineStyle(ctx, row, dc.settings.general.lineWidth);
     const keypoints = (pose.keypoints as (Keypoint | null)[]).filter((kp): kp is Keypoint =>
       Boolean(kp),

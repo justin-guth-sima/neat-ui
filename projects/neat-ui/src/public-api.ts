@@ -104,6 +104,7 @@ export {
 } from './lib/overlay-colors/class-styles';
 export {
   createColorAllocator as ɵcreateColorAllocator,
+  heldColor as ɵheldColor,
   NeatOverlayColors as ɵNeatOverlayColors,
   resolveColor as ɵresolveColor,
 } from './lib/overlay-colors/colors';

@@ -3,6 +3,7 @@ import {
   afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   DOCUMENT,
   effect,
@@ -18,7 +19,13 @@ import {
 } from '@angular/core';
 import { NeatOverlayColors } from '../overlays/colors';
 import type { NeatOverlayState, NeatOverlayView } from '../overlays/draw-frame';
-import { createOverlayState, drawFrame, resetOverlayState } from '../overlays/draw-frame';
+import {
+  createOverlayState,
+  drawFrame,
+  overlayColor,
+  resetOverlayState,
+} from '../overlays/draw-frame';
+import type { NeatOverlayIdentity, NeatOverlayType } from '../overlays/item-colors';
 import type { NeatOverlaySettings } from '../overlays/overlay-settings';
 import { NEAT_OVERLAY_DEFAULTS } from '../overlays/overlay-settings';
 import { letterbox } from '../overlays/letterbox';
@@ -246,6 +253,8 @@ export class NeatVideoTile {
   private readonly canvasElement = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
   private readonly barElement = viewChild<ElementRef<HTMLElement>>('bar');
   private readonly colors = inject(NeatOverlayColors);
+  /** A new state per channel starts with no tracks, track colors or warnings of its own. */
+  private readonly overlay = computed(() => createOverlayState(this.channel(), this.colors));
   private readonly zone = inject(NgZone);
   private readonly document = inject(DOCUMENT);
 
@@ -308,8 +317,7 @@ export class NeatVideoTile {
       onCleanup(() => observer.disconnect());
     });
     effect(() => {
-      // A new state starts with no tracks, track colors or warnings of its own.
-      this.overlayState = createOverlayState(this.channel(), this.colors);
+      this.overlayState = this.overlay();
     });
 
     const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
@@ -356,6 +364,38 @@ export class NeatVideoTile {
       this.destroyed = true;
       this.stop();
     });
+  }
+
+  /**
+   * The color the overlay draws `item` of `type` in, for a swatch beside the video; null while it
+   * has none.
+   *
+   * ```html
+   * <neat-video-tile #tile [source]="source" />
+   * @for (track of tracks(); track track.id) {
+   *   @if (tile.colorOf('tracking', track); as color) {
+   *     <neat-swatch [color]="color" />
+   *   }
+   *   #{{ track.id }}
+   * }
+   * ```
+   *
+   * It follows the overlay's own rule. A track goes by its id. A detection, a segment or a
+   * classification goes by its label's style row, else its class. A pose goes by its label's style
+   * row, else its id.
+   *
+   * A class has one color on every tile of the page, and in the bird's-eye view. A track's and a
+   * pose's color belong to this tile.
+   *
+   * It is null for an item the overlay has not drawn yet, and for one it has forgotten. A track
+   * gone for about 5 s may give its color to another, and a stopped stream forgets its tracks. A
+   * style row's color it gives at once.
+   *
+   * It reads signals, so a template or a `computed` that calls it updates when a color is given or
+   * taken back, and when `settings` change. Asking records no draw, so it keeps no color alive.
+   */
+  colorOf(type: NeatOverlayType, item: NeatOverlayIdentity): string | null {
+    return overlayColor(this.overlay(), this.settings(), type, item);
   }
 
   /** The metadata queue's counters and lateness window, for the app's lateness notice. */

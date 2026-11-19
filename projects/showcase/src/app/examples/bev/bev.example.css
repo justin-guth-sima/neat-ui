@@ -60,6 +60,13 @@ figcaption {
   font-variant-numeric: tabular-nums;
 }
 
+/* A vehicle's swatch before its id, as in a legend. */
+.vehicle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+}
+
 /* The list fills its container, so the example gives it a height. */
 .tracks {
   height: 14rem;

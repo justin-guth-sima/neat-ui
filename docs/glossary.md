@@ -153,6 +153,8 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 | channel              | which of a pipeline's streams a tile shows                                     | `channel`                   |                                                  |
 | video box            | the rectangle of the picture inside the tile, letterbox left out               | `NeatVideoBox`, `videoBox`  | viewport                                         |
 | overlay              | what the tile draws over the picture from a message: detections, poses, labels | `NeatOverlay*`              | annotation, layer                                |
+| track                | a detection the tracking overlay follows from frame to frame, under one id     | `tracking`, `id`            | tracklet, object                                 |
+| class color          | a label's color, the same on every tile of a page and in its bird's-eye view   | `colorOf`                   | label color, identity color                      |
 | bar                  | the line along the tile's bottom: its label, status and chips                  | `bars`                      | footer, status bar                               |
 | region of interest   | a part of the picture the app includes or excludes, drawn as a polygon         | `NeatRoiPolygon`, `regions` | ROI (in prose: say it once), zone, mask, polygon |
 | inclusion, exclusion | a region's type: a part the app looks at, or one it leaves out                 | `NeatRoiDrawMode`           | allow zone, deny zone                            |

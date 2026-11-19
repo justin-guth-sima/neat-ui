@@ -382,6 +382,32 @@ export class NeatBev {
     });
   }
 
+  /**
+   * The color the view draws `label` in, for a swatch in a list beside it; null while it has none.
+   *
+   * ```html
+   * <neat-bev #view [frame]="frame()" />
+   * @if (view.colorOf('car'); as color) {
+   *   <neat-swatch [color]="color" />
+   * }
+   * car
+   * ```
+   *
+   * It is the label's row in `styles`, else its class color. A class has the same color in every
+   * video tile of the page, so this is the color a tile's `colorOf` gives a detection of that
+   * label without a style row.
+   *
+   * It is null for a label the page has not drawn yet, or no longer holds a color for: a class
+   * gone for about 5 s may give its color to another. A style row's color it gives at once.
+   *
+   * It reads signals, so a template or a `computed` that calls it updates when a class color is
+   * given or taken back, and when `styles` change. Asking records no draw, so it keeps no color
+   * alive.
+   */
+  colorOf(label: string): string | null {
+    return this.colors.heldColorOf(label, this.styles());
+  }
+
   /** Back to the default view. */
   protected reset(): void {
     this.zoomer?.reset();

@@ -1,0 +1,19 @@
+/* The tile and the list side by side, the list below the tile where they do not fit. */
+.track-colors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--neat-space-4);
+  align-items: start;
+}
+
+/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */
+.cell {
+  aspect-ratio: 16 / 9;
+}
+
+/* A track's swatch before its id, as in a legend. */
+.track {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+}

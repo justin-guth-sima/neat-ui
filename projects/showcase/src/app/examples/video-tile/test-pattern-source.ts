@@ -1,10 +1,6 @@
-import { signal } from '@angular/core';
 import { SIMA_PALETTE } from '@sima/neat-ui';
-import type { NeatMetadataMessage, NeatTileSource } from '@sima/neat-ui/video';
+import { CanvasSource, HEIGHT, WIDTH } from './canvas-source';
 
-const WIDTH = 640;
-const HEIGHT = 360;
-const FRAMES_PER_SECOND = 30;
 const BAR_COLORS = [
   SIMA_PALETTE.orange,
   SIMA_PALETTE.purple,
@@ -18,59 +14,20 @@ const BOX = { width: 120, height: 90 };
 const DETECTION_EVERY = 2;
 
 /**
- * A `NeatTileSource` for the showcase, so the tile plays without vf: a canvas test pattern
- * streamed with `captureStream()`, and object-detection metadata for the box moving across it. A
- * canvas stream has no RTP timestamps, so the tile matches metadata by arrival, which takes only
- * the latest message: hence one type. Pausing stops painting, so the stream presents no frames
- * and the tile goes stopped.
+ * A canvas test pattern, with object-detection metadata for the box moving across it: one type,
+ * as the tile matches a canvas stream's metadata by arrival. Pausing stops painting, so the stream
+ * presents no frames and the tile goes stopped.
  */
-export class TestPatternSource implements NeatTileSource {
-  readonly stream = signal<MediaStream | null>(null);
-
-  private readonly listeners = new Set<(text: string, receivedAt: number) => void>();
-  private context: CanvasRenderingContext2D | null = null;
-  private animation = 0;
-  private lastPaintAt = 0;
+export class TestPatternSource extends CanvasSource {
   private frame = 0;
   private paused = false;
-
-  onMetadata(listener: (text: string, receivedAt: number) => void): () => void {
-    this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
-  }
-
-  /** Starts the pattern; does nothing where canvases cannot be streamed (as in unit tests). */
-  start(document: Document): void {
-    const canvas = document.createElement('canvas');
-    if (typeof canvas.captureStream !== 'function') return;
-    canvas.width = WIDTH;
-    canvas.height = HEIGHT;
-    this.context = canvas.getContext('2d');
-    if (this.context === null) return;
-    this.stream.set(canvas.captureStream(FRAMES_PER_SECOND));
-    const loop = (now: number) => {
-      this.animation = requestAnimationFrame(loop);
-      if (this.paused || now - this.lastPaintAt < 1000 / FRAMES_PER_SECOND) return;
-      this.lastPaintAt = now;
-      this.paint();
-    };
-    this.animation = requestAnimationFrame(loop);
-  }
 
   setPaused(paused: boolean): void {
     this.paused = paused;
   }
 
-  stop(): void {
-    cancelAnimationFrame(this.animation);
-    for (const track of this.stream()?.getTracks() ?? []) track.stop();
-    this.stream.set(null);
-    this.listeners.clear();
-  }
-
-  private paint(): void {
-    const ctx = this.context;
-    if (ctx === null) return;
+  protected paint(ctx: CanvasRenderingContext2D): void {
+    if (this.paused) return;
     const barWidth = WIDTH / BAR_COLORS.length;
     BAR_COLORS.forEach((color, i) => {
       ctx.fillStyle = color;
@@ -97,11 +54,5 @@ export class TestPatternSource implements NeatTileSource {
       });
     }
     this.frame += 1;
-  }
-
-  private send(message: NeatMetadataMessage): void {
-    const text = JSON.stringify(message);
-    const receivedAt = performance.now();
-    for (const listener of this.listeners) listener(text, receivedAt);
   }
 }

@@ -150,6 +150,16 @@ look happens in one place. Every rule here protects that.
     changes. A listener that throws is logged once and the frames keep drawing.
     `barHeight` (a signal beside `videoBox`) is the bar's laid-out height in CSS pixels, 0 without a
     bar, for content in the `neatTileOverlay` layer that keeps clear of it.
+    `colorOf(type, item)` (a `NeatOverlayType` and a `NeatOverlayIdentity`, the item's `id` and
+    `label`) is the color the overlay draws an item in, for a swatch in a list beside the tile: a
+    track by its id, a pose by its label's style row or else its id, the other types by their
+    label's style row or else its class color, which every tile and bird's-eye view of the page
+    shares (track and pose colors are the tile's own). It is null until the overlay has drawn the
+    item, and again once its color is taken back. It reads the allocator's signals (the page's
+    for classes, the tile's for tracks and poses) and `settings`, which move only when a color is
+    given or taken back, never per frame, so a template or a `computed` that calls it follows, and
+    asking records no draw. The rule each type colors by is stated once (`item-colors.ts`), for the
+    strategies' drawing and for `colorOf`. `neat-bev`'s `colorOf(label)` is the same for the view.
     Public API is `projects/neat-ui/<name>/src/public-api.ts`; its
     code lives in `projects/neat-ui/<name>/src/lib/`.
     Why one entry per component: an app's main bundle carries only the entries its shell imports,
@@ -702,7 +712,8 @@ classes, which the popover's drift spec reads), `ɵBROWSER_CLOCK` and `ɵreduced
 browser's frame clock and the reduced-motion check, which `charts`' label timeline shares with
 `neatEased`), `ɵREADOUT_CLASSES` (the readout's look, which `charts` shares with `bev`), and the
 page's class colors, which `video`'s overlays share with `bev`: `ɵNeatOverlayColors`,
-`ɵcreateColorAllocator`, `ɵresolveColor`, the identity palette (`ɵOVERLAY_PALETTE`,
+`ɵcreateColorAllocator`, `ɵresolveColor`, `ɵheldColor` (a color read back for `colorOf`), the
+identity palette (`ɵOVERLAY_PALETTE`,
 `ɵOVERLAY_NEUTRAL_COLOR`, in `lib/theme/identity-palette.ts`) and the style-row lookup
 (`ɵclassStyles`, `ɵstyleFor`); `video` re-exports them to its own code under their old names. They
 moved to the primary because `bev` imported from `video` pulled the tile's component into a page
@@ -778,7 +789,10 @@ for driving demos such as the FastBEV one.
   object comes under the pointer; `activated`, a click or tap that is no drag (`NeatBevPick`: the
   object or null, its id, the point in meters, the event; the reset button's clicks excluded);
   `pointerMove`, a mouse or pen's point in meters once a frame when it changed, null on leaving.
-  An object the app hovers is outlined and read out only where the view shows it.
+  An object the app hovers is outlined and read out only where the view shows it. `colorOf(label)`
+  is the color the view draws a label in (its row in `styles`, else its class color), null until
+  the page has drawn the label, for a swatch in the app's list; it follows as the tile's
+  `colorOf` does.
 - The readout (`readout.ts`): a mouse or pen hovering an object, or a finger tapping it, outlines it
   and shows the kit's readout beside it (`ɵREADOUT_CLASSES`): a swatch and its label, its distance,
   the app's `text`. It is filled and placed by the frames, straight in the DOM, and re-tested at the
