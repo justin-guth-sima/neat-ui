@@ -15,14 +15,16 @@ const RUNS: readonly Run[] = [
 ];
 
 /**
- * Code the app colored itself, as spans inside the block. They are shown in place of `code`, which
- * spells the same text and stays what Copy copies. The kit has no syntax colors of its own.
+ * Code the app colored itself, as spans inside the block: runs from a highlighter of its own, as
+ * the showcase's snippets are colored at build time. They are shown in place of `code`, which
+ * spells the same text and stays what Copy copies. The spans take the theme's code colors, as
+ * `--neat-code-keyword` here. For code in a language the kit knows, `language` is simpler.
  */
 @Component({
   selector: 'app-colored-by-the-app',
   imports: [NeatCodeBlock],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './3-colored-by-the-app.example.html',
+  templateUrl: './6-colored-by-the-app.example.html',
   styleUrl: './colored-by-the-app.example.css',
 })
 export class ColoredByTheApp {

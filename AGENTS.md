@@ -114,13 +114,16 @@ look happens in one place. Every rule here protects that.
     key/value list of an aside; `--neat-details-term-width` on an ancestor lines several up, and
     a term wider than a fixed column breaks inside the word),
     `code-block` (`NeatCodeBlock`, `neat-code-block`: code on the muted fill as written, `wrap` or
-    `scroll` for a long line, and with `copy`, what the code is, a Copy button named after it; and
-    `NeatCopyButton`, that button alone, for text shown some other way. Plain text: the kit has no
-    highlighter, which would be a dependency, so an app that colors its code puts its spans inside
-    the element, shown in place of `code`, which stays what is copied; the showcase's snippets
-    do this with the generator's runs. The clipboard needs a secure context, and the button says
-    when it could not copy. Not helm's `code-block`: its Copy button is an unnamed icon that hides
-    until hover and ignores a refused clipboard, and its dynamic icon fails adoption),
+    `scroll` for a long line, with `copy`, what the code is, a Copy button named after it,
+    `language` to color it in the theme's code colors and `lineNumbers` for a gutter of numbers;
+    `provideNeatCodeLanguages` (with its `NeatCodeLanguages`) adds languages; and
+    `NeatCopyButton`, that button alone, for text shown some other way. An app that colors its code
+    itself puts its spans inside the element, shown in place of the block's own lines, `code`
+    staying what is copied; the showcase's snippets do this with the generator's runs. How it
+    colors is under "How the code block colors code" below. The clipboard needs a secure context,
+    and the button says when it could not copy. Not helm's `code-block`: its Copy button is an
+    unnamed icon that hides until hover and ignores a refused clipboard, and its dynamic icon fails
+    adoption),
     `table` (`NeatTable`, the data table's look on a `table`: cells, rules, column headings; and
     `NeatNumeric`, which end-aligns a column's figures on one line with tabular digits, and
     `NeatFigure`, the same without the end alignment, for a cell with something after its figure; a
@@ -865,6 +868,55 @@ for driving demos such as the FastBEV one.
   by `label`, with a visually hidden summary of the counts per label on the shape (`summary.ts`:
   "within 60 m", or a rectangle's edges), rewritten at most once a second.
 
+**How the code block colors code.** `code-block` colors code with Shiki, a TextMate-grammar
+highlighter, when a block's `language` names one of its languages; with `language` null (the
+default) the code is plain.
+
+- **What loads when.** Nothing of Shiki is in the entry's static code. The first block on a page
+  with a `language` loads, through dynamic `import()`s, Shiki's tokenizer (`@shikijs/primitive`,
+  with `@shikijs/vscode-textmate`) and its pure-JavaScript regular expression engine
+  (`@shikijs/engine-javascript`, with `oniguruma-to-es`; no WebAssembly), about 117 kB minified
+  (38 kB gzipped) together, and that language's grammar from `@shikijs/langs` (Python 70 kB, 9 kB
+  gzipped; C++ with the C, GLSL and regular expression grammars it embeds 870 kB, 64 kB gzipped).
+  Each is kept for the page (`highlighter.ts`), so a second Python block loads nothing and a page
+  with Python only never loads C++. Until they are there the block shows the code plain, in the same lines. Shiki's
+  JavaScript engine gave the same tokens as its Oniguruma (WebAssembly) engine for every default
+  language when it was chosen. Each default grammar is a chunk of every app's build that uses the
+  entry, loaded only when shown, so the default set stays small.
+- **The languages:** Python, C++, C, shell, JSON, YAML, CMake, TypeScript, JavaScript, HTML, CSS,
+  Markdown, Dockerfile and Go, under each grammar's Shiki name and aliases (`languages.ts`, held to
+  the grammars by its spec). `provideNeatCodeLanguages({ name: () => import('@shikijs/langs/<id>') })`
+  adds others in any `providers` (app, route or component), each place on top of the one around it
+  (a factory over the token's value one injector up). A name no table has, or a grammar that does
+  not load, leaves the code plain and is said once in dev mode; a failed grammar is tried again by
+  the next block.
+- **The colors are the theme's.** The theme emits eight tokens, `--neat-code-keyword`, `-string`,
+  `-comment`, `-constant` (numbers among them), `-type`, `-function`, `-property` (keys and
+  attributes too) and `-tag`, each the first step of its scale that reads at 4.5:1 on the block's
+  `--muted` fill in both schemes (`codeTokens` in `spartan-theme.ts`, held by the theme spec);
+  operators and punctuation keep the text color. Shiki gets a theme of the kit's own
+  (`code-theme.ts`) whose colors are the kinds' names, which Shiki hands back as written: a token's
+  kind is a `data-kind` attribute, and `code-block.css` is the one place a kind becomes its token.
+  No color of a Shiki theme reaches the page. An app's own spans can take the same tokens.
+- **The lines:** one element per line (`.line`), the line's runs as spans in it and its line break
+  last, so the text of the block is the code as given (a last empty line after a final break is not
+  shown). The line numbers are a CSS counter in `::before`, with empty alternative text, so a
+  selection, Copy and a screen reader leave them out; a wrapped line hangs clear of the gutter.
+  Copy always copies `code` unchanged.
+- **The boundary:** ESLint (`SHIKI` in the root `eslint.config.js`) fails any static import of
+  `shiki` or `@shikijs/*` outside the code-block entry, and in it any but `import type`; a dynamic
+  `import()`, how an app adds a grammar, is not an import ESLint sees. `npm run check:dist` fails a
+  static import or export of Shiki in any built module or type declaration, a Shiki specifier in a
+  file of another entry, and a TextMate grammar (`scopeName`) inside a module.
+- **Licenses:** the three `@shikijs` packages the kit depends on (exact versions, in
+  `allowedNonPeerDependencies`) and what they bring (`@shikijs/types`, `@shikijs/vscode-textmate`,
+  `oniguruma-to-es`, `oniguruma-parser`, `regex`, `regex-recursion`, `regex-utilities`) are MIT.
+  The default grammars are MIT (most from VS Code, CMake's from `twxs/vs.language.cmake`) but YAML's
+  (`textmate/yaml.tmbundle`), whose license grants every use without conditions. C++'s grammar
+  embeds GLSL's (`polym0rph/GLSL.tmbundle`, 3.7 kB, for raw strings marked `glsl`), which states
+  no license; it ships in the C++ chunk. A new default language needs its grammar's license (Shiki's
+  `tm-grammars` lists each source and license) and those of the grammars it embeds checked first.
+
 **How an Insight channel connects.** `insight` is the kit's one WebRTC client of Neat Insight:
 `neatInsightChannel(channel, { offer, videoBufferMs })` returns a `NeatInsightChannel`, a
 `NeatTileSource` (imported from `video` by package name, as a type only) with `notice`, `failure`,
@@ -1222,7 +1274,9 @@ and 1.5rem, for gaps and insets), `--neat-text-xs`, `--neat-text-sm`, `--neat-te
 surface such as a card). Charts draw with `--neat-series-1` to `--neat-series-8` (four hues, blue,
 purple, orange and teal, then a darker blue and the lighter purple, orange and blue), `--neat-line`
 (a single metric's line), `--neat-line-warning` and `--neat-line-danger` (threshold lines), and
-`--neat-heat-low` and `--neat-heat-high` (the ends of the heatmap ramp). `--neat-live` is the live
+`--neat-heat-low` and `--neat-heat-high` (the ends of the heatmap ramp). Code takes
+`--neat-code-keyword`, `-string`, `-comment`, `-constant`, `-type`, `-function`, `-property` and
+`-tag`, each held to 4.5:1 on `--muted`, the code block's fill. `--neat-live` is the live
 dot's red, one value in both schemes since it also sits on video. `--neat-video-surface` is a video
 tile's own fill where there is no picture: `--muted` in light, and in dark, where `--muted` is the
 card's own color and tiles on a card vanished in it, the neutral chip's gray. Green, amber and red are left out

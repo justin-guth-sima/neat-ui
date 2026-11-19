@@ -42,3 +42,10 @@ For app authors and their coding agents: the rules, each with its why.
 
 `d3-scale` and `d3-shape` (and the d3 packages they depend on) are ISC licensed. Only the
 `@sima/neat-ui/charts` entry point uses them, so an app that never imports it does not bundle them.
+
+Shiki (`@shikijs/primitive`, `@shikijs/engine-javascript`, `@shikijs/langs`, and what they depend
+on) is MIT licensed. Only `@sima/neat-ui/code-block` uses it, through dynamic imports: a page loads
+the highlighter and a language's grammar the first time a block shows code in that language. The
+default languages' grammars are MIT licensed but YAML's, whose TextMate bundle grants every use
+without conditions; C++'s grammar embeds GLSL's, which states no license. Add a language with
+`provideNeatCodeLanguages(...)` and a dynamic `import('@shikijs/langs/<id>')`, never a static one.

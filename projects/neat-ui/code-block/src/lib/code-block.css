@@ -27,3 +27,69 @@ pre[data-overflow='wrap'] {
 pre[data-overflow='scroll'] {
   overflow-x: auto;
 }
+
+/* Each line a block of its own. */
+.line {
+  display: block;
+}
+
+/*
+ * The line numbers: a counter in a gutter as wide as the last number, which a hanging indent
+ * keeps clear of a wrapped line's rest. Generated content is not selected or copied, and its
+ * empty alternative text keeps a screen reader from reading it.
+ */
+pre[data-line-numbers] {
+  --line-number-gutter: calc(var(--line-number-digits) * 1ch + var(--neat-space-3));
+
+  counter-reset: line;
+}
+
+pre[data-line-numbers] .line {
+  padding-inline-start: var(--line-number-gutter);
+  text-indent: calc(-1 * var(--line-number-gutter));
+}
+
+pre[data-line-numbers] .line::before {
+  content: counter(line) / '';
+  counter-increment: line;
+  display: inline-block;
+  inline-size: calc(var(--line-number-digits) * 1ch);
+  margin-inline-end: var(--neat-space-3);
+  text-indent: 0;
+  text-align: end;
+  color: var(--muted-foreground);
+  user-select: none;
+}
+
+/* Each kind of code text in its theme color; the rest keeps the block's text color. */
+[data-kind='keyword'] {
+  color: var(--neat-code-keyword);
+}
+
+[data-kind='string'] {
+  color: var(--neat-code-string);
+}
+
+[data-kind='comment'] {
+  color: var(--neat-code-comment);
+}
+
+[data-kind='constant'] {
+  color: var(--neat-code-constant);
+}
+
+[data-kind='type'] {
+  color: var(--neat-code-type);
+}
+
+[data-kind='function'] {
+  color: var(--neat-code-function);
+}
+
+[data-kind='property'] {
+  color: var(--neat-code-property);
+}
+
+[data-kind='tag'] {
+  color: var(--neat-code-tag);
+}

@@ -1,8 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { InstallCommand } from './1-install-command.example';
 import { WholeFile } from './2-whole-file.example';
-import { ColoredByTheApp } from './3-colored-by-the-app.example';
-import { StreamURL } from './4-stream-url.example';
+import { PythonFile } from './3-python-file.example';
+import { LineNumbers } from './4-line-numbers.example';
+import { AnotherLanguage } from './5-another-language.example';
+import { ColoredByTheApp } from './6-colored-by-the-app.example';
+import { StreamURL } from './7-stream-url.example';
 
 async function render<T>(component: new () => T): Promise<HTMLElement> {
   const fixture = TestBed.createComponent(component);
@@ -32,6 +35,34 @@ describe('the code block examples', () => {
     expect(pre.textContent).toContain("from './app.routes';\n\nexport const appConfig");
     expect(pre.textContent).toContain('\n  providers: [');
     expect(copyName(host)).toBe('Copy app.config.ts');
+  });
+
+  it('show a Python file in the code colors, spelled as given', async () => {
+    const host = await render(PythonFile);
+    const pre = host.querySelector('pre')!;
+
+    expect(pre.textContent?.startsWith('"""Run a ResNet-50 model')).toBe(true);
+    expect(pre.textContent?.endsWith('to_numpy()))}")\n')).toBe(true);
+    expect(pre.querySelector('[data-kind="keyword"]')?.textContent).toBe('from');
+    expect(pre.querySelector('[data-kind="comment"]')?.textContent).toBe('# a gray test frame');
+    expect(copyName(host)).toBe('Copy run_model.py');
+  });
+
+  it('show a C++ file with its lines numbered', async () => {
+    const host = await render(LineNumbers);
+    const pre = host.querySelector('pre')!;
+
+    expect(pre.hasAttribute('data-line-numbers')).toBe(true);
+    expect(pre.querySelectorAll('.line')).toHaveLength(26);
+    expect(pre.querySelector('[data-kind="keyword"]')?.textContent).toBe('#include');
+    expect(copyName(host)).toBe('Copy run_model.cpp');
+  });
+
+  it('show a diff, a language the example adds, its lines inserted and deleted', async () => {
+    const host = await render(AnotherLanguage);
+
+    expect(host.querySelector('[data-kind="tag"]')?.textContent).toContain('-outputs');
+    expect(host.querySelector('[data-kind="string"]')?.textContent).toContain('+outputs');
   });
 
   it("show the app's colored spans, which spell the code", async () => {

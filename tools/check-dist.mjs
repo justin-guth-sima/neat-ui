@@ -4,7 +4,8 @@
 // out the compiled stylesheet that styles/neat-ui.css imports. It also cannot tell that the code of
 // a secondary entry point (video, switch, ...) leaked back into the primary, which would put it in
 // every page's bundle again, that something reached for one of the rendering bench's dev
-// dependencies, which no app installs, or that the diagram's bench seam was shipped. Run after
+// dependencies, which no app installs, that the diagram's bench seam was shipped, or that Shiki or
+// one of its grammars reached the static part of a module instead of a dynamic import. Run after
 // `npm run build`.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
@@ -153,6 +154,24 @@ function exportedNames(source) {
   return new Set([...declared, ...listed]);
 }
 
+/**
+ * Shiki, the code block's highlighter (AGENTS.md "How the code block colors code"): the code-block
+ * entry loads its packages and grammars through dynamic `import()`s only, so a page without a
+ * colored block carries none of it. A static import or export of one in a built module or a type
+ * declaration would put it in the bundle of every page that imports the entry, and a module of
+ * another entry should not name it at all. A TextMate grammar's `scopeName` in a module means a
+ * grammar was bundled into it instead of imported on use.
+ */
+const SHIKI = String.raw`(?:shiki|@shikijs/[^'"/]+)(?:/[^'"]*)?`;
+const SHIKI_SPECIFIER = new RegExp(`['"]${SHIKI}['"]`);
+/** `import … from`, `import '…'`, `export … from`; not `import(…)`, whose `(` it cannot cross. */
+const SHIKI_STATIC = new RegExp(String.raw`\b(?:import|export)\b[^;()'"]*['"](${SHIKI})['"]`, 'g');
+const GRAMMAR_FINGERPRINT = 'scopeName';
+const CODE_BLOCK_FILES =
+  /(^|\/)(fesm2022\/sima-neat-ui-code-block\.mjs|types\/sima-neat-ui-code-block\.d\.ts)$/;
+/** Built modules and type declarations: the files an app's build and its compiler read. */
+const CODE_FILES = /\.(mjs|d\.ts)$/;
+
 /** Packed tarballs are compressed; their contents are the files checked here. */
 const SKIPPED = /\.tgz$/;
 
@@ -206,7 +225,23 @@ export function findProblems(dist) {
     if (source.includes(SEAM_BASENAME)) {
       problems.push(`${file} names ${SEAM_BASENAME}; the diagram's bench seam is never shipped`);
     }
-    if (DIAGRAM_ENTRY_FILES.test(relative(dist, file).split(sep).join('/'))) {
+    const path = relative(dist, file).split(sep).join('/');
+    if (CODE_FILES.test(path)) {
+      for (const [, specifier] of source.matchAll(SHIKI_STATIC)) {
+        problems.push(
+          `${file} imports ${specifier} statically; the code block loads Shiki through import() only`,
+        );
+      }
+      if (!CODE_BLOCK_FILES.test(path) && SHIKI_SPECIFIER.test(source)) {
+        problems.push(`${file} names Shiki, which only @sima/neat-ui/code-block loads`);
+      }
+      if (path.endsWith('.mjs') && source.includes(GRAMMAR_FINGERPRINT)) {
+        problems.push(
+          `${file} contains a TextMate grammar (${GRAMMAR_FINGERPRINT}); grammars load through import() on first use`,
+        );
+      }
+    }
+    if (DIAGRAM_ENTRY_FILES.test(path)) {
       const exported = exportedNames(source);
       for (const name of SEAM_NAMES.filter((candidate) => exported.has(candidate))) {
         problems.push(`${file} exports ${name}, which only the diagram's bench seam may expose`);
@@ -223,6 +258,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(1);
   }
   console.log(
-    'dist/neat-ui: every entry point built, no secondary entry code in the primary, no helm alias, dev-only imports or bench seam, compiled stylesheet present.',
+    'dist/neat-ui: every entry point built, no secondary entry code in the primary, no helm alias, dev-only imports, bench seam or static Shiki, compiled stylesheet present.',
   );
 }

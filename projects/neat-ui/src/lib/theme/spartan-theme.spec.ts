@@ -670,6 +670,58 @@ describe('buildSpartanThemeCss', () => {
     }
   });
 
+  it('gives each kind of code text a color that reads at 4.5:1 on the code block’s --muted fill, comments in --muted-foreground', () => {
+    const kinds = [
+      'keyword',
+      'string',
+      'comment',
+      'constant',
+      'type',
+      'function',
+      'property',
+      'tag',
+    ];
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      const code = [...tokens.keys()].filter((name) => name.startsWith('--neat-code-'));
+      expect(code, scheme).toEqual(kinds.map((kind) => `--neat-code-${kind}`));
+      expect(tokens.get('--neat-code-comment'), scheme).toBe(tokens.get('--muted-foreground'));
+      for (const name of code) {
+        expect(
+          contrastRatio(tokens.get(name)!, tokens.get('--muted')!),
+          `${scheme}: ${name} on --muted`,
+        ).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+
+  it('code colors: light #676092 #0a692f #4c5858 #b3541b #1d7683 #346498 #103255 #c8372d; dark #afa6e2 #56b16c #b3b3b3 #e28250 #55a3af #75acea #b2d6ff #dd5f51', () => {
+    const values = (scheme: keyof typeof schemes) =>
+      [...schemes[scheme].entries()]
+        .filter(([name]) => name.startsWith('--neat-code-'))
+        .map(([, value]) => value);
+    expect(values('light')).toEqual([
+      '#676092',
+      '#0a692f',
+      '#4c5858',
+      '#b3541b',
+      '#1d7683',
+      '#346498',
+      '#103255',
+      '#c8372d',
+    ]);
+    expect(values('dark')).toEqual([
+      '#afa6e2',
+      '#56b16c',
+      '#b3b3b3',
+      '#e28250',
+      '#55a3af',
+      '#75acea',
+      '#b2d6ff',
+      '#dd5f51',
+    ]);
+  });
+
   it('tokens.generated.css matches buildSpartanThemeCss (run `npm run theme:emit` on failure)', () => {
     expect(generated).toBe(buildSpartanThemeCss(NEAT_DARK_CLASS));
   });

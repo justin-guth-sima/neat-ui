@@ -2073,6 +2073,24 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "text": "Whether a long line wraps or scrolls sideways (a NeatCodeOverflow)."
   },
   {
+    "kind": "member",
+    "name": "language",
+    "part": "NeatCodeBlock",
+    "text": "The language the code is in, by its Shiki name or an alias (\"python\", \"cpp\", \"bash\"), which colors it; null, the default, shows it plain."
+  },
+  {
+    "kind": "member",
+    "name": "lineNumbers",
+    "part": "NeatCodeBlock",
+    "text": "Whether the lines are numbered, in a gutter that a selection and Copy leave out."
+  },
+  {
+    "kind": "part",
+    "name": "NeatCodeLanguages",
+    "partKind": "type",
+    "text": "The languages a code block can color, by the name its language takes: for each, a function that imports the language's grammar."
+  },
+  {
     "kind": "part",
     "name": "NeatCodeOverflow",
     "partKind": "type",
@@ -2095,6 +2113,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "name": "what",
     "part": "NeatCopyButton",
     "text": "What the text is, for the button's name: install command names it \"Copy install command\"."
+  },
+  {
+    "kind": "part",
+    "name": "provideNeatCodeLanguages",
+    "partKind": "function",
+    "text": "Adds languages to the ones a code block colors by itself, or gives one another grammar."
   },
   {
     "kind": "part",
@@ -5192,10 +5216,31 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Python file",
+    "topic": "code-block",
+    "id": "python-file",
+    "text": "A Python file in the theme's code colors: language=\"python\" names its language."
+  },
+  {
+    "kind": "example",
+    "name": "Line numbers",
+    "topic": "code-block",
+    "id": "line-numbers",
+    "text": "A C++ file with its lines numbered: [lineNumbers]=\"true\" adds a gutter as wide as the last number."
+  },
+  {
+    "kind": "example",
+    "name": "Another language",
+    "topic": "code-block",
+    "id": "another-language",
+    "text": "A language the kit does not color by itself, a diff, added with provideNeatCodeLanguages."
+  },
+  {
+    "kind": "example",
     "name": "Colored by the app",
     "topic": "code-block",
     "id": "colored-by-the-app",
-    "text": "Code the app colored itself, as spans inside the block."
+    "text": "Code the app colored itself, as spans inside the block: runs from a highlighter of its own, as the showcase's snippets are colored at build…"
   },
   {
     "kind": "example",

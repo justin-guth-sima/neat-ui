@@ -59,10 +59,33 @@ const SEAM_BY_ALIAS = {
   message: "Import the diagram's bench seam through its alias, '@bench/diagram-seam'.",
 };
 
-/** The import rule for the kit's files: d3 but `allowed`, nothing bench- or showcase-only, no seam. */
-const kitImports = (allowed) => [
+/**
+ * Shiki, the code block's highlighter (AGENTS.md "How the code block colors code"): its packages
+ * reach an app only through the code-block entry's dynamic `import()`s, so a page without a colored
+ * block loads none of it. A static import would put Shiki, or a grammar, in the bundle of every
+ * page that imports the file. The code-block entry may import Shiki's types, which compile away;
+ * an app adds a grammar with a dynamic import, which this rule does not see.
+ */
+const SHIKI_PATTERN = '^(shiki|@shikijs/[^/]+)(/|$)';
+const SHIKI = {
+  regex: SHIKI_PATTERN,
+  message:
+    "Shiki is loaded by @sima/neat-ui/code-block alone, through dynamic import(); color code with neat-code-block's language, and add a grammar as () => import('@shikijs/langs/<id>').",
+};
+const SHIKI_TYPES_ONLY = {
+  regex: SHIKI_PATTERN,
+  allowTypeImports: true,
+  message:
+    "The code block loads Shiki through dynamic import() only, so no page carries it before a colored block needs it; import its types with 'import type'.",
+};
+
+/**
+ * The import rule for the kit's files: d3 but `allowed`, nothing bench- or showcase-only, no seam,
+ * and Shiki as `shiki` says (none outside the code-block entry).
+ */
+const kitImports = (allowed, shiki = SHIKI) => [
   'error',
-  { patterns: [d3Pattern(allowed), BENCH_ONLY, SEAM, SHOWCASE_ONLY] },
+  { patterns: [d3Pattern(allowed), BENCH_ONLY, SEAM, SHOWCASE_ONLY, shiki] },
 ];
 
 module.exports = defineConfig([
@@ -110,14 +133,16 @@ module.exports = defineConfig([
   // rule, not core `no-restricted-imports`, on purpose: ESLint replaces a rule's options wholesale
   // when a later block sets the same rule for a file, so these blocks would silently switch off the
   // kit's entry-direction rules in `projects/neat-ui/eslint.config.js`
-  // (tools/lint-boundaries.test.mjs checks that all of them still fire). The five blocks match
-  // disjoint files for the same reason, which is also why each states both boundaries in one rule.
+  // (tools/lint-boundaries.test.mjs checks that all of them still fire). The six blocks match
+  // disjoint files for the same reason, which is also why each states every boundary in one rule.
+  // Shiki is the code-block entry's alone, and there only through dynamic imports and type imports.
   {
     files: ['**/*.ts'],
     ignores: [
       'projects/neat-ui/charts/**',
       'projects/neat-ui/diagram/**',
       'projects/neat-ui/bev/**',
+      'projects/neat-ui/code-block/**',
       'projects/bench/**',
       'projects/showcase/**',
     ],
@@ -129,7 +154,7 @@ module.exports = defineConfig([
     rules: {
       '@typescript-eslint/no-restricted-imports': [
         'error',
-        { patterns: [d3Pattern([]), BENCH_ONLY, SEAM] },
+        { patterns: [d3Pattern([]), BENCH_ONLY, SEAM, SHIKI] },
       ],
     },
   },
@@ -143,11 +168,15 @@ module.exports = defineConfig([
     rules: { '@typescript-eslint/no-restricted-imports': kitImports(['d3-zoom', 'd3-selection']) },
   },
   {
+    files: ['projects/neat-ui/code-block/**/*.ts'],
+    rules: { '@typescript-eslint/no-restricted-imports': kitImports([], SHIKI_TYPES_ONLY) },
+  },
+  {
     files: ['projects/bench/**/*.ts'],
     rules: {
       '@typescript-eslint/no-restricted-imports': [
         'error',
-        { patterns: [d3Pattern(['d3-drag']), SEAM_BY_ALIAS, SHOWCASE_ONLY] },
+        { patterns: [d3Pattern(['d3-drag']), SEAM_BY_ALIAS, SHOWCASE_ONLY, SHIKI] },
       ],
     },
   },

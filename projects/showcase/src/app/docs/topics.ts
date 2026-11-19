@@ -705,7 +705,13 @@ export const GROUPS: readonly TopicGroup[] = [
           {
             id: 'code-block',
             label: 'Code block',
-            parts: ['NeatCodeBlock', 'NeatCodeOverflow', 'NeatCopyButton'],
+            parts: [
+              'NeatCodeBlock',
+              'NeatCodeOverflow',
+              'NeatCopyButton',
+              'provideNeatCodeLanguages',
+              'NeatCodeLanguages',
+            ],
             leads: ['NeatCodeBlock'],
             load: async () => {
               const [api, examples] = await Promise.all([

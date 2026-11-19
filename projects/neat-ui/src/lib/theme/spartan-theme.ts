@@ -269,6 +269,48 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
       tints['neat-tint-warning-accent'],
     ]),
     ...charts,
+    ...codeTokens(scheme, surface[roles.muted], mutedText),
+  };
+}
+
+/**
+ * The kinds of code text the code block colors, each a token `--neat-code-<kind>`, and the scale
+ * its color comes from. Six hues, so neighbors in code stand apart: purple keywords, green
+ * strings, orange constants (numbers among them), teal types, blue functions, red tags. A property
+ * is the function's blue two steps further from the background, and a comment is muted text.
+ */
+const CODE_SCALES = {
+  keyword: scales.highlight,
+  string: scales.success,
+  constant: scales.primary,
+  type: SERIES_TEAL,
+  function: scales.info,
+  tag: scales.destructive,
+} as const;
+/** How many places a property's blue sits past the function's along the color walk. */
+const CODE_PROPERTY_OFFSET = 2;
+
+/**
+ * The code block's colors for the kinds of code text (`--neat-code-keyword` and the rest): for
+ * each kind's scale, the first step of the scheme's color walk that reads at 4.5:1 on the code
+ * block's fill (`--muted`). Comments are `--muted-foreground`, which reads on it too.
+ */
+function codeTokens(scheme: NeatColorScheme, fill: string, mutedText: string): SpartanTokens {
+  const walk = CONTRAST_RULES[scheme].colorWalk;
+  const readable = (scale: ColorScale) => firstReadable(scale, walk, [fill]);
+  const colors = Object.fromEntries(
+    Object.entries(CODE_SCALES).map(([kind, scale]) => [kind, scale[walk[readable(scale)]]]),
+  );
+  const blue = CODE_SCALES.function;
+  return {
+    'neat-code-keyword': colors['keyword'],
+    'neat-code-string': colors['string'],
+    'neat-code-comment': mutedText,
+    'neat-code-constant': colors['constant'],
+    'neat-code-type': colors['type'],
+    'neat-code-function': colors['function'],
+    'neat-code-property': blue[along(walk, readable(blue), CODE_PROPERTY_OFFSET)],
+    'neat-code-tag': colors['tag'],
   };
 }
 

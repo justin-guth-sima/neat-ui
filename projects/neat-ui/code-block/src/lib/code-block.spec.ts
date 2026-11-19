@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NeatCodeBlock } from './code-block';
+import { resetWarned } from './highlighter';
+import { provideNeatCodeLanguages } from './languages';
 
 const CODE = '<neat-diagram [diagram]="set">\n  <ng-template neatDiagramBlock let-node>';
 
@@ -32,8 +34,40 @@ class Colored {
   readonly code = this.runs.map(([, text]) => text).join('');
 }
 
+/** A grammar module as `@shikijs/langs` gives one, in which `stage` is a keyword. */
+function grammar(name: string) {
+  return Promise.resolve({
+    default: [
+      {
+        name,
+        scopeName: `source.${name}`,
+        patterns: [{ match: '\\bstage\\b', name: `keyword.other.${name}` }],
+      },
+    ],
+  });
+}
+
+/** Blocks in a language of the app's, one of the component's own, and one of the kit's. */
+@Component({
+  imports: [NeatCodeBlock],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [provideNeatCodeLanguages({ page: () => grammar('page') })],
+  template: `
+    <neat-code-block id="app" code="stage decode" language="app" />
+    <neat-code-block id="page" code="stage decode" language="page" />
+    <neat-code-block id="python" code="stage = print" language="python" />
+  `,
+})
+class WithLanguages {}
+
+const PYTHON = 'import pyneat\n\nsession = pyneat.Session()  # one per app\n';
+
 describe('NeatCodeBlock', () => {
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    resetWarned();
+  });
 
   it('shows the code as written, its lines and indents kept, and wraps long lines', async () => {
     const host = await render({ code: CODE });
@@ -86,5 +120,76 @@ describe('NeatCodeBlock', () => {
     await Promise.resolve();
 
     expect(writeText).toHaveBeenCalledWith("const url = 'rtsp://neat.local/src3'");
+  });
+
+  it('colors the code in its language, each line an element and its text the code', async () => {
+    const host = await render({ code: PYTHON, language: 'python' });
+    const lines = host.querySelectorAll('pre > code > .line');
+
+    expect(lines).toHaveLength(3);
+    expect(host.querySelector('pre')!.textContent).toBe(PYTHON);
+    expect(lines[0].querySelector('[data-kind="keyword"]')?.textContent).toBe('import');
+    expect(lines[2].querySelector('[data-kind="comment"]')?.textContent).toBe('# one per app');
+  });
+
+  it('shows the code plain, in the same lines, while its grammar loads', async () => {
+    const fixture = TestBed.createComponent(NeatCodeBlock);
+    fixture.componentRef.setInput('code', PYTHON);
+    fixture.componentRef.setInput('language', 'py');
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+
+    expect(host.querySelectorAll('.line')).toHaveLength(3);
+    expect(host.querySelector('[data-kind]')).toBeNull();
+    await fixture.whenStable();
+    expect(host.querySelectorAll('.line')).toHaveLength(3);
+    expect(host.querySelector('[data-kind]')).not.toBeNull();
+  });
+
+  it('shows a language it has no grammar for plain, and names it once in dev mode', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const first = await render({ code: 'fn main() {}', language: 'rust' });
+    await render({ code: 'fn other() {}', language: 'rust' });
+
+    expect(first.querySelector('pre')!.textContent).toBe('fn main() {}');
+    expect(first.querySelector('[data-kind]')).toBeNull();
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toContain('"rust"');
+  });
+
+  it('colors the languages provideNeatCodeLanguages adds, a component’s on top of the app’s', async () => {
+    TestBed.configureTestingModule({
+      providers: [provideNeatCodeLanguages({ app: () => grammar('app') })],
+    });
+    const fixture = TestBed.createComponent(WithLanguages);
+    await fixture.whenStable();
+    const blocks = (fixture.nativeElement as HTMLElement).querySelectorAll('neat-code-block');
+
+    for (const block of Array.from(blocks).slice(0, 2)) {
+      expect(block.querySelector('[data-kind="keyword"]')?.textContent, block.id).toBe('stage');
+    }
+    expect(blocks[2].querySelector('[data-kind="function"]')?.textContent).toBe('print');
+  });
+
+  it('numbers its lines only when asked, the gutter as wide as the last number', async () => {
+    const twelve = Array.from({ length: 12 }, (_, i) => `line ${i + 1}`).join('\n');
+    const plain = await render({ code: twelve });
+    const numbered = await render({ code: twelve, lineNumbers: true });
+    const pre = numbered.querySelector('pre') as HTMLElement;
+
+    expect(plain.querySelector('pre')!.hasAttribute('data-line-numbers')).toBe(false);
+    expect(pre.hasAttribute('data-line-numbers')).toBe(true);
+    expect(pre.style.getPropertyValue('--line-number-digits')).toBe('2');
+    expect(pre.textContent).toBe(twelve);
+  });
+
+  it('copies colored code as given', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+    const host = await render({ code: PYTHON, language: 'python', copy: 'example' });
+    (host.querySelector('neat-copy-button button') as HTMLButtonElement).click();
+    await Promise.resolve();
+
+    expect(writeText).toHaveBeenCalledWith(PYTHON);
   });
 });

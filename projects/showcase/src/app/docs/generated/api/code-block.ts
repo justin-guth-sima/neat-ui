@@ -104,8 +104,73 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "code",
+              "text": "language"
+            },
+            {
               "kind": "text",
-              "text": "The code is plain text in the kit's monospace font, with no syntax colors. An app that colors its code (spans from a highlighter run at build time) puts them inside the element. They are shown in place of "
+              "text": " colors the code in the theme's code colors:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-code-block [code]=\"source\" language=\"python\" copy=\"example\" overflow=\"scroll\" />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The block colors Python, C++, C, shell, JSON, YAML, CMake, TypeScript, JavaScript, HTML, CSS, Markdown, Dockerfile and Go by themselves; "
+            },
+            {
+              "kind": "ref",
+              "text": "provideNeatCodeLanguages",
+              "name": "provideNeatCodeLanguages"
+            },
+            {
+              "kind": "text",
+              "text": " adds others. The highlighter (Shiki) and each language's grammar load the first time a block on the page shows that language, so a page without a colored block loads none of it, and one with Python only never loads C++. While they load, the block shows the code plain, in the same layout. A language the block does not know leaves the code plain and is named once in dev mode."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "lineNumbers"
+            },
+            {
+              "kind": "text",
+              "text": " numbers the lines in a gutter at their start. The numbers are not part of the text: a selection leaves them out, a screen reader does not read them, and Copy copies the code as given, colored or not."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An app that colors its code itself (spans from a highlighter run at build time) puts them inside the element. They are shown in place of the block's own lines, without "
+            },
+            {
+              "kind": "code",
+              "text": "language"
+            },
+            {
+              "kind": "text",
+              "text": " or "
+            },
+            {
+              "kind": "code",
+              "text": "lineNumbers"
+            },
+            {
+              "kind": "text",
+              "text": ", and "
             },
             {
               "kind": "code",
@@ -113,7 +178,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", which stays what Copy copies, so they must spell the same text:"
+              "text": " stays what Copy copies, so they must spell the same text:"
             }
           ]
         },
@@ -188,9 +253,145 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "language",
+          "type": "string | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The language the code is in, by its Shiki name or an alias ("
+                },
+                {
+                  "kind": "code",
+                  "text": "\"python\""
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "\"cpp\""
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "\"bash\""
+                },
+                {
+                  "kind": "text",
+                  "text": "), which colors it; "
+                },
+                {
+                  "kind": "code",
+                  "text": "null"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default, shows it plain."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lineNumbers",
+          "type": "boolean",
+          "default": "false",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the lines are numbered, in a gutter that a selection and Copy leave out."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/code-block/src/lib/code-block.ts"
+    },
+    {
+      "name": "NeatCodeLanguages",
+      "kind": "type",
+      "definition": "Readonly<\n  Record<string, () => Promise<{ readonly default: readonly object[] }>>\n>",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The languages a code block can color, by the name its "
+            },
+            {
+              "kind": "code",
+              "text": "language"
+            },
+            {
+              "kind": "text",
+              "text": " takes: for each, a function that imports the language's grammar."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Each import names a grammar module of Shiki's "
+            },
+            {
+              "kind": "code",
+              "text": "@shikijs/langs"
+            },
+            {
+              "kind": "text",
+              "text": " package (the kit installs it with its highlighter), as a dynamic "
+            },
+            {
+              "kind": "code",
+              "text": "import()"
+            },
+            {
+              "kind": "text",
+              "text": ", so the grammar loads only when a block shows that language:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "const languages: NeatCodeLanguages = {\n  rust: () => import('@shikijs/langs/rust'),\n  toml: () => import('@shikijs/langs/toml'),\n};"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A module's default export is the language's grammar after those it embeds, as "
+            },
+            {
+              "kind": "code",
+              "text": "@shikijs/langs"
+            },
+            {
+              "kind": "text",
+              "text": " gives it. A static import would put the grammar in the bundle of every page that imports the file."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/code-block/src/lib/languages.ts"
     },
     {
       "name": "NeatCodeOverflow",
@@ -345,6 +546,78 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/code-block/src/lib/copy-button.ts"
+    },
+    {
+      "name": "provideNeatCodeLanguages",
+      "kind": "function",
+      "signature": "provideNeatCodeLanguages(languages: NeatCodeLanguages): Provider",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Adds languages to the ones a code block colors by itself, or gives one another grammar."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "providers: [\n  provideNeatCodeLanguages({\n    rust: () => import('@shikijs/langs/rust'),\n    rs: () => import('@shikijs/langs/rust'),\n  }),\n],"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Each key is a name a block's "
+            },
+            {
+              "kind": "code",
+              "text": "language"
+            },
+            {
+              "kind": "text",
+              "text": " takes, so a language used by two names (its id and an alias) is listed under both. The kit colors Python, C++, C, shell, JSON, YAML, CMake, TypeScript, JavaScript, HTML, CSS, Markdown, Dockerfile and Go without it."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It goes in any "
+            },
+            {
+              "kind": "code",
+              "text": "providers"
+            },
+            {
+              "kind": "text",
+              "text": ": the app's "
+            },
+            {
+              "kind": "code",
+              "text": "app.config.ts"
+            },
+            {
+              "kind": "text",
+              "text": " for every page, a route's for the pages under it, a component's for the blocks in its template. Each adds to the languages of the place around it, so a page's languages come on top of the app's. Within one "
+            },
+            {
+              "kind": "code",
+              "text": "providers"
+            },
+            {
+              "kind": "text",
+              "text": " list, call it once with all of that place's languages: a second call there replaces the first."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/code-block/src/lib/languages.ts"
     }
   ]
 };

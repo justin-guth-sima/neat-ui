@@ -11,7 +11,7 @@ import { NeatCopyButton } from '@sima/neat-ui/code-block';
   selector: 'app-stream-url',
   imports: [NeatCode, NeatCopyButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './4-stream-url.example.html',
+  templateUrl: './7-stream-url.example.html',
   styleUrl: './stream-url.example.css',
 })
 export class StreamURL {

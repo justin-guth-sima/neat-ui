@@ -252,3 +252,72 @@ test('a package that only starts with a bench-only name is not bench-only', asyn
     assert.deepEqual(messages, [], specifier);
   }
 });
+
+/** Shiki as code would import it statically: its tokenizer, its engine, a grammar, its types. */
+const SHIKI_VALUES = [
+  "import { createShikiPrimitive } from '@shikijs/primitive';\nexport const make = createShikiPrimitive;\n",
+  "import { createJavaScriptRegexEngine } from '@shikijs/engine-javascript';\nexport const e = createJavaScriptRegexEngine;\n",
+  "import python from '@shikijs/langs/python';\nexport const grammar = python;\n",
+  "export { codeToHtml } from 'shiki';\n",
+  importOf('shiki/core'),
+];
+const SHIKI_TYPES = [
+  "import type { ShikiPrimitive } from '@shikijs/primitive';\nexport type P = ShikiPrimitive;\n",
+  "import type { ThemedToken } from '@shikijs/types';\nexport type T = ThemedToken;\n",
+];
+/** A grammar given as a dynamic import, as the code block's table and an app's provider do. */
+const SHIKI_DYNAMIC = "export const rust = () => import('@shikijs/langs/rust');\n";
+
+test('Shiki is imported statically by no one, and by the code-block entry for its types only', async () => {
+  for (const [config, filePath] of [
+    [KIT_CONFIG, 'projects/neat-ui/src/lib/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/level-meter/src/lib/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/charts/src/lib/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/diagram/src/lib/x.ts'],
+    [SHOWCASE_CONFIG, 'projects/showcase/src/app/x.ts'],
+    [BENCH_CONFIG, 'projects/bench/src/app/x.ts'],
+  ]) {
+    for (const code of [...SHIKI_VALUES, ...SHIKI_TYPES]) {
+      const messages = await boundaryMessages(config, filePath, code);
+      assert.equal(messages.length, 1, `${filePath}: ${code}`);
+      assert.match(messages[0].message, /code-block alone/, `${filePath}: ${code}`);
+    }
+    assert.deepEqual(await boundaryMessages(config, filePath, SHIKI_DYNAMIC), [], filePath);
+  }
+  for (const filePath of [
+    'projects/neat-ui/code-block/src/lib/x.ts',
+    'projects/neat-ui/code-block/src/lib/x.spec.ts',
+  ]) {
+    for (const code of SHIKI_VALUES) {
+      const messages = await boundaryMessages(KIT_CONFIG, filePath, code);
+      assert.equal(messages.length, 1, `${filePath}: ${code}`);
+      assert.match(messages[0].message, /import type/, `${filePath}: ${code}`);
+    }
+    for (const code of [...SHIKI_TYPES, SHIKI_DYNAMIC]) {
+      assert.deepEqual(await boundaryMessages(KIT_CONFIG, filePath, code), [], code);
+    }
+  }
+});
+
+test('the code-block entry keeps the other boundaries beside its Shiki rule', async () => {
+  const filePath = 'projects/neat-ui/code-block/src/lib/x.ts';
+  const climbs = "import { x } from '../../../src/lib/theme/color';\nexport const y = x;\n";
+  const messages = await boundaryMessages(KIT_CONFIG, filePath, climbs);
+  assert.equal(messages.length, 1);
+  assert.match(messages[0].message, /package name/);
+  await expectD3Rule(KIT_CONFIG, filePath, [...CHARTS_D3, ...DIAGRAM_D3, ...OTHER_D3], true);
+  for (const code of BENCH_ONLY) {
+    assert.equal((await boundaryMessages(KIT_CONFIG, filePath, code)).length, 1, code);
+  }
+});
+
+test('a package that only starts with shiki is not Shiki', async () => {
+  for (const specifier of ['shikiji', 'shiki-magic-move', '@shikijsx/core']) {
+    const messages = await boundaryMessages(
+      KIT_CONFIG,
+      'projects/neat-ui/src/lib/x.ts',
+      importOf(specifier),
+    );
+    assert.deepEqual(messages, [], specifier);
+  }
+});

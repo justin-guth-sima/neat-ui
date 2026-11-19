@@ -77,6 +77,14 @@
   --neat-line-danger: #ab2a22;
   --neat-heat-low: #d3e7ff;
   --neat-heat-high: #214974;
+  --neat-code-keyword: #676092;
+  --neat-code-string: #0a692f;
+  --neat-code-comment: #4c5858;
+  --neat-code-constant: #b3541b;
+  --neat-code-type: #1d7683;
+  --neat-code-function: #346498;
+  --neat-code-property: #103255;
+  --neat-code-tag: #c8372d;
 }
 
 :root.neat-dark {
@@ -155,4 +163,12 @@
   --neat-line-danger: #f48577;
   --neat-heat-low: #103255;
   --neat-heat-high: #93c2f8;
+  --neat-code-keyword: #afa6e2;
+  --neat-code-string: #56b16c;
+  --neat-code-comment: #b3b3b3;
+  --neat-code-constant: #e28250;
+  --neat-code-type: #55a3af;
+  --neat-code-function: #75acea;
+  --neat-code-property: #b2d6ff;
+  --neat-code-tag: #dd5f51;
 }

@@ -4,6 +4,9 @@
   "allowedNonPeerDependencies": [
     "@fontsource/roboto",
     "@lucide/angular",
+    "@shikijs/engine-javascript",
+    "@shikijs/langs",
+    "@shikijs/primitive",
     "@spartan-ng/brain",
     "class-variance-authority",
     "clsx",

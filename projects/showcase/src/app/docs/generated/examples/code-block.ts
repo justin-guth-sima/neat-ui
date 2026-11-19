@@ -2,8 +2,11 @@
 import type { DocsExample } from '../../model';
 import { InstallCommand } from '../../../examples/code-block/1-install-command.example';
 import { WholeFile } from '../../../examples/code-block/2-whole-file.example';
-import { ColoredByTheApp } from '../../../examples/code-block/3-colored-by-the-app.example';
-import { StreamURL } from '../../../examples/code-block/4-stream-url.example';
+import { PythonFile } from '../../../examples/code-block/3-python-file.example';
+import { LineNumbers } from '../../../examples/code-block/4-line-numbers.example';
+import { AnotherLanguage } from '../../../examples/code-block/5-another-language.example';
+import { ColoredByTheApp } from '../../../examples/code-block/6-colored-by-the-app.example';
+import { StreamURL } from '../../../examples/code-block/7-stream-url.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -111,24 +114,33 @@ export const EXAMPLES: readonly DocsExample[] = [
     ]
   },
   {
-    "id": "colored-by-the-app",
-    "title": "Colored by the app",
-    "component": ColoredByTheApp,
+    "id": "python-file",
+    "title": "Python file",
+    "component": PythonFile,
     "caption": [
       {
         "kind": "paragraph",
         "spans": [
           {
             "kind": "text",
-            "text": "Code the app colored itself, as spans inside the block. They are shown in place of "
+            "text": "A Python file in the theme's code colors: "
           },
           {
             "kind": "code",
-            "text": "code"
+            "text": "language=\"python\""
           },
           {
             "kind": "text",
-            "text": ", which spells the same text and stays what Copy copies. The kit has no syntax colors of its own."
+            "text": " names its language. The highlighter and the Python grammar load the first time a block shows Python, and until they are there the block shows the code plain, in the same lines."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Switch the theme to see the colors in both schemes, then press Copy: it copies the file as given."
           }
         ]
       }
@@ -138,7 +150,212 @@ export const EXAMPLES: readonly DocsExample[] = [
     ],
     "files": [
       {
-        "name": "3-colored-by-the-app.example.ts",
+        "name": "3-python-file.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatCodeBlock } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/code-block'"],["text",";\n\n"],
+          ["keyword","const"],["text"," RUN_MODEL = "],["string","`\"\"\"Run a ResNet-50 model on one image with pyneat.\"\"\"\nfrom pathlib import Path\n\nimport numpy as np\nimport pyneat\n\nMODEL = Path(\"/data/models/resnet_50.tar.gz\")\n\n\ndef build_options(size: int) -> pyneat.ModelOptions:\n    options = pyneat.ModelOptions()\n    options.preprocess.kind = pyneat.InputKind.Image\n    options.preprocess.input_max_width = size\n    options.preprocess.input_max_height = size\n    options.preprocess.preset = pyneat.NormalizePreset.ImageNet\n    return options\n\n\nmodel = pyneat.Model(MODEL, build_options(224))\nimage = np.full((224, 224, 3), 99, dtype=np.uint8)  # a gray test frame\ntensor = pyneat.Tensor.from_numpy(image, copy=True, image_format=pyneat.PixelFormat.RGB)\noutputs = model.run([tensor], timeout_ms=2000)\nprint(f\"top1={int(np.argmax(outputs[0].to_numpy()))}\")\n`"],
+          ["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-python-file'"],["text",",\n  imports: [NeatCodeBlock],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-python-file.example.html'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," PythonFile {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," file = RUN_MODEL;\n}\n"]
+        ]
+      },
+      {
+        "name": "3-python-file.example.html",
+        "code": [
+          ["text","<neat-code-block [code]=\"file\" language=\"python\" copy=\"run_model.py\" overflow=\"scroll\" />\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "line-numbers",
+    "title": "Line numbers",
+    "component": LineNumbers,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A C++ file with its lines numbered: "
+          },
+          {
+            "kind": "code",
+            "text": "[lineNumbers]=\"true\""
+          },
+          {
+            "kind": "text",
+            "text": " adds a gutter as wide as the last number. The numbers are not part of the text."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Select a few lines and paste them somewhere: the numbers stay behind."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/code-block#NeatCodeBlock"
+    ],
+    "files": [
+      {
+        "name": "4-line-numbers.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatCodeBlock } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/code-block'"],["text",";\n\n"],
+          ["keyword","const"],["text"," RUN_MODEL = "],["string","`// Run a ResNet-50 model on one image with Neat.\n#include \"neat.h\"\n\n#include <opencv2/core.hpp>\n\n#include <iostream>\n#include <vector>\n\nint main(int argc, char** argv) {\n  if (argc < 2) {\n    std::cerr << \"Usage: run_model <model.tar.gz>\\\\n\";\n    return 1;\n  }\n  simaai::neat::Model::Options options;\n  options.preprocess.kind = simaai::neat::InputKind::Image;\n  options.preprocess.input_max_width = 224;\n  options.preprocess.input_max_height = 224;\n  options.preprocess.preset = simaai::neat::NormalizePreset::ImageNet;\n\n  simaai::neat::Model model(argv[1], options);\n  cv::Mat input(224, 224, CV_8UC3, cv::Scalar(99, 99, 99));  // a gray test frame\n  simaai::neat::TensorList outputs = model.run(std::vector<cv::Mat>{input}, /*timeout_ms=*/2000);\n\n  std::cout << \"outputs: \" << outputs.size() << \"\\\\n\";\n  return 0;\n}\n`"],
+          ["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-line-numbers'"],["text",",\n  imports: [NeatCodeBlock],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-line-numbers.example.html'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," LineNumbers {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," file = RUN_MODEL;\n}\n"]
+        ]
+      },
+      {
+        "name": "4-line-numbers.example.html",
+        "code": [
+          ["text","<neat-code-block\n  [code]=\"file\"\n  language=\"cpp\"\n  [lineNumbers]=\"true\"\n  copy=\"run_model.cpp\"\n  overflow=\"scroll\"\n/>\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "another-language",
+    "title": "Another language",
+    "component": AnotherLanguage,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A language the kit does not color by itself, a diff, added with "
+          },
+          {
+            "kind": "ref",
+            "text": "provideNeatCodeLanguages",
+            "name": "provideNeatCodeLanguages"
+          },
+          {
+            "kind": "text",
+            "text": ". Its grammar comes from Shiki's "
+          },
+          {
+            "kind": "code",
+            "text": "@shikijs/langs"
+          },
+          {
+            "kind": "text",
+            "text": " as a dynamic import, so it loads only when a block shows a diff."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Here the example's own "
+          },
+          {
+            "kind": "code",
+            "text": "providers"
+          },
+          {
+            "kind": "text",
+            "text": " add it for the blocks in its template. An app that shows diffs on many pages adds it in its "
+          },
+          {
+            "kind": "code",
+            "text": "app.config.ts"
+          },
+          {
+            "kind": "text",
+            "text": " instead."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/code-block#NeatCodeBlock",
+      "@sima/neat-ui/code-block#provideNeatCodeLanguages"
+    ],
+    "files": [
+      {
+        "name": "5-another-language.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatCodeBlock, provideNeatCodeLanguages } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/code-block'"],["text",";\n\n"],
+          ["keyword","const"],["text"," CHANGE = "],["string","`--- a/run_model.py\n+++ b/run_model.py\n@@ -21,5 +21,5 @@\n model = pyneat.Model(MODEL, build_options(224))\n image = np.full((224, 224, 3), 99, dtype=np.uint8)  # a gray test frame\n tensor = pyneat.Tensor.from_numpy(image, copy=True, image_format=pyneat.PixelFormat.RGB)\n-outputs = model.run([tensor], timeout_ms=2000)\n+outputs = model.run([tensor], timeout_ms=500)\n print(f\"top1={int(np.argmax(outputs[0].to_numpy()))}\")\n`"],
+          ["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-another-language'"],["text",",\n  imports: [NeatCodeBlock],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  providers: [provideNeatCodeLanguages({ diff: () => "],
+          ["keyword","import"],["text","("],["string","'@shikijs/langs/diff'"],["text",") })],\n  templateUrl: "],
+          ["string","'./5-another-language.example.html'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," AnotherLanguage {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," change = CHANGE;\n}\n"]
+        ]
+      },
+      {
+        "name": "5-another-language.example.html",
+        "code": [
+          ["text","<neat-code-block [code]=\"change\" language=\"diff\" copy=\"change\" overflow=\"scroll\" />\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "colored-by-the-app",
+    "title": "Colored by the app",
+    "component": ColoredByTheApp,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Code the app colored itself, as spans inside the block: runs from a highlighter of its own, as the showcase's snippets are colored at build time. They are shown in place of "
+          },
+          {
+            "kind": "code",
+            "text": "code"
+          },
+          {
+            "kind": "text",
+            "text": ", which spells the same text and stays what Copy copies. The spans take the theme's code colors, as "
+          },
+          {
+            "kind": "code",
+            "text": "--neat-code-keyword"
+          },
+          {
+            "kind": "text",
+            "text": " here. For code in a language the kit knows, "
+          },
+          {
+            "kind": "code",
+            "text": "language"
+          },
+          {
+            "kind": "text",
+            "text": " is simpler."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/code-block#NeatCodeBlock"
+    ],
+    "files": [
+      {
+        "name": "6-colored-by-the-app.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCodeBlock } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/code-block'"],["text",";\n\n"],
@@ -152,7 +369,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'string'"],["text",", text: "],["string","\"'rtsp://neat.local:8554/src3'\""],["text"," },\n  { kind: "],
           ["string","'text'"],["text",", text: "],["string","';'"],["text"," },\n];\n\n@Component({\n  selector: "],
           ["string","'app-colored-by-the-app'"],["text",",\n  imports: [NeatCodeBlock],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
-          ["string","'./3-colored-by-the-app.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./6-colored-by-the-app.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./colored-by-the-app.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ColoredByTheApp {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," runs = RUNS;\n  "],
@@ -160,7 +377,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "3-colored-by-the-app.example.html",
+        "name": "6-colored-by-the-app.example.html",
         "code": [
           ["text","<neat-code-block [code]=\"code\" copy=\"line\">\n  @for (run of runs; track $index) {\n    <span [class]=\"run.kind\">{{ run.text }}</span>\n  }\n</neat-code-block>\n"]
         ]
@@ -168,7 +385,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "colored-by-the-app.example.css",
         "code": [
-          ["comment","/* Theme colors that keep 4.5:1 on the block's --muted fill in both schemes. */"],["text","\n.keyword {\n  color: var(--highlight);\n}\n\n.string {\n  color: var(--success);\n}\n"]
+          ["comment","/* The theme's code colors, which keep 4.5:1 on the block's --muted fill in both schemes. */"],["text","\n.keyword {\n  color: var(--neat-code-keyword);\n}\n\n.string {\n  color: var(--neat-code-string);\n}\n"]
         ]
       }
     ]
@@ -203,20 +420,20 @@ export const EXAMPLES: readonly DocsExample[] = [
     ],
     "files": [
       {
-        "name": "4-stream-url.example.ts",
+        "name": "7-stream-url.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCode } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCopyButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/code-block'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-stream-url'"],["text",",\n  imports: [NeatCode, NeatCopyButton],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
-          ["string","'./4-stream-url.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./7-stream-url.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./stream-url.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," StreamURL {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," url = "],["string","'rtsp://neat.local:8554/src3'"],["text",";\n}\n"]
         ]
       },
       {
-        "name": "4-stream-url.example.html",
+        "name": "7-stream-url.example.html",
         "code": [
           ["text","<p class=\"url\">\n  The stream plays at <code neatCode>{{ url }}</code>\n  <neat-copy-button [text]=\"url\" what=\"stream URL\" />\n</p>\n"]
         ]

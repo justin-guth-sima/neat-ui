@@ -239,3 +239,63 @@ test('check-dist fails when the dist directory does not exist', () => {
 test('check-dist passes for a tree with every entry point FESM, the stylesheet, and no @neat-ui/helm reference', () => {
   assert.deepEqual(findProblems(distWith(SHIPPABLE)), []);
 });
+
+const CODE_BLOCK = entryFesm('code-block');
+
+test('check-dist leaves the code block’s dynamic imports of Shiki and its grammars alone', () => {
+  const lazy = [
+    'const shiki = () => Promise.all([import("@shikijs/primitive"), import("@shikijs/engine-javascript")]);',
+    "const python = () => import('@shikijs/langs/python');",
+  ].join('\n');
+  const types =
+    "/** rust: () => import('@shikijs/langs/rust') */\nexport type NeatCodeLanguages = object;\n";
+  assert.deepEqual(
+    findProblems(
+      distWith({
+        ...SHIPPABLE,
+        [CODE_BLOCK]: lazy,
+        'types/sima-neat-ui-code-block.d.ts': types,
+        'package.json': '{ "dependencies": { "@shikijs/langs": "4.6.0" } }',
+      }),
+    ),
+    [],
+  );
+});
+
+test('check-dist fails a static import or export of Shiki, in the code block too', () => {
+  for (const statement of [
+    'import { createShikiPrimitive } from "@shikijs/primitive";',
+    'import python from "@shikijs/langs/python";',
+    'import "@shikijs/engine-javascript";',
+    'export * from "shiki/core";',
+  ]) {
+    const problems = findProblems(distWith({ ...SHIPPABLE, [CODE_BLOCK]: statement }));
+    assert.equal(problems.length, 1, statement);
+    assert.match(problems[0], /statically/, statement);
+  }
+  const typed = "import { ThemedToken } from '@shikijs/primitive';\n";
+  const problems = findProblems(
+    distWith({ ...SHIPPABLE, 'types/sima-neat-ui-code-block.d.ts': typed }),
+  );
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /statically/);
+});
+
+test('check-dist fails another entry that names Shiki, even lazily', () => {
+  const lazy = "const python = () => import('@shikijs/langs/python');";
+  const problems = findProblems(distWith({ ...SHIPPABLE, [SEGMENTED]: lazy }));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /only @sima\/neat-ui\/code-block/);
+});
+
+test('check-dist fails a module that holds a TextMate grammar', () => {
+  const grammar = 'const lang = { name: "python", scopeName: "source.python", patterns: [] };';
+  const problems = findProblems(distWith({ ...SHIPPABLE, [CODE_BLOCK]: grammar }));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /TextMate grammar/);
+});
+
+test('check-dist leaves alone names that only start with shiki', () => {
+  const code = 'import { x } from "shikiji-like";\nimport { y } from "@shikijsx/core";';
+  assert.deepEqual(findProblems(distWith({ ...SHIPPABLE, [SEGMENTED]: code })), []);
+});
