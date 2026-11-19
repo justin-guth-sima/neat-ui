@@ -76,8 +76,24 @@ export function applyLineStyle(
 }
 
 /**
+ * A label plate's height and its text's baseline above the plate's bottom, in CSS pixels, for each
+ * of the overlay fonts.
+ */
+const LABEL_PLATES: Readonly<Record<keyof OverlayFonts, { height: number; baseline: number }>> = {
+  label: { height: 18, baseline: 3 },
+  large: { height: 21, baseline: 5 },
+};
+
+/** The height of a label plate in `font`, in CSS pixels, for overlays that stack plates. */
+export function labelPlateHeight(font: keyof OverlayFonts): number {
+  return LABEL_PLATES[font].height;
+}
+
+/**
  * A label in `color` on a dark plate whose bottom-left is at (x, y), kept inside the top edge. In a
- * mirrored view the plate's bottom-right is at (x, y) and the text still reads left to right.
+ * mirrored view the plate's bottom-right is at (x, y) and the text still reads left to right. The
+ * plate is the one backing of the overlays' text, so a label in any class color reads over any
+ * picture.
  */
 export function drawLabelPlate(
   dc: DrawContext,
@@ -85,21 +101,26 @@ export function drawLabelPlate(
   x: number,
   y: number,
   color: string,
+  font: keyof OverlayFonts = 'label',
 ): void {
   const { ctx } = dc;
   const paddingX = 4;
-  const paddingY = 3;
-  const height = 18;
-  ctx.font = dc.fonts.label;
+  const { height, baseline } = LABEL_PLATES[font];
+  ctx.font = dc.fonts[font];
   const width = ctx.measureText(text).width + paddingX * 2;
   const labelY = Math.max(height + 2, y);
   ctx.fillStyle = OVERLAY_LABEL_PLATE_COLOR;
   ctx.fillRect(dc.mirrored ? x - width : x, labelY - height, width, height);
   ctx.fillStyle = color;
-  ctx.fillText(text, dc.mirrored ? x - paddingX : x + paddingX, labelY - paddingY);
+  ctx.fillText(text, dc.mirrored ? x - paddingX : x + paddingX, labelY - baseline);
 }
 
-/** A confidence in 0..1 as a whole percentage. */
-export function percent(confidence: unknown): number {
-  return Math.round(Number(confidence) * 100);
+/**
+ * `text` with its confidence after it as a whole percentage, "car (87%)", or `text` alone when the
+ * confidence is missing or not a finite number, so a message without one never reads "(NaN%)".
+ * Every overlay that shows a confidence words it here.
+ */
+export function withConfidence(text: string, confidence: unknown): string {
+  if (typeof confidence !== 'number' || !Number.isFinite(confidence)) return text;
+  return `${text} (${Math.round(confidence * 100)}%)`;
 }

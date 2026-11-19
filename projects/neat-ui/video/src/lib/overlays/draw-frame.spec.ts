@@ -478,8 +478,9 @@ describe('drawFrame', () => {
         expect(label.textAlign).toBe('right');
         expect(label.transform[0]).toBeGreaterThan(0);
       }
-      // The classification list stands in the top-right corner, as the picture's top-left does.
-      expect(labels[1].args).toStrictEqual(['cat (50%)', 630, 20]);
+      // The classification list stands in the top-right corner, as the picture's top-left does:
+      // its plate ends 8 px from the edge, its text 4 px inside the plate, on the plate's baseline.
+      expect(labels[1].args).toStrictEqual(['cat (50%)', 628, 24]);
     });
 
     it('puts a label plate left of its anchor so it stays over the picture', () => {

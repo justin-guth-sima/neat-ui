@@ -183,3 +183,27 @@ describe('segmentation overlay', () => {
     expect(String(warn.mock.calls[1][0])).toContain('channel 1');
   });
 });
+
+describe('the segmentation caption', () => {
+  it('shows the label alone for a segment without a finite confidence, which still draws', () => {
+    const triangle = (x: number) => [
+      [x, 0],
+      [x + 40, 0],
+      [x + 20, 40],
+    ];
+    const ctx = drawMessages(
+      overlayState(),
+      overlaySettings({ types: { segmentation: { confidenceThreshold: 0.5 } } }),
+      [
+        segmentation([
+          { label: 'road', confidence: 0.75, mask_format: 'polygon', mask: triangle(0) },
+          { label: 'sky', mask_format: 'polygon', mask: triangle(100) },
+          { label: 'tree', confidence: Number.NaN, mask_format: 'polygon', mask: triangle(200) },
+        ]),
+      ],
+      { view: VIEW },
+    );
+
+    expect(ctx.ops('fillText').map((call) => call.args[0])).toEqual(['road (75%)', 'sky', 'tree']);
+  });
+});

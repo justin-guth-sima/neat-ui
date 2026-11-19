@@ -166,6 +166,11 @@ look happens in one place. Every rule here protects that.
     a hand (MediaPipe's 21 snake-case landmarks, `wrist` to `pinky_tip`) from one message: the
     two name sets are disjoint, so one link list serves both. Its `showBoxes` setting turns the
     box and label plate off, and `objects` rows (as for detections) style a pose by its `label`.
+    The overlays word a confidence in one place (`withConfidence` in `overlays/draw-context.ts`):
+    "car (87%)", or the label alone when the confidence is missing or not a finite number. The
+    labels of tracks and poses and the classification list sit on the one label plate
+    (`drawLabelPlate`); the list is laid out in CSS pixels from the picture's top-left corner, so
+    its rows never overlap on a small tile.
     `NeatVideoTile`'s `mirror` shows the picture as in a mirror (a selfie view): the video flips by
     the stylesheet (`data-mirrored`) and every overlay's geometry flips in the one mapping
     strategies read (`mirrorLetterbox`, so a rectangle's width goes negative), while text stays

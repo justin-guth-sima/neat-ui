@@ -1,5 +1,5 @@
 import type { DrawStrategy } from '../draw-context';
-import { applyLineStyle, classStyles, itemColor, percent, styleFor } from '../draw-context';
+import { applyLineStyle, classStyles, itemColor, styleFor, withConfidence } from '../draw-context';
 import { drawRoiOnce, passesRoiFilter } from '../roi';
 
 /** The fields of an `object-detection` payload this overlay reads. */
@@ -12,7 +12,10 @@ interface DetectionData {
   }>;
 }
 
-/** Boxes with a `label (confidence%)` caption, in the class color. */
+/**
+ * Boxes with a `label (confidence%)` caption in the class color, the label alone for an object
+ * without a confidence.
+ */
 export const drawObjectDetection: DrawStrategy = (dc, data) => {
   const objects = (data as DetectionData | null | undefined)?.objects;
   if (!objects) return;
@@ -42,7 +45,7 @@ export const drawObjectDetection: DrawStrategy = (dc, data) => {
       h * box.scaleY,
     );
     ctx.fillText(
-      `${object.label} (${percent(object.confidence)}%)`,
+      withConfidence(String(object.label), object.confidence),
       (x + 2) * box.scaleX + box.offsetX,
       (y - 6) * box.scaleY + box.offsetY,
     );

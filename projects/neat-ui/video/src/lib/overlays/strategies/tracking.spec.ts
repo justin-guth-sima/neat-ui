@@ -131,3 +131,22 @@ describe('tracking overlay', () => {
     expect(colorOfText(ctx, 'person')).toBe(OVERLAY_NEUTRAL_COLOR);
   });
 });
+
+describe('the tracking label', () => {
+  it('shows a confidence only when it is a finite number', () => {
+    const ctx = draw(
+      overlayState(),
+      tracking([
+        { ...track('1', 'car'), confidence: 0.5 },
+        { ...track('2', 'bus', 100), confidence: Number.NaN },
+        { ...track('3', 'van', 200), confidence: undefined },
+      ]),
+    );
+
+    expect(ctx.ops('fillText').map((call) => call.args[0])).toEqual([
+      'car #1 (50%)',
+      'bus #2',
+      'van #3',
+    ]);
+  });
+});

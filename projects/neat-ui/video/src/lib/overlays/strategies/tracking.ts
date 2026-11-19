@@ -1,6 +1,6 @@
 import type { NeatOverlaySettings } from '../overlay-settings';
 import type { DrawContext, DrawStrategy, TrackTrail } from '../draw-context';
-import { drawLabelPlate, itemColor, percent } from '../draw-context';
+import { drawLabelPlate, itemColor, withConfidence } from '../draw-context';
 import { drawRoiOnce, passesRoiFilter } from '../roi';
 
 interface Track {
@@ -146,8 +146,7 @@ export const drawTracking: DrawStrategy = (dc, data) => {
     ctx.strokeRect(left, top, w * box.scaleX, h * box.scaleY);
 
     const idText = hasId(track.id) ? ` #${track.id}` : '';
-    const confidence =
-      typeof track.confidence === 'number' ? ` (${percent(track.confidence)}%)` : '';
-    drawLabelPlate(dc, `${track.label || 'track'}${idText}${confidence}`, left, top - 6, color);
+    const text = withConfidence(`${track.label || 'track'}${idText}`, track.confidence);
+    drawLabelPlate(dc, text, left, top - 6, color);
   }
 };

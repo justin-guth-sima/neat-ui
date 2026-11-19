@@ -90,3 +90,22 @@ describe('object detection overlay', () => {
     expect(new Set(colors).size).toBe(new Set(OVERLAY_PALETTE).size);
   });
 });
+
+describe('the object detection caption', () => {
+  it('shows the label alone for an object without a finite confidence', () => {
+    const ctx = drawMessages(overlayState(), overlaySettings(), [
+      {
+        type: 'object-detection',
+        data: {
+          objects: [
+            { label: 'car', confidence: 0.42, bbox: [0, 10, 50, 50] },
+            { label: 'bus', bbox: [100, 10, 50, 50] },
+            { label: 'van', confidence: Number.NaN, bbox: [200, 10, 50, 50] },
+          ],
+        },
+      },
+    ]);
+
+    expect(ctx.ops('fillText').map((call) => call.args[0])).toEqual(['car (42%)', 'bus', 'van']);
+  });
+});

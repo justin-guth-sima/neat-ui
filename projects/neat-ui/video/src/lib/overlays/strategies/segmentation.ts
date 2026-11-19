@@ -1,5 +1,5 @@
 import type { DrawContext, DrawStrategy } from '../draw-context';
-import { applyLineStyle, classStyles, itemColor, percent, styleFor } from '../draw-context';
+import { applyLineStyle, classStyles, itemColor, styleFor, withConfidence } from '../draw-context';
 import { MAX_RLE_MASK_PIXELS } from '../rle';
 import { drawRoiOnce, passesRoiFilter } from '../roi';
 
@@ -123,9 +123,8 @@ export const drawSegmentation: DrawStrategy = (dc, data) => {
 
   const { styles, overrides } = classStyles(type.objects);
   for (const segment of segments as Segment[]) {
-    // A segment without a confidence counts as fully confident.
-    const confidence = segment.confidence ?? 1;
-    if (Number(confidence) < type.confidenceThreshold) continue;
+    // A segment without a confidence counts as fully confident; its caption shows none.
+    if (Number(segment.confidence ?? 1) < type.confidenceThreshold) continue;
     if (segment.mask_format !== 'polygon' && segment.mask_format !== 'rle') continue;
 
     let bbox =
@@ -180,7 +179,7 @@ export const drawSegmentation: DrawStrategy = (dc, data) => {
       );
     }
     ctx.fillText(
-      `${segment.label} (${percent(confidence)}%)`,
+      withConfidence(String(segment.label), segment.confidence),
       (bbox[0] + 2) * box.scaleX + box.offsetX,
       (bbox[1] - 6) * box.scaleY + box.offsetY,
     );

@@ -1,4 +1,12 @@
-import { colorOfText, drawMessages, overlaySettings, overlayState, VIEW } from '../spec-helpers';
+import { OVERLAY_LABEL_PLATE_COLOR } from '../../theme/overlay-palette';
+import {
+  colorOfText,
+  drawMessages,
+  overlaySettings,
+  overlayState,
+  texts,
+  VIEW,
+} from '../spec-helpers';
 
 const VIEW_720P = { ...VIEW, cssWidth: 1280, cssHeight: 720, videoWidth: 1280, videoHeight: 720 };
 
@@ -55,5 +63,69 @@ describe('classification overlay', () => {
       colorOfText(classificationCalls, label),
     );
     expect(new Set(classificationColors).size).toBe(3);
+  });
+});
+
+describe('the classification list', () => {
+  const draw = (topClasses: unknown[], view = VIEW) =>
+    drawMessages(
+      overlayState(),
+      overlaySettings(),
+      [{ type: 'classification', data: { top_classes: topClasses } }],
+      { view },
+    );
+
+  it('shows a class alone when its confidence is missing or not a finite number', () => {
+    const ctx = draw([
+      { label: 'cat', confidence: 0.87 },
+      { label: 'dog' },
+      { label: 'fox', confidence: Number.NaN },
+    ]);
+
+    expect(texts(ctx)).toEqual(['cat (87%)', 'dog', 'fox']);
+  });
+
+  it('puts each class on a label plate, the plates stacked without overlapping', () => {
+    const ctx = draw([
+      { label: 'cat', confidence: 0.6 },
+      { label: 'dog', confidence: 0.3 },
+      { label: 'fox', confidence: 0.1 },
+    ]);
+    const plates = ctx.ops('fillRect');
+
+    expect(plates.map((plate) => plate.fillStyle)).toEqual(
+      Array(3).fill(OVERLAY_LABEL_PLATE_COLOR),
+    );
+    const rows = plates.map(({ args: [, y, , height] }) => [y as number, height as number]);
+    for (let i = 1; i < rows.length; i++) {
+      expect(rows[i][0]).toBeGreaterThanOrEqual(rows[i - 1][0] + rows[i - 1][1]);
+    }
+    // Each text in its class color on top of its plate, in the larger overlay font.
+    expect(ctx.calls.map((call) => call.op).filter((op) => op !== 'clearRect')).toEqual([
+      'fillRect',
+      'fillText',
+      'fillRect',
+      'fillText',
+      'fillRect',
+      'fillText',
+    ]);
+    expect(ctx.ops('fillText').every((call) => call.font.startsWith('16px'))).toBe(true);
+  });
+
+  it('keeps its rows apart on a picture shown small, in the picture’s corner', () => {
+    const small = { ...VIEW, cssWidth: 320, cssHeight: 240, videoWidth: 1920, videoHeight: 1080 };
+    const ctx = draw(
+      [
+        { label: 'cat', confidence: 0.6 },
+        { label: 'dog', confidence: 0.3 },
+      ],
+      small,
+    );
+    const [first, second] = ctx.ops('fillRect').map(({ args }) => args as number[]);
+    const pictureTop = (240 - (320 * 1080) / 1920) / 2;
+
+    expect(second[1]).toBeGreaterThanOrEqual(first[1] + first[3]);
+    expect(first[0]).toBe(8);
+    expect(first[1]).toBe(pictureTop + 8);
   });
 });
