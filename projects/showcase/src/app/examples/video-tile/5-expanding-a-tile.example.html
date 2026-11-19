@@ -1,0 +1,16 @@
+<div class="showcase-row">
+  <button neatButton type="button" variant="outlined" size="small" (click)="expanded.set(true)">
+    Expand the tile
+  </button>
+</div>
+<div class="tiles">
+  <div class="cell">
+    <neat-video-tile
+      [source]="testPattern"
+      label="Camera 1"
+      status="Test pattern · 640×360 · 30 fps"
+      expandControl
+      [(expanded)]="expanded"
+    />
+  </div>
+</div>

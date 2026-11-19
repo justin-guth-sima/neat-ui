@@ -236,6 +236,19 @@ export const GROUPS: readonly TopicGroup[] = [
           return { entries: [api.API], examples: examples.EXAMPLES };
         },
       },
+      {
+        id: 'expand',
+        label: 'Expand',
+        parts: ['NeatExpand'],
+        leads: ['NeatExpand'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/expand'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
     ],
   },
   {

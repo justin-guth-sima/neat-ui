@@ -17,6 +17,7 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 - [Page](layout/page.md)
 - [Aside](layout/aside.md)
 - [Prose](layout/prose.md)
+- [Expand](layout/expand.md)
 
 ## Actions
 

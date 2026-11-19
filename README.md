@@ -179,7 +179,7 @@ Also: Tokens, Icon finder.
 
 ### Layout
 
-In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [Aside](docs/layout/aside.md), [Prose](docs/layout/prose.md).
+In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [Aside](docs/layout/aside.md), [Prose](docs/layout/prose.md), [Expand](docs/layout/expand.md).
 
 ### Actions
 

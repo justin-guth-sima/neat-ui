@@ -1,0 +1,4 @@
+/* The chart takes the height the card's content has: its medium plot in place, the window's expanded. */
+neat-time-chart {
+  height: 100%;
+}

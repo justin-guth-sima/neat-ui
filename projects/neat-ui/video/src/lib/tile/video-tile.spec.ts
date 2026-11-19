@@ -131,7 +131,7 @@ function hostObserver(): FakeResizeObserver {
       [settings]="settings()"
       [retentionMs]="retentionMs()"
       [channel]="3"
-      label="3"
+      [label]="label()"
       [status]="status()"
       [bars]="bars()"
       [notice]="notice()"
@@ -139,6 +139,8 @@ function hostObserver(): FakeResizeObserver {
       [selected]="selected()"
       [mirror]="mirror()"
       [frameListener]="frameListener()"
+      [expandControl]="expandControl()"
+      [(expanded)]="expanded"
       (stateChange)="states.push($event)"
       (frameStats)="stats.push($event)"
     >
@@ -151,6 +153,7 @@ class Host {
   readonly source = signal<NeatTileSource | null>(null);
   readonly settings = signal<NeatOverlaySettings>(NEAT_OVERLAY_DEFAULTS);
   readonly retentionMs = signal(0);
+  readonly label = signal('3');
   readonly status = signal<string | null>('H.264 · 640×480 · 30.0 fps');
   readonly bars = signal(true);
   readonly notice = signal<string | null>(null);
@@ -158,6 +161,8 @@ class Host {
   readonly selected = signal(false);
   readonly mirror = signal(false);
   readonly frameListener = signal<NeatTileFrameListener | null>(null);
+  readonly expandControl = signal(false);
+  readonly expanded = signal(false);
   readonly states: NeatTileState[] = [];
   readonly stats: NeatFrameStats[] = [];
   /** Application renders, whichever views they refresh. */
@@ -655,7 +660,8 @@ describe('NeatVideoTile', () => {
 
   describe('notice', () => {
     const noVideoNote = () => tileElement().querySelector('.no-video');
-    const chip = () => tileElement().querySelector<HTMLElement>('.picture .notice neat-status-chip');
+    const chip = () =>
+      tileElement().querySelector<HTMLElement>('.picture .notice neat-status-chip');
 
     it('without video, says the notice centered in place of the no-video note, with or without bars', () => {
       create();
@@ -727,9 +733,7 @@ describe('NeatVideoTile', () => {
       expect([left, top, width, height]).toEqual(['200px', '0px', '400px', '300px']);
 
       const layer = tileElement().querySelector('.overlay-slot')!;
-      expect(layer.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(
-        0,
-      );
+      expect(layer.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
       expect(Number(getComputedStyle(picture).zIndex)).toBe(1);
       expect(getComputedStyle(picture).pointerEvents).toBe('none');
     });
@@ -1306,6 +1310,55 @@ describe('NeatVideoTile', () => {
       host().settings.set(overlaySettings({ types: { 'object-detection': { objects: [row] } } }));
       render();
       expect(color()).toBe(OVERLAY_PALETTE[5]);
+    });
+  });
+
+  describe('expandControl', () => {
+    const button = () => tileElement().querySelector<HTMLButtonElement>('button.expand');
+
+    it('gives the tile no button of its own by default', () => {
+      create();
+
+      expect(button()).toBeNull();
+    });
+
+    it('shows the tile over the window from its button, named for the tile, and puts it back', () => {
+      create();
+      host().expandControl.set(true);
+      render();
+      expect(button()?.getAttribute('aria-label')).toBe('Expand 3');
+
+      button()!.click();
+      render();
+      expect(host().expanded()).toBe(true);
+      expect(tileElement().hasAttribute('data-neat-expanded')).toBe(true);
+      expect(button()?.getAttribute('aria-label')).toBe('Close');
+
+      button()!.click();
+      render();
+      expect(host().expanded()).toBe(false);
+      expect(tileElement().hasAttribute('data-neat-expanded')).toBe(false);
+    });
+
+    it('follows the app’s own state, with or without the button', () => {
+      create();
+
+      host().expanded.set(true);
+      render();
+      expect(tileElement().hasAttribute('data-neat-expanded')).toBe(true);
+      tileElement().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      render();
+      expect(host().expanded()).toBe(false);
+    });
+
+    it('is named "Expand" alone for a tile without a label', () => {
+      create();
+      host().expandControl.set(true);
+      render();
+      host().label.set('');
+      render();
+
+      expect(button()?.getAttribute('aria-label')).toBe('Expand');
     });
   });
 

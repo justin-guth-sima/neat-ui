@@ -96,39 +96,65 @@ export class OverlayFocus {
   }
 
   /**
-   * The tabbable elements under `root` in document order, as CDK's focus trap judges them
-   * (`InteractivityChecker`): it knows tabindex, disabled and hidden elements, which a selector
-   * list would get wrong. The overlay container's subtree is left out when `root` holds it.
+   * The tabbable elements under `root` in document order (the module's `tabbablesIn`). The overlay
+   * container's subtree is left out when `root` holds it.
    */
   tabbablesIn(root: Node): HTMLElement[] {
-    const walker = this.tabbableWalker(root, this.overlayContainer.getContainerElement());
-    const found: HTMLElement[] = [];
-    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-      found.push(node as HTMLElement);
-    }
-    return found;
+    return tabbablesIn(
+      this.document,
+      this.interactivity,
+      root,
+      this.overlayContainer.getContainerElement(),
+    );
   }
 
   /** The first tabbable element after the trigger in the page, outside the overlay container. */
   private tabbableAfterTrigger(): HTMLElement | null {
-    const walker = this.tabbableWalker(
+    const walker = tabbableWalker(
+      this.document,
+      this.interactivity,
       this.document.body,
       this.overlayContainer.getContainerElement(),
     );
     walker.currentNode = this.trigger();
     return walker.nextNode() as HTMLElement | null;
   }
+}
 
-  /** A walker over `root`'s tabbable elements that does not enter `excluded`. */
-  private tabbableWalker(root: Node, excluded: Element): TreeWalker {
-    return this.document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, (node) => {
-      if (node === excluded) {
-        return NodeFilter.FILTER_REJECT;
-      }
-      const element = node as HTMLElement;
-      return this.interactivity.isTabbable(element) && !this.interactivity.isDisabled(element)
-        ? NodeFilter.FILTER_ACCEPT
-        : NodeFilter.FILTER_SKIP;
-    });
+/**
+ * The tabbable elements under `root` in document order, leaving out `excluded`'s subtree. They are
+ * judged as CDK's focus trap judges them (`InteractivityChecker`), which knows tabindex, disabled
+ * and hidden elements that a selector list would get wrong, and a disabled control is skipped,
+ * which CDK's `isTabbable` counts. `OverlayFocus` and `NeatExpand`'s Tab order share it.
+ */
+export function tabbablesIn(
+  document: Document,
+  interactivity: InteractivityChecker,
+  root: Node,
+  excluded: Element | null = null,
+): HTMLElement[] {
+  const walker = tabbableWalker(document, interactivity, root, excluded);
+  const found: HTMLElement[] = [];
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    found.push(node as HTMLElement);
   }
+  return found;
+}
+
+/** A walker over `root`'s tabbable elements that does not enter `excluded`. */
+function tabbableWalker(
+  document: Document,
+  interactivity: InteractivityChecker,
+  root: Node,
+  excluded: Element | null,
+): TreeWalker {
+  return document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, (node) => {
+    if (node === excluded) {
+      return NodeFilter.FILTER_REJECT;
+    }
+    const element = node as HTMLElement;
+    return interactivity.isTabbable(element) && !interactivity.isDisabled(element)
+      ? NodeFilter.FILTER_ACCEPT
+      : NodeFilter.FILTER_SKIP;
+  });
 }

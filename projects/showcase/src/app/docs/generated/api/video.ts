@@ -2140,6 +2140,70 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
+              "text": "With "
+            },
+            {
+              "kind": "code",
+              "text": "expandControl"
+            },
+            {
+              "kind": "text",
+              "text": " on, a button in the tile's top-left corner shows it over the whole window and puts it back ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatExpand",
+              "name": "NeatExpand"
+            },
+            {
+              "kind": "text",
+              "text": ", which the tile carries itself). It shows while the pointer is over the tile or the button has the keyboard's focus, and always while the tile is expanded:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-video-tile [source]=\"source\" label=\"Camera 1\" expandControl />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The tile's own "
+            },
+            {
+              "kind": "code",
+              "text": "expanded"
+            },
+            {
+              "kind": "text",
+              "text": " model is that state, so an app can open the tile from a control of its own and follow it: "
+            },
+            {
+              "kind": "code",
+              "text": "[(expanded)]=\"large\""
+            },
+            {
+              "kind": "text",
+              "text": ". Do not put "
+            },
+            {
+              "kind": "code",
+              "text": "neatExpand"
+            },
+            {
+              "kind": "text",
+              "text": " on a tile as well: Angular refuses a directive twice on one element in dev mode. The same live tile is shown, so the video plays on and the overlays take the new size."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
               "text": "The frame loop runs outside Angular and touches no signal. Per frame, it matches the queued metadata to the presented frame, holds a type that is missing for a moment, and draws. The component sees a state change and, at most once a second, "
             },
             {
@@ -2490,6 +2554,75 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "It is for an app that acts on a frame's metadata in step with the picture, such as counting poses. It runs outside Angular. A listener that throws is logged once per tile, and the frames keep drawing."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "expandControl",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Gives the tile a button that shows it over the whole window and puts it back, off by default."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The button sits in the tile's top-left corner. It shows while the pointer is over the tile or the button has the keyboard's focus, and always while the tile is expanded. It is named \"Expand\" and the tile's "
+                },
+                {
+                  "kind": "code",
+                  "text": "label"
+                },
+                {
+                  "kind": "text",
+                  "text": " (\"Expand Camera 1\") while the tile is in its place, and \"Close\" while it is expanded. Escape closes the tile too."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "models": [
+        {
+          "name": "expanded",
+          "type": "boolean",
+          "forwarded": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the tile is shown over the whole window ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatExpand",
+                  "name": "NeatExpand"
+                },
+                {
+                  "kind": "text",
+                  "text": "), false by default. Bind it two-way to open the tile from the app's own control and follow it: the tile's button and Escape change it too. "
+                },
+                {
+                  "kind": "code",
+                  "text": "expandControl"
+                },
+                {
+                  "kind": "text",
+                  "text": " gives the tile a button of its own."
                 }
               ]
             }

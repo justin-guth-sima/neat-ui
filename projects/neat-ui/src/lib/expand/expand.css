@@ -1,0 +1,42 @@
+/*
+ * The look of an element shown over the whole window (`NeatExpand`), compiled into the kit
+ * stylesheet: a stylesheet of the kit's own, since the element is the app's (a card, a div) or
+ * another component's host (the video tile), which no component's encapsulated styles reach.
+ *
+ * Both rules apply only while the host is open in the top layer (`:popover-open`), which also
+ * replaces the browser's own popover look (centered, fit to content, a border, `Canvas` colors).
+ */
+
+/*
+ * Where it is: over the whole window. Unlayered and two selectors strong, so it outweighs the
+ * host's own sizing and positioning, from its component's styles (`:host`) or from the app's. No
+ * focus outline: the focus is on the host itself only after a control outside it opened it, and a
+ * ring round the whole window would mark nothing.
+ */
+[data-neat-expanded]:popover-open {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border-radius: 0;
+  outline: none;
+  overscroll-behavior: contain;
+}
+
+/*
+ * What it looks like where the host says nothing: in the base layer, so the host's own fill, text
+ * color and overflow (a card's utilities, a tile's `:host`) win, and a plain element still covers
+ * the page in the page's colors instead of the browser's. No padding: the host keeps its own,
+ * since a component that lays its parts over its whole box (the video tile) measures its content
+ * box, which a padding would shrink under them.
+ */
+@layer base {
+  [data-neat-expanded]:popover-open {
+    overflow: auto;
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}

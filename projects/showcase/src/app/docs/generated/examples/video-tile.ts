@@ -4,6 +4,7 @@ import { TestPatternTiles } from '../../../examples/video-tile/1-test-pattern-ti
 import { Poses } from '../../../examples/video-tile/2-poses.example';
 import { Notice } from '../../../examples/video-tile/3-notice.example';
 import { TrackColors } from '../../../examples/video-tile/4-track-colors.example';
+import { ExpandingATile } from '../../../examples/video-tile/5-expanding-a-tile.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -710,6 +711,159 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/* The tile and the list side by side, the list below the tile where they do not fit. */"],["text","\n.track-colors {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n"],
           ["comment","/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */"],["text","\n.cell {\n  aspect-ratio: 16 / 9;\n}\n\n"],
           ["comment","/* A track's swatch before its id, as in a legend. */"],["text","\n.track {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "expanding-a-tile",
+    "title": "Expanding a tile",
+    "component": ExpandingATile,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "code",
+            "text": "expandControl"
+          },
+          {
+            "kind": "text",
+            "text": " gives the tile a button in its top-left corner that shows it over the whole window, and puts it back. The video plays on, and the detections take the new size."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Hover the tile, or Tab to its button, and press it; Close or Escape puts it back. The button above the tile opens it through the tile's "
+          },
+          {
+            "kind": "code",
+            "text": "expanded"
+          },
+          {
+            "kind": "text",
+            "text": ", bound to the app's own state. The tile's button and Escape set that state back."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui#NeatButton",
+      "@sima/neat-ui/video#NeatVideoTile"
+    ],
+    "files": [
+      {
+        "name": "5-expanding-a-tile.example.ts",
+        "code": [
+          ["keyword","import"],["text"," {\n  afterNextRender,\n  ChangeDetectionStrategy,\n  Component,\n  DestroyRef,\n  DOCUMENT,\n  inject,\n  signal,\n} "],
+          ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatVideoTile } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n"],
+          ["keyword","import"],["text"," { TestPatternSource } "],["keyword","from"],["text"," "],["string","'./test-pattern-source'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-expanding-a-tile'"],["text",",\n  imports: [NeatButton, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./5-expanding-a-tile.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./test-pattern-tiles.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," ExpandingATile {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," testPattern = "],["keyword","new"],["text"," TestPatternSource();\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," expanded = signal("],["keyword","false"],["text",");\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","const"],["text"," document = inject(DOCUMENT);\n    afterNextRender(() => "],
+          ["keyword","this"],["text",".testPattern.start(document));\n    inject(DestroyRef).onDestroy(() => "],
+          ["keyword","this"],["text",".testPattern.stop());\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "5-expanding-a-tile.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatButton type=\"button\" variant=\"outlined\" size=\"small\" (click)=\"expanded.set(true)\">\n    Expand the tile\n  </button>\n</div>\n<div class=\"tiles\">\n  <div class=\"cell\">\n    <neat-video-tile\n      [source]=\"testPattern\"\n      label=\"Camera 1\"\n      status=\"Test pattern · 640×360 · 30 fps\"\n      expandControl\n      [(expanded)]=\"expanded\"\n    />\n  </div>\n</div>\n"]
+        ]
+      },
+      {
+        "name": "test-pattern-source.ts",
+        "code": [
+          ["keyword","import"],["text"," { SIMA_PALETTE } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { CanvasSource, HEIGHT, WIDTH } "],["keyword","from"],["text"," "],["string","'./canvas-source'"],["text",";\n\n"],
+          ["keyword","const"],["text"," BAR_COLORS = [\n  SIMA_PALETTE.orange,\n  SIMA_PALETTE.purple,\n  SIMA_PALETTE.blue,\n  SIMA_PALETTE.mint,\n  SIMA_PALETTE.green,\n  SIMA_PALETTE.lime,\n];\n"],
+          ["keyword","const"],["text"," BOX = { width: 120, height: 90 };\n"],
+          ["comment","/** Detections come every other frame, as from a model slower than the video; held between. */"],["text","\n"],
+          ["keyword","const"],["text"," DETECTION_EVERY = 2;\n\n"],
+          ["comment","/**\n * A canvas test pattern, with object-detection metadata for the box moving across it: one type,\n * as the tile matches a canvas stream's metadata by arrival. Pausing stops painting, so the stream\n * presents no frames and the tile goes stopped.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," TestPatternSource "],["keyword","extends"],["text"," CanvasSource {\n  "],
+          ["keyword","private"],["text"," frame = 0;\n  "],
+          ["keyword","private"],["text"," paused = "],["keyword","false"],["text",";\n\n  setPaused(paused: "],
+          ["keyword","boolean"],["text","): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".paused = paused;\n  }\n\n  "],
+          ["keyword","protected"],["text"," paint(ctx: CanvasRenderingContext2D): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","if"],["text"," ("],["keyword","this"],["text",".paused) "],["keyword","return"],["text",";\n    "],
+          ["keyword","const"],["text"," barWidth = WIDTH / BAR_COLORS.length;\n    BAR_COLORS.forEach((color, i) => {\n      ctx.fillStyle = color;\n      ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);\n    });\n\n    "],
+          ["comment","// The box bounces between the edges, four pixels per frame."],["text","\n    "],
+          ["keyword","const"],["text"," travel = WIDTH - BOX.width;\n    "],
+          ["keyword","const"],["text"," step = ("],["keyword","this"],["text",".frame * 4) % (2 * travel);\n    "],
+          ["keyword","const"],["text"," x = step < travel ? step : 2 * travel - step;\n    "],
+          ["keyword","const"],["text"," y = (HEIGHT - BOX.height) / 2;\n    ctx.fillStyle = SIMA_PALETTE.text;\n    ctx.fillRect(x, y, BOX.width, BOX.height);\n    ctx.fillStyle = SIMA_PALETTE.white;\n    ctx.font = "],
+          ["string","'500 20px sans-serif'"],["text",";\n    ctx.fillText(String("],
+          ["keyword","this"],["text",".frame), x + 12, y + 32);\n\n    "],
+          ["keyword","if"],["text"," ("],["keyword","this"],["text",".frame % DETECTION_EVERY === 0) {\n      "],
+          ["keyword","this"],["text",".send({\n        type: "],
+          ["string","'object-detection'"],["text",",\n        data: {\n          objects: [{ label: "],
+          ["string","'box'"],["text",", confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] }],\n        },\n      });\n    }\n    "],
+          ["keyword","this"],["text",".frame += 1;\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "canvas-source.ts",
+        "code": [
+          ["keyword","import"],["text"," { signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatMetadataMessage, NeatTileSource } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," WIDTH = 640;\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," HEIGHT = 360;\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," FRAMES_PER_SECOND = 30;\n\n"],
+          ["comment","/**\n * What the showcase's sources share, so a tile plays without vf: a canvas streamed with\n * `captureStream()`, painted 30 times a second, and the metadata listeners. Each source paints a\n * frame and sends the metadata that describes it. A canvas stream has no RTP timestamps, so the\n * tile matches metadata by arrival, which takes only the latest message: hence one type a source.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","abstract"],["text"," "],["keyword","class"],["text"," CanvasSource "],["keyword","implements"],["text"," NeatTileSource {\n  "],
+          ["keyword","readonly"],["text"," stream = signal<MediaStream | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," listeners = "],["keyword","new"],["text"," Set<(text: "],["keyword","string"],["text",", receivedAt: "],["keyword","number"],["text",") => "],["keyword","void"],["text",">();\n  "],
+          ["keyword","private"],["text"," animation = 0;\n  "],
+          ["keyword","private"],["text"," lastPaintAt = 0;\n\n  onMetadata(listener: (text: "],
+          ["keyword","string"],["text",", receivedAt: "],["keyword","number"],["text",") => "],["keyword","void"],["text","): () => "],["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".listeners.add(listener);\n    "],
+          ["keyword","return"],["text"," () => "],["keyword","this"],["text",".listeners."],["keyword","delete"],["text","(listener);\n  }\n\n  "],
+          ["comment","/** Starts the stream; does nothing where canvases cannot be streamed (as in unit tests). */"],["text","\n  start(document: Document): "],
+          ["keyword","void"],["text"," {\n    "],
+          ["keyword","const"],["text"," canvas = document.createElement("],["string","'canvas'"],["text",");\n    "],
+          ["keyword","if"],["text"," ("],["keyword","typeof"],["text"," canvas.captureStream !== "],["string","'function'"],["text",") "],["keyword","return"],["text",";\n    canvas.width = WIDTH;\n    canvas.height = HEIGHT;\n    "],
+          ["keyword","const"],["text"," context = canvas.getContext("],["string","'2d'"],["text",");\n    "],
+          ["keyword","if"],["text"," (context === "],["keyword","null"],["text",") "],["keyword","return"],["text",";\n    "],
+          ["keyword","this"],["text",".stream.set(canvas.captureStream(FRAMES_PER_SECOND));\n    "],
+          ["keyword","const"],["text"," loop = (now: "],["keyword","number"],["text",") => {\n      "],
+          ["keyword","this"],["text",".animation = requestAnimationFrame(loop);\n      "],
+          ["keyword","if"],["text"," (now - "],["keyword","this"],["text",".lastPaintAt < 1000 / FRAMES_PER_SECOND) "],["keyword","return"],["text",";\n      "],
+          ["keyword","this"],["text",".lastPaintAt = now;\n      "],
+          ["keyword","this"],["text",".paint(context);\n    };\n    "],
+          ["keyword","this"],["text",".animation = requestAnimationFrame(loop);\n  }\n\n  stop(): "],
+          ["keyword","void"],["text"," {\n    cancelAnimationFrame("],
+          ["keyword","this"],["text",".animation);\n    "],
+          ["keyword","for"],["text"," ("],["keyword","const"],["text"," track "],["keyword","of"],["text"," "],["keyword","this"],["text",".stream()?.getTracks() ?? []) track.stop();\n    "],
+          ["keyword","this"],["text",".stream.set("],["keyword","null"],["text",");\n    "],
+          ["keyword","this"],["text",".listeners.clear();\n  }\n\n  "],
+          ["comment","/** Paints the next frame on `ctx` and sends its metadata. Painting nothing presents no frame. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","abstract"],["text"," paint(ctx: CanvasRenderingContext2D): "],["keyword","void"],["text",";\n\n  "],
+          ["keyword","protected"],["text"," send(message: NeatMetadataMessage): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","const"],["text"," text = JSON.stringify(message);\n    "],
+          ["keyword","const"],["text"," receivedAt = performance.now();\n    "],
+          ["keyword","for"],["text"," ("],["keyword","const"],["text"," listener "],["keyword","of"],["text"," "],["keyword","this"],["text",".listeners) listener(text, receivedAt);\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "test-pattern-tiles.example.css",
+        "code": [
+          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n.tiles {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(16rem, 24rem));\n  gap: var(--neat-space-4);\n}\n\n"],
+          ["comment","/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */"],["text","\n.cell {\n  aspect-ratio: 16 / 9;\n}\n\n.chip {\n  padding: 0 var(--neat-space-2);\n  border-radius: var(--radius);\n  background: var(--info);\n  color: var(--info-foreground);\n}\n"]
         ]
       }
     ]

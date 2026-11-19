@@ -1,0 +1,22 @@
+<neat-card title="MLA usage" subtitle="The last 8 minutes" neatExpand #expand="neatExpand">
+  <button
+    neatButton
+    neatCardActions
+    type="button"
+    variant="outlined"
+    size="small"
+    (click)="expand.toggle()"
+  >
+    <neat-icon [name]="expand.expanded() ? 'close' : 'expand-window'" [size]="16" />
+    {{ expand.expanded() ? 'Close' : 'Expand' }}
+  </button>
+  <neat-time-chart
+    label="MLA usage"
+    headline="62%"
+    size="fill"
+    [series]="usage"
+    [times]="times"
+    [domain]="[0, 100]"
+    [format]="percent"
+  />
+</neat-card>

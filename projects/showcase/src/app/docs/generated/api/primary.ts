@@ -1719,6 +1719,212 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/motion/easing.ts"
     },
     {
+      "name": "NeatExpand",
+      "kind": "directive",
+      "selector": "[neatExpand]",
+      "exportAs": "neatExpand",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Shows its host over the whole browser window, and puts it back: a video tile, a card or a 3D view, made large for a closer look."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-card title=\"Detections\" neatExpand #expand=\"neatExpand\">\n  <button neatButton neatCardActions type=\"button\" (click)=\"expand.toggle()\">\n    {{ expand.expanded() ? 'Close' : 'Expand' }}\n  </button>\n  …\n</neat-card>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is the same element, not a copy, so what it shows keeps running: a video plays on, and a chart or a canvas takes the new size as it would any other. It covers the window, not the screen: the browser's own full screen is not used."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Put the button that closes it inside the host. The host covers the page, so a button outside it is covered too. Escape closes it as well."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How it looks:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "The host fills the window, edge to edge, with no rounded corners. It is lifted into the browser's top layer (the Popover API), so no container of the page clips it or paints over it."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Its own fill, padding and text color stay. A host without a fill or a text color takes the page's."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Content taller than the window scrolls inside the host."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The keyboard:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "Opening moves the focus into the host when it is outside, such as on a button that opened it from elsewhere."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Tab and Shift+Tab go round the host's controls, never to the covered page."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Escape closes it, unless a control inside handled the key first, such as an open select."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Closing puts the focus back where it was before opening, when it was inside the host."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Overlays opened from inside it, such as a tooltip, a popover, a select's list or a dialog, show above it. A toast shown while it is open does too."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "expanded"
+            },
+            {
+              "kind": "text",
+              "text": " is a model, so the app can open it from its own state and follow it: "
+            },
+            {
+              "kind": "code",
+              "text": "[(expanded)]=\"large\""
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        }
+      ],
+      "models": [
+        {
+          "name": "expanded",
+          "type": "boolean",
+          "default": "false",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the host is shown over the whole window."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "methods": [
+        {
+          "name": "open",
+          "signature": "open(): void",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Shows the host over the whole window."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "close",
+          "signature": "close(): void",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Puts the host back in its place on the page."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "toggle",
+          "signature": "toggle(): void",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Opens the host when it is in its place, and closes it when it is open."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/expand/expand.ts"
+    },
+    {
       "name": "NeatIcon",
       "kind": "component",
       "selector": "neat-icon",

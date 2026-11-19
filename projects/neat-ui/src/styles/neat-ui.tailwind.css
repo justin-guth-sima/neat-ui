@@ -27,6 +27,8 @@
 @import '../lib/theme/tokens.generated.css';
 /* Long-form text (`neatProse`), and the code and key looks it shares with NeatCode and NeatShortcut. */
 @import '../lib/prose/prose.css';
+/* An element shown over the whole window (`neatExpand`). */
+@import '../lib/expand/expand.css';
 
 /*
  * Dark mode follows ThemeService's class on <html>, never the OS preference. It comes after the

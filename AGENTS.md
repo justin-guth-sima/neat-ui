@@ -55,6 +55,22 @@ look happens in one place. Every rule here protects that.
     in medium weight and their text's color, inline code on a chip, `kbd` as a key, quotes; its
     styles are the kit stylesheet's, below) and `provideNeatTitles(appName)` (the document's
     title, `<appName> · <route title>`, or the app name alone on an untitled route).
+    `NeatExpand` (`[neatExpand]`, `exportAs: 'neatExpand'`) shows its host over the whole browser
+    window and puts it back: `expanded` is a model, with `open()`, `close()` and `toggle()`. It
+    covers the window, not the screen (the Fullscreen API is deferred until needed). The host is
+    lifted into the top layer as a `manual` popover, not an `auto` one: an auto popover's light
+    dismiss closes it on a click in an overlay opened from inside it (a select's list, a dialog),
+    and a host that covers the window leaves nothing outside to click. Escape inside it closes it
+    unless a control handled the key first, Tab stays inside it, the focus goes in when it opens
+    from outside and goes back when it closes. Its look is `lib/expand/expand.css` in the kit
+    stylesheet, only while `:popover-open`: the geometry unlayered and two selectors strong, so it
+    outweighs a host's own sizing (a `:host` rule), and the fill, text color and overflow in the
+    base layer, so a host's own win and a plain element still covers the page. It adds no padding:
+    the video tile measures its content box, and a padding would shrink it under the tile's
+    layers, which fill the padding box. Without the
+    Popover API the state changes and the host stays in place. The video tile carries it as a host
+    directive (its `expanded` forwarded, so an app never adds `neatExpand` to a tile, which Angular
+    refuses in dev mode), and its `expandControl` adds a button for it.
     `neatEased` (a number signal that eases to each new value in 400 ms, ease-in-out cubic by
     default, and follows at once under reduced motion or after no value) and `NeatEasedNumber`
     (that figure in tabular digits, "–" while there is none) are the kit's one way a live figure
@@ -162,6 +178,10 @@ look happens in one place. Every rule here protects that.
     changes. A listener that throws is logged once and the frames keep drawing.
     `barHeight` (a signal beside `videoBox`) is the bar's laid-out height in CSS pixels, 0 without a
     bar, for content in the `neatTileOverlay` layer that keeps clear of it.
+    `expandControl` puts a button in the tile's top-left corner, shown on hover, on keyboard focus
+    and while expanded, that shows the tile over the whole window (`NeatExpand`, which every tile
+    carries): "Expand <label>" in place, "Close" expanded, the kit's `expand-window` and `close`
+    glyphs. The tile's ResizeObserver resizes its canvas for the new size, so the overlays follow.
     `notice` is what keeps the stream from showing as it should ("No signal", "Inference stopped"),
     with or without bars: without video it takes the no-video note's place, on the scrim; while
     video plays it is a `neat-status-chip` of `noticeTone` (`warning` by default) in the picture's

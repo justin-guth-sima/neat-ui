@@ -1046,6 +1046,228 @@ export abstract class CanvasSource implements NeatTileSource {
 
 </details>
 
+### Expanding a tile
+
+`expandControl` gives the tile a button in its top-left corner that shows it over the whole window, and puts it back. The video plays on, and the detections take the new size.
+
+Hover the tile, or Tab to its button, and press it; Close or Escape puts it back. The button above the tile opens it through the tile's `expanded`, bound to the app's own state. The tile's button and Escape set that state back.
+
+<details>
+<summary>Code</summary>
+
+`5-expanding-a-tile.example.ts`
+
+```ts
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  DOCUMENT,
+  inject,
+  signal,
+} from '@angular/core';
+import { NeatButton } from '@sima/neat-ui';
+import { NeatVideoTile } from '@sima/neat-ui/video';
+import { TestPatternSource } from './test-pattern-source';
+
+@Component({
+  selector: 'app-expanding-a-tile',
+  imports: [NeatButton, NeatVideoTile],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './5-expanding-a-tile.example.html',
+  styleUrl: './test-pattern-tiles.example.css',
+})
+export class ExpandingATile {
+  protected readonly testPattern = new TestPatternSource();
+  protected readonly expanded = signal(false);
+
+  constructor() {
+    const document = inject(DOCUMENT);
+    afterNextRender(() => this.testPattern.start(document));
+    inject(DestroyRef).onDestroy(() => this.testPattern.stop());
+  }
+}
+```
+
+`5-expanding-a-tile.example.html`
+
+```html
+<div class="showcase-row">
+  <button neatButton type="button" variant="outlined" size="small" (click)="expanded.set(true)">
+    Expand the tile
+  </button>
+</div>
+<div class="tiles">
+  <div class="cell">
+    <neat-video-tile
+      [source]="testPattern"
+      label="Camera 1"
+      status="Test pattern · 640×360 · 30 fps"
+      expandControl
+      [(expanded)]="expanded"
+    />
+  </div>
+</div>
+```
+
+`test-pattern-source.ts`
+
+```ts
+import { SIMA_PALETTE } from '@sima/neat-ui';
+import { CanvasSource, HEIGHT, WIDTH } from './canvas-source';
+
+const BAR_COLORS = [
+  SIMA_PALETTE.orange,
+  SIMA_PALETTE.purple,
+  SIMA_PALETTE.blue,
+  SIMA_PALETTE.mint,
+  SIMA_PALETTE.green,
+  SIMA_PALETTE.lime,
+];
+const BOX = { width: 120, height: 90 };
+/** Detections come every other frame, as from a model slower than the video; held between. */
+const DETECTION_EVERY = 2;
+
+/**
+ * A canvas test pattern, with object-detection metadata for the box moving across it: one type,
+ * as the tile matches a canvas stream's metadata by arrival. Pausing stops painting, so the stream
+ * presents no frames and the tile goes stopped.
+ */
+export class TestPatternSource extends CanvasSource {
+  private frame = 0;
+  private paused = false;
+
+  setPaused(paused: boolean): void {
+    this.paused = paused;
+  }
+
+  protected paint(ctx: CanvasRenderingContext2D): void {
+    if (this.paused) return;
+    const barWidth = WIDTH / BAR_COLORS.length;
+    BAR_COLORS.forEach((color, i) => {
+      ctx.fillStyle = color;
+      ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);
+    });
+
+    // The box bounces between the edges, four pixels per frame.
+    const travel = WIDTH - BOX.width;
+    const step = (this.frame * 4) % (2 * travel);
+    const x = step < travel ? step : 2 * travel - step;
+    const y = (HEIGHT - BOX.height) / 2;
+    ctx.fillStyle = SIMA_PALETTE.text;
+    ctx.fillRect(x, y, BOX.width, BOX.height);
+    ctx.fillStyle = SIMA_PALETTE.white;
+    ctx.font = '500 20px sans-serif';
+    ctx.fillText(String(this.frame), x + 12, y + 32);
+
+    if (this.frame % DETECTION_EVERY === 0) {
+      this.send({
+        type: 'object-detection',
+        data: {
+          objects: [{ label: 'box', confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] }],
+        },
+      });
+    }
+    this.frame += 1;
+  }
+}
+```
+
+`canvas-source.ts`
+
+```ts
+import { signal } from '@angular/core';
+import type { NeatMetadataMessage, NeatTileSource } from '@sima/neat-ui/video';
+
+export const WIDTH = 640;
+export const HEIGHT = 360;
+export const FRAMES_PER_SECOND = 30;
+
+/**
+ * What the showcase's sources share, so a tile plays without vf: a canvas streamed with
+ * `captureStream()`, painted 30 times a second, and the metadata listeners. Each source paints a
+ * frame and sends the metadata that describes it. A canvas stream has no RTP timestamps, so the
+ * tile matches metadata by arrival, which takes only the latest message: hence one type a source.
+ */
+export abstract class CanvasSource implements NeatTileSource {
+  readonly stream = signal<MediaStream | null>(null);
+
+  private readonly listeners = new Set<(text: string, receivedAt: number) => void>();
+  private animation = 0;
+  private lastPaintAt = 0;
+
+  onMetadata(listener: (text: string, receivedAt: number) => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  /** Starts the stream; does nothing where canvases cannot be streamed (as in unit tests). */
+  start(document: Document): void {
+    const canvas = document.createElement('canvas');
+    if (typeof canvas.captureStream !== 'function') return;
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+    const context = canvas.getContext('2d');
+    if (context === null) return;
+    this.stream.set(canvas.captureStream(FRAMES_PER_SECOND));
+    const loop = (now: number) => {
+      this.animation = requestAnimationFrame(loop);
+      if (now - this.lastPaintAt < 1000 / FRAMES_PER_SECOND) return;
+      this.lastPaintAt = now;
+      this.paint(context);
+    };
+    this.animation = requestAnimationFrame(loop);
+  }
+
+  stop(): void {
+    cancelAnimationFrame(this.animation);
+    for (const track of this.stream()?.getTracks() ?? []) track.stop();
+    this.stream.set(null);
+    this.listeners.clear();
+  }
+
+  /** Paints the next frame on `ctx` and sends its metadata. Painting nothing presents no frame. */
+  protected abstract paint(ctx: CanvasRenderingContext2D): void;
+
+  protected send(message: NeatMetadataMessage): void {
+    const text = JSON.stringify(message);
+    const receivedAt = performance.now();
+    for (const listener of this.listeners) listener(text, receivedAt);
+  }
+}
+```
+
+`test-pattern-tiles.example.css`
+
+```css
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 24rem));
+  gap: var(--neat-space-4);
+}
+
+/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */
+.cell {
+  aspect-ratio: 16 / 9;
+}
+
+.chip {
+  padding: 0 var(--neat-space-2);
+  border-radius: var(--radius);
+  background: var(--info);
+  color: var(--info-foreground);
+}
+```
+
+</details>
+
 ## API
 
 ### `NeatVideoTile`
@@ -1067,6 +1289,14 @@ Without video it is centered over the tile, in place of the no-video note. While
 Content projected with `neatTileOverlay` fills a layer over the tile, above the overlay canvas and below the bar. `videoBox` says where the image is inside it, and `barHeight` how tall the bar is.
 
 Without video, the layer stays above what covers the image and below the no-video note, which lets pointer input through. The layer itself catches no pointer input, so the video under it keeps its hits. Its content takes them only where it sets `pointer-events: auto`.
+
+With `expandControl` on, a button in the tile's top-left corner shows it over the whole window and puts it back ([`NeatExpand`](../layout/expand.md#neatexpand), which the tile carries itself). It shows while the pointer is over the tile or the button has the keyboard's focus, and always while the tile is expanded:
+
+```html
+<neat-video-tile [source]="source" label="Camera 1" expandControl />
+```
+
+The tile's own `expanded` model is that state, so an app can open the tile from a control of its own and follow it: `[(expanded)]="large"`. Do not put `neatExpand` on a tile as well: Angular refuses a directive twice on one element in dev mode. The same live tile is shown, so the video plays on and the overlays take the new size.
 
 The frame loop runs outside Angular and touches no signal. Per frame, it matches the queued metadata to the presented frame, holds a type that is missing for a moment, and draws. The component sees a state change and, at most once a second, `frameStats`. Inputs the loop needs are copied into fields when they change, so a frame never reads an input or resolves settings.
 
@@ -1127,6 +1357,18 @@ The frame loop runs outside Angular and touches no signal. Per frame, it matches
   Called once for each presented frame, with what the overlay drew ([`NeatTileFrame`](../components/video-tile.md#neattileframe)).
 
   It is for an app that acts on a frame's metadata in step with the picture, such as counting poses. It runs outside Angular. A listener that throws is logged once per tile, and the frames keep drawing.
+
+- **`expandControl`** `boolean`, default `false`, transform `booleanAttribute`
+
+  Gives the tile a button that shows it over the whole window and puts it back, off by default.
+
+  The button sits in the tile's top-left corner. It shows while the pointer is over the tile or the button has the keyboard's focus, and always while the tile is expanded. It is named "Expand" and the tile's `label` ("Expand Camera 1") while the tile is in its place, and "Close" while it is expanded. Escape closes the tile too.
+
+**Models (two-way)**
+
+- **`expanded`** `boolean`
+
+  Whether the tile is shown over the whole window ([`NeatExpand`](../layout/expand.md#neatexpand)), false by default. Bind it two-way to open the tile from the app's own control and follow it: the tile's button and Escape change it too. `expandControl` gives the tile a button of its own.
 
 **Outputs**
 

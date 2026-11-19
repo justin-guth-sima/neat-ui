@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { TestPatternTiles } from './1-test-pattern-tiles.example';
 import { Notice } from './3-notice.example';
+import { ExpandingATile } from './5-expanding-a-tile.example';
 import { TestPatternSource } from './test-pattern-source';
 
 async function render() {
@@ -79,5 +80,31 @@ describe('the notice example', () => {
     host.querySelector<HTMLElement>('button[role="switch"]')!.click();
     await fixture.whenStable();
     expect(notes()).toEqual(['Inference stopped', 'No signal']);
+  });
+});
+
+describe('the expanding example', () => {
+  it('expands the tile from its own button and from the app’s, and puts it back on Escape', async () => {
+    const fixture = TestBed.createComponent(ExpandingATile);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const tile = host.querySelector<HTMLElement>('neat-video-tile')!;
+    const control = tile.querySelector<HTMLButtonElement>('button.expand')!;
+
+    expect(control.getAttribute('aria-label')).toBe('Expand Camera 1');
+    control.click();
+    await fixture.whenStable();
+    expect(tile.hasAttribute('data-neat-expanded')).toBe(true);
+    expect(control.getAttribute('aria-label')).toBe('Close');
+
+    control.click();
+    await fixture.whenStable();
+    host.querySelector<HTMLButtonElement>('.showcase-row button')!.click();
+    await fixture.whenStable();
+    expect(tile.hasAttribute('data-neat-expanded')).toBe(true);
+
+    control.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await fixture.whenStable();
+    expect(tile.hasAttribute('data-neat-expanded')).toBe(false);
   });
 });

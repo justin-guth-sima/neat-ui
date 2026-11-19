@@ -322,6 +322,36 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatExpand",
+    "partKind": "directive",
+    "text": "Shows its host over the whole browser window, and puts it back: a video tile, a card or a 3D view, made large for a closer look."
+  },
+  {
+    "kind": "member",
+    "name": "expanded",
+    "part": "NeatExpand",
+    "text": "Whether the host is shown over the whole window."
+  },
+  {
+    "kind": "member",
+    "name": "open",
+    "part": "NeatExpand",
+    "text": "Shows the host over the whole window."
+  },
+  {
+    "kind": "member",
+    "name": "close",
+    "part": "NeatExpand",
+    "text": "Puts the host back in its place on the page."
+  },
+  {
+    "kind": "member",
+    "name": "toggle",
+    "part": "NeatExpand",
+    "text": "Opens the host when it is in its place, and closes it when it is open."
+  },
+  {
+    "kind": "part",
     "name": "NeatIcon",
     "partKind": "component",
     "text": "An icon from the kit's set, named for what it means."
@@ -4828,6 +4858,18 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "expandControl",
+    "part": "NeatVideoTile",
+    "text": "Gives the tile a button that shows it over the whole window and puts it back, off by default."
+  },
+  {
+    "kind": "member",
+    "name": "expanded",
+    "part": "NeatVideoTile",
+    "text": "Whether the tile is shown over the whole window (NeatExpand), false by default."
+  },
+  {
+    "kind": "member",
     "name": "stateChange",
     "part": "NeatVideoTile",
     "text": "The tile's state each time it changes: empty, playing or stopped."
@@ -5296,6 +5338,13 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "drop-zone",
     "id": "accepted-files",
     "text": "Three zones: the first takes one video, the second takes any files, and the third is disabled."
+  },
+  {
+    "kind": "example",
+    "name": "Expanding a card",
+    "topic": "expand",
+    "id": "expanding-a-card",
+    "text": "A card shown over the whole window from the button in its header, and put back from the same button."
   },
   {
     "kind": "example",
@@ -5982,5 +6031,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "video-tile",
     "id": "track-colors",
     "text": "A list beside the tile names the tracks on screen, each with a swatch in its color on the video."
+  },
+  {
+    "kind": "example",
+    "name": "Expanding a tile",
+    "topic": "video-tile",
+    "id": "expanding-a-tile",
+    "text": "expandControl gives the tile a button in its top-left corner that shows it over the whole window, and puts it back."
   }
 ];

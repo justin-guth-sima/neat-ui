@@ -1,6 +1,7 @@
 import {
   afterNextRender,
   afterRenderEffect,
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -17,7 +18,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import type { NeatTone } from '@sima/neat-ui';
+import { NeatButton, NeatExpand, NeatIcon, type NeatTone, NeatTooltip } from '@sima/neat-ui';
 import { NeatStatusChip } from '@sima/neat-ui/status-chip';
 import { NeatOverlayColors } from '../overlays/colors';
 import type { NeatOverlayState, NeatOverlayView } from '../overlays/draw-frame';
@@ -166,14 +167,32 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
  * lets pointer input through. The layer itself catches no pointer input, so the video under it
  * keeps its hits. Its content takes them only where it sets `pointer-events: auto`.
  *
+ * With `expandControl` on, a button in the tile's top-left corner shows it over the whole window
+ * and puts it back (`NeatExpand`, which the tile carries itself). It shows while the pointer is
+ * over the tile or the button has the keyboard's focus, and always while the tile is expanded:
+ *
+ * ```html
+ * <neat-video-tile [source]="source" label="Camera 1" expandControl />
+ * ```
+ *
+ * The tile's own `expanded` model is that state, so an app can open the tile from a control of its
+ * own and follow it: `[(expanded)]="large"`. Do not put `neatExpand` on a tile as well: Angular
+ * refuses a directive twice on one element in dev mode. The same live tile is shown, so the video plays on and
+ * the overlays take the new size.
+ *
  * The frame loop runs outside Angular and touches no signal. Per frame, it matches the queued
  * metadata to the presented frame, holds a type that is missing for a moment, and draws. The
  * component sees a state change and, at most once a second, `frameStats`. Inputs the loop needs
  * are copied into fields when they change, so a frame never reads an input or resolves settings.
+ *
+ * @input expanded Whether the tile is shown over the whole window (`NeatExpand`), false by default.
+ * Bind it two-way to open the tile from the app's own control and follow it: the tile's button and
+ * Escape change it too. `expandControl` gives the tile a button of its own.
  */
 @Component({
   selector: 'neat-video-tile',
-  imports: [NeatStatusChip],
+  imports: [NeatButton, NeatIcon, NeatStatusChip, NeatTooltip],
+  hostDirectives: [{ directive: NeatExpand, inputs: ['expanded'], outputs: ['expandedChange'] }],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[attr.data-state]': 'state()',
@@ -186,7 +205,9 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
     <div class="overlay-slot"><ng-content select="[neatTileOverlay]" /></div>
     @if (state() !== 'playing') {
       @if (noVideoText(); as text) {
-        <p class="no-video"><span class="no-video-text">{{ text }}</span></p>
+        <p class="no-video">
+          <span class="no-video-text">{{ text }}</span>
+        </p>
       }
     } @else if (notice(); as notice) {
       @let picture = videoBox();
@@ -208,6 +229,22 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
         <span class="status">{{ status() }}</span>
         <ng-content select="[neatTileChip]" />
       </div>
+    }
+    @if (expandControl()) {
+      <button
+        neatButton
+        class="expand"
+        type="button"
+        variant="secondary"
+        size="small"
+        iconOnly
+        neatTooltipPosition="bottom"
+        [attr.aria-label]="expandLabel()"
+        [neatTooltip]="expandLabel()"
+        (click)="expand.toggle()"
+      >
+        <neat-icon [name]="expand.expanded() ? 'close' : 'expand-window'" [size]="16" />
+      </button>
     }
   `,
   styleUrl: './video-tile.css',
@@ -272,6 +309,15 @@ export class NeatVideoTile {
    * keep drawing.
    */
   readonly frameListener = input<NeatTileFrameListener | null>(null);
+  /**
+   * Gives the tile a button that shows it over the whole window and puts it back, off by default.
+   *
+   * The button sits in the tile's top-left corner. It shows while the pointer is over the tile or
+   * the button has the keyboard's focus, and always while the tile is expanded. It is named
+   * "Expand" and the tile's `label` ("Expand Camera 1") while the tile is in its place, and "Close"
+   * while it is expanded. Escape closes the tile too.
+   */
+  readonly expandControl = input(false, { transform: booleanAttribute });
 
   /** The tile's state each time it changes: `empty`, `playing` or `stopped`. */
   readonly stateChange = output<NeatTileState>();
@@ -279,6 +325,12 @@ export class NeatVideoTile {
   readonly frameStats = output<NeatFrameStats>();
 
   protected readonly state = signal<NeatTileState>('empty');
+  /** The tile's own `NeatExpand`, which `expandControl`'s button drives. */
+  protected readonly expand = inject(NeatExpand, { self: true });
+  protected readonly expandLabel = computed(() => {
+    if (this.expand.expanded()) return 'Close';
+    return this.label() ? `Expand ${this.label()}` : 'Expand';
+  });
   /** What the tile says without video: the notice, else the no-video note with bars. */
   protected readonly noVideoText = computed(
     () => this.notice() ?? (this.bars() ? NO_VIDEO_TEXT : null),
