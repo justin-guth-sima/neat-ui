@@ -5094,7 +5094,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " shows ⌘ on a Mac and Ctrl elsewhere, as an app's handler that takes either key expects. On a Mac the modifiers are its symbols (⌃ ⌥ ⇧ ⌘); "
+              "text": " shows ⌘ on a Mac and Ctrl elsewhere, as an app's handler that takes either key expects. On a Mac the modifiers are its symbols (⌃ ⌥ ⇧ ⌘). "
             },
             {
               "kind": "code",
@@ -5102,7 +5102,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is Esc and the arrows are arrows. A single letter is shown in capitals, and any other name as it is written."
+              "text": " is Esc, and the arrows are arrows. A single letter is shown in capitals, and any other name as it is written."
             }
           ]
         },
@@ -5974,7 +5974,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It says seconds under a minute, then minutes and seconds, hours and minutes, and from 24 h days and hours. The second unit always has two digits, so a running time keeps its width."
+              "text": "It says seconds under a minute, then minutes and seconds, hours and minutes, and from 24 h days and hours. The second unit always has two digits, as a clock shows it (\"5 min 07 s\")."
             }
           ]
         },

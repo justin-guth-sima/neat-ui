@@ -162,7 +162,7 @@ A length of time in the kit's style: "42 s", "5 min 07 s", "2 h 05 min", "3 d 04
 neatDuration(stats.uptime_s); // "2 h 05 min"
 ```
 
-It says seconds under a minute, then minutes and seconds, hours and minutes, and from 24 h days and hours. The second unit always has two digits, so a running time keeps its width.
+It says seconds under a minute, then minutes and seconds, hours and minutes, and from 24 h days and hours. The second unit always has two digits, as a clock shows it ("5 min 07 s").
 
 Each unit is cut to whole units, as a clock shows them: 59.9 s is "59 s", and a minute is shown only once it has passed. So a running time counts up as a stopwatch does.
 

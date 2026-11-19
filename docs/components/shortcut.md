@@ -141,7 +141,7 @@ export class InAButton {
 
 Component from `@sima/neat-ui`, selector `neat-shortcut`.
 
-`keys` are named as `aria-keyshortcuts` names them: the browser's key values (`Control`, `Alt`, `Shift`, `Meta`, `Escape`, `ArrowUp`, `K`, `F1`), plus `Mod`, the platform's own modifier. `Mod` shows ⌘ on a Mac and Ctrl elsewhere, as an app's handler that takes either key expects. On a Mac the modifiers are its symbols (⌃ ⌥ ⇧ ⌘); `Escape` is Esc and the arrows are arrows. A single letter is shown in capitals, and any other name as it is written.
+`keys` are named as `aria-keyshortcuts` names them: the browser's key values (`Control`, `Alt`, `Shift`, `Meta`, `Escape`, `ArrowUp`, `K`, `F1`), plus `Mod`, the platform's own modifier. `Mod` shows ⌘ on a Mac and Ctrl elsewhere, as an app's handler that takes either key expects. On a Mac the modifiers are its symbols (⌃ ⌥ ⇧ ⌘). `Escape` is Esc, and the arrows are arrows. A single letter is shown in capitals, and any other name as it is written.
 
 Each key is a `kbd`, hidden from assistive technology, since a screen reader would read "⌘" by its Unicode name. Visually hidden text says the keys in words instead ("Control K", "Command K").
 
