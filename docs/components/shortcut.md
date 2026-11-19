@@ -10,6 +10,11 @@ A keyboard shortcut's keys, each drawn as a key, with what a screen reader says 
 <neat-shortcut [keys]="['Mod', 'K']" />
 ```
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/shortcut/keys-of-an-app.dark.webp">
+<img src="../images/shortcut/keys-of-an-app.light.webp" alt="Shortcut: Keys of an app" width="212">
+</picture>
+
 ```ts
 import { NeatShortcut } from '@sima/neat-ui';
 ```
@@ -19,6 +24,11 @@ import { NeatShortcut } from '@sima/neat-ui';
 ### Keys of an app
 
 A page's actions beside their keys. `Mod` shows ⌘ on a Mac and Ctrl elsewhere, and a Mac shows its other modifiers as symbols too.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/shortcut/keys-of-an-app.dark.webp">
+<img src="../images/shortcut/keys-of-an-app.light.webp" alt="Shortcut: Keys of an app" width="212">
+</picture>
 
 <details>
 <summary>Code</summary>
@@ -82,6 +92,11 @@ export class KeysOfAnApp {
 A button that shows its shortcut, and the page's handler for it. The button's `aria-keyshortcuts` names the keys to assistive technology, so the shortcut is `aria-hidden` and the button's name stays "Run".
 
 Press Ctrl Enter (⌘ Enter on a Mac), or the button.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/shortcut/in-a-button.dark.webp">
+<img src="../images/shortcut/in-a-button.light.webp" alt="Shortcut: In a button" width="227">
+</picture>
 
 <details>
 <summary>Code</summary>

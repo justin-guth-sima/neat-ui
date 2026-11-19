@@ -570,6 +570,11 @@ export abstract class CanvasSource implements NeatTileSource {
 
 Two tiles without bars, as a page with one large video shows them, each saying its trouble with `notice`. The first plays the test pattern. Turn on Inference stopped and its notice shows as a warning chip in the picture's corner. Pause the source and the notice moves to the middle once the tile has stopped. The second has no stream and says "No signal".
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/video-tile/notice.dark.webp">
+<img src="../images/video-tile/notice.light.webp" alt="Video tile: Notice" width="816">
+</picture>
+
 <details>
 <summary>Code</summary>
 
@@ -794,6 +799,13 @@ A list beside the tile names the tracks on screen, each with a swatch in its col
 The tile's `colorOf` gives the color its overlay draws an item in: here a track, by its id. The template calls it. It reads signals, so a swatch shows as soon as the tile has drawn its track.
 
 The list comes from the tile's `frameListener`, so it follows the picture. It writes its signal only when the tracks change. Watch a vehicle leave on the right: it comes back on the left as a new track, in a color of its own.
+
+<picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/video-tile/track-colors.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/video-tile/track-colors.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/video-tile/track-colors.dark.animated.webp">
+<img src="../images/video-tile/track-colors.light.animated.webp" alt="Video tile: Track colors" width="900">
+</picture>
 
 <details>
 <summary>Code</summary>
@@ -1051,6 +1063,11 @@ export abstract class CanvasSource implements NeatTileSource {
 `expandControl` gives the tile a button in its top-left corner that shows it over the whole window, and puts it back. The video plays on, and the detections take the new size.
 
 Hover the tile, or Tab to its button, and press it; Close or Escape puts it back. The button above the tile opens it through the tile's `expanded`, bound to the app's own state. The tile's button and Escape set that state back.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/video-tile/expanding-a-tile.dark.webp">
+<img src="../images/video-tile/expanding-a-tile.light.webp" alt="Video tile: Expanding a tile" width="416">
+</picture>
 
 <details>
 <summary>Code</summary>

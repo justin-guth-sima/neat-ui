@@ -15,6 +15,11 @@ Shows its host over the whole browser window, and puts it back: a video tile, a 
 </neat-card>
 ```
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/expand/expanding-a-card.dark.webp">
+<img src="../images/expand/expanding-a-card.light.webp" alt="Expand: Expanding a card" width="1116">
+</picture>
+
 ```ts
 import { NeatExpand } from '@sima/neat-ui';
 ```
@@ -26,6 +31,11 @@ import { NeatExpand } from '@sima/neat-ui';
 A card shown over the whole window from the button in its header, and put back from the same button. Its chart takes the window's height.
 
 Press Expand, then Close or Escape. The button sits inside the card, which covers the page while expanded.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/expand/expanding-a-card.dark.webp">
+<img src="../images/expand/expanding-a-card.light.webp" alt="Expand: Expanding a card" width="1116">
+</picture>
 
 <details>
 <summary>Code</summary>

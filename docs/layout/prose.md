@@ -17,6 +17,11 @@ Long-form text in the kit's type: the headings, paragraphs, lists, links, code, 
 </article>
 ```
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/prose/help-page.dark.webp">
+<img src="../images/prose/help-page.light.webp" alt="Prose: Help page" width="750">
+</picture>
+
 ```ts
 import { NeatProse } from '@sima/neat-ui';
 ```
@@ -28,6 +33,11 @@ import { NeatProse } from '@sima/neat-ui';
 A page of help as prose: headings, paragraphs, lists, a link, code, keys, a quote and a rule. Only the container is marked `neatProse`. The elements inside are plain HTML.
 
 For an app's own shortcut, `neat-shortcut` shows the keys a Mac has. A `kbd` here shows the one set of keys it is given.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/prose/help-page.dark.webp">
+<img src="../images/prose/help-page.light.webp" alt="Prose: Help page" width="750">
+</picture>
 
 <details>
 <summary>Code</summary>
@@ -100,6 +110,11 @@ export class HelpPage {}
 ### Converted README
 
 Text from elsewhere, here a README converted from Markdown, set with `[innerHTML]`. Prose styles its plain HTML, so the app adds nothing inside it.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/prose/converted-readme.dark.webp">
+<img src="../images/prose/converted-readme.light.webp" alt="Prose: Converted README" width="725">
+</picture>
 
 <details>
 <summary>Code</summary>

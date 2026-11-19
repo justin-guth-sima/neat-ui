@@ -10,6 +10,11 @@ Code set apart on the muted fill, as written, with an optional Copy button at it
 <neat-code-block [code]="command" copy="install command" />
 ```
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/code-block/install-command.dark.webp">
+<img src="../images/code-block/install-command.light.webp" alt="Code block: Install command" width="900">
+</picture>
+
 ```ts
 import { NeatCodeBlock, NeatCopyButton } from '@sima/neat-ui/code-block';
 ```
@@ -21,6 +26,11 @@ import { NeatCodeBlock, NeatCopyButton } from '@sima/neat-ui/code-block';
 A command to run, with a Copy button named "Copy install command". A long command wraps.
 
 Press Copy, then paste the command somewhere.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/code-block/install-command.dark.webp">
+<img src="../images/code-block/install-command.light.webp" alt="Code block: Install command" width="900">
+</picture>
 
 <details>
 <summary>Code</summary>
@@ -55,6 +65,11 @@ export class InstallCommand {
 A whole file, its lines and indents as written. With `overflow="scroll"` a long line keeps its shape, and the block scrolls sideways.
 
 Make the window narrow and scroll the code.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/code-block/whole-file.dark.webp">
+<img src="../images/code-block/whole-file.light.webp" alt="Code block: Whole file" width="900">
+</picture>
 
 <details>
 <summary>Code</summary>
@@ -97,6 +112,11 @@ export class WholeFile {
 ### Colored by the app
 
 Code the app colored itself, as spans inside the block. They are shown in place of `code`, which spells the same text and stays what Copy copies. The kit has no syntax colors of its own.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/code-block/colored-by-the-app.dark.webp">
+<img src="../images/code-block/colored-by-the-app.light.webp" alt="Code block: Colored by the app" width="900">
+</picture>
 
 <details>
 <summary>Code</summary>
@@ -163,6 +183,11 @@ export class ColoredByTheApp {
 The Copy button on its own, beside a URL in running text. Its name is "Copy stream URL".
 
 Press Copy, then paste the URL into a player.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/code-block/stream-url.dark.webp">
+<img src="../images/code-block/stream-url.light.webp" alt="Code block: Stream URL" width="456">
+</picture>
 
 <details>
 <summary>Code</summary>

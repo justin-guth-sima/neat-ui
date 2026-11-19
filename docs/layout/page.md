@@ -268,6 +268,11 @@ The contents are plain in-page links (`href="#run"`); the link under each sectio
 
 _This example needs a page of its own: it runs in the showcase._
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/page/links-to-sections.dark.webp">
+<img src="../images/page/links-to-sections.light.webp" alt="Page: Links to sections" width="1224">
+</picture>
+
 <details>
 <summary>Code</summary>
 

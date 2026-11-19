@@ -86,6 +86,11 @@ The words [`neatDuration`](../components/time.md#neatduration) says for the leng
 
 59.9 s is cut to 59 s, as a clock shows it. A negative length and no value at all are a dash.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/time/durations.dark.webp">
+<img src="../images/time/durations.light.webp" alt="Time: Durations" width="175">
+</picture>
+
 <details>
 <summary>Code</summary>
 

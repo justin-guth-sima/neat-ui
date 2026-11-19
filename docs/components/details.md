@@ -17,7 +17,7 @@ Facts about the selected thing, as an aside shows them, on a native description 
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/details/source-facts.dark.webp">
-<img src="../images/details/source-facts.light.webp" alt="Details: Source facts" width="357">
+<img src="../images/details/source-facts.light.webp" alt="Details: Source facts" width="351">
 </picture>
 
 ```ts
@@ -32,7 +32,7 @@ The facts of a source in a panel's width. The URL's value holds a code span and 
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/details/source-facts.dark.webp">
-<img src="../images/details/source-facts.light.webp" alt="Details: Source facts" width="357">
+<img src="../images/details/source-facts.light.webp" alt="Details: Source facts" width="351">
 </picture>
 
 <details>

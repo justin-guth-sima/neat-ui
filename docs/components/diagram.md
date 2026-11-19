@@ -1998,6 +1998,11 @@ A timer sends new figures twice a second. Each value eases to the next in tabula
 
 An edge's messages per second go in a [`NeatDiagramRateCard`](../components/messaging.md#neatdiagramratecard) instead, which looks the same.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/diagram/counts-and-times.dark.webp">
+<img src="../images/diagram/counts-and-times.light.webp" alt="Diagram: Counts and times" width="852">
+</picture>
+
 <details>
 <summary>Code</summary>
 
