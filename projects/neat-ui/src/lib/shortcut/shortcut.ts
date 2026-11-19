@@ -60,13 +60,14 @@ function both(keyText: KeyText) {
  *
  * It only shows the keys: listening for them is the app's.
  */
+// `neat-key` is the kit's one look for a key, which `neatProse` shares (prose.css).
 @Component({
   selector: 'neat-shortcut',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span class="sr-only">{{ spoken() }}</span>
     @for (key of shown(); track $index) {
-      <kbd aria-hidden="true">{{ key }}</kbd>
+      <kbd class="neat-key" aria-hidden="true">{{ key }}</kbd>
     }
   `,
   styleUrl: './shortcut.css',

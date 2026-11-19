@@ -1497,6 +1497,31 @@ export const API: DocsEntry = {
               "text": ". Monospace runs wide, so it is the kit's small size, and it has no spaces to break at, so it wraps anywhere."
             }
           ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Inside "
+            },
+            {
+              "kind": "code",
+              "text": "neatProse"
+            },
+            {
+              "kind": "text",
+              "text": ", a plain "
+            },
+            {
+              "kind": "code",
+              "text": "code"
+            },
+            {
+              "kind": "text",
+              "text": " takes the same size and wrapping, on a chip."
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/src/lib/page/aside.ts"
@@ -3354,6 +3379,260 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/src/lib/shell/page-toolbar.ts"
+    },
+    {
+      "name": "NeatProse",
+      "kind": "directive",
+      "selector": "[neatProse]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Long-form text in the kit's type: the headings, paragraphs, lists, links, code, keys, quotes and rules inside its host."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<article neatProse>\n  <h2>Connect a camera</h2>\n  <p>Add it on the <a routerLink=\"/media\">Media</a> page, then press <kbd>Enter</kbd>.</p>\n  <ul>\n    <li>An RTSP camera needs its address, such as <code>rtsp://…/stream1</code>.</li>\n    <li>A USB camera shows up by itself.</li>\n  </ul>\n</article>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Use it for text a page shows at length: help, an explanation, a README. The elements inside are plain HTML, so content set with "
+            },
+            {
+              "kind": "code",
+              "text": "[innerHTML]"
+            },
+            {
+              "kind": "text",
+              "text": " (a README converted from Markdown) is styled too. Outside it, the kit's reset stays: lists have no markers and links no underline."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What it styles:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "Blocks are "
+              },
+              {
+                "kind": "code",
+                "text": "--neat-space-3"
+              },
+              {
+                "kind": "text",
+                "text": " apart. A heading or a rule is "
+              },
+              {
+                "kind": "code",
+                "text": "--neat-space-6"
+              },
+              {
+                "kind": "text",
+                "text": " below what comes before it."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "h1"
+              },
+              {
+                "kind": "text",
+                "text": ", "
+              },
+              {
+                "kind": "code",
+                "text": "h2"
+              },
+              {
+                "kind": "text",
+                "text": " and "
+              },
+              {
+                "kind": "code",
+                "text": "h4"
+              },
+              {
+                "kind": "text",
+                "text": " keep the kit's sizes. "
+              },
+              {
+                "kind": "code",
+                "text": "h3"
+              },
+              {
+                "kind": "text",
+                "text": " is a step above the text, and "
+              },
+              {
+                "kind": "code",
+                "text": "h5"
+              },
+              {
+                "kind": "text",
+                "text": " and "
+              },
+              {
+                "kind": "code",
+                "text": "h6"
+              },
+              {
+                "kind": "text",
+                "text": " a step below, "
+              },
+              {
+                "kind": "code",
+                "text": "h6"
+              },
+              {
+                "kind": "text",
+                "text": " muted."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Lists have bullets or numbers, muted, and are inset by "
+              },
+              {
+                "kind": "code",
+                "text": "--neat-space-6"
+              },
+              {
+                "kind": "text",
+                "text": ". Their items are "
+              },
+              {
+                "kind": "code",
+                "text": "--neat-space-2"
+              },
+              {
+                "kind": "text",
+                "text": " apart, and a list may hold another."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A link is underlined and medium weight, in its text's color. So it holds the contrast of its text on any surface, and the underline, not a color, marks it."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Inline code has the size of "
+              },
+              {
+                "kind": "code",
+                "text": "code[neatCode]"
+              },
+              {
+                "kind": "text",
+                "text": ", on a "
+              },
+              {
+                "kind": "code",
+                "text": "--muted"
+              },
+              {
+                "kind": "text",
+                "text": " chip. Code in a "
+              },
+              {
+                "kind": "code",
+                "text": "pre"
+              },
+              {
+                "kind": "text",
+                "text": " is left as it is."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A "
+              },
+              {
+                "kind": "code",
+                "text": "kbd"
+              },
+              {
+                "kind": "text",
+                "text": " is a key as "
+              },
+              {
+                "kind": "code",
+                "text": "neat-shortcut"
+              },
+              {
+                "kind": "text",
+                "text": " draws one."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "A quote is muted, with a border at its start."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It sets no font size and no width. The text takes its container's size, and the app sets the measure (the showcase's pages use 46rem to 52rem)."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It styles its own flow: its children, the items of its lists and its quotes, and the links, code and keys in their text. A kit part placed in it, such as a chart or a callout, is spaced as a block and keeps its own look. Text inside such a part is not the prose's. Mark that text with "
+            },
+            {
+              "kind": "code",
+              "text": "neatProse"
+            },
+            {
+              "kind": "text",
+              "text": " too where it is long-form."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Its rules weigh the least of the kit's styles, so a kit part and the app's own styles override them. The host stays a block: a flex or grid host would add its gap to the spacing."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/prose/prose.ts"
     },
     {
       "name": "NeatRailDivider",

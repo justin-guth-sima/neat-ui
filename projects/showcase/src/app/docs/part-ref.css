@@ -1,6 +1,10 @@
-/* Only a link with a target looks like one; without, the name reads as the text around it. */
+/*
+ * Only a link with a target looks like one; without, the name reads as the text around it. A
+ * name's link has its own look in prose too: the link color, no underline, the text's weight.
+ */
 a[href] {
   color: var(--primary);
+  font-weight: inherit;
   text-decoration: none;
 }
 

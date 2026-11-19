@@ -25,18 +25,3 @@ figcaption,
   color: var(--muted-foreground);
   font-size: var(--neat-text-sm);
 }
-
-.reading {
-  display: flex;
-  flex-direction: column;
-  gap: var(--neat-space-2);
-  margin: 0;
-  padding-inline-start: var(--neat-space-6);
-  list-style: disc;
-}
-
-.reading a {
-  color: inherit;
-  font-weight: 500;
-  text-decoration: underline;
-}

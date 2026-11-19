@@ -40,6 +40,7 @@ wins over a name of our own.
 | page nav     | a page's list of links, beside its body (or above it on a phone)                                     | `nav[neatPageNav]`, `NeatPageNav`   | side list, sidebar                     |
 | aside        | the column on a page's right, for an inspector or details; its toggle's visible name is "Side panel" | `[neatPageAside]`, `NeatAsidePanel` | side panel, drawer, inspector          |
 | aside toggle | the button at the top bar's right edge that opens and closes the aside                               | `neat-aside-toggle`                 | panel button                           |
+| prose        | long-form text on a page (help, an explanation, a README), styled in the kit's type                  | `[neatProse]`, `NeatProse`          | typography, rich text, article         |
 
 ## Components
 

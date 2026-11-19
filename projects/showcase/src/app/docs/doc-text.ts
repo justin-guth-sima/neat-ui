@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { NeatCode } from '@sima/neat-ui';
+import { NeatCode, NeatProse } from '@sima/neat-ui';
 import { NeatCodeBlock } from '@sima/neat-ui/code-block';
 import type { DocBlock, DocSpan } from './model';
 import { PartRef } from './part-ref';
@@ -43,16 +43,19 @@ import { PartRef } from './part-ref';
       }
     }
   `,
-  styleUrl: './doc-spans.css',
 })
 export class DocSpans {
   readonly spans = input.required<readonly DocSpan[]>();
 }
 
-/** A doc comment's blocks: paragraphs, fenced code and one level of lists. */
+/**
+ * A doc comment's blocks: paragraphs, fenced code and one level of lists, as the kit's prose, which
+ * gives its code spans their chip and its lists their markers.
+ */
 @Component({
   selector: 'app-doc-text',
   imports: [DocSpans, NeatCodeBlock],
+  hostDirectives: [NeatProse],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @for (block of blocks(); track $index) {

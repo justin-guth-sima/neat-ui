@@ -1,0 +1,4 @@
+/* A readable measure for the text, which the app sets: prose sets no width. */
+.text {
+  max-width: 46rem;
+}

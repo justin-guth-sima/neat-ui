@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NeatCode, NeatPage } from '@sima/neat-ui';
+import { NeatCode, NeatPage, NeatProse } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
 import { NeatCodeBlock } from '@sima/neat-ui/code-block';
 import { GROUPS } from '../docs/topics';
@@ -63,11 +63,11 @@ const NEXT = GROUPS.map((group) => ({
  */
 @Component({
   selector: 'app-getting-started-page',
-  imports: [NeatCallout, NeatCode, NeatCodeBlock, NeatPage, RouterLink],
+  imports: [NeatCallout, NeatCode, NeatCodeBlock, NeatPage, NeatProse, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <neat-page>
-      <div class="guide">
+      <div class="guide" neatProse>
         <p class="lead">
           An Angular app on <code neatCode>&#64;sima/neat-ui</code> in four steps. The kit is a
           tarball that each app keeps in its repository, so a build never needs the kit's checkout.

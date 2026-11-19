@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import proseStyles from '../prose/prose.css' with { loader: 'text' };
 import shortcutStyles from './shortcut.css' with { loader: 'text' };
 import { NeatShortcut } from './shortcut';
 
@@ -85,10 +86,17 @@ describe('NeatShortcut', () => {
     expect(shown()).toEqual(['Esc']);
   });
 
-  it('is the containing block of its hidden words, and draws keys in the theme tokens', () => {
+  it('is the containing block of its hidden words', () => {
     expect(shortcutStyles).toMatch(/:host\s*\{[^}]*position:\s*relative/);
     expect(shortcutStyles).not.toMatch(/z-index/);
-    expect(shortcutStyles).toMatch(/kbd\s*\{[^}]*border:\s*1px solid var\(--border\)/);
-    expect(shortcutStyles).toMatch(/kbd\s*\{[^}]*background:\s*var\(--muted\)/);
+  });
+
+  it('draws each key in the kit’s one key look, which prose shares, in the theme tokens', async () => {
+    const { host } = await render(['Mod', 'K']);
+
+    for (const kbd of host.querySelectorAll('kbd')) expect(kbd.classList).toContain('neat-key');
+    const key = /@utility neat-key\s*\{([^}]*)\}/.exec(proseStyles)?.[1] ?? '';
+    expect(key).toMatch(/border:\s*1px solid var\(--border\)/);
+    expect(key).toMatch(/background:\s*var\(--muted\)/);
   });
 });

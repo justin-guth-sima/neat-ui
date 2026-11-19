@@ -183,9 +183,12 @@ export class NeatAsideActions {}
 /**
  * A URL, a path or a name in running text: `<code neatCode>rtsp://…/src3</code>`. Monospace runs
  * wide, so it is the kit's small size, and it has no spaces to break at, so it wraps anywhere.
+ *
+ * Inside `neatProse`, a plain `code` takes the same size and wrapping, on a chip.
  */
+// `neat-code` is the kit's one look for inline code, which `neatProse` shares (prose.css).
 @Directive({
   selector: 'code[neatCode]',
-  host: { class: 'text-(length:--neat-text-xs) wrap-anywhere' },
+  host: { class: 'neat-code' },
 })
 export class NeatCode {}

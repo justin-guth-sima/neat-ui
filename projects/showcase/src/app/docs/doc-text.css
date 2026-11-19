@@ -1,23 +1,16 @@
 /*
- * Prose of the kit's doc comments wherever the docs show it: the body's descriptions, the
- * examples' captions, the panel's entries, in the kit's small text as its panels and notes are.
- * The measure keeps lines readable on a wide body.
+ * Prose of the kit's doc comments wherever the docs show it (the kit's `neatProse`): the body's
+ * descriptions, the examples' captions, the panel's entries. It is in the kit's small text, as
+ * its panels and notes are, with its blocks closer together. The measure keeps lines readable on
+ * a wide body.
  */
 :host {
-  font-size: var(--neat-text-sm);
-  display: flex;
-  flex-direction: column;
-  gap: var(--neat-space-2);
+  display: block;
   max-width: 46rem;
   min-width: 0;
+  font-size: var(--neat-text-sm);
 }
 
-p,
-ul {
-  margin: 0;
-}
-
-ul {
-  padding-inline-start: var(--neat-space-6);
-  list-style: disc;
+:host > * + * {
+  margin-block-start: var(--neat-space-2);
 }
