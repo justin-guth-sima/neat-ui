@@ -820,6 +820,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "neatDuration",
+    "partKind": "function",
+    "text": "A length of time in the kit's style: \"42 s\", \"5 min 07 s\", \"2 h 05 min\", \"3 d 04 h\"."
+  },
+  {
+    "kind": "part",
     "name": "neatEased",
     "partKind": "function",
     "text": "A number signal that eases to each new value of source instead of jumping."
@@ -5658,6 +5664,13 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "time",
     "id": "ages",
     "text": "The words neatSecondsAgo says for the ages beside them."
+  },
+  {
+    "kind": "example",
+    "name": "Durations",
+    "topic": "time",
+    "id": "durations",
+    "text": "The words neatDuration says for the lengths of time beside them."
   },
   {
     "kind": "example",

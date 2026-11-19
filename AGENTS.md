@@ -45,8 +45,10 @@ look happens in one place. Every rule here protects that.
     so the diagram shows it without the charts' d3, and still exported by `charts`, where apps
     imported it first), `NeatSwatch` (the same square for any color: a class's color in a legend,
     the bird's-eye view's readout; it holds the swatch's one look, which `NeatSeriesSwatch` shares
-    by taking its sheet) and `neatSecondsAgo` (the kit's one relative-time style, "just now",
-    "12 s ago", "3 min ago"),
+    by taking its sheet), `neatSecondsAgo` (the kit's one relative-time style, "just now",
+    "12 s ago", "3 min ago") and `neatDuration` (its one style for a length of time beside it,
+    "42 s", "5 min 07 s", "2 h 05 min", "3 d 04 h": each unit cut to whole units as a clock does,
+    the second always two digits, and "–" for anything not a finite number of at least 0),
     `NeatStale` (`[neatStale]`: what its host shows is stale, faded to 0.55 and gray, with no
     transition; the words beside it say why) and `provideNeatTitles(appName)` (the document's
     title, `<appName> · <route title>`, or the app name alone on an untitled route).

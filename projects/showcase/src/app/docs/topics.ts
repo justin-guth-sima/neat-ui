@@ -634,8 +634,8 @@ export const GROUPS: readonly TopicGroup[] = [
           {
             id: 'time',
             label: 'Time',
-            parts: ['neatSecondsAgo'],
-            leads: ['neatSecondsAgo'],
+            parts: ['neatSecondsAgo', 'neatDuration'],
+            leads: ['neatSecondsAgo', 'neatDuration'],
             load: async () => {
               const [api, examples] = await Promise.all([
                 import('./generated/api/primary'),

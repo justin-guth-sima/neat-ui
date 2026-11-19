@@ -61,6 +61,7 @@ export type { NeatSearchSize, NeatSearchVariant } from './lib/search/search';
 export { NeatSearch } from './lib/search/search';
 export { NeatShortcut } from './lib/shortcut/shortcut';
 export { NeatStale, STALE_CLASSES as ɵSTALE_CLASSES } from './lib/stale/stale';
+export { neatDuration } from './lib/time/duration';
 export { neatSecondsAgo } from './lib/time/seconds-ago';
 export { neatEased } from './lib/motion/eased';
 export { NeatEasedNumber } from './lib/motion/eased-number';

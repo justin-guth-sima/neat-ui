@@ -5816,6 +5816,106 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/page/aside-open.ts"
     },
     {
+      "name": "neatDuration",
+      "kind": "function",
+      "signature": "neatDuration(seconds: number | null | undefined): string",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A length of time in the kit's style: \"42 s\", \"5 min 07 s\", \"2 h 05 min\", \"3 d 04 h\"."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "neatDuration(stats.uptime_s); // \"2 h 05 min\""
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It says seconds under a minute, then minutes and seconds, hours and minutes, and from 24 h days and hours. The second unit always has two digits, so a running time keeps its width."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Each unit is cut to whole units, as a clock shows them: 59.9 s is \"59 s\", and a minute is shown only once it has passed. So a running time counts up as a stopwatch does."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Anything that is not a finite number of at least 0 is \"–\": "
+            },
+            {
+              "kind": "code",
+              "text": "null"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "undefined"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "NaN"
+            },
+            {
+              "kind": "text",
+              "text": ", an infinity, a negative number, or a value of another type that came in from JSON. A page can pass a field it has not checked and show the dash, as "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatEasedNumber",
+              "name": "NeatEasedNumber"
+            },
+            {
+              "kind": "text",
+              "text": " does while it has no value."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "For how long ago something was, "
+            },
+            {
+              "kind": "ref",
+              "text": "neatSecondsAgo",
+              "name": "neatSecondsAgo"
+            },
+            {
+              "kind": "text",
+              "text": " is the kit's style (\"3 min ago\")."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/time/duration.ts"
+    },
+    {
       "name": "neatEased",
       "kind": "function",
       "signature": "neatEased(source: Signal<number | null | undefined>, options: { durationMs?: number; easing?: NeatEasing | Signal<NeatEasing> } = {}): Signal<number | null | undefined>",
@@ -6025,6 +6125,24 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": "This is the one place the words and thresholds live. So a page that parses a timestamp, and the charts' readout, cannot say the same age two ways."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "For a length of time (an uptime, a track's age), "
+            },
+            {
+              "kind": "ref",
+              "text": "neatDuration",
+              "name": "neatDuration"
+            },
+            {
+              "kind": "text",
+              "text": " is the kit's style (\"5 min 07 s\")."
             }
           ]
         }

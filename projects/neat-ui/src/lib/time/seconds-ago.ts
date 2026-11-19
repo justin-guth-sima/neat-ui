@@ -13,6 +13,8 @@
  *
  * This is the one place the words and thresholds live. So a page that parses a timestamp, and the
  * charts' readout, cannot say the same age two ways.
+ *
+ * For a length of time (an uptime, a track's age), `neatDuration` is the kit's style ("5 min 07 s").
  */
 export function neatSecondsAgo(seconds: number): string {
   const whole = Math.round(seconds);

@@ -1,0 +1,4 @@
+/* Both columns are short, so the list takes a narrow column rather than the whole card. */
+.durations {
+  max-width: 14rem;
+}
