@@ -1,0 +1,33 @@
+<article neatProse class="text">
+  <h2>Add a camera</h2>
+  <p>
+    A stream starts from a camera on the board's network. The
+    <a href="https://developer.sima.ai">developer docs</a> list the cameras that have been tried.
+  </p>
+  <h3>Before you start</h3>
+  <ul>
+    <li>The camera's address, such as <code>rtsp://192.168.1.20/stream1</code>.</li>
+    <li>Its user name and password, if it has them.</li>
+  </ul>
+  <h3>Add it</h3>
+  <ol>
+    <li>Open <strong>Media</strong> and choose <strong>Add stream</strong>.</li>
+    <li>
+      Paste the address, or pick the camera from the list:
+      <ul>
+        <li>a network camera shows its address;</li>
+        <li>a USB camera shows its device, <code>/dev/video0</code>.</li>
+      </ul>
+    </li>
+    <li>Press <kbd>Enter</kbd> to add it, or <kbd>Esc</kbd> to leave.</li>
+  </ol>
+  <blockquote>
+    <p>A stream keeps its name when the camera's address changes.</p>
+  </blockquote>
+  <hr />
+  <h4>When nothing shows</h4>
+  <p>
+    Check that the camera answers on its port, then reload the page with <kbd>Ctrl</kbd>
+    <kbd>R</kbd>.
+  </p>
+</article>

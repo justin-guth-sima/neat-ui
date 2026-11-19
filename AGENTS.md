@@ -50,7 +50,10 @@ look happens in one place. Every rule here protects that.
     "42 s", "5 min 07 s", "2 h 05 min", "3 d 04 h": each unit cut to whole units as a clock does,
     the second always two digits, and "–" for anything not a finite number of at least 0),
     `NeatStale` (`[neatStale]`: what its host shows is stale, faded to 0.55 and gray, with no
-    transition; the words beside it say why) and `provideNeatTitles(appName)` (the document's
+    transition; the words beside it say why), `NeatProse` (`[neatProse]`: long-form text in the
+    kit's type, its blocks spaced, `h3` to `h6` sized, lists with their markers, links underlined
+    in medium weight and their text's color, inline code on a chip, `kbd` as a key, quotes; its
+    styles are the kit stylesheet's, below) and `provideNeatTitles(appName)` (the document's
     title, `<appName> · <route title>`, or the app name alone on an untitled route).
     `neatEased` (a number signal that eases to each new value in 400 ms, ease-in-out cubic by
     default, and follows at once under reduced motion or after no value) and `NeatEasedNumber`
@@ -1002,6 +1005,19 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
 - **Apps need no Tailwind.** The kit ships its compiled stylesheet (`styles/neat-ui.css`), which
   contains exactly the utilities the kit's sources use; utility classes in app templates are not
   part of the kit's API.
+- **Long-form text is styled by the kit stylesheet, under `neatProse`.** `lib/prose/prose.css` is a
+  stylesheet of the kit's own that the compiled stylesheet imports, not a component's: the text it
+  styles is the app's (another template's, or `[innerHTML]`), which encapsulated styles cannot
+  reach, and a directive has no styles. Its rules sit in the `components` layer under `:where()`,
+  below the kit's utilities and every unlayered style. They reach only the prose's flow: the host,
+  its quotes, the items of its lists and of the lists inside them, and the links, code and keys in
+  their text. So a kit part placed in it keeps its own look, and nothing outside a `neatProse`
+  host changes. Inline code and a key have one look each, the utilities `neat-code` and
+  `neat-key` there, which `NeatCode` and `NeatShortcut` put on their elements and prose applies to
+  a plain `code` and `kbd`. A link takes no color of its own, so it holds its text's contrast on
+  any surface (a callout's tint, a dialog), and its underline sets it apart (WCAG 1.4.1). The spec
+  tests which elements each rule reaches. Escape hatch: what the flow does not cover is a change
+  to prose.css and its spec, never an app's own prose styles; a table is `neatTable`'s.
 - **A button that waits without losing the focus is `aria-disabled`, not `disabled`.** `NeatButton`
   dims `[attr.aria-disabled]="true"` as helm dims a disabled button, with a not-allowed cursor,
   while the button stays focusable and keeps its pointer events, so a tooltip saying why it waits

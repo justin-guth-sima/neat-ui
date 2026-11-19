@@ -1,6 +1,0 @@
-/* A code span, a reference's included: a name or a value set in the text, on the code surface. */
-code {
-  padding-inline: calc(var(--neat-space-2) / 2);
-  border-radius: var(--radius);
-  background: var(--muted);
-}

@@ -330,3 +330,5 @@ neatAsideOpen(remembered: Signal<boolean>, remember: (open: boolean) => void): N
 Directive from `@sima/neat-ui`, selector `code[neatCode]`.
 
 A URL, a path or a name in running text: `<code neatCode>rtsp://…/src3</code>`. Monospace runs wide, so it is the kit's small size, and it has no spaces to break at, so it wraps anywhere.
+
+Inside `neatProse`, a plain `code` takes the same size and wrapping, on a chip.

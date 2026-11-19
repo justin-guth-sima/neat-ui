@@ -142,7 +142,7 @@ describe('the docs topics', () => {
       GROUPS.map((group) => [group.id, group.topics?.length, group.categories?.length]),
     ).toEqual([
       ['theme', 4, undefined],
-      ['layout', 3, undefined],
+      ['layout', 4, undefined],
       ['components', undefined, 7],
     ]);
     expect(GROUPS[2].categories?.map((category) => category.label)).toEqual([
@@ -155,7 +155,7 @@ describe('the docs topics', () => {
       'Video',
     ]);
     expect(placedTopics(GROUPS[2])).toHaveLength(54);
-    expect(topics).toHaveLength(61);
+    expect(topics).toHaveLength(62);
   });
 
   // The id is also the examples folder and the `/demo/<id>` path, whichever group the topic is in.
@@ -268,8 +268,12 @@ describe('every docs topic in the app', () => {
       expect(
         Array.from(content().querySelectorAll('app-part-intro h2'), (h) => h.textContent?.trim()),
       ).toEqual(topic.parts.filter((name) => topic.leads.includes(name)));
+      // Each card's own title: an example may hold headings of its own (prose).
       expect(
-        Array.from(content().querySelectorAll('app-example-card h3'), (h) => h.textContent),
+        Array.from(
+          content().querySelectorAll('app-example-card > article > h3'),
+          (h) => h.textContent,
+        ),
       ).toEqual(examples.map((example) => example.title));
       for (const example of examples) {
         const card = content().querySelector(`article[aria-labelledby="example-${example.id}"]`);

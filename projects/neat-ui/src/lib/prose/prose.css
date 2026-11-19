@@ -1,0 +1,139 @@
+/*
+ * The look of long-form text (`NeatProse`), compiled into the kit stylesheet: a stylesheet of the
+ * kit's own, not a component's, since the text it styles is the app's (another template's, or
+ * `[innerHTML]`), which a component's encapsulated styles cannot reach.
+ *
+ * Inline code and a key have one look in the kit, which prose shares: `neat-code` is
+ * `code[neatCode]`'s, `neat-key` is a key of `neat-shortcut`. Each is a utility, stated once here,
+ * that the part puts on its element and prose applies to plain `code` and `kbd`.
+ */
+
+/* Monospace runs wide, so it is the kit's small size, and it has no spaces to break at. */
+@utility neat-code {
+  font-size: var(--neat-text-xs);
+  overflow-wrap: anywhere;
+}
+
+/* A key: a raised cap in the muted fill, its label small and monospaced. */
+@utility neat-key {
+  display: inline-flex;
+  align-items: center;
+  height: 1.25rem;
+  padding: 0 0.375rem;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: calc(var(--radius) - 4px);
+  background: var(--muted);
+  font:
+    0.6875rem ui-monospace,
+    'SFMono-Regular',
+    Menlo,
+    Consolas,
+    monospace;
+  color: var(--muted-foreground);
+}
+
+/*
+ * The components layer: under the kit's utilities and under every unlayered style (an app's, a
+ * component's), so a kit part inside the prose keeps its look. `:where` keeps the flow's own
+ * selectors from adding weight.
+ *
+ * The flow is what prose styles: the host, its quotes, and the items of its lists and of the
+ * lists inside them. A list or a heading inside another component placed in the prose (a chart's
+ * legend, a card's title) is not part of it.
+ */
+@layer components {
+  :where(
+    .neat-prose,
+    .neat-prose > blockquote,
+    .neat-prose > :is(ul, ol) > li,
+    .neat-prose > :is(ul, ol) > li > :is(ul, ol) > li
+  ) {
+    /* Blocks one step apart, a heading or a rule further from what comes before it. */
+    & > * + * {
+      margin-block-start: var(--neat-space-3);
+    }
+
+    & > * + :is(h1, h2, h3, h4, h5, h6),
+    & > * + hr,
+    & > hr + * {
+      margin-block-start: var(--neat-space-6);
+    }
+
+    /* h1, h2 and h4 keep the kit's base sizes; h3 sits between h2 and the text, h5 and h6 below. */
+    & > h3 {
+      @apply text-lg font-medium;
+    }
+
+    & > :is(h5, h6) {
+      @apply text-(length:--neat-text-sm) font-medium;
+    }
+
+    & > h6 {
+      color: var(--muted-foreground);
+    }
+
+    /* The markers the reset takes away, muted so the text leads. */
+    & > :is(ul, ol) {
+      padding-inline-start: var(--neat-space-6);
+    }
+
+    & > ul {
+      list-style: disc;
+    }
+
+    & > ol {
+      list-style: decimal;
+    }
+
+    & > :is(ul, ol) > li + li {
+      margin-block-start: var(--neat-space-2);
+    }
+
+    & > :is(ul, ol) > li::marker {
+      color: var(--muted-foreground);
+    }
+
+    & > ol > li::marker {
+      font-weight: 500;
+    }
+
+    & > blockquote {
+      padding-inline-start: var(--neat-space-4);
+      border-inline-start: 0.25rem solid var(--border);
+      color: var(--muted-foreground);
+    }
+
+    /*
+     * A link is its text's color, so it holds the contrast its text holds on any surface. The
+     * underline, not a color, sets it apart (WCAG 1.4.1), and the medium weight helps it show in
+     * muted text. An `a` without `href` is no link and keeps its looks.
+     */
+    & > :is(p, h1, h2, h3, h4, h5, h6) a[href],
+    &:where(li) a[href] {
+      font-weight: 500;
+      text-decoration: underline;
+    }
+
+    & > :is(p, h1, h2, h3, h4, h5, h6) a[href]:focus-visible,
+    &:where(li) a[href]:focus-visible {
+      outline: var(--neat-focus-ring-width) solid var(--ring);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    /* Inline code on a chip; code in a pre is a block's and is left alone. */
+    & > :is(p, h1, h2, h3, h4, h5, h6) code:not(pre code),
+    &:where(li) code:not(pre code) {
+      @apply neat-code;
+      padding-inline: calc(var(--neat-space-2) / 2);
+      border-radius: var(--radius);
+      background: var(--muted);
+    }
+
+    & > :is(p, h1, h2, h3, h4, h5, h6) kbd,
+    &:where(li) kbd {
+      @apply neat-key;
+    }
+  }
+}

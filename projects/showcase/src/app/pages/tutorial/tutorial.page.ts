@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NeatCode, NeatPage } from '@sima/neat-ui';
+import { NeatCode, NeatPage, NeatProse } from '@sima/neat-ui';
 import kit from '../../../../../neat-ui/package.json';
 import { CodeBox } from '../../docs/code-box';
 import { CopyButton } from '../../docs/copy-button';
@@ -49,7 +49,7 @@ export const filesOf = (step: string): readonly DocsTutorialFile[] => TUTORIAL_F
  */
 @Component({
   selector: 'app-tutorial-page',
-  imports: [CodeBox, CopyButton, NeatCode, NeatPage, NgTemplateOutlet, RouterLink],
+  imports: [CodeBox, CopyButton, NeatCode, NeatPage, NeatProse, NgTemplateOutlet, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ng-template #files let-step>
@@ -66,7 +66,7 @@ export const filesOf = (step: string): readonly DocsTutorialFile[] => TUTORIAL_F
     </ng-template>
 
     <neat-page>
-      <div class="guide">
+      <div class="guide" neatProse>
         <p class="lead">
           A first app on the kit, step by step: a list of camera streams with a search and a side
           panel, in the kit's shell. Each step ends with what you should see. It takes about half an
@@ -262,9 +262,9 @@ export const filesOf = (step: string): readonly DocsTutorialFile[] => TUTORIAL_F
           </li>
         </ol>
 
-        <section class="showcase-section" aria-labelledby="tutorial-next">
+        <section neatProse aria-labelledby="tutorial-next">
           <h2 id="tutorial-next">Where next</h2>
-          <ul class="reading">
+          <ul>
             <li>
               Every part the kit has, with live examples and their code:
               <a routerLink="/components">Components</a>, and the shell and pages in

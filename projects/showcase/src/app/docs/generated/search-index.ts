@@ -526,6 +526,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatProse",
+    "partKind": "directive",
+    "text": "Long-form text in the kit's type: the headings, paragraphs, lists, links, code, keys, quotes and rules inside its host."
+  },
+  {
+    "kind": "part",
     "name": "NeatRailDivider",
     "partKind": "directive",
     "text": "A line between groups of the rail's bottom items."
@@ -5370,6 +5376,20 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "progress",
     "id": "titled-readout",
     "text": "Two titled readouts."
+  },
+  {
+    "kind": "example",
+    "name": "Help page",
+    "topic": "prose",
+    "id": "help-page",
+    "text": "A page of help as prose: headings, paragraphs, lists, a link, code, keys, a quote and a rule."
+  },
+  {
+    "kind": "example",
+    "name": "Converted README",
+    "topic": "prose",
+    "id": "converted-readme",
+    "text": "Text from elsewhere, here a README converted from Markdown, set with [innerHTML]."
   },
   {
     "kind": "example",
