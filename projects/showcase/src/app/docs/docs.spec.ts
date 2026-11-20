@@ -158,6 +158,15 @@ describe('the docs topics', () => {
     expect(topics).toHaveLength(66);
   });
 
+  it("lists each category's topics in alphabetical order, so a reader finds a part by its name", () => {
+    for (const category of GROUPS[2].categories ?? []) {
+      const labels = category.topics.map((topic) => topic.label);
+      expect(labels, category.label).toEqual(
+        [...labels].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' })),
+      );
+    }
+  });
+
   // The id is also the examples folder and the `/demo/<id>` path, whichever group the topic is in.
   it('has unique topic ids across groups', () => {
     const ids = topics.map(({ topic }) => topic.id);

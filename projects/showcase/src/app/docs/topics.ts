@@ -261,32 +261,6 @@ export const GROUPS: readonly TopicGroup[] = [
         label: 'Actions',
         topics: [
           {
-            id: 'button',
-            label: 'Button',
-            parts: ['NeatButton', 'NeatButtonVariant', 'NeatButtonSize'],
-            leads: ['NeatButton'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/primary'),
-                import('./generated/examples/button'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'inline-button',
-            label: 'Inline button',
-            parts: ['NeatInlineButton'],
-            leads: ['NeatInlineButton'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/primary'),
-                import('./generated/examples/inline-button'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
             id: 'breadcrumbs',
             label: 'Breadcrumbs',
             parts: ['NeatBreadcrumbs', 'NeatBreadcrumb'],
@@ -300,52 +274,6 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
-            id: 'tooltip',
-            label: 'Tooltip',
-            parts: ['NeatTooltip', 'NeatTooltipPosition'],
-            leads: ['NeatTooltip'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/primary'),
-                import('./generated/examples/tooltip'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'shortcut',
-            label: 'Shortcut',
-            parts: ['NeatShortcut'],
-            leads: ['NeatShortcut'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/primary'),
-                import('./generated/examples/shortcut'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'popover',
-            label: 'Popover',
-            parts: [
-              'NeatPopover',
-              'NeatPopoverTrigger',
-              'NeatPopoverContent',
-              'NeatPopoverItem',
-              'NeatPopoverDivider',
-              'NeatPopoverAlign',
-            ],
-            leads: ['NeatPopover', 'NeatPopoverTrigger'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/popover'),
-                import('./generated/examples/popover'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
             id: 'bubble',
             label: 'Bubble',
             parts: ['NeatBubble', 'NeatBubbleSide', 'NeatBubbleAnchor'],
@@ -354,6 +282,19 @@ export const GROUPS: readonly TopicGroup[] = [
               const [api, examples] = await Promise.all([
                 import('./generated/api/bubble'),
                 import('./generated/examples/bubble'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'button',
+            label: 'Button',
+            parts: ['NeatButton', 'NeatButtonVariant', 'NeatButtonSize'],
+            leads: ['NeatButton'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/primary'),
+                import('./generated/examples/button'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
@@ -394,6 +335,52 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
+            id: 'inline-button',
+            label: 'Inline button',
+            parts: ['NeatInlineButton'],
+            leads: ['NeatInlineButton'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/primary'),
+                import('./generated/examples/inline-button'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'popover',
+            label: 'Popover',
+            parts: [
+              'NeatPopover',
+              'NeatPopoverTrigger',
+              'NeatPopoverContent',
+              'NeatPopoverItem',
+              'NeatPopoverDivider',
+              'NeatPopoverAlign',
+            ],
+            leads: ['NeatPopover', 'NeatPopoverTrigger'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/popover'),
+                import('./generated/examples/popover'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'shortcut',
+            label: 'Shortcut',
+            parts: ['NeatShortcut'],
+            leads: ['NeatShortcut'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/primary'),
+                import('./generated/examples/shortcut'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'toast',
             label: 'Toast',
             parts: ['NeatToasts', 'NeatToastHost', 'NeatProgressToast'],
@@ -406,12 +393,51 @@ export const GROUPS: readonly TopicGroup[] = [
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
           },
+          {
+            id: 'tooltip',
+            label: 'Tooltip',
+            parts: ['NeatTooltip', 'NeatTooltipPosition'],
+            leads: ['NeatTooltip'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/primary'),
+                import('./generated/examples/tooltip'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
         ],
       },
       {
         id: 'forms',
         label: 'Forms',
         topics: [
+          {
+            id: 'drop-zone',
+            label: 'Drop zone',
+            parts: ['NeatDropZone'],
+            leads: ['NeatDropZone'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/drop-zone'),
+                import('./generated/examples/drop-zone'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'field',
+            label: 'Field',
+            parts: ['NeatField', 'NeatErrorNote'],
+            leads: ['NeatField'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/field'),
+                import('./generated/examples/field'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
           {
             id: 'input',
             label: 'Input',
@@ -421,6 +447,19 @@ export const GROUPS: readonly TopicGroup[] = [
               const [api, examples] = await Promise.all([
                 import('./generated/api/input'),
                 import('./generated/examples/input'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'number-field',
+            label: 'Number field',
+            parts: ['NeatNumberField'],
+            leads: ['NeatNumberField'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/number-field'),
+                import('./generated/examples/number-field'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
@@ -457,27 +496,14 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
-            id: 'number-field',
-            label: 'Number field',
-            parts: ['NeatNumberField'],
-            leads: ['NeatNumberField'],
+            id: 'segmented',
+            label: 'Segmented',
+            parts: ['NeatSegmented', 'NeatSegmentedOption'],
+            leads: ['NeatSegmented'],
             load: async () => {
               const [api, examples] = await Promise.all([
-                import('./generated/api/number-field'),
-                import('./generated/examples/number-field'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'field',
-            label: 'Field',
-            parts: ['NeatField', 'NeatErrorNote'],
-            leads: ['NeatField'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/field'),
-                import('./generated/examples/field'),
+                import('./generated/api/segmented'),
+                import('./generated/examples/segmented'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
@@ -496,19 +522,6 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
-            id: 'switch',
-            label: 'Switch',
-            parts: ['NeatSwitch'],
-            leads: ['NeatSwitch'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/switch'),
-                import('./generated/examples/switch'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
             id: 'slider',
             label: 'Slider',
             parts: ['NeatSlider'],
@@ -522,14 +535,14 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
-            id: 'segmented',
-            label: 'Segmented',
-            parts: ['NeatSegmented', 'NeatSegmentedOption'],
-            leads: ['NeatSegmented'],
+            id: 'switch',
+            label: 'Switch',
+            parts: ['NeatSwitch'],
+            leads: ['NeatSwitch'],
             load: async () => {
               const [api, examples] = await Promise.all([
-                import('./generated/api/segmented'),
-                import('./generated/examples/segmented'),
+                import('./generated/api/switch'),
+                import('./generated/examples/switch'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
@@ -547,38 +560,12 @@ export const GROUPS: readonly TopicGroup[] = [
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
           },
-          {
-            id: 'drop-zone',
-            label: 'Drop zone',
-            parts: ['NeatDropZone'],
-            leads: ['NeatDropZone'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/drop-zone'),
-                import('./generated/examples/drop-zone'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
         ],
       },
       {
         id: 'status',
         label: 'Status',
         topics: [
-          {
-            id: 'status-chip',
-            label: 'Status chip',
-            parts: ['NeatStatusChip', 'NeatStatusChipButton', 'NeatStatusChipVariant'],
-            leads: ['NeatStatusChip', 'NeatStatusChipButton'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/status-chip'),
-                import('./generated/examples/status-chip'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
           {
             id: 'callout',
             label: 'Callout',
@@ -588,58 +575,6 @@ export const GROUPS: readonly TopicGroup[] = [
               const [api, examples] = await Promise.all([
                 import('./generated/api/callout'),
                 import('./generated/examples/callout'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'note',
-            label: 'Note',
-            parts: ['NeatNote'],
-            leads: ['NeatNote'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/primary'),
-                import('./generated/examples/note'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'live-dot',
-            label: 'Live dot',
-            parts: ['NeatLiveDot'],
-            leads: ['NeatLiveDot'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/primary'),
-                import('./generated/examples/live-dot'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'stale',
-            label: 'Stale',
-            parts: ['NeatStale'],
-            leads: ['NeatStale'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/primary'),
-                import('./generated/examples/stale'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'progress',
-            label: 'Progress',
-            parts: ['NeatProgress'],
-            leads: ['NeatProgress'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/progress'),
-                import('./generated/examples/progress'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
@@ -658,6 +593,19 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
+            id: 'live-dot',
+            label: 'Live dot',
+            parts: ['NeatLiveDot'],
+            leads: ['NeatLiveDot'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/primary'),
+                import('./generated/examples/live-dot'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'motion',
             label: 'Motion',
             parts: ['neatEased', 'NeatEasedNumber', 'NEAT_EASINGS', 'NeatEasing', 'NeatEasingName'],
@@ -666,6 +614,58 @@ export const GROUPS: readonly TopicGroup[] = [
               const [api, examples] = await Promise.all([
                 import('./generated/api/primary'),
                 import('./generated/examples/motion'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'note',
+            label: 'Note',
+            parts: ['NeatNote'],
+            leads: ['NeatNote'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/primary'),
+                import('./generated/examples/note'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'progress',
+            label: 'Progress',
+            parts: ['NeatProgress'],
+            leads: ['NeatProgress'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/progress'),
+                import('./generated/examples/progress'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'stale',
+            label: 'Stale',
+            parts: ['NeatStale'],
+            leads: ['NeatStale'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/primary'),
+                import('./generated/examples/stale'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'status-chip',
+            label: 'Status chip',
+            parts: ['NeatStatusChip', 'NeatStatusChipButton', 'NeatStatusChipVariant'],
+            leads: ['NeatStatusChip', 'NeatStatusChipButton'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/status-chip'),
+                import('./generated/examples/status-chip'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
@@ -690,27 +690,14 @@ export const GROUPS: readonly TopicGroup[] = [
         label: 'Data',
         topics: [
           {
-            id: 'table',
-            label: 'Table',
-            parts: ['NeatTable', 'NeatNumeric', 'NeatFigure'],
-            leads: ['NeatTable'],
+            id: 'card',
+            label: 'Card',
+            parts: ['NeatCard'],
+            leads: ['NeatCard'],
             load: async () => {
               const [api, examples] = await Promise.all([
-                import('./generated/api/table'),
-                import('./generated/examples/table'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'details',
-            label: 'Details',
-            parts: ['NeatDetails'],
-            leads: ['NeatDetails'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/details'),
-                import('./generated/examples/details'),
+                import('./generated/api/card'),
+                import('./generated/examples/card'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
@@ -734,6 +721,50 @@ export const GROUPS: readonly TopicGroup[] = [
               const [api, examples] = await Promise.all([
                 import('./generated/api/code-block'),
                 import('./generated/examples/code-block'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'collapsible',
+            label: 'Collapsible',
+            parts: ['NeatCollapsible'],
+            leads: ['NeatCollapsible'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/collapsible'),
+                import('./generated/examples/collapsible'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'details',
+            label: 'Details',
+            parts: ['NeatDetails'],
+            leads: ['NeatDetails'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/details'),
+                import('./generated/examples/details'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'file-browser',
+            label: 'File browser',
+            parts: [
+              'NeatFileBrowser',
+              'NeatFileNode',
+              'NeatFileBrowserMode',
+              'NeatFileBrowserLabels',
+            ],
+            leads: ['NeatFileBrowser'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/file-browser'),
+                import('./generated/examples/file-browser'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
@@ -765,50 +796,6 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
-            id: 'file-browser',
-            label: 'File browser',
-            parts: [
-              'NeatFileBrowser',
-              'NeatFileNode',
-              'NeatFileBrowserMode',
-              'NeatFileBrowserLabels',
-            ],
-            leads: ['NeatFileBrowser'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/file-browser'),
-                import('./generated/examples/file-browser'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'collapsible',
-            label: 'Collapsible',
-            parts: ['NeatCollapsible'],
-            leads: ['NeatCollapsible'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/collapsible'),
-                import('./generated/examples/collapsible'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'card',
-            label: 'Card',
-            parts: ['NeatCard'],
-            leads: ['NeatCard'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/card'),
-                import('./generated/examples/card'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
             id: 'stored-signal',
             label: 'Stored signal',
             parts: ['neatStoredSignal'],
@@ -821,125 +808,25 @@ export const GROUPS: readonly TopicGroup[] = [
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
           },
+          {
+            id: 'table',
+            label: 'Table',
+            parts: ['NeatTable', 'NeatNumeric', 'NeatFigure'],
+            leads: ['NeatTable'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/table'),
+                import('./generated/examples/table'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
         ],
       },
       {
         id: 'charts',
         label: 'Charts',
         topics: [
-          {
-            id: 'sparkline',
-            label: 'Sparkline',
-            parts: ['NeatSparkline'],
-            leads: ['NeatSparkline'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/charts'),
-                import('./generated/examples/sparkline'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'time-chart',
-            label: 'Time chart',
-            parts: [
-              'NeatTimeChart',
-              'NeatSeries',
-              'NeatThreshold',
-              'NeatReference',
-              'NeatChartFormat',
-              'NeatChartAxis',
-              'NeatChartTone',
-              'NeatSamplePick',
-            ],
-            leads: ['NeatTimeChart'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/charts'),
-                import('./generated/examples/time-chart'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'stacked-chart',
-            label: 'Stacked chart',
-            parts: ['NeatStackedChart'],
-            leads: ['NeatStackedChart'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/charts'),
-                import('./generated/examples/stacked-chart'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'heatmap',
-            label: 'Heatmap',
-            parts: ['NeatHeatmap', 'NeatHeatmapRow', 'NeatHeatmapCell', 'NeatHeatmapPick'],
-            leads: ['NeatHeatmap'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/charts'),
-                import('./generated/examples/heatmap'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'score-bars',
-            label: 'Score bars',
-            parts: ['NeatScoreBars', 'NeatScore', 'neatLabelColor', 'neatLabelColour'],
-            leads: ['NeatScoreBars'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/charts'),
-                import('./generated/examples/score-bars'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'label-timeline',
-            label: 'Label timeline',
-            parts: ['NeatLabelTimeline', 'NeatLabelRun', 'NeatTimelineMotion', 'NeatRunPick'],
-            leads: ['NeatLabelTimeline'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/charts'),
-                import('./generated/examples/label-timeline'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'chart-card',
-            label: 'Chart card',
-            parts: ['NeatChartCard'],
-            leads: ['NeatChartCard'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/charts'),
-                import('./generated/examples/chart-card'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'series-swatch',
-            label: 'Swatch',
-            parts: ['NeatSwatch', 'NeatSeriesSwatch'],
-            leads: ['NeatSwatch', 'NeatSeriesSwatch'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/primary'),
-                import('./generated/examples/series-swatch'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
           {
             id: 'bev',
             label: "Bird's-eye view",
@@ -965,6 +852,119 @@ export const GROUPS: readonly TopicGroup[] = [
               const [api, examples] = await Promise.all([
                 import('./generated/api/bev'),
                 import('./generated/examples/bev'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'chart-card',
+            label: 'Chart card',
+            parts: ['NeatChartCard'],
+            leads: ['NeatChartCard'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/charts'),
+                import('./generated/examples/chart-card'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'heatmap',
+            label: 'Heatmap',
+            parts: ['NeatHeatmap', 'NeatHeatmapRow', 'NeatHeatmapCell', 'NeatHeatmapPick'],
+            leads: ['NeatHeatmap'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/charts'),
+                import('./generated/examples/heatmap'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'label-timeline',
+            label: 'Label timeline',
+            parts: ['NeatLabelTimeline', 'NeatLabelRun', 'NeatTimelineMotion', 'NeatRunPick'],
+            leads: ['NeatLabelTimeline'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/charts'),
+                import('./generated/examples/label-timeline'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'score-bars',
+            label: 'Score bars',
+            parts: ['NeatScoreBars', 'NeatScore', 'neatLabelColor', 'neatLabelColour'],
+            leads: ['NeatScoreBars'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/charts'),
+                import('./generated/examples/score-bars'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'sparkline',
+            label: 'Sparkline',
+            parts: ['NeatSparkline'],
+            leads: ['NeatSparkline'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/charts'),
+                import('./generated/examples/sparkline'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'stacked-chart',
+            label: 'Stacked chart',
+            parts: ['NeatStackedChart'],
+            leads: ['NeatStackedChart'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/charts'),
+                import('./generated/examples/stacked-chart'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'series-swatch',
+            label: 'Swatch',
+            parts: ['NeatSwatch', 'NeatSeriesSwatch'],
+            leads: ['NeatSwatch', 'NeatSeriesSwatch'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/primary'),
+                import('./generated/examples/series-swatch'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'time-chart',
+            label: 'Time chart',
+            parts: [
+              'NeatTimeChart',
+              'NeatSeries',
+              'NeatThreshold',
+              'NeatReference',
+              'NeatChartFormat',
+              'NeatChartAxis',
+              'NeatChartTone',
+              'NeatSamplePick',
+            ],
+            leads: ['NeatTimeChart'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/charts'),
+                import('./generated/examples/time-chart'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
@@ -1013,6 +1013,32 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
+            id: 'drill-down',
+            label: 'Drill-down',
+            parts: ['neatDrillDownLevel'],
+            leads: ['neatDrillDownLevel'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/diagram'),
+                import('./generated/examples/drill-down'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'legend',
+            label: 'Legend',
+            parts: ['NeatDiagramLegend', 'NeatDiagramLegendItem'],
+            leads: ['NeatDiagramLegend'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/diagram'),
+                import('./generated/examples/legend'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'messaging',
             label: 'Messaging',
             parts: [
@@ -1036,32 +1062,6 @@ export const GROUPS: readonly TopicGroup[] = [
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
           },
-          {
-            id: 'legend',
-            label: 'Legend',
-            parts: ['NeatDiagramLegend', 'NeatDiagramLegendItem'],
-            leads: ['NeatDiagramLegend'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/diagram'),
-                import('./generated/examples/legend'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'drill-down',
-            label: 'Drill-down',
-            parts: ['neatDrillDownLevel'],
-            leads: ['neatDrillDownLevel'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/diagram'),
-                import('./generated/examples/drill-down'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
         ],
       },
       {
@@ -1069,68 +1069,14 @@ export const GROUPS: readonly TopicGroup[] = [
         label: 'Video',
         topics: [
           {
-            id: 'video-tile',
-            label: 'Video tile',
-            parts: [
-              'NeatVideoTile',
-              'NeatVideoBox',
-              'NeatTileFrame',
-              'NeatTileFrameListener',
-              'NeatTileSource',
-              'NeatTileState',
-              'NeatFrameStats',
-              'NeatOverlaySettings',
-              'NeatOverlayType',
-              'NeatOverlayIdentity',
-              'NeatOverlayClassStyle',
-              'NeatOverlayLineStyle',
-              'NEAT_OVERLAY_DEFAULTS',
-              'NEAT_OVERLAY_STYLE_FALLBACK_COLOR',
-            ],
-            leads: ['NeatVideoTile'],
+            id: 'insight-channel',
+            label: 'Insight channel',
+            parts: ['neatInsightChannel', 'NeatInsightChannel', 'NeatInsightChannelOptions'],
+            leads: ['neatInsightChannel'],
             load: async () => {
               const [api, examples] = await Promise.all([
-                import('./generated/api/video'),
-                import('./generated/examples/video-tile'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'tile-grid',
-            label: 'Tile grid',
-            parts: [
-              'NeatTileGrid',
-              'NeatTileLayout',
-              'NeatTilePack',
-              'NeatTileArea',
-              'NEAT_MIN_TILE_WIDTH',
-              'fitAllTileWidth',
-            ],
-            leads: ['NeatTileGrid'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/video'),
-                import('./generated/examples/tile-grid'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'roi-editor',
-            label: 'ROI editor',
-            parts: [
-              'NeatRoiEditor',
-              'NeatRoiSwatch',
-              'NeatRoiPolygon',
-              'NeatRoiDrawMode',
-              'neatRoiNames',
-            ],
-            leads: ['NeatRoiEditor'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/video'),
-                import('./generated/examples/roi-editor'),
+                import('./generated/api/insight'),
+                import('./generated/examples/insight-channel'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
@@ -1160,14 +1106,68 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
-            id: 'insight-channel',
-            label: 'Insight channel',
-            parts: ['neatInsightChannel', 'NeatInsightChannel', 'NeatInsightChannelOptions'],
-            leads: ['neatInsightChannel'],
+            id: 'roi-editor',
+            label: 'ROI editor',
+            parts: [
+              'NeatRoiEditor',
+              'NeatRoiSwatch',
+              'NeatRoiPolygon',
+              'NeatRoiDrawMode',
+              'neatRoiNames',
+            ],
+            leads: ['NeatRoiEditor'],
             load: async () => {
               const [api, examples] = await Promise.all([
-                import('./generated/api/insight'),
-                import('./generated/examples/insight-channel'),
+                import('./generated/api/video'),
+                import('./generated/examples/roi-editor'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'tile-grid',
+            label: 'Tile grid',
+            parts: [
+              'NeatTileGrid',
+              'NeatTileLayout',
+              'NeatTilePack',
+              'NeatTileArea',
+              'NEAT_MIN_TILE_WIDTH',
+              'fitAllTileWidth',
+            ],
+            leads: ['NeatTileGrid'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/video'),
+                import('./generated/examples/tile-grid'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'video-tile',
+            label: 'Video tile',
+            parts: [
+              'NeatVideoTile',
+              'NeatVideoBox',
+              'NeatTileFrame',
+              'NeatTileFrameListener',
+              'NeatTileSource',
+              'NeatTileState',
+              'NeatFrameStats',
+              'NeatOverlaySettings',
+              'NeatOverlayType',
+              'NeatOverlayIdentity',
+              'NeatOverlayClassStyle',
+              'NeatOverlayLineStyle',
+              'NEAT_OVERLAY_DEFAULTS',
+              'NEAT_OVERLAY_STYLE_FALLBACK_COLOR',
+            ],
+            leads: ['NeatVideoTile'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/video'),
+                import('./generated/examples/video-tile'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },

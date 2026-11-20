@@ -279,7 +279,9 @@ is the doc comment, and the snippet under an example is the files that render it
   that changed has no redirect, and only the catch-all, to Getting started, takes an unknown one.
   Why categories and not more rail items: a rail item per category read as an area of an app when
   the categories are only filing, so a new component topic goes under a category and a new
-  category is a sub-page of Components, never a rail item. Topic ids are unique across groups
+  category is a sub-page of Components, never a rail item. A category lists its topics alphabetically by
+  label (`docs.spec.ts` holds it), so a reader finds a part by its name; a new topic goes in at its
+  place. Topic ids are unique across groups
   (`docs.spec.ts`), since an id is also the examples folder and the `/demo/<id>` path. Escape
   hatch: a fifth rail item is a change to this rule, raised with the maintainer, not a new group in
   `topics.ts`.

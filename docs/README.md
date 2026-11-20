@@ -21,78 +21,78 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 
 ## Actions
 
-- [Button](components/button.md)
-- [Inline button](components/inline-button.md)
 - [Breadcrumbs](components/breadcrumbs.md)
-- [Tooltip](components/tooltip.md)
-- [Shortcut](components/shortcut.md)
-- [Popover](components/popover.md)
 - [Bubble](components/bubble.md)
+- [Button](components/button.md)
 - [Confirm](components/confirm.md)
 - [Dialog](components/dialog.md)
+- [Inline button](components/inline-button.md)
+- [Popover](components/popover.md)
+- [Shortcut](components/shortcut.md)
 - [Toast](components/toast.md)
+- [Tooltip](components/tooltip.md)
 
 ## Forms
 
+- [Drop zone](components/drop-zone.md)
+- [Field](components/field.md)
 - [Input](components/input.md)
+- [Number field](components/number-field.md)
 - [Search](components/search.md)
 - [Search palette](components/search-palette.md)
-- [Number field](components/number-field.md)
-- [Field](components/field.md)
-- [Select](components/select.md)
-- [Switch](components/switch.md)
-- [Slider](components/slider.md)
 - [Segmented](components/segmented.md)
+- [Select](components/select.md)
+- [Slider](components/slider.md)
+- [Switch](components/switch.md)
 - [Tabs](components/tabs.md)
-- [Drop zone](components/drop-zone.md)
 
 ## Status
 
-- [Status chip](components/status-chip.md)
 - [Callout](components/callout.md)
-- [Note](components/note.md)
-- [Live dot](components/live-dot.md)
-- [Stale](components/stale.md)
-- [Progress](components/progress.md)
 - [Level meter](components/level-meter.md)
+- [Live dot](components/live-dot.md)
 - [Motion](components/motion.md)
+- [Note](components/note.md)
+- [Progress](components/progress.md)
+- [Stale](components/stale.md)
+- [Status chip](components/status-chip.md)
 - [Time](components/time.md)
 
 ## Data
 
-- [Table](components/table.md)
-- [Details](components/details.md)
+- [Card](components/card.md)
 - [Code block](components/code-block.md)
+- [Collapsible](components/collapsible.md)
+- [Details](components/details.md)
+- [File browser](components/file-browser.md)
 - [Line list](components/line-list.md)
 - [Select list](components/select-list.md)
-- [File browser](components/file-browser.md)
-- [Collapsible](components/collapsible.md)
-- [Card](components/card.md)
 - [Stored signal](components/stored-signal.md)
+- [Table](components/table.md)
 
 ## Charts
 
-- [Sparkline](components/sparkline.md)
-- [Time chart](components/time-chart.md)
-- [Stacked chart](components/stacked-chart.md)
-- [Heatmap](components/heatmap.md)
-- [Score bars](components/score-bars.md)
-- [Label timeline](components/label-timeline.md)
-- [Chart card](components/chart-card.md)
-- [Swatch](components/series-swatch.md)
 - [Bird's-eye view](components/bev.md)
+- [Chart card](components/chart-card.md)
+- [Heatmap](components/heatmap.md)
+- [Label timeline](components/label-timeline.md)
+- [Score bars](components/score-bars.md)
+- [Sparkline](components/sparkline.md)
+- [Stacked chart](components/stacked-chart.md)
+- [Swatch](components/series-swatch.md)
+- [Time chart](components/time-chart.md)
 
 ## Diagram
 
 - [Diagram](components/diagram.md)
-- [Messaging](components/messaging.md)
-- [Legend](components/legend.md)
 - [Drill-down](components/drill-down.md)
+- [Legend](components/legend.md)
+- [Messaging](components/messaging.md)
 
 ## Video
 
-- [Video tile](components/video-tile.md)
-- [Tile grid](components/tile-grid.md)
-- [ROI editor](components/roi-editor.md)
-- [Metadata sync](components/metadata-sync.md)
 - [Insight channel](components/insight-channel.md)
+- [Metadata sync](components/metadata-sync.md)
+- [ROI editor](components/roi-editor.md)
+- [Tile grid](components/tile-grid.md)
+- [Video tile](components/video-tile.md)

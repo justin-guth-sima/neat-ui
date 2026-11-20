@@ -172,12 +172,12 @@ describe('App', () => {
   it('opens a page on its first sub-page, and a category on its first topic', async () => {
     await navigate('/components');
 
-    expect(router.url).toBe('/components/actions/button');
+    expect(router.url).toBe('/components/actions/breadcrumbs');
     expect(rail().querySelector('a.active')?.textContent?.trim()).toBe('Components');
 
     await navigate('/components/data');
 
-    expect(router.url).toBe('/components/data/table');
+    expect(router.url).toBe('/components/data/card');
 
     await navigate('/theme');
 
@@ -253,15 +253,15 @@ describe('App', () => {
     expect(content().querySelector('neat-page h2')?.textContent).toContain('NeatSelectList');
     expect(list.getAttribute('aria-label')).toBe('Data topics');
     expect(links()).toEqual([
-      'Table',
-      'Details',
+      'Card',
       'Code block',
+      'Collapsible',
+      'Details',
+      'File browser',
       'Line list',
       'Select list',
-      'File browser',
-      'Collapsible',
-      'Card',
       'Stored signal',
+      'Table',
     ]);
     expect(currentOf(list.querySelectorAll('a'))).toEqual(['Select list']);
     expect(list.querySelector('a[aria-current="page"]')?.getAttribute('href')).toBe(
