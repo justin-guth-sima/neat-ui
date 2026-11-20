@@ -86,7 +86,12 @@ look happens in one place. Every rule here protects that.
     Public API is
     `projects/neat-ui/src/public-api.ts`.
   - one secondary entry point per other component, `@sima/neat-ui/<name>`: `switch`, `slider`,
-    `segmented`, `tabs`, `popover`, `confirm`, `input`, `number-field`, `line-list`, `select`
+    `segmented`, `tabs`, `popover`, `bubble` (`NeatBubble`, `neat-bubble`: a speech bubble with a
+    tail that points at its `anchor` (`NeatBubbleAnchor`, an element or several), on the popover's
+    panel surface, shown while it has one; it prefers its `side` and takes another where that has
+    no room, follows its anchor as boxes scroll and hides while the anchor is out of view; it is
+    drawn in the CDK overlay and its `id` is for an `aria-describedby`; the code block's notes use
+    it), `confirm`, `input`, `number-field`, `line-list`, `select`
     (`NeatSelect`, a labeled listbox combobox, its label shown above it with `showLabel` or, with
     `labelPosition="inline"`, before it on its row), `progress` (`NeatProgress`, a bar or, with a
     `heading`, a titled readout, which the progress toast renders through), `drop-zone`
@@ -117,7 +122,9 @@ look happens in one place. Every rule here protects that.
     `scroll` for a long line, with `copy`, what the code is, a Copy button named after it,
     `language` to color it in the theme's code colors, `lineNumbers` for a gutter of numbers,
     `marks` (`NeatCodeMark`) to set lines and parts of lines apart and dim the rest, and `steps`
-    (`NeatCodeStep`) with the `step` model and `stepControls` to walk through it;
+    (`NeatCodeStep`) with the `step` model and `stepControls` to walk through it, and
+    `ng-template[neatCodeNote]` (`NeatCodeNote`, with its `NeatCodeNoteContext`) for a note in a
+    bubble beside the step's marks or a hovered mark;
     `provideNeatCodeLanguages` (with its `NeatCodeLanguages`) adds languages; and
     `NeatCopyButton`, that button alone, for text shown some other way. An app that colors its code
     itself puts its spans inside the element, shown in place of the block's own lines, `code`
@@ -777,7 +784,7 @@ shares with the primary's `NeatSearch`), `ɵCOLLAPSIBLE_CLASSES` (the collapsibl
 look, which `collapsible` shares with the page nav on a narrow screen), `ɵSTALE_CLASSES` (the stale
 look, which `diagram` gives a node's card), `ɵOverlayFocus` and `ɵPANEL_SURFACE_CLASSES` and
 `ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel in the overlay, which
-`neat-popover` shares with the shell's collapsed-rail menu; the second is the helm popover's own
+`neat-popover` shares with the shell's collapsed-rail menu, and the surface with `neat-bubble`; the second is the helm popover's own
 classes, which the popover's drift spec reads), `ɵBROWSER_CLOCK` and `ɵreducedMotion` (the
 browser's frame clock and the reduced-motion check, which `charts`' label timeline shares with
 `neatEased`), `ɵREADOUT_CLASSES` (the readout's look, which `charts` shares with `bev`), and the
@@ -930,6 +937,19 @@ default) the code is plain.
   each change of the marks shown, `scroll.ts` scrolls the code box, never the page, to show the
   first mark, smoothly unless reduced motion is on. The block's grid row takes what a height or
   `max-height` on the host leaves, so the code box scrolls inside a bounded block.
+- **Notes** (`note.ts`): an `ng-template[neatCodeNote]` inside the block is shown in a
+  `NeatBubble` (`@sima/neat-ui/bubble`, imported by package name), given the step or the mark as
+  the app wrote it and its index. It is projected into a slot of its own after the code
+  (`select="[neatCodeNote]"`), so it never counts as the app's own spans. Its `neatCodeNote` input
+  takes the steps or marks only to type the template's variable (`ngTemplateContextGuard`). With
+  steps the bubble shows the shown step's note beside its shown marks, a marked line by its whole
+  line (the code box for a step without marks), and moves with the step. With marks, each mark
+  carries `data-mark` (its index) and its first element is a tab stop (`first` and `bandFirst` in
+  `marks.ts`), and its note shows while a mouse or pen is over the mark or the bubble (150 ms after
+  both are left), while it has the keyboard's focus, or after a tap or click; Escape and a press
+  outside the marks and the bubble put it away, and Escape keeps it away until the pointer or the
+  focus comes back to the mark. The mark the note shows for points at the bubble with
+  `aria-describedby`.
 - **The boundary:** ESLint (`SHIKI` in the root `eslint.config.js`) fails any static import of
   `shiki` or `@shikijs/*` outside the code-block entry, and in it any but `import type`; a dynamic
   `import()`, how an app adds a grammar, is not an import ESLint sees. `npm run check:dist` fails a

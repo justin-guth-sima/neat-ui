@@ -1324,6 +1324,48 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatBubble",
+    "partKind": "component",
+    "text": "A speech bubble that points at what it explains: the content inside the element, on the panel surface of a popover, with a tail toward its…"
+  },
+  {
+    "kind": "member",
+    "name": "anchor",
+    "part": "NeatBubble",
+    "text": "What the bubble points at, a NeatBubbleAnchor: it shows while there is one."
+  },
+  {
+    "kind": "member",
+    "name": "side",
+    "part": "NeatBubble",
+    "text": "The side of the anchor the bubble prefers, a NeatBubbleSide."
+  },
+  {
+    "kind": "member",
+    "name": "hover",
+    "part": "NeatBubble",
+    "text": "Whether a mouse or a pen is over the bubble, each time that changes."
+  },
+  {
+    "kind": "member",
+    "name": "id",
+    "part": "NeatBubble",
+    "text": "The bubble's id, for an aria-describedby on what it explains."
+  },
+  {
+    "kind": "part",
+    "name": "NeatBubbleAnchor",
+    "partKind": "type",
+    "text": "What a bubble points at: an element, an ElementRef (a template reference to a component), or several elements, which it treats as the one…"
+  },
+  {
+    "kind": "part",
+    "name": "NeatBubbleSide",
+    "partKind": "type",
+    "text": "The side of its anchor a bubble prefers: it takes another where this one has no room."
+  },
+  {
+    "kind": "part",
     "name": "NeatCallout",
     "partKind": "component",
     "text": "A note set apart on a status tint, with an optional heading and a row of actions:"
@@ -2125,6 +2167,42 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "name": "NeatCodeMark",
     "partKind": "type",
     "text": "A mark: lines, or a part of a line, that a code block sets apart while it dims the rest."
+  },
+  {
+    "kind": "part",
+    "name": "NeatCodeNote",
+    "partKind": "template",
+    "text": "The note a code block shows in a bubble (NeatBubble) beside its marks: the template is given the step or the mark, as the app gave it, so it…"
+  },
+  {
+    "kind": "member",
+    "name": "neatCodeNote",
+    "part": "NeatCodeNote",
+    "text": "The block's steps or marks, which give the template's variable its type."
+  },
+  {
+    "kind": "member",
+    "name": "neatCodeNoteSide",
+    "part": "NeatCodeNote",
+    "text": "The side of the marks the bubble prefers, a NeatBubbleSide: top by default."
+  },
+  {
+    "kind": "part",
+    "name": "NeatCodeNoteContext",
+    "partKind": "interface",
+    "text": "What a code block gives its note template: the step or the mark, and its index from 0."
+  },
+  {
+    "kind": "member",
+    "name": "$implicit",
+    "part": "NeatCodeNoteContext",
+    "text": "The step shown, or the mark the note is for, as the app gave it."
+  },
+  {
+    "kind": "member",
+    "name": "index",
+    "part": "NeatCodeNoteContext",
+    "text": "Its index in the block's steps or marks, from 0."
   },
   {
     "kind": "part",
@@ -5158,6 +5236,20 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Explaining a part",
+    "topic": "bubble",
+    "id": "explaining-a-part",
+    "text": "A bubble that explains the stage of a pipeline the reader picks: its anchor is the stage's button, so it moves from stage to stage, and null…"
+  },
+  {
+    "kind": "example",
+    "name": "Sides",
+    "topic": "bubble",
+    "id": "sides",
+    "text": "A bubble on each side of what it points at, by side."
+  },
+  {
+    "kind": "example",
     "name": "Variants",
     "topic": "button",
     "id": "variants",
@@ -5305,10 +5397,24 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Steps in a bubble",
+    "topic": "code-block",
+    "id": "steps-in-a-bubble",
+    "text": "The same walk with each step's note in a bubble beside its marks instead of beside the block: a neatCodeNote template inside the block gives…"
+  },
+  {
+    "kind": "example",
     "name": "Marks on plain code",
     "topic": "code-block",
     "id": "marks-on-plain-code",
     "text": "Marks on code without a language, a terminal session: the stream's protocol, the frames asked for, and the line where the stream stopped."
+  },
+  {
+    "kind": "example",
+    "name": "Notes on hover",
+    "topic": "code-block",
+    "id": "notes-on-hover",
+    "text": "The same session with a note on each mark, shown in a bubble while the mark is hovered: a neatCodeNote template inside the block, given the…"
   },
   {
     "kind": "example",

@@ -24,7 +24,7 @@ const RUNS: readonly Run[] = [
   selector: 'app-colored-by-the-app',
   imports: [NeatCodeBlock],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './9-colored-by-the-app.example.html',
+  templateUrl: './11-colored-by-the-app.example.html',
   styleUrl: './colored-by-the-app.example.css',
 })
 export class ColoredByTheApp {

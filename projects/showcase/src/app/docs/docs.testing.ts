@@ -2,6 +2,7 @@ import type { EnvironmentProviders, Provider } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { DocsContext, type DocsTarget } from './docs-context';
 import { API as BEV } from './generated/api/bev';
+import { API as BUBBLE } from './generated/api/bubble';
 import { API as CALLOUT } from './generated/api/callout';
 import { API as CARD } from './generated/api/card';
 import { API as CHARTS } from './generated/api/charts';
@@ -77,6 +78,7 @@ export function provideFakeDocs(docs: FakeDocs): (Provider | EnvironmentProvider
  */
 export const KIT_ENTRIES: readonly DocsEntry[] = [
   BEV,
+  BUBBLE,
   CALLOUT,
   CARD,
   CHARTS,

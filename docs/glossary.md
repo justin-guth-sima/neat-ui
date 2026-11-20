@@ -45,44 +45,45 @@ wins over a name of our own.
 
 ## Components
 
-| Name              | What it is                                                                        | In the code                                | Others say                             |
-| ----------------- | --------------------------------------------------------------------------------- | ------------------------------------------ | -------------------------------------- |
-| button            | an action; seven variants                                                         | `NeatButton`, `[neatButton]`               |                                        |
-| inline button     | a button inside running text                                                      | `NeatInlineButton`                         | link button                            |
-| card              | a raised surface with an optional title, actions and footer                       | `neat-card`, `NeatCard`                    | panel, tile, box                       |
-| chart card        | the card for one metric: heading, chip, value, caption, chart                     | `NeatChartCard`                            | metric tile                            |
-| callout           | a notice on a status tint, with an icon, a heading and actions                    | `neat-callout`, `NeatCallout`              | banner, alert, info box                |
-| note              | a short muted remark under a control or a heading                                 | `[neatNote]`, `NeatNote`                   | hint, help text                        |
-| error note        | a failure said in place                                                           | `NeatErrorNote`                            | error message                          |
-| dialog            | a modal window                                                                    | `NeatDialog`                               | modal, popup                           |
-| confirm           | a dialog that asks for a yes or no                                                | `NeatConfirm`                              | alert                                  |
-| popover           | a panel that opens from a trigger and holds controls or a menu                    | `neat-popover`, `NeatPopover`              | dropdown, flyout                       |
-| tooltip           | the short text shown while hovering or focusing a control                         | `[neatTooltip]`                            | tip, hint                              |
-| shortcut          | a keyboard shortcut's keys, each drawn as a key, in words for a screen reader     | `neat-shortcut`, `NeatShortcut`            | hotkey, key hint, keyboard hint, kbd   |
-| toast             | a short message that appears and goes by itself                                   | `NeatToasts`, `neat-toast-host`            | snackbar, notification                 |
-| tabs              | views inside one page that are not addresses                                      | `neat-tabs`, `NeatTabs`                    |                                        |
-| select            | a labeled list that opens to pick one value                                       | `neat-select`, `NeatSelect`                | dropdown, combo box                    |
-| select list       | a list of rows in columns that holds the focus; one row selected, or rows checked | `neat-select-list`                         | table, list view                       |
-| file browser      | a folder tree's breadcrumbs, filter and rows                                      | `neat-file-browser`                        | file picker                            |
-| search field      | a field that filters what a page shows, with a clear button and a status line     | `neat-search`, `NeatSearch`                | filter, search bar, search box         |
-| search palette    | a search over the whole app, opened from the top bar or by Ctrl K                 | `neat-search-palette`, `NeatSearchPalette` | command palette, quick open, spotlight |
-| switch            | an on/off control                                                                 | `button[neatSwitch]`                       | toggle, checkbox                       |
-| slider            | a value picked along a track                                                      | `NeatSlider`                               | range                                  |
-| segmented control | one of a few options, side by side, a thumb under the chosen one                  | `neat-segmented`                           | toggle group, radio buttons            |
-| status chip       | a short status on a status fill                                                   | `neat-status-chip`                         | badge, pill, tag                       |
-| details           | the key/value list of an aside                                                    | `dl[neatDetails]`                          | properties, key/value table            |
-| table             | the data table's look on a `table`                                                | `table[neatTable]`                         | grid                                   |
-| code block        | code set apart on the muted fill, as written, with an optional Copy button        | `neat-code-block`, `NeatCodeBlock`         | code box, pre                          |
-| copy button       | a button that copies a text and says whether it did                               | `neat-copy-button`, `NeatCopyButton`       | clipboard button                       |
-| field             | a control under its visible name, with a hint and an error                        | `NeatField`                                | form group                             |
-| collapsible       | a section a labeled button opens and closes                                       | `neat-collapsible`                         | accordion, expander                    |
-| breadcrumbs       | the path to where the user is, each step but the last a button                    | `neat-breadcrumbs`                         | path bar                               |
-| progress          | a bar, or a titled readout, of how far something is                               | `neat-progress`                            | loading bar                            |
-| drop zone         | where files are dropped or chosen                                                 | `neat-drop-zone`                           | upload area                            |
-| level meter       | a live audio level as a bar of segments                                           | `neat-level-meter`                         | VU meter                               |
-| live dot          | the red dot of something live                                                     | `NeatLiveDot`                              | recording dot                          |
-| swatch            | a small square of a color beside a label                                          | `NeatSwatch`, `NeatSeriesSwatch`           | color chip                             |
-| icon              | a glyph of the kit's set, by name                                                 | `neat-icon`, `NeatIcon`                    |                                        |
+| Name              | What it is                                                                                    | In the code                                | Others say                             |
+| ----------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------ | -------------------------------------- |
+| button            | an action; seven variants                                                                     | `NeatButton`, `[neatButton]`               |                                        |
+| inline button     | a button inside running text                                                                  | `NeatInlineButton`                         | link button                            |
+| card              | a raised surface with an optional title, actions and footer                                   | `neat-card`, `NeatCard`                    | panel, tile, box                       |
+| chart card        | the card for one metric: heading, chip, value, caption, chart                                 | `NeatChartCard`                            | metric tile                            |
+| callout           | a notice on a status tint, with an icon, a heading and actions                                | `neat-callout`, `NeatCallout`              | banner, alert, info box                |
+| note              | a short muted remark under a control or a heading                                             | `[neatNote]`, `NeatNote`                   | hint, help text                        |
+| error note        | a failure said in place                                                                       | `NeatErrorNote`                            | error message                          |
+| dialog            | a modal window                                                                                | `NeatDialog`                               | modal, popup                           |
+| confirm           | a dialog that asks for a yes or no                                                            | `NeatConfirm`                              | alert                                  |
+| popover           | a panel that opens from a trigger and holds controls or a menu                                | `neat-popover`, `NeatPopover`              | dropdown, flyout                       |
+| tooltip           | the short text shown while hovering or focusing a control                                     | `[neatTooltip]`                            | tip, hint                              |
+| bubble            | an explanation in a speech bubble that points at what it explains, in the popover's colors     | `neat-bubble`, `NeatBubble`                | speech bubble, coach mark, annotation  |
+| shortcut          | a keyboard shortcut's keys, each drawn as a key, in words for a screen reader                 | `neat-shortcut`, `NeatShortcut`            | hotkey, key hint, keyboard hint, kbd   |
+| toast             | a short message that appears and goes by itself                                               | `NeatToasts`, `neat-toast-host`            | snackbar, notification                 |
+| tabs              | views inside one page that are not addresses                                                  | `neat-tabs`, `NeatTabs`                    |                                        |
+| select            | a labeled list that opens to pick one value                                                   | `neat-select`, `NeatSelect`                | dropdown, combo box                    |
+| select list       | a list of rows in columns that holds the focus; one row selected, or rows checked             | `neat-select-list`                         | table, list view                       |
+| file browser      | a folder tree's breadcrumbs, filter and rows                                                  | `neat-file-browser`                        | file picker                            |
+| search field      | a field that filters what a page shows, with a clear button and a status line                 | `neat-search`, `NeatSearch`                | filter, search bar, search box         |
+| search palette    | a search over the whole app, opened from the top bar or by Ctrl K                             | `neat-search-palette`, `NeatSearchPalette` | command palette, quick open, spotlight |
+| switch            | an on/off control                                                                             | `button[neatSwitch]`                       | toggle, checkbox                       |
+| slider            | a value picked along a track                                                                  | `NeatSlider`                               | range                                  |
+| segmented control | one of a few options, side by side, a thumb under the chosen one                              | `neat-segmented`                           | toggle group, radio buttons            |
+| status chip       | a short status on a status fill                                                               | `neat-status-chip`                         | badge, pill, tag                       |
+| details           | the key/value list of an aside                                                                | `dl[neatDetails]`                          | properties, key/value table            |
+| table             | the data table's look on a `table`                                                            | `table[neatTable]`                         | grid                                   |
+| code block        | code set apart on the muted fill, as written, with an optional Copy button                    | `neat-code-block`, `NeatCodeBlock`         | code box, pre                          |
+| copy button       | a button that copies a text and says whether it did                                           | `neat-copy-button`, `NeatCopyButton`       | clipboard button                       |
+| field             | a control under its visible name, with a hint and an error                                    | `NeatField`                                | form group                             |
+| collapsible       | a section a labeled button opens and closes                                                   | `neat-collapsible`                         | accordion, expander                    |
+| breadcrumbs       | the path to where the user is, each step but the last a button                                | `neat-breadcrumbs`                         | path bar                               |
+| progress          | a bar, or a titled readout, of how far something is                                           | `neat-progress`                            | loading bar                            |
+| drop zone         | where files are dropped or chosen                                                             | `neat-drop-zone`                           | upload area                            |
+| level meter       | a live audio level as a bar of segments                                                       | `neat-level-meter`                         | VU meter                               |
+| live dot          | the red dot of something live                                                                 | `NeatLiveDot`                              | recording dot                          |
+| swatch            | a small square of a color beside a label                                                      | `NeatSwatch`, `NeatSeriesSwatch`           | color chip                             |
+| icon              | a glyph of the kit's set, by name                                                             | `neat-icon`, `NeatIcon`                    |                                        |
 
 The kit has three kinds of notes, each for one job: a **callout** says something about the page or
 a task, with a heading; a **note** is a quiet remark beside what it is about; an **error note** says
@@ -90,20 +91,21 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 
 ## Code block
 
-| Name          | What it is                                                                                      | In the code                     | Others say                  |
-| ------------- | ----------------------------------------------------------------------------------------------- | ------------------------------- | --------------------------- |
-| language      | what a code block's code is written in, by its Shiki name or an alias                           | `language`                      | lang, syntax                |
-| grammar       | the rules that color one language, loaded the first time a block shows it                       | `NeatCodeLanguages`             | language pack, syntax file  |
-| highlighter   | what colors code by its grammar: Shiki, which the code block loads on first use                 | `highlighter.ts` (internal)     | syntax highlighter          |
-| code colors   | the theme's tokens for the kinds of code text: keyword, string, comment and so on               | `--neat-code-keyword`, ...      | syntax colors, syntax theme |
-| line numbers  | the numbers at the start of a code block's lines, which a selection leaves out                  | `lineNumbers`                   |                             |
-| mark          | lines, or a part of a line, that a code block sets apart, counted from 1 as people read them    | `NeatCodeMark`, `marks`         | highlight, emphasis, focus  |
-| band          | how a marked line shows: the mark tint across the block behind it                               | `.line[data-marked]`            | line highlight              |
-| marker        | how a marked part shows: a rounded patch of the mark tint behind its text                       | `mark`                          | highlight                   |
-| mark tint     | the theme's tint behind a mark, which marked code reads on at 4.5:1                             | `--neat-code-mark`              | highlight color             |
-| dim           | what a code block does to the code outside its marks: the muted text color, without code colors | `dim`                           | fade, gray out              |
-| step          | one stage of a walk through a code block's code: a set of marks and a label                     | `NeatCodeStep`, `steps`, `step` | slide, stop, frame          |
-| step controls | the Previous and Next buttons and the position ("2 of 5") under a code block with steps         | `stepControls`                  | pager, stepper              |
+| Name          | What it is                                                                                             | In the code                     | Others say                  |
+| ------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------- | --------------------------- |
+| language      | what a code block's code is written in, by its Shiki name or an alias                                  | `language`                      | lang, syntax                |
+| grammar       | the rules that color one language, loaded the first time a block shows it                              | `NeatCodeLanguages`             | language pack, syntax file  |
+| highlighter   | what colors code by its grammar: Shiki, which the code block loads on first use                        | `highlighter.ts` (internal)     | syntax highlighter          |
+| code colors   | the theme's tokens for the kinds of code text: keyword, string, comment and so on                      | `--neat-code-keyword`, ...      | syntax colors, syntax theme |
+| line numbers  | the numbers at the start of a code block's lines, which a selection leaves out                         | `lineNumbers`                   |                             |
+| mark          | lines, or a part of a line, that a code block sets apart, counted from 1 as people read them           | `NeatCodeMark`, `marks`         | highlight, emphasis, focus  |
+| band          | how a marked line shows: the mark tint across the block behind it                                      | `.line[data-marked]`            | line highlight              |
+| marker        | how a marked part shows: a rounded patch of the mark tint behind its text                              | `mark`                          | highlight                   |
+| mark tint     | the theme's tint behind a mark, which marked code reads on at 4.5:1                                    | `--neat-code-mark`              | highlight color             |
+| dim           | what a code block does to the code outside its marks: the muted text color, without code colors        | `dim`                           | fade, gray out              |
+| step          | one stage of a walk through a code block's code: a set of marks and a label                            | `NeatCodeStep`, `steps`, `step` | slide, stop, frame          |
+| step controls | the Previous and Next buttons and the position ("2 of 5") under a code block with steps                | `stepControls`                  | pager, stepper              |
+| code note     | what a code block shows in a bubble beside its step's marks or a hovered mark, from the app's template | `NeatCodeNote`                  | annotation, comment         |
 
 ## Charts
 

@@ -75,7 +75,7 @@ describe('the code block marks', () => {
           { text: 'run', kind: 'function' },
           { text: '(f', kind: null },
         ],
-        mark: { on: true, join: null },
+        mark: { on: true, join: null, index: 0, first: true },
       },
       { runs: [{ text: 'rame)', kind: null }], mark: null },
     ]);
@@ -169,5 +169,34 @@ describe('the code block marks', () => {
       .join('');
 
     expect(text).toBe(CODE);
+  });
+
+  it('say which shown mark each element is, and which element is its first', () => {
+    // Lines 1 to 2 whole, then "run" on line 3, cut in two by a mark of the step not shown.
+    const code = focus(
+      [[{ lines: [1, 2] }, { line: 3, text: 'model.run' }], [{ line: 3, text: 'run' }]],
+      0,
+    );
+
+    expect(code.lines.map((line) => [line.bandIndex, line.bandFirst])).toEqual([
+      [0, true],
+      [0, false],
+      [null, false],
+    ]);
+    expect(code.lines[2].pieces.filter((piece) => piece.mark).map((piece) => piece.mark)).toEqual([
+      { on: true, join: 'end', index: 1, first: true },
+      { on: true, join: 'start', index: 1, first: false },
+    ]);
+
+    const other = focus(
+      [[{ lines: [1, 2] }, { line: 3, text: 'model.run' }], [{ line: 3, text: 'run' }]],
+      1,
+    );
+    expect(other.lines[2].pieces.map((piece) => piece.mark?.index ?? null)).toEqual([
+      null,
+      null,
+      0,
+      null,
+    ]);
   });
 });

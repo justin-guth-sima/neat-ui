@@ -1,12 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NeatCodeBlock, type NeatCodeMark } from '@sima/neat-ui/code-block';
-
-const SESSION = `$ ./tutorial_018_consume_rtsp_stream --url rtsp://neat.local:8554/src3 --frames 4
-frame=0 shape=[1080, 1920, 3]
-frame=1 shape=[1080, 1920, 3]
-frame=2 shape=[1080, 1920, 3]
-frame=3 rtsp_timeout
-`;
+import { SESSION } from './session';
 
 /**
  * Marks on code without a language, a terminal session: the stream's protocol, the frames asked
@@ -20,7 +14,7 @@ frame=3 rtsp_timeout
   selector: 'app-marks-on-plain-code',
   imports: [NeatCodeBlock],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './8-marks-on-plain-code.example.html',
+  templateUrl: './9-marks-on-plain-code.example.html',
 })
 export class MarksOnPlainCode {
   protected readonly session = SESSION;

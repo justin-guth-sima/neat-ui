@@ -3,7 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { NeatCodeBlock } from './code-block';
 import { resetWarned } from './highlighter';
 import { provideNeatCodeLanguages } from './languages';
-import type { NeatCodeStep } from './marks';
+import type { NeatCodeMark, NeatCodeStep } from './marks';
+import { NeatCodeNote } from './note';
 
 const CODE = '<neat-diagram [diagram]="set">\n  <ng-template neatDiagramBlock let-node>';
 
@@ -82,6 +83,49 @@ class Walk {
   readonly code = PYTHON;
   readonly steps = WALK;
   readonly at = signal(0);
+}
+
+/** Steps with their notes in the block's bubble. */
+@Component({
+  imports: [NeatCodeBlock, NeatCodeNote],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <neat-code-block [code]="code" [steps]="steps" [(step)]="at">
+      <ng-template [neatCodeNote]="steps" let-step let-index="index"
+        >{{ index + 1 }}. {{ step.note }}</ng-template
+      >
+    </neat-code-block>
+  `,
+})
+class NotedWalk {
+  readonly code = PYTHON;
+  readonly steps: readonly (NeatCodeStep & { readonly note: string })[] = [
+    { marks: [{ line: 1 }], note: 'The module' },
+    { marks: [], note: 'All of it' },
+    { marks: [{ line: 3, text: 'pyneat.Session()' }], note: 'One session' },
+  ];
+  readonly at = signal(0);
+}
+
+type NotedMark = NeatCodeMark & { readonly note: string };
+
+/** Marks whose notes show on hover, focus or a tap. */
+@Component({
+  imports: [NeatCodeBlock, NeatCodeNote],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <neat-code-block [code]="code" [marks]="marks">
+      <ng-template [neatCodeNote]="marks" let-mark>{{ mark.note }}</ng-template>
+    </neat-code-block>
+    <button type="button">Elsewhere</button>
+  `,
+})
+class NotedMarks {
+  readonly code = PYTHON;
+  readonly marks: readonly NotedMark[] = [
+    { lines: [1, 2], note: 'The import' },
+    { line: 3, text: 'pyneat.Session()', note: 'A session' },
+  ];
 }
 
 const shown = (host: HTMLElement) =>
@@ -390,5 +434,120 @@ describe('NeatCodeBlock', () => {
 
     expect(host.querySelector('.steps')).toBeNull();
     expect(host.querySelector('[aria-live="polite"]')).not.toBeNull();
+  });
+
+  describe('notes', () => {
+    const bubble = () => document.querySelector<HTMLElement>('.cdk-overlay-container .bubble');
+    const hover = (element: Element, type: 'pointerover' | 'pointerleave' = 'pointerover') =>
+      element.dispatchEvent(new PointerEvent(type, { pointerType: 'mouse', bubbles: true }));
+    /** Lets the note's close delay pass, and the block render. */
+    const settle = async (fixture: { whenStable(): Promise<unknown> }, ms = 0) => {
+      await new Promise((resolve) => setTimeout(resolve, ms));
+      await fixture.whenStable();
+    };
+
+    afterEach(() => {
+      document
+        .querySelectorAll('.cdk-overlay-container')
+        .forEach((container) => container.remove());
+    });
+
+    it("show the shown step's note in a bubble, its marks the anchor, and follow the step", async () => {
+      const fixture = TestBed.createComponent(NotedWalk);
+      await settle(fixture);
+      const host = fixture.nativeElement as HTMLElement;
+
+      expect(bubble()?.textContent?.trim()).toBe('1. The module');
+      // The template stays out of the code's own slot, which still shows the block's lines.
+      expect(host.querySelectorAll('.line')).toHaveLength(3);
+
+      fixture.componentInstance.at.set(2);
+      await settle(fixture);
+      expect(bubble()?.textContent?.trim()).toBe('3. One session');
+    });
+
+    it('make each noted mark one tab stop, and leave the marks alone without a note', async () => {
+      const fixture = TestBed.createComponent(NotedMarks);
+      await settle(fixture);
+      const host = fixture.nativeElement as HTMLElement;
+
+      expect(
+        Array.from(host.querySelectorAll('pre [tabindex="0"]'), (mark) => mark.textContent),
+      ).toEqual(['import pyneat', 'pyneat.Session()']);
+      expect(bubble()).toBeNull();
+
+      const plain = await render({ code: PYTHON, marks: [{ line: 1 }] });
+      expect(plain.querySelector('[data-mark], pre [tabindex]')).toBeNull();
+    });
+
+    it("show a mark's note while the pointer is over it or the bubble, and describe the mark by it", async () => {
+      const fixture = TestBed.createComponent(NotedMarks);
+      await settle(fixture);
+      const host = fixture.nativeElement as HTMLElement;
+      const session = host.querySelector('mark[data-mark="1"]')!;
+
+      hover(session.firstElementChild ?? session);
+      await settle(fixture);
+      expect(bubble()?.textContent?.trim()).toBe('A session');
+      expect(session.getAttribute('aria-describedby')).toBe(bubble()?.id);
+
+      // Onto the bubble: it stays.
+      hover(host.querySelector('pre')!, 'pointerleave');
+      bubble()!.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+      await settle(fixture, 200);
+      expect(bubble()).not.toBeNull();
+
+      bubble()!.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));
+      await settle(fixture, 200);
+      expect(bubble()).toBeNull();
+      expect(session.hasAttribute('aria-describedby')).toBe(false);
+    });
+
+    it("show a mark's note on keyboard focus and a tap, until the focus leaves or a press elsewhere", async () => {
+      const fixture = TestBed.createComponent(NotedMarks);
+      await settle(fixture);
+      const host = fixture.nativeElement as HTMLElement;
+      const [imports, session] = Array.from(
+        host.querySelectorAll<HTMLElement>('pre [tabindex="0"]'),
+      );
+
+      imports.focus();
+      await settle(fixture);
+      expect(bubble()?.textContent?.trim()).toBe('The import');
+
+      host.querySelector<HTMLElement>('button')!.focus();
+      await settle(fixture, 200);
+      expect(bubble()).toBeNull();
+
+      session.click();
+      await settle(fixture);
+      expect(bubble()?.textContent?.trim()).toBe('A session');
+
+      document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      await settle(fixture);
+      expect(bubble()).toBeNull();
+    });
+
+    it('put a note away on Escape, which stays away until the pointer comes back', async () => {
+      const fixture = TestBed.createComponent(NotedMarks);
+      await settle(fixture);
+      const host = fixture.nativeElement as HTMLElement;
+      const session = host.querySelector('mark[data-mark="1"]')!;
+
+      hover(session);
+      await settle(fixture);
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      await settle(fixture);
+      expect(bubble()).toBeNull();
+
+      hover(session.firstElementChild ?? session);
+      await settle(fixture);
+      expect(bubble()).toBeNull();
+
+      hover(host.querySelector('pre')!, 'pointerleave');
+      hover(session);
+      await settle(fixture);
+      expect(bubble()?.textContent?.trim()).toBe('A session');
+    });
   });
 });

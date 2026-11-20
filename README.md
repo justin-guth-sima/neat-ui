@@ -250,7 +250,7 @@ In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [As
 </tr>
 </table>
 
-Also: [Shortcut](docs/components/shortcut.md).
+Also: [Shortcut](docs/components/shortcut.md), [Bubble](docs/components/bubble.md).
 
 ### Forms
 

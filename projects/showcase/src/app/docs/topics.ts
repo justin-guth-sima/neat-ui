@@ -346,6 +346,19 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
+            id: 'bubble',
+            label: 'Bubble',
+            parts: ['NeatBubble', 'NeatBubbleSide', 'NeatBubbleAnchor'],
+            leads: ['NeatBubble'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/bubble'),
+                import('./generated/examples/bubble'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'confirm',
             label: 'Confirm',
             parts: ['NeatConfirm', 'NeatConfirmOptions'],
@@ -710,6 +723,8 @@ export const GROUPS: readonly TopicGroup[] = [
               'NeatCodeOverflow',
               'NeatCodeMark',
               'NeatCodeStep',
+              'NeatCodeNote',
+              'NeatCodeNoteContext',
               'NeatCopyButton',
               'provideNeatCodeLanguages',
               'NeatCodeLanguages',

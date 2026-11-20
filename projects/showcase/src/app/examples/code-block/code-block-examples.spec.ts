@@ -6,9 +6,11 @@ import { LineNumbers } from './4-line-numbers.example';
 import { AnotherLanguage } from './5-another-language.example';
 import { MarksOnAPipeline } from './6-marks-on-a-pipeline.example';
 import { StepByStep } from './7-step-by-step.example';
-import { MarksOnPlainCode } from './8-marks-on-plain-code.example';
-import { ColoredByTheApp } from './9-colored-by-the-app.example';
-import { StreamURL } from './10-stream-url.example';
+import { StepsInABubble } from './8-steps-in-a-bubble.example';
+import { MarksOnPlainCode } from './9-marks-on-plain-code.example';
+import { NotesOnHover } from './10-notes-on-hover.example';
+import { ColoredByTheApp } from './11-colored-by-the-app.example';
+import { StreamURL } from './12-stream-url.example';
 
 async function render<T>(component: new () => T): Promise<HTMLElement> {
   const fixture = TestBed.createComponent(component);
@@ -20,6 +22,8 @@ const marked = (host: HTMLElement) => ({
   lines: Array.from(host.querySelectorAll('.line[data-marked]'), (line) => line.textContent),
   parts: Array.from(host.querySelectorAll('mark[data-on]:not([data-line])'), (m) => m.textContent),
 });
+
+const bubble = () => document.querySelector('.cdk-overlay-container .bubble');
 
 const copyName = (host: HTMLElement) =>
   host.querySelector('neat-copy-button button')?.getAttribute('aria-label');
@@ -100,6 +104,18 @@ describe('the code block examples', () => {
     expect(host.querySelector('.steps .position')?.textContent).toBe('3 of 4');
   });
 
+  it("show each step's note in a bubble, which follows the step", async () => {
+    const fixture = TestBed.createComponent(StepsInABubble);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+
+    expect(bubble()?.textContent).toContain('Describe the input');
+    (host.querySelectorAll('.steps button')[1] as HTMLButtonElement).click();
+    await fixture.whenStable();
+    expect(bubble()?.textContent).toContain('Compose the graph');
+    fixture.destroy();
+  });
+
   it('mark plain code, a repeated word by its columns', async () => {
     const host = await render(MarksOnPlainCode);
 
@@ -112,6 +128,24 @@ describe('the code block examples', () => {
     before.setStart(rtsp.closest('.line')!, 0);
     before.setEndBefore(rtsp);
     expect(before.toString()).toMatch(/ --url $/);
+  });
+
+  it("show a mark's note while it is hovered or focused", async () => {
+    const fixture = TestBed.createComponent(NotesOnHover);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+
+    expect(bubble()).toBeNull();
+    host
+      .querySelector('mark[data-mark="1"]')!
+      .dispatchEvent(new PointerEvent('pointerover', { pointerType: 'mouse', bubbles: true }));
+    await fixture.whenStable();
+    expect(bubble()?.textContent).toBe('The program stops after four frames.');
+
+    host.querySelector<HTMLElement>('mark[data-mark="2"]')!.focus();
+    await fixture.whenStable();
+    expect(bubble()?.textContent).toContain('The fourth frame did not come in time');
+    fixture.destroy();
   });
 
   it("show the app's colored spans, which spell the code", async () => {

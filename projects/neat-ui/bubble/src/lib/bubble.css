@@ -1,0 +1,102 @@
+/*
+ * The bubble renders in the overlay, through its template; where the element stands it takes no
+ * room. Its surface is the popover panel's (the classes in bubble.ts); this sheet adds the tail.
+ */
+:host {
+  display: none;
+}
+
+/* Its anchor scrolled out of view. */
+.bubble[data-hidden] {
+  visibility: hidden;
+}
+
+/*
+ * The tail: a triangle in the outline's color, and over it one in the fill, shifted a pixel toward
+ * the bubble, so the outline runs on round the tail and the fill opens into the bubble across the
+ * outline. `--tail-at` is where along the edge it points, set as the bubble is placed.
+ */
+.bubble::before,
+.bubble::after {
+  position: absolute;
+  content: '';
+}
+
+.bubble::before {
+  background: var(--border);
+}
+
+.bubble::after {
+  background: var(--popover);
+}
+
+.bubble[data-side='top']::before,
+.bubble[data-side='top']::after,
+.bubble[data-side='bottom']::before,
+.bubble[data-side='bottom']::after {
+  left: calc(var(--tail-at, 50%) - 8px);
+  width: 16px;
+  height: 8px;
+}
+
+.bubble[data-side='left']::before,
+.bubble[data-side='left']::after,
+.bubble[data-side='right']::before,
+.bubble[data-side='right']::after {
+  top: calc(var(--tail-at, 50%) - 8px);
+  width: 8px;
+  height: 16px;
+}
+
+/* Above its anchor: the tail hangs from the bottom edge. */
+.bubble[data-side='top']::before,
+.bubble[data-side='top']::after {
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.bubble[data-side='top']::before {
+  top: calc(100% + 1px);
+}
+
+.bubble[data-side='top']::after {
+  top: 100%;
+}
+
+.bubble[data-side='bottom']::before,
+.bubble[data-side='bottom']::after {
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.bubble[data-side='bottom']::before {
+  bottom: calc(100% + 1px);
+}
+
+.bubble[data-side='bottom']::after {
+  bottom: 100%;
+}
+
+.bubble[data-side='left']::before,
+.bubble[data-side='left']::after {
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.bubble[data-side='left']::before {
+  left: calc(100% + 1px);
+}
+
+.bubble[data-side='left']::after {
+  left: 100%;
+}
+
+.bubble[data-side='right']::before,
+.bubble[data-side='right']::after {
+  clip-path: polygon(100% 0, 100% 100%, 0 50%);
+}
+
+.bubble[data-side='right']::before {
+  right: calc(100% + 1px);
+}
+
+.bubble[data-side='right']::after {
+  right: 100%;
+}

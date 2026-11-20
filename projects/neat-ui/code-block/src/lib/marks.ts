@@ -40,9 +40,12 @@ export interface NeatCodeStep {
 }
 
 /** Where a mark falls: a line (from 0) whole, or the columns `[start, end)` of a line (from 0). */
-type Place =
+type Spot =
   | { readonly line: number; readonly whole: true }
   | { readonly line: number; readonly whole: false; readonly start: number; readonly end: number };
+
+/** A spot of a mark, and which of its set's marks it is (from 0). */
+type Place = Spot & { readonly mark: number };
 
 /**
  * A part mark as a line shows it: whether the shown marks have it, and which of its ends join a
@@ -52,6 +55,10 @@ export interface PieceMark {
   readonly on: boolean;
   /** `start`, `end` or `both`: the ends that touch another mark that is on, drawn square. */
   readonly join: 'start' | 'end' | 'both' | null;
+  /** Which of the shown marks this is (the first that covers it), from 0; null while it is off. */
+  readonly index: number | null;
+  /** Whether it is the first element of that mark, which takes the mark's tab stop. */
+  readonly first: boolean;
 }
 
 /** A stretch of a line: its runs, in a mark of some step or in none (`mark` null). */
@@ -68,6 +75,10 @@ export interface CodePiece {
  */
 export interface MarkedLine {
   readonly band: boolean | null;
+  /** Which of the shown marks has the line whole, from 0, or null. */
+  readonly bandIndex: number | null;
+  /** Whether the line is the first element of that mark, which takes the mark's tab stop. */
+  readonly bandFirst: boolean;
   readonly pieces: readonly CodePiece[];
   readonly end: CodeLine['end'];
 }
@@ -82,7 +93,7 @@ export interface CodeFocus {
  * What is wrong with `mark` on lines of `texts`, or its places when nothing is. Lines and columns
  * come in from 1 and go out from 0.
  */
-function placesOf(mark: NeatCodeMark, texts: readonly string[]): Place[] | string {
+function placesOf(mark: NeatCodeMark, texts: readonly string[]): Spot[] | string {
   const isLine = (n: number) => Number.isInteger(n) && n >= 1 && n <= texts.length;
   const named = JSON.stringify(mark);
   const lines = `the code has lines 1 to ${texts.length}`;
@@ -126,9 +137,9 @@ function placesIn(
   texts: readonly string[],
   strict: boolean,
 ): Place[] {
-  return marks.flatMap((mark) => {
+  return marks.flatMap((mark, index) => {
     const places = placesOf(mark, texts);
-    if (typeof places !== 'string') return places;
+    if (typeof places !== 'string') return places.map((place) => ({ ...place, mark: index }));
     if (strict) throw new Error(`neat-code-block: ${places}`);
     return [];
   });
@@ -147,12 +158,22 @@ function runsBetween(runs: readonly CodeRun[], start: number, end: number): Code
   return cut;
 }
 
-/** Whether the column range `[start, end)` lies in one of a line's part places. */
+/** The first of a line's part places the column range `[start, end)` lies in. */
+const coverOf = (places: readonly Place[], start: number, end: number) =>
+  places.find((place) => !place.whole && place.start <= start && place.end >= end);
 const covers = (places: readonly Place[], start: number, end: number) =>
-  places.some((place) => !place.whole && place.start <= start && place.end >= end);
+  coverOf(places, start, end) !== undefined;
 
-/** One line with the places of each set of marks on it, the shown set's at `shown`. */
-function markLine(line: CodeLine, sets: readonly (readonly Place[])[], shown: number): MarkedLine {
+/**
+ * One line with the places of each set of marks on it, the shown set's at `shown`. `seen` holds
+ * the shown marks that an earlier line has an element of, and gets this line's.
+ */
+function markLine(
+  line: CodeLine,
+  sets: readonly (readonly Place[])[],
+  shown: number,
+  seen: Set<number>,
+): MarkedLine {
   const whole = sets.map((places) => places.some((place) => place.whole));
   // A line a set has whole shows none of that set's part marks.
   const parts = sets.map((places, i) => (whole[i] ? [] : places));
@@ -168,14 +189,25 @@ function markLine(line: CodeLine, sets: readonly (readonly Place[])[], shown: nu
     pieces.push({ start, end, ever, on: ever && covers(parts[shown], start, end) });
   }
   const isOn = (i: number) => pieces[i]?.on === true;
+  /** Whether `index` is a shown mark no earlier element has, which it then has. */
+  const firstOf = (index: number | null) => {
+    if (index === null || seen.has(index)) return false;
+    seen.add(index);
+    return true;
+  };
+  const bandIndex = sets[shown].find((place) => place.whole)?.mark ?? null;
+  const bandFirst = firstOf(bandIndex);
   return {
     band: whole.some(Boolean) ? whole[shown] : null,
+    bandIndex,
+    bandFirst,
     pieces: pieces.map((piece, i) => {
       const runs = runsBetween(line.runs, piece.start, piece.end);
       if (!piece.ever) return { runs, mark: null };
       const [start, end] = [piece.on && isOn(i - 1), piece.on && isOn(i + 1)];
       const join = start && end ? 'both' : start ? 'start' : end ? 'end' : null;
-      return { runs, mark: { on: piece.on, join } };
+      const index = piece.on ? (coverOf(parts[shown], piece.start, piece.end)?.mark ?? null) : null;
+      return { runs, mark: { on: piece.on, join, index, first: firstOf(index) } };
     }),
     end: line.end,
   };
@@ -194,12 +226,14 @@ export function focusLines(
   strict = isDevMode(),
 ): CodeFocus {
   const placed = sets.map((marks) => placesIn(marks, texts, strict));
+  const seen = new Set<number>();
   return {
     lines: lines.map((line, i) =>
       markLine(
         line,
         placed.map((places) => places.filter((place) => place.line === i)),
         shown,
+        seen,
       ),
     ),
     marked: placed[shown].length > 0,

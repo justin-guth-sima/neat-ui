@@ -16,7 +16,7 @@ Code set apart on the muted fill, as written, with an optional Copy button at it
 </picture>
 
 ```ts
-import { NeatCodeBlock, NeatCopyButton, provideNeatCodeLanguages } from '@sima/neat-ui/code-block';
+import { NeatCodeBlock, NeatCodeNote, NeatCopyButton, provideNeatCodeLanguages } from '@sima/neat-ui/code-block';
 ```
 
 ## Examples
@@ -370,63 +370,8 @@ Press Next, or focus the block and press the left and right arrow keys.
 
 ```ts
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { NeatCodeBlock, type NeatCodeStep } from '@sima/neat-ui/code-block';
-
-const BUILD_GRAPH = `import numpy as np
-import pyneat
-
-inp = pyneat.InputOptions()
-inp.format = pyneat.Format.RGB
-inp.width = 320
-inp.height = 240
-inp.depth = 3
-
-graph = pyneat.Graph()
-graph.add(pyneat.nodes.input(inp))
-graph.add(pyneat.nodes.output())
-
-rgb = np.full((240, 320, 3), 33, dtype=np.uint8)
-tensor = pyneat.Tensor.from_numpy(rgb, copy=True, image_format=pyneat.PixelFormat.RGB)
-run = graph.build([tensor])
-
-outputs = run.run([tensor], timeout_ms=1000)
-print(f"output_rank={len(outputs[0].shape)}")
-`;
-
-/** A step of the walk, with the note the page shows beside the code. */
-interface Step extends NeatCodeStep {
-  readonly label: string;
-  readonly note: string;
-}
-
-const STEPS: readonly Step[] = [
-  {
-    label: 'Describe the input',
-    marks: [{ lines: [4, 8] }],
-    note: 'InputOptions says what a frame looks like: its pixel format, width, height and depth. The input node checks each frame against it.',
-  },
-  {
-    label: 'Compose the graph',
-    marks: [{ lines: [10, 12] }],
-    note: 'A Graph is a description. add() appends nodes in order: here an input node and an output node, with nothing between them yet.',
-  },
-  {
-    label: 'Build the pipeline',
-    marks: [
-      { line: 15, text: 'Tensor.from_numpy' },
-      { line: 16, text: 'graph.build' },
-    ],
-    note: 'build() turns the description into a Run, which it can do only with a sample frame: a Tensor made from a NumPy array.',
-  },
-  {
-    label: 'Run a frame',
-    marks: [
-      { line: 18, text: 'run.run' },
-      { line: 19, text: 'outputs[0].shape' },
-    ],
-    note: 'run() pushes one frame and pulls one result. With no model in the graph, the result has the input’s rank, which shows the frame went through.',
-  },
-];
+import { NeatCodeBlock } from '@sima/neat-ui/code-block';
+import { BUILD_GRAPH, STEPS } from './build-graph';
 
 @Component({
   selector: 'app-step-by-step',
@@ -463,6 +408,69 @@ export class StepByStep {
 </div>
 ```
 
+`build-graph.ts`
+
+```ts
+import type { NeatCodeStep } from '@sima/neat-ui/code-block';
+
+/** A short Python Neat example: describe a frame, compose a graph, build it and run a frame. */
+export const BUILD_GRAPH = `import numpy as np
+import pyneat
+
+inp = pyneat.InputOptions()
+inp.format = pyneat.Format.RGB
+inp.width = 320
+inp.height = 240
+inp.depth = 3
+
+graph = pyneat.Graph()
+graph.add(pyneat.nodes.input(inp))
+graph.add(pyneat.nodes.output())
+
+rgb = np.full((240, 320, 3), 33, dtype=np.uint8)
+tensor = pyneat.Tensor.from_numpy(rgb, copy=True, image_format=pyneat.PixelFormat.RGB)
+run = graph.build([tensor])
+
+outputs = run.run([tensor], timeout_ms=1000)
+print(f"output_rank={len(outputs[0].shape)}")
+`;
+
+/** A step of the walk, with the note the page shows beside the code. */
+export interface Step extends NeatCodeStep {
+  readonly label: string;
+  readonly note: string;
+}
+
+export const STEPS: readonly Step[] = [
+  {
+    label: 'Describe the input',
+    marks: [{ lines: [4, 8] }],
+    note: 'InputOptions says what a frame looks like: its pixel format, width, height and depth. The input node checks each frame against it.',
+  },
+  {
+    label: 'Compose the graph',
+    marks: [{ lines: [10, 12] }],
+    note: 'A Graph is a description. add() appends nodes in order: here an input node and an output node, with nothing between them yet.',
+  },
+  {
+    label: 'Build the pipeline',
+    marks: [
+      { line: 15, text: 'Tensor.from_numpy' },
+      { line: 16, text: 'graph.build' },
+    ],
+    note: 'build() turns the description into a Run, which it can do only with a sample frame: a Tensor made from a NumPy array.',
+  },
+  {
+    label: 'Run a frame',
+    marks: [
+      { line: 18, text: 'run.run' },
+      { line: 19, text: 'outputs[0].shape' },
+    ],
+    note: 'run() pushes one frame and pulls one result. With no model in the graph, the result has the input’s rank, which shows the frame went through.',
+  },
+];
+```
+
 `step-by-step.example.css`
 
 ```css
@@ -494,6 +502,118 @@ export class StepByStep {
 
 </details>
 
+### Steps in a bubble
+
+The same walk with each step's note in a bubble beside its marks instead of beside the block: a `neatCodeNote` template inside the block gives the note, and the block shows it in a [`NeatBubble`](../components/bubble.md#neatbubble) that moves with the step. The template is given the step as the app wrote it, so `step.note` is the app's own field. The bubble sits above the marks, or below where there is no room above; `neatCodeNoteSide` prefers another side.
+
+Press Next, or focus the block and press the left and right arrow keys.
+
+<details>
+<summary>Code</summary>
+
+`8-steps-in-a-bubble.example.ts`
+
+```ts
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { NeatCodeBlock, NeatCodeNote } from '@sima/neat-ui/code-block';
+import { BUILD_GRAPH, STEPS } from './build-graph';
+
+@Component({
+  selector: 'app-steps-in-a-bubble',
+  imports: [NeatCodeBlock, NeatCodeNote],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './8-steps-in-a-bubble.example.html',
+})
+export class StepsInABubble {
+  protected readonly file = BUILD_GRAPH;
+  protected readonly steps = STEPS;
+}
+```
+
+`8-steps-in-a-bubble.example.html`
+
+```html
+<neat-code-block
+  [code]="file"
+  language="python"
+  [lineNumbers]="true"
+  [steps]="steps"
+  stepControls
+  copy="build_graph.py"
+  overflow="scroll"
+>
+  <ng-template [neatCodeNote]="steps" let-step>
+    <strong>{{ step.label }}</strong>
+    {{ step.note }}
+  </ng-template>
+</neat-code-block>
+```
+
+`build-graph.ts`
+
+```ts
+import type { NeatCodeStep } from '@sima/neat-ui/code-block';
+
+/** A short Python Neat example: describe a frame, compose a graph, build it and run a frame. */
+export const BUILD_GRAPH = `import numpy as np
+import pyneat
+
+inp = pyneat.InputOptions()
+inp.format = pyneat.Format.RGB
+inp.width = 320
+inp.height = 240
+inp.depth = 3
+
+graph = pyneat.Graph()
+graph.add(pyneat.nodes.input(inp))
+graph.add(pyneat.nodes.output())
+
+rgb = np.full((240, 320, 3), 33, dtype=np.uint8)
+tensor = pyneat.Tensor.from_numpy(rgb, copy=True, image_format=pyneat.PixelFormat.RGB)
+run = graph.build([tensor])
+
+outputs = run.run([tensor], timeout_ms=1000)
+print(f"output_rank={len(outputs[0].shape)}")
+`;
+
+/** A step of the walk, with the note the page shows beside the code. */
+export interface Step extends NeatCodeStep {
+  readonly label: string;
+  readonly note: string;
+}
+
+export const STEPS: readonly Step[] = [
+  {
+    label: 'Describe the input',
+    marks: [{ lines: [4, 8] }],
+    note: 'InputOptions says what a frame looks like: its pixel format, width, height and depth. The input node checks each frame against it.',
+  },
+  {
+    label: 'Compose the graph',
+    marks: [{ lines: [10, 12] }],
+    note: 'A Graph is a description. add() appends nodes in order: here an input node and an output node, with nothing between them yet.',
+  },
+  {
+    label: 'Build the pipeline',
+    marks: [
+      { line: 15, text: 'Tensor.from_numpy' },
+      { line: 16, text: 'graph.build' },
+    ],
+    note: 'build() turns the description into a Run, which it can do only with a sample frame: a Tensor made from a NumPy array.',
+  },
+  {
+    label: 'Run a frame',
+    marks: [
+      { line: 18, text: 'run.run' },
+      { line: 19, text: 'outputs[0].shape' },
+    ],
+    note: 'run() pushes one frame and pulls one result. With no model in the graph, the result has the input’s rank, which shows the frame went through.',
+  },
+];
+```
+
+</details>
+
 ### Marks on plain code
 
 Marks on code without a language, a terminal session: the stream's protocol, the frames asked for, and the line where the stream stopped. Marked text is in the text color, and the rest dims to the muted one.
@@ -503,24 +623,18 @@ Text that comes more than once on its line takes columns, counted from 1: "rtsp"
 <details>
 <summary>Code</summary>
 
-`8-marks-on-plain-code.example.ts`
+`9-marks-on-plain-code.example.ts`
 
 ```ts
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NeatCodeBlock, type NeatCodeMark } from '@sima/neat-ui/code-block';
-
-const SESSION = `$ ./tutorial_018_consume_rtsp_stream --url rtsp://neat.local:8554/src3 --frames 4
-frame=0 shape=[1080, 1920, 3]
-frame=1 shape=[1080, 1920, 3]
-frame=2 shape=[1080, 1920, 3]
-frame=3 rtsp_timeout
-`;
+import { SESSION } from './session';
 
 @Component({
   selector: 'app-marks-on-plain-code',
   imports: [NeatCodeBlock],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './8-marks-on-plain-code.example.html',
+  templateUrl: './9-marks-on-plain-code.example.html',
 })
 export class MarksOnPlainCode {
   protected readonly session = SESSION;
@@ -532,10 +646,82 @@ export class MarksOnPlainCode {
 }
 ```
 
-`8-marks-on-plain-code.example.html`
+`9-marks-on-plain-code.example.html`
 
 ```html
 <neat-code-block [code]="session" [marks]="marks" copy="session" />
+```
+
+`session.ts`
+
+```ts
+/** A terminal session of a Neat tutorial reading four frames of a stream. */
+export const SESSION = `$ ./tutorial_018_consume_rtsp_stream --url rtsp://neat.local:8554/src3 --frames 4
+frame=0 shape=[1080, 1920, 3]
+frame=1 shape=[1080, 1920, 3]
+frame=2 shape=[1080, 1920, 3]
+frame=3 rtsp_timeout
+`;
+```
+
+</details>
+
+### Notes on hover
+
+The same session with a note on each mark, shown in a bubble while the mark is hovered: a `neatCodeNote` template inside the block, given the mark as the app wrote it. Each mark is then a tab stop that shows its note on keyboard focus, and a tap shows it on a touch screen; Escape or a press elsewhere puts it away.
+
+Hover a mark, or press Tab to reach one.
+
+<details>
+<summary>Code</summary>
+
+`10-notes-on-hover.example.ts`
+
+```ts
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { NeatCodeBlock, type NeatCodeMark, NeatCodeNote } from '@sima/neat-ui/code-block';
+import { SESSION } from './session';
+
+/** A mark with the note its bubble shows. */
+type Noted = NeatCodeMark & { readonly note: string };
+
+@Component({
+  selector: 'app-notes-on-hover',
+  imports: [NeatCodeBlock, NeatCodeNote],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './10-notes-on-hover.example.html',
+})
+export class NotesOnHover {
+  protected readonly session = SESSION;
+  protected readonly marks: readonly Noted[] = [
+    { line: 1, from: 44, to: 47, note: 'The stream comes over RTSP, from Insight on neat.local.' },
+    { line: 1, text: '--frames 4', note: 'The program stops after four frames.' },
+    {
+      line: 5,
+      note: 'The fourth frame did not come in time: the stream stopped, or the network dropped it.',
+    },
+  ];
+}
+```
+
+`10-notes-on-hover.example.html`
+
+```html
+<neat-code-block [code]="session" [marks]="marks" copy="session">
+  <ng-template [neatCodeNote]="marks" let-mark>{{ mark.note }}</ng-template>
+</neat-code-block>
+```
+
+`session.ts`
+
+```ts
+/** A terminal session of a Neat tutorial reading four frames of a stream. */
+export const SESSION = `$ ./tutorial_018_consume_rtsp_stream --url rtsp://neat.local:8554/src3 --frames 4
+frame=0 shape=[1080, 1920, 3]
+frame=1 shape=[1080, 1920, 3]
+frame=2 shape=[1080, 1920, 3]
+frame=3 rtsp_timeout
+`;
 ```
 
 </details>
@@ -552,7 +738,7 @@ Code the app colored itself, as spans inside the block: runs from a highlighter 
 <details>
 <summary>Code</summary>
 
-`9-colored-by-the-app.example.ts`
+`11-colored-by-the-app.example.ts`
 
 ```ts
 import { ChangeDetectionStrategy, Component } from '@angular/core';
@@ -575,7 +761,7 @@ const RUNS: readonly Run[] = [
   selector: 'app-colored-by-the-app',
   imports: [NeatCodeBlock],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './9-colored-by-the-app.example.html',
+  templateUrl: './11-colored-by-the-app.example.html',
   styleUrl: './colored-by-the-app.example.css',
 })
 export class ColoredByTheApp {
@@ -584,7 +770,7 @@ export class ColoredByTheApp {
 }
 ```
 
-`9-colored-by-the-app.example.html`
+`11-colored-by-the-app.example.html`
 
 ```html
 <neat-code-block [code]="code" copy="line">
@@ -623,7 +809,7 @@ Press Copy, then paste the URL into a player.
 <details>
 <summary>Code</summary>
 
-`10-stream-url.example.ts`
+`12-stream-url.example.ts`
 
 ```ts
 import { ChangeDetectionStrategy, Component } from '@angular/core';
@@ -634,7 +820,7 @@ import { NeatCopyButton } from '@sima/neat-ui/code-block';
   selector: 'app-stream-url',
   imports: [NeatCode, NeatCopyButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './10-stream-url.example.html',
+  templateUrl: './12-stream-url.example.html',
   styleUrl: './stream-url.example.css',
 })
 export class StreamURL {
@@ -642,7 +828,7 @@ export class StreamURL {
 }
 ```
 
-`10-stream-url.example.html`
+`12-stream-url.example.html`
 
 ```html
 <p class="url">
@@ -714,6 +900,14 @@ While a block has steps, it shows their marks and does not use `marks`. A `step`
 A block with steps is a tab stop, and the left and right arrow keys move to the step before and after. On the code itself, which is a tab stop of its own while it scrolls sideways, they scroll it instead. Moving to a step fades its marks in as the last ones fade out, at once under reduced motion. A polite live region says the step ("Step 2 of 5: Open the camera").
 
 The block scrolls its own box, never the page, to bring the first mark into view when the marks shown change. Give the block a height or a `max-height`, and its code scrolls inside it: a long file then walks to a mark further down without moving the page.
+
+A [`NeatCodeNote`](../components/code-block.md#neatcodenote) template inside the block shows a note in a bubble beside the marks: the shown step's, or a mark's while it is hovered, focused or tapped, in the app's own words:
+
+```html
+<neat-code-block [code]="source" language="python" [steps]="walk" [(step)]="at" stepControls>
+  <ng-template [neatCodeNote]="walk" let-step>{{ step.note }}</ng-template>
+</neat-code-block>
+```
 
 An app that colors its code itself (spans from a highlighter run at build time) puts them inside the element. They are shown in place of the block's own lines, without `language`, `lineNumbers` or marks, and `code` stays what Copy copies, so they must spell the same text. The steps, their controls and the keys still work, so the app can mark its own spans by `step`:
 
@@ -822,6 +1016,58 @@ interface Step extends NeatCodeStep {
 - **`label`** `string`, optional
 
   What the step is about in a few words ("Open the camera"), said when the block moves to it.
+
+### `NeatCodeNote`
+
+Template directive from `@sima/neat-ui/code-block`, selector `ng-template[neatCodeNote]`.
+
+The note a code block shows in a bubble ([`NeatBubble`](../components/bubble.md#neatbubble)) beside its marks: the template is given the step or the mark, as the app gave it, so it shows the app's own words for it.
+
+```html
+<neat-code-block [code]="source" language="python" [steps]="walk" [(step)]="at" stepControls>
+  <ng-template [neatCodeNote]="walk" let-step>{{ step.note }}</ng-template>
+</neat-code-block>
+```
+
+With `steps`, the bubble shows the step's note beside the step's marks (the whole code for a step without marks) and moves with the step. With `marks`, each mark is a tab stop, and its note shows while a mouse or a pen is over the mark or the bubble, while the mark has the keyboard's focus, or after a tap on it; Escape and a press elsewhere put it away. The bubble describes the mark the focus is on (`aria-describedby`).
+
+`neatCodeNote` takes the block's steps or marks only so that the template's `let-` variable has their type (`step.note` above). The template shows whatever it renders, so a mark without a note of its own should not be in a block whose marks have notes.
+
+**Inputs**
+
+- **`neatCodeNote`** `readonly T[]`
+
+  The block's `steps` or `marks`, which give the template's variable its type.
+
+- **`neatCodeNoteSide`** `NeatBubbleSide`, default `'top'`
+
+  The side of the marks the bubble prefers, a [`NeatBubbleSide`](../components/bubble.md#neatbubbleside): `top` by default.
+
+**Template context**
+
+- **`$implicit`** `T`
+
+  The step shown, or the mark the note is for, as the app gave it.
+
+- **`index`** `number`
+
+  Its index in the block's `steps` or `marks`, from 0.
+
+### `NeatCodeNoteContext`
+
+Interface from `@sima/neat-ui/code-block`.
+
+What a code block gives its note template: the step or the mark, and its index from 0.
+
+**Members**
+
+- **`$implicit`** `T`
+
+  The step shown, or the mark the note is for, as the app gave it.
+
+- **`index`** `number`
+
+  Its index in the block's `steps` or `marks`, from 0.
 
 ### `NeatCopyButton`
 

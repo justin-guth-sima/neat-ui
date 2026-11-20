@@ -10,6 +10,7 @@
     "paths": {
       "@bench/diagram-seam": ["../neat-ui/diagram/src/bench-seam.ts"],
       "@sima/neat-ui/bev": ["../neat-ui/bev/src/public-api.ts"],
+      "@sima/neat-ui/bubble": ["../neat-ui/bubble/src/public-api.ts"],
       "@sima/neat-ui/callout": ["../neat-ui/callout/src/public-api.ts"],
       "@sima/neat-ui/card": ["../neat-ui/card/src/public-api.ts"],
       "@sima/neat-ui/charts": ["../neat-ui/charts/src/public-api.ts"],

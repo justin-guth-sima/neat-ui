@@ -1,0 +1,14 @@
+<neat-code-block
+  [code]="file"
+  language="python"
+  [lineNumbers]="true"
+  [steps]="steps"
+  stepControls
+  copy="build_graph.py"
+  overflow="scroll"
+>
+  <ng-template [neatCodeNote]="steps" let-step>
+    <strong>{{ step.label }}</strong>
+    {{ step.note }}
+  </ng-template>
+</neat-code-block>

@@ -338,6 +338,29 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
+              "text": "A "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatCodeNote",
+              "name": "NeatCodeNote"
+            },
+            {
+              "kind": "text",
+              "text": " template inside the block shows a note in a bubble beside the marks: the shown step's, or a mark's while it is hovered, focused or tapped, in the app's own words:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-code-block [code]=\"source\" language=\"python\" [steps]=\"walk\" [(step)]=\"at\" stepControls>\n  <ng-template [neatCodeNote]=\"walk\" let-step>{{ step.note }}</ng-template>\n</neat-code-block>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
               "text": "An app that colors its code itself (spans from a highlighter run at build time) puts them inside the element. They are shown in place of the block's own lines, without "
             },
             {
@@ -779,6 +802,283 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/code-block/src/lib/marks.ts"
+    },
+    {
+      "name": "NeatCodeNote",
+      "kind": "template",
+      "typeParameters": [
+        "T extends NeatCodeStep | NeatCodeMark = NeatCodeStep | NeatCodeMark"
+      ],
+      "selector": "ng-template[neatCodeNote]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The note a code block shows in a bubble ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatBubble",
+              "name": "NeatBubble"
+            },
+            {
+              "kind": "text",
+              "text": ") beside its marks: the template is given the step or the mark, as the app gave it, so it shows the app's own words for it."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-code-block [code]=\"source\" language=\"python\" [steps]=\"walk\" [(step)]=\"at\" stepControls>\n  <ng-template [neatCodeNote]=\"walk\" let-step>{{ step.note }}</ng-template>\n</neat-code-block>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "With "
+            },
+            {
+              "kind": "code",
+              "text": "steps"
+            },
+            {
+              "kind": "text",
+              "text": ", the bubble shows the step's note beside the step's marks (the whole code for a step without marks) and moves with the step. With "
+            },
+            {
+              "kind": "code",
+              "text": "marks"
+            },
+            {
+              "kind": "text",
+              "text": ", each mark is a tab stop, and its note shows while a mouse or a pen is over the mark or the bubble, while the mark has the keyboard's focus, or after a tap on it; Escape and a press elsewhere put it away. The bubble describes the mark the focus is on ("
+            },
+            {
+              "kind": "code",
+              "text": "aria-describedby"
+            },
+            {
+              "kind": "text",
+              "text": ")."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "neatCodeNote"
+            },
+            {
+              "kind": "text",
+              "text": " takes the block's steps or marks only so that the template's "
+            },
+            {
+              "kind": "code",
+              "text": "let-"
+            },
+            {
+              "kind": "text",
+              "text": " variable has their type ("
+            },
+            {
+              "kind": "code",
+              "text": "step.note"
+            },
+            {
+              "kind": "text",
+              "text": " above). The template shows whatever it renders, so a mark without a note of its own should not be in a block whose marks have notes."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "neatCodeNote",
+          "type": "readonly T[]",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The block's "
+                },
+                {
+                  "kind": "code",
+                  "text": "steps"
+                },
+                {
+                  "kind": "text",
+                  "text": " or "
+                },
+                {
+                  "kind": "code",
+                  "text": "marks"
+                },
+                {
+                  "kind": "text",
+                  "text": ", which give the template's variable its type."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "neatCodeNoteSide",
+          "type": "NeatBubbleSide",
+          "default": "'top'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The side of the marks the bubble prefers, a "
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatBubbleSide",
+                  "name": "NeatBubbleSide"
+                },
+                {
+                  "kind": "text",
+                  "text": ": "
+                },
+                {
+                  "kind": "code",
+                  "text": "top"
+                },
+                {
+                  "kind": "text",
+                  "text": " by default."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "$implicit",
+          "type": "T",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The step shown, or the mark the note is for, as the app gave it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "index",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Its index in the block's "
+                },
+                {
+                  "kind": "code",
+                  "text": "steps"
+                },
+                {
+                  "kind": "text",
+                  "text": " or "
+                },
+                {
+                  "kind": "code",
+                  "text": "marks"
+                },
+                {
+                  "kind": "text",
+                  "text": ", from 0."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/code-block/src/lib/note.ts"
+    },
+    {
+      "name": "NeatCodeNoteContext",
+      "kind": "interface",
+      "typeParameters": [
+        "T"
+      ],
+      "members": [
+        {
+          "name": "$implicit",
+          "type": "T",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The step shown, or the mark the note is for, as the app gave it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "index",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Its index in the block's "
+                },
+                {
+                  "kind": "code",
+                  "text": "steps"
+                },
+                {
+                  "kind": "text",
+                  "text": " or "
+                },
+                {
+                  "kind": "code",
+                  "text": "marks"
+                },
+                {
+                  "kind": "text",
+                  "text": ", from 0."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What a code block gives its note template: the step or the mark, and its index from 0."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/code-block/src/lib/note.ts"
     },
     {
       "name": "NeatCodeOverflow",

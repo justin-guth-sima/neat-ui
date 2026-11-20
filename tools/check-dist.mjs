@@ -21,6 +21,7 @@ const ALIAS = '@neat-ui/helm';
  */
 export const SECONDARY_ENTRIES = {
   bev: ['neat-bev'],
+  bubble: ['neat-bubble'],
   callout: ['neat-callout'],
   card: ['neat-card'],
   charts: [
@@ -30,7 +31,7 @@ export const SECONDARY_ENTRIES = {
     'neat-heatmap',
     'neat-chart-card',
   ],
-  'code-block': ['neat-code-block', 'neat-copy-button'],
+  'code-block': ['neat-code-block', 'neat-copy-button', 'ng-template[neatCodeNote]'],
   collapsible: ['neat-collapsible'],
   confirm: ['neat-confirm-dialog'],
   details: ['dl[neatDetails]'],

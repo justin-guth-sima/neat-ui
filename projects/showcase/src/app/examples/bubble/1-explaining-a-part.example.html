@@ -1,0 +1,18 @@
+<div class="stages">
+  @for (stage of stages; track stage.name) {
+    <button
+      #button
+      neatButton
+      type="button"
+      variant="outlined"
+      [pressed]="explained()?.stage === stage"
+      [attr.aria-describedby]="explained()?.stage === stage ? bubble.id : null"
+      (click)="toggle(stage, button)"
+    >
+      {{ stage.name }}
+    </button>
+  }
+</div>
+<neat-bubble #bubble [anchor]="explained()?.button ?? null" side="bottom">
+  {{ explained()?.stage?.note }}
+</neat-bubble>

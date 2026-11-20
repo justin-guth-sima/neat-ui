@@ -1,24 +1,39 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import {
   afterRenderEffect,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
+  contentChild,
+  effect,
   ElementRef,
   inject,
   input,
   model,
   resource,
+  signal,
   viewChild,
 } from '@angular/core';
 import { NeatButton, NeatIcon, ɵreducedMotion as reducedMotion } from '@sima/neat-ui';
+import { NeatBubble } from '@sima/neat-ui/bubble';
 import { NeatCopyButton } from './copy-button';
 import { highlighterFor } from './highlighter';
 import { NEAT_CODE_LANGUAGES } from './languages';
 import { plainLines } from './lines';
 import { focusLines, type NeatCodeMark, type NeatCodeStep } from './marks';
+import { NeatCodeNote } from './note';
 import { scrollToShow } from './scroll';
+
+/**
+ * How long a mark's note outlives the pointer leaving the mark, so the pointer can cross to the
+ * bubble; another mark's note opens at once.
+ */
+const NOTE_CLOSE_DELAY = 150;
+
+/** The same elements in the same order. */
+const sameElements = (a: readonly Element[] | null, b: readonly Element[]) =>
+  a !== null && a.length === b.length && a.every((element, i) => element === b[i]);
 
 /**
  * What a code block does with a line wider than itself: `wrap` breaks it, `scroll` keeps it whole
@@ -101,6 +116,15 @@ export type NeatCodeOverflow = 'wrap' | 'scroll';
  * shown change. Give the block a height or a `max-height`, and its code scrolls inside it: a long
  * file then walks to a mark further down without moving the page.
  *
+ * A `NeatCodeNote` template inside the block shows a note in a bubble beside the marks: the shown
+ * step's, or a mark's while it is hovered, focused or tapped, in the app's own words:
+ *
+ * ```html
+ * <neat-code-block [code]="source" language="python" [steps]="walk" [(step)]="at" stepControls>
+ *   <ng-template [neatCodeNote]="walk" let-step>{{ step.note }}</ng-template>
+ * </neat-code-block>
+ * ```
+ *
  * An app that colors its code itself (spans from a highlighter run at build time) puts them
  * inside the element. They are shown in place of the block's own lines, without `language`,
  * `lineNumbers` or marks, and `code` stays what Copy copies, so they must spell the same text. The
@@ -119,13 +143,19 @@ export type NeatCodeOverflow = 'wrap' | 'scroll';
  */
 @Component({
   selector: 'neat-code-block',
-  imports: [NeatButton, NeatCopyButton, NeatIcon, NgTemplateOutlet],
+  imports: [NeatBubble, NeatButton, NeatCopyButton, NeatIcon, NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[attr.tabindex]': 'stepCount() ? 0 : null',
     '[attr.role]': 'stepCount() ? "group" : null',
     '[attr.aria-label]': 'stepCount() ? "Code in steps" : null',
     '(keydown)': 'onKeydown($event)',
+    // A mark's note: the handlers look only at marks inside the code.
+    '(pointerover)': 'pointerOver($event)',
+    '(pointerleave)': 'pointerLeave($event)',
+    '(focusin)': 'focusIn($event)',
+    '(focusout)': 'focusOut($event)',
+    '(click)': 'tap($event)',
   },
   // Nothing but the code inside the pre, whose whitespace is shown: one element per line, its
   // pieces inside it (runs, or runs in a mark) and its line break last, so the lines' text is the
@@ -138,7 +168,19 @@ export type NeatCodeOverflow = 'wrap' | 'scroll';
       [attr.data-line-numbers]="lineNumbers() || null"
       [attr.data-dim]="dimmed() || null"
       [style.--line-number-digits]="digits()"
-    ><code><ng-content>@for (line of focus().lines; track $index) {<span class="line" [attr.data-marked]="line.band || null">@if (line.band !== null) {<mark data-line [attr.data-on]="line.band || null" [attr.role]="line.band ? null : 'none'"><ng-container *ngTemplateOutlet="pieces; context: { $implicit: line.pieces }" /></mark>} @else {<ng-container *ngTemplateOutlet="pieces; context: { $implicit: line.pieces }" />}{{ line.end }}</span>}</ng-content></code></pre>
+    ><code><ng-content>@for (line of focus().lines; track $index) {<span class="line" [attr.data-marked]="line.band || null">@if (line.band !== null) {<mark data-line [attr.data-on]="line.band || null" [attr.role]="line.band ? null : 'none'" [attr.data-mark]="hoverNotes() ? line.bandIndex : null" [attr.tabindex]="hoverNotes() && line.bandFirst ? 0 : null" [attr.aria-describedby]="describedBy(line.bandIndex)"><ng-container *ngTemplateOutlet="pieces; context: { $implicit: line.pieces }" /></mark>} @else {<ng-container *ngTemplateOutlet="pieces; context: { $implicit: line.pieces }" />}{{ line.end }}</span>}</ng-content></code></pre>
+    <ng-content select="[neatCodeNote]" />
+    @if (note(); as note) {
+      <neat-bubble
+        [anchor]="noteContext() ? noteAnchor() : null"
+        [side]="note.neatCodeNoteSide()"
+        (hover)="bubbleHover($event)"
+      >
+        @if (noteContext(); as context) {
+          <ng-container *ngTemplateOutlet="note.template; context: context" />
+        }
+      </neat-bubble>
+    }
     @if (copy(); as what) {
       <neat-copy-button [text]="code()" [what]="what" />
     }
@@ -181,6 +223,9 @@ export type NeatCodeOverflow = 'wrap' | 'scroll';
             [attr.data-on]="mark.on || null"
             [attr.data-join]="mark.join"
             [attr.role]="mark.on ? null : 'none'"
+            [attr.data-mark]="hoverNotes() ? mark.index : null"
+            [attr.tabindex]="hoverNotes() && mark.first ? 0 : null"
+            [attr.aria-describedby]="describedBy(mark.index)"
             ><ng-container *ngTemplateOutlet="runs; context: { $implicit: piece.runs }"
           /></mark>
         } @else {
@@ -227,9 +272,14 @@ export class NeatCodeBlock {
   /** Whether Previous and Next buttons and the position ("2 of 5") show under the code. */
   readonly stepControls = input(false, { transform: booleanAttribute });
 
+  /** The note template, which shows the step's or the mark's note in a bubble. */
+  protected readonly note = contentChild(NeatCodeNote);
+
   /** The languages the block colors: its own, and those the app added (which win). */
   private readonly languages = inject(NEAT_CODE_LANGUAGES);
   private readonly box = viewChild.required<ElementRef<HTMLElement>>('box');
+  private readonly bubble = viewChild(NeatBubble);
+  private readonly document = inject(DOCUMENT);
 
   private readonly highlighter = resource({
     params: () => this.language() ?? undefined,
@@ -271,6 +321,33 @@ export class NeatCodeBlock {
   /** How many digits the last line's number has, which sets the gutter's width. */
   protected readonly digits = computed(() => String(this.lines().length).length);
 
+  /** Whether each mark shows its note on hover, focus or a tap: marks, no steps, and a note. */
+  protected readonly hoverNotes = computed(
+    () => this.note() !== undefined && !this.stepCount() && this.focus().marked,
+  );
+  /** The mark whose note shows, by its index in `marks`. */
+  private readonly openMark = signal<number | null>(null);
+  /** A mark whose note Escape put away, which the pointer or the focus must leave to show it again. */
+  private dismissed: number | null = null;
+  /** Whether a mouse or a pen is over the open mark, or over the bubble. */
+  private pointerOnMark = false;
+  private pointerOnBubble = false;
+  private closeTimer: ReturnType<typeof setTimeout> | undefined;
+
+  /** What the note template is given, null while no note shows. */
+  protected readonly noteContext = computed(() => {
+    if (!this.note()) return null;
+    if (this.stepCount()) {
+      const index = this.shownStep();
+      return { $implicit: this.steps()[index], index };
+    }
+    const index = this.openMark();
+    const mark = index === null ? undefined : this.marks()[index];
+    return this.hoverNotes() && index !== null && mark ? { $implicit: mark, index } : null;
+  });
+  /** The elements the note's bubble points at, found once they are rendered. */
+  protected readonly noteAnchor = signal<readonly Element[] | null>(null);
+
   /** What the live region says of the shown step, which it says again on each change. */
   protected readonly announcement = computed(() => {
     const count = this.stepCount();
@@ -287,6 +364,130 @@ export class NeatCodeBlock {
       const first = box.querySelector('.line[data-marked], mark[data-on]:not([data-line])');
       if (first) scrollToShow(box, first, !reducedMotion());
     });
+    // The note's anchor: the shown step's marks (the whole code without any), or the open mark's
+    // elements, a marked line by its whole line. Set only when it changes.
+    afterRenderEffect(() => {
+      const context = this.noteContext();
+      this.focus();
+      if (!context) return;
+      const box = this.box().nativeElement;
+      const elements = this.stepCount()
+        ? [...box.querySelectorAll('.line[data-marked], mark[data-on]:not([data-line])')]
+        : [...box.querySelectorAll(`[data-mark="${context.index}"]`)].map((element) =>
+            element.hasAttribute('data-line') ? (element.closest('.line') ?? element) : element,
+          );
+      const anchor = elements.length ? elements : [box];
+      if (!sameElements(this.noteAnchor(), anchor)) this.noteAnchor.set(anchor);
+    });
+    // While a mark's note shows, Escape and a press outside the marks and the bubble put it away.
+    effect((onCleanup) => {
+      if (this.openMark() === null) return;
+      const press = (event: PointerEvent) => {
+        const target = event.target as Node;
+        const bubble = this.bubbleElement();
+        if (this.markOf(target) === null && !bubble?.contains(target)) this.closeNote();
+      };
+      const key = (event: KeyboardEvent) => {
+        if (event.key !== 'Escape') return;
+        this.dismissed = this.openMark();
+        this.closeNote();
+      };
+      this.document.addEventListener('pointerdown', press, true);
+      this.document.addEventListener('keydown', key);
+      onCleanup(() => {
+        this.document.removeEventListener('pointerdown', press, true);
+        this.document.removeEventListener('keydown', key);
+      });
+    });
+  }
+
+  /** The bubble's id on the mark whose note shows, for `aria-describedby`. */
+  protected describedBy(index: number | null): string | null {
+    return index !== null && this.hoverNotes() && this.openMark() === index
+      ? (this.bubble()?.id ?? null)
+      : null;
+  }
+
+  /** The mark (its index in `marks`) of a node inside the code, null for none. */
+  private markOf(node: EventTarget | null): number | null {
+    if (!(node instanceof Element) || !this.box().nativeElement.contains(node)) return null;
+    const mark = node.closest('[data-mark]');
+    return mark ? Number(mark.getAttribute('data-mark')) : null;
+  }
+
+  private bubbleElement(): HTMLElement | null {
+    const id = this.bubble()?.id;
+    return id ? this.document.getElementById(id) : null;
+  }
+
+  protected pointerOver(event: PointerEvent): void {
+    if (!this.hoverNotes() || (event.pointerType !== 'mouse' && event.pointerType !== 'pen')) {
+      return;
+    }
+    const mark = this.markOf(event.target);
+    if (mark !== this.dismissed) this.dismissed = null;
+    this.pointerOnMark = mark !== null;
+    if (mark === null) this.closeSoon();
+    else if (mark !== this.dismissed) this.openNote(mark);
+  }
+
+  protected pointerLeave(event: PointerEvent): void {
+    if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+    this.pointerOnMark = false;
+    this.dismissed = null;
+    this.closeSoon();
+  }
+
+  protected focusIn(event: FocusEvent): void {
+    const mark = this.markOf(event.target);
+    if (mark !== null && this.hoverNotes()) {
+      this.dismissed = null;
+      this.openNote(mark);
+    }
+  }
+
+  protected focusOut(event: FocusEvent): void {
+    if (this.markOf(event.relatedTarget) === null) this.closeSoon();
+  }
+
+  /** A tap on a mark (or a click) shows its note. */
+  protected tap(event: MouseEvent): void {
+    const mark = this.markOf(event.target);
+    if (mark !== null && this.hoverNotes()) {
+      this.dismissed = null;
+      this.openNote(mark);
+    }
+  }
+
+  protected bubbleHover(over: boolean): void {
+    this.pointerOnBubble = over;
+    if (over) clearTimeout(this.closeTimer);
+    else this.closeSoon();
+  }
+
+  private openNote(mark: number): void {
+    clearTimeout(this.closeTimer);
+    this.openMark.set(mark);
+  }
+
+  /** Puts the note away after the delay, unless the pointer or the keyboard's focus holds it. */
+  private closeSoon(): void {
+    clearTimeout(this.closeTimer);
+    if (this.openMark() === null) return;
+    this.closeTimer = setTimeout(() => {
+      const focused = this.markOf(this.document.activeElement);
+      const held =
+        this.pointerOnMark ||
+        this.pointerOnBubble ||
+        (focused !== null && focused === this.openMark());
+      if (!held) this.closeNote();
+    }, NOTE_CLOSE_DELAY);
+  }
+
+  private closeNote(): void {
+    clearTimeout(this.closeTimer);
+    this.pointerOnBubble = false;
+    this.openMark.set(null);
   }
 
   /** Moves `by` steps, if there is a step there; whether it moved. */
