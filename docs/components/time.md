@@ -139,6 +139,58 @@ export class Durations {
 
 </details>
 
+### Tenths of a second
+
+A run's length read closely: with `{ tenths: true }`, [`neatDuration`](../components/time.md#neatduration) says tenths of a second under a minute, cut as a clock does, and a minute and more as without them.
+
+<details>
+<summary>Code</summary>
+
+`3-tenths-of-a-second.example.ts`
+
+```ts
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { neatDuration } from '@sima/neat-ui';
+import { NeatDetails } from '@sima/neat-ui/details';
+
+/** Lengths in seconds, as a run's might be: under a second, under a minute, and past one. */
+const LENGTHS = [0.85, 34.38, 59.99, 60, 307.5];
+
+@Component({
+  selector: 'app-tenths-of-a-second',
+  imports: [NeatDetails],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './3-tenths-of-a-second.example.html',
+  styleUrl: './durations.example.css',
+})
+export class TenthsOfASecond {
+  protected readonly lengths = LENGTHS;
+  protected readonly duration = (seconds: number) => neatDuration(seconds, { tenths: true });
+}
+```
+
+`3-tenths-of-a-second.example.html`
+
+```html
+<dl neatDetails class="durations">
+  @for (length of lengths; track $index) {
+    <dt>{{ length }} s</dt>
+    <dd>{{ duration(length) }}</dd>
+  }
+</dl>
+```
+
+`durations.example.css`
+
+```css
+/* Both columns are short, so the list takes a narrow column rather than the whole card. */
+.durations {
+  max-width: 14rem;
+}
+```
+
+</details>
+
 ## API
 
 ### `neatSecondsAgo`
@@ -173,8 +225,22 @@ Each unit is cut to whole units, as a clock shows them: 59.9 s is "59 s", and a 
 
 Anything that is not a finite number of at least 0 is "–": `null`, `undefined`, `NaN`, an infinity, a negative number, or a value of another type that came in from JSON. A page can pass a field it has not checked and show the dash, as [`NeatEasedNumber`](../components/motion.md#neateasednumber) does while it has no value.
 
+With `{ tenths: true }` it says tenths of a second under a minute, cut as a clock does: 34.39 s is "34.3 s", 59.99 s is "59.9 s", and 0 is "0.0 s". A minute and more read the same either way.
+
 For how long ago something was, [`neatSecondsAgo`](../components/time.md#neatsecondsago) is the kit's style ("3 min ago").
 
 ```ts
-neatDuration(seconds: number | null | undefined): string
+neatDuration(seconds: number | null | undefined, options: NeatDurationOptions = {}): string
 ```
+
+### `NeatDurationOptions`
+
+Interface from `@sima/neat-ui`.
+
+How [`neatDuration`](../components/time.md#neatduration) says a length of time.
+
+**Members**
+
+- **`tenths`** `boolean`, optional
+
+  Tenths of a second under a minute ("34.4 s", "0.8 s"), for a length read closely, such as a run's; a minute and more read as without it. Off by default.

@@ -52,7 +52,8 @@ look happens in one place. Every rule here protects that.
     by taking its sheet), `neatSecondsAgo` (the kit's one relative-time style, "just now",
     "12 s ago", "3 min ago") and `neatDuration` (its one style for a length of time beside it,
     "42 s", "5 min 07 s", "2 h 05 min", "3 d 04 h": each unit cut to whole units as a clock does,
-    the second always two digits, and "–" for anything not a finite number of at least 0),
+    the second always two digits, and "–" for anything not a finite number of at least 0; with
+    `{ tenths: true }` (`NeatDurationOptions`), "34.4 s" under a minute, for a run's length),
     `NeatStale` (`[neatStale]`: what its host shows is stale, faded to 0.55 and gray, with no
     transition; the words beside it say why), `NeatProse` (`[neatProse]`: long-form text in the
     kit's type, its blocks spaced, `h3` to `h6` sized, lists with their markers, links underlined

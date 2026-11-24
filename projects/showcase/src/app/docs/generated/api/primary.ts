@@ -1553,6 +1553,49 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/theme/theme.service.ts"
     },
     {
+      "name": "NeatDurationOptions",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "tenths",
+          "type": "boolean",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Tenths of a second under a minute (\"34.4 s\", \"0.8 s\"), for a length read closely, such as a run's; a minute and more read as without it. Off by default."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How "
+            },
+            {
+              "kind": "ref",
+              "text": "neatDuration",
+              "name": "neatDuration"
+            },
+            {
+              "kind": "text",
+              "text": " says a length of time."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/time/duration.ts"
+    },
+    {
       "name": "NeatEasedNumber",
       "kind": "component",
       "selector": "neat-eased-number",
@@ -6614,7 +6657,7 @@ export const API: DocsEntry = {
     {
       "name": "neatDuration",
       "kind": "function",
-      "signature": "neatDuration(seconds: number | null | undefined): string",
+      "signature": "neatDuration(seconds: number | null | undefined, options: NeatDurationOptions = {}): string",
       "doc": [
         {
           "kind": "paragraph",
@@ -6687,6 +6730,23 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": " does while it has no value."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "With "
+            },
+            {
+              "kind": "code",
+              "text": "{ tenths: true }"
+            },
+            {
+              "kind": "text",
+              "text": " it says tenths of a second under a minute, cut as a clock does: 34.39 s is \"34.3 s\", 59.99 s is \"59.9 s\", and 0 is \"0.0 s\". A minute and more read the same either way."
             }
           ]
         },

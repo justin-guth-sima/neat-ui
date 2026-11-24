@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Ages } from './1-ages.example';
 import { Durations } from './2-durations.example';
+import { TenthsOfASecond } from './3-tenths-of-a-second.example';
 
 describe('the time examples', () => {
   it('say each age in the words of neatSecondsAgo', async () => {
@@ -46,5 +47,14 @@ describe('the time examples', () => {
       '-1 s': '–',
       null: '–',
     });
+  });
+
+  it('say a run’s length in tenths under a minute, and as without them from one', async () => {
+    const fixture = TestBed.createComponent(TenthsOfASecond);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const words = Array.from(host.querySelectorAll('dd'), (dd) => dd.textContent?.trim());
+
+    expect(words).toEqual(['0.8 s', '34.3 s', '59.9 s', '1 min 00 s', '5 min 07 s']);
   });
 });

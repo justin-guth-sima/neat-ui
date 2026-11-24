@@ -2,6 +2,7 @@
 import type { DocsExample } from '../../model';
 import { Ages } from '../../../examples/time/1-ages.example';
 import { Durations } from '../../../examples/time/2-durations.example';
+import { TenthsOfASecond } from '../../../examples/time/3-tenths-of-a-second.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -130,6 +131,73 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "2-durations.example.html",
         "code": [
           ["text","<dl neatDetails class=\"durations\">\n  @for (length of lengths; track $index) {\n    <dt>{{ length === null ? 'null' : length + ' s' }}</dt>\n    <dd>{{ duration(length) }}</dd>\n  }\n</dl>\n"]
+        ]
+      },
+      {
+        "name": "durations.example.css",
+        "code": [
+          ["comment","/* Both columns are short, so the list takes a narrow column rather than the whole card. */"],["text","\n.durations {\n  max-width: 14rem;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tenths-of-a-second",
+    "title": "Tenths of a second",
+    "component": TenthsOfASecond,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A run's length read closely: with "
+          },
+          {
+            "kind": "code",
+            "text": "{ tenths: true }"
+          },
+          {
+            "kind": "text",
+            "text": ", "
+          },
+          {
+            "kind": "ref",
+            "text": "neatDuration",
+            "name": "neatDuration"
+          },
+          {
+            "kind": "text",
+            "text": " says tenths of a second under a minute, cut as a clock does, and a minute and more as without them."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui#neatDuration",
+      "@sima/neat-ui/details#NeatDetails"
+    ],
+    "files": [
+      {
+        "name": "3-tenths-of-a-second.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { neatDuration } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatDetails } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/details'"],["text",";\n\n"],
+          ["comment","/** Lengths in seconds, as a run's might be: under a second, under a minute, and past one. */"],["text","\n"],
+          ["keyword","const"],["text"," LENGTHS = [0.85, 34.38, 59.99, 60, 307.5];\n\n@Component({\n  selector: "],
+          ["string","'app-tenths-of-a-second'"],["text",",\n  imports: [NeatDetails],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-tenths-of-a-second.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./durations.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," TenthsOfASecond {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," lengths = LENGTHS;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," duration = (seconds: "],["keyword","number"],["text",") => neatDuration(seconds, { tenths: "],["keyword","true"],["text"," });\n}\n"]
+        ]
+      },
+      {
+        "name": "3-tenths-of-a-second.example.html",
+        "code": [
+          ["text","<dl neatDetails class=\"durations\">\n  @for (length of lengths; track $index) {\n    <dt>{{ length }} s</dt>\n    <dd>{{ duration(length) }}</dd>\n  }\n</dl>\n"]
         ]
       },
       {

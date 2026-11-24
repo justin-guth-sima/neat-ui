@@ -286,6 +286,18 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatDurationOptions",
+    "partKind": "interface",
+    "text": "How neatDuration says a length of time."
+  },
+  {
+    "kind": "member",
+    "name": "tenths",
+    "part": "NeatDurationOptions",
+    "text": "Tenths of a second under a minute (\"34.4 s\", \"0.8 s\"), for a length read closely, such as a run's; a minute and more read as without it."
+  },
+  {
+    "kind": "part",
     "name": "NeatEasedNumber",
     "partKind": "component",
     "text": "A figure that eases to each new value instead of jumping."
@@ -6391,6 +6403,13 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "time",
     "id": "durations",
     "text": "The words neatDuration says for the lengths of time beside them."
+  },
+  {
+    "kind": "example",
+    "name": "Tenths of a second",
+    "topic": "time",
+    "id": "tenths-of-a-second",
+    "text": "A run's length read closely: with { tenths: true }, neatDuration says tenths of a second under a minute, cut as a clock does, and a minute…"
   },
   {
     "kind": "example",
