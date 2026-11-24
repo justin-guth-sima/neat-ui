@@ -15,7 +15,7 @@ import { BrnTooltip } from '@spartan-ng/brain/tooltip';
 import { neatAsideOpen } from '../page/aside-open';
 import { NeatViewport } from '../page/viewport';
 import { safeStorage } from '../storage';
-import type { NeatTone } from '../theme/tone';
+import { TONE_DOT_COLORS, type NeatTone } from '../theme/tone';
 import { provideNeatTooltipOptions } from '../tooltip/tooltip';
 
 const RAIL_EXPANDED_KEY = 'neat-ui:rail-expanded';
@@ -133,7 +133,7 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
     <span class="icon">
       <ng-content />
       @if (tone()) {
-        <span class="dot" aria-hidden="true"></span>
+        <span class="dot" aria-hidden="true" [style.--neat-tone-dot]="dotColor()"></span>
       }
     </span>
     <span class="label" [class.sr-only]="!expanded()">
@@ -170,6 +170,12 @@ export class NeatRailItem {
   readonly detail = input<string>();
   /** The state a dot on the icon's corner shows; no dot without it. */
   readonly tone = input<NeatTone>();
+
+  /** The dot's color, from the table every tone dot shares. */
+  protected readonly dotColor = computed(() => {
+    const tone = this.tone();
+    return tone ? TONE_DOT_COLORS[tone] : null;
+  });
 
   /** Whether the item shows lines that say other than `label`, which then names it unseen. */
   protected readonly showsLines = computed(

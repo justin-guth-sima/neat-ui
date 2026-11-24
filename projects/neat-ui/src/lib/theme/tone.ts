@@ -9,3 +9,21 @@
  * same tone, say the same.
  */
 export type NeatTone = 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'highlight';
+
+/**
+ * The color of a tone's dot, one place for every part that draws one (the rail item's state dot,
+ * the collapsible's). A part sets `--neat-tone-dot` on its dot from this and paints
+ * `background: var(--neat-tone-dot)`, so two dots of one tone never differ.
+ *
+ * The theme's `--warning` is a fill (2.2:1 on white), too faint for a dot, so warning's dot is the
+ * line step of its scale, `--neat-line-warning`. Each color holds 3:1 on the rail and on its hover
+ * fill in both schemes (the rail item spec).
+ */
+export const TONE_DOT_COLORS: Readonly<Record<NeatTone, string>> = {
+  success: 'var(--success)',
+  neutral: 'var(--muted-foreground)',
+  warning: 'var(--neat-line-warning)',
+  danger: 'var(--destructive)',
+  info: 'var(--info)',
+  highlight: 'var(--highlight)',
+};

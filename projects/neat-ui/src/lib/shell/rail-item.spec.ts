@@ -5,7 +5,7 @@ import { NeatIcon } from '../icon/icon';
 import { NeatViewport } from '../page/viewport';
 import { contrastRatio, mixOklab } from '../theme/color';
 import { spartanThemeTokens } from '../theme/spartan-theme';
-import type { NeatTone } from '../theme/tone';
+import { TONE_DOT_COLORS, type NeatTone } from '../theme/tone';
 import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
 import railItemStyles from './rail-item.css' with { loader: 'text' };
 
@@ -342,7 +342,7 @@ describe('NeatRailItem', () => {
 
       it(`${scheme}: each tone’s dot reaches 3:1 on its ring`, () => {
         for (const tone of TONES) {
-          const dot = resolve(toneBlock(tone)['--rail-item-dot'], tokens);
+          const dot = resolve(TONE_DOT_COLORS[tone], tokens);
           for (const surface of surfaces) {
             expect(
               contrastRatio(dot, tokens[surface]),

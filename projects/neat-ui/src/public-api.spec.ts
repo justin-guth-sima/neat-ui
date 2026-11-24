@@ -188,6 +188,7 @@ describe('the public API', () => {
       'ɵPOPOVER_HELM_CLASSES',
       'ɵREADOUT_CLASSES',
       'ɵSTALE_CLASSES',
+      'ɵTONE_DOT_COLORS',
       'ɵclassStyles',
       'ɵcreateColorAllocator',
       'ɵheldColor',

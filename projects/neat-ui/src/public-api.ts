@@ -128,4 +128,5 @@ export {
   seriesToken as ɵseriesToken,
   seriesTokenName as ɵseriesTokenName,
 } from './lib/series-swatch/series-swatch';
+export { TONE_DOT_COLORS as ɵTONE_DOT_COLORS } from './lib/theme/tone';
 export { hlm as ɵhlm } from './lib/ui/utils/src';
