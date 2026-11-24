@@ -95,14 +95,15 @@ look happens in one place. Every rule here protects that.
     panel surface, shown while it has one; it prefers its `side` and takes another where that has
     no room, follows its anchor as boxes scroll and hides while the anchor is out of view; it is
     drawn in the CDK overlay and its `id` is for an `aria-describedby`; the code block's notes use
-    it), `confirm`, `input`, `number-field` (`NeatNumberField`, one whole number committed on
-    Enter or on leaving the field; with `step`, the input is a spinbutton with − and + inside its
-    box, the kit's `minus` and `plus` icons, pointer-only buttons that commit at once, held to
-    `min` and `max` and `aria-disabled` at a bound or with no number shown (typed, if whole digits
-    within the bounds, else `value`; null is shown as "–"); `reset()` shows `value` again for an
-    owner that refused a committed number; `unit` is text inside the box after the number, `neatNumberFieldSuffix`
-    content follows the box, and `showLabel` false leaves the label the input's name only; the
-    label holds only its text, so the steps are not inside it), `line-list`, `select`
+    it), `confirm`, `input`, `number-field` (`NeatNumberField`, one whole number committed on Enter
+    or on leaving the field; with `step`, the input is a spinbutton with − and + inside its box, the
+    kit's `minus` and `plus` icons, pointer-only buttons that commit at once, held to `min` and
+    `max` and `aria-disabled` at a bound or with no number shown (typed, if whole digits within the
+    bounds, else `value`; null is shown as "–"); `reset()` shows `value` again for an owner that
+    refused a committed number; `unit` is text inside the box after the number,
+    `neatNumberFieldSuffix` content follows the box, and `showLabel` false leaves the label the
+    input's name only; the label holds only its text, so the steps are not inside it), `line-list`,
+    `select`
     (`NeatSelect`, a labeled listbox combobox, its label shown above it with `showLabel` or, with
     `labelPosition="inline"`, before it on its row), `progress` (`NeatProgress`, a bar or, with a
     `heading`, a titled readout, which the progress toast renders through), `drop-zone`
@@ -809,21 +810,21 @@ the focus, and the input inside it, which `number-field` draws around its steps 
 `ɵINPUT_CLASSES` by `input-classes.spec`), `ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
 look, which `collapsible` shares with the page nav on a narrow screen), `ɵSTALE_CLASSES` (the stale
 look, which `diagram` gives a node's card), `ɵTONE_DOT_COLORS` (the color each tone's dot takes,
-which the rail item and `collapsible`'s status dot share), `ɵOverlayFocus` and `ɵPANEL_SURFACE_CLASSES` and
-`ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel in the overlay, which
-`neat-popover` shares with the shell's collapsed-rail menu, and the surface with `neat-bubble`;
-the second is the helm popover's own classes, which the popover's drift spec reads), `ɵBROWSER_CLOCK` and `ɵreducedMotion` (the
-browser's frame clock and the reduced-motion check, which `charts`' label timeline shares with
-`neatEased`), `ɵREADOUT_CLASSES` (the readout's look, which `charts` shares with `bev`), and the
-page's class colors, which `video`'s overlays share with `bev`: `ɵNeatOverlayColors`,
-`ɵcreateColorAllocator`, `ɵresolveColor`, `ɵheldColor` (a color read back for `colorOf`), the
-identity palette (`ɵOVERLAY_PALETTE`,
-`ɵOVERLAY_NEUTRAL_COLOR`, in `lib/theme/identity-palette.ts`) and the style-row lookup
-(`ɵclassStyles`, `ɵstyleFor`); `video` re-exports them to its own code under their old names. They
-moved to the primary because `bev` imported from `video` pulled the tile's component into a page
-with a view and no tile. Angular's convention for private API. They are not
-for apps, may change in any release, and no app file may import a `ɵ` name. A shared internal that a
-second entry needs is exported the same way, never by a relative path. `lib/ui/` itself stays where
+which the rail item and `collapsible`'s status dot share), `ɵOverlayFocus` and
+`ɵPANEL_SURFACE_CLASSES` and `ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel in
+the overlay, which `neat-popover` shares with the shell's collapsed-rail menu, and the surface with
+`neat-bubble`; the second is the helm popover's own classes, which the popover's drift spec reads),
+`ɵBROWSER_CLOCK` and `ɵreducedMotion` (the browser's frame clock and the reduced-motion check, which
+`charts`' label timeline shares with `neatEased`), `ɵREADOUT_CLASSES` (the readout's look, which
+`charts` shares with `bev`), and the page's class colors, which `video`'s overlays share with `bev`:
+`ɵNeatOverlayColors`, `ɵcreateColorAllocator`, `ɵresolveColor`, `ɵheldColor` (a color read back for
+`colorOf`), the identity palette (`ɵOVERLAY_PALETTE`, `ɵOVERLAY_NEUTRAL_COLOR`, in
+`lib/theme/identity-palette.ts`) and the style-row lookup (`ɵclassStyles`, `ɵstyleFor`); `video`
+re-exports them to its own code under their old names. They moved to the primary because `bev`
+imported from `video` pulled the tile's component into a page with a view and no tile. Angular's
+convention for private API. They are not for apps, may change in any release, and no app file may
+import a `ɵ` name. A shared internal that a second entry needs is exported the same way, never by a
+relative path. `lib/ui/` itself stays where
 `helm:add` writes it.
 
 **How the bird's-eye view is drawn.** `bev` draws what a vehicle sees around it (`neat-bev`),
@@ -1516,9 +1517,9 @@ number of tools and a switch in it moves too.
   row's items, and a `div` makes one item of them) anywhere in a page's template renders that
   content in the top bar, at its right end just before the end slot and the kiosk button, while the
   page exists. In kiosk mode it floats beside the exit control and fades with it. The content stays
-  the page's (bindings, injection), but its view is re-created on entering and leaving kiosk mode, so keep its
-  state (values, open menus) in the page, never in components inside the toolbar.
-  Groups of tools are set apart by `<hr neatPageToolbarDivider />` between them
+  the page's (bindings, injection), but its view is re-created on entering and leaving kiosk mode,
+  so keep its state (values, open menus) in the page, never in components inside the toolbar. Groups
+  of tools are set apart by `<hr neatPageToolbarDivider />` between them
   (`NeatPageToolbarDivider`, primary): decorative (`aria-hidden`), 1px of `--border`, the row's
   height less `--neat-space-3` at top and bottom, so it reads the same in the top bar, the kiosk bar
   and a phone's second row.

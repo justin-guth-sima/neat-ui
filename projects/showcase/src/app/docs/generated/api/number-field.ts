@@ -184,7 +184,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " 1). XX A button that cannot step (at a bound, or with no number shown) is "
+              "text": " 1). They step from what was typed when it is whole digits within the bounds, else from "
+            },
+            {
+              "kind": "code",
+              "text": "value"
+            },
+            {
+              "kind": "text",
+              "text": ", so + and − always move the number shown the way they say. A button that cannot step (at a bound, or with no number shown) is "
             },
             {
               "kind": "code",
