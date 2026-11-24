@@ -1071,7 +1071,12 @@ export const GROUPS: readonly TopicGroup[] = [
           {
             id: 'insight-channel',
             label: 'Insight channel',
-            parts: ['neatInsightChannel', 'NeatInsightChannel', 'NeatInsightChannelOptions'],
+            parts: [
+              'neatInsightChannel',
+              'NeatInsightChannel',
+              'NeatInsightChannelOptions',
+              'NeatInsightVideoStats',
+            ],
             leads: ['neatInsightChannel'],
             load: async () => {
               const [api, examples] = await Promise.all([

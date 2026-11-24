@@ -1,8 +1,18 @@
-import { computed, DestroyRef, inject, NgZone, signal, type Signal } from '@angular/core';
+import {
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  isSignal,
+  NgZone,
+  signal,
+  untracked,
+  type Signal,
+} from '@angular/core';
 import type { NeatTileSource } from '@sima/neat-ui/video';
-import { openInsightConnection } from './insight-connection';
+import { openInsightConnection, type NeatInsightVideoStats } from './insight-connection';
 
-/** Where a `neatInsightChannel` posts its offer, and how long the browser holds the video. */
+/** Where a `neatInsightChannel` posts its offer, how long the browser holds the video, its log. */
 export interface NeatInsightChannelOptions {
   /**
    * Where the browser's WebRTC offer is posted: Insight's own route,
@@ -24,10 +34,19 @@ export interface NeatInsightChannelOptions {
    * How long the browser holds the video before it shows a frame, in ms, so each frame's metadata
    * has arrived when it is drawn.
    *
-   * It sets the receiver's `jitterBufferTarget`. Unset, or in a browser without
-   * `jitterBufferTarget` (Firefox), the browser shows each frame as soon as it can.
+   * It sets the receiver's `jitterBufferTarget`. A signal is followed while the channel is open,
+   * so a setting can change it without a new connection. Unset, or in a browser without
+   * `jitterBufferTarget` (Firefox, see `videoBufferSupported`), the browser shows each frame as
+   * soon as it can.
    */
-  readonly videoBufferMs?: number;
+  readonly videoBufferMs?: number | Signal<number>;
+  /**
+   * Told each step of the connection (connecting, answered, track, a connection state, a retry
+   * and why, a failure, closed), with its details, for an app's debug log. Unset logs nothing.
+   *
+   * It is called outside Angular, so it should only log.
+   */
+  readonly log?: (event: string, details?: unknown) => void;
 }
 
 /**
@@ -61,6 +80,16 @@ export interface NeatInsightChannel extends NeatTileSource {
    * second.
    */
   readonly videoDelayMs: Signal<number | null>;
+  /**
+   * What arrives on the channel (`NeatInsightVideoStats`: codec, frame size, frame rate,
+   * bitrate), measured once a second while it is connected; null while it is not.
+   */
+  readonly stats: Signal<NeatInsightVideoStats | null>;
+  /**
+   * Whether this browser can hold the video for `videoBufferMs`: false in a browser without the
+   * receiver's `jitterBufferTarget` (Firefox), which shows each frame as soon as it can.
+   */
+  readonly videoBufferSupported: boolean;
   /**
    * Closes the connection for good, before its injection context is destroyed, such as to open
    * another channel in its place. Calling it again does nothing.
@@ -100,37 +129,50 @@ export function neatInsightChannel(
 ): NeatInsightChannel {
   const destroyRef = inject(DestroyRef);
   const zone = inject(NgZone);
-  const { offer, videoBufferMs } = options;
+  const { offer, videoBufferMs, log } = options;
   const offerUrl =
     typeof offer === 'function' ? offer(channel) : (offer ?? `/api/channels/${channel}/offer`);
+  const bufferMs = isSignal(videoBufferMs) ? videoBufferMs : () => videoBufferMs;
 
   const stream = signal<MediaStream | null>(null);
   const waiting = signal<string | null>(null);
   const failure = signal<string | null>(null);
   const videoDelayMs = signal<number | null>(null);
+  const stats = signal<NeatInsightVideoStats | null>(null);
   const listeners = new Set<(text: string, receivedAt: number) => void>();
 
-  const closeConnection = zone.runOutsideAngular(() =>
+  const connection = zone.runOutsideAngular(() =>
     openInsightConnection(
-      { offerUrl, videoBufferMs },
+      { offerUrl, videoBufferMs: untracked(bufferMs), log },
       {
         stream: (value) => stream.set(value),
         waiting: (text) => waiting.set(text),
         failure: (text) => failure.set(text),
         videoDelayMs: (ms) => videoDelayMs.set(ms),
+        stats: (value) => stats.set(value),
         metadata: (text, receivedAt) => {
           for (const listener of listeners) listener(text, receivedAt);
         },
       },
     ),
   );
-  const stopOnDestroy = destroyRef.onDestroy(closeConnection);
+  if (isSignal(videoBufferMs)) {
+    // Ends with the injection context, as the connection does; after `close` it changes nothing.
+    effect(() => {
+      const ms = videoBufferMs();
+      untracked(() => connection.setVideoBufferMs(ms));
+    });
+  }
+  const stopOnDestroy = destroyRef.onDestroy(() => connection.close());
 
   return {
     stream: stream.asReadonly(),
     notice: computed(() => failure() ?? waiting()),
     failure: failure.asReadonly(),
     videoDelayMs: videoDelayMs.asReadonly(),
+    stats: stats.asReadonly(),
+    videoBufferSupported:
+      typeof RTCRtpReceiver === 'function' && 'jitterBufferTarget' in RTCRtpReceiver.prototype,
     onMetadata(listener) {
       listeners.add(listener);
       return () => {
@@ -139,7 +181,7 @@ export function neatInsightChannel(
     },
     close() {
       stopOnDestroy();
-      closeConnection();
+      connection.close();
     },
   };
 }

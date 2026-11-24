@@ -10,6 +10,9 @@
  * decoder makes no progress for 5 s, or that stays "disconnected" that long, is rebuilt, since after
  * a source restart the decoder can wait for a keyframe forever. A 4xx answer is final (415: this
  * browser cannot decode the codec), as is a browser without WebRTC: no retry, `failure` says why.
+ *
+ * Once a second, while connected, the inbound video's stats are sampled: the decoder's progress for
+ * the stall check, the jitter buffer's delay, and what arrives (codec, frame size, rate, bitrate).
  */
 
 /** Milliseconds to wait before reconnect attempt 1, 2, 3, ...; the last value repeats. */
@@ -36,12 +39,27 @@ const WAITING_TEXT: Readonly<Record<string, string>> = {
 /** The answers of a proxy whose server does not answer, when they carry no code of Insight's. */
 const GATEWAY_STATUSES = new Set([502, 503, 504]);
 
-/** Where the connection posts its offer, and how long the browser should hold the video. */
+/** Where the connection posts its offer, how long the browser holds the video, and its log. */
 export interface InsightConnectionOptions {
   /** The address the offer is posted to, as is. */
   readonly offerUrl: string;
   /** The receiver's `jitterBufferTarget` in ms; unset leaves the receiver alone. */
   readonly videoBufferMs?: number;
+  /** Told each step of the connection, for an app's debug log; unset logs nothing. */
+  readonly log?: (event: string, details?: unknown) => void;
+}
+
+/** What arrives on a connected channel, sampled once a second. */
+export interface NeatInsightVideoStats {
+  /** The video's codec as the browser names it ("H264", "H265", "VP8"), or null before it says. */
+  readonly codec: string | null;
+  /** The decoded frame's size in pixels, or null before the browser reports it. */
+  readonly width: number | null;
+  readonly height: number | null;
+  /** Decoded frames per second, or null before the browser reports it. */
+  readonly framesPerSecond: number | null;
+  /** The video's bitrate over the last second, in bits per second. */
+  readonly bitsPerSecond: number;
 }
 
 /** What the connection reports, each call a change (or the same value again). */
@@ -54,11 +72,21 @@ export interface InsightConnectionEvents {
   failure(text: string): void;
   /** The mean jitter-buffer delay per frame over the last second, or null. */
   videoDelayMs(ms: number | null): void;
+  /** What arrives, once a second while connected; null without a connected peer. */
+  stats(stats: NeatInsightVideoStats | null): void;
   /** A text message of the `metadata` data channel, `receivedAt` on `performance.now()`. */
   metadata(text: string, receivedAt: number): void;
 }
 
-/** What the health check keeps of a connected peer: the last frame count and when it last grew. */
+/** An open connection: closed for good with `close`, its video buffer changed at any time. */
+export interface InsightConnection {
+  /** Closes the connection for good; calling it again does nothing. */
+  close(): void;
+  /** Holds the video for `ms` from now on, this connection and the ones that replace it. */
+  setVideoBufferMs(ms: number | undefined): void;
+}
+
+/** What the health check keeps of a connected peer between samples. */
 interface Health {
   framesDecoded: number;
   progressAt: number;
@@ -66,15 +94,35 @@ interface Health {
   /** The jitter buffer counters at the previous sample, for the per-second mean. */
   delaySeconds: number | null;
   emittedCount: number;
+  /** The bytes received and the report's time at the previous sample, for the bitrate. */
+  bytesReceived: number | null;
+  sampledAt: number | null;
 }
 
-/** Starts connecting at once; returns the function that closes the connection for good. */
+/** The fields of an inbound video report that the sample reads. */
+type InboundVideo = Pick<
+  RTCInboundRtpStreamStats,
+  | 'framesDecoded'
+  | 'jitterBufferDelay'
+  | 'jitterBufferEmittedCount'
+  | 'bytesReceived'
+  | 'frameWidth'
+  | 'frameHeight'
+  | 'framesPerSecond'
+  | 'codecId'
+  | 'timestamp'
+>;
+
+/** Starts connecting at once. */
 export function openInsightConnection(
   options: InsightConnectionOptions,
   events: InsightConnectionEvents,
-): () => void {
+): InsightConnection {
+  const log = options.log ?? (() => undefined);
+  let videoBufferMs = options.videoBufferMs;
   let closed = false;
   let peer: RTCPeerConnection | null = null;
+  let receiver: RTCRtpReceiver | null = null;
   let health: Health | null = null;
   let failures = 0;
   let checking = false;
@@ -89,8 +137,10 @@ export function openInsightConnection(
   const dropPeer = (): void => {
     const pc = peer;
     peer = null;
+    receiver = null;
     health = null;
     events.videoDelayMs(null);
+    events.stats(null);
     pc?.close();
   };
 
@@ -103,20 +153,23 @@ export function openInsightConnection(
     dropPeer();
     events.stream(null);
     events.waiting(null);
+    log('closed');
   };
 
   const fail = (text: string): void => {
     close();
+    log('failed', text);
     events.failure(text);
   };
 
-  const retry = (): void => {
+  const retry = (reason: string): void => {
     if (closed) return;
     dropPeer();
     events.stream(null);
     const delay = BACKOFF_MS[Math.min(failures, BACKOFF_MS.length - 1)];
     failures += 1;
     clearRetry();
+    log('retrying', { reason, inMs: delay });
     retryTimer = setTimeout(() => void attempt(), delay);
   };
 
@@ -127,9 +180,9 @@ export function openInsightConnection(
     const pc = new RTCPeerConnection();
     peer = pc;
     const transceiver = pc.addTransceiver('video', { direction: 'recvonly' });
-    if (options.videoBufferMs !== undefined) {
-      applyJitterBufferTarget(transceiver.receiver, options.videoBufferMs);
-    }
+    receiver = transceiver.receiver;
+    if (videoBufferMs !== undefined) applyJitterBufferTarget(receiver, videoBufferMs);
+    log('connecting', { offerUrl: options.offerUrl, videoBufferMs });
     const metadata = pc.createDataChannel('metadata', { ordered: true, maxRetransmits: 0 });
     metadata.onmessage = (event: MessageEvent) => {
       if (pc !== peer || typeof event.data !== 'string') return;
@@ -137,13 +190,17 @@ export function openInsightConnection(
     };
     pc.ontrack = (event: RTCTrackEvent) => {
       if (pc !== peer || event.track.kind !== 'video') return;
+      log('track');
       events.waiting(null);
       events.stream(event.streams[0] ?? new MediaStream([event.track]));
     };
     pc.onconnectionstatechange = () => {
       if (pc !== peer) return;
+      log('connection state', pc.connectionState);
       if (pc.connectionState === 'connected') failures = 0;
-      else if (pc.connectionState === 'failed' || pc.connectionState === 'closed') retry();
+      else if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+        retry(`connection ${pc.connectionState}`);
+      }
     };
     try {
       const offer = await pc.createOffer();
@@ -160,12 +217,15 @@ export function openInsightConnection(
       const answer = (await response.json()) as RTCSessionDescriptionInit;
       if (closed || pc !== peer) return;
       await pc.setRemoteDescription(answer);
+      log('answered');
       health = {
         framesDecoded: -1,
         progressAt: Date.now(),
         disconnectedSince: null,
         delaySeconds: null,
         emittedCount: 0,
+        bytesReceived: null,
+        sampledAt: null,
       };
     } catch (error) {
       if (pc !== peer) return;
@@ -173,7 +233,7 @@ export function openInsightConnection(
         fail(error.failureText());
       } else {
         events.waiting(error instanceof OfferError ? error.waitingText() : null);
-        retry();
+        retry(error instanceof Error ? `offer: ${error.message}` : 'offer failed');
       }
     }
   };
@@ -183,29 +243,25 @@ export function openInsightConnection(
     if (closed || checking || !pc || !health) return;
     checking = true;
     try {
-      let framesDecoded = 0;
-      let delaySeconds = 0;
-      let emittedCount = 0;
-      (await pc.getStats()).forEach((report) => {
-        if (report.type === 'inbound-rtp' && report.kind === 'video') {
-          framesDecoded = report.framesDecoded ?? 0;
-          delaySeconds = report.jitterBufferDelay ?? 0;
-          emittedCount = report.jitterBufferEmittedCount ?? 0;
-        }
-      });
+      const reports = await pc.getStats();
+      const inbound = inboundVideo(reports);
       const current = health;
       if (pc !== peer || !current) return;
       const now = Date.now();
+      const framesDecoded = inbound?.framesDecoded ?? 0;
       if (framesDecoded > current.framesDecoded) {
         current.framesDecoded = framesDecoded;
         current.progressAt = now;
       }
-      sampleDelay(current, pc.connectionState === 'connected', delaySeconds, emittedCount);
+      const connected = pc.connectionState === 'connected';
+      events.videoDelayMs(sampleDelay(current, connected, inbound));
+      events.stats(connected && inbound ? sampleStats(current, inbound, reports) : null);
       if (pc.connectionState === 'disconnected') current.disconnectedSince ??= now;
       else current.disconnectedSince = null;
       const disconnected =
         current.disconnectedSince !== null && now - current.disconnectedSince >= STALL_MS;
-      if (now - current.progressAt >= STALL_MS || disconnected) retry();
+      if (now - current.progressAt >= STALL_MS) retry('no new frame decoded');
+      else if (disconnected) retry('disconnected');
     } catch {
       // stats are unavailable on a closing peer: the next tick looks again
     } finally {
@@ -213,28 +269,74 @@ export function openInsightConnection(
     }
   };
 
-  const sampleDelay = (
-    current: Health,
-    connected: boolean,
-    delaySeconds: number,
-    emittedCount: number,
-  ): void => {
-    const frames = emittedCount - current.emittedCount;
-    const seconds = delaySeconds - (current.delaySeconds ?? 0);
-    const hadBaseline = current.delaySeconds !== null;
-    current.delaySeconds = delaySeconds;
-    current.emittedCount = emittedCount;
-    events.videoDelayMs(connected && hadBaseline && frames > 0 ? (seconds / frames) * 1000 : null);
-  };
-
   if (typeof RTCPeerConnection !== 'function') {
     closed = true;
     events.failure('This browser has no WebRTC');
-    return () => undefined;
+    return { close: () => undefined, setVideoBufferMs: () => undefined };
   }
   healthTimer = setInterval(() => void checkHealth(), HEALTH_INTERVAL_MS);
   void attempt();
-  return close;
+  return {
+    close,
+    setVideoBufferMs(ms) {
+      videoBufferMs = ms;
+      if (receiver !== null && ms !== undefined) applyJitterBufferTarget(receiver, ms);
+    },
+  };
+}
+
+/** The report of the inbound video, or null before there is one. */
+function inboundVideo(reports: RTCStatsReport): InboundVideo | null {
+  for (const report of reports.values()) {
+    if (report.type === 'inbound-rtp' && report.kind === 'video') return report as InboundVideo;
+  }
+  return null;
+}
+
+/** The mean jitter-buffer delay per frame since the previous sample, in ms, or null. */
+function sampleDelay(
+  current: Health,
+  connected: boolean,
+  video: InboundVideo | null,
+): number | null {
+  const delaySeconds = video?.jitterBufferDelay ?? 0;
+  const emittedCount = video?.jitterBufferEmittedCount ?? 0;
+  const frames = emittedCount - current.emittedCount;
+  const seconds = delaySeconds - (current.delaySeconds ?? 0);
+  const hadBaseline = current.delaySeconds !== null;
+  current.delaySeconds = delaySeconds;
+  current.emittedCount = emittedCount;
+  return connected && hadBaseline && frames > 0 ? (seconds / frames) * 1000 : null;
+}
+
+/** What arrives, from the inbound video report and the codec report it names. */
+function sampleStats(
+  current: Health,
+  video: InboundVideo,
+  reports: RTCStatsReport,
+): NeatInsightVideoStats {
+  const bytes = video.bytesReceived ?? null;
+  const seconds = current.sampledAt === null ? 0 : (video.timestamp - current.sampledAt) / 1000;
+  const bitsPerSecond =
+    seconds > 0 && bytes !== null && current.bytesReceived !== null
+      ? ((bytes - current.bytesReceived) * 8) / seconds
+      : 0;
+  current.bytesReceived = bytes;
+  current.sampledAt = video.timestamp;
+  return {
+    codec: codecOf(reports, video.codecId),
+    width: video.frameWidth ?? null,
+    height: video.frameHeight ?? null,
+    framesPerSecond: video.framesPerSecond ?? null,
+    bitsPerSecond,
+  };
+}
+
+/** The encoding of the codec report `codecId` names ("video/H264" is "H264"), or null. */
+function codecOf(reports: RTCStatsReport, codecId: string | undefined): string | null {
+  const mimeType = codecId === undefined ? undefined : reports.get(codecId)?.mimeType;
+  if (typeof mimeType !== 'string') return null;
+  return mimeType.split('/')[1] || null;
 }
 
 /**

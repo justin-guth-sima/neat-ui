@@ -10,3 +10,4 @@ export {
   type NeatInsightChannel,
   type NeatInsightChannelOptions,
 } from './lib/insight-channel';
+export type { NeatInsightVideoStats } from './lib/insight-connection';

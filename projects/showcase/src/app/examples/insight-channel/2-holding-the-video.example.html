@@ -1,0 +1,5 @@
+<div class="cell">
+  <neat-video-tile label="Channel 1" [source]="camera" [notice]="camera.notice()" />
+</div>
+<neat-slider label="Video buffer" [min]="0" [max]="1000" [step]="50" [(value)]="bufferMs" />
+<span class="showcase-muted">{{ bufferMs() }} ms. {{ held() }}</span>

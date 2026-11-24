@@ -1,4 +1,4 @@
-import { createEnvironmentInjector, EnvironmentInjector } from '@angular/core';
+import { createEnvironmentInjector, EnvironmentInjector, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { neatInsightChannel, type NeatInsightChannelOptions } from './insight-channel';
 import { errorResponse, FakePeer, stubWebRtc } from './insight-connection.testing';
@@ -46,6 +46,55 @@ describe('neatInsightChannel', () => {
   it('sets the receiver’s jitterBufferTarget from videoBufferMs', async () => {
     await open(0, { videoBufferMs: 120 });
     expect(FakePeer.all[0].receiver.jitterBufferTarget).toBe(120);
+  });
+
+  it('follows a videoBufferMs signal while the channel is open', async () => {
+    const bufferMs = signal(120);
+    await open(0, { videoBufferMs: bufferMs });
+    expect(FakePeer.all[0].receiver.jitterBufferTarget).toBe(120);
+
+    bufferMs.set(300);
+    TestBed.tick();
+    expect(FakePeer.all[0].receiver.jitterBufferTarget).toBe(300);
+    expect(fetchMock).toHaveBeenCalledTimes(1); // the same connection, not a new one
+  });
+
+  it('says whether this browser can hold the video', async () => {
+    vi.stubGlobal('RTCRtpReceiver', class {});
+    expect((await open()).videoBufferSupported).toBe(false);
+    vi.stubGlobal(
+      'RTCRtpReceiver',
+      class {
+        get jitterBufferTarget(): number | null {
+          return null;
+        }
+      },
+    );
+    expect((await open()).videoBufferSupported).toBe(true);
+  });
+
+  it('gives what arrives once connected', async () => {
+    const source = await open();
+    expect(source.stats()).toBeNull();
+    FakePeer.all[0].setState('connected');
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(source.stats()).toEqual({
+      codec: 'H264',
+      width: 1280,
+      height: 720,
+      framesPerSecond: 30,
+      bitsPerSecond: 0,
+    });
+  });
+
+  it('hands each step of the connection to its log', async () => {
+    const log = vi.fn();
+    await open(0, { log });
+    expect(log).toHaveBeenCalledWith('connecting', {
+      offerUrl: '/api/channels/0/offer',
+      videoBufferMs: undefined,
+    });
+    expect(log).toHaveBeenCalledWith('answered');
   });
 
   it('gives the stream once a video track arrives, with no notice', async () => {

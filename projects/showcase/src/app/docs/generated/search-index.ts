@@ -3502,6 +3502,18 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "stats",
+    "part": "NeatInsightChannel",
+    "text": "What arrives on the channel (NeatInsightVideoStats: codec, frame size, frame rate, bitrate), measured once a second while it is connected;…"
+  },
+  {
+    "kind": "member",
+    "name": "videoBufferSupported",
+    "part": "NeatInsightChannel",
+    "text": "Whether this browser can hold the video for videoBufferMs: false in a browser without the receiver's jitterBufferTarget (Firefox), which…"
+  },
+  {
+    "kind": "member",
     "name": "close",
     "part": "NeatInsightChannel",
     "text": "Closes the connection for good, before its injection context is destroyed, such as to open another channel in its place."
@@ -3510,7 +3522,7 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatInsightChannelOptions",
     "partKind": "interface",
-    "text": "Where a neatInsightChannel posts its offer, and how long the browser holds the video."
+    "text": "Where a neatInsightChannel posts its offer, how long the browser holds the video, its log."
   },
   {
     "kind": "member",
@@ -3523,6 +3535,48 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "name": "videoBufferMs",
     "part": "NeatInsightChannelOptions",
     "text": "How long the browser holds the video before it shows a frame, in ms, so each frame's metadata has arrived when it is drawn."
+  },
+  {
+    "kind": "member",
+    "name": "log",
+    "part": "NeatInsightChannelOptions",
+    "text": "Told each step of the connection (connecting, answered, track, a connection state, a retry and why, a failure, closed), with its details,…"
+  },
+  {
+    "kind": "part",
+    "name": "NeatInsightVideoStats",
+    "partKind": "interface",
+    "text": "What arrives on a connected channel, sampled once a second."
+  },
+  {
+    "kind": "member",
+    "name": "codec",
+    "part": "NeatInsightVideoStats",
+    "text": "The video's codec as the browser names it (\"H264\", \"H265\", \"VP8\"), or null before it says."
+  },
+  {
+    "kind": "member",
+    "name": "width",
+    "part": "NeatInsightVideoStats",
+    "text": "The decoded frame's size in pixels, or null before the browser reports it."
+  },
+  {
+    "kind": "member",
+    "name": "height",
+    "part": "NeatInsightVideoStats",
+    "text": ""
+  },
+  {
+    "kind": "member",
+    "name": "framesPerSecond",
+    "part": "NeatInsightVideoStats",
+    "text": "Decoded frames per second, or null before the browser reports it."
+  },
+  {
+    "kind": "member",
+    "name": "bitsPerSecond",
+    "part": "NeatInsightVideoStats",
+    "text": "The video's bitrate over the last second, in bits per second."
   },
   {
     "kind": "part",
@@ -5723,6 +5777,13 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "insight-channel",
     "id": "watching-a-channel",
     "text": "A tile that plays Insight's channel 0 and draws its metadata."
+  },
+  {
+    "kind": "example",
+    "name": "Holding the video",
+    "topic": "insight-channel",
+    "id": "holding-the-video",
+    "text": "A setting for how long the browser holds the video, so that each frame's metadata has arrived when the frame is drawn."
   },
   {
     "kind": "example",

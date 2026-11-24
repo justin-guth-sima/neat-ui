@@ -1,6 +1,7 @@
 import {
   type InsightConnectionEvents,
   type InsightConnectionOptions,
+  type NeatInsightVideoStats,
   openInsightConnection,
 } from './insight-connection';
 import {
@@ -19,6 +20,7 @@ function open(options: Partial<InsightConnectionOptions> = {}) {
     failure: null as string | null,
     failures: 0,
     videoDelayMs: null as number | null,
+    stats: null as NeatInsightVideoStats | null,
     metadata: [] as string[],
   };
   const events: InsightConnectionEvents = {
@@ -29,10 +31,11 @@ function open(options: Partial<InsightConnectionOptions> = {}) {
       seen.failures += 1;
     },
     videoDelayMs: (ms) => (seen.videoDelayMs = ms),
+    stats: (stats) => (seen.stats = stats),
     metadata: (text) => seen.metadata.push(text),
   };
-  const close = openInsightConnection({ offerUrl: '/offer', ...options }, events);
-  return { seen, close };
+  const connection = openInsightConnection({ offerUrl: '/offer', ...options }, events);
+  return { seen, connection, close: () => connection.close() };
 }
 
 describe('openInsightConnection', () => {
@@ -325,6 +328,71 @@ describe('openInsightConnection', () => {
     expect(seen.metadata).toEqual([]);
     expect(FakePeer.all).toHaveLength(2);
     close();
+  });
+
+  it('changes the video buffer of the open connection and of the ones that replace it', async () => {
+    const { connection, close } = open({ videoBufferMs: 100 });
+    await vi.advanceTimersByTimeAsync(0);
+    connection.setVideoBufferMs(250);
+    expect(FakePeer.all[0].receiver.jitterBufferTarget).toBe(250);
+
+    FakePeer.all[0].setState('failed');
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(FakePeer.all[1].receiver.jitterBufferTarget).toBe(250);
+    close();
+    connection.setVideoBufferMs(400); // closed: no receiver to change
+    expect(FakePeer.all[1].receiver.jitterBufferTarget).toBe(250);
+  });
+
+  it('reports what arrives once a second while connected, null otherwise', async () => {
+    const { seen, close } = open();
+    await vi.advanceTimersByTimeAsync(0);
+    const peer = FakePeer.all[0];
+    peer.stepBytes = 250_000;
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(seen.stats).toBeNull(); // still connecting
+
+    peer.setState('connected');
+    await vi.advanceTimersByTimeAsync(1000); // the first sample has no bitrate yet
+    expect(seen.stats).toEqual({
+      codec: 'H264',
+      width: 1280,
+      height: 720,
+      framesPerSecond: 30,
+      bitsPerSecond: 0,
+    });
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(seen.stats?.bitsPerSecond).toBe(2_000_000);
+
+    peer.video = {};
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(seen.stats).toEqual({
+      codec: null,
+      width: null,
+      height: null,
+      framesPerSecond: null,
+      bitsPerSecond: 2_000_000,
+    });
+
+    peer.setState('failed');
+    expect(seen.stats).toBeNull();
+    close();
+  });
+
+  it('tells its log each step, and why it retries', async () => {
+    const log = vi.fn();
+    const { close } = open({ log });
+    await vi.advanceTimersByTimeAsync(0);
+    FakePeer.all[0].setState('failed');
+    expect(log.mock.calls.map(([event]) => event)).toEqual([
+      'connecting',
+      'answered',
+      'connection state',
+      'retrying',
+    ]);
+    expect(log).toHaveBeenCalledWith('retrying', { reason: 'connection failed', inMs: 1000 });
+    close();
+    expect(log).toHaveBeenLastCalledWith('closed');
   });
 
   it('sets jitterBufferTarget to videoBufferMs and leaves it alone without one', async () => {

@@ -220,8 +220,8 @@ look happens in one place. Every rule here protects that.
     asking records no draw. The rule each type colors by is stated once (`item-colors.ts`), for the
     strategies' drawing and for `colorOf`. `neat-bev`'s `colorOf(label)` is the same for the view.
     And `insight` (`neatInsightChannel`, one Insight channel's video and metadata over WebRTC as a
-    tile's source, with its `notice`, `failure` and `videoDelayMs`; how it connects is under "How
-    an Insight channel connects" below).
+    tile's source, with its `notice`, `failure`, `videoDelayMs` and `stats`; how it connects is
+    under "How an Insight channel connects" below).
     Public API is `projects/neat-ui/<name>/src/public-api.ts`; its
     code lives in `projects/neat-ui/<name>/src/lib/`.
     Why one entry per component: an app's main bundle carries only the entries its shell imports,
@@ -967,9 +967,9 @@ default) the code is plain.
   `tm-grammars` lists each source and license) and those of the grammars it embeds checked first.
 
 **How an Insight channel connects.** `insight` is the kit's one WebRTC client of Neat Insight:
-`neatInsightChannel(channel, { offer, videoBufferMs })` returns a `NeatInsightChannel`, a
+`neatInsightChannel(channel, { offer, videoBufferMs, log })` returns a `NeatInsightChannel`, a
 `NeatTileSource` (imported from `video` by package name, as a type only) with `notice`, `failure`,
-`videoDelayMs` and `close()`. Why an entry of its own: `video` knows nothing about how a stream
+`videoDelayMs`, `stats`, `videoBufferSupported` and `close()`. Why an entry of its own: `video` knows nothing about how a stream
 arrives, and an app that does not watch Insight carries none of this.
 
 - It is made in an injection context and closes its connection when that context is destroyed
@@ -986,12 +986,21 @@ arrives, and an app that does not watch Insight carries none of this.
 - The connection is Insight's own viewer's: a recvonly video transceiver and the `metadata` data
   channel (ordered, `maxRetransmits: 0`), the offer posted without waiting for ICE gathering, the
   answer applied. `videoBufferMs` sets the receiver's `jitterBufferTarget` where the browser has it
-  (not Firefox), and a value the browser refuses is left alone. A failed post or a `failed` or
+  (not Firefox; `videoBufferSupported` says which), and a value the browser refuses is left alone;
+  given as a signal it is followed on the open connection (an effect in the channel's injection
+  context) and on every one that replaces it, so a setting changes it without reconnecting. A failed post or a `failed` or
   `closed` connection is tried again after 1, 2, 5, then every 10 s, the count reset once a
   connection is `connected`; a connection that decodes no new frame for 5 s (`framesDecoded` in
   `getStats`, checked once a second) or stays `disconnected` that long is made anew, since after a
   source restart the decoder can wait for a keyframe forever. `videoDelayMs` is the jitter buffer's
   delay per emitted frame over the last second, null without a connected peer or new frames.
+  `stats` (`NeatInsightVideoStats`) comes from the same once-a-second sample while connected: the
+  codec as the browser names it (`H264`, from the codec report the inbound report names), the frame
+  size and rate, and the bitrate from the bytes received since the last sample; null without a
+  connected peer. The words around it (an app's status line) are the app's.
+- `log`, when given, is told each step (connecting, answered, track, a connection state, a retry
+  with its reason and delay, a failure, closed), outside Angular, for an app's debug log; the kit
+  itself writes nothing to the console.
 - What the answers mean, one table for both servers (Insight's route and a relay):
   - A 4xx is final: no retry, and `failure` (and so `notice`) says why: "Codec not supported by this
     browser" for a 415 (`codec_unsupported`), else the answer's `message` as it is (Insight's

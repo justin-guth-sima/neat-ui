@@ -24,6 +24,16 @@ export class FakePeer {
   /** Added to the jitter buffer counters on every stats call. */
   stepDelay = 0;
   stepCount = 0;
+  /** What arrives: bytes added on every stats call, each a second after the one before. */
+  bytes = 0;
+  stepBytes = 0;
+  statsAt = 0;
+  video: { mimeType?: string; width?: number; height?: number; fps?: number } = {
+    mimeType: 'video/H264',
+    width: 1280,
+    height: 720,
+    fps: 30,
+  };
 
   constructor() {
     FakePeer.all.push(this);
@@ -49,17 +59,27 @@ export class FakePeer {
     if (this.autoFrames) this.frames += 1;
     this.jitterDelay += this.stepDelay;
     this.jitterCount += this.stepCount;
-    return new Map([
+    this.bytes += this.stepBytes;
+    this.statsAt += 1000;
+    const { mimeType, width, height, fps } = this.video;
+    return new Map<string, Record<string, unknown>>([
       [
         'v',
         {
           type: 'inbound-rtp',
           kind: 'video',
+          timestamp: this.statsAt,
           framesDecoded: this.frames,
           jitterBufferDelay: this.jitterDelay,
           jitterBufferEmittedCount: this.jitterCount,
+          bytesReceived: this.bytes,
+          frameWidth: width,
+          frameHeight: height,
+          framesPerSecond: fps,
+          codecId: 'c',
         },
       ],
+      ['c', { type: 'codec', mimeType }],
     ]);
   }
   close() {

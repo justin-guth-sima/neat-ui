@@ -99,6 +99,61 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "stats",
+          "type": "Signal<NeatInsightVideoStats | null>",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What arrives on the channel ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatInsightVideoStats",
+                  "name": "NeatInsightVideoStats"
+                },
+                {
+                  "kind": "text",
+                  "text": ": codec, frame size, frame rate, bitrate), measured once a second while it is connected; null while it is not."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "videoBufferSupported",
+          "type": "boolean",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether this browser can hold the video for "
+                },
+                {
+                  "kind": "code",
+                  "text": "videoBufferMs"
+                },
+                {
+                  "kind": "text",
+                  "text": ": false in a browser without the receiver's "
+                },
+                {
+                  "kind": "code",
+                  "text": "jitterBufferTarget"
+                },
+                {
+                  "kind": "text",
+                  "text": " (Firefox), which shows each frame as soon as it can."
+                }
+              ]
+            }
+          ]
         }
       ],
       "methods": [
@@ -202,7 +257,7 @@ export const API: DocsEntry = {
         },
         {
           "name": "videoBufferMs",
-          "type": "number",
+          "type": "number | Signal<number>",
           "optional": true,
           "doc": [
             {
@@ -227,7 +282,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ". Unset, or in a browser without "
+                  "text": ". A signal is followed while the channel is open, so a setting can change it without a new connection. Unset, or in a browser without "
                 },
                 {
                   "kind": "code",
@@ -235,7 +290,40 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " (Firefox), the browser shows each frame as soon as it can."
+                  "text": " (Firefox, see "
+                },
+                {
+                  "kind": "code",
+                  "text": "videoBufferSupported"
+                },
+                {
+                  "kind": "text",
+                  "text": "), the browser shows each frame as soon as it can."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "log",
+          "type": "(event: string, details?: unknown) => void",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Told each step of the connection (connecting, answered, track, a connection state, a retry and why, a failure, closed), with its details, for an app's debug log. Unset logs nothing."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It is called outside Angular, so it should only log."
                 }
               ]
             }
@@ -257,12 +345,95 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " posts its offer, and how long the browser holds the video."
+              "text": " posts its offer, how long the browser holds the video, its log."
             }
           ]
         }
       ],
       "source": "projects/neat-ui/insight/src/lib/insight-channel.ts"
+    },
+    {
+      "name": "NeatInsightVideoStats",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "codec",
+          "type": "string | null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The video's codec as the browser names it (\"H264\", \"H265\", \"VP8\"), or null before it says."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "width",
+          "type": "number | null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The decoded frame's size in pixels, or null before the browser reports it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "height",
+          "type": "number | null",
+          "doc": []
+        },
+        {
+          "name": "framesPerSecond",
+          "type": "number | null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Decoded frames per second, or null before the browser reports it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "bitsPerSecond",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The video's bitrate over the last second, in bits per second."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What arrives on a connected channel, sampled once a second."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/insight/src/lib/insight-connection.ts"
     },
     {
       "name": "neatInsightChannel",
