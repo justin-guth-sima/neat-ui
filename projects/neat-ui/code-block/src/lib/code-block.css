@@ -1,6 +1,7 @@
 /*
- * The code on the muted fill, the Copy button beside it, centered on its lines, and the step
- * controls below both. The code's row takes what a height or max-height given to the block leaves,
+ * The code on the muted fill, the Copy button beside it at its top (a long file's Copy stays in
+ * sight where its code starts; one line is centered on the button's height), and the step controls
+ * below both. The code's row takes what a height or max-height given to the block leaves,
  * and the code scrolls inside it. Positioned, as the containing block of the hidden live region.
  */
 :host {
@@ -40,6 +41,7 @@ code {
 }
 
 neat-copy-button {
+  align-self: start;
   margin-inline-start: var(--neat-space-2);
 }
 
