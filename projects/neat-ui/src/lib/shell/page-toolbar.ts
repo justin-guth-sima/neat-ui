@@ -69,3 +69,32 @@ export class NeatPageToolbar {
     inject(DestroyRef).onDestroy(() => slot.unregister(portal));
   }
 }
+
+/**
+ * A short vertical line between groups of tools in the page toolbar.
+ *
+ * ```html
+ * <ng-container *neatPageToolbar>
+ *   <button neatButton type="button" variant="text">Refresh</button>
+ *   <hr neatPageToolbarDivider />
+ *   <button neatButton type="button" variant="text">Export</button>
+ * </ng-container>
+ * ```
+ *
+ * Put it between the tools themselves, so wrap them in an `ng-container` (a `div` would be one
+ * flex item, and the line would stand in it). The line is 1px of `--border`. It takes the height of
+ * the row it stands in, less `--neat-space-3` at top and bottom, so it looks the same in the top
+ * bar, in kiosk mode's floating bar and in a phone's second row. The toolbar's gap spaces it, so it
+ * has no margin along the row.
+ *
+ * It is decorative (`aria-hidden`). The page tools are a group, not an ARIA toolbar, and the tools'
+ * names say what they are, so a separator announced between them would only be noise.
+ */
+@Directive({
+  selector: 'hr[neatPageToolbarDivider]',
+  host: {
+    'aria-hidden': 'true',
+    class: 'm-0 my-(--neat-space-3) h-auto w-px shrink-0 self-stretch border-0 bg-border',
+  },
+})
+export class NeatPageToolbarDivider {}

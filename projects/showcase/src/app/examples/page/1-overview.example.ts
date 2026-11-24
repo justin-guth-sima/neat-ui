@@ -5,6 +5,7 @@ import {
   NeatPageNav,
   type NeatPageNavGroup,
   NeatPageToolbar,
+  NeatPageToolbarDivider,
   NeatViewport,
 } from '@sima/neat-ui';
 
@@ -31,7 +32,8 @@ const PAGE_NAV: readonly NeatPageNavGroup[] = [
  * It is longer than any screen on purpose. The shell, the top bar and the rail stay put, while only
  * the body scrolls.
  *
- * Its tools are in the top bar (`*neatPageToolbar`). In kiosk mode they float beside the exit
+ * Its tools are in the top bar (`*neatPageToolbar`), a line between its two groups of them
+ * (`neatPageToolbarDivider`). In kiosk mode they float beside the exit
  * control.
  *
  * Its page nav (`nav[neatPageNav]`) links its views. It is a column of its own beside the body,
@@ -44,7 +46,7 @@ const PAGE_NAV: readonly NeatPageNavGroup[] = [
  */
 @Component({
   selector: 'app-overview',
-  imports: [NeatButton, NeatPage, NeatPageNav, NeatPageToolbar],
+  imports: [NeatButton, NeatPage, NeatPageNav, NeatPageToolbar, NeatPageToolbarDivider],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './1-overview.example.html',
 })

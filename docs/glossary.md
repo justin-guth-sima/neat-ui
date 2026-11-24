@@ -26,22 +26,22 @@ wins over a name of our own.
 
 ## The shell and the page
 
-| Name         | What it is                                                                                           | In the code                         | Others say                             |
-| ------------ | ---------------------------------------------------------------------------------------------------- | ----------------------------------- | -------------------------------------- |
-| shell        | the app's frame: the rail, the top bar and the page's area                                           | `neat-shell`, `NeatShell`           | layout, frame                          |
-| rail         | the column of the app's pages at the start of the shell, with the app's items below                  | `navItems`, `neatRailItem`          | sidebar, side nav                      |
-| rail item    | one entry of the rail: a page, or one of the app's own items (a board)                               | `NeatRailItem`, `[neatRailItem]`    | nav item, menu item                    |
-| sub-page     | a page's own views, unfolded under its rail item                                                     | `children` (`NeatNavChild`)         | child page, tab                        |
-| rail divider | the line between groups of the app's rail items                                                      | `NeatRailDivider`                   | separator                              |
-| top bar      | the bar across the top of the shell: logo, app name, page title, then the tools                      | `topbar` (`neatTopbarEnd`)          | header, app bar                        |
-| page toolbar | the page's own tools, at the right end of the top bar                                                | `*neatPageToolbar`                  | actions, top bar (for the tools alone) |
-| kiosk mode   | the page alone, full screen, its tools floating                                                      | `KioskService`                      | full screen                            |
-| page         | what a route shows in the shell                                                                      | `neat-page`, `NeatPage`             | view, screen                           |
-| page nav     | a page's list of links, beside its body (or above it on a phone)                                     | `nav[neatPageNav]`, `NeatPageNav`   | side list, sidebar                     |
-| aside        | the column on a page's right, for an inspector or details; its toggle's visible name is "Side panel" | `[neatPageAside]`, `NeatAsidePanel` | side panel, drawer, inspector          |
-| aside toggle | the button at the top bar's right edge that opens and closes the aside                               | `neat-aside-toggle`                 | panel button                           |
-| prose        | long-form text on a page (help, an explanation, a README), styled in the kit's type                  | `[neatProse]`, `NeatProse`          | typography, rich text, article         |
-| expand       | to show an element over the whole browser window, and put it back; the window, not the screen        | `[neatExpand]`, `NeatExpand`        | full screen, maximize, lightbox        |
+| Name         | What it is                                                                                           | In the code                                  | Others say                             |
+| ------------ | ---------------------------------------------------------------------------------------------------- | -------------------------------------------- | -------------------------------------- |
+| shell        | the app's frame: the rail, the top bar and the page's area                                           | `neat-shell`, `NeatShell`                    | layout, frame                          |
+| rail         | the column of the app's pages at the start of the shell, with the app's items below                  | `navItems`, `neatRailItem`                   | sidebar, side nav                      |
+| rail item    | one entry of the rail: a page, or one of the app's own items (a board)                               | `NeatRailItem`, `[neatRailItem]`             | nav item, menu item                    |
+| sub-page     | a page's own views, unfolded under its rail item                                                     | `children` (`NeatNavChild`)                  | child page, tab                        |
+| rail divider | the line between groups of the app's rail items                                                      | `NeatRailDivider`                            | separator                              |
+| top bar      | the bar across the top of the shell: logo, app name, page title, then the tools                      | `topbar` (`neatTopbarEnd`)                   | header, app bar                        |
+| page toolbar | the page's own tools, at the right end of the top bar                                                | `*neatPageToolbar`, `NeatPageToolbarDivider` | actions, top bar (for the tools alone) |
+| kiosk mode   | the page alone, full screen, its tools floating                                                      | `KioskService`                               | full screen                            |
+| page         | what a route shows in the shell                                                                      | `neat-page`, `NeatPage`                      | view, screen                           |
+| page nav     | a page's list of links, beside its body (or above it on a phone)                                     | `nav[neatPageNav]`, `NeatPageNav`            | side list, sidebar                     |
+| aside        | the column on a page's right, for an inspector or details; its toggle's visible name is "Side panel" | `[neatPageAside]`, `NeatAsidePanel`          | side panel, drawer, inspector          |
+| aside toggle | the button at the top bar's right edge that opens and closes the aside                               | `neat-aside-toggle`                          | panel button                           |
+| prose        | long-form text on a page (help, an explanation, a README), styled in the kit's type                  | `[neatProse]`, `NeatProse`                   | typography, rich text, article         |
+| expand       | to show an element over the whole browser window, and put it back; the window, not the screen        | `[neatExpand]`, `NeatExpand`                 | full screen, maximize, lightbox        |
 
 ## Components
 

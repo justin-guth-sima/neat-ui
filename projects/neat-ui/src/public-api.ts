@@ -32,7 +32,7 @@ export type { NeatNavChild, NeatNavItem } from './lib/shell/nav-item';
 export { NeatShell } from './lib/shell/shell';
 export { NeatRailDivider, NeatRailItem } from './lib/shell/rail-item';
 export { provideNeatTitles } from './lib/shell/titles';
-export { NeatPageToolbar } from './lib/shell/page-toolbar';
+export { NeatPageToolbar, NeatPageToolbarDivider } from './lib/shell/page-toolbar';
 export { NeatPage } from './lib/page/page';
 export type { NeatPageNavGroup, NeatPageNavLink } from './lib/page/page-nav';
 export { NeatPageNav } from './lib/page/page-nav';

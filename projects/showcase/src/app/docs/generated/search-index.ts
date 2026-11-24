@@ -574,6 +574,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatPageToolbarDivider",
+    "partKind": "directive",
+    "text": "A short vertical line between groups of tools in the page toolbar."
+  },
+  {
+    "kind": "part",
     "name": "NeatProse",
     "partKind": "directive",
     "text": "Long-form text in the kit's type: the headings, paragraphs, lists, links, code, keys, quotes and rules inside its host."

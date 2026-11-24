@@ -190,6 +190,7 @@ export const GROUPS: readonly TopicGroup[] = [
           'NeatPageNavGroup',
           'NeatPageNavLink',
           'NeatPageToolbar',
+          'NeatPageToolbarDivider',
           'NeatViewport',
         ],
         leads: ['NeatPage'],

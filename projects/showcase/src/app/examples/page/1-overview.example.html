@@ -1,8 +1,12 @@
-<div *neatPageToolbar>
+<ng-container *neatPageToolbar>
   <button neatButton type="button" variant="text" size="small" (click)="many.set(!many())">
     {{ many() ? 'Fewer' : 'More' }} sections
   </button>
-</div>
+  <hr neatPageToolbarDivider />
+  <button neatButton type="button" variant="text" size="small" (click)="many.set(true)">
+    Reset
+  </button>
+</ng-container>
 
 <neat-page>
   <nav neatPageNav aria-label="Page example" [groups]="pageNav" filterLabel="Filter views"></nav>

@@ -9,7 +9,7 @@ import { NeatAsideToggle } from '../page/aside';
 import { ThemeService } from '../theme/theme.service';
 import { NeatViewport } from '../page/viewport';
 import { NeatNavItem } from './nav-item';
-import { NeatPageToolbar } from './page-toolbar';
+import { NeatPageToolbar, NeatPageToolbarDivider } from './page-toolbar';
 import { NeatRailDivider, NeatRailItem } from './rail-item';
 import { NeatShell } from './shell';
 import logoStyles from './logo.css' with { loader: 'text' };
@@ -127,6 +127,19 @@ class AsidePage {
   readonly open = signal(true);
 }
 
+/** A page whose tools have a divider between two groups. */
+@Component({
+  imports: [NeatPageToolbar, NeatPageToolbarDivider],
+  template: `
+    <ng-container *neatPageToolbar>
+      <button type="button" class="tool">Refresh</button>
+      <hr neatPageToolbarDivider />
+      <button type="button" class="tool">Export</button>
+    </ng-container>
+  `,
+})
+class DividerPage {}
+
 /** A page with an aside and no other tools. */
 @Component({
   imports: [NeatAsideToggle],
@@ -162,6 +175,7 @@ const routes: Routes = [
       { path: 'viewer', component: StubPage },
       { path: 'viewer/grid', component: ToolbarPage },
       { path: 'media/library', component: OtherToolbarPage },
+      { path: 'viewer/divider', component: DividerPage },
       { path: 'viewer/panel', component: AsidePage },
       { path: 'viewer/inspect', component: AsideOnlyPage },
       // Routes that no nav item matches, one with a title, and one a nav item matches with its own.
@@ -733,6 +747,26 @@ describe('NeatShell', () => {
 
     expect(asideToggle().getAttribute('aria-pressed')).toBe('false');
     expect(asideEdge()?.contains(asideToggle())).toBe(true);
+  });
+
+  it('draws a toolbar divider between groups of tools, in the top bar and in the kiosk bar', async () => {
+    await start('/viewer/divider');
+    const between = (bar: HTMLElement): void => {
+      const [first, second] = Array.from(bar.querySelectorAll('.tool'));
+      const divider = bar.querySelector('hr[neatPageToolbarDivider]') as HTMLElement;
+      expect(divider.parentElement).toBe(first.parentElement);
+      expect(
+        first.compareDocumentPosition(divider) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+      expect(
+        divider.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    };
+    between(toolbarRegion() as HTMLElement);
+
+    await TestBed.inject(KioskService).enter();
+    await settle();
+    between(kioskToolbar() as HTMLElement);
   });
 
   it('in kiosk floats the toggle of a page without other tools in a bar of its own', async () => {

@@ -3675,6 +3675,86 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/shell/page-toolbar.ts"
     },
     {
+      "name": "NeatPageToolbarDivider",
+      "kind": "directive",
+      "selector": "hr[neatPageToolbarDivider]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A short vertical line between groups of tools in the page toolbar."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<ng-container *neatPageToolbar>\n  <button neatButton type=\"button\" variant=\"text\">Refresh</button>\n  <hr neatPageToolbarDivider />\n  <button neatButton type=\"button\" variant=\"text\">Export</button>\n</ng-container>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Put it between the tools themselves, so wrap them in an "
+            },
+            {
+              "kind": "code",
+              "text": "ng-container"
+            },
+            {
+              "kind": "text",
+              "text": " (a "
+            },
+            {
+              "kind": "code",
+              "text": "div"
+            },
+            {
+              "kind": "text",
+              "text": " would be one flex item, and the line would stand in it). The line is 1px of "
+            },
+            {
+              "kind": "code",
+              "text": "--border"
+            },
+            {
+              "kind": "text",
+              "text": ". It takes the height of the row it stands in, less "
+            },
+            {
+              "kind": "code",
+              "text": "--neat-space-3"
+            },
+            {
+              "kind": "text",
+              "text": " at top and bottom, so it looks the same in the top bar, in kiosk mode's floating bar and in a phone's second row. The toolbar's gap spaces it, so it has no margin along the row."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It is decorative ("
+            },
+            {
+              "kind": "code",
+              "text": "aria-hidden"
+            },
+            {
+              "kind": "text",
+              "text": "). The page tools are a group, not an ARIA toolbar, and the tools' names say what they are, so a separator announced between them would only be noise."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/shell/page-toolbar.ts"
+    },
+    {
       "name": "NeatProse",
       "kind": "directive",
       "selector": "[neatProse]",

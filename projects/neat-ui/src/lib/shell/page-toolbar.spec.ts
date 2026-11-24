@@ -1,7 +1,7 @@
 import { CdkPortalOutlet } from '@angular/cdk/portal';
 import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { NeatPageToolbar, PageToolbarSlot } from './page-toolbar';
+import { NeatPageToolbar, NeatPageToolbarDivider, PageToolbarSlot } from './page-toolbar';
 
 @Component({
   imports: [NeatPageToolbar],
@@ -64,5 +64,27 @@ describe('NeatPageToolbar', () => {
     // Before any change detection: the content's bindings never run against a destroyed page.
     expect(outlet.nativeElement.querySelector('.tool')).toBeNull();
     expect(TestBed.inject(PageToolbarSlot).portal()).toBeNull();
+  });
+});
+
+describe('NeatPageToolbarDivider', () => {
+  @Component({
+    imports: [NeatPageToolbarDivider],
+    template: `<hr neatPageToolbarDivider />`,
+  })
+  class Host {}
+
+  it('is a decorative line of the border color, inset from the row at top and bottom', () => {
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    const hr = fixture.nativeElement.querySelector('hr') as HTMLElement;
+
+    expect(hr.getAttribute('aria-hidden')).toBe('true');
+    // jsdom computes no Tailwind, so the look is checked as the classes that carry it.
+    expect([...hr.classList].sort()).toEqual(
+      'm-0 my-(--neat-space-3) h-auto w-px shrink-0 self-stretch border-0 bg-border'
+        .split(' ')
+        .sort(),
+    );
   });
 });

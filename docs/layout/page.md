@@ -18,7 +18,7 @@ A page in the shell's content area: it fills the area and owns at most one scrol
 </picture>
 
 ```ts
-import { NeatPage, NeatPageNav, NeatPageToolbar, NeatViewport } from '@sima/neat-ui';
+import { NeatPage, NeatPageNav, NeatPageToolbar, NeatPageToolbarDivider, NeatViewport } from '@sima/neat-ui';
 ```
 
 ## Examples
@@ -29,7 +29,7 @@ A page that fills the shell's content area and owns the one scroll context below
 
 It is longer than any screen on purpose. The shell, the top bar and the rail stay put, while only the body scrolls.
 
-Its tools are in the top bar (`*neatPageToolbar`). In kiosk mode they float beside the exit control.
+Its tools are in the top bar (`*neatPageToolbar`), a line between its two groups of them (`neatPageToolbarDivider`). In kiosk mode they float beside the exit control.
 
 Its page nav (`nav[neatPageNav]`) links its views. It is a column of its own beside the body, which stays put while the body scrolls. A filter sits over its links at the top: a long list wants one, and this short one has it to show it.
 
@@ -55,6 +55,7 @@ import {
   NeatPageNav,
   type NeatPageNavGroup,
   NeatPageToolbar,
+  NeatPageToolbarDivider,
   NeatViewport,
 } from '@sima/neat-ui';
 
@@ -77,7 +78,7 @@ const PAGE_NAV: readonly NeatPageNavGroup[] = [
 
 @Component({
   selector: 'app-overview',
-  imports: [NeatButton, NeatPage, NeatPageNav, NeatPageToolbar],
+  imports: [NeatButton, NeatPage, NeatPageNav, NeatPageToolbar, NeatPageToolbarDivider],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './1-overview.example.html',
 })
@@ -94,11 +95,15 @@ export class Overview {
 `1-overview.example.html`
 
 ```html
-<div *neatPageToolbar>
+<ng-container *neatPageToolbar>
   <button neatButton type="button" variant="text" size="small" (click)="many.set(!many())">
     {{ many() ? 'Fewer' : 'More' }} sections
   </button>
-</div>
+  <hr neatPageToolbarDivider />
+  <button neatButton type="button" variant="text" size="small" (click)="many.set(true)">
+    Reset
+  </button>
+</ng-container>
 
 <neat-page>
   <nav neatPageNav aria-label="Page example" [groups]="pageNav" filterLabel="Filter views"></nav>
@@ -488,6 +493,24 @@ It sits at the top bar's right end, just before the end slot and the kiosk butto
 The content stays the page's: its bindings and injection context are those of the page's template.
 
 One page toolbar at a time: a second one throws in dev mode.
+
+### `NeatPageToolbarDivider`
+
+Directive from `@sima/neat-ui`, selector `hr[neatPageToolbarDivider]`.
+
+A short vertical line between groups of tools in the page toolbar.
+
+```html
+<ng-container *neatPageToolbar>
+  <button neatButton type="button" variant="text">Refresh</button>
+  <hr neatPageToolbarDivider />
+  <button neatButton type="button" variant="text">Export</button>
+</ng-container>
+```
+
+Put it between the tools themselves, so wrap them in an `ng-container` (a `div` would be one flex item, and the line would stand in it). The line is 1px of `--border`. It takes the height of the row it stands in, less `--neat-space-3` at top and bottom, so it looks the same in the top bar, in kiosk mode's floating bar and in a phone's second row. The toolbar's gap spaces it, so it has no margin along the row.
+
+It is decorative (`aria-hidden`). The page tools are a group, not an ARIA toolbar, and the tools' names say what they are, so a separator announced between them would only be noise.
 
 ### `NeatViewport`
 

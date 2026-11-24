@@ -43,6 +43,14 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
+            "text": "), a line between its two groups of them ("
+          },
+          {
+            "kind": "code",
+            "text": "neatPageToolbarDivider"
+          },
+          {
+            "kind": "text",
             "text": "). In kiosk mode they float beside the exit control."
           }
         ]
@@ -80,6 +88,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       "@sima/neat-ui#NeatPageNav",
       "@sima/neat-ui#NeatPageNavGroup",
       "@sima/neat-ui#NeatPageToolbar",
+      "@sima/neat-ui#NeatPageToolbarDivider",
       "@sima/neat-ui#NeatViewport"
     ],
     "files": [
@@ -88,7 +97,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, computed, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," {\n  NeatButton,\n  NeatPage,\n  NeatPageNav,\n  "],
-          ["keyword","type"],["text"," NeatPageNavGroup,\n  NeatPageToolbar,\n  NeatViewport,\n} "],
+          ["keyword","type"],["text"," NeatPageNavGroup,\n  NeatPageToolbar,\n  NeatPageToolbarDivider,\n  NeatViewport,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n"],
           ["keyword","const"],["text"," PAGE_NAV: "],["keyword","readonly"],["text"," NeatPageNavGroup[] = [\n  {\n    label: "],
           ["string","'Views'"],["text",",\n    items: [\n      { label: "],
@@ -97,7 +106,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'Details'"],["text",",\n    items: [\n      { label: "],
           ["string","'Network'"],["text",", path: "],["string","'/demo/page/details/network'"],["text"," },\n      { label: "],
           ["string","'Storage'"],["text",", path: "],["string","'/demo/page/details/storage'"],["text"," },\n    ],\n  },\n];\n\n@Component({\n  selector: "],
-          ["string","'app-overview'"],["text",",\n  imports: [NeatButton, NeatPage, NeatPageNav, NeatPageToolbar],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'app-overview'"],["text",",\n  imports: [NeatButton, NeatPage, NeatPageNav, NeatPageToolbar, NeatPageToolbarDivider],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./1-overview.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Overview {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pageNav = PAGE_NAV;\n  "],
@@ -110,7 +119,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "1-overview.example.html",
         "code": [
-          ["text","<div *neatPageToolbar>\n  <button neatButton type=\"button\" variant=\"text\" size=\"small\" (click)=\"many.set(!many())\">\n    {{ many() ? 'Fewer' : 'More' }} sections\n  </button>\n</div>\n\n<neat-page>\n  <nav neatPageNav aria-label=\"Page example\" [groups]=\"pageNav\" filterLabel=\"Filter views\"></nav>\n  <div class=\"showcase-page\">\n    <section class=\"showcase-section\">\n      <h2>Page</h2>\n      <p>\n        Content like this belongs to the page, not to the shell. It never measures the shell's size\n        and never sets a height, so the same page works in a small window, on a wall display and in\n        kiosk mode, where the rail and the top bar are gone and the page gets the whole viewport.\n      </p>\n      <p class=\"showcase-muted\">The screen is {{ narrow() ? 'narrow, below 48rem' : 'wide' }}.</p>\n    </section>\n    @for (section of sections(); track section) {\n      <section class=\"showcase-section\">\n        <h3>Section {{ section }}</h3>\n        <p class=\"showcase-muted\">More of the body, which is all that scrolls.</p>\n      </section>\n    }\n  </div>\n</neat-page>\n"]
+          ["text","<ng-container *neatPageToolbar>\n  <button neatButton type=\"button\" variant=\"text\" size=\"small\" (click)=\"many.set(!many())\">\n    {{ many() ? 'Fewer' : 'More' }} sections\n  </button>\n  <hr neatPageToolbarDivider />\n  <button neatButton type=\"button\" variant=\"text\" size=\"small\" (click)=\"many.set(true)\">\n    Reset\n  </button>\n</ng-container>\n\n<neat-page>\n  <nav neatPageNav aria-label=\"Page example\" [groups]=\"pageNav\" filterLabel=\"Filter views\"></nav>\n  <div class=\"showcase-page\">\n    <section class=\"showcase-section\">\n      <h2>Page</h2>\n      <p>\n        Content like this belongs to the page, not to the shell. It never measures the shell's size\n        and never sets a height, so the same page works in a small window, on a wall display and in\n        kiosk mode, where the rail and the top bar are gone and the page gets the whole viewport.\n      </p>\n      <p class=\"showcase-muted\">The screen is {{ narrow() ? 'narrow, below 48rem' : 'wide' }}.</p>\n    </section>\n    @for (section of sections(); track section) {\n      <section class=\"showcase-section\">\n        <h3>Section {{ section }}</h3>\n        <p class=\"showcase-muted\">More of the body, which is all that scrolls.</p>\n      </section>\n    }\n  </div>\n</neat-page>\n"]
         ]
       }
     ]
