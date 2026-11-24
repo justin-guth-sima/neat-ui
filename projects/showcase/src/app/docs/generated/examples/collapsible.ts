@@ -147,7 +147,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Open it and choose Use global on a channel. The last one takes the note away."
+            "text": "Open it and choose Use global on a channel. The last one takes the note away, so the focus moves to the field first: a note removed while its button has the focus would drop the focus to the page."
           }
         ]
       }
@@ -164,7 +164,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "3-under-a-field.example.ts",
         "code": [
-          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, ElementRef, signal, viewChild } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatInlineButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCollapsible } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/collapsible'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatInput } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/input'"],["text",";\n"],
@@ -177,14 +177,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," channels = signal([\n    { name: "],
           ["string","'Channel 3'"],["text",", value: "],["string","'900 ms'"],["text"," },\n    { name: "],
           ["string","'Channel 7'"],["text",", value: "],["string","'600 ms'"],["text"," },\n  ]);\n\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," field = viewChild.required<ElementRef<HTMLInputElement>>("],["string","'field'"],["text",");\n\n  "],
           ["keyword","protected"],["text"," useGlobal(name: "],["keyword","string"],["text","): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","if"],["text"," ("],["keyword","this"],["text",".channels().length === 1) "],["keyword","this"],["text",".field().nativeElement.focus();\n    "],
           ["keyword","this"],["text",".channels.update((channels) => channels.filter((channel) => channel.name !== name));\n  }\n}\n"]
         ]
       },
       {
         "name": "3-under-a-field.example.html",
         "code": [
-          ["text","<div class=\"panel\">\n  <label class=\"field\">\n    Frame buffer (ms)\n    <input\n      neatInput\n      size=\"small\"\n      type=\"number\"\n      value=\"500\"\n      [attr.aria-describedby]=\"channels().length ? 'overrides-note' : null\"\n    />\n  </label>\n  @if (channels().length) {\n    <neat-collapsible\n      variant=\"note\"\n      tone=\"warning\"\n      triggerId=\"overrides-note\"\n      [label]=\"\n        'Overridden on ' + channels().length + (channels().length === 1 ? ' channel' : ' channels')\n      \"\n      [(open)]=\"open\"\n    >\n      <ul neatLineList>\n        @for (channel of channels(); track channel.name) {\n          <li neatLine>\n            {{ channel.name }} <span class=\"showcase-muted\">{{ channel.value }}</span>\n            <button\n              neatInlineButton\n              neatLineEnd\n              type=\"button\"\n              [attr.aria-label]=\"'Use global on ' + channel.name\"\n              (click)=\"useGlobal(channel.name)\"\n            >\n              Use global\n            </button>\n          </li>\n        }\n      </ul>\n    </neat-collapsible>\n  }\n</div>\n"]
+          ["text","<div class=\"panel\">\n  <label class=\"field\">\n    Frame buffer (ms)\n    <input\n      #field\n      neatInput\n      size=\"small\"\n      type=\"number\"\n      value=\"500\"\n      [attr.aria-describedby]=\"channels().length ? 'overrides-note' : null\"\n    />\n  </label>\n  @if (channels().length) {\n    <neat-collapsible\n      variant=\"note\"\n      tone=\"warning\"\n      triggerId=\"overrides-note\"\n      [label]=\"\n        'Overridden on ' + channels().length + (channels().length === 1 ? ' channel' : ' channels')\n      \"\n      [(open)]=\"open\"\n    >\n      <ul neatLineList>\n        @for (channel of channels(); track channel.name) {\n          <li neatLine>\n            {{ channel.name }} <span class=\"showcase-muted\">{{ channel.value }}</span>\n            <button\n              neatInlineButton\n              neatLineEnd\n              type=\"button\"\n              [attr.aria-label]=\"'Use global on ' + channel.name\"\n              (click)=\"useGlobal(channel.name)\"\n            >\n              Use global\n            </button>\n          </li>\n        }\n      </ul>\n    </neat-collapsible>\n  }\n</div>\n"]
         ]
       },
       {

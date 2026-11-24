@@ -623,6 +623,68 @@ describe('NeatNumberField', () => {
       expect(host.commits).toEqual([]);
     });
 
+    it('a disabled field marks its buttons disabled only, so they are not dimmed twice', async () => {
+      const { decrease, increase } = await renderSteps((h) => h.disabled.set(true));
+
+      for (const button of [decrease, increase]) {
+        expect(button.disabled).toBe(true);
+        expect(button.hasAttribute('aria-disabled')).toBe(false);
+      }
+    });
+
+    it('a number typed above max steps from value: + commits value plus a step, held to max', async () => {
+      const { fixture, input, increase, decrease, host } = await renderSteps((h) => {
+        h.max.set(30);
+        h.value.set(16);
+      });
+
+      type(input, '500');
+      await fixture.whenStable();
+      increase.click();
+      expect(host.commits).toEqual([21]);
+
+      type(input, '500');
+      await fixture.whenStable();
+      decrease.click();
+      expect(host.commits).toEqual([21, 11]);
+    });
+
+    it('a number typed below min steps from value: − commits value minus a step, held to min', async () => {
+      const { fixture, input, decrease, host } = await renderSteps((h) => h.value.set(4));
+
+      type(input, '0');
+      await fixture.whenStable();
+      decrease.click();
+
+      expect(host.commits).toEqual([1]);
+    });
+
+    it('a press on the unit or the box focuses the input; a press on a step button does not', async () => {
+      const { fixture, root, box, input, decrease } = await renderSteps((h) => h.unit.set('fps'));
+      document.body.appendChild(root);
+      const press = (target: Element) => {
+        const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+        target.dispatchEvent(event);
+        return event;
+      };
+
+      const onUnit = press(root.querySelector('.unit') as Element);
+      expect(onUnit.defaultPrevented).toBe(true);
+      expect(document.activeElement).toBe(input);
+
+      input.blur();
+      press(box);
+      expect(document.activeElement).toBe(input);
+
+      input.blur();
+      expect(press(decrease).defaultPrevented).toBe(true);
+      expect(document.activeElement).not.toBe(input);
+
+      expect(press(input).defaultPrevented).toBe(false);
+      fixture.destroy();
+      root.remove();
+    });
+
     it('showLabel false hides the label text, which still names the input', async () => {
       const { root, input } = await renderSteps((h) => h.showLabel.set(false));
 

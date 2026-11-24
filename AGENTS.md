@@ -98,8 +98,9 @@ look happens in one place. Every rule here protects that.
     it), `confirm`, `input`, `number-field` (`NeatNumberField`, one whole number committed on
     Enter or on leaving the field; with `step`, the input is a spinbutton with − and + inside its
     box, the kit's `minus` and `plus` icons, pointer-only buttons that commit at once, held to
-    `min` and `max` and `aria-disabled` at a bound or with no number shown (typed, else `value`;
-    null is shown as "–"); `unit` is text inside the box after the number, `neatNumberFieldSuffix`
+    `min` and `max` and `aria-disabled` at a bound or with no number shown (typed, if whole digits
+    within the bounds, else `value`; null is shown as "–"); `reset()` shows `value` again for an
+    owner that refused a committed number; `unit` is text inside the box after the number, `neatNumberFieldSuffix`
     content follows the box, and `showLabel` false leaves the label the input's name only; the
     label holds only its text, so the steps are not inside it), `line-list`, `select`
     (`NeatSelect`, a labeled listbox combobox, its label shown above it with `showLabel` or, with
@@ -807,10 +808,11 @@ shares with the primary's `NeatSearch`), `ɵINPUT_FRAME_CLASSES` and `ɵINPUT_IN
 the focus, and the input inside it, which `number-field` draws around its steps and unit; held to
 `ɵINPUT_CLASSES` by `input-classes.spec`), `ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
 look, which `collapsible` shares with the page nav on a narrow screen), `ɵSTALE_CLASSES` (the stale
-look, which `diagram` gives a node's card), `ɵOverlayFocus` and `ɵPANEL_SURFACE_CLASSES` and
+look, which `diagram` gives a node's card), `ɵTONE_DOT_COLORS` (the color each tone's dot takes,
+which the rail item and `collapsible`'s status dot share), `ɵOverlayFocus` and `ɵPANEL_SURFACE_CLASSES` and
 `ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel in the overlay, which
-`neat-popover` shares with the shell's collapsed-rail menu, and the surface with `neat-bubble`; the second is the helm popover's own
-classes, which the popover's drift spec reads), `ɵBROWSER_CLOCK` and `ɵreducedMotion` (the
+`neat-popover` shares with the shell's collapsed-rail menu, and the surface with `neat-bubble`;
+the second is the helm popover's own classes, which the popover's drift spec reads), `ɵBROWSER_CLOCK` and `ɵreducedMotion` (the
 browser's frame clock and the reduced-motion check, which `charts`' label timeline shares with
 `neatEased`), `ɵREADOUT_CLASSES` (the readout's look, which `charts` shares with `bev`), and the
 page's class colors, which `video`'s overlays share with `bev`: `ɵNeatOverlayColors`,
@@ -1513,8 +1515,8 @@ number of tools and a switch in it moves too.
 - `<div *neatPageToolbar>…</div>` (an `ng-container` where the page has dividers: the tools are the
   row's items, and a `div` makes one item of them) anywhere in a page's template renders that
   content in the top bar, at its right end just before the end slot and the kiosk button, while the
-  page exists. In kiosk mode it floats beside the exit control and fades with it. The content stays the page's
-  (bindings, injection), but its view is re-created on entering and leaving kiosk mode, so keep its
+  page exists. In kiosk mode it floats beside the exit control and fades with it. The content stays
+  the page's (bindings, injection), but its view is re-created on entering and leaving kiosk mode, so keep its
   state (values, open menus) in the page, never in components inside the toolbar.
   Groups of tools are set apart by `<hr neatPageToolbarDivider />` between them
   (`NeatPageToolbarDivider`, primary): decorative (`aria-hidden`), 1px of `--border`, the row's

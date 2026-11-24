@@ -184,15 +184,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " 1). They step from what was typed when it is whole digits, else from "
-            },
-            {
-              "kind": "code",
-              "text": "value"
-            },
-            {
-              "kind": "text",
-              "text": ". A button that cannot step (at a bound, or with no number shown) is "
+              "text": " 1). XX A button that cannot step (at a bound, or with no number shown) is "
             },
             {
               "kind": "code",

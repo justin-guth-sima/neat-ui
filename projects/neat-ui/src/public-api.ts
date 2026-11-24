@@ -76,18 +76,18 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
 /*
  * Not for apps. The `ɵ` exports are what the kit's secondary entry points share with this one:
  * ng-packagr gives each entry the built primary and nothing else, so the vendored helm code in
- * `lib/ui/` (never exported otherwise), the shell's toolbar token, the field label's classes
- * (which `select` and `field` share), the text field's and the collapsible section's looks
- * (which `input` and `collapsible` share with the page nav), the text field's frame and the input
- * inside it (which `number-field` draws around its steps), the stale look (which
- * `diagram` gives a node's card), the focus rules and surface
- * of a panel in the overlay (the popover's, shared with the shell's collapsed-rail menu, and the
- * helm classes its drift spec reads), the series' token rule (which `charts` and `diagram`
- * share with the swatch) and the browser's frame clock and reduced-motion check (which `charts`'
- * label timeline shares with `neatEased`), and the page's class colors with their identity palette and
- * style rows (which `video`'s overlays share with `bev`), and the readout's look (which `charts` and `bev`
- * share) reach them only through here. Angular marks its own
- * private API the same way; these may change or go in any release.
+ * `lib/ui/` (never exported otherwise), the shell's toolbar token, the field label's classes (which
+ * `select` and `field` share), the text field's and the collapsible section's looks (which `input`
+ * and `collapsible` share with the page nav), the text field's frame and the input inside it (which
+ * `number-field` draws around its steps), the stale look (which `diagram` gives a node's card), the
+ * tone dots' colors (which `collapsible` shares with the rail item), the focus rules and surface of
+ * a panel in the overlay (the popover's, shared with the shell's collapsed-rail menu, and the helm
+ * classes its drift spec reads), the series' token rule (which `charts` and `diagram` share with
+ * the swatch) and the browser's frame clock and reduced-motion check (which `charts`' label
+ * timeline shares with `neatEased`), and the page's class colors with their identity palette and
+ * style rows (which `video`'s overlays share with `bev`), and the readout's look (which `charts`
+ * and `bev` share) reach them only through here. Angular marks its own private API the same way;
+ * these may change or go in any release.
  */
 export {
   BROWSER_CLOCK as ɵBROWSER_CLOCK,

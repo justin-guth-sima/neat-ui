@@ -86,4 +86,24 @@ describe('the collapsible examples', () => {
     // Each line's action is the line's end, which only `NeatLineEnd` makes so.
     expect(button('Use global')!.classList).toContain('ms-auto');
   });
+
+  it('moves the focus to the field before the last channel takes the note away', async () => {
+    const { fixture, host, trigger, button } = await render(UnderAField);
+    document.body.appendChild(host);
+    trigger('Overridden on 2 channels').click();
+    await fixture.whenStable();
+
+    button('Use global')!.click();
+    await fixture.whenStable();
+    expect(host.querySelectorAll('li')).toHaveLength(1);
+
+    const last = button('Use global')!;
+    last.focus();
+    last.click();
+    await fixture.whenStable();
+
+    expect(host.querySelector('neat-collapsible')).toBeNull();
+    expect(document.activeElement).toBe(host.querySelector('input'));
+    host.remove();
+  });
 });

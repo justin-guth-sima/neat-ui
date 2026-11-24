@@ -53,8 +53,7 @@ function wholeNumber(text: string): number {
  * always commits what is shown.
  *
  * With `step`, a − button at the box's start and a + button at its end commit the number one step
- * down or up at once, held to `min` and `max` (3 less a step of 5 is 1 with `min` 1). They step
- * from what was typed when it is whole digits, else from `value`. A button that cannot step (at a
+ * down or up at once, held to `min` and `max` (3 less a step of 5 is 1 with `min` 1). XX A button that cannot step (at a
  * bound, or with no number shown) is `aria-disabled` and does nothing. Holding a button steps
  * once. The input is then a spinbutton (WAI-ARIA): ArrowUp and ArrowDown step as the buttons do,
  * and the buttons are for the pointer only (no tab stops), so the field stays one tab stop.
@@ -81,6 +80,7 @@ function wholeNumber(text: string): number {
       [class]="framed() ? frameClasses : ''"
       [attr.data-framed]="framed() ? '' : null"
       [attr.data-steps]="steps() ? '' : null"
+      (mousedown)="boxPress($event, field)"
     >
       @if (steps()) {
         <button
@@ -88,9 +88,8 @@ function wholeNumber(text: string): number {
           class="step"
           tabindex="-1"
           [attr.aria-label]="'Decrease ' + label()"
-          [attr.aria-disabled]="canStep(-1) ? null : 'true'"
+          [attr.aria-disabled]="stalled(-1) ? 'true' : null"
           [disabled]="disabled()"
-          (mousedown)="$event.preventDefault()"
           (click)="stepBy(-1, field)"
         >
           <neat-icon name="minus" [size]="16" />
@@ -128,9 +127,8 @@ function wholeNumber(text: string): number {
           class="step"
           tabindex="-1"
           [attr.aria-label]="'Increase ' + label()"
-          [attr.aria-disabled]="canStep(1) ? null : 'true'"
+          [attr.aria-disabled]="stalled(1) ? 'true' : null"
           [disabled]="disabled()"
-          (mousedown)="$event.preventDefault()"
           (click)="stepBy(1, field)"
         >
           <neat-icon name="plus" [size]="16" />
@@ -194,10 +192,13 @@ export class NeatNumberField {
     const draft = this.draft();
     return draft !== null && draft.trim() !== '' && !this.takes(wholeNumber(draft));
   });
-  /** The number the steps start from: what was typed when it is whole digits, else `value`. */
+  /**
+   * The number the steps start from: what was typed when it is whole digits within the bounds, else
+   * `value`.
+   */
   private readonly shown = computed(() => {
     const typed = wholeNumber(this.draft() ?? '');
-    return Number.isSafeInteger(typed) ? typed : this.value();
+    return this.inBounds(typed) ? typed : this.value();
   });
 
   private readonly field = viewChild.required<ElementRef<HTMLInputElement>>('field');
@@ -252,6 +253,25 @@ export class NeatNumberField {
     return !this.disabled() && from !== null && this.stepped(from, direction) !== from;
   }
 
+  /**
+   * Whether a step button is `aria-disabled`: it cannot step while the field is on. A disabled
+   * field's buttons are `disabled`, which dims them with the frame, so they carry no mark.
+   */
+  protected stalled(direction: 1 | -1): boolean {
+    return !this.disabled() && !this.canStep(direction);
+  }
+
+  /**
+   * A press on the box that is not on the input focuses the input, so the unit, the padding and the
+   * room beside the number act as the field they look like. The default is kept from moving the
+   * focus elsewhere, which a step button also needs: it steps without taking the focus.
+   */
+  protected boxPress(event: MouseEvent, field: HTMLInputElement): void {
+    if (event.target === field) return;
+    event.preventDefault();
+    if (!(event.target as Element).closest('.step')) field.focus();
+  }
+
   protected arrow(event: Event, direction: 1 | -1, field: HTMLInputElement): void {
     if (!this.steps()) return;
     event.preventDefault();
@@ -271,15 +291,15 @@ export class NeatNumberField {
     return Math.min(this.max() ?? Number.POSITIVE_INFINITY, Math.max(this.floor(), next));
   }
 
+  /** Whether `number` is a whole number within the field's bounds. */
+  private inBounds(number: number): boolean {
+    const max = this.max();
+    return Number.isSafeInteger(number) && number >= this.floor() && (max === null || number <= max);
+  }
+
   /** Whether the field takes `number`: a whole number within its bounds that `accept` takes. */
   private takes(number: number): boolean {
-    const max = this.max();
-    return (
-      Number.isSafeInteger(number) &&
-      number >= this.floor() &&
-      (max === null || number <= max) &&
-      this.accept()(number)
-    );
+    return this.inBounds(number) && this.accept()(number);
   }
 
   private commitNumber(field: HTMLInputElement, number: number): void {

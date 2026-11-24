@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, signal, viewChild } from '@angular/core';
 import { NeatInlineButton } from '@sima/neat-ui';
 import { NeatCollapsible } from '@sima/neat-ui/collapsible';
 import { NeatInput } from '@sima/neat-ui/input';
@@ -9,7 +9,9 @@ import { NeatLine, NeatLineEnd, NeatLineList } from '@sima/neat-ui/line-list';
  * field's `aria-describedby` names the note's trigger, so a screen reader reads "Overridden on 2
  * channels" when the field gets the focus.
  *
- * Open it and choose Use global on a channel. The last one takes the note away.
+ * Open it and choose Use global on a channel. The last one takes the note away, so the focus moves
+ * to the field first: a note removed while its button has the focus would drop the focus to the
+ * page.
  */
 @Component({
   selector: 'app-under-a-field',
@@ -25,7 +27,10 @@ export class UnderAField {
     { name: 'Channel 7', value: '600 ms' },
   ]);
 
+  private readonly field = viewChild.required<ElementRef<HTMLInputElement>>('field');
+
   protected useGlobal(name: string): void {
+    if (this.channels().length === 1) this.field().nativeElement.focus();
     this.channels.update((channels) => channels.filter((channel) => channel.name !== name));
   }
 }

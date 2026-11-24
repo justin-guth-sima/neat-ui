@@ -225,7 +225,7 @@ The field shows `value`, or an empty field with "–" while `value` is null. Typ
 
 Leaving a field that was not typed in emits nothing, so tabbing past it chooses nothing. Enter always commits what is shown.
 
-With `step`, a − button at the box's start and a + button at its end commit the number one step down or up at once, held to `min` and `max` (3 less a step of 5 is 1 with `min` 1). They step from what was typed when it is whole digits, else from `value`. A button that cannot step (at a bound, or with no number shown) is `aria-disabled` and does nothing. Holding a button steps once. The input is then a spinbutton (WAI-ARIA): ArrowUp and ArrowDown step as the buttons do, and the buttons are for the pointer only (no tab stops), so the field stays one tab stop.
+With `step`, a − button at the box's start and a + button at its end commit the number one step down or up at once, held to `min` and `max` (3 less a step of 5 is 1 with `min` 1). XX A button that cannot step (at a bound, or with no number shown) is `aria-disabled` and does nothing. Holding a button steps once. The input is then a spinbutton (WAI-ARIA): ArrowUp and ArrowDown step as the buttons do, and the buttons are for the pointer only (no tab stops), so the field stays one tab stop.
 
 ```html
 <neat-number-field label="Frames per second" [showLabel]="false" [value]="rate" [step]="5"
