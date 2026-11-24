@@ -26,8 +26,9 @@ const UNREACHABLE_TEXT = 'Insight not reachable';
 
 /**
  * What a retried answer's error code means to someone looking at the tile. `no_video`,
- * `codec_changed` and `negotiation_failed` and `too_many_viewers` (a channel with 8 viewers) are Insight's own (its offer route); `insight_unreachable`
- * is the demos' relay's, when Insight does not answer it.
+ * `codec_changed`, `negotiation_failed` and `too_many_viewers` (a channel at its viewer limit) are
+ * Insight's own (its offer route); `insight_unreachable` is the demos' relay's, when Insight does
+ * not answer it.
  */
 const WAITING_TEXT: Readonly<Record<string, string>> = {
   no_video: 'Waiting for video',

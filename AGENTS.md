@@ -1048,8 +1048,8 @@ arrives, and an app that does not watch Insight carries none of this.
     `RTCPeerConnection` (jsdom in the specs) fails at once with "This browser has no WebRTC".
   - Anything else is retried, and `notice` says why where the answer does: `no_video` "Waiting for
     video", `codec_changed` "Video format changed", `negotiation_failed` "Could not connect",
-    `too_many_viewers` "Too many viewers" (the channel has 8; a place frees up when a viewer leaves), the
-    relay's `insight_unreachable` "Insight not reachable", and the same words when no answer came
+    `too_many_viewers` "Too many viewers" (a channel at its viewer limit; a place frees up when a
+    viewer leaves), the relay's `insight_unreachable` "Insight not reachable", and the same words when no answer came
     at all (`fetch` rejected) or a 502, 503 or 504 came without a code (a proxy whose server is
     down). Other codes, a 5xx without one, and an answer that is not an answer say nothing:
     `notice` is null and the tile shows its own no-video note. A track arriving clears it.
