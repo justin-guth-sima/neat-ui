@@ -237,6 +237,9 @@ describe('NeatRailItem', () => {
         expect(dot, tone).not.toBeNull();
         // The words say the state; the dot repeats it.
         expect(dot?.getAttribute('aria-hidden')).toBe('true');
+        expect((dot as HTMLElement).style.getPropertyValue('--neat-tone-dot'), tone).toBe(
+          TONE_DOT_COLORS[tone],
+        );
       }
 
       host.tone.set(undefined);

@@ -1460,8 +1460,9 @@ place, so every app reads the same way.
   kit `aria-label` binding would remove one the app sets. So `label` must contain the visible
   `text` and `detail` as they read: the name is all assistive technology gets, and someone who
   speaks what they see ("click DevKit") must find it there (WCAG 2.5.3, label in name). Each
-  tone's dot and detail color is stated once in `rail-item.css`, and its spec holds the detail
-  text to 4.5:1 and the dot to 3:1 on `--sidebar` and `--sidebar-accent` in both schemes.
+  tone's dot color is `TONE_DOT_COLORS` in the theme (`ɵTONE_DOT_COLORS`, which a dot reads as
+  `--neat-tone-dot`) and its detail color is stated once in `rail-item.css`; the spec holds the
+  detail text to 4.5:1 and the dot to 3:1 on `--sidebar` and `--sidebar-accent` in both schemes.
 - Visible text the inputs cannot say goes in an element marked `neatRailItemLabel` inside the item,
   which takes the label's place; `label` stays the tooltip, so it should say at least as much, and
   an `aria-label` the app sets wins as the name. The kit ellipsizes only the label's own line: the
