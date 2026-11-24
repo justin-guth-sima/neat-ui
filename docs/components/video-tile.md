@@ -1291,6 +1291,13 @@ A detector that finds boxes at an angle sends `oriented_bbox` with each object o
 
 The label stands upright at the rotated box's topmost corner, its plate above the corner as for any box. Of two corners equally high it takes the left one, so a box that is not turned labels at its top-left corner, as an upright box does. Watch the label hop from corner to corner as the ship turns. With Mirror on, the picture and the box flip and the label stays at the same corner of the frame, its plate ending at it.
 
+<picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/video-tile/rotated-boxes.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/video-tile/rotated-boxes.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/video-tile/rotated-boxes.dark.animated.webp">
+<img src="../images/video-tile/rotated-boxes.light.animated.webp" alt="Video tile: Rotated boxes" width="416">
+</picture>
+
 <details>
 <summary>Code</summary>
 

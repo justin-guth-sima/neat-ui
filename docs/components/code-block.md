@@ -115,6 +115,11 @@ A Python file in the theme's code colors: `language="python"` names its language
 
 Switch the theme to see the colors in both schemes, then press Copy: it copies the file as given.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/code-block/python-file.dark.webp">
+<img src="../images/code-block/python-file.light.webp" alt="Code block: Python file" width="900">
+</picture>
+
 <details>
 <summary>Code</summary>
 
@@ -173,6 +178,11 @@ export class PythonFile {
 A C++ file with its lines numbered: `[lineNumbers]="true"` adds a gutter as wide as the last number. The numbers are not part of the text.
 
 Select a few lines and paste them somewhere: the numbers stay behind.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/code-block/line-numbers.dark.webp">
+<img src="../images/code-block/line-numbers.light.webp" alt="Code block: Line numbers" width="900">
+</picture>
 
 <details>
 <summary>Code</summary>
@@ -242,6 +252,11 @@ A language the kit does not color by itself, a diff, added with [`provideNeatCod
 
 Here the example's own `providers` add it for the blocks in its template. An app that shows diffs on many pages adds it in its `app.config.ts` instead.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/code-block/another-language.dark.webp">
+<img src="../images/code-block/another-language.light.webp" alt="Code block: Another language" width="900">
+</picture>
+
 <details>
 <summary>Code</summary>
 
@@ -287,6 +302,11 @@ export class AnotherLanguage {
 Marks on a C++ pipeline: `marks` bands the lines that compose it, marks the calls that build and run it, and dims the rest. Lines count from 1, as their numbers show, and a part of a line is named by its text.
 
 Select the code and paste it somewhere, or press Copy: the marks change nothing of the text.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/code-block/marks-on-a-pipeline.dark.webp">
+<img src="../images/code-block/marks-on-a-pipeline.light.webp" alt="Code block: Marks on a pipeline" width="900">
+</picture>
 
 <details>
 <summary>Code</summary>
@@ -362,6 +382,11 @@ export class MarksOnAPipeline {
 A walk through a short Python Neat example, a set of marks at a time: `steps` gives each step's marks and label, and `[(step)]` binds the step shown, so the page shows that step's note beside the code. `stepControls` adds Previous, Next and the position under the code.
 
 Press Next, or focus the block and press the left and right arrow keys.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/code-block/step-by-step.dark.webp">
+<img src="../images/code-block/step-by-step.light.webp" alt="Code block: Step by step" width="900">
+</picture>
 
 <details>
 <summary>Code</summary>
@@ -508,6 +533,11 @@ The same walk with each step's note in a bubble beside its marks instead of besi
 
 Press Next, or focus the block and press the left and right arrow keys.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/code-block/steps-in-a-bubble.dark.webp">
+<img src="../images/code-block/steps-in-a-bubble.light.webp" alt="Code block: Steps in a bubble" width="900">
+</picture>
+
 <details>
 <summary>Code</summary>
 
@@ -620,6 +650,11 @@ Marks on code without a language, a terminal session: the stream's protocol, the
 
 Text that comes more than once on its line takes columns, counted from 1: "rtsp" is in the program's name too, so `{ line: 1, from: 44, to: 47 }` marks the URL's.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/code-block/marks-on-plain-code.dark.webp">
+<img src="../images/code-block/marks-on-plain-code.light.webp" alt="Code block: Marks on plain code" width="900">
+</picture>
+
 <details>
 <summary>Code</summary>
 
@@ -671,6 +706,11 @@ frame=3 rtsp_timeout
 The same session with a note on each mark, shown in a bubble while the mark is hovered: a `neatCodeNote` template inside the block, given the mark as the app wrote it. Each mark is then a tab stop that shows its note on keyboard focus, and a tap shows it on a touch screen; Escape or a press elsewhere puts it away.
 
 Hover a mark, or press Tab to reach one.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/code-block/notes-on-hover.dark.webp">
+<img src="../images/code-block/notes-on-hover.light.webp" alt="Code block: Notes on hover" width="937">
+</picture>
 
 <details>
 <summary>Code</summary>

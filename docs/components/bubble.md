@@ -13,6 +13,11 @@ A speech bubble that points at what it explains: the content inside the element,
 </neat-bubble>
 ```
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/bubble/explaining-a-part.dark.webp">
+<img src="../images/bubble/explaining-a-part.light.webp" alt="Bubble: Explaining a part" width="533">
+</picture>
+
 ```ts
 import { NeatBubble } from '@sima/neat-ui/bubble';
 ```
@@ -24,6 +29,11 @@ import { NeatBubble } from '@sima/neat-ui/bubble';
 A bubble that explains the stage of a pipeline the reader picks: its `anchor` is the stage's button, so it moves from stage to stage, and null hides it. Each button points at the bubble with `aria-describedby` while the bubble explains it, so a screen reader reads the note with it.
 
 Press a stage, and press it again to hide its note.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/bubble/explaining-a-part.dark.webp">
+<img src="../images/bubble/explaining-a-part.light.webp" alt="Bubble: Explaining a part" width="533">
+</picture>
 
 <details>
 <summary>Code</summary>
@@ -116,6 +126,11 @@ export class ExplainingAPart {
 ### Sides
 
 A bubble on each side of what it points at, by `side`. Where a side has no room, its bubble takes the side across, then another, and its tail keeps pointing at the anchor.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/bubble/sides.dark.webp">
+<img src="../images/bubble/sides.light.webp" alt="Bubble: Sides" width="320">
+</picture>
 
 <details>
 <summary>Code</summary>

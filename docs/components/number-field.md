@@ -151,6 +151,11 @@ export class AnyWholeNumber {
 
 A frame rate stepped by 5 down to 1, with its unit inside the field and its heading as its only visible name. Press + or −, or ArrowUp and ArrowDown in the field, and the rate commits at once. At 1, − is off. Type 0 and the field is marked invalid until Enter puts the rate back.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/number-field/steps-and-a-unit.dark.webp">
+<img src="../images/number-field/steps-and-a-unit.light.webp" alt="Number field: Steps and a unit" width="299">
+</picture>
+
 <details>
 <summary>Code</summary>
 

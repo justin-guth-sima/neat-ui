@@ -14,7 +14,7 @@ A small red dot that says something is live or recording.
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/live-dot/badges.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/live-dot/badges.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/live-dot/badges.dark.animated.webp">
-<img src="../images/live-dot/badges.light.animated.webp" alt="Live dot: Badges" width="308">
+<img src="../images/live-dot/badges.light.animated.webp" alt="Live dot: Badges" width="289">
 </picture>
 
 ```ts
@@ -31,7 +31,7 @@ A still dot, a pulsing one before "Recording 0:34", and one in a live badge ([`N
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/live-dot/badges.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/live-dot/badges.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/live-dot/badges.dark.animated.webp">
-<img src="../images/live-dot/badges.light.animated.webp" alt="Live dot: Badges" width="308">
+<img src="../images/live-dot/badges.light.animated.webp" alt="Live dot: Badges" width="289">
 </picture>
 
 <details>

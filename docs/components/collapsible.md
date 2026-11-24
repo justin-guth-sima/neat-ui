@@ -176,6 +176,11 @@ A note under a field that opens into what it says: the note variant, with a warn
 
 Open it and choose Use global on a channel. The last one takes the note away, so the focus moves to the field first: a note removed while its button has the focus would drop the focus to the page.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/collapsible/under-a-field.dark.webp">
+<img src="../images/collapsible/under-a-field.light.webp" alt="Collapsible: Under a field" width="384">
+</picture>
+
 <details>
 <summary>Code</summary>
 

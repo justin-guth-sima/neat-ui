@@ -10,6 +10,13 @@ A pill that says what a picture is: "Live", with the pulsing live dot, or what s
 <neat-live-badge live onPicture>Live</neat-live-badge>
 ```
 
+<picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/live-badge/on-a-picture.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/live-badge/on-a-picture.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/live-badge/on-a-picture.dark.animated.webp">
+<img src="../images/live-badge/on-a-picture.light.animated.webp" alt="Live badge: On a picture" width="816">
+</picture>
+
 ```ts
 import { NeatLiveBadge } from '@sima/neat-ui';
 ```
@@ -19,6 +26,13 @@ import { NeatLiveBadge } from '@sima/neat-ui';
 ### On a picture
 
 A badge in the top-left corner of each picture, in the tile's `neatTileOverlay` layer. The first tile plays a file: turn on Live and its badge says so with the pulsing live dot, at the same size. The second has no picture yet, so its badge is the muted pill.
+
+<picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/live-badge/on-a-picture.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/live-badge/on-a-picture.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/live-badge/on-a-picture.dark.animated.webp">
+<img src="../images/live-badge/on-a-picture.light.animated.webp" alt="Live badge: On a picture" width="816">
+</picture>
 
 <details>
 <summary>Code</summary>
