@@ -31,7 +31,7 @@ import { RotatedBoxSource } from './rotated-box-source';
   imports: [NeatSwitch, NeatVideoTile],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './6-rotated-boxes.example.html',
-  styleUrl: './test-pattern-tiles.example.css',
+  styleUrl: './rotated-boxes.example.css',
 })
 export class RotatedBoxes {
   protected readonly harbor = new RotatedBoxSource();

@@ -43,6 +43,8 @@ export class RecordingContext {
   imageSmoothingEnabled = false;
   globalCompositeOperation = 'source-over';
   lineDash: number[] = [];
+  /** The `moveTo` and `lineTo` points since the last `beginPath`, kept apart from `calls`. */
+  path: [number, number][] = [];
   transform = [1, 0, 0, 1, 0, 0];
   private readonly stack: DrawState[] = [];
 
@@ -84,9 +86,6 @@ export class RecordingContext {
   closePath(): void {
     // See beginPath.
   }
-
-  /** The `moveTo` and `lineTo` points since the last `beginPath`, kept apart from `calls`. */
-  path: [number, number][] = [];
 
   moveTo(x: number, y: number): void {
     this.path.push([x, y]);

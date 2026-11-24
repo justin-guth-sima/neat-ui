@@ -190,7 +190,8 @@ describe('the object detection overlay with oriented boxes', () => {
       [{ type: 'object-detection', data: { objects: list } }],
       { view },
     );
-  const plates = (ctx: RecordingContext) => ctx.ops('fillRect').map((call) => call.args as number[]);
+  const plates = (ctx: RecordingContext) =>
+    ctx.ops('fillRect').map((call) => call.args as number[]);
 
   function corners(cx: number, cy: number, w: number, h: number, angle: number) {
     const cos = Math.cos(angle);
@@ -217,6 +218,52 @@ describe('the object detection overlay with oriented boxes', () => {
     // A positive angle turns the box clockwise on screen: the first corner (top-left) moves up
     // and right of where an upright box has it, the second one down.
     expect(ctx.path[1][1]).toBeGreaterThan(ctx.path[0][1]);
+  });
+
+  it('turns a 100 by 40 box a quarter turn clockwise about (200, 100), corners written out', () => {
+    const ctx = draw([
+      { label: 'ship', bbox: [180, 50, 40, 100], oriented_bbox: [200, 100, 100, 40, Math.PI / 2] },
+    ]);
+
+    const expected = [
+      [220, 50],
+      [220, 150],
+      [180, 150],
+      [180, 50],
+    ];
+    expect(ctx.path).toHaveLength(4);
+    ctx.path.forEach(([x, y], i) => {
+      expect(x).toBeCloseTo(expected[i][0], 9);
+      expect(y).toBeCloseTo(expected[i][1], 9);
+    });
+  });
+
+  it('maps the corners through the letterbox, scale and offsets each on its own axis', () => {
+    // A 1280 by 720 frame on a 640 by 480 canvas: scale 0.5, bars 60 px above and below.
+    const view = { ...VIEW, videoWidth: 1280, videoHeight: 720 };
+    const ctx = draw(
+      [
+        {
+          label: 'ship',
+          bbox: [180, 50, 40, 100],
+          oriented_bbox: [200, 100, 100, 40, Math.PI / 2],
+        },
+      ],
+      view,
+    );
+
+    const expected = [
+      [110, 85],
+      [110, 135],
+      [90, 135],
+      [90, 85],
+    ];
+    ctx.path.forEach(([x, y], i) => {
+      expect(x).toBeCloseTo(expected[i][0], 9);
+      expect(y).toBeCloseTo(expected[i][1], 9);
+    });
+    // The topmost corners are the first and the last, at the same height: the left one labels.
+    expect(plates(ctx)[0].slice(0, 2)).toStrictEqual([90, 85 - 6 - 18]);
   });
 
   it.each([

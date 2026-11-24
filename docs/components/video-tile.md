@@ -1315,7 +1315,7 @@ import { RotatedBoxSource } from './rotated-box-source';
   imports: [NeatSwitch, NeatVideoTile],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './6-rotated-boxes.example.html',
-  styleUrl: './test-pattern-tiles.example.css',
+  styleUrl: './rotated-boxes.example.css',
 })
 export class RotatedBoxes {
   protected readonly harbor = new RotatedBoxSource();
@@ -1335,10 +1335,8 @@ export class RotatedBoxes {
 <div class="showcase-row">
   <button neatSwitch [(checked)]="mirror">Mirror</button>
 </div>
-<div class="tiles">
-  <div class="cell">
-    <neat-video-tile [source]="harbor" [mirror]="mirror()" label="1" status="Harbor · 640×360" />
-  </div>
+<div class="cell">
+  <neat-video-tile [source]="harbor" [mirror]="mirror()" label="1" status="Harbor · 640×360" />
 </div>
 ```
 
@@ -1463,7 +1461,7 @@ export abstract class CanvasSource implements NeatTileSource {
 }
 ```
 
-`test-pattern-tiles.example.css`
+`rotated-boxes.example.css`
 
 ```css
 :host {
@@ -1472,22 +1470,10 @@ export abstract class CanvasSource implements NeatTileSource {
   gap: var(--neat-space-3);
 }
 
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 24rem));
-  gap: var(--neat-space-4);
-}
-
 /* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */
 .cell {
   aspect-ratio: 16 / 9;
-}
-
-.chip {
-  padding: 0 var(--neat-space-2);
-  border-radius: var(--radius);
-  background: var(--info);
-  color: var(--info-foreground);
+  max-width: 24rem;
 }
 ```
 

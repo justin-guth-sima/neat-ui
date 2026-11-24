@@ -957,7 +957,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { RotatedBoxSource } "],["keyword","from"],["text"," "],["string","'./rotated-box-source'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-rotated-boxes'"],["text",",\n  imports: [NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./6-rotated-boxes.example.html'"],["text",",\n  styleUrl: "],
-          ["string","'./test-pattern-tiles.example.css'"],["text",",\n})\n"],
+          ["string","'./rotated-boxes.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," RotatedBoxes {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," harbor = "],["keyword","new"],["text"," RotatedBoxSource();\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," mirror = signal("],["keyword","false"],["text",");\n\n  "],
@@ -970,7 +970,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "6-rotated-boxes.example.html",
         "code": [
-          ["text","<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"mirror\">Mirror</button>\n</div>\n<div class=\"tiles\">\n  <div class=\"cell\">\n    <neat-video-tile [source]=\"harbor\" [mirror]=\"mirror()\" label=\"1\" status=\"Harbor · 640×360\" />\n  </div>\n</div>\n"]
+          ["text","<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"mirror\">Mirror</button>\n</div>\n<div class=\"cell\">\n  <neat-video-tile [source]=\"harbor\" [mirror]=\"mirror()\" label=\"1\" status=\"Harbor · 640×360\" />\n</div>\n"]
         ]
       },
       {
@@ -1054,10 +1054,10 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "test-pattern-tiles.example.css",
+        "name": "rotated-boxes.example.css",
         "code": [
-          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n.tiles {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(16rem, 24rem));\n  gap: var(--neat-space-4);\n}\n\n"],
-          ["comment","/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */"],["text","\n.cell {\n  aspect-ratio: 16 / 9;\n}\n\n.chip {\n  padding: 0 var(--neat-space-2);\n  border-radius: var(--radius);\n  background: var(--info);\n  color: var(--info-foreground);\n}\n"]
+          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
+          ["comment","/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */"],["text","\n.cell {\n  aspect-ratio: 16 / 9;\n  max-width: 24rem;\n}\n"]
         ]
       }
     ]
