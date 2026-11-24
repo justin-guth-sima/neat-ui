@@ -6,6 +6,7 @@ import { DEFAULT_CODE_LANGUAGES, provideNeatCodeLanguages } from './languages';
 import type { NeatCodeMark, NeatCodeStep } from './marks';
 import { FakeIntersectionObserver } from './near-view.testing';
 import { NeatCodeNote } from './note';
+import { nextTurn } from './turns';
 
 const CODE = '<neat-diagram [diagram]="set">\n  <ng-template neatDiagramBlock let-node>';
 
@@ -286,9 +287,35 @@ describe('NeatCodeBlock', () => {
     observer.report(true);
     fixture.detectChanges();
     fixture.destroy();
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    // A turn asked for now comes only after the one the block gave up.
+    await nextTurn();
 
     expect(lines).not.toHaveBeenCalled();
+  });
+
+  it('colors in a new language only in a turn of its own, plain until then', async () => {
+    const stage = () => grammar('stage');
+    TestBed.configureTestingModule({ providers: [provideNeatCodeLanguages({ stage })] });
+    const highlighter = (await highlighterFor('stage', { stage }))!;
+    const lines = vi.spyOn(highlighter, 'lines');
+    const fixture = TestBed.createComponent(NeatCodeBlock);
+    fixture.componentRef.setInput('code', 'stage = print');
+    fixture.componentRef.setInput('language', 'python');
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.querySelector('[data-kind="function"]')?.textContent).toBe('print');
+
+    fixture.componentRef.setInput('language', 'stage');
+    fixture.detectChanges();
+    // The grammar is there: the new language's highlighter resolves, but the turn has not come.
+    for (let i = 0; i < 10; i++) await Promise.resolve();
+    fixture.detectChanges();
+    expect(host.querySelector('[data-kind]')).toBeNull();
+    expect(lines).not.toHaveBeenCalled();
+
+    await fixture.whenStable();
+    expect(host.querySelector('[data-kind="keyword"]')?.textContent).toBe('stage');
+    expect(lines).toHaveBeenCalledTimes(1);
   });
 
   it('colors new code at once once it has colored, never showing it plain', async () => {

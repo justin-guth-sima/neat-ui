@@ -929,8 +929,9 @@ default) the code is plain.
   its lines stay plain until then, and once colored it stays so. Why: all blocks resolve from one
   grammar load, so they tokenized in one render pass, and a page of many blocks froze for the sum
   of them (half a second for the showcase's code block topic). Once colored, a block colors new
-  `code` or a new language at once, without a turn: the turns are for many blocks coloring at once,
-  and a preview whose code changes often must not flicker plain. A grammar that throws on a block's
+  `code` at once, without a turn: the turns are for many blocks coloring at once, and a preview
+  whose code changes often must not flicker plain. A new language takes a turn again (plain until
+  then), so a page that switches the language of many blocks does not freeze. A grammar that throws on a block's
   code leaves it plain and is said once in dev mode.
 - **The languages:** Python, C++, C, shell, JSON, YAML, CMake, TypeScript, JavaScript, HTML, CSS,
   Markdown, Dockerfile and Go, under each grammar's Shiki name and aliases (`languages.ts`, held to

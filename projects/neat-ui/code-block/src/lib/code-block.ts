@@ -77,7 +77,7 @@ export type NeatCodeOverflow = 'wrap' | 'scroll';
  * each in a task of its own, so a page of many blocks does not freeze while they all color. Until
  * then, and while the grammar loads, the block shows the code plain, in the same layout. Once
  * colored, a block colors new code at once, so a preview whose code changes often never shows it
- * plain. A language the block does not know leaves the code plain and is named once in dev mode.
+ * plain; a new language waits for a turn of its own again. A language the block does not know leaves the code plain and is named once in dev mode.
  *
  * `lineNumbers` numbers the lines in a gutter at their start. The numbers are not part of the text:
  * a selection leaves them out, a screen reader does not read them, and Copy copies the code as
@@ -305,29 +305,29 @@ export class NeatCodeBlock {
   private readonly near = signal(false);
 
   /**
-   * The block's first colored lines, with the highlighter and the code they are of: tokenized in
-   * a turn of its own (`nextTurn`) once the block is near the view and its highlighter is there,
-   * from the code as it is when the turn comes.
+   * The lines the block's last turn colored, with the highlighter and the code they are of:
+   * tokenized in a turn of its own (`nextTurn`) once the block is near the view and its
+   * highlighter is there, and again for each new highlighter (a new language), from the code as it
+   * is when the turn comes.
    */
-  private readonly firstColored = signal<{
+  private readonly turnColored = signal<{
     readonly highlighter: CodeHighlighter;
     readonly code: string;
     readonly lines: CodeLine[];
   } | null>(null);
 
   /**
-   * The lines shown: plain until the block's turn has colored them, and from then on colored at
-   * once for new code or a new language (plain only while a new grammar loads), so a block whose
-   * code changes often never flickers plain.
+   * The lines shown: plain until a turn has colored them in the block's language, and from then
+   * on colored at once for new code, so a block whose code changes often never flickers plain. A
+   * new language waits for a turn of its own, so a page whose blocks all change language does not
+   * freeze.
    */
   private readonly lines = computed(() => {
-    const first = this.firstColored();
+    const colored = this.turnColored();
     const highlighter = this.highlighter.hasValue() ? this.highlighter.value() : undefined;
-    if (!first || !highlighter) return this.plain();
+    if (!colored || !highlighter || colored.highlighter !== highlighter) return this.plain();
     const code = this.code();
-    return first.highlighter === highlighter && first.code === code
-      ? first.lines
-      : highlighter.lines(code);
+    return colored.code === code ? colored.lines : highlighter.lines(code);
   });
 
   protected readonly stepCount = computed(() => this.steps().length);
@@ -395,19 +395,26 @@ export class NeatCodeBlock {
       ),
     );
     inject(DestroyRef).onDestroy(stopWatching);
-    // The block's turn, asked for once it is near the view and its highlighter is there, and
-    // given up when the highlighter changes (a new language) or the block goes before it comes.
+    // The block's turn, asked for once it is near the view and has a highlighter it has not
+    // colored with, and given up when the highlighter changes again or the block goes before it
+    // comes.
     const pendingTasks = inject(PendingTasks);
     effect((onCleanup) => {
       const highlighter = this.highlighter.hasValue() ? this.highlighter.value() : undefined;
-      if (!highlighter || !this.near() || untracked(this.firstColored)) return;
+      if (
+        !highlighter ||
+        !this.near() ||
+        untracked(this.turnColored)?.highlighter === highlighter
+      ) {
+        return;
+      }
       let givenUp = false;
       onCleanup(() => (givenUp = true));
       void pendingTasks.run(async () => {
         await nextTurn();
         if (givenUp) return;
         const code = untracked(this.code);
-        this.firstColored.set({ highlighter, code, lines: highlighter.lines(code) });
+        this.turnColored.set({ highlighter, code, lines: highlighter.lines(code) });
       });
     });
     // Brings the first mark shown into the box's view whenever the marks shown change.
