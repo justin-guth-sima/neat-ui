@@ -32,3 +32,21 @@ export const INPUT_CLASSES = {
   medium: hlm(INPUT_HELM_CLASSES, OVERRIDES),
   small: hlm(INPUT_HELM_CLASSES, OVERRIDES, 'h-8'),
 } as const;
+
+/**
+ * The small field's look on a frame around an input and the parts beside it (the number field's
+ * box with steps or a unit): `INPUT_CLASSES.small`'s border, radius, fill, shadow and height, its
+ * focus look on `focus-within` where the field has it on `focus-visible`, so it shows while
+ * anything inside has the focus, and its disabled look while the input inside is disabled.
+ * input-classes.spec holds it to `INPUT_CLASSES.small`, so a change to the field's look fails until
+ * the frame follows.
+ */
+export const INPUT_FRAME_CLASSES =
+  'flex items-center border-input focus-within:border-ring focus-within:ring-ring h-8 rounded-md border bg-transparent dark:bg-transparent shadow-xs transition-[color,box-shadow] focus-within:ring-3 has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-50';
+
+/**
+ * The input inside such a frame: the field's text, placeholder and focus outline, with no box of
+ * its own, filling the frame's height. Where it sits and how wide it is are the frame owner's.
+ */
+export const INPUT_IN_FRAME_CLASSES =
+  'h-full min-w-0 border-0 bg-transparent p-0 text-base md:text-sm tabular-nums placeholder:text-muted-foreground outline-none disabled:pointer-events-none disabled:cursor-not-allowed';

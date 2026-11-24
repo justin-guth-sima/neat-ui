@@ -24,7 +24,7 @@ describe('the number field examples', () => {
     const { host, input, status, commit } = await render(PageWithALimit);
 
     expect(input.getAttribute('aria-label')).toBe('Page');
-    expect(host.querySelector('label')?.textContent).toContain('of 9');
+    expect(host.querySelector('neat-number-field')?.textContent).toContain('of 9');
     expect(status()).toBe('Page 3, commits so far 0');
 
     await commit('5');

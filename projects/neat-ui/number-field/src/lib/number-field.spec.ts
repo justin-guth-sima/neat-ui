@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { ɵINPUT_CLASSES as INPUT_CLASSES } from '@sima/neat-ui';
 import { NeatNumberField } from './number-field';
 
 @Component({
@@ -97,7 +98,7 @@ describe('NeatNumberField', () => {
     const { input } = await render();
 
     expect(input.getAttribute('aria-label')).toBe('Page');
-    // Wrapped by its label, so a click on the label text focuses the field.
+    // Its label points at it, so a click on the label text focuses the field.
     expect(input.labels?.length).toBe(1);
     expect(input.value).toBe('3');
   });
@@ -105,11 +106,15 @@ describe('NeatNumberField', () => {
   it('shows the label before the input and projects the suffix after it', async () => {
     const { root } = await render();
 
-    const text = root.textContent?.replace(/\s+/g, ' ').trim();
-    expect(text).toBe('Page of 9');
+    const label = root.querySelector('label') as HTMLElement;
     const input = root.querySelector('input') as HTMLElement;
     const suffix = root.querySelector('[neatNumberFieldSuffix]') as HTMLElement;
-    expect(input.compareDocumentPosition(suffix) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(label.textContent?.trim()).toBe('Page');
+    expect(suffix.textContent).toBe('of 9');
+    const follows = (a: Node, b: Node) =>
+      Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(follows(label, input)).toBe(true);
+    expect(follows(input, suffix)).toBe(true);
   });
 
   it('has no suffix slot content to show when none is given', async () => {
@@ -125,6 +130,8 @@ describe('NeatNumberField', () => {
     expect(input.getAttribute('inputmode')).toBe('numeric');
     expect(input.dataset['slot']).toBe('input');
     expect(input.classList).toContain('h-8');
+    // The kit's small text field, class for class, as `neatInput` draws it.
+    expect([...input.classList].sort()).toEqual(INPUT_CLASSES.small.split(' ').sort());
   });
 
   it('commits an accepted whole number on Enter', async () => {
@@ -283,11 +290,25 @@ describe('NeatNumberField', () => {
       expect(increase.getAttribute('aria-label')).toBe('Increase Frames per second');
     });
 
-    it('keeps the label on the input, not on the first button inside it', async () => {
-      const { input, decrease } = await renderSteps();
+    it('labels the input alone: the label holds its text, the box with the steps sits beside it', async () => {
+      const { root, input, decrease } = await renderSteps();
 
+      const label = root.querySelector('label') as HTMLLabelElement;
+      expect(label.children.length).toBe(0);
+      expect(label.textContent?.trim()).toBe('Frames per second');
+      expect(label.control).toBe(input);
       expect(input.labels?.length).toBe(1);
       expect(decrease.labels?.length ?? 0).toBe(0);
+    });
+
+    it('draws the field’s look on the box, and none on the input inside it', async () => {
+      const { box, input } = await renderSteps();
+
+      for (const name of ['border', 'border-input', 'rounded-md', 'h-8', 'focus-within:ring-3'])
+        expect(box.classList, name).toContain(name);
+      for (const name of ['border', 'rounded-md', 'h-8', 'shadow-xs'])
+        expect(input.classList, name).not.toContain(name);
+      expect(box.classList).toContain('box');
     });
 
     it('makes the input a spinbutton with its value, bounds and value text', async () => {
@@ -348,6 +369,40 @@ describe('NeatNumberField', () => {
       expect(increase.getAttribute('aria-disabled')).toBe('true');
       increase.click();
       expect(host.commits).toEqual([30]);
+    });
+
+    it('steps from a typed number, whose bound it follows: value 1, min 1, "40" typed, − commits 35', async () => {
+      const { fixture, input, decrease, host } = await renderSteps((h) => h.value.set(1));
+      expect(decrease.getAttribute('aria-disabled')).toBe('true');
+
+      type(input, '40');
+      await fixture.whenStable();
+      expect(decrease.getAttribute('aria-disabled')).toBeNull();
+      decrease.click();
+
+      expect(host.commits).toEqual([35]);
+    });
+
+    it('ArrowDown steps from a typed number though value is at min', async () => {
+      const { input, host } = await renderSteps((h) => h.value.set(1));
+
+      type(input, '40');
+      press(input, 'ArrowDown');
+
+      expect(host.commits).toEqual([35]);
+    });
+
+    it('+ is off once the typed number is at max, though value is below it', async () => {
+      const { fixture, input, increase, host } = await renderSteps((h) => h.max.set(30));
+      expect(increase.getAttribute('aria-disabled')).toBeNull();
+
+      type(input, '30');
+      await fixture.whenStable();
+      expect(increase.getAttribute('aria-disabled')).toBe('true');
+      increase.click();
+      press(input, 'ArrowUp');
+
+      expect(host.commits).toEqual([]);
     });
 
     it('takes no step accept() refuses', async () => {
@@ -488,6 +543,16 @@ describe('NeatNumberField', () => {
         expect(host.commits).toEqual([]);
       });
 
+      it('steps from a typed number', async () => {
+        const { fixture, input, increase, host } = await renderSteps((h) => h.value.set(null));
+
+        type(input, '12');
+        await fixture.whenStable();
+        increase.click();
+
+        expect(host.commits).toEqual([17]);
+      });
+
       it('still commits a typed number on Enter', async () => {
         const { input, host } = await renderSteps((h) => h.value.set(null));
 
@@ -524,6 +589,7 @@ describe('NeatNumberField', () => {
       const { root, input } = await renderSteps((h) => h.showLabel.set(false));
 
       expect(root.textContent?.trim()).toBe('');
+      expect(root.querySelector('label')).toBeNull();
       expect(input.getAttribute('aria-label')).toBe('Frames per second');
     });
 

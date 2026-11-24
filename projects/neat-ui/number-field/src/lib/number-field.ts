@@ -10,8 +10,12 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { NeatIcon } from '@sima/neat-ui';
-import { NeatInput } from '@sima/neat-ui/input';
+import {
+  NeatIcon,
+  ɵINPUT_CLASSES as INPUT_CLASSES,
+  ɵINPUT_FRAME_CLASSES as INPUT_FRAME_CLASSES,
+  ɵINPUT_IN_FRAME_CLASSES as INPUT_IN_FRAME_CLASSES,
+} from '@sima/neat-ui';
 
 /** What the empty field shows while there is no value, the kit's text for "no figure". */
 const NO_VALUE = '–';
@@ -51,7 +55,7 @@ function wholeNumber(text: string): number {
  * With `step`, a − button at the box's start and a + button at its end commit the number one step
  * down or up at once, held to `min` and `max` (3 less a step of 5 is 1 with `min` 1). They step
  * from what was typed when it is whole digits, else from `value`. A button that cannot step (at a
- * bound, or while there is no value) is `aria-disabled` and does nothing. Holding a button steps
+ * bound, or with no number shown) is `aria-disabled` and does nothing. Holding a button steps
  * once. The input is then a spinbutton (WAI-ARIA): ArrowUp and ArrowDown step as the buttons do,
  * and the buttons are for the pointer only (no tab stops), so the field stays one tab stop.
  *
@@ -65,76 +69,74 @@ function wholeNumber(text: string): number {
  */
 @Component({
   selector: 'neat-number-field',
-  imports: [NeatIcon, NeatInput],
+  imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <label [for]="inputId">
-      @if (showLabel()) {
-        {{ label() }}
-      }
-      <span
-        class="box"
-        [class.shadow-xs]="framed()"
-        [attr.data-framed]="framed() ? '' : null"
-        [attr.data-steps]="steps() ? '' : null"
-      >
-        @if (steps()) {
-          <button
-            type="button"
-            class="step"
-            tabindex="-1"
-            [attr.aria-label]="'Decrease ' + label()"
-            [attr.aria-disabled]="canStep(-1) ? null : 'true'"
-            [disabled]="disabled()"
-            (mousedown)="$event.preventDefault()"
-            (click)="stepBy(-1, field)"
-          >
-            <neat-icon name="minus" [size]="16" />
-          </button>
-        }
-        <input
-          #field
-          neatInput
-          size="small"
-          inputmode="numeric"
-          [id]="inputId"
-          [attr.aria-label]="label()"
-          [attr.role]="steps() ? 'spinbutton' : null"
-          [attr.aria-valuenow]="steps() ? value() : null"
-          [attr.aria-valuemin]="steps() ? floor() : null"
-          [attr.aria-valuemax]="steps() ? max() : null"
-          [attr.aria-valuetext]="valueText()"
-          [attr.aria-describedby]="unit() && !steps() ? unitId : null"
-          [attr.aria-invalid]="invalid() ? 'true' : null"
-          [attr.placeholder]="value() === null ? noValue : null"
+    @if (showLabel()) {
+      <label [for]="inputId">{{ label() }}</label>
+    }
+    <span
+      class="box"
+      [class]="framed() ? frameClasses : ''"
+      [attr.data-framed]="framed() ? '' : null"
+      [attr.data-steps]="steps() ? '' : null"
+    >
+      @if (steps()) {
+        <button
+          type="button"
+          class="step"
+          tabindex="-1"
+          [attr.aria-label]="'Decrease ' + label()"
+          [attr.aria-disabled]="canStep(-1) ? null : 'true'"
           [disabled]="disabled()"
-          [value]="value()"
-          (input)="typed(field)"
-          (keydown.enter)="commitFrom(field, true)"
-          (keydown.arrowup)="arrow($event, 1, field)"
-          (keydown.arrowdown)="arrow($event, -1, field)"
-          (blur)="commitFrom(field, false)"
-        />
-        @if (unit()) {
-          <span class="unit" [id]="unitId">{{ unit() }}</span>
-        }
-        @if (steps()) {
-          <button
-            type="button"
-            class="step"
-            tabindex="-1"
-            [attr.aria-label]="'Increase ' + label()"
-            [attr.aria-disabled]="canStep(1) ? null : 'true'"
-            [disabled]="disabled()"
-            (mousedown)="$event.preventDefault()"
-            (click)="stepBy(1, field)"
-          >
-            <neat-icon name="plus" [size]="16" />
-          </button>
-        }
-      </span>
-      <ng-content select="[neatNumberFieldSuffix]" />
-    </label>
+          (mousedown)="$event.preventDefault()"
+          (click)="stepBy(-1, field)"
+        >
+          <neat-icon name="minus" [size]="16" />
+        </button>
+      }
+      <input
+        #field
+        data-slot="input"
+        inputmode="numeric"
+        [id]="inputId"
+        [class]="framed() ? inFrameClasses : fieldClasses"
+        [attr.aria-label]="label()"
+        [attr.role]="steps() ? 'spinbutton' : null"
+        [attr.aria-valuenow]="steps() ? value() : null"
+        [attr.aria-valuemin]="steps() ? floor() : null"
+        [attr.aria-valuemax]="steps() ? max() : null"
+        [attr.aria-valuetext]="valueText()"
+        [attr.aria-describedby]="unit() && !steps() ? unitId : null"
+        [attr.aria-invalid]="invalid() ? 'true' : null"
+        [attr.placeholder]="value() === null ? noValue : null"
+        [disabled]="disabled()"
+        [value]="value()"
+        (input)="draft.set(field.value)"
+        (keydown.enter)="commitFrom(field, true)"
+        (keydown.arrowup)="arrow($event, 1, field)"
+        (keydown.arrowdown)="arrow($event, -1, field)"
+        (blur)="commitFrom(field, false)"
+      />
+      @if (unit()) {
+        <span class="unit" [id]="unitId">{{ unit() }}</span>
+      }
+      @if (steps()) {
+        <button
+          type="button"
+          class="step"
+          tabindex="-1"
+          [attr.aria-label]="'Increase ' + label()"
+          [attr.aria-disabled]="canStep(1) ? null : 'true'"
+          [disabled]="disabled()"
+          (mousedown)="$event.preventDefault()"
+          (click)="stepBy(1, field)"
+        >
+          <neat-icon name="plus" [size]="16" />
+        </button>
+      }
+    </span>
+    <ng-content select="[neatNumberFieldSuffix]" />
   `,
   styleUrl: './number-field.css',
 })
@@ -167,6 +169,10 @@ export class NeatNumberField {
   readonly commit = output<number>();
 
   protected readonly noValue = NO_VALUE;
+  /** The kit's small text field, or, in a frame, the input inside it and the frame's look. */
+  protected readonly fieldClasses: string = INPUT_CLASSES.small;
+  protected readonly inFrameClasses: string = INPUT_IN_FRAME_CLASSES;
+  protected readonly frameClasses: string = INPUT_FRAME_CLASSES;
   protected readonly inputId = `neat-number-field-${++nextFieldId}`;
   protected readonly unitId = `${this.inputId}-unit`;
 
@@ -180,11 +186,18 @@ export class NeatNumberField {
     const value = this.value();
     return this.steps() && value !== null && this.unit() ? `${value} ${this.unit()}` : null;
   });
+  /** What the user typed since the field last showed `value` or committed; null if nothing. */
+  protected readonly draft = signal<string | null>(null);
   /** Whether what is typed is a number the field will not take; an emptied field is not. */
-  protected readonly invalid = signal(false);
-
-  /** Whether the user typed since the field last showed `value` or committed. */
-  protected edited = false;
+  protected readonly invalid = computed(() => {
+    const draft = this.draft();
+    return draft !== null && draft.trim() !== '' && !this.takes(wholeNumber(draft));
+  });
+  /** The number the steps start from: what was typed when it is whole digits, else `value`. */
+  private readonly shown = computed(() => {
+    const typed = wholeNumber(this.draft() ?? '');
+    return Number.isSafeInteger(typed) ? typed : this.value();
+  });
 
   private readonly field = viewChild.required<ElementRef<HTMLInputElement>>('field');
 
@@ -192,8 +205,7 @@ export class NeatNumberField {
     // A new value replaces what was typed, which the binding writes into the field.
     effect(() => {
       this.value();
-      this.edited = false;
-      this.invalid.set(false);
+      this.draft.set(null);
     });
   }
 
@@ -208,26 +220,24 @@ export class NeatNumberField {
     field.select();
   }
 
-  protected typed(field: HTMLInputElement): void {
-    this.edited = true;
-    this.invalid.set(field.value.trim() !== '' && !this.takes(wholeNumber(field.value)));
-  }
-
   /**
    * Reads the field on Enter (`force`) or on leaving it: commits a number it takes, else shows
    * `value` again. Leaving an untouched field does nothing.
    */
   protected commitFrom(field: HTMLInputElement, force: boolean): void {
-    if (!force && !this.edited) return;
+    if (!force && this.draft() === null) return;
     const number = wholeNumber(field.value);
     if (this.takes(number)) this.commitNumber(field, number);
     else this.showValue(field);
   }
 
-  /** Whether the button or arrow key for `direction` steps: not disabled, a value, no bound. */
+  /**
+   * Whether the button or arrow key for `direction` steps: the field is on, it shows a number (typed
+   * or `value`), and that number is not at the bound.
+   */
   protected canStep(direction: 1 | -1): boolean {
-    const value = this.value();
-    return !this.disabled() && value !== null && this.stepped(value, direction) !== value;
+    const from = this.shown();
+    return !this.disabled() && from !== null && this.stepped(from, direction) !== from;
   }
 
   protected arrow(event: Event, direction: 1 | -1, field: HTMLInputElement): void {
@@ -239,10 +249,8 @@ export class NeatNumberField {
   /** Commits the number a step from what was typed, if whole digits, else from `value`. */
   protected stepBy(direction: 1 | -1, field: HTMLInputElement): void {
     if (!this.canStep(direction)) return;
-    const typed = wholeNumber(field.value);
-    const from = Number.isSafeInteger(typed) ? typed : (this.value() as number);
-    const next = this.stepped(from, direction);
-    if (next !== from && this.takes(next)) this.commitNumber(field, next);
+    const next = this.stepped(this.shown() as number, direction);
+    if (this.takes(next)) this.commitNumber(field, next);
   }
 
   /** `from` a step in `direction`, held to the field's bounds. */
@@ -263,15 +271,13 @@ export class NeatNumberField {
   }
 
   private commitNumber(field: HTMLInputElement, number: number): void {
-    this.edited = false;
-    this.invalid.set(false);
+    this.draft.set(null);
     field.value = String(number);
     this.commit.emit(number);
   }
 
   private showValue(field: HTMLInputElement): void {
-    this.edited = false;
-    this.invalid.set(false);
+    this.draft.set(null);
     const value = this.value();
     field.value = value === null ? '' : String(value);
   }

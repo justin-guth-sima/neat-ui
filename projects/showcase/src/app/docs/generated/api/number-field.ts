@@ -192,7 +192,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". A button that cannot step (at a bound, or while there is no value) is "
+              "text": ". A button that cannot step (at a bound, or with no number shown) is "
             },
             {
               "kind": "code",

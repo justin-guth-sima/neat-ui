@@ -1,13 +1,10 @@
+/* The label, the field and the suffix side by side. */
 :host {
   display: flex;
   flex: none;
-  font-size: var(--neat-text-sm);
-}
-
-label {
-  display: flex;
   align-items: center;
   gap: var(--neat-space-2);
+  font-size: var(--neat-text-sm);
   white-space: nowrap;
 }
 
@@ -17,71 +14,17 @@ label {
   width: 3rem;
 }
 
-/* A field typed with a number it will not take; the field draws its own box without a unit or
-   steps. */
-.box:not([data-framed]) input[aria-invalid='true'] {
-  border-color: var(--destructive);
-}
-
 /*
- * With steps or a unit, the box draws the kit's small field (`neatInput`'s look: its border, its
- * radius, which is helm's `rounded-md`, its transparent fill, and its `shadow-xs` in the template)
- * around the input and the parts beside it, and takes the input's focus look while anything inside
- * has the focus. Its height is the small field's, 2rem.
+ * With steps or a unit the box is the field (the kit's frame classes draw its look), as wide as
+ * what it holds. The input sits after the frame's inset, the unit before its end.
  */
 .box[data-framed] {
-  align-items: center;
   width: auto;
-  height: 2rem;
-  border: 1px solid var(--input);
-  border-radius: calc(var(--radius) * 0.8);
-  background: transparent;
-  transition: box-shadow var(--neat-transition-duration);
 }
 
-.box[data-framed]:focus-within {
-  border-color: var(--ring);
-  box-shadow: 0 0 0 3px var(--ring);
-}
-
-.box[data-framed]:has(input[aria-invalid='true']) {
-  border-color: var(--destructive);
-}
-
-/* The field's disabled look, on the whole box. */
-.box[data-framed]:has(input:disabled) {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/*
- * The input inside a framed box draws none of its own box: over its border, ring, padding and
- * disabled opacity, utilities of the kit stylesheet's lower cascade layer.
- */
 .box[data-framed] input {
   width: 2.5rem;
-  min-width: 0;
-  height: 100%;
-  padding-inline: var(--neat-space-2) 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  opacity: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Between − and +, the number stands in the middle of its part of the box; room for three
-   digits. */
-.box[data-steps] input {
-  width: 2.25rem;
-  padding-inline: 0.25rem;
-  text-align: center;
-}
-
-/* A unit reads with its number: the number ends where the unit begins. */
-.box[data-steps]:has(.unit) input {
-  text-align: end;
+  padding-inline-start: var(--neat-space-2);
 }
 
 .unit {
@@ -89,8 +32,32 @@ label {
   color: var(--muted-foreground);
 }
 
+/*
+ * Between − and +, the number and its unit stand together in the middle of the box: the steps'
+ * auto margins share the room left, and the input is as wide as its number. Room for "120 fps"
+ * keeps the box from changing width as the number does. A browser without `field-sizing` gives
+ * the input room for three digits, its number centered in it.
+ */
+.box[data-steps] {
+  min-width: 7.5rem;
+}
+
+.box[data-steps] input {
+  width: 3ch;
+  padding-inline: 0;
+  text-align: center;
+}
+
+@supports (field-sizing: content) {
+  .box[data-steps] input {
+    field-sizing: content;
+    width: auto;
+    min-width: 1ch;
+  }
+}
+
 .box[data-steps] .unit {
-  padding-inline-end: 0.25rem;
+  padding-inline: 0.25rem 0;
 }
 
 /* A target of 24px (WCAG 2.5.8) inside the box's edge, quiet until hovered as the search field's
@@ -111,6 +78,14 @@ label {
   cursor: pointer;
 }
 
+.step:first-child {
+  margin-inline-end: auto;
+}
+
+.step:last-child {
+  margin-inline-start: auto;
+}
+
 .step:hover:not(:disabled, [aria-disabled='true']) {
   background: var(--accent);
   color: var(--accent-foreground);
@@ -123,5 +98,5 @@ label {
 }
 
 .step:disabled {
-  cursor: not-allowed;
+  cursor: inherit;
 }

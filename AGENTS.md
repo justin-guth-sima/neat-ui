@@ -98,9 +98,10 @@ look happens in one place. Every rule here protects that.
     it), `confirm`, `input`, `number-field` (`NeatNumberField`, one whole number committed on
     Enter or on leaving the field; with `step`, the input is a spinbutton with − and + inside its
     box, the kit's `minus` and `plus` icons, pointer-only buttons that commit at once, held to
-    `min` and `max` and `aria-disabled` at a bound or while `value` is null, shown as "–"; `unit`
-    is text inside the box after the number, `neatNumberFieldSuffix` content follows the box, and
-    `showLabel` false leaves the label the input's name only), `line-list`, `select`
+    `min` and `max` and `aria-disabled` at a bound or with no number shown (typed, else `value`;
+    null is shown as "–"); `unit` is text inside the box after the number, `neatNumberFieldSuffix`
+    content follows the box, and `showLabel` false leaves the label the input's name only; the
+    label holds only its text, so the steps are not inside it), `line-list`, `select`
     (`NeatSelect`, a labeled listbox combobox, its label shown above it with `showLabel` or, with
     `labelPosition="inline"`, before it on its row), `progress` (`NeatProgress`, a bar or, with a
     `heading`, a titled readout, which the progress toast renders through), `drop-zone`
@@ -793,7 +794,10 @@ yet the secondary entries need them, and an entry sees the primary only through 
 the primary exports `ɵhlm`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
 `ɵFIELD_LABEL_CLASSES` (the field label's look, which `select` and `field` share so that their
 fields line up), `ɵINPUT_CLASSES` and `ɵINPUT_HELM_CLASSES` (the text field's look, which `input`
-shares with the primary's `NeatSearch`), `ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
+shares with the primary's `NeatSearch`), `ɵINPUT_FRAME_CLASSES` and `ɵINPUT_IN_FRAME_CLASSES`
+(that look on a frame around an input and the parts beside it, focused while anything inside has
+the focus, and the input inside it, which `number-field` draws around its steps and unit; held to
+`ɵINPUT_CLASSES` by `input-classes.spec`), `ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
 look, which `collapsible` shares with the page nav on a narrow screen), `ɵSTALE_CLASSES` (the stale
 look, which `diagram` gives a node's card), `ɵOverlayFocus` and `ɵPANEL_SURFACE_CLASSES` and
 `ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel in the overlay, which

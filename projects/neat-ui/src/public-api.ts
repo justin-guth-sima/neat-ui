@@ -78,7 +78,8 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
  * ng-packagr gives each entry the built primary and nothing else, so the vendored helm code in
  * `lib/ui/` (never exported otherwise), the shell's toolbar token, the field label's classes
  * (which `select` and `field` share), the text field's and the collapsible section's looks
- * (which `input` and `collapsible` share with the page nav), the stale look (which
+ * (which `input` and `collapsible` share with the page nav), the text field's frame and the input
+ * inside it (which `number-field` draws around its steps), the stale look (which
  * `diagram` gives a node's card), the focus rules and surface
  * of a panel in the overlay (the popover's, shared with the shell's collapsed-rail menu, and the
  * helm classes its drift spec reads), the series' token rule (which `charts` and `diagram`
@@ -96,7 +97,9 @@ export { COLLAPSIBLE_CLASSES as ɵCOLLAPSIBLE_CLASSES } from './lib/collapsible/
 export { FIELD_LABEL_CLASSES as ɵFIELD_LABEL_CLASSES } from './lib/form/field-label';
 export {
   INPUT_CLASSES as ɵINPUT_CLASSES,
+  INPUT_FRAME_CLASSES as ɵINPUT_FRAME_CLASSES,
   INPUT_HELM_CLASSES as ɵINPUT_HELM_CLASSES,
+  INPUT_IN_FRAME_CLASSES as ɵINPUT_IN_FRAME_CLASSES,
 } from './lib/form/input-classes';
 export { IN_PAGE_TOOLBAR as ɵIN_PAGE_TOOLBAR } from './lib/shell/page-toolbar';
 export { READOUT_CLASSES as ɵREADOUT_CLASSES } from './lib/readout/readout-classes';
