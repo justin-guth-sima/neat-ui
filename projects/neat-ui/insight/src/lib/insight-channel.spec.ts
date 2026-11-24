@@ -64,9 +64,11 @@ describe('neatInsightChannel', () => {
     expect((await open()).videoBufferSupported).toBe(false);
     vi.stubGlobal(
       'RTCRtpReceiver',
+      // A getter, as the browser's: on the prototype, where the channel looks for it.
       class {
+        private readonly target: number | null = null;
         get jitterBufferTarget(): number | null {
-          return null;
+          return this.target;
         }
       },
     );
