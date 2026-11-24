@@ -1493,15 +1493,16 @@ builds its own bar, row of views or panel duplicates both and breaks in one of t
 belong in the toolbar: it sits at the right end of the top bar, so its left edge moves with the
 number of tools and a switch in it moves too.
 
-- `<div *neatPageToolbar>…</div>` anywhere in a page's template renders that content in the top
-  bar, at its right end just before the end slot and the kiosk button, while the page exists. In
-  kiosk mode it floats beside the exit control and fades with it. The content stays the page's
+- `<div *neatPageToolbar>…</div>` (an `ng-container` where the page has dividers: the tools are the
+  row's items, and a `div` makes one item of them) anywhere in a page's template renders that
+  content in the top bar, at its right end just before the end slot and the kiosk button, while the
+  page exists. In kiosk mode it floats beside the exit control and fades with it. The content stays the page's
   (bindings, injection), but its view is re-created on entering and leaving kiosk mode, so keep its
   state (values, open menus) in the page, never in components inside the toolbar.
-  Groups of tools are set apart by `<hr neatPageToolbarDivider />` between them (`NeatPageToolbarDivider`,
-  primary): decorative (`aria-hidden`), 1px of `--border`, the row's height less `--neat-space-3` at
-  top and bottom, so it reads the same in the top bar, the kiosk bar and a phone's second row. Wrap
-  the tools in an `ng-container`, not a `div`, so they and the line are the toolbar's own flex items.
+  Groups of tools are set apart by `<hr neatPageToolbarDivider />` between them
+  (`NeatPageToolbarDivider`, primary): decorative (`aria-hidden`), 1px of `--border`, the row's
+  height less `--neat-space-3` at top and bottom, so it reads the same in the top bar, the kiosk bar
+  and a phone's second row.
   The region gives up width first and scrolls sideways rather than push the end slot out, so keep
   a toolbar narrow enough to fit at the screen sizes the app supports. One toolbar at a time; a
   second throws in dev mode. On a narrow screen (below 48rem) the shell wraps its top bar into two

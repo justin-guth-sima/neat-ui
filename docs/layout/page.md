@@ -490,7 +490,7 @@ The page's toolbar, rendered in the shell's top bar while the page exists.
 
 It sits at the top bar's right end, just before the end slot and the kiosk button. In kiosk mode, where the top bar is hidden, it renders in a floating bar beside the exit control, which shows while the pointer moves.
 
-The content stays the page's: its bindings and injection context are those of the page's template.
+The content stays the page's: its bindings and injection context are those of the page's template. The tools are the row's items, so a page with dividers places them with `ng-container *neatPageToolbar` (a `div` makes one item of them, fine without dividers).
 
 One page toolbar at a time: a second one throws in dev mode.
 
@@ -508,7 +508,7 @@ A short vertical line between groups of tools in the page toolbar.
 </ng-container>
 ```
 
-Put it between the tools themselves, so wrap them in an `ng-container` (a `div` would be one flex item, and the line would stand in it). The line is 1px of `--border`. It takes the height of the row it stands in, less `--neat-space-3` at top and bottom, so it looks the same in the top bar, in kiosk mode's floating bar and in a phone's second row. The toolbar's gap spaces it, so it has no margin along the row.
+Put it between the tools, placed with `ng-container *neatPageToolbar`. The line is 1px of `--border`. It takes the height of the row it stands in, less `--neat-space-3` at top and bottom, so it looks the same in the top bar, in kiosk mode's floating bar and in a phone's second row. The toolbar's gap spaces it, so it has no margin along the row.
 
 It is decorative (`aria-hidden`). The page tools are a group, not an ARIA toolbar, and the tools' names say what they are, so a separator announced between them would only be noise.
 

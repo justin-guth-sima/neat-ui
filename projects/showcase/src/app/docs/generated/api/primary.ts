@@ -3658,7 +3658,23 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The content stays the page's: its bindings and injection context are those of the page's template."
+              "text": "The content stays the page's: its bindings and injection context are those of the page's template. The tools are the row's items, so a page with dividers places them with "
+            },
+            {
+              "kind": "code",
+              "text": "ng-container *neatPageToolbar"
+            },
+            {
+              "kind": "text",
+              "text": " (a "
+            },
+            {
+              "kind": "code",
+              "text": "div"
+            },
+            {
+              "kind": "text",
+              "text": " makes one item of them, fine without dividers)."
             }
           ]
         },
@@ -3698,23 +3714,15 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Put it between the tools themselves, so wrap them in an "
+              "text": "Put it between the tools, placed with "
             },
             {
               "kind": "code",
-              "text": "ng-container"
+              "text": "ng-container *neatPageToolbar"
             },
             {
               "kind": "text",
-              "text": " (a "
-            },
-            {
-              "kind": "code",
-              "text": "div"
-            },
-            {
-              "kind": "text",
-              "text": " would be one flex item, and the line would stand in it). The line is 1px of "
+              "text": ". The line is 1px of "
             },
             {
               "kind": "code",

@@ -33,8 +33,7 @@ const PAGE_NAV: readonly NeatPageNavGroup[] = [
  * the body scrolls.
  *
  * Its tools are in the top bar (`*neatPageToolbar`), a line between its two groups of them
- * (`neatPageToolbarDivider`). In kiosk mode they float beside the exit
- * control.
+ * (`neatPageToolbarDivider`). In kiosk mode they float beside the exit control.
  *
  * Its page nav (`nav[neatPageNav]`) links its views. It is a column of its own beside the body,
  * which stays put while the body scrolls. A filter sits over its links at the top: a long list

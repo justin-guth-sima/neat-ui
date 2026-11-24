@@ -45,7 +45,8 @@ export class PageToolbarSlot extends ShellSlot {
  * while the pointer moves.
  *
  * The content stays the page's: its bindings and injection context are those of the page's
- * template.
+ * template. The tools are the row's items, so a page with dividers places them with
+ * `ng-container *neatPageToolbar` (a `div` makes one item of them, fine without dividers).
  *
  * One page toolbar at a time: a second one throws in dev mode.
  */
@@ -81,8 +82,7 @@ export class NeatPageToolbar {
  * </ng-container>
  * ```
  *
- * Put it between the tools themselves, so wrap them in an `ng-container` (a `div` would be one
- * flex item, and the line would stand in it). The line is 1px of `--border`. It takes the height of
+ * Put it between the tools, placed with `ng-container *neatPageToolbar`. The line is 1px of `--border`. It takes the height of
  * the row it stands in, less `--neat-space-3` at top and bottom, so it looks the same in the top
  * bar, in kiosk mode's floating bar and in a phone's second row. The toolbar's gap spaces it, so it
  * has no margin along the row.
