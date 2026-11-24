@@ -4,10 +4,11 @@ import { NeatCopyButton } from './copy-button';
 describe('NeatCopyButton', () => {
   let writeText: ReturnType<typeof vi.fn>;
 
-  async function render() {
+  async function render(inline = false) {
     const fixture = TestBed.createComponent(NeatCopyButton);
     fixture.componentRef.setInput('text', "import { NeatX } from '@sima/neat-ui';");
     fixture.componentRef.setInput('what', 'import line');
+    fixture.componentRef.setInput('inline', inline);
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;
     return {
@@ -72,5 +73,19 @@ describe('NeatCopyButton', () => {
     await fixture.whenStable();
 
     expect(button.textContent?.trim()).toBe('Could not copy');
+  });
+
+  it('sits in a line of text with a smaller icon, inline, and copies the same', async () => {
+    const { fixture, button } = await render(true);
+
+    expect(button.hasAttribute('neatinlinebutton')).toBe(true);
+    expect(button.querySelector('neat-icon')?.getAttribute('data-icon')).toBe('copy');
+    expect(button.getAttribute('aria-label')).toBe('Copy import line');
+
+    button.click();
+    await fixture.whenStable();
+
+    expect(writeText).toHaveBeenCalledWith("import { NeatX } from '@sima/neat-ui';");
+    expect(button.textContent?.trim()).toBe('Copied');
   });
 });

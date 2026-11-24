@@ -1084,6 +1084,8 @@ A small Copy button that puts `text` on the clipboard and says whether it did.
 
 After a click the button says "Copied", with a check, or "Could not copy". It says the same in a polite live region, and offers to copy again after 2.5 s.
 
+With `inline` it is a `neatInlineButton` with a smaller icon, set into a line of text: after a URL in a details list, where a small button's 2rem would set the line's height.
+
 Its accessible name is "Copy" and `what`: "Copy stream URL", so a page with several buttons does not read as a list of "Copy". The name starts with the visible caption, so a voice user can say what they see.
 
 It needs a secure context. A browser gives the clipboard to pages served over https and from localhost only, so on a page served over plain http the button says it could not copy. It has no fallback.
@@ -1097,6 +1099,10 @@ It needs a secure context. A browser gives the clipboard to pages served over ht
 - **`what`** `string`, required
 
   What the text is, for the button's name: `install command` names it "Copy install command".
+
+- **`inline`** `boolean`, default `false`, transform `booleanAttribute`
+
+  Set into a line of text, as a `neatInlineButton`, instead of a small text button.
 
 ### `provideNeatCodeLanguages`
 

@@ -1231,6 +1231,31 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
+              "text": "With "
+            },
+            {
+              "kind": "code",
+              "text": "inline"
+            },
+            {
+              "kind": "text",
+              "text": " it is a "
+            },
+            {
+              "kind": "code",
+              "text": "neatInlineButton"
+            },
+            {
+              "kind": "text",
+              "text": " with a smaller icon, set into a line of text: after a URL in a details list, where a small button's 2rem would set the line's height."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
               "text": "Its accessible name is \"Copy\" and "
             },
             {
@@ -1289,6 +1314,31 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": " names it \"Copy install command\"."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "inline",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Set into a line of text, as a "
+                },
+                {
+                  "kind": "code",
+                  "text": "neatInlineButton"
+                },
+                {
+                  "kind": "text",
+                  "text": ", instead of a small text button."
                 }
               ]
             }

@@ -10,13 +10,15 @@ import { hlm } from '../ui/utils/src';
  * - the line's font size and color, so the action reads like the text around it, at the contrast
  *   the theme guarantees for that text; helm's `text-primary` would stand out of a muted line and
  *   drops to about 4.1:1 on `--accent` in light;
- * - the kit's full-strength focus ring, for the reason `NeatButton` gives.
+ * - the kit's full-strength focus ring, for the reason `NeatButton` gives;
+ * - its text on the line's baseline: helm centers its items, so a leading icon, which has no
+ *   baseline, would set the button's and push the text below the words around it.
  *
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading them.
  */
 const CLASSES = hlm(
   buttonVariants({ variant: 'link' }),
-  'h-auto border-0 p-0 has-data-[icon=inline-end]:pr-0 has-data-[icon=inline-start]:pl-0 text-[length:inherit] text-inherit focus-visible:ring-ring',
+  'h-auto border-0 p-0 has-data-[icon=inline-end]:pr-0 has-data-[icon=inline-start]:pl-0 text-[length:inherit] text-inherit focus-visible:ring-ring items-baseline [&_neat-icon]:self-center',
 );
 
 /**

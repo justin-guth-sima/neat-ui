@@ -63,6 +63,15 @@ describe('NeatInlineButton', () => {
     }
   });
 
+  it('sits on the baseline of its line, an icon centered beside its text', async () => {
+    const { button } = await render();
+
+    expect([...button.classList]).toEqual(
+      expect.arrayContaining(['items-baseline', '[&_neat-icon]:self-center']),
+    );
+    expect(button.classList).not.toContain('items-center');
+  });
+
   it('takes the font size and color of its line instead of helm’s', async () => {
     const { button } = await render();
 

@@ -1,4 +1,5 @@
 import {
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -7,7 +8,7 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { NeatButton, NeatIcon } from '@sima/neat-ui';
+import { NeatButton, NeatIcon, NeatInlineButton } from '@sima/neat-ui';
 
 /** How long the button says what happened before it offers to copy again. */
 const SETTLE_MS = 2500;
@@ -40,6 +41,9 @@ const ANNOUNCEMENT: Record<CopyState, string> = {
  * After a click the button says "Copied", with a check, or "Could not copy". It says the same in a
  * polite live region, and offers to copy again after 2.5 s.
  *
+ * With `inline` it is a `neatInlineButton` with a smaller icon, set into a line of text: after a
+ * URL in a details list, where a small button's 2rem would set the line's height.
+ *
  * Its accessible name is "Copy" and `what`: "Copy stream URL", so a page with several buttons
  * does not read as a list of "Copy". The name starts with the visible caption, so a voice user can
  * say what they see.
@@ -50,20 +54,27 @@ const ANNOUNCEMENT: Record<CopyState, string> = {
  */
 @Component({
   selector: 'neat-copy-button',
-  imports: [NeatButton, NeatIcon],
+  imports: [NeatButton, NeatIcon, NeatInlineButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <button
-      neatButton
-      type="button"
-      variant="text"
-      size="small"
-      [attr.aria-label]="name()"
-      (click)="copy()"
-    >
-      <neat-icon [name]="icon()" [size]="16" />
-      {{ caption() }}
-    </button>
+    @if (inline()) {
+      <button neatInlineButton type="button" [attr.aria-label]="name()" (click)="copy()">
+        <neat-icon [name]="icon()" [size]="14" />
+        {{ caption() }}
+      </button>
+    } @else {
+      <button
+        neatButton
+        type="button"
+        variant="text"
+        size="small"
+        [attr.aria-label]="name()"
+        (click)="copy()"
+      >
+        <neat-icon [name]="icon()" [size]="16" />
+        {{ caption() }}
+      </button>
+    }
     <span class="sr-only" role="status">{{ announcement() }}</span>
   `,
   styleUrl: './copy-button.css',
@@ -73,6 +84,8 @@ export class NeatCopyButton {
   readonly text = input.required<string>();
   /** What the text is, for the button's name: `install command` names it "Copy install command". */
   readonly what = input.required<string>();
+  /** Set into a line of text, as a `neatInlineButton`, instead of a small text button. */
+  readonly inline = input(false, { transform: booleanAttribute });
 
   private readonly state = signal<CopyState>('idle');
   protected readonly caption = computed(() => CAPTION[this.state()]);
