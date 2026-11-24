@@ -3747,6 +3747,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "text": "Focuses the input with its number selected, so what the user types replaces it."
   },
   {
+    "kind": "member",
+    "name": "reset",
+    "part": "NeatNumberField",
+    "text": "Shows value again and drops what was typed, with its invalid mark."
+  },
+  {
     "kind": "part",
     "name": "NeatPopover",
     "partKind": "component",

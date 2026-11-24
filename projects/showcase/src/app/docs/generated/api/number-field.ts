@@ -222,7 +222,31 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " changes."
+              "text": " changes. An owner that refuses a committed number, and so keeps "
+            },
+            {
+              "kind": "code",
+              "text": "value"
+            },
+            {
+              "kind": "text",
+              "text": " as it was, calls "
+            },
+            {
+              "kind": "code",
+              "text": "reset()"
+            },
+            {
+              "kind": "text",
+              "text": " to show "
+            },
+            {
+              "kind": "code",
+              "text": "value"
+            },
+            {
+              "kind": "text",
+              "text": " again."
             }
           ]
         }
@@ -444,6 +468,54 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "Call it from a shortcut that jumps to the field, such as \"g\" for the page."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "reset",
+          "signature": "reset(): void",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Shows "
+                },
+                {
+                  "kind": "code",
+                  "text": "value"
+                },
+                {
+                  "kind": "text",
+                  "text": " again and drops what was typed, with its invalid mark."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "For an owner that refused a number the field committed (a server that will not take 500 fps): its "
+                },
+                {
+                  "kind": "code",
+                  "text": "value"
+                },
+                {
+                  "kind": "text",
+                  "text": " stays as it was, so the field would keep showing the refused number until "
+                },
+                {
+                  "kind": "code",
+                  "text": "value"
+                },
+                {
+                  "kind": "text",
+                  "text": " changes."
                 }
               ]
             }

@@ -232,7 +232,7 @@ With `step`, a − button at the box's start and a + button at its end commit th
   [min]="1" unit="fps" (commit)="setRate($event)" />
 ```
 
-The owner is expected to take what it accepted: after a commit, the field shows that number until `value` changes.
+The owner is expected to take what it accepted: after a commit, the field shows that number until `value` changes. An owner that refuses a committed number, and so keeps `value` as it was, calls `reset()` to show `value` again.
 
 **Inputs**
 
@@ -289,3 +289,13 @@ The owner is expected to take what it accepted: after a commit, the field shows 
   Focuses the input with its number selected, so what the user types replaces it.
 
   Call it from a shortcut that jumps to the field, such as "g" for the page.
+
+- **`reset`**
+
+  ```ts
+  reset(): void
+  ```
+
+  Shows `value` again and drops what was typed, with its invalid mark.
+
+  For an owner that refused a number the field committed (a server that will not take 500 fps): its `value` stays as it was, so the field would keep showing the refused number until `value` changes.

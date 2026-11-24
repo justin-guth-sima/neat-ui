@@ -271,6 +271,44 @@ describe('NeatNumberField', () => {
     expect((input.parentElement as HTMLElement).hasAttribute('data-framed')).toBe(false);
   });
 
+  it('NeatNumberField.reset() shows value again after the owner refused a commit', async () => {
+    const { fixture, input, host } = await renderSteps((h) => h.value.set(30));
+    const field = fixture.debugElement.query(By.directive(NeatNumberField))
+      .componentInstance as NeatNumberField;
+
+    // The owner refuses 500 and keeps 30: value does not change, so the field shows 500.
+    type(input, '500');
+    enter(input);
+    await fixture.whenStable();
+    expect(host.commits).toEqual([500]);
+    expect(input.value).toBe('500');
+
+    field.reset();
+    await fixture.whenStable();
+
+    expect(input.value).toBe('30');
+    expect(input.getAttribute('aria-invalid')).toBeNull();
+  });
+
+  it('NeatNumberField.reset() drops a draft and its aria-invalid', async () => {
+    const { fixture, input, host } = await renderSteps((h) => h.value.set(30));
+    const field = fixture.debugElement.query(By.directive(NeatNumberField))
+      .componentInstance as NeatNumberField;
+
+    type(input, '0');
+    await fixture.whenStable();
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+
+    field.reset();
+    await fixture.whenStable();
+    blur(input);
+
+    expect(input.value).toBe('30');
+    expect(input.getAttribute('aria-invalid')).toBeNull();
+    // Nothing typed any more, so leaving the field commits nothing.
+    expect(host.commits).toEqual([]);
+  });
+
   describe('with steps', () => {
     it('puts − first and + last in the box, pointer-only and named after the label', async () => {
       const { box, input, decrease, increase } = await renderSteps();

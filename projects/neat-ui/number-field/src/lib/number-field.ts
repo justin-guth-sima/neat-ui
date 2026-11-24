@@ -65,7 +65,8 @@ function wholeNumber(text: string): number {
  * ```
  *
  * The owner is expected to take what it accepted: after a commit, the field shows that number until
- * `value` changes.
+ * `value` changes. An owner that refuses a committed number, and so keeps `value` as it was, calls
+ * `reset()` to show `value` again.
  */
 @Component({
   selector: 'neat-number-field',
@@ -218,6 +219,17 @@ export class NeatNumberField {
     const field = this.field().nativeElement;
     field.focus();
     field.select();
+  }
+
+  /**
+   * Shows `value` again and drops what was typed, with its invalid mark.
+   *
+   * For an owner that refused a number the field committed (a server that will not take 500 fps):
+   * its `value` stays as it was, so the field would keep showing the refused number until `value`
+   * changes.
+   */
+  reset(): void {
+    this.showValue(this.field().nativeElement);
   }
 
   /**
