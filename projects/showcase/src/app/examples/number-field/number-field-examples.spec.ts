@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { PageWithALimit } from './1-page-with-a-limit.example';
 import { AnyWholeNumber } from './2-any-whole-number.example';
+import { StepsAndAUnit } from './3-steps-and-a-unit.example';
 
 async function render<T>(component: new () => T) {
   const fixture = TestBed.createComponent(component);
@@ -61,5 +62,18 @@ describe('the number field examples', () => {
     expect(status()).toBe('Channel 2');
     await commit('4096');
     expect(status()).toBe('Channel 4096');
+  });
+
+  it('step a frame rate with + and show what was committed', async () => {
+    const { fixture, host, input, status } = await render(StepsAndAUnit);
+
+    expect(input.getAttribute('role')).toBe('spinbutton');
+    expect(status()).toBe('Committed 16 fps');
+
+    host.querySelector<HTMLButtonElement>('button[aria-label="Increase Frame rate"]')!.click();
+    await fixture.whenStable();
+
+    expect(status()).toBe('Committed 21 fps');
+    expect(input.getAttribute('aria-valuetext')).toBe('21 fps');
   });
 });

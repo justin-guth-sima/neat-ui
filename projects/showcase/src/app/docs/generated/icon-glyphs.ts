@@ -37,6 +37,8 @@ export const ICON_GLYPHS: Readonly<Record<NeatIconName, string>> = {
   copy: 'copy',
   expand: 'chevron-down',
   collapse: 'chevron-up',
+  minus: 'minus',
+  plus: 'plus',
   'aspect-wide': 'rectangle-horizontal',
   'aspect-square': 'square',
   search: 'search',

@@ -95,7 +95,12 @@ look happens in one place. Every rule here protects that.
     panel surface, shown while it has one; it prefers its `side` and takes another where that has
     no room, follows its anchor as boxes scroll and hides while the anchor is out of view; it is
     drawn in the CDK overlay and its `id` is for an `aria-describedby`; the code block's notes use
-    it), `confirm`, `input`, `number-field`, `line-list`, `select`
+    it), `confirm`, `input`, `number-field` (`NeatNumberField`, one whole number committed on
+    Enter or on leaving the field; with `step`, the input is a spinbutton with − and + inside its
+    box, the kit's `minus` and `plus` icons, pointer-only buttons that commit at once, held to
+    `min` and `max` and `aria-disabled` at a bound or while `value` is null, shown as "–"; `unit`
+    is text inside the box after the number, `neatNumberFieldSuffix` content follows the box, and
+    `showLabel` false leaves the label the input's name only), `line-list`, `select`
     (`NeatSelect`, a labeled listbox combobox, its label shown above it with `showLabel` or, with
     `labelPosition="inline"`, before it on its row), `progress` (`NeatProgress`, a bar or, with a
     `heading`, a titled readout, which the progress toast renders through), `drop-zone`

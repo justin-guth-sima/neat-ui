@@ -3678,31 +3678,67 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatNumberField",
     "partKind": "component",
-    "text": "A small field for one whole number, for jumping to a number such as a page or a channel."
+    "text": "A small field for one whole number, for jumping to a number such as a page or a channel, or for a setting stepped up and down such as a…"
   },
   {
     "kind": "member",
     "name": "label",
     "part": "NeatNumberField",
-    "text": "Shown before the input, and its accessible name."
+    "text": "Shown before the input unless showLabel is false, and its accessible name either way."
   },
   {
     "kind": "member",
     "name": "value",
     "part": "NeatNumberField",
-    "text": "The number the field shows."
+    "text": "The number the field shows; null while there is none, shown as an empty field with \"–\"."
   },
   {
     "kind": "member",
     "name": "accept",
     "part": "NeatNumberField",
-    "text": "Whether the owner takes a whole number; the default takes any."
+    "text": "Whether the owner takes a whole number within min and max; the default takes any."
+  },
+  {
+    "kind": "member",
+    "name": "step",
+    "part": "NeatNumberField",
+    "text": "How far the − and + buttons and the arrow keys move the number, a positive whole number; null (the default) for a field without steps."
+  },
+  {
+    "kind": "member",
+    "name": "min",
+    "part": "NeatNumberField",
+    "text": "The least number the field takes, typed or stepped; null (the default) for 0, the least whole number."
+  },
+  {
+    "kind": "member",
+    "name": "max",
+    "part": "NeatNumberField",
+    "text": "The greatest number the field takes, typed or stepped; null (the default) for no limit."
+  },
+  {
+    "kind": "member",
+    "name": "unit",
+    "part": "NeatNumberField",
+    "text": "What the number counts (\"fps\"), shown inside the box after it; none by default."
+  },
+  {
+    "kind": "member",
+    "name": "showLabel",
+    "part": "NeatNumberField",
+    "text": "Whether the label is shown before the field; false where a heading names it already."
+  },
+  {
+    "kind": "member",
+    "name": "disabled",
+    "part": "NeatNumberField",
+    "text": "Turns the field off: the input and both buttons are disabled and nothing commits."
   },
   {
     "kind": "member",
     "name": "commit",
     "part": "NeatNumberField",
-    "text": "A whole number the user committed and accept took."
+    "text": "A whole number the user committed, by typing or by a step, that the field and accept took."
   },
   {
     "kind": "member",
@@ -5957,6 +5993,13 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "number-field",
     "id": "any-whole-number",
     "text": "A field without accept: type 0 or 4096 and it commits, as any whole number does."
+  },
+  {
+    "kind": "example",
+    "name": "Steps and a unit",
+    "topic": "number-field",
+    "id": "steps-and-a-unit",
+    "text": "A frame rate stepped by 5 down to 1, with its unit inside the field and its heading as its only visible name."
   },
   {
     "kind": "example",

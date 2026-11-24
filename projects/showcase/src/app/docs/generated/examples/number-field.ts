@@ -2,6 +2,7 @@
 import type { DocsExample } from '../../model';
 import { PageWithALimit } from '../../../examples/number-field/1-page-with-a-limit.example';
 import { AnyWholeNumber } from '../../../examples/number-field/2-any-whole-number.example';
+import { StepsAndAUnit } from '../../../examples/number-field/3-steps-and-a-unit.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -116,6 +117,57 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "stack.css",
         "code": [
           ["comment","/* The example's rows one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "steps-and-a-unit",
+    "title": "Steps and a unit",
+    "component": StepsAndAUnit,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A frame rate stepped by 5 down to 1, with its unit inside the field and its heading as its only visible name. Press + or −, or ArrowUp and ArrowDown in the field, and the rate commits at once. At 1, − is off. Type 0 and the field is marked invalid until Enter puts the rate back."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/number-field#NeatNumberField"
+    ],
+    "files": [
+      {
+        "name": "3-steps-and-a-unit.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatNumberField } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/number-field'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-steps-and-a-unit'"],["text",",\n  imports: [NeatNumberField],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-steps-and-a-unit.example.html'"],["text",",\n  styleUrls: ["],
+          ["string","'./stack.css'"],["text",", "],["string","'./heading.css'"],["text","],\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," StepsAndAUnit {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," rate = signal(16);\n}\n"]
+        ]
+      },
+      {
+        "name": "3-steps-and-a-unit.example.html",
+        "code": [
+          ["text","<h4>Frame rate</h4>\n<div class=\"showcase-row\">\n  <neat-number-field\n    label=\"Frame rate\"\n    [showLabel]=\"false\"\n    [value]=\"rate()\"\n    [step]=\"5\"\n    [min]=\"1\"\n    unit=\"fps\"\n    (commit)=\"rate.set($event)\"\n  />\n  <p class=\"showcase-code showcase-muted\">Committed {{ rate() }} fps</p>\n</div>\n"]
+        ]
+      },
+      {
+        "name": "stack.css",
+        "code": [
+          ["comment","/* The example's rows one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
+        ]
+      },
+      {
+        "name": "heading.css",
+        "code": [
+          ["comment","/* The heading that names the field, whose own label is hidden. */"],["text","\nh4 {\n  margin: 0;\n  font-weight: 500;\n}\n"]
         ]
       }
     ]

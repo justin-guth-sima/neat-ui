@@ -65,6 +65,7 @@ wins over a name of our own.
 | select            | a labeled list that opens to pick one value                                                  | `neat-select`, `NeatSelect`                | dropdown, combo box                    |
 | select list       | a list of rows in columns that holds the focus; one row selected, or rows checked            | `neat-select-list`                         | table, list view                       |
 | file browser      | a folder tree's breadcrumbs, filter and rows                                                 | `neat-file-browser`                        | file picker                            |
+| number field      | one whole number, committed on Enter or on leaving the field; steps are its − and +          | `neat-number-field`, `NeatNumberField`     | number input, spin box, stepper        |
 | search field      | a field that filters what a page shows, with a clear button and a status line                | `neat-search`, `NeatSearch`                | filter, search bar, search box         |
 | search palette    | a search over the whole app, opened from the top bar or by Ctrl K                            | `neat-search-palette`, `NeatSearchPalette` | command palette, quick open, spotlight |
 | switch            | an on/off control                                                                            | `button[neatSwitch]`                       | toggle, checkbox                       |

@@ -15,7 +15,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A small field for one whole number, for jumping to a number such as a page or a channel."
+              "text": "A small field for one whole number, for jumping to a number such as a page or a channel, or for a setting stepped up and down such as a frame rate."
             }
           ]
         },
@@ -29,7 +29,15 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Its label sits before it. Content marked "
+              "text": "Its label sits before it; "
+            },
+            {
+              "kind": "code",
+              "text": "showLabel"
+            },
+            {
+              "kind": "text",
+              "text": " false hides it where a heading already names the field, and it stays the input's accessible name. Content marked "
             },
             {
               "kind": "code",
@@ -37,7 +45,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " follows the input, such as \"of 9\"."
+              "text": " follows the field, such as \"of 9\". A "
+            },
+            {
+              "kind": "code",
+              "text": "unit"
+            },
+            {
+              "kind": "text",
+              "text": " (\"fps\") sits inside the field's box, after the number."
             }
           ]
         },
@@ -54,7 +70,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". Typing changes nothing outside until the user commits, with Enter or by leaving the field. "
+              "text": ", or an empty field with \"–\" while "
+            },
+            {
+              "kind": "code",
+              "text": "value"
+            },
+            {
+              "kind": "text",
+              "text": " is null. Typing changes nothing outside until the user commits, with Enter or by leaving the field. "
             },
             {
               "kind": "code",
@@ -62,7 +86,23 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " then carries the number if it is whole digits that "
+              "text": " then carries the number if it is whole digits within "
+            },
+            {
+              "kind": "code",
+              "text": "min"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "max"
+            },
+            {
+              "kind": "text",
+              "text": " that "
             },
             {
               "kind": "code",
@@ -86,7 +126,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " back in the field and emits nothing."
+              "text": " back in the field and emits nothing; while it is typed, the input is "
+            },
+            {
+              "kind": "code",
+              "text": "aria-invalid"
+            },
+            {
+              "kind": "text",
+              "text": "."
             }
           ]
         },
@@ -98,6 +146,68 @@ export const API: DocsEntry = {
               "text": "Leaving a field that was not typed in emits nothing, so tabbing past it chooses nothing. Enter always commits what is shown."
             }
           ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "With "
+            },
+            {
+              "kind": "code",
+              "text": "step"
+            },
+            {
+              "kind": "text",
+              "text": ", a − button at the box's start and a + button at its end commit the number one step down or up at once, held to "
+            },
+            {
+              "kind": "code",
+              "text": "min"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "max"
+            },
+            {
+              "kind": "text",
+              "text": " (3 less a step of 5 is 1 with "
+            },
+            {
+              "kind": "code",
+              "text": "min"
+            },
+            {
+              "kind": "text",
+              "text": " 1). They step from what was typed when it is whole digits, else from "
+            },
+            {
+              "kind": "code",
+              "text": "value"
+            },
+            {
+              "kind": "text",
+              "text": ". A button that cannot step (at a bound, or while there is no value) is "
+            },
+            {
+              "kind": "code",
+              "text": "aria-disabled"
+            },
+            {
+              "kind": "text",
+              "text": " and does nothing. Holding a button steps once. The input is then a spinbutton (WAI-ARIA): ArrowUp and ArrowDown step as the buttons do, and the buttons are for the pointer only (no tab stops), so the field stays one tab stop."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-number-field label=\"Frames per second\" [showLabel]=\"false\" [value]=\"rate\" [step]=\"5\"\n  [min]=\"1\" unit=\"fps\" (commit)=\"setRate($event)\" />"
         },
         {
           "kind": "paragraph",
@@ -128,7 +238,15 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Shown before the input, and its accessible name."
+                  "text": "Shown before the input unless "
+                },
+                {
+                  "kind": "code",
+                  "text": "showLabel"
+                },
+                {
+                  "kind": "text",
+                  "text": " is false, and its accessible name either way."
                 }
               ]
             }
@@ -136,7 +254,7 @@ export const API: DocsEntry = {
         },
         {
           "name": "value",
-          "type": "number",
+          "type": "number | null",
           "required": true,
           "doc": [
             {
@@ -144,7 +262,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The number the field shows."
+                  "text": "The number the field shows; null while there is none, shown as an empty field with \"–\"."
                 }
               ]
             }
@@ -160,7 +278,121 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Whether the owner takes a whole number; the default takes any."
+                  "text": "Whether the owner takes a whole number within "
+                },
+                {
+                  "kind": "code",
+                  "text": "min"
+                },
+                {
+                  "kind": "text",
+                  "text": " and "
+                },
+                {
+                  "kind": "code",
+                  "text": "max"
+                },
+                {
+                  "kind": "text",
+                  "text": "; the default takes any."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "step",
+          "type": "number | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How far the − and + buttons and the arrow keys move the number, a positive whole number; null (the default) for a field without steps."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "min",
+          "type": "number | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The least number the field takes, typed or stepped; null (the default) for 0, the least whole number."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "max",
+          "type": "number | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The greatest number the field takes, typed or stepped; null (the default) for no limit."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "unit",
+          "type": "string",
+          "default": "''",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What the number counts (\"fps\"), shown inside the box after it; none by default."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "showLabel",
+          "type": "boolean",
+          "default": "true",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the label is shown before the field; false where a heading names it already."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Turns the field off: the input and both buttons are disabled and nothing commits."
                 }
               ]
             }
@@ -177,7 +409,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "A whole number the user committed and "
+                  "text": "A whole number the user committed, by typing or by a step, that the field and "
                 },
                 {
                   "kind": "code",

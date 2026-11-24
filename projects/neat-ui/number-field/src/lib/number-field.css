@@ -16,3 +16,112 @@ label {
   display: flex;
   width: 3rem;
 }
+
+/* A field typed with a number it will not take; the field draws its own box without a unit or
+   steps. */
+.box:not([data-framed]) input[aria-invalid='true'] {
+  border-color: var(--destructive);
+}
+
+/*
+ * With steps or a unit, the box draws the kit's small field (`neatInput`'s look: its border, its
+ * radius, which is helm's `rounded-md`, its transparent fill, and its `shadow-xs` in the template)
+ * around the input and the parts beside it, and takes the input's focus look while anything inside
+ * has the focus. Its height is the small field's, 2rem.
+ */
+.box[data-framed] {
+  align-items: center;
+  width: auto;
+  height: 2rem;
+  border: 1px solid var(--input);
+  border-radius: calc(var(--radius) * 0.8);
+  background: transparent;
+  transition: box-shadow var(--neat-transition-duration);
+}
+
+.box[data-framed]:focus-within {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.box[data-framed]:has(input[aria-invalid='true']) {
+  border-color: var(--destructive);
+}
+
+/* The field's disabled look, on the whole box. */
+.box[data-framed]:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/*
+ * The input inside a framed box draws none of its own box: over its border, ring, padding and
+ * disabled opacity, utilities of the kit stylesheet's lower cascade layer.
+ */
+.box[data-framed] input {
+  width: 2.5rem;
+  min-width: 0;
+  height: 100%;
+  padding-inline: var(--neat-space-2) 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  opacity: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Between − and +, the number stands in the middle of its part of the box; room for three
+   digits. */
+.box[data-steps] input {
+  width: 2.25rem;
+  padding-inline: 0.25rem;
+  text-align: center;
+}
+
+/* A unit reads with its number: the number ends where the unit begins. */
+.box[data-steps]:has(.unit) input {
+  text-align: end;
+}
+
+.unit {
+  padding-inline-end: var(--neat-space-2);
+  color: var(--muted-foreground);
+}
+
+.box[data-steps] .unit {
+  padding-inline-end: 0.25rem;
+}
+
+/* A target of 24px (WCAG 2.5.8) inside the box's edge, quiet until hovered as the search field's
+   clear button. */
+.step {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-inline: 0.1875rem;
+  padding: 0;
+  border: 0;
+  border-radius: calc(var(--radius) - 2px);
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.step:hover:not(:disabled, [aria-disabled='true']) {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+/* A step that cannot move the number; the button keeps its place and says why by its state. */
+.step[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.step:disabled {
+  cursor: not-allowed;
+}

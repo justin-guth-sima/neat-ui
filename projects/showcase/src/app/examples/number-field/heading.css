@@ -1,0 +1,5 @@
+/* The heading that names the field, whose own label is hidden. */
+h4 {
+  margin: 0;
+  font-weight: 500;
+}

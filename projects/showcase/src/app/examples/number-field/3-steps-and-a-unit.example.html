@@ -1,0 +1,13 @@
+<h4>Frame rate</h4>
+<div class="showcase-row">
+  <neat-number-field
+    label="Frame rate"
+    [showLabel]="false"
+    [value]="rate()"
+    [step]="5"
+    [min]="1"
+    unit="fps"
+    (commit)="rate.set($event)"
+  />
+  <p class="showcase-code showcase-muted">Committed {{ rate() }} fps</p>
+</div>
