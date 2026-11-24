@@ -1,0 +1,25 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--neat-space-3);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 24rem));
+  gap: var(--neat-space-4);
+  align-self: stretch;
+}
+
+/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */
+.cell {
+  aspect-ratio: 16 / 9;
+}
+
+/* The picture's top-left corner: the layer covers the tile, and this video fills it. */
+neat-live-badge {
+  position: absolute;
+  inset-block-start: var(--neat-space-2);
+  inset-inline-start: var(--neat-space-2);
+}

@@ -15,12 +15,22 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A still dot, a pulsing one before \"Recording 0:34\", and a pulsing one in a badge on the video scrim."
+            "text": "A still dot, a pulsing one before \"Recording 0:34\", and one in a live badge ("
+          },
+          {
+            "kind": "ref",
+            "text": "NeatLiveBadge",
+            "name": "NeatLiveBadge"
+          },
+          {
+            "kind": "text",
+            "text": ") on the video scrim."
           }
         ]
       }
     ],
     "shows": [
+      "@sima/neat-ui#NeatLiveBadge",
       "@sima/neat-ui#NeatLiveDot"
     ],
     "files": [
@@ -28,23 +38,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "1-badges.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatLiveDot } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-badges'"],["text",",\n  imports: [NeatLiveDot],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
-          ["string","'./1-badges.example.html'"],["text",",\n  styleUrl: "],
-          ["string","'./badges.example.css'"],["text",",\n})\n"],
+          ["keyword","import"],["text"," { NeatLiveBadge, NeatLiveDot } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-badges'"],["text",",\n  imports: [NeatLiveBadge, NeatLiveDot],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./1-badges.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Badges {}\n"]
         ]
       },
       {
         "name": "1-badges.example.html",
         "code": [
-          ["text","<div class=\"showcase-row\">\n  <span class=\"showcase-row\"><neat-live-dot /> Still</span>\n  <span class=\"showcase-row\"><neat-live-dot pulse /> Recording 0:34</span>\n  <span class=\"showcase-row badge\"><neat-live-dot pulse /> Live</span>\n</div>\n"]
-        ]
-      },
-      {
-        "name": "badges.example.css",
-        "code": [
-          ["comment","/* A badge over video, as an app draws one: the live dot on the video scrim. */"],["text","\n.badge {\n  padding: var(--neat-space-2) var(--neat-space-3);\n  border-radius: 999px;\n  background: var(--neat-video-scrim);\n  color: var(--neat-video-scrim-foreground);\n}\n"]
+          ["text","<div class=\"showcase-row\">\n  <span class=\"showcase-row\"><neat-live-dot /> Still</span>\n  <span class=\"showcase-row\"><neat-live-dot pulse /> Recording 0:34</span>\n  <neat-live-badge live onPicture>Live</neat-live-badge>\n</div>\n"]
         ]
       }
     ]

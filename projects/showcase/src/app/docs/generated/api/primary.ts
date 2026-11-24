@@ -2260,6 +2260,85 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/button/inline-button.ts"
     },
     {
+      "name": "NeatLiveBadge",
+      "kind": "component",
+      "selector": "neat-live-badge",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A pill that says what a picture is: \"Live\", with the pulsing live dot, or what shows instead (\"File preview\", \"Not live\"), with a still gray dot of the same size, so the pill keeps its size as the state changes."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-live-badge live onPicture>Live</neat-live-badge>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "code",
+              "text": "onPicture"
+            },
+            {
+              "kind": "text",
+              "text": " puts it on the video scrim, which reads over any frame; without it the pill is muted, for an empty frame. The app says which, since only it knows whether a picture shows yet. The app places it too, usually in the picture's top-left corner (the video tile's "
+            },
+            {
+              "kind": "code",
+              "text": "neatTileOverlay"
+            },
+            {
+              "kind": "text",
+              "text": " layer). The text is the badge's meaning; the dots are hidden from assistive technology."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "live",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The picture is live: the pulsing live dot leads the text, instead of a still gray one."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "onPicture",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "It sits on a picture: on the video scrim, instead of the muted pill of an empty frame."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/live-badge/live-badge.ts"
+    },
+    {
       "name": "NeatLiveDot",
       "kind": "component",
       "selector": "neat-live-dot",
@@ -2317,7 +2396,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", a red that reads at 3:1 on the page and on the video scrim, over black to mid-gray video. So a badge over video can use it."
+              "text": ", a red that reads at 3:1 on the page and on the video scrim, over black to mid-gray video, so a badge over video can use it: "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatLiveBadge",
+              "name": "NeatLiveBadge"
+            },
+            {
+              "kind": "text",
+              "text": " does."
             }
           ]
         }

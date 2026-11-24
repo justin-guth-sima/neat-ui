@@ -53,6 +53,7 @@ export { NeatButton } from './lib/button/button';
 export { NeatInlineButton } from './lib/button/inline-button';
 export type { NeatBreadcrumb } from './lib/breadcrumbs/breadcrumbs';
 export { NeatBreadcrumbs } from './lib/breadcrumbs/breadcrumbs';
+export { NeatLiveBadge } from './lib/live-badge/live-badge';
 export { NeatLiveDot } from './lib/live-dot/live-dot';
 export { NeatSeriesSwatch } from './lib/series-swatch/series-swatch';
 export { NeatSwatch } from './lib/swatch/swatch';

@@ -14,7 +14,7 @@ import { booleanAttribute, ChangeDetectionStrategy, Component, input } from '@an
  * box and does not move the layout. An ancestor that clips its overflow clips the ring too.
  *
  * The color is the theme's `--neat-live`, a red that reads at 3:1 on the page and on the video
- * scrim, over black to mid-gray video. So a badge over video can use it.
+ * scrim, over black to mid-gray video, so a badge over video can use it: `NeatLiveBadge` does.
  */
 @Component({
   selector: 'neat-live-dot',

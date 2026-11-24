@@ -25,7 +25,7 @@ import { NeatLiveDot } from '@sima/neat-ui';
 
 ### Badges
 
-A still dot, a pulsing one before "Recording 0:34", and a pulsing one in a badge on the video scrim.
+A still dot, a pulsing one before "Recording 0:34", and one in a live badge ([`NeatLiveBadge`](../components/live-badge.md#neatlivebadge)) on the video scrim.
 
 <picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/live-dot/badges.dark.webp">
@@ -41,14 +41,13 @@ A still dot, a pulsing one before "Recording 0:34", and a pulsing one in a badge
 
 ```ts
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { NeatLiveDot } from '@sima/neat-ui';
+import { NeatLiveBadge, NeatLiveDot } from '@sima/neat-ui';
 
 @Component({
   selector: 'app-badges',
-  imports: [NeatLiveDot],
+  imports: [NeatLiveBadge, NeatLiveDot],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './1-badges.example.html',
-  styleUrl: './badges.example.css',
 })
 export class Badges {}
 ```
@@ -59,20 +58,8 @@ export class Badges {}
 <div class="showcase-row">
   <span class="showcase-row"><neat-live-dot /> Still</span>
   <span class="showcase-row"><neat-live-dot pulse /> Recording 0:34</span>
-  <span class="showcase-row badge"><neat-live-dot pulse /> Live</span>
+  <neat-live-badge live onPicture>Live</neat-live-badge>
 </div>
-```
-
-`badges.example.css`
-
-```css
-/* A badge over video, as an app draws one: the live dot on the video scrim. */
-.badge {
-  padding: var(--neat-space-2) var(--neat-space-3);
-  border-radius: 999px;
-  background: var(--neat-video-scrim);
-  color: var(--neat-video-scrim-foreground);
-}
 ```
 
 </details>
@@ -87,7 +74,7 @@ It is hidden from assistive technology. The text beside it carries the meaning, 
 
 With `pulse`, the dot beats and a ring grows out of it and fades, once in 1.6 s. Without it, or under a reduced-motion setting, it is a still dot. The ring is drawn outside the dot's 0.625rem box and does not move the layout. An ancestor that clips its overflow clips the ring too.
 
-The color is the theme's `--neat-live`, a red that reads at 3:1 on the page and on the video scrim, over black to mid-gray video. So a badge over video can use it.
+The color is the theme's `--neat-live`, a red that reads at 3:1 on the page and on the video scrim, over black to mid-gray video, so a badge over video can use it: [`NeatLiveBadge`](../components/live-badge.md#neatlivebadge) does.
 
 **Inputs**
 

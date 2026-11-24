@@ -1,0 +1,15 @@
+<button neatSwitch [(checked)]="live">Live</button>
+<div class="tiles">
+  <div class="cell">
+    <neat-video-tile [source]="colorBars" [bars]="false">
+      <neat-live-badge neatTileOverlay [live]="live()" onPicture>
+        {{ live() ? 'Live' : 'File preview' }}
+      </neat-live-badge>
+    </neat-video-tile>
+  </div>
+  <div class="cell">
+    <neat-video-tile [bars]="false">
+      <neat-live-badge neatTileOverlay>Not live</neat-live-badge>
+    </neat-video-tile>
+  </div>
+</div>

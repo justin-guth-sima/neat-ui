@@ -593,6 +593,19 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
+            id: 'live-badge',
+            label: 'Live badge',
+            parts: ['NeatLiveBadge'],
+            leads: ['NeatLiveBadge'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/primary'),
+                import('./generated/examples/live-badge'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'live-dot',
             label: 'Live dot',
             parts: ['NeatLiveDot'],

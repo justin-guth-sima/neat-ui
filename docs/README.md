@@ -50,6 +50,7 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 
 - [Callout](components/callout.md)
 - [Level meter](components/level-meter.md)
+- [Live badge](components/live-badge.md)
 - [Live dot](components/live-dot.md)
 - [Motion](components/motion.md)
 - [Note](components/note.md)

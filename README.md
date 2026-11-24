@@ -394,7 +394,7 @@ Also: [Search palette](docs/components/search-palette.md).
 </tr>
 </table>
 
-Also: [Motion](docs/components/motion.md), [Stale](docs/components/stale.md), [Time](docs/components/time.md).
+Also: [Live badge](docs/components/live-badge.md), [Motion](docs/components/motion.md), [Stale](docs/components/stale.md), [Time](docs/components/time.md).
 
 ### Data
 

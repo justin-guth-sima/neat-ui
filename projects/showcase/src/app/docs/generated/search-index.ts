@@ -400,6 +400,24 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatLiveBadge",
+    "partKind": "component",
+    "text": "A pill that says what a picture is: \"Live\", with the pulsing live dot, or what shows instead (\"File preview\", \"Not live\"), with a still gray…"
+  },
+  {
+    "kind": "member",
+    "name": "live",
+    "part": "NeatLiveBadge",
+    "text": "The picture is live: the pulsing live dot leads the text, instead of a still gray one."
+  },
+  {
+    "kind": "member",
+    "name": "onPicture",
+    "part": "NeatLiveBadge",
+    "text": "It sits on a picture: on the video scrim, instead of the muted pill of an empty frame."
+  },
+  {
+    "kind": "part",
     "name": "NeatLiveDot",
     "partKind": "component",
     "text": "A small red dot that says something is live or recording."
@@ -2245,6 +2263,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "name": "what",
     "part": "NeatCopyButton",
     "text": "What the text is, for the button's name: install command names it \"Copy install command\"."
+  },
+  {
+    "kind": "member",
+    "name": "inline",
+    "part": "NeatCopyButton",
+    "text": "Set into a line of text, as a neatInlineButton, instead of a small text button."
   },
   {
     "kind": "part",
@@ -5829,10 +5853,17 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "On a picture",
+    "topic": "live-badge",
+    "id": "on-a-picture",
+    "text": "A badge in the top-left corner of each picture, in the tile's neatTileOverlay layer."
+  },
+  {
+    "kind": "example",
     "name": "Badges",
     "topic": "live-dot",
     "id": "badges",
-    "text": "A still dot, a pulsing one before \"Recording 0:34\", and a pulsing one in a badge on the video scrim."
+    "text": "A still dot, a pulsing one before \"Recording 0:34\", and one in a live badge (NeatLiveBadge) on the video scrim."
   },
   {
     "kind": "example",
