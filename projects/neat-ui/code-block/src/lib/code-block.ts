@@ -13,16 +13,18 @@ import {
   input,
   model,
   NgZone,
+  PendingTasks,
   resource,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { NeatButton, NeatIcon, ɵreducedMotion as reducedMotion } from '@sima/neat-ui';
 import { NeatBubble } from '@sima/neat-ui/bubble';
 import { NeatCopyButton } from './copy-button';
-import { highlighterFor } from './highlighter';
+import { highlighterFor, type CodeHighlighter } from './highlighter';
 import { NEAT_CODE_LANGUAGES } from './languages';
-import { plainLines } from './lines';
+import { plainLines, type CodeLine } from './lines';
 import { focusLines, type NeatCodeMark, type NeatCodeStep } from './marks';
 import { watchNearView } from './near-view';
 import { NeatCodeNote } from './note';
@@ -73,8 +75,9 @@ export type NeatCodeOverflow = 'wrap' | 'scroll';
  * that language, so a page without a colored block loads none of it, and one with Python only
  * never loads C++. A block colors its code once it comes near the view, and one block at a time,
  * each in a task of its own, so a page of many blocks does not freeze while they all color. Until
- * then, and while the grammar loads, the block shows the code plain, in the same layout. A
- * language the block does not know leaves the code plain and is named once in dev mode.
+ * then, and while the grammar loads, the block shows the code plain, in the same layout. Once
+ * colored, a block colors new code at once, so a preview whose code changes often never shows it
+ * plain. A language the block does not know leaves the code plain and is named once in dev mode.
  *
  * `lineNumbers` numbers the lines in a gutter at their start. The numbers are not part of the text:
  * a selection leaves them out, a screen reader does not read them, and Copy copies the code as
@@ -302,26 +305,30 @@ export class NeatCodeBlock {
   private readonly near = signal(false);
 
   /**
-   * The code's lines colored, once the block is near the view and the language's highlighter is
-   * there, tokenized in a turn of its own (`nextTurn`). New code is colored in a new turn, and a
-   * turn whose code changed while it waited tokenizes nothing.
+   * The block's first colored lines, with the highlighter and the code they are of: tokenized in
+   * a turn of its own (`nextTurn`) once the block is near the view and its highlighter is there,
+   * from the code as it is when the turn comes.
    */
-  private readonly colored = resource({
-    params: () => {
-      const highlighter = this.highlighter.hasValue() ? this.highlighter.value() : undefined;
-      return highlighter && this.near() ? { highlighter, code: this.code() } : undefined;
-    },
-    loader: async ({ params: { highlighter, code }, abortSignal }) => {
-      await nextTurn();
-      abortSignal.throwIfAborted();
-      return highlighter.lines(code);
-    },
-  });
+  private readonly firstColored = signal<{
+    readonly highlighter: CodeHighlighter;
+    readonly code: string;
+    readonly lines: CodeLine[];
+  } | null>(null);
 
-  /** The lines shown: colored once they are, plain until then. */
-  private readonly lines = computed(() =>
-    this.colored.hasValue() ? this.colored.value() : this.plain(),
-  );
+  /**
+   * The lines shown: plain until the block's turn has colored them, and from then on colored at
+   * once for new code or a new language (plain only while a new grammar loads), so a block whose
+   * code changes often never flickers plain.
+   */
+  private readonly lines = computed(() => {
+    const first = this.firstColored();
+    const highlighter = this.highlighter.hasValue() ? this.highlighter.value() : undefined;
+    if (!first || !highlighter) return this.plain();
+    const code = this.code();
+    return first.highlighter === highlighter && first.code === code
+      ? first.lines
+      : highlighter.lines(code);
+  });
 
   protected readonly stepCount = computed(() => this.steps().length);
   /** The step shown: `step`, kept to the steps there are. */
@@ -388,6 +395,21 @@ export class NeatCodeBlock {
       ),
     );
     inject(DestroyRef).onDestroy(stopWatching);
+    // The block's turn, asked for once it is near the view and its highlighter is there, and
+    // given up when the highlighter changes (a new language) or the block goes before it comes.
+    const pendingTasks = inject(PendingTasks);
+    effect((onCleanup) => {
+      const highlighter = this.highlighter.hasValue() ? this.highlighter.value() : undefined;
+      if (!highlighter || !this.near() || untracked(this.firstColored)) return;
+      let givenUp = false;
+      onCleanup(() => (givenUp = true));
+      void pendingTasks.run(async () => {
+        await nextTurn();
+        if (givenUp) return;
+        const code = untracked(this.code);
+        this.firstColored.set({ highlighter, code, lines: highlighter.lines(code) });
+      });
+    });
     // Brings the first mark shown into the box's view whenever the marks shown change.
     afterRenderEffect(() => {
       this.focus();

@@ -1,6 +1,6 @@
 import { highlighterFor, resetWarned } from './highlighter';
 import { DEFAULT_CODE_LANGUAGES, type NeatCodeLanguages } from './languages';
-import type { CodeKind, CodeLine } from './lines';
+import { plainLines, type CodeKind, type CodeLine } from './lines';
 
 /** The kind of each run of `code` in `language`, by its text (the first run of that text). */
 async function kinds(language: string, code: string): Promise<Map<string, CodeKind | null>> {
@@ -143,5 +143,25 @@ describe('the code block highlighter', () => {
     expect(await highlighterFor('retry', { retry: load })).toBeUndefined();
     expect(warn.mock.calls[0][0]).toContain('the grammar of "retry" did not load');
     expect(await highlighterFor('retry', { retry: load })).toBeDefined();
+  });
+
+  it('shows code plain that its grammar fails on, saying so once in dev mode', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const broken = () =>
+      Promise.resolve({
+        default: [
+          {
+            name: 'broken',
+            scopeName: 'source.broken',
+            patterns: [{ match: '(?<', name: 'keyword.other.broken' }],
+          },
+        ],
+      });
+    const highlighter = await highlighterFor('broken', { broken });
+
+    expect(highlighter!.lines('stage one\n')).toEqual(plainLines('stage one\n'));
+    expect(highlighter!.lines('stage two')).toEqual(plainLines('stage two'));
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toContain('could not color code in "broken"');
   });
 });

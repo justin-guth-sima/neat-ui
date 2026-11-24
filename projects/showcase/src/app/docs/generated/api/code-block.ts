@@ -132,7 +132,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " adds others. The highlighter (Shiki) and each language's grammar load the first time a block on the page shows that language, so a page without a colored block loads none of it, and one with Python only never loads C++. A block colors its code once it comes near the view, and one block at a time, each in a task of its own, so a page of many blocks does not freeze while they all color. Until then, and while the grammar loads, the block shows the code plain, in the same layout. A language the block does not know leaves the code plain and is named once in dev mode."
+              "text": " adds others. The highlighter (Shiki) and each language's grammar load the first time a block on the page shows that language, so a page without a colored block loads none of it, and one with Python only never loads C++. A block colors its code once it comes near the view, and one block at a time, each in a task of its own, so a page of many blocks does not freeze while they all color. Until then, and while the grammar loads, the block shows the code plain, in the same layout. Once colored, a block colors new code at once, so a preview whose code changes often never shows it plain. A language the block does not know leaves the code plain and is named once in dev mode."
             }
           ]
         },

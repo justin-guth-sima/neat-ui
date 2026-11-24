@@ -7,9 +7,9 @@ import type {
 } from '@shikijs/primitive';
 import { CODE_THEME, kindOf } from './code-theme';
 import type { NeatCodeLanguages } from './languages';
-import { codeLines, type CodeLine, type CodeRun } from './lines';
+import { codeLines, plainLines, type CodeLine, type CodeRun } from './lines';
 
-/** The lines of code in one language, colored. */
+/** The lines of code in one language, colored, or plain where the grammar fails on the code. */
 export interface CodeHighlighter {
   lines(code: string): CodeLine[];
 }
@@ -69,8 +69,14 @@ function loadHighlighter(load: GrammarImport): Promise<CodeHighlighter> {
     // A module lists the grammars the language embeds first, and its own last.
     const lang = registrations[registrations.length - 1].name;
     return {
-      lines: (code) =>
-        codeLines(tokenize(primitive, code, { lang, theme: CODE_THEME.name }).map(runsOf)),
+      lines: (code) => {
+        try {
+          return codeLines(tokenize(primitive, code, { lang, theme: CODE_THEME.name }).map(runsOf));
+        } catch (error) {
+          warnOnce(`could not color code in "${lang}", so it shows plain`, error);
+          return plainLines(code);
+        }
+      },
     };
   });
   highlighters.set(load, highlighter);
@@ -81,10 +87,11 @@ function loadHighlighter(load: GrammarImport): Promise<CodeHighlighter> {
 /** What was already said in dev mode, so each problem is said once however many blocks have it. */
 const warned = new Set<string>();
 
-function warnOnce(problem: string): void {
+/** Says `problem` once in dev mode, with `detail` (an error) after it the first time. */
+function warnOnce(problem: string, ...detail: unknown[]): void {
   if (!isDevMode() || warned.has(problem)) return;
   warned.add(problem);
-  console.warn(`neat-code-block: ${problem}`);
+  console.warn(`neat-code-block: ${problem}`, ...detail);
 }
 
 /**

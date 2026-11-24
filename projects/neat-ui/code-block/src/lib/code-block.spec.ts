@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NeatCodeBlock } from './code-block';
-import { resetWarned } from './highlighter';
-import { provideNeatCodeLanguages } from './languages';
+import { highlighterFor, resetWarned } from './highlighter';
+import { DEFAULT_CODE_LANGUAGES, provideNeatCodeLanguages } from './languages';
 import type { NeatCodeMark, NeatCodeStep } from './marks';
 import { FakeIntersectionObserver } from './near-view.testing';
 import { NeatCodeNote } from './note';
@@ -139,6 +139,7 @@ describe('NeatCodeBlock', () => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
     resetWarned();
+    FakeIntersectionObserver.last = undefined;
   });
 
   it('shows the code as written, its lines and indents kept, and wraps long lines', async () => {
@@ -245,12 +246,52 @@ describe('NeatCodeBlock', () => {
     const fixture = TestBed.createComponent(NeatCodeBlock);
     fixture.componentRef.setInput('code', PYTHON);
     await fixture.whenStable();
-    fixture.destroy();
+    const observer = FakeIntersectionObserver.last!;
 
-    expect(FakeIntersectionObserver.last?.disconnected).toBe(true);
+    expect(observer.watched).toEqual([fixture.nativeElement]);
+    expect(observer.disconnected).toBe(false);
+    fixture.destroy();
+    expect(observer.disconnected).toBe(true);
   });
 
-  it('colors new code anew, plain until it is colored', async () => {
+  /** A Python block held back from the view, and a spy on the highlighter it colors with. */
+  async function heldBack() {
+    vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver);
+    const highlighter = (await highlighterFor('python', DEFAULT_CODE_LANGUAGES))!;
+    const lines = vi.spyOn(highlighter, 'lines');
+    const fixture = TestBed.createComponent(NeatCodeBlock);
+    fixture.componentRef.setInput('code', PYTHON);
+    fixture.componentRef.setInput('language', 'python');
+    await fixture.whenStable();
+    return { fixture, lines, observer: FakeIntersectionObserver.last! };
+  }
+
+  it('colors only the latest code when the code changes before its turn comes', async () => {
+    const { fixture, lines, observer } = await heldBack();
+    observer.report(true);
+    fixture.detectChanges();
+    fixture.componentRef.setInput('code', 'print(1)\n');
+    fixture.detectChanges();
+    fixture.componentRef.setInput('code', 'print(2)\n');
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+
+    expect(lines.mock.calls).toEqual([['print(2)\n']]);
+    expect(host.querySelector('pre')!.textContent).toBe('print(2)\n');
+    expect(host.querySelector('[data-kind="function"]')?.textContent).toBe('print');
+  });
+
+  it('colors nothing when it goes while its turn waits', async () => {
+    const { fixture, lines, observer } = await heldBack();
+    observer.report(true);
+    fixture.detectChanges();
+    fixture.destroy();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(lines).not.toHaveBeenCalled();
+  });
+
+  it('colors new code at once once it has colored, never showing it plain', async () => {
     const fixture = TestBed.createComponent(NeatCodeBlock);
     fixture.componentRef.setInput('code', PYTHON);
     fixture.componentRef.setInput('language', 'python');
@@ -260,10 +301,7 @@ describe('NeatCodeBlock', () => {
     fixture.componentRef.setInput('code', 'print(session)\n');
     fixture.detectChanges();
     expect(host.querySelector('pre')!.textContent).toBe('print(session)\n');
-    expect(host.querySelector('[data-kind]')).toBeNull();
-    await fixture.whenStable();
     expect(host.querySelector('[data-kind="function"]')?.textContent).toBe('print');
-    expect(host.querySelector('pre')!.textContent).toBe('print(session)\n');
   });
 
   it('shows a language it has no grammar for plain, and names it once in dev mode', async () => {
