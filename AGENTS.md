@@ -1047,7 +1047,8 @@ arrives, and an app that does not watch Insight carries none of this.
     `invalid_request`), else "Connection failed: HTTP <status>". A browser without
     `RTCPeerConnection` (jsdom in the specs) fails at once with "This browser has no WebRTC".
   - Anything else is retried, and `notice` says why where the answer does: `no_video` "Waiting for
-    video", `codec_changed` "Video format changed", `negotiation_failed` "Could not connect", the
+    video", `codec_changed` "Video format changed", `negotiation_failed` "Could not connect",
+    `too_many_viewers` "Too many viewers" (the channel has 8; a place frees up when a viewer leaves), the
     relay's `insight_unreachable` "Insight not reachable", and the same words when no answer came
     at all (`fetch` rejected) or a 502, 503 or 504 came without a code (a proxy whose server is
     down). Other codes, a 5xx without one, and an answer that is not an answer say nothing:

@@ -225,6 +225,7 @@ describe('openInsightConnection', () => {
     [503, 'codec_changed', 'Video format changed'],
     [500, 'negotiation_failed', 'Could not connect'],
     [502, 'insight_unreachable', 'Insight not reachable'],
+    [503, 'too_many_viewers', 'Too many viewers'],
   ])('retries a %i %s answer and says so until video comes', async (status, code, text) => {
     fetchMock.mockResolvedValueOnce(errorResponse(status, code, 'details'));
     const { seen, close } = open();
