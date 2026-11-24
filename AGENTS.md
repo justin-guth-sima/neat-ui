@@ -144,7 +144,9 @@ look happens in one place. Every rule here protects that.
     know the container),
     `field` (`NeatField`, a control under its visible name with
     a hint and an error, and `NeatErrorNote`, a failure said in place), `collapsible`
-    (`NeatCollapsible`, a section a labeled button opens and closes, with a summary while closed),
+    (`NeatCollapsible`, a section a labeled button opens and closes, with a summary while closed; its
+    `variant` is `section` or, for a note under a field, `note`, the same disclosure in the note's
+    small muted text with `tone`'s dot and a `triggerId` for the field's `aria-describedby`),
     `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
     `card` (`NeatCard`, a card on Spartan's helm card with an optional `title` (a heading at
     `headingLevel`, 3 by default; `region` makes the card a landmark named by it, opt-in as the

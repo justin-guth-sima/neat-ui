@@ -2,6 +2,7 @@
 import type { DocsExample } from '../../model';
 import { SummaryAndSave } from '../../../examples/collapsible/1-summary-and-save.example';
 import { EndControls } from '../../../examples/collapsible/2-end-controls.example';
+import { UnderAField } from '../../../examples/collapsible/3-under-a-field.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -52,7 +53,8 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "panel.css",
         "code": [
-          ["comment","/* A collapsible's habitat is an aside, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n"]
+          ["comment","/* A collapsible's habitat is an aside, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n\n"],
+          ["comment","/* A field's name over its control, with the note under them. */"],["text","\n.field {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin-bottom: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
         ]
       }
     ]
@@ -114,7 +116,84 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "panel.css",
         "code": [
-          ["comment","/* A collapsible's habitat is an aside, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n"]
+          ["comment","/* A collapsible's habitat is an aside, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n\n"],
+          ["comment","/* A field's name over its control, with the note under them. */"],["text","\n.field {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin-bottom: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "under-a-field",
+    "title": "Under a field",
+    "component": UnderAField,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A note under a field that opens into what it says: the note variant, with a warning dot. The field's "
+          },
+          {
+            "kind": "code",
+            "text": "aria-describedby"
+          },
+          {
+            "kind": "text",
+            "text": " names the note's trigger, so a screen reader reads \"Overridden on 2 channels\" when the field gets the focus."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Open it and choose Use global on a channel. The last one takes the note away."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui#NeatInlineButton",
+      "@sima/neat-ui/collapsible#NeatCollapsible",
+      "@sima/neat-ui/input#NeatInput",
+      "@sima/neat-ui/line-list#NeatLine",
+      "@sima/neat-ui/line-list#NeatLineEnd",
+      "@sima/neat-ui/line-list#NeatLineList"
+    ],
+    "files": [
+      {
+        "name": "3-under-a-field.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatInlineButton } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatCollapsible } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/collapsible'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatInput } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/input'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatLine, NeatLineEnd, NeatLineList } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/line-list'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-under-a-field'"],["text",",\n  imports: [NeatCollapsible, NeatInlineButton, NeatInput, NeatLine, NeatLineEnd, NeatLineList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-under-a-field.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./panel.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," UnderAField {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," open = signal("],["keyword","false"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," channels = signal([\n    { name: "],
+          ["string","'Channel 3'"],["text",", value: "],["string","'900 ms'"],["text"," },\n    { name: "],
+          ["string","'Channel 7'"],["text",", value: "],["string","'600 ms'"],["text"," },\n  ]);\n\n  "],
+          ["keyword","protected"],["text"," useGlobal(name: "],["keyword","string"],["text","): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".channels.update((channels) => channels.filter((channel) => channel.name !== name));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "3-under-a-field.example.html",
+        "code": [
+          ["text","<div class=\"panel\">\n  <label class=\"field\">\n    Frame buffer (ms)\n    <input\n      neatInput\n      size=\"small\"\n      type=\"number\"\n      value=\"500\"\n      [attr.aria-describedby]=\"channels().length ? 'overrides-note' : null\"\n    />\n  </label>\n  @if (channels().length) {\n    <neat-collapsible\n      variant=\"note\"\n      tone=\"warning\"\n      triggerId=\"overrides-note\"\n      [label]=\"\n        'Overridden on ' + channels().length + (channels().length === 1 ? ' channel' : ' channels')\n      \"\n      [(open)]=\"open\"\n    >\n      <ul neatLineList>\n        @for (channel of channels(); track channel.name) {\n          <li neatLine>\n            {{ channel.name }} <span class=\"showcase-muted\">{{ channel.value }}</span>\n            <button\n              neatInlineButton\n              neatLineEnd\n              type=\"button\"\n              [attr.aria-label]=\"'Use global on ' + channel.name\"\n              (click)=\"useGlobal(channel.name)\"\n            >\n              Use global\n            </button>\n          </li>\n        }\n      </ul>\n    </neat-collapsible>\n  }\n</div>\n"]
+        ]
+      },
+      {
+        "name": "panel.css",
+        "code": [
+          ["comment","/* A collapsible's habitat is an aside, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n\n"],
+          ["comment","/* A field's name over its control, with the note under them. */"],["text","\n.field {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin-bottom: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
         ]
       }
     ]

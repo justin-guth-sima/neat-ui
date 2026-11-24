@@ -2302,9 +2302,33 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "variant",
+    "part": "NeatCollapsible",
+    "text": "Which look it has: the section's, or a note's under a field."
+  },
+  {
+    "kind": "member",
+    "name": "tone",
+    "part": "NeatCollapsible",
+    "text": "The status dot before the label, in that tone's color; none while null."
+  },
+  {
+    "kind": "member",
+    "name": "triggerId",
+    "part": "NeatCollapsible",
+    "text": "The trigger's id, for a control's aria-describedby to name; the trigger has none while null."
+  },
+  {
+    "kind": "member",
     "name": "open",
     "part": "NeatCollapsible",
     "text": "Whether the section is open; closed by default."
+  },
+  {
+    "kind": "part",
+    "name": "NeatCollapsibleVariant",
+    "partKind": "type",
+    "text": "How a collapsible looks: section, a full-width button in the text size of the page, or note, the small muted text of a note, as wide as its…"
   },
   {
     "kind": "part",
@@ -5521,6 +5545,13 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "collapsible",
     "id": "end-controls",
     "text": "A log with two controls at the end of its row, outside its button."
+  },
+  {
+    "kind": "example",
+    "name": "Under a field",
+    "topic": "collapsible",
+    "id": "under-a-field",
+    "text": "A note under a field that opens into what it says: the note variant, with a warning dot."
   },
   {
     "kind": "example",

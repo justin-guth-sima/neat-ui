@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   ElementRef,
   inject,
@@ -14,7 +15,12 @@ import {
   BrnCollapsibleContent,
   BrnCollapsibleTrigger,
 } from '@spartan-ng/brain/collapsible';
-import { NeatIcon, ɵCOLLAPSIBLE_CLASSES as CLASSES } from '@sima/neat-ui';
+import {
+  NeatIcon,
+  ɵCOLLAPSIBLE_CLASSES as CLASSES,
+  ɵTONE_DOT_COLORS as TONE_DOT_COLORS,
+  type NeatTone,
+} from '@sima/neat-ui';
 
 /*
  * The trigger, chevron, label, summary and content are the primary's collapsible look
@@ -34,6 +40,12 @@ const ROW_CLASSES = 'flex flex-wrap items-center gap-(--neat-space-2)';
  * into the rest of its line. Alone on its line it may still shrink, which truncates the summary.
  */
 const HEADING_CLASSES = 'min-w-0 grow';
+
+/**
+ * How a collapsible looks: `section`, a full-width button in the text size of the page, or `note`,
+ * the small muted text of a note, as wide as its words.
+ */
+export type NeatCollapsibleVariant = 'section' | 'note';
 
 /**
  * A section that a full-width button opens and closes, such as a panel's "Details":
@@ -71,6 +83,24 @@ const HEADING_CLASSES = 'min-w-0 grow';
  * The end controls show whether the section is open or closed. An app shows them only while open
  * with an `@if`.
  *
+ * As a note under a field: `variant="note"` draws the same disclosure in the small muted text of
+ * a note (`neatNote`), the trigger only as wide as its words, and `tone` puts a status dot before
+ * the label. `triggerId` is the trigger's id, for the field's `aria-describedby`, so a screen
+ * reader says the note's label when the field gets the focus.
+ *
+ * ```html
+ * <input neatInput type="number" [attr.aria-describedby]="noteId" />
+ * <neat-collapsible
+ *   variant="note"
+ *   tone="warning"
+ *   [triggerId]="noteId"
+ *   label="Overridden on 2 channels"
+ *   [(open)]="open"
+ * >
+ *   <ul neatLineList>…</ul>
+ * </neat-collapsible>
+ * ```
+ *
  * @input open Whether the section is open; closed by default. Bind it two-way, `[(open)]`, to
  * keep the state in the page or to open or close the section from code.
  */
@@ -85,7 +115,8 @@ const HEADING_CLASSES = 'min-w-0 grow';
       outputs: ['expandedChange: openChange'],
     },
   ],
-  host: { class: 'block' },
+  host: { class: 'block', '[attr.data-variant]': 'variant()' },
+  styleUrl: './collapsible.css',
   template: `
     <div
       data-slot="collapsible-row"
@@ -104,7 +135,8 @@ const HEADING_CLASSES = 'min-w-0 grow';
           #trigger
           brnCollapsibleTrigger
           data-slot="collapsible-trigger"
-          [class]="triggerClasses"
+          [attr.id]="triggerId()"
+          [class]="triggerClasses()"
         >
           <neat-icon
             name="next"
@@ -112,7 +144,14 @@ const HEADING_CLASSES = 'min-w-0 grow';
             [class]="chevronClasses"
             [class.rotate-90]="brain.expanded()"
           />
-          <span [class]="labelClasses">{{ label() }}</span>
+          @if (dotColor(); as color) {
+            <span
+              data-slot="collapsible-dot"
+              aria-hidden="true"
+              [style.--neat-tone-dot]="color"
+            ></span>
+          }
+          <span [class]="labelClasses()">{{ label() }}</span>
           @if (!brain.expanded() && summary()) {
             <span data-slot="collapsible-summary" [class]="summaryClasses">{{ summary() }}</span>
           }
@@ -141,10 +180,31 @@ export class NeatCollapsible {
    */
   readonly headingLevel = input<2 | 3 | 4 | 5 | 6 | null>(null);
 
+  /** Which look it has: the section's, or a note's under a field. */
+  readonly variant = input<NeatCollapsibleVariant>('section');
+  /**
+   * The status dot before the label, in that tone's color; none while null. The label carries the
+   * meaning, so the dot is hidden from assistive technology.
+   */
+  readonly tone = input<NeatTone | null>(null);
+  /**
+   * The trigger's `id`, for a control's `aria-describedby` to name; the trigger has none while
+   * null.
+   */
+  readonly triggerId = input<string | null>(null);
+
   protected readonly brain = inject(BrnCollapsible);
-  protected readonly triggerClasses = CLASSES.trigger;
+  protected readonly triggerClasses = computed(() =>
+    this.variant() === 'note' ? CLASSES.noteTrigger : CLASSES.trigger,
+  );
+  protected readonly labelClasses = computed(() =>
+    this.variant() === 'note' ? CLASSES.noteLabel : CLASSES.label,
+  );
+  protected readonly dotColor = computed(() => {
+    const tone = this.tone();
+    return tone ? TONE_DOT_COLORS[tone] : null;
+  });
   protected readonly chevronClasses = CLASSES.chevron;
-  protected readonly labelClasses = CLASSES.label;
   protected readonly summaryClasses = CLASSES.summary;
   protected readonly contentClasses = CLASSES.content;
   protected readonly rowClasses = ROW_CLASSES;

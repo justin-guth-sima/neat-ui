@@ -1,0 +1,40 @@
+<div class="panel">
+  <label class="field">
+    Frame buffer (ms)
+    <input
+      neatInput
+      size="small"
+      type="number"
+      value="500"
+      [attr.aria-describedby]="channels().length ? 'overrides-note' : null"
+    />
+  </label>
+  @if (channels().length) {
+    <neat-collapsible
+      variant="note"
+      tone="warning"
+      triggerId="overrides-note"
+      [label]="
+        'Overridden on ' + channels().length + (channels().length === 1 ? ' channel' : ' channels')
+      "
+      [(open)]="open"
+    >
+      <ul neatLineList>
+        @for (channel of channels(); track channel.name) {
+          <li neatLine>
+            {{ channel.name }} <span class="showcase-muted">{{ channel.value }}</span>
+            <button
+              neatInlineButton
+              neatLineEnd
+              type="button"
+              [attr.aria-label]="'Use global on ' + channel.name"
+              (click)="useGlobal(channel.name)"
+            >
+              Use global
+            </button>
+          </li>
+        }
+      </ul>
+    </neat-collapsible>
+  }
+</div>

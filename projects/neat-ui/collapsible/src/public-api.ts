@@ -4,4 +4,4 @@
  * imports it. It imports the primary entry point (`@sima/neat-ui`) by package name; the primary
  * never imports it. Every export added here is a promise to consumers.
  */
-export { NeatCollapsible } from './lib/collapsible';
+export { NeatCollapsible, type NeatCollapsibleVariant } from './lib/collapsible';

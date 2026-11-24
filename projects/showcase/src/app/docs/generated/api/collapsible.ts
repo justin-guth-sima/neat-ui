@@ -199,6 +199,60 @@ export const API: DocsEntry = {
               "text": "."
             }
           ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "As a note under a field: "
+            },
+            {
+              "kind": "code",
+              "text": "variant=\"note\""
+            },
+            {
+              "kind": "text",
+              "text": " draws the same disclosure in the small muted text of a note ("
+            },
+            {
+              "kind": "code",
+              "text": "neatNote"
+            },
+            {
+              "kind": "text",
+              "text": "), the trigger only as wide as its words, and "
+            },
+            {
+              "kind": "code",
+              "text": "tone"
+            },
+            {
+              "kind": "text",
+              "text": " puts a status dot before the label. "
+            },
+            {
+              "kind": "code",
+              "text": "triggerId"
+            },
+            {
+              "kind": "text",
+              "text": " is the trigger's id, for the field's "
+            },
+            {
+              "kind": "code",
+              "text": "aria-describedby"
+            },
+            {
+              "kind": "text",
+              "text": ", so a screen reader says the note's label when the field gets the focus."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<input neatInput type=\"number\" [attr.aria-describedby]=\"noteId\" />\n<neat-collapsible\n  variant=\"note\"\n  tone=\"warning\"\n  [triggerId]=\"noteId\"\n  label=\"Overridden on 2 channels\"\n  [(open)]=\"open\"\n>\n  <ul neatLineList>…</ul>\n</neat-collapsible>"
         }
       ],
       "inputs": [
@@ -258,6 +312,70 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "variant",
+          "type": "NeatCollapsibleVariant",
+          "default": "'section'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Which look it has: the section's, or a note's under a field."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "tone",
+          "type": "NeatTone | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The status dot before the label, in that tone's color; none while null. The label carries the meaning, so the dot is hidden from assistive technology."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "triggerId",
+          "type": "string | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The trigger's "
+                },
+                {
+                  "kind": "code",
+                  "text": "id"
+                },
+                {
+                  "kind": "text",
+                  "text": ", for a control's "
+                },
+                {
+                  "kind": "code",
+                  "text": "aria-describedby"
+                },
+                {
+                  "kind": "text",
+                  "text": " to name; the trigger has none while null."
+                }
+              ]
+            }
+          ]
         }
       ],
       "models": [
@@ -282,6 +400,39 @@ export const API: DocsEntry = {
                   "text": ", to keep the state in the page or to open or close the section from code."
                 }
               ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/collapsible/src/lib/collapsible.ts"
+    },
+    {
+      "name": "NeatCollapsibleVariant",
+      "kind": "type",
+      "definition": "'section' | 'note'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How a collapsible looks: "
+            },
+            {
+              "kind": "code",
+              "text": "section"
+            },
+            {
+              "kind": "text",
+              "text": ", a full-width button in the text size of the page, or "
+            },
+            {
+              "kind": "code",
+              "text": "note"
+            },
+            {
+              "kind": "text",
+              "text": ", the small muted text of a note, as wide as its words."
             }
           ]
         }

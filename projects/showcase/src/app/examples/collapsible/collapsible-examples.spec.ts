@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { EndControls } from './2-end-controls.example';
+import { UnderAField } from './3-under-a-field.example';
 import { SummaryAndSave } from './1-summary-and-save.example';
 
 async function render<T>(component: new () => T) {
@@ -63,5 +64,26 @@ describe('the collapsible examples', () => {
     await fixture.whenStable();
     expect(host.querySelector('p')?.textContent?.trim()).toBe('No lines.');
     expect(trigger('Log').getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('describe the field by the note, and open it into the two channels', async () => {
+    const { fixture, host, trigger, button } = await render(UnderAField);
+    const input = host.querySelector('input')!;
+    const note = trigger('Overridden on 2 channels');
+
+    expect(note.id).not.toBe('');
+    expect(input.getAttribute('aria-describedby')).toBe(note.id);
+    expect(note.getAttribute('aria-expanded')).toBe('false');
+
+    note.click();
+    await fixture.whenStable();
+
+    expect(note.getAttribute('aria-expanded')).toBe('true');
+    expect(Array.from(host.querySelectorAll('li')).map((li) => li.textContent)).toEqual([
+      expect.stringContaining('Channel 3'),
+      expect.stringContaining('Channel 7'),
+    ]);
+    // Each line's action is the line's end, which only `NeatLineEnd` makes so.
+    expect(button('Use global')!.classList).toContain('ms-auto');
   });
 });

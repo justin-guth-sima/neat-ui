@@ -16,6 +16,13 @@ export const COLLAPSIBLE_CLASSES = {
   trigger:
     'group flex w-full min-w-0 cursor-pointer items-center gap-(--neat-space-2) rounded-(--radius) py-1 text-start text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring',
   /**
+   * The trigger of the `note` variant: only as wide as its content (`w-fit`, never past its
+   * container), in the note's small muted text (`--neat-text-xs`, as `neatNote` and
+   * `neatLineList` are) instead of the section's. Otherwise the section's trigger.
+   */
+  noteTrigger:
+    'group flex w-fit max-w-full min-w-0 cursor-pointer items-center gap-(--neat-space-2) rounded-(--radius) py-1 text-start text-(length:--neat-text-xs) text-muted-foreground focus-visible:outline-2 focus-visible:outline-ring',
+  /**
    * The chevron: turned a quarter while open (`rotate-90`, which the trigger's owner sets), by a
    * transform the kit's transition duration times and that a reduced-motion setting turns into a
    * jump, as the kit's other motion is.
@@ -24,6 +31,8 @@ export const COLLAPSIBLE_CLASSES = {
     'shrink-0 text-muted-foreground transition-transform duration-(--neat-transition-duration) group-hover:text-foreground motion-reduce:transition-none',
   /** The label, which names the section and never gives way to the summary. */
   label: 'shrink-0 font-medium',
+  /** The label of the `note` variant: in the trigger's text weight, as a note's words are. */
+  noteLabel: 'shrink-0',
   /** The summary, shown while closed, muted, and the part that truncates. */
   summary: 'min-w-0 truncate text-muted-foreground',
   /**

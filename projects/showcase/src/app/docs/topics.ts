@@ -741,7 +741,7 @@ export const GROUPS: readonly TopicGroup[] = [
           {
             id: 'collapsible',
             label: 'Collapsible',
-            parts: ['NeatCollapsible'],
+            parts: ['NeatCollapsible', 'NeatCollapsibleVariant'],
             leads: ['NeatCollapsible'],
             load: async () => {
               const [api, examples] = await Promise.all([

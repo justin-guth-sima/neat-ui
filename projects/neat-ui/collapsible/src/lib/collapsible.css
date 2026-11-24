@@ -1,0 +1,9 @@
+/* The tone dot: a small circle in the tone's color, which the trigger's flex row places. */
+[data-slot='collapsible-dot'] {
+  flex: none;
+  box-sizing: border-box;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--neat-tone-dot);
+}

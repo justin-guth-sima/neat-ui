@@ -1,10 +1,16 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { contrastRatio, NeatIcon, type NeatColorScheme } from '@sima/neat-ui';
+import {
+  contrastRatio,
+  NeatIcon,
+  ɵTONE_DOT_COLORS as TONE_DOT_COLORS,
+  type NeatColorScheme,
+  type NeatTone,
+} from '@sima/neat-ui';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
-import { NeatCollapsible } from './collapsible';
+import { NeatCollapsible, type NeatCollapsibleVariant } from './collapsible';
 
 @Component({
   imports: [NeatCollapsible],
@@ -39,6 +45,38 @@ async function render(setup: (host: CollapsibleHost) => void = () => undefined) 
   const content = element.querySelector<HTMLElement>('[data-slot="collapsible-content"]')!;
   const summary = () => element.querySelector<HTMLElement>('[data-slot="collapsible-summary"]');
   return { fixture, host: fixture.componentInstance, element, trigger, content, summary };
+}
+
+@Component({
+  imports: [NeatCollapsible],
+  template: `
+    <neat-collapsible
+      label="Overridden on 2 channels"
+      [variant]="variant()"
+      [tone]="tone()"
+      [triggerId]="triggerId()"
+      [(open)]="open"
+    >
+      <p>Channel 3</p>
+    </neat-collapsible>
+  `,
+})
+class NoteHost {
+  readonly open = signal(false);
+  readonly variant = signal<NeatCollapsibleVariant>('note');
+  readonly tone = signal<NeatTone | null>(null);
+  readonly triggerId = signal<string | null>(null);
+}
+
+async function renderNote(setup: (host: NoteHost) => void = () => undefined) {
+  const fixture = TestBed.createComponent(NoteHost);
+  setup(fixture.componentInstance);
+  await fixture.whenStable();
+  const element: HTMLElement = fixture.nativeElement;
+  const trigger = element.querySelector<HTMLButtonElement>('[data-slot="collapsible-trigger"]')!;
+  const label = trigger.querySelector<HTMLElement>('span:not([data-slot])')!;
+  const dot = () => element.querySelector<HTMLElement>('[data-slot="collapsible-dot"]');
+  return { fixture, host: fixture.componentInstance, element, trigger, label, dot };
 }
 
 describe('NeatCollapsible', () => {
@@ -242,5 +280,88 @@ describe('NeatCollapsible', () => {
         }
       });
     }
+  });
+
+  describe("the 'note' variant", () => {
+    it('is the small muted text of a note, as wide as its content, with the label in normal weight', async () => {
+      const { trigger, label, element } = await renderNote();
+
+      expect(element.querySelector('neat-collapsible')?.getAttribute('data-variant')).toBe('note');
+      expect([...trigger.classList]).toEqual(
+        expect.arrayContaining(['text-(length:--neat-text-xs)', 'text-muted-foreground']),
+      );
+      expect(trigger.classList).not.toContain('w-full');
+      expect(trigger.classList).not.toContain('text-sm');
+      expect(trigger.classList).not.toContain('text-foreground');
+      expect(label.classList).not.toContain('font-medium');
+    });
+
+    it('puts the chevron first and turns it a quarter while open', async () => {
+      const { fixture, host, trigger } = await renderNote();
+      const icon = () => fixture.debugElement.query(By.directive(NeatIcon)).nativeElement;
+
+      expect(trigger.firstElementChild).toBe(icon());
+      expect(icon().classList).not.toContain('rotate-90');
+      host.open.set(true);
+      await fixture.whenStable();
+      expect(icon().classList).toContain('rotate-90');
+    });
+
+    it('leaves the section variant as it is', async () => {
+      const { host, fixture, trigger, label, element } = await renderNote();
+      host.variant.set('section');
+      await fixture.whenStable();
+
+      expect(element.querySelector('neat-collapsible')?.getAttribute('data-variant')).toBe(
+        'section',
+      );
+      expect(trigger.classList).toContain('w-full');
+      expect(trigger.classList).toContain('text-sm');
+      expect(label.classList).toContain('font-medium');
+    });
+  });
+
+  describe('tone', () => {
+    it('shows a dot between the chevron and the label, in the tone color, hidden from assistive technology', async () => {
+      const { fixture, host, trigger, label, dot } = await renderNote();
+      expect(dot()).toBeNull();
+
+      for (const tone of Object.keys(TONE_DOT_COLORS) as NeatTone[]) {
+        host.tone.set(tone);
+        await fixture.whenStable();
+        expect(dot()?.getAttribute('aria-hidden'), tone).toBe('true');
+        expect(dot()!.style.getPropertyValue('--neat-tone-dot'), tone).toBe(TONE_DOT_COLORS[tone]);
+        expect(dot()!.previousElementSibling).toBe(trigger.firstElementChild);
+        expect(dot()!.nextElementSibling).toBe(label);
+      }
+
+      host.tone.set(null);
+      await fixture.whenStable();
+      expect(dot()).toBeNull();
+    });
+
+    it('works in the section variant too', async () => {
+      const { fixture, host, dot } = await renderNote();
+      host.variant.set('section');
+      host.tone.set('success');
+      await fixture.whenStable();
+
+      expect(dot()).not.toBeNull();
+    });
+  });
+
+  describe('triggerId', () => {
+    it("is the trigger's id, and the trigger has none while it is null", async () => {
+      const { fixture, host, trigger } = await renderNote();
+      expect(trigger.hasAttribute('id')).toBe(false);
+
+      host.triggerId.set('note-1');
+      await fixture.whenStable();
+      expect(trigger.id).toBe('note-1');
+
+      host.triggerId.set(null);
+      await fixture.whenStable();
+      expect(trigger.hasAttribute('id')).toBe(false);
+    });
   });
 });
