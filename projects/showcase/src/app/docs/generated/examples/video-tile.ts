@@ -5,6 +5,7 @@ import { Poses } from '../../../examples/video-tile/2-poses.example';
 import { Notice } from '../../../examples/video-tile/3-notice.example';
 import { TrackColors } from '../../../examples/video-tile/4-track-colors.example';
 import { ExpandingATile } from '../../../examples/video-tile/5-expanding-a-tile.example';
+import { RotatedBoxes } from '../../../examples/video-tile/6-rotated-boxes.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -812,6 +813,199 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","this"],["text",".send({\n        type: "],
           ["string","'object-detection'"],["text",",\n        data: {\n          objects: [{ label: "],
           ["string","'box'"],["text",", confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] }],\n        },\n      });\n    }\n    "],
+          ["keyword","this"],["text",".frame += 1;\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "canvas-source.ts",
+        "code": [
+          ["keyword","import"],["text"," { signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatMetadataMessage, NeatTileSource } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," WIDTH = 640;\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," HEIGHT = 360;\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," FRAMES_PER_SECOND = 30;\n\n"],
+          ["comment","/**\n * What the showcase's sources share, so a tile plays without vf: a canvas streamed with\n * `captureStream()`, painted 30 times a second, and the metadata listeners. Each source paints a\n * frame and sends the metadata that describes it. A canvas stream has no RTP timestamps, so the\n * tile matches metadata by arrival, which takes only the latest message: hence one type a source.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","abstract"],["text"," "],["keyword","class"],["text"," CanvasSource "],["keyword","implements"],["text"," NeatTileSource {\n  "],
+          ["keyword","readonly"],["text"," stream = signal<MediaStream | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," listeners = "],["keyword","new"],["text"," Set<(text: "],["keyword","string"],["text",", receivedAt: "],["keyword","number"],["text",") => "],["keyword","void"],["text",">();\n  "],
+          ["keyword","private"],["text"," animation = 0;\n  "],
+          ["keyword","private"],["text"," lastPaintAt = 0;\n\n  onMetadata(listener: (text: "],
+          ["keyword","string"],["text",", receivedAt: "],["keyword","number"],["text",") => "],["keyword","void"],["text","): () => "],["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".listeners.add(listener);\n    "],
+          ["keyword","return"],["text"," () => "],["keyword","this"],["text",".listeners."],["keyword","delete"],["text","(listener);\n  }\n\n  "],
+          ["comment","/** Starts the stream; does nothing where canvases cannot be streamed (as in unit tests). */"],["text","\n  start(document: Document): "],
+          ["keyword","void"],["text"," {\n    "],
+          ["keyword","const"],["text"," canvas = document.createElement("],["string","'canvas'"],["text",");\n    "],
+          ["keyword","if"],["text"," ("],["keyword","typeof"],["text"," canvas.captureStream !== "],["string","'function'"],["text",") "],["keyword","return"],["text",";\n    canvas.width = WIDTH;\n    canvas.height = HEIGHT;\n    "],
+          ["keyword","const"],["text"," context = canvas.getContext("],["string","'2d'"],["text",");\n    "],
+          ["keyword","if"],["text"," (context === "],["keyword","null"],["text",") "],["keyword","return"],["text",";\n    "],
+          ["keyword","this"],["text",".stream.set(canvas.captureStream(FRAMES_PER_SECOND));\n    "],
+          ["keyword","const"],["text"," loop = (now: "],["keyword","number"],["text",") => {\n      "],
+          ["keyword","this"],["text",".animation = requestAnimationFrame(loop);\n      "],
+          ["keyword","if"],["text"," (now - "],["keyword","this"],["text",".lastPaintAt < 1000 / FRAMES_PER_SECOND) "],["keyword","return"],["text",";\n      "],
+          ["keyword","this"],["text",".lastPaintAt = now;\n      "],
+          ["keyword","this"],["text",".paint(context);\n    };\n    "],
+          ["keyword","this"],["text",".animation = requestAnimationFrame(loop);\n  }\n\n  stop(): "],
+          ["keyword","void"],["text"," {\n    cancelAnimationFrame("],
+          ["keyword","this"],["text",".animation);\n    "],
+          ["keyword","for"],["text"," ("],["keyword","const"],["text"," track "],["keyword","of"],["text"," "],["keyword","this"],["text",".stream()?.getTracks() ?? []) track.stop();\n    "],
+          ["keyword","this"],["text",".stream.set("],["keyword","null"],["text",");\n    "],
+          ["keyword","this"],["text",".listeners.clear();\n  }\n\n  "],
+          ["comment","/** Paints the next frame on `ctx` and sends its metadata. Painting nothing presents no frame. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","abstract"],["text"," paint(ctx: CanvasRenderingContext2D): "],["keyword","void"],["text",";\n\n  "],
+          ["keyword","protected"],["text"," send(message: NeatMetadataMessage): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","const"],["text"," text = JSON.stringify(message);\n    "],
+          ["keyword","const"],["text"," receivedAt = performance.now();\n    "],
+          ["keyword","for"],["text"," ("],["keyword","const"],["text"," listener "],["keyword","of"],["text"," "],["keyword","this"],["text",".listeners) listener(text, receivedAt);\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "test-pattern-tiles.example.css",
+        "code": [
+          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n.tiles {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(16rem, 24rem));\n  gap: var(--neat-space-4);\n}\n\n"],
+          ["comment","/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */"],["text","\n.cell {\n  aspect-ratio: 16 / 9;\n}\n\n.chip {\n  padding: 0 var(--neat-space-2);\n  border-radius: var(--radius);\n  background: var(--info);\n  color: var(--info-foreground);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rotated-boxes",
+    "title": "Rotated boxes",
+    "component": RotatedBoxes,
+    "animated": true,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A detector that finds boxes at an angle sends "
+          },
+          {
+            "kind": "code",
+            "text": "oriented_bbox"
+          },
+          {
+            "kind": "text",
+            "text": " with each object of an "
+          },
+          {
+            "kind": "code",
+            "text": "object-detection"
+          },
+          {
+            "kind": "text",
+            "text": " message: "
+          },
+          {
+            "kind": "code",
+            "text": "[centerX, centerY, width, height, angle]"
+          },
+          {
+            "kind": "text",
+            "text": ", the center and size in video pixels and the angle in radians, turning the box clockwise on screen. The tile draws that box instead of "
+          },
+          {
+            "kind": "code",
+            "text": "bbox"
+          },
+          {
+            "kind": "text",
+            "text": ", which stays the upright extent around it (the region of interest reads it). An "
+          },
+          {
+            "kind": "code",
+            "text": "oriented_bbox"
+          },
+          {
+            "kind": "text",
+            "text": " that is not five finite numbers is ignored and "
+          },
+          {
+            "kind": "code",
+            "text": "bbox"
+          },
+          {
+            "kind": "text",
+            "text": " drawn."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The label stands upright at the rotated box's topmost corner, its plate above the corner as for any box. Of two corners equally high it takes the left one, so a box that is not turned labels at its top-left corner, as an upright box does. Watch the label hop from corner to corner as the ship turns. With Mirror on, the picture and the box flip and the label stays at the same corner of the frame, its plate ending at it."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/switch#NeatSwitch",
+      "@sima/neat-ui/video#NeatVideoTile"
+    ],
+    "files": [
+      {
+        "name": "6-rotated-boxes.example.ts",
+        "code": [
+          ["keyword","import"],["text"," {\n  afterNextRender,\n  ChangeDetectionStrategy,\n  Component,\n  DestroyRef,\n  DOCUMENT,\n  inject,\n  signal,\n} "],
+          ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatVideoTile } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n"],
+          ["keyword","import"],["text"," { RotatedBoxSource } "],["keyword","from"],["text"," "],["string","'./rotated-box-source'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-rotated-boxes'"],["text",",\n  imports: [NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./6-rotated-boxes.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./test-pattern-tiles.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," RotatedBoxes {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," harbor = "],["keyword","new"],["text"," RotatedBoxSource();\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," mirror = signal("],["keyword","false"],["text",");\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","const"],["text"," document = inject(DOCUMENT);\n    afterNextRender(() => "],
+          ["keyword","this"],["text",".harbor.start(document));\n    inject(DestroyRef).onDestroy(() => "],
+          ["keyword","this"],["text",".harbor.stop());\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "6-rotated-boxes.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"mirror\">Mirror</button>\n</div>\n<div class=\"tiles\">\n  <div class=\"cell\">\n    <neat-video-tile [source]=\"harbor\" [mirror]=\"mirror()\" label=\"1\" status=\"Harbor · 640×360\" />\n  </div>\n</div>\n"]
+        ]
+      },
+      {
+        "name": "rotated-box-source.ts",
+        "code": [
+          ["keyword","import"],["text"," { SIMA_PALETTE } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { CanvasSource, HEIGHT, WIDTH } "],["keyword","from"],["text"," "],["string","'./canvas-source'"],["text",";\n\n"],
+          ["comment","/** The turning box: its center, its size and how far it turns each frame, in radians. */"],["text","\n"],
+          ["keyword","const"],["text"," CENTER = [WIDTH / 2, HEIGHT / 2] "],["keyword","as"],["text"," "],["keyword","const"],["text",";\n"],
+          ["keyword","const"],["text"," SIZE = [220, 90] "],["keyword","as"],["text"," "],["keyword","const"],["text",";\n"],
+          ["keyword","const"],["text"," TURN_PER_FRAME = 0.02;\n\n"],
+          ["comment","/** A box of an `object-detection` message: its upright extent and the rotated box itself. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","interface"],["text"," RotatedShip {\n  "],
+          ["keyword","readonly"],["text"," label: "],["keyword","string"],["text",";\n  "],
+          ["keyword","readonly"],["text"," confidence: "],["keyword","number"],["text",";\n  "],
+          ["comment","/** `[x, y, width, height]`, the smallest upright box around the rotated one. */"],["text","\n  "],
+          ["keyword","readonly"],["text"," bbox: "],["keyword","readonly"],["text"," ["],["keyword","number"],["text",", "],["keyword","number"],["text",", "],["keyword","number"],["text",", "],["keyword","number"],["text","];\n  "],
+          ["comment","/** `[centerX, centerY, width, height, angle]`, the angle in radians, clockwise on screen. */"],["text","\n  "],
+          ["keyword","readonly"],["text"," oriented_bbox: "],["keyword","readonly"],["text"," ["],["keyword","number"],["text",", "],["keyword","number"],["text",", "],["keyword","number"],["text",", "],["keyword","number"],["text",", "],["keyword","number"],["text","];\n}\n\n"],
+          ["comment","/** The ship of frame `frame`: a box that turns once every 10.5 s at 30 frames a second. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","function"],["text"," rotatedShip(frame: "],["keyword","number"],["text","): RotatedShip {\n  "],
+          ["keyword","const"],["text"," angle = frame * TURN_PER_FRAME;\n  "],
+          ["keyword","const"],["text"," [cx, cy] = CENTER;\n  "],
+          ["keyword","const"],["text"," [w, h] = SIZE;\n  "],
+          ["keyword","const"],["text"," width = Math.abs(w * Math.cos(angle)) + Math.abs(h * Math.sin(angle));\n  "],
+          ["keyword","const"],["text"," height = Math.abs(w * Math.sin(angle)) + Math.abs(h * Math.cos(angle));\n  "],
+          ["keyword","return"],["text"," {\n    label: "],
+          ["string","'ship'"],["text",",\n    confidence: 0.91,\n    bbox: [cx - width / 2, cy - height / 2, width, height],\n    oriented_bbox: [cx, cy, w, h, angle],\n  };\n}\n\n"],
+          ["comment","/** A dark picture with a ship that turns slowly, and an `object-detection` message per frame. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," RotatedBoxSource "],["keyword","extends"],["text"," CanvasSource {\n  "],
+          ["keyword","private"],["text"," frame = 0;\n\n  "],
+          ["keyword","protected"],["text"," paint(ctx: CanvasRenderingContext2D): "],["keyword","void"],["text"," {\n    ctx.fillStyle = SIMA_PALETTE.text;\n    ctx.fillRect(0, 0, WIDTH, HEIGHT);\n    "],
+          ["keyword","const"],["text"," ship = rotatedShip("],["keyword","this"],["text",".frame);\n    "],
+          ["keyword","const"],["text"," [cx, cy, w, h, angle] = ship.oriented_bbox;\n    ctx.save();\n    ctx.translate(cx, cy);\n    ctx.rotate(angle);\n    ctx.fillStyle = SIMA_PALETTE.backgroundAlt;\n    ctx.fillRect(-w / 2, -h / 2, w, h);\n    ctx.restore();\n    "],
+          ["keyword","this"],["text",".send({ type: "],["string","'object-detection'"],["text",", data: { objects: [ship] } });\n    "],
           ["keyword","this"],["text",".frame += 1;\n  }\n}\n"]
         ]
       },

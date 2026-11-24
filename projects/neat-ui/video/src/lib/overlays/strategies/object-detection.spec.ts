@@ -168,3 +168,132 @@ describe('the object detection label', () => {
     expect(ctx.ops('fillText')[0].args[1]).toBe(2 + 120 - 4);
   });
 });
+
+describe('the object detection overlay with oriented boxes', () => {
+  const SHIP = {
+    label: 'ship',
+    confidence: 0.91,
+    bbox: [558, 300, 164, 121],
+    oriented_bbox: [640, 360, 160, 50, 0.5],
+  };
+  const VIEW_720P = {
+    ...VIEW,
+    cssWidth: 1280,
+    cssHeight: 720,
+    videoWidth: 1280,
+    videoHeight: 720,
+  };
+  const draw = (list: unknown[], view = VIEW_720P, settings = overlaySettings()) =>
+    drawMessages(
+      overlayState(),
+      settings,
+      [{ type: 'object-detection', data: { objects: list } }],
+      { view },
+    );
+  const plates = (ctx: RecordingContext) => ctx.ops('fillRect').map((call) => call.args as number[]);
+
+  function corners(cx: number, cy: number, w: number, h: number, angle: number) {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    return [
+      [-w / 2, -h / 2],
+      [w / 2, -h / 2],
+      [w / 2, h / 2],
+      [-w / 2, h / 2],
+    ].map(([dx, dy]) => [cx + dx * cos - dy * sin, cy + dx * sin + dy * cos]);
+  }
+
+  it('strokes the upstream ship as one closed path through the rotated corners', () => {
+    const ctx = draw([SHIP]);
+
+    expect(ctx.ops('strokeRect')).toHaveLength(0);
+    expect(ctx.ops('stroke')).toHaveLength(1);
+    const expected = corners(640, 360, 160, 50, 0.5);
+    ctx.path.forEach(([x, y], i) => {
+      expect(x).toBeCloseTo(expected[i][0], 6);
+      expect(y).toBeCloseTo(expected[i][1], 6);
+    });
+    expect(ctx.path).toHaveLength(4);
+    // A positive angle turns the box clockwise on screen: the first corner (top-left) moves up
+    // and right of where an upright box has it, the second one down.
+    expect(ctx.path[1][1]).toBeGreaterThan(ctx.path[0][1]);
+  });
+
+  it.each([
+    ['four numbers', [1, 2, 3, 4]],
+    ['a NaN', [640, 360, 160, 50, Number.NaN]],
+    ['a string', 'x'],
+    ['null', null],
+  ])('draws the upright bbox for an oriented_bbox of %s', (_, oriented) => {
+    const ctx = draw([{ ...SHIP, oriented_bbox: oriented }]);
+
+    expect(ctx.ops('strokeRect').map((call) => call.args)).toStrictEqual([[558, 300, 164, 121]]);
+    expect(ctx.ops('stroke')).toHaveLength(0);
+  });
+
+  it('labels at the topmost corner, upright, its plate above the corner', () => {
+    const ctx = draw([SHIP]);
+
+    const top = corners(640, 360, 160, 50, 0.5).reduce((a, b) => (b[1] < a[1] ? b : a));
+    // "ship (91%)" is 10 characters: 78 px wide.
+    expect(plates(ctx)).toStrictEqual([[top[0], top[1] - 6 - 18, 78, 18]]);
+  });
+
+  it('labels a box at angle 0 where an upright box with that extent is labeled', () => {
+    const upright = draw([{ label: 'ship', confidence: 0.91, bbox: [560, 335, 160, 50] }]);
+    const turned = draw([
+      {
+        label: 'ship',
+        confidence: 0.91,
+        bbox: [560, 335, 160, 50],
+        oriented_bbox: [640, 360, 160, 50, 0],
+      },
+    ]);
+
+    expect(plates(turned)).toStrictEqual(plates(upright));
+    expect(turned.ops('fillText')[0].args).toStrictEqual(upright.ops('fillText')[0].args);
+  });
+
+  it('labels a mirrored box at the same frame corner, the plate ending at it', () => {
+    const mirrored = { ...VIEW_720P, mirror: true };
+    const ctx = draw([SHIP], mirrored);
+    const top = corners(640, 360, 160, 50, 0.5).reduce((a, b) => (b[1] < a[1] ? b : a));
+
+    // The mirror maps frame x to 1280 - x; the plate ends at that point.
+    expect(plates(ctx)).toStrictEqual([[1280 - top[0] - 78, top[1] - 6 - 18, 78, 18]]);
+
+    const flat = draw(
+      [{ label: 'ship', bbox: [560, 335, 160, 50], oriented_bbox: [640, 360, 160, 50, 0] }],
+      mirrored,
+    );
+    const upright = draw([{ label: 'ship', bbox: [560, 335, 160, 50] }], mirrored);
+    expect(plates(flat)).toStrictEqual(plates(upright));
+  });
+
+  it('keeps reading bbox for the region filter', () => {
+    // The region is the picture's top-left quarter: the bbox lies outside it, the rotated box in it.
+    const settings = overlaySettings({
+      general: { applyRoiFiltering: true, showRoi: false },
+      roi: [
+        {
+          type: 'inclusion',
+          points: [
+            { x: 0, y: 0 },
+            { x: 0.5, y: 0 },
+            { x: 0.5, y: 0.5 },
+            { x: 0, y: 0.5 },
+          ],
+        },
+      ],
+    });
+    const outside = { ...SHIP, bbox: [900, 500, 100, 100], oriented_bbox: [100, 100, 80, 40, 0.3] };
+    const inside = { ...SHIP, bbox: [50, 50, 100, 100], oriented_bbox: [900, 500, 80, 40, 0.3] };
+
+    const ctx = draw([outside, inside], VIEW_720P, settings);
+
+    // Only the second, whose bbox is in the region, is drawn, as its rotated box.
+    expect(ctx.ops('stroke')).toHaveLength(1);
+    expect(ctx.ops('fillText')).toHaveLength(1);
+    expect(ctx.path[0][0]).toBeGreaterThan(800);
+  });
+});

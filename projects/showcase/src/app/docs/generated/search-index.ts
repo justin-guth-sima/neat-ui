@@ -6497,5 +6497,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "video-tile",
     "id": "expanding-a-tile",
     "text": "expandControl gives the tile a button in its top-left corner that shows it over the whole window, and puts it back."
+  },
+  {
+    "kind": "example",
+    "name": "Rotated boxes",
+    "topic": "video-tile",
+    "id": "rotated-boxes",
+    "text": "A detector that finds boxes at an angle sends oriented_bbox with each object of an object-detection message: [centerX, centerY, width,…"
   }
 ];

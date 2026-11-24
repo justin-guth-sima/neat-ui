@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { TestPatternTiles } from './1-test-pattern-tiles.example';
 import { Notice } from './3-notice.example';
 import { ExpandingATile } from './5-expanding-a-tile.example';
+import { RotatedBoxes } from './6-rotated-boxes.example';
+import { rotatedShip } from './rotated-box-source';
 import { TestPatternSource } from './test-pattern-source';
 
 async function render() {
@@ -106,5 +108,30 @@ describe('the expanding example', () => {
     control.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     await fixture.whenStable();
     expect(tile.hasAttribute('data-neat-expanded')).toBe(false);
+  });
+});
+
+describe('the rotated boxes example', () => {
+  it('renders a tile that Mirror flips', async () => {
+    const fixture = TestBed.createComponent(RotatedBoxes);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const tile = host.querySelector<HTMLElement>('neat-video-tile')!;
+
+    expect(tile.hasAttribute('data-mirrored')).toBe(false);
+    host.querySelector<HTMLElement>('button[role="switch"]')!.click();
+    await fixture.whenStable();
+    expect(tile.hasAttribute('data-mirrored')).toBe(true);
+  });
+
+  it('sends a ship whose bbox is the upright extent of its oriented_bbox', () => {
+    for (const frame of [0, 20, 40, 79, 150]) {
+      const { bbox, oriented_bbox: [cx, cy, w, h, angle] } = rotatedShip(frame);
+      expect(angle).toBeCloseTo(frame * 0.02, 12);
+      expect(bbox[0] + bbox[2] / 2).toBeCloseTo(cx, 9);
+      expect(bbox[1] + bbox[3] / 2).toBeCloseTo(cy, 9);
+      expect(bbox[2]).toBeGreaterThanOrEqual(Math.min(w, h));
+    }
+    expect(rotatedShip(0).bbox).toEqual([210, 135, 220, 90]);
   });
 });

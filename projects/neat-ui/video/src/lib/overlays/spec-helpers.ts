@@ -78,19 +78,22 @@ export class RecordingContext {
   }
 
   beginPath(): void {
-    // Paths are not recorded; the stroke or fill that uses one is.
+    this.path = [];
   }
 
   closePath(): void {
     // See beginPath.
   }
 
-  moveTo(): void {
-    // See beginPath.
+  /** The `moveTo` and `lineTo` points since the last `beginPath`, kept apart from `calls`. */
+  path: [number, number][] = [];
+
+  moveTo(x: number, y: number): void {
+    this.path.push([x, y]);
   }
 
-  lineTo(): void {
-    // See beginPath.
+  lineTo(x: number, y: number): void {
+    this.path.push([x, y]);
   }
 
   clearRect(...args: unknown[]): void {

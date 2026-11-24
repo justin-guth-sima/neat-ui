@@ -182,6 +182,7 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 | track                | a detection the tracking overlay follows from frame to frame, under one id     | `tracking`, `id`            | tracklet, object                                 |
 | class color          | a label's color, the same on every tile of a page and in its bird's-eye view   | `colorOf`                   | label color, identity color                      |
 | label plate          | the dark backing an overlay's label is drawn on, its text in the class color   | `drawLabelPlate`            | label background, caption box                    |
+| rotated box          | a detection's box turned by an angle; `bbox` stays its upright extent          | `oriented_bbox`             | oriented box, OBB, tilted box                    |
 | bar                  | the line along the tile's bottom: its label, status and chips                  | `bars`                      | footer, status bar                               |
 | notice               | what keeps a tile's stream from showing as it should, in words                 | `notice`, `noticeTone`      | tile state, state overlay, no signal             |
 | Insight channel      | one Insight channel's video and metadata over WebRTC, as a tile's source       | `neatInsightChannel`        | channel source, WebRTC source                    |

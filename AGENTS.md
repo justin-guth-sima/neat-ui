@@ -196,7 +196,15 @@ look happens in one place. Every rule here protects that.
     and the plate stays inside the overlay's top, left and right edges. A box's label (a
     detection's, a segment's, a track's, a pose's) stands just above the box's top-left corner
     (`drawBoxLabels`), and an overlay draws its labels after all of its boxes and masks, so none of
-    them crosses a label; where boxes overlap, a later label covers an earlier one. The
+    them crosses a label; where boxes overlap, a later label covers an earlier one.
+    A detection may carry `oriented_bbox` (`[cx, cy, width, height, angle]`, the center and size in
+    video pixels, the angle in radians turning the box clockwise on screen): the overlay then draws
+    that rotated box as one closed path through its four corners, mapped as every point is, so a
+    mirrored tile turns it the other way by itself, and `bbox` stays its upright extent, which the
+    region filter reads. Anything but five finite numbers falls back to `bbox`. Its label stands
+    upright at the box's topmost corner, its plate above the corner (of two corners equally high,
+    the one with the smaller x in video pixels, so a box at angle 0 labels at its top-left as an
+    upright box does, and on a mirrored tile the same frame corner anchors it). The
     classification list is laid out in CSS pixels from the picture's top-left corner, so its rows
     never overlap on a small tile.
     `NeatVideoTile`'s `mirror` shows the picture as in a mirror (a selfie view): the video flips by

@@ -1285,6 +1285,214 @@ export abstract class CanvasSource implements NeatTileSource {
 
 </details>
 
+### Rotated boxes
+
+A detector that finds boxes at an angle sends `oriented_bbox` with each object of an `object-detection` message: `[centerX, centerY, width, height, angle]`, the center and size in video pixels and the angle in radians, turning the box clockwise on screen. The tile draws that box instead of `bbox`, which stays the upright extent around it (the region of interest reads it). An `oriented_bbox` that is not five finite numbers is ignored and `bbox` drawn.
+
+The label stands upright at the rotated box's topmost corner, its plate above the corner as for any box. Of two corners equally high it takes the left one, so a box that is not turned labels at its top-left corner, as an upright box does. Watch the label hop from corner to corner as the ship turns. With Mirror on, the picture and the box flip and the label stays at the same corner of the frame, its plate ending at it.
+
+<details>
+<summary>Code</summary>
+
+`6-rotated-boxes.example.ts`
+
+```ts
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  DOCUMENT,
+  inject,
+  signal,
+} from '@angular/core';
+import { NeatSwitch } from '@sima/neat-ui/switch';
+import { NeatVideoTile } from '@sima/neat-ui/video';
+import { RotatedBoxSource } from './rotated-box-source';
+
+@Component({
+  selector: 'app-rotated-boxes',
+  imports: [NeatSwitch, NeatVideoTile],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './6-rotated-boxes.example.html',
+  styleUrl: './test-pattern-tiles.example.css',
+})
+export class RotatedBoxes {
+  protected readonly harbor = new RotatedBoxSource();
+  protected readonly mirror = signal(false);
+
+  constructor() {
+    const document = inject(DOCUMENT);
+    afterNextRender(() => this.harbor.start(document));
+    inject(DestroyRef).onDestroy(() => this.harbor.stop());
+  }
+}
+```
+
+`6-rotated-boxes.example.html`
+
+```html
+<div class="showcase-row">
+  <button neatSwitch [(checked)]="mirror">Mirror</button>
+</div>
+<div class="tiles">
+  <div class="cell">
+    <neat-video-tile [source]="harbor" [mirror]="mirror()" label="1" status="Harbor · 640×360" />
+  </div>
+</div>
+```
+
+`rotated-box-source.ts`
+
+```ts
+import { SIMA_PALETTE } from '@sima/neat-ui';
+import { CanvasSource, HEIGHT, WIDTH } from './canvas-source';
+
+/** The turning box: its center, its size and how far it turns each frame, in radians. */
+const CENTER = [WIDTH / 2, HEIGHT / 2] as const;
+const SIZE = [220, 90] as const;
+const TURN_PER_FRAME = 0.02;
+
+/** A box of an `object-detection` message: its upright extent and the rotated box itself. */
+export interface RotatedShip {
+  readonly label: string;
+  readonly confidence: number;
+  /** `[x, y, width, height]`, the smallest upright box around the rotated one. */
+  readonly bbox: readonly [number, number, number, number];
+  /** `[centerX, centerY, width, height, angle]`, the angle in radians, clockwise on screen. */
+  readonly oriented_bbox: readonly [number, number, number, number, number];
+}
+
+/** The ship of frame `frame`: a box that turns once every 10.5 s at 30 frames a second. */
+export function rotatedShip(frame: number): RotatedShip {
+  const angle = frame * TURN_PER_FRAME;
+  const [cx, cy] = CENTER;
+  const [w, h] = SIZE;
+  const width = Math.abs(w * Math.cos(angle)) + Math.abs(h * Math.sin(angle));
+  const height = Math.abs(w * Math.sin(angle)) + Math.abs(h * Math.cos(angle));
+  return {
+    label: 'ship',
+    confidence: 0.91,
+    bbox: [cx - width / 2, cy - height / 2, width, height],
+    oriented_bbox: [cx, cy, w, h, angle],
+  };
+}
+
+/** A dark picture with a ship that turns slowly, and an `object-detection` message per frame. */
+export class RotatedBoxSource extends CanvasSource {
+  private frame = 0;
+
+  protected paint(ctx: CanvasRenderingContext2D): void {
+    ctx.fillStyle = SIMA_PALETTE.text;
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    const ship = rotatedShip(this.frame);
+    const [cx, cy, w, h, angle] = ship.oriented_bbox;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angle);
+    ctx.fillStyle = SIMA_PALETTE.backgroundAlt;
+    ctx.fillRect(-w / 2, -h / 2, w, h);
+    ctx.restore();
+    this.send({ type: 'object-detection', data: { objects: [ship] } });
+    this.frame += 1;
+  }
+}
+```
+
+`canvas-source.ts`
+
+```ts
+import { signal } from '@angular/core';
+import type { NeatMetadataMessage, NeatTileSource } from '@sima/neat-ui/video';
+
+export const WIDTH = 640;
+export const HEIGHT = 360;
+export const FRAMES_PER_SECOND = 30;
+
+/**
+ * What the showcase's sources share, so a tile plays without vf: a canvas streamed with
+ * `captureStream()`, painted 30 times a second, and the metadata listeners. Each source paints a
+ * frame and sends the metadata that describes it. A canvas stream has no RTP timestamps, so the
+ * tile matches metadata by arrival, which takes only the latest message: hence one type a source.
+ */
+export abstract class CanvasSource implements NeatTileSource {
+  readonly stream = signal<MediaStream | null>(null);
+
+  private readonly listeners = new Set<(text: string, receivedAt: number) => void>();
+  private animation = 0;
+  private lastPaintAt = 0;
+
+  onMetadata(listener: (text: string, receivedAt: number) => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  /** Starts the stream; does nothing where canvases cannot be streamed (as in unit tests). */
+  start(document: Document): void {
+    const canvas = document.createElement('canvas');
+    if (typeof canvas.captureStream !== 'function') return;
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+    const context = canvas.getContext('2d');
+    if (context === null) return;
+    this.stream.set(canvas.captureStream(FRAMES_PER_SECOND));
+    const loop = (now: number) => {
+      this.animation = requestAnimationFrame(loop);
+      if (now - this.lastPaintAt < 1000 / FRAMES_PER_SECOND) return;
+      this.lastPaintAt = now;
+      this.paint(context);
+    };
+    this.animation = requestAnimationFrame(loop);
+  }
+
+  stop(): void {
+    cancelAnimationFrame(this.animation);
+    for (const track of this.stream()?.getTracks() ?? []) track.stop();
+    this.stream.set(null);
+    this.listeners.clear();
+  }
+
+  /** Paints the next frame on `ctx` and sends its metadata. Painting nothing presents no frame. */
+  protected abstract paint(ctx: CanvasRenderingContext2D): void;
+
+  protected send(message: NeatMetadataMessage): void {
+    const text = JSON.stringify(message);
+    const receivedAt = performance.now();
+    for (const listener of this.listeners) listener(text, receivedAt);
+  }
+}
+```
+
+`test-pattern-tiles.example.css`
+
+```css
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 24rem));
+  gap: var(--neat-space-4);
+}
+
+/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */
+.cell {
+  aspect-ratio: 16 / 9;
+}
+
+.chip {
+  padding: 0 var(--neat-space-2);
+  border-radius: var(--radius);
+  background: var(--info);
+  color: var(--info-foreground);
+}
+```
+
+</details>
+
 ## API
 
 ### `NeatVideoTile`
