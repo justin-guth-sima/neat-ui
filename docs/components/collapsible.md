@@ -86,15 +86,6 @@ export class SummaryAndSave {
 .panel {
   max-width: 22rem;
 }
-
-/* A field's name over its control, with the note under them. */
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--neat-space-2);
-  margin-bottom: var(--neat-space-2);
-  font-size: var(--neat-text-sm);
-}
 ```
 
 </details>
@@ -175,15 +166,6 @@ export class EndControls {
 .panel {
   max-width: 22rem;
 }
-
-/* A field's name over its control, with the note under them. */
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--neat-space-2);
-  margin-bottom: var(--neat-space-2);
-  font-size: var(--neat-text-sm);
-}
 ```
 
 </details>
@@ -211,7 +193,7 @@ import { NeatLine, NeatLineEnd, NeatLineList } from '@sima/neat-ui/line-list';
   imports: [NeatCollapsible, NeatInlineButton, NeatInput, NeatLine, NeatLineEnd, NeatLineList],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './3-under-a-field.example.html',
-  styleUrl: './panel.css',
+  styleUrls: ['./panel.css', './under-a-field.example.css'],
 })
 export class UnderAField {
   protected readonly open = signal(false);
@@ -278,7 +260,11 @@ export class UnderAField {
 .panel {
   max-width: 22rem;
 }
+```
 
+`under-a-field.example.css`
+
+```css
 /* A field's name over its control, with the note under them. */
 .field {
   display: flex;

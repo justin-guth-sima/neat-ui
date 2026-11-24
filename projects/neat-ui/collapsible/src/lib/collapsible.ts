@@ -151,7 +151,7 @@ export type NeatCollapsibleVariant = 'section' | 'note';
               [style.--neat-tone-dot]="color"
             ></span>
           }
-          <span [class]="labelClasses()">{{ label() }}</span>
+          <span data-slot="collapsible-label" [class]="labelClasses()">{{ label() }}</span>
           @if (!brain.expanded() && summary()) {
             <span data-slot="collapsible-summary" [class]="summaryClasses">{{ summary() }}</span>
           }

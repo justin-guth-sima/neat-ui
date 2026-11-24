@@ -53,8 +53,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "panel.css",
         "code": [
-          ["comment","/* A collapsible's habitat is an aside, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n\n"],
-          ["comment","/* A field's name over its control, with the note under them. */"],["text","\n.field {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin-bottom: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
+          ["comment","/* A collapsible's habitat is an aside, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n"]
         ]
       }
     ]
@@ -116,8 +115,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "panel.css",
         "code": [
-          ["comment","/* A collapsible's habitat is an aside, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n\n"],
-          ["comment","/* A field's name over its control, with the note under them. */"],["text","\n.field {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin-bottom: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
+          ["comment","/* A collapsible's habitat is an aside, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n"]
         ]
       }
     ]
@@ -172,8 +170,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatInput } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/input'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatLine, NeatLineEnd, NeatLineList } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/line-list'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-under-a-field'"],["text",",\n  imports: [NeatCollapsible, NeatInlineButton, NeatInput, NeatLine, NeatLineEnd, NeatLineList],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
-          ["string","'./3-under-a-field.example.html'"],["text",",\n  styleUrl: "],
-          ["string","'./panel.css'"],["text",",\n})\n"],
+          ["string","'./3-under-a-field.example.html'"],["text",",\n  styleUrls: ["],
+          ["string","'./panel.css'"],["text",", "],["string","'./under-a-field.example.css'"],["text","],\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," UnderAField {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," open = signal("],["keyword","false"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," channels = signal([\n    { name: "],
@@ -192,7 +190,12 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "panel.css",
         "code": [
-          ["comment","/* A collapsible's habitat is an aside, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n\n"],
+          ["comment","/* A collapsible's habitat is an aside, so the examples give it a panel's width. */"],["text","\n.panel {\n  max-width: 22rem;\n}\n"]
+        ]
+      },
+      {
+        "name": "under-a-field.example.css",
+        "code": [
           ["comment","/* A field's name over its control, with the note under them. */"],["text","\n.field {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  margin-bottom: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n"]
         ]
       }

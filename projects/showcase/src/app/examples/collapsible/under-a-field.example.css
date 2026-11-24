@@ -1,0 +1,8 @@
+/* A field's name over its control, with the note under them. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  margin-bottom: var(--neat-space-2);
+  font-size: var(--neat-text-sm);
+}

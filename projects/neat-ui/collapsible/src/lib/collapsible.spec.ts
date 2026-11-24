@@ -74,7 +74,7 @@ async function renderNote(setup: (host: NoteHost) => void = () => undefined) {
   await fixture.whenStable();
   const element: HTMLElement = fixture.nativeElement;
   const trigger = element.querySelector<HTMLButtonElement>('[data-slot="collapsible-trigger"]')!;
-  const label = trigger.querySelector<HTMLElement>('span:not([data-slot])')!;
+  const label = trigger.querySelector<HTMLElement>('[data-slot="collapsible-label"]')!;
   const dot = () => element.querySelector<HTMLElement>('[data-slot="collapsible-dot"]');
   return { fixture, host: fixture.componentInstance, element, trigger, label, dot };
 }

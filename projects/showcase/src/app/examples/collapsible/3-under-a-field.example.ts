@@ -16,7 +16,7 @@ import { NeatLine, NeatLineEnd, NeatLineList } from '@sima/neat-ui/line-list';
   imports: [NeatCollapsible, NeatInlineButton, NeatInput, NeatLine, NeatLineEnd, NeatLineList],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './3-under-a-field.example.html',
-  styleUrl: './panel.css',
+  styleUrls: ['./panel.css', './under-a-field.example.css'],
 })
 export class UnderAField {
   protected readonly open = signal(false);
