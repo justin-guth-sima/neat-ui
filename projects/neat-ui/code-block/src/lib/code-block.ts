@@ -6,11 +6,13 @@ import {
   Component,
   computed,
   contentChild,
+  DestroyRef,
   effect,
   ElementRef,
   inject,
   input,
   model,
+  NgZone,
   resource,
   signal,
   viewChild,
@@ -22,8 +24,10 @@ import { highlighterFor } from './highlighter';
 import { NEAT_CODE_LANGUAGES } from './languages';
 import { plainLines } from './lines';
 import { focusLines, type NeatCodeMark, type NeatCodeStep } from './marks';
+import { watchNearView } from './near-view';
 import { NeatCodeNote } from './note';
 import { scrollToShow } from './scroll';
+import { nextTurn } from './turns';
 
 /**
  * How long a mark's note outlives the pointer leaving the mark, so the pointer can cross to the
@@ -67,7 +71,9 @@ export type NeatCodeOverflow = 'wrap' | 'scroll';
  * Markdown, Dockerfile and Go by themselves; `provideNeatCodeLanguages` adds others. The
  * highlighter (Shiki) and each language's grammar load the first time a block on the page shows
  * that language, so a page without a colored block loads none of it, and one with Python only
- * never loads C++. While they load, the block shows the code plain, in the same layout. A
+ * never loads C++. A block colors its code once it comes near the view, and one block at a time,
+ * each in a task of its own, so a page of many blocks does not freeze while they all color. Until
+ * then, and while the grammar loads, the block shows the code plain, in the same layout. A
  * language the block does not know leaves the code plain and is named once in dev mode.
  *
  * `lineNumbers` numbers the lines in a gutter at their start. The numbers are not part of the text:
@@ -292,11 +298,30 @@ export class NeatCodeBlock {
     this.plain().map((line) => line.runs.map((run) => run.text).join('')),
   );
 
-  /** The lines shown: colored once the language's highlighter is there, plain until then. */
-  private readonly lines = computed(() => {
-    const highlighter = this.highlighter.hasValue() ? this.highlighter.value() : undefined;
-    return highlighter ? highlighter.lines(this.code()) : this.plain();
+  /** Whether the block has come near the view, from which on it colors its code. */
+  private readonly near = signal(false);
+
+  /**
+   * The code's lines colored, once the block is near the view and the language's highlighter is
+   * there, tokenized in a turn of its own (`nextTurn`). New code is colored in a new turn, and a
+   * turn whose code changed while it waited tokenizes nothing.
+   */
+  private readonly colored = resource({
+    params: () => {
+      const highlighter = this.highlighter.hasValue() ? this.highlighter.value() : undefined;
+      return highlighter && this.near() ? { highlighter, code: this.code() } : undefined;
+    },
+    loader: async ({ params: { highlighter, code }, abortSignal }) => {
+      await nextTurn();
+      abortSignal.throwIfAborted();
+      return highlighter.lines(code);
+    },
   });
+
+  /** The lines shown: colored once they are, plain until then. */
+  private readonly lines = computed(() =>
+    this.colored.hasValue() ? this.colored.value() : this.plain(),
+  );
 
   protected readonly stepCount = computed(() => this.steps().length);
   /** The step shown: `step`, kept to the steps there are. */
@@ -357,6 +382,12 @@ export class NeatCodeBlock {
   });
 
   constructor() {
+    const stopWatching = inject(NgZone).runOutsideAngular(() =>
+      watchNearView(this.document.defaultView, inject(ElementRef).nativeElement, () =>
+        this.near.set(true),
+      ),
+    );
+    inject(DestroyRef).onDestroy(stopWatching);
     // Brings the first mark shown into the box's view whenever the marks shown change.
     afterRenderEffect(() => {
       this.focus();

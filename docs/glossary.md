@@ -98,6 +98,7 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 | language      | what a code block's code is written in, by its Shiki name or an alias                                  | `language`                      | lang, syntax                |
 | grammar       | the rules that color one language, loaded the first time a block shows it                              | `NeatCodeLanguages`             | language pack, syntax file  |
 | highlighter   | what colors code by its grammar: Shiki, which the code block loads on first use                        | `highlighter.ts` (internal)     | syntax highlighter          |
+| turn          | a code block's own task for coloring its code once it is near the view, after those before it          | `nextTurn` (internal)           | slot, tick                  |
 | code colors   | the theme's tokens for the kinds of code text: keyword, string, comment and so on                      | `--neat-code-keyword`, ...      | syntax colors, syntax theme |
 | line numbers  | the numbers at the start of a code block's lines, which a selection leaves out                         | `lineNumbers`                   |                             |
 | mark          | lines, or a part of a line, that a code block sets apart, counted from 1 as people read them           | `NeatCodeMark`, `marks`         | highlight, emphasis, focus  |

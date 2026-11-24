@@ -917,10 +917,17 @@ default) the code is plain.
   (38 kB gzipped) together, and that language's grammar from `@shikijs/langs` (Python 70 kB, 9 kB
   gzipped; C++ with the C, GLSL and regular expression grammars it embeds 870 kB, 64 kB gzipped).
   Each is kept for the page (`highlighter.ts`), so a second Python block loads nothing and a page
-  with Python only never loads C++. Until they are there the block shows the code plain, in the same lines. Shiki's
-  JavaScript engine gave the same tokens as its Oniguruma (WebAssembly) engine for every default
-  language when it was chosen. Each default grammar is a chunk of every app's build that uses the
-  entry, loaded only when shown, so the default set stays small.
+  with Python only never loads C++. Until they are there the block shows the code plain, in the
+  same lines. Shiki's JavaScript engine gave the same tokens as its Oniguruma (WebAssembly) engine
+  for every default language when it was chosen. Each default grammar is a chunk of every app's
+  build that uses the entry, loaded only when shown, so the default set stays small.
+- **When a block colors.** Only once it comes near the view (`near-view.ts`: an
+  `IntersectionObserver` with half the view's height as margin, around the window and around every
+  box that scrolls the block, since a kit page scrolls its own body; without an observer, at once),
+  and one block at a time, each tokenizing in a task of its own, in order (`turns.ts`); its lines
+  stay plain until then, and once colored it stays so. Why: all blocks resolve from one grammar
+  load, so they tokenized in one render pass, and a page of many blocks froze for the sum of them
+  (half a second for the showcase's code block topic). New `code` is colored in a new turn.
 - **The languages:** Python, C++, C, shell, JSON, YAML, CMake, TypeScript, JavaScript, HTML, CSS,
   Markdown, Dockerfile and Go, under each grammar's Shiki name and aliases (`languages.ts`, held to
   the grammars by its spec). `provideNeatCodeLanguages({ name: () => import('@shikijs/langs/<id>') })`

@@ -4,6 +4,7 @@ import { NeatCodeBlock } from './code-block';
 import { resetWarned } from './highlighter';
 import { provideNeatCodeLanguages } from './languages';
 import type { NeatCodeMark, NeatCodeStep } from './marks';
+import { FakeIntersectionObserver } from './near-view.testing';
 import { NeatCodeNote } from './note';
 
 const CODE = '<neat-diagram [diagram]="set">\n  <ng-template neatDiagramBlock let-node>';
@@ -215,6 +216,54 @@ describe('NeatCodeBlock', () => {
     await fixture.whenStable();
     expect(host.querySelectorAll('.line')).toHaveLength(3);
     expect(host.querySelector('[data-kind]')).not.toBeNull();
+  });
+
+  it('colors its code only once it comes near the view, and stays colored', async () => {
+    vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver);
+    const fixture = TestBed.createComponent(NeatCodeBlock);
+    fixture.componentRef.setInput('code', PYTHON);
+    fixture.componentRef.setInput('language', 'python');
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const observer = FakeIntersectionObserver.last!;
+
+    expect(observer.watched).toEqual([host]);
+    expect(host.querySelectorAll('.line')).toHaveLength(3);
+    expect(host.querySelector('[data-kind]')).toBeNull();
+    observer.report(false);
+    await fixture.whenStable();
+    expect(host.querySelector('[data-kind]')).toBeNull();
+
+    observer.report(true);
+    await fixture.whenStable();
+    expect(host.querySelector('[data-kind="keyword"]')?.textContent).toBe('import');
+    expect(observer.disconnected).toBe(true);
+  });
+
+  it('stops watching for the view when it goes', async () => {
+    vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver);
+    const fixture = TestBed.createComponent(NeatCodeBlock);
+    fixture.componentRef.setInput('code', PYTHON);
+    await fixture.whenStable();
+    fixture.destroy();
+
+    expect(FakeIntersectionObserver.last?.disconnected).toBe(true);
+  });
+
+  it('colors new code anew, plain until it is colored', async () => {
+    const fixture = TestBed.createComponent(NeatCodeBlock);
+    fixture.componentRef.setInput('code', PYTHON);
+    fixture.componentRef.setInput('language', 'python');
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+
+    fixture.componentRef.setInput('code', 'print(session)\n');
+    fixture.detectChanges();
+    expect(host.querySelector('pre')!.textContent).toBe('print(session)\n');
+    expect(host.querySelector('[data-kind]')).toBeNull();
+    await fixture.whenStable();
+    expect(host.querySelector('[data-kind="function"]')?.textContent).toBe('print');
+    expect(host.querySelector('pre')!.textContent).toBe('print(session)\n');
   });
 
   it('shows a language it has no grammar for plain, and names it once in dev mode', async () => {
