@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { ɵreducedMotion, type ɵFrameClock } from '@sima/neat-ui';
 import { DecryptEngine } from './decrypt';
+import { ExplosionEngine } from './explosion';
 import { MOTION_CLOCK } from './motion-clock';
 import type { NeatTextMotion } from './text-motions';
 
@@ -34,6 +35,7 @@ export interface MotionHost {
 /** The motions that have an engine, and how each is made. */
 const ENGINES: Partial<Record<NeatTextMotion, (deps: MotionHost) => MotionEngine>> = {
   decrypt: (deps) => new DecryptEngine(deps),
+  'reverse-explosion': (deps) => new ExplosionEngine(deps),
 };
 
 /**

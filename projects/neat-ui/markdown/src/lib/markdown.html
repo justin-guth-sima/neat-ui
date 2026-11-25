@@ -9,6 +9,10 @@
     *ngTemplateOutlet="blockTemplate; context: { $implicit: block.token, tail: $last && tail() }"
   />
 }
+@if (moving() === 'reverse-explosion') {
+  <!-- The reverse explosion's particles, drawn by its engine in a band over the newest line. -->
+  <canvas class="particles" aria-hidden="true"></canvas>
+}
 
 <!-- A block; with `tail`, the decrypt motion's tail ends its last prose. -->
 <ng-template #blockTemplate let-token let-tail="tail">

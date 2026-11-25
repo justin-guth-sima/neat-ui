@@ -91,6 +91,20 @@
   user-select: none;
 }
 
+/*
+ * Reverse explosion: the particles' band, as wide as the host and at most 400px high, moved onto
+ * the newest line by its engine.
+ */
+.particles {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  width: 100%;
+  height: min(400px, 100%);
+  margin: 0;
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   :host([data-streaming]:not([data-motion])) > :is(p, h1, h2, h3, h4, h5, h6):last-child::after,
   :host([data-streaming]:not([data-motion])) > :is(ul, ol):last-child > li:last-child::after {
@@ -108,6 +122,19 @@
 
   :host([data-motion='token-flash']) .piece {
     animation: flash var(--neat-motion-ms) ease-out both;
+  }
+
+  /* The motions whose particles or words need room below the last line while it streams. */
+  :host(:is([data-motion='reverse-explosion'], [data-motion='word-cloud'])) {
+    transition: padding-block-end 0.4s ease-out;
+  }
+
+  :host([data-streaming]:is([data-motion='reverse-explosion'], [data-motion='word-cloud'])) {
+    padding-block-end: 4.5rem;
+  }
+
+  :host([data-motion='reverse-explosion']) .piece {
+    animation: assemble var(--neat-motion-ms) linear both;
   }
 
   :host([data-motion='drop-in']) .letter:not([data-still]) {
@@ -170,6 +197,20 @@
   to {
     background: transparent;
     box-shadow: none;
+  }
+}
+
+/* Hidden while the particles condense (300 ms of 520), then in over 200 ms. */
+@keyframes assemble {
+  0%,
+  57.7% {
+    opacity: 0;
+    animation-timing-function: ease-out;
+  }
+
+  96.2%,
+  100% {
+    opacity: 1;
   }
 }
 

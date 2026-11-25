@@ -1,4 +1,5 @@
 import type { MotionEngine, MotionHost } from './engine';
+import { FrameLoop } from './frame-loop';
 
 /** The glyphs a pending letter shows. */
 const GLYPHS = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#$%&*+=<>/\\';
@@ -45,11 +46,14 @@ export class DecryptEngine implements MotionEngine {
   private live = false;
   private tailNoise = '';
   private renewedAt = Number.NEGATIVE_INFINITY;
-  private handle: number | null = null;
-  private readonly onVisibility = () => this.schedule();
+  private readonly frames: FrameLoop;
 
   constructor(private readonly deps: MotionHost) {
-    deps.document.addEventListener('visibilitychange', this.onVisibility);
+    this.frames = new FrameLoop(
+      deps,
+      () => this.apply(true),
+      () => this.live || this.pieces.some((piece) => piece.end > this.frontier),
+    );
   }
 
   rendered(streaming: boolean): void {
@@ -68,13 +72,11 @@ export class DecryptEngine implements MotionEngine {
     this.tail = host.querySelector<HTMLElement>('span.tail');
     this.lineHeight = Number.parseFloat(getComputedStyle(host).lineHeight);
     this.apply(false);
-    this.schedule();
+    this.frames.start();
   }
 
   destroy(): void {
-    if (this.handle !== null) this.deps.clock.cancel(this.handle);
-    this.handle = null;
-    this.deps.document.removeEventListener('visibilitychange', this.onVisibility);
+    this.frames.destroy();
     for (const piece of this.pieces) {
       piece.element.removeAttribute('data-pending');
       piece.noise.textContent = '';
@@ -98,17 +100,6 @@ export class DecryptEngine implements MotionEngine {
       end: from + text.length,
       glyphs,
     };
-  }
-
-  private schedule(): void {
-    if (this.handle !== null || this.deps.document.hidden) return;
-    if (!this.live && !this.pieces.some((piece) => piece.end > this.frontier)) return;
-    this.handle = this.deps.clock.request(() => {
-      this.handle = null;
-      if (this.deps.document.hidden) return;
-      this.apply(true);
-      this.schedule();
-    });
   }
 
   /** Writes the pieces' and the tail's state; `advance` moves the frontier on by a frame. */

@@ -193,10 +193,15 @@ describe('NeatMarkdown text motion', () => {
   beforeEach(() => {
     clock = steppedClock();
     stubReducedMotion(false);
+    // jsdom draws nothing: a canvas without a context.
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
     TestBed.configureTestingModule({ providers: [{ provide: MOTION_CLOCK, useValue: clock }] });
   });
 
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
 
   /** A reply streamed write by write in `motion`. */
   function streamed(motion: NeatTextMotion, first = '') {
@@ -366,6 +371,20 @@ describe('NeatMarkdown text motion', () => {
     reply.fixture.componentInstance.streaming.set(false);
     reply.fixture.detectChanges();
     expect(reply.element.querySelector('span.tail')).toBeNull();
+  });
+
+  it('reverse explosion makes its engine and canvas, and neither under reduced motion', () => {
+    // And lays nothing out: each element one line at the top.
+    const line = { left: 0, top: 0, width: 40, height: 20, right: 40, bottom: 20 } as DOMRect;
+    vi.spyOn(Element.prototype, 'getClientRects').mockReturnValue([line] as unknown as DOMRectList);
+    const reply = streamed('reverse-explosion', 'Three');
+    const canvas = reply.element.querySelector<HTMLCanvasElement>('canvas.particles')!;
+    expect(canvas.getAttribute('aria-hidden')).toBe('true');
+    // The engine places its band on the newest line.
+    expect(canvas.style.transform).toMatch(/^translateY\(/);
+    stubReducedMotion(true);
+    const still = streamed('reverse-explosion', 'Three');
+    expect(still.element.querySelector('canvas')).toBeNull();
   });
 
   it('decrypt pieces hold their text and a noise hidden from assistive technology', () => {

@@ -129,8 +129,11 @@ export class NeatMarkdown {
     return { blocks, pieces };
   });
 
+  /** The motion whose layers the template renders: none under reduced motion. */
+  protected readonly moving = computed(() => (ɵreducedMotion() ? null : this.motion()));
+
   /** Whether the last prose block ends in the decrypt motion's tail. */
-  protected readonly tail = computed(() => this.motion() === 'decrypt' && this.streaming());
+  protected readonly tail = computed(() => this.moving() === 'decrypt' && this.streaming());
 
   constructor() {
     runMotionEngine(this.motion, this.streaming, this.shown);
