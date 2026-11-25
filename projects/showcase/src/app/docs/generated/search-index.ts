@@ -2350,6 +2350,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "camera",
+    "part": "NeatMessageBox",
+    "text": "Shows a Camera button after Picture, which takes a photo with the laptop camera."
+  },
+  {
+    "kind": "member",
     "name": "talk",
     "part": "NeatMessageBox",
     "text": "Shows push-to-talk beside Send, for asking by voice."
@@ -2395,16 +2401,16 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "send",
     "part": "NeatMessageBox",
     "text": "A draft was sent: its text (trimmed) and its pictures, which are the app's from now on."
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "stop",
     "part": "NeatMessageBox",
     "text": "Stop was pressed while the board worked."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "part",
     "name": "NeatMessageBoxActivity",
@@ -4798,16 +4804,16 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatStatusChipButton",
     "partKind": "directive",
     "text": "The chip as a button, for a status that opens more about itself."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "tone",
     "part": "NeatStatusChipButton",
     "text": "The status the chip states, which sets its colors; neutral for a plain label."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "variant",

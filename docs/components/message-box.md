@@ -305,6 +305,8 @@ The text area grows with what is written, up to eight lines, then scrolls. Enter
 
 **Push-to-talk** (`talk`) sits beside Send: the visitor holds it, or taps it twice, to ask by voice ([`NeatPushToTalk`](../components/push-to-talk.md#neatpushtotalk)). The box emits the recording as `recorded` for the app to turn into a question, and forwards `recording` (both ways), `transcribing` and `listeningMotion` to it; `disabled` disables it too. A spoken question does not take the typed draft, which stays in the box. With the `in-message-box` listening motion, the voice shows as a waveform where the text was, the text area see-through beneath it (it keeps its size and stays in the accessibility tree); on release the bars collapse and stay so while `transcribing`, and the heard question then flies out of the box into the transcript. Under reduced motion it is push-to-talk's level meter. Recording does not change the glow, which is the board's.
 
+**The camera** (`camera`): a Camera button after Picture opens a dialog with the laptop camera's live preview and Take, which adds the frame to the draft as a picture ("Photo from the camera"). The button waits (`aria-disabled`) while the draft is full, while push-to-talk records and while the box is disabled. The camera stops as the dialog closes; a problem ("Camera blocked", "No camera") is said in the dialog. The camera exists only in a secure context (HTTPS or localhost).
+
 `text` and `pictures` are models, so an app can keep or restore a draft.
 
 **Inputs**
@@ -336,6 +338,10 @@ The text area grows with what is written, up to eight lines, then scrolls. Enter
 - **`maxPictures`** `number`, default `4`
 
   How many pictures a draft may hold.
+
+- **`camera`** `boolean`, default `false`, transform `booleanAttribute`
+
+  Shows a Camera button after Picture, which takes a photo with the laptop camera.
 
 - **`talk`** `boolean`, default `false`, transform `booleanAttribute`
 

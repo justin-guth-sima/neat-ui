@@ -12,6 +12,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { NeatButton, NeatIcon, NeatTooltip } from '@sima/neat-ui';
+import { NeatDialog } from '@sima/neat-ui/dialog';
+import { CameraDialog } from './camera/camera-dialog';
 import { pictureFromFile, revokePicture } from './pictures';
 import { type NeatListeningMotion, NeatPushToTalk } from './push-to-talk';
 import type { NeatChatDraft, NeatChatPicture } from './types';
@@ -90,6 +92,12 @@ const SIZES_ITSELF = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing'
  * then flies out of the box into the transcript. Under reduced motion it is push-to-talk's level
  * meter. Recording does not change the glow, which is the board's.
  *
+ * **The camera** (`camera`): a Camera button after Picture opens a dialog with the laptop camera's
+ * live preview and Take, which adds the frame to the draft as a picture ("Photo from the camera").
+ * The button waits (`aria-disabled`) while the draft is full, while push-to-talk records and while
+ * the box is disabled. The camera stops as the dialog closes; a problem ("Camera blocked", "No
+ * camera") is said in the dialog. The camera exists only in a secure context (HTTPS or localhost).
+ *
  * `text` and `pictures` are models, so an app can keep or restore a draft.
  */
 @Component({
@@ -127,6 +135,8 @@ export class NeatMessageBox {
   readonly text = model('');
   /** The draft's pictures. */
   readonly pictures = model<readonly NeatChatPicture[]>([]);
+  /** Shows a Camera button after Picture, which takes a photo with the laptop camera. */
+  readonly camera = input(false, { transform: booleanAttribute });
   /** Shows push-to-talk beside Send, for asking by voice. */
   readonly talk = input(false, { transform: booleanAttribute });
   /** Push-to-talk asks for the microphone or records; set it to start or stop, as its own. */
@@ -149,6 +159,13 @@ export class NeatMessageBox {
   private readonly talker = viewChild(NeatPushToTalk);
   private readonly area = viewChild.required<ElementRef<HTMLTextAreaElement>>('area');
   private readonly origin = inject(HeardOrigin);
+  private readonly dialogs = inject(NeatDialog);
+  /** Whether the draft has room for another picture. */
+  protected readonly full = computed(() => this.pictures().length >= this.maxPictures());
+  /** The Camera button waits while the draft is full, push-to-talk records or the box is off. */
+  protected readonly cameraWaits = computed(
+    () => this.disabled() || this.recording() || this.full(),
+  );
   /** Whether the waveform over the text area is drawn (while recording, and after it collapses). */
   protected readonly wave = runListeningEngine(
     computed(() => (this.listeningMotion() === 'in-message-box' ? 'in-message-box' : 'level')),
@@ -163,6 +180,24 @@ export class NeatMessageBox {
     () =>
       !this.disabled() && this.idle() && (this.text().trim() !== '' || this.pictures().length > 0),
   );
+
+  protected openCamera(): void {
+    if (this.full()) this.note.set(`Up to ${this.maxPictures()} pictures`);
+    if (this.cameraWaits()) return;
+    const dialog = this.dialogs.open<CameraDialog, NeatChatPicture>(CameraDialog, {
+      title: 'Take a picture',
+      inputs: {},
+    });
+    void dialog.closed.then((picture) => {
+      if (!picture) return;
+      if (this.full()) {
+        revokePicture(picture);
+        this.note.set(`Up to ${this.maxPictures()} pictures`);
+        return;
+      }
+      this.pictures.update((pictures) => [...pictures, picture]);
+    });
+  }
 
   protected onRecorded(recording: Blob): void {
     // The heard question will fly out of the text area, where the waveform was.

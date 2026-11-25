@@ -1176,6 +1176,36 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "text",
+              "text": "The camera",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " ("
+            },
+            {
+              "kind": "code",
+              "text": "camera"
+            },
+            {
+              "kind": "text",
+              "text": "): a Camera button after Picture opens a dialog with the laptop camera's live preview and Take, which adds the frame to the draft as a picture (\"Photo from the camera\"). The button waits ("
+            },
+            {
+              "kind": "code",
+              "text": "aria-disabled"
+            },
+            {
+              "kind": "text",
+              "text": ") while the draft is full, while push-to-talk records and while the box is disabled. The camera stops as the dialog closes; a problem (\"Camera blocked\", \"No camera\") is said in the dialog. The camera exists only in a secure context (HTTPS or localhost)."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
               "kind": "code",
               "text": "text"
             },
@@ -1360,6 +1390,23 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "How many pictures a draft may hold."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "camera",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Shows a Camera button after Picture, which takes a photo with the laptop camera."
                 }
               ]
             }

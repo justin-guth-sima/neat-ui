@@ -58,6 +58,19 @@
         <neat-icon name="picture" />
         Picture
       </button>
+      @if (camera()) {
+        <button
+          neatButton
+          variant="text"
+          size="small"
+          type="button"
+          [attr.aria-disabled]="cameraWaits() ? 'true' : null"
+          (click)="openCamera()"
+        >
+          <neat-icon name="camera" />
+          Camera
+        </button>
+      }
       <input
         #files
         type="file"

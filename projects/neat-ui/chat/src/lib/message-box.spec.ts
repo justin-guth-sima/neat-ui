@@ -6,6 +6,8 @@ import {
   type NeatMessageBoxActivity,
   type NeatMessageBoxGlow,
 } from './message-box';
+import { NeatDialog } from '@sima/neat-ui/dialog';
+import { CameraDialog } from './camera/camera-dialog';
 import { CHAT_CLOCK } from './chat-clock';
 import type { NeatListeningMotion } from './push-to-talk';
 import type { NeatChatDraft, NeatChatPicture } from './types';
@@ -24,6 +26,7 @@ import { MIC_DEPS } from './voice/mic-deps';
     [(text)]="text"
     [(pictures)]="pictures"
     [talk]="talk()"
+    [camera]="camera()"
     [disabled]="disabled()"
     [transcribing]="transcribing()"
     [listeningMotion]="listeningMotion()"
@@ -41,6 +44,7 @@ class Host {
   readonly text = signal('');
   readonly pictures = signal<readonly NeatChatPicture[]>([]);
   readonly talk = signal(false);
+  readonly camera = signal(false);
   readonly disabled = signal(false);
   readonly transcribing = signal(false);
   readonly listeningMotion = signal<NeatListeningMotion>('level');
@@ -54,12 +58,18 @@ function image(name: string): File {
   return new File(['x'], name, { type: 'image/png' });
 }
 
+/** A dialog service whose dialogs close at once with what the spec says the camera took. */
+const photo: { next: NeatChatPicture | undefined } = { next: undefined };
+const fakeDialogs = { open: vi.fn(() => ({ closed: Promise.resolve(photo.next) })) };
+
 function render() {
   const mic = fakeMicDeps();
+  fakeDialogs.open.mockClear();
   TestBed.configureTestingModule({
     providers: [
       { provide: MIC_DEPS, useValue: mic.deps },
       { provide: CHAT_CLOCK, useValue: mic.clock },
+      { provide: NeatDialog, useValue: fakeDialogs },
     ],
   });
   const fixture = TestBed.createComponent(Host);
@@ -428,6 +438,76 @@ describe('NeatMessageBox', () => {
       expect(t.mic.mediaDevices.streams[0].stopped()).toBe(true);
       expect(t.host.recording()).toBe(false);
       expect(t.host.recordings).toEqual([]);
+    });
+  });
+
+  describe('the camera', () => {
+    const cameraButton = (element: HTMLElement) =>
+      [...element.querySelectorAll('button')].find(
+        (button) => button.textContent?.trim() === 'Camera',
+      );
+
+    it('camera shows the Camera button, and none without it', () => {
+      const { element, host, fixture } = render();
+      expect(cameraButton(element)).toBeUndefined();
+      host.camera.set(true);
+      fixture.detectChanges();
+      const camera = cameraButton(element)!;
+      expect(camera.querySelector('neat-icon')!.getAttribute('data-icon')).toBe('camera');
+      const row = [...element.querySelector('.row')!.children];
+      const picture = row.find((child) => child.textContent?.trim() === 'Picture')!;
+      expect(row.indexOf(camera)).toBeGreaterThan(row.indexOf(picture));
+    });
+
+    it("the dialog's picture joins the draft", async () => {
+      const { element, host, fixture } = render();
+      host.camera.set(true);
+      host.pictures.set([{ id: 'a', src: 'blob:a', name: 'a.png' }]);
+      fixture.detectChanges();
+      photo.next = { id: 'p', src: 'blob:p', name: 'Photo from the camera' };
+      cameraButton(element)!.click();
+      expect(fakeDialogs.open).toHaveBeenCalledWith(CameraDialog, {
+        title: 'Take a picture',
+        inputs: {},
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(host.pictures().map((picture) => picture.id)).toEqual(['a', 'p']);
+      expect(element.querySelectorAll('.thumb')).toHaveLength(2);
+    });
+
+    it('a canceled dialog adds nothing', async () => {
+      const { element, host, fixture } = render();
+      host.camera.set(true);
+      fixture.detectChanges();
+      photo.next = undefined;
+      cameraButton(element)!.click();
+      await fixture.whenStable();
+      expect(host.pictures()).toEqual([]);
+    });
+
+    it('the Camera button waits while recording or when the draft is full', async () => {
+      const t = render();
+      t.host.camera.set(true);
+      t.host.maxPictures.set(1);
+      t.host.pictures.set([{ id: 'a', src: 'blob:a', name: 'a.png' }]);
+      t.fixture.detectChanges();
+      expect(cameraButton(t.element)!.getAttribute('aria-disabled')).toBe('true');
+      cameraButton(t.element)!.click();
+      t.fixture.detectChanges();
+      expect(fakeDialogs.open).not.toHaveBeenCalled();
+      expect(t.element.querySelector('.note')!.textContent).toBe('Up to 1 pictures');
+      t.host.pictures.set([]);
+      t.fixture.detectChanges();
+      expect(cameraButton(t.element)!.getAttribute('aria-disabled')).toBeNull();
+      await t.record();
+      expect(cameraButton(t.element)!.getAttribute('aria-disabled')).toBe('true');
+      cameraButton(t.element)!.click();
+      expect(fakeDialogs.open).not.toHaveBeenCalled();
+      t.host.disabled.set(true);
+      t.fixture.detectChanges();
+      await t.settle();
+      expect(cameraButton(t.element)!.getAttribute('aria-disabled')).toBe('true');
     });
   });
 });
