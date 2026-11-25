@@ -31,7 +31,8 @@ const HELP: Record<MediaProblem, string> = {
  * The camera dialog the message box opens (its `camera`): the camera's live preview and Take,
  * which closes the dialog with a picture of the frame. The preview is not mirrored, so writing
  * held up to the camera reads as the board will see it. A problem is said in place of the
- * preview. The camera stops however the dialog closes. Internal to the message box.
+ * preview, also a camera that goes away while it shows. The camera stops however the dialog
+ * closes. Internal to the message box.
  */
 @Component({
   selector: 'neat-chat-camera-dialog',
@@ -61,6 +62,9 @@ export class CameraDialog {
       if ('problem' in opened) return this.problem.set(opened.problem);
       // Closed while the browser asked: the camera goes straight back.
       if (this.gone) return stopStream(opened.stream);
+      for (const track of opened.stream.getTracks()) {
+        track.addEventListener('ended', () => this.lost(opened.stream), { once: true });
+      }
       this.stream.set(opened.stream);
     });
     effect(() => {
@@ -73,6 +77,15 @@ export class CameraDialog {
       const stream = this.stream();
       if (stream) stopStream(stream);
     });
+  }
+
+  /** The camera went away (unplugged, taken by another program): said in place of the preview. */
+  private lost(stream: MediaStream): void {
+    if (this.stream() !== stream) return;
+    stopStream(stream);
+    this.stream.set(null);
+    this.ready.set(false);
+    this.problem.set('missing');
   }
 
   protected cancel(): void {

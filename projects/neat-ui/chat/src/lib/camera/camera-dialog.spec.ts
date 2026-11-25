@@ -159,4 +159,19 @@ describe('CameraDialog', () => {
     await t.settle();
     expect(blobs).toBe(1);
   });
+
+  it('a camera that goes away mid-preview says No camera, stops it and takes nothing', async () => {
+    const t = await open();
+    const stream = await t.play();
+    stream.tracks[0].end();
+    await t.settle();
+    expect(dialog()!.querySelector('video')).toBeNull();
+    expect(dialog()!.querySelector('neat-callout')!.textContent).toContain('No camera');
+    expect(stream.stopped()).toBe(true);
+    expect(button('Take').getAttribute('aria-disabled')).toBe('true');
+    button('Take').click();
+    await t.settle();
+    expect(blobs).toBe(0);
+    expect(t.result()).toBe('open');
+  });
 });
