@@ -20,6 +20,13 @@ describe('CameraDialog', () => {
     )!;
   const video = () => dialog()!.querySelector('video')!;
   let blobs: number;
+  // What the fakes replace, put back after each case: specs of other parts share this window.
+  const real = {
+    createObjectURL: URL.createObjectURL,
+    revokeObjectURL: URL.revokeObjectURL,
+    getContext: HTMLCanvasElement.prototype.getContext,
+    toBlob: HTMLCanvasElement.prototype.toBlob,
+  };
 
   beforeEach(() => {
     blobs = 0;
@@ -35,6 +42,10 @@ describe('CameraDialog', () => {
   });
 
   afterEach(() => {
+    URL.createObjectURL = real.createObjectURL;
+    URL.revokeObjectURL = real.revokeObjectURL;
+    HTMLCanvasElement.prototype.getContext = real.getContext;
+    HTMLCanvasElement.prototype.toBlob = real.toBlob;
     vi.unstubAllGlobals();
     document.querySelectorAll('.cdk-overlay-container').forEach((container) => container.remove());
   });
