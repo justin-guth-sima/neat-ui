@@ -108,6 +108,40 @@ describe('FrameLoop', () => {
     loop.destroy();
   });
 
+  it('calls stopped when the page shows after the motion it held back ran out', () => {
+    const h = host();
+    const loop = new FrameLoop(
+      h.deps,
+      () => undefined,
+      () => h.deps.clock.now() < 50,
+    );
+    h.setHidden(true);
+    loop.start();
+    h.frame(100);
+    h.setHidden(false);
+    expect(h.stops()).toBe(1);
+    expect(h.pending()).toBe(false);
+    h.setHidden(true);
+    h.setHidden(false);
+    expect(h.stops()).toBe(1);
+    loop.destroy();
+  });
+
+  it('calls stopped when a frame dropped while hidden was the last there was to move', () => {
+    const h = host();
+    const loop = new FrameLoop(
+      h.deps,
+      () => undefined,
+      () => h.deps.clock.now() < 50,
+    );
+    loop.start();
+    h.setHidden(true);
+    h.frame(100);
+    h.setHidden(false);
+    expect(h.stops()).toBe(1);
+    loop.destroy();
+  });
+
   it('works without a stopped callback', () => {
     const h = host();
     let left = 1;
