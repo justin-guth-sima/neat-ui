@@ -68,6 +68,24 @@ describe('HeardArrival', () => {
     expect(glyphs()).toHaveLength(0);
   });
 
+  it('renews the glyphs every 60 ms, and gives a letter that comes ahead one at once', () => {
+    let next = 0;
+    vi.spyOn(Math, 'random').mockImplementation(() => (next = (next + 0.137) % 1));
+    const t = render('ring-and-waveform', 'abcdefghijklmnopqrstuvwxyz');
+    const glyphs = () => t.letters().map((letter) => letter.dataset['glyph'] ?? '');
+    t.clock.frame(31); // step 1: two shown, ten glyphs
+    t.clock.frame(30); // step 2: renewed
+    const renewed = glyphs();
+    t.clock.frame(30); // step 3: two more shown, two new glyphs, the rest kept
+    const kept = glyphs();
+    expect(kept.slice(6, 14)).toEqual(renewed.slice(6, 14));
+    expect(kept[14]).not.toBe('');
+    expect(kept[15]).not.toBe('');
+    t.clock.frame(30); // step 4: renewed
+    expect(glyphs().slice(8, 16)).not.toEqual(kept.slice(8, 16));
+    vi.restoreAllMocks();
+  });
+
   it('every letter is in the text from the start, so the bubble never changes size', () => {
     const t = render('ring-and-waveform');
     expect(t.element.textContent).toBe('What is on this shelf?');

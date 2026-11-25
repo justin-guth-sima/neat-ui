@@ -21,6 +21,8 @@ export const HEARD_GLYPHS = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#$%&*';
 const STEP_MS = 30;
 const PER_STEP = 2;
 const AHEAD = 10;
+/** How many steps a glyph stays before it is renewed: every 60 ms, as the decrypt motion's noise. */
+const RENEW_EVERY = 2;
 /** Radial and in the message box: each word's delay after the last, and its own time (CSS). */
 const WORD_DELAY_MS = 70;
 const WORD_MS = 350;
@@ -150,7 +152,7 @@ class HeardEngine {
     else if (this.motion === 'in-message-box' && !this.flown) this.fly();
   }
 
-  /** Two more letters every 30 ms, the next ten as glyphs, renewed each step. */
+  /** Two more letters every 30 ms, the next ten as glyphs, renewed every 60 ms. */
   private decrypt(now: number): void {
     const step = Math.floor((now - this.startedAt) / STEP_MS);
     if (step === this.step) return;
@@ -162,9 +164,13 @@ class HeardEngine {
     }
     this.shown = shown;
     const end = Math.min(this.letters.length, shown + AHEAD);
+    // The glyphs are renewed every other step (60 ms): each renewal lays out the letters it
+    // changes, and the steps between only give the letters that came ahead their first glyph.
+    const renew = step % RENEW_EVERY === 0;
     for (let i = shown; i < end; i++) {
       const letter = this.letters[i];
       if (/\s/.test(letter.textContent ?? '')) continue;
+      if (!renew && letter.hasAttribute('data-glyph')) continue;
       letter.setAttribute(
         'data-glyph',
         HEARD_GLYPHS[Math.floor(Math.random() * HEARD_GLYPHS.length)],

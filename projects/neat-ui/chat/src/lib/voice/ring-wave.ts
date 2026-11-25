@@ -64,7 +64,8 @@ export class RingWaveEngine implements ListeningEngine {
     this.find();
     const now = this.deps.clock.now();
     const level = this.deps.level() ?? 0;
-    if (now >= this.nextSample) {
+    const sampled = now >= this.nextSample;
+    if (sampled) {
       this.history.copyWithin(0, 1);
       this.history[WAVE_BARS - 1] = level;
       // One level per frame at most: back in view the bars show the level now, with no catch-up.
@@ -76,6 +77,8 @@ export class RingWaveEngine implements ListeningEngine {
       this.ring.style.transform = `scale(${round(scale)})`;
       this.ring.style.opacity = String(round(1.6 - scale));
     }
+    // The bars move only when a level enters them.
+    if (!sampled) return;
     for (let i = 0; i < this.bars.length; i++) {
       this.bars[i].style.transform =
         `scaleY(${round((BAR_FLOOR + this.history[i] * BAR_RANGE) / BAR_FULL)})`;

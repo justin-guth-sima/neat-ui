@@ -49,6 +49,25 @@ describe('RingWaveEngine', () => {
     t.engine.destroy();
   });
 
+  it('writes the bars only when a level enters, not every frame', () => {
+    const t = setup();
+    let writes = 0;
+    const bar = t.bars[27];
+    let value = '';
+    Object.defineProperty(bar.style, 'transform', {
+      get: () => value,
+      set: (next: string) => {
+        writes++;
+        value = next;
+      },
+    });
+    t.setLevel(0.5);
+    t.engine.recording(true);
+    for (let i = 0; i < 6; i++) t.clock.frame(16); // 96 ms: levels at 16 and 64 ms
+    expect(writes).toBe(2);
+    t.engine.destroy();
+  });
+
   it('release collapses the bars and stops the frames once collapsed', () => {
     const t = setup();
     t.setLevel(0.8);
