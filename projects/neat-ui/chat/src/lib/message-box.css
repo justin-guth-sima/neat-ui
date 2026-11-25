@@ -1,0 +1,91 @@
+/*
+ * The frame is the box's 2px edge (the glow's, in the next step), the inner part its card: the
+ * look of the message box mockup the glow was chosen in.
+ */
+:host {
+  display: block;
+}
+
+.frame {
+  position: relative;
+  padding: 2px;
+  border-radius: calc(var(--radius) * 2 + 2px);
+  background: var(--border);
+}
+
+/* The text area draws no outline of its own: the box shows the focus around all of it. */
+.frame:has(.text:focus-visible) {
+  outline: var(--neat-focus-ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+
+.frame[data-dragging] {
+  background: var(--primary);
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  padding: var(--neat-space-3);
+  border-radius: calc(var(--radius) * 2);
+  background: var(--card);
+  --neat-surface: var(--card);
+}
+
+.thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--neat-space-2);
+}
+
+.thumb {
+  position: relative;
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+
+.remove {
+  position: absolute;
+  inset-block-start: calc(var(--neat-space-2) * -1);
+  inset-inline-end: calc(var(--neat-space-2) * -1);
+}
+
+.text {
+  width: 100%;
+  min-height: 1lh;
+  max-height: 8lh;
+  resize: none;
+  field-sizing: content;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--neat-text-base);
+}
+
+.text::placeholder {
+  color: var(--muted-foreground);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+}
+
+.note {
+  flex: 1 1 auto;
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+}
