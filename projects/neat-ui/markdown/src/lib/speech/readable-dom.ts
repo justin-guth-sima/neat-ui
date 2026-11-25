@@ -24,25 +24,24 @@ function skipped(element: Element): boolean {
 
 /** The readable text nodes under host, in order, with each one's readable start. */
 export function readableNodes(host: HTMLElement): ReadableNodes {
-  const document = host.ownerDocument;
-  const walker = document.createTreeWalker(host, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
-    acceptNode: (node) =>
-      node.nodeType === Node.ELEMENT_NODE
-        ? skipped(node as Element)
-          ? NodeFilter.FILTER_REJECT
-          : NodeFilter.FILTER_SKIP
-        : NodeFilter.FILTER_ACCEPT,
-  });
   const nodes: Text[] = [];
   const starts: number[] = [];
   let length = 0;
-  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-    const text = node as Text;
-    if (text.data.length === 0) continue;
-    nodes.push(text);
-    starts.push(length);
-    length += text.data.length;
-  }
+  // A walk by hand: a TreeWalker's filter would call back into script for every node.
+  const visit = (parent: Node) => {
+    for (let node = parent.firstChild; node; node = node.nextSibling) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node as Text;
+        if (text.data.length === 0) continue;
+        nodes.push(text);
+        starts.push(length);
+        length += text.data.length;
+      } else if (node.nodeType === Node.ELEMENT_NODE && !skipped(node as Element)) {
+        visit(node);
+      }
+    }
+  };
+  visit(host);
   return { nodes, starts: Int32Array.from(starts), length };
 }
 

@@ -598,7 +598,7 @@ for (const sentence of neatSpeakable(reply.text, { final: false })) {
 
 It reads what `neat-markdown` shows as prose, inline code included, and never code blocks, tables, pictures or raw HTML. A heading, a paragraph, a list item and a quote's text each end their sentence. Sentences end at `.`, `!`, `?` or `…` followed by a space (closing quotes and brackets kept with them; not after a decimal point, an initial or an abbreviation such as "e.g." or "z.B."), and at the CJK `。！？` with no space needed, so Japanese reads sentence by sentence.
 
-While a reply streams, pass `final: false`: the text is read as `neat-markdown` shows it then (half-finished Markdown closed ahead), and its last sentence is not `complete` until whitespace or another block follows it, so a paragraph before a streaming code block is complete. A complete sentence keeps its range and words as the text grows. Ranges count a line end as one character, as Markdown reads `\r\n`.
+While a reply streams, pass `final: false`: the text is read as `neat-markdown` shows it then (half-finished Markdown closed ahead), and its last sentence is not `complete` until whitespace or another block follows it, so a paragraph before a streaming code block is complete. A complete sentence keeps its range and words as the text grows, and a text read again as it grows costs only its newest blocks. Ranges count a line end as one character, as Markdown reads `\r\n`.
 
 ```ts
 neatSpeakable(text: string, options: NeatSpeakableOptions = {}): readonly NeatSpeakableSentence[]

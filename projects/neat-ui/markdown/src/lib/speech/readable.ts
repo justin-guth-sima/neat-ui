@@ -30,47 +30,75 @@ export interface ReadableBlock {
   readonly last: boolean;
 }
 
-/** The readable blocks of the Markdown blocks of `source`, in order. */
+/**
+ * What a finished Markdown block reads as, kept across renders: a finished block is the same
+ * object while the text grows, and so are its readable blocks, from the same readable offset.
+ */
+export type ReadableCache = WeakMap<
+  MarkdownBlock,
+  { readonly from: number; readonly blocks: readonly ReadableBlock[] }
+>;
+
+/**
+ * The readable blocks of the Markdown blocks of `source`, in order. With a `cache`, a finished
+ * block read before at the same readable offset is not read again.
+ */
 export function readableBlocks(
   blocks: readonly MarkdownBlock[],
   source: string,
+  cache?: ReadableCache,
 ): readonly ReadableBlock[] {
   const text = source.replace(/\r\n?/g, '\n');
-  const groups: { readonly leaves: Token[]; readonly markdown: number }[] = [];
-  blocks.forEach((block, index) => walkBlocks([block.token], index, groups));
   const out: ReadableBlock[] = [];
   let lastMarkdown = -1;
   let offset = 0;
-  let group = 0;
   blocks.forEach((block, index) => {
-    // One cursor per Markdown block: its leaves are found in its source, in order.
-    const cursor = { at: block.from };
-    for (; group < groups.length && groups[group].markdown === index; group++) {
-      const leaves: ReadableLeaf[] = [];
-      const from = offset;
-      for (const token of groups[group].leaves) {
-        if (!READ.has(token.type)) {
-          skip(token, text, cursor);
-          continue;
-        }
-        const leafText = textOf(token);
-        leaves.push({
-          token,
-          from: offset,
-          text: leafText,
-          sources: locate(token, leafText, text, cursor),
-        });
-        offset += leafText.length;
-      }
-      if (offset > from) {
-        out.push({ leaves, from, to: offset, last: false });
-        lastMarkdown = index;
-      }
+    const cached = block.final ? cache?.get(block) : undefined;
+    let read: readonly ReadableBlock[];
+    if (cached && cached.from === offset) {
+      read = cached.blocks;
+    } else {
+      read = readBlock(block, text, offset);
+      if (block.final) cache?.set(block, { from: offset, blocks: read });
+    }
+    if (read.length > 0) {
+      out.push(...read);
+      offset = read[read.length - 1].to;
+      lastMarkdown = index;
     }
   });
   // The last readable block is last only if no other Markdown block (a code block, say) follows.
   const last = out.at(-1);
   if (last && lastMarkdown === blocks.length - 1) out[out.length - 1] = { ...last, last: true };
+  return out;
+}
+
+/** One Markdown block's readable blocks, from readable offset `offset`. */
+function readBlock(block: MarkdownBlock, text: string, offset: number): ReadableBlock[] {
+  const groups: { readonly leaves: Token[]; readonly markdown: number }[] = [];
+  walkBlocks([block.token], 0, groups);
+  const out: ReadableBlock[] = [];
+  // One cursor per Markdown block: its leaves are found in its source, in order.
+  const cursor = { at: block.from };
+  for (const group of groups) {
+    const leaves: ReadableLeaf[] = [];
+    const from = offset;
+    for (const token of group.leaves) {
+      if (!READ.has(token.type)) {
+        skip(token, text, cursor);
+        continue;
+      }
+      const leafText = textOf(token);
+      leaves.push({
+        token,
+        from: offset,
+        text: leafText,
+        sources: locate(token, leafText, text, cursor),
+      });
+      offset += leafText.length;
+    }
+    if (offset > from) out.push({ leaves, from, to: offset, last: false });
+  }
   return out;
 }
 

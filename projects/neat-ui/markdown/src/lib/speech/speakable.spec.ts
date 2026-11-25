@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { marked } from 'marked';
+import { describe, expect, it, vi } from 'vitest';
 import { neatSpeakable, type NeatSpeakableSentence } from './speakable';
 
 /** Each sentence's words, and `(open)` after one that is not complete. */
@@ -110,6 +111,34 @@ describe('neatSpeakable', () => {
     ]);
     const [first, second] = neatSpeakable(text);
     expect([first.from, first.to, second.from, second.to]).toEqual([0, 16, 16, 31]);
+  });
+
+  it('reads a growing text without lexing it whole again on every call', () => {
+    const lexer = vi.spyOn(marked, 'lexer');
+    let lexed = 0;
+    lexer.mockImplementation(function (this: unknown, source: string, options?: unknown) {
+      lexed += source.length;
+      return (marked.Lexer.lex as (s: string, o?: unknown) => ReturnType<typeof marked.lexer>)(
+        source,
+        options,
+      );
+    });
+    // Twenty paragraphs of about 60 characters, read again with every piece.
+    const long = Array.from(
+      { length: 20 },
+      (_, i) => `Paragraph ${i} has a few words. And more.`,
+    ).join('\n\n');
+    const pieces = long.match(/\s+|\S+/g)!;
+    let text = '';
+    for (const piece of pieces) {
+      text += piece;
+      neatSpeakable(text, { final: false });
+    }
+    // Lexed whole each time, it would be about pieces × length / 2 characters; read from its
+    // live blocks, a few times their length a call.
+    expect(lexed).toBeLessThan(pieces.length * 300);
+    expect(lexed).toBeLessThan((pieces.length * long.length) / 3);
+    lexer.mockRestore();
   });
 
   it('gives nothing for an empty text or one with no words', () => {

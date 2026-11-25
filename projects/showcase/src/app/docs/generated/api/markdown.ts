@@ -1135,7 +1135,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " until whitespace or another block follows it, so a paragraph before a streaming code block is complete. A complete sentence keeps its range and words as the text grows. Ranges count a line end as one character, as Markdown reads "
+              "text": " until whitespace or another block follows it, so a paragraph before a streaming code block is complete. A complete sentence keeps its range and words as the text grows, and a text read again as it grows costs only its newest blocks. Ranges count a line end as one character, as Markdown reads "
             },
             {
               "kind": "code",

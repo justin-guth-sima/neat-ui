@@ -1,5 +1,5 @@
 import { MarkdownBlocks } from '../blocks';
-import { type ReadableBlock, readableBlocks } from './readable';
+import { type ReadableBlock, type ReadableCache, readableBlocks } from './readable';
 import { splitSentences } from './sentences';
 
 /** A sentence of a reply as read aloud speaks it. */
@@ -25,6 +25,14 @@ export interface NeatSpeakableOptions {
 }
 
 /**
+ * The last text read and what it read as: a text that grows (a reply streaming in, read again with
+ * each piece) is lexed only from its live blocks, its finished blocks read once, so a call costs
+ * what the newest blocks cost; any other text is read whole.
+ */
+const lexed = new MarkdownBlocks();
+const readable: ReadableCache = new WeakMap();
+
+/**
  * The sentences a reply is read aloud in, from its Markdown text: each one's words without the
  * Markdown and its range in the text, so what an app speaks and what `neat-markdown`'s `speech`
  * lights are the same characters.
@@ -44,8 +52,9 @@ export interface NeatSpeakableOptions {
  * While a reply streams, pass `final: false`: the text is read as `neat-markdown` shows it then
  * (half-finished Markdown closed ahead), and its last sentence is not `complete` until whitespace
  * or another block follows it, so a paragraph before a streaming code block is complete. A
- * complete sentence keeps its range and words as the text grows. Ranges count a line end as one
- * character, as Markdown reads `\r\n`.
+ * complete sentence keeps its range and words as the text grows, and a text read again as it
+ * grows costs only its newest blocks. Ranges count a line end as one character, as Markdown reads
+ * `\r\n`.
  */
 export function neatSpeakable(
   text: string,
@@ -54,7 +63,7 @@ export function neatSpeakable(
   const final = options.final ?? true;
   const maxLength = options.maxLength ?? Number.POSITIVE_INFINITY;
   const source = text.replace(/\r\n?/g, '\n');
-  const blocks = readableBlocks(new MarkdownBlocks().update(source, !final), source);
+  const blocks = readableBlocks(lexed.update(source, !final), source, readable);
   const sentences: NeatSpeakableSentence[] = [];
   for (const block of blocks) {
     const { spoken, sources } = spokenOf(block, source);

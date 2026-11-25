@@ -307,7 +307,8 @@
 /*
  * Karaoke (`speakingMotion`): the equalizer stands in a gutter at the line's end, kept with or
  * without speech so the text never reflows, moved by its engine to the line of the fill's head.
- * The moments mockup's: four 3px bars in --primary, from 3 to 13px, each on its own beat.
+ * The moments mockup's: four 3px bars in --primary, from 3 to 13px, each on its own beat, which
+ * the engine draws (none under reduced motion, where there is no eq).
  */
 :host([data-speaking-motion='karaoke']) {
   padding-inline-end: 1.5rem;
@@ -331,28 +332,4 @@
   background: var(--primary);
   transform: scaleY(calc(3 / 13));
   transform-origin: bottom;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .speech-eq i {
-    animation: speech-eq 0.5s ease-in-out infinite alternate;
-  }
-
-  .speech-eq i:nth-child(2) {
-    animation-delay: 0.15s;
-  }
-
-  .speech-eq i:nth-child(3) {
-    animation-delay: 0.3s;
-  }
-
-  .speech-eq i:nth-child(4) {
-    animation-delay: 0.1s;
-  }
-}
-
-@keyframes speech-eq {
-  to {
-    transform: scaleY(1);
-  }
 }

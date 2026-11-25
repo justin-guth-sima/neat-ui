@@ -575,6 +575,25 @@ describe('NeatMarkdown speech', () => {
     expect(t.lit('ahead')).toBe(' More text and more.');
   });
 
+  it('a render that only grows the text after the sentence keeps its ranges and extends what is ahead', () => {
+    let text = 'The sentence here.\n\nMore';
+    const t = speaking(text, 'karaoke', true);
+    t.set({ speech: sayAll(text, 'The sentence here.') });
+    clock.frame(16);
+    const said = [...registry.get('neat-speech-said')!];
+    expect(t.lit('ahead')).toBe('More');
+    for (const piece of [' text', ' and', ' more.']) {
+      text += piece;
+      t.set({ text });
+      clock.frame(16);
+    }
+    const now = [...registry.get('neat-speech-said')!];
+    expect(now.length).toBe(said.length);
+    expect(now.every((range, i) => range === said[i])).toBe(true);
+    expect(t.lit('said')).toBe('The sentence here.');
+    expect(t.lit('ahead')).toBe('More text and more.');
+  });
+
   it('a range past the text, or inside a code block, lights nothing', () => {
     const text = 'Run:\n\n```\nprint(1)\n```\n\nDone.';
     const t = speaking(text);

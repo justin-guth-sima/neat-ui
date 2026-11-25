@@ -23,7 +23,7 @@ import { runMotionEngine } from './motion/engine';
 import { MOTION_CLOCK } from './motion/motion-clock';
 import type { ShownPiece } from './motion/shown';
 import { type NeatTextMotion, TEXT_MOTIONS } from './motion/text-motions';
-import { readableBlocks, readableRange } from './speech/readable';
+import { type ReadableCache, readableBlocks, readableRange } from './speech/readable';
 import {
   type NeatSpeakingMotion,
   type NeatSpeech,
@@ -225,6 +225,7 @@ export class NeatMarkdown {
       stopped: () => undefined,
     };
     let engine: SpeechHighlight | null = null;
+    const readable: ReadableCache = new WeakMap();
     afterRenderEffect({
       mixedReadWrite: () => {
         const speech = this.speech();
@@ -239,7 +240,7 @@ export class NeatMarkdown {
           }
           engine ??= new SpeechHighlight(deps);
           engine.update({
-            range: readableRange(readableBlocks(blocks, text), speech.from, speech.to),
+            range: readableRange(readableBlocks(blocks, text, readable), speech.from, speech.to),
             startedAt: speech.startedAt,
             durationMs: speechDurationMs(speech.audio),
             motion: motion === 'waveform' ? 'sentence' : motion,

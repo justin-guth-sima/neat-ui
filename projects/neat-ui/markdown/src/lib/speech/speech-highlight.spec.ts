@@ -79,6 +79,188 @@ describe('SpeechHighlight', () => {
     expect(t.eq.style.transform).toBe('translateY(30px)');
   });
 
+  it('an update reads no layout: the eq moves on the next frame', () => {
+    const t = setup();
+    t.engine.update({
+      range: FIRST,
+      startedAt: t.clock.now() - 650,
+      durationMs: 1000,
+      motion: 'karaoke',
+      still: false,
+    });
+    const reads = vi.fn();
+    const box = Range.prototype.getBoundingClientRect;
+    Range.prototype.getBoundingClientRect = function (this: Range) {
+      reads();
+      return box.call(this);
+    };
+    t.engine.update({
+      range: FIRST,
+      startedAt: t.clock.now() - 650,
+      durationMs: 1000,
+      motion: 'karaoke',
+      still: false,
+    });
+    expect(reads).not.toHaveBeenCalled();
+    expect(t.lit('said')).toBe('Hello there my');
+    t.clock.frame(16);
+    expect(reads).toHaveBeenCalled();
+    expect(t.eq.style.transform).toBe('translateY(30px)');
+  });
+
+  it("measures the sentence's lines in one go, not each time the head moves", () => {
+    const t = setup();
+    const reads = vi.fn();
+    const box = Range.prototype.getBoundingClientRect;
+    Range.prototype.getBoundingClientRect = function (this: Range) {
+      reads();
+      return box.call(this);
+    };
+    t.engine.update({
+      range: FIRST,
+      startedAt: t.clock.now(),
+      durationMs: 1000,
+      motion: 'karaoke',
+      still: false,
+    });
+    t.clock.frame(100);
+    const first = reads.mock.calls.length;
+    expect(first).toBeGreaterThan(0);
+    for (let i = 0; i < 20; i++) t.clock.frame(40);
+    expect(reads.mock.calls.length).toBe(first);
+    expect(t.eq.style.transform).toBe('translateY(30px)');
+    // A render of the same sentence keeps what was measured; another sentence measures again.
+    t.engine.update({
+      range: FIRST,
+      startedAt: t.clock.now(),
+      durationMs: 1000,
+      motion: 'karaoke',
+      still: false,
+    });
+    t.clock.frame(100);
+    expect(reads.mock.calls.length).toBe(first);
+    t.engine.update({
+      range: { from: 22, to: 35 },
+      startedAt: t.clock.now(),
+      durationMs: 1000,
+      motion: 'karaoke',
+      still: false,
+    });
+    t.clock.frame(100);
+    expect(reads.mock.calls.length).toBeGreaterThan(first);
+  });
+
+  it("the eq's bars beat on the engine's frames, each on its own, and rest once the sentence is said", () => {
+    const t = setup();
+    const bars = [...t.eq.querySelectorAll('i')];
+    const scales = () =>
+      bars.map((bar) => Number(/scaleY\(([^)]+)\)/.exec(bar.style.transform)?.[1]));
+    t.engine.update({
+      range: FIRST,
+      startedAt: t.clock.now(),
+      durationMs: 1000,
+      motion: 'karaoke',
+      still: false,
+    });
+    t.clock.frame(400);
+    const first = scales();
+    expect(new Set(first).size).toBe(4);
+    for (const scale of first) {
+      expect(scale).toBeGreaterThanOrEqual(3 / 13 - 1e-6);
+      expect(scale).toBeLessThanOrEqual(1 + 1e-6);
+    }
+    t.clock.frame(100);
+    expect(scales()).not.toEqual(first);
+    // Bar 1 starts its beat at 0 ms: at 0.5 s it is at its tallest, at 1 s back at its lowest.
+    t.engine.update({
+      range: FIRST,
+      startedAt: t.clock.now() - 500,
+      durationMs: 10_000,
+      motion: 'karaoke',
+      still: false,
+    });
+    t.clock.frame(16);
+    expect(scales()[0]).toBeGreaterThan(0.95);
+    t.engine.update({
+      range: FIRST,
+      startedAt: t.clock.now() - 9000,
+      durationMs: 1000,
+      motion: 'karaoke',
+      still: false,
+    });
+    t.clock.frame(16);
+    const resting = scales();
+    t.clock.frame(100);
+    expect(scales()).toEqual(resting);
+    expect(t.clock.pending()).toBe(false);
+  });
+
+  it('measures again when the reply gets another width, not when it grows taller', () => {
+    const observers: ResizeObserverCallback[] = [];
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: ResizeObserverCallback) {
+          observers.push(callback);
+        }
+        observe = () => undefined;
+        disconnect = () => undefined;
+      },
+    );
+    const t = setup();
+    const reads = vi.fn();
+    const box = Range.prototype.getBoundingClientRect;
+    Range.prototype.getBoundingClientRect = function (this: Range) {
+      reads();
+      return box.call(this);
+    };
+    const resize = (width: number, height: number) =>
+      observers[0](
+        [{ contentRect: { width, height } } as ResizeObserverEntry],
+        {} as ResizeObserver,
+      );
+    t.engine.update({
+      range: FIRST,
+      startedAt: t.clock.now(),
+      durationMs: 1000,
+      motion: 'karaoke',
+      still: false,
+    });
+    resize(300, 100);
+    t.clock.frame(100);
+    const first = reads.mock.calls.length;
+    resize(300, 140);
+    t.clock.frame(100);
+    expect(reads.mock.calls.length).toBe(first);
+    resize(260, 140);
+    t.clock.frame(100);
+    expect(reads.mock.calls.length).toBeGreaterThan(first);
+  });
+
+  it('after the sentence is said, a render still places the eq once', () => {
+    const t = setup();
+    t.engine.update({
+      range: FIRST,
+      startedAt: t.clock.now() - 5000,
+      durationMs: 1000,
+      motion: 'karaoke',
+      still: false,
+    });
+    t.clock.frame(16);
+    expect(t.eq.style.transform).toBe('translateY(30px)');
+    t.eq.style.transform = '';
+    t.engine.update({
+      range: FIRST,
+      startedAt: t.clock.now() - 5000,
+      durationMs: 1000,
+      motion: 'karaoke',
+      still: false,
+    });
+    t.clock.frame(16);
+    expect(t.eq.style.transform).toBe('translateY(30px)');
+    expect(t.clock.pending()).toBe(false);
+  });
+
   it('word by word lights the word that holds the letter at u, and leaves later words pending', () => {
     const t = setup();
     t.engine.update({
